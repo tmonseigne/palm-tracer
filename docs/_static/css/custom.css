@@ -1,0 +1,33 @@
+.wy-nav-content {
+    max-width: 1200px !important;
+}
+
+.test-page table.docutils.align-default th:nth-child(2),
+.test-page table.docutils.align-default td:nth-child(2) {
+    text-align: center;
+}
+
+.test-page details {
+    margin-bottom: 1em;
+}
+
+.test-page details > summary {
+  padding: 2px 6px;
+  width: 100%;
+  background-color: #ddd;
+  border: none;
+  box-shadow: 3px 3px 4px black;
+  cursor: pointer;
+}
+
+.test-page details > pre {
+  border-radius: 0 0 10px 10px;
+  background-color: #ddd;
+  padding: 1em 2em 1em 2em;
+  margin: 0;
+  box-shadow: 3px 3px 4px black;
+}
+
+.test-page details[open] > summary {
+  background-color: #ccf;
+}
