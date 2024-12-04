@@ -1,8 +1,11 @@
 # palm-tracer
+
+<!-- Badges allowed on public repository
 ![GitHub License](https://img.shields.io/github/license/tmonseigne/palm-tracer)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/tmonseigne/palm-tracer/test_and_deploy.yml)](https://github.com/tmonseigne/palm-tracer/actions)
-[![codecov](https://codecov.io/gh/tmonseigne/palm-tracer/branch/master/graph/badge.svg)](https://codecov.io/gh/tmonseigne/palm-tracer)
-
+![GitHub top language](https://img.shields.io/github/languages/top/tmonseigne/Sample-Maker)
+[![codecov](https://codecov.io/gh/tmonseigne/palm-tracer/graph/badge.svg)](https://codecov.io/gh/tmonseigne/palm-tracer)
+-->
 
 <!-- PyPi and napari Badges
 [![License GNU GPL v3.0](https://img.shields.io/pypi/l/palm-tracer.svg?color=green)](https://github.com/tmonseigne/palm-tracer/raw/main/LICENSE)
@@ -27,9 +30,15 @@ https://napari.org/stable/plugins/index.html
 
 ## Installation
 
+You can install dependencies via :
+
+    python -m pip install .[testing,documentation]
+
+<!--
 You can install `palm-tracer` via [pip]:
 
     pip install palm-tracer
+-->
 
 ## Contributing
 

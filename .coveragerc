@@ -1,0 +1,17 @@
+[coverage:run]
+branch = True
+
+[coverage:report]
+# Exclure toutes les lignes de code dans les fichiers de test, exemples, le main et les init
+omit =
+    src/palm_tracer/_tests/*
+    examples/*
+    main.py
+    **/__init__.py
+
+exclude_lines =
+    # Ces commentaires excluent des lignes spécifiques si elles sont détectées
+    pragma: no cover
+
+exclude_also =
+    if platform.system()

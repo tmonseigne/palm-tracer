@@ -1,7 +1,7 @@
 [project]
 name = "palm-tracer"
 dynamic = ["version"]
-description = "A  plugin to use PALMTracer in napari"
+description = "PALMTracer is an all-in-one software package for the analysis of single molecule localization microscopy (SMLM) data."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 requires-python = ">=3.9"
@@ -37,8 +38,18 @@ testing = [
     "pytest",  # https://docs.pytest.org/en/latest/contents.html
     "pytest-cov",  # https://pytest-cov.readthedocs.io/en/latest/
     "pytest-qt",  # https://pytest-qt.readthedocs.io/en/latest/
+    "pytest-json",
+    "pytest-json-report",
+    "pytest-metadata",
     "napari",
     "pyqt5",
+]
+
+documentation = [
+    "sphinx",
+    "sphinx-autobuild",
+    "sphinx-rtd-theme",
+    "ansi2html",
 ]
 
 [project.entry-points."napari.manifest"]
