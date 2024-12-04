@@ -3,7 +3,7 @@ display_name: PALMTracer
 # use 'hidden' to remove plugin from napari hub search results, 'public' to add this
 visibility: hidden
 # see https://napari.org/stable/plugins/manifest.html for valid categories
-categories: ["Annotation", "Segmentation", "Acquisition"]
+categories: [ "Annotation", "Segmentation", "Acquisition" ]
 contributions:
   commands:
     - id: palm-tracer.get_reader
@@ -33,14 +33,14 @@ contributions:
   readers:
     - command: palm-tracer.get_reader
       accepts_directories: false
-      filename_patterns: ['*.npy']
+      filename_patterns: [ '*.npy' ]
   writers:
     - command: palm-tracer.write_multiple
-      layer_types: ['image*','labels*']
-      filename_extensions: []
+      layer_types: [ 'image*','labels*' ]
+      filename_extensions: [ ]
     - command: palm-tracer.write_single_image
-      layer_types: ['image']
-      filename_extensions: ['.npy']
+      layer_types: [ 'image' ]
+      filename_extensions: [ '.npy' ]
   sample_data:
     - command: palm-tracer.make_sample_data
       display_name: PALMTracer

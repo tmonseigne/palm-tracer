@@ -35,9 +35,9 @@ jobs:
     strategy:
       fail-fast: false  # Continue other jobs if one matrix fail
       matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ ubuntu-latest, windows-latest, macos-latest ]
         #python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-        python-version: ["3.13"]
+        python-version: [ "3.13" ]
 
     steps:
       - name: Checkout code
@@ -86,7 +86,7 @@ jobs:
     # this will run when you have tagged a commit, starting with "v*"
     # and requires that you have put your twine API key in your GitHub secrets (see readme for details)
     name: Build and Publish on Twine
-    needs: [test]
+    needs: [ test ]
     runs-on: ubuntu-latest
     if: contains(github.ref, 'tags')
     steps:
@@ -114,7 +114,7 @@ jobs:
 
   Doc:
     name: Build and Deploy Sphinx Documentation
-    needs: [test]
+    needs: [ test ]
     runs-on: ubuntu-latest
 
     steps:
