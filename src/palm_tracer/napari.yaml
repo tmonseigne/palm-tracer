@@ -1,0 +1,57 @@
+name: palm-tracer
+display_name: PALMTracer
+# use 'hidden' to remove plugin from napari hub search results, 'public' to add this
+visibility: hidden
+# see https://napari.org/stable/plugins/manifest.html for valid categories
+categories: ["Annotation", "Segmentation", "Acquisition"]
+contributions:
+  commands:
+    - id: palm-tracer.get_reader
+      python_name: palm_tracer._reader:napari_get_reader
+      title: Open data with PALMTracer
+    - id: palm-tracer.write_multiple
+      python_name: palm_tracer._writer:write_multiple
+      title: Save multi-layer data with PALMTracer
+    - id: palm-tracer.write_single_image
+      python_name: palm_tracer._writer:write_single_image
+      title: Save image data with PALMTracer
+    - id: palm-tracer.make_sample_data
+      python_name: palm_tracer._sample_data:make_sample_data
+      title: Load sample data from PALMTracer
+    - id: palm-tracer.make_container_widget
+      python_name: palm_tracer:ImageThreshold
+      title: Make threshold Container widget
+    - id: palm-tracer.make_magic_widget
+      python_name: palm_tracer:threshold_magic_widget
+      title: Make threshold magic widget
+    - id: palm-tracer.make_function_widget
+      python_name: palm_tracer:threshold_autogenerate_widget
+      title: Make threshold function widget
+    - id: palm-tracer.make_qwidget
+      python_name: palm_tracer:ExampleQWidget
+      title: Make example QWidget
+  readers:
+    - command: palm-tracer.get_reader
+      accepts_directories: false
+      filename_patterns: ['*.npy']
+  writers:
+    - command: palm-tracer.write_multiple
+      layer_types: ['image*','labels*']
+      filename_extensions: []
+    - command: palm-tracer.write_single_image
+      layer_types: ['image']
+      filename_extensions: ['.npy']
+  sample_data:
+    - command: palm-tracer.make_sample_data
+      display_name: PALMTracer
+      key: unique_id.1
+  widgets:
+    - command: palm-tracer.make_container_widget
+      display_name: Container Threshold
+    - command: palm-tracer.make_magic_widget
+      display_name: Magic Threshold
+    - command: palm-tracer.make_function_widget
+      autogenerate: true
+      display_name: Autogenerate Threshold
+    - command: palm-tracer.make_qwidget
+      display_name: Example QWidget
