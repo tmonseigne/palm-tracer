@@ -36,7 +36,8 @@ jobs:
       fail-fast: false  # Continue other jobs if one matrix fail
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        #python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.13"]
 
     steps:
       - name: Checkout code
@@ -74,9 +75,12 @@ jobs:
         env:
           PLATFORM: ${{ matrix.platform }}
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage reports to Codecov
         if: matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.13'
         uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: tmonseigne/palm-tracer
 
   deploy:
     # this will run when you have tagged a commit, starting with "v*"
