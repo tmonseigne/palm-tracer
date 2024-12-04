@@ -28,7 +28,7 @@ concurrency:
 
 
 jobs:
-  test:
+  Test:
     name: Tests on ${{ matrix.platform }} for Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 30
@@ -58,10 +58,6 @@ jobs:
           git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
 
-      # note: if you need dependencies from conda, considering using
-      # setup-miniconda: https://github.com/conda-incubator/setup-miniconda
-      # and
-      # tox-conda: https://github.com/tox-dev/tox-conda
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -82,16 +78,50 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: tmonseigne/palm-tracer
 
-  deploy:
-    # this will run when you have tagged a commit, starting with "v*"
-    # and requires that you have put your twine API key in your GitHub secrets (see readme for details)
-    name: Build and Publish on Twine
-    needs: [ test ]
+  Documentation:
+    name: Build and Deploy Sphinx Documentation
+    needs: [ Test ]
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'tags')
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .[testing,documentation]
+
+      - name: Build documentation
+        run: sphinx-build -b html docs/ docs/_build/html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload documentation to GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'docs/_build/html'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  #deploy:
+  #  # this will run when you have tagged a commit, starting with "v*"
+  #  # and requires that you have put your twine API key in your GitHub secrets (see readme for details)
+  #  name: Build and Publish on Twine
+  #  needs: [ Test ]
+  #  runs-on: ubuntu-latest
+  #  if: contains(github.ref, 'tags')
+  #  steps:
+  #    - name: Checkout code
+  #      uses: actions/checkout@v4
 
   #    - name: Set up Python
   #      uses: actions/setup-python@v5
@@ -111,22 +141,3 @@ jobs:
   #        git tag
   #        python -m build .
   #        twine upload dist/*
-
-  Doc:
-    name: Build and Deploy Sphinx Documentation
-    needs: [ test ]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install setuptools tox tox-gh-actions
