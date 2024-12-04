@@ -7,14 +7,15 @@ repos:
       - id: trailing-whitespace
         exclude: ^\.napari-hub/.*
       - id: check-yaml # checks for correct yaml syntax for github actions ex.
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.1
-    hooks:
-      - id: ruff
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
-    hooks:
-      - id: black
+  # I'm not agree with PEP8
+  #  - repo: https://github.com/astral-sh/ruff-pre-commit
+  #    rev: v0.8.1
+  #    hooks:
+  #      - id: ruff
+  #  - repo: https://github.com/psf/black
+  #    rev: 24.10.0
+  #    hooks:
+  #      - id: black
   - repo: https://github.com/tlambert03/napari-plugin-checks
     rev: v0.3.0
     hooks:

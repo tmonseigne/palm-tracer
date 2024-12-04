@@ -3,53 +3,53 @@ name = "palm-tracer"
 dynamic = ["version"]
 description = "PALMTracer is an all-in-one software package for the analysis of single molecule localization microscopy (SMLM) data."
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 authors = [
-  {name = "Thibaut Monseigne"},
-  {email = "thibaut.monseigne@u-bordeaux.fr"},
+	{ name = "Thibaut Monseigne" },
+	{ email = "thibaut.monseigne@u-bordeaux.fr" },
 ]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Framework :: napari",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Scientific/Engineering :: Image Processing",
+	"Development Status :: 2 - Pre-Alpha",
+	"Framework :: napari",
+	"Intended Audience :: Developers",
+	"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3 :: Only",
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Topic :: Scientific/Engineering :: Image Processing",
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "numpy",
-    "magicgui",
-    "qtpy",
-    "scikit-image",
+	"numpy",
+	"magicgui",
+	"qtpy",
+	"scikit-image",
 ]
 
 [project.optional-dependencies]
 testing = [
-    "tox",
-    "pytest",  # https://docs.pytest.org/en/latest/contents.html
-    "pytest-cov",  # https://pytest-cov.readthedocs.io/en/latest/
-    "pytest-qt",  # https://pytest-qt.readthedocs.io/en/latest/
-    "pytest-json",
-    "pytest-json-report",
-    "pytest-metadata",
-    "napari",
-    "pyqt5",
+	"tox",
+	"pytest", # https://docs.pytest.org/en/latest/contents.html
+	"pytest-cov", # https://pytest-cov.readthedocs.io/en/latest/
+	"pytest-qt", # https://pytest-qt.readthedocs.io/en/latest/
+	"pytest-json",
+	"pytest-json-report",
+	"pytest-metadata",
+	"napari",
+	"pyqt5",
 ]
 
 documentation = [
-    "sphinx",
-    "sphinx-autobuild",
-    "sphinx-rtd-theme",
-    "ansi2html",
+	"sphinx",
+	"sphinx-autobuild",
+	"sphinx-rtd-theme",
+	"ansi2html",
 ]
 
 [project.entry-points."napari.manifest"]
@@ -82,44 +82,44 @@ target-version = ['py38', 'py39', 'py310']
 [tool.ruff]
 line-length = 79
 lint.select = [
-    "E", "F", "W", #flake8
-    "UP", # pyupgrade
-    "I", # isort
-    "BLE", # flake8-blind-exception
-    "B", # flake8-bugbear
-    "A", # flake8-builtins
-    "C4", # flake8-comprehensions
-    "ISC", # flake8-implicit-str-concat
-    "G", # flake8-logging-format
-    "PIE", # flake8-pie
-    "SIM", # flake8-simplify
+	"E", "F", "W", #flake8
+	"UP", # pyupgrade
+	"I", # isort
+	"BLE", # flake8-blind-exception
+	"B", # flake8-bugbear
+	"A", # flake8-builtins
+	"C4", # flake8-comprehensions
+	"ISC", # flake8-implicit-str-concat
+	"G", # flake8-logging-format
+	"PIE", # flake8-pie
+	"SIM", # flake8-simplify
 ]
 lint.ignore = [
-    "E501", # line too long. let black handle this
-    "UP006", "UP007", # type annotation. As using magicgui require runtime type annotation then we disable this.
-    "SIM117", # flake8-simplify - some of merged with statements are not looking great with black, reanble after drop python 3.9
+	"E501", # line too long. let black handle this
+	"UP006", "UP007", # type annotation. As using magicgui require runtime type annotation then we disable this.
+	"SIM117", # flake8-simplify - some of merged with statements are not looking great with black, reanble after drop python 3.9
 ]
 
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".mypy_cache",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "*vendored*",
-    "*_vendor*",
+	".bzr",
+	".direnv",
+	".eggs",
+	".git",
+	".mypy_cache",
+	".pants.d",
+	".ruff_cache",
+	".svn",
+	".tox",
+	".venv",
+	"__pypackages__",
+	"_build",
+	"buck-out",
+	"build",
+	"dist",
+	"node_modules",
+	"venv",
+	"*vendored*",
+	"*_vendor*",
 ]
 
 target-version = "py38"
