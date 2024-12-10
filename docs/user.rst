@@ -34,7 +34,7 @@ Il inclut des instructions pour les débutants, avec des options supplémentaire
    - Tapez la commande suivante :console:`python --version` et appuyez sur **Entrée**
 
 .. note::
-			Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
+   Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
 
 
 Étape 3 : Création d'un environnement virtuel (optionnel)
@@ -43,12 +43,12 @@ Il inclut des instructions pour les débutants, avec des options supplémentaire
 Un environnement virtuel permet de gérer les dépendances du projet de manière isolée.
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Créez un environnement virtuel avec la commande suivante :console:`python -m venv venv`
 3. Activez l'environnement virtuel :
 
-	- Sous Windows : :console:`.\venv\Scripts\activate`
-	- Sous macOS/Linux : :console:`source venv/bin/activate`
+   - Sous Windows : :console:`.\venv\Scripts\activate`
+   - Sous macOS/Linux : :console:`source venv/bin/activate`
 
 4. Vous verrez maintenant :console:`(venv)` au début de votre invite de commande, indiquant que l'environnement virtuel est actif.
 
@@ -57,23 +57,23 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Assurez-vous que l'environnement virtuel est activé si vous le souhaitez (voir Étape 3).
 3. Installez les dépendances nécessaires avec la commande : :console:`python -m pip install .[testing,documentation]`
 
 .. note::
-			Les élements supplémentaires tel que testing installent :console:`Napari` entre autre éléments si vous ne l'avait pas déjà.
+   Les élements supplémentaires tel que testing installent :console:`Napari` entre autre éléments si vous ne l'avait pas déjà.
 
 Étape 5 : Lancement du plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Assurez-vous que l'environnement virtuel est activé si vous le souhaitez (voir Étape 3).
 3. Lancez :console:`Napari` avec la commande : :console:`napari`
 
 .. note::
-			Si vous n'avez pas créé d'environnement virtuel, :console:`Napari` peut être lancé depuis n'importe où.
+   Si vous n'avez pas créé d'environnement virtuel, :console:`Napari` peut être lancé depuis n'importe où.
 
 4. Activez le plugin dans :console:`Napari` : :menuselection:`Plugins --> PALMTracer`
 
