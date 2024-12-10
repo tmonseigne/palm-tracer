@@ -7,7 +7,7 @@ import shutil
 import sys
 
 # Ajout du chemin vers le dossier palm_tracer
-sys.path.insert(0, os.path.abspath("../src/palm_tracer"))
+sys.path.insert(0, os.path.abspath("../palm_tracer"))
 
 # -- Project information -----------------------------------------------------
 
