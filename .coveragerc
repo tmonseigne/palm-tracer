@@ -5,7 +5,7 @@ source = palm_tracer  # Analyse seulement ce module
 [coverage:report]
 # Exclure toutes les lignes de code dans les fichiers de test, exemples, le main et les init
 omit =
-    src/palm_tracer/_tests/*
+    palm_tracer/_tests/*
     examples/*
     main.py
     conftest.py

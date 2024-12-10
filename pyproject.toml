@@ -73,22 +73,23 @@ build-backend = "setuptools.build_meta"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["src"]
+include = ["palm_tracer"]
+exclude = ["docs"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
 
 
 [tool.setuptools_scm]
-write_to = "src/palm_tracer/_version.py"
+write_to = "palm_tracer/_version.py"
 
 
 [tool.black]
-line-length = 79
+line-length = 160
 target-version = ['py38', 'py39', 'py310']
 
 [tool.ruff]
-line-length = 79
+line-length = 160
 lint.select = [
 	"E", "F", "W", #flake8
 	"UP", # pyupgrade
@@ -130,5 +131,5 @@ exclude = [
 	"*_vendor*",
 ]
 
-target-version = "py38"
+target-version = "py310"
 fix = true
