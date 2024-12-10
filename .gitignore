@@ -148,3 +148,4 @@ cython_debug/
 ****REMOVED***output/**
 *reports/**
 *tests/reports/**
+*.docx
