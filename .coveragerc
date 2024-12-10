@@ -8,6 +8,7 @@ omit =
     src/palm_tracer/_tests/*
     examples/*
     main.py
+    conftest.py
     ****REMOVED***__init__.py
 
 exclude_lines =
