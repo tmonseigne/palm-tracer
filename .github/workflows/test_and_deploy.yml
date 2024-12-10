@@ -61,15 +61,41 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install setuptools tox tox-gh-actions
+          python -m pip install setuptools tox tox-gh-actions ansi2html
 
       # this runs the platform-specific tests declared in tox.ini
-      - name: Test with tox
+      - name: Run tests with tox
         uses: aganders3/headless-gui@v2
         with:
           run: python -m tox
         env:
           PLATFORM: ${{ matrix.platform }}
+
+      # Tox too long try without
+      #- name: Install dependencies
+      #  run: |
+      #    python -m pip install --upgrade pip
+      #    python -m pip install .[testing]
+
+      #- name: Run tests with pytest
+      #  uses: aganders3/headless-gui@v2
+      #  with:
+      #    run: python -m pytest
+
+      - name: Manage Test Reports
+        run: |
+          python ./docs/tools/pytest_json_to_rst.py ./reports/test_report.json ./reports/test_report_ci_${{ matrix.platform }}_${{ matrix.python-version }}.rst
+          mv ./reports/monitoring.html ./reports/monitoring_ci_${{ matrix.platform }}_${{ matrix.python-version }}.html
+        continue-on-error: true  # Permet de continuer même si cette étape échoue
+
+      - name: Upload Test Reports as Artifacts
+        uses: actions/upload-artifact@v3  # Limiter à V3 pour le moment la V4 est bugué
+        with:
+          name: reports
+          path: |
+            reports/test_report_ci_*.rst
+            reports/monitoring_ci_*.html
+        continue-on-error: true  # Permet de continuer même si cette étape échoue
 
       - name: Upload coverage reports to Codecov
         if: matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.13'
@@ -95,7 +121,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install .[testing,documentation]
+          python -m pip install .[documentation]
+
+      - name: Download Test Reports
+        uses: actions/download-artifact@v3
+        with:
+          name: reports
+          path: docs/reports/
 
       - name: Build documentation
         run: sphinx-build -b html docs/ docs/_build/html

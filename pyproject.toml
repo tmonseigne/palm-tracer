@@ -34,7 +34,7 @@ dependencies = [
 	# Dépendances pour les graphiques
 	"plotly",
 	"kaleido",
-	# Dépendances pour les infos cross-platform
+	# Dépendances pour les infos cross platform
 	"psutil",
 	"py-cpuinfo",
 	"GPUtil",
@@ -57,7 +57,7 @@ documentation = [
 	"sphinx",
 	"sphinx-autobuild",
 	"sphinx-rtd-theme",
-	"ansi2html",
+	"ansi2html", # Utile pour transformer les rapports
 ]
 
 [project.entry-points."napari.manifest"]

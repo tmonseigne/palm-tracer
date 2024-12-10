@@ -7,6 +7,7 @@ import shutil
 import sys
 
 # Ajout du chemin vers le dossier palm_tracer
+sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(0, os.path.abspath("../palm_tracer"))
 
 # -- Project information -----------------------------------------------------
@@ -64,4 +65,4 @@ def copy_dir(source, dest):
 		# Copie récursivement les fichiers du dossier source vers le dossier de destination.
 		shutil.copytree(source, dest, dirs_exist_ok=True)
 
-# copy_dir('Reports', '_build/html/Reports')
+copy_dir('reports', '_build/html/reports')
