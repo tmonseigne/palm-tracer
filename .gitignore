@@ -148,3 +148,4 @@ cython_debug/
 **/output/**
 *reports/**
 *tests/reports/**
+*.docx
