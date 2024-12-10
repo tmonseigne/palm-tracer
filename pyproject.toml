@@ -26,10 +26,18 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
+	"colorama",
 	"numpy",
 	"magicgui",
 	"qtpy",
 	"scikit-image",
+	# Dépendances pour les graphiques
+	"plotly",
+	"kaleido",
+	# Dépendances pour les infos cross-platform
+	"psutil",
+	"py-cpuinfo",
+	"GPUtil",
 ]
 
 [project.optional-dependencies]

@@ -1,6 +1,7 @@
 # palm-tracer
 
 [![codecov](https://codecov.io/gh/tmonseigne/palm-tracer/graph/badge.svg?token=5oDCSBI5sO)](https://codecov.io/gh/tmonseigne/palm-tracer)
+[![Documentation Status](https://img.shields.io/badge/Documentation-Online-brightgreen)](https://tmonseigne.github.io/palm-tracer/)
 
 <!-- Badges allowed on public repository
 ![GitHub License](https://img.shields.io/github/license/tmonseigne/palm-tracer)
