@@ -19,3 +19,5 @@ PALMTracer est un logiciel tout-en-un pour l'analyse des données de microscopie
    license
    cdc
    api/modules
+   todo
+   tests
