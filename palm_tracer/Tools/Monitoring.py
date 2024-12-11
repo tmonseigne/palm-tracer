@@ -146,7 +146,7 @@ class Monitoring:
 		"""
 		Ajoute des informations sur un test dans la liste des tests.
 
-		:param name: Le nom complet du test, au format "Tests/test_<file>.py::test_<test_name>".
+		:param name: Le nom complet du test, au format "<path>test_<file>.py::test_<test_name>".
 		"""
 		match = re.match(r".*test_(.*)\.py::test_(.*)", name)
 		if match:
