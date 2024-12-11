@@ -84,7 +84,7 @@ def get_files_info(src: str, monitoring_ext: str="html") -> list[str]:
 	"""
 	file_basename = os.path.splitext(os.path.basename(src))[0]
 	title = to_title_case(file_basename)
-	monitoring_file = file_basename.replace("Test_Report", "Monitoring") + f".{monitoring_ext}"
+	monitoring_file = file_basename.replace("test_report", "monitoring") + f".{monitoring_ext}"
 	return [title, monitoring_file]
 
 
@@ -125,8 +125,8 @@ def get_summary(data: dict) -> str:
 
 	res += (f"{summary.get("collected", 0)} tests collected, "
 			f"{summary.get("passed", 0)} passed ✅, {summary.get("failed", 0)} failed ❌ "
-			f"in {duration}s on {date} at {time}\n")
-	return res + "\n"
+			f"in {duration}s on {date} at {time}\n\n")
+	return res
 
 
 ##################################################
@@ -177,7 +177,7 @@ def get_tests(tests: list) -> str:
 		res += f"{title}\n{underline}\n\n"
 
 		# Ajouter le tableau
-		res += (".. list-table:: \n"
+		res += (".. list-table::\n"
 				"   :header-rows: 1\n\n"
 				"   * - Test Name\n"
 				"     - Status\n"

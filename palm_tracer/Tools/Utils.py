@@ -1,5 +1,5 @@
 """
-Fichier de fonctions génériques pour la gestion des fichiers, l'affichage de messages colorés dans la console,
+Fichier de fonctions génériques pour la gestion des fichiers, l'affichage de messages colorés dans la console
 et la manipulation d'images matricielles, comme l'ajout de grilles.
 
 Ce module regroupe des utilitaires pour des tâches courantes et est structuré en plusieurs sections :
