@@ -1,10 +1,11 @@
-palm_tracer package
-====================
+PALMTracer API Reference
+========================
 
-Module contents
----------------
+.. toctree::
+   :maxdepth: 2
 
-.. automodule:: palm_tracer
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   palm_tracer.Settings
+   palm_tracer.Tools
+
+.. toctree::
+   :maxdepth: 1

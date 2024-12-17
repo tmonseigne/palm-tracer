@@ -6,7 +6,7 @@
 <!-- Badges allowed on public repository
 ![GitHub License](https://img.shields.io/github/license/tmonseigne/palm-tracer)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/tmonseigne/palm-tracer/test_and_deploy.yml)](https://github.com/tmonseigne/palm-tracer/actions)
-![GitHub top language](https://img.shields.io/github/languages/top/tmonseigne/Sample-Maker)
+![GitHub top language](https://img.shields.io/github/languages/top/tmonseigne/palm-tracer)
 -->
 
 <!-- PyPi and napari Badges
