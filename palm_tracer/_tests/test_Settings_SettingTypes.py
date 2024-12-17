@@ -22,10 +22,18 @@ def initialize():
 
 
 ###################################################
-def setting_base_test(setting: SettingTypes.BaseSettingType, change, default_expected, change_expected):
+def setting_base_test(setting: SettingTypes.BaseSettingType, change, default_expected):
+	"""
+	Tests de base pour un paramètre
+
+	:param setting: Paramètre à tester
+	:param change: Valeur à changer
+	:param default_expected: Valeur attendue par défaut
+	"""
+
 	assert setting.get_value() == default_expected, "Valeur par défaut non valide."
 	setting.set_value(change)
-	assert setting.get_value() == change_expected, "Valeur défini non valide."
+	assert setting.get_value() == change, "Valeur défini non valide."
 	setting.reset()
 	assert setting.get_value() == default_expected, "Valeur par défaut non valide."
 
@@ -33,7 +41,6 @@ def setting_base_test(setting: SettingTypes.BaseSettingType, change, default_exp
 ###################################################
 def test_base_setting():
 	""" Test basique de la classe abstraite """
-	app = initialize()
 	setting = SettingTypes.BaseSettingType("Test")
 	with pytest.raises(NotImplementedError) as exception_info: setting.get_value()
 	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
@@ -50,7 +57,7 @@ def test_int_setting():
 	""" Test basique de la classe (constructeur, getter, setter) """
 	app = initialize()
 	setting = SettingTypes.IntSetting("Test", 0, 10, 1, 1)
-	setting_base_test(setting, 5, 1, 5)
+	setting_base_test(setting, 5, 1)
 	assert True
 
 
@@ -59,7 +66,7 @@ def test_float_setting():
 	""" Test basique de la classe (constructeur, getter, setter) """
 	app = initialize()
 	setting = SettingTypes.FloatSetting("Test", 0.0, 10.0, 1.0, 1.0)
-	setting_base_test(setting, 5.0, 1.0, 5.0)
+	setting_base_test(setting, 5.0, 1.0)
 	assert True
 
 
@@ -68,7 +75,7 @@ def test_check_setting():
 	""" Test basique de la classe (constructeur, getter, setter) """
 	app = initialize()
 	setting = SettingTypes.CheckSetting(label="Test")
-	setting_base_test(setting, True, False, True)
+	setting_base_test(setting, True, False)
 	assert True
 
 
@@ -77,7 +84,7 @@ def test_combo_setting():
 	""" Test basique de la classe (constructeur, getter, setter) """
 	app = initialize()
 	setting = SettingTypes.ComboSetting(label="Test", choices=["Choix 1", "Choix 2"])
-	setting_base_test(setting, 1, 0, 1)
+	setting_base_test(setting, 1, 0)
 	assert True
 
 
@@ -86,5 +93,5 @@ def test_file_setting():
 	""" Test basique de la classe (constructeur, getter, setter) """
 	app = initialize()
 	setting = SettingTypes.FileSetting(label="Test")
-	setting_base_test(setting, "filename.extension", "", "filename.extension")
+	setting_base_test(setting, "filename.extension", "")
 	assert True

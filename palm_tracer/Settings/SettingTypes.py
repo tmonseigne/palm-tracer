@@ -42,7 +42,7 @@ class BaseSettingType:
 	"""
 
 	label: str = ""
-	_layout: QFormLayout = field(init=False, default_factory=QFormLayout)
+	_layout: QFormLayout = field(init=False)
 
 	##################################################
 	def __post_init__(self):
@@ -80,7 +80,7 @@ class BaseSettingType:
 	##################################################
 	def initialize(self):
 		""" Initialise le paramètre. """
-		self._layout = QFormLayout()
+		self._layout = QFormLayout(None)
 		self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 
 	##################################################
@@ -114,7 +114,7 @@ class IntSetting(BaseSettingType):
 	default: int = 0
 	step: int = 1
 	value: int = field(init=False, default=0)
-	box: QSpinBox = field(init=False, default_factory=QSpinBox)
+	box: QSpinBox = field(init=False)
 
 	##################################################
 	def get_value(self) -> int:
@@ -129,7 +129,7 @@ class IntSetting(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()									# Appelle l'initialisation de la classe mère.
-		self.box = QSpinBox()									# Création de la boite.
+		self.box = QSpinBox(None)								# Création de la boite.
 		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)		# Définir l'alignement du calque à gauche.
 		self.box.setRange(self.min, self.max)					# Définition du min, max.
 		self.box.setSingleStep(self.step)						# Définition du pas à chaque appuie sur une flèche.
@@ -157,7 +157,7 @@ class FloatSetting(BaseSettingType):
 	step: float = 1.0
 	precision: int = 2
 	value: float = field(init=False, default=0.0)
-	box: QDoubleSpinBox = field(init=False, default_factory=QDoubleSpinBox)
+	box: QDoubleSpinBox = field(init=False)
 
 	##################################################
 	def get_value(self) -> float:
@@ -172,7 +172,7 @@ class FloatSetting(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()							   # Appelle l'initialisation de la classe mère.
-		self.box = QDoubleSpinBox()						   # Création de la boite.
+		self.box = QDoubleSpinBox(None)					   # Création de la boite.
 		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 		self.box.setRange(self.min, self.max)			   # Définition du min, max.
 		self.box.setSingleStep(self.step)	 			   # Définition du pas à chaque appuie sur une flèche.
@@ -236,7 +236,7 @@ class ComboSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type Liste déroulante. """
 	choices: List[str] = field(default_factory=lambda: ["No Setting"])
 	value: int = field(init=False, default=0)
-	box: QComboBox = field(init=False, default_factory=QComboBox)
+	box: QComboBox = field(init=False)
 
 	##################################################
 	def get_value(self) -> int:
@@ -251,7 +251,7 @@ class ComboSetting(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()  			 # Appelle l'initialisation de la classe mère.
-		self.box = QComboBox()			 # Création de la boite.
+		self.box = QComboBox(None)		 # Création de la boite.
 		self.box.setFixedWidth(150)		 # Réduire la largeur de la boite.
 		self.box.addItems(self.choices)  # Ajout des choix possibles.
 		self.set_value(0)		 		 # Définition de la valeur.
@@ -273,7 +273,7 @@ class ComboSetting(BaseSettingType):
 class FileSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type Ouverture de fichier. """
 	value: str = field(init=False, default="")
-	box: QLineEdit = field(init=False, default_factory=QLineEdit)  # Boîte de texte pour afficher le chemin
+	box: QLineEdit = field(init=False)  # Boîte de texte pour afficher le chemin
 
 	##################################################
 	def get_value(self) -> str:
