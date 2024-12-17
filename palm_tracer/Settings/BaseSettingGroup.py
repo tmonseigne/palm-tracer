@@ -108,7 +108,7 @@ class BaseSettingGroup:
 		"""
 		msg = ""
 		for key, setting in self._settings.items():
-			msg += f"{line_prefix}- {key} : {setting.label} ({setting.get_value()})\n"
+			msg += f"{line_prefix}- {key} : {setting.get_value()}\n"
 		return msg
 
 	##################################################

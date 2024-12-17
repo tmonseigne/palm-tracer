@@ -1,8 +1,30 @@
 import numpy as np
 
+from palm_tracer import PALMTracerWidget
 from palm_tracer._widget import ExampleQWidget, ImageThreshold, threshold_autogenerate_widget, threshold_magic_widget
 
 
+##################################################
+def test_widget_creation(make_napari_viewer, capsys):
+	""" Test basique de création du widget. """
+	viewer = make_napari_viewer()					# Créer un viewer à l'aide de la fixture.
+	viewer.add_image(np.random.random((256, 256)))  # Ajouter une image
+	my_widget = PALMTracerWidget(viewer)			# Créer notre widget, en passant par le viewer.
+	assert True
+
+
+##################################################
+def test_widget_on_click(make_napari_viewer, capsys):
+	""" Test click sur le bouton. """
+	viewer = make_napari_viewer()					# Créer un viewer à l'aide de la fixture.
+	viewer.add_image(np.random.random((256, 256)))  # Ajouter une image
+	my_widget = PALMTracerWidget(viewer)			# Créer notre widget, en passant par le viewer.
+	my_widget.on_click()							# Appel de la méthode on_click
+	# captured = capsys.readouterr() # Lire la sortie capturée
+	assert True
+
+
+##################################################
 def test_threshold_autogenerate_widget():
 	# because our "widget" is a pure function, we can call it and
 	# test it independently of napari

@@ -8,7 +8,10 @@ from ._sample_data import make_sample_data
 from ._widget import ExampleQWidget, ImageThreshold, threshold_autogenerate_widget, threshold_magic_widget
 from ._writer import write_multiple, write_single_image
 
+from .widget import PALMTracerWidget
+
 __all__ = ("napari_get_reader", "make_sample_data",
 		   "write_single_image", "write_multiple",
 		   "ExampleQWidget", "ImageThreshold", "threshold_autogenerate_widget", "threshold_magic_widget",
-		   "Tools")
+		   "PALMTracerWidget",
+		   "Settings", "Tools")
