@@ -1,4 +1,4 @@
-""" Tests pour la génération de pattern """
+""" Fichier des tests pour les fonctions utilitaires """
 
 from palm_tracer.Tools.Utils import add_extension, add_suffix, get_timestamp_for_files, print_error, print_warning
 

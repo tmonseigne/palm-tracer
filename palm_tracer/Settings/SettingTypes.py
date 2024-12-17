@@ -5,7 +5,7 @@ Ce module définit la classe abstraite `BaseSettingType`, qui sert de base pour 
 Les sous-classes permettent de gérer des paramètres spécifiques tels que les entiers, les flottants et les listes déroulantes.
 Ces classes sont utilisées pour créer et configurer des widgets de paramètres dans une interface graphique.
 
-Classes :
+**Classes** :
 
     - Setting : Classe de base pour un paramètre d'interface utilisateur.
     - CheckSetting : Paramètre de type Check box.

@@ -1,18 +1,8 @@
 """
-Fichier contenant la classe `BaseSettingGroup` et ses sous-classes pour la gestion des paramètres d'interface utilisateur.
+Fichier contenant la classe `BaseSettingGroup` et ses sous-classes pour la gestion des groupes de paramètres.
 
-Ce module définit la classe abstraite `BaseSettingType`, qui sert de base pour la création de différents types de paramètres dans une interface utilisateur Qt.
-Les sous-classes permettent de gérer des paramètres spécifiques tels que les entiers, les flottants et les listes déroulantes.
-Ces classes sont utilisées pour créer et configurer des widgets de paramètres dans une interface graphique.
+Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 
-Classes :
-
-    - Setting : Classe de base pour un paramètre d'interface utilisateur.
-    - CheckSetting : Paramètre de type Check box.
-    - ComboSetting : Paramètre de type liste déroulante avec options.
-    - FileSetting : Paramètre de type ouverture de fichier.
-    - FloatSetting : Paramètre de type flottant (float).
-    - IntSetting : Paramètre de type entier (integer).
 """
 
 from dataclasses import dataclass, field

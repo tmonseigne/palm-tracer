@@ -2,7 +2,7 @@
 Fichier contenant la classe `Calibration` dérivée de `BaseSettingGroup`, qui regroupe les paramètres de calibration nécessaires
 à la configuration de PALM Tracer.
 
-Attributs de la classe Calibration :
+**Attributs de la classe Calibration** :
 
 - **Pixel Size (IntSetting)** : Taille d'un pixel en nanomètres.
   - Plage : [1, 500] nm

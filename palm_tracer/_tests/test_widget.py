@@ -1,3 +1,5 @@
+""" Fichier des tests pour le widget """
+
 import numpy as np
 
 from palm_tracer import PALMTracerWidget

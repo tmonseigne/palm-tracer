@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'interface utilisateur. """
+""" Fichier des tests pour l'ensemble des paramètres. """
 
 import sys
 from pathlib import Path

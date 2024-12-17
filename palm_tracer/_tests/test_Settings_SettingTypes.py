@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'interface utilisateur. """
+""" Fichier des tests pour les différents types de paramètres. """
 
 import sys
 

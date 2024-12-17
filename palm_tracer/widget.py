@@ -16,10 +16,19 @@ if TYPE_CHECKING:
 	import napari
 
 
+##################################################
 class PALMTracerWidget(QWidget):
-	# your QWidget.__init__ can optionally request the napari viewer instance
-	# use a type annotation of 'napari.viewer.Viewer' for any parameter
+	""" Widget principal gérant toute l'interface """
+
+	##################################################
 	def __init__(self, viewer: "napari.viewer.Viewer"):
+		"""
+		Initialise le widget principal de l'interface utilisateur.
+
+		Cette méthode configure l'interface en ajoutant différentes sections de paramètres dans la mise en page.
+
+		:param viewer: Viewer napari.
+		"""
 		super().__init__()
 		self.viewer = viewer
 		self.settings = Settings()
@@ -30,6 +39,8 @@ class PALMTracerWidget(QWidget):
 		self.setLayout(QHBoxLayout())
 		self.layout().addWidget(btn)
 
+	##################################################
 	def on_click(self):
+		""" Action lors d'un clic """
 		print(f"napari has {len(self.viewer.layers)} layers")
 		print(self.settings)

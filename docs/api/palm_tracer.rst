@@ -9,3 +9,5 @@ PALMTracer API Reference
 
 .. toctree::
    :maxdepth: 1
+
+   palm_tracer.widget

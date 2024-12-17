@@ -32,6 +32,7 @@ dependencies = [
 	"qtpy",
 	"scikit-image",
 	# Dépendances pour les graphiques
+	"pandas",
 	"plotly",
 	"kaleido",
 	# Dépendances pour les infos cross platform
@@ -57,6 +58,7 @@ documentation = [
 	"sphinx",
 	"sphinx-autobuild",
 	"sphinx-rtd-theme",
+	"pyqt5",
 	"ansi2html", # Utile pour transformer les rapports
 ]
 
