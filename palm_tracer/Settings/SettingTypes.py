@@ -1,7 +1,7 @@
 """
-Fichier contenant la classe `Setting` et ses sous-classes pour la gestion des paramètres d'interface utilisateur.
+Fichier contenant la classe `BaseSettingType` et ses sous-classes pour la gestion des paramètres d'interface utilisateur.
 
-Ce module définit la classe abstraite `Setting`, qui sert de base pour la création de différents types de paramètres dans une interface utilisateur PyQt5.
+Ce module définit la classe abstraite `BaseSettingType`, qui sert de base pour la création de différents types de paramètres dans une interface utilisateur Qt.
 Les sous-classes permettent de gérer des paramètres spécifiques tels que les entiers, les flottants et les listes déroulantes.
 Ces classes sont utilisées pour créer et configurer des widgets de paramètres dans une interface graphique.
 
