@@ -6,11 +6,14 @@ Elle contient des sections de paramètres organisées sous forme de layout,
 permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
 """
 
+import ctypes
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
 from palm_tracer.Settings import Settings
+from palm_tracer.Tools import print_warning
 
 if TYPE_CHECKING:
 	import napari
@@ -32,12 +35,26 @@ class PALMTracerWidget(QWidget):
 		super().__init__()
 		self.viewer = viewer
 		self.settings = Settings()
+		self.dll = dict[str, ctypes.CDLL]()
+		self._get_dll()
 
 		btn = QPushButton("Start Processing")
 		btn.clicked.connect(self.on_click)
 
 		self.setLayout(QHBoxLayout())
 		self.layout().addWidget(btn)
+
+	##################################################
+	def _get_dll(self):
+		""" Récupère les DLLs si elles existent. """
+		dll_path = Path(__file__).parent / "DLL"
+
+		# for name in ["CPU", "GPU", "Live", "Tracking"]:
+		# GPU et Live n'arrivent pas à se charger (sans doute une dépendance caché autre), elles sont retirés pour le moment.
+		for name in ["CPU", "Tracking"]:
+			dll_filename = dll_path / f"{name}_PALM.dll"
+			if dll_filename.exists(): self.dll[name] = ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
+			else: print_warning(f"Le fichier DLL '{dll_filename}' est introuvable.")
 
 	##################################################
 	def on_click(self):
