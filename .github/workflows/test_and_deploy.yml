@@ -1,7 +1,7 @@
 # This workflows will upload a Python Package using Twine when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
-name: PALMTracer Test and Deploy
+name: PALM Tracer Test and Deploy
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - master
       - npe2
     tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+      - "v*" # Push events to matching v*, i.e., v1.0, v20.15.10
   pull_request:
     branches:
       - master
@@ -48,10 +48,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set up QT For Linux (libxcb, x11...)
+      - name: Set up QT for Linux (libxcb, x11...)
         uses: tlambert03/setup-qt-libs@v1
 
-      # strategy borrowed from vispy for installing opengl libs on windows
+      # strategy borrowed from vispy for installing OpenGL libs on windows
       - name: Install Windows OpenGL
         if: runner.os == 'Windows'
         run: |

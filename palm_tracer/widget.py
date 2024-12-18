@@ -15,8 +15,7 @@ from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
 from palm_tracer.Settings import Settings
 from palm_tracer.Tools import print_warning
 
-if TYPE_CHECKING:
-	import napari
+if TYPE_CHECKING: import napari  # pragma: no cover
 
 
 ##################################################
@@ -36,7 +35,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer = viewer
 		self.settings = Settings()
 		self.dll = dict[str, ctypes.CDLL]()
-		self._get_dll()
+		self._load_dll()
 
 		btn = QPushButton("Start Processing")
 		btn.clicked.connect(self.on_click)
@@ -45,12 +44,12 @@ class PALMTracerWidget(QWidget):
 		self.layout().addWidget(btn)
 
 	##################################################
-	def _get_dll(self):
+	def _load_dll(self): # pragma: no cover
 		""" Récupère les DLLs si elles existent. """
 		dll_path = Path(__file__).parent / "DLL"
 
 		# for name in ["CPU", "GPU", "Live", "Tracking"]:
-		# GPU et Live n'arrivent pas à se charger (sans doute une dépendance caché autre), elles sont retirés pour le moment.
+		# GPU et Live n'arrivent pas à se charger (sans doute une dépendance caché autre), elles sont retirées pour le moment.
 		for name in ["CPU", "Tracking"]:
 			dll_filename = dll_path / f"{name}_PALM.dll"
 			if dll_filename.exists(): self.dll[name] = ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))

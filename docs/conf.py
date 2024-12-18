@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.abspath("../palm_tracer"))
 
 # -- Project information -----------------------------------------------------
 
-project = "PALMTracer"
+project = "PALM Tracer"
 copyright = "2024, Thibaut Monseigne"
 author = "Thibaut Monseigne"
 language = "fr"

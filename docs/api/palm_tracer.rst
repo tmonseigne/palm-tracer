@@ -1,5 +1,5 @@
-PALMTracer API Reference
-========================
+PALM Tracer API Reference
+=========================
 
 .. toctree::
    :maxdepth: 2

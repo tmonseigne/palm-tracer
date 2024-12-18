@@ -1,4 +1,4 @@
-""" Fichier permettant de transformer un rapport pytest json en reStructuredText pour sphinx """
+""" Fichier permettant de transformer un rapport Pytest JSON en reStructuredText pour sphinx """
 
 import datetime
 import json
@@ -52,9 +52,9 @@ def format_duration(duration: float) -> str:
 ##################################################
 def generate_rst_from_json(src: str, dst: str):
 	"""
-	Génère un fichier reStructuredText à partir d'un rapport pytest en format JSON.
+	Génère un fichier reStructuredText à partir d'un rapport Pytest en format JSON.
 
-	:param src: Chemin du fichier JSON contenant les résultats de pytest.
+	:param src: Chemin du fichier JSON contenant les résultats de Pytest.
 	:param dst: Chemin du fichier de sortie reStructuredText.
 	"""
 	try:
@@ -140,7 +140,7 @@ def get_monitoring(file: str) -> str:
 	res = ("Monitoring\n"
 		   "----------\n\n")
 
-	# Le Json pourrait être intégré avec chart, mais ne marche pas. Iframe est utilisé à la place.
+	# Le JSON pourrait être intégré avec chart, mais ne marche pas. Iframe est utilisé à la place.
 	# res += f".. chart:: Reports/{file}\n\n    Resources Monitoring\n\n"
 	res += (f".. raw:: html\n\n"
 			f"   <div style=\"position: relative; width: 100%; height: 620px; max-width: 100%; margin: 0 0 1em 0; padding:0;\">\n"

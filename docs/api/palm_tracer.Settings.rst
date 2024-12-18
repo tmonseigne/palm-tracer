@@ -1,7 +1,7 @@
 palm\_tracer.Settings
 =====================
 
-Ce sous-package contient l'ensemble des classes de paramètres pour le projet PALMTracer.
+Ce sous-package contient l'ensemble des classes de paramètres pour le projet PALM Tracer.
 
 .. toctree::
    :maxdepth: 1

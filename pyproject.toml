@@ -1,7 +1,7 @@
 [project]
 name = "palm-tracer"
 dynamic = ["version"]
-description = "PALMTracer is an all-in-one software package for the analysis of single molecule localization microscopy (SMLM) data."
+description = "PALM Tracer is an all-in-one software package for the analysis of single molecule localization microscopy (SMLM) data."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -35,7 +35,7 @@ dependencies = [
 	"pandas",
 	"plotly",
 	"kaleido",
-	# Dépendances pour les infos cross platform
+	# Dépendances pour les infos cross plateforme
 	"psutil",
 	"py-cpuinfo",
 	"GPUtil",

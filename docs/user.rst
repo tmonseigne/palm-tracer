@@ -1,5 +1,5 @@
-Guide de l'utilisateur de PALMTracer
-====================================
+Guide de l'utilisateur de PALM Tracer
+=====================================
 
 .. role:: python(code)
    :language: python
@@ -62,7 +62,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 3. Installez les dépendances nécessaires avec la commande : :console:`python -m pip install .[testing,documentation]`
 
 .. note::
-   Les élements supplémentaires tel que testing installent :console:`Napari` entre autre éléments si vous ne l'avait pas déjà.
+   Les éléments supplémentaires tels que testing installent :console:`Napari` entre autres éléments si vous ne l'aviez pas déjà.
 
 Étape 5 : Lancement du plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -75,7 +75,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 .. note::
    Si vous n'avez pas créé d'environnement virtuel, :console:`Napari` peut être lancé depuis n'importe où.
 
-4. Activez le plugin dans :console:`Napari` : :menuselection:`Plugins --> PALMTracer`
+4. Activez le plugin dans :console:`Napari` : :menuselection:`Plugins --> PALM Tracer`
 
 C'est terminé ! 🎉 Vous avez installé et configuré le plugin avec succès.
 

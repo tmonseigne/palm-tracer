@@ -1,6 +1,6 @@
 name: palm-tracer
-display_name: PALMTracer
-# use 'hidden' to remove plugin from napari hub search results, 'public' to add this
+display_name: PALM Tracer
+# use 'hidden' to remove plugin from Napari hub search results, 'public' to add this
 visibility: hidden
 # see https://napari.org/stable/plugins/manifest.html for valid categories
 categories: [ "Image Processing", "Visualization" ]

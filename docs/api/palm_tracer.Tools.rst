@@ -1,7 +1,7 @@
 palm\_tracer.Tools
 ==================
 
-Ce sous-package contient des outils utilitaires pour le projet PALMTracer.
+Ce sous-package contient des outils utilitaires pour le projet PALM Tracer.
 
 .. toctree::
    :maxdepth: 1

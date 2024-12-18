@@ -1,7 +1,7 @@
 .. Sample Maker documentation master file.
 
-PALMTracer pour Napari
-======================
+PALM Tracer pour Napari
+=======================
 
 
 .. image:: https://codecov.io/gh/tmonseigne/palm-tracer/graph/badge.svg?token=5oDCSBI5sO
@@ -16,7 +16,7 @@ PALMTracer pour Napari
    :target: https://github.com/tmonseigne/palm-tracer
    :alt: GitHub
 
-PALMTracer est un logiciel tout-en-un pour l'analyse des données de microscopie de localisation de molécules uniques (SMLM).
+PALM Tracer est un logiciel tout-en-un pour l'analyse des données de microscopie et de localisation de molécules uniques (SMLM).
 
 
 .. toctree::
