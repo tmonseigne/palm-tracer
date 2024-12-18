@@ -6,6 +6,7 @@ Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour
 """
 
 from dataclasses import dataclass, field
+from typing import Union
 
 from palm_tracer.Settings.SettingTypes import BaseSettingType
 
@@ -19,8 +20,8 @@ class BaseSettingGroup:
 	Attributs :
 		- **_settings (dict[str, BaseSettingType])** : Liste des settings du groupe
 	"""
-
-	_settings: dict[str, BaseSettingType] = field(init=False)
+	activate: bool = field(init=False, default=False)
+	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 
 	# ==================================================
 	# region Initialization
@@ -33,7 +34,7 @@ class BaseSettingGroup:
 	##################################################
 	def initialize(self):
 		""" Initialise le dictionnaire de paramètres. """
-		self._settings = dict[str, BaseSettingType]()
+		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
 
 	##################################################
 	def reset(self):
@@ -54,12 +55,12 @@ class BaseSettingGroup:
 		return list(self._settings.keys())
 
 	##################################################
-	def __getitem__(self, key: str) -> BaseSettingType:
+	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:
 		""" Surcharge de l'opérateur [] """
 		return self._settings[key]
 
 	##################################################
-	#def __setitem__(self, key: str, value: BaseSettingType):
+	# def __setitem__(self, key: str, value: BaseSettingType):
 	#	""" Surcharge pour assigner une valeur avec [] """
 	#	self._settings[key] = value
 
@@ -96,9 +97,11 @@ class BaseSettingGroup:
 		:param line_prefix: Préfixe de chaque ligne (par exemple pour ajouter une indentation)
 		:return: Une description textuelle des paramètres.
 		"""
-		msg = ""
+		msg = f"{line_prefix}- Activate : {self.activate}\n"
 		for key, setting in self._settings.items():
-			msg += f"{line_prefix}- {key} : {setting.get_value()}\n"
+			if isinstance(setting, BaseSettingGroup):
+				msg += f"{line_prefix}- {key} :\n{setting.tostring(f"{line_prefix}  ")}"
+			else: msg += f"{line_prefix}- {key} : {setting.get_value()}\n"
 		return msg
 
 	##################################################

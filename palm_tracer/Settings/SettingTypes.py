@@ -234,7 +234,7 @@ class CheckSetting(BaseSettingType):
 @dataclass
 class ComboSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type Liste déroulante. """
-	choices: List[str] = field(default_factory=lambda: ["No Setting"])
+	choices: List[str] = field(default_factory=lambda: [])
 	value: int = field(init=False, default=0)
 	box: QComboBox = field(init=False)
 

@@ -9,14 +9,12 @@ Ce sous-module gère les paramètres de configuration et l'interface utilisateur
 **Fonctionnalités principales** :
 
 - Permet un accès direct aux classes principales via `from palm_tracer.Settings import <classe>`.
-- Tous les modules peuvent être importés directement via `from palm_tracer.Settings  import <module>`.00000000000000000000000000000000000000000000o<;
+- Tous les modules peuvent être importés directement via `from palm_tracer.Settings  import <module>`.
 
 """
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
-from .BaseSettingGroup import BaseSettingGroup
-from .Calibration import Calibration
 from .Settings import Settings
 
 # Définir la liste des symboles exportés
-__all__ = ["Settings", "BaseSettingGroup", "Calibration", "SettingTypes"]
+__all__ = ["Settings", "SettingTypes"]

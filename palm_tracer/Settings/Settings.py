@@ -13,8 +13,10 @@ La classe `Settings` est conçue pour interagir directement avec l'interface uti
 
 from dataclasses import dataclass, field
 
-from palm_tracer.Settings import Calibration
-from palm_tracer.Settings.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Group.Batch import Batch
+from palm_tracer.Settings.Group.Calibration import Calibration
+from palm_tracer.Settings.Group.Localisation import Localisation
 
 
 ##################################################
@@ -29,7 +31,9 @@ class Settings:
 	##################################################
 	def __post_init__(self):
 		""" Méthode appelée automatiquement après l'initialisation du dataclass. """
+		self._groups["Batch"] = Batch()
 		self._groups["Calibration"] = Calibration()
+		self._groups["Localisation"] = Localisation()
 
 	##################################################
 	def reset(self):
@@ -55,7 +59,7 @@ class Settings:
 		return self._groups[key]
 
 	##################################################
-	#def __setitem__(self, key: str, value: BaseSettingGroup):
+	# def __setitem__(self, key: str, value: BaseSettingGroup):
 	#	""" Surcharge pour assigner une valeur avec [] """
 	#	self._groups[key] = value
 
@@ -99,6 +103,6 @@ class Settings:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-	# ==================================================
-	# endregion IO
-	# ==================================================
+# ==================================================
+# endregion IO
+# ==================================================

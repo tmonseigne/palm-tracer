@@ -17,12 +17,14 @@ Fichier contenant la classe `Calibration` dérivée de `BaseSettingGroup`, qui r
 - **Intensity (FloatSetting)** : Intensité lumineuse exprimée en photons par unités analogiques-numériques (ADU).
   - Plage : [0.0, 1.0] photon/ADU
   - Pas : 0.01
+  - Précision : 2
   - Valeur par défaut : 0.0120 photon/ADU
+
 """
 
 from dataclasses import dataclass
 
-from palm_tracer.Settings.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.SettingTypes import FloatSetting, IntSetting
 
 
@@ -50,6 +52,6 @@ class Calibration(BaseSettingGroup):
 		self._settings["Exposure"] = IntSetting(label="Exposure Time (ms/frame)", min=1, max=1000, step=10, default=50)
 		self._settings["Intensity"] = FloatSetting(label="Intensity (photon/ADU)", min=0.0, max=1, step=0.01, default=0.0120)
 
-	# ==================================================
-	# endregion Initialization
-	# ==================================================
+# ==================================================
+# endregion Initialization
+# ==================================================
