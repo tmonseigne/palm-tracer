@@ -17,16 +17,17 @@ Ces classes sont utilisées pour créer et configurer des widgets de paramètres
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox
+
+from palm_tracer.Tools.Utils import print_warning
 
 
 # ==================================================
 # region Base Setting
 # ==================================================
-##################################################
 @dataclass
 class BaseSettingType:
 	"""
@@ -78,10 +79,26 @@ class BaseSettingType:
 		raise NotImplementedError("La méthode 'set_value' doit être implémentée dans la sous-classe.")
 
 	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		""" Renvoie un dictionnaire contenant toutes les informations de la classe. """
+		raise NotImplementedError("La méthode 'to_dict' doit être implémentée dans la sous-classe.")
+
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingType":
+		""" Créé une instance de la classe à partir d'un dictionnaire. """
+		raise NotImplementedError("La méthode 'from_dict' doit être implémentée dans la sous-classe.")
+
+	##################################################
 	def initialize(self):
 		""" Initialise le paramètre. """
 		self._layout = QFormLayout(None)
 		self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+
+	##################################################
+	def reset(self):
+		""" Réinitialise le paramètre à sa valeur par défaut. """
+		raise NotImplementedError("La méthode 'reset' doit être implémentée dans la sous-classe.")
 
 	##################################################
 	def add_row(self, box):
@@ -92,11 +109,6 @@ class BaseSettingType:
 		"""
 		self._layout.addRow(QLabel(self.label + " : "), box)  # Ajoute le setting.
 
-	##################################################
-	def reset(self):
-		""" Réinitialise le paramètre à sa valeur par défaut. """
-		raise NotImplementedError("La méthode 'reset' doit être implémentée dans la sous-classe.")
-
 
 # ==================================================
 # endregion Base Setting
@@ -105,13 +117,12 @@ class BaseSettingType:
 # ==================================================
 # region Setting Int
 # ==================================================
-##################################################
 @dataclass
 class IntSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type SpinBox Entier. """
+	default: int = 0
 	min: int = 0
 	max: int = 100
-	default: int = 0
 	step: int = 1
 	value: int = field(init=False, default=0)
 	box: QSpinBox = field(init=False)
@@ -125,6 +136,18 @@ class IntSetting(BaseSettingType):
 	def set_value(self, value: int):
 		self.value = value
 		self.box.setValue(value)
+
+	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		return {"type": "IntSetting", "label": self.label, "default": self.default,
+				"min":  self.min, "max": self.max, "step": self.step, "value": self.value}
+
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "IntSetting":
+		res = cls(data.get("label", ""), data.get("default", 0), data.get("min", 0), data.get("max", 100), data.get("step", 1))
+		res.set_value(data.get("value", 0))
+		return res
 
 	##################################################
 	def initialize(self):
@@ -147,13 +170,12 @@ class IntSetting(BaseSettingType):
 # ==================================================
 # region Setting Float
 # ==================================================
-##################################################
 @dataclass
 class FloatSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type SpinBox réel. """
+	default: float = 0.0
 	min: float = 0.0
 	max: float = 100.0
-	default: float = 0.0
 	step: float = 1.0
 	precision: int = 2
 	value: float = field(init=False, default=0.0)
@@ -168,6 +190,21 @@ class FloatSetting(BaseSettingType):
 	def set_value(self, value: float):
 		self.value = value
 		self.box.setValue(value)
+
+	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		return {"type":  "FloatSetting", "label": self.label, "default": self.default,
+				"min":   self.min, "max": self.max, "step": self.step, "precision": self.precision,
+				"value": self.value}
+
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "FloatSetting":
+		res = cls(data.get("label", ""), data.get("default", 0.0),
+				  data.get("min", 0.0), data.get("max", 100.0),
+				  data.get("step", 1.0), data.get("precision", 2))
+		res.set_value(data.get("value", 0.0))
+		return res
 
 	##################################################
 	def initialize(self):
@@ -188,11 +225,9 @@ class FloatSetting(BaseSettingType):
 # endregion Setting Float
 # ==================================================
 
-
 # ==================================================
 # region Setting Check Box
 # ==================================================
-##################################################
 @dataclass
 class CheckSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type CheckBox. """
@@ -213,6 +248,17 @@ class CheckSetting(BaseSettingType):
 		else:     self.box.setCheckState(Qt.CheckState.Unchecked)
 
 	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		return {"type": "CheckSetting", "label": self.label, "default": self.default, "value": self.value}
+
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "CheckSetting":
+		res = cls(data.get("label", ""), data.get("default", False))
+		res.set_value(data.get("value", False))
+		return res
+
+	##################################################
 	def initialize(self):
 		super().initialize()		  # Appelle l'initialisation de la classe mère.
 		self.box = QCheckBox()		  # Création de la boite.
@@ -228,13 +274,12 @@ class CheckSetting(BaseSettingType):
 # ==================================================
 
 # ==================================================
-# region Setting List with or without options
+# region Setting List
 # ==================================================
-##################################################
 @dataclass
 class ComboSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type Liste déroulante. """
-	choices: List[str] = field(default_factory=lambda: [])
+	choices: list[str] = field(default_factory=lambda: [""])
 	value: int = field(init=False, default=0)
 	box: QComboBox = field(init=False)
 
@@ -247,6 +292,17 @@ class ComboSetting(BaseSettingType):
 	def set_value(self, value: int):
 		self.value = value
 		self.box.setCurrentIndex(value)
+
+	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		return {"type": "ComboSetting", "label": self.label, "choices": self.choices, "value": self.value}
+
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "ComboSetting":
+		res = cls(data.get("label", ""), data.get("choices", [""]))
+		res.set_value(data.get("value", 0))
+		return res
 
 	##################################################
 	def initialize(self):
@@ -262,13 +318,12 @@ class ComboSetting(BaseSettingType):
 
 
 # ==================================================
-# endregion Setting List with or without options
+# endregion Setting List
 # ==================================================
 
 # ==================================================
 # region Setting File
 # ==================================================
-##################################################
 @dataclass
 class FileSetting(BaseSettingType):
 	""" Classe pour un paramètre spécifique de type Ouverture de fichier. """
@@ -286,28 +341,33 @@ class FileSetting(BaseSettingType):
 		self.box.setText(value)
 
 	##################################################
-	def initialize(self):
-		"""
-		Initialise le paramètre pour ouvrir un fichier.
+	def to_dict(self) -> dict[str, Any]:
+		return {"type": "FileSetting", "label": self.label, "value": self.value}
 
-		Si le chemin par défaut est incorrect ou inexistant, il sera remplacé par
-		le chemin du dossier principal du projet (ou autre chemin par défaut).
-		"""
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "FileSetting":
+		res = cls(data.get("label", ""))
+		res.set_value(data.get("value", ""))
+		return res
+
+	##################################################
+	def initialize(self):
 		super().initialize()							   # Appelle l'initialisation de la classe mère
 		self.box = QLineEdit()							   # Création de la boite.
 		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 
 		# Ajouter un bouton à côté pour permettre de choisir le fichier
 		browse_button = QPushButton("Choisir un fichier")
-		browse_button.clicked.connect(self.browse_file)    # Connecter le bouton à la méthode de sélection
+		browse_button.clicked.connect(self.browse_file)	   # Connecter le bouton à la méthode de sélection
 
 		# Disposer le QLineEdit et le bouton dans un calque horizontal
 		layout = QHBoxLayout()							   # Création d'un calque intermédiaire comprenant le champ de texte et le bouton de sélection.
-		layout.setAlignment(Qt.AlignmentFlag.AlignLeft)    # Définir l'alignement du calque à gauche.
+		layout.setAlignment(Qt.AlignmentFlag.AlignLeft)	   # Définir l'alignement du calque à gauche.
 		layout.addWidget(self.box)						   # Ajout du champ de texte
 		layout.addWidget(browse_button)					   # Ajout du bouton de sélection
 
-		self.add_row(layout)  			   # Ajouter au calque principal du setting.
+		self.add_row(layout)							   # Ajouter au calque principal du setting.
 
 	##################################################
 	def browse_file(self):  # pragma: no cover
@@ -321,6 +381,17 @@ class FileSetting(BaseSettingType):
 	##################################################
 	def reset(self): self.set_value("")
 
+
 # ==================================================
 # endregion Setting File
 # ==================================================
+
+def create_setting(data: dict[str, Any]) -> "BaseSettingType":
+	""" Créé un setting en fonction d'un dictionnaire en entrée. """
+	if not "type" in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
+	if data["type"] == "IntSetting": return IntSetting.from_dict(data)
+	elif data["type"] == "FloatSetting": return FloatSetting.from_dict(data)
+	elif data["type"] == "CheckSetting": return CheckSetting.from_dict(data)
+	elif data["type"] == "ComboSetting": return ComboSetting.from_dict(data)
+	elif data["type"] == "FileSetting": return FileSetting.from_dict(data)
+	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
