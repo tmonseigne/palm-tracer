@@ -6,7 +6,7 @@ Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour
 """
 
 from dataclasses import dataclass, field
-from typing import Union
+from typing import Any, Union
 
 from palm_tracer.Settings.SettingTypes import BaseSettingType
 
@@ -20,7 +20,7 @@ class BaseSettingGroup:
 	Attributs :
 		- **_settings (dict[str, BaseSettingType])** : Liste des settings du groupe
 	"""
-	activate: bool = field(init=False, default=False)
+	active: bool = field(init=False, default=False)
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 
 	# ==================================================
@@ -79,16 +79,20 @@ class BaseSettingGroup:
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
-	# ==================================================
-
-	# ==================================================
-	# endregion Parsing
-	# ==================================================
-
-	# ==================================================
 	# region IO
 	# ==================================================
+	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		""" Renvoie un dictionnaire contenant toutes les informations de la classe. """
+		return {"type":     type(self).__name__, "active": self.active,
+				"settings": {name: setting.to_dict() for name, setting in self._settings.items()}, }
+
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingGroup":
+		""" Créé une instance de la classe à partir d'un dictionnaire. """
+		raise NotImplementedError("La méthode 'from_dict' doit être implémentée dans la sous-classe.")
+
 	##################################################
 	def tostring(self, line_prefix: str = "") -> str:
 		"""
@@ -97,7 +101,7 @@ class BaseSettingGroup:
 		:param line_prefix: Préfixe de chaque ligne (par exemple pour ajouter une indentation)
 		:return: Une description textuelle des paramètres.
 		"""
-		msg = f"{line_prefix}- Activate : {self.activate}\n"
+		msg = f"{line_prefix}- Activate : {self.active}\n"
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup):
 				msg += f"{line_prefix}- {key} :\n{setting.tostring(f"{line_prefix}  ")}"

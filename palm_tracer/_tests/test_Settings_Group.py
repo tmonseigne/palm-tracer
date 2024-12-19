@@ -43,6 +43,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str], first_type: Type[
 
 	group.reset()
 	print(group)
+	print(group.to_dict())
 
 
 ###################################################

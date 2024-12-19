@@ -20,7 +20,6 @@ def initialize():
 	app = QApplication([])  # Initialisation de QApplication
 	return app
 
-
 ###################################################
 def setting_base_test(setting: BaseSettingType, change, default):
 	"""

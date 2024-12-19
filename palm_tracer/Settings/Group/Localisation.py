@@ -34,6 +34,7 @@ from dataclasses import dataclass
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Group.GaussianFit import GaussianFit
 from palm_tracer.Settings.SettingTypes import CheckSetting, ComboSetting, FloatSetting, IntSetting
+from typing import Any, Union
 
 
 ##################################################
@@ -51,10 +52,6 @@ class Localisation(BaseSettingGroup):
 		- **ROI Size (IntSetting)** : Taille du carré autour de la localisation (par défaut : 7).
 		- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
 	"""
-
-	# ==================================================
-	# region Initialization
-	# ==================================================
 	##################################################
 	def initialize(self):
 		""" Initialise le dictionnaire de paramètres. """
@@ -66,6 +63,10 @@ class Localisation(BaseSettingGroup):
 		self._settings["Mode"] = ComboSetting(label="Mode", choices=["Gaussian Fit", "Spline"])
 		self._settings["Gaussian Fit"] = GaussianFit()
 
-	# ==================================================
-	# endregion Initialization
-	# ==================================================
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "Localisation":
+		""" Créé une instance de la classe à partir d'un dictionnaire. """
+		res = cls()
+		res.active = data.get("active", False)
+		return res

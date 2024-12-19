@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.SettingTypes import FloatSetting, IntSetting
 
+from typing import Any, Union
 
 ##################################################
 @dataclass
@@ -40,10 +41,6 @@ class Calibration(BaseSettingGroup):
 		- **Exposure (IntSetting)** : Temps d'exposition en millisecondes par image (par défaut : 50).
 		- **Intensity (FloatSetting)** : Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : 0.0120).
 	"""
-
-	# ==================================================
-	# region Initialization
-	# ==================================================
 	##################################################
 	def initialize(self):
 		""" Initialise le dictionnaire de paramètres. """
@@ -52,6 +49,10 @@ class Calibration(BaseSettingGroup):
 		self._settings["Exposure"] = IntSetting(label="Exposure Time (ms/frame)", min=1, max=1000, step=10, default=50)
 		self._settings["Intensity"] = FloatSetting(label="Intensity (photon/ADU)", min=0.0, max=1, step=0.01, default=0.0120)
 
-# ==================================================
-# endregion Initialization
-# ==================================================
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "Calibration":
+		""" Créé une instance de la classe à partir d'un dictionnaire. """
+		res = cls()
+		res.active = data.get("active", False)
+		return res

@@ -139,7 +139,7 @@ class IntSetting(BaseSettingType):
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": "IntSetting", "label": self.label, "default": self.default,
+		return {"type": type(self).__name__, "label": self.label, "default": self.default,
 				"min":  self.min, "max": self.max, "step": self.step, "value": self.value}
 
 	##################################################
@@ -193,7 +193,7 @@ class FloatSetting(BaseSettingType):
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type":  "FloatSetting", "label": self.label, "default": self.default,
+		return {"type":  type(self).__name__, "label": self.label, "default": self.default,
 				"min":   self.min, "max": self.max, "step": self.step, "precision": self.precision,
 				"value": self.value}
 
@@ -249,7 +249,7 @@ class CheckSetting(BaseSettingType):
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": "CheckSetting", "label": self.label, "default": self.default, "value": self.value}
+		return {"type": type(self).__name__, "label": self.label, "default": self.default, "value": self.value}
 
 	##################################################
 	@classmethod
@@ -295,7 +295,7 @@ class ComboSetting(BaseSettingType):
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": "ComboSetting", "label": self.label, "choices": self.choices, "value": self.value}
+		return {"type": type(self).__name__, "label": self.label, "choices": self.choices, "value": self.value}
 
 	##################################################
 	@classmethod
@@ -342,7 +342,7 @@ class FileSetting(BaseSettingType):
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": "FileSetting", "label": self.label, "value": self.value}
+		return {"type": type(self).__name__, "label": self.label, "value": self.value}
 
 	##################################################
 	@classmethod
