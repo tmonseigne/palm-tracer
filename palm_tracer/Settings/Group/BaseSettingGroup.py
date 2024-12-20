@@ -3,6 +3,8 @@ Fichier contenant la classe `BaseSettingGroup` et ses sous-classes pour la gesti
 
 Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 
+.. todo::
+   Ajout d'un get_widget pour le sous-groupe
 """
 
 from dataclasses import dataclass, field
@@ -21,6 +23,7 @@ class BaseSettingGroup:
 		- **_settings (dict[str, BaseSettingType])** : Liste des settings du groupe
 	"""
 	active: bool = field(init=False, default=False)
+	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda: {})
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 
 	# ==================================================
@@ -35,6 +38,8 @@ class BaseSettingGroup:
 	def initialize(self):
 		""" Initialise le dictionnaire de paramètres. """
 		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
+		for key, value in self.setting_list.items():
+			self._settings[key] = value[0](*value[1])
 
 	##################################################
 	def reset(self):
@@ -60,9 +65,9 @@ class BaseSettingGroup:
 		return self._settings[key]
 
 	##################################################
-	# def __setitem__(self, key: str, value: BaseSettingType):
-	#	""" Surcharge pour assigner une valeur avec [] """
-	#	self._settings[key] = value
+	def __setitem__(self, key: str, value: Union["BaseSettingGroup", BaseSettingType]):
+		""" Surcharge pour assigner une valeur avec [] """
+		self._settings[key] = value
 
 	##################################################
 	def __contains__(self, key: str) -> bool:
@@ -91,7 +96,11 @@ class BaseSettingGroup:
 	@classmethod
 	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingGroup":
 		""" Créé une instance de la classe à partir d'un dictionnaire. """
-		raise NotImplementedError("La méthode 'from_dict' doit être implémentée dans la sous-classe.")
+		res = cls()
+		res.active = data.get("active", False)
+		for key, value in cls.setting_list.items():
+			if key in data: res[key] = value[0].from_dict(data[key])
+		return res
 
 	##################################################
 	def tostring(self, line_prefix: str = "") -> str:

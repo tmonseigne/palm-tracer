@@ -29,12 +29,12 @@ Fichier contenant la classe `Localisation` dérivée de `BaseSettingGroup`, qui 
 
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Group.GaussianFit import GaussianFit
 from palm_tracer.Settings.SettingTypes import CheckSetting, ComboSetting, FloatSetting, IntSetting
-from typing import Any, Union
 
 
 ##################################################
@@ -52,21 +52,12 @@ class Localisation(BaseSettingGroup):
 		- **ROI Size (IntSetting)** : Taille du carré autour de la localisation (par défaut : 7).
 		- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
 	"""
-	##################################################
-	def initialize(self):
-		""" Initialise le dictionnaire de paramètres. """
-		super().initialize()  # Appelle l'initialisation de la classe mère.
-		self._settings["Preview"] = CheckSetting(label="Preview")
-		self._settings["Threshold"] = FloatSetting(label="Threshold", min=0.0, max=1000, step=1.0, default=90.0)
-		self._settings["ROI Size"] = IntSetting(label="ROI Size", min=3, max=50, step=1, default=7)
-		self._settings["Watershed"] = CheckSetting(label="Watershed", default=True)
-		self._settings["Mode"] = ComboSetting(label="Mode", choices=["Gaussian Fit", "Spline"])
-		self._settings["Gaussian Fit"] = GaussianFit()
-
-	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "Localisation":
-		""" Créé une instance de la classe à partir d'un dictionnaire. """
-		res = cls()
-		res.active = data.get("active", False)
-		return res
+	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda:
+	{
+			"Preview":      [CheckSetting, ["Preview"]],
+			"Threshold":    [FloatSetting, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
+			"ROI Size":     [IntSetting, ["ROI Size", 7, 3, 50, 1]],
+			"Watershed":    [CheckSetting, ["Watershed", True]],
+			"Mode":         [ComboSetting, ["Mode", ["Gaussian Fit", "Spline"]]],
+			"Gaussian Fit": [GaussianFit, []]
+			})

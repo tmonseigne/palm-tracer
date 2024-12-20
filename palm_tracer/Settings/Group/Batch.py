@@ -8,9 +8,13 @@ Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroup
   - **Files (ComboSetting)** : Liste des fichiers au Batch.
   - **Mode (ComboSetting)** : Méthode d'utilisation du Batch (chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule
   acquisition).
+
+.. todo::
+   Changer le Add File et Files vers un seul setting FileList plus complet
+
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
@@ -30,19 +34,9 @@ class Batch(BaseSettingGroup):
 		- **Mode (ComboSetting)** : Méthode d'utilisation du Batch
 		  (chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition).
 	"""
-
-	##################################################
-	def initialize(self):
-		""" Initialise le dictionnaire de paramètres. """
-		super().initialize()  # Appelle l'initialisation de la classe mère.
-		self._settings["Add File"] = FileSetting(label="Add File")
-		self._settings["Files"] = ComboSetting(label="Files", choices=[])
-		self._settings["Mode"] = ComboSetting(label="Mode", choices=["Each File separately", "All in One"])
-
-	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "Batch":
-		""" Créé une instance de la classe à partir d'un dictionnaire. """
-		res = cls()
-		res.active = data.get("active", False)
-		return res
+	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda:
+	{
+			"Add File": [FileSetting, ["Add File"]],
+			"Files":    [ComboSetting, ["Files", [""]]],
+			"Mode":     [ComboSetting, ["Mode", ["Each File separately", "All in One"]]]
+			})

@@ -24,11 +24,11 @@ Fichier contenant la classe `GaussianFit` dérivée de `BaseSettingGroup`, qui r
 
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.SettingTypes import CheckSetting, FloatSetting
-from typing import Any, Union
 
 
 ##################################################
@@ -43,19 +43,10 @@ class GaussianFit(BaseSettingGroup):
 		- **Theta (FloatSetting)** : Paramètre θ pour l'ajustement gaussien (par défaut : 1.0).
 		- **Theta Fixed (CheckSetting)** : Indique si le paramètre θ est fixe ou non (par défaut : True).
 	"""
-	##################################################
-	def initialize(self):
-		""" Initialise le dictionnaire de paramètres. """
-		super().initialize()  # Appelle l'initialisation de la classe mère.
-		self._settings["Sigma"] = FloatSetting(label="σ", min=0.0, max=10, step=0.1, default=1.0)
-		self._settings["Sigma Fixed"] = CheckSetting(label="Fixed", default=True)
-		self._settings["Theta"] = FloatSetting(label="θ", min=0.0, max=10, step=0.1, default=1.0)
-		self._settings["Theta Fixed"] = CheckSetting(label="Fixed", default=True)
-
-	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "GaussianFit":
-		""" Créé une instance de la classe à partir d'un dictionnaire. """
-		res = cls()
-		res.active = data.get("active", False)
-		return res
+	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda:
+	{
+			"Sigma":       [FloatSetting, ["σ", 1.0, 0.0, 10.0, 0.1]],
+			"Sigma Fixed": [CheckSetting, ["Fixed", False]],
+			"Theta":       [FloatSetting, ["θ", 1.0, 0.0, 10.0, 0.1]],
+			"Theta Fixed": [CheckSetting, ["Fixed", False]]
+			})
