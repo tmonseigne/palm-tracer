@@ -1,5 +1,5 @@
 """
-Ce sous-module gère les paramètres de configuration et l'interface utilisateur de ces paramètres.
+Ce sous-package gère les paramètres de configuration et l'interface utilisateur de ces paramètres.
 
 **Composants principaux** :
 

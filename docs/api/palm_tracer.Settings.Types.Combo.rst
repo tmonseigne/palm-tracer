@@ -1,7 +1,7 @@
-palm\_tracer.Settings.Calibration
+palm\_tracer.Settings.Types.Combo
 =================================
 
-.. automodule:: palm_tracer.Settings.Calibration
+.. automodule:: palm_tracer.Settings.Types.Combo
    :members:
    :undoc-members:
    :show-inheritance:

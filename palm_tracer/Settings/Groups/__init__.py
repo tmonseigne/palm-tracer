@@ -1,5 +1,5 @@
 """
-Ce sous-module gère les groupes de paramètres.
+Ce sous-package gère les groupes de paramètres.
 
 **Composants principaux** :
 

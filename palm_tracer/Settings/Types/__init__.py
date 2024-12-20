@@ -1,5 +1,5 @@
 """
-Ce sous-module gère les différents types de paramètres.
+Ce sous-package gère les différents types de paramètres.
 
 **Composants principaux** :
 
