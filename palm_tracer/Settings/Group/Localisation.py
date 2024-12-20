@@ -29,8 +29,7 @@ Fichier contenant la classe `Localisation` dérivée de `BaseSettingGroup`, qui 
 
 """
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Group.GaussianFit import GaussianFit
@@ -52,12 +51,11 @@ class Localisation(BaseSettingGroup):
 		- **ROI Size (IntSetting)** : Taille du carré autour de la localisation (par défaut : 7).
 		- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
 	"""
-	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda:
-	{
+	setting_list = {
 			"Preview":      [CheckSetting, ["Preview"]],
 			"Threshold":    [FloatSetting, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
 			"ROI Size":     [IntSetting, ["ROI Size", 7, 3, 50, 1]],
 			"Watershed":    [CheckSetting, ["Watershed", True]],
 			"Mode":         [ComboSetting, ["Mode", ["Gaussian Fit", "Spline"]]],
 			"Gaussian Fit": [GaussianFit, []]
-			})
+			}

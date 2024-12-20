@@ -22,8 +22,6 @@ from typing import Any
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox
 
-from palm_tracer.Tools.Utils import print_warning
-
 
 # ==================================================
 # region Base Setting

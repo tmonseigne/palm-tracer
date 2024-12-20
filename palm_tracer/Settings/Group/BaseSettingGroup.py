@@ -23,8 +23,8 @@ class BaseSettingGroup:
 		- **_settings (dict[str, BaseSettingType])** : Liste des settings du groupe
 	"""
 	active: bool = field(init=False, default=False)
-	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda: {})
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
+	setting_list = dict[str, list[Union["BaseSettingGroup", Any]]]()
 
 	# ==================================================
 	# region Initialization
@@ -79,6 +79,12 @@ class BaseSettingGroup:
 		""" Surcharge pour obtenir l'itérable des clés """
 		return iter(self._settings)
 
+	##################################################
+	def get_value(self): return
+
+	##################################################
+	def set_value(self, value: Any): return
+
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================
@@ -96,10 +102,11 @@ class BaseSettingGroup:
 	@classmethod
 	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingGroup":
 		""" Créé une instance de la classe à partir d'un dictionnaire. """
-		res = cls()
+		res = cls()  # Instancie la classe appelée
 		res.active = data.get("active", False)
-		for key, value in cls.setting_list.items():
-			if key in data: res[key] = value[0].from_dict(data[key])
+		settings = data["settings"]
+		for key, value in cls.setting_list.items():  # Appelle `from_dict` pour chaque élément de setting_list
+			if key in settings: res[key] = value[0].from_dict(settings[key])
 		return res
 
 	##################################################
@@ -120,6 +127,6 @@ class BaseSettingGroup:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-# ==================================================
-# endregion IO
-# ==================================================
+	# ==================================================
+	# endregion IO
+	# ==================================================

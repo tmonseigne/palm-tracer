@@ -20,6 +20,7 @@ def initialize():
 	app = QApplication([])  # Initialisation de QApplication
 	return app
 
+
 ###################################################
 def setting_base_test(setting: BaseSettingType, change, default):
 	"""
@@ -40,7 +41,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	assert setting.get_value() == default, "Valeur par défaut non valide."
 
 	setting = create_setting(dictionary)
-	assert setting.get_value() == change, "Valeur par défaut non valide."
+	assert setting.get_value() == change, "Valeur récupérée du dictionnaire non valide."
 
 
 ###################################################

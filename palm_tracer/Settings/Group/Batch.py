@@ -14,8 +14,7 @@ Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroup
 
 """
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.SettingTypes import ComboSetting, FileSetting
@@ -34,9 +33,8 @@ class Batch(BaseSettingGroup):
 		- **Mode (ComboSetting)** : Méthode d'utilisation du Batch
 		  (chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition).
 	"""
-	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda:
-	{
+	setting_list = {
 			"Add File": [FileSetting, ["Add File"]],
 			"Files":    [ComboSetting, ["Files", [""]]],
 			"Mode":     [ComboSetting, ["Mode", ["Each File separately", "All in One"]]]
-			})
+			}

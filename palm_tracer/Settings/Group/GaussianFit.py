@@ -24,8 +24,7 @@ Fichier contenant la classe `GaussianFit` dérivée de `BaseSettingGroup`, qui r
 
 """
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.SettingTypes import CheckSetting, FloatSetting
@@ -43,10 +42,9 @@ class GaussianFit(BaseSettingGroup):
 		- **Theta (FloatSetting)** : Paramètre θ pour l'ajustement gaussien (par défaut : 1.0).
 		- **Theta Fixed (CheckSetting)** : Indique si le paramètre θ est fixe ou non (par défaut : True).
 	"""
-	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda:
-	{
+	setting_list = {
 			"Sigma":       [FloatSetting, ["σ", 1.0, 0.0, 10.0, 0.1]],
 			"Sigma Fixed": [CheckSetting, ["Fixed", False]],
 			"Theta":       [FloatSetting, ["θ", 1.0, 0.0, 10.0, 0.1]],
 			"Theta Fixed": [CheckSetting, ["Fixed", False]]
-			})
+			}

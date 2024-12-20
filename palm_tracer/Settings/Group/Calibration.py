@@ -22,8 +22,7 @@ Fichier contenant la classe `Calibration` dérivée de `BaseSettingGroup`, qui r
 
 """
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.SettingTypes import FloatSetting, IntSetting
@@ -41,9 +40,8 @@ class Calibration(BaseSettingGroup):
 		- **Exposure (IntSetting)** : Temps d'exposition en millisecondes par image (par défaut : 50).
 		- **Intensity (FloatSetting)** : Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : 0.0120).
 	"""
-	setting_list: dict[str, list[Any]] = field(init=False, default_factory=lambda:
-	{
+	setting_list = {
 			"Pixel Size": [IntSetting, ["Pixel Size (nm)", 160, 1, 500, 10]],
 			"Exposure":   [IntSetting, ["Exposure Time (ms/frame)", 50, 1, 1000, 10]],
 			"Intensity":  [FloatSetting, ["Intensity (photon/ADU", 0.0120, 0.0, 1.0, 0.001, 4]]
-			})
+			}
