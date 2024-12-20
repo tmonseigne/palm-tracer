@@ -13,11 +13,7 @@ La classe `Settings` est conçue pour interagir directement avec l'interface uti
 
 from dataclasses import dataclass, field
 
-from palm_tracer.Settings.Group.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Group.Batch import Batch
-from palm_tracer.Settings.Group.Calibration import Calibration
-from palm_tracer.Settings.Group.Localisation import Localisation
-
+from palm_tracer.Settings.Groups import *
 
 ##################################################
 @dataclass

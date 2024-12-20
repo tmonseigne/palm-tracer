@@ -17,4 +17,4 @@ Ce sous-module gère les paramètres de configuration et l'interface utilisateur
 from .Settings import Settings
 
 # Définir la liste des symboles exportés
-__all__ = ["Settings", "SettingTypes"]
+__all__ = ["Settings", "Groups", "Types"]

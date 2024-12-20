@@ -13,9 +13,10 @@ Ce sous-module gère les groupes de paramètres.
 **Fonctionnalités principales** :
 
 - Permet un accès direct aux classes principales via `from palm_tracer.Settings.Group import <classe>`.
-- Tous les modules peuvent être importés directement via `from palm_tracer.Settings.Group import <module>`.
 
 """
+
+from typing import Any
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingGroup import BaseSettingGroup
@@ -24,5 +25,18 @@ from .Calibration import Calibration
 from .GaussianFit import GaussianFit
 from .Localisation import Localisation
 
+
+##################################################
+def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
+	"""Créé un setting en fonction d'un dictionnaire en entrée."""
+	if not "type" in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
+	if data["type"] == "Batch": return Batch.from_dict(data)
+	elif data["type"] == "Calibration": return Calibration.from_dict(data)
+	elif data["type"] == "Localisation": return Localisation.from_dict(data)
+	elif data["type"] == "GaussianFit": return GaussianFit.from_dict(data)
+	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
+
+
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingGroup", "Batch", "Calibration", "Localisation", "GaussianFit"]
+__all__ = ["BaseSettingGroup", "create_group_from_dict",
+		   "Batch", "Calibration", "Localisation", "GaussianFit"]

@@ -10,7 +10,7 @@ Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour
 from dataclasses import dataclass, field
 from typing import Any, Union
 
-from palm_tracer.Settings.SettingTypes import BaseSettingType
+from palm_tracer.Settings.Types import BaseSettingType
 
 
 ##################################################

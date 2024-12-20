@@ -6,7 +6,7 @@ import pytest
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtWidgets import QApplication
 
-from palm_tracer.Settings.SettingTypes import *
+from palm_tracer.Settings.Types import *
 
 
 ##################################################
@@ -40,7 +40,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	setting.reset()
 	assert setting.get_value() == default, "Valeur par défaut non valide."
 
-	setting = create_setting(dictionary)
+	setting = create_setting_from_dict(dictionary)
 	assert setting.get_value() == change, "Valeur récupérée du dictionnaire non valide."
 
 
@@ -66,67 +66,67 @@ def test_base_setting():
 def test_create_setting_from_dict():
 	"""Test de création de setting par dictionnaire vide excepté le type."""
 	app = initialize()
-	setting = create_setting({"type": "IntSetting"})
-	assert isinstance(setting, IntSetting), "La création par dictionnaire vide pour un IntSetting à échoué."
-	setting = create_setting({"type": "FloatSetting"})
-	assert isinstance(setting, FloatSetting), "La création par dictionnaire vide pour un FloatSetting à échoué."
-	setting = create_setting({"type": "CheckSetting"})
-	assert isinstance(setting, CheckSetting), "La création par dictionnaire vide pour un CheckSetting à échoué."
-	setting = create_setting({"type": "ComboSetting"})
-	assert isinstance(setting, ComboSetting), "La création par dictionnaire vide pour un ComboSetting à échoué."
-	setting = create_setting({"type": "FileSetting"})
-	assert isinstance(setting, FileSetting), "La création par dictionnaire vide pour un FileSetting à échoué."
+	setting = create_setting_from_dict({"type": "SpinInt"})
+	assert isinstance(setting, SpinInt), "La création par dictionnaire vide pour un SpinInt à échoué."
+	setting = create_setting_from_dict({"type": "SpinFloat"})
+	assert isinstance(setting, SpinFloat), "La création par dictionnaire vide pour un SpinFloat à échoué."
+	setting = create_setting_from_dict({"type": "CheckBox"})
+	assert isinstance(setting, CheckBox), "La création par dictionnaire vide pour un CheckBox à échoué."
+	setting = create_setting_from_dict({"type": "Combo"})
+	assert isinstance(setting, Combo), "La création par dictionnaire vide pour un Combo à échoué."
+	setting = create_setting_from_dict({"type": "BrowseFile"})
+	assert isinstance(setting, BrowseFile), "La création par dictionnaire vide pour un BrowseFile à échoué."
 
 
 ###################################################
 def test_create_setting_from_dict_fail():
 	"""Test de création de setting par dictionnaire avec un type invalide ou absent."""
-	with pytest.raises(ValueError) as exception_info: create_setting({"type": "BadSetting"})
+	with pytest.raises(ValueError) as exception_info: create_setting_from_dict({"type": "BadSetting"})
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-	with pytest.raises(ValueError) as exception_info: create_setting({})
+	with pytest.raises(ValueError) as exception_info: create_setting_from_dict({})
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 
 
 ###################################################
-def test_int_setting():
+def test_spin_int():
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
-	setting = IntSetting("Test", 1, 0, 10, 1)
+	setting = SpinInt("Test", 1, 0, 10, 1)
 	setting_base_test(setting, 5, 1)
 	assert True
 
 
 ###################################################
-def test_float_setting():
+def test_spin_float():
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
-	setting = FloatSetting("Test", 1.0, 0.0, 10.0, 1.0)
+	setting = SpinFloat("Test", 1.0, 0.0, 10.0, 1.0)
 	setting_base_test(setting, 5.0, 1.0)
 	assert True
 
 
 ###################################################
-def test_check_setting():
+def test_check_box():
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
-	setting = CheckSetting("Test")
+	setting = CheckBox("Test")
 	setting_base_test(setting, True, False)
 	assert True
 
 
 ###################################################
-def test_combo_setting():
+def test_combo():
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
-	setting = ComboSetting("Test", ["Choix 1", "Choix 2"])
+	setting = Combo("Test", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
 	assert True
 
 
 ###################################################
-def test_file_setting():
+def test_browse_file():
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
-	setting = FileSetting(label="Test")
+	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
 	assert True
