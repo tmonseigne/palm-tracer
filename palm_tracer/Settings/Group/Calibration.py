@@ -35,13 +35,13 @@ class Calibration(BaseSettingGroup):
 	Classe contenant les informations de calibration :
 
 	Attributs :
-
-		- **Pixel Size (IntSetting)** : Taille d'un pixel en nanomètres (par défaut : 160).
-		- **Exposure (IntSetting)** : Temps d'exposition en millisecondes par image (par défaut : 50).
-		- **Intensity (FloatSetting)** : Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : 0.0120).
+			- **Pixel Size (IntSetting)** : Taille d'un pixel en nanomètres (par défaut : 160).
+			- **Exposure (IntSetting)** : Temps d'exposition en millisecondes par image (par défaut : 50).
+			- **Intensity (FloatSetting)** : Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : 0.0120).
 	"""
+
 	setting_list = {
 			"Pixel Size": [IntSetting, ["Pixel Size (nm)", 160, 1, 500, 10]],
 			"Exposure":   [IntSetting, ["Exposure Time (ms/frame)", 50, 1, 1000, 10]],
-			"Intensity":  [FloatSetting, ["Intensity (photon/ADU", 0.0120, 0.0, 1.0, 0.001, 4]]
+			"Intensity":  [FloatSetting, ["Intensity (photon/ADU", 0.0120, 0.0, 1.0, 0.001, 4]],
 			}

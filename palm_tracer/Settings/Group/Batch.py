@@ -27,14 +27,14 @@ class Batch(BaseSettingGroup):
 	Classe contenant les informations de calibration :
 
 	Attributs :
-
-		- **Add File (FileSetting)** : Ajout d'un fichier au Batch.
-		- **Files (ComboSetting)** : Liste des fichiers au Batch.
-		- **Mode (ComboSetting)** : Méthode d'utilisation du Batch
-		  (chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition).
+			- **Add File (FileSetting)** : Ajout d'un fichier au Batch.
+			- **Files (ComboSetting)** : Liste des fichiers au Batch.
+			- **Mode (ComboSetting)** : Méthode d'utilisation du Batch
+			  (chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition).
 	"""
+
 	setting_list = {
 			"Add File": [FileSetting, ["Add File"]],
 			"Files":    [ComboSetting, ["Files", [""]]],
-			"Mode":     [ComboSetting, ["Mode", ["Each File separately", "All in One"]]]
+			"Mode":     [ComboSetting, ["Mode", ["Each File separately", "All in One"]]],
 			}

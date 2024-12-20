@@ -8,7 +8,7 @@ from palm_tracer._widget import ExampleQWidget, ImageThreshold, threshold_autoge
 
 ##################################################
 def test_widget_creation(make_napari_viewer, capsys):
-	""" Test basique de création du widget. """
+	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()					# Créer un viewer à l'aide de la fixture.
 	viewer.add_image(np.random.random((256, 256)))  # Ajouter une image
 	my_widget = PALMTracerWidget(viewer)			# Créer notre widget, en passant par le viewer.
@@ -17,7 +17,7 @@ def test_widget_creation(make_napari_viewer, capsys):
 
 ##################################################
 def test_widget_on_click(make_napari_viewer, capsys):
-	""" Test click sur le bouton. """
+	"""Test click sur le bouton."""
 	viewer = make_napari_viewer()					# Créer un viewer à l'aide de la fixture.
 	viewer.add_image(np.random.random((256, 256)))  # Ajouter une image
 	my_widget = PALMTracerWidget(viewer)			# Créer notre widget, en passant par le viewer.

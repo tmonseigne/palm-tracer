@@ -58,20 +58,20 @@ def draw_test_section(fig: go.Figure, y_range: list, tests: list[dict], color_ma
 	:param fig: L'objet figure de Plotly dans lequel les éléments (barres et lignes) seront ajoutés.
 
 	:param y_range: La plage des valeurs sur l'axe Y pour la section du graphique où les zones colorées seront tracées.
-		La plage est définie par deux valeurs [y_min, y_max].
+			La plage est définie par deux valeurs [y_min, y_max].
 
 	:param tests: Une liste de dictionnaires représentant les tests effectués. Chaque dictionnaire doit contenir les clés :
-		- "Timestamp" (float) : Le timestamp du test.
-		- "File" (str) : Le nom du fichier associé au test.
-		- "Test" (str) : Le nom du test effectué.
+			- "Timestamp" (float) : Le timestamp du test.
+			- "File" (str) : Le nom du fichier associé au test.
+			- "Test" (str) : Le nom du test effectué.
 
 	:param color_map: Un dictionnaire associant chaque fichier de test à une couleur. Le fichier est utilisé comme clé et la couleur
-		(en format HTML) comme valeur.
+			(en format HTML) comme valeur.
 
 	:param last_time: Le dernier timestamp enregistré, utilisé pour déterminer la fin de la zone colorée pour le dernier test.
 
 	:param row: L'index de la ligne dans la figure Plotly (utile lorsque plusieurs sous-graphiques sont utilisés) pour ajouter
-		les éléments (barres verticales et zones colorées) dans la section correspondante.
+			les éléments (barres verticales et zones colorées) dans la section correspondante.
 
 	:return: Cette fonction modifie l'objet `fig` en ajoutant des traces et des formes, mais ne retourne rien.
 	"""
@@ -92,5 +92,5 @@ def draw_test_section(fig: go.Figure, y_range: list, tests: list[dict], color_ma
 		fig.add_shape(type="rect", x0=t, x1=next_timestamp, y0=y_range[0], y1=y_range[1],
 					  fillcolor=color, opacity=0.2, line=dict(width=0), row=row, col=1)
 		# Ajouter une ligne verticale pointillée
-		fig.add_trace(go.Scatter(x=[t, t], y=y_range, mode='lines', line=dict(color=color, width=0.5, dash='dash'),
-								 name=text, hoverinfo='text', text=text), row=row, col=1)
+		fig.add_trace(go.Scatter(x=[t, t], y=y_range, mode="lines", line=dict(color=color, width=0.5, dash="dash"),
+								 name=text, hoverinfo="text", text=text), row=row, col=1)

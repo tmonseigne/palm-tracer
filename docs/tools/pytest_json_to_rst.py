@@ -58,14 +58,12 @@ def generate_rst_from_json(src: str, dst: str):
 	:param dst: Chemin du fichier de sortie reStructuredText.
 	"""
 	try:
-		with open(src, 'r') as f:
-			data = json.load(f)  # Read json
-	except FileNotFoundError:
-		print("Json File not found.")
+		with open(src) as f: data = json.load(f)  # Read json
+	except FileNotFoundError: print("Json File not found.")
 
 	title, monitoring = get_files_info(dst)
 
-	with open(dst, 'w', encoding="utf-8") as f:
+	with open(dst, "w", encoding="utf-8") as f:
 		f.write(f"{title}\n{"=" * len(title)}\n\n")
 		f.write(get_metadata(data["metadata"]))
 		f.write(get_summary(data))
@@ -74,7 +72,7 @@ def generate_rst_from_json(src: str, dst: str):
 
 
 ##################################################
-def get_files_info(src: str, monitoring_ext: str="html") -> list[str]:
+def get_files_info(src: str, monitoring_ext: str = "html") -> list[str]:
 	"""
 	Extrait les informations du fichier source pour générer un titre et un nom de fichier pour le monitoring.
 
@@ -262,4 +260,4 @@ if __name__ == "__main__":
 
 	print(f"Start generation: input ({source}), output ({destination})")
 	generate_rst_from_json(source, destination)
-	print('reStructuredText report was generated successfully.')
+	print("reStructuredText report was generated successfully.")

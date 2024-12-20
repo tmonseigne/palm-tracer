@@ -25,7 +25,4 @@ from .GaussianFit import GaussianFit
 from .Localisation import Localisation
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingGroup",
-		   "Batch",
-		   "Calibration",
-		   "Localisation", "GaussianFit"]
+__all__ = ["BaseSettingGroup", "Batch", "Calibration", "Localisation", "GaussianFit"]

@@ -15,7 +15,7 @@ INPUT_DIR = Path(__file__).parent / "Input"
 
 ##################################################
 def create_group(data: dict[str, Any]) -> "BaseSettingGroup":
-	""" Créé un setting en fonction d'un dictionnaire en entrée. """
+	"""Créé un setting en fonction d'un dictionnaire en entrée."""
 	if not "type" in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
 	if data["type"] == "Batch": return Batch.from_dict(data)
 	elif data["type"] == "Calibration": return Calibration.from_dict(data)
@@ -69,7 +69,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 
 ###################################################
 def test_batch():
-	""" Test basique de la classe Batch (constructeur, getter, setter) """
+	"""Test basique de la classe Batch (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(Batch(), ["Add File", "Files", "Mode"],
 					FileSetting, "filename.extension", "")
@@ -77,7 +77,7 @@ def test_batch():
 
 ###################################################
 def test_calibration():
-	""" Test basique de la classe Calibration (constructeur, getter, setter) """
+	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"],
 					IntSetting, 320, 160)
@@ -85,7 +85,7 @@ def test_calibration():
 
 ###################################################
 def test_localisation():
-	""" Test basique de la classe Calibration (constructeur, getter, setter) """
+	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(Localisation(), ["Preview", "Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit"],
 					CheckSetting, True, False)
@@ -93,7 +93,7 @@ def test_localisation():
 
 ###################################################
 def test_gaussian_fit():
-	""" Test basique de la classe Calibration (constructeur, getter, setter) """
+	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(GaussianFit(), ["Sigma", "Sigma Fixed", "Theta", "Theta Fixed"],
 					FloatSetting, 2.0, 1.0)

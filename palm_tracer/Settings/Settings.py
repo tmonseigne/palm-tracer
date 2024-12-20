@@ -22,7 +22,8 @@ from palm_tracer.Settings.Group.Localisation import Localisation
 ##################################################
 @dataclass
 class Settings:
-	""" Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer """
+	"""Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer"""
+
 	_groups: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 
 	# ==================================================
@@ -30,14 +31,14 @@ class Settings:
 	# ==================================================
 	##################################################
 	def __post_init__(self):
-		""" Méthode appelée automatiquement après l'initialisation du dataclass. """
+		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._groups["Batch"] = Batch()
 		self._groups["Calibration"] = Calibration()
 		self._groups["Localisation"] = Localisation()
 
 	##################################################
 	def reset(self):
-		""" Remet les valeurs par défaut des paramètres. """
+		"""Remet les valeurs par défaut des paramètres."""
 		for _, group in self._groups.items():
 			group.reset()
 
@@ -50,12 +51,12 @@ class Settings:
 	# ==================================================
 	##################################################
 	def get_group_names(self) -> list[str]:
-		""" Récupère le nom des groupes de paramètres. """
+		"""Récupère le nom des groupes de paramètres."""
 		return list(self._groups.keys())
 
 	##################################################
 	def __getitem__(self, key: str) -> BaseSettingGroup:
-		""" Surcharge de l'opérateur [] """
+		"""Surcharge de l'opérateur []"""
 		return self._groups[key]
 
 	##################################################
@@ -65,12 +66,12 @@ class Settings:
 
 	##################################################
 	def __contains__(self, key: str) -> bool:
-		""" Surcharge pour vérifier si une clé existe """
+		"""Surcharge pour vérifier si une clé existe"""
 		return key in self._groups
 
 	##################################################
 	def __iter__(self):
-		""" Surcharge pour obtenir l'itérable des clés """
+		"""Surcharge pour obtenir l'itérable des clés"""
 		return iter(self._groups)
 
 	# ==================================================

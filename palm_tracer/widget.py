@@ -20,7 +20,7 @@ if TYPE_CHECKING: import napari  # pragma: no cover
 
 ##################################################
 class PALMTracerWidget(QWidget):
-	""" Widget principal gérant toute l'interface """
+	"""Widget principal gérant toute l'interface"""
 
 	##################################################
 	def __init__(self, viewer: "napari.viewer.Viewer"):
@@ -44,8 +44,8 @@ class PALMTracerWidget(QWidget):
 		self.layout().addWidget(btn)
 
 	##################################################
-	def _load_dll(self): # pragma: no cover
-		""" Récupère les DLLs si elles existent. """
+	def _load_dll(self):  # pragma: no cover
+		"""Récupère les DLLs si elles existent."""
 		dll_path = Path(__file__).parent / "DLL"
 
 		# for name in ["CPU", "GPU", "Live", "Tracking"]:
@@ -57,6 +57,6 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def on_click(self):
-		""" Action lors d'un clic """
+		"""Action lors d'un clic"""
 		print(f"napari has {len(self.viewer.layers)} layers")
 		print(self.settings)

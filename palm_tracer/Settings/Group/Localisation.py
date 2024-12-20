@@ -43,19 +43,19 @@ class Localisation(BaseSettingGroup):
 	Classe contenant les paramètres de Localisation :
 
 	Attributs :
-
-		- **Preview (CheckSetting)** : Activation de la preview ou non (par défaut : False).
-		- **Threshold (FloatSetting)** : Seuil de détection de la localisation en intensité (par défaut : 90).
-		- **Watershed (CheckSetting)** : Activation ou désactivation du mode Watershed (par défaut : True).
-		- **Mode (ComboSetting)** : Mode de calcul pour la localisation (par défaut : Gaussian Fit).
-		- **ROI Size (IntSetting)** : Taille du carré autour de la localisation (par défaut : 7).
-		- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
+			- **Preview (CheckSetting)** : Activation de la preview ou non (par défaut : False).
+			- **Threshold (FloatSetting)** : Seuil de détection de la localisation en intensité (par défaut : 90).
+			- **Watershed (CheckSetting)** : Activation ou désactivation du mode Watershed (par défaut : True).
+			- **Mode (ComboSetting)** : Mode de calcul pour la localisation (par défaut : Gaussian Fit).
+			- **ROI Size (IntSetting)** : Taille du carré autour de la localisation (par défaut : 7).
+			- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
 	"""
+
 	setting_list = {
 			"Preview":      [CheckSetting, ["Preview"]],
 			"Threshold":    [FloatSetting, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
 			"ROI Size":     [IntSetting, ["ROI Size", 7, 3, 50, 1]],
 			"Watershed":    [CheckSetting, ["Watershed", True]],
 			"Mode":         [ComboSetting, ["Mode", ["Gaussian Fit", "Spline"]]],
-			"Gaussian Fit": [GaussianFit, []]
+			"Gaussian Fit": [GaussianFit, []],
 			}

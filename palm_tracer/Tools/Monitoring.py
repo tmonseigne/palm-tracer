@@ -50,16 +50,17 @@ class Monitoring:
 	et générer des graphiques ou des fichiers texte avec ces données.
 
 	Attributs :
-		- **cpu (List[float])** : Liste des valeurs d'utilisation du CPU.
-		- **memory (List[float])** : Liste des valeurs d'utilisation de la mémoire.
-		- **disk (List[float])** : Liste des valeurs d'utilisation du disque.
-		- **times (List[float])** : Liste des timestamps correspondant aux valeurs des ressources.
-		- **monitoring (bool)** : Indique si la surveillance est en cours ou non.
-		- **thread (threading.Thread)** : Le thread qui exécute le monitoring.
-		- **tests_info (List[dict])** : Liste des informations relatives aux tests exécutés.
-		- **interval (float)** : Intervalle de temps entre chaque mise à jour des données en secondes.
+			- **cpu (List[float])** : Liste des valeurs d'utilisation du CPU.
+			- **memory (List[float])** : Liste des valeurs d'utilisation de la mémoire.
+			- **disk (List[float])** : Liste des valeurs d'utilisation du disque.
+			- **times (List[float])** : Liste des timestamps correspondant aux valeurs des ressources.
+			- **monitoring (bool)** : Indique si la surveillance est en cours ou non.
+			- **thread (threading.Thread)** : Le thread qui exécute le monitoring.
+			- **tests_info (List[dict])** : Liste des informations relatives aux tests exécutés.
+			- **interval (float)** : Intervalle de temps entre chaque mise à jour des données en secondes.
 
 	"""
+
 	interval: float = 1.0
 	_cpu: List[float] = field(init=False, default_factory=list)
 	# gpu: List[float] = field(init=False, default_factory=list)
@@ -86,7 +87,7 @@ class Monitoring:
 
 	##################################################
 	def _reset(self):
-		""" Réinitialise toutes les données de monitoring (CPU, mémoire, disque, etc.). """
+		"""Réinitialise toutes les données de monitoring (CPU, mémoire, disque, etc.)."""
 		self._cpu = []
 		# self.gpu = []
 		self._memory = []
@@ -98,7 +99,7 @@ class Monitoring:
 
 	##################################################
 	def _update(self):
-		""" Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours. """
+		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
 		pytest_pid = os.getpid()  # PID de pytest
 		pytest_proc = psutil.Process(pytest_pid)  # Récupère le processus parent
@@ -127,14 +128,14 @@ class Monitoring:
 
 	##################################################
 	def monitor(self):
-		""" Surveille les ressources en continu dans un thread séparé. """
+		"""Surveille les ressources en continu dans un thread séparé."""
 		while self._monitoring:
 			self._update()
 			time.sleep(self.interval)
 
 	##################################################
 	def stop(self):
-		""" Arrête la surveillance et effectue une dernière mise à jour des valeurs. """
+		"""Arrête la surveillance et effectue une dernière mise à jour des valeurs."""
 		self._monitoring = False
 		self._thread.join()
 		self._update()  # Dernière entrée
@@ -150,8 +151,8 @@ class Monitoring:
 		"""
 		match = re.match(r".*test_(.*)\.py::test_(.*)", name)
 		if match:
-			file = match.group(1).replace('_', ' ').title()  # Récupère le nom du fichier et change la casse
-			test = match.group(2).replace('_', ' ').title()  # Récupère le nom du test et change la casse
+			file = match.group(1).replace("_", " ").title()  # Récupère le nom du fichier et change la casse
+			test = match.group(2).replace("_", " ").title()  # Récupère le nom du test et change la casse
 			self._tests_info.append({"File": file, "Test": test, "Timestamp": time.time()})
 
 	##################################################
@@ -195,7 +196,7 @@ class Monitoring:
 
 	##################################################
 	def _draw(self):
-		""" Génère un graphique interactif des ressources utilisées pendant les tests et l'enregistre. """
+		"""Génère un graphique interactif des ressources utilisées pendant les tests et l'enregistre."""
 		self._figure = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.05,
 									 subplot_titles=("CPU Usage (%)", "Memory Usage (Mo)", "Disk Usage (IO Mo)"))
 		color_map = get_color_map_by_name([test["File"] for test in self._tests_info], px.colors.qualitative.Plotly)
@@ -232,21 +233,21 @@ class Monitoring:
 
 		Cette méthode permet de sauvegarder les informations de monitoring dans différents formats en fonction de l'extension du fichier fourni :
 
-			- `.png` : Sauvegarde une image de la figure générée par la méthode `draw`.
-			- `.html` : Sauvegarde la figure au format HTML.
-			- `.json` : Sauvegarde les données au format JSON.
-			- Pour d'autres formats, les informations de monitoring seront enregistrées sous forme de texte brut.
+				- `.png` : Sauvegarde une image de la figure générée par la méthode `draw`.
+				- `.html` : Sauvegarde la figure au format HTML.
+				- `.json` : Sauvegarde les données au format JSON.
+				- Pour d'autres formats, les informations de monitoring seront enregistrées sous forme de texte brut.
 
 		Le format texte contient les informations suivantes :
 
-			- Timestamps : Liste des timestamps collectés pendant le monitoring.
-			- CPU Usage : Utilisation du CPU.
-			- Memory Usage : Utilisation de la mémoire.
-			- Disk Usage : Utilisation du disque.
-			- Liste des tests : Détails des tests effectués, incluant le fichier, le test et le timestamp.
+				- Timestamps : Liste des timestamps collectés pendant le monitoring.
+				- CPU Usage : Utilisation du CPU.
+				- Memory Usage : Utilisation de la mémoire.
+				- Disk Usage : Utilisation du disque.
+				- Liste des tests : Détails des tests effectués, incluant le fichier, le test et le timestamp.
 
 		:param filename: Le chemin et nom du fichier dans lequel les données de monitoring seront enregistrées.
-		                 Le format de sauvegarde sera déterminé en fonction de l'extension du fichier (ex. `.png`, `.html`, `.json`).
+						 Le format de sauvegarde sera déterminé en fonction de l'extension du fichier (ex. `.png`, `.html`, `.json`).
 		:param full_html: Option pour l'enregistrement html permettant de ne sauver que le div
 		"""
 
@@ -265,7 +266,7 @@ class Monitoring:
 				# f.write(f"GPU Usage : {self.gpu}\n")
 				f.write(f"Memory Usage : {self._memory}\n")
 				f.write(f"Disk Usage : {self._disk}\n")
-				f.write(f"Liste des tests : \n")
+				f.write("Liste des tests : \n")
 				for test in self._tests_info: f.write(f"{test["File"]}, {test["Test"]}, {test["Timestamp"]}\n")
 
 	##################################################

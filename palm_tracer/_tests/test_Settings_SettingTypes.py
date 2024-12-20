@@ -46,7 +46,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 
 ###################################################
 def test_base_setting():
-	""" Test basique de la classe abstraite """
+	"""Test basique de la classe abstraite"""
 	setting = BaseSettingType("Test")
 	with pytest.raises(NotImplementedError) as exception_info: setting.get_value()
 	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
@@ -64,7 +64,7 @@ def test_base_setting():
 
 ###################################################
 def test_create_setting_from_dict():
-	""" Test de création de setting par dictionnaire vide excepté le type. """
+	"""Test de création de setting par dictionnaire vide excepté le type."""
 	app = initialize()
 	setting = create_setting({"type": "IntSetting"})
 	assert isinstance(setting, IntSetting), "La création par dictionnaire vide pour un IntSetting à échoué."
@@ -80,7 +80,7 @@ def test_create_setting_from_dict():
 
 ###################################################
 def test_create_setting_from_dict_fail():
-	""" Test de création de setting par dictionnaire avec un type invalide ou absent. """
+	"""Test de création de setting par dictionnaire avec un type invalide ou absent."""
 	with pytest.raises(ValueError) as exception_info: create_setting({"type": "BadSetting"})
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 	with pytest.raises(ValueError) as exception_info: create_setting({})
@@ -89,7 +89,7 @@ def test_create_setting_from_dict_fail():
 
 ###################################################
 def test_int_setting():
-	""" Test basique de la classe (constructeur, getter, setter) """
+	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
 	setting = IntSetting("Test", 1, 0, 10, 1)
 	setting_base_test(setting, 5, 1)
@@ -98,7 +98,7 @@ def test_int_setting():
 
 ###################################################
 def test_float_setting():
-	""" Test basique de la classe (constructeur, getter, setter) """
+	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
 	setting = FloatSetting("Test", 1.0, 0.0, 10.0, 1.0)
 	setting_base_test(setting, 5.0, 1.0)
@@ -107,7 +107,7 @@ def test_float_setting():
 
 ###################################################
 def test_check_setting():
-	""" Test basique de la classe (constructeur, getter, setter) """
+	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
 	setting = CheckSetting("Test")
 	setting_base_test(setting, True, False)
@@ -116,7 +116,7 @@ def test_check_setting():
 
 ###################################################
 def test_combo_setting():
-	""" Test basique de la classe (constructeur, getter, setter) """
+	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
 	setting = ComboSetting("Test", ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
@@ -125,7 +125,7 @@ def test_combo_setting():
 
 ###################################################
 def test_file_setting():
-	""" Test basique de la classe (constructeur, getter, setter) """
+	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
 	setting = FileSetting(label="Test")
 	setting_base_test(setting, "filename.extension", "")

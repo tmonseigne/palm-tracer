@@ -81,7 +81,7 @@ def simulate_disk_io(monitoring: Monitoring, file_size: int = 10, duration: floa
 
 ##################################################
 def test_monitoring():
-	""" Test basique sur la classe. """
+	"""Test basique sur la classe."""
 	monitoring = Monitoring()
 	monitoring.start(0.1)
 	time.sleep(1)
@@ -92,7 +92,7 @@ def test_monitoring():
 
 ##################################################
 def test_monitoring_save():
-	""" Test d'enregistrement des graphiques. """
+	"""Test d'enregistrement des graphiques."""
 	monitoring = Monitoring()
 	monitoring.start(0.1)
 	simulate_cpu_usage(monitoring)

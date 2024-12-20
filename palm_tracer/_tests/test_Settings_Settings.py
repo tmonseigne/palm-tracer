@@ -26,7 +26,7 @@ def initialize():
 
 ###################################################
 def test_settings():
-	""" Test basique de la classe (constructeur, getter, setter) """
+	"""Test basique de la classe (constructeur, getter, setter)"""
 	app = initialize()
 	settings = Settings()
 	names = ["Batch", "Calibration", "Localisation"]

@@ -36,8 +36,8 @@ class BaseSettingType:
 	comportement et ses options spécifiques.
 
 	Attributs :
-		- **label (str)** : Nom du paramètre.
-		- **_layout (QHBoxLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QHBoxLayout.
+			- **label (str)** : Nom du paramètre.
+			- **_layout (QHBoxLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QHBoxLayout.
 	"""
 
 	label: str = ""
@@ -45,7 +45,7 @@ class BaseSettingType:
 
 	##################################################
 	def __post_init__(self):
-		""" Méthode appelée automatiquement après l'initialisation du dataclass. """
+		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
 
 	##################################################
@@ -73,29 +73,29 @@ class BaseSettingType:
 
 	##################################################
 	def set_value(self, value: Any):
-		""" Appliquer la valeur au paramètre """
+		"""Appliquer la valeur au paramètre"""
 		raise NotImplementedError("La méthode 'set_value' doit être implémentée dans la sous-classe.")
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		""" Renvoie un dictionnaire contenant toutes les informations de la classe. """
+		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
 		raise NotImplementedError("La méthode 'to_dict' doit être implémentée dans la sous-classe.")
 
 	##################################################
 	@classmethod
 	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingType":
-		""" Créé une instance de la classe à partir d'un dictionnaire. """
+		"""Créé une instance de la classe à partir d'un dictionnaire."""
 		raise NotImplementedError("La méthode 'from_dict' doit être implémentée dans la sous-classe.")
 
 	##################################################
 	def initialize(self):
-		""" Initialise le paramètre. """
+		"""Initialise le paramètre."""
 		self._layout = QFormLayout(None)
 		self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 
 	##################################################
 	def reset(self):
-		""" Réinitialise le paramètre à sa valeur par défaut. """
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		raise NotImplementedError("La méthode 'reset' doit être implémentée dans la sous-classe.")
 
 	##################################################
@@ -112,12 +112,14 @@ class BaseSettingType:
 # endregion Base Setting
 # ==================================================
 
+
 # ==================================================
 # region Setting Int
 # ==================================================
 @dataclass
 class IntSetting(BaseSettingType):
-	""" Classe pour un paramètre spécifique de type SpinBox Entier. """
+	"""Classe pour un paramètre spécifique de type SpinBox Entier."""
+
 	default: int = 0
 	min: int = 0
 	max: int = 100
@@ -223,12 +225,14 @@ class FloatSetting(BaseSettingType):
 # endregion Setting Float
 # ==================================================
 
+
 # ==================================================
 # region Setting Check Box
 # ==================================================
 @dataclass
 class CheckSetting(BaseSettingType):
-	""" Classe pour un paramètre spécifique de type CheckBox. """
+	"""Classe pour un paramètre spécifique de type CheckBox."""
+
 	default: bool = False
 	value: bool = field(init=False, default=False)
 	box: QCheckBox = field(init=False, default_factory=QCheckBox)
@@ -271,12 +275,14 @@ class CheckSetting(BaseSettingType):
 # endregion Setting Check Box
 # ==================================================
 
+
 # ==================================================
 # region Setting List
 # ==================================================
 @dataclass
 class ComboSetting(BaseSettingType):
-	""" Classe pour un paramètre spécifique de type Liste déroulante. """
+	"""Classe pour un paramètre spécifique de type Liste déroulante."""
+
 	choices: list[str] = field(default_factory=lambda: [""])
 	value: int = field(init=False, default=0)
 	box: QComboBox = field(init=False)
@@ -319,12 +325,14 @@ class ComboSetting(BaseSettingType):
 # endregion Setting List
 # ==================================================
 
+
 # ==================================================
 # region Setting File
 # ==================================================
 @dataclass
 class FileSetting(BaseSettingType):
-	""" Classe pour un paramètre spécifique de type Ouverture de fichier. """
+	"""Classe pour un paramètre spécifique de type Ouverture de fichier."""
+
 	value: str = field(init=False, default="")
 	box: QLineEdit = field(init=False)  # Boîte de texte pour afficher le chemin
 
@@ -369,7 +377,7 @@ class FileSetting(BaseSettingType):
 
 	##################################################
 	def browse_file(self):  # pragma: no cover
-		""" Ouvre un dialogue de sélection de fichier et met à jour la boîte avec le chemin sélectionné. """
+		"""Ouvre un dialogue de sélection de fichier et met à jour la boîte avec le chemin sélectionné."""
 		current = self.get_value()
 		# Si le chemin par défaut n'est pas valide, on utilise le chemin principal du projet
 		if not os.path.exists(current) or current == "": current = os.getcwd()
@@ -383,6 +391,7 @@ class FileSetting(BaseSettingType):
 # ==================================================
 # endregion Setting File
 # ==================================================
+
 
 def create_setting(data: dict[str, Any]) -> "BaseSettingType":
 	""" Créé un setting en fonction d'un dictionnaire en entrée. """

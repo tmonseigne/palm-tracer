@@ -37,14 +37,15 @@ class GaussianFit(BaseSettingGroup):
 	Classe contenant les paramètres du Gaussian Fit :
 
 	Attributs :
-		- **Sigma (FloatSetting)** : Paramètre σ pour l'ajustement gaussien (par défaut : 1.0).
-		- **Sigma Fixed (CheckSetting)** : Indique si le paramètre σ est fixe ou non (par défaut : True).
-		- **Theta (FloatSetting)** : Paramètre θ pour l'ajustement gaussien (par défaut : 1.0).
-		- **Theta Fixed (CheckSetting)** : Indique si le paramètre θ est fixe ou non (par défaut : True).
+			- **Sigma (FloatSetting)** : Paramètre σ pour l'ajustement gaussien (par défaut : 1.0).
+			- **Sigma Fixed (CheckSetting)** : Indique si le paramètre σ est fixe ou non (par défaut : True).
+			- **Theta (FloatSetting)** : Paramètre θ pour l'ajustement gaussien (par défaut : 1.0).
+			- **Theta Fixed (CheckSetting)** : Indique si le paramètre θ est fixe ou non (par défaut : True).
 	"""
+
 	setting_list = {
 			"Sigma":       [FloatSetting, ["σ", 1.0, 0.0, 10.0, 0.1]],
 			"Sigma Fixed": [CheckSetting, ["Fixed", False]],
 			"Theta":       [FloatSetting, ["θ", 1.0, 0.0, 10.0, 0.1]],
-			"Theta Fixed": [CheckSetting, ["Fixed", False]]
+			"Theta Fixed": [CheckSetting, ["Fixed", False]],
 			}

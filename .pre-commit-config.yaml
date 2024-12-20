@@ -12,9 +12,9 @@ repos:
       - id: check-yaml                  # Tente de charger tous les fichiers YAML pour vérifier la syntaxe.
       - id: end-of-file-fixer           # Assure que les fichiers se terminent par une nouvelle ligne et uniquement par une nouvelle ligne.
       - id: name-tests-test             # Vérifie que les fichiers de test sont nommés correctement.
-        args : [--pytest-test-first]    # Assure que les tests correspondent au style test_.*\.py
+        args: [ --pytest-test-first ]   # Assure que les tests correspondent au style test_.*\.py
       - id: trailing-whitespace         # Supprime les espaces de fin de ligne.
-        args: [--markdown-linebreak-ext=md] # Exception pour les fichiers Markdown
+        args: [ --markdown-linebreak-ext=md ] # Exception pour les fichiers Markdown
         exclude: ^\.napari-hub/.*       # Exclusion du dossier
   # I'm not agree with PEP8 so black and ruff are skipped
   #  - repo: https://github.com/astral-sh/ruff-pre-commit

@@ -20,8 +20,9 @@ class BaseSettingGroup:
 	Classe mère pour un groupe de setting :
 
 	Attributs :
-		- **_settings (dict[str, BaseSettingType])** : Liste des settings du groupe
+			- **_settings (dict[str, BaseSettingType])** : Liste des settings du groupe
 	"""
+
 	active: bool = field(init=False, default=False)
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	setting_list = dict[str, list[Union["BaseSettingGroup", Any]]]()
@@ -31,19 +32,19 @@ class BaseSettingGroup:
 	# ==================================================
 	##################################################
 	def __post_init__(self):
-		""" Méthode appelée automatiquement après l'initialisation du dataclass. """
+		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
 
 	##################################################
 	def initialize(self):
-		""" Initialise le dictionnaire de paramètres. """
+		"""Initialise le dictionnaire de paramètres."""
 		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
 		for key, value in self.setting_list.items():
 			self._settings[key] = value[0](*value[1])
 
 	##################################################
 	def reset(self):
-		""" Remet les valeurs par défaut des paramètres. """
+		"""Remet les valeurs par défaut des paramètres."""
 		for _, setting in self._settings.items():
 			setting.reset()
 
@@ -56,27 +57,27 @@ class BaseSettingGroup:
 	# ==================================================
 	##################################################
 	def get_setting_names(self) -> list[str]:
-		""" Récupère le nom des paramètres de ce groupe. """
+		"""Récupère le nom des paramètres de ce groupe."""
 		return list(self._settings.keys())
 
 	##################################################
 	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:
-		""" Surcharge de l'opérateur [] """
+		"""Surcharge de l'opérateur []"""
 		return self._settings[key]
 
 	##################################################
 	def __setitem__(self, key: str, value: Union["BaseSettingGroup", BaseSettingType]):
-		""" Surcharge pour assigner une valeur avec [] """
+		"""Surcharge pour assigner une valeur avec []"""
 		self._settings[key] = value
 
 	##################################################
 	def __contains__(self, key: str) -> bool:
-		""" Surcharge pour vérifier si une clé existe """
+		"""Surcharge pour vérifier si une clé existe"""
 		return key in self._settings
 
 	##################################################
 	def __iter__(self):
-		""" Surcharge pour obtenir l'itérable des clés """
+		"""Surcharge pour obtenir l'itérable des clés"""
 		return iter(self._settings)
 
 	##################################################
@@ -94,14 +95,14 @@ class BaseSettingGroup:
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		""" Renvoie un dictionnaire contenant toutes les informations de la classe. """
+		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
 		return {"type":     type(self).__name__, "active": self.active,
 				"settings": {name: setting.to_dict() for name, setting in self._settings.items()}, }
 
 	##################################################
 	@classmethod
 	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingGroup":
-		""" Créé une instance de la classe à partir d'un dictionnaire. """
+		"""Créé une instance de la classe à partir d'un dictionnaire."""
 		res = cls()  # Instancie la classe appelée
 		res.active = data.get("active", False)
 		settings = data["settings"]
