@@ -9,9 +9,6 @@ Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroup
   - **Mode (Combo)** : Méthode d'utilisation du Batch (chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule
   acquisition).
 
-.. todo::
-   Changer le Add File et Files vers un seul setting FileList plus complet
-
 """
 
 from dataclasses import dataclass
