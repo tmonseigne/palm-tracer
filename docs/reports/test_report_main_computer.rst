@@ -1,5 +1,5 @@
-Test Report Main Pc
-===================
+Test Report Main Computer
+=========================
 
 Environnement
 -------------
@@ -10,6 +10,8 @@ Environnement
      - 3.12.6
    * - Platform
      - Windows-11-10.0.26100-SP0
+   * - JAVA_HOME
+     - C:\Program Files\OpenJDK\jdk-22.0.2
    * - System
      - Windows
    * - CPU
@@ -22,7 +24,7 @@ Environnement
 Summary
 -------
 
-15 tests collected, 15 passed ✅, 0 failed ❌ in 0:00:13s on 10/12/2024 at 17:30:17
+32 tests collected, 32 passed ✅, 0 failed ❌ in 0:00:16s on 06/01/2025 at 12:34:16
 
 Monitoring
 ----------
@@ -42,6 +44,116 @@ Test Cases
 
    <div class="test-page">
 
+Settings Groups
+^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Base Group
+     - ✅
+     - 100ms
+   * - Batch
+     - ✅
+     - 9ms
+   * - Calibration
+     - ✅
+     - 216ms
+   * - Localisation
+     - ✅
+     - 169ms
+   * - Gaussian Fit
+     - ✅
+     - 176ms
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Batch</summary>
+      <pre>- Activate : False<br>- Files : -1<br>- Mode : 0</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Calibration</summary>
+      <pre>- Activate : False<br>- Pixel Size : 320<br>- Exposure : 50<br>- Intensity : 0.012</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Localisation</summary>
+      <pre>- Activate : False<br>- Preview : True<br>- Threshold : 90.0<br>- ROI Size : 7<br>- Watershed : True<br>- Mode : 0<br>- Gaussian Fit :<br>  - Activate : False<br>  - Sigma : 1.0<br>  - Sigma Fixed : False<br>  - Theta : 1.0<br>  - Theta Fixed : False</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Gaussian Fit</summary>
+      <pre>- Activate : False<br>- Sigma : 2.0<br>- Sigma Fixed : False<br>- Theta : 1.0<br>- Theta Fixed : False</pre>
+   </details>
+
+Settings Settings
+^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Settings
+     - ✅
+     - 243ms
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Settings</summary>
+      <pre>Settings :<br>  - Batch :<br>    - Activate : False<br>    - Files : -1<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : False<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : False<br>      - Sigma : 1.0<br>      - Sigma Fixed : False<br>      - Theta : 1.0<br>      - Theta Fixed : False</pre>
+   </details>
+
+Settings Types
+^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Base Setting
+     - ✅
+     - 1ms
+   * - Create Setting From Dict
+     - ✅
+     - 234ms
+   * - Create Setting From Dict Fail
+     - ✅
+     - 1ms
+   * - Spin Int
+     - ✅
+     - 201ms
+   * - Spin Float
+     - ✅
+     - 208ms
+   * - Check Box
+     - ✅
+     - 3ms
+   * - Combo
+     - ✅
+     - 2ms
+   * - Browse File
+     - ✅
+     - 184ms
+   * - File List
+     - ✅
+     - 3ms
+
 Tools Monitoring
 ^^^^^^^^^^^^^^^^
 
@@ -53,16 +165,16 @@ Tools Monitoring
      - Duration
    * - Monitoring
      - ✅
-     - 1.49s
+     - 1.42s
    * - Monitoring Save
      - ✅
-     - 6.69s
+     - 6.76s
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Monitoring</summary>
-      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.62, 0.83, 1.04]<br>CPU Usage : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]<br>Memory Usage : [198.5625, 198.56640625, 198.56640625, 198.5703125, 198.5703125, 198.55078125]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
+      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.64, 0.85, 1.07]<br>CPU Usage : [0.0, 0.51875, 0.44375, 0.446875, 0.446875, 0.0]<br>Memory Usage : [210.828125, 210.83203125, 210.83203125, 210.83203125, 210.83203125, 210.80859375]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
    </details>
 
 .. raw:: html
@@ -101,7 +213,7 @@ Tools Utils
 
    <details>
       <summary>Log Test : Get Timestamp For Files</summary>
-      <pre>-20241210_173011<br>-20241210</pre>
+      <pre>-20250106_123410<br>-20250106</pre>
    </details>
 
 .. raw:: html
@@ -129,7 +241,7 @@ Reader
      - Duration
    * - Reader
      - ✅
-     - 34ms
+     - 33ms
    * - Get Reader Pass
      - ✅
      - 1ms
@@ -156,18 +268,31 @@ Widget
    * - Test Name
      - Status
      - Duration
+   * - Widget Creation
+     - ✅
+     - 3.42s
+   * - Widget On Click
+     - ✅
+     - 573ms
    * - Threshold Autogenerate Widget
      - ✅
      - 1ms
    * - Threshold Magic Widget
      - ✅
-     - 3.69s
+     - 816ms
    * - Image Threshold Widget
      - ✅
-     - 717ms
+     - 847ms
    * - Example Q Widget
      - ✅
-     - 599ms
+     - 569ms
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Widget On Click</summary>
+      <pre>napari has 1 layers<br>Settings :<br>  - Batch :<br>    - Activate : False<br>    - Files : -1<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : False<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : False<br>      - Sigma : 1.0<br>      - Sigma Fixed : False<br>      - Theta : 1.0<br>      - Theta Fixed : False</pre>
+   </details>
 
 Writer
 ^^^^^^

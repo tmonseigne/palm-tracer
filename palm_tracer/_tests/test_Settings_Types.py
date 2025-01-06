@@ -139,4 +139,13 @@ def test_file_list():
 	app = initialize()
 	setting = FileList("Test")
 	setting_base_test(setting, -1, -1)
+	setting.items = ["File1", "File2", "File3"]
+	setting.update_box()
+	setting.set_value(1)
+	assert setting.get_selected() == "File2", "Valeur sélectionnée non valide."
+	setting.remove_file()
+	assert setting.get_list() == ["File1", "File3"], "Liste de fichiers après suppression non valide."
+	setting.clear_files()
+	assert setting.get_list() == [], "Liste de fichiers après nettoyage non valide."
+
 	assert True

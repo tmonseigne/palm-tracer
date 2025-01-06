@@ -57,6 +57,14 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 
 
 ###################################################
+def test_base_group():
+	"""Test basique de la classe abstraite"""
+	group = BaseSettingGroup()
+	group.set_value(None)
+	assert group.get_value() is None, "Get Value ne doit rien retourné pour la classe mère."
+
+
+###################################################
 def test_batch():
 	"""Test basique de la classe Batch (constructeur, getter, setter)"""
 	app = initialize()
