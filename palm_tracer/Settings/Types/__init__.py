@@ -23,6 +23,7 @@ from .BaseSettingType import BaseSettingType
 from .BrowseFile import BrowseFile
 from .CheckBox import CheckBox
 from .Combo import Combo
+from .FileList import FileList
 from .SpinFloat import SpinFloat
 from .SpinInt import SpinInt
 
@@ -33,6 +34,7 @@ def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
 	if data["type"] == "BrowseFile": return BrowseFile.from_dict(data)
 	elif data["type"] == "CheckBox": return CheckBox.from_dict(data)
 	elif data["type"] == "Combo": return Combo.from_dict(data)
+	elif data["type"] == "FileList": return FileList.from_dict(data)
 	elif data["type"] == "SpinFloat": return SpinFloat.from_dict(data)
 	elif data["type"] == "SpinInt": return SpinInt.from_dict(data)
 	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
@@ -40,4 +42,4 @@ def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
 
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingType", "create_setting_from_dict",
-		   "BrowseFile", "CheckBox", "Combo", "SpinFloat", "SpinInt"]
+		   "BrowseFile", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt"]

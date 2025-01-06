@@ -60,8 +60,8 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 def test_batch():
 	"""Test basique de la classe Batch (constructeur, getter, setter)"""
 	app = initialize()
-	group_base_test(Batch(), ["Add File", "Files", "Mode"],
-					BrowseFile, "filename.extension", "")
+	group_base_test(Batch(), ["Files", "Mode"],
+					FileList, -1, -1)
 
 
 ###################################################

@@ -17,7 +17,7 @@ Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroup
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import Combo, BrowseFile
+from palm_tracer.Settings.Types import Combo, FileList
 
 
 ##################################################
@@ -34,7 +34,6 @@ class Batch(BaseSettingGroup):
 	"""
 
 	setting_list = {
-			"Add File": [BrowseFile, ["Add File", ""]],
-			"Files":    [Combo, ["Files", 0, [""]]],
+			"Files":    [FileList, ["Files", 0, []]],
 			"Mode":     [Combo, ["Mode", 0, ["Each File separately", "All in One"]]],
 			}

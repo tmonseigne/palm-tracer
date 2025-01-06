@@ -38,7 +38,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 
 	dictionary = setting.to_dict()
 	setting.reset()
-	assert setting.get_value() == default, "Valeur par défaut non valide."
+	assert setting.get_value() == default, "Valeur par défaut après reset non valide."
 
 	setting = create_setting_from_dict(dictionary)
 	assert setting.get_value() == change, "Valeur récupérée du dictionnaire non valide."
@@ -76,6 +76,8 @@ def test_create_setting_from_dict():
 	assert isinstance(setting, Combo), "La création par dictionnaire vide pour un Combo à échoué."
 	setting = create_setting_from_dict({"type": "BrowseFile"})
 	assert isinstance(setting, BrowseFile), "La création par dictionnaire vide pour un BrowseFile à échoué."
+	setting = create_setting_from_dict({"type": "FileList"})
+	assert isinstance(setting, FileList), "La création par dictionnaire vide pour un FileList à échoué."
 
 
 ###################################################
@@ -129,4 +131,12 @@ def test_browse_file():
 	app = initialize()
 	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
+	assert True
+
+###################################################
+def test_file_list():
+	"""Test basique de la classe (constructeur, getter, setter)"""
+	app = initialize()
+	setting = FileList("Test")
+	setting_base_test(setting, -1, -1)
 	assert True
