@@ -12,7 +12,7 @@ La classe `Settings` est conçue pour interagir directement avec l'interface uti
 """
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 from palm_tracer.Settings.Groups import *
 
@@ -22,7 +22,7 @@ from palm_tracer.Settings.Groups import *
 class Settings:
 	"""Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer"""
 
-	_groups: dict[str, Any] = field(init=False, default_factory=dict[str, Any])
+	_groups: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 
 	# ==================================================
 	# region Initialization
@@ -75,7 +75,7 @@ class Settings:
 	##################################################
 	def get_output_path(self, suffix:str = "_PALM_Tracer"):
 		""" Récupère le chemin des dossiers de sortie des fichiers PALM Tracer"""
-		return self._groups["Batch"].get_path(suffix)
+		return cast(Batch, self._groups["Batch"]).get_path(suffix)
 
 	# ==================================================
 	# endregion Getter/Setter

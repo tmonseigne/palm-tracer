@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from typing import Any, Type
+from typing import Any, cast, Type
 
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtWidgets import QApplication
@@ -73,10 +73,11 @@ def test_batch():
 					FileList, -1, -1)
 
 	assert batch.get_path().endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas"
-	batch["Files"].items = ["output/File 1", "output/File 2"]
-	batch["Files"].update_box()
+	file_list = cast(FileList, batch["Files"])
+	file_list.items = ["output/File 1", "output/File 2"]
+	file_list.update_box()
 	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"
-	batch["Files"].set_value(1)
+	file_list.set_value(1)
 	assert batch.get_path() == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas"
 	batch["Mode"].set_value(1)
 	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"

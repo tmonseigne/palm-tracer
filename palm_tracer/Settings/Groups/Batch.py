@@ -13,6 +13,7 @@ Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroup
 
 import os
 from dataclasses import dataclass
+from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import Combo, FileList
@@ -44,13 +45,14 @@ class Batch(BaseSettingGroup):
 		:return: Chemin complet du dossier généré.
         """
 
+		file_list = cast(FileList, self._settings["Files"])
 		# Si aucun fichier n'est présent
-		if not self._settings["Files"].get_list(): return f"{os.getcwd()}/{suffix}"  # Retourne le chemin courant
+		if not file_list.get_list(): return f"{os.getcwd()}/{suffix}"  # Retourne le chemin courant
 
 		# Si Mode "Only one". Utiliser le fichier sélectionné dans FileList.
-		if self._settings["Mode"].get_value() == 0: file = self._settings["Files"].get_selected()
+		if self._settings["Mode"].get_value() == 0: file = file_list.get_selected()
 		# Sinon. Utiliser le premier fichier de la liste.
-		else: file = self._settings["Files"].get_list()[0]
+		else: file = file_list.get_list()[0]
 
 		if file:
 			base_path, _ = os.path.splitext(file)

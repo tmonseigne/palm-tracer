@@ -9,7 +9,7 @@ Ce sous-package gère les paramètres de configuration et l'interface utilisateu
 **Fonctionnalités principales** :
 
 - Permet un accès direct aux classes principales via `from palm_tracer.Settings import <classe>`.
-- Tous les modules peuvent être importés directement via `from palm_tracer.Settings  import <module>`.
+- Tous les modules peuvent être importés directement via `from palm_tracer.Settings import <module>`.
 
 """
 
