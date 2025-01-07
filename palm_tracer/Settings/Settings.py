@@ -12,8 +12,10 @@ La classe `Settings` est conçue pour interagir directement avec l'interface uti
 """
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from palm_tracer.Settings.Groups import *
+
 
 ##################################################
 @dataclass
@@ -56,9 +58,9 @@ class Settings:
 		return self._groups[key]
 
 	##################################################
-	# def __setitem__(self, key: str, value: BaseSettingGroup):
-	#	""" Surcharge pour assigner une valeur avec [] """
-	#	self._groups[key] = value
+	def __setitem__(self, key: str, value: BaseSettingGroup):
+		""" Surcharge pour assigner une valeur avec [] """
+		self._groups[key] = value
 
 	##################################################
 	def __contains__(self, key: str) -> bool:
@@ -77,6 +79,20 @@ class Settings:
 	# ==================================================
 	# region Parsing
 	# ==================================================
+	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
+		return {"PALM Tracer Settings": {name: group.to_dict() for name, group in self._groups.items()}}
+
+	##################################################
+	@classmethod
+	def from_dict(cls, data: dict[str, Any]) -> "Settings":
+		"""Créé une instance de la classe à partir d'un dictionnaire."""
+		res = cls()  # Instancie la classe appelée
+		groups = data["PALM Tracer Settings"]
+		for key, value in groups.items():
+			if key in res: res[key] = create_group_from_dict(value) # if key exist to avoid bad settings in dictionary
+		return res
 
 	# ==================================================
 	# endregion Parsing
