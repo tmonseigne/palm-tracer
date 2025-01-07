@@ -22,7 +22,7 @@ from palm_tracer.Settings.Groups import *
 class Settings:
 	"""Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer"""
 
-	_groups: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
+	_groups: dict[str, Any] = field(init=False, default_factory=dict[str, Any])
 
 	# ==================================================
 	# region Initialization
@@ -71,6 +71,11 @@ class Settings:
 	def __iter__(self):
 		"""Surcharge pour obtenir l'itérable des clés"""
 		return iter(self._groups)
+
+	##################################################
+	def get_output_path(self, suffix:str = "_PALM_Tracer"):
+		""" Récupère le chemin des dossiers de sortie des fichiers PALM Tracer"""
+		return self._groups["Batch"].get_path(suffix)
 
 	# ==================================================
 	# endregion Getter/Setter

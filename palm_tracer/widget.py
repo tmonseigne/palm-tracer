@@ -7,13 +7,15 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
 """
 
 import ctypes
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
 from palm_tracer.Settings import Settings
-from palm_tracer.Tools import print_warning
+from palm_tracer.Tools import print_warning, save_json
 
 if TYPE_CHECKING: import napari  # pragma: no cover
 
@@ -36,12 +38,7 @@ class PALMTracerWidget(QWidget):
 		self.settings = Settings()
 		self.dll = dict[str, ctypes.CDLL]()
 		self._load_dll()
-
-		btn = QPushButton("Start Processing")
-		btn.clicked.connect(self.on_click)
-
-		self.setLayout(QHBoxLayout())
-		self.layout().addWidget(btn)
+		self._init_ui()
 
 	##################################################
 	def _load_dll(self):  # pragma: no cover
@@ -56,7 +53,35 @@ class PALMTracerWidget(QWidget):
 			else: print_warning(f"Le fichier DLL '{dll_filename}' est introuvable.")
 
 	##################################################
+	def _init_ui(self):
+		# Base
+		self.setLayout(QHBoxLayout())
+		self.layout().setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+		# Settings
+
+		# Launch Button
+		btn = QPushButton("Start Processing")
+		btn.clicked.connect(self.on_click)
+		self.layout().addWidget(btn)
+
+	##################################################
 	def on_click(self):
 		"""Action lors d'un clic"""
 		print(f"napari has {len(self.viewer.layers)} layers")
+		print("Start Processing.")
+
+		# Output directory management
+		output = self.settings.get_output_path()
+		os.makedirs(output, exist_ok=True)
+		print(f"Output directory: {output}")
+
+		# Save settings
+		print("Settings :")
 		print(self.settings)
+		save_json(f"{output}/settings.json", self.settings.to_dict())
+		print("Settings saved.")
+
+		# Process
+		# ........
+		print("Process Finished.")

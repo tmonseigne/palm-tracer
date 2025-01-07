@@ -20,12 +20,12 @@ class BaseSettingGroup:
 	Classe mère pour un groupe de setting :
 
 	Attributs :
-			- **_settings (dict[str, BaseSettingType])** : Liste des settings du groupe
+			- **_settings (dict[str, Union[BaseSettingGroup, BaseSettingType]])** : Liste des settings du groupe
 	"""
 
 	active: bool = field(init=False, default=False)
-	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
-	setting_list = dict[str, list[Union["BaseSettingGroup", Any]]]()
+	_settings: dict[str, Any] = field(init=False)
+	setting_list = dict[str, list[Any]]()
 
 	# ==================================================
 	# region Initialization
@@ -38,7 +38,7 @@ class BaseSettingGroup:
 	##################################################
 	def initialize(self):
 		"""Initialise le dictionnaire de paramètres."""
-		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
+		self._settings = dict[str, Any]()
 		for key, value in self.setting_list.items():
 			self._settings[key] = value[0](*value[1])
 
@@ -61,12 +61,12 @@ class BaseSettingGroup:
 		return list(self._settings.keys())
 
 	##################################################
-	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:
+	def __getitem__(self, key: str) -> Any:
 		"""Surcharge de l'opérateur []"""
 		return self._settings[key]
 
 	##################################################
-	def __setitem__(self, key: str, value: Union["BaseSettingGroup", BaseSettingType]):
+	def __setitem__(self, key: str, value: Any):
 		"""Surcharge pour assigner une valeur avec []"""
 		self._settings[key] = value
 

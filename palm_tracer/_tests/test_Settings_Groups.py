@@ -68,8 +68,19 @@ def test_base_group():
 def test_batch():
 	"""Test basique de la classe Batch (constructeur, getter, setter)"""
 	app = initialize()
-	group_base_test(Batch(), ["Files", "Mode"],
+	batch = Batch()
+	group_base_test(batch, ["Files", "Mode"],
 					FileList, -1, -1)
+
+	assert batch.get_path().endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas"
+	batch["Files"].items = ["output/File 1", "output/File 2"]
+	batch["Files"].update_box()
+	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"
+	batch["Files"].set_value(1)
+	assert batch.get_path() == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas"
+	batch["Mode"].set_value(1)
+	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"
+
 
 
 ###################################################
