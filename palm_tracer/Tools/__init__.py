@@ -15,10 +15,12 @@ Ce sous-package contient des outils utilitaires pour le projet SampleMaker.
 
 # Exemple d'importation des modules pour un accès direct
 from .Drawing import draw_test_section, get_color_map_by_name
+from .FileIO import open_json, save_json
 from .Monitoring import Monitoring
 from .Utils import add_extension, add_suffix, get_timestamp_for_files, print_error, print_warning
 
 # Définir la liste des symboles exportés
-__all__ = ["Drawing", "Monitoring", "Utils",
+__all__ = ["Drawing", "FileIO", "Monitoring", "Utils",
 		   "draw_test_section", "get_color_map_by_name",
+		   "save_json", "open_json",
 		   "add_extension", "add_suffix", "get_timestamp_for_files", "print_error", "print_warning"]
