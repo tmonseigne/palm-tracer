@@ -2,9 +2,6 @@
 Fichier contenant la classe `BaseSettingGroup` et ses sous-classes pour la gestion des groupes de paramètres.
 
 Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
-
-.. todo::
-   Ajout d'un layout pour le sous-groupe
 """
 
 from dataclasses import dataclass, field

@@ -4,6 +4,10 @@ Module contenant la classe `PALMTracerWidget` pour l'interface principale de l'a
 Ce module définit la classe `PALMTracerWidget`, qui crée et gère l'interface utilisateur principale de l'application.
 Elle contient des sections de paramètres organisées sous forme de layout,
 permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
+
+.. todo::
+   Ajouter un logger
+
 """
 
 import ctypes
@@ -12,10 +16,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QFileDialog, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.Settings import Settings
-from palm_tracer.Tools import print_warning, save_json
+from palm_tracer.Tools import open_json, print_warning, save_json
 
 if TYPE_CHECKING: import napari  # pragma: no cover
 
@@ -58,17 +62,30 @@ class PALMTracerWidget(QWidget):
 		self.setLayout(QVBoxLayout())
 		self.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
 
+		# Load Setting Button
+		btn = QPushButton("Load Setting")
+		btn.clicked.connect(self.load_setting)
+		self.layout().addWidget(btn)
+
 		# Settings (basic ugly import)
 		for key in self.settings: self.layout().addLayout(self.settings[key].layout)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
-		btn.clicked.connect(self.on_click)
+		btn.clicked.connect(self.process)
 		self.layout().addWidget(btn)
 
 	##################################################
-	def on_click(self):
-		"""Action lors d'un clic"""
+	def load_setting(self):
+		"""Action lors d'un clic sur le bouton Load setting."""
+		print("Load settings...")
+		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
+		self.settings.update_from_dict(open_json(file_name))
+		print(f"Setting loaded with the file \"{file_name}\".")
+
+	##################################################
+	def process(self):
+		"""Action lors d'un clic sur le bouton process"""
 		print(f"napari has {len(self.viewer.layers)} layers")
 		print("Start Processing.")
 

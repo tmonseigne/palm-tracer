@@ -96,10 +96,15 @@ class Settings:
 	def from_dict(cls, data: dict[str, Any]) -> "Settings":
 		"""Créé une instance de la classe à partir d'un dictionnaire."""
 		res = cls()  # Instancie la classe appelée
+		res.update_from_dict(data)
+		return res
+
+	##################################################
+	def update_from_dict(self, data: dict[str, Any]):
+		""" Met à jour la classe à partir d'un dictionnaire."""
 		groups = data["PALM Tracer Settings"]
 		for key, value in groups.items():
-			if key in res: res[key] = create_group_from_dict(value)  # if key exist to avoid bad settings in dictionary
-		return res
+			if key in self._groups: self._groups[key].update_from_dict(value)  # if key exist to avoid bad settings in dictionary
 
 	# ==================================================
 	# endregion Parsing
