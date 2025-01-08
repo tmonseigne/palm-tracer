@@ -40,6 +40,7 @@ class Calibration(BaseSettingGroup):
 			- **Intensity (SpinFloat)** : Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : 0.0120).
 	"""
 
+	label: str = "Calibration"
 	setting_list = {
 			"Pixel Size": [SpinInt, ["Pixel Size (nm)", 160, 1, 500, 10]],
 			"Exposure":   [SpinInt, ["Exposure Time (ms/frame)", 50, 1, 1000, 10]],

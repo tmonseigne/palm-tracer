@@ -38,6 +38,10 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	:param default: Valeur par défaut du premier paramètre
 	"""
 
+	group.toggle_active(0)
+	assert group.active == False, "Les paramètres doivent être désactivés."
+	group.toggle_active(1)
+	assert group.active == True, "Les paramètres doivent être activés."
 	assert names[0] in group, "La clé n'existe pas"
 	assert group.get_setting_names() == names, "Les paramètres ne correspondent pas"
 	setting = group[names[0]]
@@ -59,6 +63,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 ###################################################
 def test_base_group():
 	"""Test basique de la classe abstraite"""
+	app = initialize()
 	group = BaseSettingGroup()
 	group.set_value(None)
 	assert group.get_value() is None, "Get Value ne doit rien retourné pour la classe mère."
@@ -74,7 +79,7 @@ def test_batch():
 
 	assert batch.get_path().endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas"
 	file_list = cast(FileList, batch["Files"])
-	file_list.items = ["output/File 1", "output/File 2"]
+	file_list.items = ["output/File 1.tif", "output/File 2.tif"]
 	file_list.update_box()
 	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"
 	file_list.set_value(1)

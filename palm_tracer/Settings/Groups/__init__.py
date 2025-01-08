@@ -8,7 +8,6 @@ Ce sous-package gère les groupes de paramètres.
 - `Calibration` : Classe regroupant les paramètres de la Calibration.
 - `Localisation` : Classe regroupant les paramètres de la Localisation.
 - `GaussianFit` : Classe regroupant les paramètres du Gaussian Fit.
-- `SettingTypes` : Ensemble de classes et d'outils pour créer et manipuler les éléments de l'interface utilisateur, tels que les paramètres ajustables.
 
 **Fonctionnalités principales** :
 

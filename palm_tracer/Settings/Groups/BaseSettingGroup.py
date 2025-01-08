@@ -4,11 +4,14 @@ Fichier contenant la classe `BaseSettingGroup` et ses sous-classes pour la gesti
 Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 
 .. todo::
-   Ajout d'un get_widget pour le sous-groupe
+   Ajout d'un layout pour le sous-groupe
 """
 
 from dataclasses import dataclass, field
 from typing import Any, Union
+
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel
 
 from palm_tracer.Settings.Types import BaseSettingType
 
@@ -24,8 +27,10 @@ class BaseSettingGroup:
 	"""
 
 	active: bool = field(init=False, default=False)
-	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
+	label: str = field(init=False, default="Base Setting Group")
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
+	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
+	_layout: QFormLayout = field(init=False)
 
 	# ==================================================
 	# region Initialization
@@ -34,6 +39,7 @@ class BaseSettingGroup:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
+		self.initialize_ui()
 
 	##################################################
 	def initialize(self):
@@ -41,6 +47,32 @@ class BaseSettingGroup:
 		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
 		for key, value in self.setting_list.items():
 			self._settings[key] = value[0](*value[1])
+
+	##################################################
+	def initialize_ui(self):
+		"""Initialise l'interface utilisateur."""
+		# Base
+		self._layout = QFormLayout(None)
+		self._layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
+
+		# Title Row
+		title = QLabel(f"  {self.label}:")
+		title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
+		checkbox = QCheckBox()
+		checkbox.setChecked(self.active)
+		checkbox.stateChanged.connect(self.toggle_active)
+
+		header = QFormLayout(None)
+		header.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+		header.addRow(checkbox, title)
+		self._layout.addRow(header)
+
+		# Settings part (must be managed by the derived class.)
+		settings = QFormLayout(None)
+		settings.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+		settings.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
+		settings.addRow(QLabel("my settings"))  # Ligne temporaire pour tester
+		self._layout.addRow(settings)
 
 	##################################################
 	def reset(self):
@@ -55,6 +87,18 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Getter/Setter
 	# ==================================================
+	##################################################
+	@property
+	def layout(self) -> QFormLayout:
+		"""
+		Retourne le calque associé à ce groupe de paramètres.
+
+		Cette méthode permet d'accéder au calque pour intégrer le groupe de paramètres dans l'interface utilisateur.
+
+		:return: Le calque associé à ce groupe de paramètres.
+		"""
+		return self._layout
+
 	##################################################
 	def get_setting_names(self) -> list[str]:
 		"""Récupère le nom des paramètres de ce groupe."""
@@ -85,6 +129,11 @@ class BaseSettingGroup:
 
 	##################################################
 	def set_value(self, value: Any): return
+
+	##################################################
+	def toggle_active(self, state: int):
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		self.active = bool(state)
 
 	# ==================================================
 	# endregion Getter/Setter

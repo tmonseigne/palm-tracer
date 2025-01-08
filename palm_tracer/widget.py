@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
+from qtpy.QtWidgets import QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.Settings import Settings
 from palm_tracer.Tools import print_warning, save_json
@@ -55,10 +55,11 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _init_ui(self):
 		# Base
-		self.setLayout(QHBoxLayout())
-		self.layout().setAlignment(Qt.AlignmentFlag.AlignLeft)
+		self.setLayout(QVBoxLayout())
+		self.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
 
-		# Settings
+		# Settings (basic ugly import)
+		for key in self.settings: self.layout().addLayout(self.settings[key].layout)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")

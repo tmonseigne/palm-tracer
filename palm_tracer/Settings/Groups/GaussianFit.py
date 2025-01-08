@@ -43,6 +43,7 @@ class GaussianFit(BaseSettingGroup):
 			- **Theta Fixed (CheckBox)** : Indique si le paramètre θ est fixe ou non (par défaut : True).
 	"""
 
+	label: str = "Gaussian Fit"
 	setting_list = {
 			"Sigma":       [SpinFloat, ["σ", 1.0, 0.0, 10.0, 0.1]],
 			"Sigma Fixed": [CheckBox, ["Fixed", False]],

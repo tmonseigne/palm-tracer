@@ -73,7 +73,7 @@ class Settings:
 		return iter(self._groups)
 
 	##################################################
-	def get_output_path(self, suffix:str = "_PALM_Tracer"):
+	def get_output_path(self, suffix: str = "_PALM_Tracer"):
 		""" Récupère le chemin des dossiers de sortie des fichiers PALM Tracer"""
 		return cast(Batch, self._groups["Batch"]).get_path(suffix)
 
@@ -96,7 +96,7 @@ class Settings:
 		res = cls()  # Instancie la classe appelée
 		groups = data["PALM Tracer Settings"]
 		for key, value in groups.items():
-			if key in res: res[key] = create_group_from_dict(value) # if key exist to avoid bad settings in dictionary
+			if key in res: res[key] = create_group_from_dict(value)  # if key exist to avoid bad settings in dictionary
 		return res
 
 	# ==================================================

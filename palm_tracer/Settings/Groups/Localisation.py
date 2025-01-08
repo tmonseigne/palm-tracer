@@ -51,6 +51,7 @@ class Localisation(BaseSettingGroup):
 			- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
 	"""
 
+	label: str = "Localisation"
 	setting_list = {
 			"Preview":      [CheckBox, ["Preview"]],
 			"Threshold":    [SpinFloat, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],

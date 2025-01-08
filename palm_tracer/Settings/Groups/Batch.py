@@ -23,7 +23,7 @@ from palm_tracer.Settings.Types import Combo, FileList
 @dataclass
 class Batch(BaseSettingGroup):
 	"""
-	Classe contenant les informations de calibration :
+	Classe contenant les informations de batch de fichiers :
 
 	Attributs :
 			- **Files (FileList)** : Liste des fichiers au Batch.
@@ -31,6 +31,7 @@ class Batch(BaseSettingGroup):
 			  (Un seul fichier est traité ou chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition).
 	"""
 
+	label: str = "Batch"
 	setting_list = {
 			"Files": [FileList, ["Files", 0, []]],
 			"Mode":  [Combo, ["Mode", 0, ["Only one", "Each File separately", "All in One"]]],
@@ -57,4 +58,5 @@ class Batch(BaseSettingGroup):
 		if file:
 			base_path, _ = os.path.splitext(file)
 			return f"{base_path}{suffix}"
-		return f"{os.getcwd()}/{suffix}"
+		# if not file est impossible, mais au cas où.
+		return f"{os.getcwd()}/{suffix}" # pragma: no cover
