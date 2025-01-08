@@ -40,7 +40,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 
 	group.toggle_active(0)
 	assert group.active == False, "Les paramètres doivent être désactivés."
-	group.toggle_active(1)
+	group.activate(True)
 	assert group.active == True, "Les paramètres doivent être activés."
 	assert names[0] in group, "La clé n'existe pas"
 	assert group.get_setting_names() == names, "Les paramètres ne correspondent pas"

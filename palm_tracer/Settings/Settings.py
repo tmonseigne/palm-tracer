@@ -33,6 +33,8 @@ class Settings:
 		self._groups["Batch"] = Batch()
 		self._groups["Calibration"] = Calibration()
 		self._groups["Localisation"] = Localisation()
+		self._groups["Batch"].activate()
+		self._groups["Calibration"].activate()
 
 	##################################################
 	def reset(self):

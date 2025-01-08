@@ -45,11 +45,9 @@ class BrowseFile(BaseSettingType):
 		return {"type": type(self).__name__, "label": self.label, "value": self.value}
 
 	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "BrowseFile":
-		res = cls(data.get("label", ""))
-		res.set_value(data.get("value", ""))
-		return res
+	def update_from_dict(self, data: dict[str, Any]):
+		self.label = data.get("label", "")
+		self.set_value(data.get("value", ""))
 
 	##################################################
 	def initialize(self):

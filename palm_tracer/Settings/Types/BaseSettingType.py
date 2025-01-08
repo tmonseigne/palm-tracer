@@ -73,7 +73,14 @@ class BaseSettingType:
 	@classmethod
 	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingType":
 		"""Créé une instance de la classe à partir d'un dictionnaire."""
-		raise NotImplementedError("La méthode 'from_dict' doit être implémentée dans la sous-classe.")
+		res = cls(data.get("label", ""))
+		res.update_from_dict(data)
+		return res
+
+	##################################################
+	def update_from_dict(self, data: dict[str, Any]):
+		""" Met à jour la classe à partir d'un dictionnaire."""
+		raise NotImplementedError("La méthode 'update_from_dict' doit être implémentée dans la sous-classe.")
 
 	##################################################
 	def initialize(self):

@@ -84,11 +84,11 @@ class FileList(BaseSettingType):
 		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
 
 	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "FileList":
-		res = cls(data.get("label", ""), data.get("default", 0), data.get("items", [""]))
-		res.set_value(data.get("value", res.default))
-		return res
+	def update_from_dict(self, data: dict[str, Any]):
+		self.label = data.get("label", "")
+		self.default = data.get("default", False)
+		self.items = data.get("items", [""])
+		self.set_value(data.get("value", self.default))
 
 	##################################################
 	def initialize(self):

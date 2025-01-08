@@ -51,11 +51,17 @@ class SpinInt(BaseSettingType):
 				"min":  self.min, "max": self.max, "step": self.step, "value": self.value}
 
 	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "SpinInt":
-		res = cls(data.get("label", ""), data.get("default", 0), data.get("min", 0), data.get("max", 100), data.get("step", 1))
-		res.set_value(data.get("value", 0))
-		return res
+	def update_from_dict(self, data: dict[str, Any]):
+		# Mise à jour des membres
+		self.label = data.get("label", "")
+		self.default = data.get("default", False)
+		self.min = data.get("min", 0)
+		self.max = data.get("max", 100)
+		self.step = data.get("step", 1)
+		# Mise à jour de la boite QT
+		self.box.setRange(self.min, self.max)
+		self.box.setSingleStep(self.step)
+		self.set_value(data.get("value", self.default))
 
 	##################################################
 	def initialize(self):

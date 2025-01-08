@@ -46,11 +46,10 @@ class CheckBox(BaseSettingType):
 		return {"type": type(self).__name__, "label": self.label, "default": self.default, "value": self.value}
 
 	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "CheckBox":
-		res = cls(data.get("label", ""), data.get("default", False))
-		res.set_value(data.get("value", False))
-		return res
+	def update_from_dict(self, data: dict[str, Any]):
+		self.label = data.get("label", "")
+		self.default = data.get("default", False)
+		self.set_value(data.get("value", False))
 
 	##################################################
 	def initialize(self):

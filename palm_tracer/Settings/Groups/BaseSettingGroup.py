@@ -31,6 +31,7 @@ class BaseSettingGroup:
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	_layout: QFormLayout = field(init=False)
+	_checkbox: QCheckBox = field(init=False)
 
 	# ==================================================
 	# region Initialization
@@ -58,13 +59,13 @@ class BaseSettingGroup:
 		# Title Row
 		title = QLabel(f"  {self.label}:")
 		title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
-		checkbox = QCheckBox()
-		checkbox.setChecked(self.active)
-		checkbox.stateChanged.connect(self.toggle_active)
+		self._checkbox = QCheckBox()
+		self._checkbox.setChecked(self.active)
+		self._checkbox.stateChanged.connect(self.toggle_active)
 
 		header = QFormLayout(None)
 		header.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
-		header.addRow(checkbox, title)
+		header.addRow(self._checkbox, title)
 		self._layout.addRow(header)
 
 		# Settings part (must be managed by the derived class.)
@@ -135,6 +136,12 @@ class BaseSettingGroup:
 		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
 
+	##################################################
+	def activate(self, activate: bool = True):
+		"""Met à jour l'état actif du groupe et change également la checkbox."""
+		self.active = activate
+		self._checkbox.setChecked(activate)
+
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================
@@ -145,7 +152,7 @@ class BaseSettingGroup:
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		return {"type":     type(self).__name__, "active": self.active,
+		return {"type":     type(self).__name__, "active": self.active, "label": self.label,
 				"settings": {name: setting.to_dict() for name, setting in self._settings.items()}, }
 
 	##################################################
@@ -153,11 +160,17 @@ class BaseSettingGroup:
 	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingGroup":
 		"""Créé une instance de la classe à partir d'un dictionnaire."""
 		res = cls()  # Instancie la classe appelée
-		res.active = data.get("active", False)
-		settings = data["settings"]
-		for key, value in cls.setting_list.items():  # Appelle `from_dict` pour chaque élément de setting_list
-			if key in settings: res[key] = value[0].from_dict(settings[key])
+		res.update_from_dict(data)
 		return res
+
+	##################################################
+	def update_from_dict(self, data: dict[str, Any]):
+		""" Met à jour la classe à partir d'un dictionnaire."""
+		self.label = data.get("label", self.label)
+		self.activate(data.get("active", False))
+		settings = data["settings"]
+		for key, value in self.setting_list.items():  # Appelle `update_from_dict` pour chaque élément de setting_list
+			if key in settings: self._settings[key].update_from_dict(settings[key])
 
 	##################################################
 	def tostring(self, line_prefix: str = "") -> str:
