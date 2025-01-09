@@ -68,8 +68,9 @@ class BaseSettingGroup:
 		# Settings part (must be managed by the derived class.)
 		settings = QFormLayout(None)
 		settings.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
-		settings.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
-		settings.addRow(QLabel("my settings"))  # Ligne temporaire pour tester
+		settings.setContentsMargins(20, 0, 0, 0)		   # Léger décalage.
+		for key, setting in self._settings.items():
+			settings.addRow(setting.layout)
 		self._layout.addRow(settings)
 
 	##################################################
@@ -108,9 +109,9 @@ class BaseSettingGroup:
 		return self._settings[key]
 
 	##################################################
-	def __setitem__(self, key: str, value: Union["BaseSettingGroup", BaseSettingType]):
-		"""Surcharge pour assigner une valeur avec []"""
-		self._settings[key] = value
+	# def __setitem__(self, key: str, value: Union["BaseSettingGroup", BaseSettingType]):
+	# 	"""Surcharge pour assigner une valeur avec []"""
+	# 	self._settings[key] = value
 
 	##################################################
 	def __contains__(self, key: str) -> bool:

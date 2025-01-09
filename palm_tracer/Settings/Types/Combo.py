@@ -59,7 +59,7 @@ class Combo(BaseSettingType):
 	def initialize(self):
 		super().initialize()			# Appelle l'initialisation de la classe mère.
 		self.box = QComboBox(None)		# Création de la boite.
-		self.box.setFixedWidth(150)		# Réduire la largeur de la boite.
+		# self.box.setFixedWidth(150)	# Réduire la largeur de la boite.
 		self.box.addItems(self.items)   # Ajout des choix possibles.
 		self.set_value(self.default)    # Définition de la valeur.
 		self.add_row(self.box)			# Ajoute la liste déroulante au calque.

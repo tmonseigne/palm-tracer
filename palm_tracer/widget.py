@@ -12,6 +12,7 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
 
 import ctypes
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -19,7 +20,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.Settings import Settings
-from palm_tracer.Tools import open_json, print_warning, save_json
+from palm_tracer.Tools import Logger, open_json, print_warning, save_json
 
 if TYPE_CHECKING: import napari  # pragma: no cover
 
@@ -67,8 +68,12 @@ class PALMTracerWidget(QWidget):
 		btn.clicked.connect(self.load_setting)
 		self.layout().addWidget(btn)
 
-		# Settings (basic ugly import)
+		# Settings
 		for key in self.settings: self.layout().addLayout(self.settings[key].layout)
+
+		# Add Specific behaviour
+		# Lors de l'ajout d'un fichier avec le bouton + du setting batch -> Files, le FileList est mis à jour et le selected également
+		# La mise à jour du selected fait qu'on le recharge pour la visu napari
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
@@ -76,7 +81,7 @@ class PALMTracerWidget(QWidget):
 		self.layout().addWidget(btn)
 
 	##################################################
-	def load_setting(self):
+	def load_setting(self):  # pragma: no cover
 		"""Action lors d'un clic sur le bouton Load setting."""
 		print("Load settings...")
 		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
@@ -87,19 +92,24 @@ class PALMTracerWidget(QWidget):
 	def process(self):
 		"""Action lors d'un clic sur le bouton process"""
 		print(f"napari has {len(self.viewer.layers)} layers")
-		print("Start Processing.")
 
 		# Output directory management
 		output = self.settings.get_output_path()
 		os.makedirs(output, exist_ok=True)
 		print(f"Output directory: {output}")
 
+		logger = Logger()
+		timestamp_suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
+		logger.open(f"{output}/log-{timestamp_suffix}.log")
+		logger.add("Start Processing.")
+
 		# Save settings
 		print("Settings :")
 		print(self.settings)
-		save_json(f"{output}/settings.json", self.settings.to_dict())
-		print("Settings saved.")
+		save_json(f"{output}/settings-{timestamp_suffix}.json", self.settings.to_dict())
+		logger.add("Settings saved.")
 
 		# Process
 		# ........
-		print("Process Finished.")
+		logger.add("Process Finished.")
+		logger.close()

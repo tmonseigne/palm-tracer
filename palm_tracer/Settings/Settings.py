@@ -60,9 +60,9 @@ class Settings:
 		return self._groups[key]
 
 	##################################################
-	def __setitem__(self, key: str, value: BaseSettingGroup):
-		""" Surcharge pour assigner une valeur avec [] """
-		self._groups[key] = value
+	# def __setitem__(self, key: str, value: BaseSettingGroup):
+	# 	""" Surcharge pour assigner une valeur avec [] """
+	# 	self._groups[key] = value
 
 	##################################################
 	def __contains__(self, key: str) -> bool:

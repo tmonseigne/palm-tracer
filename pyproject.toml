@@ -27,6 +27,7 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
 	"colorama",
+	"datetime",
 	"numpy",
 	"magicgui",
 	"qtpy",
