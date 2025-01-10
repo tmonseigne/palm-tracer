@@ -34,7 +34,7 @@ import psutil
 from plotly.subplots import make_subplots
 
 from palm_tracer.Tools.Drawing import draw_test_section, get_color_map_by_name
-from palm_tracer.Tools.Utils import print_warning
+from palm_tracer.Tools.Utils import print_error, print_warning
 
 MEMORY_RATIO = 1.0 / (1024 * 1024)
 
@@ -88,12 +88,12 @@ class Monitoring:
 	##################################################
 	def _reset(self):
 		"""Réinitialise toutes les données de monitoring (CPU, mémoire, disque, etc.)."""
-		self._cpu = []
-		# self.gpu = []
-		self._memory = []
-		self._disk = []
-		self._times = []
-		self._tests_info = []
+		self._cpu.clear()
+		# self.gpu.clear()
+		self._memory.clear()
+		self._disk.clear()
+		self._times.clear()
+		self._tests_info.clear()
 		self._monitoring = False
 		self._thread = threading.Thread()
 
@@ -137,7 +137,7 @@ class Monitoring:
 	def stop(self):
 		"""Arrête la surveillance et effectue une dernière mise à jour des valeurs."""
 		self._monitoring = False
-		self._thread.join()
+		if self._thread.is_alive(): self._thread.join()
 		self._update()  # Dernière entrée
 		self._update_array_for_readability()
 		self._draw()
@@ -250,24 +250,26 @@ class Monitoring:
 						 Le format de sauvegarde sera déterminé en fonction de l'extension du fichier (ex. `.png`, `.html`, `.json`).
 		:param full_html: Option pour l'enregistrement html permettant de ne sauver que le div
 		"""
-
-		_, extension = os.path.splitext(filename)
-		if extension in [".png", ".jpg", ".jpeg", ".bmp", ".svg"]:
-			print_warning("Kaleido doesn't work so well need update. No Image Saved.")
-		# self._figure.write_image(filename, width=1280, height=720, scale=1, engine="kaleido")
-		elif extension == ".html":
-			self._figure.write_html(filename, full_html=full_html)
-		elif extension == ".json":
-			self._figure.write_json(filename)
-		else:
-			with open(filename, "w", encoding="utf-8") as f:
-				f.write(f"Timestamps : {self._times}\n")
-				f.write(f"CPU Usage : {self._cpu}\n")
-				# f.write(f"GPU Usage : {self.gpu}\n")
-				f.write(f"Memory Usage : {self._memory}\n")
-				f.write(f"Disk Usage : {self._disk}\n")
-				f.write("Liste des tests : \n")
-				for test in self._tests_info: f.write(f"{test["File"]}, {test["Test"]}, {test["Timestamp"]}\n")
+		try:
+			_, extension = os.path.splitext(filename)
+			if extension in [".png", ".jpg", ".jpeg", ".bmp", ".svg"]:
+				print_warning("Kaleido doesn't work so well need update. No Image Saved.")
+			# self._figure.write_image(filename, width=1280, height=720, scale=1, engine="kaleido")
+			elif extension == ".html":
+				self._figure.write_html(filename, full_html=full_html)
+			elif extension == ".json":
+				self._figure.write_json(filename)
+			else:
+				with open(filename, "w", encoding="utf-8") as f:
+					f.write(f"Timestamps : {self._times}\n")
+					f.write(f"CPU Usage : {self._cpu}\n")
+					# f.write(f"GPU Usage : {self.gpu}\n")
+					f.write(f"Memory Usage : {self._memory}\n")
+					f.write(f"Disk Usage : {self._disk}\n")
+					f.write("Liste des tests : \n")
+					for test in self._tests_info: f.write(f"{test["File"]}, {test["Test"]}, {test["Timestamp"]}\n")
+		except Exception as e:
+			print_error(f"Erreur lors de la sauvegarde des données : {e}")
 
 	##################################################
 	def tostring(self) -> str:

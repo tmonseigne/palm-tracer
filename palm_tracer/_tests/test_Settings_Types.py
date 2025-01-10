@@ -147,5 +147,4 @@ def test_file_list():
 	assert setting.get_list() == ["File1", "File3"], "Liste de fichiers après suppression non valide."
 	setting.clear_files()
 	assert setting.get_list() == [], "Liste de fichiers après nettoyage non valide."
-
-	assert True
+	assert setting.get_selected() == "", "Valeur non vide."

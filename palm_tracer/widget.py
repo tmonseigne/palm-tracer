@@ -14,13 +14,14 @@ import ctypes
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import cast, TYPE_CHECKING
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.Settings import Settings
-from palm_tracer.Tools import Logger, open_json, print_warning, save_json
+from palm_tracer.Settings.Types import FileList
+from palm_tracer.Tools import Logger, open_json, open_tif, print_error, print_warning, save_json
 
 if TYPE_CHECKING: import napari  # pragma: no cover
 
@@ -40,6 +41,7 @@ class PALMTracerWidget(QWidget):
 		"""
 		super().__init__()
 		self.viewer = viewer
+		self.last_file = ""
 		self.settings = Settings()
 		self.dll = dict[str, ctypes.CDLL]()
 		self._load_dll()
@@ -72,8 +74,12 @@ class PALMTracerWidget(QWidget):
 		for key in self.settings: self.layout().addLayout(self.settings[key].layout)
 
 		# Add Specific behaviour
-		# Lors de l'ajout d'un fichier avec le bouton + du setting batch -> Files, le FileList est mis à jour et le selected également
-		# La mise à jour du selected fait qu'on le recharge pour la visu napari
+		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également
+		# La mise à jour du selected fait qu'on le recharge pour la visu napari (sans doute une fonction connect ?)
+		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
+		file_list_setting = self.settings["Batch"]["Files"]
+		if file_list_setting and isinstance(file_list_setting, FileList):
+			file_list_setting.signal.connect(self.reset_layer)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
@@ -87,6 +93,29 @@ class PALMTracerWidget(QWidget):
 		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
 		self.settings.update_from_dict(open_json(file_name))
 		print(f"Setting loaded with the file \"{file_name}\".")
+
+	##################################################
+	def reset_layer(self):  # pragma: no cover
+		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
+		#
+		selected_file = cast(FileList, self.settings["Batch"]["Files"]).get_selected()
+		if not selected_file:
+			print_warning("No file selected.")
+			return
+
+		if self.last_file == selected_file: return
+		else: self.last_file = selected_file
+
+		# Nettoyez tous les layers existants dans le viewer
+		self.viewer.layers.clear()
+
+		# Chargez le fichier TIF sélectionné comme un layer Raw dans le viewer
+		try:
+			raw_data = open_tif(selected_file)
+			self.viewer.add_image(raw_data, name="Raw")
+			print(f"Loaded {selected_file} into Napari viewer.")
+		except Exception as e:
+			print_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
 	def process(self):
