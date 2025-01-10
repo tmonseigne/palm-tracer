@@ -32,6 +32,8 @@ dependencies = [
 	"magicgui",
 	"qtpy",
 	"scikit-image",
+	"pillow",
+	"tifffile",
 	# Dépendances pour les graphiques
 	"pandas",
 	"plotly",

@@ -6,7 +6,7 @@ import psutil
 import pytest
 from pytest_metadata.plugin import metadata_key
 
-from palm_tracer.Tools import Monitoring, print_warning
+from palm_tracer.Tools import Monitoring, print_error, print_warning
 
 all_tests_monitoring = Monitoring()
 
@@ -64,7 +64,8 @@ def pytest_sessionfinish(session, exitstatus):
 	global all_tests_monitoring
 	all_tests_monitoring.stop()
 	for ext in ["png", "html", "json", "txt"]:
-		all_tests_monitoring.save(f"reports/monitoring.{ext}")
+		try: all_tests_monitoring.save(f"reports/monitoring.{ext}")
+		except Exception as e: print_error(f"Impossible de sauvegarder le monitoring au format {ext} : {e}")
 	add_to_json("reports/test_report.json", "metadata", session.config.stash[metadata_key])
 
 
