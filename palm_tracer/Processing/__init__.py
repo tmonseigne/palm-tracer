@@ -1,0 +1,22 @@
+"""
+Ce sous-package contient les fonctions de traitement pour le projet.
+
+**Modules disponibles** :
+
+- DLL : Fournit des fonctions en lien avec les DLL Palm.
+- Threshold : Fournit des fonctions de seuillage automatique.
+
+**Fonctionnalités principales** :
+
+- Tous les modules peuvent être importés directement via `from palm_tracer.Processing import <module>`.
+
+"""
+
+# Exemple d'importation des modules pour un accès direct
+from .DLL import get_gaussian_mode, load_dll, run_dll
+from .Threshold import auto_threshold, auto_threshold_dll, auto_threshold_spectral, auto_threshold_spectral_dll
+
+# Définir la liste des symboles exportés
+__all__ = ["Threshold",
+		   "get_gaussian_mode", "load_dll", "run_dll",
+		   "auto_threshold", "auto_threshold_dll", "auto_threshold_spectral", "auto_threshold_spectral_dll"]

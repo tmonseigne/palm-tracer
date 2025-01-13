@@ -1,0 +1,21 @@
+Settings :
+  - Dimension :
+    - Taille (px) : 256
+    - Nombre de Frames : 10
+  - Setup :
+    - Taille des pixels (nm) : 160
+    - Ouverture Numérique : 1.4
+  - Fluorophore :
+    - Longueur d'onde (nm) : 600
+    - Intensité : 5000
+    - Variation (%) : 10.0
+    - Scintillement (ms) : 50
+  - Structure :
+    - Densité (molécules/µm²)  : 0.25
+    - Ratio Astigmatisme : 2.0
+    - Masque de répartition : [2, 64]
+    - Style de pile : [0, None]
+  - Noise :
+    - Intensité du bruit de fond : 500
+    - Variation du bruit de fond (%) : 10.0
+    - SNR : 10.0
