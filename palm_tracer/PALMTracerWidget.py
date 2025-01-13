@@ -7,10 +7,8 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
 
 """
 
-import ctypes
 import os
 from datetime import datetime
-from pathlib import Path
 from typing import cast
 
 import napari
@@ -19,6 +17,7 @@ import pandas as pd
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QVBoxLayout, QWidget
 
+from palm_tracer.Processing import load_dll
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import Logger, open_json, open_tif, print_error, print_warning, save_json
@@ -41,21 +40,8 @@ class PALMTracerWidget(QWidget):
 		self.viewer = viewer
 		self.last_file = ""
 		self.settings = Settings()
-		self.dll = dict[str, ctypes.CDLL]()
-		self._load_dll()
+		self.dll = load_dll()
 		self._init_ui()
-
-	##################################################
-	def _load_dll(self):  # pragma: no cover
-		"""Récupère les DLLs si elles existent."""
-		dll_path = Path(__file__).parent / "DLL"
-
-		# for name in ["CPU", "GPU", "Live", "Tracking"]:
-		# GPU et Live n'arrivent pas à se charger (sans doute une dépendance caché autre), elles sont retirées pour le moment.
-		for name in ["CPU", "Tracking"]:
-			dll_filename = dll_path / f"{name}_PALM.dll"
-			if dll_filename.exists(): self.dll[name] = ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
-			else: print_warning(f"Le fichier DLL '{dll_filename}' est introuvable.")
 
 	##################################################
 	def _init_ui(self):
@@ -65,7 +51,7 @@ class PALMTracerWidget(QWidget):
 
 		# Load Setting Button
 		btn = QPushButton("Load Setting")
-		btn.clicked.connect(self.load_setting)
+		btn.clicked.connect(self._load_setting)
 		self.layout().addWidget(btn)
 
 		# Settings
@@ -77,7 +63,7 @@ class PALMTracerWidget(QWidget):
 		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
 		file_list_setting = self.settings["Batch"]["Files"]
 		if file_list_setting and isinstance(file_list_setting, FileList):
-			file_list_setting.signal.connect(self.reset_layer)
+			file_list_setting.signal.connect(self._reset_layer)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
@@ -85,7 +71,7 @@ class PALMTracerWidget(QWidget):
 		self.layout().addWidget(btn)
 
 	##################################################
-	def load_setting(self):  # pragma: no cover
+	def _load_setting(self):  # pragma: no cover
 		"""Action lors d'un clic sur le bouton Load setting."""
 		print("Load settings...")
 		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
@@ -93,7 +79,7 @@ class PALMTracerWidget(QWidget):
 		print(f"Setting loaded with the file \"{file_name}\".")
 
 	##################################################
-	def reset_layer(self):  # pragma: no cover
+	def _reset_layer(self):  # pragma: no cover
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		#
 		selected_file = cast(FileList, self.settings["Batch"]["Files"]).get_selected()
@@ -121,10 +107,10 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.float32)	  # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.float32)  # Renvoie sous le format numpy
 
 	##################################################
 	def process(self):
@@ -158,6 +144,22 @@ class PALMTracerWidget(QWidget):
 		logger.add("Meta File Saved.")
 
 		# Process
-		# ........
+		# Parsing des paramètres pour le process et la DLL (localisation, tracking, HR Visualization...)
+		# Récupération de l'image selon le Batch (une image, une pile, un ensemble de pile)
+		# Pour chaque image :
+		# 	Lancement de la DLL
+		#   Enregistrement des fichiers loc et trace si selectionné
+		#   Enregistrement des Images si visu HR
+
+		# Test auto_threshold
+		# Récupération de l'image affiché dans le viewer (donc dans le layer Raw récupération du plan actuellement affiché
+		image = self._get_actual_image()
+		if image is None:
+			print_warning("image non valide")
+			return
+		# threshold = auto_threshold(image)
+		# print(f"Threshold :{threshold}")
+		# Test auto_threshold_dll
+		# Test process Palm
 		logger.add("Process Finished.")
 		logger.close()

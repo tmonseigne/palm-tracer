@@ -1,15 +1,12 @@
 """ Fichier des tests pour l'ensemble des paramètres. """
 
 import sys
-from pathlib import Path
 
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtWidgets import QApplication
 
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import Calibration
-
-INPUT_DIR = Path(__file__).parent / "Input"
 
 
 ##################################################

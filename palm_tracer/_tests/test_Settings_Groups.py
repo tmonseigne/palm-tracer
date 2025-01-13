@@ -1,7 +1,6 @@
 """ Fichier des tests pour l'ensemble des paramètres. """
 
 import sys
-from pathlib import Path
 from typing import Any, cast, Type
 
 from qtpy.QtCore import QCoreApplication, Qt
@@ -9,8 +8,6 @@ from qtpy.QtWidgets import QApplication
 
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Types import *
-
-INPUT_DIR = Path(__file__).parent / "Input"
 
 
 ##################################################
@@ -86,7 +83,6 @@ def test_batch():
 	assert batch.get_path() == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas"
 	batch["Mode"].set_value(1)
 	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"
-
 
 
 ###################################################
