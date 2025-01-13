@@ -29,13 +29,13 @@ dependencies = [
 	"colorama",
 	"datetime",
 	"numpy",
+	"pandas",
 	"magicgui",
 	"qtpy",
 	"scikit-image",
 	"pillow",
 	"tifffile",
 	# Dépendances pour les graphiques
-	"pandas",
 	"plotly",
 	"kaleido",
 	# Dépendances pour les infos cross plateforme

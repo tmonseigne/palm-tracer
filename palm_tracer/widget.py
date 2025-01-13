@@ -5,25 +5,23 @@ Ce module définit la classe `PALMTracerWidget`, qui crée et gère l'interface 
 Elle contient des sections de paramètres organisées sous forme de layout,
 permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
 
-.. todo::
-   Ajouter un logger
-
 """
 
 import ctypes
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import cast, TYPE_CHECKING
+from typing import cast
 
+import napari
+import numpy as np
+import pandas as pd
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import Logger, open_json, open_tif, print_error, print_warning, save_json
-
-if TYPE_CHECKING: import napari  # pragma: no cover
 
 
 ##################################################
@@ -100,7 +98,8 @@ class PALMTracerWidget(QWidget):
 		#
 		selected_file = cast(FileList, self.settings["Batch"]["Files"]).get_selected()
 		if not selected_file:
-			print_warning("No file selected.")
+			self.last_file = ""
+			print_warning("Aucun fichier sélectionné.")
 			return
 
 		if self.last_file == selected_file: return
@@ -118,9 +117,21 @@ class PALMTracerWidget(QWidget):
 			print_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
+	def _get_actual_image(self) -> np.ndarray | None:
+		if self.last_file == "":
+			print_warning("Aucun fichier en preview.")
+			return None
+		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
+		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
+		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.float32)	  # Renvoie sous le format numpy
+
+	##################################################
 	def process(self):
 		"""Action lors d'un clic sur le bouton process"""
-		print(f"napari has {len(self.viewer.layers)} layers")
+		if self.last_file == "":
+			print_warning("Aucun fichier en preview.")
+			return
 
 		# Output directory management
 		output = self.settings.get_output_path()
@@ -133,10 +144,18 @@ class PALMTracerWidget(QWidget):
 		logger.add("Start Processing.")
 
 		# Save settings
-		print("Settings :")
 		print(self.settings)
 		save_json(f"{output}/settings-{timestamp_suffix}.json", self.settings.to_dict())
-		logger.add("Settings saved.")
+		logger.add("Settings Saved.")
+
+		# Save meta file (Création du DataFrame et sauvegarde en CSV)
+		depth, height, width = self.viewer.layers["Raw"].data.shape
+		df = pd.DataFrame({"Height":                   [height], "Width": [width], "Plane Number": [depth],
+						   "Pixel Size (nm)":          [self.settings["Calibration"]["Pixel Size"].get_value()],
+						   "Exposure Time (ms/frame)": [self.settings["Calibration"]["Exposure"].get_value()],
+						   "Intensity (photon/ADU)":   [self.settings["Calibration"]["Intensity"].get_value()]})
+		df.to_csv(f"{output}/meta-{timestamp_suffix}.csv", index=False)
+		logger.add("Meta File Saved.")
 
 		# Process
 		# ........
