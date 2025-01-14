@@ -74,11 +74,11 @@ def get_gaussian_mode(gaussian_fit: bool, sigma_fixed: bool, theta_fixed: bool) 
 
 	"""
 	if gaussian_fit:
-		if sigma_fixed and theta_fixed: return 1		  # Mode X, Y
-		if not sigma_fixed and theta_fixed: return 2	  # Mode X, Y sigma
-		if sigma_fixed and not theta_fixed: return 3	  # Mode X, Y sigmaX, sigmaY
-		if not sigma_fixed and not theta_fixed: return 4  # Mode X, Y sigmaX, sigmaY, Theta
-	return 0											  # Mode None
+		if sigma_fixed and theta_fixed: return 1	  # Mode X, Y
+		if not sigma_fixed and theta_fixed: return 2  # Mode X, Y sigma
+		if sigma_fixed and not theta_fixed: return 3  # Mode X, Y sigmaX, sigmaY
+		return 4									  # Mode X, Y sigmaX, sigmaY, Theta
+	return 0										  # Mode None
 
 
 ##################################################
