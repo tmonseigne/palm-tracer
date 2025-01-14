@@ -51,6 +51,12 @@ jobs:
       - name: Set up QT for Linux (libxcb, x11...)
         uses: tlambert03/setup-qt-libs@v1
 
+      - name: Install 7-Zip on Windows and extract DLLs
+        if: runner.os == 'Windows'
+        run: |
+          choco install 7zip -y
+          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -o"palm_tracer"
+
       # strategy borrowed from vispy for installing OpenGL libs on windows
       - name: Install Windows OpenGL
         if: runner.os == 'Windows'
