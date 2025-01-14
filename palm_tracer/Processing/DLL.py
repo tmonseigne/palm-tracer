@@ -51,6 +51,7 @@ def load_dll() -> dict[str, ctypes.CDLL]:
 		dll_filename = dll_path / f"{name}_PALM.dll"
 		try:
 			res[name] = ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
+			print(f"DLL '{dll_filename}' chargé.")
 		except OSError as e:
 			print_warning(f"Impossible de charger la DLL '{dll_filename}':\n\t{e}")
 	return res
