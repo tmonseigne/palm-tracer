@@ -6,72 +6,66 @@ Ce module regroupe des utilitaires pour :
 
 - Chargement de DLLs : chargement des bibliothèques nécessaires au traitement d'image.
 - Traitement d'images : exécution de traitements via DLLs pour détecter des points sur une image.
-- Calcul de paramètres théoriques : estimation du nombre de points détectables en fonction des dimensions de l'image et de la densité.
+- Calcul et parsing de paramètres   estimation du nombre de points détectables en fonction des dimensions de l'image et de la densité.
 
 **Structure** :
 
-1. **DLL Loading**
-
-   - `load_dll` : Charge les DLL nécessaires pour les traitements d'image (CPU, GPU, Live, Tracking).
-
-2. **Image Processing**
-
-   - `run_dll` : Exécute un traitement d'image avec une DLL PALM pour détecter des points.
-
-3. **Gaussian Fit Mode**
+1. **Parsing**
 
    - `get_gaussian_mode` : Détermine le mode de fit Gaussien selon les paramètres fournis.
-
-4. **Point Calculation**
-
    - `get_max_points` : Calcule le nombre maximal théorique de points détectables dans une image.
+   - `parse_palm_result` : Transforme le résultat de la DLL PALM en Dataframe lisible.
 
+2. **DLL Manipulation**
+
+   - `load_dll` : Charge les DLL nécessaires pour les traitements d'image (CPU, GPU, Live, Tracking).
+   - `run_palm_dll` : Exécute un traitement d'image avec une DLL PALM pour détecter des points.
+
+.. todo::
+	Les différentes DLL PALM nécessitent sans doute des dépendances supplémentaires, le code source me permettrait de définir lesquelles.
+	GPU et Live ne peuvent être chargé sur mon ordinateur (peut-être CUDA pour le GPU ?).
+	CPU n'est pas non plus valide sur le CI en revanche Tracking n'a aucun problème.
+	Cela me fait donc bien penser à une sorte de dépendance caché, le CI étant un environnement vierge.
 """
 
 import ctypes
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 from palm_tracer.Tools import print_warning
 
 N_SEGMENTS = 13  # Nombre de paramètres pour chaque détection.
-X_POS = 4  # Position du X dans les paramètres.
-Y_POS = 3  # Position du Y dans les paramètres.
+SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
+			"Intensity 0",		 # Intensity too ?????? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
+			"Intensity Offset",  # Intensity Offset ???
+			"MSE Gauss",		 # MSE Gauss
+			"Intensity",		 # Intensity (Integrated Wavelet Intensity ????)
+			"Surface", "Z", "Pair Distance", "Id"]
 
 
-##################################################
-def load_dll() -> dict[str, ctypes.CDLL]:
-	"""Récupère les DLLs si elles existent."""
-	res = dict[str, ctypes.CDLL]()
-	dll_path = Path(__file__).parent.parent / "DLL"
-
-	# GPU et Live n'arrivent pas à se charger (sans doute une dépendance caché autre).
-	for name in ["CPU", "GPU", "Live", "Tracking"]:
-		dll_filename = dll_path / f"{name}_PALM.dll"
-		try:
-			res[name] = ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
-			print(f"DLL '{dll_filename}' chargé.")
-		except OSError as e:
-			print_warning(f"Impossible de charger la DLL '{dll_filename}':\n\t{e}")
-	return res
+# With Gaussian Fit : Calculate Integrated Gaussian Intensity = I0 * 2 * pi * sigmaX * Sigma Y
 
 
+# ==================================================
+# region Parsing
+# ==================================================
 ##################################################
 def get_gaussian_mode(gaussian_fit: bool, sigma_fixed: bool, theta_fixed: bool) -> int:
 	"""
-    Détermine le mode de fit Gaussien basé sur les paramètres donnés.
+    Détermine le mode d'ajustement Gaussien basé sur les paramètres donnés.
 
-    :param gaussian_fit: Indique si le fit Gaussien est activé.
+    :param gaussian_fit: Indique si l'ajustement Gaussien est activé.
 	:param sigma_fixed: Indique si le sigma est fixe.
 	:param theta_fixed: Indique si le theta est fixe.
 
-	:return:Mode correspondant :
-            - 0 : Pas de fit Gaussien
-            - 1 : Mode X, Y
-            - 2 : Mode X, Y, sigma
-            - 3 : Mode X, Y, sigmaX, sigmaY
-            - 4 : Mode X, Y, sigmaX, sigmaY, Theta
+	:return: Mode correspondant :
+		- 0 : Pas d'ajustement Gaussien
+		- 1 : Mode X, Y (theta et sigma sont fixes)
+		- 2 : Mode X, Y, sigma (theta est fixe, Sigma Non)
+		- 3 : Mode X, Y, sigmaX, sigmaY (theta n'est pas fixe, Sigma Si)
+		- 4 : Mode X, Y, sigmaX, sigmaY, Theta (theta et sigma ne sont pas fixes)
 
 	"""
 	if gaussian_fit:
@@ -94,12 +88,57 @@ def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_
 
 	:return: Nombre maximal théorique de points détectables.
 	"""
-	return int(height * width * density * n_planes * N_SEGMENTS)
+	return int(height * width * density * n_planes) * N_SEGMENTS
 
 
 ##################################################
-def run_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bool,
-			gauss_fit: int, sigma: float, theta: float, roi_size: int) -> np.ndarray:
+def parse_palm_result(data: np.ndarray, sort: bool = True) -> pd.DataFrame:
+	"""
+	Parsing du résultat de la DLL PALM.
+
+	On a un tableau 1D de grande taille en entrée :
+		- On le découpe en tableau 2D à 13 colonnes (`N_SEGMENTS`).	La taille du tableau est vérifié et tronqué si nécessaire.
+		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
+		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes telles que Sigma X, Sigma Y, X ou Y strictement positif suffit.
+
+	:param data: Donnée en entrée récupérées depuis la DLL PALM.
+	:param sort: Tri des points par Y puis X (sens de lecture Gauche à droite du haut vers le bas).
+	:return: Dataframe filtré
+	"""
+	size = (data.size // N_SEGMENTS) * N_SEGMENTS							   # Récupération de la taille correcte si non multiple de N_SEGMENTS
+	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENTS), columns=SEGMENTS)  # Transformation en Dataframe
+	res = res[(res.iloc[:, 0] > 0)]											   # Filtrage des lignes remplies de 0 et -1
+	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])	   # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
+	return res.reset_index(drop=True)
+
+
+# ==================================================
+# endregion Parsing
+# ==================================================
+
+# ==================================================
+# region DLL Manipulation
+# ==================================================
+##################################################
+def load_dll() -> dict[str, ctypes.CDLL]:
+	"""Récupère les DLLs si elles existent."""
+	res = dict[str, ctypes.CDLL]()
+	dll_path = Path(__file__).parent.parent / "DLL"
+
+	# GPU et Live n'arrivent pas à se charger (sans doute une dépendance cachée autre).
+	for name in ["CPU", "GPU", "Live", "Tracking"]:
+		dll_filename = dll_path / f"{name}_PALM.dll"
+		try:
+			res[name] = ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
+			print(f"DLL '{dll_filename}' chargée.")
+		except OSError as e:
+			print_warning(f"Impossible de charger la DLL '{dll_filename}':\n\t{e}")
+	return res
+
+
+##################################################
+def run_palm_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bool,
+				 gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
 	"""
     Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
@@ -107,9 +146,9 @@ def run_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bo
 	:param image: Image d'entrée sous forme de tableau numpy.
 	:param threshold: Seuil pour la détection.
 	:param watershed: Active ou désactive le mode watershed.
-	:param gauss_fit: Mode de fit Gaussien (défini par `get_gaussian_mode`).
-	:param sigma: Valeur initiale du sigma pour le fit Gaussien.
-	:param theta: Valeur initiale du theta pour le fit Gaussien.
+	:param gauss_fit: Mode d'ajustement Gaussien (défini par `get_gaussian_mode`).
+	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
+	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 	:param roi_size: Taille de la région d'intérêt (ROI).
 
 	:return: Liste des points détectés sous forme de tuples (X, Y).
@@ -133,14 +172,11 @@ def run_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bo
 	# Running
 	dll._OpenPALMProcessing(c_image, c_points, n_points, c_width, c_height, c_wavelet, c_threshold, c_watershed,
 							c_vol_min, c_int_min, c_gauss_fit, c_sigma, c_sigma, c_theta, c_roi_size)
-	dll_ret = dll._PALMProcessing()
+	dll._PALMProcessing()
 	dll._closePALMProcessing()
 
-	result = np.ctypeslib.as_array(c_points, shape=(n_points,))
+	return parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n_points,)))
 
-	# Manage Result to have points
-	res = []
-	for i in range(0, len(result) - N_SEGMENTS, N_SEGMENTS):
-		x, y = result[i + X_POS], result[i + Y_POS]
-		if int(x) > 0 and int(y) > 0: res.append([result[i + 4], result[i + 3]])  # Conservation des résultats strictement positifs.
-	return np.array(res, dtype=np.float32)
+# ==================================================
+# endregion DLL Manipulation
+# ==================================================
