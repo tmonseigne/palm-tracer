@@ -98,7 +98,7 @@ jobs:
         continue-on-error: true  # Permet de continuer même si cette étape échoue
 
       - name: Upload coverage reports to Codecov
-        if: matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.13'
+        if: matrix.platform == 'windows-latest' && matrix.python-version == '3.13'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
