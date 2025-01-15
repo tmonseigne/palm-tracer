@@ -4,19 +4,11 @@ Fichier contenant des fonctions pour le calcul automatique de seuils d'image, ba
 Ce module regroupe des utilitaires pour :
 
 - Calcul de seuils automatiques : estimation du seuil de segmentation pour une image.
-- Méthodes expérimentales : placeholders pour des méthodes avancées de calcul de seuil utilisant des DLLs ou des approches spectrales.
 
 **Structure** :
 
-1. **Auto Thresholding**
-
    - `auto_threshold` : Calcule un seuil automatique basé sur l'écart type des pixels de l'image et les régions d'intérêt (ROI).
-
-2. **Méthodes à implémenter**
-
-   - `auto_threshold_dll` : Placeholder pour une méthode de calcul de seuil utilisant une DLL.
-   - `auto_threshold_spectral` : Placeholder pour une méthode spectrale de calcul de seuil.
-   - `auto_threshold_spectral_dll` : Placeholder pour une méthode spectrale de calcul de seuil utilisant une DLL.
+   - `auto_threshold_dll` : Calcule un seuil automatique basé sur l'écart type des pixels de l'image et les régions d'intérêt (ROI).
 
 .. note::
 	Lors de la mise à jour du masque, il n'est pas remis à 0 à chaque iteration, cela ne change pas grand chose au final, mais c'est étrange.

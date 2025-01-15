@@ -21,8 +21,8 @@ class CheckBox(BaseSettingType):
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
 			- **default (bool)** : Valeur par défaut du paramètre.
-    		- **value (bool)** : Valeur actuelle du paramètre.
-    		- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
+			- **value (bool)** : Valeur actuelle du paramètre.
+			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: bool = False

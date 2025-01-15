@@ -1,32 +1,6 @@
 """
-Fichier contenant la classe `Localisation` dérivée de `BaseSettingGroup`, qui regroupe les paramètres de calibration nécessaires
-à la configuration de PALM Tracer.
-
-**Attributs de la classe Localisation** :
-
-- **Preview (CheckBox)** : Activation ou désactivation de la preview.
-  - Valeur par défaut : False
-
-- **Threshold (SpinFloat)** : Seuil de détection de la localisation en intensité.
-  - Plage : [0.0, 1000]
-  - Pas : 1
-  - Précision : 2
-  - Valeur par défaut : 90
-
-- **ROI Size (SpinInt)** : Taille du carré autour de la localisation.
-  - Plage : [1, 50] pixels
-  - Pas : 1
-  - Valeur par défaut : 7 pixels
-
-- **Watershed (CheckBox)** : Activation ou désactivation du mode Watershed.
-  - Valeur par défaut : False
-
-- **Mode (Combo)** : Mode de calcul pour la localisation.
-  - Choix : Gaussian Fit, Spline
-  - Valeur par défaut : Gaussian Fit
-
-- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
-
+Fichier contenant la classe `Localisation` dérivée de `BaseSettingGroup`,
+qui regroupe les paramètres de calibration nécessaires à la configuration de PALM Tracer.
 """
 
 from dataclasses import dataclass

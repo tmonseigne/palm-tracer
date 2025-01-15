@@ -21,11 +21,11 @@ class SpinInt(BaseSettingType):
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
 			- **default (int)** : Valeur par défaut du paramètre.
-    		- **min (int)** : Valeur minimale du paramètre.
-    		- **max (int)** : Valeur maximale du paramètre.
-    		- **step (int)** : Pas à chaque appuie sur une des flèches du paramètre.
-    		- **value (int)** : Valeur actuelle du paramètre.
-    		- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
+			- **min (int)** : Valeur minimale du paramètre.
+			- **max (int)** : Valeur maximale du paramètre.
+			- **step (int)** : Pas à chaque appuie sur une des flèches du paramètre.
+			- **value (int)** : Valeur actuelle du paramètre.
+			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: int = 0

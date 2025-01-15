@@ -15,7 +15,7 @@ Environnement
    * - System
      - Windows
    * - CPU
-     - Unknown Processor (2.2 GHz - 24 Cores (32 Logical))
+     - Unknown Processor (1.466 GHz - 24 Cores (32 Logical))
    * - RAM
      - 63.69 GB
    * - GPU
@@ -24,7 +24,7 @@ Environnement
 Summary
 -------
 
-32 tests collected, 32 passed ✅, 0 failed ❌ in 0:00:16s on 06/01/2025 at 12:34:16
+42 tests collected, 42 passed ✅, 0 failed ❌ in 0:00:14s on 15/01/2025 at 14:47:36
 
 Monitoring
 ----------
@@ -44,6 +44,85 @@ Test Cases
 
    <div class="test-page">
 
+Processing Dll
+^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Get Gaussian Mode
+     - ✅
+     - 123ms
+   * - Get Max Points
+     - ✅
+     - 1ms
+   * - Parse Palm Result
+     - ✅
+     - 2ms
+   * - Load Dll
+     - ✅
+     - 21ms
+   * - Run Palm Image Dll
+     - ✅
+     - 39ms
+   * - Run Palm Stack Dll
+     - ✅
+     - 272ms
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Load Dll</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Run Palm Image Dll</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Run Palm Stack Dll</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
+   </details>
+
+Processing Threshold
+^^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Auto Threshold
+     - ✅
+     - 3ms
+   * - Auto Threshold Dll
+     - ✅
+     - 11ms
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Auto Threshold</summary>
+      <pre>104.24780444414506</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Auto Threshold Dll</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>103.61033392219885</pre>
+   </details>
+
 Settings Groups
 ^^^^^^^^^^^^^^^
 
@@ -55,46 +134,46 @@ Settings Groups
      - Duration
    * - Base Group
      - ✅
-     - 100ms
+     - 8ms
    * - Batch
      - ✅
-     - 9ms
+     - 6ms
    * - Calibration
      - ✅
-     - 216ms
+     - 201ms
    * - Localisation
      - ✅
-     - 169ms
+     - 156ms
    * - Gaussian Fit
      - ✅
-     - 176ms
+     - 144ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Batch</summary>
-      <pre>- Activate : False<br>- Files : -1<br>- Mode : 0</pre>
+      <pre>- Activate : True<br>- Files : -1<br>- Mode : 0</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Calibration</summary>
-      <pre>- Activate : False<br>- Pixel Size : 320<br>- Exposure : 50<br>- Intensity : 0.012</pre>
+      <pre>- Activate : True<br>- Pixel Size : 320<br>- Exposure : 50<br>- Intensity : 0.012</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Localisation</summary>
-      <pre>- Activate : False<br>- Preview : True<br>- Threshold : 90.0<br>- ROI Size : 7<br>- Watershed : True<br>- Mode : 0<br>- Gaussian Fit :<br>  - Activate : False<br>  - Sigma : 1.0<br>  - Sigma Fixed : False<br>  - Theta : 1.0<br>  - Theta Fixed : False</pre>
+      <pre>- Activate : True<br>- Preview : True<br>- Threshold : 90.0<br>- ROI Size : 7<br>- Watershed : True<br>- Mode : 0<br>- Gaussian Fit :<br>  - Activate : False<br>  - Sigma : 1.0<br>  - Sigma Fixed : False<br>  - Theta : 1.0<br>  - Theta Fixed : False</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Gaussian Fit</summary>
-      <pre>- Activate : False<br>- Sigma : 2.0<br>- Sigma Fixed : False<br>- Theta : 1.0<br>- Theta Fixed : False</pre>
+      <pre>- Activate : True<br>- Sigma : 2.0<br>- Sigma Fixed : False<br>- Theta : 1.0<br>- Theta Fixed : False</pre>
    </details>
 
 Settings Settings
@@ -108,13 +187,13 @@ Settings Settings
      - Duration
    * - Settings
      - ✅
-     - 243ms
+     - 161ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Settings</summary>
-      <pre>Settings :<br>  - Batch :<br>    - Activate : False<br>    - Files : -1<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : False<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : False<br>      - Sigma : 1.0<br>      - Sigma Fixed : False<br>      - Theta : 1.0<br>      - Theta Fixed : False</pre>
+      <pre>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : -1<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 320<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : False<br>      - Sigma : 1.0<br>      - Sigma Fixed : False<br>      - Theta : 1.0<br>      - Theta Fixed : False</pre>
    </details>
 
 Settings Types
@@ -131,28 +210,92 @@ Settings Types
      - 1ms
    * - Create Setting From Dict
      - ✅
-     - 234ms
+     - 170ms
    * - Create Setting From Dict Fail
      - ✅
      - 1ms
    * - Spin Int
      - ✅
-     - 201ms
+     - 161ms
    * - Spin Float
      - ✅
-     - 208ms
+     - 180ms
    * - Check Box
      - ✅
-     - 3ms
+     - 2ms
    * - Combo
      - ✅
      - 2ms
    * - Browse File
      - ✅
-     - 184ms
+     - 163ms
    * - File List
      - ✅
-     - 3ms
+     - 2ms
+
+Tools Fileio
+^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Save Json
+     - ✅
+     - 1ms
+   * - Open Json
+     - ✅
+     - 1ms
+   * - Open Json Bad File
+     - ✅
+     - 1ms
+   * - Save Tif
+     - ✅
+     - 10ms
+   * - Save Tif 2D
+     - ✅
+     - 8ms
+   * - Save Tif Bad Stack
+     - ✅
+     - 1ms
+   * - Open Tif
+     - ✅
+     - 9ms
+   * - Open Tif Bad File
+     - ✅
+     - 1ms
+
+Tools Logger
+^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Logger
+     - ✅
+     - 17ms
+   * - Logger Bad Use
+     - ✅
+     - 1ms
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Logger</summary>
+      <pre>[15-01-2025 14:47:23] : Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log<br>[15-01-2025 14:47:23] First message<br>[15-01-2025 14:47:23] <br>[15-01-2025 14:47:23] after blank<br>[15-01-2025 14:47:23] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Logger Bad Use</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[15-01-2025 14:47:23] Aucun fichier à fermer.</span><span style="font-weight: bold"></span><br>[15-01-2025 14:47:23] Message without logger open<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[15-01-2025 14:47:23] Aucun fichier de log ouvert pour écrire.</span><span style="font-weight: bold"></span></pre>
+   </details>
 
 Tools Monitoring
 ^^^^^^^^^^^^^^^^
@@ -165,16 +308,16 @@ Tools Monitoring
      - Duration
    * - Monitoring
      - ✅
-     - 1.42s
+     - 1.38s
    * - Monitoring Save
      - ✅
-     - 6.76s
+     - 6.71s
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Monitoring</summary>
-      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.64, 0.85, 1.07]<br>CPU Usage : [0.0, 0.51875, 0.44375, 0.446875, 0.446875, 0.0]<br>Memory Usage : [210.828125, 210.83203125, 210.83203125, 210.83203125, 210.83203125, 210.80859375]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
+      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.63, 0.84, 1.04]<br>CPU Usage : [0.0, 0.446875, 0.525, 0.0, 0.0, 0.525]<br>Memory Usage : [222.28515625, 222.28515625, 222.28515625, 222.2890625, 222.29296875, 222.26953125]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
    </details>
 
 .. raw:: html
@@ -213,7 +356,7 @@ Tools Utils
 
    <details>
       <summary>Log Test : Get Timestamp For Files</summary>
-      <pre>-20250106_123410<br>-20250106</pre>
+      <pre>-20250115_144731<br>-20250115</pre>
    </details>
 
 .. raw:: html
@@ -230,35 +373,6 @@ Tools Utils
       <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Message d'avertissement</span><span style="font-weight: bold"></span></pre>
    </details>
 
-Reader
-^^^^^^
-
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Reader
-     - ✅
-     - 33ms
-   * - Get Reader Pass
-     - ✅
-     - 1ms
-
-Sample Data
-^^^^^^^^^^^
-
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Something
-     - ✅
-     - 1ms
-
 Widget
 ^^^^^^
 
@@ -270,42 +384,24 @@ Widget
      - Duration
    * - Widget Creation
      - ✅
-     - 3.42s
-   * - Widget On Click
+     - 4.11s
+   * - Widget Process
      - ✅
-     - 573ms
-   * - Threshold Autogenerate Widget
-     - ✅
-     - 1ms
-   * - Threshold Magic Widget
-     - ✅
-     - 816ms
-   * - Image Threshold Widget
-     - ✅
-     - 847ms
-   * - Example Q Widget
-     - ✅
-     - 569ms
+     - 601ms
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Widget On Click</summary>
-      <pre>napari has 1 layers<br>Settings :<br>  - Batch :<br>    - Activate : False<br>    - Files : -1<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : False<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : False<br>      - Sigma : 1.0<br>      - Sigma Fixed : False<br>      - Theta : 1.0<br>      - Theta Fixed : False</pre>
+      <summary>Log Test : Widget Creation</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
    </details>
 
-Writer
-^^^^^^
+.. raw:: html
 
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Something
-     - ✅
-     - 1ms
+   <details>
+      <summary>Log Test : Widget Process</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Aucun fichier en preview.</span><span style="font-weight: bold"></span></pre>
+   </details>
 
 .. raw:: html
 

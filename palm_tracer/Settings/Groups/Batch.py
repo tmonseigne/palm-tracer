@@ -1,14 +1,5 @@
 """
-Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroupe les paramètres de Batch nécessaires
-à la configuration de PALM Tracer.
-
-**Attributs de la classe Batch** :
-
-  - **Add File (BrowseFile)** : Ajout d'un fichier au Batch.
-  - **Files (Combo)** : Liste des fichiers au Batch.
-  - **Mode (Combo)** : Méthode d'utilisation du Batch (chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule
-  acquisition).
-
+Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
 """
 
 import os

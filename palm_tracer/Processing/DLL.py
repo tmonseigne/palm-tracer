@@ -55,12 +55,11 @@ SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
 ##################################################
 def get_gaussian_mode(gaussian_fit: bool, sigma_fixed: bool, theta_fixed: bool) -> int:
 	"""
-    Détermine le mode d'ajustement Gaussien basé sur les paramètres donnés.
+	Détermine le mode d'ajustement Gaussien basé sur les paramètres donnés.
 
-    :param gaussian_fit: Indique si l'ajustement Gaussien est activé.
+	:param gaussian_fit: Indique si l'ajustement Gaussien est activé.
 	:param sigma_fixed: Indique si le sigma est fixe.
 	:param theta_fixed: Indique si le theta est fixe.
-
 	:return: Mode correspondant :
 		- 0 : Pas d'ajustement Gaussien
 		- 1 : Mode X, Y (theta et sigma sont fixes)
@@ -141,7 +140,7 @@ def load_dll() -> dict[str, ctypes.CDLL]:
 def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bool,
 					   gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
 	"""
-    Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
+	Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
 	:param image: Image d'entrée 2D sous forme de tableau numpy.
@@ -151,7 +150,6 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 	:param roi_size: Taille de la région d'intérêt (ROI).
-
 	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	"""
 	# Parsing
@@ -182,7 +180,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, watershed: bool,
 					   gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
 	"""
-    Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
+	Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
 	:param stack: Pile d'image d'entrée sous forme de tableau numpy.
@@ -192,7 +190,6 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
 	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 	:param roi_size: Taille de la région d'intérêt (ROI).
-
 	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	"""
 	results = []

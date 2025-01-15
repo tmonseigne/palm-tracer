@@ -4,6 +4,7 @@ Fichier contenant la classe `FileList` dérivée de `BaseSettingType`, qui perme
 .. todo::
 	Envoi de signaux en double avec le update item et le currentIndexChanged à voir pour la suite, pour le moment ce n'est pas gênant.
 	Il passe par une phase avec 0 Items (la fonction clear et envoie un signal à ce moment).
+
 """
 
 from dataclasses import dataclass, field
@@ -36,9 +37,9 @@ class FileList(BaseSettingType):
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
 			- **default (int)** : Valeur par défaut du paramètre (aucun fichier).
-        	- **items (list[str])** : Liste des fichiers actuels.
-        	- **box (QComboBox)** : ComboBox affichant les fichiers de la liste.
-        	- **buttons (dict[str, QPushButton])** : Boutons d'action [+], [-], [clear].
+			- **items (list[str])** : Liste des fichiers actuels.
+			- **box (QComboBox)** : ComboBox affichant les fichiers de la liste.
+			- **buttons (dict[str, QPushButton])** : Boutons d'action [+], [-], [clear].
 	"""
 
 	default: int = -1

@@ -1,25 +1,6 @@
 """
-Fichier contenant la classe `Calibration` dérivée de `BaseSettingGroup`, qui regroupe les paramètres de calibration nécessaires
-à la configuration de PALM Tracer.
-
-**Attributs de la classe Calibration** :
-
-- **Pixel Size (SpinInt)** : Taille d'un pixel en nanomètres.
-  - Plage : [1, 500] nm
-  - Pas : 10
-  - Valeur par défaut : 160 nm
-
-- **Exposure (SpinInt)** : Temps d'exposition par image en millisecondes.
-  - Plage : [1, 1000] ms
-  - Pas : 10
-  - Valeur par défaut : 50 ms
-
-- **Intensity (SpinFloat)** : Intensité lumineuse exprimée en photons par unités analogiques-numériques (ADU).
-  - Plage : [0.0, 1.0] photon/ADU
-  - Pas : 0.01
-  - Précision : 2
-  - Valeur par défaut : 0.0120 photon/ADU
-
+Fichier contenant la classe `Calibration` dérivée de `BaseSettingGroup`,
+qui regroupe les paramètres de calibration nécessaires à la configuration de PALM Tracer.
 """
 
 from dataclasses import dataclass

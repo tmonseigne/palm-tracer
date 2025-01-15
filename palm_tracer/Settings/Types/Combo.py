@@ -21,8 +21,8 @@ class Combo(BaseSettingType):
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
 			- **default (int)** : Valeur par défaut du paramètre.
 			- **items (list[str])** : Choix de la liste déroulante.
-    		- **value (int)** : Valeur actuelle du paramètre.
-    		- **box (QComboBox)** : Objet QT permettant de manipuler le paramètre.
+			- **value (int)** : Valeur actuelle du paramètre.
+			- **box (QComboBox)** : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: int = 0
