@@ -74,7 +74,7 @@ def test_save_tif_bad_stack():
 def test_open_tif():
 	""" Test de la fonction open_tif. """
 	stack = FileIO.open_tif(f"{OUTPUT_DIR}/test_save_stack.tif")
-	assert np.allclose(REF_STACK, stack, atol=1), "L'échantillon devrait correspondre à la référence avec une tolérance d'erreur."
+	assert np.allclose(REF_STACK, stack, atol=1), "L'échantillon devrait correspondre à la référence avec une tolérance d'erreur (passage en entier)."
 
 
 ##################################################

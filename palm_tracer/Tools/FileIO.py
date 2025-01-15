@@ -10,7 +10,6 @@ from typing import Any
 
 import numpy as np
 import tifffile as tiff
-from numpy.typing import NDArray
 
 MAX_UI_8 = np.iinfo(np.uint8).max
 MAX_UI_16 = np.iinfo(np.uint16).max
@@ -73,10 +72,15 @@ def open_tif(filename: str) -> np.ndarray:
 
 	:param filename: Chemin du fichier TIF à ouvrir.
 	:return: Tableau 3D contenant les données TIF.
+
+	.. note::
+		Attention les données doivent rester telle quelle pour le transfert à la DLL.
+		Aucun cast en float ne doit être fait.
 	"""
 	if not os.path.isfile(filename): raise OSError(f"Le fichier \"{filename}\" est introuvable.")
 	stack = tiff.imread(filename)  # Lecture du fichier avec tifffile
-	return np.asarray(stack, dtype=np.float32)  # Assurer que le type est np.float32
+	return stack
+	#return np.asarray(stack, dtype=np.float32)  # Assurer que le type est np.float32
 # ==================================================
 # endregion TIF Stack IO
 # ==================================================
