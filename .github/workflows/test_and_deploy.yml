@@ -64,6 +64,12 @@ jobs:
           git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
 
+      # Installation of all vcredist (normally only 2010 is necessary)
+      - name: Install Dependencies for DLLs
+        if: runner.os == 'Windows'
+        run: |
+          choco install vcredist-all -y
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
