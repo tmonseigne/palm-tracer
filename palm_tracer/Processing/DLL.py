@@ -26,6 +26,7 @@ Ce module regroupe des utilitaires pour :
 	GPU et Live ne peuvent être chargé sur mon ordinateur (peut-être CUDA pour le GPU ?).
 	CPU n'est pas non plus valide sur le CI en revanche Tracking n'a aucun problème.
 	Cela me fait donc bien penser à une sorte de dépendance caché, le CI étant un environnement vierge.
+
 """
 
 import ctypes
@@ -92,14 +93,14 @@ def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_
 
 
 ##################################################
-def parse_palm_result(data: np.ndarray, sort: bool = True) -> pd.DataFrame:
+def parse_palm_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
 	On a un tableau 1D de grande taille en entrée :
 		- On le découpe en tableau 2D à 13 colonnes (`N_SEGMENTS`).	La taille du tableau est vérifié et tronqué si nécessaire.
 		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
-		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes telles que Sigma X, Sigma Y, X ou Y strictement positif suffit.
+		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	:param data: Donnée en entrée récupérées depuis la DLL PALM.
 	:param sort: Tri des points par Y puis X (sens de lecture Gauche à droite du haut vers le bas).
@@ -107,7 +108,7 @@ def parse_palm_result(data: np.ndarray, sort: bool = True) -> pd.DataFrame:
 	"""
 	size = (data.size // N_SEGMENTS) * N_SEGMENTS							   # Récupération de la taille correcte si non multiple de N_SEGMENTS
 	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENTS), columns=SEGMENTS)  # Transformation en Dataframe
-	res = res[(res.iloc[:, 0] > 0)]											   # Filtrage des lignes remplies de 0 et -1
+	res = res[res['X'] > 0]													   # Filtrage des lignes remplies de 0 et -1
 	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])	   # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
 	return res.reset_index(drop=True)
 
@@ -137,13 +138,13 @@ def load_dll() -> dict[str, ctypes.CDLL]:
 
 
 ##################################################
-def run_palm_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bool,
-				 gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
+def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bool,
+					   gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
 	"""
     Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
-	:param image: Image d'entrée sous forme de tableau numpy.
+	:param image: Image d'entrée 2D sous forme de tableau numpy.
 	:param threshold: Seuil pour la détection.
 	:param watershed: Active ou désactive le mode watershed.
 	:param gauss_fit: Mode d'ajustement Gaussien (défini par `get_gaussian_mode`).
@@ -151,7 +152,7 @@ def run_palm_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershe
 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 	:param roi_size: Taille de la région d'intérêt (ROI).
 
-	:return: Liste des points détectés sous forme de tuples (X, Y).
+	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	"""
 	# Parsing
 	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))					  # Image
@@ -176,6 +177,33 @@ def run_palm_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershe
 	dll._closePALMProcessing()
 
 	return parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n_points,)))
+
+##################################################
+def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, watershed: bool,
+					   gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
+	"""
+    Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
+
+	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
+	:param stack: Pile d'image d'entrée sous forme de tableau numpy.
+	:param threshold: Seuil pour la détection.
+	:param watershed: Active ou désactive le mode watershed.
+	:param gauss_fit: Mode d'ajustement Gaussien (défini par `get_gaussian_mode`).
+	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
+	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
+	:param roi_size: Taille de la région d'intérêt (ROI).
+
+	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+	"""
+	results = []
+
+	for i in range(stack.shape[0]):
+		points = run_palm_image_dll(dll, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size)
+		points.insert(0, 'Plane', i + 1) # Ajouter une colonne 'Plane' au DataFrame temporaire
+		results.append(points)			 # Ajouter à la liste
+
+	# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
+	return pd.concat(results, ignore_index=True)
 
 # ==================================================
 # endregion DLL Manipulation

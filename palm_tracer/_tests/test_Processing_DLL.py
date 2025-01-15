@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from palm_tracer.Processing import get_gaussian_mode, get_max_points, load_dll, parse_palm_result, run_palm_dll
+from palm_tracer.Processing import get_gaussian_mode, get_max_points, load_dll, parse_palm_result, run_palm_image_dll, run_palm_stack_dll
 from palm_tracer.Processing.DLL import N_SEGMENTS
 from palm_tracer.Tools import open_tif, print_warning
 
@@ -34,8 +34,8 @@ def test_get_max_points():
 def test_parse_palm_result():
 	"""Test basique sur la récupération du mode de gaussienne fit."""
 	n_lines = 10
-	parsing = parse_palm_result(np.array(range(N_SEGMENTS * n_lines)))  # La première ligne sera supprimé avec le tri
-	assert parsing.shape == (n_lines - 1, N_SEGMENTS), "Le nombre de ligne ou de colonne ne correspond pas."
+	parsing = parse_palm_result(np.array(range(N_SEGMENTS * n_lines)))
+	assert parsing.shape == (n_lines, N_SEGMENTS), "Le nombre de ligne ou de colonne ne correspond pas."
 
 
 ##################################################
@@ -46,26 +46,40 @@ def test_load_dll():
 
 
 ##################################################
-def test_run_palm_dll():
+def test_run_palm_image_dll():
 	"""
-	Test basique sur le lancement d'une DLL.
+	Test sur le lancement de PALM sur une frame.
 
 	.. todo::
 		Trouver un moyen de comparer avec les bons paramètres une sortie de PALM Tracer.
-		Actuellement aucune correspondance.
 	"""
 	dll = load_dll().get("CPU", None)
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
 	else:
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
-		plane = 0
-		threshold = 62.4
-		watershed = True
-		sigma = 1.0
-		theta = 0.0
-		roi = 7
+		plane, threshold, watershed, sigma, theta, roi = 0, 62.4, True, 1.0, 0.0, 7
 		for gaussian in range(5):
-			points = run_palm_dll(dll, image[plane], threshold, watershed, gaussian, sigma, theta, roi)
-			points.to_csv(f"{OUTPUT_DIR}/stack-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+			points = run_palm_image_dll(dll, image[plane], threshold, watershed, gaussian, sigma, theta, roi)
+			points.to_csv(f"{OUTPUT_DIR}/image-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+	assert True
+
+
+##################################################
+def test_run_palm_stack_dll():
+	"""
+	Test sur le lancement de PALM sur une pile.
+
+	.. todo::
+		Trouver un moyen de comparer avec les bons paramètres une sortie de PALM Tracer.
+	"""
+	dll = load_dll().get("CPU", None)
+	if dll is None:
+		print_warning("Test non effectué car DLL manquante")
+	else:
+		stack = open_tif(f"{INPUT_DIR}/stack.tif")
+		threshold, watershed, sigma, theta, roi = 62.4, True, 1.0, 0.0, 7
+		for gaussian in range(5):
+			points = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
+			points.to_csv(f"{OUTPUT_DIR}/stack-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
 	assert True

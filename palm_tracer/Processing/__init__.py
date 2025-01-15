@@ -13,10 +13,11 @@ Ce sous-package contient les fonctions de traitement pour le projet.
 """
 
 # Exemple d'importation des modules pour un accès direct
-from .DLL import get_gaussian_mode, get_max_points, parse_palm_result, load_dll, run_palm_dll
+from .DLL import get_gaussian_mode, get_max_points, parse_palm_result, load_dll, run_palm_image_dll, run_palm_stack_dll
 from .Threshold import auto_threshold, auto_threshold_dll, auto_threshold_spectral, auto_threshold_spectral_dll
 
 # Définir la liste des symboles exportés
 __all__ = ["Threshold",
-		   "get_gaussian_mode", "get_max_points", "parse_palm_result", "load_dll", "run_palm_dll",
+		   "get_gaussian_mode", "get_max_points", "parse_palm_result",
+		   "load_dll", "run_palm_image_dll", "run_palm_stack_dll",
 		   "auto_threshold", "auto_threshold_dll", "auto_threshold_spectral", "auto_threshold_spectral_dll"]
