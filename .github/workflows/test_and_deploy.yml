@@ -70,6 +70,13 @@ jobs:
         run: |
           choco install vcredist-all -y
 
+      # Version too old to works
+      #- name: Install Cuda for DLLs
+      #  uses: Jimver/cuda-toolkit@v0.2.19
+      #  id: cuda-toolkit
+      #  with:
+      #    cuda: '7.5'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
