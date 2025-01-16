@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any, Union
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel
+from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 
 from palm_tracer.Settings.Types import BaseSettingType
 
@@ -39,7 +39,7 @@ class BaseSettingGroup:
 	_title: QLabel = field(init=False)
 	_checkbox: QCheckBox = field(init=False)
 	_header: QFormLayout = field(init=False)
-	_body: QFormLayout = field(init=False)
+	_body: QWidget = field(init=False)
 
 	# ==================================================
 	# region Initialization
@@ -68,7 +68,6 @@ class BaseSettingGroup:
 		self._title = QLabel(f"{self.label}")
 		self._title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
 		self._checkbox = QCheckBox()
-		self._checkbox.setChecked(self.active)
 		self._checkbox.stateChanged.connect(self.toggle_active)
 
 		self._header = QFormLayout(None)
@@ -77,12 +76,16 @@ class BaseSettingGroup:
 		self._layout.addRow(self._header)
 
 		# Settings part (must be managed by the derived class.)
-		self._body = QFormLayout(None)
-		self._body.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
-		self._body.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
+		self._body = QWidget()
+		body = QFormLayout(self._body)
+		body.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+		body.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
 		for key, setting in self._settings.items():
-			self._body.addRow(setting.layout)
+			body.addRow(setting.layout)
 		self._layout.addRow(self._body)
+
+		# Active ou non le groupe
+		self.activate(self.active)
 
 	##################################################
 	def reset(self):
@@ -144,12 +147,13 @@ class BaseSettingGroup:
 	def toggle_active(self, state: int):
 		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
+		self._body.show() if self.active else self._body.hide()
 
 	##################################################
 	def activate(self, activate: bool = True):
 		"""Met à jour l'état actif du groupe et change également la checkbox."""
-		self.active = activate
 		self._checkbox.setChecked(activate)
+		self.toggle_active(1 if activate else 0)
 
 	##################################################
 	def always_active(self):
