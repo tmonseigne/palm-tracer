@@ -140,6 +140,21 @@ class BaseSettingGroup:
 		self.active = activate
 		self._checkbox.setChecked(activate)
 
+	##################################################
+	def always_active(self):
+		""" Active toujours le groupe et supprime la checkbox de l'interface. """
+		# Appeler la méthode activate pour forcer l'état actif
+		self.activate(True)
+
+		# Supprimer la checkbox et réorganiser le layout
+		if self._checkbox:
+			parent_widget = self._checkbox.parentWidget()  # Récupérer le parent de la checkbox
+			if parent_widget:  # Vérifier que le parent existe
+				parent_layout = parent_widget.layout()  # Récupérer le layout parent
+				if parent_layout:  # Vérifier que le layout parent existe
+					parent_layout.removeWidget(self._checkbox)  # Retirer la checkbox du layout
+			self._checkbox.deleteLater()  # Détruire la checkbox
+
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================

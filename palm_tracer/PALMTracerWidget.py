@@ -55,13 +55,13 @@ class PALMTracerWidget(QWidget):
 		self.layout().addWidget(btn)
 
 		# Settings
-		for key in self.settings: self.layout().addLayout(self.settings[key].layout)
+		for layout in self.settings.get_layouts(): self.layout().addLayout(layout)
 
 		# Add Specific behaviour
 		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également
 		# La mise à jour du selected fait qu'on le recharge pour la visu napari (sans doute une fonction connect ?)
 		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
-		file_list_setting = self.settings["Batch"]["Files"]
+		file_list_setting = self.settings.batch["Files"]
 		if file_list_setting and isinstance(file_list_setting, FileList):
 			file_list_setting.signal.connect(self._reset_layer)
 
@@ -82,7 +82,7 @@ class PALMTracerWidget(QWidget):
 	def _reset_layer(self):  # pragma: no cover
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		#
-		selected_file = cast(FileList, self.settings["Batch"]["Files"]).get_selected()
+		selected_file = cast(FileList, self.settings.batch["Files"]).get_selected()
 		if not selected_file:
 			self.last_file = ""
 			print_warning("Aucun fichier sélectionné.")
@@ -120,46 +120,47 @@ class PALMTracerWidget(QWidget):
 			return
 
 		# Output directory management
-		output = self.settings.get_output_path()
-		os.makedirs(output, exist_ok=True)
-		print(f"Output directory: {output}")
+		outputs = self.settings.batch.get_path()
+		for output in outputs:
+			os.makedirs(output, exist_ok=True)
+			print(f"Output directory: {output}")
 
-		logger = Logger()
-		timestamp_suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
-		logger.open(f"{output}/log-{timestamp_suffix}.log")
-		logger.add("Start Processing.")
+			logger = Logger()
+			timestamp_suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
+			logger.open(f"{output}/log-{timestamp_suffix}.log")
+			logger.add("Start Processing.")
 
-		# Save settings
-		print(self.settings)
-		save_json(f"{output}/settings-{timestamp_suffix}.json", self.settings.to_dict())
-		logger.add("Settings Saved.")
+			# Save settings
+			print(self.settings)
+			save_json(f"{output}/settings-{timestamp_suffix}.json", self.settings.to_dict())
+			logger.add("Settings Saved.")
 
-		# Save meta file (Création du DataFrame et sauvegarde en CSV)
-		depth, height, width = self.viewer.layers["Raw"].data.shape
-		df = pd.DataFrame({"Height":                   [height], "Width": [width], "Plane Number": [depth],
-						   "Pixel Size (nm)":          [self.settings["Calibration"]["Pixel Size"].get_value()],
-						   "Exposure Time (ms/frame)": [self.settings["Calibration"]["Exposure"].get_value()],
-						   "Intensity (photon/ADU)":   [self.settings["Calibration"]["Intensity"].get_value()]})
-		df.to_csv(f"{output}/meta-{timestamp_suffix}.csv", index=False)
-		logger.add("Meta File Saved.")
+			# Save meta file (Création du DataFrame et sauvegarde en CSV)
+			depth, height, width = self.viewer.layers["Raw"].data.shape
+			df = pd.DataFrame({"Height":                   [height], "Width": [width], "Plane Number": [depth],
+							   "Pixel Size (nm)":          [self.settings.calibration["Pixel Size"].get_value()],
+							   "Exposure Time (ms/frame)": [self.settings.calibration["Exposure"].get_value()],
+							   "Intensity (photon/ADU)":   [self.settings.calibration["Intensity"].get_value()]})
+			df.to_csv(f"{output}/meta-{timestamp_suffix}.csv", index=False)
+			logger.add("Meta File Saved.")
 
-		# Process
-		# Parsing des paramètres pour le process et la DLL (localisation, tracking, HR Visualization...)
-		# Récupération de l'image selon le Batch (une image, une pile, un ensemble de pile)
-		# Pour chaque image :
-		# 	Lancement de la DLL
-		#   Enregistrement des fichiers loc et trace si selectionné
-		#   Enregistrement des Images si visu HR
+			# Process
+			# Parsing des paramètres pour le process et la DLL (localisation, tracking, HR Visualization...)
+			# Récupération de l'image selon le Batch (une image, une pile, un ensemble de pile)
+			# Pour chaque image :
+			# 	Lancement de la DLL
+			#   Enregistrement des fichiers loc et trace si selectionné
+			#   Enregistrement des Images si visu HR
 
-		# Test auto_threshold
-		# Récupération de l'image affiché dans le viewer (donc dans le layer Raw récupération du plan actuellement affiché
-		image = self._get_actual_image()
-		if image is None:
-			print_warning("image non valide")
-			return
-		# threshold = auto_threshold(image)
-		# print(f"Threshold :{threshold}")
-		# Test auto_threshold_dll
-		# Test process Palm
-		logger.add("Process Finished.")
-		logger.close()
+			# Test auto_threshold
+			# Récupération de l'image affiché dans le viewer (donc dans le layer Raw récupération du plan actuellement affiché
+			image = self._get_actual_image()
+			if image is None:
+				print_warning("image non valide")
+				return
+			# threshold = auto_threshold(image)
+			# print(f"Threshold :{threshold}")
+			# Test auto_threshold_dll
+			# Test process Palm
+			logger.add("Process Finished.")
+			logger.close()

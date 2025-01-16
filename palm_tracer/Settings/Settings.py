@@ -12,7 +12,9 @@ La classe `Settings` est conçue pour interagir directement avec l'interface uti
 """
 
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import Any
+
+from qtpy.QtWidgets import QFormLayout
 
 from palm_tracer.Settings.Groups import *
 
@@ -22,7 +24,9 @@ from palm_tracer.Settings.Groups import *
 class Settings:
 	"""Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer"""
 
-	_groups: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
+	batch: Batch = field(init=False, default_factory=Batch)
+	calibration: Calibration = field(init=False, default_factory=Calibration)
+	localisation: Localisation = field(init=False, default_factory=Localisation)
 
 	# ==================================================
 	# region Initialization
@@ -30,17 +34,15 @@ class Settings:
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		self._groups["Batch"] = Batch()
-		self._groups["Calibration"] = Calibration()
-		self._groups["Localisation"] = Localisation()
-		self._groups["Batch"].activate()
-		self._groups["Calibration"].activate()
+		self.batch.always_active()
+		self.calibration.always_active()
 
 	##################################################
 	def reset(self):
 		"""Remet les valeurs par défaut des paramètres."""
-		for _, group in self._groups.items():
-			group.reset()
+		self.batch.reset()
+		self.calibration.reset()
+		self.localisation.reset()
 
 	# ==================================================
 	# endregion Initialization
@@ -50,34 +52,10 @@ class Settings:
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_group_names(self) -> list[str]:
-		"""Récupère le nom des groupes de paramètres."""
-		return list(self._groups.keys())
-
-	##################################################
-	def __getitem__(self, key: str) -> BaseSettingGroup:
-		"""Surcharge de l'opérateur []"""
-		return self._groups[key]
-
-	##################################################
-	# def __setitem__(self, key: str, value: BaseSettingGroup):
-	# 	""" Surcharge pour assigner une valeur avec [] """
-	# 	self._groups[key] = value
-
-	##################################################
-	def __contains__(self, key: str) -> bool:
-		"""Surcharge pour vérifier si une clé existe"""
-		return key in self._groups
-
-	##################################################
-	def __iter__(self):
-		"""Surcharge pour obtenir l'itérable des clés"""
-		return iter(self._groups)
-
-	##################################################
-	def get_output_path(self, suffix: str = "_PALM_Tracer"):
-		""" Récupère le chemin des dossiers de sortie des fichiers PALM Tracer"""
-		return cast(Batch, self._groups["Batch"]).get_path(suffix)
+	def get_layouts(self) -> list[QFormLayout]:
+		return [self.batch.layout,
+				self.calibration.layout,
+				self.localisation.layout]
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -89,7 +67,9 @@ class Settings:
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		return {"PALM Tracer Settings": {name: group.to_dict() for name, group in self._groups.items()}}
+		return {"PALM Tracer Settings": {"Batch":        self.batch.to_dict(),
+										 "Calibration":  self.calibration.to_dict(),
+										 "Localisation": self.localisation.to_dict()}}
 
 	##################################################
 	@classmethod
@@ -103,8 +83,9 @@ class Settings:
 	def update_from_dict(self, data: dict[str, Any]):
 		""" Met à jour la classe à partir d'un dictionnaire."""
 		groups = data["PALM Tracer Settings"]
-		for key, value in groups.items():
-			if key in self._groups: self._groups[key].update_from_dict(value)  # if key exist to avoid bad settings in dictionary
+		self.batch.update_from_dict(groups["Batch"])
+		self.calibration.update_from_dict(groups["Calibration"])
+		self.localisation.update_from_dict(groups["Localisation"])
 
 	# ==================================================
 	# endregion Parsing
@@ -121,8 +102,9 @@ class Settings:
 		:return: Une description textuelle des paramètres de PALM Tracer.
 		"""
 		msg = f"Settings :\n"
-		for key, group in self._groups.items():
-			msg += f"  - {key} :\n{group.tostring("    ")}"
+		msg += f"  - Batch :\n{self.batch.tostring("    ")}"
+		msg += f"  - Calibration :\n{self.calibration.tostring("    ")}"
+		msg += f"  - Localisation :\n{self.localisation.tostring("    ")}"
 		return msg
 
 	##################################################

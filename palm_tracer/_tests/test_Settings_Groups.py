@@ -1,6 +1,7 @@
 """ Fichier des tests pour l'ensemble des paramètres. """
 
 import sys
+from pathlib import Path
 from typing import Any, cast, Type
 
 from qtpy.QtCore import QCoreApplication, Qt
@@ -8,6 +9,8 @@ from qtpy.QtWidgets import QApplication
 
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Types import *
+
+INPUT_DIR = Path(__file__).parent / "input"
 
 
 ##################################################
@@ -74,15 +77,65 @@ def test_batch():
 	group_base_test(batch, ["Files", "Mode"],
 					FileList, -1, -1)
 
-	assert batch.get_path().endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas"
+
+###################################################
+def test_batch_get_path():
+	"""Test du get_path de la classe Batch"""
+	app = initialize()
+	batch = Batch()
+
+	path = batch.get_path()
+	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert path[0].endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas."
+
 	file_list = cast(FileList, batch["Files"])
 	file_list.items = ["output/File 1.tif", "output/File 2.tif"]
 	file_list.update_box()
-	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"
+
+	path = batch.get_path()
+	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
+
 	file_list.set_value(1)
-	assert batch.get_path() == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas"
+	path = batch.get_path()
+	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert path[0] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
+
 	batch["Mode"].set_value(1)
-	assert batch.get_path() == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas"
+	path = batch.get_path()
+	assert len(path) == 2 , "Il devrait y avoir deux dossiers."
+	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
+	assert path[1] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
+
+	batch["Mode"].set_value(2)
+	path = batch.get_path()
+	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
+
+
+###################################################
+def test_batch_get_stacks():
+	"""Test du get_path de la classe Batch"""
+	app = initialize()
+	batch = Batch()
+	file_list = cast(FileList, batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+
+	batch["Mode"].set_value(0)
+	stacks = batch.get_stacks()
+	assert len(stacks) == 1, "Nombre de pile invalide"
+	assert stacks[0].shape == (10, 128, 256), "Taille de la pile non valide"
+
+	batch["Mode"].set_value(1)
+	stacks = batch.get_stacks()
+	assert len(stacks) == 2, "Nombre de pile invalide"
+	assert stacks[0].shape == (10, 128, 256), "Taille de la pile non valide"
+
+	batch["Mode"].set_value(2)
+	stacks = batch.get_stacks()
+	assert len(stacks) == 1, "Nombre de pile invalide"
+	assert stacks[0].shape == (20, 128, 256), "Taille de la pile non valide"
 
 
 ###################################################

@@ -46,7 +46,7 @@ def open_json(filename: str) -> dict[str, Any]:
 # ==================================================
 
 # ==================================================
-# region Sample TIF IO
+# region TIF IO
 # ==================================================
 ##################################################
 def save_tif(stack: np.ndarray, filename: str):
@@ -79,8 +79,13 @@ def open_tif(filename: str) -> np.ndarray:
 	"""
 	if not os.path.isfile(filename): raise OSError(f"Le fichier \"{filename}\" est introuvable.")
 	stack = tiff.imread(filename)  # Lecture du fichier avec tifffile
+	# return np.asarray(stack, dtype=np.float32)  # Assurer que le type est np.float32
 	return stack
-	#return np.asarray(stack, dtype=np.float32)  # Assurer que le type est np.float32
+
+
+# ==================================================
+# endregion TIF IO
+# ==================================================
 # ==================================================
 # endregion TIF Stack IO
 # ==================================================
