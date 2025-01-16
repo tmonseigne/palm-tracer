@@ -20,7 +20,15 @@ class BaseSettingGroup:
 	Classe mère pour un groupe de setting :
 
 	Attributs :
-			- **_settings (dict[str, Union[BaseSettingGroup, BaseSettingType]])** : Liste des settings du groupe
+			- **active (bool)** : Etat du groupe (activé ou non)
+			- **label (str)** : Nom du Groupe
+			- **setting_list (dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]()** : Liste des settings du groupe.
+			- **_settings (dict[str, Union[BaseSettingGroup, BaseSettingType]])** : Liste des visualisation de settings (inputs) du groupe.
+			- **_layout (QFormLayout)** : Layout principal du groupe.
+			- **_title (QLabel)** : Nom du Groupe (objet QT).
+			- **_checkbox (QCheckBox)** : Case à cocher pour activer ou non le groupe.
+			- **_header (QFormLayout)** : Titre du groupe.
+			- **_body (QFormLayout)** : Corps du groupe.
 	"""
 
 	active: bool = field(init=False, default=False)
@@ -28,7 +36,10 @@ class BaseSettingGroup:
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	_layout: QFormLayout = field(init=False)
+	_title: QLabel = field(init=False)
 	_checkbox: QCheckBox = field(init=False)
+	_header: QFormLayout = field(init=False)
+	_body: QFormLayout = field(init=False)
 
 	# ==================================================
 	# region Initialization
@@ -54,24 +65,24 @@ class BaseSettingGroup:
 		self._layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
 
 		# Title Row
-		title = QLabel(f"  {self.label}:")
-		title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
+		self._title = QLabel(f"{self.label}")
+		self._title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
 		self._checkbox = QCheckBox()
 		self._checkbox.setChecked(self.active)
 		self._checkbox.stateChanged.connect(self.toggle_active)
 
-		header = QFormLayout(None)
-		header.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
-		header.addRow(self._checkbox, title)
-		self._layout.addRow(header)
+		self._header = QFormLayout(None)
+		self._header.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+		self._header.addRow(self._checkbox, self._title)
+		self._layout.addRow(self._header)
 
 		# Settings part (must be managed by the derived class.)
-		settings = QFormLayout(None)
-		settings.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
-		settings.setContentsMargins(20, 0, 0, 0)		   # Léger décalage.
+		self._body = QFormLayout(None)
+		self._body.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+		self._body.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
 		for key, setting in self._settings.items():
-			settings.addRow(setting.layout)
-		self._layout.addRow(settings)
+			self._body.addRow(setting.layout)
+		self._layout.addRow(self._body)
 
 	##################################################
 	def reset(self):
@@ -145,15 +156,13 @@ class BaseSettingGroup:
 		""" Active toujours le groupe et supprime la checkbox de l'interface. """
 		# Appeler la méthode activate pour forcer l'état actif
 		self.activate(True)
-
 		# Supprimer la checkbox et réorganiser le layout
 		if self._checkbox:
-			parent_widget = self._checkbox.parentWidget()  # Récupérer le parent de la checkbox
-			if parent_widget:  # Vérifier que le parent existe
-				parent_layout = parent_widget.layout()  # Récupérer le layout parent
-				if parent_layout:  # Vérifier que le layout parent existe
-					parent_layout.removeWidget(self._checkbox)  # Retirer la checkbox du layout
+			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
 			self._checkbox.deleteLater()  # Détruire la checkbox
+			# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
+			# self._title.setText(f"       {self.label}")
+
 
 	# ==================================================
 	# endregion Getter/Setter

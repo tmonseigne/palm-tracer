@@ -34,3 +34,9 @@ class Localisation(BaseSettingGroup):
 			"Mode":         [Combo, ["Mode", 0, ["Gaussian Fit", "Spline"]]],
 			"Gaussian Fit": [GaussianFit, []],
 			}
+
+
+	##################################################
+	def initialize_ui(self):
+		super().initialize_ui()
+		self._settings["Gaussian Fit"].always_active()
