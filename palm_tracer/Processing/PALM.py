@@ -1,11 +1,14 @@
 import ctypes
 import os
 from datetime import datetime
+from typing import cast
 
 import numpy as np
 import pandas as pd
 
+from palm_tracer.Processing import run_palm_stack_dll
 from palm_tracer.Settings import Settings
+from palm_tracer.Settings.Groups import GaussianFit
 from palm_tracer.Tools import Logger, print_warning, save_json
 
 
@@ -77,8 +80,9 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 		if settings.localisation.active:
 			loc = process_localisation(dll["CPU"], stack, settings)
 			loc = _palm_to_localisation_file(loc)
-			if not loc.empty: logger.add("Enregistrement du fichier de localisation")
-			else: logger.add("Aucune localisation trouvé.")
+			logger.add(f"{loc.size} localisation(s) trouvé.")
+			logger.add("Enregistrement du fichier de localisation")
+			loc.to_csv(f"{path}/localisations-{timestamp_suffix}.csv", index=False)
 		else:
 			logger.add("Localisation désactivé.")
 			# Chargement d'une localisation existante
@@ -125,8 +129,16 @@ def process_localisation(dll: ctypes.CDLL, stack: np.ndarray, settings: Settings
 	:param settings: Paramètres de l'interface pour lancer la localisation.
 	:return: Données de localisation trouvées.
 	"""
-	print("TODO PALM.localisation")
-	return pd.DataFrame()
+	# Parse settings
+	threshold = settings.localisation["Threshold"].get_value()
+	watershed = settings.localisation["Watershed"].get_value()
+	roi = settings.localisation["ROI Size"].get_value()
+	gaussian_setting = cast(GaussianFit, settings.localisation["Gaussian Fit"])
+	gaussian = gaussian_setting["Mode"].get_value()
+	sigma = gaussian_setting["Sigma"].get_value()
+	theta = gaussian_setting["Theta"].get_value()
+	# Run command
+	return run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
 
 
 ##################################################
@@ -140,6 +152,8 @@ def process_tracking(dll: ctypes.CDLL, localisations: pd.DataFrame, settings: Se
 	:return: Données de tracking trouvées.
 	"""
 	print("TODO PALM.tracking")
+	# Parse settings
+	# Run command
 	return pd.DataFrame()
 
 
@@ -157,4 +171,6 @@ def process_visualization(dll: ctypes.CDLL, stack: np.ndarray, settings: Setting
 	:return: Nouvelle visualisation.
 	"""
 	print("TODO PALM.visualization")
+	# Parse settings
+	# Run command
 	return stack
