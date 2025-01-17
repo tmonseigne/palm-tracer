@@ -28,10 +28,10 @@ class BaseSettingGroup:
 			- **_title (QLabel)** : Nom du Groupe (objet QT).
 			- **_checkbox (QCheckBox)** : Case à cocher pour activer ou non le groupe.
 			- **_header (QFormLayout)** : Titre du groupe.
-			- **_body (QFormLayout)** : Corps du groupe.
+			- **_body (QWidget)** : Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible).
 	"""
 
-	active: bool = field(init=False, default=False)
+	_active: bool = field(init=False, default=False)
 	label: str = field(init=False, default="Base Setting Group")
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
@@ -85,7 +85,7 @@ class BaseSettingGroup:
 		self._layout.addRow(self._body)
 
 		# Active ou non le groupe
-		self.activate(self.active)
+		self.active = self._active
 
 	##################################################
 	def reset(self):
@@ -103,14 +103,22 @@ class BaseSettingGroup:
 	##################################################
 	@property
 	def layout(self) -> QFormLayout:
-		"""
-		Retourne le calque associé à ce groupe de paramètres.
-
-		Cette méthode permet d'accéder au calque pour intégrer le groupe de paramètres dans l'interface utilisateur.
-
-		:return: Le calque associé à ce groupe de paramètres.
-		"""
+		"""Retourne le calque associé à ce groupe de paramètres."""
 		return self._layout
+
+	##################################################
+	@property
+	def active(self) -> bool:
+		"""Permet la lecture de l'état actif."""
+		return self._active
+
+	##################################################
+	@active.setter
+	def active(self, value: bool):
+		"""Contrôle la modification de l'état actif."""
+		if self._active != value:
+			self._checkbox.setChecked(value)
+			self.toggle_active(1 if value else 0)
 
 	##################################################
 	def get_setting_names(self) -> list[str]:
@@ -146,20 +154,14 @@ class BaseSettingGroup:
 	##################################################
 	def toggle_active(self, state: int):
 		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
-		self.active = bool(state)
-		self._body.show() if self.active else self._body.hide()
-
-	##################################################
-	def activate(self, activate: bool = True):
-		"""Met à jour l'état actif du groupe et change également la checkbox."""
-		self._checkbox.setChecked(activate)
-		self.toggle_active(1 if activate else 0)
+		self._active = bool(state)
+		self._body.show() if self._active else self._body.hide()
 
 	##################################################
 	def always_active(self):
 		""" Active toujours le groupe et supprime la checkbox de l'interface. """
-		# Appeler la méthode activate pour forcer l'état actif
-		self.activate(True)
+		# Appeler la méthode active pour forcer l'état actif
+		self.active = True
 		# Supprimer la checkbox et réorganiser le layout
 		if self._checkbox:
 			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
@@ -178,7 +180,7 @@ class BaseSettingGroup:
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		return {"type":     type(self).__name__, "active": self.active, "label": self.label,
+		return {"type":     type(self).__name__, "active": self._active, "label": self.label,
 				"settings": {name: setting.to_dict() for name, setting in self._settings.items()}, }
 
 	##################################################
@@ -193,7 +195,7 @@ class BaseSettingGroup:
 	def update_from_dict(self, data: dict[str, Any]):
 		""" Met à jour la classe à partir d'un dictionnaire."""
 		self.label = data.get("label", self.label)
-		self.activate(data.get("active", False))
+		self.active = data.get("active", False)
 		settings = data["settings"]
 		for key, value in self.setting_list.items():  # Appelle `update_from_dict` pour chaque élément de setting_list
 			if key in settings: self._settings[key].update_from_dict(settings[key])
