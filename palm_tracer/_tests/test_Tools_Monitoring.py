@@ -31,7 +31,7 @@ def simulate_cpu_usage(monitoring: Monitoring, intensity: int = 1000000, duratio
 
 
 ##################################################
-def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: float = 2):
+def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: float = 1):
 	"""
 	Simule une utilisation importante de mémoire en allouant un tableau de bytes.
 
@@ -51,7 +51,7 @@ def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: floa
 
 
 ##################################################
-def simulate_disk_io(monitoring: Monitoring, file_size: int = 10, duration: float = 2, file_name: str = "temp_test_file.bin"):
+def simulate_disk_io(monitoring: Monitoring, file_size: int = 1, duration: float = 1, file_name: str = "temp_test_file.bin"):
 	"""
 	Simule des opérations intensives de disque en écrivant et lisant un fichier volumineux.
 

@@ -29,7 +29,7 @@ class Logger:
 		try:
 			self.file_handle = open(self.filename, "a", encoding="utf-8")  # Ouverture en mode ajout
 			self._isopen = True
-			print(f"[{self._get_time()}] : Log ouvert : {self.filename}")
+			print(f"[{self._get_time()}] Log ouvert : {self.filename}")
 		except Exception as e:
 			print_error(f"Erreur lors de l'ouverture du fichier {self.filename} : {e}")
 
