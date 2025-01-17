@@ -10,6 +10,7 @@ from typing import Any
 
 import numpy as np
 import tifffile as tiff
+from PIL import Image
 
 MAX_UI_8 = np.iinfo(np.uint8).max
 MAX_UI_16 = np.iinfo(np.uint16).max
@@ -58,9 +59,9 @@ def save_tif(stack: np.ndarray, filename: str):
 				  - Si 3D (frames x hauteur x largeur), sauvegarde les frames en multi-frame.
 	:param filename: Nom du fichier TIF de sortie.
 	"""
-	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # Si le tableau est 2D, le transformer en 3D avec une seule frame
+	if stack.ndim == 2: stack = stack[np.newaxis, ...]		 # Si le tableau est 2D, le transformer en 3D avec une seule frame
 	if stack.ndim != 3: raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
-	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
+	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)	 # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
 	tiff.imwrite(filename, stack, photometric="minisblack")  # Sauvegarde la pile avec tifffile
 
 
@@ -85,4 +86,28 @@ def open_tif(filename: str) -> np.ndarray:
 
 # ==================================================
 # endregion TIF IO
+# ==================================================
+
+# ==================================================
+# region PNG IO
+# ==================================================
+##################################################
+def save_png(image: np.ndarray, filename: str):
+	"""
+	Sauvegarde un tableau 2D dans un fichier PNG avec Pillow.
+
+	:param image: Tableau contenant l'image 2D
+	:param filename: Nom du fichier TIF de sortie.
+
+	.. note::
+		Cette fonction sera mise à jour pour gérer des tableaux 3D (RGB). Pour le moment, on est sur du niveau de gris brut.
+	"""
+	if image.ndim != 2: raise ValueError("Le tableau doit être 2D (hauteur, largeur).")
+	image = (image - image.min()) / (image.max() - image.min()) * 255  # Normalisation
+	image = image.astype(np.uint8)									   # Conversion en entiers 8 bits
+	im = Image.fromarray(image)										   # Passage par Pillow
+	im.save(filename)												   # Enregistrement
+
+# ==================================================
+# endregion PNG IO
 # ==================================================

@@ -10,6 +10,7 @@ from palm_tracer.Processing import run_palm_stack_dll
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import GaussianFit
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json
+from palm_tracer.Tools.FileIO import save_png
 
 
 ##################################################
@@ -87,7 +88,7 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 		else:
 			logger.add("Localisation désactivé.")
 			f = get_last_file(path, "localisations")
-			if f.endswith("csv"): # Chargement d'une localisation existante
+			if f.endswith("csv"):  # Chargement d'une localisation existante
 				logger.add("\tChargement d'une localisation pré-calculée.")
 				try:
 					loc = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
@@ -96,7 +97,7 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 				except Exception as e:
 					loc = None
 					logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
-			else: # Sinon
+			else:  # Sinon
 				loc = None
 				logger.add("\tAucune donnée de localisation pré-calculée.")
 
@@ -110,7 +111,7 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 		else:
 			logger.add("Tracking désactivé.")
 			f = get_last_file(path, "tracking")
-			if f.endswith("csv"): # Chargement d'une localisation existante
+			if f.endswith("csv"):  # Chargement d'une localisation existante
 				logger.add("\tChargement d'un tracking pré-calculée.")
 				try:
 					track = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
@@ -119,7 +120,7 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 				except Exception as e:
 					track = None
 					logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
-			else: # Sinon
+			else:  # Sinon
 				track = None
 				logger.add("\tAucune donnée de tracking pré-calculée.")
 
@@ -128,8 +129,7 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 			logger.add("Visualisation commencé.")
 			visu = process_visualization(dll["CPU"], stack, settings, loc, track)
 			logger.add("Enregistrement du fichier de visualisation.")
-			# if visu.size != 0: logger.add("Enregistrement du fichier de visualisation.")
-			# else: logger.add("Aucune visualisation enregistrée.")
+			save_png(visu, f"{path}/visualization-{timestamp_suffix}.png")
 		else:
 			logger.add("Visualisation désactivée.")
 
@@ -192,4 +192,4 @@ def process_visualization(dll: ctypes.CDLL, stack: np.ndarray, settings: Setting
 	print("TODO PALM.visualization")
 	# Parse settings
 	# Run command
-	return stack
+	return stack[0]

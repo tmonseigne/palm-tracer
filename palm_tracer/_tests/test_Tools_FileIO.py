@@ -83,3 +83,15 @@ def test_open_tif_bad_file():
 	with pytest.raises(OSError) as exception_info:
 		stack = FileIO.open_tif("bad_filename.png")
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+
+##################################################
+def test_save__png():
+	""" Test de la fonction save_png. """
+	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save.png")
+
+##################################################
+def test_save_png_bad_sample():
+	""" Test de la fonction save_png avec un tableau 1D. """
+	with pytest.raises(ValueError) as exception_info:
+		FileIO.save_png(REF_GRADIENT[1, :], f"{OUTPUT_DIR}/test_save_bad.png")
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
