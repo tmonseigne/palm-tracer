@@ -44,8 +44,6 @@ SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
 			"MSE Gauss",		 # MSE Gauss
 			"Intensity",		 # Intensity (Integrated Wavelet Intensity ????)
 			"Surface", "Z", "Pair Distance", "Id"]
-
-
 # With Gaussian Fit : Calculate Integrated Gaussian Intensity = I0 * 2 * pi * sigmaX * Sigma Y
 
 
@@ -53,7 +51,7 @@ SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
 # region Parsing
 # ==================================================
 ##################################################
-def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_planes: int = 1) -> int:
+def _get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_planes: int = 1) -> int:
 	"""
 	Calcule le nombre maximal théorique de points détectables basé sur les dimensions et la densité de l'image.
 
@@ -68,7 +66,7 @@ def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_
 
 
 ##################################################
-def parse_palm_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
+def _parse_palm_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
@@ -132,7 +130,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))					  # Image
 	c_height = image.shape[0]														  # Hauteur (nombre de lignes)
 	c_width = image.shape[1]														  # Largeur (nombre de colonnes)
-	n_points = get_max_points(c_height, c_width)									  # Nombre maximum de points théorique
+	n_points = _get_max_points(c_height, c_width)									  # Nombre maximum de points théorique
 	c_points = np.zeros((n_points,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
 	c_wavelet = ctypes.c_uint(1)													  # Wavelet toujours à 1.
 	c_threshold = ctypes.c_double(threshold)										  # Seuil
@@ -150,7 +148,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	dll._PALMProcessing()
 	dll._closePALMProcessing()
 
-	return parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n_points,)))
+	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n_points,)))
 
 ##################################################
 def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, watershed: bool,
