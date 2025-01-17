@@ -7,20 +7,17 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
 
 """
 
-import os
-from datetime import datetime
 from typing import cast
 
 import napari
 import numpy as np
-import pandas as pd
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QVBoxLayout, QWidget
 
-from palm_tracer.Processing import load_dll
+from palm_tracer.Processing import auto_threshold, load_dll, PALM
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import Logger, open_json, open_tif, print_error, print_warning, save_json
+from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 
 
 ##################################################
@@ -113,54 +110,20 @@ class PALMTracerWidget(QWidget):
 		return np.asarray(plane, dtype=np.float32)  # Renvoie sous le format numpy
 
 	##################################################
+	def auto_threshold(self):
+		"""Action lors d'un clic sur le bouton auto du seuillage."""
+		image = self._get_actual_image()
+		if not image: return
+		threshold = auto_threshold(image)  # Calcul du seuil automatique
+		self.settings.localisation["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
+
+	##################################################
 	def process(self):
 		"""Action lors d'un clic sur le bouton process"""
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return
-
-		# Output directory management
-		outputs = self.settings.batch.get_path()
-		for output in outputs:
-			os.makedirs(output, exist_ok=True)
-			print(f"Output directory: {output}")
-
-			logger = Logger()
-			timestamp_suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
-			logger.open(f"{output}/log-{timestamp_suffix}.log")
-			logger.add("Start Processing.")
-
-			# Save settings
-			print(self.settings)
-			save_json(f"{output}/settings-{timestamp_suffix}.json", self.settings.to_dict())
-			logger.add("Settings Saved.")
-
-			# Save meta file (Création du DataFrame et sauvegarde en CSV)
-			depth, height, width = self.viewer.layers["Raw"].data.shape
-			df = pd.DataFrame({"Height":                   [height], "Width": [width], "Plane Number": [depth],
-							   "Pixel Size (nm)":          [self.settings.calibration["Pixel Size"].get_value()],
-							   "Exposure Time (ms/frame)": [self.settings.calibration["Exposure"].get_value()],
-							   "Intensity (photon/ADU)":   [self.settings.calibration["Intensity"].get_value()]})
-			df.to_csv(f"{output}/meta-{timestamp_suffix}.csv", index=False)
-			logger.add("Meta File Saved.")
-
-			# Process
-			# Parsing des paramètres pour le process et la DLL (localisation, tracking, HR Visualization...)
-			# Récupération de l'image selon le Batch (une image, une pile, un ensemble de pile)
-			# Pour chaque image :
-			# 	Lancement de la DLL
-			#   Enregistrement des fichiers loc et trace si selectionné
-			#   Enregistrement des Images si visu HR
-
-			# Test auto_threshold
-			# Récupération de l'image affiché dans le viewer (donc dans le layer Raw récupération du plan actuellement affiché
-			image = self._get_actual_image()
-			if image is None:
-				print_warning("image non valide")
-				return
-			# threshold = auto_threshold(image)
-			# print(f"Threshold :{threshold}")
-			# Test auto_threshold_dll
-			# Test process Palm
-			logger.add("Process Finished.")
-			logger.close()
+		if self.dll.get("CPU", None) is None or self.dll.get("Tracking", None) is None:
+			print_warning("Process non effectué car DLL manquantes.")
+			return
+		PALM.process(self.dll, self.settings)

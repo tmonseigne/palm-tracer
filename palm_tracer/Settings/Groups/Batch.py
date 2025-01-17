@@ -32,7 +32,7 @@ class Batch(BaseSettingGroup):
 			}
 
 	##################################################
-	def get_path(self, suffix: str = "_PALM_Tracer") -> list[str]:
+	def get_paths(self, suffix: str = "_PALM_Tracer") -> list[str]:
 		"""
 		Génère un chemin basé sur les fichiers du Batch et le mode sélectionné.
 

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from palm_tracer.Processing import auto_threshold_dll, auto_threshold, get_gaussian_mode, load_dll, run_palm_image_dll
+from palm_tracer.Processing import auto_threshold, auto_threshold_dll, load_dll
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"

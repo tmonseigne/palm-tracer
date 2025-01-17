@@ -1,6 +1,6 @@
 """
 Fichier contenant la classe `Localisation` dérivée de `BaseSettingGroup`,
-qui regroupe les paramètres de calibration nécessaires à la configuration de PALM Tracer.
+qui regroupe les paramètres de localisation nécessaires à la configuration de PALM Tracer.
 """
 
 from dataclasses import dataclass

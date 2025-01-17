@@ -23,6 +23,8 @@ from .Batch import Batch
 from .Calibration import Calibration
 from .GaussianFit import GaussianFit
 from .Localisation import Localisation
+from .Tracking import Tracking
+from .Visualization import Visualization
 
 
 ##################################################
@@ -33,9 +35,12 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	elif data["type"] == "Calibration": return Calibration.from_dict(data)
 	elif data["type"] == "Localisation": return Localisation.from_dict(data)
 	elif data["type"] == "GaussianFit": return GaussianFit.from_dict(data)
+	elif data["type"] == "Tracking": return Tracking.from_dict(data)
+	elif data["type"] == "Visualization": return Visualization.from_dict(data)
 	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
 
 
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingGroup", "create_group_from_dict",
-		   "Batch", "Calibration", "Localisation", "GaussianFit"]
+		   "Batch", "Calibration", "Localisation", "GaussianFit",
+		   "Tracking", "Visualization"]

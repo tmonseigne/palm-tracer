@@ -20,10 +20,10 @@ class BaseSettingGroup:
 	Classe mère pour un groupe de setting :
 
 	Attributs :
-			- **active (bool)** : Etat du groupe (activé ou non)
+			- **active (bool)** : État du groupe (activé ou non)
 			- **label (str)** : Nom du Groupe
 			- **setting_list (dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]()** : Liste des settings du groupe.
-			- **_settings (dict[str, Union[BaseSettingGroup, BaseSettingType]])** : Liste des visualisation de settings (inputs) du groupe.
+			- **_settings (dict[str, Union[BaseSettingGroup, BaseSettingType]])** : Liste des visualisations de settings (inputs) du groupe.
 			- **_layout (QFormLayout)** : Layout principal du groupe.
 			- **_title (QLabel)** : Nom du Groupe (objet QT).
 			- **_checkbox (QCheckBox)** : Case à cocher pour activer ou non le groupe.

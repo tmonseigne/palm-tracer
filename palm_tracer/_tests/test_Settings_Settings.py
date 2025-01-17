@@ -6,7 +6,6 @@ from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtWidgets import QApplication
 
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups import Calibration
 
 
 ##################################################

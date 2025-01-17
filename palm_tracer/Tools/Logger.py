@@ -37,6 +37,8 @@ class Logger:
 	def close(self):
 		"""Ferme le fichier de log."""
 		if self._isopen:
+			self.file_handle.write("\n")
+			self.file_handle.flush()
 			self.file_handle.close()
 			print(f"[{self._get_time()}] Log fermé : {self.filename}")
 		else:

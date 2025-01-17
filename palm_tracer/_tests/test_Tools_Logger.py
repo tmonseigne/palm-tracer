@@ -1,8 +1,9 @@
 """ Fichier des tests pour le logger """
 
 import os
-from palm_tracer.Tools import Logger
 from pathlib import Path
+
+from palm_tracer.Tools import Logger
 
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)

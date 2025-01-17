@@ -84,7 +84,7 @@ def test_batch_get_path():
 	app = initialize()
 	batch = Batch()
 
-	path = batch.get_path()
+	path = batch.get_paths()
 	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0].endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas."
 
@@ -92,23 +92,23 @@ def test_batch_get_path():
 	file_list.items = ["output/File 1.tif", "output/File 2.tif"]
 	file_list.update_box()
 
-	path = batch.get_path()
+	path = batch.get_paths()
 	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
 	file_list.set_value(1)
-	path = batch.get_path()
+	path = batch.get_paths()
 	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
 	batch["Mode"].set_value(1)
-	path = batch.get_path()
+	path = batch.get_paths()
 	assert len(path) == 2 , "Il devrait y avoir deux dossiers."
 	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
 	assert path[1] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
 	batch["Mode"].set_value(2)
-	path = batch.get_path()
+	path = batch.get_paths()
 	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
