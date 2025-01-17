@@ -9,7 +9,7 @@ import pandas as pd
 from palm_tracer.Processing import run_palm_stack_dll
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import GaussianFit
-from palm_tracer.Tools import Logger, print_warning, save_json
+from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json
 
 
 ##################################################
@@ -78,18 +78,27 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 
 		# Lancement de la localisation
 		if settings.localisation.active:
+			logger.add("Localisation commencée.")
 			loc = process_localisation(dll["CPU"], stack, settings)
 			loc = _palm_to_localisation_file(loc)
-			logger.add(f"{loc.size} localisation(s) trouvé.")
+			logger.add(f"\t{loc.size} localisation(s) trouvée(s).")
 			logger.add("Enregistrement du fichier de localisation")
 			loc.to_csv(f"{path}/localisations-{timestamp_suffix}.csv", index=False)
 		else:
 			logger.add("Localisation désactivé.")
-			# Chargement d'une localisation existante
-			logger.add("Chargement d'une localisation pré-calculée.")
-			# Sinon
-			logger.add("Aucune donnée de localisation pré-calculée.")
-			loc = None
+			f = get_last_file(path, "localisations")
+			if f.endswith("csv"): # Chargement d'une localisation existante
+				logger.add("\tChargement d'une localisation pré-calculée.")
+				try:
+					loc = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+					logger.add(f"\tFichier '{f}' chargé avec succès.")
+					logger.add(f"\t\t{loc.size} localisation(s) trouvée(s).")
+				except Exception as e:
+					loc = None
+					logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
+			else: # Sinon
+				loc = None
+				logger.add("\tAucune donnée de localisation pré-calculée.")
 
 		# Lancement du tracking
 		if settings.tracking.active:

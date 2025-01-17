@@ -51,10 +51,11 @@ def test_process_only_localisation():
 	else:
 		app = initialize()
 		settings = Settings()
-		settings.localisation.active = True
 		file_list = cast(FileList, settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
+		PALM.process(dll, settings)	# First Time without localisation active and no files to load.
+		settings.localisation.active = True
 		PALM.process(dll, settings)
 	assert True
 
