@@ -158,5 +158,5 @@ def test_localisation():
 def test_gaussian_fit():
 	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
 	app = initialize()
-	group_base_test(GaussianFit(), ["Sigma", "Sigma Fixed", "Theta", "Theta Fixed"],
-					SpinFloat, 2.0, 1.0)
+	group_base_test(GaussianFit(), ["Mode", "Sigma", "Theta"],
+					Combo, 2, 1)

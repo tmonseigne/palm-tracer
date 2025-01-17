@@ -5,23 +5,13 @@ from pathlib import Path
 
 import numpy as np
 
-from palm_tracer.Processing import get_gaussian_mode, get_max_points, load_dll, parse_palm_result, run_palm_image_dll, run_palm_stack_dll
+from palm_tracer.Processing import get_max_points, load_dll, parse_palm_result, run_palm_image_dll, run_palm_stack_dll
 from palm_tracer.Processing.DLL import N_SEGMENTS
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
-
-##################################################
-def test_get_gaussian_mode():
-	"""Test basique sur la récupération du mode de gaussienne fit."""
-	assert get_gaussian_mode(False, False, False) == 0, "Le mode devrait être 0 (None)"
-	assert get_gaussian_mode(True, True, True) == 1, "Le mode devrait être 1 (X Y)"
-	assert get_gaussian_mode(True, False, True) == 2, "Le mode devrait être 2 (X, Y sigma)"
-	assert get_gaussian_mode(True, True, False) == 3, "Le mode devrait être 3 (X, Y sigmaX, sigmaY)"
-	assert get_gaussian_mode(True, False, False) == 4, "Le mode devrait être 4 (X, Y sigmaX, sigmaY, Theta)"
 
 
 ##################################################
@@ -60,8 +50,8 @@ def test_run_palm_image_dll():
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
 		plane, threshold, watershed, sigma, theta, roi = 0, 62.4, True, 1.0, 0.0, 7
 		for gaussian in range(5):
-			points = run_palm_image_dll(dll, image[plane], threshold, watershed, gaussian, sigma, theta, roi)
-			points.to_csv(f"{OUTPUT_DIR}/image-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+			localisations = run_palm_image_dll(dll, image[plane], threshold, watershed, gaussian, sigma, theta, roi)
+			localisations.to_csv(f"{OUTPUT_DIR}/image-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
 	assert True
 
 
@@ -80,6 +70,6 @@ def test_run_palm_stack_dll():
 		stack = open_tif(f"{INPUT_DIR}/stack.tif")
 		threshold, watershed, sigma, theta, roi = 62.4, True, 1.0, 0.0, 7
 		for gaussian in range(5):
-			points = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
-			points.to_csv(f"{OUTPUT_DIR}/stack-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+			localisations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
+			localisations.to_csv(f"{OUTPUT_DIR}/stack-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
 	assert True

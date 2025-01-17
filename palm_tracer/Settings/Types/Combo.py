@@ -65,4 +65,4 @@ class Combo(BaseSettingType):
 		self.add_row(self.box)			# Ajoute la liste déroulante au calque.
 
 	##################################################
-	def reset(self): self.set_value(0)
+	def reset(self): self.set_value(self.default)

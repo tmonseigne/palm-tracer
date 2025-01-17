@@ -53,30 +53,6 @@ SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
 # region Parsing
 # ==================================================
 ##################################################
-def get_gaussian_mode(gaussian_fit: bool, sigma_fixed: bool, theta_fixed: bool) -> int:
-	"""
-	Détermine le mode d'ajustement Gaussien basé sur les paramètres donnés.
-
-	:param gaussian_fit: Indique si l'ajustement Gaussien est activé.
-	:param sigma_fixed: Indique si le sigma est fixe.
-	:param theta_fixed: Indique si le theta est fixe.
-	:return: Mode correspondant :
-		- 0 : Pas d'ajustement Gaussien
-		- 1 : Mode X, Y (theta et sigma sont fixes)
-		- 2 : Mode X, Y, sigma (theta est fixe, Sigma Non)
-		- 3 : Mode X, Y, sigmaX, sigmaY (theta n'est pas fixe, Sigma Si)
-		- 4 : Mode X, Y, sigmaX, sigmaY, Theta (theta et sigma ne sont pas fixes)
-
-	"""
-	if gaussian_fit:
-		if sigma_fixed and theta_fixed: return 1	  # Mode X, Y
-		if not sigma_fixed and theta_fixed: return 2  # Mode X, Y sigma
-		if sigma_fixed and not theta_fixed: return 3  # Mode X, Y sigmaX, sigmaY
-		return 4									  # Mode X, Y sigmaX, sigmaY, Theta
-	return 0										  # Mode None
-
-
-##################################################
 def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_planes: int = 1) -> int:
 	"""
 	Calcule le nombre maximal théorique de points détectables basé sur les dimensions et la densité de l'image.
