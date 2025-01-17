@@ -23,6 +23,8 @@ Ce module regroupe des utilitaires pour des tâches courantes et est structuré 
 
 """
 
+import glob
+import os
 from datetime import datetime
 
 from colorama import Fore, Style
@@ -40,7 +42,7 @@ def add_extension(filename: str, extension: str) -> str:
 	:param extension: Extension finale du fichier
 	"""
 	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
-	if not filename.endswith(extension): filename += extension	   # Si le fichier n'a pas déjà l'extension, on l'ajoute
+	if not filename.endswith(extension): filename += extension  # Si le fichier n'a pas déjà l'extension, on l'ajoute
 	return filename
 
 
@@ -68,8 +70,28 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 	:param with_hour: Ajoute ou non l'heure au timestamp
 	:return: Horodatage.
 	"""
-	if with_hour: return datetime.now().strftime("-%Y%m%d_%H%M%S")  # Formater la date et l'heure
-	return datetime.now().strftime("-%Y%m%d")  # Formater la date
+	if with_hour: return datetime.now().strftime("%Y%m%d_%H%M%S")  # Formater la date et l'heure
+	return datetime.now().strftime("%Y%m%d")  # Formater la date
+
+
+##################################################
+def get_last_file(path: str, name: str) -> str:
+	"""
+	Récupère le dernier fichier (le plus récent) qui contient le paramètre `name` dans son nom dans le chemin `path`.
+
+	:param path: Chemin du dossier où chercher les fichiers.
+	:param name: Chaîne à rechercher dans les noms de fichiers.
+	:return: Chemin complet du dernier fichier trouvé ou une chaîne vide si aucun fichier ne correspond.
+	"""
+	try:
+		search_pattern = os.path.join(path, f"*{name}*")  # Générer le chemin avec le filtre pour les fichiers contenant `name`
+		files = glob.glob(search_pattern)				  # Récupérer tous les fichiers correspondant au motif
+		if not files: return ""							  # Aucun fichier trouvé
+		files.sort(key=os.path.getmtime, reverse=True)	  # Trier les fichiers par date de modification décroissante
+		return files[0]									  # Retourner le fichier le plus récent
+	except Exception as e:
+		print(f"Erreur lors de la recherche du fichier : {e}")
+		return ""
 
 
 # ==================================================
