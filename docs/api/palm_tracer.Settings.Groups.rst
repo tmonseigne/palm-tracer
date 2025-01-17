@@ -11,3 +11,5 @@ Ce sous-package gère les groupes de paramètres.
    palm_tracer.Settings.Groups.Calibration
    palm_tracer.Settings.Groups.GaussianFit
    palm_tracer.Settings.Groups.Localisation
+   palm_tracer.Settings.Groups.Tracking
+   palm_tracer.Settings.Groups.Visualization
