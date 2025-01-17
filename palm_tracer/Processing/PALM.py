@@ -102,24 +102,34 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 
 		# Lancement du tracking
 		if settings.tracking.active:
+			logger.add("Tracking commencé.")
 			track = process_tracking(dll["Tracking"], loc, settings)
 			track = _palm_to_tracking_file(track)
-			if not track.empty: logger.add("Enregistrement du fichier de tracking.")
-			else: logger.add("Aucun tracking trouvé.")
+			logger.add("Enregistrement du fichier de tracking.")
+			track.to_csv(f"{path}/tracking-{timestamp_suffix}.csv", index=False)
 		else:
 			logger.add("Tracking désactivé.")
-			# Chargement d'un tracking existant
-			logger.add("Chargement d'un tracking pré-calculé.")
-			# Sinon
-			logger.add("Aucune donnée de tracking pré-calculé.")
-			track = None
+			f = get_last_file(path, "tracking")
+			if f.endswith("csv"): # Chargement d'une localisation existante
+				logger.add("\tChargement d'un tracking pré-calculée.")
+				try:
+					track = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+					logger.add(f"\tFichier '{f}' chargé avec succès.")
+					logger.add(f"\t\t{track.size} tracking(s) trouvée(s).")
+				except Exception as e:
+					track = None
+					logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
+			else: # Sinon
+				track = None
+				logger.add("\tAucune donnée de tracking pré-calculée.")
 
 		# Lancement de la visualization
 		if settings.visualization.active:
+			logger.add("Visualisation commencé.")
 			visu = process_visualization(dll["CPU"], stack, settings, loc, track)
 			logger.add("Enregistrement du fichier de visualisation.")
-		# if not visu: logger.add("Enregistrement du fichier de visualisation.")
-		# else: logger.add("Aucune visualisation enregistrée.")
+			# if visu.size != 0: logger.add("Enregistrement du fichier de visualisation.")
+			# else: logger.add("Aucune visualisation enregistrée.")
 		else:
 			logger.add("Visualisation désactivée.")
 
