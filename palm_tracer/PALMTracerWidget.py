@@ -55,8 +55,8 @@ class PALMTracerWidget(QWidget):
 		for layout in self.settings.get_layouts(): self.layout().addLayout(layout)
 
 		# Add Specific behaviour
-		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également
-		# La mise à jour du selected fait qu'on le recharge pour la visu napari (sans doute une fonction connect ?)
+		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également.
+		# La mise à jour du selected fait qu'on le recharge pour la visu napari.
 		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
 		file_list_setting = self.settings.batch["Files"]
 		if file_list_setting and isinstance(file_list_setting, FileList):
@@ -76,9 +76,8 @@ class PALMTracerWidget(QWidget):
 		print(f"Setting loaded with the file \"{file_name}\".")
 
 	##################################################
-	def _reset_layer(self):  # pragma: no cover
+	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
-		#
 		selected_file = cast(FileList, self.settings.batch["Files"]).get_selected()
 		if not selected_file:
 			self.last_file = ""
@@ -104,17 +103,17 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.float32)  # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.float32)	  # Renvoie sous le format numpy
 
 	##################################################
 	def auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
-		if not image: return
-		threshold = auto_threshold(image)  # Calcul du seuil automatique
+		if image is None: return
+		threshold = auto_threshold(image)							  # Calcul du seuil automatique
 		self.settings.localisation["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
