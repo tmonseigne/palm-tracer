@@ -24,6 +24,7 @@ from .BrowseFile import BrowseFile
 from .CheckBox import CheckBox
 from .Combo import Combo
 from .FileList import FileList
+from .SignalWrapper import SignalWrapper
 from .SpinFloat import SpinFloat
 from .SpinInt import SpinInt
 
@@ -41,5 +42,5 @@ def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
 
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingType", "create_setting_from_dict",
+__all__ = ["BaseSettingType", "create_setting_from_dict", "SignalWrapper",
 		   "BrowseFile", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt"]

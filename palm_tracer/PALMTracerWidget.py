@@ -60,7 +60,7 @@ class PALMTracerWidget(QWidget):
 		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
 		file_list_setting = self.settings.batch["Files"]
 		if file_list_setting and isinstance(file_list_setting, FileList):
-			file_list_setting.signal.connect(self._reset_layer)
+			file_list_setting.connect(self._reset_layer)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")

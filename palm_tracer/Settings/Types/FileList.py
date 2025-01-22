@@ -10,21 +10,10 @@ Fichier contenant la classe `FileList` dérivée de `BaseSettingType`, qui perme
 from dataclasses import dataclass, field
 from typing import Any
 
-from qtpy.QtCore import QObject, Qt, Signal
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QPushButton
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-
-
-##################################################
-class SignalWrapper(QObject):
-	signal = Signal()
-
-	def __init__(self): super().__init__()
-
-	def connect(self, f): self.signal.connect(f)
-
-	def emit(self): self.signal.emit()
 
 
 ##################################################
@@ -47,7 +36,6 @@ class FileList(BaseSettingType):
 	value: int = field(init=False, default=-1)
 	box: QComboBox = field(init=False)
 	buttons: dict[str, QPushButton] = field(init=False)
-	signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
 
 	##################################################
 	def get_value(self) -> int:
@@ -101,7 +89,7 @@ class FileList(BaseSettingType):
 		"""Vide la liste des fichiers."""
 		self.items.clear()
 		self.update_box()
-		self.signal.emit()
+		self.emit()
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
@@ -116,13 +104,12 @@ class FileList(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()  # Appelle l'initialisation de la classe mère.
-		self.signal = SignalWrapper()
-		self.box = QComboBox(None)	  # Création de la boite.
-		# self.box.setFixedWidth(150) # Réduire la largeur de la boite.
-		self.update_box()			  # Ajout des choix possibles.
-		self.set_value(self.default)  # Définition de la valeur.
-		self.box.currentIndexChanged.connect(self.signal.emit)  # Ajout de la connexion lors d'un changement de selection
+		super().initialize()							 # Appelle l'initialisation de la classe mère.
+		self.box = QComboBox(None)						 # Création de la boite.
+		# self.box.setFixedWidth(150)					 # Réduire la largeur de la boite.
+		self.update_box()								 # Ajout des choix possibles.
+		self.set_value(self.default)					 # Définition de la valeur.
+		self.box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement de selection
 
 		# Créer les boutons d'action
 		self.buttons = {"add": QPushButton("+"), "remove": QPushButton("-"), "clear": QPushButton("Clear")}

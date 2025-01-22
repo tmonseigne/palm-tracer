@@ -12,6 +12,8 @@ from typing import Any
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFormLayout, QLabel
 
+from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
+
 
 ##################################################
 @dataclass
@@ -30,12 +32,34 @@ class BaseSettingType:
 
 	label: str = ""
 	_layout: QFormLayout = field(init=False)
+	__signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
 
+	# ==================================================
+	# region Initialization
+	# ==================================================
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
 
+	##################################################
+	def initialize(self):
+		"""Initialise le paramètre."""
+		self._layout = QFormLayout(None)
+		self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+
+	##################################################
+	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
+		raise NotImplementedError("La méthode 'reset' doit être implémentée dans la sous-classe.")
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	@property
 	def layout(self) -> QFormLayout:
@@ -64,6 +88,13 @@ class BaseSettingType:
 		"""Appliquer la valeur au paramètre"""
 		raise NotImplementedError("La méthode 'set_value' doit être implémentée dans la sous-classe.")
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
@@ -82,17 +113,13 @@ class BaseSettingType:
 		""" Met à jour la classe à partir d'un dictionnaire."""
 		raise NotImplementedError("La méthode 'update_from_dict' doit être implémentée dans la sous-classe.")
 
-	##################################################
-	def initialize(self):
-		"""Initialise le paramètre."""
-		self._layout = QFormLayout(None)
-		self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+	# ==================================================
+	# endregion Parsing
+	# ==================================================
 
-	##################################################
-	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
-		raise NotImplementedError("La méthode 'reset' doit être implémentée dans la sous-classe.")
-
+	# ==================================================
+	# region Manipulation
+	# ==================================================
 	##################################################
 	def add_row(self, box):
 		"""
@@ -101,3 +128,25 @@ class BaseSettingType:
 		:param box: Input box à ajouter
 		"""
 		self._layout.addRow(QLabel(self.label + " : "), box)  # Ajoute le setting.
+
+	##################################################
+	def connect(self, f):
+		"""
+		Connecte une fonction ou un slot au signal encapsulé.
+
+		:param f: Fonction ou slot à connecter.
+		"""
+		self.__signal.connect(f)  # Connexion de la fonction fournie au signal.
+
+	##################################################
+	def emit(self):
+		"""
+		Émet le signal encapsulé.
+
+		Utilisé pour notifier les parties de l'application abonnées au signal.
+		"""
+		self.__signal.emit()  # Émission du signal.
+
+	# ==================================================
+	# endregion Manipulation
+	# ==================================================
