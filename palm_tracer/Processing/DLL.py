@@ -22,10 +22,9 @@ Ce module regroupe des utilitaires pour :
    - `run_palm_dll` : Exécute un traitement d'image avec une DLL PALM pour détecter des points.
 
 .. todo::
-	Les différentes DLL PALM nécessitent sans doute des dépendances supplémentaires, le code source me permettrait de définir lesquelles.
-	GPU et Live ne peuvent être chargé sur mon ordinateur (peut-être CUDA pour le GPU ?).
-	CPU n'est pas non plus valide sur le CI en revanche Tracking n'a aucun problème.
-	Cela me fait donc bien penser à une sorte de dépendance caché, le CI étant un environnement vierge.
+	Les différentes DLL PALM nécessitent des dépendances supplémentaires, le code source me permettrait de définir lesquelles.
+	GPU et Live ne peuvent être chargé sur mon ordinateur (certainement CUDA 7.5).
+	CPU n'est que si vcredist 2010 n'est pas installé, en revanche Tracking n'a aucun problème.
 
 """
 

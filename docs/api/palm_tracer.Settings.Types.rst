@@ -13,3 +13,4 @@ Ce sous-package gère les différents types de paramètres.
    palm_tracer.Settings.Types.FileList
    palm_tracer.Settings.Types.SpinFloat
    palm_tracer.Settings.Types.SpinInt
+   palm_tracer.Settings.Types.SignalWrapper
