@@ -31,4 +31,5 @@ def test_auto_threshold_dll():
 		roi, iterations = 7, 4
 		threshold = auto_threshold_dll(dll, image[0], roi, iterations)
 		print(threshold)
+		print_warning("Aucune comparaison avec Metamorph dans ce test.")
 	assert True

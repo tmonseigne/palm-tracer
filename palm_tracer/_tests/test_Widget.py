@@ -3,8 +3,6 @@
 from pathlib import Path
 from typing import cast
 
-import numpy as np
-
 from palm_tracer import PALMTracerWidget
 from palm_tracer.Settings.Types import FileList
 

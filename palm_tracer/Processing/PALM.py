@@ -13,30 +13,40 @@ from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json
 from palm_tracer.Tools.FileIO import save_png
 
 
+# ==================================================
+# region Parsing Results
+# ==================================================
 ##################################################
 def _palm_to_localisation_file(data: pd.DataFrame) -> pd.DataFrame:
 	"""
-	Convertis la sortie de la fonction de localisation vers le format usuel de PALMTracer
+	Convertis la sortie de la fonction de localisation vers le format usuel de PALMTracer dans Metamorph.
 
 	:param data: Données venant de la fonction de localisation
 	:return: Données formatées
 	"""
-	print("TODO PALM._palm_to_localisation_file")
+	print_warning("TODO PALM._palm_to_localisation_file")
 	return data
 
 
 ##################################################
 def _palm_to_tracking_file(data: pd.DataFrame) -> pd.DataFrame:
 	"""
-	Convertis la sortie de la fonction de tracking vers le format usuel de PALMTracer
+	Convertis la sortie de la fonction de tracking vers le format usuel de PALMTracer dans Metamorph.
 
 	:param data: Données venant de la fonction de tracking
 	:return: Données formatées
 	"""
-	print("TODO _palm_to_tracking_file")
+	print_warning("TODO _palm_to_tracking_file")
 	return data
 
 
+# ==================================================
+# endregion Parsing Results
+# ==================================================
+
+# ==================================================
+# region Process
+# ==================================================
 ##################################################
 def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 	"""
@@ -170,7 +180,7 @@ def process_tracking(dll: ctypes.CDLL, localisations: pd.DataFrame, settings: Se
 	:param settings: Paramètres de l'interface pour lancer la localisation.
 	:return: Données de tracking trouvées.
 	"""
-	print("TODO PALM.tracking")
+	print_warning("TODO PALM.tracking")
 	# Parse settings
 	# Run command
 	return pd.DataFrame()
@@ -189,7 +199,11 @@ def process_visualization(dll: ctypes.CDLL, stack: np.ndarray, settings: Setting
 	:param tracking: Données venant de la fonction de tracking.
 	:return: Nouvelle visualisation.
 	"""
-	print("TODO PALM.visualization")
+	print_warning("TODO PALM.visualization")
 	# Parse settings
 	# Run command
 	return stack[0]
+
+# ==================================================
+# endregion Process
+# ==================================================

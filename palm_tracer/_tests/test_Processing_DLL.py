@@ -3,8 +3,6 @@
 import os
 from pathlib import Path
 
-import numpy as np
-
 from palm_tracer.Processing import load_dll, run_palm_image_dll, run_palm_stack_dll
 from palm_tracer.Tools import open_tif, print_warning
 
@@ -36,6 +34,7 @@ def test_run_palm_image_dll():
 		for gaussian in range(5):
 			localisations = run_palm_image_dll(dll, image[plane], threshold, watershed, gaussian, sigma, theta, roi)
 			localisations.to_csv(f"{OUTPUT_DIR}/image-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+		print_warning("Aucune comparaison avec Metamorph dans ce test.")
 	assert True
 
 
@@ -56,4 +55,5 @@ def test_run_palm_stack_dll():
 		for gaussian in range(5):
 			localisations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
 			localisations.to_csv(f"{OUTPUT_DIR}/stack-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+		print_warning("Aucune comparaison avec Metamorph dans ce test.")
 	assert True
