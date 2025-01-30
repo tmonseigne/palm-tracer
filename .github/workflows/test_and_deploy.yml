@@ -108,7 +108,7 @@ jobs:
         continue-on-error: true  # Permet de continuer même si cette étape échoue
 
       - name: Upload Test Reports as Artifacts
-        uses: actions/upload-artifact@v3  # Limiter à V3 pour le moment la V4 est bugué
+        uses: actions/upload-artifact@v4
         with:
           name: reports
           path: |
@@ -148,7 +148,7 @@ jobs:
           python -m pip install .[documentation]
 
       - name: Download Test Reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: reports
           path: docs/reports/
@@ -162,7 +162,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload documentation to GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: 'docs/_build/html'
 
