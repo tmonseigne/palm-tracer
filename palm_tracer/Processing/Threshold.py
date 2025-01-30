@@ -31,13 +31,11 @@ def auto_threshold(image: np.array):
 	:param image: Image 2D sous forme de tableau NumPy.
 	:return: Seuil calculé (écart type final).
 	"""
-	mask = np.zeros_like(image, dtype=int)
-	# Calcul initial de l'écart type
-	std_dev = np.std(image)
-	mask[image > std_dev] = 1
-	# Calcul de l'écart type pour les pixels hors segmentation
-	pixels_outside = image[mask == 0]
-	if len(pixels_outside) > 0: std_dev = np.std(pixels_outside)
+	mask = np.zeros_like(image, dtype=int)						  # Creation du masque
+	std_dev = np.std(image)										  # Calcul initial de l'écart type
+	mask[image > std_dev] = 1									  # Mise à jour du masque
+	pixels_outside = image[mask == 0]							  # Récupération des pixel hors segmentation
+	if len(pixels_outside) > 0: std_dev = np.std(pixels_outside)  # Mise à jour de l'écart type
 	return std_dev
 
 
@@ -53,8 +51,9 @@ def auto_threshold_dll(dll: ctypes.CDLL, image: np.array, roi_size: int = 7, max
 	:return: Seuil calculé (écart type final).
 	"""
 	mask = np.zeros_like(image, dtype=int) # Creation du masque
-	std_dev = np.std(image)	# Calcul initial de l'écart type
-	roi_2 = float(roi_size) / 2.0 # Demi-taille de la zone ROI
+	std_dev = np.std(image)				   # Calcul initial de l'écart type
+	roi_2 = float(roi_size) / 2.0		   # Demi-taille de la zone ROI
+	height, width = image.shape			   # Récupération de la taille de l'image
 
 	for _ in range(max_iterations):
 		# Lancement d'un PALM et récupération de la liste des points (format (x, y))
@@ -63,8 +62,8 @@ def auto_threshold_dll(dll: ctypes.CDLL, image: np.array, roi_size: int = 7, max
 		# mask.fill(0)
 		for x, y in zip(points['X'], points['Y']):
 			# Définir les limites de la ROI tout en respectant les bords de l'image
-			x_min, x_max = max(0, int(x - roi_2)), min(image.shape[1], int(x + roi_2))
-			y_min, y_max = max(0, int(y - roi_2)), min(image.shape[0], int(y + roi_2))
+			x_min, x_max = max(0, int(x - roi_2)), min(width, int(x + roi_2))
+			y_min, y_max = max(0, int(y - roi_2)), min(height, int(y + roi_2))
 			# Mettre à jour le masque pour les pixels dans la ROI
 			mask[y_min:y_max, x_min:x_max] = 1
 
