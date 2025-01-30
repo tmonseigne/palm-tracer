@@ -78,11 +78,21 @@ def _parse_palm_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
 	:param sort: Tri des points par Y puis X (sens de lecture Gauche à droite du haut vers le bas).
 	:return: Dataframe filtré
 	"""
+	# Manipulation du tableau 1D.
 	size = (data.size // N_SEGMENTS) * N_SEGMENTS							   # Récupération de la taille correcte si non multiple de N_SEGMENTS
 	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENTS), columns=SEGMENTS)  # Transformation en Dataframe
 	res = res[res['X'] > 0]													   # Filtrage des lignes remplies de 0 et -1
+
 	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])	   # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
-	return res.reset_index(drop=True)
+	res = res.reset_index(drop=True)										   # Remise à 0 des index
+	res["Index"] = range(1, len(res) + 1)									   # Ajout d'un index dans le tableau
+	res["Plane"] = 1														   # Ajout d'un index dans le tableau
+	res["Channel"] = -1														   # Ajout d'un channel dans le tableau
+	res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]	# Ajout de l'intensité intégré
+
+	# Réorganisation des colonnes
+	new_columns = ["Plane", "Index", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "Surface", "Pair Distance"]
+	return res[new_columns]  # Sélection des colonnes
 
 
 # ==================================================
@@ -149,6 +159,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 
 	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n_points,)))
 
+
 ##################################################
 def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, watershed: bool,
 					   gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
@@ -169,8 +180,8 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
 
 	for i in range(stack.shape[0]):
 		points = run_palm_image_dll(dll, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size)
-		points.insert(0, 'Plane', i + 1) # Ajouter une colonne 'Plane' au DataFrame temporaire
-		results.append(points)			 # Ajouter à la liste
+		points["Plane"] = i + 1  # Modifier une colonne 'Plane' au DataFrame temporaire
+		results.append(points)   # Ajouter à la liste
 
 	# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
 	return pd.concat(results, ignore_index=True)
