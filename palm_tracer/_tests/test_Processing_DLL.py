@@ -27,14 +27,14 @@ def test_run_palm_image_dll():
 	"""
 	dll = load_dll().get("CPU", None)
 	if dll is None:
-		print_warning("Test non effectué car DLL manquante")
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
 		plane, threshold, watershed, sigma, theta, roi = 0, 62.4, True, 1.0, 0.0, 7
 		for gaussian in range(5):
 			localisations = run_palm_image_dll(dll, image[plane], threshold, watershed, gaussian, sigma, theta, roi)
 			localisations.to_csv(f"{OUTPUT_DIR}/image-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
-		print_warning("Aucune comparaison avec Metamorph dans ce test.")
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
@@ -55,5 +55,5 @@ def test_run_palm_stack_dll():
 		for gaussian in range(5):
 			localisations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
 			localisations.to_csv(f"{OUTPUT_DIR}/stack-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
-		print_warning("Aucune comparaison avec Metamorph dans ce test.")
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True

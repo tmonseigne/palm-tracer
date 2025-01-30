@@ -35,11 +35,12 @@ def test_process_no_input():
 	"""Test pour le process sans fichiers en entrée."""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
-		print_warning("Test non effectué car DLL manquante")
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		app = initialize()
 		settings = Settings()
 		PALM.process(dll, settings)
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 ##################################################
@@ -47,7 +48,7 @@ def test_process_only_localisation():
 	"""Test pour le process de localisation."""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
-		print_warning("Test non effectué car DLL manquante")
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		app = initialize()
 		settings = Settings()
@@ -57,6 +58,7 @@ def test_process_only_localisation():
 		PALM.process(dll, settings)	# First Time without localisation active and no files to load.
 		settings.localisation.active = True
 		PALM.process(dll, settings)
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 ##################################################
@@ -64,7 +66,7 @@ def test_process_only_tracking():
 	"""Test pour le process de localisation."""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
-		print_warning("Test non effectué car DLL manquante")
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		app = initialize()
 		settings = Settings()
@@ -73,6 +75,7 @@ def test_process_only_tracking():
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		PALM.process(dll, settings)
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 ##################################################
@@ -80,7 +83,7 @@ def test_process_only_visualization():
 	"""Test pour le process de localisation."""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
-		print_warning("Test non effectué car DLL manquante")
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		app = initialize()
 		settings = Settings()
@@ -89,6 +92,7 @@ def test_process_only_visualization():
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		PALM.process(dll, settings)
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 ##################################################
@@ -96,7 +100,7 @@ def test_process_all():
 	"""Test Basique pour le process."""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
-		print_warning("Test non effectué car DLL manquante")
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		app = initialize()
 		settings = Settings()
@@ -107,4 +111,5 @@ def test_process_all():
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		PALM.process(dll, settings)
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True

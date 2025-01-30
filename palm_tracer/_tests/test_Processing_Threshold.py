@@ -25,11 +25,11 @@ def test_auto_threshold_dll():
 		Trouver un moyen de comparer avec les bons paramètres une sortie de PALM Tracer.
 	"""
 	dll = load_dll().get("CPU", None)
-	if dll is None: print_warning("Test non effectué car DLL manquante")
+	if dll is None: print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
 		roi, iterations = 7, 4
 		threshold = auto_threshold_dll(dll, image[0], roi, iterations)
 		print(threshold)
-		print_warning("Aucune comparaison avec Metamorph dans ce test.")
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
