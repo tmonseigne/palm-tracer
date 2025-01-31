@@ -10,6 +10,7 @@ INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
+
 ##################################################
 def test_load_dll():
 	"""Test basique sur le chargement des DLL."""
@@ -29,13 +30,14 @@ def test_run_palm_image_dll():
 	if dll is None:
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
-		file = "stack_quadrant"
+		file = "stack"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 		for plane in range(stack.shape[0]):
 			for gaussian in range(5):
 				localisations = run_palm_image_dll(dll, stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
-				localisations.to_csv(f"{OUTPUT_DIR}/{file}-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+				# localisations.to_csv(f"{OUTPUT_DIR}/{file}-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+				assert len(localisations) > 0, "Aucune localisation trouvé"
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
@@ -52,11 +54,39 @@ def test_run_palm_stack_dll():
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
 	else:
-		file = "stack_quadrant"
+		file = "stack"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 		for gaussian in range(5):
 			localisations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
-			localisations.to_csv(f"{OUTPUT_DIR}/{file}-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+			# localisations.to_csv(f"{OUTPUT_DIR}/{file}-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+			assert len(localisations) > 0, "Aucune localisation trouvé"
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
+	assert True
+
+
+##################################################
+def test_run_palm_stack_dll_check_quadrant():
+	"""
+	Test sur le lancement de PALM sur une pile.
+
+	.. todo::
+		Trouver un moyen de comparer avec les bons paramètres une sortie de PALM Tracer.
+	"""
+	dll = load_dll().get("CPU", None)
+	if dll is None:
+		print_warning("Test non effectué car DLL manquante")
+	else:
+		file = "stack_quadrant"
+		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+		threshold, watershed, sigma, theta, roi = 103.6, False, 1.0, 0.0, 7
+		localisations = run_palm_stack_dll(dll, stack, threshold, watershed, 0, sigma, theta, roi)
+		quadrant = {"Top":    localisations['Plane'].isin([3, 4, 7, 8]),
+					"Bottom": localisations['Plane'].isin([1, 2, 5, 6, 9, 10]),
+					"Left":   localisations['Plane'].isin([1, 4, 5, 8, 9]),
+					"Right":  localisations['Plane'].isin([2, 3, 6, 7, 10])}
+		assert (localisations.loc[quadrant["Top"], 'Y'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire en haut de l'image."
+		assert (localisations.loc[quadrant["Bottom"], 'Y'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire en bas de l'image."
+		assert (localisations.loc[quadrant["Left"], 'X'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire à gauche de l'image."
+		assert (localisations.loc[quadrant["Right"], 'X'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire à droite de l'image."
 	assert True

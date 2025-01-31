@@ -144,9 +144,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	height, width = image.shape					# Récupération des dimensions
 	n = _get_max_points(height, width)			# Récupération d'un nombre de points maximum théorique
 
-	# TODO
-	# ROTATION DE L'IMAGE, le tableau est lu en column major
-
+	image = image.T.flatten()
 	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))			   # Image
 	c_height = ctypes.c_ushort(height)										   # Hauteur (nombre de lignes)
 	c_width = ctypes.c_ushort(width)										   # Largeur (nombre de colonnes)
