@@ -29,11 +29,13 @@ def test_run_palm_image_dll():
 	if dll is None:
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
-		image = open_tif(f"{INPUT_DIR}/stack.tif")
-		plane, threshold, watershed, sigma, theta, roi = 0, 62.4, True, 1.0, 0.0, 7
-		for gaussian in range(5):
-			localisations = run_palm_image_dll(dll, image[plane], threshold, watershed, gaussian, sigma, theta, roi)
-			localisations.to_csv(f"{OUTPUT_DIR}/image-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+		file = "stack_quadrant"
+		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+		threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
+		for plane in range(stack.shape[0]):
+			for gaussian in range(5):
+				localisations = run_palm_image_dll(dll, stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
+				localisations.to_csv(f"{OUTPUT_DIR}/{file}-{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
@@ -50,10 +52,11 @@ def test_run_palm_stack_dll():
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
 	else:
-		stack = open_tif(f"{INPUT_DIR}/stack.tif")
-		threshold, watershed, sigma, theta, roi = 62.4, True, 1.0, 0.0, 7
+		file = "stack_quadrant"
+		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+		threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 		for gaussian in range(5):
 			localisations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
-			localisations.to_csv(f"{OUTPUT_DIR}/stack-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+			localisations.to_csv(f"{OUTPUT_DIR}/{file}-{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
