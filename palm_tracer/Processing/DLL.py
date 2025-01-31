@@ -43,7 +43,6 @@ SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
 			"MSE Gauss",		 # MSE Gauss
 			"Intensity",		 # Intensity (Integrated Wavelet Intensity ????)
 			"Surface", "Z", "Pair Distance", "Id"]
-# With Gaussian Fit : Calculate Integrated Gaussian Intensity = I0 * 2 * pi * sigmaX * Sigma Y
 
 
 # ==================================================
@@ -65,7 +64,7 @@ def _get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n
 
 
 ##################################################
-def _parse_palm_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
+def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
@@ -75,6 +74,7 @@ def _parse_palm_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	:param data: Donnée en entrée récupérées depuis la DLL PALM.
+	:param gauss_fit: Mode d'ajustement Gaussien.
 	:param sort: Tri des points par Y puis X (sens de lecture Gauche à droite du haut vers le bas).
 	:return: Dataframe filtré
 	"""
@@ -88,7 +88,10 @@ def _parse_palm_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
 	res["Index"] = range(1, len(res) + 1)									   # Ajout d'un index dans le tableau
 	res["Plane"] = 1														   # Ajout d'un index dans le tableau
 	res["Channel"] = -1														   # Ajout d'un channel dans le tableau
-	res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]	# Ajout de l'intensité intégré
+	if gauss_fit != 0:
+		res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]	# Ajout de l'intensité intégré
+	else:
+		res["Integrated Intensity"] = res["Intensity"]	# Ajout de l'intensité intégré
 
 	# Réorganisation des colonnes
 	new_columns = ["Plane", "Index", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "Surface", "Pair Distance"]
@@ -126,30 +129,37 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
-	:param image: Image d'entrée 2D sous forme de tableau numpy.
+	:param image: Image d'entrée 2D sous forme de tableau numpy d'entier.
 	:param threshold: Seuil pour la détection.
 	:param watershed: Active ou désactive le mode watershed.
-	:param gauss_fit: Mode d'ajustement Gaussien (défini par `get_gaussian_mode`).
+	:param gauss_fit: Mode d'ajustement Gaussien.
 	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 	:param roi_size: Taille de la région d'intérêt (ROI).
 	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	"""
 	# Parsing
-	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))					  # Image
-	c_height = image.shape[0]														  # Hauteur (nombre de lignes)
-	c_width = image.shape[1]														  # Largeur (nombre de colonnes)
-	n_points = _get_max_points(c_height, c_width)									  # Nombre maximum de points théorique
-	c_points = np.zeros((n_points,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
-	c_wavelet = ctypes.c_uint(1)													  # Wavelet toujours à 1.
-	c_threshold = ctypes.c_double(threshold)										  # Seuil
-	c_watershed = ctypes.c_double(10 if watershed else 0)							  # Activation du Watershed
-	c_vol_min = ctypes.c_double(4)													  # Vol minimum toujours à 4.
-	c_int_min = ctypes.c_double(0)													  # Int minimum toujours à 0.
-	c_gauss_fit = ctypes.c_ushort(gauss_fit)										  # Mode du Gaussian Fit
-	c_sigma = ctypes.c_double(sigma)												  # Valeur initiale du Sigma
-	c_theta = ctypes.c_double(theta)												  # Valeur Initiale du Theta
-	c_roi_size = ctypes.c_ushort(roi_size)											  # taille de la ROI
+	image = np.asarray(image, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
+	height, width = image.shape					# Récupération des dimensions
+	n = _get_max_points(height, width)			# Récupération d'un nombre de points maximum théorique
+
+	# TODO
+	# ROTATION DE L'IMAGE, le tableau est lu en column major
+
+	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))			   # Image
+	c_height = ctypes.c_ushort(height)										   # Hauteur (nombre de lignes)
+	c_width = ctypes.c_ushort(width)										   # Largeur (nombre de colonnes)
+	n_points = ctypes.c_ushort(n)											   # Nombre maximum de points théorique
+	c_points = np.zeros((n,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
+	c_wavelet = ctypes.c_uint(1)											   # Wavelet toujours à 1.
+	c_threshold = ctypes.c_double(threshold)								   # Seuil
+	c_watershed = ctypes.c_double(10 if watershed else 0)					   # Activation du Watershed
+	c_vol_min = ctypes.c_double(4)											   # Vol minimum toujours à 4.
+	c_int_min = ctypes.c_double(0)											   # Int minimum toujours à 0.
+	c_gauss_fit = ctypes.c_ushort(gauss_fit)								   # Mode du Gaussian Fit
+	c_sigma = ctypes.c_double(sigma)										   # Valeur initiale du Sigma
+	c_theta = ctypes.c_double(theta)										   # Valeur Initiale du Theta
+	c_roi_size = ctypes.c_ushort(roi_size)									   # taille de la ROI
 
 	# Running
 	dll._OpenPALMProcessing(c_image, c_points, n_points, c_width, c_height, c_wavelet, c_threshold, c_watershed,
@@ -157,7 +167,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	dll._PALMProcessing()
 	dll._closePALMProcessing()
 
-	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n_points,)))
+	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n,)), gauss_fit, False)
 
 
 ##################################################
