@@ -41,7 +41,7 @@ SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
 			"Intensity 0",		 # Intensity too ?????? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
 			"Intensity Offset",  # Intensity Offset ???
 			"MSE Gauss",		 # MSE Gauss
-			"Intensity",		 # Intensity (Integrated Wavelet Intensity ????)
+			"Intensity",		 # Intensity (Integrated Wavelet Intensity)
 			"Surface", "Z", "Pair Distance", "Id"]
 
 
@@ -88,13 +88,14 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	res["Index"] = range(1, len(res) + 1)									   # Ajout d'un index dans le tableau
 	res["Plane"] = 1														   # Ajout d'un index dans le tableau
 	res["Channel"] = -1														   # Ajout d'un channel dans le tableau
+	res["MSE Z"] = -1														   # Ajout d'un channel dans le tableau
 	if gauss_fit != 0:
 		res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]	# Ajout de l'intensité intégré
 	else:
 		res["Integrated Intensity"] = res["Intensity"]	# Ajout de l'intensité intégré
 
 	# Réorganisation des colonnes
-	new_columns = ["Plane", "Index", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "Surface", "Pair Distance"]
+	new_columns = ["Plane", "Index", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "MSE Z", "Pair Distance"]
 	return res[new_columns]  # Sélection des colonnes
 
 
