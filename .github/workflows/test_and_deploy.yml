@@ -110,7 +110,7 @@ jobs:
       - name: Upload Test Reports as Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: reports
+          name: reports-${{ matrix.platform }}_${{ matrix.python-version }}
           path: |
             reports/test_report_ci_*.rst
             reports/monitoring_ci_*.html
@@ -150,8 +150,9 @@ jobs:
       - name: Download Test Reports
         uses: actions/download-artifact@v4
         with:
-          name: reports
           path: docs/reports/
+          pattern: reports-*
+          merge-multiple: true
 
       - name: Build documentation
         run: |
