@@ -85,7 +85,7 @@ def test_open_tif_bad_file():
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
 
 ##################################################
-def test_save__png():
+def test_save_png():
 	""" Test de la fonction save_png. """
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save.png")
 

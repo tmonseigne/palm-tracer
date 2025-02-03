@@ -31,7 +31,8 @@ def test_run_palm_image_dll():
 	Test sur le lancement de PALM sur une frame.
 
 	.. todo::
-		Trouver un moyen de comparer avec les bons paramètres une sortie de PALM Tracer.
+		Comparer avec une sortie de PALM Tracer.
+		Actuellement différence de résultat, nécessite une investigation
 	"""
 	dll = load_dll().get("CPU", None)
 	if dll is None:
@@ -60,7 +61,8 @@ def test_run_palm_stack_dll():
 	Test sur le lancement de PALM sur une pile.
 
 	.. todo::
-		Trouver un moyen de comparer avec les bons paramètres une sortie de PALM Tracer.
+		Comparer avec une sortie de PALM Tracer.
+		Actuellement différence de résultat, nécessite une investigation
 	"""
 	dll = load_dll().get("CPU", None)
 	if dll is None:
@@ -88,7 +90,8 @@ def test_run_palm_stack_dll_check_quadrant():
 	Test sur le lancement de PALM sur une pile.
 
 	.. todo::
-		Trouver un moyen de comparer avec les bons paramètres une sortie de PALM Tracer.
+		Comparer avec une sortie de PALM Tracer.
+		Actuellement différence de résultat, nécessite une investigation
 	"""
 	dll = load_dll().get("CPU", None)
 	if dll is None:

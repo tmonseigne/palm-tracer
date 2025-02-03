@@ -45,7 +45,13 @@ def test_process_no_input():
 
 ##################################################
 def test_process_only_localisation():
-	"""Test pour le process de localisation."""
+	"""
+	Test pour le process de localisation.
+
+	.. todo::
+		Comparer avec une sortie de PALM Tracer.
+		Actuellement différence de résultat, nécessite une investigation
+	"""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -63,7 +69,13 @@ def test_process_only_localisation():
 
 ##################################################
 def test_process_only_tracking():
-	"""Test pour le process de localisation."""
+	"""
+	Test pour le process de localisation.
+
+	.. todo::
+		Comparer avec une sortie de PALM Tracer.
+		Actuellement différence de résultat, nécessite une investigation
+	"""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -80,7 +92,13 @@ def test_process_only_tracking():
 
 ##################################################
 def test_process_only_visualization():
-	"""Test pour le process de localisation."""
+	"""
+	Test pour le process de localisation.
+
+	.. todo::
+		Comparer avec une sortie de PALM Tracer.
+		Actuellement différence de résultat, nécessite une investigation
+	"""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -97,7 +115,13 @@ def test_process_only_visualization():
 
 ##################################################
 def test_process_all():
-	"""Test Basique pour le process."""
+	"""
+	Test Basique pour le process.
+
+	.. todo::
+		Comparer avec une sortie de PALM Tracer.
+		Actuellement différence de résultat, nécessite une investigation
+	"""
 	dll = load_dll()
 	if dll.get("CPU", None) is None or dll.get("Tracking", None) is None:
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
