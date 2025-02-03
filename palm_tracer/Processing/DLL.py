@@ -86,13 +86,12 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])	   # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
 	res = res.reset_index(drop=True)										   # Remise à 0 des index
 	res["Index"] = range(1, len(res) + 1)									   # Ajout d'un index dans le tableau
-	res["Plane"] = 1														   # Ajout d'un index dans le tableau
+	res["Plane"] = 1														   # Ajout d'un plan dans le tableau
 	res["Channel"] = -1														   # Ajout d'un channel dans le tableau
-	res["MSE Z"] = -1														   # Ajout d'un channel dans le tableau
-	if gauss_fit != 0:
-		res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]	# Ajout de l'intensité intégré
-	else:
-		res["Integrated Intensity"] = res["Intensity"]	# Ajout de l'intensité intégré
+	res["MSE Z"] = -1														   # Ajout d'un MSE pour Z dans le tableau
+	# Ajout de l'intensité intégré (si on à les sigma du gaussian fit ou non)
+	if gauss_fit != 0: res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]
+	else: res["Integrated Intensity"] = res["Intensity"]
 
 	# Réorganisation des colonnes
 	new_columns = ["Plane", "Index", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "MSE Z", "Pair Distance"]
@@ -143,8 +142,8 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	image = np.asarray(image, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
 	height, width = image.shape					# Récupération des dimensions
 	n = _get_max_points(height, width)			# Récupération d'un nombre de points maximum théorique
+	image = image.T.flatten()					# L'image est transposé car la DLL fonctionne en column Major
 
-	image = image.T.flatten()
 	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))			   # Image
 	c_height = ctypes.c_ushort(height)										   # Hauteur (nombre de lignes)
 	c_width = ctypes.c_ushort(width)										   # Largeur (nombre de colonnes)
