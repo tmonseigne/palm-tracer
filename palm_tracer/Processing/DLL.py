@@ -38,14 +38,14 @@ from palm_tracer.Tools import print_warning
 
 N_SEGMENTS = 13  # Nombre de paramètres pour chaque détection.
 SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
-			"Intensity 0",		 # Intensity too ?????? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
+			"Intensity 0",		 # Intensity too ??? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
 			"Intensity Offset",  # Intensity Offset ???
 			"MSE Gauss",		 # MSE Gauss
 			"Intensity",		 # Intensity (Integrated Wavelet Intensity)
 			"Surface", "Z", "Pair Distance", "Id"]
 
 N_TRACK = 9  # Nombre de paramètres pour le tracking.
-TRACKS = ["","","","","","","","",""]
+TRACKS = ["Track","Plane","X","Y","???","Integrated Intensity","Z","Pair Distance","Id"]
 
 # ==================================================
 # region Parsing
@@ -64,6 +64,27 @@ def _get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n
 	"""
 	return int(height * width * density * n_planes) * N_SEGMENTS
 
+##################################################
+def _rearrange_dataframe_columns(data: pd.DataFrame, columns:list["str"], remaining: bool = True)->pd.DataFrame:
+	"""
+	Réorganise les colonnes d'un DataFrame en mettant certaines en premier,
+    avec l'option d'ajouter les colonnes restantes dans leur ordre d'origine.
+
+	:param data: Le DataFrame à réorganiser.
+	:param columns: Liste des noms de colonnes à placer en premier.
+	:param remaining: Si `True`, ajoute les colonnes non spécifiées après celles définies dans `columns`.
+	:return: Un nouveau DataFrame avec les colonnes réorganisées.
+    :raises ValueError: Si une colonne spécifiée dans `columns` n'existe pas dans `data`.
+	"""
+	# Vérifier que toutes les colonnes spécifiées existent dans le DataFrame
+	missing_columns = [col for col in columns if col not in data.columns]
+	if missing_columns:
+		raise ValueError(f"Les colonnes suivantes sont absentes du DataFrame : {missing_columns}")
+
+	if remaining:
+		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
+		columns = columns + remaining_columns									 # Ajout des colonnes restantes aux colonnes de départ
+	return data[columns]														 # Réorganisation du DataFrame
 
 ##################################################
 def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> pd.DataFrame:
@@ -95,16 +116,24 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	if gauss_fit != 0: res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]
 	else: res["Integrated Intensity"] = res["Intensity"]
 
-	# Réorganisation des colonnes
-	new_columns = ["Plane", "Id", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "MSE Z", "Pair Distance"]
-	return res[new_columns]  # Sélection des colonnes
+	# Liste des colonnes à placer en premier
+	first_columns = ["Plane", "Id", "Channel", "X", "Y", "Z", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "MSE Z", "Pair Distance"]
+	return _rearrange_dataframe_columns(res, first_columns, True)  # Réorganisation du DataFrame
 
 ##################################################
-def _parse_tracking_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
-	size = (data.size // N_TRACK) * N_TRACK							   # Récupération de la taille correcte si non multiple de N_SEGMENTS
+def _parse_tracking_result(data: np.ndarray) -> pd.DataFrame:
+	"""
+	Parsing du résultat de la DLL Tracking.
+
+	:param data: Donnée en entrée récupérées depuis la DLL Tracking.
+	:return: Dataframe
+	"""
+	size = (data.size // N_TRACK) * N_TRACK								  # Récupération de la taille correcte si non multiple de N_SEGMENTS
 	res = pd.DataFrame(data[:size].reshape(-1, N_TRACK), columns=TRACKS)  # Transformation en Dataframe
 
-	return res
+	# Liste des colonnes à placer en premier
+	first_columns = ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Pair Distance"]
+	return _rearrange_dataframe_columns(res, first_columns, True)  # Réorganisation du DataFrame
 
 # ==================================================
 # endregion Parsing
@@ -219,7 +248,9 @@ def run_tracking_dll(dll: ctypes.CDLL, localisations: pd.DataFrame,
 	n = len(localisations)
 	loc_size = n * N_SEGMENTS
 	track_size = n * N_TRACK
-	c_points = np.zeros((loc_size,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
+	points = _rearrange_dataframe_columns(localisations, SEGMENTS, False)
+	points = points.to_numpy().flatten()
+	c_points = points.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
 	c_loc_size = ctypes.c_uint(loc_size)  #
 	c_track = np.zeros((track_size,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
 	c_track_size = ctypes.c_uint(track_size)  #

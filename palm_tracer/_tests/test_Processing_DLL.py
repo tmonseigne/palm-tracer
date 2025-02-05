@@ -13,11 +13,18 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
+default_gaussian = 2
+save_output = False
 
 
 ##################################################
 def compare_localisations(value: pd.DataFrame, ref: pd.DataFrame, tol: float = 1e-5) -> bool:
 	return value[["X", "Y", "Z"]].sub(ref[["X", "Y", "Z"]]).abs().lt(tol).all().all()
+
+
+##################################################
+def get_suffix(gaussian: int) -> str:
+	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
 
 
 ##################################################
@@ -44,14 +51,18 @@ def test_run_palm_image_dll():
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		for plane in range(stack.shape[0]):
 			for gaussian in range(5):
+				suffix = get_suffix(gaussian)
+
 				localisations = run_palm_image_dll(dll, stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
-				# localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations_{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+				if save_output: localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{plane}_{suffix}.csv", index=False)
+
 				assert len(localisations) > 0, "Aucune localisation trouvé"
-				path = Path(f"{INPUT_DIR}/{file}-localisations_{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv")
+
+				path = Path(f"{INPUT_DIR}/{file}-localisations-{plane}_{suffix}.csv")
 				if path.exists() and path.is_file():
 					ref = pd.read_csv(path)
-					assert compare_localisations(localisations, ref), (f"Test invalide pour les paramètres "
-																	   f"{plane}_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}")
+					assert compare_localisations(localisations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
+
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
@@ -72,14 +83,18 @@ def test_run_palm_stack_dll():
 		file = "stack"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		for gaussian in range(5):
+			suffix = get_suffix(gaussian)
+
 			localisations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
-			# localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv", index=False)
+			if save_output: localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{suffix}.csv", index=False)
+
 			assert len(localisations) > 0, "Aucune localisation trouvé"
-			path = Path(f"{INPUT_DIR}/{file}-localisations_{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}.csv")
+
+			path = Path(f"{INPUT_DIR}/{file}-localisations-{suffix}.csv")
 			if path.exists() and path.is_file():
 				ref = pd.read_csv(path)
-				assert compare_localisations(localisations, ref), (f"Test invalide pour les paramètres "
-																   f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}")
+				assert compare_localisations(localisations, ref), f"Test invalide pour les paramètres {suffix}"
+
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
@@ -97,9 +112,13 @@ def test_run_palm_stack_dll_check_quadrant():
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
 	else:
+		suffix = get_suffix(default_gaussian)
 		file = "stack_quadrant"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
-		localisations = run_palm_stack_dll(dll, stack, threshold, watershed, 0, sigma, theta, roi)
+
+		localisations = run_palm_stack_dll(dll, stack, threshold, watershed, default_gaussian, sigma, theta, roi)
+		if save_output: localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{suffix}.csv", index=False)
+
 		quadrant = {"Top":    localisations['Plane'].isin([3, 4, 7, 8]),
 					"Bottom": localisations['Plane'].isin([1, 2, 5, 6, 9, 10]),
 					"Left":   localisations['Plane'].isin([1, 4, 5, 8, 9]),
@@ -108,10 +127,13 @@ def test_run_palm_stack_dll_check_quadrant():
 		assert (localisations.loc[quadrant["Bottom"], 'Y'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire en bas de l'image."
 		assert (localisations.loc[quadrant["Left"], 'X'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire à gauche de l'image."
 		assert (localisations.loc[quadrant["Right"], 'X'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire à droite de l'image."
-		path = Path(f"{INPUT_DIR}/{file}-localisations_{threshold}_{watershed}_0_{sigma}_{theta}_{roi}.csv")
+
+		path = Path(f"{INPUT_DIR}/{file}-localisations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			ref = pd.read_csv(path)
 			assert compare_localisations(localisations, ref), "Test invalide pour la vérification des quadrants."
+
+		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
@@ -122,11 +144,17 @@ def test_run_tracking_dll():
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
 	else:
-		path = Path(f"{INPUT_DIR}/stack-localisations_{threshold}_{watershed}_2_{sigma}_{theta}_{roi}.csv")
+		suffix = get_suffix(default_gaussian)
+
+		path = Path(f"{INPUT_DIR}/stack-localisations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			localisations = pd.read_csv(path)
 			tracking = run_tracking_dll(dll, localisations, 1, 1, 1, 1)
-			tracking.to_csv(f"{OUTPUT_DIR}/stack-tracking_{threshold}_{watershed}_2_{sigma}_{theta}_{roi}.csv", index=False)
-			print(tracking)
+			if save_output: tracking.to_csv(f"{OUTPUT_DIR}/stack-tracking-{suffix}.csv", index=False)
+
+			assert len(tracking) > 0, "Aucun Tracking trouvé"
+			print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 		else:
 			print_warning(f"Fichier de localisations '{path}' indisponible.")
+
+	assert True
