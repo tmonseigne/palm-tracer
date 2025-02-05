@@ -13,10 +13,10 @@ Ce sous-package contient les fonctions de traitement pour le projet.
 """
 
 # Exemple d'importation des modules pour un accès direct
-from .DLL import load_dll, run_palm_image_dll, run_palm_stack_dll
+from .DLL import load_dll, run_palm_image_dll, run_palm_stack_dll, run_tracking_dll
 from .Threshold import auto_threshold, auto_threshold_dll
 
 # Définir la liste des symboles exportés
 __all__ = ["Threshold", "PALM",
-		   "load_dll", "run_palm_image_dll", "run_palm_stack_dll",
+		   "load_dll", "run_palm_image_dll", "run_palm_stack_dll", "run_tracking_dll",
 		   "auto_threshold", "auto_threshold_dll"]

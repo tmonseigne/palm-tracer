@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from palm_tracer.Processing import load_dll, run_palm_image_dll, run_palm_stack_dll
+from palm_tracer.Processing import load_dll, run_palm_image_dll, run_palm_stack_dll, run_tracking_dll
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -113,3 +113,20 @@ def test_run_palm_stack_dll_check_quadrant():
 			ref = pd.read_csv(path)
 			assert compare_localisations(localisations, ref), "Test invalide pour la vérification des quadrants."
 	assert True
+
+
+##################################################
+def test_run_tracking_dll():
+	"""Test basique sur le tracking."""
+	dll = load_dll().get("Tracking", None)
+	if dll is None:
+		print_warning("Test non effectué car DLL manquante")
+	else:
+		path = Path(f"{INPUT_DIR}/stack-localisations_{threshold}_{watershed}_2_{sigma}_{theta}_{roi}.csv")
+		if path.exists() and path.is_file():
+			localisations = pd.read_csv(path)
+			tracking = run_tracking_dll(dll, localisations, 1, 1, 1, 1)
+			tracking.to_csv(f"{OUTPUT_DIR}/stack-tracking_{threshold}_{watershed}_2_{sigma}_{theta}_{roi}.csv", index=False)
+			print(tracking)
+		else:
+			print_warning(f"Fichier de localisations '{path}' indisponible.")

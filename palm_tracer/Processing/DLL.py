@@ -44,6 +44,8 @@ SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
 			"Intensity",		 # Intensity (Integrated Wavelet Intensity)
 			"Surface", "Z", "Pair Distance", "Id"]
 
+N_TRACK = 9  # Nombre de paramètres pour le tracking.
+TRACKS = ["","","","","","","","",""]
 
 # ==================================================
 # region Parsing
@@ -85,7 +87,7 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 
 	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])	   # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
 	res = res.reset_index(drop=True)										   # Remise à 0 des index
-	res["Index"] = range(1, len(res) + 1)									   # Ajout d'un index dans le tableau
+	res["Id"] = range(1, len(res) + 1)										   # Mise à jour de l'ID dans le tableau
 	res["Plane"] = 1														   # Ajout d'un plan dans le tableau
 	res["Channel"] = -1														   # Ajout d'un channel dans le tableau
 	res["MSE Z"] = -1														   # Ajout d'un MSE pour Z dans le tableau
@@ -94,9 +96,15 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	else: res["Integrated Intensity"] = res["Intensity"]
 
 	# Réorganisation des colonnes
-	new_columns = ["Plane", "Index", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "MSE Z", "Pair Distance"]
+	new_columns = ["Plane", "Id", "Channel", "Integrated Intensity", "X", "Y", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "Z", "MSE Z", "Pair Distance"]
 	return res[new_columns]  # Sélection des colonnes
 
+##################################################
+def _parse_tracking_result(data: np.ndarray, sort: bool = False) -> pd.DataFrame:
+	size = (data.size // N_TRACK) * N_TRACK							   # Récupération de la taille correcte si non multiple de N_SEGMENTS
+	res = pd.DataFrame(data[:size].reshape(-1, N_TRACK), columns=TRACKS)  # Transformation en Dataframe
+
+	return res
 
 # ==================================================
 # endregion Parsing
@@ -194,6 +202,41 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
 	# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
 	return pd.concat(results, ignore_index=True)
 
+
+##################################################
+def run_tracking_dll(dll: ctypes.CDLL, localisations: pd.DataFrame,
+					 max_distance:float, min_length: float, decrease: float, cost_birth: float) -> pd.DataFrame:
+	"""
+
+	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
+	:param localisations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+	:param max_distance:
+	:param min_length:
+	:param decrease:
+	:param cost_birth:
+	:return:
+	"""
+	n = len(localisations)
+	loc_size = n * N_SEGMENTS
+	track_size = n * N_TRACK
+	c_points = np.zeros((loc_size,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
+	c_loc_size = ctypes.c_uint(loc_size)  #
+	c_track = np.zeros((track_size,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
+	c_track_size = ctypes.c_uint(track_size)  #
+	c_max_distance = ctypes.c_double(max_distance)  #
+	c_dz_dx = ctypes.c_double(1)  # dZdX toujours à 1.
+	c_min_length = ctypes.c_double(min_length)  #
+	c_decrease = ctypes.c_double(decrease)  #
+	c_fusion_disso = ctypes.c_uint(0)  # allowFusiondisso toujours à 0.
+	c_cost_birth = ctypes.c_double(cost_birth)  #
+	c_dim = ctypes.c_uint(2)  # Nombre de dimensions toujours à 2.
+	c_model = ctypes.c_uint(2)  # Model toujours à 2.
+	c_planes = ctypes.c_uint(localisations["Plane"].max())  #
+
+	# Running
+	dll.tracking(c_points, c_loc_size, c_track, c_track_size, c_max_distance, c_dz_dx, c_min_length, c_decrease, c_fusion_disso, c_cost_birth, c_dim, c_model, c_planes)
+
+	return _parse_tracking_result(np.ctypeslib.as_array(c_track, shape=(track_size,)))
 # ==================================================
 # endregion DLL Manipulation
 # ==================================================
