@@ -36,16 +36,22 @@ import pandas as pd
 
 from palm_tracer.Tools import print_warning
 
-N_SEGMENTS = 13  # Nombre de paramètres pour chaque détection.
-SEGMENTS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
-			"Intensity 0",		 # Intensity too ??? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
-			"Intensity Offset",  # Intensity Offset ???
-			"MSE Gauss",		 # MSE Gauss
-			"Intensity",		 # Intensity (Integrated Wavelet Intensity)
-			"Surface", "Z", "Pair Distance", "Id"]
+# Segmentation (Localisation)
+N_SEGMENT = 13						 # Nombre de paramètres pour la segmentation.
+SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
+				"Intensity 0",		 # Intensity too ??? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
+				"Intensity Offset",  # Intensity Offset ???
+				"MSE Gauss",		 # MSE Gauss
+				"Intensity",		 # Intensity (Integrated Wavelet Intensity)
+				"Surface", "Z", "Pair Distance", "Id"]
 
+SEGMENT_FILE_COLS = ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
+					 "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "MSE Z", "Pair Distance"]
+
+# Tracking
 N_TRACK = 9  # Nombre de paramètres pour le tracking.
-TRACKS = ["Track","Plane","X","Y","???","Integrated Intensity","Z","Pair Distance","Id"]
+TRACK_COLS = ["Track", "Plane", "X", "Y", "???", "Integrated Intensity", "Z", "Pair Distance", "Id"]
+TRACK_FILE_COLS = ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Pair Distance"]
 
 # ==================================================
 # region Parsing
@@ -62,10 +68,11 @@ def _get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n
 
 	:return: Nombre maximal théorique de points détectables.
 	"""
-	return int(height * width * density * n_planes) * N_SEGMENTS
+	return int(height * width * density * n_planes) * N_SEGMENT
+
 
 ##################################################
-def _rearrange_dataframe_columns(data: pd.DataFrame, columns:list["str"], remaining: bool = True)->pd.DataFrame:
+def _rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remaining: bool = True) -> pd.DataFrame:
 	"""
 	Réorganise les colonnes d'un DataFrame en mettant certaines en premier,
     avec l'option d'ajouter les colonnes restantes dans leur ordre d'origine.
@@ -86,6 +93,7 @@ def _rearrange_dataframe_columns(data: pd.DataFrame, columns:list["str"], remain
 		columns = columns + remaining_columns									 # Ajout des colonnes restantes aux colonnes de départ
 	return data[columns]														 # Réorganisation du DataFrame
 
+
 ##################################################
 def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> pd.DataFrame:
 	"""
@@ -102,23 +110,23 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	:return: Dataframe filtré
 	"""
 	# Manipulation du tableau 1D.
-	size = (data.size // N_SEGMENTS) * N_SEGMENTS							   # Récupération de la taille correcte si non multiple de N_SEGMENTS
-	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENTS), columns=SEGMENTS)  # Transformation en Dataframe
-	res = res[res['X'] > 0]													   # Filtrage des lignes remplies de 0 et -1
+	size = (data.size // N_SEGMENT) * N_SEGMENT									  # Récupération de la taille correcte si non multiple de N_SEGMENT
+	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENT), columns=SEGMENT_COLS)  # Transformation en Dataframe
+	res = res[res['X'] > 0]														  # Filtrage des lignes remplies de 0 et -1
 
-	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])	   # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
-	res = res.reset_index(drop=True)										   # Remise à 0 des index
-	res["Id"] = range(1, len(res) + 1)										   # Mise à jour de l'ID dans le tableau
-	res["Plane"] = 1														   # Ajout d'un plan dans le tableau
-	res["Channel"] = -1														   # Ajout d'un channel dans le tableau
-	res["MSE Z"] = -1														   # Ajout d'un MSE pour Z dans le tableau
+	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])		  # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
+	res = res.reset_index(drop=True)	 								 		  # Remise à 0 des index
+	res["Id"] = range(1, len(res) + 1)	 								 		  # Mise à jour de l'ID dans le tableau.
+	res["Index"] = range(1, len(res) + 1)								 		  # Ajout de l'index (au sein du plan) dans le tableau.
+	res["Plane"] = 1					 								 		  # Ajout d'un plan dans le tableau
+	res["Channel"] = -1					 								 		  # Ajout d'un channel dans le tableau
+	res["MSE Z"] = -1					 								 		  # Ajout d'un MSE pour Z dans le tableau
 	# Ajout de l'intensité intégré (si on à les sigma du gaussian fit ou non)
 	if gauss_fit != 0: res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]
 	else: res["Integrated Intensity"] = res["Intensity"]
 
-	# Liste des colonnes à placer en premier
-	first_columns = ["Plane", "Id", "Channel", "X", "Y", "Z", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "MSE Z", "Pair Distance"]
-	return _rearrange_dataframe_columns(res, first_columns, True)  # Réorganisation du DataFrame
+	return _rearrange_dataframe_columns(res, SEGMENT_FILE_COLS, True)  # Réorganisation du DataFrame
+
 
 ##################################################
 def _parse_tracking_result(data: np.ndarray) -> pd.DataFrame:
@@ -128,12 +136,12 @@ def _parse_tracking_result(data: np.ndarray) -> pd.DataFrame:
 	:param data: Donnée en entrée récupérées depuis la DLL Tracking.
 	:return: Dataframe
 	"""
-	size = (data.size // N_TRACK) * N_TRACK								  # Récupération de la taille correcte si non multiple de N_SEGMENTS
-	res = pd.DataFrame(data[:size].reshape(-1, N_TRACK), columns=TRACKS)  # Transformation en Dataframe
+	size = (data.size // N_TRACK) * N_TRACK									  # Récupération de la taille correcte si non multiple de N_TRACK
+	res = pd.DataFrame(data[:size].reshape(-1, N_TRACK), columns=TRACK_COLS)  # Transformation en Dataframe
 
 	# Liste des colonnes à placer en premier
-	first_columns = ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Pair Distance"]
-	return _rearrange_dataframe_columns(res, first_columns, True)  # Réorganisation du DataFrame
+	return _rearrange_dataframe_columns(res, TRACK_FILE_COLS, True)			  # Réorganisation du DataFrame
+
 
 # ==================================================
 # endregion Parsing
@@ -225,16 +233,18 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
 
 	for i in range(stack.shape[0]):
 		points = run_palm_image_dll(dll, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size)
-		points["Plane"] = i + 1  # Modifier une colonne 'Plane' au DataFrame temporaire
-		results.append(points)   # Ajouter à la liste
+		points["Plane"] = i + 1			# Modifier une colonne 'Plane' au DataFrame temporaire
+		results.append(points)			# Ajouter à la liste
 
 	# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
-	return pd.concat(results, ignore_index=True)
+	res = pd.concat(results, ignore_index=True)
+	res["Id"] = range(1, len(res) + 1)  # Mise à jour de l'ID dans le tableau
+	return res
 
 
 ##################################################
 def run_tracking_dll(dll: ctypes.CDLL, localisations: pd.DataFrame,
-					 max_distance:float, min_length: float, decrease: float, cost_birth: float) -> pd.DataFrame:
+					 max_distance: float, min_length: float, decrease: float, cost_birth: float) -> pd.DataFrame:
 	"""
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
@@ -246,26 +256,30 @@ def run_tracking_dll(dll: ctypes.CDLL, localisations: pd.DataFrame,
 	:return:
 	"""
 	n = len(localisations)
-	loc_size = n * N_SEGMENTS
+	loc_size = n * N_SEGMENT
 	track_size = n * N_TRACK
-	points = _rearrange_dataframe_columns(localisations, SEGMENTS, False)
+
+	points = _rearrange_dataframe_columns(localisations, SEGMENT_COLS, False)
 	points = points.to_numpy().flatten()
-	c_points = points.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
-	c_loc_size = ctypes.c_uint(loc_size)  #
+	points = np.asarray(points, dtype=np.double)
+
+	c_points = points.ctypes.data_as(ctypes.POINTER(ctypes.c_double))				   # Liste de points
+	c_loc_size = ctypes.c_uint(loc_size)											   #
 	c_track = np.zeros((track_size,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
-	c_track_size = ctypes.c_uint(track_size)  #
-	c_max_distance = ctypes.c_double(max_distance)  #
-	c_dz_dx = ctypes.c_double(1)  # dZdX toujours à 1.
-	c_min_length = ctypes.c_double(min_length)  #
-	c_decrease = ctypes.c_double(decrease)  #
-	c_fusion_disso = ctypes.c_uint(0)  # allowFusiondisso toujours à 0.
-	c_cost_birth = ctypes.c_double(cost_birth)  #
-	c_dim = ctypes.c_uint(2)  # Nombre de dimensions toujours à 2.
-	c_model = ctypes.c_uint(2)  # Model toujours à 2.
-	c_planes = ctypes.c_uint(localisations["Plane"].max())  #
+	c_track_size = ctypes.c_uint(track_size)										   #
+	c_max_distance = ctypes.c_double(max_distance)									   #
+	c_dz_dx = ctypes.c_double(1)													   # dZdX toujours à 1.
+	c_min_length = ctypes.c_double(min_length)										   #
+	c_decrease = ctypes.c_double(decrease)											   #
+	c_fusion_disso = ctypes.c_uint(0)												   # allowFusiondisso toujours à 0.
+	c_cost_birth = ctypes.c_double(cost_birth)										   #
+	c_dim = ctypes.c_uint(2)														   # Nombre de dimensions toujours à 2.
+	c_model = ctypes.c_uint(2)														   # Model toujours à 2.
+	c_planes = ctypes.c_uint(localisations["Plane"].max())							   # Nombre de plans
 
 	# Running
-	dll.tracking(c_points, c_loc_size, c_track, c_track_size, c_max_distance, c_dz_dx, c_min_length, c_decrease, c_fusion_disso, c_cost_birth, c_dim, c_model, c_planes)
+	dll.tracking(c_points, c_loc_size, c_track, c_track_size, c_max_distance, c_dz_dx,
+				 c_min_length, c_decrease, c_fusion_disso, c_cost_birth, c_dim, c_model, c_planes)
 
 	return _parse_tracking_result(np.ctypeslib.as_array(c_track, shape=(track_size,)))
 # ==================================================
