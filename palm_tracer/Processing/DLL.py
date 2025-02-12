@@ -38,7 +38,7 @@ from palm_tracer.Tools import print_warning
 
 # Segmentation (Localisation)
 N_SEGMENT = 13						 # Nombre de paramètres pour la segmentation.
-SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "X", "Y",
+SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "Y", "X", # X est Y sont inversés à la sortie de la DLL donc Y,X au lieu de X, Y
 				"Intensity 0",		 # Intensity too ??? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
 				"Intensity Offset",  # Intensity Offset ???
 				"MSE Gauss",		 # MSE Gauss
@@ -187,13 +187,13 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	image = np.asarray(image, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
 	height, width = image.shape					# Récupération des dimensions
 	n = _get_max_points(height, width)			# Récupération d'un nombre de points maximum théorique
-	image = image.T.flatten()					# L'image est transposé car la DLL fonctionne en column Major
+	image = image.flatten()						# L'image est "applati"
 
 	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))			   # Image
 	c_height = ctypes.c_ushort(height)										   # Hauteur (nombre de lignes)
 	c_width = ctypes.c_ushort(width)										   # Largeur (nombre de colonnes)
 	n_points = ctypes.c_ushort(n)											   # Nombre maximum de points théorique
-	c_points = np.zeros((n,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
+	c_points = np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
 	c_wavelet = ctypes.c_uint(1)											   # Wavelet toujours à 1.
 	c_threshold = ctypes.c_double(threshold)								   # Seuil
 	c_watershed = ctypes.c_double(10 if watershed else 0)					   # Activation du Watershed
@@ -261,11 +261,11 @@ def run_tracking_dll(dll: ctypes.CDLL, localisations: pd.DataFrame,
 
 	points = _rearrange_dataframe_columns(localisations, SEGMENT_COLS, False)
 	points = points.to_numpy().flatten()
-	points = np.asarray(points, dtype=np.double)
+	points = np.asarray(points, dtype=np.float64)
 
 	c_points = points.ctypes.data_as(ctypes.POINTER(ctypes.c_double))				   # Liste de points
 	c_loc_size = ctypes.c_uint(loc_size)											   #
-	c_track = np.zeros((track_size,)).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
+	c_track = np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
 	c_track_size = ctypes.c_uint(track_size)										   #
 	c_max_distance = ctypes.c_double(max_distance)									   #
 	c_dz_dx = ctypes.c_double(1)													   # dZdX toujours à 1.
