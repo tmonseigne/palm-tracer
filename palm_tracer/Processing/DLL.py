@@ -26,6 +26,15 @@ Ce module regroupe des utilitaires pour :
 	GPU et Live ne peuvent être chargé sur mon ordinateur (certainement CUDA 7.5).
 	CPU n'est que si vcredist 2010 n'est pas installé, en revanche Tracking n'a aucun problème.
 
+.. todo::
+	La sortie de la DLL diffère légèrement, quelques points "manquants", mais aussi une différence de précision pouvant aller jusqu'à 10e-2.
+	Le chargement par `ctypes.windll` ne change rien au résultat par rapport au chargement par  `ctypes.cdll`.
+	L'architecture de la DLL est la même que Python (64 bits).
+
+	- Investigation supplémentaire necessaire avec le code source de la DLL, une documentation serait aussi necessaire.
+	- Vérification que la lecture d'image par Metamorph ne transforme pas les pixels.
+
+
 """
 
 import ctypes

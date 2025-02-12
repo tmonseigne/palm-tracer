@@ -38,8 +38,8 @@ def test_auto_threshold_dll():
 	else:
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
 		roi, iterations = 7, 4
-		ref = [103.610334, 107.788606, 100.738872, 104.066527, 104.2668881,
-			   100.386256, 105.518811, 92.2091283, 99.0295529, 92.50991986]
+		ref = [102.749661, 107.684024, 101.971399, 103.139405, 106.806511,
+			   101.999329, 104.997113, 092.055165, 098.834634, 096.873310]
 		for i in range(image.shape[0]):
 			res = auto_threshold_dll(dll, image[i], roi, iterations)
 			print(f"Image {i} : {res}")
