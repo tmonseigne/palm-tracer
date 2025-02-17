@@ -148,7 +148,7 @@ def test_calibration():
 
 ###################################################
 def test_localisation():
-	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
+	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(Localisation(), ["Preview", "Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit"],
 					CheckBox, True, False)
@@ -156,7 +156,15 @@ def test_localisation():
 
 ###################################################
 def test_gaussian_fit():
-	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
+	"""Test basique de la classe GaussianFit (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(GaussianFit(), ["Mode", "Sigma", "Theta"],
 					Combo, 2, 1)
+
+
+###################################################
+def test_spline_fit():
+	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
+	app = initialize()
+	spline_fit = SplineFit()
+	# group_base_test(SplineFit(), ["Mode", "Sigma", "Theta"], Combo, 2, 1)
