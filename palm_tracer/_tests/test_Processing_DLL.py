@@ -14,7 +14,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la premi
 
 threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 default_gaussian = 2
-save_output = False
+save_output = True
 
 
 ##################################################
@@ -149,7 +149,7 @@ def test_run_tracking_dll():
 		path = Path(f"{INPUT_DIR}/stack-localisations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			localisations = pd.read_csv(path)
-			tracking = run_tracking_dll(dll, localisations, 1, 1, 1, 1)
+			tracking = run_tracking_dll(dll, localisations, 5, 1, 10, 0.5)
 			if save_output: tracking.to_csv(f"{OUTPUT_DIR}/stack-tracking-{suffix}.csv", index=False)
 
 			assert len(tracking) > 0, "Aucun Tracking trouvé"

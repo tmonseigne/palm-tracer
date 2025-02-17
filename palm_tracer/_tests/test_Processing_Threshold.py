@@ -42,7 +42,7 @@ def test_auto_threshold_dll():
 			   101.999329, 104.997113, 092.055165, 098.834634, 096.873310]
 		for i in range(image.shape[0]):
 			res = auto_threshold_dll(dll, image[i], roi, iterations)
-			print(f"Image {i} : {res}")
+			# print(f"Image {i} : {res:.6f}")
 			assert is_closed(res, ref[i]), f"Le seuil pour l'image {i} vaut {res} au lieu de {ref[i]}"
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True

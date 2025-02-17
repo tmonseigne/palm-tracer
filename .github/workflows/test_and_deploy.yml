@@ -55,7 +55,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install 7zip -y
-          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -o"palm_tracer"
+          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}"
 
       # strategy borrowed from vispy for installing OpenGL libs on windows
       - name: Install Windows OpenGL
