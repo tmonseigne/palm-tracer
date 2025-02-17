@@ -116,9 +116,8 @@ class BaseSettingGroup:
 	@active.setter
 	def active(self, value: bool):
 		"""Contrôle la modification de l'état actif."""
-		if self._active != value:
-			self._checkbox.setChecked(value)
-			self.toggle_active(1 if value else 0)
+		self._checkbox.setChecked(value)
+		self.toggle_active(1 if value else 0)
 
 	##################################################
 	def get_setting_names(self) -> list[str]:

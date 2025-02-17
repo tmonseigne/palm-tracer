@@ -1,6 +1,10 @@
 """
 Fichier contenant la classe `Localisation` dérivée de `BaseSettingGroup`,
 qui regroupe les paramètres de localisation nécessaires à la configuration de PALM Tracer.
+
+.. todo:
+	Le gaussian fit doit-être construit dans un widget à part pour complètement le masquer ou non selon le choix du fit (entre gaussien et spline).
+	Le changement du combo box doit donc activer/masquer les paramètres correspondants.
 """
 
 from dataclasses import dataclass
@@ -32,7 +36,7 @@ class Localisation(BaseSettingGroup):
 			"ROI Size":     [SpinInt, ["ROI Size", 7, 3, 50, 1]],
 			"Watershed":    [CheckBox, ["Watershed", True]],
 			"Mode":         [Combo, ["Mode", 0, ["Gaussian Fit", "Spline"]]],
-			"Gaussian Fit": [GaussianFit, []],
+			"Gaussian Fit": [GaussianFit, []]
 			}
 
 
