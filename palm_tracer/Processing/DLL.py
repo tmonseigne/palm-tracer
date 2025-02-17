@@ -22,11 +22,6 @@ Ce module regroupe des utilitaires pour :
    - `run_palm_dll` : Exécute un traitement d'image avec une DLL PALM pour détecter des points.
 
 .. todo::
-	Les différentes DLL PALM nécessitent des dépendances supplémentaires, le code source me permettrait de définir lesquelles.
-	GPU et Live ne peuvent être chargé sur mon ordinateur (certainement CUDA 7.5).
-	CPU n'est que si vcredist 2010 n'est pas installé, en revanche Tracking n'a aucun problème.
-
-.. todo::
 	La sortie de la DLL diffère légèrement, quelques points "manquants", mais aussi une différence de précision pouvant aller jusqu'à 10e-2.
 	Le chargement par `ctypes.windll` ne change rien au résultat par rapport au chargement par  `ctypes.cdll`.
 	L'architecture de la DLL est la même que Python (64 bits).
