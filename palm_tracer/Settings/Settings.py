@@ -73,8 +73,8 @@ class Settings:
 	# ==================================================
 	##################################################
 	def get_layouts(self) -> list[QFormLayout]:
-		return [self.batch.layout, self.calibration.layout, self.localisation.layout, self.tracking.layout,
-				self.visualization.layout, self.filtering.layout]
+		return [self.batch.widget, self.calibration.widget, self.localisation.widget, self.tracking.widget,
+				self.visualization.widget, self.filtering.widget]
 
 	# ==================================================
 	# endregion Getter/Setter

@@ -35,7 +35,7 @@ class BaseSettingGroup:
 	label: str = field(init=False, default="Base Setting Group")
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
-	_layout: QFormLayout = field(init=False)
+	_widget: QWidget = field(init=False)
 	_title: QLabel = field(init=False)
 	_checkbox: QCheckBox = field(init=False)
 	_header: QFormLayout = field(init=False)
@@ -61,8 +61,9 @@ class BaseSettingGroup:
 	def initialize_ui(self):
 		"""Initialise l'interface utilisateur."""
 		# Base
-		self._layout = QFormLayout(None)
-		self._layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
+		self._widget = QWidget()
+		layout = QFormLayout(self._widget)
+		layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
 
 		# Title Row
 		self._title = QLabel(f"{self.label}")
@@ -73,7 +74,7 @@ class BaseSettingGroup:
 		self._header = QFormLayout(None)
 		self._header.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 		self._header.addRow(self._checkbox, self._title)
-		self._layout.addRow(self._header)
+		layout.addRow(self._header)
 
 		# Settings part (must be managed by the derived class.)
 		self._body = QWidget()
@@ -81,8 +82,11 @@ class BaseSettingGroup:
 		body.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 		body.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
 		for key, setting in self._settings.items():
-			body.addRow(setting.layout)
-		self._layout.addRow(self._body)
+			if isinstance(setting, BaseSettingGroup): body.addRow(setting.widget)
+			else: body.addRow(setting.layout)
+		layout.addRow(self._body)
+
+		self._widget.setLayout(layout)
 
 		# Active ou non le groupe
 		self.active = self._active
@@ -102,9 +106,9 @@ class BaseSettingGroup:
 	# ==================================================
 	##################################################
 	@property
-	def layout(self) -> QFormLayout:
+	def widget(self) -> QWidget:
 		"""Retourne le calque associé à ce groupe de paramètres."""
-		return self._layout
+		return self._widget
 
 	##################################################
 	@property

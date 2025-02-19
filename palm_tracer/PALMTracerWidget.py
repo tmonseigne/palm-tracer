@@ -51,17 +51,14 @@ class PALMTracerWidget(QWidget):
 		btn.clicked.connect(self._load_setting)
 		self.layout().addWidget(btn)
 
-		# Création des onglets
-		processing_tab = self.__create_tab([self.settings.batch.layout, self.settings.calibration.layout,
-											self.settings.localisation.layout, self.settings.tracking.layout])
-		visualisation_tab = self.__create_tab([self.settings.visualization.layout])
-		filtering_tab = self.__create_tab([self.settings.filtering.layout])
+		self.layout().addWidget(self.settings.batch.widget)
+		self.layout().addWidget(self.settings.calibration.widget)
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(processing_tab, "Processing")
-		tabs.addTab(visualisation_tab, "Visualisation")
-		tabs.addTab(filtering_tab, "Filtering")
+		tabs.addTab(self.__create_tab([self.settings.localisation.widget, self.settings.tracking.widget]), "Processing")
+		tabs.addTab(self.__create_tab([self.settings.visualization.widget]), "Visualisation")
+		tabs.addTab(self.__create_tab([self.settings.filtering.widget]), "Filtering")
 
 		# Layout principal
 		self.layout().addWidget(tabs)
@@ -81,14 +78,14 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	@staticmethod
-	def __create_tab(layouts: list):
+	def __create_tab(widgets: list[QWidget]):
 		"""Crée l'onglet 'Processing' avec son QFormLayout"""
 		widget = QWidget()
 		layout = QVBoxLayout()
 		layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-		for l in layouts:
-			layout.addLayout(l)
+		for w in widgets:
+			layout.addWidget(w)
 
 		widget.setLayout(layout)
 		return widget
