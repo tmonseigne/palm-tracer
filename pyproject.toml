@@ -55,6 +55,7 @@ testing = [
 	"pytest-metadata",
 	"napari",
 	"pyqt5",
+	"scipy"
 ]
 
 documentation = [
