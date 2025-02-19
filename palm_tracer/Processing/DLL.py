@@ -116,9 +116,9 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	# Manipulation du tableau 1D.
 	size = (data.size // N_SEGMENT) * N_SEGMENT									  # Récupération de la taille correcte si non multiple de N_SEGMENT
 	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENT), columns=SEGMENT_COLS)  # Transformation en Dataframe
-	res = res[res['X'] > 0]														  # Filtrage des lignes remplies de 0 et -1
+	res = res[res["X"] > 0]														  # Filtrage des lignes remplies de 0 et -1
 
-	if sort: res = res.sort_values(by=['Y', 'X'], ascending=[True, True])		  # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
+	if sort: res = res.sort_values(by=["Y", "X"], ascending=[True, True])		  # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
 	res = res.reset_index(drop=True)	 								 		  # Remise à 0 des index
 	res["Id"] = range(1, len(res) + 1)	 								 		  # Mise à jour de l'ID dans le tableau.
 	res["Index"] = range(1, len(res) + 1)								 		  # Ajout de l'index (au sein du plan) dans le tableau.

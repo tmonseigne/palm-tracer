@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from palm_tracer._tests.Utils import compare_points
 from palm_tracer.Processing import load_dll, run_palm_image_dll, run_palm_stack_dll, run_tracking_dll
 from palm_tracer.Tools import open_tif, print_warning
 
@@ -41,7 +42,7 @@ def test_run_palm_image_dll():
 
 	.. todo::
 		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
+		Actuellement différence de résultat, nécessite une investigation.
 	"""
 	dll = load_dll().get("CPU", None)
 	if dll is None:
@@ -61,7 +62,7 @@ def test_run_palm_image_dll():
 				path = Path(f"{INPUT_DIR}/{file}-localisations-{plane}_{suffix}.csv")
 				if path.exists() and path.is_file():
 					ref = pd.read_csv(path)
-					assert compare_localisations(localisations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
+					assert compare_points(localisations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
 
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
@@ -74,7 +75,7 @@ def test_run_palm_stack_dll():
 
 	.. todo::
 		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
+		Actuellement différence de résultat, nécessite une investigation.
 	"""
 	dll = load_dll().get("CPU", None)
 	if dll is None:
@@ -93,7 +94,7 @@ def test_run_palm_stack_dll():
 			path = Path(f"{INPUT_DIR}/{file}-localisations-{suffix}.csv")
 			if path.exists() and path.is_file():
 				ref = pd.read_csv(path)
-				assert compare_localisations(localisations, ref), f"Test invalide pour les paramètres {suffix}"
+				assert compare_points(localisations, ref), f"Test invalide pour les paramètres {suffix}"
 
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
@@ -131,7 +132,7 @@ def test_run_palm_stack_dll_check_quadrant():
 		path = Path(f"{INPUT_DIR}/{file}-localisations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			ref = pd.read_csv(path)
-			assert compare_localisations(localisations, ref), "Test invalide pour la vérification des quadrants."
+			assert compare_points(localisations, ref), "Test invalide pour la vérification des quadrants."
 
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
