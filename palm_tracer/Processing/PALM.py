@@ -108,7 +108,7 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 		# Lancement de la visualization
 		if settings.visualization.active:
 			logger.add("Visualisation commencé.")
-			visu = process_visualization(dll["CPU"], stack, settings, loc, track)
+			visu = process_visualization(stack, settings, loc, track)
 			logger.add("\tEnregistrement du fichier de visualisation.")
 			save_png(visu, f"{path}/visualization-{timestamp_suffix}.png")
 		else:
@@ -161,22 +161,33 @@ def process_tracking(dll: ctypes.CDLL, localisations: pd.DataFrame, settings: Se
 
 
 ##################################################
-def process_visualization(dll: ctypes.CDLL, stack: np.ndarray, settings: Settings,
+def process_visualization(stack: np.ndarray, settings: Settings,
 						  localisations: pd.DataFrame = None, tracking: pd.DataFrame = None) -> np.ndarray:
 	"""
 	Lance la creation d'une visualisation à partir des settings passés en paramètres.
 
-	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
 	:param stack: Pile d'image d'entrée sous forme de tableau numpy.
 	:param settings: Paramètres de l'interface pour lancer la localisation.
 	:param localisations: Données venant de la fonction de localisation.
 	:param tracking: Données venant de la fonction de tracking.
 	:return: Nouvelle visualisation.
 	"""
-	print_warning("TODO PALM.visualization")
 	# Parse settings
-	# Run command
-	return stack[0]
+	ratio = settings.visualization["Ratio"].get_value()
+	source = settings.visualization["Source"].get_value()
+
+	# Création de l'image finale
+	depth, width, height = stack.shape
+	new_width, new_height = int(width * ratio), int(height * ratio)
+	res = np.zeros((new_width, new_height), dtype=float)
+
+	# Remplissage de l'image
+	if source == 0: # Integrated intensity
+		for index, row in localisations.iterrows():
+			x, y = int(row["X"] * ratio), int(row["Y"] * ratio)
+			res[x, y] += row["Integrated Intensity"]
+
+	return np.asarray(res, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
 
 # ==================================================
 # endregion Process
