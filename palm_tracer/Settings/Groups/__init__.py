@@ -21,6 +21,7 @@ from typing import Any
 from .BaseSettingGroup import BaseSettingGroup
 from .Batch import Batch
 from .Calibration import Calibration
+from .Filtering import Filtering
 from .GaussianFit import GaussianFit
 from .Localisation import Localisation
 from .SplineFit import SplineFit
@@ -43,5 +44,5 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingGroup", "create_group_from_dict",
-		   "Batch", "Calibration", "Localisation", "GaussianFit", "SplineFit",
+		   "Batch", "Calibration", "Filtering", "Localisation", "GaussianFit", "SplineFit",
 		   "Tracking", "Visualization"]

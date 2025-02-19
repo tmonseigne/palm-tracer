@@ -31,6 +31,7 @@ class Settings:
 			- **localisation (Localisation)** : Groupe de paramètres liés à la localisation.
 			- **tracking (Tracking)** : Groupe de paramètres liés au tracking.
 			- **visualization (Visualization)** : Groupe de paramètres liés à la visualisation.
+			- **filtering (Filtering)** : Groupe de paramètres liés au filtrage lors des processus.
 
 	.. note::
 		Un dictionnaire pourrait également être utilisé en lieu et place des éléments statique.
@@ -42,6 +43,7 @@ class Settings:
 	localisation: Localisation = field(init=False, default_factory=Localisation)
 	tracking: Tracking = field(init=False, default_factory=Tracking)
 	visualization: Visualization = field(init=False, default_factory=Visualization)
+	filtering: Filtering = field(init=False, default_factory=Filtering)
 
 	# ==================================================
 	# region Initialization
@@ -60,6 +62,7 @@ class Settings:
 		self.localisation.reset()
 		self.tracking.reset()
 		self.visualization.reset()
+		self.filtering.reset()
 
 	# ==================================================
 	# endregion Initialization
@@ -70,11 +73,8 @@ class Settings:
 	# ==================================================
 	##################################################
 	def get_layouts(self) -> list[QFormLayout]:
-		return [self.batch.layout,
-				self.calibration.layout,
-				self.localisation.layout,
-				self.tracking.layout,
-				self.visualization.layout]
+		return [self.batch.layout, self.calibration.layout, self.localisation.layout, self.tracking.layout,
+				self.visualization.layout, self.filtering.layout]
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -86,11 +86,12 @@ class Settings:
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		return {"PALM Tracer Settings": {"Batch":        self.batch.to_dict(),
-										 "Calibration":  self.calibration.to_dict(),
-										 "Localisation": self.localisation.to_dict(),
-										 "Tracking": self.tracking.to_dict(),
-										 "Visualization": self.visualization.to_dict()}}
+		return {"PALM Tracer Settings": {"Batch":         self.batch.to_dict(),
+										 "Calibration":   self.calibration.to_dict(),
+										 "Localisation":  self.localisation.to_dict(),
+										 "Tracking":      self.tracking.to_dict(),
+										 "Visualization": self.visualization.to_dict(),
+										 "Filtering":     self.filtering.to_dict()}}
 
 	##################################################
 	@classmethod
@@ -109,6 +110,7 @@ class Settings:
 		self.localisation.update_from_dict(groups["Localisation"])
 		self.tracking.update_from_dict(groups["Tracking"])
 		self.visualization.update_from_dict(groups["Visualization"])
+		self.filtering.update_from_dict(groups["Filtering"])
 
 	# ==================================================
 	# endregion Parsing
@@ -130,6 +132,7 @@ class Settings:
 		msg += f"  - Localisation :\n{self.localisation.tostring("    ")}"
 		msg += f"  - Tracking :\n{self.tracking.tostring("    ")}"
 		msg += f"  - Visualization :\n{self.visualization.tostring("    ")}"
+		msg += f"  - Filtering :\n{self.filtering.tostring("    ")}"
 		return msg
 
 	##################################################

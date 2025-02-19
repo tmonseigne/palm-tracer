@@ -12,7 +12,7 @@ from typing import cast
 import napari
 import numpy as np
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFileDialog, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.Processing import auto_threshold, load_dll, PALM
 from palm_tracer.Settings import Settings
@@ -38,10 +38,10 @@ class PALMTracerWidget(QWidget):
 		self.last_file = ""
 		self.settings = Settings()
 		self.dll = load_dll()
-		self._init_ui()
+		self.__init_ui()
 
 	##################################################
-	def _init_ui(self):
+	def __init_ui(self):
 		# Base
 		self.setLayout(QVBoxLayout())
 		self.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -51,8 +51,20 @@ class PALMTracerWidget(QWidget):
 		btn.clicked.connect(self._load_setting)
 		self.layout().addWidget(btn)
 
-		# Settings
-		for layout in self.settings.get_layouts(): self.layout().addLayout(layout)
+		# Création des onglets
+		processing_tab = self.__create_tab([self.settings.batch.layout, self.settings.calibration.layout,
+											self.settings.localisation.layout, self.settings.tracking.layout])
+		visualisation_tab = self.__create_tab([self.settings.visualization.layout])
+		filtering_tab = self.__create_tab([self.settings.filtering.layout])
+
+		# Ajout des onglets
+		tabs = QTabWidget()  # Création du QTabWidget
+		tabs.addTab(processing_tab, "Processing")
+		tabs.addTab(visualisation_tab, "Visualisation")
+		tabs.addTab(filtering_tab, "Filtering")
+
+		# Layout principal
+		self.layout().addWidget(tabs)
 
 		# Add Specific behaviour
 		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également.
@@ -66,6 +78,20 @@ class PALMTracerWidget(QWidget):
 		btn = QPushButton("Start Processing")
 		btn.clicked.connect(self.process)
 		self.layout().addWidget(btn)
+
+	##################################################
+	@staticmethod
+	def __create_tab(layouts: list):
+		"""Crée l'onglet 'Processing' avec son QFormLayout"""
+		widget = QWidget()
+		layout = QVBoxLayout()
+		layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+		for l in layouts:
+			layout.addLayout(l)
+
+		widget.setLayout(layout)
+		return widget
 
 	##################################################
 	def _load_setting(self):  # pragma: no cover
@@ -103,17 +129,17 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.float32)	  # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.float32)  # Renvoie sous le format numpy
 
 	##################################################
 	def auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = auto_threshold(image)							  # Calcul du seuil automatique
+		threshold = auto_threshold(image)  # Calcul du seuil automatique
 		self.settings.localisation["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
