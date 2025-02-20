@@ -72,14 +72,12 @@ class BaseSettingGroup:
 		self._checkbox.stateChanged.connect(self.toggle_active)
 
 		self._header = QFormLayout(None)
-		self._header.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 		self._header.addRow(self._checkbox, self._title)
 		layout.addRow(self._header)
 
 		# Settings part (must be managed by the derived class.)
 		self._body = QWidget()
 		body = QFormLayout(self._body)
-		body.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 		body.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup): body.addRow(setting.widget)
@@ -172,6 +170,23 @@ class BaseSettingGroup:
 			# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
 			# self._title.setText(f"       {self.label}")
 
+	##################################################
+	def remove_header(self):
+		""" Active toujours le groupe et supprime la partie header de l'interface. """
+		self.always_active()
+		# Suppression du titre
+		if self._title:
+			self._header.layout().removeWidget(self._title)  # Retirer le titre du layout
+			self._title.deleteLater()						 # Détruire le titre
+
+		# Suppression du header
+		layout = self._widget.layout()						 # Récupérer le layout principal
+		layout.removeRow(self._header)						 # Supprimer la ligne du layout
+
+		# Suppression de la marge
+		body_layout = self._body.layout()					 # Récupérer le layout du widget _body
+		if isinstance(body_layout, QFormLayout):			 # Vérifier que c'est bien un QFormLayout
+			body_layout.setContentsMargins(0, 0, 0, 0)		 # Aucune marge
 
 	# ==================================================
 	# endregion Getter/Setter

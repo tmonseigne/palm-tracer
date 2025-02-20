@@ -32,5 +32,5 @@ class GaussianFit(BaseSettingGroup):
 	setting_list = {
 			"Mode":  [Combo, ["Mode", 1, ["None", "X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
 			"Sigma": [SpinFloat, ["σ", 1.0, 0.0, 10.0, 0.1]],
-			"Theta": [SpinFloat, ["θ", 1.0, 0.0, 10.0, 0.1]],
+			"Theta": [SpinFloat, ["θ", 0.0, 0.0, 10.0, 0.1]],
 			}

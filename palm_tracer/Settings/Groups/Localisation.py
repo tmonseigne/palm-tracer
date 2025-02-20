@@ -43,4 +43,4 @@ class Localisation(BaseSettingGroup):
 	##################################################
 	def initialize_ui(self):
 		super().initialize_ui()
-		self._settings["Gaussian Fit"].always_active()
+		self._settings["Gaussian Fit"].remove_header()

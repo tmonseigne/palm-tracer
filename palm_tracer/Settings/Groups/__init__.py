@@ -22,6 +22,8 @@ from .BaseSettingGroup import BaseSettingGroup
 from .Batch import Batch
 from .Calibration import Calibration
 from .Filtering import Filtering
+from .FilteringGF import FilteringGF
+from .FilteringT import FilteringT
 from .GaussianFit import GaussianFit
 from .Localisation import Localisation
 from .SplineFit import SplineFit
@@ -37,12 +39,18 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	elif data["type"] == "Calibration": return Calibration.from_dict(data)
 	elif data["type"] == "Localisation": return Localisation.from_dict(data)
 	elif data["type"] == "GaussianFit": return GaussianFit.from_dict(data)
+	elif data["type"] == "SplineFit": return SplineFit.from_dict(data)
 	elif data["type"] == "Tracking": return Tracking.from_dict(data)
 	elif data["type"] == "Visualization": return Visualization.from_dict(data)
+	elif data["type"] == "Filtering": return Filtering.from_dict(data)
+	elif data["type"] == "FilteringGF": return FilteringGF.from_dict(data)
+	elif data["type"] == "FilteringT": return FilteringT.from_dict(data)
 	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
 
 
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingGroup", "create_group_from_dict",
-		   "Batch", "Calibration", "Filtering", "Localisation", "GaussianFit", "SplineFit",
+		   "Batch", "Calibration",
+		   "Filtering", "FilteringGF", "FilteringT",
+		   "Localisation", "GaussianFit", "SplineFit",
 		   "Tracking", "Visualization"]

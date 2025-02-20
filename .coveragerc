@@ -17,4 +17,5 @@ exclude_lines =
 
 exclude_also =
     if platform.system()
+	except OSError as e
 	except Exception as e

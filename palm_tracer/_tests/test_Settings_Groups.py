@@ -85,7 +85,7 @@ def test_batch_get_path():
 	batch = Batch()
 
 	path = batch.get_paths()
-	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0].endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas."
 
 	file_list = cast(FileList, batch["Files"])
@@ -93,23 +93,23 @@ def test_batch_get_path():
 	file_list.update_box()
 
 	path = batch.get_paths()
-	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
 	file_list.set_value(1)
 	path = batch.get_paths()
-	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
 	batch["Mode"].set_value(1)
 	path = batch.get_paths()
-	assert len(path) == 2 , "Il devrait y avoir deux dossiers."
+	assert len(path) == 2, "Il devrait y avoir deux dossiers."
 	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
 	assert path[1] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
 	batch["Mode"].set_value(2)
 	path = batch.get_paths()
-	assert len(path) == 1 , "Il ne devrait y avoir qu'un seul dossier."
+	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
 	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
 
 
@@ -171,7 +171,23 @@ def test_spline_fit():
 
 ###################################################
 def test_filtering():
-	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
+	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
 	app = initialize()
-	filtering = Filtering()
-	# group_base_test(SplineFit(), ["Mode", "Sigma", "Theta"], Combo, 2, 1)
+	group_base_test(Filtering(), ["Plane", "Intensity", "Gaussian Fit", "Tracks"],
+					SpinInt, 2, 1)
+
+
+###################################################
+def test_filtering_gf():
+	"""Test basique de la classe FilteringGF (constructeur, getter, setter)"""
+	app = initialize()
+	group_base_test(FilteringGF(), ["Chi²", "Sigma X", "Sigma Y", "Circularity", "Z"],
+					SpinInt, 2, 0)
+
+
+###################################################
+def test_filtering_t():
+	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
+	app = initialize()
+	group_base_test(FilteringT(), ["Length", "D Coeff", "Instant D", "Speed", "Alpha", "Confinement"],
+					SpinInt, 2, 0)
