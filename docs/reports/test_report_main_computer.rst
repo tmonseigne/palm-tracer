@@ -24,7 +24,7 @@ Environnement
 Summary
 -------
 
-51 tests collected, 51 passed ✅, 0 failed ❌ in 0:00:19s on 30/01/2025 at 15:11:59
+57 tests collected, 57 passed ✅, 0 failed ❌ in 0:00:18s on 21/02/2025 at 10:52:50
 
 Monitoring
 ----------
@@ -55,33 +55,53 @@ Processing Dll
      - Duration
    * - Load Dll
      - ✅
-     - 291ms
+     - 120ms
    * - Run Palm Image Dll
      - ✅
-     - 64ms
+     - 350ms
    * - Run Palm Stack Dll
      - ✅
-     - 335ms
+     - 316ms
+   * - Run Palm Stack Dll Check Quadrant
+     - ✅
+     - 58ms
+   * - Run Tracking Dll
+     - ✅
+     - 2ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Load Dll</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Run Palm Image Dll</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Run Palm Stack Dll</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Run Palm Stack Dll Check Quadrant</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Run Tracking Dll</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Fichier de localisations 'C:\Git\palm-tracer\palm_tracer\_tests\input\stack-localizations-103.6_True_2_1.0_0.0_7.csv' indisponible.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 Processing Palm
@@ -95,53 +115,53 @@ Processing Palm
      - Duration
    * - Process No Input
      - ✅
-     - 389ms
-   * - Process Only Localisation
+     - 319ms
+   * - Process Only Localization
      - ✅
-     - 284ms
+     - 313ms
    * - Process Only Tracking
      - ✅
-     - 206ms
+     - 308ms
    * - Process Only Visualization
      - ✅
-     - 277ms
+     - 290ms
    * - Process All
      - ✅
-     - 279ms
+     - 369ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process No Input</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Aucun fichier.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Aucun fichier.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Process Only Localisation</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[30-01-2025 15:11:41] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br>[30-01-2025 15:11:41] Commencer le traitement.<br>[30-01-2025 15:11:41] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 1.0<br>  - Tracking :<br>    - Activate : False<br>  - Visualization :<br>    - Activate : False<br><br>[30-01-2025 15:11:41] Paramètres sauvegardés.<br>[30-01-2025 15:11:41] Fichier Meta sauvegardé.<br>[30-01-2025 15:11:41] Localisation désactivé.<br>[30-01-2025 15:11:41] 	Chargement d'une localisation pré-calculée.<br>[30-01-2025 15:11:41] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localisations-20252201_151621.csv' chargé avec succès.<br>[30-01-2025 15:11:41] 		5222 localisation(s) trouvée(s).<br>[30-01-2025 15:11:41] Tracking désactivé.<br>[30-01-2025 15:11:41] 	Chargement d'un tracking pré-calculée.<br>[30-01-2025 15:11:41] 	Erreur lors du chargement du fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252201_151621.csv' : No columns to parse from file<br>[30-01-2025 15:11:41] Visualisation désactivée.<br>[30-01-2025 15:11:41] Traitement terminé.<br>[30-01-2025 15:11:41] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br>[30-01-2025 15:11:41] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br>[30-01-2025 15:11:41] Commencer le traitement.<br>[30-01-2025 15:11:41] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : True<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 1.0<br>  - Tracking :<br>    - Activate : False<br>  - Visualization :<br>    - Activate : False<br><br>[30-01-2025 15:11:41] Paramètres sauvegardés.<br>[30-01-2025 15:11:41] Fichier Meta sauvegardé.<br>[30-01-2025 15:11:41] Localisation commencée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO PALM._palm_to_localisation_file</span><span style="font-weight: bold"></span><br>[30-01-2025 15:11:41] 	4849 localisation(s) trouvée(s).<br>[30-01-2025 15:11:41] Enregistrement du fichier de localisation<br>[30-01-2025 15:11:41] Tracking désactivé.<br>[30-01-2025 15:11:41] 	Chargement d'un tracking pré-calculée.<br>[30-01-2025 15:11:41] 	Erreur lors du chargement du fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252201_151621.csv' : No columns to parse from file<br>[30-01-2025 15:11:41] Visualisation désactivée.<br>[30-01-2025 15:11:41] Traitement terminé.<br>[30-01-2025 15:11:41] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <summary>Log Test : Process Only Localization</summary>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[21-02-2025 10:52:33] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105233.log<br>[21-02-2025 10:52:33] Commencer le traitement.<br>[21-02-2025 10:52:33] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localization :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 0.0<br>  - Tracking :<br>    - Activate : False<br>    - Max Distance : 5.0<br>    - Min Length : 1.0<br>    - Decrease : 10.0<br>    - Cost Birth : 0.5<br>  - Visualization :<br>    - Activate : False<br>    - Ratio : 2<br>    - Source : 0<br>  - Filtering :<br>    - Activate : True<br>    - Plane : 1<br>    - Intensity : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Chi² : 0<br>      - Sigma X : 0<br>      - Sigma Y : 0<br>      - Circularity : 0<br>      - Z : 0<br>    - Tracks :<br>      - Activate : True<br>      - Length : 0<br>      - D Coeff : 0<br>      - Instant D : 0<br>      - Speed : 0<br>      - Alpha : 0<br>      - Confinement : 0<br><br>[21-02-2025 10:52:33] Paramètres sauvegardés.<br>[21-02-2025 10:52:33] Fichier Meta sauvegardé.<br>[21-02-2025 10:52:33] Localisation désactivé.<br>[21-02-2025 10:52:33] 	Chargement d'une localisation pré-calculée.<br>[21-02-2025 10:52:33] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252102_103923.csv' chargé avec succès.<br>[21-02-2025 10:52:33] 		342 localisation(s) trouvée(s).<br>[21-02-2025 10:52:33] Tracking désactivé.<br>[21-02-2025 10:52:33] 	Chargement d'un tracking pré-calculée.<br>[21-02-2025 10:52:33] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252002_153520.csv' chargé avec succès.<br>[21-02-2025 10:52:33] 		342 tracking(s) trouvée(s).<br>[21-02-2025 10:52:33] Visualisation désactivée.<br>[21-02-2025 10:52:33] Traitement terminé.<br>[21-02-2025 10:52:33] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105233.log<br>[21-02-2025 10:52:33] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105233.log<br>[21-02-2025 10:52:33] Commencer le traitement.<br>[21-02-2025 10:52:33] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localization :<br>    - Activate : True<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 0.0<br>  - Tracking :<br>    - Activate : False<br>    - Max Distance : 5.0<br>    - Min Length : 1.0<br>    - Decrease : 10.0<br>    - Cost Birth : 0.5<br>  - Visualization :<br>    - Activate : False<br>    - Ratio : 2<br>    - Source : 0<br>  - Filtering :<br>    - Activate : True<br>    - Plane : 1<br>    - Intensity : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Chi² : 0<br>      - Sigma X : 0<br>      - Sigma Y : 0<br>      - Circularity : 0<br>      - Z : 0<br>    - Tracks :<br>      - Activate : True<br>      - Length : 0<br>      - D Coeff : 0<br>      - Instant D : 0<br>      - Speed : 0<br>      - Alpha : 0<br>      - Confinement : 0<br><br>[21-02-2025 10:52:33] Paramètres sauvegardés.<br>[21-02-2025 10:52:33] Fichier Meta sauvegardé.<br>[21-02-2025 10:52:33] Localisation commencée.<br>[21-02-2025 10:52:33] 	Enregistrement du fichier de localisation<br>[21-02-2025 10:52:33] 		373 localisation(s) trouvée(s).<br>[21-02-2025 10:52:33] Tracking désactivé.<br>[21-02-2025 10:52:33] 	Chargement d'un tracking pré-calculée.<br>[21-02-2025 10:52:33] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252002_153520.csv' chargé avec succès.<br>[21-02-2025 10:52:33] 		373 tracking(s) trouvée(s).<br>[21-02-2025 10:52:33] Visualisation désactivée.<br>[21-02-2025 10:52:33] Traitement terminé.<br>[21-02-2025 10:52:33] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105233.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Only Tracking</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[30-01-2025 15:11:41] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br>[30-01-2025 15:11:41] Commencer le traitement.<br>[30-01-2025 15:11:41] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 1.0<br>  - Tracking :<br>    - Activate : True<br>  - Visualization :<br>    - Activate : False<br><br>[30-01-2025 15:11:41] Paramètres sauvegardés.<br>[30-01-2025 15:11:41] Fichier Meta sauvegardé.<br>[30-01-2025 15:11:41] Localisation désactivé.<br>[30-01-2025 15:11:41] 	Chargement d'une localisation pré-calculée.<br>[30-01-2025 15:11:41] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localisations-20253001_151141.csv' chargé avec succès.<br>[30-01-2025 15:11:41] 		4849 localisation(s) trouvée(s).<br>[30-01-2025 15:11:41] Tracking commencé.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO PALM.tracking</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO _palm_to_tracking_file</span><span style="font-weight: bold"></span><br>[30-01-2025 15:11:41] Enregistrement du fichier de tracking.<br>[30-01-2025 15:11:41] Visualisation désactivée.<br>[30-01-2025 15:11:41] Traitement terminé.<br>[30-01-2025 15:11:41] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[21-02-2025 10:52:33] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105233.log<br>[21-02-2025 10:52:33] Commencer le traitement.<br>[21-02-2025 10:52:33] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localization :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 0.0<br>  - Tracking :<br>    - Activate : True<br>    - Max Distance : 5.0<br>    - Min Length : 1.0<br>    - Decrease : 10.0<br>    - Cost Birth : 0.5<br>  - Visualization :<br>    - Activate : False<br>    - Ratio : 2<br>    - Source : 0<br>  - Filtering :<br>    - Activate : True<br>    - Plane : 1<br>    - Intensity : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Chi² : 0<br>      - Sigma X : 0<br>      - Sigma Y : 0<br>      - Circularity : 0<br>      - Z : 0<br>    - Tracks :<br>      - Activate : True<br>      - Length : 0<br>      - D Coeff : 0<br>      - Instant D : 0<br>      - Speed : 0<br>      - Alpha : 0<br>      - Confinement : 0<br><br>[21-02-2025 10:52:33] Paramètres sauvegardés.<br>[21-02-2025 10:52:33] Fichier Meta sauvegardé.<br>[21-02-2025 10:52:33] Localisation désactivé.<br>[21-02-2025 10:52:33] 	Chargement d'une localisation pré-calculée.<br>[21-02-2025 10:52:33] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252102_105233.csv' chargé avec succès.<br>[21-02-2025 10:52:33] 		373 localisation(s) trouvée(s).<br>[21-02-2025 10:52:33] Tracking commencé.<br>[21-02-2025 10:52:34] 	Enregistrement du fichier de tracking.<br>[21-02-2025 10:52:34] 		373 tracking(s) trouvé(s).<br>[21-02-2025 10:52:34] Visualisation désactivée.<br>[21-02-2025 10:52:34] Traitement terminé.<br>[21-02-2025 10:52:34] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105233.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Only Visualization</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[30-01-2025 15:11:41] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br>[30-01-2025 15:11:41] Commencer le traitement.<br>[30-01-2025 15:11:41] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 1.0<br>  - Tracking :<br>    - Activate : False<br>  - Visualization :<br>    - Activate : True<br><br>[30-01-2025 15:11:41] Paramètres sauvegardés.<br>[30-01-2025 15:11:41] Fichier Meta sauvegardé.<br>[30-01-2025 15:11:41] Localisation désactivé.<br>[30-01-2025 15:11:41] 	Chargement d'une localisation pré-calculée.<br>[30-01-2025 15:11:41] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localisations-20253001_151141.csv' chargé avec succès.<br>[30-01-2025 15:11:41] 		4849 localisation(s) trouvée(s).<br>[30-01-2025 15:11:41] Tracking désactivé.<br>[30-01-2025 15:11:41] 	Chargement d'un tracking pré-calculée.<br>[30-01-2025 15:11:41] 	Erreur lors du chargement du fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20253001_151141.csv' : No columns to parse from file<br>[30-01-2025 15:11:41] Visualisation commencé.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO PALM.visualization</span><span style="font-weight: bold"></span><br>[30-01-2025 15:11:41] Enregistrement du fichier de visualisation.<br>[30-01-2025 15:11:41] Traitement terminé.<br>[30-01-2025 15:11:41] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151141.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[21-02-2025 10:52:34] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105234.log<br>[21-02-2025 10:52:34] Commencer le traitement.<br>[21-02-2025 10:52:34] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localization :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 0.0<br>  - Tracking :<br>    - Activate : False<br>    - Max Distance : 5.0<br>    - Min Length : 1.0<br>    - Decrease : 10.0<br>    - Cost Birth : 0.5<br>  - Visualization :<br>    - Activate : True<br>    - Ratio : 2<br>    - Source : 0<br>  - Filtering :<br>    - Activate : True<br>    - Plane : 1<br>    - Intensity : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Chi² : 0<br>      - Sigma X : 0<br>      - Sigma Y : 0<br>      - Circularity : 0<br>      - Z : 0<br>    - Tracks :<br>      - Activate : True<br>      - Length : 0<br>      - D Coeff : 0<br>      - Instant D : 0<br>      - Speed : 0<br>      - Alpha : 0<br>      - Confinement : 0<br><br>[21-02-2025 10:52:34] Paramètres sauvegardés.<br>[21-02-2025 10:52:34] Fichier Meta sauvegardé.<br>[21-02-2025 10:52:34] Localisation désactivé.<br>[21-02-2025 10:52:34] 	Chargement d'une localisation pré-calculée.<br>[21-02-2025 10:52:34] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252102_105233.csv' chargé avec succès.<br>[21-02-2025 10:52:34] 		373 localisation(s) trouvée(s).<br>[21-02-2025 10:52:34] Tracking désactivé.<br>[21-02-2025 10:52:34] 	Chargement d'un tracking pré-calculée.<br>[21-02-2025 10:52:34] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252102_105233.csv' chargé avec succès.<br>[21-02-2025 10:52:34] 		373 tracking(s) trouvée(s).<br>[21-02-2025 10:52:34] Visualisation commencé.<br>[21-02-2025 10:52:34] 	Enregistrement du fichier de visualisation.<br>[21-02-2025 10:52:34] Traitement terminé.<br>[21-02-2025 10:52:34] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105234.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process All</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[30-01-2025 15:11:42] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151142.log<br>[30-01-2025 15:11:42] Commencer le traitement.<br>[30-01-2025 15:11:42] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : True<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 1.0<br>  - Tracking :<br>    - Activate : True<br>  - Visualization :<br>    - Activate : True<br><br>[30-01-2025 15:11:42] Paramètres sauvegardés.<br>[30-01-2025 15:11:42] Fichier Meta sauvegardé.<br>[30-01-2025 15:11:42] Localisation commencée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO PALM._palm_to_localisation_file</span><span style="font-weight: bold"></span><br>[30-01-2025 15:11:42] 	4849 localisation(s) trouvée(s).<br>[30-01-2025 15:11:42] Enregistrement du fichier de localisation<br>[30-01-2025 15:11:42] Tracking commencé.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO PALM.tracking</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO _palm_to_tracking_file</span><span style="font-weight: bold"></span><br>[30-01-2025 15:11:42] Enregistrement du fichier de tracking.<br>[30-01-2025 15:11:42] Visualisation commencé.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">TODO PALM.visualization</span><span style="font-weight: bold"></span><br>[30-01-2025 15:11:42] Enregistrement du fichier de visualisation.<br>[30-01-2025 15:11:42] Traitement terminé.<br>[30-01-2025 15:11:42] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151142.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>[21-02-2025 10:52:34] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105234.log<br>[21-02-2025 10:52:34] Commencer le traitement.<br>[21-02-2025 10:52:34] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localization :<br>    - Activate : True<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 0.0<br>  - Tracking :<br>    - Activate : True<br>    - Max Distance : 5.0<br>    - Min Length : 1.0<br>    - Decrease : 10.0<br>    - Cost Birth : 0.5<br>  - Visualization :<br>    - Activate : True<br>    - Ratio : 2<br>    - Source : 0<br>  - Filtering :<br>    - Activate : True<br>    - Plane : 1<br>    - Intensity : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Chi² : 0<br>      - Sigma X : 0<br>      - Sigma Y : 0<br>      - Circularity : 0<br>      - Z : 0<br>    - Tracks :<br>      - Activate : True<br>      - Length : 0<br>      - D Coeff : 0<br>      - Instant D : 0<br>      - Speed : 0<br>      - Alpha : 0<br>      - Confinement : 0<br><br>[21-02-2025 10:52:34] Paramètres sauvegardés.<br>[21-02-2025 10:52:34] Fichier Meta sauvegardé.<br>[21-02-2025 10:52:34] Localisation commencée.<br>[21-02-2025 10:52:34] 	Enregistrement du fichier de localisation<br>[21-02-2025 10:52:34] 		373 localisation(s) trouvée(s).<br>[21-02-2025 10:52:34] Tracking commencé.<br>[21-02-2025 10:52:34] 	Enregistrement du fichier de tracking.<br>[21-02-2025 10:52:34] 		373 tracking(s) trouvé(s).<br>[21-02-2025 10:52:34] Visualisation commencé.<br>[21-02-2025 10:52:34] 	Enregistrement du fichier de visualisation.<br>[21-02-2025 10:52:34] Traitement terminé.<br>[21-02-2025 10:52:34] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105234.log<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
    </details>
 
 Processing Threshold
@@ -158,20 +178,13 @@ Processing Threshold
      - 2ms
    * - Auto Threshold Dll
      - ✅
-     - 15ms
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Auto Threshold</summary>
-      <pre>104.24780444414506</pre>
-   </details>
+     - 117ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Auto Threshold Dll</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>103.61033392219885<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500"><br>====================<br>Aucune comparaison avec Metamorph dans ce test.<br>====================<br></span><span style="font-weight: bold"></span></pre>
    </details>
 
 Settings Groups
@@ -188,22 +201,34 @@ Settings Groups
      - 3ms
    * - Batch
      - ✅
-     - 195ms
+     - 236ms
    * - Batch Get Path
      - ✅
-     - 6ms
+     - 3ms
    * - Batch Get Stacks
      - ✅
-     - 8ms
+     - 7ms
    * - Calibration
      - ✅
-     - 210ms
-   * - Localisation
+     - 264ms
+   * - Localization
      - ✅
-     - 200ms
+     - 201ms
    * - Gaussian Fit
      - ✅
-     - 187ms
+     - 205ms
+   * - Spline Fit
+     - ✅
+     - 2ms
+   * - Filtering
+     - ✅
+     - 200ms
+   * - Filtering Gf
+     - ✅
+     - 186ms
+   * - Filtering T
+     - ✅
+     - 217ms
 
 .. raw:: html
 
@@ -222,15 +247,36 @@ Settings Groups
 .. raw:: html
 
    <details>
-      <summary>Log Test : Localisation</summary>
-      <pre>- Activate : True<br>- Preview : True<br>- Threshold : 90.0<br>- ROI Size : 7<br>- Watershed : True<br>- Mode : 0<br>- Gaussian Fit :<br>  - Activate : True<br>  - Mode : 1<br>  - Sigma : 1.0<br>  - Theta : 1.0</pre>
+      <summary>Log Test : Localization</summary>
+      <pre>- Activate : True<br>- Preview : True<br>- Threshold : 90.0<br>- ROI Size : 7<br>- Watershed : True<br>- Mode : 0<br>- Gaussian Fit :<br>  - Activate : True<br>  - Mode : 1<br>  - Sigma : 1.0<br>  - Theta : 0.0</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Gaussian Fit</summary>
-      <pre>- Activate : True<br>- Mode : 2<br>- Sigma : 1.0<br>- Theta : 1.0</pre>
+      <pre>- Activate : True<br>- Mode : 2<br>- Sigma : 1.0<br>- Theta : 0.0</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Filtering</summary>
+      <pre>- Activate : True<br>- Plane : 2<br>- Intensity : 0<br>- Gaussian Fit :<br>  - Activate : True<br>  - Chi² : 0<br>  - Sigma X : 0<br>  - Sigma Y : 0<br>  - Circularity : 0<br>  - Z : 0<br>- Tracks :<br>  - Activate : True<br>  - Length : 0<br>  - D Coeff : 0<br>  - Instant D : 0<br>  - Speed : 0<br>  - Alpha : 0<br>  - Confinement : 0</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Filtering Gf</summary>
+      <pre>- Activate : True<br>- Chi² : 2<br>- Sigma X : 0<br>- Sigma Y : 0<br>- Circularity : 0<br>- Z : 0</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Filtering T</summary>
+      <pre>- Activate : True<br>- Length : 2<br>- D Coeff : 0<br>- Instant D : 0<br>- Speed : 0<br>- Alpha : 0<br>- Confinement : 0</pre>
    </details>
 
 Settings Settings
@@ -244,13 +290,13 @@ Settings Settings
      - Duration
    * - Settings
      - ✅
-     - 223ms
+     - 219ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Settings</summary>
-      <pre>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : -1<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 320<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 1.0<br>  - Tracking :<br>    - Activate : False<br>  - Visualization :<br>    - Activate : False</pre>
+      <pre>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : -1<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 320<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localization :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 0.0<br>  - Tracking :<br>    - Activate : False<br>    - Max Distance : 5.0<br>    - Min Length : 1.0<br>    - Decrease : 10.0<br>    - Cost Birth : 0.5<br>  - Visualization :<br>    - Activate : False<br>    - Ratio : 2<br>    - Source : 0<br>  - Filtering :<br>    - Activate : True<br>    - Plane : 1<br>    - Intensity : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Chi² : 0<br>      - Sigma X : 0<br>      - Sigma Y : 0<br>      - Circularity : 0<br>      - Z : 0<br>    - Tracks :<br>      - Activate : True<br>      - Length : 0<br>      - D Coeff : 0<br>      - Instant D : 0<br>      - Speed : 0<br>      - Alpha : 0<br>      - Confinement : 0</pre>
    </details>
 
 Settings Types
@@ -267,28 +313,28 @@ Settings Types
      - 1ms
    * - Create Setting From Dict
      - ✅
-     - 159ms
+     - 261ms
    * - Create Setting From Dict Fail
      - ✅
      - 1ms
    * - Spin Int
      - ✅
-     - 158ms
+     - 193ms
    * - Spin Float
      - ✅
-     - 179ms
+     - 176ms
    * - Check Box
      - ✅
-     - 2ms
+     - 3ms
    * - Combo
      - ✅
      - 2ms
    * - Browse File
      - ✅
-     - 183ms
+     - 166ms
    * - File List
      - ✅
-     - 2ms
+     - 3ms
 
 Tools Fileio
 ^^^^^^^^^^^^
@@ -319,11 +365,11 @@ Tools Fileio
      - 1ms
    * - Open Tif
      - ✅
-     - 8ms
+     - 9ms
    * - Open Tif Bad File
      - ✅
      - 1ms
-   * - Save  Png
+   * - Save Png
      - ✅
      - 3ms
    * - Save Png Bad Sample
@@ -341,7 +387,7 @@ Tools Logger
      - Duration
    * - Logger
      - ✅
-     - 1ms
+     - 2ms
    * - Logger Bad Use
      - ✅
      - 1ms
@@ -350,14 +396,14 @@ Tools Logger
 
    <details>
       <summary>Log Test : Logger</summary>
-      <pre>[30-01-2025 15:11:44] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log<br>[30-01-2025 15:11:44] First message<br>[30-01-2025 15:11:44] <br>[30-01-2025 15:11:44] after blank<br>[30-01-2025 15:11:44] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log</pre>
+      <pre>[21-02-2025 10:52:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log<br>[21-02-2025 10:52:37] First message<br>[21-02-2025 10:52:37] <br>[21-02-2025 10:52:37] after blank<br>[21-02-2025 10:52:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Logger Bad Use</summary>
-      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[30-01-2025 15:11:44] Aucun fichier à fermer.</span><span style="font-weight: bold"></span><br>[30-01-2025 15:11:44] Message without logger open<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[30-01-2025 15:11:44] Aucun fichier de log ouvert pour écrire.</span><span style="font-weight: bold"></span></pre>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[21-02-2025 10:52:37] Aucun fichier à fermer.</span><span style="font-weight: bold"></span><br>[21-02-2025 10:52:37] Message without logger open<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[21-02-2025 10:52:37] Aucun fichier de log ouvert pour écrire.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 Tools Monitoring
@@ -371,16 +417,16 @@ Tools Monitoring
      - Duration
    * - Monitoring
      - ✅
-     - 1.38s
+     - 1.46s
    * - Monitoring Save
      - ✅
-     - 4.93s
+     - 4.94s
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Monitoring</summary>
-      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.63, 0.84, 1.05]<br>CPU Usage : [0.0, 0.0, 0.4875, 0.484375, 0.0, 0.484375]<br>Memory Usage : [222.5390625, 222.54296875, 222.54296875, 222.54296875, 222.54296875, 222.51953125]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
+      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.63, 0.84, 1.05]<br>CPU Usage : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]<br>Memory Usage : [220.41796875, 220.421875, 220.421875, 220.42578125, 220.42578125, 220.40625]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
    </details>
 
 .. raw:: html
@@ -416,13 +462,13 @@ Tools Utils
      - 1ms
    * - Print Warning
      - ✅
-     - 0ms
+     - 1ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Get Timestamp For Files</summary>
-      <pre>Timestamp with hour : 20250130_151150<br>Timestamp without hour : 20250130</pre>
+      <pre>Timestamp with hour : 20250221_105243<br>Timestamp without hour : 20250221</pre>
    </details>
 
 .. raw:: html
@@ -450,43 +496,43 @@ Widget
      - Duration
    * - Widget Creation
      - ✅
-     - 7.17s
+     - 5.03s
    * - Widget Reset Layer
      - ✅
-     - 838ms
+     - 729ms
    * - Widget Auto Threshold
      - ✅
-     - 676ms
+     - 596ms
    * - Widget Process
      - ✅
-     - 573ms
+     - 517ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Widget Creation</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Widget Reset Layer</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.</pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Widget Auto Threshold</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.</pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Widget Process</summary>
-      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span><br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.<br>[30-01-2025 15:11:59] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151159.log<br>[30-01-2025 15:11:59] Commencer le traitement.<br>[30-01-2025 15:11:59] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localisation :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 1.0<br>  - Tracking :<br>    - Activate : False<br>  - Visualization :<br>    - Activate : False<br><br>[30-01-2025 15:11:59] Paramètres sauvegardés.<br>[30-01-2025 15:11:59] Fichier Meta sauvegardé.<br>[30-01-2025 15:11:59] Localisation désactivé.<br>[30-01-2025 15:11:59] 	Chargement d'une localisation pré-calculée.<br>[30-01-2025 15:11:59] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localisations-20253001_151142.csv' chargé avec succès.<br>[30-01-2025 15:11:59] 		4849 localisation(s) trouvée(s).<br>[30-01-2025 15:11:59] Tracking désactivé.<br>[30-01-2025 15:11:59] 	Chargement d'un tracking pré-calculée.<br>[30-01-2025 15:11:59] 	Erreur lors du chargement du fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20253001_151142.csv' : No columns to parse from file<br>[30-01-2025 15:11:59] Visualisation désactivée.<br>[30-01-2025 15:11:59] Traitement terminé.<br>[30-01-2025 15:11:59] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20253001_151159.log</pre>
+      <pre>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\CPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\GPU_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Live_PALM.dll' chargée.<br>DLL 'C:\Git\palm-tracer\palm_tracer\DLL\Tracking_PALM.dll' chargée.<br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.<br>[21-02-2025 10:52:50] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105250.log<br>[21-02-2025 10:52:50] Commencer le traitement.<br>[21-02-2025 10:52:50] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>Settings :<br>  - Batch :<br>    - Activate : True<br>    - Files : 0<br>    - Mode : 0<br>  - Calibration :<br>    - Activate : True<br>    - Pixel Size : 160<br>    - Exposure : 50<br>    - Intensity : 0.012<br>  - Localization :<br>    - Activate : False<br>    - Preview : False<br>    - Threshold : 90.0<br>    - ROI Size : 7<br>    - Watershed : True<br>    - Mode : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Mode : 1<br>      - Sigma : 1.0<br>      - Theta : 0.0<br>  - Tracking :<br>    - Activate : False<br>    - Max Distance : 5.0<br>    - Min Length : 1.0<br>    - Decrease : 10.0<br>    - Cost Birth : 0.5<br>  - Visualization :<br>    - Activate : False<br>    - Ratio : 2<br>    - Source : 0<br>  - Filtering :<br>    - Activate : True<br>    - Plane : 1<br>    - Intensity : 0<br>    - Gaussian Fit :<br>      - Activate : True<br>      - Chi² : 0<br>      - Sigma X : 0<br>      - Sigma Y : 0<br>      - Circularity : 0<br>      - Z : 0<br>    - Tracks :<br>      - Activate : True<br>      - Length : 0<br>      - D Coeff : 0<br>      - Instant D : 0<br>      - Speed : 0<br>      - Alpha : 0<br>      - Confinement : 0<br><br>[21-02-2025 10:52:50] Paramètres sauvegardés.<br>[21-02-2025 10:52:50] Fichier Meta sauvegardé.<br>[21-02-2025 10:52:50] Localisation désactivé.<br>[21-02-2025 10:52:50] 	Chargement d'une localisation pré-calculée.<br>[21-02-2025 10:52:50] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252102_105234.csv' chargé avec succès.<br>[21-02-2025 10:52:50] 		373 localisation(s) trouvée(s).<br>[21-02-2025 10:52:50] Tracking désactivé.<br>[21-02-2025 10:52:50] 	Chargement d'un tracking pré-calculée.<br>[21-02-2025 10:52:50] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252102_105234.csv' chargé avec succès.<br>[21-02-2025 10:52:50] 		373 tracking(s) trouvée(s).<br>[21-02-2025 10:52:50] Visualisation désactivée.<br>[21-02-2025 10:52:50] Traitement terminé.<br>[21-02-2025 10:52:50] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252102_105250.log</pre>
    </details>
 
 .. raw:: html
