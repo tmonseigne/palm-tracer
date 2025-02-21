@@ -44,7 +44,7 @@ def test_process_no_input():
 	assert True
 
 ##################################################
-def test_process_only_localisation():
+def test_process_only_localization():
 	"""
 	Test pour le process de localisation.
 
@@ -61,8 +61,8 @@ def test_process_only_localisation():
 		file_list = cast(FileList, settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
-		PALM.process(dll, settings)	# First Time without localisation active and no files to load.
-		settings.localisation.active = True
+		PALM.process(dll, settings)	# First Time without localization active and no files to load.
+		settings.localization.active = True
 		PALM.process(dll, settings)
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
@@ -128,7 +128,7 @@ def test_process_all():
 	else:
 		app = initialize()
 		settings = Settings()
-		settings.localisation.active = True
+		settings.localization.active = True
 		settings.tracking.active = True
 		settings.visualization.active = True
 		file_list = cast(FileList, settings.batch["Files"])

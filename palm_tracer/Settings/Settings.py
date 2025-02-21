@@ -28,7 +28,7 @@ class Settings:
 	Attributs :
 			- **batch (Batch)** : Groupe de paramètres liés au batch.
 			- **calibration (Calibration)** : Groupe de paramètres liés à la calibration.
-			- **localisation (Localisation)** : Groupe de paramètres liés à la localisation.
+			- **localization (Localization)** : Groupe de paramètres liés à la localisation.
 			- **tracking (Tracking)** : Groupe de paramètres liés au tracking.
 			- **visualization (Visualization)** : Groupe de paramètres liés à la visualisation.
 			- **filtering (Filtering)** : Groupe de paramètres liés au filtrage lors des processus.
@@ -40,7 +40,7 @@ class Settings:
 
 	batch: Batch = field(init=False, default_factory=Batch)
 	calibration: Calibration = field(init=False, default_factory=Calibration)
-	localisation: Localisation = field(init=False, default_factory=Localisation)
+	localization: Localization = field(init=False, default_factory=Localization)
 	tracking: Tracking = field(init=False, default_factory=Tracking)
 	visualization: Visualization = field(init=False, default_factory=Visualization)
 	filtering: Filtering = field(init=False, default_factory=Filtering)
@@ -59,7 +59,7 @@ class Settings:
 		"""Remet les valeurs par défaut des paramètres."""
 		self.batch.reset()
 		self.calibration.reset()
-		self.localisation.reset()
+		self.localization.reset()
 		self.tracking.reset()
 		self.visualization.reset()
 		self.filtering.reset()
@@ -73,7 +73,7 @@ class Settings:
 	# ==================================================
 	##################################################
 	def get_layouts(self) -> list[QFormLayout]:
-		return [self.batch.widget, self.calibration.widget, self.localisation.widget, self.tracking.widget,
+		return [self.batch.widget, self.calibration.widget, self.localization.widget, self.tracking.widget,
 				self.visualization.widget, self.filtering.widget]
 
 	# ==================================================
@@ -88,7 +88,7 @@ class Settings:
 		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
 		return {"PALM Tracer Settings": {"Batch":         self.batch.to_dict(),
 										 "Calibration":   self.calibration.to_dict(),
-										 "Localisation":  self.localisation.to_dict(),
+										 "Localization":  self.localization.to_dict(),
 										 "Tracking":      self.tracking.to_dict(),
 										 "Visualization": self.visualization.to_dict(),
 										 "Filtering":     self.filtering.to_dict()}}
@@ -107,7 +107,7 @@ class Settings:
 		groups = data["PALM Tracer Settings"]
 		self.batch.update_from_dict(groups["Batch"])
 		self.calibration.update_from_dict(groups["Calibration"])
-		self.localisation.update_from_dict(groups["Localisation"])
+		self.localization.update_from_dict(groups["Localization"])
 		self.tracking.update_from_dict(groups["Tracking"])
 		self.visualization.update_from_dict(groups["Visualization"])
 		self.filtering.update_from_dict(groups["Filtering"])
@@ -129,7 +129,7 @@ class Settings:
 		msg = f"Settings :\n"
 		msg += f"  - Batch :\n{self.batch.tostring("    ")}"
 		msg += f"  - Calibration :\n{self.calibration.tostring("    ")}"
-		msg += f"  - Localisation :\n{self.localisation.tostring("    ")}"
+		msg += f"  - Localization :\n{self.localization.tostring("    ")}"
 		msg += f"  - Tracking :\n{self.tracking.tostring("    ")}"
 		msg += f"  - Visualization :\n{self.visualization.tostring("    ")}"
 		msg += f"  - Filtering :\n{self.filtering.tostring("    ")}"

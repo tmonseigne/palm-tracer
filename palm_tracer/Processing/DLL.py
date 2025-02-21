@@ -40,7 +40,7 @@ import pandas as pd
 
 from palm_tracer.Tools import print_warning
 
-# Segmentation (Localisation)
+# Segmentation (Localization)
 N_SEGMENT = 13						 # Nombre de paramètres pour la segmentation.
 SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "Y", "X", # X est Y sont inversés à la sortie de la DLL donc Y,X au lieu de X, Y
 				"Intensity 0",		 # Intensity too ??? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
@@ -247,23 +247,23 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
 
 
 ##################################################
-def run_tracking_dll(dll: ctypes.CDLL, localisations: pd.DataFrame,
+def run_tracking_dll(dll: ctypes.CDLL, localizations: pd.DataFrame,
 					 max_distance: float, min_length: float, decrease: float, cost_birth: float) -> pd.DataFrame:
 	"""
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
-	:param localisations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+	:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	:param max_distance:
 	:param min_length:
 	:param decrease:
 	:param cost_birth:
 	:return:
 	"""
-	n = len(localisations)
+	n = len(localizations)
 	loc_size = n * N_SEGMENT
 	track_size = n * N_TRACK
 
-	points = _rearrange_dataframe_columns(localisations, SEGMENT_COLS, False)
+	points = _rearrange_dataframe_columns(localizations, SEGMENT_COLS, False)
 	points = points.to_numpy().flatten()
 	points = np.asarray(points, dtype=np.float64)
 
@@ -279,7 +279,7 @@ def run_tracking_dll(dll: ctypes.CDLL, localisations: pd.DataFrame,
 	c_cost_birth = ctypes.c_double(cost_birth)										   #
 	c_dim = ctypes.c_uint(2)														   # Nombre de dimensions toujours à 2.
 	c_model = ctypes.c_uint(2)														   # Model toujours à 2.
-	c_planes = ctypes.c_uint(localisations["Plane"].max())							   # Nombre de plans
+	c_planes = ctypes.c_uint(localizations["Plane"].max())							   # Nombre de plans
 
 	# Running
 	dll.tracking(c_points, c_loc_size, c_track, c_track_size, c_max_distance, c_dz_dx,

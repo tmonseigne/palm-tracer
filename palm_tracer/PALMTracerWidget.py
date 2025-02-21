@@ -56,8 +56,8 @@ class PALMTracerWidget(QWidget):
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(self.__create_tab([self.settings.localisation.widget, self.settings.tracking.widget]), "Processing")
-		tabs.addTab(self.__create_tab([self.settings.visualization.widget]), "Visualisation")
+		tabs.addTab(self.__create_tab([self.settings.localization.widget, self.settings.tracking.widget]), "Processing")
+		tabs.addTab(self.__create_tab([self.settings.visualization.widget]), "Visualization")
 		tabs.addTab(self.__create_tab([self.settings.filtering.widget]), "Filtering")
 
 		# Layout principal
@@ -137,7 +137,7 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = auto_threshold(image)  # Calcul du seuil automatique
-		self.settings.localisation["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
+		self.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
 	def process(self):

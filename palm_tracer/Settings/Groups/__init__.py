@@ -6,7 +6,7 @@ Ce sous-package gère les groupes de paramètres.
 - `BaseSettingGroup` : Classe principale pour la gestion des groupes.
 - `Batch` : Classe regroupant les paramètres du Batch.
 - `Calibration` : Classe regroupant les paramètres de la Calibration.
-- `Localisation` : Classe regroupant les paramètres de la Localisation.
+- `Localization` : Classe regroupant les paramètres de la Localisation.
 - `GaussianFit` : Classe regroupant les paramètres du Gaussian Fit.
 
 **Fonctionnalités principales** :
@@ -25,7 +25,7 @@ from .Filtering import Filtering
 from .FilteringGF import FilteringGF
 from .FilteringT import FilteringT
 from .GaussianFit import GaussianFit
-from .Localisation import Localisation
+from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
 from .Visualization import Visualization
@@ -37,7 +37,7 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	if not "type" in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
 	if data["type"] == "Batch": return Batch.from_dict(data)
 	elif data["type"] == "Calibration": return Calibration.from_dict(data)
-	elif data["type"] == "Localisation": return Localisation.from_dict(data)
+	elif data["type"] == "Localization": return Localization.from_dict(data)
 	elif data["type"] == "GaussianFit": return GaussianFit.from_dict(data)
 	elif data["type"] == "SplineFit": return SplineFit.from_dict(data)
 	elif data["type"] == "Tracking": return Tracking.from_dict(data)
@@ -52,5 +52,5 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 __all__ = ["BaseSettingGroup", "create_group_from_dict",
 		   "Batch", "Calibration",
 		   "Filtering", "FilteringGF", "FilteringT",
-		   "Localisation", "GaussianFit", "SplineFit",
+		   "Localization", "GaussianFit", "SplineFit",
 		   "Tracking", "Visualization"]

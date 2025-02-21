@@ -79,7 +79,7 @@ Base
 - Possibilité de Cut un fichier (prendre des frames N à N).
   *Il est possible que lors de l’acquisition il y ait eu un problème sur certains frames et donc les éliminer de l’analyse.*
 
-Visualisation (dépendant des limitations de Napari)
+Visualization (dépendant des limitations de Napari)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Drag and Drop d’une image *(basique, mais pas si évident suivent les GUIS)*
@@ -95,8 +95,8 @@ Processing
 ^^^^^^^^^^
 
 - Options d’acquisition (pixel size, exposition…)
-- 2D/3D Localisation
-	- Preview 2D Localisation
+- 2D/3D Localization
+	- Preview 2D Localization
 	- GPU portage (on/off) *pourquoi demander ? si possible GPU*
 	- Auto seuil et spin pour rerégler
 	- Taille des ROIs
@@ -139,17 +139,17 @@ Au cours des prétraitements et générations d’images HR. Un sous-dossier ser
 	Mon_fichier.tif
 	Mon_fichier_PALM_Tracer
 		|-Meta_Timestamp.txt
-		|-Localisation_Timestamp.csv
+		|-Localization_Timestamp.csv
 		|-Tracking_Timestamp.csv
 		|-Drift_Timestamp.csv
-		|-Mon_fichier_Localisation_Timestamp.png
+		|-Mon_fichier_Localization_Timestamp.png
 		|-Mon_fichier_Tracking_Timestamp.png
 		|-Pipeline_Timestamp.json
 		|-log_Timestamp.log
 
 - **Meta** : Fichier contenant les entêtes des fichiers précédents
   (Width, Height, nb_Planes, Pixel_Size(um), Frame_Duration(s)) avec d’autres éléments comme la date, la configuration matérielle, les éléments d’acquisitions (pixel size, exposition…), la version de PALM Tracer.
-- **Localisation**, Tracking, Drift tableaux de coordonnées
+- **Localization**, Tracking, Drift tableaux de coordonnées
 - **Fichiers Images** : Format différent possible si c'est plus conventionnel, l'enregistrement se fait automatiquement à la fin de chaque processing.
 - **Pipeline** : Fichier mis à jour continuellement en fonction des process effectués, il contient 4 parties (Général, Processing, Localisation, Tracking, Filtering)
   avec les dernières options utilisées pour cela et la date du dernier lancement. Il permettra de garder une trace et d’être chargé comme pipeline de Batch.

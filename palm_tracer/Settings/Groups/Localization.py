@@ -16,7 +16,7 @@ from palm_tracer.Settings.Types import CheckBox, Combo, SpinFloat, SpinInt
 
 ##################################################
 @dataclass
-class Localisation(BaseSettingGroup):
+class Localization(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres de Localisation :
 
@@ -29,7 +29,7 @@ class Localisation(BaseSettingGroup):
 			- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
 	"""
 
-	label: str = "Localisation"
+	label: str = "Localization"
 	setting_list = {
 			"Preview":      [CheckBox, ["Preview"]],
 			"Threshold":    [SpinFloat, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],

@@ -147,10 +147,10 @@ def test_calibration():
 
 
 ###################################################
-def test_localisation():
+def test_localization():
 	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
 	app = initialize()
-	group_base_test(Localisation(), ["Preview", "Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit"],
+	group_base_test(Localization(), ["Preview", "Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit"],
 					CheckBox, True, False)
 
 

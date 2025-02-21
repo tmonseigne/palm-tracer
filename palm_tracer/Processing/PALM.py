@@ -16,6 +16,7 @@ from palm_tracer.Settings.Groups import GaussianFit
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json
 from palm_tracer.Tools.FileIO import save_png
 
+
 # ==================================================
 # region Process
 # ==================================================
@@ -60,67 +61,72 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 		logger.add("Fichier Meta sauvegardé.")
 
 		# Lancement de la localisation
-		if settings.localisation.active:
+		if settings.localization.active:
 			logger.add("Localisation commencée.")
-			loc = process_localisation(dll["CPU"], stack, settings)
+			localizations = process_localization(dll["CPU"], stack, settings)
 			logger.add("\tEnregistrement du fichier de localisation")
-			logger.add(f"\t\t{len(loc)} localisation(s) trouvée(s).")
-			loc.to_csv(f"{path}/localisations-{timestamp_suffix}.csv", index=False)
+			logger.add(f"\t\t{len(localizations)} localisation(s) trouvée(s).")
+			localizations.to_csv(f"{path}/localizations-{timestamp_suffix}.csv", index=False)
 		else:
 			logger.add("Localisation désactivé.")
-			f = get_last_file(path, "localisations")
+			f = get_last_file(path, "localizations")
 			if f.endswith("csv"):  # Chargement d'une localisation existante
 				logger.add("\tChargement d'une localisation pré-calculée.")
 				try:
-					loc = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+					localizations = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 					logger.add(f"\tFichier '{f}' chargé avec succès.")
-					logger.add(f"\t\t{len(loc)} localisation(s) trouvée(s).")
+					logger.add(f"\t\t{len(localizations)} localisation(s) trouvée(s).")
 				except Exception as e:
-					loc = None
+					localizations = None
 					logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
 			else:  # Sinon
-				loc = None
+				localizations = None
 				logger.add("\tAucune donnée de localisation pré-calculée.")
 
 		# Lancement du tracking
 		if settings.tracking.active:
 			logger.add("Tracking commencé.")
-			track = process_tracking(dll["Tracking"], loc, settings)
+			tracks = process_tracking(dll["Tracking"], localizations, settings)
 			logger.add("\tEnregistrement du fichier de tracking.")
-			logger.add(f"\t\t{len(track)} tracking(s) trouvé(s).")
-			track.to_csv(f"{path}/tracking-{timestamp_suffix}.csv", index=False)
+			logger.add(f"\t\t{len(tracks)} tracking(s) trouvé(s).")
+			tracks.to_csv(f"{path}/tracking-{timestamp_suffix}.csv", index=False)
 		else:
 			logger.add("Tracking désactivé.")
 			f = get_last_file(path, "tracking")
 			if f.endswith("csv"):  # Chargement d'une localisation existante
 				logger.add("\tChargement d'un tracking pré-calculée.")
 				try:
-					track = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+					tracks = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 					logger.add(f"\tFichier '{f}' chargé avec succès.")
-					logger.add(f"\t\t{len(loc)} tracking(s) trouvée(s).")
+					logger.add(f"\t\t{len(localizations)} tracking(s) trouvée(s).")
 				except Exception as e:
-					track = None
+					tracks = None
 					logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
 			else:  # Sinon
-				track = None
+				tracks = None
 				logger.add("\tAucune donnée de tracking pré-calculée.")
 
 		# Lancement de la visualization
 		if settings.visualization.active:
 			logger.add("Visualisation commencé.")
-			visu = process_visualization(stack, settings, loc, track)
+			visualization = process_visualization(stack, settings, localizations, tracks)
 			logger.add("\tEnregistrement du fichier de visualisation.")
-			save_png(visu, f"{path}/visualization-{timestamp_suffix}.png")
+			save_png(visualization, f"{path}/visualization-{timestamp_suffix}.png")
 		else:
 			logger.add("Visualisation désactivée.")
+			visualization = None
 
 		# Fermeture du Log
 		logger.add("Traitement terminé.")
 		logger.close()
 
+		return {"Localizations": localizations,
+				"Tracking":      tracks,
+				"Visualization": visualization}
+
 
 ##################################################
-def process_localisation(dll: ctypes.CDLL, stack: np.ndarray, settings: Settings) -> pd.DataFrame:
+def process_localization(dll: ctypes.CDLL, stack: np.ndarray, settings: Settings) -> pd.DataFrame:
 	"""
 	Lance la localisation à partir des settings passés en paramètres.
 
@@ -130,10 +136,10 @@ def process_localisation(dll: ctypes.CDLL, stack: np.ndarray, settings: Settings
 	:return: Données de localisation trouvées.
 	"""
 	# Parse settings
-	threshold = settings.localisation["Threshold"].get_value()
-	watershed = settings.localisation["Watershed"].get_value()
-	roi = settings.localisation["ROI Size"].get_value()
-	gaussian_setting = cast(GaussianFit, settings.localisation["Gaussian Fit"])
+	threshold = settings.localization["Threshold"].get_value()
+	watershed = settings.localization["Watershed"].get_value()
+	roi = settings.localization["ROI Size"].get_value()
+	gaussian_setting = cast(GaussianFit, settings.localization["Gaussian Fit"])
 	gaussian = gaussian_setting["Mode"].get_value()
 	sigma = gaussian_setting["Sigma"].get_value()
 	theta = gaussian_setting["Theta"].get_value()
@@ -142,12 +148,12 @@ def process_localisation(dll: ctypes.CDLL, stack: np.ndarray, settings: Settings
 
 
 ##################################################
-def process_tracking(dll: ctypes.CDLL, localisations: pd.DataFrame, settings: Settings) -> pd.DataFrame:
+def process_tracking(dll: ctypes.CDLL, localizations: pd.DataFrame, settings: Settings) -> pd.DataFrame:
 	"""
 	Lance le tracking à partir des settings passés en paramètres.
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
-	:param localisations: Données venant de la fonction de localisation
+	:param localizations: Données venant de la fonction de localisation
 	:param settings: Paramètres de l'interface pour lancer la localisation.
 	:return: Données de tracking trouvées.
 	"""
@@ -157,18 +163,18 @@ def process_tracking(dll: ctypes.CDLL, localisations: pd.DataFrame, settings: Se
 	decrease = settings.tracking["Decrease"].get_value()
 	cost_birth = settings.tracking["Cost Birth"].get_value()
 	# Run command
-	return run_tracking_dll(dll, localisations, max_distance, min_length, decrease, cost_birth)
+	return run_tracking_dll(dll, localizations, max_distance, min_length, decrease, cost_birth)
 
 
 ##################################################
 def process_visualization(stack: np.ndarray, settings: Settings,
-						  localisations: pd.DataFrame = None, tracking: pd.DataFrame = None) -> np.ndarray:
+						  localizations: pd.DataFrame = None, tracking: pd.DataFrame = None) -> np.ndarray:
 	"""
 	Lance la creation d'une visualisation à partir des settings passés en paramètres.
 
 	:param stack: Pile d'image d'entrée sous forme de tableau numpy.
 	:param settings: Paramètres de l'interface pour lancer la localisation.
-	:param localisations: Données venant de la fonction de localisation.
+	:param localizations: Données venant de la fonction de localisation.
 	:param tracking: Données venant de la fonction de tracking.
 	:return: Nouvelle visualisation.
 	"""
@@ -182,8 +188,8 @@ def process_visualization(stack: np.ndarray, settings: Settings,
 	res = np.zeros((new_width, new_height), dtype=float)
 
 	# Remplissage de l'image
-	if source == 0: # Integrated intensity
-		for index, row in localisations.iterrows():
+	if source == 0:  # Integrated intensity
+		for index, row in localizations.iterrows():
 			x, y = int(row["X"] * ratio), int(row["Y"] * ratio)
 			res[x, y] += row["Integrated Intensity"]
 

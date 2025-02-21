@@ -19,7 +19,7 @@ save_output = True
 
 
 ##################################################
-def compare_localisations(value: pd.DataFrame, ref: pd.DataFrame, tol: float = 1e-5) -> bool:
+def compare_localizations(value: pd.DataFrame, ref: pd.DataFrame, tol: float = 1e-5) -> bool:
 	return value[["X", "Y", "Z"]].sub(ref[["X", "Y", "Z"]]).abs().lt(tol).all().all()
 
 
@@ -54,15 +54,15 @@ def test_run_palm_image_dll():
 			for gaussian in range(5):
 				suffix = get_suffix(gaussian)
 
-				localisations = run_palm_image_dll(dll, stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
-				if save_output: localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{plane}_{suffix}.csv", index=False)
+				localizations = run_palm_image_dll(dll, stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
+				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{plane}_{suffix}.csv", index=False)
 
-				assert len(localisations) > 0, "Aucune localisation trouvé"
+				assert len(localizations) > 0, "Aucune localisation trouvé"
 
-				path = Path(f"{INPUT_DIR}/{file}-localisations-{plane}_{suffix}.csv")
+				path = Path(f"{INPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv")
 				if path.exists() and path.is_file():
 					ref = pd.read_csv(path)
-					assert compare_points(localisations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
+					assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
 
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
@@ -86,15 +86,15 @@ def test_run_palm_stack_dll():
 		for gaussian in range(5):
 			suffix = get_suffix(gaussian)
 
-			localisations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
-			if save_output: localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{suffix}.csv", index=False)
+			localizations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
+			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
-			assert len(localisations) > 0, "Aucune localisation trouvé"
+			assert len(localizations) > 0, "Aucune localisation trouvé"
 
-			path = Path(f"{INPUT_DIR}/{file}-localisations-{suffix}.csv")
+			path = Path(f"{INPUT_DIR}/{file}-localizations-{suffix}.csv")
 			if path.exists() and path.is_file():
 				ref = pd.read_csv(path)
-				assert compare_points(localisations, ref), f"Test invalide pour les paramètres {suffix}"
+				assert compare_points(localizations, ref), f"Test invalide pour les paramètres {suffix}"
 
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
@@ -117,22 +117,22 @@ def test_run_palm_stack_dll_check_quadrant():
 		file = "stack_quadrant"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
-		localisations = run_palm_stack_dll(dll, stack, threshold, watershed, default_gaussian, sigma, theta, roi)
-		if save_output: localisations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{suffix}.csv", index=False)
+		localizations = run_palm_stack_dll(dll, stack, threshold, watershed, default_gaussian, sigma, theta, roi)
+		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
-		quadrant = {"Top":    localisations['Plane'].isin([3, 4, 7, 8]),
-					"Bottom": localisations['Plane'].isin([1, 2, 5, 6, 9, 10]),
-					"Left":   localisations['Plane'].isin([1, 4, 5, 8, 9]),
-					"Right":  localisations['Plane'].isin([2, 3, 6, 7, 10])}
-		assert (localisations.loc[quadrant["Top"], 'Y'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire en haut de l'image."
-		assert (localisations.loc[quadrant["Bottom"], 'Y'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire en bas de l'image."
-		assert (localisations.loc[quadrant["Left"], 'X'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire à gauche de l'image."
-		assert (localisations.loc[quadrant["Right"], 'X'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire à droite de l'image."
+		quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),
+					"Bottom": localizations['Plane'].isin([1, 2, 5, 6, 9, 10]),
+					"Left":   localizations['Plane'].isin([1, 4, 5, 8, 9]),
+					"Right":  localizations['Plane'].isin([2, 3, 6, 7, 10])}
+		assert (localizations.loc[quadrant["Top"], 'Y'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire en haut de l'image."
+		assert (localizations.loc[quadrant["Bottom"], 'Y'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire en bas de l'image."
+		assert (localizations.loc[quadrant["Left"], 'X'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire à gauche de l'image."
+		assert (localizations.loc[quadrant["Right"], 'X'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire à droite de l'image."
 
-		path = Path(f"{INPUT_DIR}/{file}-localisations-{suffix}.csv")
+		path = Path(f"{INPUT_DIR}/{file}-localizations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			ref = pd.read_csv(path)
-			assert compare_points(localisations, ref), "Test invalide pour la vérification des quadrants."
+			assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
 
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
@@ -147,10 +147,10 @@ def test_run_tracking_dll():
 	else:
 		suffix = get_suffix(default_gaussian)
 
-		path = Path(f"{INPUT_DIR}/stack-localisations-{suffix}.csv")
+		path = Path(f"{INPUT_DIR}/stack-localizations-{suffix}.csv")
 		if path.exists() and path.is_file():
-			localisations = pd.read_csv(path)
-			tracking = run_tracking_dll(dll, localisations, 5, 1, 10, 0.5)
+			localizations = pd.read_csv(path)
+			tracking = run_tracking_dll(dll, localizations, 5, 1, 10, 0.5)
 			if save_output: tracking.to_csv(f"{OUTPUT_DIR}/stack-tracking-{suffix}.csv", index=False)
 
 			assert len(tracking) > 0, "Aucun Tracking trouvé"
