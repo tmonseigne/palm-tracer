@@ -67,6 +67,7 @@ def test_base_group():
 	group = BaseSettingGroup()
 	group.set_value(None)
 	assert group.get_value() is None, "Get Value ne doit rien retourné pour la classe mère."
+	group.remove_header()
 
 
 ###################################################

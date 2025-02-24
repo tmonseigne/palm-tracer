@@ -4,9 +4,11 @@ import os
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from palm_tracer._tests.Utils import compare_points
 from palm_tracer.Processing import load_dll, run_palm_image_dll, run_palm_stack_dll, run_tracking_dll
+from palm_tracer.Processing.DLL import _rearrange_dataframe_columns
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -14,7 +16,7 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
-default_gaussian = 2
+default_gaussian = 0
 save_output = True
 
 
@@ -26,6 +28,17 @@ def compare_localizations(value: pd.DataFrame, ref: pd.DataFrame, tol: float = 1
 ##################################################
 def get_suffix(gaussian: int) -> str:
 	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
+
+
+##################################################
+def test_rearrange_dataframe_columns():
+	""" test de la fonction rearrange_dataframe_columns."""
+	df = pd.DataFrame({"X": [1, 2, 3], "Y": [4, 5, 6], "Z": [7, 8, 9]})
+	res = _rearrange_dataframe_columns(df, ["Y"], True)
+	assert res.columns.tolist() == ["Y", "X", "Z"], "Erreur dans la fonction rearrange_dataframe_columns."
+	res = _rearrange_dataframe_columns(df, ["Y"], False)
+	assert res.columns.tolist() == ["Y"], "Erreur dans la fonction rearrange_dataframe_columns."
+	assert pytest.raises(ValueError, _rearrange_dataframe_columns, df, ["Alpha"], True)
 
 
 ##################################################
