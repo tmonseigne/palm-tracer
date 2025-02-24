@@ -22,6 +22,8 @@ from typing import Any
 from .BaseSettingType import BaseSettingType
 from .BrowseFile import BrowseFile
 from .CheckBox import CheckBox
+from .CheckRangeFloat import CheckRangeFloat
+from .CheckRangeInt import CheckRangeInt
 from .Combo import Combo
 from .FileList import FileList
 from .SignalWrapper import SignalWrapper
@@ -38,9 +40,12 @@ def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
 	elif data["type"] == "FileList": return FileList.from_dict(data)
 	elif data["type"] == "SpinFloat": return SpinFloat.from_dict(data)
 	elif data["type"] == "SpinInt": return SpinInt.from_dict(data)
+	elif data["type"] == "CheckRangeInt": return CheckRangeInt.from_dict(data)
+	elif data["type"] == "CheckRangeFloat": return CheckRangeFloat.from_dict(data)
 	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
 
 
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingType", "create_setting_from_dict", "SignalWrapper",
-		   "BrowseFile", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt"]
+		   "BrowseFile", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
+		   "CheckRangeFloat", "CheckRangeInt"]

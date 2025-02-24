@@ -133,6 +133,7 @@ def test_browse_file():
 	setting_base_test(setting, "filename.extension", "")
 	assert True
 
+
 ###################################################
 def test_file_list():
 	"""Test basique de la classe (constructeur, getter, setter)"""
@@ -148,3 +149,41 @@ def test_file_list():
 	setting.clear_files()
 	assert setting.get_list() == [], "Liste de fichiers après nettoyage non valide."
 	assert setting.get_selected() == "", "Valeur non vide."
+
+
+###################################################
+def test_check_range_int():
+	"""Test basique de la classe (constructeur, getter, setter)"""
+	app = initialize()
+	setting = CheckRangeInt("Test", [0, 0], [-10, 10])
+	setting_base_test(setting, [5, 3], [0, 0])
+
+	# Special tests
+	setting.set_value([9, 3])
+	assert setting.get_value() == [9, 9], "Valeur non valide."
+	setting.box[0].setValue(10)
+	assert setting.get_value() == [10, 10], "Valeur non valide."
+	setting.box[1].setValue(3)
+	assert setting.get_value() == [3, 3], "Valeur non valide."
+
+	setting.active = True
+	assert setting.active == True, "Le paramètre doit être activés."
+
+
+###################################################
+def test_check_range_float():
+	"""Test basique de la classe (constructeur, getter, setter)"""
+	app = initialize()
+	setting = CheckRangeFloat("Test", [0.0, 0.0], [-10, 10])
+	setting_base_test(setting, [5.0, 3.0], [0.0, 0.0])
+
+	# Special tests
+	setting.set_value([9, 3])
+	assert setting.get_value() == [9, 9], "Valeur non valide."
+	setting.box[0].setValue(10)
+	assert setting.get_value() == [10, 10], "Valeur non valide."
+	setting.box[1].setValue(3)
+	assert setting.get_value() == [3, 3], "Valeur non valide."
+
+	setting.active = True
+	assert setting.active == True, "Le paramètre doit être activés."

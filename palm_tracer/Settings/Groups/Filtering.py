@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.FilteringGF import FilteringGF
 from palm_tracer.Settings.Groups.FilteringT import FilteringT
-from palm_tracer.Settings.Types import SpinInt
+from palm_tracer.Settings.Types import CheckRangeInt
 
 
 ##################################################
@@ -20,16 +20,16 @@ class Filtering(BaseSettingGroup):
 	Classe contenant les paramètres de filtrage :
 
 	Attributs :
-			- **Plane (SpinInt)** : Interval de plans sélectionnés (par défaut : 1-10000).
-			- **Intensity (SpinInt)** : Interval d'intensité sélectionés (par défaut : 0-10000).
+			- **Plane (CheckRangeInt)** : Interval de plans sélectionnés (par défaut : [1,10000]).
+			- **Intensity (CheckRangeInt)** : Interval d'intensité sélectionés (par défaut : [1,100000]).
 			- **Gaussian Fit** : Paramètres de filtrage du Gaussian Fit.
 			- **Tracks** : Paramètres de filtrage du Tracking.
 	"""
 
 	label: str = "Filtering"
 	setting_list = {
-			"Plane":        [SpinInt, ["Plane", 1, 1, 10000, 1]],
-			"Intensity":    [SpinInt, ["Intensity", 0, 0, 10000, 1]],
+			"Plane":        [CheckRangeInt, ["Plane", [1, 10000], [1, 10000]]],
+			"Intensity":    [CheckRangeInt, ["Intensity", [1, 100000], [1, 100000]]],
 			"Gaussian Fit": [FilteringGF, []],
 			"Tracks":       [FilteringT, []]
 			}

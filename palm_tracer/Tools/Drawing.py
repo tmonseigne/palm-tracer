@@ -16,7 +16,6 @@ des données de tests.
 
    - Ajoute des éléments visuels à un graphique Plotly pour représenter les périodes associées à des tests.
    - Comprend des zones colorées semi-transparentes et des lignes verticales pour marquer les événements.
-
 """
 
 import plotly.express as px  # Pour accéder aux couleurs qualitatives

@@ -6,7 +6,7 @@ qui regroupe les paramètres de filtrage de l'ajustement gaussien nécessaires �
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import SpinInt
+from palm_tracer.Settings.Types import CheckRangeFloat
 
 
 ##################################################
@@ -16,18 +16,18 @@ class FilteringGF(BaseSettingGroup):
 	Classe contenant les paramètres du filtrage pour l'ajustement Gaussien :
 
 	Attributs :
-			- **Chi² (SpinInt)** : Interval de Chi² sélectionnés (par défaut : 1-10000).
-			- **Sigma X (SpinInt)** : Interval de Sigma X sélectionés (par défaut : 0-10000).
-			- **Sigma Y (SpinInt)** : Interval de Sigma Y sélectionés (par défaut : 0-10000).
-			- **Circularity (SpinInt)** : Interval de Circularité sélectionés (par défaut : 0-10000).
-			- **Z (SpinInt)** : Interval de Z sélectionés (par défaut : 0-10000).
+			- **Chi² (CheckRangeFloat)** : Interval de Chi² sélectionnés (par défaut : [0.6, 2.0]).
+			- **Sigma X (CheckRangeFloat)** : Interval de Sigma X sélectionés (par défaut : [0.0, 2.0]).
+			- **Sigma Y (CheckRangeFloat)** : Interval de Sigma Y sélectionés (par défaut : [0.0, 2.0]).
+			- **Circularity (CheckRangeFloat)** : Interval de Circularité sélectionés (par défaut : [0.0, 1.0]).
+			- **Z (CheckRangeFloat)** : Interval de Z sélectionés (par défaut : [-0.75, 0.75]).
 	"""
 
 	label: str = "Gaussian Fit"
 	setting_list = {
-			"Chi²": [SpinInt, ["Chi²", 0, 0, 100, 1]],
-			"Sigma X":   [SpinInt, ["Sigma X", 0, 0, 100, 1]],
-			"Sigma Y":   [SpinInt, ["Sigma Y", 0, 0, 100, 1]],
-			"Circularity":   [SpinInt, ["Circularity", 0, 0, 100, 1]],
-			"Z":   [SpinInt, ["Z", 0, 0, 100, 1]]
+			"Chi²":        [CheckRangeFloat, ["Chi²", [0.6, 2.0], [0.0, 2.0]]],
+			"Sigma X":     [CheckRangeFloat, ["Sigma X", [0.0, 2.0], [0.0, 2.0]]],
+			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", [0.0, 2.0], [0.0, 2.0]]],
+			"Circularity": [CheckRangeFloat, ["Circularity", [0.0, 1.0], [0.0, 1.0]]],
+			"Z":           [CheckRangeFloat, ["Z", [-0.75, 0.75], [-1, 1]]]
 			}

@@ -167,14 +167,16 @@ def test_spline_fit():
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
 	app = initialize()
 	spline_fit = SplineFit()
-	# group_base_test(SplineFit(), ["Mode", "Sigma", "Theta"], Combo, 2, 1)
+
+
+# group_base_test(SplineFit(), ["Mode", "Sigma", "Theta"], Combo, 2, 1)
 
 ###################################################
 def test_filtering():
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(Filtering(), ["Plane", "Intensity", "Gaussian Fit", "Tracks"],
-					SpinInt, 2, 1)
+					CheckRangeInt, [2, 3], [1, 10000])
 
 
 ###################################################
@@ -182,7 +184,7 @@ def test_filtering_gf():
 	"""Test basique de la classe FilteringGF (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(FilteringGF(), ["Chi²", "Sigma X", "Sigma Y", "Circularity", "Z"],
-					SpinInt, 2, 0)
+					CheckRangeFloat, [1, 2], [0.6, 2.0])
 
 
 ###################################################
@@ -190,4 +192,4 @@ def test_filtering_t():
 	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
 	app = initialize()
 	group_base_test(FilteringT(), ["Length", "D Coeff", "Instant D", "Speed", "Alpha", "Confinement"],
-					SpinInt, 2, 0)
+					CheckRangeInt, [2, 3], [1, 10000])
