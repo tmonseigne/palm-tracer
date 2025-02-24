@@ -11,7 +11,6 @@ Installation
 ------------
 
 Ce guide vous aidera à installer le projet étape par étape.
-Il inclut des instructions pour les débutants, avec des options supplémentaires pour les utilisateurs qui souhaitent utiliser **Chocolatey** et **Visual Studio Code**.
 
 
 Étape 1 : Téléchargement depuis GitHub
@@ -54,7 +53,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 
 
 Étape 4 : Installation du plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
    Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
@@ -76,6 +75,18 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
    Si vous n'avez pas créé d'environnement virtuel, :console:`Napari` peut être lancé depuis n'importe où.
 
 4. Activez le plugin dans :console:`Napari` : :menuselection:`Plugins --> PALM Tracer`
+
+Étape 6 : Supprimer la mise à l'échelle de Napari
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Napari utilise QT et celui-ci est paramétré sur la mise à l'échelle automatique de Windows
+qui permet, notamment, d'agrandir l'interface sur les petits écrans ayant une résolution élevée.
+Cela peut devenir parfois gênant, il est possible de modifier ce comportement.
+
+1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows).
+2. Lancez la commande :console:`$env:QT_AUTO_SCREEN_SCALE_FACTOR="0"` dans :console:`PowerShell` sous Windows
+   ou :console:`export QT_AUTO_SCREEN_SCALE_FACTOR=0` sous Linux et macOS.
+3. Pour réactiver la mise à l'échelle, lancez la commande : :console:`Remove-Item Env:\QT_AUTO_SCREEN_SCALE_FACTOR` dans :console:`PowerShell` sous Windows
+   ou :console:`unset QT_AUTO_SCREEN_SCALE_FACTOR` sous Linux et macOS.
 
 C'est terminé ! 🎉 Vous avez installé et configuré le plugin avec succès.
 
