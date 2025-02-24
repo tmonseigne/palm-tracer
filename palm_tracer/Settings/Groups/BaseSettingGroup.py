@@ -164,7 +164,7 @@ class BaseSettingGroup:
 		# Appeler la méthode active pour forcer l'état actif
 		self.active = True
 		# Supprimer la checkbox et réorganiser le layout
-		if self._checkbox:
+		if self._header and self._checkbox:
 			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
 			self._checkbox.deleteLater()  # Détruire la checkbox
 			# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
@@ -175,13 +175,15 @@ class BaseSettingGroup:
 		""" Active toujours le groupe et supprime la partie header de l'interface. """
 		self.always_active()
 		# Suppression du titre
-		if self._title:
+		if self._header and self._title:
 			self._header.layout().removeWidget(self._title)  # Retirer le titre du layout
 			self._title.deleteLater()						 # Détruire le titre
 
 		# Suppression du header
-		layout = self._widget.layout()						 # Récupérer le layout principal
-		layout.removeRow(self._header)						 # Supprimer la ligne du layout
+		if self._header and self._widget:
+			layout = self._widget.layout()					 # Récupérer le layout principal
+			if isinstance(layout, QWidget):  				 # Vérifier que c'est bien un QFormLayout
+				layout.removeRow(self._header)				 # Supprimer la ligne du layout
 
 		# Suppression de la marge
 		body_layout = self._body.layout()					 # Récupérer le layout du widget _body
