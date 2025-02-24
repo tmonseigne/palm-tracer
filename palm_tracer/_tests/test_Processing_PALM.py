@@ -140,7 +140,7 @@ def test_process_only_visualization():
 	else:
 		app = initialize()
 		settings = Settings()
-		settings.visualization.active = True
+		settings.visualization_hr.active = True
 		file_list = cast(FileList, settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
@@ -166,7 +166,7 @@ def test_process_all():
 		settings = Settings()
 		settings.localization.active = True
 		settings.tracking.active = True
-		settings.visualization.active = True
+		settings.visualization_hr.active = True
 		file_list = cast(FileList, settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()

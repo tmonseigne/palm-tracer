@@ -106,14 +106,14 @@ def process(dll: dict[str, ctypes.CDLL], settings: Settings):
 				tracks = None
 				logger.add("\tAucune donnée de tracking pré-calculée.")
 
-		# Lancement de la visualization
-		if settings.visualization.active:
-			logger.add("Visualisation commencé.")
-			visualization = process_visualization(stack, settings, localizations, tracks)
-			logger.add("\tEnregistrement du fichier de visualisation.")
+		# Lancement de la visualisation Haute Résolution
+		if settings.visualization_hr.active:
+			logger.add("Visualisation Haute Résolution commencé.")
+			visualization = process_visualization_hr(stack, settings, localizations, tracks)
+			logger.add("\tEnregistrement du fichier de visualisation Haute Résolution.")
 			save_png(visualization, f"{path}/visualization-{timestamp_suffix}.png")
 		else:
-			logger.add("Visualisation désactivée.")
+			logger.add("Visualisation Haute Résolution désactivée.")
 			visualization = None
 
 		# Fermeture du Log
@@ -167,20 +167,19 @@ def process_tracking(dll: ctypes.CDLL, localizations: pd.DataFrame, settings: Se
 
 
 ##################################################
-def process_visualization(stack: np.ndarray, settings: Settings,
-						  localizations: pd.DataFrame = None, tracking: pd.DataFrame = None) -> np.ndarray:
+def process_visualization_hr(stack: np.ndarray, settings: Settings, localizations: pd.DataFrame, tracking: pd.DataFrame) -> np.ndarray:
 	"""
 	Lance la creation d'une visualisation à partir des settings passés en paramètres.
 
 	:param stack: Pile d'image d'entrée sous forme de tableau numpy.
-	:param settings: Paramètres de l'interface pour lancer la localisation.
+	:param settings: Paramètres de l'interface pour lancer le process de visualisation.
 	:param localizations: Données venant de la fonction de localisation.
 	:param tracking: Données venant de la fonction de tracking.
 	:return: Nouvelle visualisation.
 	"""
 	# Parse settings
-	ratio = settings.visualization["Ratio"].get_value()
-	source = settings.visualization["Source"].get_value()
+	ratio = settings.visualization_hr["Ratio"].get_value()
+	source = settings.visualization_hr["Source"].get_value()
 
 	# Création de l'image finale
 	depth, width, height = stack.shape
@@ -189,6 +188,7 @@ def process_visualization(stack: np.ndarray, settings: Settings,
 
 	# Remplissage de l'image
 	if source == 0:  # Integrated intensity
+		if localizations is None: return res
 		for index, row in localizations.iterrows():
 			x, y = int(row["X"] * ratio), int(row["Y"] * ratio)
 			res[x, y] += row["Integrated Intensity"]
