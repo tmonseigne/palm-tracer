@@ -7,7 +7,7 @@ from palm_tracer.Tools import print_error, print_warning
 
 ##################################################
 def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
-				   sort_cols: list[str]|None = None, compare_cols: list[str]|None = None, group_cols: list[str]|None = None) -> bool:
+				   sort_cols: list[str] | None = None, compare_cols: list[str] | None = None, group_cols: list[str] | None = None) -> bool:
 	"""
 	Compare deux DataFrames de localisation en tenant compte de la proximité spatiale.
 

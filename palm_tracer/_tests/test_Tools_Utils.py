@@ -55,6 +55,7 @@ def test_get_last_file():
 	print(res)
 	assert True
 
+
 ##################################################
 def test_print_error():
 	"""Test de la fonction print error."""

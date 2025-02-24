@@ -39,7 +39,6 @@ class Localization(BaseSettingGroup):
 			"Gaussian Fit": [GaussianFit, []]
 			}
 
-
 	##################################################
 	def initialize_ui(self):
 		super().initialize_ui()

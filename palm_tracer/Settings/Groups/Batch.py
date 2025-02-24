@@ -43,7 +43,7 @@ class Batch(BaseSettingGroup):
 		mode = self._settings["Mode"].get_value()
 
 		files = file_list.get_list().copy()
-		if files:			# Si aucun fichier n'est présent
+		if files:  # Si aucun fichier n'est présent
 			if mode == 0: files = [file_list.get_selected()]
 			elif mode == 2: files = [file_list.get_list()[0]]
 			res = list[str]()
@@ -55,7 +55,7 @@ class Batch(BaseSettingGroup):
 		return [f"{os.getcwd()}/{suffix}"]  # Retourne le chemin courant si aucun fichiers
 
 	##################################################
-	def get_stacks(self)-> list[np.ndarray]:
+	def get_stacks(self) -> list[np.ndarray]:
 		"""
 		Récupère la liste de piles en fonction des paramètres
 		:return: Une liste de pile en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de pile)
@@ -64,12 +64,12 @@ class Batch(BaseSettingGroup):
 		file_list = cast(FileList, self._settings["Files"])
 		files = file_list.get_list()
 		mode = self._settings["Mode"].get_value()
-		if not files : return res	# Aucun fichier dans le Batch
-		if mode == 0: # Mode Only One
+		if not files: return res  # Aucun fichier dans le Batch
+		if mode == 0:  # Mode Only One
 			res.append(open_tif(file_list.get_selected()))
-		else: # Mode fichiers séparés ou concaténés
+		else:  # Mode fichiers séparés ou concaténés
 			for file in files:
 				res.append(open_tif(file))
-			if mode == 2: # Mode fichiers Concaténés
+			if mode == 2:  # Mode fichiers Concaténés
 				res = [np.concatenate(res, axis=0)]
 		return res

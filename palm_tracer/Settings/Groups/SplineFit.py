@@ -19,4 +19,4 @@ class SplineFit(BaseSettingGroup):
 	"""
 
 	label: str = "Spline Fit"
-	setting_list = { }
+	setting_list = {}

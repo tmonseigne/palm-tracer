@@ -43,6 +43,7 @@ def test_process_no_input():
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
+
 ##################################################
 def test_process_only_localization():
 	"""
@@ -61,11 +62,12 @@ def test_process_only_localization():
 		file_list = cast(FileList, settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
-		PALM.process(dll, settings)	# First Time without localization active and no files to load.
+		PALM.process(dll, settings)  # First Time without localization active and no files to load.
 		settings.localization.active = True
 		PALM.process(dll, settings)
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
+
 
 ##################################################
 def test_process_only_tracking():
@@ -90,6 +92,7 @@ def test_process_only_tracking():
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
+
 ##################################################
 def test_process_only_visualization():
 	"""
@@ -112,6 +115,7 @@ def test_process_only_visualization():
 		PALM.process(dll, settings)
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
+
 
 ##################################################
 def test_process_all():

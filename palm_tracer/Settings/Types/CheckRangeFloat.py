@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QDoubleSpinBox
+from qtpy.QtWidgets import QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 

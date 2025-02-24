@@ -29,6 +29,7 @@ def test_widget_reset_layer(make_napari_viewer, capsys):
 	file_list.update_box()
 	assert True
 
+
 ##################################################
 def test_widget_auto_threshold(make_napari_viewer, capsys):
 	"""Test click sur le bouton."""
@@ -41,6 +42,7 @@ def test_widget_auto_threshold(make_napari_viewer, capsys):
 	file_list.update_box()
 	my_widget.auto_threshold()  # Appel de la méthode auto_threshold
 	assert True
+
 
 ##################################################
 def test_widget_process(make_napari_viewer, capsys):

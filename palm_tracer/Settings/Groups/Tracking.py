@@ -23,5 +23,5 @@ class Tracking(BaseSettingGroup):
 	label: str = "Tracking"
 	setting_list = {"Max Distance": [SpinFloat, ["Max Distance", 5.0, 0.0, 1000, 1.0, 2]],
 					"Min Length":   [SpinFloat, ["Min Length", 1.0, 0.0, 1000, 1.0, 2]],
-					"Decrease": [SpinFloat, ["Decrease", 10.0, 0.0, 1000, 1.0, 2]],
-					"Cost Birth": [SpinFloat, ["Cost Birth", 0.5, 0.0, 1000, 1.0, 2]]}
+					"Decrease":     [SpinFloat, ["Decrease", 10.0, 0.0, 1000, 1.0, 2]],
+					"Cost Birth":   [SpinFloat, ["Cost Birth", 0.5, 0.0, 1000, 1.0, 2]]}
