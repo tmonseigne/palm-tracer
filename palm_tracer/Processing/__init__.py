@@ -18,7 +18,7 @@ from .Threshold import auto_threshold, auto_threshold_dll
 from .Visualization import hr_visualization, plot_histogram
 
 # Définir la liste des symboles exportés
-__all__ = ["Threshold", "PALM", "Visualization",
+__all__ = ["Threshold", "Visualization",
 		   "load_dll", "run_palm_image_dll", "run_palm_stack_dll", "run_tracking_dll",
 		   "auto_threshold", "auto_threshold_dll",
 		   "hr_visualization", "plot_histogram"]

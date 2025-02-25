@@ -103,7 +103,8 @@ def save_png(image: np.ndarray, filename: str):
 		Cette fonction sera mise à jour pour gérer des tableaux 3D (RGB). Pour le moment, on est sur du niveau de gris brut.
 	"""
 	if image.ndim != 2: raise ValueError("Le tableau doit être 2D (hauteur, largeur).")
-	image = (image - image.min()) / (image.max() - image.min()) * 255  # Normalisation
+	if (image.max() - image.min()) != 0:
+		image = (image - image.min()) / (image.max() - image.min()) * 255  # Normalisation
 	image = image.astype(np.uint8)									   # Conversion en entiers 8 bits
 	im = Image.fromarray(image)										   # Passage par Pillow
 	im.save(filename)												   # Enregistrement

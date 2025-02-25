@@ -50,6 +50,7 @@ def plot_histogram(ax: plt.axes, data: np.ndarray, title: str, limit: bool = Tru
 	:param limit: Ajoute une limite avec la règle des 3 sigmas.
 	:param gaussian: Trace une gaussienne sur l'histogramme.
 	"""
+	data = data.ravel()  # Convertit en un tableau 1D
 	if len(data) == 0: return
 	mu, sigma = np.mean(data), np.std(data)
 	if sigma == 0: return

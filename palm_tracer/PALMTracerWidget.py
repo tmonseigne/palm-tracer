@@ -14,8 +14,8 @@ import numpy as np
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
-from palm_tracer.Processing import auto_threshold, load_dll, PALM
-from palm_tracer.Settings import Settings
+from palm_tracer.PALMTracer import PALMTracer
+from palm_tracer.Processing import auto_threshold
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 
@@ -36,8 +36,7 @@ class PALMTracerWidget(QWidget):
 		super().__init__()
 		self.viewer = viewer
 		self.last_file = ""
-		self.settings = Settings()
-		self.dll = load_dll()
+		self.pt = PALMTracer()
 		self.__init_ui()
 
 	##################################################
@@ -51,14 +50,14 @@ class PALMTracerWidget(QWidget):
 		btn.clicked.connect(self._load_setting)
 		self.layout().addWidget(btn)
 
-		self.layout().addWidget(self.settings.batch.widget)
-		self.layout().addWidget(self.settings.calibration.widget)
+		self.layout().addWidget(self.pt.settings.batch.widget)
+		self.layout().addWidget(self.pt.settings.calibration.widget)
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(self.__create_tab([self.settings.localization.widget, self.settings.tracking.widget]), "Processing")
-		tabs.addTab(self.__create_tab([self.settings.visualization_hr.widget, self.settings.visualization_graph.widget]), "Visualization")
-		tabs.addTab(self.__create_tab([self.settings.filtering.widget]), "Filtering")
+		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget]), "Processing")
+		tabs.addTab(self.__create_tab([self.pt.settings.visualization_hr.widget, self.pt.settings.visualization_graph.widget]), "Visualization")
+		tabs.addTab(self.__create_tab([self.pt.settings.filtering.widget]), "Filtering")
 
 		# Layout principal
 		self.layout().addWidget(tabs)
@@ -67,7 +66,7 @@ class PALMTracerWidget(QWidget):
 		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également.
 		# La mise à jour du selected fait qu'on le recharge pour la visu napari.
 		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
-		file_list_setting = self.settings.batch["Files"]
+		file_list_setting = self.pt.settings.batch["Files"]
 		if file_list_setting and isinstance(file_list_setting, FileList):
 			file_list_setting.connect(self._reset_layer)
 
@@ -95,13 +94,13 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton Load setting."""
 		print("Load settings...")
 		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
-		self.settings.update_from_dict(open_json(file_name))
+		self.pt.settings.update_from_dict(open_json(file_name))
 		print(f"Setting loaded with the file \"{file_name}\".")
 
 	##################################################
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
-		selected_file = cast(FileList, self.settings.batch["Files"]).get_selected()
+		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
 		if not selected_file:
 			self.last_file = ""
 			print_warning("Aucun fichier sélectionné.")
@@ -137,7 +136,7 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = auto_threshold(image)  # Calcul du seuil automatique
-		self.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
+		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
 	def process(self):
@@ -145,7 +144,4 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return
-		if self.dll.get("CPU", None) is None or self.dll.get("Tracking", None) is None:
-			print_warning("Process non effectué car DLL manquantes.")
-			return
-		PALM.process(self.dll, self.settings)
+		self.pt.process()

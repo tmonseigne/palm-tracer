@@ -25,7 +25,7 @@ def test_widget_reset_layer(make_napari_viewer, capsys):
 
 	my_widget._reset_layer()			  # remise à 0 des calques sans fichier dans le batch.
 	# Ajout d'une entrée
-	file_list = cast(FileList, my_widget.settings.batch["Files"])
+	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	my_widget._reset_layer()			  # remise à 0 des calques sans changement.
@@ -41,7 +41,7 @@ def test_widget_auto_threshold(make_napari_viewer, capsys):
 	my_widget.auto_threshold()			  # Appel de la méthode auto_threshold sans fichier dans le batch.
 
 	# Ajout d'une entrée
-	file_list = cast(FileList, my_widget.settings.batch["Files"])
+	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	my_widget.auto_threshold()			  # Appel de la méthode auto_threshold.
@@ -57,7 +57,7 @@ def test_widget_process(make_napari_viewer, capsys):
 	my_widget.process()					  # Appel de la méthode process sans fichier dans le batch.
 
 	# Ajout d'une entrée
-	file_list = cast(FileList, my_widget.settings.batch["Files"])
+	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	my_widget.process()					  # Appel de la méthode process.
@@ -70,9 +70,9 @@ def test_widget_bad_dll(make_napari_viewer, capsys):
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget.dll.clear()				  # Suppression des DLL pour provoquer le comportement.
+	my_widget.pt.dlls.clear()			  # Suppression des DLL pour provoquer le comportement.
 	# Ajout d'une entrée
-	file_list = cast(FileList, my_widget.settings.batch["Files"])
+	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	my_widget.process()					  # Appel de la méthode process.

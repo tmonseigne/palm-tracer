@@ -2,11 +2,14 @@
 import os
 from pathlib import Path
 
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import pyplot as plt
 
 from palm_tracer.Processing import hr_visualization, plot_histogram
 from palm_tracer.Tools.FileIO import save_png
+
+matplotlib.use("Agg")  # Désactive le backend interactif
 
 INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
@@ -14,7 +17,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la premi
 
 SIZE, RATIO = 100, 10
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
-POINTS = rng.uniform(1, SIZE-1, size=(int(SIZE * np.sqrt(SIZE)), 3))
+POINTS = rng.uniform(1, SIZE - 1, size=(int(SIZE * np.sqrt(SIZE)), 3))
 
 
 ##################################################
@@ -50,8 +53,9 @@ def test_plot_histogram():
 	fig, ax = plt.subplots()
 	plot_histogram(ax, datas, "Histogram")
 	fig.savefig(f"{OUTPUT_DIR}/test_plot_histogram.png", bbox_inches="tight")
-	ax.clear()
+	plt.close(fig)
 
+	fig, ax = plt.subplots()
 	plot_histogram(ax, datas, "Histogram", False, False)
 	fig.savefig(f"{OUTPUT_DIR}/test_plot_histogram_without.png", bbox_inches="tight")
 	plt.close(fig)
