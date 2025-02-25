@@ -136,19 +136,18 @@ cython_debug/
 .DS_Store
 
 # written by setuptools_scm
-****REMOVED***_version.py
+*_version.py
 
 # Pycharm and VSCode
 .idea/
 .vscode/
 
 # Artifacts
-*docs/generated/*
-****REMOVED***output/**
-*reports/**
-****REMOVED***_tests/reports/**
+*docs/generated/
+*output/
+*reports/
 *.docx
 *_PALM_Tracer/
 
 # For the moment, DLLs won't go to the repository
-****REMOVED***DLL/**
+*DLL/

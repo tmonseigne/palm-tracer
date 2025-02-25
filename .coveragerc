@@ -9,7 +9,8 @@ omit =
     examples/*
     main.py
     conftest.py
-    ****REMOVED***__init__.py
+    __init__.py
+    _version.py
 
 exclude_lines =
     # Ces commentaires excluent des lignes spécifiques si elles sont détectées
