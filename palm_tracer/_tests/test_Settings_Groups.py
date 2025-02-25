@@ -167,10 +167,8 @@ def test_gaussian_fit():
 def test_spline_fit():
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
 	app = initialize()
-	spline_fit = SplineFit()
+	group_base_test(SplineFit(), ["Peak", "Cut-Off"], SpinFloat, 2, 1)
 
-
-# group_base_test(SplineFit(), ["Mode", "Sigma", "Theta"], Combo, 2, 1)
 
 ###################################################
 def test_filtering():
