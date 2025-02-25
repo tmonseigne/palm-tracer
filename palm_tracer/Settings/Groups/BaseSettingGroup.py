@@ -152,6 +152,19 @@ class BaseSettingGroup:
 	##################################################
 	def set_value(self, value: Any): return
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region Hide and Seek
+	# ==================================================
+	##################################################
+	def hide(self): self._widget.hide()
+
+	##################################################
+	def show(self): self._widget.show()
+
 	##################################################
 	def toggle_active(self, state: int):
 		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
@@ -191,7 +204,7 @@ class BaseSettingGroup:
 			body_layout.setContentsMargins(0, 0, 0, 0)		 # Aucune marge
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Hide and Seek
 	# ==================================================
 
 	# ==================================================

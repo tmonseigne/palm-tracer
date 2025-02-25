@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
+from palm_tracer.Settings.Groups.SplineFit import SplineFit
 from palm_tracer.Settings.Types import CheckBox, Combo, SpinFloat, SpinInt
 
 
@@ -36,10 +37,23 @@ class Localization(BaseSettingGroup):
 			"ROI Size":     [SpinInt, ["ROI Size", 7, 3, 50, 1]],
 			"Watershed":    [CheckBox, ["Watershed", True]],
 			"Mode":         [Combo, ["Mode", 0, ["Gaussian Fit", "Spline"]]],
-			"Gaussian Fit": [GaussianFit, []]
+			"Gaussian Fit": [GaussianFit, []],
+			"Spline Fit":   [SplineFit, []]
 			}
 
 	##################################################
 	def initialize_ui(self):
 		super().initialize_ui()
 		self._settings["Gaussian Fit"].remove_header()
+		self._settings["Spline Fit"].remove_header()
+		self._settings["Spline Fit"].hide()
+		self._settings["Mode"].connect(self.toggle_fit_mode)
+
+	##################################################
+	def toggle_fit_mode(self, mode):
+		if mode == 0:
+			self._settings["Gaussian Fit"].show()
+			self._settings["Spline Fit"].hide()
+		else:
+			self._settings["Spline Fit"].show()
+			self._settings["Gaussian Fit"].hide()

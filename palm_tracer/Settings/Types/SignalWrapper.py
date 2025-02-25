@@ -19,7 +19,7 @@ class SignalWrapper(QObject):
 	- `signal` : Signal Qt encapsulé dans cette classe.
 	"""
 
-	_signal = Signal()  # Signal encapsulé, prêt à être utilisé dans l'application.
+	_signal = Signal(object)  # Signal encapsulé, prêt à être utilisé dans l'application.
 
 	##################################################
 	def __init__(self):
@@ -36,10 +36,10 @@ class SignalWrapper(QObject):
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 
 	##################################################
-	def emit(self):
+	def emit(self, value):
 		"""
 		Émet le signal encapsulé.
 
 		Utilisé pour notifier les parties de l'application abonnées au signal.
 		"""
-		self._signal.emit()  # Émission du signal.
+		self._signal.emit(value)  # Émission du signal.

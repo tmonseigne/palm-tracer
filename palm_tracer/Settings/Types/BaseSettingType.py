@@ -130,7 +130,7 @@ class BaseSettingType:
 		self._layout.addRow(QLabel(self.label + " : "), box)  # Ajoute le setting.
 
 	##################################################
-	def connect(self, f):
+	def connect(self, f: Any):
 		"""
 		Connecte une fonction ou un slot au signal encapsulé.
 
@@ -139,13 +139,13 @@ class BaseSettingType:
 		self.__signal.connect(f)  # Connexion de la fonction fournie au signal.
 
 	##################################################
-	def emit(self):
+	def emit(self, value: Any = None):
 		"""
 		Émet le signal encapsulé.
 
 		Utilisé pour notifier les parties de l'application abonnées au signal.
 		"""
-		self.__signal.emit()  # Émission du signal.
+		self.__signal.emit(value)  # Émission du signal.
 
 	# ==================================================
 	# endregion Manipulation

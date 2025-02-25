@@ -136,7 +136,7 @@ def test_calibration():
 def test_localization():
 	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
 	app = initialize_qt_app_for_testing()
-	group_base_test(Localization(), ["Preview", "Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit"],
+	group_base_test(Localization(), ["Preview", "Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit", "Spline Fit"],
 					CheckBox, True, False)
 
 
