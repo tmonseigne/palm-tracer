@@ -2,17 +2,11 @@
 
 from pathlib import Path
 
-import numpy as np
-
+from palm_tracer._tests.Utils import is_closed
 from palm_tracer.Processing import auto_threshold, auto_threshold_dll, load_dll
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
-
-
-##################################################
-def is_closed(value: float, ref: float, tol: float = 1e-5):
-	return (np.abs(value) - ref) <= tol
 
 
 ##################################################

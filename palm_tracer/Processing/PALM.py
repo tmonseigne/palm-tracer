@@ -10,7 +10,7 @@ from typing import cast
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing import run_palm_stack_dll, run_tracking_dll
+from palm_tracer.Processing import hr_visualization, run_palm_stack_dll, run_tracking_dll
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import GaussianFit
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json
@@ -186,14 +186,11 @@ def process_visualization_hr(stack: np.ndarray, settings: Settings, localization
 	new_width, new_height = int(width * ratio), int(height * ratio)
 	res = np.zeros((new_width, new_height), dtype=float)
 
-	# Remplissage de l'image
-	if source == 0:  # Integrated intensity
-		if localizations is None: return res
-		for index, row in localizations.iterrows():
-			x, y = int(row["X"] * ratio), int(row["Y"] * ratio)
-			res[x, y] += row["Integrated Intensity"]
-
-	return np.asarray(res, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
+	# Integrated intensity
+	col = "Integrated Intensity"
+	# if source == 0: col = "Integrated Intensity"
+	# elif source ==.....
+	return hr_visualization(width, height, ratio, localizations[["X", "Y", col]].to_numpy())
 
 # ==================================================
 # endregion Process

@@ -1,8 +1,29 @@
+import sys
+
 import numpy as np
 import pandas as pd
+from qtpy.QtCore import QCoreApplication, Qt
+from qtpy.QtWidgets import QApplication
 from scipy.spatial import cKDTree
 
 from palm_tracer.Tools import print_error, print_warning
+
+
+##################################################
+def initialize_qt_app_for_testing() -> QApplication:
+	"""Fixture pour initialiser l'application Qt"""
+	# Si nous sommes dans un environnement CI, forcez l'application à ne pas afficher les fenêtres graphiques
+	if not sys.stdout.isatty():  # Vérifie si on est dans un terminal (et donc potentiellement CI)
+		QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_DisableHighDpiScaling)
+		QApplication.setAttribute(Qt.ApplicationAttribute.AA_Use96Dpi)
+
+	app = QApplication([])  # Initialisation de QApplication
+	return app
+
+
+##################################################
+def is_closed(value: float, ref: float, tol: float = 1e-5):
+	return (np.abs(value) - ref) <= tol
 
 
 ##################################################
