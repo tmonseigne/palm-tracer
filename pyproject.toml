@@ -36,6 +36,8 @@ dependencies = [
 	"pillow",
 	"tifffile",
 	# Dépendances pour les graphiques
+	"matplotlib",
+	"seaborn",
 	"plotly",
 	"kaleido",
 	# Dépendances pour les infos cross plateforme
