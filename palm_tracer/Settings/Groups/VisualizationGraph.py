@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import Combo
 
+GRAPH_SOURCE = ["Integrated Intensity", "Sigma X", "Sigma Y", "Theta"]
 
 ##################################################
 @dataclass
@@ -17,4 +18,6 @@ class VisualizationGraph(BaseSettingGroup):
 	"""
 
 	label: str = "Graph"
-	setting_list = {"Source": [Combo, ["Source", 0, ["Sigma X", "Sigma Y"]]]}
+	setting_list = {
+			"Mode": [Combo, ["Mode", 0, ["Histogram", "Plane Heat Map","Plane Violin"]]],
+			"Source": [Combo, ["Source", 0, GRAPH_SOURCE]]}
