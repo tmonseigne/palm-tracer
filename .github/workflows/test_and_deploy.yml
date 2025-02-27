@@ -35,8 +35,9 @@ jobs:
     strategy:
       fail-fast: false  # Continue other jobs if one matrix fail
       matrix:
-        platform: [ ubuntu-latest, windows-latest, macos-latest ]
-        #python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        #platform: [ ubuntu-latest, windows-latest, macos-latest ]
+        #python-version: ["3.10", "3.11", "3.12", "3.13"]
+        platform: [ windows-latest ]
         python-version: [ "3.13" ]
 
     steps:
@@ -48,36 +49,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set up QT for Linux (libxcb, x11...)
-        uses: tlambert03/setup-qt-libs@v1
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
 
-      - name: Install 7-Zip on Windows and extract DLLs
+      # Installation of vcredist2010 if problem install all (vcredist-all)
+      - name: Install Dependencies and DLLs
         if: runner.os == 'Windows'
         run: |
+          choco install vcredist2010 -y
           choco install 7zip -y
           7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}"
 
       # strategy borrowed from vispy for installing OpenGL libs on windows
-      - name: Install Windows OpenGL
+      - name: Set up OpenGL for Windows
         if: runner.os == 'Windows'
         run: |
           git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
 
-      # Installation of all vcredist (normally only 2010 is necessary)
-      - name: Install Dependencies for DLLs
-        if: runner.os == 'Windows'
-        run: |
-          choco install vcredist-all -y
-
-      # Version too old to works
-      #- name: Install Cuda for DLLs
-      #  uses: Jimver/cuda-toolkit@v0.2.19
-      #  id: cuda-toolkit
-      #  with:
-      #    cuda: '7.5'
-
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install setuptools tox tox-gh-actions ansi2html
@@ -89,17 +79,6 @@ jobs:
           run: python -m tox
         env:
           PLATFORM: ${{ matrix.platform }}
-
-      # Tox too long try without
-      #- name: Install dependencies
-      #  run: |
-      #    python -m pip install --upgrade pip
-      #    python -m pip install .[testing]
-
-      #- name: Run tests with pytest
-      #  uses: aganders3/headless-gui@v2
-      #  with:
-      #    run: python -m pytest
 
       - name: Manage Test Reports
         run: |
