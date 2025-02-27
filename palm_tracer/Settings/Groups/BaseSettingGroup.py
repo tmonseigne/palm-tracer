@@ -244,7 +244,7 @@ class BaseSettingGroup:
 		msg = f"{line_prefix}- Activate : {self.active}\n"
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup):
-				msg += f"{line_prefix}- {key} :\n{setting.tostring(f"{line_prefix}  ")}"
+				msg += f"{line_prefix}- {key} :\n{setting.tostring(f'{line_prefix}  ')}"
 			else: msg += f"{line_prefix}- {key} : {setting.get_value()}\n"
 		return msg
 
