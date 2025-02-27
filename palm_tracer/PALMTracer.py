@@ -10,10 +10,13 @@ from typing import cast
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import hr_visualization, load_dll, run_palm_stack_dll, run_tracking_dll
+from palm_tracer.Processing import hr_visualization, load_dll, plot_histogram, plot_plane_heatmap, plot_plane_violin, run_palm_stack_dll, run_tracking_dll
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import GaussianFit
+from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_SOURCE
+from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json
 from palm_tracer.Tools.FileIO import save_png
 
@@ -28,6 +31,11 @@ class PALMTracer:
 	localizations: pd.DataFrame | None = field(init=False, default=None)
 	tracks: pd.DataFrame | None = field(init=False, default=None)
 	visualization: np.ndarray | None = field(init=False, default=None)
+	graph: plt.Figure | None = field(init=False, default=None)
+
+	__path: str = field(init=False, default="")
+	__stack: np.ndarray | None = field(init=False, default=None)
+	__suffix: str = field(init=False, default="")
 
 	##################################################
 	def __post_init__(self):
@@ -53,39 +61,36 @@ class PALMTracer:
 			print_warning("Aucun fichier.")
 			return
 
-		for path, stack in zip(paths, stacks):
+		for self.__path, self.__stack in zip(paths, stacks):
 			# Logger
-			os.makedirs(path, exist_ok=True)
-			timestamp_suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
-			self.logger.open(f"{path}/log-{timestamp_suffix}.log")
+			os.makedirs(self.__path, exist_ok=True)
+			self.__suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
+			self.logger.open(f"{self.__path}/log-{self.__suffix}.log")
 			self.logger.add("Commencer le traitement.")
-			self.logger.add(f"Dossier de sortie : {path}")
+			self.logger.add(f"Dossier de sortie : {self.__path}")
 
 			# Save settings
-			save_json(f"{path}/settings-{timestamp_suffix}.json", self.settings.to_dict())
+			save_json(f"{self.__path}/settings-{self.__suffix}.json", self.settings.to_dict())
 			self.logger.add("Paramètres sauvegardés.")
 
 			# Si transformation de la zone en entrée (par une ROI) à faire ici.
 
 			# Save meta file (Création du DataFrame et sauvegarde en CSV)
-			depth, height, width = stack.shape
+			depth, height, width = self.__stack.shape
 			df = pd.DataFrame({"Height":                   [height], "Width": [width], "Plane Number": [depth],
 							   "Pixel Size (nm)":          [self.settings.calibration["Pixel Size"].get_value()],
 							   "Exposure Time (ms/frame)": [self.settings.calibration["Exposure"].get_value()],
 							   "Intensity (photon/ADU)":   [self.settings.calibration["Intensity"].get_value()]})
-			df.to_csv(f"{path}/meta-{timestamp_suffix}.csv", index=False)
+			df.to_csv(f"{self.__path}/meta-{self.__suffix}.csv", index=False)
 			self.logger.add("Fichier Meta sauvegardé.")
 
 			# Lancement de la localisation
 			if self.settings.localization.active:
-				self.logger.add("Localisation commencée.")
-				self.localizations = self.__localization(stack)
-				self.logger.add("\tEnregistrement du fichier de localisation")
-				self.logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
-				self.localizations.to_csv(f"{path}/localizations-{timestamp_suffix}.csv", index=False)
+				self.logger.add("Localisation activée.")
+				self.__localization()
 			else:
 				self.logger.add("Localisation désactivé.")
-				f = get_last_file(path, "localizations")
+				f = get_last_file(self.__path, "localizations")
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self.logger.add("\tChargement d'une localisation pré-calculée.")
 					try:
@@ -101,14 +106,12 @@ class PALMTracer:
 
 			# Lancement du tracking
 			if self.settings.tracking.active:
-				self.logger.add("Tracking commencé.")
-				self.tracks = self.__tracking()
-				self.logger.add("\tEnregistrement du fichier de tracking.")
-				self.logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvé(s).")
-				self.tracks.to_csv(f"{path}/tracking-{timestamp_suffix}.csv", index=False)
+				self.logger.add("Tracking activé.")
+				self.__tracking()
+
 			else:
 				self.logger.add("Tracking désactivé.")
-				f = get_last_file(path, "tracking")
+				f = get_last_file(self.__path, "tracking")
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self.logger.add("\tChargement d'un tracking pré-calculée.")
 					try:
@@ -122,22 +125,28 @@ class PALMTracer:
 					self.tracks = None
 					self.logger.add("\tAucune donnée de tracking pré-calculée.")
 
-			# Lancement de la visualisation Haute Résolution
+			# Lancement de la Visualisation Haute Résolution
 			if self.settings.visualization_hr.active:
-				self.logger.add("Visualisation Haute Résolution commencé.")
-				self.visualization = self.__visualization(stack)
-				self.logger.add("\tEnregistrement du fichier de visualisation Haute Résolution.")
-				save_png(self.visualization, f"{path}/visualization-{timestamp_suffix}.png")
+				self.logger.add("Visualisation haute résolution activée.")
+				self.__visualization_hr()
 			else:
-				self.logger.add("Visualisation Haute Résolution désactivée.")
+				self.logger.add("Visualisation haute résolution désactivée.")
 				self.visualization = None
+
+			# Lancement de la Visualisation graphique
+			if self.settings.visualization_graph.active:
+				self.logger.add("Visualisation graphique activée.")
+				self.__visualization_graph()
+			else:
+				self.logger.add("Visualisation graphique désactivée.")
+				self.graph = None
 
 			# Fermeture du Log
 			self.logger.add("Traitement terminé.")
 			self.logger.close()
 
 	##################################################
-	def __localization(self, stack: np.ndarray) -> pd.DataFrame:
+	def __localization(self):
 		"""
 		Lance la localisation à partir des settings passés en paramètres.
 
@@ -153,10 +162,14 @@ class PALMTracer:
 		sigma = gaussian_setting["Sigma"].get_value()
 		theta = gaussian_setting["Theta"].get_value()
 		# Run command
-		return run_palm_stack_dll(self.dlls["CPU"], stack, threshold, watershed, gaussian, sigma, theta, roi)
+		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack, threshold, watershed, gaussian, sigma, theta, roi)
+
+		self.logger.add("\tEnregistrement du fichier de localisation")
+		self.logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
+		self.localizations.to_csv(f"{self.__path}/localizations-{self.__suffix}.csv", index=False)
 
 	##################################################
-	def __tracking(self) -> pd.DataFrame:
+	def __tracking(self):
 		"""
 		Lance le tracking à partir des settings passés en paramètres.
 
@@ -168,12 +181,16 @@ class PALMTracer:
 		decrease = self.settings.tracking["Decrease"].get_value()
 		cost_birth = self.settings.tracking["Cost Birth"].get_value()
 		# Run command
-		return run_tracking_dll(self.dlls["Tracking"], self.localizations, max_distance, min_length, decrease, cost_birth)
+		self.tracks = run_tracking_dll(self.dlls["Tracking"], self.localizations, max_distance, min_length, decrease, cost_birth)
+
+		self.logger.add("\tEnregistrement du fichier de tracking.")
+		self.logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvé(s).")
+		self.tracks.to_csv(f"{self.__path}/tracking-{self.__suffix}.csv", index=False)
 
 	##################################################
-	def __visualization(self, stack: np.ndarray) -> np.ndarray:
+	def __visualization_hr(self):
 		"""
-		Lance la creation d'une visualisation à partir des settings passés en paramètres.
+		Lance la creation d'une visualisation haute résolution à partir des settings passés en paramètres.
 
 		:param stack: Pile d'image d'entrée sous forme de tableau numpy.
 		:return: Nouvelle visualisation.
@@ -183,13 +200,33 @@ class PALMTracer:
 		source = self.settings.visualization_hr["Source"].get_value()
 
 		# Création de l'image finale
-		depth, width, height = stack.shape
-		new_width, new_height = int(width * ratio), int(height * ratio)
-		res = np.zeros((new_width, new_height), dtype=float)
+		depth, width, height = self.__stack.shape
 		if self.localizations is not None:
-			# Integrated intensity
-			col = "Integrated Intensity"
-			# if source == 0: col = "Integrated Intensity"
-			# elif source ==.....
-			return hr_visualization(width, height, ratio, self.localizations[["X", "Y", col]].to_numpy())
-		return np.asarray(res, dtype=np.uint16)
+			self.visualization = hr_visualization(width, height, ratio, self.localizations[["X", "Y", HR_SOURCE[source]]].to_numpy())
+			self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{ratio}, s{source}).")
+			save_png(self.visualization, f"{self.__path}/visualization_x{ratio}_s{source}-{self.__suffix}.png")
+		else:
+			self.logger.add(f"\tAucun fichier de localisation pour la visualisation.")
+
+	##################################################
+	def __visualization_graph(self):
+		"""
+		Lance la creation d'une visualisation graphique à partir des settings passés en paramètres.
+
+		"""
+		# Parse settings
+		mode = self.settings.visualization_graph["Mode"].get_value()
+		source = self.settings.visualization_graph["Source"].get_value()
+
+		self.graph, ax = plt.subplots()
+		if self.localizations is None: return
+
+		if mode == 0:  # Histogram
+			plot_histogram(ax, self.localizations[GRAPH_SOURCE[source]].to_numpy(), GRAPH_SOURCE[source] + " Histogram", True, True, False)
+		elif mode == 1:  # Plane Heat Map
+			plot_plane_heatmap(ax, self.localizations[["Plane", GRAPH_SOURCE[source]]].to_numpy(), GRAPH_SOURCE[source] + " Heatmap")
+		elif mode == 2:  # Plane Violin
+			plot_plane_violin(ax, self.localizations[["Plane", GRAPH_SOURCE[source]]].to_numpy(), GRAPH_SOURCE[source] + " Violin")
+
+		self.logger.add("\tEnregistrement du fichier de visualisation graphique.")
+		self.graph.savefig(f"{self.__path}/graph_m{mode}_s{source}-{self.__suffix}.png", bbox_inches="tight")

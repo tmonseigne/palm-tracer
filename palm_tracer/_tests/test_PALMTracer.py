@@ -111,15 +111,8 @@ def test_process_only_tracking(make_napari_viewer):
 
 
 ##################################################
-def test_process_only_visualization():
-	"""
-	Test pour le process de localisation.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
-	"""
-	app = initialize_qt_app_for_testing()
+def test_process_only_visualization_hr(make_napari_viewer):
+	""" Test pour le process de visualization HR. """
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -135,7 +128,27 @@ def test_process_only_visualization():
 
 
 ##################################################
-def test_process_all():
+def test_process_only_visualization_graph(make_napari_viewer):
+	""" Test pour le process de visualization HR. """
+	pt = PALMTracer()
+
+	if not pt.is_dll_valid():
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
+	else:
+		pt.settings.visualization_graph.active = True
+		file_list = cast(FileList, pt.settings.batch["Files"])
+		file_list.items = [f"{INPUT_DIR}/stack.tif"]
+		file_list.update_box()
+		for mode in range(3):
+			pt.settings.visualization_graph["Mode"].set_value(mode)
+			pt.process()
+			print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
+			plt.close("all")
+	assert True
+
+
+##################################################
+def test_process_all(make_napari_viewer):
 	"""
 	Test Basique pour le process.
 
@@ -143,7 +156,6 @@ def test_process_all():
 		Comparer avec une sortie de PALM Tracer.
 		Actuellement différence de résultat, nécessite une investigation
 	"""
-	app = initialize_qt_app_for_testing()
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -152,9 +164,11 @@ def test_process_all():
 		pt.settings.localization.active = True
 		pt.settings.tracking.active = True
 		pt.settings.visualization_hr.active = True
+		pt.settings.visualization_graph.active = True
 		file_list = cast(FileList, pt.settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		pt.process()
 		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
+		plt.close("all")
 	assert True
