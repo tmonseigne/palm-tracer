@@ -1,13 +1,11 @@
 """ Fichier des tests pour l'ensemble des paramètres. """
 
-from palm_tracer._tests.Utils import initialize_qt_app_for_testing
 from palm_tracer.Settings import Settings
 
 
 ###################################################
-def test_settings():
+def test_settings(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	settings = Settings()
 	settings.calibration["Pixel Size"].set_value(320)
 	dictionary = settings.to_dict()

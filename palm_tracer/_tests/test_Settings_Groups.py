@@ -3,7 +3,6 @@
 from pathlib import Path
 from typing import Any, cast, Type
 
-from palm_tracer._tests.Utils import initialize_qt_app_for_testing
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Types import *
 
@@ -46,9 +45,8 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 
 
 ###################################################
-def test_base_group():
+def test_base_group(make_napari_viewer):
 	"""Test basique de la classe abstraite"""
-	app = initialize_qt_app_for_testing()
 	group = BaseSettingGroup()
 	group.set_value(None)
 	assert group.get_value() is None, "Get Value ne doit rien retourné pour la classe mère."
@@ -56,18 +54,16 @@ def test_base_group():
 
 
 ###################################################
-def test_batch():
+def test_batch(make_napari_viewer):
 	"""Test basique de la classe Batch (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	batch = Batch()
 	group_base_test(batch, ["Files", "Mode"],
 					FileList, -1, -1)
 
 
 ###################################################
-def test_batch_get_path():
+def test_batch_get_path(make_napari_viewer):
 	"""Test du get_path de la classe Batch"""
-	app = initialize_qt_app_for_testing()
 	batch = Batch()
 
 	path = batch.get_paths()
@@ -100,9 +96,8 @@ def test_batch_get_path():
 
 
 ###################################################
-def test_batch_get_stacks():
+def test_batch_get_stacks(make_napari_viewer):
 	"""Test du get_path de la classe Batch"""
-	app = initialize_qt_app_for_testing()
 	batch = Batch()
 	file_list = cast(FileList, batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"]
@@ -125,55 +120,48 @@ def test_batch_get_stacks():
 
 
 ###################################################
-def test_calibration():
+def test_calibration(make_napari_viewer):
 	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"],
 					SpinInt, 320, 160)
 
 
 ###################################################
-def test_localization():
+def test_localization(make_napari_viewer):
 	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	group_base_test(Localization(), ["Preview", "Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit", "Spline Fit"],
 					CheckBox, True, False)
 
 
 ###################################################
-def test_gaussian_fit():
+def test_gaussian_fit(make_napari_viewer):
 	"""Test basique de la classe GaussianFit (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	group_base_test(GaussianFit(), ["Mode", "Sigma", "Theta"],
 					Combo, 2, 1)
 
 
 ###################################################
-def test_spline_fit():
+def test_spline_fit(make_napari_viewer):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	group_base_test(SplineFit(), ["Peak", "Cut-Off"], SpinFloat, 2, 1)
 
 
 ###################################################
-def test_filtering():
+def test_filtering(make_napari_viewer):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	group_base_test(Filtering(), ["Plane", "Intensity", "Gaussian Fit", "Tracks"],
 					CheckRangeInt, [2, 3], [1, 10000])
 
 
 ###################################################
-def test_filtering_gf():
+def test_filtering_gf(make_napari_viewer):
 	"""Test basique de la classe FilteringGF (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	group_base_test(FilteringGF(), ["Chi²", "Sigma X", "Sigma Y", "Circularity", "Z"],
 					CheckRangeFloat, [1, 2], [0.6, 2.0])
 
 
 ###################################################
-def test_filtering_t():
+def test_filtering_t(make_napari_viewer):
 	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	group_base_test(FilteringT(), ["Length", "D Coeff", "Instant D", "Speed", "Alpha", "Confinement"],
 					CheckRangeInt, [2, 3], [1, 10000])

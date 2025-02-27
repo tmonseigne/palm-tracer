@@ -5,8 +5,9 @@ import shutil
 from pathlib import Path
 from typing import cast
 
+from matplotlib import pyplot as plt
+
 from palm_tracer import PALMTracer
-from palm_tracer._tests.Utils import initialize_qt_app_for_testing
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import print_warning
 
@@ -16,9 +17,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la premi
 
 
 ##################################################
-def test_process_no_input():
+def test_process_no_input(make_napari_viewer):
 	"""Test pour le process sans fichiers en entrée."""
-	app = initialize_qt_app_for_testing()
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -30,9 +30,8 @@ def test_process_no_input():
 
 
 ##################################################
-def test_process_nothing():
+def test_process_nothing(make_napari_viewer):
 	""" Test pour le process avec tout les élément à False et aucun fichier chargeable. """
-	app = initialize_qt_app_for_testing()
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -51,9 +50,8 @@ def test_process_nothing():
 
 
 ##################################################
-def test_process_multiple_stack():
+def test_process_multiple_stack(make_napari_viewer):
 	""" Test pour le process avec plusieurs piles. """
-	app = initialize_qt_app_for_testing()
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -67,7 +65,7 @@ def test_process_multiple_stack():
 
 
 ##################################################
-def test_process_only_localization():
+def test_process_only_localization(make_napari_viewer):
 	"""
 	Test pour le process de localisation.
 
@@ -75,7 +73,6 @@ def test_process_only_localization():
 		Comparer avec une sortie de PALM Tracer.
 		Actuellement différence de résultat, nécessite une investigation
 	"""
-	app = initialize_qt_app_for_testing()
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -91,15 +88,14 @@ def test_process_only_localization():
 
 
 ##################################################
-def test_process_only_tracking():
+def test_process_only_tracking(make_napari_viewer):
 	"""
-	Test pour le process de localisation.
+	Test pour le process de tracking.
 
 	.. todo::
 		Comparer avec une sortie de PALM Tracer.
 		Actuellement différence de résultat, nécessite une investigation
 	"""
-	app = initialize_qt_app_for_testing()
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():

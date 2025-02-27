@@ -1,4 +1,6 @@
+import atexit
 import json
+import os
 import platform
 
 import cpuinfo
@@ -8,7 +10,20 @@ from pytest_metadata.plugin import metadata_key
 
 from palm_tracer.Tools import Monitoring, print_error, print_warning
 
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
 all_tests_monitoring = Monitoring()
+
+
+##################################################
+@pytest.fixture
+def qt_app():
+	"""Fixture pour gérer une QApplication proprement"""
+	from qtpy.QtWidgets import QApplication
+
+	app = QApplication([])  # Initialisation de QApplication
+	yield app
+	#atexit.register(lambda: app.quit())  # Ajoutez un hook pour bien fermer QApplication
 
 
 ##################################################

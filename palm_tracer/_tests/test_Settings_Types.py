@@ -2,7 +2,6 @@
 
 import pytest
 
-from palm_tracer._tests.Utils import initialize_qt_app_for_testing
 from palm_tracer.Settings.Types import *
 
 
@@ -48,9 +47,8 @@ def test_base_setting():
 
 
 ###################################################
-def test_create_setting_from_dict():
+def test_create_setting_from_dict(make_napari_viewer):
 	"""Test de création de setting par dictionnaire vide excepté le type."""
-	app = initialize_qt_app_for_testing()
 	setting = create_setting_from_dict({"type": "SpinInt"})
 	assert isinstance(setting, SpinInt), "La création par dictionnaire vide pour un SpinInt à échoué."
 	setting = create_setting_from_dict({"type": "SpinFloat"})
@@ -66,7 +64,7 @@ def test_create_setting_from_dict():
 
 
 ###################################################
-def test_create_setting_from_dict_fail():
+def test_create_setting_from_dict_fail(make_napari_viewer):
 	"""Test de création de setting par dictionnaire avec un type invalide ou absent."""
 	with pytest.raises(ValueError) as exception_info: create_setting_from_dict({"type": "BadSetting"})
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
@@ -75,54 +73,48 @@ def test_create_setting_from_dict_fail():
 
 
 ###################################################
-def test_spin_int():
+def test_spin_int(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = SpinInt("Test", 1, 0, 10, 1)
 	setting_base_test(setting, 5, 1)
 	assert True
 
 
 ###################################################
-def test_spin_float():
+def test_spin_float(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = SpinFloat("Test", 1.0, 0.0, 10.0, 1.0)
 	setting_base_test(setting, 5.0, 1.0)
 	assert True
 
 
 ###################################################
-def test_check_box():
+def test_check_box(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = CheckBox("Test")
 	setting_base_test(setting, True, False)
 	assert True
 
 
 ###################################################
-def test_combo():
+def test_combo(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = Combo("Test", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
 	assert True
 
 
 ###################################################
-def test_browse_file():
+def test_browse_file(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
 	assert True
 
 
 ###################################################
-def test_file_list():
+def test_file_list(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = FileList("Test")
 	setting_base_test(setting, -1, -1)
 	setting.items = ["File1", "File2", "File3"]
@@ -137,9 +129,8 @@ def test_file_list():
 
 
 ###################################################
-def test_check_range_int():
+def test_check_range_int(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = CheckRangeInt("Test", [0, 0], [-10, 10])
 	setting_base_test(setting, [5, 3], [0, 0])
 
@@ -156,9 +147,8 @@ def test_check_range_int():
 
 
 ###################################################
-def test_check_range_float():
+def test_check_range_float(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	app = initialize_qt_app_for_testing()
 	setting = CheckRangeFloat("Test", [0.0, 0.0], [-10, 10])
 	setting_base_test(setting, [5.0, 3.0], [0.0, 0.0])
 
