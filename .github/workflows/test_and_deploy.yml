@@ -49,8 +49,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+      # It could works but it erase python path
+      # - name: Install Qt
+      #   uses: jurplel/install-qt-action@v4
 
       # Installation of vcredist2010 if problem install all (vcredist-all)
       - name: Install Dependencies and DLLs
