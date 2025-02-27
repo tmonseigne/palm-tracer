@@ -101,6 +101,7 @@ class Monitoring:
 	def _update(self):
 		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
+		if not self._thread.is_alive(): return
 		pytest_pid = os.getpid()  # PID de pytest
 		pytest_proc = psutil.Process(pytest_pid)  # Récupère le processus parent
 		children = pytest_proc.children(recursive=True)  # Cible les processus enfants
@@ -129,7 +130,7 @@ class Monitoring:
 	##################################################
 	def monitor(self):
 		"""Surveille les ressources en continu dans un thread séparé."""
-		while self._monitoring:
+		while self._monitoring and self._thread.is_alive():
 			self._update()
 			time.sleep(self.interval)
 
@@ -137,8 +138,8 @@ class Monitoring:
 	def stop(self):
 		"""Arrête la surveillance et effectue une dernière mise à jour des valeurs."""
 		self._monitoring = False
-		if self._thread.is_alive(): self._thread.join()
 		self._update()  # Dernière entrée
+		if self._thread.is_alive(): self._thread.join()
 		self._update_array_for_readability()
 		self._draw()
 
