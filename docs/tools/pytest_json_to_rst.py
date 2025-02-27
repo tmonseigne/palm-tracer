@@ -121,8 +121,8 @@ def get_summary(data: dict) -> str:
 	duration = str(datetime.timedelta(seconds=data["duration"])).split(".")[0]
 	summary = data["summary"]
 
-	res += (f"{summary.get("collected", 0)} tests collected, "
-			f"{summary.get("passed", 0)} passed ✅, {summary.get("failed", 0)} failed ❌ "
+	res += (f"{summary.get('collected', 0)} tests collected, "
+			f"{summary.get('passed', 0)} passed ✅, {summary.get('failed', 0)} failed ❌ "
 			f"in {duration}s on {date} at {time}\n\n")
 	return res
 
@@ -254,7 +254,7 @@ if __name__ == "__main__":
 	source, destination = sys.argv[1], sys.argv[2]
 
 	if not os.path.exists(source):
-		print(f"ERROR: The report file \"{source}\" does not exists.")
+		print(f"ERROR: The report file '{source}' does not exists.")
 		usage()
 		exit(1)
 
