@@ -6,7 +6,8 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 
-MAX_UINT16 = np.iinfo(np.uint16).max
+MAX_UI_16 = np.iinfo(np.uint16).max
+MAX_UI_8 = np.iinfo(np.uint8).max
 
 
 ##################################################
@@ -20,12 +21,12 @@ def get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 	"""
 	n_values = len(data)
 	# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
-	bins = int(np.ceil(np.log2(n_values) + 1))	 # Règle de Sturges
+	bins = int(np.ceil(np.log2(n_values) + 1))   # Règle de Sturges
 	return max(limits[0], min(bins, limits[1]))  # Bornes pour éviter des valeurs extrêmes
 
 
 ##################################################
-def hr_visualization(width: int, height: int, ratio: int, points: np.ndarray, normalization: bool = True) -> np.ndarray:
+def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, normalization: bool = True) -> np.ndarray:
 	"""
 	Construit une image Haute résolution en fonction des éléments localisés.
 
@@ -37,13 +38,13 @@ def hr_visualization(width: int, height: int, ratio: int, points: np.ndarray, no
 	:return: Nouvelle image.
 	"""
 
-	if ratio <= 1: return np.zeros((width, height), dtype=np.uint16)
-	if width < 1 or height < 1: return np.zeros((max(int(width * ratio), 1), max(int(height * ratio), 1)), dtype=np.uint16)
+	if ratio < 1: return np.zeros((height, width), dtype=np.uint16)
+	if width < 1 or height < 1: return np.zeros((max(int(height * ratio), 1), max(int(width * ratio), 1)), dtype=np.uint16)
 
-	res = np.zeros((int(width * ratio), int(height * ratio)), dtype=float)
+	res = np.zeros((int(height * ratio), int(width * ratio)), dtype=float)
 
 	# Filtrage des points hors des dimensions initiales
-	mask = (points[:, 0] <= width) & (points[:, 1] <= height)
+	mask = (points[:, 0] < width) & (points[:, 1] < height)
 	points = points[mask]
 	if points is None or points.size == 0 or points.shape[1] != 3: return res.astype(np.uint16)
 
@@ -52,15 +53,51 @@ def hr_visualization(width: int, height: int, ratio: int, points: np.ndarray, no
 	x, y = coords[:, 0], coords[:, 1]
 
 	# Accumulation des valeurs (plus efficace qu'une boucle)
-	np.add.at(res, (x, y), points[:, 2])
+	np.add.at(res, (y, x), points[:, 2])
 
 	# Normalisation ou autre pour les Z par exemple ?
 	diff = res.max() - res.min()
 	if normalization and diff != 0:
-		res = (res - res.min()) / diff * MAX_UINT16
+		res = (res - res.min()) / diff * MAX_UI_16
 
-	res = res.clip(0, MAX_UINT16)			 # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
+	res = res.clip(0, MAX_UI_16)			 # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
 	return np.asarray(res, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
+
+
+##################################################
+def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list[int]) -> np.ndarray:
+	"""
+	Construit une image RGB à partir d'une image en niveaux de gris et ajoute des contours de ROIs autour des points donnés.
+
+	:param image: Image d'entrée en niveaux de gris (numpy array 2D).
+	:param points: Tableau 2D des coordonnées (X, Y) des points, sous forme de flottants.
+	:param roi_size: Taille du carré à dessiner autour de chaque point.
+	:param color: Couleur du contour du ROI en RGB (tuple ou liste de trois valeurs).
+	:return: Image RGB avec les contours des ROIs dessinés.
+	"""
+	# Normalisation des niveaux de gris sur 0-255
+	min_val, max_val = image.min(), image.max()
+	if max_val > min_val: image = ((image - min_val) / (max_val - min_val) * MAX_UI_8).astype(np.uint8)
+	else: image = np.zeros_like(image, dtype=np.uint8)  # Cas d'une image uniforme
+
+	# Conversion en RGB
+	res = np.stack([image] * 3, axis=-1)
+
+	if points is None or points.size == 0 or points.shape[1] != 2: return res
+	# Dessin des contours des ROIs
+	half_size = (roi_size / 2.0)  # Demi taille de la ROI.
+	max_height, max_width = image.shape[0] - 1, image.shape[1] - 1
+	for x, y in points:
+		x_min, x_max = max(0, int(round(x - half_size))), min(max_width - 1, int(round(x + half_size)))
+		y_min, y_max = max(0, int(round(y - half_size))), min(max_height - 1, int(round(y + half_size)))
+
+		# Dessiner le contour du carré
+		res[y_min:y_max, x_min] = color  # Ligne gauche
+		res[y_min:y_max, x_max] = color  # Ligne droite
+		res[y_min, x_min:x_max] = color  # Ligne haut
+		res[y_max, x_min:min(max_width - 1, x_max + 1)] = color  # Ligne bas (distance +1 pour avoir un carré "fini")
+
+	return res
 
 
 ##################################################

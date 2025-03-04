@@ -61,7 +61,7 @@ def save_tif(stack: np.ndarray, filename: str):
 	"""
 	if stack.ndim == 2: stack = stack[np.newaxis, ...]		 # Si le tableau est 2D, le transformer en 3D avec une seule frame
 	if stack.ndim != 3: raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
-	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)	 # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
+	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)   # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
 	tiff.imwrite(filename, stack, photometric="minisblack")  # Sauvegarde la pile avec tifffile
 
 
@@ -92,22 +92,23 @@ def open_tif(filename: str) -> np.ndarray:
 # region PNG IO
 # ==================================================
 ##################################################
-def save_png(image: np.ndarray, filename: str):
+def save_png(image: np.ndarray, filename: str, normalization: bool = True):
 	"""
 	Sauvegarde un tableau 2D dans un fichier PNG avec Pillow.
 
 	:param image: Tableau contenant l'image 2D
 	:param filename: Nom du fichier TIF de sortie.
-
-	.. note::
-		Cette fonction sera mise à jour pour gérer des tableaux 3D (RGB). Pour le moment, on est sur du niveau de gris brut.
+	:param normalization: Normalize l'image avant enregistrement.
 	"""
-	if image.ndim != 2: raise ValueError("Le tableau doit être 2D (hauteur, largeur).")
-	if (image.max() - image.min()) != 0:
-		image = (image - image.min()) / (image.max() - image.min()) * 255  # Normalisation
-	image = image.astype(np.uint8)									   # Conversion en entiers 8 bits
-	im = Image.fromarray(image)										   # Passage par Pillow
-	im.save(filename)												   # Enregistrement
+	if not (2 <= image.ndim <= 3): raise ValueError("L'image doit être en 2D (niveaux de gris) ou 3D (RGB).")
+	if normalization:
+		min_val, max_val = image.min(), image.max()
+		if max_val > min_val: image = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
+		else: image = np.zeros_like(image, dtype=np.uint8)  # Cas d'une image uniforme
+
+	image = image.clip(0, 255).astype(np.uint8)  # Conversion en entiers 8 bits
+	im = Image.fromarray(image)					 # Passage par Pillow
+	im.save(filename)							 # Enregistrement
 
 # ==================================================
 # endregion PNG IO

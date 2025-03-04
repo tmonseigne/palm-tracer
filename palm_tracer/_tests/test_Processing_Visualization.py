@@ -6,7 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-from palm_tracer.Processing import hr_visualization, plot_histogram, plot_plane_heatmap, plot_plane_violin
+from palm_tracer.Processing import plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_roi
 from palm_tracer.Tools.FileIO import save_png
 
 matplotlib.use("Agg")  # Désactive le backend interactif
@@ -15,37 +15,47 @@ INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
-SIZE, RATIO = 100, 10
+SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
-POINTS = rng.uniform(1, SIZE - 1, size=(int(SIZE * np.sqrt(SIZE)), 3))
+SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
+POINTS = np.stack([rng.uniform(1, SIZE_X - 1, size=SIZE), rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(0, INTENSITY, size=SIZE)], axis=1)
 
 
 ##################################################
-def test_hr_visualization():
+def test_render_hr_image():
 	"""Test de la visualisation de l'image en HR."""
-	visualization = hr_visualization(SIZE, SIZE, RATIO, POINTS)
-	save_png(visualization, f"{OUTPUT_DIR}/test_hr_visualization_normalized.png")
-	assert visualization.shape == (SIZE * RATIO, SIZE * RATIO)
+	visualization = render_hr_image(SIZE_X, SIZE_Y, RATIO, POINTS)
+	save_png(visualization, f"{OUTPUT_DIR}/test_render_hr_image_normalized.png")
+	assert visualization.shape == (SIZE_Y * RATIO, SIZE_X * RATIO)
 
-	visualization = hr_visualization(SIZE, SIZE, RATIO, POINTS, False)
-	save_png(visualization, f"{OUTPUT_DIR}/test_hr_visualization.png")
-	assert visualization.shape == (SIZE * RATIO, SIZE * RATIO)
+	visualization = render_hr_image(SIZE_X, SIZE_Y, RATIO, POINTS, False)
+	save_png(visualization, f"{OUTPUT_DIR}/test_render_hr_image.png")
+	assert visualization.shape == (SIZE_Y * RATIO, SIZE_X * RATIO)
 
 
 ##################################################
-def test_hr_visualization_bad_input():
+def test_render_hr_image_bad_input():
 	""" Test de la visualisation de l'image en HR avec une mauvaise entrée. """
-	visualization = hr_visualization(SIZE, SIZE, 1, POINTS)
-	assert visualization.shape == (SIZE, SIZE)
+	visualization = render_hr_image(SIZE_X, SIZE_Y, 0, POINTS)
+	assert visualization.shape == (SIZE_Y, SIZE_X)
 	assert np.all(visualization == 0)
 
-	visualization = hr_visualization(0, SIZE, RATIO, POINTS)
-	assert visualization.shape == (1, SIZE * RATIO)
+	visualization = render_hr_image(0, SIZE_Y, RATIO, POINTS)
+	assert visualization.shape == (SIZE_Y * RATIO, 1)
 	assert np.all(visualization == 0)
 
-	visualization = hr_visualization(SIZE, SIZE, RATIO, np.zeros((2, 2)))
-	assert visualization.shape == (SIZE * RATIO, SIZE * RATIO)
+	visualization = render_hr_image(SIZE_X, SIZE_Y, RATIO, np.zeros((2, 2)))
+	assert visualization.shape == (SIZE_Y * RATIO, SIZE_X * RATIO)
 	assert np.all(visualization == 0)
+
+
+##################################################
+def test_render_roi():
+	"""Test de la visualisation de des ROI sur une image."""
+	visualization = render_hr_image(SIZE_X, SIZE_Y, RATIO, POINTS)
+	roi = render_roi(visualization, POINTS[:, :2] * RATIO, 7, [0, 255, 0])
+	save_png(roi, f"{OUTPUT_DIR}/test_render_roi.png")
+	assert roi.shape == (SIZE_Y * RATIO, SIZE_X * RATIO, 3)
 
 
 ##################################################
@@ -65,7 +75,6 @@ def test_plot_histogram():
 	plot_histogram(ax, datas, "Histogram", False, False, False)
 	fig.savefig(f"{OUTPUT_DIR}/test_plot_histogram_without.png", bbox_inches="tight")
 	plt.close(fig)
-
 
 	fig, ax = plt.subplots()
 	plot_histogram(ax, datas, "Histogram", True, True, False)

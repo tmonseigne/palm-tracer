@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import hr_visualization, load_dll, plot_histogram, plot_plane_heatmap, plot_plane_violin, run_palm_stack_dll, run_tracking_dll
+from palm_tracer.Processing import render_hr_image, load_dll, plot_histogram, plot_plane_heatmap, plot_plane_violin, run_palm_stack_dll, run_tracking_dll
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import GaussianFit
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_SOURCE
@@ -202,7 +202,7 @@ class PALMTracer:
 		# Création de l'image finale
 		depth, width, height = self.__stack.shape
 		if self.localizations is not None:
-			self.visualization = hr_visualization(width, height, ratio, self.localizations[["X", "Y", HR_SOURCE[source]]].to_numpy())
+			self.visualization = render_hr_image(width, height, ratio, self.localizations[["X", "Y", HR_SOURCE[source]]].to_numpy())
 			self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{ratio}, s{source}).")
 			save_png(self.visualization, f"{self.__path}/visualization_x{ratio}_s{source}-{self.__suffix}.png")
 		else:

@@ -89,7 +89,8 @@ def test_open_tif_bad_file():
 def test_save_png():
 	""" Test de la fonction save_png. """
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save.png")
-
+	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save_no_normalization.png", False)
+	assert True
 
 ##################################################
 def test_save_png_bad_sample():
