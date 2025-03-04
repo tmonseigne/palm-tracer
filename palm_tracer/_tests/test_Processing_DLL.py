@@ -16,7 +16,7 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
-default_gaussian = 0
+default_gaussian = 2
 save_output = True
 
 
@@ -72,7 +72,7 @@ def test_run_palm_image_dll():
 
 				assert len(localizations) > 0, "Aucune localisation trouvé"
 
-				path = Path(f"{INPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv")
+				path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{plane}_{suffix}.csv")
 				if path.exists() and path.is_file():
 					print(f"Comparaison avec : '{path}'")
 					ref = pd.read_csv(path)
@@ -105,7 +105,7 @@ def test_run_palm_stack_dll():
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
 
-			path = Path(f"{INPUT_DIR}/{file}-localizations-{suffix}.csv")
+			path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
 			if path.exists() and path.is_file():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
@@ -144,7 +144,7 @@ def test_run_palm_stack_dll_check_quadrant():
 		assert (localizations.loc[quadrant["Left"], 'X'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire à gauche de l'image."
 		assert (localizations.loc[quadrant["Right"], 'X'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire à droite de l'image."
 
-		path = Path(f"{INPUT_DIR}/{file}-localizations-{suffix}.csv")
+		path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			ref = pd.read_csv(path)
 			assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
@@ -162,7 +162,7 @@ def test_run_tracking_dll():
 	else:
 		suffix = get_suffix(default_gaussian)
 
-		path = Path(f"{INPUT_DIR}/stack-localizations-{suffix}.csv")
+		path = Path(f"{INPUT_DIR}/ref/stack-localizations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			localizations = pd.read_csv(path)
 			tracking = run_tracking_dll(dll, localizations, 5, 1, 10, 0.5)
