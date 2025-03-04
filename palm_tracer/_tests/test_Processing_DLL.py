@@ -68,12 +68,13 @@ def test_run_palm_image_dll():
 				suffix = get_suffix(gaussian)
 
 				localizations = run_palm_image_dll(dll, stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
-				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localisations-{plane}_{suffix}.csv", index=False)
+				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
 
 				assert len(localizations) > 0, "Aucune localisation trouvé"
 
 				path = Path(f"{INPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv")
 				if path.exists() and path.is_file():
+					print(f"Comparaison avec : '{path}'")
 					ref = pd.read_csv(path)
 					assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
 
@@ -106,6 +107,7 @@ def test_run_palm_stack_dll():
 
 			path = Path(f"{INPUT_DIR}/{file}-localizations-{suffix}.csv")
 			if path.exists() and path.is_file():
+				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
 				assert compare_points(localizations, ref), f"Test invalide pour les paramètres {suffix}"
 

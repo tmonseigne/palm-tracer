@@ -195,11 +195,11 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	image = image.flatten()						# L'image est "applati"
 
 	c_image = image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))			   # Image
-	c_height = ctypes.c_ushort(height)										   # Hauteur (nombre de lignes)
-	c_width = ctypes.c_ushort(width)										   # Largeur (nombre de colonnes)
-	n_points = ctypes.c_ushort(n)											   # Nombre maximum de points théorique
+	c_height = ctypes.c_ulong(height)										   # Hauteur (nombre de lignes)
+	c_width = ctypes.c_ulong(width)											   # Largeur (nombre de colonnes)
+	n_points = ctypes.c_ulong(n)											   # Nombre maximum de points théorique
 	c_points = np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
-	c_wavelet = ctypes.c_uint(1)											   # Wavelet toujours à 1.
+	c_wavelet = ctypes.c_ulong(1)											   # Wavelet toujours à 1.
 	c_threshold = ctypes.c_double(threshold)								   # Seuil
 	c_watershed = ctypes.c_double(10 if watershed else 0)					   # Activation du Watershed
 	c_vol_min = ctypes.c_double(4)											   # Vol minimum toujours à 4.
@@ -210,7 +210,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	c_roi_size = ctypes.c_ushort(roi_size)									   # taille de la ROI
 
 	# Running
-	dll._OpenPALMProcessing(c_image, c_points, n_points, c_width, c_height, c_wavelet, c_threshold, c_watershed,
+	dll._OpenPALMProcessing(c_image, c_points, n_points, c_height, c_width, c_wavelet, c_threshold, c_watershed,
 							c_vol_min, c_int_min, c_gauss_fit, c_sigma, c_sigma, c_theta, c_roi_size)
 	dll._PALMProcessing()
 	dll._closePALMProcessing()
