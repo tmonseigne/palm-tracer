@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
-from palm_tracer.Tools import print_error, print_warning
+from palm_tracer.Tools import print_error, print_success, print_warning
 
 
 ##################################################
@@ -133,10 +133,9 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 
 	if total_points > 0:
 		exact_match_ratio = exact_matches / total_points * 100
-
-		print(f"Comparaison terminée :")
-		print(f"  Points comparés : {total_points}")
-		print(f"  Points identiques : {exact_matches} ({exact_match_ratio:.2f}%)")
+		msg  = f"Comparaison terminée : {total_points} Points comparés, {exact_matches} Points identiques ({exact_match_ratio:.2f}%)"
+		if total_points == exact_matches: print_success(msg)
+		else: print_warning(msg)
 
 		res = exact_matches == total_points
 

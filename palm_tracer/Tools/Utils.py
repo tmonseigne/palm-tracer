@@ -121,6 +121,16 @@ def print_warning(msg: str):
 	"""
 	print(Fore.YELLOW + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
+
+##################################################
+def print_success(msg: str):
+	"""
+	Affiche un message avec une couleur verte
+
+	:param msg: message à afficher
+	"""
+	print(Fore.GREEN + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
+
 # ==================================================
 # endregion Prints
 # ==================================================
