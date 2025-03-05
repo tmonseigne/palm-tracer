@@ -150,7 +150,6 @@ class PALMTracer:
 		"""
 		Lance la localisation à partir des settings passés en paramètres.
 
-		:param stack: Pile d'image d'entrée sous forme de tableau numpy.
 		:return: Données de localisation trouvées.
 		"""
 		# Parse settings
@@ -192,7 +191,6 @@ class PALMTracer:
 		"""
 		Lance la creation d'une visualisation haute résolution à partir des settings passés en paramètres.
 
-		:param stack: Pile d'image d'entrée sous forme de tableau numpy.
 		:return: Nouvelle visualisation.
 		"""
 		# Parse settings
@@ -200,7 +198,7 @@ class PALMTracer:
 		source = self.settings.visualization_hr["Source"].get_value()
 
 		# Création de l'image finale
-		depth, width, height = self.__stack.shape
+		depth, height, width = self.__stack.shape
 		if self.localizations is not None:
 			self.visualization = render_hr_image(width, height, ratio, self.localizations[["X", "Y", HR_SOURCE[source]]].to_numpy())
 			self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{ratio}, s{source}).")
