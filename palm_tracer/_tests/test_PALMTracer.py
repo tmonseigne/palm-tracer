@@ -25,7 +25,6 @@ def test_process_no_input(make_napari_viewer):
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		pt.process()
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
@@ -66,13 +65,7 @@ def test_process_multiple_stack(make_napari_viewer):
 
 ##################################################
 def test_process_only_localization(make_napari_viewer):
-	"""
-	Test pour le process de localisation.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
-	"""
+	""" Test pour le process de localisation. """
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -83,19 +76,12 @@ def test_process_only_localization(make_napari_viewer):
 		file_list.update_box()
 		pt.settings.localization.active = True
 		pt.process()
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
 ##################################################
 def test_process_only_tracking(make_napari_viewer):
-	"""
-	Test pour le process de tracking.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
-	"""
+	""" Test pour le process de tracking. """
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -106,7 +92,6 @@ def test_process_only_tracking(make_napari_viewer):
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		pt.process()
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
@@ -123,7 +108,6 @@ def test_process_only_visualization_hr(make_napari_viewer):
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		pt.process()
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
@@ -142,7 +126,6 @@ def test_process_only_visualization_graph(make_napari_viewer):
 		for mode in range(3):
 			pt.settings.visualization_graph["Mode"].set_value(mode)
 			pt.process()
-			print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 			plt.close("all")
 	assert True
 
@@ -169,6 +152,5 @@ def test_process_all(make_napari_viewer):
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		pt.process()
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 		plt.close("all")
 	assert True

@@ -73,5 +73,5 @@ def test_print_warning():
 ##################################################
 def test_print_success():
 	"""Test de la fonction print warning."""
-	Utils.print_success("Message d'avertissement"), "L'affichage n'a pas pu être effectué"
+	Utils.print_success("Message de succes"), "L'affichage n'a pas pu être effectué"
 	assert True

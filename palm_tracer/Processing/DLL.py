@@ -201,17 +201,18 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	c_points = np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
 	c_wavelet = ctypes.c_ulong(1)											   # Wavelet toujours à 1.
 	c_threshold = ctypes.c_double(threshold)								   # Seuil
-	c_watershed = ctypes.c_double(10 if watershed else 0)					   # Activation du Watershed
+	c_watershed = ctypes.c_double(0 if watershed else 10)					   # Activation du Watershed
 	c_vol_min = ctypes.c_double(4)											   # Vol minimum toujours à 4.
 	c_int_min = ctypes.c_double(0)											   # Int minimum toujours à 0.
 	c_gauss_fit = ctypes.c_ushort(gauss_fit)								   # Mode du Gaussian Fit
-	c_sigma = ctypes.c_double(sigma)										   # Valeur initiale du Sigma
+	c_sigma_x = ctypes.c_double(sigma)										   # Valeur initiale du Sigma X
+	c_sigma_y = ctypes.c_double(sigma * 2)									   # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
 	c_theta = ctypes.c_double(theta)										   # Valeur Initiale du Theta
 	c_roi_size = ctypes.c_ushort(roi_size)									   # taille de la ROI
 
 	# Running
 	dll._OpenPALMProcessing(c_image, c_points, n_points, c_height, c_width, c_wavelet, c_threshold, c_watershed,
-							c_vol_min, c_int_min, c_gauss_fit, c_sigma, c_sigma, c_theta, c_roi_size)
+							c_vol_min, c_int_min, c_gauss_fit, c_sigma_x, c_sigma_y, c_theta, c_roi_size)
 	dll._PALMProcessing()
 	dll._closePALMProcessing()
 

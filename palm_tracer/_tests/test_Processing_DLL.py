@@ -50,13 +50,7 @@ def test_load_dll():
 
 ##################################################
 def test_run_palm_image_dll():
-	"""
-	Test sur le lancement de PALM sur une frame.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation.
-	"""
+	""" Test sur le lancement de PALM sur une frame. """
 	dll = load_dll().get("CPU", None)
 	if dll is None:
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -77,20 +71,12 @@ def test_run_palm_image_dll():
 					print(f"Comparaison avec : '{path}'")
 					ref = pd.read_csv(path)
 					assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
-
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
 ##################################################
 def test_run_palm_stack_dll():
-	"""
-	Test sur le lancement de PALM sur une pile.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation.
-	"""
+	""" Test sur le lancement de PALM sur une pile. """
 	dll = load_dll().get("CPU", None)
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
@@ -110,8 +96,6 @@ def test_run_palm_stack_dll():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
 				assert compare_points(localizations, ref), f"Test invalide pour les paramètres {suffix}"
-
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
@@ -148,8 +132,6 @@ def test_run_palm_stack_dll_check_quadrant():
 		if path.exists() and path.is_file():
 			ref = pd.read_csv(path)
 			assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
-
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
 
 
