@@ -193,14 +193,14 @@ class BaseSettingGroup:
 			self._title.deleteLater()						 # Détruire le titre
 
 		# Suppression du header
-		if self._header and self._widget:
+		if self._header and self._widget:	 				 # pragma: no cover (toujours faux)
 			layout = self._widget.layout()					 # Récupérer le layout principal
 			if isinstance(layout, QWidget):  				 # Vérifier que c'est bien un QFormLayout
 				layout.removeRow(self._header)				 # Supprimer la ligne du layout
 
 		# Suppression de la marge
 		body_layout = self._body.layout()					 # Récupérer le layout du widget _body
-		if isinstance(body_layout, QFormLayout):			 # Vérifier que c'est bien un QFormLayout
+		if isinstance(body_layout, QFormLayout):			 # pragma: no cover (toujours vrai)
 			body_layout.setContentsMargins(0, 0, 0, 0)		 # Aucune marge
 
 	# ==================================================

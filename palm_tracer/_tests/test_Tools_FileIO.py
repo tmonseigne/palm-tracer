@@ -90,7 +90,9 @@ def test_save_png():
 	""" Test de la fonction save_png. """
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save.png")
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save_no_normalization.png", False)
+	FileIO.save_png(np.zeros_like(REF_GRADIENT), f"{OUTPUT_DIR}/test_save_black.png")
 	assert True
+
 
 ##################################################
 def test_save_png_bad_sample():

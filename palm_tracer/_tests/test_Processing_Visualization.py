@@ -56,6 +56,14 @@ def test_render_roi():
 	roi = render_roi(visualization, POINTS[:, :2] * RATIO, 7, [0, 255, 0])
 	save_png(roi, f"{OUTPUT_DIR}/test_render_roi.png")
 	assert roi.shape == (SIZE_Y * RATIO, SIZE_X * RATIO, 3)
+	roi = render_roi(np.zeros_like(visualization), POINTS * RATIO, 7, [0, 255, 0])
+	save_png(roi, f"{OUTPUT_DIR}/test_render_roi_bad_input.png")
+
+
+##################################################
+def test_render_roi_bad_input():
+	roi = render_roi(np.zeros((SIZE_Y, SIZE_X)), POINTS * RATIO, 7, [0, 255, 0])
+	save_png(roi, f"{OUTPUT_DIR}/test_render_roi_bad_input.png")
 
 
 ##################################################

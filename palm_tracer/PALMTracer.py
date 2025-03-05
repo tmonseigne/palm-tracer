@@ -223,7 +223,7 @@ class PALMTracer:
 			plot_histogram(ax, self.localizations[GRAPH_SOURCE[source]].to_numpy(), GRAPH_SOURCE[source] + " Histogram", True, True, False)
 		elif mode == 1:  # Plane Heat Map
 			plot_plane_heatmap(ax, self.localizations[["Plane", GRAPH_SOURCE[source]]].to_numpy(), GRAPH_SOURCE[source] + " Heatmap")
-		elif mode == 2:  # Plane Violin
+		else: # elif mode == 2:  # Plane Violin
 			plot_plane_violin(ax, self.localizations[["Plane", GRAPH_SOURCE[source]]].to_numpy(), GRAPH_SOURCE[source] + " Violin")
 
 		self.logger.add("\tEnregistrement du fichier de visualisation graphique.")

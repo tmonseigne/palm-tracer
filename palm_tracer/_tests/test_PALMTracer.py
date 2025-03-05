@@ -45,6 +45,7 @@ def test_process_nothing(make_napari_viewer):
 		pt.process()
 		# Test d'une visualisation sans données.
 		pt.settings.visualization_hr.active = True
+		pt.settings.visualization_graph.active = True
 		pt.process()
 
 

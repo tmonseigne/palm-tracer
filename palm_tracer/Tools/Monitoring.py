@@ -101,11 +101,11 @@ class Monitoring:
 	def _update(self):
 		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
-		if not self._thread.is_alive(): return
-		pytest_pid = os.getpid()  # PID de pytest
-		pytest_proc = psutil.Process(pytest_pid)  # Récupère le processus parent
+		if not self._thread.is_alive(): return			 # pragma: no cover	(n'arrive qu'en cas de crash)
+		pytest_pid = os.getpid()						 # PID de pytest
+		pytest_proc = psutil.Process(pytest_pid)		 # Récupère le processus parent
 		children = pytest_proc.children(recursive=True)  # Cible les processus enfants
-		processes = [pytest_proc] + children  # Inclut le processus principal et ses enfants
+		processes = [pytest_proc] + children			 # Inclut le processus principal et ses enfants
 
 		self._cpu.append(sum(proc.cpu_percent(interval=self.interval) for proc in processes))
 		self._memory.append(sum(proc.memory_info().rss for proc in processes))

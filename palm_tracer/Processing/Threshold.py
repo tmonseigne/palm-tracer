@@ -70,6 +70,6 @@ def auto_threshold_dll(dll: ctypes.CDLL, image: np.array, roi_size: int = 7, max
 		# Calcul de l'écart type pour les pixels hors segmentation
 		pixels_outside = image[mask == 0]
 		if len(pixels_outside) > 0: std_dev = np.std(pixels_outside)
-		else: break	 # pragma: no cover	(ce else est presque impossible à avoir)
+		else: break  # pragma: no cover	(ce else est presque impossible à avoir)
 
 	return std_dev
