@@ -22,9 +22,9 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "MSE Z", "Pair Distance"]
 
 	Changer les colonnes pour le Tracking
-		sort = ["Plane", "X", "Y", "Z"]
-		group = ["Plane"]
-		compare = ["X", "Y", "Integrated Intensity", "Pair Distance", "???"]
+		sort = ["Track"]
+		group = ["Track"]
+		compare = TRACK_FILE_COLS
 
 	:param a: Premier DataFrame.
 	:param b: Second DataFrame.
@@ -67,14 +67,18 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	exact_matches = 0
 
 	# Parcours par plan et channel
-	for (plane, channel), group_a in a.groupby(group_cols):
-		group_b = b[(b["Plane"] == plane) & (b["Channel"] == channel)]
+	for group_values, group_a in a.groupby(group_cols):
+		# Si group_cols contient une seule colonne, group_values sera un scalaire, sinon un tuple
+		group_values = (group_values,) if isinstance(group_values, (int, float, str)) else group_values
+		# Construire un masque dynamique pour filtrer `b`
+		mask = (b[col] == val for col, val in zip(group_cols, group_values))
+		group_b = b.loc[pd.concat(mask, axis=1).all(axis=1)]  # Conserver les lignes où toutes les conditions sont vraies
 		group_a = group_a.reset_index(drop=True)
 		group_b = group_b.reset_index(drop=True)
-		print(f"Plane {plane}, Channel {channel} : {len(group_a)} points in A, {len(group_b)} points in B.")
+		print(f"{len(group_a)} points in A, {len(group_b)} points in B pour { {col: int(val) for col, val in zip(group_cols, group_values)} }.")
 
 		if group_b.empty:
-			print_warning(f"Pas de correspondance pour Plane={plane}, Channel={channel} dans B.")
+			print_warning(f"Pas de correspondance pour {dict(zip(group_cols, group_values))} dans B.")
 			continue
 
 		# Utilisation d'un KDTree pour accélérer la recherche des plus proches voisins
@@ -122,12 +126,12 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		non_matched_b = group_b.drop(index=matched_b_indices, errors="ignore")
 
 		if not non_matched_a.empty:
-			print_warning(f"Points supplémentaires dans A pour Plane={plane}, Channel={channel} :")
+			print_warning(f"Points supplémentaires dans A pour  { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
 			for _, row in non_matched_a.iterrows():
 				print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
 
 		if not non_matched_b.empty:
-			print_warning(f"Points supplémentaires dans B pour Plane={plane}, Channel={channel} :")
+			print_warning(f"Points supplémentaires dans B pour  { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
 			for _, row in non_matched_b.iterrows():
 				print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
 

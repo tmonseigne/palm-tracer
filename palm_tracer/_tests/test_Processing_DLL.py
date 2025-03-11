@@ -8,7 +8,7 @@ import pytest
 
 from palm_tracer._tests.Utils import compare_points
 from palm_tracer.Processing import load_dll, run_palm_image_dll, run_palm_stack_dll, run_tracking_dll
-from palm_tracer.Processing.DLL import _rearrange_dataframe_columns
+from palm_tracer.Processing.DLL import _rearrange_dataframe_columns, TRACK_FILE_COLS
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -16,6 +16,7 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
+max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_gaussian = 2
 save_output = True
 
@@ -26,8 +27,12 @@ def compare_localizations(value: pd.DataFrame, ref: pd.DataFrame, tol: float = 1
 
 
 ##################################################
-def get_suffix(gaussian: int) -> str:
+def get_loc_suffix(gaussian: int) -> str:
 	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
+
+##################################################
+def get_trc_suffix() -> str:
+	return f"{max_distance}_{min_life}_{decrease}_{cost_birth}"
 
 
 ##################################################
@@ -59,7 +64,7 @@ def test_run_palm_image_dll():
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		for plane in range(stack.shape[0]):
 			for gaussian in range(5):
-				suffix = get_suffix(gaussian)
+				suffix = get_loc_suffix(gaussian)
 
 				localizations = run_palm_image_dll(dll, stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
 				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
@@ -84,7 +89,7 @@ def test_run_palm_stack_dll():
 		file = "stack"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		for gaussian in range(5):
-			suffix = get_suffix(gaussian)
+			suffix = get_loc_suffix(gaussian)
 
 			localizations = run_palm_stack_dll(dll, stack, threshold, watershed, gaussian, sigma, theta, roi)
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
@@ -112,7 +117,7 @@ def test_run_palm_stack_dll_check_quadrant():
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
 	else:
-		suffix = get_suffix(default_gaussian)
+		suffix = get_loc_suffix(default_gaussian)
 		file = "stack_quadrant"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
@@ -142,15 +147,25 @@ def test_run_tracking_dll():
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
 	else:
-		suffix = get_suffix(default_gaussian)
+		file = "stack"
+		suffix = get_loc_suffix(default_gaussian)
+		suffix_trc = suffix + "-" + get_trc_suffix()
 
-		path = Path(f"{INPUT_DIR}/ref/stack-localizations-{suffix}.csv")
+		path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			localizations = pd.read_csv(path)
-			tracking = run_tracking_dll(dll, localizations, 5, 1, 10, 0.5)
-			if save_output: tracking.to_csv(f"{OUTPUT_DIR}/stack-tracking-{suffix}.csv", index=False)
+			tracking = run_tracking_dll(dll, localizations, 5, 2, 10, 0.5)
+			if save_output: tracking.to_csv(f"{OUTPUT_DIR}/stack-tracking-{suffix_trc}.csv", index=False)
 
 			assert len(tracking) > 0, "Aucun Tracking trouvé"
+
+			path = Path(f"{INPUT_DIR}/ref/{file}-tracking-{suffix_trc}.csv")
+			if path.exists() and path.is_file():
+				print(f"Comparaison avec : '{path}'")
+				ref = pd.read_csv(path)
+				sort = ["Track"]
+				assert compare_points(tracking, ref, 1e-5, sort, TRACK_FILE_COLS, sort), f"Test invalide pour les paramètres {suffix_trc}"
+
 			print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 		else:
 			print_warning(f"Fichier de localisations '{path}' indisponible.")

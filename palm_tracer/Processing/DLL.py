@@ -54,8 +54,8 @@ SEGMENT_FILE_COLS = ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrat
 
 # Tracking
 N_TRACK = 9  # Nombre de paramètres pour le tracking.
-TRACK_COLS = ["Track", "Plane", "X", "Y", "???", "Integrated Intensity", "Z", "Pair Distance", "Id"]
-TRACK_FILE_COLS = ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Pair Distance"]
+TRACK_COLS = ["Track", "Plane", "Y", "X", "Surface", "Integrated Intensity", "Z", "Color", "Id"]
+TRACK_FILE_COLS = ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity"]
 
 
 # ==================================================
@@ -143,9 +143,39 @@ def _parse_tracking_result(data: np.ndarray) -> pd.DataFrame:
 	"""
 	size = (data.size // N_TRACK) * N_TRACK									  # Récupération de la taille correcte si non multiple de N_TRACK
 	res = pd.DataFrame(data[:size].reshape(-1, N_TRACK), columns=TRACK_COLS)  # Transformation en Dataframe
+	res = res[res["X"] > 0]													  # Filtrage des lignes remplies de 0 et -1
+	res = res.reset_index(drop=True)	 								 	  # Remise à 0 des index
 
 	# Liste des colonnes à placer en premier
 	return _rearrange_dataframe_columns(res, TRACK_FILE_COLS, True)			  # Réorganisation du DataFrame
+
+##################################################
+def _parse_localization_for_tracking_dll(data: pd.DataFrame) -> np.ndarray:
+	"""
+	Parsing du résultat de la localisation pour la DLL de Tracking.
+
+	:param data: Donnée en entrée récupérées depuis la localisation.
+	:return: Dataframe
+	"""
+	# Ajoute une ligne de -1 à chaque changement de Plan dans la localisation
+	# Création d'un nouveau DataFrame avec les séparateurs -1 insérés
+	rows = []
+	previous_plan = None
+	columns = data.columns  # Récupérer toutes les colonnes
+
+	for _, row in data.iterrows():
+		if previous_plan is not None and row["Plane"] != previous_plan:
+			rows.append({col: -1 for col in columns})  # Ajout de la ligne -1
+		rows.append(row.to_dict())  # Ajout de la ligne actuelle
+		previous_plan = row["Plane"]
+
+	# Ajout d'une dernière ligne -1 à la fin
+	rows.append({col: -1 for col in columns})
+
+	# Conversion en DataFrame final
+	res = pd.DataFrame(rows)
+	res = _rearrange_dataframe_columns(res, SEGMENT_COLS, False)
+	return np.asarray(res.to_numpy().flatten(), dtype=np.float64)
 
 
 # ==================================================
@@ -250,13 +280,13 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
 
 ##################################################
 def run_tracking_dll(dll: ctypes.CDLL, localizations: pd.DataFrame,
-					 max_distance: float, min_length: float, decrease: float, cost_birth: float) -> pd.DataFrame:
+					 max_distance: float, min_life: float, decrease: float, cost_birth: float) -> pd.DataFrame:
 	"""
 
 	:param dll: Bibliothèque DLL contenant les fonctions de traitement d'image.
 	:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	:param max_distance:
-	:param min_length:
+	:param min_life:
 	:param decrease:
 	:param cost_birth:
 	:return:
@@ -264,28 +294,25 @@ def run_tracking_dll(dll: ctypes.CDLL, localizations: pd.DataFrame,
 	n = len(localizations)
 	loc_size = n * N_SEGMENT
 	track_size = n * N_TRACK
-
-	points = _rearrange_dataframe_columns(localizations, SEGMENT_COLS, False)
-	points = points.to_numpy().flatten()
-	points = np.asarray(points, dtype=np.float64)
+	points = _parse_localization_for_tracking_dll(localizations)
 
 	c_points = points.ctypes.data_as(ctypes.POINTER(ctypes.c_double))				   # Liste de points
-	c_loc_size = ctypes.c_uint(loc_size)											   #
+	c_loc_size = ctypes.c_ulong(loc_size)											   #
 	c_track = np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Liste de points
-	c_track_size = ctypes.c_uint(track_size)										   #
+	c_track_size = ctypes.c_ulong(track_size)										   #
 	c_max_distance = ctypes.c_double(max_distance)									   #
 	c_dz_dx = ctypes.c_double(1)													   # dZdX toujours à 1.
-	c_min_length = ctypes.c_double(min_length)										   #
+	c_min_life = ctypes.c_double(min_life)											   #
 	c_decrease = ctypes.c_double(decrease)											   #
-	c_fusion_disso = ctypes.c_uint(0)												   # allowFusiondisso toujours à 0.
+	c_fusion_disso = ctypes.c_ulong(0)												   # allowFusiondisso toujours à 0.
 	c_cost_birth = ctypes.c_double(cost_birth)										   #
-	c_dim = ctypes.c_uint(2)														   # Nombre de dimensions toujours à 2.
-	c_model = ctypes.c_uint(2)														   # Model toujours à 2.
-	c_planes = ctypes.c_uint(localizations["Plane"].max())							   # Nombre de plans
+	c_dim = ctypes.c_ulong(2)														   # Nombre de dimensions toujours à 2 mais inutilisé dans la DLL.
+	c_model = ctypes.c_ulong(2)														   # Model toujours à 2 pour DistanceIntensity (1 pour CloserNeighbors).
+	c_planes = ctypes.c_ulong(localizations["Plane"].max())							   # Nombre de plans
 
 	# Running
 	dll.tracking(c_points, c_loc_size, c_track, c_track_size, c_max_distance, c_dz_dx,
-				 c_min_length, c_decrease, c_fusion_disso, c_cost_birth, c_dim, c_model, c_planes)
+				 c_min_life, c_decrease, c_fusion_disso, c_cost_birth, c_dim, c_model, c_planes)
 
 	return _parse_tracking_result(np.ctypeslib.as_array(c_track, shape=(track_size,)))
 # ==================================================
