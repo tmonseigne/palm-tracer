@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `SplineFit` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`SplineFit` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres d'ajustement de spline nécessaires à la configuration de PALM Tracer.
 """
 

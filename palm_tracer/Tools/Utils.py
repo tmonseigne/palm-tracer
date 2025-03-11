@@ -12,14 +12,16 @@ Ce module regroupe des utilitaires pour des tâches courantes et est structuré 
 
 1. **File Management**
 
-   - `add_extension` : Ajoute une extension à un fichier s'il n'en a pas.
-   - `add_suffix` : Ajoute un suffixe à un nom de fichier, tout en préservant l'extension.
-   - `get_timestamp_for_files` : Génère un horodatage au format adapté pour les noms de fichiers.
+   - :func:`add_extension` : Ajoute une extension à un fichier s'il n'en a pas.
+   - :func:`add_suffix` : Ajoute un suffixe à un nom de fichier, tout en préservant l'extension.
+   - :func:`get_timestamp_for_files` : Génère un horodatage au format adapté pour les noms de fichiers.
+   - :func:`get_last_file` : Récupère le dernier fichier (le plus récent) d'un chemin et un pattern prédefini.
 
 2. **Prints**
 
-   - `print_error` : Affiche un message d'erreur en rouge.
-   - `print_warning` : Affiche un avertissement en jaune.
+   - :func:`print_error` : Affiche un message d'erreur en rouge.
+   - :func:`print_warning` : Affiche un avertissement en jaune.
+   - :func:`print_success` : Affiche un message de validation en vert.
 
 """
 

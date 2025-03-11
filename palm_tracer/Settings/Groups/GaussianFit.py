@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `GaussianFit` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`GaussianFit` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres d'ajustement gaussien nécessaires à la configuration de PALM Tracer.
 """
 

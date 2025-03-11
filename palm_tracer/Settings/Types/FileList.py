@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `FileList` dérivée de `BaseSettingType`, qui permet la gestion d'un paramètre type liste de fichiers.
+Fichier contenant la classe :class:`FileList` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type liste de fichiers.
 
 .. todo::
 	Envoi de signaux en double avec le update item et le currentIndexChanged à voir pour la suite, pour le moment ce n'est pas gênant.

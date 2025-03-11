@@ -1,7 +1,7 @@
 """
-Module contenant la classe `PALMTracerWidget` pour l'interface principale de l'application.
+Module contenant la classe :class:`PALMTracerWidget` pour l'interface principale de l'application.
 
-Ce module définit la classe `PALMTracerWidget`, qui crée et gère l'interface utilisateur principale de l'application.
+Ce module définit la classe :class:`.PALMTracerWidget`, qui crée et gère l'interface utilisateur principale de l'application.
 Elle contient des sections de paramètres organisées sous forme de layout,
 permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
 

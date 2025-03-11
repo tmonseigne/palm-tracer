@@ -1,5 +1,5 @@
 """
-Ce fichier définit la classe `Settings`, utilisée pour gérer et enregistrer les paramètres nécessaires à la configuration de PALM Tracer.
+Ce fichier définit la classe :class:`.Settings`, utilisée pour gérer et enregistrer les paramètres nécessaires à la configuration de PALM Tracer.
 
 **Fonctionnalités principales** :
 
@@ -8,7 +8,7 @@ Ce fichier définit la classe `Settings`, utilisée pour gérer et enregistrer l
 
 **Usage** :
 
-La classe `Settings` est conçue pour interagir directement avec l'interface utilisateur en facilitant le paramétrage de PALM Tracer.
+La classe :class:`.Settings` est conçue pour interagir directement avec l'interface utilisateur en facilitant le paramétrage de PALM Tracer.
 """
 
 from dataclasses import dataclass, field
@@ -24,13 +24,13 @@ class Settings:
 	Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer.
 
 	Attributs :
-			- **batch (Batch)** : Groupe de paramètres liés au batch.
-			- **calibration (Calibration)** : Groupe de paramètres liés à la calibration.
-			- **localization (Localization)** : Groupe de paramètres liés à la localisation.
-			- **tracking (Tracking)** : Groupe de paramètres liés au tracking.
-			- **visualization_hr (VisualizationHR)** : Groupe de paramètres liés à la visualisation haute résolution.
-			- **visualization_graph (VisualizationGraph)** : Groupe de paramètres liés à la visualisation de graphiques.
-			- **filtering (Filtering)** : Groupe de paramètres liés au filtrage lors des processus.
+			- :class:`.Batch` : Groupe de paramètres liés au batch.
+			- :class:`.Calibration` : Groupe de paramètres liés à la calibration.
+			- :class:`.Localization` : Groupe de paramètres liés à la localisation.
+			- :class:`.Tracking` : Groupe de paramètres liés au tracking.
+			- :class:`.VisualizationHR` : Groupe de paramètres liés à la visualisation haute résolution.
+			- :class:`.VisualizationGraph` : Groupe de paramètres liés à la visualisation de graphiques.
+			- :class:`.Filtering` : Groupe de paramètres liés au filtrage lors des processus.
 	"""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])

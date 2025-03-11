@@ -1,4 +1,4 @@
-palm\_tracer.Settings
+Settings
 =====================
 
 Ce sous-package gère les paramètres de configuration et l'interface utilisateur de ces paramètres.

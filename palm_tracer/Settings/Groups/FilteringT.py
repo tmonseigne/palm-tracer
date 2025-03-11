@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `Filtering` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`Filtering` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de filtrage du tracking nécessaires à la configuration de PALM Tracer.
 """
 

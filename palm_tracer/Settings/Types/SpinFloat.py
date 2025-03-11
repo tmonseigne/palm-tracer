@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `SpinFloat` dérivée de `BaseSettingType`, qui permet la gestion d'un paramètre type nombre réel.
+Fichier contenant la classe :class:`SpinFloat` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type nombre réel.
 """
 
 from dataclasses import dataclass, field

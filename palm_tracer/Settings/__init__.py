@@ -3,8 +3,9 @@ Ce sous-package gère les paramètres de configuration et l'interface utilisateu
 
 **Composants principaux** :
 
-- `Settings` : Classe principale pour la gestion des paramètres.
-- `SettingTypes` : Ensemble de classes et d'outils pour créer et manipuler les éléments de l'interface utilisateur, tels que les paramètres ajustables.
+- :class:`.Settings` : Classe principale pour la gestion des paramètres.
+- `Setting.Groups` : Ensemble de classes et d'outils pour créer et manipuler des ensembles de paramètres.
+- `Setting.Types` : Ensemble de classes et d'outils pour créer et manipuler les éléments de l'interface utilisateur, tels que les paramètres ajustables.
 
 **Fonctionnalités principales** :
 

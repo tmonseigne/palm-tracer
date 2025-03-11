@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `Tracking` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`Tracking` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de tracking nécessaires à la configuration de PALM Tracer.
 
 

@@ -22,16 +22,23 @@ save_output = True
 
 
 ##################################################
-def compare_localizations(value: pd.DataFrame, ref: pd.DataFrame, tol: float = 1e-5) -> bool:
-	return value[["X", "Y", "Z"]].sub(ref[["X", "Y", "Z"]]).abs().lt(tol).all().all()
-
-
-##################################################
 def get_loc_suffix(gaussian: int) -> str:
+	"""
+	Génère un suffixe pour les fichiers de localisation.
+
+	:param gaussian: Mode du filtre gaussien.
+	:return: suffixe
+	"""
 	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
+
 
 ##################################################
 def get_trc_suffix() -> str:
+	"""
+	Génère un suffixe pour les fichiers de tracking.
+
+	:return: suffixe
+	"""
 	return f"{max_distance}_{min_life}_{decrease}_{cost_birth}"
 
 
@@ -106,13 +113,7 @@ def test_run_palm_stack_dll():
 
 ##################################################
 def test_run_palm_stack_dll_check_quadrant():
-	"""
-	Test sur le lancement de PALM sur une pile.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
-	"""
+	"""	Test sur le lancement de PALM sur une pile. """
 	dll = load_dll().get("CPU", None)
 	if dll is None:
 		print_warning("Test non effectué car DLL manquante")
@@ -165,8 +166,6 @@ def test_run_tracking_dll():
 				ref = pd.read_csv(path)
 				sort = ["Track"]
 				assert compare_points(tracking, ref, 1e-5, sort, TRACK_FILE_COLS, sort), f"Test invalide pour les paramètres {suffix_trc}"
-
-			print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 		else:
 			print_warning(f"Fichier de localisations '{path}' indisponible.")
 

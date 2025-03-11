@@ -3,12 +3,15 @@ Ce sous-package gère les différents types de paramètres.
 
 **Composants principaux** :
 
-- `BaseSettingTypes` : Classe principale pour la gestion des paramètres ajustables.
-- `BrowseFile` : Classe pour un paramètre spécifique de type recherche de fichier.
-- `CheckBox` : Classe pour un paramètre spécifique de type case à cocher.
-- `Combo` : Classe pour un paramètre spécifique de type liste déroulante.
-- `SpinFloat` : Classe pour un paramètre spécifique de type nombre réel.
-- `SpinInt` : Classe pour un paramètre spécifique de type nombre entier.
+- :class:`.BaseSettingTypes` : Classe principale pour la gestion des paramètres ajustables.
+- :class:`.BrowseFile` : Classe pour un paramètre spécifique de type recherche de fichier.
+- :class:`.CheckBox` : Classe pour un paramètre spécifique de type case à cocher.
+- :class:`.CheckRangeFloat` : Classe pour un paramètre spécifique de type interval de nombre réel à activer ou non.
+- :class:`.CheckRangeInt` : Classe pour un paramètre spécifique de type interval de nombre entier à activer ou non.
+- :class:`.Combo` : Classe pour un paramètre spécifique de type liste déroulante.
+- :class:`.FileList` : Classe pour un paramètre spécifique de type liste de fichier.
+- :class:`.SpinFloat` : Classe pour un paramètre spécifique de type nombre réel.
+- :class:`.SpinInt` : Classe pour un paramètre spécifique de type nombre entier.
 
 **Fonctionnalités principales** :
 

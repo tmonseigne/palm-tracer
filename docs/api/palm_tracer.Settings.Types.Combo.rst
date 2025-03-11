@@ -1,7 +1,4 @@
-palm\_tracer.Settings.Types.Combo
+Settings.Types.Combo
 =================================
 
-.. automodule:: palm_tracer.Settings.Types.Combo
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.Settings.Types.Combo

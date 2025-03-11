@@ -1,7 +1,7 @@
 """
-Fichier contenant la classe `BaseSettingGroup` et ses sous-classes pour la gestion des groupes de paramètres.
+Fichier contenant la classe :class:`BaseSettingGroup` et ses sous-classes pour la gestion des groupes de paramètres.
 
-Ce module définit la classe abstraite `BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
+Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 """
 
 from dataclasses import dataclass, field

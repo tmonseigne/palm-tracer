@@ -133,13 +133,7 @@ def test_process_only_visualization_graph(make_napari_viewer):
 
 ##################################################
 def test_process_all(make_napari_viewer):
-	"""
-	Test Basique pour le process.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
-	"""
+	""" Test Basique pour le process. """
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():

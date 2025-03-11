@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `VisualizationHR` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`VisualizationHR` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de visualisation haute résolution nécessaires à la configuration de PALM Tracer.
 """
 

@@ -1,5 +1,5 @@
 """
-Module contenant les fonctions de visualization pouyr palm-tracer.
+Module contenant les fonctions de visualisation pour palm-tracer.
 """
 import numpy as np
 import pandas as pd
@@ -103,14 +103,14 @@ def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list
 ##################################################
 def plot_histogram(ax: plt.axes, data: np.ndarray, title: str, limit: bool = True, kde: bool = True, density: bool = True):
 	"""
-	Trace un histogramme des données avec Seaborn, et optionnellement une courbe gaussienne.
+	Trace un histogramme des données avec Seaborn, et optionnellement une courbe kernel density estimation.
 
 	:param ax: Axe sur lequel tracer l'histogramme.
-    :param data: Données sous forme de tableau numpy.
+	:param data: Données sous forme de tableau numpy.
 	:param title: Titre de l'histogramme.
-    :param limit: Si True, applique la règle des 3 sigmas pour limiter les données.
-    :param kde: Si True, superpose une courbe gaussienne.
-    :param density: Si True, normalise l'histogramme pour afficher une densité de probabilité.
+	:param limit: Si True, applique la règle des 3 sigmas pour limiter les données.
+	:param kde: Si True, superpose une courbe gaussienne.
+	:param density: Si True, normalise l'histogramme pour afficher une densité de probabilité.
 	"""
 	data = data.ravel()  # Convertit en un tableau 1D
 	if len(data) == 0: return

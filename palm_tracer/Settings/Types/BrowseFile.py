@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `BrowseFile` dérivée de `BaseSettingType`, qui permet la gestion d'un paramètre type recherche de fichier.
+Fichier contenant la classe :class:`BrowseFile` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type recherche de fichier.
 """
 
 import os

@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `FilteringGF` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`FilteringGF` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de filtrage de l'ajustement gaussien nécessaires à la configuration de PALM Tracer.
 """
 

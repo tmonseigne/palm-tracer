@@ -1,7 +1,4 @@
-palm\_tracer.Settings.Groups.BaseSettingGroup
+Settings.Groups.BaseSettingGroup
 =============================================
 
-.. automodule:: palm_tracer.Settings.Groups.BaseSettingGroup
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.Settings.Groups.BaseSettingGroup

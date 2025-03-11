@@ -1,8 +1,9 @@
 """
-Fichier contenant la classe `Filtering` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`Filtering` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de filtrage nécessaires à la configuration de PALM Tracer.
 
-.. todo:: checked range setting pour les filtres
+.. todo::
+	Vérifier l'ordre de grandeur et le valeurs par défaut des paramètres des filtres
 """
 
 from dataclasses import dataclass

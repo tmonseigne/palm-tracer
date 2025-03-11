@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `Calibration` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`Calibration` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de calibration nécessaires à la configuration de PALM Tracer.
 """
 

@@ -3,11 +3,13 @@ Ce sous-package gère les groupes de paramètres.
 
 **Composants principaux** :
 
-- `BaseSettingGroup` : Classe principale pour la gestion des groupes.
-- `Batch` : Classe regroupant les paramètres du Batch.
-- `Calibration` : Classe regroupant les paramètres de la Calibration.
-- `Localization` : Classe regroupant les paramètres de la Localisation.
-- `GaussianFit` : Classe regroupant les paramètres du Gaussian Fit.
+- :class:`.BaseSettingGroup` : Classe principale pour la gestion des groupes.
+- :class:`.Batch` : Classe regroupant les paramètres du Batch.
+- :class:`.Calibration` : Classe regroupant les paramètres de la Calibration.
+- :class:`.Filtering` : Classe regroupant les paramètres de filtrage.
+- :class:`.Localization` : Classe regroupant les paramètres de la Localisation.
+- :class:`.VisualizationHR` : Classe regroupant les paramètres de la Visualisation haute résolution.
+- :class:`.VisualizationGraph` : Classe regroupant les paramètres de la Visualisation de graphiques.
 
 **Fonctionnalités principales** :
 

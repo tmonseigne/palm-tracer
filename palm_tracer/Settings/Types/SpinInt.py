@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `SpinInt` dérivée de `BaseSettingType`, qui permet la gestion d'un paramètre type nombre entier.
+Fichier contenant la classe :class:`SpinInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type nombre entier.
 """
 
 from dataclasses import dataclass, field

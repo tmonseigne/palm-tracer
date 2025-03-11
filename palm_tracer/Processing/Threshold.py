@@ -7,8 +7,8 @@ Ce module regroupe des utilitaires pour :
 
 **Structure** :
 
-   - `auto_threshold` : Calcule un seuil automatique basé sur l'écart type des pixels de l'image et les régions d'intérêt (ROI).
-   - `auto_threshold_dll` : Calcule un seuil automatique basé sur l'écart type des pixels de l'image et les régions d'intérêt (ROI).
+   - :func:`auto_threshold` : Calcule un seuil automatique basé sur l'écart type des pixels de l'image et les régions d'intérêt (ROI).
+   - :func:`auto_threshold_dll` : Calcule un seuil automatique basé sur l'écart type des pixels de l'image et les régions d'intérêt (ROI).
 
 .. note::
 	Lors de la mise à jour du masque, il n'est pas remis à 0 à chaque iteration, cela ne change pas grand chose au final, mais c'est étrange.

@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `CheckBox` dérivée de `BaseSettingType`, qui permet la gestion d'un paramètre type case à cocher.
+Fichier contenant la classe :class:`CheckBox` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type case à cocher.
 """
 
 from dataclasses import dataclass, field

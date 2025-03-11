@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `Combo` dérivée de `BaseSettingType`, qui permet la gestion d'un paramètre type liste déroulante.
+Fichier contenant la classe :class:`Combo` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type liste déroulante.
 """
 
 from dataclasses import dataclass, field

@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `CheckRangeInt` dérivée de `BaseSettingType`, qui permet la gestion d'un paramètre type interval de nombre entier.
+Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type interval de nombre entier.
 """
 
 from dataclasses import dataclass, field
@@ -20,7 +20,7 @@ class CheckRangeFloat(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-        	- **default ([float, float])** : Valeurs par défaut du paramètre.
+			- **default ([float, float])** : Valeurs par défaut du paramètre.
 			- **limit ([float, float])** : Valeurs minimale et maximale du paramètre.
 			- **value ([float, float])** : Valeurs minimale et maximale actuelles du paramètre.
 			- **box (QDoubleSpinBox)** : Objet QT permettant de manipuler le paramètre.

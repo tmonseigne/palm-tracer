@@ -1,7 +1,4 @@
-palm\_tracer.Settings.Types.FileList
+Settings.Types.FileList
 ====================================
 
-.. automodule:: palm_tracer.Settings.Types.FileList
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.Settings.Types.FileList

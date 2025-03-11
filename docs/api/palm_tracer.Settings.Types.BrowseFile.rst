@@ -1,7 +1,4 @@
-palm\_tracer.Settings.Types.BrowseFile
+Settings.Types.BrowseFile
 ======================================
 
-.. automodule:: palm_tracer.Settings.Types.BrowseFile
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.Settings.Types.BrowseFile

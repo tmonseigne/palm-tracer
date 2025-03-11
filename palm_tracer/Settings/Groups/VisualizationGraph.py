@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `VisualizationGraph` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`VisualizationGraph` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de visualisation de graphique nécessaires à la configuration de PALM Tracer.
 """
 

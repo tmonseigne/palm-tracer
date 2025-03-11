@@ -1,4 +1,4 @@
-palm\_tracer.Tools
+Tools
 ==================
 
 Ce sous-package contient des outils utilitaires pour le projet PALM Tracer.

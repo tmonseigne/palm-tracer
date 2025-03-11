@@ -6,13 +6,22 @@ from palm_tracer.Tools import print_error, print_success, print_warning
 
 
 ##################################################
-def is_closed(value: float, ref: float, tol: float = 1e-5):
-	return (np.abs(value) - ref) <= tol
+def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
+	"""
+	Vérifie que deux valeurs flottantes sont proche avec une tolérance.
+
+	:param a: Première valeur.
+	:param b: Seconde valeur.
+	:param tol: tolérance (par défaut 0.00001)
+	:return: Vrai si les deux valeurs sont proches
+	"""
+
+	return np.abs(a - b) <= tol
 
 
 ##################################################
-def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
-				   sort_cols: list[str] | None = None, compare_cols: list[str] | None = None, group_cols: list[str] | None = None) -> bool:
+def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_cols: list[str] | None = None,
+				   compare_cols: list[str] | None = None, group_cols: list[str] | None = None) -> bool:
 	"""
 	Compare deux DataFrames de localisation en tenant compte de la proximité spatiale.
 
@@ -137,7 +146,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 
 	if total_points > 0:
 		exact_match_ratio = exact_matches / total_points * 100
-		msg  = f"Comparaison terminée : {total_points} Points comparés, {exact_matches} Points identiques ({exact_match_ratio:.2f}%)"
+		msg = f"Comparaison terminée : {total_points} Points comparés, {exact_matches} Points identiques ({exact_match_ratio:.2f}%)"
 		if total_points == exact_matches: print_success(msg)
 		else: print_warning(msg)
 

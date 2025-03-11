@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe `Batch` dérivée de `BaseSettingGroup`, qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
+Fichier contenant la classe :class:`Batch` dérivée de :class:`.BaseSettingGroup`, qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
 """
 
 import os

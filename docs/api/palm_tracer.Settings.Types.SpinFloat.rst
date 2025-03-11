@@ -1,7 +1,4 @@
-palm\_tracer.Settings.Types.SpinFloat
+Settings.Types.SpinFloat
 =====================================
 
-.. automodule:: palm_tracer.Settings.Types.SpinFloat
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.Settings.Types.SpinFloat

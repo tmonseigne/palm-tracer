@@ -1,7 +1,4 @@
-palm\_tracer.Settings.Types.SignalWrapper
+Settings.Types.SignalWrapper
 =========================================
 
-.. automodule:: palm_tracer.Settings.Types.SignalWrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.Settings.Types.SignalWrapper

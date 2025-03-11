@@ -1,7 +1,4 @@
-palm\_tracer.widget
-===================
+PALMTracerWidget
+=============================
 
-.. automodule:: palm_tracer.PALMTracerWidget
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.PALMTracerWidget

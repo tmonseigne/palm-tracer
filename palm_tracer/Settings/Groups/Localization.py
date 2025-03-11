@@ -1,10 +1,6 @@
 """
-Fichier contenant la classe `Localisation` dérivée de `BaseSettingGroup`,
+Fichier contenant la classe :class:`Localisation` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de localisation nécessaires à la configuration de PALM Tracer.
-
-.. todo:
-	Le gaussian fit doit-être construit dans un widget à part pour complètement le masquer ou non selon le choix du fit (entre gaussien et spline).
-	Le changement du combo box doit donc activer/masquer les paramètres correspondants.
 """
 
 from dataclasses import dataclass

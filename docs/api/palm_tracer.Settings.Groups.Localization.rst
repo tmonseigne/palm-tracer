@@ -1,7 +1,4 @@
-palm\_tracer.Settings.Groups.Localization
+Settings.Groups.Localization
 =========================================
 
-.. automodule:: palm_tracer.Settings.Groups.Localization
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: palm_tracer.Settings.Groups.Localization

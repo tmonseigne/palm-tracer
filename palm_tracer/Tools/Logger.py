@@ -1,7 +1,7 @@
 """
 Module d'enregistrement d'un journal d'activité du process.
 
-Ce fichier contient une classe principale `Logger` permettant d'enregistrer les différentes étapes du process.
+Ce fichier contient une classe principale :class:`Logger` permettant d'enregistrer les différentes étapes du process.
 """
 
 from dataclasses import dataclass, field

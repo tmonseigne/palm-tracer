@@ -48,15 +48,16 @@ html_context = {"allow_html_in_rst": True}
 autosummary_generate = True
 autodoc_default_options = {
 		"members":          True,
+		"private-members":  True,
 		"undoc-members":    True,
 		"show-inheritance": True,
 		}
 autodoc_member_order = "bysource"
+add_module_names = False
 
 todo_include_todos = True
 
 suppress_warnings = ["autosectionlabel.*"]
-
 
 # Spécifie les répertoires source et destination
 def copy_dir(source, dest):

@@ -8,28 +8,6 @@ Ce module regroupe des utilitaires pour :
 - Traitement d'images : exécution de traitements via DLLs pour détecter des points sur une image.
 - Calcul et parsing de paramètres   estimation du nombre de points détectables en fonction des dimensions de l'image et de la densité.
 
-**Structure** :
-
-1. **Parsing**
-
-   - `get_gaussian_mode` : Détermine le mode de fit Gaussien selon les paramètres fournis.
-   - `get_max_points` : Calcule le nombre maximal théorique de points détectables dans une image.
-   - `parse_palm_result` : Transforme le résultat de la DLL PALM en Dataframe lisible.
-
-2. **DLL Manipulation**
-
-   - `load_dll` : Charge les DLL nécessaires pour les traitements d'image (CPU, GPU, Live, Tracking).
-   - `run_palm_dll` : Exécute un traitement d'image avec une DLL PALM pour détecter des points.
-
-.. todo::
-	La sortie de la DLL diffère légèrement, quelques points "manquants", mais aussi une différence de précision pouvant aller jusqu'à 10e-2.
-	Le chargement par `ctypes.windll` ne change rien au résultat par rapport au chargement par  `ctypes.cdll`.
-	L'architecture de la DLL est la même que Python (64 bits).
-
-	- Investigation supplémentaire necessaire avec le code source de la DLL, une documentation serait aussi necessaire.
-	- Vérification que la lecture d'image par Metamorph ne transforme pas les pixels.
-
-
 """
 
 import ctypes
@@ -79,13 +57,13 @@ def _get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n
 ##################################################
 def _rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remaining: bool = True) -> pd.DataFrame:
 	"""
-	Réorganise les colonnes d'un DataFrame en mettant certaines en premier,
-    avec l'option d'ajouter les colonnes restantes dans leur ordre d'origine.
+	Réorganise les colonnes d'un DataFrame en mettant certaines en premier, avec l'option d'ajouter les colonnes restantes dans leur ordre d'origine.
 
 	:param data: Le DataFrame à réorganiser.
 	:param columns: Liste des noms de colonnes à placer en premier.
 	:param remaining: Si `True`, ajoute les colonnes non spécifiées après celles définies dans `columns`.
 	:return: Un nouveau DataFrame avec les colonnes réorganisées.
+
     :raises ValueError: Si une colonne spécifiée dans `columns` n'existe pas dans `data`.
 	"""
 	# Vérifier que toutes les colonnes spécifiées existent dans le DataFrame

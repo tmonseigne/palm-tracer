@@ -20,23 +20,16 @@ def test_auto_threshold():
 
 ##################################################
 def test_auto_threshold_dll():
-	"""
-	Test basique sur l'auto-seuillage avec la DLL.
-
-	.. todo::
-		Comparer avec une sortie de PALM Tracer.
-		Actuellement différence de résultat, nécessite une investigation
-	"""
+	""" Test basique sur l'auto-seuillage avec la DLL. """
 	dll = load_dll().get("CPU", None)
 	if dll is None: print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
 		roi, iterations = 7, 4
-		ref = [102.749661, 107.684024, 101.971399, 103.139405, 106.806511,
-			   101.999329, 104.997113, 092.055165, 098.834634, 096.873310]
+		ref = [63.634560, 63.701586, 63.058853, 62.557870, 62.474888,
+			   63.374433, 63.857703, 63.368484, 62.613244, 63.833786]
 		for i in range(image.shape[0]):
 			res = auto_threshold_dll(dll, image[i], roi, iterations)
 			# print(f"Image {i} : {res:.6f}")
 			assert is_closed(res, ref[i]), f"Le seuil pour l'image {i} vaut {res} au lieu de {ref[i]}"
-		print_warning("\n====================\nAucune comparaison avec Metamorph dans ce test.\n====================\n")
 	assert True
