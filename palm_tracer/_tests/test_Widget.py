@@ -38,13 +38,13 @@ def test_widget_auto_threshold(make_napari_viewer, capsys):
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget.auto_threshold()			  # Appel de la méthode auto_threshold sans fichier dans le batch.
+	my_widget._auto_threshold()			  # Appel de la méthode auto_threshold sans fichier dans le batch.
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget.auto_threshold()			  # Appel de la méthode auto_threshold.
+	my_widget._auto_threshold()			  # Appel de la méthode auto_threshold.
 	assert True
 
 
@@ -54,13 +54,13 @@ def test_widget_process(make_napari_viewer, capsys):
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget.process()					  # Appel de la méthode process sans fichier dans le batch.
+	my_widget._process()					  # Appel de la méthode process sans fichier dans le batch.
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget.process()					  # Appel de la méthode process.
+	my_widget._process()					  # Appel de la méthode process.
 	assert True
 
 
@@ -75,5 +75,5 @@ def test_widget_bad_dll(make_napari_viewer, capsys):
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget.process()					  # Appel de la méthode process.
+	my_widget._process()					  # Appel de la méthode process.
 	assert True

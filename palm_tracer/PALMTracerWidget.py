@@ -24,6 +24,9 @@ from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 class PALMTracerWidget(QWidget):
 	"""Widget principal gérant toute l'interface"""
 
+	# ==================================================
+	# region Init
+	# ==================================================
 	##################################################
 	def __init__(self, viewer: "napari.viewer.Viewer"):
 		"""
@@ -70,14 +73,16 @@ class PALMTracerWidget(QWidget):
 		if file_list_setting and isinstance(file_list_setting, FileList):  # pragma: no cover (toujours vrai)
 			file_list_setting.connect(self._reset_layer)
 
+		self.viewer.dims.events.current_step.connect(self._on_plane_change)
+
 		# Launch Button
 		btn = QPushButton("Start Processing")
-		btn.clicked.connect(self.process)
+		btn.clicked.connect(self._process)
 		self.layout().addWidget(btn)
 
 	##################################################
 	@staticmethod
-	def __create_tab(widgets: list[QWidget]):
+	def __create_tab(widgets: list[QWidget]) -> QWidget:
 		"""Crée l'onglet 'Processing' avec son QFormLayout"""
 		widget = QWidget()
 		layout = QVBoxLayout()
@@ -88,6 +93,13 @@ class PALMTracerWidget(QWidget):
 		widget.setLayout(layout)
 		return widget
 
+	# ==================================================
+	# endregion Init
+	# ==================================================
+
+	# ==================================================
+	# region Callback
+	# ==================================================
 	##################################################
 	def _load_setting(self):  # pragma: no cover
 		"""Action lors d'un clic sur le bouton Load setting."""
@@ -124,13 +136,19 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.float32)	  # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
 
 	##################################################
-	def auto_threshold(self):
+	def _on_plane_change(self, event):
+		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
+		# Si la preview est activé, on la relance
+		#print(f"Plan actuel : {plane_idx}")
+
+	##################################################
+	def _auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
@@ -138,9 +156,13 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
-	def process(self):
+	def _process(self):
 		"""Action lors d'un clic sur le bouton process"""
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return
 		self.pt.process()
+
+# ==================================================
+# endregion Callback
+# ==================================================
