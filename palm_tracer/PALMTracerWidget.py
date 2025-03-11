@@ -15,7 +15,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import auto_threshold
+from palm_tracer.Processing import auto_threshold_dll
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 
@@ -134,7 +134,7 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = auto_threshold(image)								 # Calcul du seuil automatique
+		threshold = auto_threshold_dll(self.pt.dlls["CPU"], image)  # Calcul du seuil automatique
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################

@@ -50,10 +50,10 @@ def auto_threshold_dll(dll: ctypes.CDLL, image: np.array, roi_size: int = 7, max
 	:param max_iterations: Nombre d'itérations pour affiner le seuil (par défaut 4).
 	:return: Seuil calculé (écart type final).
 	"""
-	mask = np.zeros_like(image, dtype=int) # Creation du masque
-	std_dev = np.std(image)				   # Calcul initial de l'écart type
-	roi_2 = float(roi_size) / 2.0		   # Demi-taille de la zone ROI
-	height, width = image.shape			   # Récupération de la taille de l'image
+	mask = np.zeros_like(image, dtype=bool) # Creation du masque
+	std_dev = np.std(image)					# Calcul initial de l'écart type
+	roi_2 = float(roi_size) / 2.0			# Demi-taille de la zone ROI
+	height, width = image.shape				# Récupération de la taille de l'image
 
 	for _ in range(max_iterations):
 		# Lancement d'un PALM et récupération de la liste des points (format (x, y))
@@ -65,10 +65,10 @@ def auto_threshold_dll(dll: ctypes.CDLL, image: np.array, roi_size: int = 7, max
 			x_min, x_max = max(0, int(x - roi_2)), min(width, int(x + roi_2))
 			y_min, y_max = max(0, int(y - roi_2)), min(height, int(y + roi_2))
 			# Mettre à jour le masque pour les pixels dans la ROI
-			mask[y_min:y_max, x_min:x_max] = 1
+			mask[y_min:y_max, x_min:x_max] = True
 
 		# Calcul de l'écart type pour les pixels hors segmentation
-		pixels_outside = image[mask == 0]
+		pixels_outside = image[~mask]
 		if len(pixels_outside) > 0: std_dev = np.std(pixels_outside)
 		else: break  # pragma: no cover	(ce else est presque impossible à avoir)
 
