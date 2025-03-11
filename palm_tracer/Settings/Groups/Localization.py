@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
 from palm_tracer.Settings.Groups.SplineFit import SplineFit
-from palm_tracer.Settings.Types import CheckBox, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import Button, CheckBox, Combo, SpinFloat, SpinInt
 
 
 ##################################################
@@ -28,13 +28,14 @@ class Localization(BaseSettingGroup):
 
 	label: str = "Localization"
 	setting_list = {
-			"Preview":      [CheckBox, ["Preview"]],
-			"Threshold":    [SpinFloat, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
-			"ROI Size":     [SpinInt, ["ROI Size", 7, 3, 50, 1]],
-			"Watershed":    [CheckBox, ["Watershed", True]],
-			"Mode":         [Combo, ["Mode", 0, ["Gaussian Fit", "Spline"]]],
-			"Gaussian Fit": [GaussianFit, []],
-			"Spline Fit":   [SplineFit, []]
+			"Preview":        [CheckBox, ["Preview"]],
+			"Threshold":      [SpinFloat, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
+			"Auto Threshold": [Button, ["Threshold", "Auto"]],
+			"ROI Size":       [SpinInt, ["ROI Size", 7, 3, 50, 1]],
+			"Watershed":      [CheckBox, ["Watershed", True]],
+			"Mode":           [Combo, ["Mode", 0, ["Gaussian Fit", "Spline"]]],
+			"Gaussian Fit":   [GaussianFit, []],
+			"Spline Fit":     [SplineFit, []]
 			}
 
 	##################################################

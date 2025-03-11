@@ -16,7 +16,7 @@ from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QW
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import auto_threshold_dll
-from palm_tracer.Settings.Types import FileList
+from palm_tracer.Settings.Types import Button, FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 
 
@@ -69,9 +69,14 @@ class PALMTracerWidget(QWidget):
 		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également.
 		# La mise à jour du selected fait qu'on le recharge pour la visu napari.
 		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
-		file_list_setting = self.pt.settings.batch["Files"]
-		if file_list_setting and isinstance(file_list_setting, FileList):  # pragma: no cover (toujours vrai)
-			file_list_setting.connect(self._reset_layer)
+		setting = self.pt.settings.batch["Files"]
+		if setting and isinstance(setting, FileList):  # pragma: no cover (toujours vrai)
+			setting.connect(self._reset_layer)
+
+		# Calcul automatique du Seuil
+		setting = self.pt.settings.localization["Auto Threshold"]
+		if setting and isinstance(setting, Button):  # pragma: no cover (toujours vrai)
+			setting.connect(self._auto_threshold)
 
 		self.viewer.dims.events.current_step.connect(self._on_plane_change)
 
@@ -103,10 +108,12 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _load_setting(self):  # pragma: no cover
 		"""Action lors d'un clic sur le bouton Load setting."""
-		print("Load settings...")
 		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
-		self.pt.settings.update_from_dict(open_json(file_name))
-		print(f"Setting loaded with the file \"{file_name}\".")
+		try:
+			self.pt.settings.update_from_dict(open_json(file_name))
+			print(f"Chargement du fichier de configuration '{file_name}'.")
+		except Exception as e:
+			print_warning(f"Erreur lors du chargement du fichier '{file_name}' : {e}")
 
 	##################################################
 	def _reset_layer(self):
@@ -153,6 +160,7 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = auto_threshold_dll(self.pt.dlls["CPU"], image)  # Calcul du seuil automatique
+		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################

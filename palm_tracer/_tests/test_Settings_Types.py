@@ -162,3 +162,10 @@ def test_check_range_float(make_napari_viewer):
 
 	setting.active = True
 	assert setting.active == True, "Le paramètre doit être activés."
+
+
+###################################################
+def test_button(make_napari_viewer):
+	"""Test basique de la classe (constructeur, getter, setter)"""
+	setting = Button("Test", "Test")
+	setting_base_test(setting, True, True)
