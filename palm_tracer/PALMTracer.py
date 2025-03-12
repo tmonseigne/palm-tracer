@@ -153,15 +153,10 @@ class PALMTracer:
 		:return: Données de localisation trouvées.
 		"""
 		# Parse settings
-		threshold = self.settings.localization["Threshold"].get_value()
-		watershed = self.settings.localization["Watershed"].get_value()
-		roi = self.settings.localization["ROI Size"].get_value()
-		gaussian_setting = cast(GaussianFit, self.settings.localization["Gaussian Fit"])
-		gaussian = gaussian_setting["Mode"].get_value()
-		sigma = gaussian_setting["Sigma"].get_value()
-		theta = gaussian_setting["Theta"].get_value()
+		s = self.settings.get_localisation_settings()
 		# Run command
-		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack, threshold, watershed, gaussian, sigma, theta, roi)
+		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack,
+												s["Threshold"], s["Watershed"], s["Gaussian"], s["Sigma"], s["Theta"], s["ROI"])
 
 		self.logger.add("\tEnregistrement du fichier de localisation")
 		self.logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
@@ -175,12 +170,9 @@ class PALMTracer:
 		:return: Données de tracking trouvées.
 		"""
 		# Parse settings
-		max_distance = self.settings.tracking["Max Distance"].get_value()
-		min_length = self.settings.tracking["Min Length"].get_value()
-		decrease = self.settings.tracking["Decrease"].get_value()
-		cost_birth = self.settings.tracking["Cost Birth"].get_value()
+		s = self.settings.get_tracking_settings()
 		# Run command
-		self.tracks = run_tracking_dll(self.dlls["Tracking"], self.localizations, max_distance, min_length, decrease, cost_birth)
+		self.tracks = run_tracking_dll(self.dlls["Tracking"], self.localizations, s["Max"], s["Min"], s["Decrease"], s["Cost"])
 
 		self.logger.add("\tEnregistrement du fichier de tracking.")
 		self.logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvé(s).")
@@ -194,15 +186,14 @@ class PALMTracer:
 		:return: Nouvelle visualisation.
 		"""
 		# Parse settings
-		ratio = self.settings.visualization_hr["Ratio"].get_value()
-		source = self.settings.visualization_hr["Source"].get_value()
+		s = self.settings.get_hr_settings()
 
 		# Création de l'image finale
 		depth, height, width = self.__stack.shape
 		if self.localizations is not None:
-			self.visualization = render_hr_image(width, height, ratio, self.localizations[["X", "Y", HR_SOURCE[source]]].to_numpy())
-			self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{ratio}, s{source}).")
-			save_png(self.visualization, f"{self.__path}/visualization_x{ratio}_s{source}-{self.__suffix}.png")
+			self.visualization = render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", HR_SOURCE[s['Source']]]].to_numpy())
+			self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{s['Ratio']}, s{s['Source']}).")
+			save_png(self.visualization, f"{self.__path}/visualization_x{s['Ratio']}_s{s['Source']}-{self.__suffix}.png")
 		else:
 			self.logger.add(f"\tAucun fichier de localisation pour la visualisation.")
 
@@ -213,18 +204,18 @@ class PALMTracer:
 
 		"""
 		# Parse settings
-		mode = self.settings.visualization_graph["Mode"].get_value()
-		source = self.settings.visualization_graph["Source"].get_value()
+		s = self.settings.get_graph_settings()
 
 		self.graph, ax = plt.subplots()
 		if self.localizations is None: return
 
-		if mode == 0:  # Histogram
-			plot_histogram(ax, self.localizations[GRAPH_SOURCE[source]].to_numpy(), GRAPH_SOURCE[source] + " Histogram", True, True, False)
-		elif mode == 1:  # Plane Heat Map
-			plot_plane_heatmap(ax, self.localizations[["Plane", GRAPH_SOURCE[source]]].to_numpy(), GRAPH_SOURCE[source] + " Heatmap")
+		source = GRAPH_SOURCE[s["Source"]]
+		if s["Mode"] == 0:  # Histogram
+			plot_histogram(ax, self.localizations[source].to_numpy(), source + " Histogram", True, True, False)
+		elif s["Mode"] == 1:  # Plane Heat Map
+			plot_plane_heatmap(ax, self.localizations[["Plane", source]].to_numpy(), source + " Heatmap")
 		else: # elif mode == 2:  # Plane Violin
-			plot_plane_violin(ax, self.localizations[["Plane", GRAPH_SOURCE[source]]].to_numpy(), GRAPH_SOURCE[source] + " Violin")
+			plot_plane_violin(ax, self.localizations[["Plane", source]].to_numpy(), source + " Violin")
 
 		self.logger.add("\tEnregistrement du fichier de visualisation graphique.")
-		self.graph.savefig(f"{self.__path}/graph_m{mode}_s{source}-{self.__suffix}.png", bbox_inches="tight")
+		self.graph.savefig(f"{self.__path}/graph_m{s['Mode']}_s{s['Source']}-{self.__suffix}.png", bbox_inches="tight")

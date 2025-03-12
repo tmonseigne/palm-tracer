@@ -167,5 +167,5 @@ def test_check_range_float(make_napari_viewer):
 ###################################################
 def test_button(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = Button("Test", "Test")
+	setting = Button("Test")
 	setting_base_test(setting, True, True)

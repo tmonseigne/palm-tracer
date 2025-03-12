@@ -116,6 +116,55 @@ class Settings:
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_dict(groups[name])
 
+	##################################################
+	def get_localisation_settings(self) -> dict[str, Any]:
+		"""
+		Récupère les Settings necessaire à la localisation
+		:return: Dictionnaire de settings
+		"""
+		threshold = self.localization["Threshold"].get_value()
+		watershed = self.localization["Watershed"].get_value()
+		roi = self.localization["ROI Size"].get_value()
+		gaussian_setting = cast(GaussianFit, self.localization["Gaussian Fit"])
+		gaussian = gaussian_setting["Mode"].get_value()
+		sigma = gaussian_setting["Sigma"].get_value()
+		theta = gaussian_setting["Theta"].get_value()
+		return {"Threshold": threshold, "Watershed": watershed, "ROI": roi,
+				"Gaussian":  gaussian, "Sigma": sigma, "Theta": theta}
+
+	##################################################
+	def get_tracking_settings(self) -> dict[str, Any]:
+		"""
+		Récupère les Settings necessaire au tracking.
+		:return: Dictionnaire de settings
+		"""
+		max_distance = self.tracking["Max Distance"].get_value()
+		min_length = self.tracking["Min Length"].get_value()
+		decrease = self.tracking["Decrease"].get_value()
+		cost_birth = self.tracking["Cost Birth"].get_value()
+		return {"Max": max_distance, "Min": min_length, "Decrease": decrease, "Cost": cost_birth}
+
+	##################################################
+	def get_hr_settings(self) -> dict[str, Any]:
+		"""
+		Récupère les Settings necessaire à la visualisation haute résolution.
+		:return: Dictionnaire de settings
+		"""
+		ratio = self.visualization_hr["Ratio"].get_value()
+		source = self.visualization_hr["Source"].get_value()
+		return {"Ratio": ratio, "Source": source}
+
+
+	##################################################
+	def get_graph_settings(self) -> dict[str, Any]:
+		"""
+		Récupère les Settings necessaire à la visualisation de graph.
+		:return: Dictionnaire de settings
+		"""
+		mode = self.visualization_graph["Mode"].get_value()
+		source = self.visualization_graph["Source"].get_value()
+		return {"Mode": mode, "Source": source}
+
 	# ==================================================
 	# endregion Parsing
 	# ==================================================
@@ -138,6 +187,6 @@ class Settings:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-	# ==================================================
-	# endregion IO
-	# ==================================================
+# ==================================================
+# endregion IO
+# ==================================================

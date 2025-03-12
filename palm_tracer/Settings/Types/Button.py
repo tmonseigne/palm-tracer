@@ -5,7 +5,6 @@ Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingTyp
 from dataclasses import dataclass, field
 from typing import Any
 
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QPushButton
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
@@ -24,7 +23,6 @@ class Button(BaseSettingType):
 			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
 	"""
 
-	text: str = "Button"
 	box: QPushButton = field(init=False, default_factory=QPushButton)
 
 	##################################################
@@ -35,19 +33,18 @@ class Button(BaseSettingType):
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "text": self.text}
+		return {"type": type(self).__name__, "label": self.label}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		self.label = data.get("label", "")
-		self.text = data.get("text", "")
-		self.box.setText(self.text)
+		self.box.setText(self.label)
 
 	##################################################
 	def initialize(self):
 		super().initialize()			   # Appelle l'initialisation de la classe mère.
-		self.box = QPushButton(self.text)  # Création de la boite.
-		self.add_row(self.box)			   # Ajoute la check box au calque.
+		self.box = QPushButton(self.label)  # Création de la boite.
+		self._layout.addRow(self.box)
 
 	##################################################
 	def reset(self): pass

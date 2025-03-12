@@ -15,7 +15,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import auto_threshold_dll
+from palm_tracer.Processing import auto_threshold_dll, run_palm_image_dll
 from palm_tracer.Settings.Types import Button, FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 
@@ -72,6 +72,11 @@ class PALMTracerWidget(QWidget):
 		setting = self.pt.settings.batch["Files"]
 		if setting and isinstance(setting, FileList):  # pragma: no cover (toujours vrai)
 			setting.connect(self._reset_layer)
+
+		# Calcul de la preview
+		setting = self.pt.settings.localization["Preview"]
+		if setting and isinstance(setting, Button):  # pragma: no cover (toujours vrai)
+			setting.connect(self._preview)
 
 		# Calcul automatique du Seuil
 		setting = self.pt.settings.localization["Auto Threshold"]
@@ -139,27 +144,64 @@ class PALMTracerWidget(QWidget):
 			print_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
+	def _add_detection_layers(self, points: np.ndarray):
+		"""
+		Ajoute deux calques à Napari :
+		- Un calque de formes avec des carrés verts pour les ROIs
+		- Un calque de points avec des points rouges pour les détections
+
+		:param points: Numpy array de y et x (dans ce sens)
+		"""
+		if points.size == 0: # Pas de points, pas de calques à ajouter
+			print_warning("Aucun point détecté, les calques ne seront pas créés.")
+			return
+
+		# Création des points rouges
+		if "Points" in self.viewer.layers: self.viewer.layers["Points"].data = points
+		else: self.viewer.add_points(points, size=1, face_color="red", name="Points")
+
+		# Création des ROIs (carrés verts)
+		roi_size = self.pt.settings.localization["ROI Size"].get_value()
+		half_size = roi_size / 2
+		rois = []
+		for y, x in points:
+			rois.append([[y - half_size, x - half_size], [y - half_size, x + half_size],   # Haut gauche, droit
+						 [y + half_size, x + half_size], [y + half_size, x - half_size]])  # Bas droit, gauche
+
+		if "ROI" in self.viewer.layers: self.viewer.layers["ROI"].data = rois
+		else: self.viewer.add_shapes(rois, shape_type="polygon", edge_color="green", edge_width=0.5, face_color="transparent", name="ROI")
+
+	##################################################
 	def _get_actual_image(self) -> np.ndarray | None:
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)	  # Renvoie sous le format numpy
 
 	##################################################
 	def _on_plane_change(self, event):
-		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		# Si la preview est activé, on la relance
-		#print(f"Plan actuel : {plane_idx}")
+		# Relancer la prévisualisation si elle à déjà été lancé
+		if "ROI" in self.viewer.layers: self._preview()
+
+	##################################################
+	def _preview(self):
+		"""Action lors d'un clic sur le bouton de preview."""
+		image = self._get_actual_image()
+		if image is None: return
+		s = self.pt.settings.get_localisation_settings()
+		localizations = run_palm_image_dll(self.pt.dlls["CPU"], image, s["Threshold"], s["Watershed"], s["Gaussian"], s["Sigma"], s["Theta"], s["ROI"])
+		self._add_detection_layers(localizations[["Y", "X"]].to_numpy())
+		print(f"Preview des {len(localizations)} points détectés.")
 
 	##################################################
 	def _auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = auto_threshold_dll(self.pt.dlls["CPU"], image)  # Calcul du seuil automatique
+		threshold = auto_threshold_dll(self.pt.dlls["CPU"], image)		 # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
