@@ -124,10 +124,7 @@ def test_process_only_visualization_graph(make_napari_viewer):
 		file_list = cast(FileList, pt.settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
-		for mode in range(3):
-			pt.settings.visualization_graph["Mode"].set_value(mode)
-			pt.process()
-			plt.close("all")
+		pt.process()
 	assert True
 
 

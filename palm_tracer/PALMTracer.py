@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 from palm_tracer.Processing import render_hr_image, load_dll, plot_histogram, plot_plane_heatmap, plot_plane_violin, run_palm_stack_dll, run_tracking_dll
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import GaussianFit
-from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_SOURCE
+from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json
 from palm_tracer.Tools.FileIO import save_png
@@ -31,7 +31,6 @@ class PALMTracer:
 	localizations: pd.DataFrame | None = field(init=False, default=None)
 	tracks: pd.DataFrame | None = field(init=False, default=None)
 	visualization: np.ndarray | None = field(init=False, default=None)
-	graph: plt.Figure | None = field(init=False, default=None)
 
 	__path: str = field(init=False, default="")
 	__stack: np.ndarray | None = field(init=False, default=None)
@@ -139,7 +138,6 @@ class PALMTracer:
 				self.__visualization_graph()
 			else:
 				self.logger.add("Visualisation graphique désactivée.")
-				self.graph = None
 
 			# Fermeture du Log
 			self.logger.add("Traitement terminé.")
@@ -191,9 +189,11 @@ class PALMTracer:
 		# Création de l'image finale
 		depth, height, width = self.__stack.shape
 		if self.localizations is not None:
-			self.visualization = render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", HR_SOURCE[s['Source']]]].to_numpy())
-			self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{s['Ratio']}, s{s['Source']}).")
-			save_png(self.visualization, f"{self.__path}/visualization_x{s['Ratio']}_s{s['Source']}-{self.__suffix}.png")
+			sources = HR_SOURCE[1:] if s["Source"] == 0 else [HR_SOURCE[s["Source"]]]
+			for source in sources:
+				self.visualization = render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", source]].to_numpy())
+				self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{s['Ratio']}, {source}).")
+				save_png(self.visualization, f"{self.__path}/visualization_x{s['Ratio']}_{source}-{self.__suffix}.png")
 		else:
 			self.logger.add(f"\tAucun fichier de localisation pour la visualisation.")
 
@@ -206,16 +206,19 @@ class PALMTracer:
 		# Parse settings
 		s = self.settings.visualization_graph.get_settings()
 
-		self.graph, ax = plt.subplots()
 		if self.localizations is None: return
 
-		source = GRAPH_SOURCE[s["Source"]]
-		if s["Mode"] == 0:  # Histogram
-			plot_histogram(ax, self.localizations[source].to_numpy(), source + " Histogram", True, True, False)
-		elif s["Mode"] == 1:  # Plane Heat Map
-			plot_plane_heatmap(ax, self.localizations[["Plane", source]].to_numpy(), source + " Heatmap")
-		else: # elif mode == 2:  # Plane Violin
-			plot_plane_violin(ax, self.localizations[["Plane", source]].to_numpy(), source + " Violin")
-
-		self.logger.add("\tEnregistrement du fichier de visualisation graphique.")
-		self.graph.savefig(f"{self.__path}/graph_m{s['Mode']}_s{s['Source']}-{self.__suffix}.png", bbox_inches="tight")
+		sources = GRAPH_SOURCE[1:] if s["Source"] == 0 else [GRAPH_SOURCE[s["Source"]]]
+		modes = GRAPH_MODE[1:] if s["Mode"] == 0 else [GRAPH_MODE[s["Mode"]]]
+		for source in sources:
+			for mode in modes:
+				fig, ax = plt.subplots()
+				if mode == "Histogram":
+					plot_histogram(ax, self.localizations[source].to_numpy(), source + " Histogram", True, True, False)
+				elif mode == "Plane Heat Map":
+					plot_plane_heatmap(ax, self.localizations[["Plane", source]].to_numpy(), source + " Heatmap")
+				else:  # elif mode == "Plane Violin":
+					plot_plane_violin(ax, self.localizations[["Plane", source]].to_numpy(), source + " Violin")
+				self.logger.add(f"\tEnregistrement du fichier de visualisation graphique ({mode}, {source}).")
+				fig.savefig(f"{self.__path}/graph_{mode}_{source}-{self.__suffix}.png", bbox_inches="tight")
+				plt.close(fig)
