@@ -84,7 +84,8 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_col
 		group_b = b.loc[pd.concat(mask, axis=1).all(axis=1)]  # Conserver les lignes où toutes les conditions sont vraies
 		group_a = group_a.reset_index(drop=True)
 		group_b = group_b.reset_index(drop=True)
-		print(f"{len(group_a)} points in A, {len(group_b)} points in B pour { {col: int(val) for col, val in zip(group_cols, group_values)} }.")
+		if len(group_a) != len(group_b):
+			print_warning(f"{len(group_a)} points in A, {len(group_b)} points in B pour { {col: int(val) for col, val in zip(group_cols, group_values)} }.")
 
 		if group_b.empty:
 			print_warning(f"Pas de correspondance pour {dict(zip(group_cols, group_values))} dans B.")
@@ -112,8 +113,8 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_col
 		for i, row_a in matched_a.iterrows():
 			row_b = matched_b.iloc[i]  # Récupération du point le plus proche
 
-			total_points += 1  # Un point est comparé donc incrémentaiton du compteur
-			diff = {}  # Dictionnaire de différence
+			total_points += 1   # Un point est comparé donc incrémentaiton du compteur
+			diff = {}			# Dictionnaire de différence
 			exact_match = True  # Le point est identique
 
 			# Vérification des correspondances exactes
