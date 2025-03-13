@@ -5,7 +5,7 @@ Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de b
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Union
+from typing import Any, cast, Union
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
@@ -34,6 +34,7 @@ class BaseSettingGroup:
 	_active: bool = field(init=False, default=False)
 	label: str = field(init=False, default="Base Setting Group")
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
+	_inner_groups = list[str]()
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	_widget: QWidget = field(init=False)
 	_title: QLabel = field(init=False)
@@ -125,6 +126,21 @@ class BaseSettingGroup:
 	def get_setting_names(self) -> list[str]:
 		"""Récupère le nom des paramètres de ce groupe."""
 		return list(self._settings.keys())
+
+	##################################################
+	def get_settings(self) -> dict[str, Any]:
+		"""
+		Récupère les valeurs des Settings
+		:return: Dictionnaire de valeurs
+		"""
+		res = {key: setting.get_value() for key, setting in self._settings.items()}
+		for group in self._inner_groups:
+			setting_group = cast(BaseSettingGroup, self._settings[group])
+			res.pop(group, None)								 # Supprime la clé si elle existe
+			tmp = {f"{group} {key}": value for key, value in setting_group.get_settings().items()}
+			res = {**res, **tmp}								 # Fusionne les dictionnaires
+		return res
+
 
 	##################################################
 	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:

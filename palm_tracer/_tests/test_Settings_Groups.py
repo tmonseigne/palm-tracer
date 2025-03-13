@@ -42,6 +42,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	group = create_group_from_dict(dictionary)
 	assert group[names[0]].get_value() == change, "Valeur récupérée du dictionnaire non valide."
 	print(group)
+	print(group.get_settings())
 
 
 ###################################################
@@ -51,7 +52,7 @@ def test_base_group(make_napari_viewer):
 	group.set_value(None)
 	assert group.get_value() is None, "Get Value ne doit rien retourné pour la classe mère."
 	group.remove_header()
-	group.remove_header() # Seconde fois pour vérifier les erreur de pointeurs QT
+	group.remove_header()  # Seconde fois pour vérifier les erreur de pointeurs QT
 
 
 ###################################################
@@ -145,6 +146,24 @@ def test_gaussian_fit(make_napari_viewer):
 def test_spline_fit(make_napari_viewer):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
 	group_base_test(SplineFit(), ["Peak", "Cut-Off"], SpinFloat, 2, 1)
+
+
+###################################################
+def test_tracking(make_napari_viewer):
+	"""Test basique de la classe Tracking (constructeur, getter, setter)"""
+	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth"], SpinFloat, 2, 5)
+
+
+###################################################
+def test_visualization_hr(make_napari_viewer):
+	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
+	group_base_test(VisualizationHR(), ["Ratio", "Source"], SpinInt, 1, 2)
+
+
+###################################################
+def test_visualization_graph(make_napari_viewer):
+	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
+	group_base_test(VisualizationGraph(), ["Mode", "Source"], Combo, 1, 0)
 
 
 ###################################################

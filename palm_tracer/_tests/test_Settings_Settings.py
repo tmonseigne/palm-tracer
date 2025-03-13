@@ -32,16 +32,3 @@ def test_settings_group_getter(make_napari_viewer):
 	assert isinstance(s, VisualizationHR), "Récupération du groupe incorrecte."
 	s = settings.visualization_graph
 	assert isinstance(s, VisualizationGraph), "Récupération du groupe incorrecte."
-
-
-###################################################
-def test_settings_getter(make_napari_viewer):
-	settings = Settings()
-	s = settings.get_localisation_settings()
-	assert len(s.keys()) == 6, "Le nombre de settings ne correspond pas."
-	s = settings.get_tracking_settings()
-	assert len(s.keys()) == 4, "Le nombre de settings ne correspond pas."
-	s = settings.get_hr_settings()
-	assert len(s.keys()) == 2, "Le nombre de settings ne correspond pas."
-	s = settings.get_graph_settings()
-	assert len(s.keys()) == 2, "Le nombre de settings ne correspond pas."

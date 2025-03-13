@@ -191,8 +191,9 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton de preview."""
 		image = self._get_actual_image()
 		if image is None: return
-		s = self.pt.settings.get_localisation_settings()
-		localizations = run_palm_image_dll(self.pt.dlls["CPU"], image, s["Threshold"], s["Watershed"], s["Gaussian"], s["Sigma"], s["Theta"], s["ROI"])
+		s = self.pt.settings.localization.get_settings()
+		localizations = run_palm_image_dll(self.pt.dlls["CPU"], image, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
+										   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
 		self._add_detection_layers(localizations[["Y", "X"]].to_numpy())
 		print(f"Preview des {len(localizations)} points détectés.")
 

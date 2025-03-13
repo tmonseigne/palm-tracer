@@ -34,6 +34,7 @@ class Filtering(BaseSettingGroup):
 			"Gaussian Fit": [FilteringGF, []],
 			"Tracks":       [FilteringT, []]
 			}
+	_inner_groups = ["Gaussian Fit", "Tracks"]
 
 	##################################################
 	def initialize_ui(self):

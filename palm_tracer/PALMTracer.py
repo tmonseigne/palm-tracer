@@ -153,10 +153,10 @@ class PALMTracer:
 		:return: Données de localisation trouvées.
 		"""
 		# Parse settings
-		s = self.settings.get_localisation_settings()
+		s = self.settings.localization.get_settings()
 		# Run command
-		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack,
-												s["Threshold"], s["Watershed"], s["Gaussian"], s["Sigma"], s["Theta"], s["ROI"])
+		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack, s["Threshold"], s["Watershed"],
+												s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
 
 		self.logger.add("\tEnregistrement du fichier de localisation")
 		self.logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
@@ -170,9 +170,9 @@ class PALMTracer:
 		:return: Données de tracking trouvées.
 		"""
 		# Parse settings
-		s = self.settings.get_tracking_settings()
+		s = self.settings.tracking.get_settings()
 		# Run command
-		self.tracks = run_tracking_dll(self.dlls["Tracking"], self.localizations, s["Max"], s["Min"], s["Decrease"], s["Cost"])
+		self.tracks = run_tracking_dll(self.dlls["Tracking"], self.localizations, s["Max Distance"], s["Min Length"], s["Decrease"], s["Cost Birth"])
 
 		self.logger.add("\tEnregistrement du fichier de tracking.")
 		self.logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvé(s).")
@@ -186,7 +186,7 @@ class PALMTracer:
 		:return: Nouvelle visualisation.
 		"""
 		# Parse settings
-		s = self.settings.get_hr_settings()
+		s = self.settings.visualization_hr.get_settings()
 
 		# Création de l'image finale
 		depth, height, width = self.__stack.shape
@@ -204,7 +204,7 @@ class PALMTracer:
 
 		"""
 		# Parse settings
-		s = self.settings.get_graph_settings()
+		s = self.settings.visualization_graph.get_settings()
 
 		self.graph, ax = plt.subplots()
 		if self.localizations is None: return
