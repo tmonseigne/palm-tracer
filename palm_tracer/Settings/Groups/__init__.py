@@ -26,6 +26,7 @@ from .Calibration import Calibration
 from .Filtering import Filtering
 from .FilteringGF import FilteringGF
 from .FilteringT import FilteringT
+from .Gallery import Gallery
 from .GaussianFit import GaussianFit
 from .Localization import Localization
 from .SplineFit import SplineFit
@@ -44,6 +45,7 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	elif data["type"] == "GaussianFit": return GaussianFit.from_dict(data)
 	elif data["type"] == "SplineFit": return SplineFit.from_dict(data)
 	elif data["type"] == "Tracking": return Tracking.from_dict(data)
+	elif data["type"] == "Gallery": return Gallery.from_dict(data)
 	elif data["type"] == "VisualizationHR": return VisualizationHR.from_dict(data)
 	elif data["type"] == "VisualizationGraph": return VisualizationGraph.from_dict(data)
 	elif data["type"] == "Filtering": return Filtering.from_dict(data)
@@ -56,5 +58,5 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 __all__ = ["BaseSettingGroup", "create_group_from_dict",
 		   "Batch", "Calibration",
 		   "Filtering", "FilteringGF", "FilteringT",
-		   "Localization", "GaussianFit", "SplineFit",
-		   "Tracking", "VisualizationHR", "VisualizationGraph"]
+		   "Localization", "GaussianFit", "SplineFit", "Tracking",
+		   "Gallery", "VisualizationHR", "VisualizationGraph"]

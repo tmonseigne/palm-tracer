@@ -28,6 +28,8 @@ def test_settings_group_getter(make_napari_viewer):
 	assert isinstance(s, Localization), "Récupération du groupe incorrecte."
 	s = settings.tracking
 	assert isinstance(s, Tracking), "Récupération du groupe incorrecte."
+	s = settings.gallery
+	assert isinstance(s, Gallery), "Récupération du groupe incorrecte."
 	s = settings.visualization_hr
 	assert isinstance(s, VisualizationHR), "Récupération du groupe incorrecte."
 	s = settings.visualization_graph
