@@ -16,5 +16,6 @@ Ce sous-package gère les groupes de paramètres.
    palm_tracer.Settings.Groups.Localization
    palm_tracer.Settings.Groups.SplineFit
    palm_tracer.Settings.Groups.Tracking
+   palm_tracer.Settings.Groups.Gallery
    palm_tracer.Settings.Groups.VisualizationGraph
    palm_tracer.Settings.Groups.VisualizationHR

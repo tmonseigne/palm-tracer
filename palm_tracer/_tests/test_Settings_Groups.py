@@ -157,7 +157,7 @@ def test_tracking(make_napari_viewer):
 ###################################################
 def test_gallery(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 7, 11)
+	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
 
 
 ###################################################

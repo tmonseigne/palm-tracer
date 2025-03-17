@@ -86,16 +86,16 @@ def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list
 	if points is None or points.size == 0 or points.shape[1] != 2: return res
 	# Dessin des contours des ROIs
 	half_size = (roi_size / 2.0)  # Demi taille de la ROI.
-	max_height, max_width = image.shape[0] - 1, image.shape[1] - 1
+	max_height, max_width = image.shape[0], image.shape[1]
 	for x, y in points:
-		x_min, x_max = max(0, int(round(x - half_size))), min(max_width - 1, int(round(x + half_size)))
-		y_min, y_max = max(0, int(round(y - half_size))), min(max_height - 1, int(round(y + half_size)))
+		y_min, y_max = max(0, int(round(y - half_size))), min(max_height, int(round(y + half_size)))
+		x_min, x_max = max(0, int(round(x - half_size))), min(max_width, int(round(x + half_size)))
 
 		# Dessiner le contour du carré
 		res[y_min:y_max, x_min] = color  # Ligne gauche
 		res[y_min:y_max, x_max] = color  # Ligne droite
 		res[y_min, x_min:x_max] = color  # Ligne haut
-		res[y_max, x_min:min(max_width - 1, x_max + 1)] = color  # Ligne bas (distance +1 pour avoir un carré "fini")
+		res[y_max, x_min:min(max_width, x_max + 1)] = color  # Ligne bas (distance +1 pour avoir un carré "fini")
 
 	return res
 

@@ -7,6 +7,7 @@ PALM Tracer API Reference
    palm_tracer.Processing
    palm_tracer.Settings
    palm_tracer.Tools
+   palm_tracer.UI
 
 .. toctree::
    :maxdepth: 1
