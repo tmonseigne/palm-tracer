@@ -7,7 +7,7 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
 
 """
 
-from typing import cast
+from typing import cast, Optional
 
 import napari
 import numpy as np
@@ -18,6 +18,7 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import auto_threshold_dll, run_palm_image_dll
 from palm_tracer.Settings.Types import Button, FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
+from palm_tracer.UI import HighResViewer
 
 
 ##################################################
@@ -40,6 +41,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer = viewer
 		self.last_file = ""
 		self.pt = PALMTracer()
+		self.high_res_window: Optional[HighResViewer] = None
 		self.__init_ui()
 
 	##################################################
@@ -213,7 +215,23 @@ class PALMTracerWidget(QWidget):
 			print_warning("Aucun fichier en preview.")
 			return
 		self.pt.process()
+		if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
 
-# ==================================================
-# endregion Callback
-# ==================================================
+
+	##################################################
+	def _show_high_res_image(self, image: np.ndarray):
+		"""
+		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
+
+		:param image: image à affiches
+		"""
+		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
+		if not hasattr(self, "high_res_window") or self.high_res_window is None: self.high_res_window = HighResViewer(image)
+		else: self.high_res_window.load_image(image)
+		if self.high_res_window:		   # pragma: no cover (toujours vrai)
+			self.high_res_window.show()	   # Affiche la fenêtre
+			self.high_res_window.raise_()  # Met en avant
+
+	# ==================================================
+	# endregion Callback
+	# ==================================================

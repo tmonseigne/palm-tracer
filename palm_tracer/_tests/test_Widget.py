@@ -109,3 +109,20 @@ def test_widget_bad_dll(make_napari_viewer, capsys):
 	file_list.update_box()
 	my_widget._process()					  # Appel de la méthode process.
 	assert True
+
+
+##################################################
+def test_widget_show_high_res(make_napari_viewer, capsys):
+	"""Test click sur le bouton process."""
+	viewer = make_napari_viewer()			  # Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)	  # Créer notre widget, en passant par le viewer.
+
+	# Ajout d'une entrée
+	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	my_widget.pt.settings.visualization_hr.active = True
+	my_widget._process()					  # Appel de la méthode process avec visualization (il trouvera une localisation précalculé).
+	my_widget._process()					  # Appel de la méthode process avec visualization déjà active.
+
+	assert True

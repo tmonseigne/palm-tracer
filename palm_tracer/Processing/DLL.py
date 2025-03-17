@@ -224,7 +224,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	dll._PALMProcessing()
 	dll._closePALMProcessing()
 
-	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n,)), gauss_fit, False)
+	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n,)), gauss_fit, True)
 
 
 ##################################################
