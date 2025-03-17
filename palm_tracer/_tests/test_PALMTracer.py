@@ -44,6 +44,7 @@ def test_process_nothing(make_napari_viewer):
 			shutil.rmtree(path, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
 		pt.process()
 		# Test d'une visualisation sans données.
+		pt.settings.gallery.active = True
 		pt.settings.visualization_hr.active = True
 		pt.settings.visualization_graph.active = True
 		pt.process()
@@ -129,6 +130,22 @@ def test_process_only_visualization_graph(make_napari_viewer):
 
 
 ##################################################
+def test_process_only_gallery(make_napari_viewer):
+	""" Test pour le process de visualization HR. """
+	pt = PALMTracer()
+
+	if not pt.is_dll_valid():
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
+	else:
+		pt.settings.gallery.active = True
+		file_list = cast(FileList, pt.settings.batch["Files"])
+		file_list.items = [f"{INPUT_DIR}/stack.tif"]
+		file_list.update_box()
+		pt.process()
+	assert True
+
+
+##################################################
 def test_process_all(make_napari_viewer):
 	""" Test Basique pour le process. """
 	pt = PALMTracer()
@@ -138,11 +155,11 @@ def test_process_all(make_napari_viewer):
 	else:
 		pt.settings.localization.active = True
 		pt.settings.tracking.active = True
+		pt.settings.gallery.active = True
 		pt.settings.visualization_hr.active = True
 		pt.settings.visualization_graph.active = True
 		file_list = cast(FileList, pt.settings.batch["Files"])
 		file_list.items = [f"{INPUT_DIR}/stack.tif"]
 		file_list.update_box()
 		pt.process()
-		plt.close("all")
 	assert True
