@@ -161,3 +161,21 @@ def test_process_all(make_napari_viewer):
 		file_list.update_box()
 		pt.process()
 	assert True
+
+##################################################
+def test_process_filter_plan(make_napari_viewer):
+	""" Test Basique pour le process. """
+	pt = PALMTracer()
+
+	if not pt.is_dll_valid():
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
+	else:
+		pt.settings.localization.active = True
+		file_list = cast(FileList, pt.settings.batch["Files"])
+		file_list.items = [f"{INPUT_DIR}/stack.tif"]
+		file_list.update_box()
+		pt.settings.filtering["Plane"].active = True
+		pt.settings.filtering["Plane"].set_value([2, 3])
+		pt.process()
+		assert pt.localizations["Plane"].isin([2, 3]).all(), "Le DataFrame contient des valeurs hors [2, 3] dans la colonne Plane."
+	assert True

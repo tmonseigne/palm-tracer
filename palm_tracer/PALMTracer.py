@@ -159,9 +159,14 @@ class PALMTracer:
 		"""
 		# Parse settings
 		s = self.settings.localization.get_settings()
+		filters = self.settings.filtering
+		# Filtre sur les plans
+		planes = filters["Plane"].get_value()
+		planes = list(range(planes[0]-1, planes[1])) if filters["Plane"].active else None
 		# Run command
 		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack, s["Threshold"], s["Watershed"],
-												s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
+												s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"],
+												s["ROI Size"], planes)
 
 		self.logger.add("\tEnregistrement du fichier de localisation")
 		self.logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
