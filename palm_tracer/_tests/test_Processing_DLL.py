@@ -112,6 +112,22 @@ def test_run_palm_stack_dll():
 
 
 ##################################################
+def test_run_palm_stack_dll_plane_selection():
+	""" Test sur le lancement de PALM sur une pile. """
+	dll = load_dll().get("CPU", None)
+	if dll is None:
+		print_warning("Test non effectué car DLL manquante")
+	else:
+		file = "stack"
+		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+		suffix = get_loc_suffix(default_gaussian)
+
+		localizations = run_palm_stack_dll(dll, stack, threshold, watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
+		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
+		assert len(localizations) > 0, "Aucune localisation trouvé"
+
+
+##################################################
 def test_run_palm_stack_dll_check_quadrant():
 	"""	Test sur le lancement de PALM sur une pile. """
 	dll = load_dll().get("CPU", None)

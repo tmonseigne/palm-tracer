@@ -8,10 +8,13 @@ Ce module regroupe des utilitaires pour :
 - Traitement d'images : exécution de traitements via DLLs pour détecter des points sur une image.
 - Calcul et parsing de paramètres   estimation du nombre de points détectables en fonction des dimensions de l'image et de la densité.
 
+.. todo::
+	Doit ont garder les identifiants et les plans qui vont de 1 à N au lieu du classique 0 à N-1 ?
 """
 
 import ctypes
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -229,7 +232,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 
 ##################################################
 def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, watershed: bool,
-					   gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
+					   gauss_fit: int, sigma: float, theta: float, roi_size: int, planes: Optional[list[int]] = None) -> pd.DataFrame:
 	"""
 	Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
@@ -241,11 +244,15 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
 	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 	:param roi_size: Taille de la région d'intérêt (ROI).
-	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+    :param planes: Liste des plans à analyser (None = tous les plans).
+    :return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	"""
 	results = []
+	n_planes = stack.shape[0]
+	if planes is None : planes =  list(range(n_planes))
+	else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
 
-	for i in range(stack.shape[0]):
+	for i in planes:
 		points = run_palm_image_dll(dll, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size)
 		points["Plane"] = i + 1			# Modifier une colonne 'Plane' au DataFrame temporaire
 		results.append(points)			# Ajouter à la liste
