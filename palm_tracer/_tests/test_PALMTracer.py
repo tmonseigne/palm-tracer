@@ -5,8 +5,6 @@ import shutil
 from pathlib import Path
 from typing import cast
 
-from matplotlib import pyplot as plt
-
 from palm_tracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import print_warning

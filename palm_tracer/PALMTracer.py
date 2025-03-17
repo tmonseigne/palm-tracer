@@ -6,6 +6,7 @@ import ctypes
 import os
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -27,12 +28,12 @@ class PALMTracer:
 	settings: Settings = field(init=False, default_factory=Settings)
 	dlls: dict[str, ctypes.CDLL] = field(init=False, default_factory=dict)
 	logger: Logger = field(init=False, default_factory=Logger)
-	localizations: pd.DataFrame | None = field(init=False, default=None)
-	tracks: pd.DataFrame | None = field(init=False, default=None)
-	visualization: np.ndarray | None = field(init=False, default=None)
+	localizations: Optional[pd.DataFrame] = field(init=False, default=None)
+	tracks: Optional[pd.DataFrame] = field(init=False, default=None)
+	visualization: Optional[np.ndarray] = field(init=False, default=None)
 
 	__path: str = field(init=False, default="")
-	__stack: np.ndarray | None = field(init=False, default=None)
+	__stack: Optional[np.ndarray] = field(init=False, default=None)
 	__suffix: str = field(init=False, default="")
 
 	##################################################
@@ -221,7 +222,6 @@ class PALMTracer:
 				self.logger.add(f"\tEnregistrement du fichier de visualisation graphique ({mode}, {source}).")
 				fig.savefig(f"{self.__path}/graph_{mode}_{source}-{self.__suffix}.png", bbox_inches="tight")
 				plt.close(fig)
-
 
 	##################################################
 	def __gallery(self):

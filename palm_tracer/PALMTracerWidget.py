@@ -175,7 +175,7 @@ class PALMTracerWidget(QWidget):
 		else: self.viewer.add_shapes(rois, shape_type="polygon", edge_color="green", edge_width=0.5, face_color="transparent", name="ROI")
 
 	##################################################
-	def _get_actual_image(self) -> np.ndarray | None:
+	def _get_actual_image(self) -> Optional[np.ndarray]:
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None

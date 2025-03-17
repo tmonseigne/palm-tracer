@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
+
 from scipy.spatial import cKDTree
+from typing import Optional
 
 from palm_tracer.Tools import print_error, print_success, print_warning
 
@@ -20,8 +22,8 @@ def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
 
 
 ##################################################
-def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_cols: list[str] | None = None,
-				   compare_cols: list[str] | None = None, group_cols: list[str] | None = None) -> bool:
+def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_cols: Optional[list[str]] = None,
+				   compare_cols: Optional[list[str]] = None, group_cols: Optional[list[str]] = None) -> bool:
 	"""
 	Compare deux DataFrames de localisation en tenant compte de la proximité spatiale.
 
