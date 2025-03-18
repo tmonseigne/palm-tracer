@@ -6,14 +6,14 @@ import ctypes
 import os
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import (make_gallery, render_hr_image, load_dll, plot_histogram, plot_plane_heatmap, plot_plane_violin,
-									run_palm_stack_dll, run_tracking_dll)
+from palm_tracer.Processing import (load_dll, make_gallery, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, run_palm_stack_dll,
+									run_tracking_dll)
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
@@ -21,6 +21,7 @@ from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json, s
 from palm_tracer.Tools.FileIO import save_png
 
 
+##################################################
 @dataclass
 class PALMTracer:
 	""" Classe principale de PALM Tracer. """
@@ -95,6 +96,7 @@ class PALMTracer:
 					try:
 						self.localizations = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 						self.logger.add(f"\tFichier '{f}' chargé avec succès.")
+						self.__filter_localizations()
 						self.logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
 					except Exception as e:
 						self.localizations = None
@@ -162,12 +164,13 @@ class PALMTracer:
 		filters = self.settings.filtering
 		# Filtre sur les plans
 		planes = filters["Plane"].get_value()
-		planes = list(range(planes[0]-1, planes[1])) if filters["Plane"].active else None
+		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
 		# Run command
 		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack, s["Threshold"], s["Watershed"],
 												s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"],
 												s["ROI Size"], planes)
 
+		self.__filter_localizations()
 		self.logger.add("\tEnregistrement du fichier de localisation")
 		self.logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
 		self.localizations.to_csv(f"{self.__path}/localizations-{self.__suffix}.csv", index=False)
@@ -236,3 +239,33 @@ class PALMTracer:
 		gallery = make_gallery(self.__stack, self.localizations, s["ROI Size"], s["ROIs Per Line"])
 		self.logger.add(f"\tEnregistrement de la galerie ({s}).")
 		save_tif(gallery, f"{self.__path}/gallery_{s["ROI Size"]}_{s["ROIs Per Line"]}-{self.__suffix}.tif")
+
+	##################################################
+	def __range_filter(self, dataframe: pd.DataFrame, filt: Any, column: str) -> pd.DataFrame:
+		if filt.active:
+			n = len(dataframe)
+			limits = filt.get_value()
+			dataframe = dataframe[dataframe[column].between(limits[0], limits[1])] # Bornes incluses
+			new_n = len(dataframe)
+			self.logger.add(f"\t\tFiltrage de la colonne {column} ([{limits[0]}:{limits[1]}]) {n - new_n} suppression(s).")
+		return dataframe
+
+	##################################################
+	def __filter_localizations(self):
+		""" Filtre le fichier de localisation. """
+		n = len(self.localizations)
+		f = self.settings.filtering
+		filters = [[f["Plane"], "Plane"],
+				   [f["Intensity"], "Integrated Intensity"],
+				   [f["Gaussian Fit"]["MSE Gaussian"], "MSE Gaussian"],
+				   [f["Gaussian Fit"]["Sigma X"], "Sigma X"],
+				   [f["Gaussian Fit"]["Sigma Y"], "Sigma Y"],
+				   [f["Gaussian Fit"]["Theta"], "Theta"],
+				   [f["Gaussian Fit"]["Circularity"], "Circularity"],
+				   [f["Gaussian Fit"]["Z"], "Z"]]
+
+		for filt, col in filters:
+			self.localizations = self.__range_filter(self.localizations, filt, col)
+
+		new_n = len(self.localizations)
+		if n != new_n: self.logger.add(f"\t\tFiltrage du fichier de localisation {new_n} localisations au lieu de {n} ({n - new_n} supprimées)")

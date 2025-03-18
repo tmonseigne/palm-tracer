@@ -29,8 +29,8 @@ class Filtering(BaseSettingGroup):
 
 	label: str = "Filtering"
 	setting_list = {
-			"Plane":        [CheckRangeInt, ["Plane", [1, 10000], [1, 10000]]],
-			"Intensity":    [CheckRangeInt, ["Intensity", [1, 100000], [1, 100000]]],
+			"Plane":        [CheckRangeInt, ["Plane", [1, 10000], [1, 100000]]],
+			"Intensity":    [CheckRangeInt, ["Intensity", [0, 100000], [1, 100000]]],
 			"Gaussian Fit": [FilteringGF, []],
 			"Tracks":       [FilteringT, []]
 			}
