@@ -203,8 +203,11 @@ class PALMTracer:
 			sources = HR_SOURCE[1:] if s["Source"] == 0 else [HR_SOURCE[s["Source"]]]
 			for source in sources:
 				self.visualization = render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", source]].to_numpy())
-				self.logger.add(f"\tEnregistrement du fichier de visualisation haute résolution (x{s['Ratio']}, {source}).")
-				save_png(self.visualization, f"{self.__path}/visualization_x{s['Ratio']}_{source}-{self.__suffix}.png")
+				if np.all(self.visualization == self.visualization[0, 0]):
+					self.logger.add(f"\tAnnulation de la visualisation haute résolution (x{s['Ratio']}, {source}) : Image uniforme.")
+				else:
+					self.logger.add(f"\tEnregistrement de la visualisation haute résolution (x{s['Ratio']}, {source}).")
+					save_png(self.visualization, f"{self.__path}/visualization_x{s['Ratio']}_{source}-{self.__suffix}.png")
 		else:
 			self.logger.add(f"\tAucun fichier de localisation pour la visualisation.")
 
@@ -219,15 +222,20 @@ class PALMTracer:
 		sources = GRAPH_SOURCE[1:] if s["Source"] == 0 else [GRAPH_SOURCE[s["Source"]]]
 		modes = GRAPH_MODE[1:] if s["Mode"] == 0 else [GRAPH_MODE[s["Mode"]]]
 		for source in sources:
+			loc = self.localizations[["Plane", source]].to_numpy()
+			if np.all(loc[:,1] == loc[0, 1]):
+				self.logger.add(f"\tAnnulation de la visualisation graphique : {source} uniforme.")
+				continue
+
 			for mode in modes:
 				fig, ax = plt.subplots()
 				if mode == "Histogram":
-					plot_histogram(ax, self.localizations[source].to_numpy(), source + " Histogram", True, True, False)
+					plot_histogram(ax, loc[:,1], source + " Histogram", True, True, False)
 				elif mode == "Plane Heat Map":
-					plot_plane_heatmap(ax, self.localizations[["Plane", source]].to_numpy(), source + " Heatmap")
+					plot_plane_heatmap(ax, loc, source + " Heatmap")
 				else:  # elif mode == "Plane Violin":
-					plot_plane_violin(ax, self.localizations[["Plane", source]].to_numpy(), source + " Violin")
-				self.logger.add(f"\tEnregistrement du fichier de visualisation graphique ({mode}, {source}).")
+					plot_plane_violin(ax, loc, source + " Violin")
+				self.logger.add(f"\tEnregistrement de la visualisation graphique ({mode}, {source}).")
 				fig.savefig(f"{self.__path}/graph_{mode}_{source}-{self.__suffix}.png", bbox_inches="tight")
 				plt.close(fig)
 
