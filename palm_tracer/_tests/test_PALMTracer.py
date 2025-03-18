@@ -152,6 +152,7 @@ def test_process_all(make_napari_viewer):
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		pt.settings.localization.active = True
+		pt.settings.localization["Gaussian Fit"]["Mode"].set_value(4)
 		pt.settings.tracking.active = True
 		pt.settings.gallery.active = True
 		pt.settings.visualization_hr.active = True
