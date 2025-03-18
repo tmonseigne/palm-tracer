@@ -8,7 +8,7 @@ import pytest
 
 from palm_tracer._tests.Utils import compare_points
 from palm_tracer.Processing import load_dll, run_palm_image_dll, run_palm_stack_dll, run_tracking_dll
-from palm_tracer.Processing.DLL import _rearrange_dataframe_columns, TRACK_FILE_COLS
+from palm_tracer.Processing.DLL import _rearrange_dataframe_columns
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -180,8 +180,7 @@ def test_run_tracking_dll():
 			if path.exists() and path.is_file():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
-				sort = ["Track"]
-				assert compare_points(tracking, ref, 1e-5, sort, TRACK_FILE_COLS, sort), f"Test invalide pour les paramètres {suffix_trc}"
+				assert compare_points(tracking, ref, group_cols=["Track"]), f"Test invalide pour les paramètres {suffix_trc}"
 		else:
 			print_warning(f"Fichier de localisations '{path}' indisponible.")
 

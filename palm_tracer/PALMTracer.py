@@ -241,31 +241,28 @@ class PALMTracer:
 		save_tif(gallery, f"{self.__path}/gallery_{s["ROI Size"]}_{s["ROIs Per Line"]}-{self.__suffix}.tif")
 
 	##################################################
-	def __range_filter(self, dataframe: pd.DataFrame, filt: Any, column: str) -> pd.DataFrame:
-		if filt.active:
-			n = len(dataframe)
-			limits = filt.get_value()
-			dataframe = dataframe[dataframe[column].between(limits[0], limits[1])] # Bornes incluses
-			new_n = len(dataframe)
-			self.logger.add(f"\t\tFiltrage de la colonne {column} ([{limits[0]}:{limits[1]}]) {n - new_n} suppression(s).")
-		return dataframe
-
-	##################################################
 	def __filter_localizations(self):
 		""" Filtre le fichier de localisation. """
-		n = len(self.localizations)
+		n_init = len(self.localizations)
 		f = self.settings.filtering
+		fg = f["Gaussian Fit"]
 		filters = [[f["Plane"], "Plane"],
 				   [f["Intensity"], "Integrated Intensity"],
-				   [f["Gaussian Fit"]["MSE Gaussian"], "MSE Gaussian"],
-				   [f["Gaussian Fit"]["Sigma X"], "Sigma X"],
-				   [f["Gaussian Fit"]["Sigma Y"], "Sigma Y"],
-				   [f["Gaussian Fit"]["Theta"], "Theta"],
-				   [f["Gaussian Fit"]["Circularity"], "Circularity"],
-				   [f["Gaussian Fit"]["Z"], "Z"]]
+				   [fg["MSE Gaussian"], "MSE Gaussian"],
+				   [fg["Sigma X"], "Sigma X"],
+				   [fg["Sigma Y"], "Sigma Y"],
+				   [fg["Theta"], "Theta"],
+				   [fg["Circularity"], "Circularity"],
+				   [fg["Z"], "Z"]]
 
 		for filt, col in filters:
-			self.localizations = self.__range_filter(self.localizations, filt, col)
+			if filt.active:
+				n_f_init = len(self.localizations)
+				limits = filt.get_value()
+				self.localizations = self.localizations[self.localizations[col].between(limits[0], limits[1])]  # Bornes incluses
+				n_f_end = len(self.localizations)
+				self.logger.add(f"\t\tFiltrage de la colonne {col} ([{limits[0]}:{limits[1]}]) : {n_f_init - n_f_end} suppression(s).")
 
-		new_n = len(self.localizations)
-		if n != new_n: self.logger.add(f"\t\tFiltrage du fichier de localisation {new_n} localisations au lieu de {n} ({n - new_n} supprimées)")
+		n_end = len(self.localizations)
+		if n_init != n_end:
+			self.logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")

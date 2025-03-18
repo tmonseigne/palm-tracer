@@ -22,8 +22,8 @@ def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
 
 
 ##################################################
-def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_cols: Optional[list[str]] = None,
-				   compare_cols: Optional[list[str]] = None, group_cols: Optional[list[str]] = None) -> bool:
+def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
+				   group_cols: Optional[list[str]] = None, compare_cols: Optional[list[str]] = None) -> bool:
 	"""
 	Compare deux DataFrames de localisation en tenant compte de la proximité spatiale.
 
@@ -40,22 +40,12 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_col
 	:param a: Premier DataFrame.
 	:param b: Second DataFrame.
 	:param tol: Tolérance pour la comparaison des valeurs numériques. Defaults to 1e-5.
-	:param sort_cols: Tri initial des lignes. Defaults ["Plane", "Channel", "X", "Y", "Z"]
-	:param compare_cols: Colonnes à comparer. Defaults toutes les colonnes de localisations
 	:param group_cols: Colonne de regroupement (pour séparer les plan et les canaux par exemple).
+	:param compare_cols: Colonnes à comparer. Defaults toutes les colonnes de localisations
 	:return: True si les fichiers sont similaires selon les critères définis, False sinon.
 	"""
-	if sort_cols is None:
-		sort_cols = ["Plane", "Channel", "X", "Y", "Z"]
-
-	if compare_cols is None:
-		compare_cols = ["X", "Y", "Z", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta",
-						"MSE Gaussian", "MSE Z", "Pair Distance", "Intensity 0", "Intensity Offset",
-						"Intensity", "Surface"]
-
-	if group_cols is None:
-		group_cols = ["Plane", "Channel"]
-
+	if group_cols is None: group_cols = ["Plane", "Channel"]
+	if compare_cols is None: compare_cols = list(set(a.columns) - set(group_cols))
 	res = True
 
 	# Comparaison des tailles
@@ -64,15 +54,11 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5, sort_col
 		res = False
 
 	# Vérification de la présence des colonnes requises
-	missing_a = [col for col in sort_cols + compare_cols if col not in a.columns]
-	missing_b = [col for col in sort_cols + compare_cols if col not in b.columns]
+	missing_a = [col for col in compare_cols if col not in a.columns]
+	missing_b = [col for col in compare_cols if col not in b.columns]
 	if missing_a or missing_b:
 		print_error(f"Colonnes manquantes : {missing_a + missing_b}")
 		return False
-
-	# Tri des DataFrames
-	a = a.sort_values(sort_cols).reset_index(drop=True)
-	b = b.sort_values(sort_cols).reset_index(drop=True)
 
 	total_points = 0
 	exact_matches = 0
