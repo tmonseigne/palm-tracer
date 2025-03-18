@@ -16,7 +16,7 @@ class FilteringGF(BaseSettingGroup):
 	Classe contenant les paramètres du filtrage pour l'ajustement Gaussien :
 
 	Attributs :
-			- **Chi² (CheckRangeFloat)** : Interval de Chi² sélectionnés (par défaut : [0.6, 2.0]).
+			- **MSE Gaussian (CheckRangeFloat)** : Interval de MSE Gaussian sélectionnés (par défaut : [0.6, 2.0]).
 			- **Sigma X (CheckRangeFloat)** : Interval de Sigma X sélectionés (par défaut : [0.0, 2.0]).
 			- **Sigma Y (CheckRangeFloat)** : Interval de Sigma Y sélectionés (par défaut : [0.0, 2.0]).
 			- **Circularity (CheckRangeFloat)** : Interval de Circularité sélectionés (par défaut : [0.0, 1.0]).
@@ -25,9 +25,9 @@ class FilteringGF(BaseSettingGroup):
 
 	label: str = "Gaussian Fit"
 	setting_list = {
-			"Chi²":        [CheckRangeFloat, ["Chi²", [0.6, 2.0], [0.0, 2.0]]],
-			"Sigma X":     [CheckRangeFloat, ["Sigma X", [0.0, 2.0], [0.0, 2.0]]],
-			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", [0.0, 2.0], [0.0, 2.0]]],
-			"Circularity": [CheckRangeFloat, ["Circularity", [0.0, 1.0], [0.0, 1.0]]],
-			"Z":           [CheckRangeFloat, ["Z", [-0.75, 0.75], [-1, 1]]]
+			"MSE Gaussian": [CheckRangeFloat, ["MSE", [0.6, 2.0], [0.0, 2.0]]],
+			"Sigma X":      [CheckRangeFloat, ["Sigma X", [0.0, 2.0], [0.0, 2.0]]],
+			"Sigma Y":      [CheckRangeFloat, ["Sigma Y", [0.0, 2.0], [0.0, 2.0]]],
+			"Circularity":  [CheckRangeFloat, ["Circularity", [0.0, 1.0], [0.0, 1.0]]],
+			"Z":            [CheckRangeFloat, ["Z", [-0.75, 0.75], [-1, 1]]]
 			}

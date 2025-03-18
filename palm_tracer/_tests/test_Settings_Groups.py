@@ -182,7 +182,7 @@ def test_filtering(make_napari_viewer):
 ###################################################
 def test_filtering_gf(make_napari_viewer):
 	"""Test basique de la classe FilteringGF (constructeur, getter, setter)"""
-	group_base_test(FilteringGF(), ["Chi²", "Sigma X", "Sigma Y", "Circularity", "Z"],
+	group_base_test(FilteringGF(), ["MSE Gaussian", "Sigma X", "Sigma Y", "Circularity", "Z"],
 					CheckRangeFloat, [1, 2], [0.6, 2.0])
 
 

@@ -26,12 +26,12 @@ N_SEGMENT = 13						 # Nombre de paramètres pour la segmentation.
 SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "Y", "X", # X est Y sont inversés à la sortie de la DLL donc Y,X au lieu de X, Y
 				"Intensity 0",		 # Intensity too ??? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
 				"Intensity Offset",  # Intensity Offset ???
-				"MSE Gauss",		 # MSE Gauss
+				"MSE Gaussian",		 # MSE Gaussian
 				"Intensity",		 # Intensity (Integrated Wavelet Intensity)
 				"Surface", "Z", "Pair Distance", "Id"]
 
 SEGMENT_FILE_COLS = ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
-					 "Sigma X", "Sigma Y", "Theta", "MSE Gauss", "MSE Z", "Pair Distance"]
+					 "Sigma X", "Sigma Y", "Theta", "MSE Gaussian", "MSE Z", "Pair Distance"]
 
 # Tracking
 N_TRACK = 9  # Nombre de paramètres pour le tracking.
@@ -107,9 +107,16 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	res["Plane"] = 1					 								 		  # Ajout d'un plan dans le tableau
 	res["Channel"] = -1					 								 		  # Ajout d'un channel dans le tableau
 	res["MSE Z"] = -1					 								 		  # Ajout d'un MSE pour Z dans le tableau
+
 	# Ajout de l'intensité intégré (si on à les sigma du gaussian fit ou non)
 	if gauss_fit != 0: res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]
 	else: res["Integrated Intensity"] = res["Intensity"]
+
+	# Ajout de la circularité, on complique un peu pour éviter les cas ou Sigma X et Y valent 0
+	# Normalement uniquement lorsque  gauss_fit == 0 comme précédemment mais en prévision du futur (autres méthodes), on sécurise le process
+	# L'utilisation de Numpy permet de passer les divisions par 0 (résultat Nan)
+	circularity = np.minimum(res["Sigma X"], res["Sigma Y"]) / np.maximum(res["Sigma X"], res["Sigma Y"])
+	res["Circularity"] = circularity.fillna(1)  # Remplacement des Nan par 1.
 
 	return _rearrange_dataframe_columns(res, SEGMENT_FILE_COLS, True)  # Réorganisation du DataFrame
 
