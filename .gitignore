@@ -150,4 +150,4 @@ cython_debug/
 *_PALM_Tracer/
 
 # For the moment, DLLs won't go to the repository
-*DLL/
+palm_tracer/DLL/
