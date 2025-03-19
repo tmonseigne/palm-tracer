@@ -102,7 +102,7 @@ def test_widget_bad_dll(make_napari_viewer, capsys):
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget.pt.dlls.clear()			  # Suppression des DLL pour provoquer le comportement.
+	my_widget.pt.palm_cpu._dll = None # Suppression d'une DLL pour provoquer le comportement.
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
