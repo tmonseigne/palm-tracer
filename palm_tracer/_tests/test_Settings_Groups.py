@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'ensemble des paramètres. """
+""" Fichier des tests pour les groupes de paramètres. """
 
 from pathlib import Path
 from typing import Any, cast, Type
@@ -145,31 +145,36 @@ def test_gaussian_fit(make_napari_viewer):
 ###################################################
 def test_spline_fit(make_napari_viewer):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(SplineFit(), ["Peak", "Cut-Off"], SpinFloat, 2, 1)
+	group_base_test(SplineFit(), ["Peak", "Cut-Off"],
+					SpinFloat, 2, 1)
 
 
 ###################################################
 def test_tracking(make_napari_viewer):
 	"""Test basique de la classe Tracking (constructeur, getter, setter)"""
-	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth"], SpinFloat, 2, 5)
+	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth"],
+					SpinFloat, 2, 5)
 
 
 ###################################################
 def test_gallery(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
+	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"],
+					SpinInt, 11, 9)
 
 
 ###################################################
 def test_visualization_hr(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(VisualizationHR(), ["Ratio", "Source"], SpinInt, 1, 2)
+	group_base_test(VisualizationHR(), ["Ratio", "Source"],
+					SpinInt, 1, 2)
 
 
 ###################################################
 def test_visualization_graph(make_napari_viewer):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(VisualizationGraph(), ["Mode", "Source"], Combo, 1, 0)
+	group_base_test(VisualizationGraph(), ["Mode", "Source"],
+					Combo, 1, 0)
 
 
 ###################################################

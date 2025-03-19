@@ -3,6 +3,9 @@ Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter le
 
 .. todo::
 	Doit ont garder les identifiants et les plans qui vont de 1 à N au lieu du classique 0 à N-1 ?
+
+.. todo::
+	Le processus n'est pas thread sagef avec sa gestion des pointeurs un multithreading est donc incompatible pour le moment.
 """
 
 import ctypes
@@ -70,19 +73,19 @@ class PalmCPU:
 
 		return {"image":     image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
 				"points":    np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de points
-				"n":         ctypes.c_ulong(n),  # Nombre maximum de points théorique
-				"height":    ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
-				"width":     ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
-				"wavelet":   ctypes.c_ulong(1),  # Wavelet toujours à 1.
-				"threshold": ctypes.c_double(threshold),  # Seuil
+				"n":         ctypes.c_ulong(n),						   # Nombre maximum de points théorique
+				"height":    ctypes.c_ulong(height),				   # Hauteur (nombre de lignes)
+				"width":     ctypes.c_ulong(width),					   # Largeur (nombre de colonnes)
+				"wavelet":   ctypes.c_ulong(1),						   # Wavelet toujours à 1.
+				"threshold": ctypes.c_double(threshold),			   # Seuil
 				"watershed": ctypes.c_double(0 if watershed else 10),  # Activation du Watershed
-				"vol_min":   ctypes.c_double(4),  # Vol minimum toujours à 4.
-				"int_min":   ctypes.c_double(0),  # Int minimum toujours à 0.
-				"gauss_fit": ctypes.c_ushort(gauss_fit),  # Mode du Gaussian Fit
-				"sigma_x":   ctypes.c_double(sigma),  # Valeur initiale du Sigma X
-				"sigma_y":   ctypes.c_double(sigma * 2),  # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
-				"theta":     ctypes.c_double(theta),  # Valeur Initiale du Theta
-				"roi_size":  ctypes.c_ushort(roi_size),  # taille de la ROI
+				"vol_min":   ctypes.c_double(4),					   # Vol minimum toujours à 4.
+				"int_min":   ctypes.c_double(0),					   # Int minimum toujours à 0.
+				"gauss_fit": ctypes.c_ushort(gauss_fit),			   # Mode du Gaussian Fit
+				"sigma_x":   ctypes.c_double(sigma),				   # Valeur initiale du Sigma X
+				"sigma_y":   ctypes.c_double(sigma * 2),			   # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
+				"theta":     ctypes.c_double(theta),				   # Valeur Initiale du Theta
+				"roi_size":  ctypes.c_ushort(roi_size),				   # taille de la ROI
 				}
 
 	##################################################
@@ -122,8 +125,8 @@ class PalmCPU:
 		:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 		:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 		:param roi_size: Taille de la région d'intérêt (ROI).
-    	:param planes: Liste des plans à analyser (None = tous les plans).
-    	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param planes: Liste des plans à analyser (None pour tous les plans).
+		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
 		n_planes = stack.shape[0]
 		if planes is None: planes = list(range(n_planes))
@@ -149,10 +152,10 @@ class PalmCPU:
 		:param max_iterations: Nombre d'itérations pour affiner le seuil (par défaut 4).
 		:return: Seuil calculé (écart type final).
 		"""
-		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
-		std_dev = np.std(image)  # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0  # Demi-taille de la zone ROI
-		height, width = image.shape  # Récupération de la taille de l'image
+		mask = np.zeros_like(image, dtype=bool)   # Creation du masque
+		std_dev = np.std(image)					  # Calcul initial de l'écart type
+		roi_2 = float(roi_size) / 2.0			  # Demi-taille de la zone ROI
+		height, width = image.shape				  # Récupération de la taille de l'image
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))

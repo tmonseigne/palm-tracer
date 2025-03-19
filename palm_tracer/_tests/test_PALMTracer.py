@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'utilisation des DLL """
+""" Fichier des tests pour la classe PALMTracer """
 
 import os
 import shutil
@@ -145,7 +145,7 @@ def test_process_only_gallery(make_napari_viewer):
 
 ##################################################
 def test_process_all(make_napari_viewer):
-	""" Test Basique pour le process. """
+	""" Test Basique pour le process complet. """
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():
@@ -185,7 +185,7 @@ def test_process_filter_plan(make_napari_viewer):
 
 ##################################################
 def test_process_filter_all(make_napari_viewer):
-	""" Test Basique pour pour le filtrage complet lors de l'exécution. """
+	""" Test pour le filtrage complet lors de l'exécution. """
 	pt = PALMTracer()
 
 	if not pt.is_dll_valid():

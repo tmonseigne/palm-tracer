@@ -1,4 +1,4 @@
-""" Fichier des tests pour les fonctions utilitaires """
+""" Fichier des tests pour les fonctions utilitaires. """
 
 from palm_tracer.Tools import Utils
 

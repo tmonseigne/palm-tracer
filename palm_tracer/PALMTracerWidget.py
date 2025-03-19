@@ -178,10 +178,10 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)	  # Renvoie sous le format numpy
 
 	##################################################
 	def _on_plane_change(self, event):
@@ -204,7 +204,7 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = self.pt.palm_cpu.auto_threshold(image)  # Calcul du seuil automatique
+		threshold = self.pt.palm_cpu.auto_threshold(image)				  # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
@@ -227,8 +227,8 @@ class PALMTracerWidget(QWidget):
 		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
 		if not hasattr(self, "high_res_window") or self.high_res_window is None: self.high_res_window = HighResViewer(image)
 		else: self.high_res_window.load_image(image)
-		if self.high_res_window:  # pragma: no cover (toujours vrai)
-			self.high_res_window.show()  # Affiche la fenêtre
+		if self.high_res_window:		   # pragma: no cover (toujours vrai)
+			self.high_res_window.show()	   # Affiche la fenêtre
 			self.high_res_window.raise_()  # Met en avant
 
 # ==================================================

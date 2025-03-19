@@ -35,7 +35,7 @@ def get_color_map_by_name(names: list[str], palette: list[str] = px.colors.quali
 	:return: Un dictionnaire où les clés sont les noms de fichiers et les valeurs sont les couleurs attribuées.
 	"""
 	unique_names = set(names)  # Récupérer les noms uniques
-	color_map = {}  # Dictionnaire pour associer chaque fichier à une couleur
+	color_map = {}			   # Dictionnaire pour associer chaque fichier à une couleur
 	# Associer une couleur unique à chaque fichier
 	color_index = 0
 	for name in unique_names:

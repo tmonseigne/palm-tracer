@@ -5,12 +5,8 @@ import pandas as pd
 
 # Segmentation (Localization)
 N_SEGMENT = 13  # Nombre de paramètres pour la segmentation.
-SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "Y", "X",  # X est Y sont inversés à la sortie de la DLL donc Y,X au lieu de X, Y
-				"Intensity 0",  # Intensity too ??? (I0 sometimes) Maybe different of Intensity. Have I if the offset is applied ?
-				"Intensity Offset",  # Intensity Offset ???
-				"MSE Gaussian",  # MSE Gaussian
-				"Intensity",  # Intensity (Integrated Wavelet Intensity)
-				"Surface", "Z", "Pair Distance", "Id"]
+SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "Y", "X", "Intensity 0", "Intensity Offset",
+				"MSE Gaussian", "Intensity", "Surface", "Z", "Pair Distance", "Id"]
 
 SEGMENT_FILE_COLS = ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
 					 "Sigma X", "Sigma Y", "Theta", "MSE Gaussian", "MSE Z", "Pair Distance"]
@@ -40,8 +36,8 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remain
 
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
-		columns = columns + remaining_columns  # Ajout des colonnes restantes aux colonnes de départ
-	return data[columns]  # Réorganisation du DataFrame
+		columns = columns + remaining_columns									 # Ajout des colonnes restantes aux colonnes de départ
+	return data[columns]														 # Réorganisation du DataFrame
 
 
 ##################################################
@@ -61,17 +57,17 @@ def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool =
 	:return: Dataframe filtré
 	"""
 	# Manipulation du tableau 1D.
-	size = (data.size // N_SEGMENT) * N_SEGMENT  # Récupération de la taille correcte si non multiple de N_SEGMENT
+	size = (data.size // N_SEGMENT) * N_SEGMENT									  # Récupération de la taille correcte si non multiple de N_SEGMENT
 	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENT), columns=SEGMENT_COLS)  # Transformation en Dataframe
-	res = res[res["X"] > 0]  # Filtrage des lignes remplies de 0 et -1
+	res = res[res["X"] > 0]														  # Filtrage des lignes remplies de 0 et -1
 
 	if sort: res = res.sort_values(by=["Y", "X"], ascending=[True, True])  # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
-	res = res.reset_index(drop=True)  # Remise à 0 des index
-	res["Id"] = range(1, len(res) + 1)  # Mise à jour de l'ID dans le tableau.
+	res = res.reset_index(drop=True)	   # Remise à 0 des index
+	res["Id"] = range(1, len(res) + 1)	   # Mise à jour de l'ID dans le tableau.
 	res["Index"] = range(1, len(res) + 1)  # Ajout de l'index (au sein du plan) dans le tableau.
-	res["Plane"] = plane  # Ajout d'un plan dans le tableau
-	res["Channel"] = -1  # Ajout d'un channel dans le tableau
-	res["MSE Z"] = -1  # Ajout d'un MSE pour Z dans le tableau
+	res["Plane"] = plane				   # Ajout d'un plan dans le tableau
+	res["Channel"] = -1					   # Ajout d'un channel dans le tableau
+	res["MSE Z"] = -1					   # Ajout d'un MSE pour Z dans le tableau
 
 	# Ajout de l'intensité intégré (si on à les sigma du gaussian fit ou non)
 	if gauss_fit != 0: res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]
@@ -94,10 +90,10 @@ def parse_tracking_result(data: np.ndarray) -> pd.DataFrame:
 	:param data: Donnée en entrée récupérées depuis la DLL Tracking.
 	:return: Dataframe
 	"""
-	size = (data.size // N_TRACK) * N_TRACK  # Récupération de la taille correcte si non multiple de N_TRACK
+	size = (data.size // N_TRACK) * N_TRACK									  # Récupération de la taille correcte si non multiple de N_TRACK
 	res = pd.DataFrame(data[:size].reshape(-1, N_TRACK), columns=TRACK_COLS)  # Transformation en Dataframe
-	res = res[res["X"] > 0]  # Filtrage des lignes remplies de 0 et -1
-	res = res.reset_index(drop=True)  # Remise à 0 des index
+	res = res[res["X"] > 0]													  # Filtrage des lignes remplies de 0 et -1
+	res = res.reset_index(drop=True)										  # Remise à 0 des index
 
 	# Liste des colonnes à placer en premier
 	return rearrange_dataframe_columns(res, TRACK_FILE_COLS, True)  # Réorganisation du DataFrame
@@ -119,8 +115,8 @@ def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 
 	for _, row in data.iterrows():
 		if previous_plan is not None and row["Plane"] != previous_plan:
-			rows.append({col: -1 for col in columns})  # Ajout de la ligne -1
-		rows.append(row.to_dict())  # Ajout de la ligne actuelle
+			rows.append({col: -1 for col in columns})  # Ajout de la ligne de -1
+		rows.append(row.to_dict())					   # Ajout de la ligne actuelle
 		previous_plan = row["Plane"]
 
 	# Ajout d'une dernière ligne -1 à la fin

@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'utilisation des DLL """
+""" Fichier des tests pour l'utilisation des DLL. """
 
 import os
 from pathlib import Path
@@ -64,8 +64,8 @@ def test_tracking():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
 				# assert compare_points(tracking, ref, group_cols=["Track"]), f"Test invalide pour les paramètres {suffix_trc}"
-				compare_points(tracking, ref,
-							   group_cols=["Track"])  # Je ne fait pas le assert car une partie du tracking utilise un random masi le log sera là.
+				# Je ne fait pas le assert car une partie du tracking utilise un random mais le log sera là en cas de problème.
+				compare_points(tracking, ref, group_cols=["Track"])
 		else:
 			print_warning(f"Fichier de localisations '{path}' indisponible.")
 

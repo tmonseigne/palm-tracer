@@ -1,8 +1,9 @@
-""" Fichier des tests pour l'utilisation des DLL """
+""" Fichier des tests pour l'utilisation des DLL. """
 
 import pytest
 
 from palm_tracer.Processing.DLL.Parsing import *
+
 
 ##################################################
 def test_rearrange_dataframe_columns():

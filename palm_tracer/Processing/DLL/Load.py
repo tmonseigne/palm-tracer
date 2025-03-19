@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 from palm_tracer.Tools import print_warning
-# Exemple d'importation des modules pour un accès direct
 
 DLL_PATH = Path(__file__).parent.parent.parent / "DLL"
 

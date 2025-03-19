@@ -46,17 +46,17 @@ class Tracking:
 		points = parse_localization_to_tracking(localizations)
 
 		return {"points":       points.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de points
-				"loc_size":     ctypes.c_ulong(loc_size),  #
-				"track":        np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de points
-				"track_size":   ctypes.c_ulong(track_size),  #
-				"max_distance": ctypes.c_double(max_distance),  #
-				"dz_dx":        ctypes.c_double(1),  # dZdX toujours à 1.
-				"min_life":     ctypes.c_double(min_life),  #
-				"decrease":     ctypes.c_double(decrease),  #
-				"fusion_disso": ctypes.c_ulong(0),  # allowFusiondisso toujours à 0.
-				"cost_birth":   ctypes.c_double(cost_birth),  #
-				"dim":          ctypes.c_ulong(2),  # Nombre de dimensions toujours à 2 mais inutilisé dans la DLL.
-				"model":        ctypes.c_ulong(2),  # Model toujours à 2 pour DistanceIntensity (1 pour CloserNeighbors).
+				"loc_size":     ctypes.c_ulong(loc_size),					   # Taille du tableau de localisation
+				"track":        np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de tracks
+				"track_size":   ctypes.c_ulong(track_size),					   # Taille du tableau de tracks
+				"max_distance": ctypes.c_double(max_distance),				   #
+				"dz_dx":        ctypes.c_double(1),							   # dZdX toujours à 1.
+				"min_life":     ctypes.c_double(min_life),					   #
+				"decrease":     ctypes.c_double(decrease),					   #
+				"fusion_disso": ctypes.c_ulong(0),							   # allowFusiondisso toujours à 0.
+				"cost_birth":   ctypes.c_double(cost_birth),				   #
+				"dim":          ctypes.c_ulong(2),							   # Nombre de dimensions toujours à 2 mais inutilisé dans la DLL.
+				"model":        ctypes.c_ulong(2),							   # Model toujours à 2 pour DistanceIntensity (1 pour CloserNeighbors).
 				"planes":       ctypes.c_ulong(localizations["Plane"].max()),  # Nombre de plans
 				}
 

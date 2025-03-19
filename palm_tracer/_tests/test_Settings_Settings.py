@@ -16,6 +16,7 @@ def test_settings(make_napari_viewer):
 	assert settings.calibration["Pixel Size"].get_value() == 320, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
 	print(settings)
 
+
 ###################################################
 def test_settings_group_getter(make_napari_viewer):
 	"""Test de récupération des différents groupes de settings"""

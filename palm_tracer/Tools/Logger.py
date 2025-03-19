@@ -18,7 +18,7 @@ class Logger:
 	Classe du journal d'activité
 	"""
 
-	filename: str = field(init=False, default="")  # Fichier à ouvrir
+	filename: str = field(init=False, default="")					 # Fichier à ouvrir
 	file_handle: TextIO = field(init=False, default_factory=TextIO)  # Gestionnaire de fichier
 	_isopen: bool = field(init=False, default=False)
 

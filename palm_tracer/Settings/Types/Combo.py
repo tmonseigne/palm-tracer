@@ -57,13 +57,13 @@ class Combo(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()			# Appelle l'initialisation de la classe mère.
-		self.box = QComboBox(None)		# Création de la boite.
-		# self.box.setFixedWidth(150)	# Réduire la largeur de la boite.
-		self.box.addItems(self.items)   # Ajout des choix possibles.
+		super().initialize()							 # Appelle l'initialisation de la classe mère.
+		self.box = QComboBox(None)						 # Création de la boite.
+		# self.box.setFixedWidth(150)					 # Réduire la largeur de la boite.
+		self.box.addItems(self.items)					 # Ajout des choix possibles.
 		self.box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement de selection
-		self.set_value(self.default)    # Définition de la valeur.
-		self.add_row(self.box)			# Ajoute la liste déroulante au calque.
+		self.set_value(self.default)					 # Définition de la valeur.
+		self.add_row(self.box)							 # Ajoute la liste déroulante au calque.
 
 	##################################################
 	def reset(self): self.set_value(self.default)

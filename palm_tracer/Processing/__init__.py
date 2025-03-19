@@ -19,4 +19,4 @@ from .Visualization import normalize_data, plot_histogram, plot_plane_heatmap, p
 # Définir la liste des symboles exportés
 __all__ = ["DLL", "Gallery", "Visualization",
 		   "make_gallery",
-		   "normalize_data",  "plot_histogram", "plot_plane_heatmap", "plot_plane_violin", "render_hr_image", "render_roi"]
+		   "normalize_data", "plot_histogram", "plot_plane_heatmap", "plot_plane_violin", "render_hr_image", "render_roi"]

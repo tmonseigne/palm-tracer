@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'utilisation des DLL """
+""" Fichier des tests pour l'utilisation de la DLL CPU. """
 
 import os
 from pathlib import Path
@@ -20,7 +20,7 @@ save_output = True
 
 
 ##################################################
-def get_loc_suffix(gaussian: int) -> str:
+def get_loc_suffix(gaussian: int = default_gaussian) -> str:
 	"""
 	Génère un suffixe pour les fichiers de localisation.
 
@@ -31,7 +31,7 @@ def get_loc_suffix(gaussian: int) -> str:
 
 
 ##################################################
-def test_cpu_palm_image():
+def test_palm_cpu_image():
 	""" Test sur le lancement de PALM sur une frame. """
 	palm = PalmCPU()
 	if not palm.is_valid():
@@ -57,7 +57,7 @@ def test_cpu_palm_image():
 
 
 ##################################################
-def test_cpu_palm_stack_dll():
+def test_palm_cpu_stack():
 	""" Test sur le lancement de PALM sur une pile. """
 	palm = PalmCPU()
 	if not palm.is_valid():
@@ -82,7 +82,7 @@ def test_cpu_palm_stack_dll():
 
 
 ##################################################
-def test_cpu_palm_stack_dll_plane_selection():
+def test_palm_cpu_stack_plane_selection():
 	""" Test sur le lancement de PALM sur une pile. """
 	palm = PalmCPU()
 	if not palm.is_valid():
@@ -90,7 +90,7 @@ def test_cpu_palm_stack_dll_plane_selection():
 	else:
 		file = "stack"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
-		suffix = get_loc_suffix(default_gaussian)
+		suffix = get_loc_suffix()
 
 		localizations = palm.run_stack(stack, threshold, watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
@@ -98,13 +98,13 @@ def test_cpu_palm_stack_dll_plane_selection():
 
 
 ##################################################
-def test_cpu_palm_stack_dll_check_quadrant():
+def test_palm_cpu_stack_dll_check_quadrant():
 	"""	Test sur le lancement de PALM sur une pile. """
 	palm = PalmCPU()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
-		suffix = get_loc_suffix(default_gaussian)
+		suffix = get_loc_suffix()
 		file = "stack_quadrant"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
@@ -129,7 +129,7 @@ def test_cpu_palm_stack_dll_check_quadrant():
 
 ##################################################
 def test_auto_threshold():
-	""" Test basique sur l'auto-seuillage avec la DLL. """
+	""" Test basique sur l'auto-seuillage avec la DLL CPU. """
 	palm = PalmCPU()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -142,7 +142,6 @@ def test_auto_threshold():
 			res = palm.auto_threshold(image[i], roi, iterations)
 			# print(f"Image {i} : {res:.6f}")
 			assert is_closed(res, ref[i]), f"Le seuil pour l'image {i} vaut {res} au lieu de {ref[i]}"
-
 
 # ##################################################
 # def test_process_big_data(make_napari_viewer):
@@ -159,7 +158,7 @@ def test_auto_threshold():
 # 		path = Path(f"{INPUT_DIR}/{file}.tif")
 # 		if path.exists() and path.is_file():
 # 			stack = open_tif(f"{INPUT_DIR}/{file}.tif")
-# 			suffix = get_loc_suffix(default_gaussian)
+# 			suffix = get_loc_suffix()
 # 			localizations = palm.run_multithread_stack(stack, threshold, watershed, default_gaussian, sigma, theta, roi)
 # 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 # 			assert len(localizations) > 0, "Aucune localisation trouvé"

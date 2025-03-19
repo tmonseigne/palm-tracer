@@ -15,7 +15,7 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 @dataclass
 class CheckRangeInt(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type nombre entier.
+	Classe pour un paramètre spécifique de type interval de nombre entier.
 
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
@@ -23,7 +23,7 @@ class CheckRangeInt(BaseSettingType):
 			- **default ([int, int])** : Valeurs par défaut du paramètre.
 			- **limit ([int, int])** : Valeurs minimale et maximale du paramètre.
 			- **value ([int, int])** : Valeurs minimale et maximale actuelles du paramètre.
-			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
+			- **box ([QSpinBox, QSpinBox])** : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: list[int] = field(default_factory=lambda: [0, 100])
@@ -85,15 +85,15 @@ class CheckRangeInt(BaseSettingType):
 
 		# Spin box
 		for i in range(2):
-			self.box[i] = QSpinBox(None)							# Création de la boite.
-			self.box[i].setAlignment(Qt.AlignmentFlag.AlignCenter)  # Définir l'alignement au centre.
-			self.box[i].setFixedWidth(30)							# Réduit la largeur
-			self.box[i].setRange(self.limit[0], self.limit[1])		# Définition du min, max.
-			self.box[i].setValue(self.default[i])					# Définition de la valeur par défaut
+			self.box[i] = QSpinBox(None)									# Création de la boite.
+			self.box[i].setAlignment(Qt.AlignmentFlag.AlignCenter)			# Définir l'alignement au centre.
+			self.box[i].setFixedWidth(30)									# Réduit la largeur
+			self.box[i].setRange(self.limit[0], self.limit[1])				# Définition du min, max.
+			self.box[i].setValue(self.default[i])							# Définition de la valeur par défaut
 			self.box[i].setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)  # Supprime les flèches
 
-		self.box[0].valueChanged.connect(self.check_min)	# Définition du comportement lors de la modification des valeurs
-		self.box[1].valueChanged.connect(self.check_max)	# Définition du comportement lors de la modification des valeurs
+		self.box[0].valueChanged.connect(self.check_min)  # Définition du comportement lors de la modification des valeurs
+		self.box[1].valueChanged.connect(self.check_max)  # Définition du comportement lors de la modification des valeurs
 
 		# Ligne du paramètre
 		hbox = QHBoxLayout()

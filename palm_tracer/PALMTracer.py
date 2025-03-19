@@ -266,18 +266,18 @@ class PALMTracer:
 		if n_init != n_end:
 			self.logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
 
-	##################################################
-	def __filter_tracking(self):
-		""" Filtre le fichier de tracking. """
-		n_init = len(self.tracks)
-		f = self.settings.filtering["Tracking"]
-		filters = [[f["Length"], ""],
-				   [f["D Coeff"], ""],
-				   [f["Instant D"], ""],
-				   [f["Speed"], ""],
-				   [f["Alpha"], ""],
-				   [f["Confinement"], ""]]
-
-		n_end = len(self.tracks)
-		if n_init != n_end:
-			self.logger.add(f"\t\tFiltrage du fichier de tracking {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")
+	# ##################################################
+	# def __filter_tracking(self):
+	# 	""" Filtre le fichier de tracking. """
+	# 	n_init = len(self.tracks)
+	# 	f = self.settings.filtering["Tracking"]
+	# 	filters = [[f["Length"], ""],
+	# 			   [f["D Coeff"], ""],
+	# 			   [f["Instant D"], ""],
+	# 			   [f["Speed"], ""],
+	# 			   [f["Alpha"], ""],
+	# 			   [f["Confinement"], ""]]
+	#
+	# 	n_end = len(self.tracks)
+	# 	if n_init != n_end:
+	# 		self.logger.add(f"\t\tFiltrage du fichier de tracking {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")

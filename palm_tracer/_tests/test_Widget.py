@@ -1,4 +1,4 @@
-""" Fichier des tests pour le widget """
+""" Fichier des tests pour le widget. """
 
 from pathlib import Path
 from typing import cast
@@ -15,10 +15,11 @@ SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
 
+
 ##################################################
 def test_widget_creation(make_napari_viewer, capsys):
 	"""Test basique de création du widget."""
-	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 	assert True
 
@@ -37,11 +38,12 @@ def test_widget_reset_layer(make_napari_viewer, capsys):
 	my_widget._reset_layer()			  # remise à 0 des calques sans changement.
 	assert True
 
+
 ##################################################
 def test_widget_add_detection_layers(make_napari_viewer, capsys):
 	"""Test Ajout des calques de détection."""
-	viewer = make_napari_viewer()					   # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)			   # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
 	my_widget._add_detection_layers(np.zeros((2, 0)))  # Ajout avec un tableau vide.
 	my_widget._add_detection_layers(POINTS)			   # Ajout avec un tableau normal.
@@ -51,18 +53,18 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys):
 
 ##################################################
 def test_widget_preview(make_napari_viewer, capsys):
-	"""Test click sur le bouton auto_threshold."""
+	"""Test click sur le bouton preview."""
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
-
-	my_widget._preview()				  # Appel de la méthode auto_threshold sans fichier dans le batch.
+	my_widget._preview()				  # Appel de la méthode preview sans fichier dans le batch.
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget._preview()				 # Appel de la méthode auto_threshold.
+	my_widget._preview()				  # Appel de la méthode preview.
 	assert True
+
 
 ##################################################
 def test_widget_auto_threshold(make_napari_viewer, capsys):
@@ -83,16 +85,16 @@ def test_widget_auto_threshold(make_napari_viewer, capsys):
 ##################################################
 def test_widget_process(make_napari_viewer, capsys):
 	"""Test click sur le bouton process."""
-	viewer = make_napari_viewer()			  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)	  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget._process()					  # Appel de la méthode process sans fichier dans le batch.
+	my_widget._process()				  # Appel de la méthode process sans fichier dans le batch.
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget._process()					  # Appel de la méthode process.
+	my_widget._process()				  # Appel de la méthode process.
 	assert True
 
 
@@ -102,27 +104,27 @@ def test_widget_bad_dll(make_napari_viewer, capsys):
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget.pt.palm_cpu._dll = None # Suppression d'une DLL pour provoquer le comportement.
+	my_widget.pt.palm_cpu._dll = None	  # Suppression d'une DLL pour provoquer le comportement.
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget._process()					  # Appel de la méthode process.
+	my_widget._process()				  # Appel de la méthode process.
 	assert True
 
 
 ##################################################
 def test_widget_show_high_res(make_napari_viewer, capsys):
-	"""Test click sur le bouton process."""
-	viewer = make_napari_viewer()			  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)	  # Créer notre widget, en passant par le viewer.
+	"""Test click sur le bouton process avec une visualisation HR."""
+	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	my_widget.pt.settings.visualization_hr.active = True
-	my_widget._process()					  # Appel de la méthode process avec visualization (il trouvera une localisation précalculé).
-	my_widget._process()					  # Appel de la méthode process avec visualization déjà active.
+	my_widget._process()  # Appel de la méthode process avec visualization (il trouvera une localisation précalculé).
+	my_widget._process()  # Appel de la méthode process avec visualization déjà active.
 
 	assert True
