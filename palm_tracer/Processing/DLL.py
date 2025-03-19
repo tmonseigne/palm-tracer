@@ -13,6 +13,7 @@ Ce module regroupe des utilitaires pour :
 """
 
 import ctypes
+# from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional
 
@@ -81,7 +82,7 @@ def _rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remai
 
 
 ##################################################
-def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> pd.DataFrame:
+def _parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool = False) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
@@ -91,6 +92,7 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	:param data: Donnée en entrée récupérées depuis la DLL PALM.
+	:param plane: Numéro du plan dans la pile
 	:param gauss_fit: Mode d'ajustement Gaussien.
 	:param sort: Tri des points par Y puis X (sens de lecture Gauche à droite du haut vers le bas).
 	:return: Dataframe filtré
@@ -104,7 +106,7 @@ def _parse_palm_result(data: np.ndarray, gauss_fit: int, sort: bool = False) -> 
 	res = res.reset_index(drop=True)	 								 		  # Remise à 0 des index
 	res["Id"] = range(1, len(res) + 1)	 								 		  # Mise à jour de l'ID dans le tableau.
 	res["Index"] = range(1, len(res) + 1)								 		  # Ajout de l'index (au sein du plan) dans le tableau.
-	res["Plane"] = 1					 								 		  # Ajout d'un plan dans le tableau
+	res["Plane"] = plane					 								 	  # Ajout d'un plan dans le tableau
 	res["Channel"] = -1					 								 		  # Ajout d'un channel dans le tableau
 	res["MSE Z"] = -1					 								 		  # Ajout d'un MSE pour Z dans le tableau
 
@@ -192,7 +194,7 @@ def load_dll() -> dict[str, ctypes.CDLL]:
 
 ##################################################
 def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, watershed: bool,
-					   gauss_fit: int, sigma: float, theta: float, roi_size: int) -> pd.DataFrame:
+					   gauss_fit: int, sigma: float, theta: float, roi_size: int, plane: int = 1) -> pd.DataFrame:
 	"""
 	Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
@@ -204,8 +206,11 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 	:param roi_size: Taille de la région d'intérêt (ROI).
+	:param plane: Numéro du plan dans la pile
 	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	"""
+	# En multithreading, la dll doit être chargé pour chaque process
+	# dll = ctypes.cdll.LoadLibrary(....)
 	# Parsing
 	image = np.asarray(image, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
 	height, width = image.shape					# Récupération des dimensions
@@ -234,7 +239,7 @@ def run_palm_image_dll(dll: ctypes.CDLL, image: np.ndarray, threshold: float, wa
 	dll._PALMProcessing()
 	dll._closePALMProcessing()
 
-	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n,)), gauss_fit, True)
+	return _parse_palm_result(np.ctypeslib.as_array(c_points, shape=(n,)), plane, gauss_fit, True)
 
 
 ##################################################
@@ -254,18 +259,24 @@ def run_palm_stack_dll(dll: ctypes.CDLL, stack: np.ndarray, threshold: float, wa
     :param planes: Liste des plans à analyser (None = tous les plans).
     :return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 	"""
-	results = []
 	n_planes = stack.shape[0]
 	if planes is None : planes =  list(range(n_planes))
 	else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
 
+	# # Exécution parallèle impossible tant que la DLL ne fonctionne pas en une fonction unique et utilise un objet palm en pointeur
+	# results = []
+	# with ProcessPoolExecutor() as executor:
+	# 	futures = {executor.submit(run_palm_image_dll, dll, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size, i + 1): i for i in planes}
+	# 	for future in as_completed(futures): results.append(future.result())
+
+	results = []
 	for i in planes:
-		points = run_palm_image_dll(dll, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size)
-		points["Plane"] = i + 1			# Modifier une colonne 'Plane' au DataFrame temporaire
+		points = run_palm_image_dll(dll, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size, i + 1)
 		results.append(points)			# Ajouter à la liste
 
 	# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
 	res = pd.concat(results, ignore_index=True)
+	# res = res.sort_values(by=["Plane", "Index"]).reset_index(drop=True)	# Tri si jamais le multithread à mélangé les sorties
 	res["Id"] = range(1, len(res) + 1)  # Mise à jour de l'ID dans le tableau
 	return res
 
