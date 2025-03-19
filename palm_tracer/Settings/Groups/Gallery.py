@@ -22,6 +22,6 @@ class Gallery(BaseSettingGroup):
 
 	label: str = "Gallery"
 	setting_list = {
-			"ROI Size": [SpinInt, ["ROI Size", 9, 3, 31, 2]],
+			"ROI Size":      [SpinInt, ["ROI Size", 9, 3, 31, 2]],
 			"ROIs Per Line": [SpinInt, ["ROIs Per Line", 30, 1, 500, 1]],
 			}

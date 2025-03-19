@@ -1,4 +1,4 @@
-""" Fichier des tests pour la lecture/écriture des fichiers """
+""" Fichier des tests pour la lecture/écriture des fichiers. """
 
 import os
 from pathlib import Path
@@ -17,12 +17,11 @@ REF_DICT = {"First param": [0, 1, 2],
 			"élément":     0,
 			"Inception":   {"intern": 0}}
 
-# np.random.seed(42) # Possibilité de fixer la graine du random pour avoir un aléatoire "contrôlé".
-SIZE = 512  # Taille de l'image de test
-NOISE_2D = np.random.rand(SIZE, SIZE) * 255  # Bruit sur une image 2D
-REF_BOOLEAN_MASK = NOISE_2D > 128  # Conversion en booléen
+SIZE = 512												# Taille de l'image de test
+NOISE_2D = np.random.rand(SIZE, SIZE) * 255				# Bruit sur une image 2D
+REF_BOOLEAN_MASK = NOISE_2D > 128						# Conversion en booléen
 GRADIENT = np.linspace(0, 255, SIZE, dtype=np.float32)  # Création du dégradé croissant de 0 à 255
-REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))  # Répète le dégradé sur toutes les lignes
+REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))				# Répète le dégradé sur toutes les lignes
 REF_STACK = np.stack((REF_GRADIENT, np.fliplr(REF_GRADIENT)), axis=0)  # Empilement du dégradé et son miroir horizontal
 
 

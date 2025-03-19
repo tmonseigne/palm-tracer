@@ -64,7 +64,7 @@ class BaseSettingGroup:
 		# Base
 		self._widget = QWidget()
 		layout = QFormLayout(self._widget)
-		layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
+		layout.setAlignment(Qt.AlignmentFlag.AlignTop)	 # Définir l'alignement du calque en haut.
 
 		# Title Row
 		self._title = QLabel(f"{self.label}")
@@ -136,11 +136,10 @@ class BaseSettingGroup:
 		res = {key: setting.get_value() for key, setting in self._settings.items()}
 		for group in self._inner_groups:
 			setting_group = cast(BaseSettingGroup, self._settings[group])
-			res.pop(group, None)								 # Supprime la clé si elle existe
+			res.pop(group, None)  # Supprime la clé si elle existe
 			tmp = {f"{group} {key}": value for key, value in setting_group.get_settings().items()}
-			res = {**res, **tmp}								 # Fusionne les dictionnaires
+			res = {**res, **tmp}  # Fusionne les dictionnaires
 		return res
-
 
 	##################################################
 	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:
@@ -195,9 +194,9 @@ class BaseSettingGroup:
 		# Supprimer la checkbox et réorganiser le layout
 		if self._header and self._checkbox:
 			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
-			self._checkbox.deleteLater()  # Détruire la checkbox
-			# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
-			# self._title.setText(f"       {self.label}")
+			self._checkbox.deleteLater()						# Détruire la checkbox
+		# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
+		# self._title.setText(f"       {self.label}")
 
 	##################################################
 	def remove_header(self):
@@ -209,15 +208,15 @@ class BaseSettingGroup:
 			self._title.deleteLater()						 # Détruire le titre
 
 		# Suppression du header
-		if self._header and self._widget:	 				 # pragma: no cover (toujours faux)
-			layout = self._widget.layout()					 # Récupérer le layout principal
-			if isinstance(layout, QWidget):  				 # Vérifier que c'est bien un QFormLayout
-				layout.removeRow(self._header)				 # Supprimer la ligne du layout
+		if self._header and self._widget:		# pragma: no cover (toujours faux)
+			layout = self._widget.layout()		# Récupérer le layout principal
+			if isinstance(layout, QWidget):		# Vérifier que c'est bien un QFormLayout
+				layout.removeRow(self._header)  # Supprimer la ligne du layout
 
 		# Suppression de la marge
-		body_layout = self._body.layout()					 # Récupérer le layout du widget _body
-		if isinstance(body_layout, QFormLayout):			 # pragma: no cover (toujours vrai)
-			body_layout.setContentsMargins(0, 0, 0, 0)		 # Aucune marge
+		body_layout = self._body.layout()				# Récupérer le layout du widget _body
+		if isinstance(body_layout, QFormLayout):		# pragma: no cover (toujours vrai)
+			body_layout.setContentsMargins(0, 0, 0, 0)  # Aucune marge
 
 	# ==================================================
 	# endregion Hide and Seek
@@ -267,6 +266,6 @@ class BaseSettingGroup:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-	# ==================================================
-	# endregion IO
-	# ==================================================
+# ==================================================
+# endregion IO
+# ==================================================

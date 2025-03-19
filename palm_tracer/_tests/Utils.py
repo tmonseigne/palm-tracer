@@ -1,8 +1,8 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
-
 from scipy.spatial import cKDTree
-from typing import Optional
 
 from palm_tracer.Tools import print_error, print_success, print_warning
 
@@ -101,8 +101,8 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		for i, row_a in matched_a.iterrows():
 			row_b = matched_b.iloc[i]  # Récupération du point le plus proche
 
-			total_points += 1   # Un point est comparé donc incrémentaiton du compteur
-			diff = {}			# Dictionnaire de différence
+			total_points += 1  # Un point est comparé donc incrémentaiton du compteur
+			diff = {}  # Dictionnaire de différence
 			exact_match = True  # Le point est identique
 
 			# Vérification des correspondances exactes

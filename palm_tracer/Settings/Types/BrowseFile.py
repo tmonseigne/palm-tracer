@@ -51,20 +51,20 @@ class BrowseFile(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()								# Appelle l'initialisation de la classe mère
-		self.box = QLineEdit()								# Création de la boite.
-		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)   # Définition de l'alignement du calque à gauche.
+		super().initialize()  # Appelle l'initialisation de la classe mère
+		self.box = QLineEdit()  # Création de la boite.
+		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
 
-		browse_button = QPushButton("Choisir un fichier")	# Ajout d'un bouton pour permettre de choisir le fichier
-		browse_button.clicked.connect(self.browse_file)		# Connexion du bouton à la méthode de sélection
+		browse_button = QPushButton("Choisir un fichier")  # Ajout d'un bouton pour permettre de choisir le fichier
+		browse_button.clicked.connect(self.browse_file)  # Connexion du bouton à la méthode de sélection
 
 		# Disposer le QLineEdit et le bouton dans un calque horizontal
-		layout = QHBoxLayout()								# Création d'un calque intermédiaire comprenant le champ de texte et le bouton de sélection.
-		layout.setAlignment(Qt.AlignmentFlag.AlignLeft)		# Définition de l'alignement du calque à gauche.
-		layout.addWidget(self.box)							# Ajout du champ de texte
-		layout.addWidget(browse_button)						# Ajout du bouton de sélection
+		layout = QHBoxLayout()  # Création d'un calque intermédiaire comprenant le champ de texte et le bouton de sélection.
+		layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
+		layout.addWidget(self.box)  # Ajout du champ de texte
+		layout.addWidget(browse_button)  # Ajout du bouton de sélection
 
-		self.add_row(layout)								# Ajouter au calque principal du setting.
+		self.add_row(layout)  # Ajouter au calque principal du setting.
 
 	##################################################
 	def browse_file(self):  # pragma: no cover

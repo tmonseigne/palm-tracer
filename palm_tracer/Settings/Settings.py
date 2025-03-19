@@ -24,13 +24,13 @@ class Settings:
 	Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer.
 
 	Attributs :
-			- :class:`.Batch` : Groupe de paramètres liés au batch.
-			- :class:`.Calibration` : Groupe de paramètres liés à la calibration.
-			- :class:`.Localization` : Groupe de paramètres liés à la localisation.
-			- :class:`.Tracking` : Groupe de paramètres liés au tracking.
-			- :class:`.VisualizationHR` : Groupe de paramètres liés à la visualisation haute résolution.
-			- :class:`.VisualizationGraph` : Groupe de paramètres liés à la visualisation de graphiques.
-			- :class:`.Filtering` : Groupe de paramètres liés au filtrage lors des processus.
+			- :class:`palm_tracer.Settings.Groups.Batch` : Groupe de paramètres liés au batch.
+			- :class:`palm_tracer.Settings.Groups.Calibration` : Groupe de paramètres liés à la calibration.
+			- :class:`palm_tracer.Settings.Groups.Localization` : Groupe de paramètres liés à la localisation.
+			- :class:`palm_tracer.Settings.Groups.Tracking` : Groupe de paramètres liés au tracking.
+			- :class:`palm_tracer.Settings.Groups.VisualizationHR` : Groupe de paramètres liés à la visualisation haute résolution.
+			- :class:`palm_tracer.Settings.Groups.VisualizationGraph` : Groupe de paramètres liés à la visualisation de graphiques.
+			- :class:`palm_tracer.Settings.Groups.Filtering` : Groupe de paramètres liés au filtrage lors des processus.
 	"""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
@@ -142,6 +142,6 @@ class Settings:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-	# ==================================================
-	# endregion IO
-	# ==================================================
+# ==================================================
+# endregion IO
+# ==================================================

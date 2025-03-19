@@ -53,10 +53,10 @@ class CheckBox(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()			# Appelle l'initialisation de la classe mère.
-		self.box = QCheckBox()			# Création de la boite.
-		self.set_value(self.default)    # Définition de la valeur.
-		self.add_row(self.box)			# Ajoute la check box au calque.
+		super().initialize()		  # Appelle l'initialisation de la classe mère.
+		self.box = QCheckBox()		  # Création de la boite.
+		self.set_value(self.default)  # Définition de la valeur.
+		self.add_row(self.box)		  # Ajoute la check box au calque.
 
 	##################################################
 	def reset(self): self.set_value(self.default)

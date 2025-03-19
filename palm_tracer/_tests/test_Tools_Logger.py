@@ -1,4 +1,4 @@
-""" Fichier des tests pour le logger """
+""" Fichier des tests pour le logger. """
 
 import os
 from pathlib import Path

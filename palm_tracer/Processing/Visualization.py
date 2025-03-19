@@ -1,6 +1,4 @@
-"""
-Module contenant les fonctions de visualisation pour palm-tracer.
-"""
+""" Module contenant les fonctions de visualisation. """
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -56,7 +54,7 @@ def get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 	"""
 	n_values = len(data)
 	# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
-	bins = int(np.ceil(np.log2(n_values) + 1))   # Règle de Sturges
+	bins = int(np.ceil(np.log2(n_values) + 1))	 # Règle de Sturges
 	return max(limits[0], min(bins, limits[1]))  # Bornes pour éviter des valeurs extrêmes
 
 

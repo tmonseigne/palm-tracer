@@ -1,20 +1,16 @@
-""" Fichier des tests pour le widget """
+""" Fichier des tests pour le widget de visualisation. """
 import os
 from pathlib import Path
 
 import numpy as np
-from qtpy.QtCore import Qt, QPoint, QSize
-from qtpy.QtGui import QWheelEvent, QResizeEvent
+from qtpy.QtCore import QPoint, QSize, Qt
+from qtpy.QtGui import QResizeEvent, QWheelEvent
 
 from palm_tracer.UI import HighResViewer
 
-INPUT_DIR = Path(__file__).parent / "input"
-OUTPUT_DIR = Path(__file__).parent / "output"
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
-SIZE = 512  # Taille de l'image de test
+SIZE = 512												# Taille de l'image de test
 GRADIENT = np.linspace(0, 255, SIZE, dtype=np.float32)  # Création du dégradé croissant de 0 à 255
-REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))			    # Répète le dégradé sur toutes les lignes
+REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))				# Répète le dégradé sur toutes les lignes
 
 # Ajout d'une perturbation (petite sinusoïde)
 X, Y = np.meshgrid(np.arange(SIZE), np.arange(SIZE))
@@ -28,8 +24,7 @@ REF_IMAGE_UINT16 = np.clip(REF_IMAGE_UINT8.astype(np.uint16) * 256, 0, 65535)
 R = REF_IMAGE_UINT8
 G = np.clip(255 - REF_GRADIENT, 0, 255).astype(np.uint8)  # Inversion du gradient pour du contraste
 B = np.clip(PERTURBATION + 128, 0, 255).astype(np.uint8)  # Une composante perturbée en bleu
-
-REF_IMAGE_RGB = np.stack([R, G, B], axis=-1)  # Assemble les trois canaux
+REF_IMAGE_RGB = np.stack([R, G, B], axis=-1)			  # Assemble les trois canaux
 
 
 ##################################################
@@ -117,7 +112,7 @@ def test_high_res_view_wheel(make_napari_viewer):
 ##################################################
 def test_high_res_view_resize(make_napari_viewer):
 	"""Test de la fonction check_ratio. """
-	view = HighResViewer(REF_IMAGE_UINT16)# Taille initiale de la fenêtre
+	view = HighResViewer(REF_IMAGE_UINT16)  # Taille initiale de la fenêtre
 	initial_size = view.size()
 
 	# Fonction pour simuler un événement de redimensionnement

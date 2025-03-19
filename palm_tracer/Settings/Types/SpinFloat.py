@@ -69,14 +69,14 @@ class SpinFloat(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()								# Appelle l'initialisation de la classe mère.
-		self.box = QDoubleSpinBox(None)						# Création de la boite.
-		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)   # Définir l'alignement du calque à gauche.
-		self.box.setRange(self.min, self.max)				# Définition du min, max.
-		self.box.setSingleStep(self.step)					# Définition du pas à chaque appuie sur une flèche.
-		self.box.setDecimals(self.precision)				# Définition de la précision à afficher.
-		self.set_value(self.default)						# Définition de la valeur.
-		self.add_row(self.box)								# Ajoute le spin au calque.
+		super().initialize()							   # Appelle l'initialisation de la classe mère.
+		self.box = QDoubleSpinBox(None)					   # Création de la boite.
+		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+		self.box.setRange(self.min, self.max)			   # Définition du min, max.
+		self.box.setSingleStep(self.step)				   # Définition du pas à chaque appuie sur une flèche.
+		self.box.setDecimals(self.precision)			   # Définition de la précision à afficher.
+		self.set_value(self.default)					   # Définition de la valeur.
+		self.add_row(self.box)							   # Ajoute le spin au calque.
 
 	##################################################
 	def reset(self): self.set_value(self.default)

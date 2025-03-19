@@ -18,9 +18,9 @@ class HighResViewer(QMainWindow):
 		self.setWindowTitle("High resolution visualization")
 		self.setGeometry(100, 100, 800, 600)
 
-		self.min_size = [400, 400]								# Taille minimale de la fenêtre (en pixels)
-		self.max_size = [3840, 2160]					# Taille maximale de la fenêtre (en pixels, pour un écran 4K)
-		self.wheel_speed = 1.2							# Facteur de zoom
+		self.min_size = [400, 400]  # Taille minimale de la fenêtre (en pixels)
+		self.max_size = [3840, 2160]  # Taille maximale de la fenêtre (en pixels, pour un écran 4K)
+		self.wheel_speed = 1.2  # Facteur de zoom
 		self.last_size = (self.width(), self.height())  # Dernière taille connue de la fenêtre
 
 		# Création de la vue et de la scène
@@ -50,35 +50,36 @@ class HighResViewer(QMainWindow):
 		pixmap = QPixmap.fromImage(qimage)
 
 		if self.image_item: self.scene.removeItem(self.image_item)  # Supprime l'ancienne image
-		self.image_item = QGraphicsPixmapItem(pixmap)				# Création du conteneur de l'image
-		self.scene.addItem(self.image_item)							# Ajout de l'image
-		self.view.update()											# Forcer l'actualisation de la vue
-		QTimer.singleShot(0, lambda: self.view.fitInView(self.image_item, Qt.AspectRatioMode.KeepAspectRatio))  # Utiliser QTimer pour attendre que la scène soit prête
-		self._adjust_window_size(pixmap.width(), pixmap.height()) 	# Ajuster la taille de la fenêtre en fonction de l'image
+		self.image_item = QGraphicsPixmapItem(pixmap)  # Création du conteneur de l'image
+		self.scene.addItem(self.image_item)  # Ajout de l'image
+		self.view.update()  # Forcer l'actualisation de la vue
+		QTimer.singleShot(0, lambda: self.view.fitInView(self.image_item,
+														 Qt.AspectRatioMode.KeepAspectRatio))  # Utiliser QTimer pour attendre que la scène soit prête
+		self._adjust_window_size(pixmap.width(), pixmap.height())  # Ajuster la taille de la fenêtre en fonction de l'image
 
 	##################################################
 	def _check_ratio(self, width: int, height: int):
 		pixmap = cast(QGraphicsPixmapItem, self.image_item).pixmap()  # Récupérer le pixmap de l'image
-		img_width = pixmap.width()									  # Largeur de l'image
-		img_height = pixmap.height()								  # Hauteur de l'image
-		aspect_ratio_img = img_width / img_height					  # Ratio d'aspect de l'image
-		aspect_ratio_window = width / height						  # Ratio d'aspect de la fenêtre
+		img_width = pixmap.width()  # Largeur de l'image
+		img_height = pixmap.height()  # Hauteur de l'image
+		aspect_ratio_img = img_width / img_height  # Ratio d'aspect de l'image
+		aspect_ratio_window = width / height  # Ratio d'aspect de la fenêtre
 
 		if aspect_ratio_img != aspect_ratio_window:
 			if aspect_ratio_img > aspect_ratio_window: width = int(height * aspect_ratio_img)  # Si le ratio d'aspect de l'image est plus large
-			else: height = int(width / aspect_ratio_img)									   # Si le ratio d'aspect de l'image est plus haut
+			else: height = int(width / aspect_ratio_img)  # Si le ratio d'aspect de l'image est plus haut
 
 		return width, height
 
 	##################################################
-	def _adjust_window_size(self, width: int, height: int, keep_ratio:bool = False):
+	def _adjust_window_size(self, width: int, height: int, keep_ratio: bool = False):
 		"""Ajuste la taille de la fenêtre en fonction de la taille de l'image."""
 		width = int(np.clip(width, self.min_size[0], self.max_size[0]))
 		height = int(np.clip(height, self.min_size[1], self.max_size[1]))
 		if keep_ratio: width, height = self._check_ratio(width, height)  # Redimensionnement selon le ratio
 
 		self.last_size = (width, height)  # Mettre à jour la taille précédente
-		self.resize(width, height)		  # Ajuster la taille de la fenêtre
+		self.resize(width, height)  # Ajuster la taille de la fenêtre
 		self.view.fitInView(self.image_item, Qt.AspectRatioMode.KeepAspectRatio)  # Ajuster la vue pour correspondre à la taille de l'image
 
 	##################################################

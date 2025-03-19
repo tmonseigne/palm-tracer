@@ -44,7 +44,7 @@ def add_extension(filename: str, extension: str) -> str:
 	:param extension: Extension finale du fichier
 	"""
 	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
-	if not filename.endswith(extension): filename += extension  # Si le fichier n'a pas déjà l'extension, on l'ajoute
+	if not filename.endswith(extension): filename += extension	   # Si le fichier n'a pas déjà l'extension, on l'ajoute
 	return filename
 
 
@@ -73,7 +73,7 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 	:return: Horodatage.
 	"""
 	if with_hour: return datetime.now().strftime("%Y%m%d_%H%M%S")  # Formater la date et l'heure
-	return datetime.now().strftime("%Y%m%d")  # Formater la date
+	return datetime.now().strftime("%Y%m%d")					   # Formater la date
 
 
 ##################################################

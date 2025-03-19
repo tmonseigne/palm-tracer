@@ -2,18 +2,16 @@
 Module contenant les fonctions de traitement de PALM.
 """
 
-import ctypes
 import os
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import (load_dll, make_gallery, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, run_palm_stack_dll,
-									run_tracking_dll)
+from palm_tracer.Processing import DLL, make_gallery, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
@@ -27,7 +25,9 @@ class PALMTracer:
 	""" Classe principale de PALM Tracer. """
 
 	settings: Settings = field(init=False, default_factory=Settings)
-	dlls: dict[str, ctypes.CDLL] = field(init=False, default_factory=dict)
+	palm_cpu: DLL.PalmCPU = field(init=False, default_factory=DLL.PalmCPU)
+	# gpu: DLL.GPU = field(init=False, default_factory=DLL.GPU)
+	tracking: DLL.Tracking = field(init=False, default_factory=DLL.Tracking)
 	logger: Logger = field(init=False, default_factory=Logger)
 	localizations: Optional[pd.DataFrame] = field(init=False, default=None)
 	tracks: Optional[pd.DataFrame] = field(init=False, default=None)
@@ -38,13 +38,8 @@ class PALMTracer:
 	__suffix: str = field(init=False, default="")
 
 	##################################################
-	def __post_init__(self):
-		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		self.dlls = load_dll()
-
-	##################################################
 	def is_dll_valid(self):
-		return self.dlls.get("CPU", None) is not None and self.dlls.get("Tracking", None) is not None
+		return self.palm_cpu.is_valid() and self.tracking.is_valid()
 
 	##################################################
 	def process(self):
@@ -166,9 +161,8 @@ class PALMTracer:
 		planes = filters["Plane"].get_value()
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
 		# Run command
-		self.localizations = run_palm_stack_dll(self.dlls["CPU"], self.__stack, s["Threshold"], s["Watershed"],
-												s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"],
-												s["ROI Size"], planes)
+		self.localizations = self.palm_cpu.run_stack(self.__stack, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
+													 s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"], planes)
 
 		self.__filter_localizations()
 		self.logger.add("\tEnregistrement du fichier de localisation")
@@ -185,7 +179,7 @@ class PALMTracer:
 		# Parse settings
 		s = self.settings.tracking.get_settings()
 		# Run command
-		self.tracks = run_tracking_dll(self.dlls["Tracking"], self.localizations, s["Max Distance"], s["Min Length"], s["Decrease"], s["Cost Birth"])
+		self.tracks = self.tracking.run(self.localizations, s["Max Distance"], s["Min Length"], s["Decrease"], s["Cost Birth"])
 
 		self.logger.add("\tEnregistrement du fichier de tracking.")
 		self.logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvé(s).")
@@ -203,11 +197,8 @@ class PALMTracer:
 			sources = HR_SOURCE[1:] if s["Source"] == 0 else [HR_SOURCE[s["Source"]]]
 			for source in sources:
 				self.visualization = render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", source]].to_numpy())
-				if np.all(self.visualization == self.visualization[0, 0]):
-					self.logger.add(f"\tAnnulation de la visualisation haute résolution (x{s['Ratio']}, {source}) : Image uniforme.")
-				else:
-					self.logger.add(f"\tEnregistrement de la visualisation haute résolution (x{s['Ratio']}, {source}).")
-					save_png(self.visualization, f"{self.__path}/visualization_x{s['Ratio']}_{source}-{self.__suffix}.png")
+				self.logger.add(f"\tEnregistrement de la visualisation haute résolution (x{s['Ratio']}, {source}).")
+				save_png(self.visualization, f"{self.__path}/visualization_x{s['Ratio']}_{source}-{self.__suffix}.png")
 		else:
 			self.logger.add(f"\tAucun fichier de localisation pour la visualisation.")
 
@@ -223,14 +214,14 @@ class PALMTracer:
 		modes = GRAPH_MODE[1:] if s["Mode"] == 0 else [GRAPH_MODE[s["Mode"]]]
 		for source in sources:
 			loc = self.localizations[["Plane", source]].to_numpy()
-			if np.all(loc[:,1] == loc[0, 1]):
+			if np.all(loc[:, 1] == loc[0, 1]):
 				self.logger.add(f"\tAnnulation de la visualisation graphique : {source} uniforme.")
 				continue
 
 			for mode in modes:
 				fig, ax = plt.subplots()
 				if mode == "Histogram":
-					plot_histogram(ax, loc[:,1], source + " Histogram", True, True, False)
+					plot_histogram(ax, loc[:, 1], source + " Histogram", True, True, False)
 				elif mode == "Plane Heat Map":
 					plot_plane_heatmap(ax, loc, source + " Heatmap")
 				else:  # elif mode == "Plane Violin":
@@ -274,3 +265,19 @@ class PALMTracer:
 		n_end = len(self.localizations)
 		if n_init != n_end:
 			self.logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
+
+	# ##################################################
+	# def __filter_tracking(self):
+	# 	""" Filtre le fichier de tracking. """
+	# 	n_init = len(self.tracks)
+	# 	f = self.settings.filtering["Tracking"]
+	# 	filters = [[f["Length"], ""],
+	# 			   [f["D Coeff"], ""],
+	# 			   [f["Instant D"], ""],
+	# 			   [f["Speed"], ""],
+	# 			   [f["Alpha"], ""],
+	# 			   [f["Confinement"], ""]]
+	#
+	# 	n_end = len(self.tracks)
+	# 	if n_init != n_end:
+	# 		self.logger.add(f"\t\tFiltrage du fichier de tracking {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")

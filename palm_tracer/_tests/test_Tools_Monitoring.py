@@ -1,4 +1,4 @@
-""" Fichier des tests pour le monitoring """
+""" Fichier des tests pour le monitoring. """
 
 import os
 import time
@@ -44,10 +44,10 @@ def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: floa
 	allocated_memory = bytearray(size * 1024 * 1024)  # Alloue un tableau de bytes
 	monitoring.add_test_info("_tests/test_simulation_memory.py::test_hold_memory")
 	print(f"Memory allocated. Holding for {duration} seconds...")
-	time.sleep(duration)  # Garde la mémoire allouée pour observer l'impact
+	time.sleep(duration)							  # Garde la mémoire allouée pour observer l'impact
 	monitoring.add_test_info("_tests/test_simulation_memory.py::test_release_memory")
 	print("Releasing memory.")
-	del allocated_memory  # Libère la mémoire
+	del allocated_memory							  # Libère la mémoire
 
 
 ##################################################

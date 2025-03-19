@@ -1,7 +1,6 @@
 """
-Fichier contenant la classe :class:`Tracking` dérivée de :class:`.BaseSettingGroup`,
+Fichier contenant la classe :class:`palm_tracer.Settings.Groups.Tracking` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de tracking nécessaires à la configuration de PALM Tracer.
-
 
 .. todo::
 	Vérifier l'ordre de grandeur et le valeurs par défaut des paramètres de tracking.

@@ -15,7 +15,6 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import auto_threshold_dll, run_palm_image_dll
 from palm_tracer.Settings.Types import Button, FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 from palm_tracer.UI import HighResViewer
@@ -155,7 +154,7 @@ class PALMTracerWidget(QWidget):
 
 		:param points: Numpy array de y et x (dans ce sens)
 		"""
-		if points.size == 0: # Pas de points, pas de calques à ajouter
+		if points.size == 0:  # Pas de points, pas de calques à ajouter
 			print_warning("Aucun point détecté, les calques ne seront pas créés.")
 			return
 
@@ -168,7 +167,7 @@ class PALMTracerWidget(QWidget):
 		half_size = roi_size / 2
 		rois = []
 		for y, x in points:
-			rois.append([[y - half_size, x - half_size], [y - half_size, x + half_size],   # Haut gauche, droit
+			rois.append([[y - half_size, x - half_size], [y - half_size, x + half_size],  # Haut gauche, droit
 						 [y + half_size, x + half_size], [y + half_size, x - half_size]])  # Bas droit, gauche
 
 		if "ROI" in self.viewer.layers: self.viewer.layers["ROI"].data = rois
@@ -195,8 +194,8 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		s = self.pt.settings.localization.get_settings()
-		localizations = run_palm_image_dll(self.pt.dlls["CPU"], image, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
-										   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
+		localizations = self.pt.palm_cpu.run_image(image, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
+												   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
 		self._add_detection_layers(localizations[["Y", "X"]].to_numpy())
 		print(f"Preview des {len(localizations)} points détectés.")
 
@@ -205,7 +204,7 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = auto_threshold_dll(self.pt.dlls["CPU"], image)		 # Calcul du seuil automatique
+		threshold = self.pt.palm_cpu.auto_threshold(image)				  # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
@@ -217,7 +216,6 @@ class PALMTracerWidget(QWidget):
 			return
 		self.pt.process()
 		if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
-
 
 	##################################################
 	def _show_high_res_image(self, image: np.ndarray):
@@ -233,6 +231,6 @@ class PALMTracerWidget(QWidget):
 			self.high_res_window.show()	   # Affiche la fenêtre
 			self.high_res_window.raise_()  # Met en avant
 
-	# ==================================================
-	# endregion Callback
-	# ==================================================
+# ==================================================
+# endregion Callback
+# ==================================================

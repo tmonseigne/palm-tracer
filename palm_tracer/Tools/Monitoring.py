@@ -169,10 +169,10 @@ class Monitoring:
 		self._times = [round(t - first_time, round_time) for t in self._times]
 
 		num_cores = psutil.cpu_count(logical=True)
-		self._cpu = [c / num_cores for c in self._cpu]  		 # Division par le nombre de CPU
+		self._cpu = [c / num_cores for c in self._cpu]			 # Division par le nombre de CPU
 		self._memory = [m * MEMORY_RATIO for m in self._memory]  # Passage en Mo
 		self._disk = [(self._disk[i] - self._disk[i - 1]) * MEMORY_RATIO for i in range(1, len(self._disk))]  # Passage en Mo et en delta d'utilisation
-		self._disk.insert(0, 0)  								 # Ajouter 0 au début pour avoir une taille correcte
+		self._disk.insert(0, 0)									 # Ajouter 0 au début pour avoir une taille correcte
 
 	# ==================================================
 	# endregion Monitoring Manipulation
@@ -286,6 +286,6 @@ class Monitoring:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-	# ==================================================
-	# endregion IO
-	# ==================================================
+# ==================================================
+# endregion IO
+# ==================================================

@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type interval de nombre entier.
+Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type interval de nombre flottant.
 """
 
 from dataclasses import dataclass, field
@@ -15,7 +15,7 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 @dataclass
 class CheckRangeFloat(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type nombre entier.
+	Classe pour un paramètre spécifique de type interval de nombre flottant.
 
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
@@ -23,7 +23,7 @@ class CheckRangeFloat(BaseSettingType):
 			- **default ([float, float])** : Valeurs par défaut du paramètre.
 			- **limit ([float, float])** : Valeurs minimale et maximale du paramètre.
 			- **value ([float, float])** : Valeurs minimale et maximale actuelles du paramètre.
-			- **box (QDoubleSpinBox)** : Objet QT permettant de manipuler le paramètre.
+			- **box ([QDoubleSpinBox, QDoubleSpinBox])** : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: list[float] = field(default_factory=lambda: [-1, 1])
@@ -96,8 +96,8 @@ class CheckRangeFloat(BaseSettingType):
 			self.box[i].setDecimals(self.precision)					# Définition de la précision à afficher.
 			self.box[i].setButtonSymbols(QDoubleSpinBox.ButtonSymbols.NoButtons)  # Supprime les flèches
 
-		self.box[0].valueChanged.connect(self.check_min)	# Définition du comportement lors de la modification des valeurs
-		self.box[1].valueChanged.connect(self.check_max)	# Définition du comportement lors de la modification des valeurs
+		self.box[0].valueChanged.connect(self.check_min)  # Définition du comportement lors de la modification des valeurs
+		self.box[1].valueChanged.connect(self.check_max)  # Définition du comportement lors de la modification des valeurs
 
 		# Ligne du paramètre
 		hbox = QHBoxLayout()

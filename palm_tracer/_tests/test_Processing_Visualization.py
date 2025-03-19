@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'utilisation des DLL """
+""" Fichier des tests pour les fonctions de visualisation. """
 import os
 from pathlib import Path
 
@@ -22,6 +22,9 @@ POINTS = np.stack([rng.uniform(1, SIZE_X - 1, size=SIZE), rng.uniform(1, SIZE_Y 
 ##################################################
 def test_normalize_data():
 	"""Test de la normalisation de données."""
+	data = np.array([])  # Cas 0 liste vide
+	res = normalize_data(data, scale=1)
+
 	data = np.array([-1, -1, -1])  # Cas 1 colonne uniforme
 	res = normalize_data(data, scale=1)
 	assert np.array_equal(res, np.array([1, 1, 1])), "Normalisation incorrecte"

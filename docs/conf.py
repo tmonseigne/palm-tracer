@@ -59,6 +59,7 @@ todo_include_todos = True
 
 suppress_warnings = ["autosectionlabel.*"]
 
+
 # Spécifie les répertoires source et destination
 def copy_dir(source, dest):
 	# Copie les fichiers si le dossier source existe

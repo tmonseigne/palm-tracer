@@ -14,12 +14,11 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 @dataclass
 class Button(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type case à cocher.
+	Classe pour un paramètre spécifique de type boutton à cliquer.
 
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **value (bool)** : Valeur actuelle du paramètre.
 			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
 	"""
 
@@ -42,7 +41,7 @@ class Button(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()			   # Appelle l'initialisation de la classe mère.
+		super().initialize()				# Appelle l'initialisation de la classe mère.
 		self.box = QPushButton(self.label)  # Création de la boite.
 		self._layout.addRow(self.box)
 
