@@ -8,6 +8,41 @@ from matplotlib import pyplot as plt
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 MAX_UI_8 = np.iinfo(np.uint8).max
+SCALE = MAX_UI_16 / 8  # Échelle cible de normalization (permet une résolution de superposition de points de 8 fois)
+
+
+##################################################
+def normalize_data(data: np.ndarray, scale: int = SCALE) -> np.ndarray:
+	"""
+	Normalisation des données avec prise en compte de l'ordre de grandeur et adaptation des plages.
+
+	Règles :
+		- Si toutes les valeurs sont dans [0,1], normalisation vers [0, SCALE].
+		- Si valeurs négatives et positives, on prend la puissance de 2 la plus proche de max(abs(min), abs(max)) et on transpose vers [0, SCALE].
+		- Colonne uniforme : on force une valeur constante de SCALE.
+		- Si toutes les valeurs sont positives, on considère 0 comme min et on normalise avec la puissance de 2 la plus proche du max.
+
+	:param data: Données à normaliser.
+	:param scale: échelle de normalisation
+	:return: Données normalisées.
+	"""
+	if data is None or data.size == 0: return np.zeros_like(data)
+	min_val, max_val = data.min(), data.max()
+
+	# Cas 1 : Colonne uniforme (toutes les valeurs identiques)
+	if min_val == max_val: return np.full_like(data, scale)
+
+	# Cas 2 : Valeurs entre 0 et 1
+	if min_val >= 0 and max_val <= 1: return scale * data
+
+	# Cas 3 : Valeurs négatives et positives -> on centre autour de 0
+	if min_val < 0 < max_val:
+		bound = 2 ** np.ceil(np.log2(max(abs(min_val), abs(max_val))))
+		return (scale / (2 * bound)) * (data + bound)
+
+	# Cas 4 : Valeurs positives -> on prend 0 comme min et on ajuste avec la puissance de 2 la plus proche du max
+	bound = 2 ** np.ceil(np.log2(max_val))
+	return (scale / bound) * data
 
 
 ##################################################
@@ -34,8 +69,8 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 	:param height: Hauteur de l'image.
 	:param ratio: Ratio d'aggrandissement de l'image.
 	:param points: Localisations des points.
-	:param normalization: Normalisation des valeurs (pour les mettre entre 0 et 65 535.
-	:return: Nouvelle image.
+	:param normalization: Normalisation des valeurs (pour les mettre entre 0 et SCALE).
+	:return: Nouvelle image en uint16.
 	"""
 
 	if ratio < 1: return np.zeros((height, width), dtype=np.uint16)
@@ -52,14 +87,9 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 	coords = (points[:, :2] * ratio).astype(int)
 	x, y = coords[:, 0], coords[:, 1]
 
-	# Accumulation des valeurs (plus efficace qu'une boucle)
-	np.add.at(res, (y, x), points[:, 2])
+	values = normalize_data(points[:, 2]) if normalization else points[:, 2]
 
-	# Normalisation ou autre pour les Z par exemple ?
-	diff = res.max() - res.min()
-	if normalization and diff != 0:
-		res = (res - res.min()) / diff * MAX_UI_16
-
+	np.add.at(res, (y, x), values)			 # Accumulation des valeurs (plus efficace qu'une boucle)
 	res = res.clip(0, MAX_UI_16)			 # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
 	return np.asarray(res, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
 

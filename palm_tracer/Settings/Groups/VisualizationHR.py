@@ -15,7 +15,7 @@ HR_SOURCE = ["All", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity",
 @dataclass
 class VisualizationHR(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de Visualization :
+	Classe contenant les paramètres de Visualisation haute résolution :
 	"""
 
 	label: str = "High Resolution"

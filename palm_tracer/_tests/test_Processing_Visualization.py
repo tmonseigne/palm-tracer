@@ -3,10 +3,8 @@ import os
 from pathlib import Path
 
 import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
 
-from palm_tracer.Processing import plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_roi
+from palm_tracer.Processing.Visualization import *
 from palm_tracer.Tools.FileIO import save_png
 
 matplotlib.use("Agg")  # Désactive le backend interactif
@@ -19,6 +17,30 @@ SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 POINTS = np.stack([rng.uniform(1, SIZE_X - 1, size=SIZE), rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(0, INTENSITY, size=SIZE)], axis=1)
+
+
+##################################################
+def test_normalize_data():
+	"""Test de la normalisation de données."""
+	data = np.array([-1, -1, -1])  # Cas 1 colonne uniforme
+	res = normalize_data(data, scale=1)
+	assert np.array_equal(res, np.array([1, 1, 1])), "Normalisation incorrecte"
+
+	data = np.array([0.1, 0.5, 1.0])  # Cas 2 [0:1]
+	res = normalize_data(data, scale=1)
+	assert np.array_equal(res, np.array([0.1, 0.5, 1.0])), "Normalisation incorrecte"
+
+	data = np.array([-2, 0, 2])  # Cas 3 [négatif:positif] -> [0:4]
+	res = normalize_data(data, scale=4)
+	assert np.array_equal(res, np.array([0, 2, 4])), "Normalisation incorrecte"
+
+	data = np.array([-3, 0, 3])  # Cas 3 [négatif:positif] -> [0:8]
+	res = normalize_data(data, scale=8)
+	assert np.array_equal(res, np.array([1, 4, 7])), "Normalisation incorrecte"
+
+	data = np.array([500, 750, 1000])  # Cas 4 [x:y] -> [0:1024]
+	res = normalize_data(data, scale=1024)
+	assert np.array_equal(res, np.array([500, 750, 1000])), "Normalisation incorrecte"
 
 
 ##################################################
