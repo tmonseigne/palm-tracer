@@ -1,3 +1,18 @@
-from .HighResViewer import HighResViewer
+"""
+Ce sous-package contient les classes d'interface utilisateur Napari (QT).
 
-__all__ = "HighResViewer"
+**Modules disponibles** :
+
+- PALMTracerWidget : Widget principal de l'application.
+- HighResViewer : Widget secondaire pour l'affichage de résultats Haute résolution.
+
+**Fonctionnalités principales** :
+
+- Tous les modules peuvent être importés directement via `from palm_tracer.UI import <module>`.
+
+"""
+
+from .HighResViewer import HighResViewer
+from .PALMTracerWidget import PALMTracerWidget
+
+__all__ = ["HighResViewer", "PALMTracerWidget"]

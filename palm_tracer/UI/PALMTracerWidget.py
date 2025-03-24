@@ -17,7 +17,7 @@ from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QW
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import Button, FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
-from palm_tracer.UI import HighResViewer
+from palm_tracer.UI.HighResViewer import HighResViewer
 
 
 ##################################################

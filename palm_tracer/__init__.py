@@ -3,7 +3,9 @@ try:
 except ImportError:
 	__version__ = "unknown"
 
+from . import Processing, Settings, Tools, UI
 from .PALMTracer import PALMTracer
-from .PALMTracerWidget import PALMTracerWidget
+from .UI import PALMTracerWidget
 
-__all__ = ("PALMTracer", "PALMTracerWidget", "Processing", "Settings", "Tools")
+__all__ = ("PALMTracer", "PALMTracerWidget",
+		   "UI", "Processing", "Settings", "Tools")

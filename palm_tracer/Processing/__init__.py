@@ -13,6 +13,7 @@ Ce sous-package contient les fonctions de traitement pour le projet.
 """
 
 # Exemple d'importation des modules pour un accès direct
+from . import DLL
 from .Gallery import make_gallery
 from .Visualization import normalize_data, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_roi
 

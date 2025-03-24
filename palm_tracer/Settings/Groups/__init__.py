@@ -45,7 +45,8 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingGroup", "create_group_from_dict",
+__all__ = ["create_group_from_dict",
+		   "BaseSettingGroup",
 		   "Batch", "Calibration",
 		   "Filtering", "FilteringGF", "FilteringT",
 		   "Localization", "GaussianFit", "SplineFit", "Tracking",

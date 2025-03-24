@@ -51,6 +51,7 @@ def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
 
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingType", "create_setting_from_dict", "SignalWrapper",
+__all__ = ["create_setting_from_dict",
+		   "BaseSettingType", "SignalWrapper",
 		   "BrowseFile", "Button", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
 		   "CheckRangeFloat", "CheckRangeInt"]
