@@ -18,6 +18,20 @@ TRACK_FILE_COLS = ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity"
 
 
 ##################################################
+def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_planes: int = 1) -> int:
+	"""
+	Calcule le nombre maximal théorique de points détectables basé sur les dimensions et la densité de l'image.
+
+	:param height: Hauteur de l'image (nombre de lignes). Par défaut 256.
+	:param width: Largeur de l'image (nombre de colonnes). Par défaut 256.
+	:param density: Densité de points par pixel. Par défaut 0.2.
+	:param n_planes: Nombre de plans de l'image. Par défaut 1.
+
+	:return: Nombre maximal théorique de points détectables.
+	"""
+	return int(height * width * density * n_planes) * N_SEGMENT
+
+##################################################
 def rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remaining: bool = True) -> pd.DataFrame:
 	"""
 	Réorganise les colonnes d'un DataFrame en mettant certaines en premier, avec l'option d'ajouter les colonnes restantes dans leur ordre d'origine.
@@ -26,8 +40,7 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remain
 	:param columns: Liste des noms de colonnes à placer en premier.
 	:param remaining: Si `True`, ajoute les colonnes non spécifiées après celles définies dans `columns`.
 	:return: Un nouveau DataFrame avec les colonnes réorganisées.
-
-    :raises ValueError: Si une colonne spécifiée dans `columns` n'existe pas dans `data`.
+	:raises ValueError: Si une colonne spécifiée dans `columns` n'existe pas dans `data`.
 	"""
 	# Vérifier que toutes les colonnes spécifiées existent dans le DataFrame
 	missing_columns = [col for col in columns if col not in data.columns]

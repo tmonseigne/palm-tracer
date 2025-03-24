@@ -194,8 +194,8 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		s = self.pt.settings.localization.get_settings()
-		localizations = self.pt.palm_cpu.run_image(image, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
-												   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
+		localizations = self.pt.palm_cpu.run(image, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
+											 s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
 		self._add_detection_layers(localizations[["Y", "X"]].to_numpy())
 		print(f"Preview des {len(localizations)} points détectés.")
 

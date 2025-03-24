@@ -43,7 +43,7 @@ def test_palm_cpu_image():
 			for gaussian in range(5):
 				suffix = get_loc_suffix(gaussian)
 
-				localizations = palm.run_image(stack[plane], threshold, watershed, gaussian, sigma, theta, roi, plane + 1)
+				localizations = palm.run(stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
 				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
 
 				assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -68,7 +68,7 @@ def test_palm_cpu_stack():
 		for gaussian in range(5):
 			suffix = get_loc_suffix(gaussian)
 
-			localizations = palm.run_stack(stack, threshold, watershed, gaussian, sigma, theta, roi)
+			localizations = palm.run(stack, threshold, watershed, gaussian, sigma, theta, roi)
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -92,7 +92,7 @@ def test_palm_cpu_stack_plane_selection():
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		suffix = get_loc_suffix()
 
-		localizations = palm.run_stack(stack, threshold, watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
+		localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 
@@ -108,7 +108,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 		file = "stack_quadrant"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
-		localizations = palm.run_stack(stack, threshold, watershed, default_gaussian, sigma, theta, roi)
+		localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi)
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 		quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),

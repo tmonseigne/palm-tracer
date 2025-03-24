@@ -1,17 +1,13 @@
 """
-Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés.
+Fichier contenant une classe pour utiliser la DLL externe GPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés.
 
 .. todo::
 	Doit ont garder les identifiants et les plans qui vont de 1 à N au lieu du classique 0 à N-1 ?
-
-.. todo::
-	Le processus n'est pas thread sagef avec sa gestion des pointeurs un multithreading est donc incompatible pour le moment.
 """
 
 import ctypes
 import math
 from dataclasses import dataclass, field
-# from concurrent.futures import ProcessPoolExecutor, as_completed, ThreadPoolExecutor
 from typing import Any, Optional
 
 import numpy as np
@@ -23,14 +19,14 @@ from palm_tracer.Processing.DLL.Parsing import get_max_points, parse_palm_result
 
 ##################################################
 @dataclass
-class PalmCPU:
+class PalmGPU:
 	""" Classe permettant d'utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés. """
 	_dll: ctypes.CDLL = field(init=False)
 
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		self._dll = load_dll("CPU")
+		self._dll = load_dll("GPU")
 
 	##################################################
 	def is_valid(self): return self._dll is not None
@@ -52,7 +48,7 @@ class PalmCPU:
 		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		# Parsing
-		image = np.asarray(image, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
+		image = np.asarray(image, dtype=np.uint16) 	# Forcer le type de l'image en np.uint16
 		height, width = image.shape					# Récupération des dimensions
 		n = get_max_points(height, width)			# Récupération d'un nombre de points maximum théorique
 		image = image.flatten()						# L'image est "applati"
@@ -163,61 +159,3 @@ class PalmCPU:
 			else: break  # pragma: no cover	(ce else est presque impossible à avoir)
 
 		return std_dev
-
-# ##################################################
-# def run_thread_image(self, image: np.ndarray, threshold: float, watershed: bool, gauss_fit: int,
-# 			  sigma: float, theta: float, roi_size: int, plane: int = 1) -> pd.DataFrame:
-# 	"""
-# 	Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
-#
-# 	:param image: Image d'entrée 2D sous forme de tableau numpy d'entier.
-# 	:param threshold: Seuil pour la détection.
-# 	:param watershed: Active ou désactive le mode watershed.
-# 	:param gauss_fit: Mode d'ajustement Gaussien.
-# 	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
-# 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
-# 	:param roi_size: Taille de la région d'intérêt (ROI).
-# 	:param plane: Numéro du plan dans la pile
-# 	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
-# 	"""
-# 	# En multithreading, la dll doit être chargé pour chaque process
-# 	dll = load_dll("CPU")
-# 	args = self.__get_args(image, threshold, watershed, gauss_fit, sigma, theta, roi_size)
-# 	# Running
-# 	dll._OpenPALMProcessing(*args.values())
-# 	dll._PALMProcessing()
-# 	dll._closePALMProcessing()
-#
-# 	return parse_palm_result(np.ctypeslib.as_array(args["points"], shape=(args["n"].value,)), plane, gauss_fit, True)
-#
-# ##################################################
-# def run_multithread_stack(self, stack: np.ndarray, threshold: float, watershed: bool, gauss_fit: int,
-# 			  sigma: float, theta: float, roi_size: int, planes: Optional[list[int]] = None) -> pd.DataFrame:
-# 	"""
-# 	Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
-#
-# 	:param stack: Pile d'image d'entrée sous forme de tableau numpy.
-# 	:param threshold: Seuil pour la détection.
-# 	:param watershed: Active ou désactive le mode watershed.
-# 	:param gauss_fit: Mode d'ajustement Gaussien (défini par `get_gaussian_mode`).
-# 	:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
-# 	:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
-# 	:param roi_size: Taille de la région d'intérêt (ROI).
-# 	:param planes: Liste des plans à analyser (None = tous les plans).
-# 	:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
-# 	"""
-# 	n_planes = stack.shape[0]
-# 	if planes is None: planes = list(range(n_planes))
-# 	else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
-#
-# 	# Exécution parallèle impossible tant que la DLL ne fonctionne pas en une fonction unique et utilise un objet palm en pointeur
-# 	results = []
-# 	with ThreadPoolExecutor() as executor:
-# 		futures = {executor.submit(self.run_thread_image, stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size, i + 1): i for i in planes}
-# 		for future in futures: results.append(future.result())
-#
-# 	# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
-# 	res = pd.concat(results, ignore_index=True)
-# 	res = res.sort_values(by=["Plane", "Index"]).reset_index(drop=True)	# Tri si jamais le multithread à mélangé les sorties
-# 	res["Id"] = range(1, len(res) + 1)  # Mise à jour de l'ID dans le tableau
-# 	return res
