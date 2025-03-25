@@ -6,23 +6,13 @@ Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter le
 
 .. todo::
 	Le processus n'est pas thread sagef avec sa gestion des pointeurs un multithreading est donc incompatible pour le moment.
-
-.. todo::
-	Sur de nombreux plans (supérieur à 450 sur mon image test) gros ralentissement
-	Hypothèse :
-		- Mémoire de la DLL qui sature test du garbage collector forcé gc.collect (essai seul non concluant)
-		- Saturation du au append de liste de dataframe (essai seul non concluant)
-		- faire un trace malloc
-
 """
 
 import ctypes
-import gc
 import math
-import tracemalloc
+import sys
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any, Optional
 
 import numpy as np
@@ -31,15 +21,14 @@ import pandas as pd
 from palm_tracer.Processing.DLL.Load import load_dll
 from palm_tracer.Processing.DLL.Parsing import get_max_points, parse_palm_result
 
-ITERATION_LIMIT = 50
 
 ##################################################
 @dataclass
 class PalmCPU:
 	""" Classe permettant d'utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés. """
 	_dll: ctypes.CDLL = field(init=False)
-	_args: OrderedDict[str, Any] = field(init=False)
 	_points: np.ndarray = field(init=False)
+	_args: OrderedDict[str, Any] = field(init=False)
 
 	##################################################
 	def __post_init__(self):
@@ -47,21 +36,22 @@ class PalmCPU:
 		self._dll = load_dll("CPU")
 		self._points = np.zeros((1,), dtype=np.float64)
 
-		self._args = OrderedDict([("image", None),  # Image
-								  ("points", None),  # Liste de points
-								  ("n", None),  # Nombre maximum de points théorique
-								  ("height", None),  # Hauteur (nombre de lignes)
-								  ("width", None),  # Largeur (nombre de colonnes)
-								  ("wavelet", ctypes.c_ulong(1)),  # Wavelet toujours à 1.
-								  ("threshold", None),  # Seuil
-								  ("watershed", None),  # Activation du Watershed
-								  ("vol_min", ctypes.c_double(4)),  # Vol minimum toujours à 4.
-								  ("int_min", ctypes.c_double(0)),  # Int minimum toujours à 0.
-								  ("gauss_fit", None),  # Mode du Gaussian Fit
-								  ("sigma_x", None),  # Valeur initiale du Sigma X
-								  ("sigma_y", None),  # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
-								  ("theta", None),  # Valeur Initiale du Theta
-								  ("roi_size", None)])  # taille de la ROI
+		self._args = OrderedDict(
+				[("image", None),					# Image
+				 ("points", None),					# Liste de points
+				 ("n", None),						# Nombre maximum de points théorique
+				 ("height", None),					# Hauteur (nombre de lignes)
+				 ("width", None),					# Largeur (nombre de colonnes)
+				 ("wavelet", ctypes.c_ulong(1)), 	# Wavelet toujours à 1.
+				 ("threshold", None),				# Seuil
+				 ("watershed", None),				# Activation du Watershed
+				 ("vol_min", ctypes.c_double(4)), 	# Vol minimum toujours à 4.
+				 ("int_min", ctypes.c_double(0)), 	# Int minimum toujours à 0.
+				 ("gauss_fit", None),				# Mode du Gaussian Fit
+				 ("sigma_x", None),					# Valeur initiale du Sigma X
+				 ("sigma_y", None),					# Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
+				 ("theta", None),					# Valeur Initiale du Theta
+				 ("roi_size", None)])				# taille de la ROI
 
 	##################################################
 	def is_valid(self): return self._dll is not None
@@ -70,7 +60,7 @@ class PalmCPU:
 	def __init_args(self, height: int, width: int, threshold: float, watershed: bool, gauss_fit: int,
 					sigma: float, theta: float, roi_size: int):
 		"""
-		Récupère les arguments necessaire au lancement de la DLL PALM externe.
+		Initialise les arguments necessaire au lancement de la DLL PALM externe.
 
 		:param height: Hauteur des images.
 		:param width: Largeur des images.
@@ -99,7 +89,11 @@ class PalmCPU:
 
 	##################################################
 	def __updata_args(self, image: np.ndarray):
-		self._points.fill(0) # remise à 0 des points
+		"""
+		Met à jour les arguments necessaire au lancement de la DLL PALM externe.
+		:param image: Image à envoyer
+		"""
+		self._points.fill(0)  # remise à 0 des points
 		# Forcer le type de l'image en np.uint16 et "applati" l'image avant de la passer en pointeur
 		self._args["image"] = np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))
 
@@ -114,21 +108,9 @@ class PalmCPU:
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
 		self.__updata_args(image)
-		tracemalloc.start()
-		# Running
 		self._dll._OpenPALMProcessing(*self._args.values())
 		self._dll._PALMProcessing()
 		self._dll._closePALMProcessing()
-		if (plane - 1) % ITERATION_LIMIT == 0:
-			# Test : Libérer la mémoire Python (pas de modifications visible)
-			gc.collect()
-			# Test : tracemalloc (permet de voir le coupable)
-			snapshot = tracemalloc.take_snapshot()
-			top_stats = snapshot.statistics('lineno')
-			print("==================================================")
-			print("TRACE MALLOC : ")
-			for stat in top_stats[:10]: print(stat)  # Affiche les 10 plus gros consommateurs mémoire
-			print("==================================================")
 
 		return parse_palm_result(self._points, plane, gauss_fit, True)
 
@@ -158,13 +140,14 @@ class PalmCPU:
 		else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
 
 		results = []
-		for i in planes:
-			if i % ITERATION_LIMIT == 0: print(f"Run PALM on Plane {i}, start at {datetime.now().strftime('%H:%M:%S')}")
+		n_planes = len(planes)
+		for index, i in enumerate(planes):
 			points = self.__run_image(stack[i], gauss_fit, i + 1)
-			print(f"Nombre de points : {len(points)}")
-			# Test : append (on ne conserve que les ITERATION_LIMIT premiers pour le test)
-			if i < ITERATION_LIMIT: results.append(points)  # Ajouter à la liste
-			# results.append(points)  # Ajouter à la liste
+			results.append(points)  # Ajouter à la liste
+			sys.stdout.write(f"\rRun PALM on Plane {i} ({(index + 1) / n_planes * 100:.0f}%)")  # Ecriture temporaire
+			sys.stdout.flush()
+
+		print()  # Ajoute un saut de ligne à la fin pour éviter d'écraser la dernière mise à jour
 
 		# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
 		res = pd.concat(results, ignore_index=True)
@@ -172,7 +155,7 @@ class PalmCPU:
 		return res
 
 	##################################################
-	def auto_threshold(self, image: np.array, roi_size: int = 7, max_iterations: int = 4):
+	def auto_threshold(self, image: np.ndarray, roi_size: int = 7, max_iterations: int = 4):
 		"""
 		Calcule un seuil automatique basé sur la segmentation de l'image.
 
@@ -182,9 +165,9 @@ class PalmCPU:
 		:return: Seuil calculé (écart type final).
 		"""
 		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
-		std_dev = np.std(image)  # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0  # Demi-taille de la zone ROI
-		height, width = image.shape  # Récupération de la taille de l'image
+		std_dev = float(np.std(image))			 # Calcul initial de l'écart type
+		roi_2 = float(roi_size) / 2.0			 # Demi-taille de la zone ROI
+		height, width = image.shape				 # Récupération de la taille de l'image
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))

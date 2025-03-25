@@ -3,9 +3,6 @@
 import os
 from pathlib import Path
 
-import pandas as pd
-
-from palm_tracer._tests.Utils import compare_points, is_closed
 from palm_tracer.Processing.DLL import PalmCPU, PalmGPU
 from palm_tracer.Tools import open_tif, print_warning
 
@@ -15,15 +12,14 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la premi
 
 threshold, watershed, sigma, theta, roi = 340.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
-default_gaussian = 4
+gaussian = 4
 save_output = True
 
 ##################################################
-def get_loc_suffix(gaussian: int = default_gaussian) -> str:
+def get_loc_suffix() -> str:
 	"""
 	Génère un suffixe pour les fichiers de localisation.
 
-	:param gaussian: Mode du filtre gaussien.
 	:return: suffixe
 	"""
 	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
@@ -45,7 +41,7 @@ def test_process_cpu_big_data(make_napari_viewer):
 		if path.exists() and path.is_file():
 			stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 			suffix = get_loc_suffix()
-			localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi)
+			localizations = palm.run(stack, threshold, watershed, gaussian, sigma, theta, roi)
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 			assert len(localizations) > 0, "Aucune localisation trouvé"
 		else:
@@ -68,7 +64,7 @@ def test_process_gpu_big_data(make_napari_viewer):
 		if path.exists() and path.is_file():
 			stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 			suffix = get_loc_suffix()
-			localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi)
+			localizations = palm.run(stack, threshold, watershed, gaussian, sigma, theta, roi)
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 			assert len(localizations) > 0, "Aucune localisation trouvé"
 		else:
