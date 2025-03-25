@@ -6,12 +6,23 @@ Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter le
 
 .. todo::
 	Le processus n'est pas thread sagef avec sa gestion des pointeurs un multithreading est donc incompatible pour le moment.
+
+.. todo::
+	Sur de nombreux plans (supérieur à 450 sur mon image test) gros ralentissement
+	Hypothèse :
+		- Mémoire de la DLL qui sature test du garbage collector forcé gc.collect (essai seul non concluant)
+		- Saturation du au append de liste de dataframe (essai seul non concluant)
+		- faire un trace malloc
+
 """
 
 import ctypes
+import gc
 import math
+import tracemalloc
+from collections import OrderedDict
 from dataclasses import dataclass, field
-# from concurrent.futures import ProcessPoolExecutor, as_completed, ThreadPoolExecutor
+from datetime import datetime
 from typing import Any, Optional
 
 import numpy as np
@@ -20,29 +31,49 @@ import pandas as pd
 from palm_tracer.Processing.DLL.Load import load_dll
 from palm_tracer.Processing.DLL.Parsing import get_max_points, parse_palm_result
 
+ITERATION_LIMIT = 50
 
 ##################################################
 @dataclass
 class PalmCPU:
 	""" Classe permettant d'utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés. """
 	_dll: ctypes.CDLL = field(init=False)
+	_args: OrderedDict[str, Any] = field(init=False)
+	_points: np.ndarray = field(init=False)
 
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._dll = load_dll("CPU")
+		self._points = np.zeros((1,), dtype=np.float64)
+
+		self._args = OrderedDict([("image", None),  # Image
+								  ("points", None),  # Liste de points
+								  ("n", None),  # Nombre maximum de points théorique
+								  ("height", None),  # Hauteur (nombre de lignes)
+								  ("width", None),  # Largeur (nombre de colonnes)
+								  ("wavelet", ctypes.c_ulong(1)),  # Wavelet toujours à 1.
+								  ("threshold", None),  # Seuil
+								  ("watershed", None),  # Activation du Watershed
+								  ("vol_min", ctypes.c_double(4)),  # Vol minimum toujours à 4.
+								  ("int_min", ctypes.c_double(0)),  # Int minimum toujours à 0.
+								  ("gauss_fit", None),  # Mode du Gaussian Fit
+								  ("sigma_x", None),  # Valeur initiale du Sigma X
+								  ("sigma_y", None),  # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
+								  ("theta", None),  # Valeur Initiale du Theta
+								  ("roi_size", None)])  # taille de la ROI
 
 	##################################################
 	def is_valid(self): return self._dll is not None
 
 	##################################################
-	@staticmethod
-	def __get_args(image: np.ndarray, threshold: float, watershed: bool, gauss_fit: int,
-				   sigma: float, theta: float, roi_size: int) -> dict[str, Any]:
+	def __init_args(self, height: int, width: int, threshold: float, watershed: bool, gauss_fit: int,
+					sigma: float, theta: float, roi_size: int):
 		"""
 		Récupère les arguments necessaire au lancement de la DLL PALM externe.
 
-		:param image: Image d'entrée 2D sous forme de tableau numpy d'entier.
+		:param height: Hauteur des images.
+		:param width: Largeur des images.
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
 		:param gauss_fit: Mode d'ajustement Gaussien.
@@ -52,51 +83,54 @@ class PalmCPU:
 		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		# Parsing
-		image = np.asarray(image, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
-		height, width = image.shape					# Récupération des dimensions
-		n = get_max_points(height, width)			# Récupération d'un nombre de points maximum théorique
-		image = image.flatten()						# L'image est "applati"
-
-		return {"image":     image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
-				"points":    np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de points
-				"n":         ctypes.c_ulong(n),						   # Nombre maximum de points théorique
-				"height":    ctypes.c_ulong(height),				   # Hauteur (nombre de lignes)
-				"width":     ctypes.c_ulong(width),					   # Largeur (nombre de colonnes)
-				"wavelet":   ctypes.c_ulong(1),						   # Wavelet toujours à 1.
-				"threshold": ctypes.c_double(threshold),			   # Seuil
-				"watershed": ctypes.c_double(0 if watershed else 10),  # Activation du Watershed
-				"vol_min":   ctypes.c_double(4),					   # Vol minimum toujours à 4.
-				"int_min":   ctypes.c_double(0),					   # Int minimum toujours à 0.
-				"gauss_fit": ctypes.c_ushort(gauss_fit),			   # Mode du Gaussian Fit
-				"sigma_x":   ctypes.c_double(sigma),				   # Valeur initiale du Sigma X
-				"sigma_y":   ctypes.c_double(sigma * 2),			   # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
-				"theta":     ctypes.c_double(theta),				   # Valeur Initiale du Theta
-				"roi_size":  ctypes.c_ushort(roi_size),				   # taille de la ROI
-				}
+		n = get_max_points(height, width)  # Récupération d'un nombre de points maximum théorique
+		if n != self._args["n"]: self._points = np.zeros((n,), dtype=np.float64)
+		self._args["points"] = self._points.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
+		self._args["n"] = ctypes.c_ulong(n)
+		self._args["height"] = ctypes.c_ulong(height)
+		self._args["width"] = ctypes.c_ulong(width)
+		self._args["threshold"] = ctypes.c_double(threshold)
+		self._args["watershed"] = ctypes.c_double(0 if watershed else 10)
+		self._args["gauss_fit"] = ctypes.c_ushort(gauss_fit)
+		self._args["sigma_x"] = ctypes.c_double(sigma)
+		self._args["sigma_y"] = ctypes.c_double(sigma * 2)
+		self._args["theta"] = ctypes.c_double(theta)
+		self._args["roi_size"] = ctypes.c_ushort(roi_size)
 
 	##################################################
-	def __run_image(self, image: np.ndarray, threshold: float, watershed: bool, gauss_fit: int,
-					sigma: float, theta: float, roi_size: int, plane: int = 1) -> pd.DataFrame:
+	def __updata_args(self, image: np.ndarray):
+		self._points.fill(0) # remise à 0 des points
+		# Forcer le type de l'image en np.uint16 et "applati" l'image avant de la passer en pointeur
+		self._args["image"] = np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))
+
+	##################################################
+	def __run_image(self, image: np.ndarray, gauss_fit: int, plane: int = 1) -> pd.DataFrame:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
 		:param image: Image d'entrée 2D sous forme de tableau numpy d'entier.
-		:param threshold: Seuil pour la détection.
-		:param watershed: Active ou désactive le mode watershed.
 		:param gauss_fit: Mode d'ajustement Gaussien.
-		:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
-		:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
-		:param roi_size: Taille de la région d'intérêt (ROI).
 		:param plane: Numéro du plan dans la pile
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
-		args = self.__get_args(image, threshold, watershed, gauss_fit, sigma, theta, roi_size)
+		self.__updata_args(image)
+		tracemalloc.start()
 		# Running
-		self._dll._OpenPALMProcessing(*args.values())
+		self._dll._OpenPALMProcessing(*self._args.values())
 		self._dll._PALMProcessing()
 		self._dll._closePALMProcessing()
+		if (plane - 1) % ITERATION_LIMIT == 0:
+			# Test : Libérer la mémoire Python (pas de modifications visible)
+			gc.collect()
+			# Test : tracemalloc (permet de voir le coupable)
+			snapshot = tracemalloc.take_snapshot()
+			top_stats = snapshot.statistics('lineno')
+			print("==================================================")
+			print("TRACE MALLOC : ")
+			for stat in top_stats[:10]: print(stat)  # Affiche les 10 plus gros consommateurs mémoire
+			print("==================================================")
 
-		return parse_palm_result(np.ctypeslib.as_array(args["points"], shape=(args["n"].value,)), plane, gauss_fit, True)
+		return parse_palm_result(self._points, plane, gauss_fit, True)
 
 	##################################################
 	def run(self, stack: np.ndarray, threshold: float, watershed: bool, gauss_fit: int,
@@ -114,7 +148,10 @@ class PalmCPU:
 		:param planes: Liste des plans à analyser (None pour tous les plans).
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
-		if stack.ndim == 2: return self.__run_image(stack, threshold, watershed, gauss_fit, sigma, theta, roi_size)
+		height, width = stack.shape[-2:]  # Récupère les deux dernières dimensions
+		self.__init_args(height, width, threshold, watershed, gauss_fit, sigma, theta, roi_size)
+
+		if stack.ndim == 2: return self.__run_image(stack, gauss_fit)
 
 		n_planes = stack.shape[0]
 		if planes is None: planes = list(range(n_planes))
@@ -122,8 +159,12 @@ class PalmCPU:
 
 		results = []
 		for i in planes:
-			points = self.__run_image(stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size, i + 1)
-			results.append(points)  # Ajouter à la liste
+			if i % ITERATION_LIMIT == 0: print(f"Run PALM on Plane {i}, start at {datetime.now().strftime('%H:%M:%S')}")
+			points = self.__run_image(stack[i], gauss_fit, i + 1)
+			print(f"Nombre de points : {len(points)}")
+			# Test : append (on ne conserve que les ITERATION_LIMIT premiers pour le test)
+			if i < ITERATION_LIMIT: results.append(points)  # Ajouter à la liste
+			# results.append(points)  # Ajouter à la liste
 
 		# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
 		res = pd.concat(results, ignore_index=True)
@@ -140,14 +181,14 @@ class PalmCPU:
 		:param max_iterations: Nombre d'itérations pour affiner le seuil (par défaut 4).
 		:return: Seuil calculé (écart type final).
 		"""
-		mask = np.zeros_like(image, dtype=bool)   # Creation du masque
-		std_dev = np.std(image)					  # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0			  # Demi-taille de la zone ROI
-		height, width = image.shape				  # Récupération de la taille de l'image
+		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
+		std_dev = np.std(image)  # Calcul initial de l'écart type
+		roi_2 = float(roi_size) / 2.0  # Demi-taille de la zone ROI
+		height, width = image.shape  # Récupération de la taille de l'image
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))
-			points = self.__run_image(image, std_dev, False, 0, 1, math.pi / 4.0, roi_size)
+			points = self.run(image, std_dev, False, 0, 1, math.pi / 4.0, roi_size)
 			# Mise à jour du masque basé sur le résultat du PALM
 			# mask.fill(0)
 			for x, y in zip(points['X'], points['Y']):

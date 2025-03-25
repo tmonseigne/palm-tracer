@@ -8,6 +8,7 @@ Fichier contenant une classe pour utiliser la DLL externe GPU_PALM, exécuter le
 import ctypes
 import math
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Optional
 
 import numpy as np
@@ -126,6 +127,7 @@ class PalmGPU:
 
 		results = []
 		for i in planes:
+			if i % 50 == 0 : print(f"Run PALM on Plane {i}, start at {datetime.now().strftime('%H:%M:%S')}")
 			points = self.__run_image(stack[i], threshold, watershed, gauss_fit, sigma, theta, roi_size, i + 1)
 			results.append(points)  # Ajouter à la liste
 
