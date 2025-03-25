@@ -48,26 +48,34 @@ class PalmGPU:
 		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		# Parsing
-		image = np.asarray(image, dtype=np.uint16) 	# Forcer le type de l'image en np.uint16
-		height, width = image.shape					# Récupération des dimensions
-		n = get_max_points(height, width)			# Récupération d'un nombre de points maximum théorique
-		image = image.flatten()						# L'image est "applati"
+		image = np.asarray(image, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
+		height, width = image.shape  # Récupération des dimensions
+		n = get_max_points(height, width)  # Récupération d'un nombre de points maximum théorique
+		image = image.flatten()  # L'image est "applati"
 
-		return {"image":     image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
-				"points":    np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de points
-				"n":         ctypes.c_ulong(n),						   # Nombre maximum de points théorique
-				"height":    ctypes.c_ulong(height),				   # Hauteur (nombre de lignes)
-				"width":     ctypes.c_ulong(width),					   # Largeur (nombre de colonnes)
-				"wavelet":   ctypes.c_ulong(1),						   # Wavelet toujours à 1.
-				"threshold": ctypes.c_double(threshold),			   # Seuil
-				"watershed": ctypes.c_double(0 if watershed else 10),  # Activation du Watershed
-				"vol_min":   ctypes.c_double(4),					   # Vol minimum toujours à 4.
-				"int_min":   ctypes.c_double(0),					   # Int minimum toujours à 0.
-				"gauss_fit": ctypes.c_ushort(gauss_fit),			   # Mode du Gaussian Fit
-				"sigma_x":   ctypes.c_double(sigma),				   # Valeur initiale du Sigma X
-				"sigma_y":   ctypes.c_double(sigma * 2),			   # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
-				"theta":     ctypes.c_double(theta),				   # Valeur Initiale du Theta
-				"roi_size":  ctypes.c_ushort(roi_size),				   # taille de la ROI
+		return {"image":          image.ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
+				"points":         np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de points
+				"n":              ctypes.c_ulong(n),						# Nombre maximum de points théorique
+				"n_plane":        ctypes.c_ulong(1),						# Profondeur (nombre de plans)
+				"height":         ctypes.c_ulong(height),					# Hauteur (nombre de lignes)
+				"width":          ctypes.c_ulong(width),					# Largeur (nombre de colonnes)
+				"wavelet":        ctypes.c_ulong(1),						# Wavelet toujours à 1.
+				"threshold":      ctypes.c_double(threshold),				# Seuil
+				"watershed":      ctypes.c_double(0 if watershed else 10),  # Activation du Watershed
+				"vol_min":        ctypes.c_double(4),						# Vol minimum toujours à 4.
+				"int_min":        ctypes.c_double(0),						# Int minimum toujours à 0.
+				"gauss_fit":      ctypes.c_ushort(gauss_fit),				# Mode du Gaussian Fit
+				"sigma_x":        ctypes.c_double(sigma),					# Valeur initiale du Sigma X
+				"sigma_y":        ctypes.c_double(sigma * 2),				# Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
+				"theta":          ctypes.c_double(theta),					# Valeur Initiale du Theta
+				"roi_size":       ctypes.c_ushort(roi_size),				# taille de la ROI
+				# Les arguments suivants sont pour la DLL GPU, mais ne seront pas utilisés
+				"is_computing_z": ctypes.c_ushort(0),						# Calculs sur Z toujours à 0.
+				"sigma_x_coefs":  np.zeros((5,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # taille de la ROI
+				"sigma_y_coefs":  np.zeros((5,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # taille de la ROI
+				"3d_thickness":   ctypes.c_double(0),						# taille de l'épaisseur sur Z (µm) toujours à 0.
+				"3d_sampling":    ctypes.c_double(0),						# taille de la résolution sur Z (µm) toujours à 0.
+				"pixel_size":     ctypes.c_double(0),						# taille des pixels (µm) toujours à 0.
 				}
 
 	##################################################
@@ -88,11 +96,11 @@ class PalmGPU:
 		"""
 		args = self.__get_args(image, threshold, watershed, gauss_fit, sigma, theta, roi_size)
 		# Running
-		self._dll._OpenPALMProcessing(*args.values())
-		self._dll._PALMProcessing()
-		self._dll._closePALMProcessing()
+		self._dll.OpenPALMProcessing(*args.values())
+		self._dll.PALMProcessing()
+		self._dll.closePALMProcessing()
 
-		return parse_palm_result(np.ctypeslib.as_array(args["points"], shape=(args["n"].value,)), plane, gauss_fit, True)
+		return parse_palm_result(np.ctypeslib.as_array(args["points"], shape=(args["n"].value,)), plane, gauss_fit, True, True)
 
 	##################################################
 	def run(self, stack: np.ndarray, threshold: float, watershed: bool, gauss_fit: int,
@@ -136,10 +144,10 @@ class PalmGPU:
 		:param max_iterations: Nombre d'itérations pour affiner le seuil (par défaut 4).
 		:return: Seuil calculé (écart type final).
 		"""
-		mask = np.zeros_like(image, dtype=bool)   # Creation du masque
-		std_dev = np.std(image)					  # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0			  # Demi-taille de la zone ROI
-		height, width = image.shape				  # Récupération de la taille de l'image
+		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
+		std_dev = np.std(image)					 # Calcul initial de l'écart type
+		roi_2 = float(roi_size) / 2.0			 # Demi-taille de la zone ROI
+		height, width = image.shape				 # Récupération de la taille de l'image
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))

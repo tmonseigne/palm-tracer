@@ -12,11 +12,13 @@ Ce sous-package regroupe des utilitaires pour :
 from pathlib import Path
 
 # Exemple d'importation des modules pour un accès direct
+from . import Parsing
 from .Load import load_dll
 from .PalmCPU import PalmCPU
+from .PalmGPU import PalmGPU
 from .Tracking import Tracking
 
 DLL_PATH = Path(__file__).parent.parent.parent / "DLL"
 
 # Définir la liste des symboles exportés
-__all__ = ["load_dll", "PalmCPU", "Tracking", "Parsing"]
+__all__ = ["load_dll", "PalmCPU", "PalmGPU", "Tracking", "Parsing"]
