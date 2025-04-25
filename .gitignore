@@ -151,3 +151,5 @@ cython_debug/
 
 # For the moment, DLLs won't go to the repository
 palm_tracer/DLL/
+palm_tracer/_tests/input/big input/
+palm_tracer/_tests/input/*test*
