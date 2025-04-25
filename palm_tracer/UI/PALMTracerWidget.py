@@ -215,7 +215,7 @@ class PALMTracerWidget(QWidget):
 			print_warning("Aucun fichier en preview.")
 			return
 		self.pt.process()
-		if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
+		#if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
 
 	##################################################
 	def _show_high_res_image(self, image: np.ndarray):
