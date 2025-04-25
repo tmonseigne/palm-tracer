@@ -10,32 +10,13 @@
 import os
 from pathlib import Path
 
-import pandas as pd
-
-from palm_tracer._tests.Utils import compare_points, is_closed
+from palm_tracer._tests.Utils import *
 from palm_tracer.Processing.DLL import PalmGPU
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
-threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
-max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
-default_gaussian = 4
-save_output = True
-
-
-##################################################
-def get_loc_suffix(gaussian: int = default_gaussian) -> str:
-	"""
-	Génère un suffixe pour les fichiers de localisation.
-
-	:param gaussian: Mode du filtre gaussien.
-	:return: suffixe
-	"""
-	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
-
 
 ##################################################
 def test_palm_gpu_image():
@@ -50,7 +31,7 @@ def test_palm_gpu_image():
 			for gaussian in range(5):
 				suffix = get_loc_suffix(gaussian)
 
-				localizations = palm.run(stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
+				localizations = palm.run(stack[plane], default_threshold, default_watershed, gaussian, sigma, theta, roi)
 				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-{plane}_{suffix}.csv", index=False)
 
 				assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -77,7 +58,7 @@ def test_palm_gpu_stack():
 		for gaussian in range(5):
 			suffix = get_loc_suffix(gaussian)
 
-			localizations = palm.run(stack, threshold, watershed, gaussian, sigma, theta, roi)
+			localizations = palm.run(stack, default_threshold, default_watershed, gaussian, sigma, theta, roi)
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -103,7 +84,7 @@ def test_palm_gpu_stack_plane_selection():
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		suffix = get_loc_suffix()
 
-		localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
+		localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-plane_select-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 
@@ -119,7 +100,7 @@ def test_palm_gpu_stack_dll_check_quadrant():
 		file = "stack_quadrant"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
-		localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi)
+		localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi)
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-{suffix}.csv", index=False)
 
 		quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),

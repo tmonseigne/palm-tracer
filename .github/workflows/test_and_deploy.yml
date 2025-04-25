@@ -54,7 +54,7 @@ jobs:
       #   uses: jurplel/install-qt-action@v4
 
       # Installation of vcredist2010 if problem install all (vcredist-all)
-      - name: Install Dependencies and DLLs
+      - name: Install Dependencies and Libraries
         if: runner.os == 'Windows'
         run: |
           choco install vcredist2010 -y

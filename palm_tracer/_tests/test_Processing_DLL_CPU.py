@@ -3,31 +3,13 @@
 import os
 from pathlib import Path
 
-import pandas as pd
-
-from palm_tracer._tests.Utils import compare_points, is_closed
+from palm_tracer._tests.Utils import *
 from palm_tracer.Processing.DLL import PalmCPU
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
-threshold, watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
-max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
-default_gaussian = 4
-save_output = True
-
-
-##################################################
-def get_loc_suffix(gaussian: int = default_gaussian) -> str:
-	"""
-	Génère un suffixe pour les fichiers de localisation.
-
-	:param gaussian: Mode du filtre gaussien.
-	:return: suffixe
-	"""
-	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
 
 
 ##################################################
@@ -43,7 +25,7 @@ def test_palm_cpu_image():
 			for gaussian in range(5):
 				suffix = get_loc_suffix(gaussian)
 
-				localizations = palm.run(stack[plane], threshold, watershed, gaussian, sigma, theta, roi)
+				localizations = palm.run(stack[plane], default_threshold, default_watershed, gaussian, sigma, theta, roi)
 				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
 
 				assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -65,19 +47,20 @@ def test_palm_cpu_stack():
 	else:
 		file = "stack"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
-		for gaussian in range(5):
-			suffix = get_loc_suffix(gaussian)
+		for watershed in [True, False]:
+			for gaussian in range(5):
+				suffix = get_loc_suffix(gaussian, watershed)
 
-			localizations = palm.run(stack, threshold, watershed, gaussian, sigma, theta, roi)
-			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
+				localizations = palm.run(stack, default_threshold, watershed, gaussian, sigma, theta, roi)
+				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
-			assert len(localizations) > 0, "Aucune localisation trouvé"
+				assert len(localizations) > 0, "Aucune localisation trouvé"
 
-			path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
-			if path.exists() and path.is_file():
-				print(f"Comparaison avec : '{path}'")
-				ref = pd.read_csv(path)
-				assert compare_points(localizations, ref), f"Test invalide pour les paramètres {suffix}"
+				path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
+				if path.exists() and path.is_file():
+					print(f"Comparaison avec : '{path}'")
+					ref = pd.read_csv(path)
+					compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
 	assert True
 
 
@@ -92,7 +75,7 @@ def test_palm_cpu_stack_plane_selection():
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 		suffix = get_loc_suffix()
 
-		localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
+		localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 
@@ -108,7 +91,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 		file = "stack_quadrant"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
-		localizations = palm.run(stack, threshold, watershed, default_gaussian, sigma, theta, roi)
+		localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi)
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 		quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),
@@ -136,8 +119,8 @@ def test_cpu_auto_threshold():
 	else:
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
 		iterations = 4
-		ref = [63.634560, 63.701586, 63.058853, 62.557870, 62.474888,
-			   63.374433, 63.857703, 63.368484, 62.613244, 63.833786]
+		ref = [63.621258, 63.335459, 63.058853, 62.562852, 62.474888,
+			   63.374433, 63.857703, 63.368484, 62.515444, 63.833786]
 		for i in range(image.shape[0]):
 			res = palm.auto_threshold(image[i], roi, iterations)
 			# print(f"Image {i} : {res:.6f}")

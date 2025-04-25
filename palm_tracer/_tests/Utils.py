@@ -6,6 +6,33 @@ from scipy.spatial import cKDTree
 
 from palm_tracer.Tools import print_error, print_success, print_warning
 
+default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
+max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
+default_gaussian = 4
+save_output = True
+
+
+##################################################
+def get_loc_suffix(gaussian: int = default_gaussian, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
+	"""
+	Génère un suffixe pour les fichiers de localisation.
+
+	:param gaussian: Mode du filtre gaussien.
+	:param watershed: Mode du watershed.
+	:param threshold: Seuil.
+	:return: suffixe
+	"""
+	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
+
+
+##################################################
+def get_trc_suffix() -> str:
+	"""
+	Génère un suffixe pour les fichiers de tracking.
+
+	:return: suffixe
+	"""
+	return f"{max_distance}_{min_life}_{decrease}_{cost_birth}"
 
 ##################################################
 def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
@@ -124,7 +151,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		non_matched_b = group_b.drop(index=matched_b_indices, errors="ignore")
 
 		if not non_matched_a.empty:
-			print_warning(f"Points supplémentaires dans A pour  { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
+			print_warning(f"Points supplémentaires dans A pour { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
 			for _, row in non_matched_a.iterrows():
 				print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
 
