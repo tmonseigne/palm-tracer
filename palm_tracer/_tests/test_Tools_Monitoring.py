@@ -4,17 +4,24 @@ import os
 import time
 from pathlib import Path
 
+try:
+	import torch
+	HAVE_GPU = not os.getenv("GITHUB_ACTIONS") == "true"
+except ImportError:
+	HAVE_GPU = False
+
+
 from palm_tracer.Tools import Monitoring
 
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
+default_duration = 2
 
 # ==================================================
 # region Simulations
 # ==================================================
 ##################################################
-def simulate_cpu_usage(monitoring: Monitoring, intensity: int = 1000000, duration: float = 2):
+def simulate_cpu_usage(monitoring: Monitoring, intensity: int = 1000000, duration: float = default_duration):
 	"""
 	Simule une utilisation importante de CPU en effectuant des calculs intensifs.
 
@@ -31,7 +38,34 @@ def simulate_cpu_usage(monitoring: Monitoring, intensity: int = 1000000, duratio
 
 
 ##################################################
-def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: float = 1):
+def simulate_gpu_usage(monitoring: Monitoring, tensor_size: int = 4096, duration: float = default_duration):
+	"""
+	Simule une utilisation importante de GPU en effectuant des calculs intensifs.
+
+	:param monitoring: Moniteur à manipuler
+	:param tensor_size: Taille des matrices carrées utilisées pour les calculs.
+	:param duration: Durée en secondes pendant laquelle les opérations GPU sont répétées.
+	"""
+	monitoring.add_test_info("_tests/test_simulation_gpu.py::test_gpu_computation")
+	# Installation de pytorch via le generatuer de lien de leur site en fonction de votre CUDA
+	# Ex : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+	if not torch.cuda.is_available():
+		print("Aucun GPU CUDA disponible pour la simulation.")
+		return
+
+	print(f"Simulating GPU usage for {duration} seconds with matrix size {tensor_size}x{tensor_size}...")
+	start_time = time.time()
+	a = torch.randn((tensor_size, tensor_size), device="cuda")
+	b = torch.randn((tensor_size, tensor_size), device="cuda")
+	while time.time() - start_time < duration:
+		c = torch.matmul(a, b)  # Multiplication matricielle sur le GPU
+		_ = c.sum().item()		# Force le calcul immédiat (évite lazy eval de PyTorch)
+
+	torch.cuda.empty_cache()
+	print("GPU simulation complete.")
+
+##################################################
+def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: float = default_duration):
 	"""
 	Simule une utilisation importante de mémoire en allouant un tableau de bytes.
 
@@ -51,7 +85,7 @@ def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: floa
 
 
 ##################################################
-def simulate_disk_io(monitoring: Monitoring, file_size: int = 1, duration: float = 1, file_name: str = "temp_test_file.bin"):
+def simulate_disk_io(monitoring: Monitoring, file_size: int = 1, duration: float = default_duration, file_name: str = "temp_test_file.bin"):
 	"""
 	Simule des opérations intensives de disque en écrivant et lisant un fichier volumineux.
 
@@ -96,6 +130,7 @@ def test_monitoring_save():
 	monitoring = Monitoring()
 	monitoring.start(0.1)
 	simulate_cpu_usage(monitoring)
+	if HAVE_GPU: simulate_gpu_usage(monitoring)
 	simulate_memory_usage(monitoring)
 	simulate_disk_io(monitoring)
 	monitoring.add_test_info("Invalid test infos")

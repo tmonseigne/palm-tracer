@@ -120,10 +120,10 @@ class PalmGPU:
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
 		self.__updata_args(image)
-		self._dll.Process(*self._args.values())
-		# self._dll.OpenPALMProcessing(*self._args.values())
-		# self._dll.PALMProcessing()
-		# self._dll.closePALMProcessing()
+		# self._dll.Process(*self._args.values())
+		self._dll.OpenPALMProcessing(*self._args.values())
+		self._dll.PALMProcessing()
+		self._dll.closePALMProcessing()
 
 		return parse_palm_result(self._points, plane, gauss_fit, True, True)
 

@@ -43,7 +43,7 @@ dependencies = [
 	# Dépendances pour les infos cross plateforme
 	"psutil",
 	"py-cpuinfo",
-	"GPUtil",
+	"pynvml"
 ]
 
 [project.optional-dependencies]

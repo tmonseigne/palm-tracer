@@ -18,9 +18,25 @@ INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
+try:
+	from pynvml import nvmlInit, nvmlShutdown, nvmlDeviceGetCount
+	if not os.getenv("GITHUB_ACTIONS") == "true":
+		nvmlInit()
+		HAVE_GPU = nvmlDeviceGetCount() > 0
+		nvmlShutdown()
+	else:
+		HAVE_GPU = False
+except Exception:
+	HAVE_GPU = False
+
+
 ##################################################
 def test_palm_gpu_image():
 	""" Test sur le lancement de PALM sur une frame. """
+	if not HAVE_GPU:
+		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
+		return
+
 	palm = PalmGPU()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -42,13 +58,17 @@ def test_palm_gpu_image():
 					ref = pd.read_csv(path)
 					# assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
 					# Je ne fait pas le assert car la precision est différente entre la DLL CPU et GPU et je veux conserver un seul fichier de comparaison.
-					compare_points(localizations, ref)
+					# compare_points(localizations, ref)
 	assert True
 
 
 ##################################################
 def test_palm_gpu_stack():
 	""" Test sur le lancement de PALM sur une pile. """
+	if not HAVE_GPU:
+		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
+		return
+
 	palm = PalmGPU()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -69,13 +89,17 @@ def test_palm_gpu_stack():
 				ref = pd.read_csv(path)
 				# assert compare_points(localizations, ref), f"Test invalide pour les paramètres {suffix}"
 				# Je ne fait pas le assert car la precision est différente entre la DLL CPU et GPU et je veux conserver un seul fichier de comparaison.
-				compare_points(localizations, ref)
+				# compare_points(localizations, ref)
 	assert True
 
 
 ##################################################
 def test_palm_gpu_stack_plane_selection():
 	""" Test sur le lancement de PALM sur une pile. """
+	if not HAVE_GPU:
+		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
+		return
+
 	palm = PalmGPU()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -92,6 +116,10 @@ def test_palm_gpu_stack_plane_selection():
 ##################################################
 def test_palm_gpu_stack_dll_check_quadrant():
 	"""	Test sur le lancement de PALM sur une pile. """
+	if not HAVE_GPU:
+		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
+		return
+
 	palm = PalmGPU()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
@@ -117,13 +145,17 @@ def test_palm_gpu_stack_dll_check_quadrant():
 			ref = pd.read_csv(path)
 			# assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
 			# Je ne fait pas le assert car la precision est différente entre la DLL CPU et GPU et je veux conserver un seul fichier de comparaison.
-			compare_points(localizations, ref)
+			# compare_points(localizations, ref)
 	assert True
 
 
 ##################################################
 def test_gpu_auto_threshold():
 	""" Test basique sur l'auto-seuillage avec la DLL CPU. """
+	if not HAVE_GPU:
+		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
+		return
+
 	palm = PalmGPU()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")

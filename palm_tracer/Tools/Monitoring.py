@@ -26,7 +26,7 @@ import re
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, List
 
 import plotly.express as px  # Pour accéder aux couleurs qualitatives
 import plotly.graph_objects as go
@@ -37,6 +37,13 @@ from palm_tracer.Tools.Drawing import draw_test_section, get_color_map_by_name
 from palm_tracer.Tools.Utils import print_error, print_warning
 
 MEMORY_RATIO = 1.0 / (1024 * 1024)
+
+try:
+	from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetUtilizationRates, nvmlInit, nvmlShutdown, nvmlDeviceGetCount
+	HAVE_GPU = not os.getenv("GITHUB_ACTIONS") == "true"
+except ImportError:
+	print_warning("pynvml non disponible, le monitoring GPU sera désactivé.")
+	HAVE_GPU = False
 
 
 ##################################################
@@ -63,7 +70,7 @@ class Monitoring:
 
 	interval: float = 1.0
 	_cpu: List[float] = field(init=False, default_factory=list)
-	# gpu: List[float] = field(init=False, default_factory=list)
+	_gpu: List[float] = field(init=False, default_factory=list)
 	_memory: List[float] = field(init=False, default_factory=list)
 	_disk: List[float] = field(init=False, default_factory=list)
 	_times: List[float] = field(init=False, default_factory=list)
@@ -71,6 +78,7 @@ class Monitoring:
 	_thread: threading.Thread = field(init=False, default_factory=threading.Thread)
 	_tests_info: List[dict] = field(init=False, default_factory=list)  # Liste des informations des tests
 	_figure: go.Figure = field(init=False, default_factory=go.Figure)
+	_gpu_handle: Any = field(init=False, default=None)
 
 	# ==================================================
 	# region Monitoring Manipulation
@@ -89,7 +97,10 @@ class Monitoring:
 	def _reset(self):
 		"""Réinitialise toutes les données de monitoring (CPU, mémoire, disque, etc.)."""
 		self._cpu.clear()
-		# self.gpu.clear()
+		self._gpu.clear()
+		if HAVE_GPU:
+			nvmlInit()
+			self._gpu_handle = nvmlDeviceGetHandleByIndex(0)  # Suppose qu’un seul GPU est utilisé
 		self._memory.clear()
 		self._disk.clear()
 		self._times.clear()
@@ -101,17 +112,25 @@ class Monitoring:
 	def _update(self):
 		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
-		if not self._thread.is_alive(): return			 # pragma: no cover	(n'arrive qu'en cas de crash)
-		pytest_pid = os.getpid()						 # PID de pytest
-		pytest_proc = psutil.Process(pytest_pid)		 # Récupère le processus parent
+		if not self._thread.is_alive(): return  # pragma: no cover	(n'arrive qu'en cas de crash)
+		pytest_pid = os.getpid()  # PID de pytest
+		pytest_proc = psutil.Process(pytest_pid)  # Récupère le processus parent
 		children = pytest_proc.children(recursive=True)  # Cible les processus enfants
-		processes = [pytest_proc] + children			 # Inclut le processus principal et ses enfants
+		processes = [pytest_proc] + children  # Inclut le processus principal et ses enfants
 
 		self._cpu.append(sum(proc.cpu_percent(interval=self.interval) for proc in processes))
 		self._memory.append(sum(proc.memory_info().rss for proc in processes))
 		# "Darwin" est le nom de macOS dans platform.system()
 		if platform.system() != "Darwin": self._disk.append(sum(proc.io_counters().write_bytes for proc in processes))
 		else: self._disk.append(0)  # pragma: no cover
+
+		if self._gpu_handle:
+			try:
+				util = nvmlDeviceGetUtilizationRates(self._gpu_handle)
+				self._gpu.append(util.gpu)
+			except Exception: self._gpu.append(0)  # Erreur lors de la lecture de l'utilisation GPU
+		else: self._gpu.append(0)  # Aucun GPU détecté
+
 		self._times.append(time.time())
 
 	##################################################
@@ -141,6 +160,7 @@ class Monitoring:
 		self._update()  # Dernière entrée
 		if self._thread.is_alive(): self._thread.join()
 		self._update_array_for_readability()
+		if HAVE_GPU: nvmlShutdown()
 		self._draw()
 
 	##################################################
@@ -169,10 +189,10 @@ class Monitoring:
 		self._times = [round(t - first_time, round_time) for t in self._times]
 
 		num_cores = psutil.cpu_count(logical=True)
-		self._cpu = [c / num_cores for c in self._cpu]			 # Division par le nombre de CPU
+		self._cpu = [c / num_cores for c in self._cpu]  # Division par le nombre de CPU
 		self._memory = [m * MEMORY_RATIO for m in self._memory]  # Passage en Mo
 		self._disk = [(self._disk[i] - self._disk[i - 1]) * MEMORY_RATIO for i in range(1, len(self._disk))]  # Passage en Mo et en delta d'utilisation
-		self._disk.insert(0, 0)									 # Ajouter 0 au début pour avoir une taille correcte
+		self._disk.insert(0, 0)  # Ajouter 0 au début pour avoir une taille correcte
 
 	# ==================================================
 	# endregion Monitoring Manipulation
@@ -198,11 +218,12 @@ class Monitoring:
 	##################################################
 	def _draw(self):
 		"""Génère un graphique interactif des ressources utilisées pendant les tests et l'enregistre."""
-		self._figure = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.05,
-									 subplot_titles=("CPU Usage (%)", "Memory Usage (Mo)", "Disk Usage (IO Mo)"))
+		self._figure = make_subplots(rows=4, cols=1, shared_xaxes=True, vertical_spacing=0.05,
+									 subplot_titles=("CPU Usage (%)", "GPU Usage (%)", "Memory Usage (Mo)", "Disk Usage (IO Mo)"))
 		color_map = get_color_map_by_name([test["File"] for test in self._tests_info], px.colors.qualitative.Plotly)
 
 		params = [{"y": self._cpu, "name": "CPU Usage (%)", "line": dict(color="blue")},
+				  {"y": self._gpu, "name": "GPU Usage (%)", "line": dict(color="darkblue")},
 				  {"y": self._memory, "name": "Memory Usage (Mo)", "line": dict(color="green")},
 				  {"y": self._disk, "name": "Disk Usage (IO Mo)", "line": dict(color="red")}]
 
@@ -212,13 +233,13 @@ class Monitoring:
 			draw_test_section(self._figure, self.get_y_range(params[i]["y"]), self._tests_info, color_map, self._times[-1], i + 1)
 
 		# add_color_map_legend
-		self._figure.update_layout(width=1200, height=600,
+		self._figure.update_layout(width=1200, height=800,
 								   margin={"t": 50, "l": 5, "r": 5, "b": 5},
 								   title_text="Resource Usage Over Time", showlegend=False)
-		for i in range(3):
+		for i in range(len(params)):
 			self._figure.update_yaxes(showgrid=False, row=i + 1, col=1)  # Supprimer la grille verticale
 			self._figure.update_xaxes(showgrid=False, row=i + 1, col=1)  # Supprimer la grille horizontale
-		self._figure.update_xaxes(title_text="Time (s)", row=3, col=1)   # Place le titre X uniquement sur le graphique du bas
+		self._figure.update_xaxes(title_text="Time (s)", row=len(params), col=1)  # Place le titre X uniquement sur le graphique du bas
 
 	# ==================================================
 	# endregion Drawing
@@ -264,7 +285,7 @@ class Monitoring:
 				with open(filename, "w", encoding="utf-8") as f:
 					f.write(f"Timestamps : {self._times}\n")
 					f.write(f"CPU Usage : {self._cpu}\n")
-					# f.write(f"GPU Usage : {self.gpu}\n")
+					f.write(f"GPU Usage : {self._gpu}\n")
 					f.write(f"Memory Usage : {self._memory}\n")
 					f.write(f"Disk Usage : {self._disk}\n")
 					f.write("Liste des tests : \n")

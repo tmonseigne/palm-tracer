@@ -56,13 +56,21 @@ def pytest_metadata(metadata):
 
 	## Ajout de la carte graphique si disponible
 	try:
-		import GPUtil
+		from pynvml import nvmlInit, nvmlShutdown, nvmlDeviceGetHandleByIndex, nvmlDeviceGetName, nvmlDeviceGetMemoryInfo, nvmlDeviceGetCount
 
-		gpus = GPUtil.getGPUs()
-		if gpus: metadata["GPU"] = f"{gpus[0].name} (Memory: {gpus[0].memoryTotal}MB)"
-		else: metadata["GPU"] = "No GPU found"
-	except ImportError:
-		metadata["GPU"] = "GPUtil not installed"
+		nvmlInit()
+		count = nvmlDeviceGetCount()
+		if count > 0:
+			handle = nvmlDeviceGetHandleByIndex(0)  # Premier GPU
+			name_raw = nvmlDeviceGetName(handle)
+			name = name_raw.decode("utf-8") if isinstance(name_raw, bytes) else name_raw
+			memory = nvmlDeviceGetMemoryInfo(handle).total // (1024 * 1024)  # en Mo
+			metadata["GPU"] = f"{name} (Memory: {memory} MB)"
+		else:
+			metadata["GPU"] = "No GPU found"
+		nvmlShutdown()
+	except Exception as e:
+		metadata["GPU"] = f"Error detecting GPU: {str(e)}"
 
 
 ##################################################
