@@ -10,11 +10,11 @@ Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter le
 
 import ctypes
 import math
-import sys
+# import sys
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Optional
-import time
+# import time
 import numpy as np
 import pandas as pd
 from palm_tracer.Processing.DLL.Load import load_dll
@@ -23,11 +23,11 @@ from palm_tracer.Processing.DLL.Parsing import get_max_points, parse_palm_result
 
 # Fonction pour formater le temps en secondes en HH:MM:SS
 ##################################################
-def format_time(seconds):
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    seconds = int(seconds % 60)
-    return f"{hours:02}:{minutes:02}:{seconds:02}"
+# def format_time(seconds):
+# 	hours = int(seconds // 3600)
+# 	minutes = int((seconds % 3600) // 60)
+# 	seconds = int(seconds % 60)
+# 	return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 ##################################################
 @dataclass

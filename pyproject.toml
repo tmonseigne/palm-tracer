@@ -57,7 +57,8 @@ testing = [
 	"pytest-metadata",
 	"napari",
 	"pyqt5",
-	"scipy"
+	"scipy",
+	"torch" # Installer pytorch à part : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 ]
 
 documentation = [

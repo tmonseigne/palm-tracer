@@ -14,16 +14,16 @@ def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, 
     :param rois_per_line: Nombre de ROIs par ligne dans la galerie.
     :return: np.ndarray, un tableau 3D (n_planes, size, size) contenant la galerie.
 	"""
-	size = roi_size * rois_per_line								# Taille d'un plan de la galerie
-	rois_per_plane = rois_per_line ** 2							# Nombre de ROIs maximum par plan
+	size = roi_size * rois_per_line  # Taille d'un plan de la galerie
+	rois_per_plane = rois_per_line ** 2  # Nombre de ROIs maximum par plan
 	n_rois = len(localizations)
 	n_planes = (n_rois + rois_per_plane - 1) // rois_per_plane  # Calcul du nombre de plans nécessaires
-	max_height, max_width = stack.shape[1], stack.shape[2]		# Récupération des limites de l'image
-	res = np.zeros((n_planes, size, size), dtype=stack.dtype) 	# Résultat final
+	max_height, max_width = stack.shape[1], stack.shape[2]  # Récupération des limites de l'image
+	res = np.zeros((n_planes, size, size), dtype=stack.dtype)  # Résultat final
 
 	for idx, (plane, y, x) in enumerate(zip(localizations["Plane"], localizations["Y"], localizations["X"])):
-		gallery_plane = idx // rois_per_plane			# Déterminer sur quel plan on est
-		pos_in_plane = idx % rois_per_plane				# Position dans la grille du plan
+		gallery_plane = idx // rois_per_plane  # Déterminer sur quel plan on est
+		pos_in_plane = idx % rois_per_plane  # Position dans la grille du plan
 		row, col = divmod(pos_in_plane, rois_per_line)  # Calculer la ligne et la colonne dans la grille
 
 		# Déterminer les bornes de la ROI (méthode non sure car avec les arrondis la ROI peut avoir une taille de roi_size ou roi_size + 1)
@@ -40,16 +40,12 @@ def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, 
 		# Bornes en X
 		x_min = max(0, x_center - half_size)
 		x_max = x_min + roi_size
-		if x_max > max_width:
-			x_max = max_width
-			x_min = x_max - roi_size
+		if x_max > max_width: x_max, x_min = max_width, max_width - roi_size
 
 		# Bornes en Y
 		y_min = max(0, y_center - half_size)
 		y_max = y_min + roi_size
-		if y_max > max_height:
-			y_max = max_height
-			y_min = y_max - roi_size
+		if y_max > max_height: y_max, y_min = max_height, max_height - roi_size
 
 		# Extraire la région de l'image originale et la copier dans la grille
 		roi = stack[plane - 1, y_min:y_max, x_min:x_max]
