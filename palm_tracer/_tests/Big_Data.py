@@ -48,7 +48,9 @@ def test_palm_cpu(make_napari_viewer):
 	- DLL Recompilé stade 19 : ~3min-3min30 Limitation à 4 threads pour accès mémoire simultanée gain Total ~70%
 	  15% d'utilisation CPU Ram à 4Giga
 	- DLL Recompilé stade 20 : ~2min30 Limitation aux nombres de coeur physiques et ajout d'une limite dynamique gain Total ~75%
-	  15% d'utilisation CPU Ram à 4Giga
+	  10-20% d'utilisation CPU Ram à 4Giga
+	- DLL Recompilé stade 21 : ~2min10 Suppression de la limite physique et conservation de la limite dynamique gain Total ~78%
+	  10-20% d'utilisation CPU Ram à 4Giga
 
 	"""
 	palm = Palm()
@@ -63,6 +65,36 @@ def test_palm_cpu(make_napari_viewer):
 	else:
 		print_warning("Test non effectué car fichier manquant.")
 	assert True
+
+
+##################################################
+def test_palm_gpu(make_napari_viewer):
+	"""
+	Test pour le process sur des données importantes.
+
+	- DLL Recompilé stade 0 : ~2min15, départ de la nouvelle dll
+	- DLL Recompilé stade 1 : ~2min40, départ de la nouvelle dll calcul de la décomposition en wavelett
+	  Opération la plus rentable à lancer sur GPU pour éviter les aller retours mémoire, conclusion :
+	  - Perte de performance
+	  - Manque de pertinennce tant que les calculs sont simple et sur des images simples
+	    (sur une pile de plusieurs milliers d'images, cela "pourrait" devenir interessant)
+	  - Ma carte graphique est d'un très haut niveau donc sur une classique possiblement encore plus de perte.
+	  - la quantité d'utilisation du CPU baisse évidemment
+
+	"""
+	palm = Palm("GPU")
+	if not palm.is_valid():
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
+	elif path.exists() and path.is_file():
+		stack = open_tif(str(path))
+		suffix = get_loc_suffix(threshold=thresh)
+		localizations = palm.run(stack, thresh, default_watershed, default_gaussian, sigma, theta, roi)
+		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
+		assert len(localizations) > 0, "Aucune localisation trouvé"
+	else:
+		print_warning("Test non effectué car fichier manquant.")
+	assert True
+
 
 ##################################################
 def test_tracking(make_napari_viewer):
