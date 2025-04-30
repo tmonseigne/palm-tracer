@@ -31,8 +31,9 @@ from palm_tracer.Processing.DLL.Parsing import get_max_points, parse_palm_result
 
 ##################################################
 @dataclass
-class PalmCPU:
+class Palm:
 	""" Classe permettant d'utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés. """
+	_type: str = field(init=True, default="CPU")
 	_dll: ctypes.CDLL = field(init=False)
 	_points: np.ndarray = field(init=False)
 	_args: OrderedDict[str, Any] = field(init=False)
@@ -40,7 +41,7 @@ class PalmCPU:
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		self._dll = load_dll("CPU")
+		self._dll = load_dll(self._type)
 		self._points = np.zeros((1,), dtype=np.float64)
 
 		self._args = OrderedDict(

@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Processing.DLL import PalmCPU, PalmGPU, Tracking
+from palm_tracer.Processing.DLL import Palm, Tracking
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -51,7 +51,7 @@ def test_palm_cpu(make_napari_viewer):
 	  15% d'utilisation CPU Ram à 4Giga
 
 	"""
-	palm = PalmCPU()
+	palm = Palm()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	elif path.exists() and path.is_file():
@@ -63,28 +63,6 @@ def test_palm_cpu(make_napari_viewer):
 	else:
 		print_warning("Test non effectué car fichier manquant.")
 	assert True
-
-
-##################################################
-def test_palm_gpu(make_napari_viewer):
-	"""
-	Test pour le process sur des données importantes.
-	DLL Originale : 21min 39s, utilisation de CPU inférieur à 4% (1 seul coeur), Memory Usage 4-5Giga
-	DLL Recompilé :
-	"""
-	palm = PalmGPU()
-	if not palm.is_valid():
-		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
-	elif path.exists() and path.is_file():
-		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
-		suffix = get_loc_suffix(threshold=thresh)
-		localizations = palm.run(stack, thresh, default_watershed, default_gaussian, sigma, theta, roi)
-		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
-		assert len(localizations) > 0, "Aucune localisation trouvé"
-	else:
-		print_warning("Test non effectué car fichier manquant.")
-	assert True
-
 
 ##################################################
 def test_tracking(make_napari_viewer):

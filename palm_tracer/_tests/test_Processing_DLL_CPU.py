@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Processing.DLL import PalmCPU
+from palm_tracer.Processing.DLL import Palm
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -15,7 +15,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la premi
 ##################################################
 def test_palm_cpu_image():
 	""" Test sur le lancement de PALM sur une frame. """
-	palm = PalmCPU()
+	palm = Palm()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
@@ -41,7 +41,7 @@ def test_palm_cpu_image():
 ##################################################
 def test_palm_cpu_stack():
 	""" Test sur le lancement de PALM sur une pile. """
-	palm = PalmCPU()
+	palm = Palm()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
@@ -67,7 +67,7 @@ def test_palm_cpu_stack():
 ##################################################
 def test_palm_cpu_stack_plane_selection():
 	""" Test sur le lancement de PALM sur une pile. """
-	palm = PalmCPU()
+	palm = Palm()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
@@ -83,7 +83,7 @@ def test_palm_cpu_stack_plane_selection():
 ##################################################
 def test_palm_cpu_stack_dll_check_quadrant():
 	"""	Test sur le lancement de PALM sur une pile. """
-	palm = PalmCPU()
+	palm = Palm()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
@@ -113,7 +113,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 ##################################################
 def test_cpu_auto_threshold():
 	""" Test basique sur l'auto-seuillage avec la DLL CPU. """
-	palm = PalmCPU()
+	palm = Palm()
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:

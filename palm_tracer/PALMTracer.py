@@ -25,7 +25,7 @@ class PALMTracer:
 	""" Classe principale de PALM Tracer. """
 
 	settings: Settings = field(init=False, default_factory=Settings)
-	palm_cpu: DLL.PalmCPU = field(init=False, default_factory=DLL.PalmCPU)
+	palm_cpu: DLL.Palm = field(init=False, default_factory=lambda: DLL.Palm("CPU"))
 	# gpu: DLL.GPU = field(init=False, default_factory=DLL.GPU)
 	tracking: DLL.Tracking = field(init=False, default_factory=DLL.Tracking)
 	logger: Logger = field(init=False, default_factory=Logger)

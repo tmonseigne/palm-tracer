@@ -1,17 +1,10 @@
-""" Fichier des tests pour l'utilisation de la DLL GPU.
-
-.. todo::
-	Attention de nombreuses différences (sans doute du à la précision entre la DLL CPU et GPU.
-	Si le Guassian Fit est à 0 ou 1 résultats identitques
-	Si le Fauggian Fit est à 2 ou 3 des différences
-	Si le Gaussian Fit est à 4 (Sigma X Sigma Y Theta) résultats grandement différents.
-"""
+""" Fichier des tests pour l'utilisation de la DLL GPU. """
 
 import os
 from pathlib import Path
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Processing.DLL import PalmGPU
+from palm_tracer.Processing.DLL import Palm
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -37,7 +30,7 @@ def test_palm_gpu_image():
 		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
 		return
 
-	palm = PalmGPU()
+	palm = Palm("GPU")
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
@@ -48,7 +41,7 @@ def test_palm_gpu_image():
 				suffix = get_loc_suffix(gaussian)
 
 				localizations = palm.run(stack[plane], default_threshold, default_watershed, gaussian, sigma, theta, roi)
-				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-{plane}_{suffix}.csv", index=False)
+				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
 
 				assert len(localizations) > 0, "Aucune localisation trouvé"
 
@@ -56,9 +49,7 @@ def test_palm_gpu_image():
 				if path.exists() and path.is_file():
 					print(f"Comparaison avec : '{path}'")
 					ref = pd.read_csv(path)
-					# assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
-					# Je ne fait pas le assert car la precision est différente entre la DLL CPU et GPU et je veux conserver un seul fichier de comparaison.
-					# compare_points(localizations, ref)
+					assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
 	assert True
 
 
@@ -69,27 +60,26 @@ def test_palm_gpu_stack():
 		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
 		return
 
-	palm = PalmGPU()
+	palm = Palm("GPU")
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		file = "stack"
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
-		for gaussian in range(5):
-			suffix = get_loc_suffix(gaussian)
+		for watershed in [True, False]:
+			for gaussian in range(5):
+				suffix = get_loc_suffix(gaussian, watershed)
 
-			localizations = palm.run(stack, default_threshold, default_watershed, gaussian, sigma, theta, roi)
-			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-{suffix}.csv", index=False)
+				localizations = palm.run(stack, default_threshold, watershed, gaussian, sigma, theta, roi)
+				if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
-			assert len(localizations) > 0, "Aucune localisation trouvé"
+				assert len(localizations) > 0, "Aucune localisation trouvé"
 
-			path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
-			if path.exists() and path.is_file():
-				print(f"Comparaison avec : '{path}'")
-				ref = pd.read_csv(path)
-				# assert compare_points(localizations, ref), f"Test invalide pour les paramètres {suffix}"
-				# Je ne fait pas le assert car la precision est différente entre la DLL CPU et GPU et je veux conserver un seul fichier de comparaison.
-				# compare_points(localizations, ref)
+				path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
+				if path.exists() and path.is_file():
+					print(f"Comparaison avec : '{path}'")
+					ref = pd.read_csv(path)
+					compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
 	assert True
 
 
@@ -100,7 +90,7 @@ def test_palm_gpu_stack_plane_selection():
 		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
 		return
 
-	palm = PalmGPU()
+	palm = Palm("GPU")
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
@@ -109,7 +99,7 @@ def test_palm_gpu_stack_plane_selection():
 		suffix = get_loc_suffix()
 
 		localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
-		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-plane_select-{suffix}.csv", index=False)
+		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 
 
@@ -120,7 +110,7 @@ def test_palm_gpu_stack_dll_check_quadrant():
 		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
 		return
 
-	palm = PalmGPU()
+	palm = Palm("GPU")
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
@@ -129,7 +119,7 @@ def test_palm_gpu_stack_dll_check_quadrant():
 		stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
 		localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi)
-		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-gpu-{suffix}.csv", index=False)
+		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 		quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),
 					"Bottom": localizations['Plane'].isin([1, 2, 5, 6, 9, 10]),
@@ -143,27 +133,25 @@ def test_palm_gpu_stack_dll_check_quadrant():
 		path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
 		if path.exists() and path.is_file():
 			ref = pd.read_csv(path)
-			# assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
-			# Je ne fait pas le assert car la precision est différente entre la DLL CPU et GPU et je veux conserver un seul fichier de comparaison.
-			# compare_points(localizations, ref)
+			assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
 	assert True
 
 
 ##################################################
 def test_gpu_auto_threshold():
-	""" Test basique sur l'auto-seuillage avec la DLL CPU. """
+	""" Test basique sur l'auto-seuillage avec la DLL GPU. """
 	if not HAVE_GPU:
 		print_warning("\n====================\nTest non effectué car GPU manquant\n====================\n")
 		return
 
-	palm = PalmGPU()
+	palm = Palm("GPU")
 	if not palm.is_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
 		image = open_tif(f"{INPUT_DIR}/stack.tif")
 		iterations = 4
-		ref = [63.634560, 63.701586, 63.058853, 62.557870, 62.474888,
-			   63.374433, 63.857703, 63.368484, 62.613244, 63.833786]
+		ref = [63.621258, 63.335459, 63.058853, 62.562852, 62.474888,
+			   63.374433, 63.857703, 63.368484, 62.515444, 63.833786]
 		for i in range(image.shape[0]):
 			res = palm.auto_threshold(image[i], roi, iterations)
 			# print(f"Image {i} : {res:.6f}")
