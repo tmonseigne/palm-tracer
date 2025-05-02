@@ -46,7 +46,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 2. Créez un environnement virtuel avec la commande suivante :console:`python -m venv venv`
 3. Activez l'environnement virtuel :
 
-   - Sous Windows : :console:`.\venv\Scripts\activate`
+   - Sous Windows : :console:`.\\venv\\Scripts\\activate`
    - Sous macOS/Linux : :console:`source venv/bin/activate`
 
 4. Vous verrez maintenant :console:`(venv)` au début de votre invite de commande, indiquant que l'environnement virtuel est actif.
@@ -85,7 +85,7 @@ Cela peut devenir parfois gênant, il est possible de modifier ce comportement.
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows).
 2. Lancez la commande :console:`$env:QT_AUTO_SCREEN_SCALE_FACTOR="0"` dans :console:`PowerShell` sous Windows
    ou :console:`export QT_AUTO_SCREEN_SCALE_FACTOR=0` sous Linux et macOS.
-3. Pour réactiver la mise à l'échelle, lancez la commande : :console:`Remove-Item Env:\QT_AUTO_SCREEN_SCALE_FACTOR` dans :console:`PowerShell` sous Windows
+3. Pour réactiver la mise à l'échelle, lancez la commande : :console:`Remove-Item Env:\\QT_AUTO_SCREEN_SCALE_FACTOR` dans :console:`PowerShell` sous Windows
    ou :console:`unset QT_AUTO_SCREEN_SCALE_FACTOR` sous Linux et macOS.
 
 C'est terminé ! 🎉 Vous avez installé et configuré le plugin avec succès.
@@ -98,10 +98,13 @@ FAQ
 ---
 
 **1. Pourquoi utiliser un environnement virtuel ?**
-Pour éviter les conflits entre les dépendances de différents projets.
+Pour éviter les conflits entre les dépendances de différents projets. Ou nécessaire lorsque vous n'avez pas les droits administrateur sur votre système.
 
 **2. Et si je n'ai pas `pip install` ?**
 Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 2 et assurez-vous d'avoir ajouté Python au `PATH`.
 
-**3. Où puis-je trouver plus d'aide ?**
+**3. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?**
+Certaines commandes nécessitent des droits administrateur. Il faut lancer le terminal en mode administrateur sous Windows.
+
+**4. Où puis-je trouver plus d'aide ?**
 Consultez la documentation officielle de Python ou contactez le support du projet.

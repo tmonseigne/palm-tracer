@@ -218,18 +218,18 @@ class PALMTracerWidget(QWidget):
 		#if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
 
 	##################################################
-	def _show_high_res_image(self, image: np.ndarray):
-		"""
-		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
-
-		:param image: image à affiches
-		"""
-		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
-		if not hasattr(self, "high_res_window") or self.high_res_window is None: self.high_res_window = HighResViewer(image)
-		else: self.high_res_window.load_image(image)
-		if self.high_res_window:		   # pragma: no cover (toujours vrai)
-			self.high_res_window.show()	   # Affiche la fenêtre
-			self.high_res_window.raise_()  # Met en avant
+	# def _show_high_res_image(self, image: np.ndarray):
+	# 	"""
+	# 	Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
+	#
+	# 	:param image: image à affiches
+	# 	"""
+	# 	# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
+	# 	if not hasattr(self, "high_res_window") or self.high_res_window is None: self.high_res_window = HighResViewer(image)
+	# 	else: self.high_res_window.load_image(image)
+	# 	if self.high_res_window:		   # pragma: no cover (toujours vrai)
+	# 		self.high_res_window.show()	   # Affiche la fenêtre
+	# 		self.high_res_window.raise_()  # Met en avant
 
 # ==================================================
 # endregion Callback

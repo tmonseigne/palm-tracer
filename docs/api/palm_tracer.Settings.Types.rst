@@ -8,6 +8,7 @@ Ce sous-package gère les différents types de paramètres.
 
    palm_tracer.Settings.Types.BaseSettingType
    palm_tracer.Settings.Types.BrowseFile
+   palm_tracer.Settings.Types.Button
    palm_tracer.Settings.Types.CheckBox
    palm_tracer.Settings.Types.CheckRangeFloat
    palm_tracer.Settings.Types.CheckRangeInt

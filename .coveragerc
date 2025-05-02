@@ -18,5 +18,6 @@ exclude_lines =
 
 exclude_also =
     if platform.system()
+    try
 	except
 	GPU

@@ -19,12 +19,12 @@ Environnement
    * - RAM
      - 63.69 GB
    * - GPU
-     - NVIDIA GeForce RTX 4090 Laptop GPU (Memory: 16376.0MB)
+     - NVIDIA GeForce RTX 4090 Laptop GPU (Memory: 16376 MB)
 
 Summary
 -------
 
-94 tests collected, 94 passed ✅, 0 failed ❌ in 0:00:30s on 25/04/2025 at 16:55:06
+96 tests collected, 96 passed ✅, 0 failed ❌ in 0:00:35s on 02/05/2025 at 12:00:16
 
 Monitoring
 ----------
@@ -55,37 +55,37 @@ Palmtracer
      - Duration
    * - Process No Input
      - ✅
-     - 1.45s
+     - 1.39s
    * - Process Nothing
      - ✅
-     - 124ms
+     - 130ms
    * - Process Multiple Stack
      - ✅
-     - 104ms
+     - 122ms
    * - Process Only Localization
      - ✅
      - 156ms
    * - Process Only Tracking
      - ✅
-     - 139ms
+     - 129ms
    * - Process Only Visualization Hr
      - ✅
-     - 131ms
+     - 136ms
    * - Process Only Visualization Graph
      - ✅
-     - 1.17s
+     - 1.06s
    * - Process Only Gallery
      - ✅
-     - 125ms
+     - 116ms
    * - Process All
      - ✅
-     - 3.00s
+     - 3.11s
    * - Process Filter Plan
      - ✅
-     - 119ms
+     - 118ms
    * - Process Filter All
      - ✅
-     - 170ms
+     - 203ms
 
 .. raw:: html
 
@@ -98,149 +98,70 @@ Palmtracer
 
    <details>
       <summary>Log Test : Process Nothing</summary>
-      <pre>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de localisation pré-calculée.<br>[25-04-2025 16:54:37] Tracking désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de tracking pré-calculée.<br>[25-04-2025 16:54:37] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:37] Visualisation graphique désactivée.<br>[25-04-2025 16:54:37] Génération de la galerie désactivée.<br>[25-04-2025 16:54:37] Traitement terminé.<br>[25-04-2025 16:54:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de localisation pré-calculée.<br>[25-04-2025 16:54:37] Tracking désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de tracking pré-calculée.<br>[25-04-2025 16:54:37] Visualisation haute résolution activée.<br>[25-04-2025 16:54:37] 	Aucun fichier de localisation pour la visualisation.<br>[25-04-2025 16:54:37] Visualisation graphique activée.<br>[25-04-2025 16:54:37] Génération de la galerie activée.<br>[25-04-2025 16:54:37] Traitement terminé.<br>[25-04-2025 16:54:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log</pre>
+      <pre>[02-05-2025 11:59:44] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115944.log<br>[02-05-2025 11:59:44] Commencer le traitement.<br>[02-05-2025 11:59:44] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:44] Paramètres sauvegardés.<br>[02-05-2025 11:59:44] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:44] Localisation désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de localisation pré-calculée.<br>[02-05-2025 11:59:44] Tracking désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de tracking pré-calculée.<br>[02-05-2025 11:59:44] Visualisation haute résolution désactivée.<br>[02-05-2025 11:59:44] Visualisation graphique désactivée.<br>[02-05-2025 11:59:44] Génération de la galerie désactivée.<br>[02-05-2025 11:59:44] Traitement terminé.<br>[02-05-2025 11:59:44] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115944.log<br>[02-05-2025 11:59:44] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115944.log<br>[02-05-2025 11:59:44] Commencer le traitement.<br>[02-05-2025 11:59:44] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:44] Paramètres sauvegardés.<br>[02-05-2025 11:59:44] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:44] Localisation désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de localisation pré-calculée.<br>[02-05-2025 11:59:44] Tracking désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de tracking pré-calculée.<br>[02-05-2025 11:59:44] Visualisation haute résolution activée.<br>[02-05-2025 11:59:44] 	Aucun fichier de localisation pour la visualisation.<br>[02-05-2025 11:59:44] Visualisation graphique activée.<br>[02-05-2025 11:59:44] Génération de la galerie activée.<br>[02-05-2025 11:59:44] Traitement terminé.<br>[02-05-2025 11:59:44] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115944.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Multiple Stack</summary>
-      <pre>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de localisation pré-calculée.<br>[25-04-2025 16:54:37] Tracking désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de tracking pré-calculée.<br>[25-04-2025 16:54:37] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:37] Visualisation graphique désactivée.<br>[25-04-2025 16:54:37] Génération de la galerie désactivée.<br>[25-04-2025 16:54:37] Traitement terminé.<br>[25-04-2025 16:54:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_quadrant_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_quadrant_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de localisation pré-calculée.<br>[25-04-2025 16:54:37] Tracking désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de tracking pré-calculée.<br>[25-04-2025 16:54:37] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:37] Visualisation graphique désactivée.<br>[25-04-2025 16:54:37] Génération de la galerie désactivée.<br>[25-04-2025 16:54:37] Traitement terminé.<br>[25-04-2025 16:54:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_quadrant_PALM_Tracer/log-20252504_165437.log</pre>
+      <pre>[02-05-2025 11:59:44] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115944.log<br>[02-05-2025 11:59:44] Commencer le traitement.<br>[02-05-2025 11:59:44] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:44] Paramètres sauvegardés.<br>[02-05-2025 11:59:44] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:44] Localisation désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de localisation pré-calculée.<br>[02-05-2025 11:59:44] Tracking désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de tracking pré-calculée.<br>[02-05-2025 11:59:44] Visualisation haute résolution désactivée.<br>[02-05-2025 11:59:44] Visualisation graphique désactivée.<br>[02-05-2025 11:59:44] Génération de la galerie désactivée.<br>[02-05-2025 11:59:44] Traitement terminé.<br>[02-05-2025 11:59:44] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115944.log<br>[02-05-2025 11:59:44] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_quadrant_PALM_Tracer/log-20250205_115944.log<br>[02-05-2025 11:59:44] Commencer le traitement.<br>[02-05-2025 11:59:44] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_quadrant_PALM_Tracer<br>[02-05-2025 11:59:44] Paramètres sauvegardés.<br>[02-05-2025 11:59:44] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:44] Localisation désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de localisation pré-calculée.<br>[02-05-2025 11:59:44] Tracking désactivé.<br>[02-05-2025 11:59:44] 	Aucune donnée de tracking pré-calculée.<br>[02-05-2025 11:59:44] Visualisation haute résolution désactivée.<br>[02-05-2025 11:59:44] Visualisation graphique désactivée.<br>[02-05-2025 11:59:44] Génération de la galerie désactivée.<br>[02-05-2025 11:59:44] Traitement terminé.<br>[02-05-2025 11:59:44] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_quadrant_PALM_Tracer/log-20250205_115944.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Only Localization</summary>
-      <pre>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation activée.<br>[25-04-2025 16:54:37] 	Enregistrement du fichier de localisation<br>[25-04-2025 16:54:37] 		455 localisation(s) trouvée(s).<br>[25-04-2025 16:54:37] Tracking désactivé.<br>[25-04-2025 16:54:37] 	Aucune donnée de tracking pré-calculée.<br>[25-04-2025 16:54:37] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:37] Visualisation graphique désactivée.<br>[25-04-2025 16:54:37] Génération de la galerie désactivée.<br>[25-04-2025 16:54:37] Traitement terminé.<br>[25-04-2025 16:54:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log</pre>
+      <pre>[02-05-2025 11:59:45] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115945.log<br>[02-05-2025 11:59:45] Commencer le traitement.<br>[02-05-2025 11:59:45] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:45] Paramètres sauvegardés.<br>[02-05-2025 11:59:45] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:45] Localisation activée.<br>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Only Tracking</summary>
-      <pre>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation désactivé.<br>[25-04-2025 16:54:37] 	Chargement d'une localisation pré-calculée.<br>[25-04-2025 16:54:37] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252504_165437.csv' chargé avec succès.<br>[25-04-2025 16:54:37] 		455 localisation(s) trouvée(s).<br>[25-04-2025 16:54:37] Tracking activé.<br>[25-04-2025 16:54:37] 	Enregistrement du fichier de tracking.<br>[25-04-2025 16:54:37] 		455 tracking(s) trouvé(s).<br>[25-04-2025 16:54:37] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:37] Visualisation graphique désactivée.<br>[25-04-2025 16:54:37] Génération de la galerie désactivée.<br>[25-04-2025 16:54:37] Traitement terminé.<br>[25-04-2025 16:54:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log</pre>
+      <pre>[02-05-2025 11:59:45] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115945.log<br>[02-05-2025 11:59:45] Commencer le traitement.<br>[02-05-2025 11:59:45] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:45] Paramètres sauvegardés.<br>[02-05-2025 11:59:45] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:45] Localisation désactivé.<br>[02-05-2025 11:59:45] 	Chargement d'une localisation pré-calculée.<br>[02-05-2025 11:59:45] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20250205_115945.csv' chargé avec succès.<br>[02-05-2025 11:59:45] 		455 localisation(s) trouvée(s).<br>[02-05-2025 11:59:45] Tracking activé.<br>[02-05-2025 11:59:45] 	Enregistrement du fichier de tracking.<br>[02-05-2025 11:59:45] 		455 tracking(s) trouvé(s).<br>[02-05-2025 11:59:45] Visualisation haute résolution désactivée.<br>[02-05-2025 11:59:45] Visualisation graphique désactivée.<br>[02-05-2025 11:59:45] Génération de la galerie désactivée.<br>[02-05-2025 11:59:45] Traitement terminé.<br>[02-05-2025 11:59:45] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115945.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Only Visualization Hr</summary>
-      <pre>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation désactivé.<br>[25-04-2025 16:54:37] 	Chargement d'une localisation pré-calculée.<br>[25-04-2025 16:54:37] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252504_165437.csv' chargé avec succès.<br>[25-04-2025 16:54:37] 		455 localisation(s) trouvée(s).<br>[25-04-2025 16:54:37] Tracking désactivé.<br>[25-04-2025 16:54:37] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:54:37] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165437.csv' chargé avec succès.<br>[25-04-2025 16:54:37] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:54:37] Visualisation haute résolution activée.<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, Integrated Intensity).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, Sigma X).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, Sigma Y).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, Circularity).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, Theta).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, MSE Gaussian).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, Z).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation haute résolution (x2, MSE Z).<br>[25-04-2025 16:54:37] Visualisation graphique désactivée.<br>[25-04-2025 16:54:37] Génération de la galerie désactivée.<br>[25-04-2025 16:54:37] Traitement terminé.<br>[25-04-2025 16:54:37] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log</pre>
+      <pre>[02-05-2025 11:59:45] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115945.log<br>[02-05-2025 11:59:45] Commencer le traitement.<br>[02-05-2025 11:59:45] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:45] Paramètres sauvegardés.<br>[02-05-2025 11:59:45] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:45] Localisation désactivé.<br>[02-05-2025 11:59:45] 	Chargement d'une localisation pré-calculée.<br>[02-05-2025 11:59:45] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20250205_115945.csv' chargé avec succès.<br>[02-05-2025 11:59:45] 		455 localisation(s) trouvée(s).<br>[02-05-2025 11:59:45] Tracking désactivé.<br>[02-05-2025 11:59:45] 	Chargement d'un tracking pré-calculée.<br>[02-05-2025 11:59:45] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20250205_115945.csv' chargé avec succès.<br>[02-05-2025 11:59:45] 		455 tracking(s) trouvée(s).<br>[02-05-2025 11:59:45] Visualisation haute résolution activée.<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, Integrated Intensity).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, Sigma X).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, Sigma Y).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, Circularity).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, Theta).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, MSE Gaussian).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, Z).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation haute résolution (x2, MSE Z).<br>[02-05-2025 11:59:45] Visualisation graphique désactivée.<br>[02-05-2025 11:59:45] Génération de la galerie désactivée.<br>[02-05-2025 11:59:45] Traitement terminé.<br>[02-05-2025 11:59:45] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115945.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Only Visualization Graph</summary>
-      <pre>[25-04-2025 16:54:37] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log<br>[25-04-2025 16:54:37] Commencer le traitement.<br>[25-04-2025 16:54:37] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:37] Paramètres sauvegardés.<br>[25-04-2025 16:54:37] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:37] Localisation désactivé.<br>[25-04-2025 16:54:37] 	Chargement d'une localisation pré-calculée.<br>[25-04-2025 16:54:37] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252504_165437.csv' chargé avec succès.<br>[25-04-2025 16:54:37] 		455 localisation(s) trouvée(s).<br>[25-04-2025 16:54:37] Tracking désactivé.<br>[25-04-2025 16:54:37] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:54:37] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165437.csv' chargé avec succès.<br>[25-04-2025 16:54:37] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:54:37] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:37] Visualisation graphique activée.<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation graphique (Histogram, Integrated Intensity).<br>[25-04-2025 16:54:37] 	Enregistrement de la visualisation graphique (Plane Heat Map, Integrated Intensity).<br>[25-04-2025 16:54:38] 	Enregistrement de la visualisation graphique (Plane Violin, Integrated Intensity).<br>[25-04-2025 16:54:38] 	Annulation de la visualisation graphique : Sigma X uniforme.<br>[25-04-2025 16:54:38] 	Annulation de la visualisation graphique : Sigma Y uniforme.<br>[25-04-2025 16:54:38] 	Annulation de la visualisation graphique : Circularity uniforme.<br>[25-04-2025 16:54:38] 	Annulation de la visualisation graphique : Theta uniforme.<br>[25-04-2025 16:54:38] 	Enregistrement de la visualisation graphique (Histogram, MSE Gaussian).<br>[25-04-2025 16:54:38] 	Enregistrement de la visualisation graphique (Plane Heat Map, MSE Gaussian).<br>[25-04-2025 16:54:38] 	Enregistrement de la visualisation graphique (Plane Violin, MSE Gaussian).<br>[25-04-2025 16:54:38] 	Annulation de la visualisation graphique : Z uniforme.<br>[25-04-2025 16:54:38] 	Annulation de la visualisation graphique : MSE Z uniforme.<br>[25-04-2025 16:54:38] Génération de la galerie désactivée.<br>[25-04-2025 16:54:38] Traitement terminé.<br>[25-04-2025 16:54:38] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165437.log</pre>
+      <pre>[02-05-2025 11:59:45] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115945.log<br>[02-05-2025 11:59:45] Commencer le traitement.<br>[02-05-2025 11:59:45] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:45] Paramètres sauvegardés.<br>[02-05-2025 11:59:45] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:45] Localisation désactivé.<br>[02-05-2025 11:59:45] 	Chargement d'une localisation pré-calculée.<br>[02-05-2025 11:59:45] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20250205_115945.csv' chargé avec succès.<br>[02-05-2025 11:59:45] 		455 localisation(s) trouvée(s).<br>[02-05-2025 11:59:45] Tracking désactivé.<br>[02-05-2025 11:59:45] 	Chargement d'un tracking pré-calculée.<br>[02-05-2025 11:59:45] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20250205_115945.csv' chargé avec succès.<br>[02-05-2025 11:59:45] 		455 tracking(s) trouvée(s).<br>[02-05-2025 11:59:45] Visualisation haute résolution désactivée.<br>[02-05-2025 11:59:45] Visualisation graphique activée.<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation graphique (Histogram, Integrated Intensity).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation graphique (Plane Heat Map, Integrated Intensity).<br>[02-05-2025 11:59:45] 	Enregistrement de la visualisation graphique (Plane Violin, Integrated Intensity).<br>[02-05-2025 11:59:45] 	Annulation de la visualisation graphique : Sigma X uniforme.<br>[02-05-2025 11:59:45] 	Annulation de la visualisation graphique : Sigma Y uniforme.<br>[02-05-2025 11:59:45] 	Annulation de la visualisation graphique : Circularity uniforme.<br>[02-05-2025 11:59:45] 	Annulation de la visualisation graphique : Theta uniforme.<br>[02-05-2025 11:59:46] 	Enregistrement de la visualisation graphique (Histogram, MSE Gaussian).<br>[02-05-2025 11:59:46] 	Enregistrement de la visualisation graphique (Plane Heat Map, MSE Gaussian).<br>[02-05-2025 11:59:46] 	Enregistrement de la visualisation graphique (Plane Violin, MSE Gaussian).<br>[02-05-2025 11:59:46] 	Annulation de la visualisation graphique : Z uniforme.<br>[02-05-2025 11:59:46] 	Annulation de la visualisation graphique : MSE Z uniforme.<br>[02-05-2025 11:59:46] Génération de la galerie désactivée.<br>[02-05-2025 11:59:46] Traitement terminé.<br>[02-05-2025 11:59:46] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115945.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Only Gallery</summary>
-      <pre>[25-04-2025 16:54:38] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165438.log<br>[25-04-2025 16:54:38] Commencer le traitement.<br>[25-04-2025 16:54:38] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:38] Paramètres sauvegardés.<br>[25-04-2025 16:54:38] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:38] Localisation désactivé.<br>[25-04-2025 16:54:38] 	Chargement d'une localisation pré-calculée.<br>[25-04-2025 16:54:38] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252504_165437.csv' chargé avec succès.<br>[25-04-2025 16:54:38] 		455 localisation(s) trouvée(s).<br>[25-04-2025 16:54:38] Tracking désactivé.<br>[25-04-2025 16:54:38] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:54:38] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165437.csv' chargé avec succès.<br>[25-04-2025 16:54:38] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:54:38] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:38] Visualisation graphique désactivée.<br>[25-04-2025 16:54:38] Génération de la galerie activée.<br>[25-04-2025 16:54:38] 	Enregistrement de la galerie ({'ROI Size': 9, 'ROIs Per Line': 30}).<br>[25-04-2025 16:54:38] Traitement terminé.<br>[25-04-2025 16:54:38] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165438.log</pre>
+      <pre>[02-05-2025 11:59:46] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115946.log<br>[02-05-2025 11:59:46] Commencer le traitement.<br>[02-05-2025 11:59:46] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:46] Paramètres sauvegardés.<br>[02-05-2025 11:59:46] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:46] Localisation désactivé.<br>[02-05-2025 11:59:46] 	Chargement d'une localisation pré-calculée.<br>[02-05-2025 11:59:46] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20250205_115945.csv' chargé avec succès.<br>[02-05-2025 11:59:46] 		455 localisation(s) trouvée(s).<br>[02-05-2025 11:59:46] Tracking désactivé.<br>[02-05-2025 11:59:46] 	Chargement d'un tracking pré-calculée.<br>[02-05-2025 11:59:46] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20250205_115945.csv' chargé avec succès.<br>[02-05-2025 11:59:46] 		455 tracking(s) trouvée(s).<br>[02-05-2025 11:59:46] Visualisation haute résolution désactivée.<br>[02-05-2025 11:59:46] Visualisation graphique désactivée.<br>[02-05-2025 11:59:46] Génération de la galerie activée.<br>[02-05-2025 11:59:46] 	Enregistrement de la galerie ({'ROI Size': 9, 'ROIs Per Line': 30}).<br>[02-05-2025 11:59:46] Traitement terminé.<br>[02-05-2025 11:59:46] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115946.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process All</summary>
-      <pre>[25-04-2025 16:54:38] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165438.log<br>[25-04-2025 16:54:38] Commencer le traitement.<br>[25-04-2025 16:54:38] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:38] Paramètres sauvegardés.<br>[25-04-2025 16:54:38] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:38] Localisation activée.<br>[25-04-2025 16:54:39] 	Enregistrement du fichier de localisation<br>[25-04-2025 16:54:39] 		455 localisation(s) trouvée(s).<br>[25-04-2025 16:54:39] Tracking activé.<br>[25-04-2025 16:54:39] 	Enregistrement du fichier de tracking.<br>[25-04-2025 16:54:39] 		455 tracking(s) trouvé(s).<br>[25-04-2025 16:54:39] Visualisation haute résolution activée.<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, Integrated Intensity).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, Sigma X).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, Sigma Y).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, Circularity).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, Theta).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, MSE Gaussian).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, Z).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation haute résolution (x2, MSE Z).<br>[25-04-2025 16:54:39] Visualisation graphique activée.<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation graphique (Histogram, Integrated Intensity).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation graphique (Plane Heat Map, Integrated Intensity).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation graphique (Plane Violin, Integrated Intensity).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation graphique (Histogram, Sigma X).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation graphique (Plane Heat Map, Sigma X).<br>[25-04-2025 16:54:39] 	Enregistrement de la visualisation graphique (Plane Violin, Sigma X).<br>[25-04-2025 16:54:40] 	Enregistrement de la visualisation graphique (Histogram, Sigma Y).<br>[25-04-2025 16:54:40] 	Enregistrement de la visualisation graphique (Plane Heat Map, Sigma Y).<br>[25-04-2025 16:54:40] 	Enregistrement de la visualisation graphique (Plane Violin, Sigma Y).<br>[25-04-2025 16:54:40] 	Enregistrement de la visualisation graphique (Histogram, Circularity).<br>[25-04-2025 16:54:40] 	Enregistrement de la visualisation graphique (Plane Heat Map, Circularity).<br>[25-04-2025 16:54:40] 	Enregistrement de la visualisation graphique (Plane Violin, Circularity).<br>[25-04-2025 16:54:40] 	Enregistrement de la visualisation graphique (Histogram, Theta).<br>[25-04-2025 16:54:41] 	Enregistrement de la visualisation graphique (Plane Heat Map, Theta).<br>[25-04-2025 16:54:41] 	Enregistrement de la visualisation graphique (Plane Violin, Theta).<br>[25-04-2025 16:54:41] 	Enregistrement de la visualisation graphique (Histogram, MSE Gaussian).<br>[25-04-2025 16:54:41] 	Enregistrement de la visualisation graphique (Plane Heat Map, MSE Gaussian).<br>[25-04-2025 16:54:41] 	Enregistrement de la visualisation graphique (Plane Violin, MSE Gaussian).<br>[25-04-2025 16:54:41] 	Annulation de la visualisation graphique : Z uniforme.<br>[25-04-2025 16:54:41] 	Annulation de la visualisation graphique : MSE Z uniforme.<br>[25-04-2025 16:54:41] Génération de la galerie activée.<br>[25-04-2025 16:54:41] 	Enregistrement de la galerie ({'ROI Size': 9, 'ROIs Per Line': 30}).<br>[25-04-2025 16:54:41] Traitement terminé.<br>[25-04-2025 16:54:41] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165438.log</pre>
+      <pre>[02-05-2025 11:59:46] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115946.log<br>[02-05-2025 11:59:46] Commencer le traitement.<br>[02-05-2025 11:59:46] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:46] Paramètres sauvegardés.<br>[02-05-2025 11:59:46] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:46] Localisation activée.<br>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Filter Plan</summary>
-      <pre>[25-04-2025 16:54:41] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165441.log<br>[25-04-2025 16:54:41] Commencer le traitement.<br>[25-04-2025 16:54:41] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:41] Paramètres sauvegardés.<br>[25-04-2025 16:54:42] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:42] Localisation activée.<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Plane ([2:3]) : 0 suppression(s).<br>[25-04-2025 16:54:42] 	Enregistrement du fichier de localisation<br>[25-04-2025 16:54:42] 		96 localisation(s) trouvée(s).<br>[25-04-2025 16:54:42] Tracking désactivé.<br>[25-04-2025 16:54:42] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:54:42] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165438.csv' chargé avec succès.<br>[25-04-2025 16:54:42] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:54:42] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:42] Visualisation graphique désactivée.<br>[25-04-2025 16:54:42] Génération de la galerie désactivée.<br>[25-04-2025 16:54:42] Traitement terminé.<br>[25-04-2025 16:54:42] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165441.log</pre>
+      <pre>[02-05-2025 11:59:49] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115949.log<br>[02-05-2025 11:59:49] Commencer le traitement.<br>[02-05-2025 11:59:49] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:49] Paramètres sauvegardés.<br>[02-05-2025 11:59:49] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:49] Localisation activée.<br>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Process Filter All</summary>
-      <pre>[25-04-2025 16:54:42] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165442.log<br>[25-04-2025 16:54:42] Commencer le traitement.<br>[25-04-2025 16:54:42] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:54:42] Paramètres sauvegardés.<br>[25-04-2025 16:54:42] Fichier Meta sauvegardé.<br>[25-04-2025 16:54:42] Localisation activée.<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Plane ([1:9]) : 0 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Integrated Intensity ([100:20000]) : 28 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage de la colonne MSE Gaussian ([0.01:10.0]) : 4 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Sigma X ([0.0:10.0]) : 1 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Sigma Y ([0.0:10.0]) : 0 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Theta ([-5.0:10.0]) : 18 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Circularity ([0.0:1.0]) : 0 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage de la colonne Z ([-1.0:1.0]) : 0 suppression(s).<br>[25-04-2025 16:54:42] 		Filtrage du fichier de localisation 363 localisations au lieu de 414 : 51 suppression(s)<br>[25-04-2025 16:54:42] 	Enregistrement du fichier de localisation<br>[25-04-2025 16:54:42] 		363 localisation(s) trouvée(s).<br>[25-04-2025 16:54:42] Tracking désactivé.<br>[25-04-2025 16:54:42] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:54:42] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165438.csv' chargé avec succès.<br>[25-04-2025 16:54:42] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:54:42] Visualisation haute résolution désactivée.<br>[25-04-2025 16:54:42] Visualisation graphique désactivée.<br>[25-04-2025 16:54:42] Génération de la galerie désactivée.<br>[25-04-2025 16:54:42] Traitement terminé.<br>[25-04-2025 16:54:42] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165442.log</pre>
-   </details>
-
-Processing Dll Cpu
-^^^^^^^^^^^^^^^^^^
-
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Palm Cpu Image
-     - ✅
-     - 445ms
-   * - Palm Cpu Stack
-     - ✅
-     - 2.65s
-   * - Palm Cpu Stack Plane Selection
-     - ✅
-     - 23ms
-   * - Palm Cpu Stack Dll Check Quadrant
-     - ✅
-     - 196ms
-   * - Cpu Auto Threshold
-     - ✅
-     - 179ms
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Palm Cpu Image</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Palm Cpu Stack</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Palm Cpu Stack Dll Check Quadrant</summary>
-      <pre><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 269 Points comparés, 269 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
-   </details>
-
-Processing Dll Parsing
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Rearrange Dataframe Columns
-     - ✅
-     - 2ms
-
-Processing Dll Tracking
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Tracking
-     - ✅
-     - 2.76s
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Tracking</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_0_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 224 Points comparés, 224 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_1_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 223 Points comparés, 223 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_2_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 224 Points comparés, 224 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_3_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 223 Points comparés, 223 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 224 Points comparés, 224 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_0_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 214 Points comparés, 214 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_1_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 211 Points comparés, 211 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_2_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 216 Points comparés, 216 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_3_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 213 Points comparés, 213 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_4_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 216 Points comparés, 216 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+      <pre>[02-05-2025 11:59:49] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_115949.log<br>[02-05-2025 11:59:49] Commencer le traitement.<br>[02-05-2025 11:59:49] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 11:59:49] Paramètres sauvegardés.<br>[02-05-2025 11:59:49] Fichier Meta sauvegardé.<br>[02-05-2025 11:59:49] Localisation activée.<br>
    </details>
 
 Processing Gallery
@@ -254,7 +175,93 @@ Processing Gallery
      - Duration
    * - Make Gallery
      - ✅
-     - 8ms
+     - 9ms
+
+Processing Palm
+^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Palm Cpu Image
+     - ✅
+     - 545ms
+   * - Palm Cpu Stack
+     - ✅
+     - 2.38s
+   * - Palm Cpu Stack Plane Selection
+     - ✅
+     - 21ms
+   * - Palm Cpu Stack Dll Check Quadrant
+     - ✅
+     - 183ms
+   * - Cpu Auto Threshold
+     - ✅
+     - 158ms
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack</summary>
+      <pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack Plane Selection</summary>
+      <pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack Dll Check Quadrant</summary>
+      <pre>
+   </details>
+
+Processing Parsing
+^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Rearrange Dataframe Columns
+     - ✅
+     - 2ms
+
+Processing Tracking
+^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+
+   * - Test Name
+     - Status
+     - Duration
+   * - Tracking
+     - ✅
+     - 2.64s
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_0_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 224 Points comparés, 224 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_1_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 223 Points comparés, 223 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_2_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 224 Points comparés, 224 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_3_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 223 Points comparés, 223 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 224 Points comparés, 224 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_0_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 214 Points comparés, 214 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_1_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 211 Points comparés, 211 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_2_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 216 Points comparés, 216 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_3_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 213 Points comparés, 213 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_4_1.0_0.0_7-5_2_10_0.5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 216 Points comparés, 216 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
 
 Processing Visualization
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -270,34 +277,34 @@ Processing Visualization
      - 1ms
    * - Render Hr Image
      - ✅
-     - 15ms
+     - 14ms
    * - Render Hr Image Bad Input
      - ✅
      - 2ms
    * - Render Roi
      - ✅
-     - 33ms
+     - 30ms
    * - Render Roi Bad Input
      - ✅
      - 1ms
    * - Plot Histogram
      - ✅
-     - 648ms
+     - 650ms
    * - Plot Histogram Bad Input
      - ✅
      - 96ms
    * - Plot Violin
      - ✅
-     - 553ms
+     - 557ms
    * - Plot Violin Bad Input
      - ✅
-     - 44ms
+     - 50ms
    * - Plot Heatmap
      - ✅
-     - 252ms
+     - 274ms
    * - Plot Heatmap Bad Input
      - ✅
-     - 54ms
+     - 55ms
 
 Settings Groups
 ^^^^^^^^^^^^^^^
@@ -310,49 +317,49 @@ Settings Groups
      - Duration
    * - Base Group
      - ✅
-     - 70ms
+     - 67ms
    * - Batch
      - ✅
-     - 78ms
+     - 68ms
    * - Batch Get Path
      - ✅
-     - 82ms
+     - 77ms
    * - Batch Get Stacks
      - ✅
-     - 79ms
+     - 72ms
    * - Calibration
      - ✅
-     - 76ms
+     - 70ms
    * - Localization
      - ✅
-     - 89ms
+     - 81ms
    * - Gaussian Fit
      - ✅
-     - 77ms
+     - 69ms
    * - Spline Fit
      - ✅
-     - 85ms
+     - 68ms
    * - Tracking
      - ✅
-     - 78ms
+     - 70ms
    * - Gallery
      - ✅
-     - 77ms
+     - 70ms
    * - Visualization Hr
      - ✅
-     - 84ms
+     - 79ms
    * - Visualization Graph
      - ✅
-     - 75ms
+     - 73ms
    * - Filtering
      - ✅
-     - 91ms
+     - 78ms
    * - Filtering Gf
      - ✅
      - 78ms
    * - Filtering T
      - ✅
-     - 81ms
+     - 74ms
 
 .. raw:: html
 
@@ -449,10 +456,10 @@ Settings Settings
      - Duration
    * - Settings
      - ✅
-     - 97ms
+     - 84ms
    * - Settings Group Getter
      - ✅
-     - 77ms
+     - 73ms
 
 .. raw:: html
 
@@ -475,37 +482,37 @@ Settings Types
      - 1ms
    * - Create Setting From Dict
      - ✅
-     - 183ms
+     - 71ms
    * - Create Setting From Dict Fail
      - ✅
      - 73ms
    * - Spin Int
      - ✅
-     - 74ms
+     - 68ms
    * - Spin Float
      - ✅
-     - 72ms
+     - 71ms
    * - Check Box
      - ✅
-     - 72ms
+     - 74ms
    * - Combo
      - ✅
-     - 80ms
+     - 68ms
    * - Browse File
      - ✅
-     - 74ms
+     - 221ms
    * - File List
      - ✅
-     - 76ms
+     - 69ms
    * - Check Range Int
      - ✅
-     - 82ms
+     - 70ms
    * - Check Range Float
      - ✅
-     - 71ms
+     - 77ms
    * - Button
      - ✅
-     - 73ms
+     - 70ms
 
 Tools Fileio
 ^^^^^^^^^^^^
@@ -527,22 +534,22 @@ Tools Fileio
      - 1ms
    * - Save Tif
      - ✅
-     - 14ms
+     - 6ms
    * - Save Tif 2D
      - ✅
-     - 6ms
+     - 5ms
    * - Save Tif Bad Stack
      - ✅
      - 1ms
    * - Open Tif
      - ✅
-     - 11ms
+     - 8ms
    * - Open Tif Bad File
      - ✅
      - 1ms
    * - Save Png
      - ✅
-     - 6ms
+     - 5ms
    * - Save Png Bad Sample
      - ✅
      - 1ms
@@ -558,7 +565,7 @@ Tools Logger
      - Duration
    * - Logger
      - ✅
-     - 1ms
+     - 2ms
    * - Logger Bad Use
      - ✅
      - 1ms
@@ -567,14 +574,14 @@ Tools Logger
 
    <details>
       <summary>Log Test : Logger</summary>
-      <pre>[25-04-2025 16:54:52] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log<br>[25-04-2025 16:54:52] First message<br>[25-04-2025 16:54:52] <br>[25-04-2025 16:54:52] after blank<br>[25-04-2025 16:54:52] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log</pre>
+      <pre>[02-05-2025 12:00:00] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log<br>[02-05-2025 12:00:00] First message<br>[02-05-2025 12:00:00] <br>[02-05-2025 12:00:00] after blank<br>[02-05-2025 12:00:00] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\output/test_logger.log</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Logger Bad Use</summary>
-      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[25-04-2025 16:54:52] Aucun fichier à fermer.</span><span style="font-weight: bold"></span><br>[25-04-2025 16:54:52] Message without logger open<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[25-04-2025 16:54:52] Aucun fichier de log ouvert pour écrire.</span><span style="font-weight: bold"></span></pre>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[02-05-2025 12:00:00] Aucun fichier à fermer.</span><span style="font-weight: bold"></span><br>[02-05-2025 12:00:00] Message without logger open<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">[02-05-2025 12:00:00] Aucun fichier de log ouvert pour écrire.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 Tools Monitoring
@@ -588,23 +595,23 @@ Tools Monitoring
      - Duration
    * - Monitoring
      - ✅
-     - 1.31s
+     - 1.33s
    * - Monitoring Save
      - ✅
-     - 4.60s
+     - 8.58s
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Monitoring</summary>
-      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.63, 0.84, 1.01]<br>CPU Usage : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]<br>Memory Usage : [357.30859375, 357.30859375, 357.30859375, 357.30859375, 357.30859375, 357.28515625]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
+      <pre>6 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.63, 0.84, 1.01]<br>CPU Usage : [0.0, 0.0, 0.4875, 0.0, 0.4875, 0.0]<br>GPU Usage : [10, 10, 10, 10, 10, 45]<br>Memory Usage : [744.8203125, 744.8203125, 744.8203125, 744.8203125, 744.8203125, 744.8828125]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Monitoring Save</summary>
-      <pre>Simulating high CPU usage for 2 seconds...<br>CPU simulation complete.<br>Allocating 50 MB of memory...<br>Memory allocated. Holding for 1 seconds...<br>Releasing memory.<br>Writing a file of size 1 MB...<br>File written. Holding for 1 seconds...<br>Deleting the file...<br>Disk I/O simulation complete.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Kaleido doesn't work so well need update. No Image Saved.</span><span style="font-weight: bold"></span></pre>
+      <pre>Simulating high CPU usage for 2 seconds...<br>CPU simulation complete.<br>Simulating GPU usage for 2 seconds with matrix size 4096x4096...<br>GPU simulation complete.<br>Allocating 50 MB of memory...<br>Memory allocated. Holding for 2 seconds...<br>Releasing memory.<br>Writing a file of size 1 MB...<br>File written. Holding for 2 seconds...<br>Deleting the file...<br>Disk I/O simulation complete.<br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Kaleido doesn't work so well need update. No Image Saved.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 Tools Utils
@@ -628,6 +635,9 @@ Tools Utils
    * - Get Last File
      - ✅
      - 1ms
+   * - Load Dll
+     - ✅
+     - 2ms
    * - Print Error
      - ✅
      - 1ms
@@ -637,12 +647,22 @@ Tools Utils
    * - Print Success
      - ✅
      - 1ms
+   * - Format Time
+     - ✅
+     - 1ms
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Get Timestamp For Files</summary>
-      <pre>Timestamp with hour : 20250425_165458<br>Timestamp without hour : 20250425</pre>
+      <pre>Timestamp with hour : 20250502_120009<br>Timestamp without hour : 20250502</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Load Dll</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Impossible de charger la DLL 'C:\Git\palm-tracer\palm_tracer\DLL\File_PALM.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\File_PALM.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
@@ -677,22 +697,22 @@ Ui Highresviewer
      - Duration
    * - High Res View
      - ✅
-     - 90ms
+     - 82ms
    * - High Res View Load
      - ✅
-     - 83ms
+     - 79ms
    * - High Res View Check Ratio
      - ✅
-     - 78ms
+     - 79ms
    * - High Res View Adjust Window Size
      - ✅
-     - 84ms
+     - 72ms
    * - High Res View Wheel
      - ✅
-     - 81ms
+     - 77ms
    * - High Res View Resize
      - ✅
-     - 83ms
+     - 70ms
 
 Widget
 ^^^^^^
@@ -705,28 +725,28 @@ Widget
      - Duration
    * - Widget Creation
      - ✅
-     - 931ms
+     - 718ms
    * - Widget Reset Layer
      - ✅
-     - 852ms
+     - 864ms
    * - Widget Add Detection Layers
      - ✅
-     - 1.33s
+     - 1.16s
    * - Widget Preview
      - ✅
-     - 919ms
+     - 732ms
    * - Widget Auto Threshold
      - ✅
-     - 778ms
+     - 834ms
    * - Widget Process
      - ✅
-     - 579ms
+     - 530ms
    * - Widget Bad Dll
      - ✅
-     - 543ms
+     - 487ms
    * - Widget Show High Res
      - ✅
-     - 709ms
+     - 586ms
 
 .. raw:: html
 
@@ -760,7 +780,7 @@ Widget
 
    <details>
       <summary>Log Test : Widget Process</summary>
-      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Aucun fichier en preview.</span><span style="font-weight: bold"></span><br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.<br>[25-04-2025 16:55:04] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165504.log<br>[25-04-2025 16:55:04] Commencer le traitement.<br>[25-04-2025 16:55:04] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:55:04] Paramètres sauvegardés.<br>[25-04-2025 16:55:04] Fichier Meta sauvegardé.<br>[25-04-2025 16:55:04] Localisation désactivé.<br>[25-04-2025 16:55:04] 	Chargement d'une localisation pré-calculée.<br>[25-04-2025 16:55:04] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252504_165442.csv' chargé avec succès.<br>[25-04-2025 16:55:04] 		363 localisation(s) trouvée(s).<br>[25-04-2025 16:55:04] Tracking désactivé.<br>[25-04-2025 16:55:04] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:55:04] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165438.csv' chargé avec succès.<br>[25-04-2025 16:55:04] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:55:04] Visualisation haute résolution désactivée.<br>[25-04-2025 16:55:04] Visualisation graphique désactivée.<br>[25-04-2025 16:55:04] Génération de la galerie désactivée.<br>[25-04-2025 16:55:04] Traitement terminé.<br>[25-04-2025 16:55:04] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165504.log</pre>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Aucun fichier en preview.</span><span style="font-weight: bold"></span><br>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.<br>[02-05-2025 12:00:15] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_120015.log<br>[02-05-2025 12:00:15] Commencer le traitement.<br>[02-05-2025 12:00:15] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 12:00:15] Paramètres sauvegardés.<br>[02-05-2025 12:00:15] Fichier Meta sauvegardé.<br>[02-05-2025 12:00:15] Localisation désactivé.<br>[02-05-2025 12:00:15] 	Chargement d'une localisation pré-calculée.<br>[02-05-2025 12:00:15] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20250205_115949.csv' chargé avec succès.<br>[02-05-2025 12:00:15] 		363 localisation(s) trouvée(s).<br>[02-05-2025 12:00:15] Tracking désactivé.<br>[02-05-2025 12:00:15] 	Chargement d'un tracking pré-calculée.<br>[02-05-2025 12:00:15] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20250205_115946.csv' chargé avec succès.<br>[02-05-2025 12:00:15] 		455 tracking(s) trouvée(s).<br>[02-05-2025 12:00:15] Visualisation haute résolution désactivée.<br>[02-05-2025 12:00:15] Visualisation graphique désactivée.<br>[02-05-2025 12:00:15] Génération de la galerie désactivée.<br>[02-05-2025 12:00:15] Traitement terminé.<br>[02-05-2025 12:00:15] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_120015.log</pre>
    </details>
 
 .. raw:: html
@@ -774,7 +794,7 @@ Widget
 
    <details>
       <summary>Log Test : Widget Show High Res</summary>
-      <pre>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.<br>[25-04-2025 16:55:05] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165505.log<br>[25-04-2025 16:55:05] Commencer le traitement.<br>[25-04-2025 16:55:05] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:55:05] Paramètres sauvegardés.<br>[25-04-2025 16:55:05] Fichier Meta sauvegardé.<br>[25-04-2025 16:55:05] Localisation désactivé.<br>[25-04-2025 16:55:05] 	Chargement d'une localisation pré-calculée.<br>[25-04-2025 16:55:05] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252504_165442.csv' chargé avec succès.<br>[25-04-2025 16:55:05] 		363 localisation(s) trouvée(s).<br>[25-04-2025 16:55:05] Tracking désactivé.<br>[25-04-2025 16:55:05] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:55:05] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165438.csv' chargé avec succès.<br>[25-04-2025 16:55:05] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:55:05] Visualisation haute résolution activée.<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Integrated Intensity).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Sigma X).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Sigma Y).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Circularity).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Theta).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, MSE Gaussian).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Z).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, MSE Z).<br>[25-04-2025 16:55:05] Visualisation graphique désactivée.<br>[25-04-2025 16:55:05] Génération de la galerie désactivée.<br>[25-04-2025 16:55:05] Traitement terminé.<br>[25-04-2025 16:55:05] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165505.log<br>[25-04-2025 16:55:05] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165505.log<br>[25-04-2025 16:55:05] Commencer le traitement.<br>[25-04-2025 16:55:05] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[25-04-2025 16:55:05] Paramètres sauvegardés.<br>[25-04-2025 16:55:05] Fichier Meta sauvegardé.<br>[25-04-2025 16:55:05] Localisation désactivé.<br>[25-04-2025 16:55:05] 	Chargement d'une localisation pré-calculée.<br>[25-04-2025 16:55:05] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20252504_165442.csv' chargé avec succès.<br>[25-04-2025 16:55:05] 		363 localisation(s) trouvée(s).<br>[25-04-2025 16:55:05] Tracking désactivé.<br>[25-04-2025 16:55:05] 	Chargement d'un tracking pré-calculée.<br>[25-04-2025 16:55:05] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20252504_165438.csv' chargé avec succès.<br>[25-04-2025 16:55:05] 		455 tracking(s) trouvée(s).<br>[25-04-2025 16:55:05] Visualisation haute résolution activée.<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Integrated Intensity).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Sigma X).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Sigma Y).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Circularity).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Theta).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, MSE Gaussian).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, Z).<br>[25-04-2025 16:55:05] 	Enregistrement de la visualisation haute résolution (x2, MSE Z).<br>[25-04-2025 16:55:05] Visualisation graphique désactivée.<br>[25-04-2025 16:55:05] Génération de la galerie désactivée.<br>[25-04-2025 16:55:05] Traitement terminé.<br>[25-04-2025 16:55:05] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20252504_165505.log</pre>
+      <pre>Loaded C:\Git\palm-tracer\palm_tracer\_tests\input/stack.tif into Napari viewer.<br>[02-05-2025 12:00:16] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_120016.log<br>[02-05-2025 12:00:16] Commencer le traitement.<br>[02-05-2025 12:00:16] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 12:00:16] Paramètres sauvegardés.<br>[02-05-2025 12:00:16] Fichier Meta sauvegardé.<br>[02-05-2025 12:00:16] Localisation désactivé.<br>[02-05-2025 12:00:16] 	Chargement d'une localisation pré-calculée.<br>[02-05-2025 12:00:16] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20250205_115949.csv' chargé avec succès.<br>[02-05-2025 12:00:16] 		363 localisation(s) trouvée(s).<br>[02-05-2025 12:00:16] Tracking désactivé.<br>[02-05-2025 12:00:16] 	Chargement d'un tracking pré-calculée.<br>[02-05-2025 12:00:16] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20250205_115946.csv' chargé avec succès.<br>[02-05-2025 12:00:16] 		455 tracking(s) trouvée(s).<br>[02-05-2025 12:00:16] Visualisation haute résolution activée.<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Integrated Intensity).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Sigma X).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Sigma Y).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Circularity).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Theta).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, MSE Gaussian).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Z).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, MSE Z).<br>[02-05-2025 12:00:16] Visualisation graphique désactivée.<br>[02-05-2025 12:00:16] Génération de la galerie désactivée.<br>[02-05-2025 12:00:16] Traitement terminé.<br>[02-05-2025 12:00:16] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_120016.log<br>[02-05-2025 12:00:16] Log ouvert : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_120016.log<br>[02-05-2025 12:00:16] Commencer le traitement.<br>[02-05-2025 12:00:16] Dossier de sortie : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer<br>[02-05-2025 12:00:16] Paramètres sauvegardés.<br>[02-05-2025 12:00:16] Fichier Meta sauvegardé.<br>[02-05-2025 12:00:16] Localisation désactivé.<br>[02-05-2025 12:00:16] 	Chargement d'une localisation pré-calculée.<br>[02-05-2025 12:00:16] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\localizations-20250205_115949.csv' chargé avec succès.<br>[02-05-2025 12:00:16] 		363 localisation(s) trouvée(s).<br>[02-05-2025 12:00:16] Tracking désactivé.<br>[02-05-2025 12:00:16] 	Chargement d'un tracking pré-calculée.<br>[02-05-2025 12:00:16] 	Fichier 'C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer\tracking-20250205_115946.csv' chargé avec succès.<br>[02-05-2025 12:00:16] 		455 tracking(s) trouvée(s).<br>[02-05-2025 12:00:16] Visualisation haute résolution activée.<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Integrated Intensity).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Sigma X).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Sigma Y).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Circularity).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Theta).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, MSE Gaussian).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, Z).<br>[02-05-2025 12:00:16] 	Enregistrement de la visualisation haute résolution (x2, MSE Z).<br>[02-05-2025 12:00:16] Visualisation graphique désactivée.<br>[02-05-2025 12:00:16] Génération de la galerie désactivée.<br>[02-05-2025 12:00:16] Traitement terminé.<br>[02-05-2025 12:00:16] Log fermé : C:\Git\palm-tracer\palm_tracer\_tests\input/stack_PALM_Tracer/log-20250205_120016.log</pre>
    </details>
 
 .. raw:: html
@@ -782,15 +802,15 @@ Widget
    </div>
 
 Test Report Big Data
--------------
+---------------------
 
 Summary
-^^^^^^^^^^
+^^^^^^^^
 
-2 tests collected, 2 passed ✅, 0 failed ❌ in 0:07:28s on 25/04/2025 at 17:03:20
+3 tests collected, 3 passed ✅, 0 failed ❌ in 0:10:01s on 02/05/2025 at 12:16:54
 
 Monitoring
-^^^^^^^^^^
+^^^^^^^^^^^^^
 
 .. raw:: html
 
@@ -801,11 +821,12 @@ Monitoring
    </div>
 
 Test Cases
-^^^^^^^^^^
+^^^^^^^^^^^^^
 
 .. raw:: html
 
    <div class="test-page">
+
 
 .. list-table::
    :header-rows: 1
@@ -815,10 +836,13 @@ Test Cases
      - Duration
    * - Palm Cpu
      - ✅
-     - 2min 50s
+     - 2min 38s
+   * - Palm Gpu
+     - ✅
+     - 2min 38s
    * - Tracking
      - ✅
-     - 4min 38s
+     - 4min 45s
 
 .. raw:: html
 

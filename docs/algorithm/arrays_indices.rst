@@ -55,7 +55,6 @@ Tableaux 2D : Matrices
 
 Un tableau 2D est une **matrice** (:math:`M \in \mathbb{R}^{m \times n}`), où chaque élément est référencé par un couple d'indices :math:`(i, j)`, représentant respectivement **la ligne** et **la colonne**.:
 
-
 Mathématiquement, une matrice :math:`M` de taille :math:`m \times n` s’écrit :
 
 .. math::
