@@ -64,7 +64,7 @@ class BaseSettingGroup:
 		# Base
 		self._widget = QWidget()
 		layout = QFormLayout(self._widget)
-		layout.setAlignment(Qt.AlignmentFlag.AlignTop)	 # Définir l'alignement du calque en haut.
+		layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
 
 		# Title Row
 		self._title = QLabel(f"{self.label}")
@@ -194,9 +194,10 @@ class BaseSettingGroup:
 		# Supprimer la checkbox et réorganiser le layout
 		if self._header and self._checkbox:
 			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
-			self._checkbox.deleteLater()						# Détruire la checkbox
-		# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
-		# self._title.setText(f"       {self.label}")
+			self._checkbox.deleteLater()  # Détruire la checkbox
+
+	# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
+	# self._title.setText(f"       {self.label}")
 
 	##################################################
 	def remove_header(self):

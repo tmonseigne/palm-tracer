@@ -3,31 +3,22 @@ Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter le
 
 .. todo::
 	Doit ont garder les identifiants et les plans qui vont de 1 à N au lieu du classique 0 à N-1 ?
-
-.. todo::
-	Le processus n'est pas thread sagef avec sa gestion des pointeurs un multithreading est donc incompatible pour le moment.
 """
 
 import ctypes
 import math
-# import sys
+import sys
+import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Optional
-# import time
+
 import numpy as np
 import pandas as pd
-from palm_tracer.Processing.DLL.Load import load_dll
-from palm_tracer.Processing.DLL.Parsing import get_max_points, parse_palm_result
 
+from palm_tracer.Processing.Parsing import get_max_points, parse_palm_result
+from palm_tracer.Tools.Utils import format_time, load_dll
 
-# Fonction pour formater le temps en secondes en HH:MM:SS
-##################################################
-# def format_time(seconds):
-# 	hours = int(seconds // 3600)
-# 	minutes = int((seconds % 3600) // 60)
-# 	seconds = int(seconds % 60)
-# 	return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 ##################################################
 @dataclass
@@ -117,10 +108,6 @@ class Palm:
 		"""
 		self.__updata_args(image)
 		self._dll.Process(*self._args.values())
-		# self._dll._OpenPALMProcessing(*self._args.values())
-		# self._dll._PALMProcessing()
-		# self._dll._closePALMProcessing()
-
 		return parse_palm_result(self._points, plane, gauss_fit, True)
 
 	##################################################
@@ -149,23 +136,23 @@ class Palm:
 		else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
 
 		results = []
-		# n_planes = len(planes)
-		# start_time = time.time()  # Temps de début
+		n_planes = len(planes)
+		start_time = time.time()  # Temps de début
 		for index, i in enumerate(planes):
 			points = self.__run_image(stack[i], gauss_fit, i + 1)
 			results.append(points)  # Ajouter à la liste
-		# 	if index % 50 == 0 or index == n_planes - 1:
-		# 		elapsed_time = time.time() - start_time  # Temps écoulé
-		# 		avg_time_per_plane = elapsed_time / (index + 1)  # Temps moyen par plan
-		# 		remaining_planes = n_planes - (index + 1)  # Plans restants
-		# 		estimated_time_remaining = avg_time_per_plane * remaining_planes  # Temps estimé restant
-		# 		# Affichage avec le temps total écoulé et le temps estimé restant
-		# 		sys.stdout.write(f"\rRun PALM on Plane {i} ({(index + 1) / n_planes * 100:.0f}%) "
-		# 						 f"- Total time elapsed: {format_time(elapsed_time)} "
-		# 						 f"- Estimated time remaining: {format_time(estimated_time_remaining)}"
-		# 						 f"- Total time to finish: {format_time(elapsed_time + estimated_time_remaining)}")
-		# 		sys.stdout.flush()
-		# print()  # Ajoute un saut de ligne à la fin pour éviter d'écraser la dernière mise à jour
+			if index % 50 == 0 or index == n_planes - 1:
+				elapsed_time = time.time() - start_time  # Temps écoulé
+				avg_time_per_plane = elapsed_time / (index + 1)  # Temps moyen par plan
+				remaining_planes = n_planes - (index + 1)  # Plans restants
+				estimated_time_remaining = avg_time_per_plane * remaining_planes  # Temps estimé restant
+				# Affichage avec le temps total écoulé et le temps estimé restant
+				sys.stdout.write(f"\rRun PALM on Plane {i} ({(index + 1) / n_planes * 100:.0f}%) "
+								 f"- Total time elapsed: {format_time(elapsed_time)} "
+								 f"- Estimated time remaining: {format_time(estimated_time_remaining)}"
+								 f"- Total time to finish: {format_time(elapsed_time + estimated_time_remaining)}")
+				sys.stdout.flush()
+		print()  # Ajoute un saut de ligne à la fin pour éviter d'écraser la dernière mise à jour
 
 		# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
 		res = pd.concat(results, ignore_index=True)
@@ -183,9 +170,9 @@ class Palm:
 		:return: Seuil calculé (écart type final).
 		"""
 		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
-		std_dev = float(np.std(image))			 # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0			 # Demi-taille de la zone ROI
-		height, width = image.shape				 # Récupération de la taille de l'image
+		std_dev = float(np.std(image))  # Calcul initial de l'écart type
+		roi_2 = float(roi_size) / 2.0  # Demi-taille de la zone ROI
+		height, width = image.shape  # Récupération de la taille de l'image
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))

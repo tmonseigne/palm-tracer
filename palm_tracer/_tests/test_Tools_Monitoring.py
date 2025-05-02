@@ -6,16 +6,17 @@ from pathlib import Path
 
 try:
 	import torch
+
 	HAVE_GPU = not os.getenv("GITHUB_ACTIONS") == "true"
 except ImportError:
 	HAVE_GPU = False
-
 
 from palm_tracer.Tools import Monitoring
 
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 default_duration = 2
+
 
 # ==================================================
 # region Simulations
@@ -63,6 +64,7 @@ def simulate_gpu_usage(monitoring: Monitoring, tensor_size: int = 4096, duration
 
 	torch.cuda.empty_cache()
 	print("GPU simulation complete.")
+
 
 ##################################################
 def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: float = default_duration):

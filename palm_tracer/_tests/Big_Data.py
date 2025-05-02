@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Processing.DLL import Palm, Tracking
+from palm_tracer.Processing import Palm, Tracking
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"

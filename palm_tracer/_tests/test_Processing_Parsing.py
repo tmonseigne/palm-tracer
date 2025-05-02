@@ -2,7 +2,7 @@
 
 import pytest
 
-from palm_tracer.Processing.DLL.Parsing import *
+from palm_tracer.Processing.Parsing import *
 
 
 ##################################################

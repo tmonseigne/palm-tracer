@@ -11,6 +11,7 @@ INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
+
 ##################################################
 def test_make_gallery():
 	"""Test de la génération de galerie."""

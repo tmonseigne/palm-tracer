@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import DLL, make_gallery, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image
+from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, Tracking
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
@@ -25,9 +25,9 @@ class PALMTracer:
 	""" Classe principale de PALM Tracer. """
 
 	settings: Settings = field(init=False, default_factory=Settings)
-	palm_cpu: DLL.Palm = field(init=False, default_factory=lambda: DLL.Palm("CPU"))
+	palm_cpu: Palm = field(init=False, default_factory=lambda: Palm("CPU"))
 	# gpu: DLL.GPU = field(init=False, default_factory=DLL.GPU)
-	tracking: DLL.Tracking = field(init=False, default_factory=DLL.Tracking)
+	tracking: Tracking = field(init=False, default_factory=Tracking)
 	logger: Logger = field(init=False, default_factory=Logger)
 	localizations: Optional[pd.DataFrame] = field(init=False, default=None)
 	tracks: Optional[pd.DataFrame] = field(init=False, default=None)
@@ -266,18 +266,18 @@ class PALMTracer:
 		if n_init != n_end:
 			self.logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
 
-	# ##################################################
-	# def __filter_tracking(self):
-	# 	""" Filtre le fichier de tracking. """
-	# 	n_init = len(self.tracks)
-	# 	f = self.settings.filtering["Tracking"]
-	# 	filters = [[f["Length"], ""],
-	# 			   [f["D Coeff"], ""],
-	# 			   [f["Instant D"], ""],
-	# 			   [f["Speed"], ""],
-	# 			   [f["Alpha"], ""],
-	# 			   [f["Confinement"], ""]]
-	#
-	# 	n_end = len(self.tracks)
-	# 	if n_init != n_end:
-	# 		self.logger.add(f"\t\tFiltrage du fichier de tracking {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")
+# ##################################################
+# def __filter_tracking(self):
+# 	""" Filtre le fichier de tracking. """
+# 	n_init = len(self.tracks)
+# 	f = self.settings.filtering["Tracking"]
+# 	filters = [[f["Length"], ""],
+# 			   [f["D Coeff"], ""],
+# 			   [f["Instant D"], ""],
+# 			   [f["Speed"], ""],
+# 			   [f["Alpha"], ""],
+# 			   [f["Confinement"], ""]]
+#
+# 	n_end = len(self.tracks)
+# 	if n_init != n_end:
+# 		self.logger.add(f"\t\tFiltrage du fichier de tracking {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")

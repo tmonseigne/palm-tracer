@@ -1,6 +1,4 @@
 """ Fichier des tests pour le widget de visualisation. """
-import os
-from pathlib import Path
 
 import numpy as np
 from qtpy.QtCore import QPoint, QSize, Qt

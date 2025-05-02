@@ -34,6 +34,7 @@ def get_trc_suffix() -> str:
 	"""
 	return f"{max_distance}_{min_life}_{decrease}_{cost_birth}"
 
+
 ##################################################
 def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
 	"""

@@ -4,12 +4,13 @@ import os
 from pathlib import Path
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Processing.DLL import Tracking
+from palm_tracer.Processing import Tracking
 from palm_tracer.Tools import print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
+
 
 ##################################################
 def test_tracking():

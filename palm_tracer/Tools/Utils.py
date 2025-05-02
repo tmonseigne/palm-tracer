@@ -25,11 +25,16 @@ Ce module regroupe des utilitaires pour des tâches courantes et est structuré 
 
 """
 
+import ctypes
 import glob
 import os
 from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 from colorama import Fore, Style
+
+DLL_PATH = Path(__file__).parent.parent / "DLL"
 
 
 # ==================================================
@@ -44,7 +49,7 @@ def add_extension(filename: str, extension: str) -> str:
 	:param extension: Extension finale du fichier
 	"""
 	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
-	if not filename.endswith(extension): filename += extension	   # Si le fichier n'a pas déjà l'extension, on l'ajoute
+	if not filename.endswith(extension): filename += extension  # Si le fichier n'a pas déjà l'extension, on l'ajoute
 	return filename
 
 
@@ -96,6 +101,17 @@ def get_last_file(path: str, name: str) -> str:
 		return ""
 
 
+##################################################
+def load_dll(name: str) -> Optional[ctypes.CDLL]:
+	"""Récupère la DLL si elle existe."""
+	dll_filename = DLL_PATH / f"{name}_PALM.dll"
+	try:
+		return ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
+	except OSError as e:
+		print_warning(f"Impossible de charger la DLL '{dll_filename}':\n\t{e}")
+		return None
+
+
 # ==================================================
 # endregion File Management
 # ==================================================
@@ -133,6 +149,19 @@ def print_success(msg: str):
 	"""
 	print(Fore.GREEN + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
+
+##################################################
+def format_time(seconds):
+	"""
+	Fonction pour formater le temps en secondes en HH:MM:SS.
+
+	:param seconds: Temps en secondes
+	:return: chaine de caractère representant le temps au format HH:MM:SS.
+	"""
+	hours = int(seconds // 3600)
+	minutes = int((seconds % 3600) // 60)
+	seconds = int(seconds % 60)
+	return f"{hours:02}:{minutes:02}:{seconds:02}"
 # ==================================================
 # endregion Prints
 # ==================================================

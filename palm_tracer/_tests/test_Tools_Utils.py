@@ -1,4 +1,5 @@
 """ Fichier des tests pour les fonctions utilitaires. """
+import ctypes
 
 from palm_tracer.Tools import Utils
 
@@ -57,6 +58,15 @@ def test_get_last_file():
 
 
 ##################################################
+def test_load_dll():
+	"""Test de la fonction get timestamp for files."""
+	res = Utils.load_dll("File")
+	assert res is None, "La Dll n'existe pas, None devrait être retourné."
+	res = Utils.load_dll("CPU")
+	assert isinstance(res, ctypes.CDLL), "La Dll devrait être chargé."
+
+
+##################################################
 def test_print_error():
 	"""Test de la fonction print error."""
 	Utils.print_error("Message d'erreur"), "L'affichage n'a pas pu être effectué"
@@ -75,3 +85,9 @@ def test_print_success():
 	"""Test de la fonction print warning."""
 	Utils.print_success("Message de succes"), "L'affichage n'a pas pu être effectué"
 	assert True
+
+
+##################################################
+def test_format_time():
+	"""Test de la fonction print warning."""
+	assert Utils.format_time(3666) == "01:01:06", "L'affichage n'a pas pu être effectué"

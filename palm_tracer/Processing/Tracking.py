@@ -2,14 +2,13 @@
 
 import ctypes
 from dataclasses import dataclass, field
-# from concurrent.futures import ProcessPoolExecutor, as_completed, ThreadPoolExecutor
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing.DLL.Load import load_dll
-from palm_tracer.Processing.DLL.Parsing import N_TRACK, parse_localization_to_tracking, parse_tracking_result
+from palm_tracer.Processing.Parsing import N_TRACK, parse_localization_to_tracking, parse_tracking_result
+from palm_tracer.Tools.Utils import load_dll
 
 
 ##################################################
@@ -44,12 +43,12 @@ class Tracking:
 		self._track_size = n * N_TRACK
 		points = parse_localization_to_tracking(localizations)
 
-		return {"points":       points.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de points
+		return {"points":       points.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),											  # Liste de points
 				"track":        np.zeros((self._track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Liste de tracks
-				"max_distance": ctypes.c_double(max_distance),  #
-				"min_life":     ctypes.c_ulong(min_life),  #
-				"decrease":     ctypes.c_double(decrease),  #
-				"cost_birth":   ctypes.c_double(cost_birth),  #
+				"max_distance": ctypes.c_double(max_distance),																	  #
+				"min_life":     ctypes.c_ulong(min_life),																		  #
+				"decrease":     ctypes.c_double(decrease),																		  #
+				"cost_birth":   ctypes.c_double(cost_birth),																	  #
 				"planes":       ctypes.c_ulong(localizations["Plane"].max()),  # Nombre de plans
 				}
 
@@ -65,8 +64,5 @@ class Tracking:
 		:return:
 		"""
 		args = self.__get_args(localizations, max_distance, min_life, decrease, cost_birth)
-		# Running
 		self._dll.Process(*args.values())
-		# self._dll.Tracking(*args.values())
-
 		return parse_tracking_result(np.ctypeslib.as_array(args["track"], shape=(self._track_size,)))

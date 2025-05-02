@@ -31,6 +31,7 @@ def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_
 	"""
 	return int(height * width * density * n_planes) * N_SEGMENT
 
+
 ##################################################
 def rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remaining: bool = True) -> pd.DataFrame:
 	"""
@@ -54,7 +55,7 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remain
 
 
 ##################################################
-def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool = False, gpu = False) -> pd.DataFrame:
+def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool = False, gpu=False) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
@@ -74,15 +75,15 @@ def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool =
 	size = (data.size // N_SEGMENT) * N_SEGMENT									  # Récupération de la taille correcte si non multiple de N_SEGMENT
 	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENT), columns=SEGMENT_COLS)  # Transformation en Dataframe
 	res = res[res["X"] > 0]														  # Filtrage des lignes remplies de 0 et -1
-	if gpu : res["X"], res["Y"] = res["Y"].copy(), res["X"].copy()				  # Échange des contenus des colonnes "X" et "Y"
+	if gpu: res["X"], res["Y"] = res["Y"].copy(), res["X"].copy()				  # Échange des contenus des colonnes "X" et "Y"
 
 	if sort: res = res.sort_values(by=["Y", "X"], ascending=[True, True])  # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
-	res = res.reset_index(drop=True)	   # Remise à 0 des index
-	res["Id"] = range(1, len(res) + 1)	   # Mise à jour de l'ID dans le tableau.
-	res["Index"] = range(1, len(res) + 1)  # Ajout de l'index (au sein du plan) dans le tableau.
-	res["Plane"] = plane				   # Ajout d'un plan dans le tableau
-	res["Channel"] = -1					   # Ajout d'un channel dans le tableau
-	res["MSE Z"] = -1					   # Ajout d'un MSE pour Z dans le tableau
+	res = res.reset_index(drop=True)									   # Remise à 0 des index
+	res["Id"] = range(1, len(res) + 1)									   # Mise à jour de l'ID dans le tableau.
+	res["Index"] = range(1, len(res) + 1)								   # Ajout de l'index (au sein du plan) dans le tableau.
+	res["Plane"] = plane												   # Ajout d'un plan dans le tableau
+	res["Channel"] = -1													   # Ajout d'un channel dans le tableau
+	res["MSE Z"] = -1													   # Ajout d'un MSE pour Z dans le tableau
 
 	# Ajout de l'intensité intégré (si on à les sigma du gaussian fit ou non)
 	if gauss_fit != 0: res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]
@@ -109,9 +110,7 @@ def parse_tracking_result(data: np.ndarray) -> pd.DataFrame:
 	res = pd.DataFrame(data[:size].reshape(-1, N_TRACK), columns=TRACK_COLS)  # Transformation en Dataframe
 	res = res[res["X"] > 0]													  # Filtrage des lignes remplies de 0 et -1
 	res = res.reset_index(drop=True)										  # Remise à 0 des index
-
-	# Liste des colonnes à placer en premier
-	return rearrange_dataframe_columns(res, TRACK_FILE_COLS, True)  # Réorganisation du DataFrame
+	return rearrange_dataframe_columns(res, TRACK_FILE_COLS, True)			  # Réorganisation du DataFrame
 
 
 ##################################################

@@ -40,6 +40,7 @@ MEMORY_RATIO = 1.0 / (1024 * 1024)
 
 try:
 	from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetUtilizationRates, nvmlInit, nvmlShutdown, nvmlDeviceGetCount
+
 	HAVE_GPU = not os.getenv("GITHUB_ACTIONS") == "true"
 except ImportError:
 	print_warning("pynvml non disponible, le monitoring GPU sera désactivé.")
@@ -112,24 +113,24 @@ class Monitoring:
 	def _update(self):
 		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
-		if not self._thread.is_alive(): return  # pragma: no cover	(n'arrive qu'en cas de crash)
-		pytest_pid = os.getpid()  # PID de pytest
-		pytest_proc = psutil.Process(pytest_pid)  # Récupère le processus parent
+		if not self._thread.is_alive(): return			 # pragma: no cover	(n'arrive qu'en cas de crash)
+		pytest_pid = os.getpid()						 # PID de pytest
+		pytest_proc = psutil.Process(pytest_pid)		 # Récupère le processus parent
 		children = pytest_proc.children(recursive=True)  # Cible les processus enfants
-		processes = [pytest_proc] + children  # Inclut le processus principal et ses enfants
+		processes = [pytest_proc] + children			 # Inclut le processus principal et ses enfants
 
 		self._cpu.append(sum(proc.cpu_percent(interval=self.interval) for proc in processes))
 		self._memory.append(sum(proc.memory_info().rss for proc in processes))
 		# "Darwin" est le nom de macOS dans platform.system()
 		if platform.system() != "Darwin": self._disk.append(sum(proc.io_counters().write_bytes for proc in processes))
-		else: self._disk.append(0)  # pragma: no cover
+		else: self._disk.append(0)						 # pragma: no cover
 
 		if self._gpu_handle:
 			try:
 				util = nvmlDeviceGetUtilizationRates(self._gpu_handle)
 				self._gpu.append(util.gpu)
-			except Exception: self._gpu.append(0)  # Erreur lors de la lecture de l'utilisation GPU
-		else: self._gpu.append(0)  # Aucun GPU détecté
+			except Exception: self._gpu.append(0)		 # Erreur lors de la lecture de l'utilisation GPU
+		else: self._gpu.append(0)						 # Aucun GPU détecté
 
 		self._times.append(time.time())
 
@@ -189,10 +190,10 @@ class Monitoring:
 		self._times = [round(t - first_time, round_time) for t in self._times]
 
 		num_cores = psutil.cpu_count(logical=True)
-		self._cpu = [c / num_cores for c in self._cpu]  # Division par le nombre de CPU
-		self._memory = [m * MEMORY_RATIO for m in self._memory]  # Passage en Mo
+		self._cpu = [c / num_cores for c in self._cpu]														  # Division par le nombre de CPU
+		self._memory = [m * MEMORY_RATIO for m in self._memory]												  # Passage en Mo
 		self._disk = [(self._disk[i] - self._disk[i - 1]) * MEMORY_RATIO for i in range(1, len(self._disk))]  # Passage en Mo et en delta d'utilisation
-		self._disk.insert(0, 0)  # Ajouter 0 au début pour avoir une taille correcte
+		self._disk.insert(0, 0)																				  # Ajouter 0 au début pour restaurer la taille
 
 	# ==================================================
 	# endregion Monitoring Manipulation
@@ -237,8 +238,8 @@ class Monitoring:
 								   margin={"t": 50, "l": 5, "r": 5, "b": 5},
 								   title_text="Resource Usage Over Time", showlegend=False)
 		for i in range(len(params)):
-			self._figure.update_yaxes(showgrid=False, row=i + 1, col=1)  # Supprimer la grille verticale
-			self._figure.update_xaxes(showgrid=False, row=i + 1, col=1)  # Supprimer la grille horizontale
+			self._figure.update_yaxes(showgrid=False, row=i + 1, col=1)			  # Supprimer la grille verticale
+			self._figure.update_xaxes(showgrid=False, row=i + 1, col=1)			  # Supprimer la grille horizontale
 		self._figure.update_xaxes(title_text="Time (s)", row=len(params), col=1)  # Place le titre X uniquement sur le graphique du bas
 
 	# ==================================================
@@ -301,7 +302,7 @@ class Monitoring:
 		:return: Chaîne décrivant les données de monitoring.
 		"""
 		return (f"{self.n_entries} entrées.\nTimestamps : {self._times}\n"
-				f"CPU Usage : {self._cpu}\n"  # GPU Usage : {self.gpu}\n"
+				f"CPU Usage : {self._cpu}\nGPU Usage : {self._gpu}\n"
 				f"Memory Usage : {self._memory}\nDisk Usage : {self._disk}")
 
 	##################################################
