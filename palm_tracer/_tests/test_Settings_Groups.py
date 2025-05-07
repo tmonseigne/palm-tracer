@@ -131,7 +131,7 @@ def test_calibration(make_napari_viewer):
 ###################################################
 def test_localization(make_napari_viewer):
 	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
-	group_base_test(Localization(), ["Preview", "Threshold", "Auto Threshold", "ROI Size", "Watershed", "Mode", "Gaussian Fit", "Spline Fit"],
+	group_base_test(Localization(), ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Mode", "Gaussian Fit", "Spline Fit"],
 					Button, True, True)
 
 

@@ -31,6 +31,7 @@ class Localization(BaseSettingGroup):
 			"Preview":        [Button, ["Preview"]],
 			"Threshold":      [SpinFloat, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
 			"Auto Threshold": [Button, ["Auto Threshold"]],
+			"ROI Shape":       [Combo, ["ROI Shape", 0, ["Circle", "Square"]]],
 			"ROI Size":       [SpinInt, ["ROI Size", 7, 3, 50, 1]],
 			"Watershed":      [CheckBox, ["Watershed", True]],
 			"Mode":           [Combo, ["Mode", 0, ["Gaussian Fit", "Spline"]]],

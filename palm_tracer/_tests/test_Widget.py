@@ -19,7 +19,7 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 ##################################################
 def test_widget_creation(make_napari_viewer, capsys):
 	"""Test basique de création du widget."""
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 	assert True
 
@@ -68,6 +68,8 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys):
 
 	# Ajout avec des calques existants et un future vide.
 	preview = {"Past": POINTS, "Present": POINTS, "Future": None}
+	my_widget._add_detection_layers(preview)
+	my_widget.pt.settings.localization["ROI Shape"].set_value(1)
 	my_widget._add_detection_layers(preview)
 	assert True
 

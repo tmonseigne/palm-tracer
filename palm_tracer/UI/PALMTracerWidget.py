@@ -11,6 +11,7 @@ from typing import cast, Optional
 
 import napari
 import numpy as np
+from napari.layers import Shapes
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
@@ -146,7 +147,7 @@ class PALMTracerWidget(QWidget):
 			print_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
-	def _add_detection_layers(self, points_dict: dict):
+	def _add_detection_layers(self, points_dict: dict[str, np.ndarray]):
 		"""
 		Ajoute des calques à Napari pour les localisations dans le passé, le présent et le futur.
 
@@ -154,28 +155,46 @@ class PALMTracerWidget(QWidget):
 		"""
 		state_args = {
 				"Past":    {"border": 0.2, "edge": 0.2, "color": "cyan", "face": "transparent"},
-				"Present": {"border": 0.5, "edge": 0.5, "color": "lime", "face": "lime"},
+				"Present": {"border": 0.4, "edge": 0.4, "color": "lime", "face": "lime"},
 				"Future":  {"border": 0.2, "edge": 0.2, "color": "orange", "face": "transparent"}
 				}
 		for state, points in points_dict.items():
 			if points is None or points.size == 0:
-				if f"Points {state}" in self.viewer.layers: self.viewer.layers.remove(f"Points {state}")
-				if f"ROI {state}" in self.viewer.layers: self.viewer.layers.remove(f"ROI {state}")
+				if f"Points {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"Points {state}"])
+				if f"ROI {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
 				continue
+
 			args=state_args[state]
+
 			# Points
 			l_name = f"Points {state}"
 			if l_name in self.viewer.layers: self.viewer.layers[l_name].data = points
 			else: self.viewer.add_points(points, size=1, border_color=args["color"], face_color=args["face"], border_width=args["border"], name=l_name)
 
-			# ROIs (carrés) seulement pour le present
+			# ROIs seulement pour le present
 			if state!="Present": continue
 			roi_size = self.pt.settings.localization["ROI Size"].get_value()
+			roi_shape = self.pt.settings.localization["ROI Shape"].get_value()
 			half_size = roi_size / 2
-			rois = [[[y - half_size, x - half_size], [y + half_size, x + half_size]] for y, x in points]  # Bas droit, gauche
+			if roi_shape == 0:  # Ellipses
+				# Chaque ellipse = [[y_center, x_center], [y_radius, x_radius]]
+				rois = np.array([[[float(y), float(x)], [float(half_size), float(half_size)]] for y, x in points], dtype=np.float32)
+				s_type = "ellipse"
+			else:  # Rectangles (coins opposés)
+				rois = [[[y - half_size, x - half_size], [y + half_size, x + half_size]] for y, x in points]
+				s_type = "rectangle"
+
 			l_name = f"ROI {state}"
-			if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rois
-			else: self.viewer.add_shapes(rois, shape_type="rectangle", edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
+			# Si le calque existe mais n’est pas du bon type, on le supprime
+			if l_name in self.viewer.layers:
+				layer = self.viewer.layers[l_name]
+				if not isinstance(layer, Shapes) or layer.shape_type[0] != s_type:
+					self.viewer.layers.remove(layer)
+					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
+				else:
+					layer.data = rois
+			else:
+				self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
