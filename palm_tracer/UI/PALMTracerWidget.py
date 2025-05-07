@@ -215,7 +215,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _on_plane_change(self, event):
 		# Relancer la prévisualisation si elle à déjà été lancé
-		if "ROI" in self.viewer.layers: self._preview()
+		if "Points Present" in self.viewer.layers: self._preview()
 
 	##################################################
 	def _preview(self):
@@ -227,10 +227,11 @@ class PALMTracerWidget(QWidget):
 		s = self.pt.settings.localization.get_settings()
 		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
 		locs = {
-				"Past":    None if past is None else self.pt.palm_cpu.run(past, t, w, gm, gs, gt, r)[["Y", "X"]].to_numpy(),
-				"Present": self.pt.palm_cpu.run(present, t, w, gm, gs, gt, r)[["Y", "X"]].to_numpy(),
-				"Future":  None if future is None else self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r)[["Y", "X"]].to_numpy(),
+				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm_cpu.run(past, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Present": self.pt.filter_localizations(self.pt.palm_cpu.run(present, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
 				}
+
 		self._add_detection_layers(locs)
 		l_past, l_present, l_future = map(len, (locs["Past"], locs["Present"], locs["Future"]))
 		print(f"Preview des {l_past+ l_present+ l_future} points détectés "

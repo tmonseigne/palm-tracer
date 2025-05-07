@@ -5,7 +5,7 @@ Module contenant les fonctions de traitement de PALM.
 import os
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import cast, Optional
 
 import numpy as np
 import pandas as pd
@@ -13,8 +13,10 @@ from matplotlib import pyplot as plt
 
 from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, Tracking
 from palm_tracer.Settings import Settings
+from palm_tracer.Settings.Groups import Filtering, FilteringGF
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
+from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRangeInt
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json, save_tif
 from palm_tracer.Tools.FileIO import save_png
 
@@ -240,11 +242,14 @@ class PALMTracer:
 		save_tif(gallery, f"{self.__path}/gallery_{s["ROI Size"]}_{s["ROIs Per Line"]}-{self.__suffix}.tif")
 
 	##################################################
-	def __filter_localizations(self):
+	def __filter_localizations(self): self.localizations = self.filter_localizations(self.localizations, True)
+
+	##################################################
+	def filter_localizations(self, localizations: pd.DataFrame, log: bool = False) -> pd.DataFrame:
 		""" Filtre le fichier de localisation. """
-		n_init = len(self.localizations)
-		f = self.settings.filtering
-		fg = f["Gaussian Fit"]
+		n_init = len(localizations)
+		f = cast(Filtering, self.settings.filtering)
+		fg = cast(FilteringGF, f["Gaussian Fit"])
 		filters = [[f["Plane"], "Plane"],
 				   [f["Intensity"], "Integrated Intensity"],
 				   [fg["MSE Gaussian"], "MSE Gaussian"],
@@ -255,16 +260,15 @@ class PALMTracer:
 				   [fg["Z"], "Z"]]
 
 		for filt, col in filters:
-			if filt.active:
-				n_f_init = len(self.localizations)
+			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
 				limits = filt.get_value()
-				self.localizations = self.localizations[self.localizations[col].between(limits[0], limits[1])]  # Bornes incluses
-				n_f_end = len(self.localizations)
-				self.logger.add(f"\t\tFiltrage de la colonne {col} ([{limits[0]}:{limits[1]}]) : {n_f_init - n_f_end} suppression(s).")
+				localizations = localizations[localizations[col].between(limits[0], limits[1])]  # Bornes incluses
 
-		n_end = len(self.localizations)
-		if n_init != n_end:
-			self.logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
+		if log:
+			n_end = len(localizations)
+			if n_init != n_end:
+				self.logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
+		return localizations
 
 # ##################################################
 # def __filter_tracking(self):
