@@ -47,6 +47,8 @@ class FileList(BaseSettingType):
 		if 0 <= value < len(self.items):
 			self.value = value
 			self.box.setCurrentIndex(value)
+			self.emit(value)
+
 
 	##################################################
 	def get_selected(self) -> str:

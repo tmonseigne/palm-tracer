@@ -39,6 +39,7 @@ class Combo(BaseSettingType):
 	def set_value(self, value: int):
 		self.value = value
 		self.box.setCurrentIndex(value)
+		self.emit(value)
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:

@@ -96,6 +96,25 @@ class BaseSettingGroup:
 		for _, setting in self._settings.items():
 			setting.reset()
 
+
+	##################################################
+	def connect(self, f: Any):
+		"""
+		Connecte une fonction ou un slot au signal encapsulé de chaque sous groupe ou type.
+
+		:param f: Fonction ou slot à connecter.
+		"""
+		for _, setting in self._settings.items(): setting.connect(f)  # Connexion de la fonction fournie au signal.
+
+	# ##################################################
+	# def emit(self, value: Any = None):
+	# 	"""
+	# 	Émet le signal encapsulé de chaque sous groupe ou type.
+	#
+	# 	Utilisé pour notifier les parties de l'application abonnées au signal.
+	# 	"""
+	# 	for _, setting in self._settings.items(): setting.emit(value)  # Émission du signal.
+
 	# ==================================================
 	# endregion Initialization
 	# ==================================================
