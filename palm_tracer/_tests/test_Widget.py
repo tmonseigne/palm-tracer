@@ -40,14 +40,35 @@ def test_widget_reset_layer(make_napari_viewer, capsys):
 
 
 ##################################################
+def test_widget_get_actual_image(make_napari_viewer, capsys):
+	""" Test de récupération d'image. """
+	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+
+	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	assert my_widget._get_actual_image() is not None, "Aucune image récupéré."				   # Récupéraiton de l'image
+	assert my_widget._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupéraiton d'une image hors limite
+	assert my_widget._get_actual_image(100) is None, "Une image hors limite a été récupéré."   # Récupéraiton d'une image hors limite
+
+##################################################
 def test_widget_add_detection_layers(make_napari_viewer, capsys):
 	"""Test Ajout des calques de détection."""
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget._add_detection_layers(np.zeros((2, 0)))  # Ajout avec un tableau vide.
-	my_widget._add_detection_layers(POINTS)			   # Ajout avec un tableau normal.
-	my_widget._add_detection_layers(POINTS)			   # Ajout alors que les calques existent.
+	# Ajout avec un tableau vide et rien en passé et future.
+	preview = {"Past": None, "Present": np.zeros((2, 0)), "Future": None}
+	my_widget._add_detection_layers(preview)
+
+	# Ajout avec des tableaux normaux.
+	preview = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
+	my_widget._add_detection_layers(preview)
+
+	# Ajout avec des calques existants et un future vide.
+	preview = {"Past": POINTS, "Present": POINTS, "Future": None}
+	my_widget._add_detection_layers(preview)
 	assert True
 
 

@@ -146,42 +146,52 @@ class PALMTracerWidget(QWidget):
 			print_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
-	def _add_detection_layers(self, points: np.ndarray):
+	def _add_detection_layers(self, points_dict: dict):
 		"""
-		Ajoute deux calques à Napari :
-		- Un calque de formes avec des carrés verts pour les ROIs
-		- Un calque de points avec des points rouges pour les détections
+		Ajoute des calques à Napari pour les localisations dans le passé, le présent et le futur.
 
-		:param points: Numpy array de y et x (dans ce sens)
+		:param points_dict: Dictionnaire avec clés 'past', 'present', 'future' et valeurs numpy arrays (y, x)
 		"""
-		if points.size == 0:  # Pas de points, pas de calques à ajouter
-			print_warning("Aucun point détecté, les calques ne seront pas créés.")
-			return
+		state_args = {
+				"Past":    {"border": 0.2, "edge": 0.2, "color": "cyan", "face": "transparent"},
+				"Present": {"border": 0.5, "edge": 0.5, "color": "lime", "face": "lime"},
+				"Future":  {"border": 0.2, "edge": 0.2, "color": "orange", "face": "transparent"}
+				}
+		for state, points in points_dict.items():
+			if points is None or points.size == 0:
+				if f"Points {state}" in self.viewer.layers: self.viewer.layers.remove(f"Points {state}")
+				if f"ROI {state}" in self.viewer.layers: self.viewer.layers.remove(f"ROI {state}")
+				continue
+			args=state_args[state]
+			# Points
+			l_name = f"Points {state}"
+			if l_name in self.viewer.layers: self.viewer.layers[l_name].data = points
+			else: self.viewer.add_points(points, size=1, border_color=args["color"], face_color=args["face"], border_width=args["border"], name=l_name)
 
-		# Création des points rouges
-		if "Points" in self.viewer.layers: self.viewer.layers["Points"].data = points
-		else: self.viewer.add_points(points, size=1, face_color="red", name="Points")
-
-		# Création des ROIs (carrés verts)
-		roi_size = self.pt.settings.localization["ROI Size"].get_value()
-		half_size = roi_size / 2
-		rois = []
-		for y, x in points:
-			rois.append([[y - half_size, x - half_size], [y - half_size, x + half_size],  # Haut gauche, droit
-						 [y + half_size, x + half_size], [y + half_size, x - half_size]])  # Bas droit, gauche
-
-		if "ROI" in self.viewer.layers: self.viewer.layers["ROI"].data = rois
-		else: self.viewer.add_shapes(rois, shape_type="polygon", edge_color="green", edge_width=0.5, face_color="transparent", name="ROI")
+			# ROIs (carrés) seulement pour le present
+			if state!="Present": continue
+			roi_size = self.pt.settings.localization["ROI Size"].get_value()
+			half_size = roi_size / 2
+			rois = [[[y - half_size, x - half_size], [y + half_size, x + half_size]] for y, x in points]  # Bas droit, gauche
+			l_name = f"ROI {state}"
+			if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rois
+			else: self.viewer.add_shapes(rois, shape_type="rectangle", edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 
 	##################################################
-	def _get_actual_image(self) -> Optional[np.ndarray]:
+	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
+		"""
+		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres
+		:param time: différence de temps entre l'image actuellement affichée et celle désirée.
+		:return: l'image désirée (actuellement affichée si time = 0).
+		"""
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]			  # Récupération du layer Raw
-		plane_idx = self.viewer.dims.current_step[0]  # Récupération de l'index du plan actuellement affiché
-		plane = layer.data[plane_idx]				  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.uint16)	  # Renvoie sous le format numpy
+		layer = self.viewer.layers["Raw"]					 # Récupération du layer Raw
+		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
+		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
+		plane = layer.data[plane_idx]						 # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)			 # Renvoie sous le format numpy
 
 	##################################################
 	def _on_plane_change(self, event):
@@ -191,20 +201,28 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		image = self._get_actual_image()
-		if image is None: return
+		present = self._get_actual_image()
+		if present is None: return
+		past = self._get_actual_image(-1)
+		future = self._get_actual_image(1)
 		s = self.pt.settings.localization.get_settings()
-		localizations = self.pt.palm_cpu.run(image, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
-											 s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
-		self._add_detection_layers(localizations[["Y", "X"]].to_numpy())
-		print(f"Preview des {len(localizations)} points détectés.")
+		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
+		locs = {
+				"Past":    None if past is None else self.pt.palm_cpu.run(past, t, w, gm, gs, gt, r)[["Y", "X"]].to_numpy(),
+				"Present": self.pt.palm_cpu.run(present, t, w, gm, gs, gt, r)[["Y", "X"]].to_numpy(),
+				"Future":  None if future is None else self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r)[["Y", "X"]].to_numpy(),
+				}
+		self._add_detection_layers(locs)
+		l_past, l_present, l_future = map(len, (locs["Past"], locs["Present"], locs["Future"]))
+		print(f"Preview des {l_past+ l_present+ l_future} points détectés "
+			  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
 
 	##################################################
 	def _auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = self.pt.palm_cpu.auto_threshold(image)				  # Calcul du seuil automatique
+		threshold = self.pt.palm_cpu.auto_threshold(image)				 # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
@@ -215,21 +233,21 @@ class PALMTracerWidget(QWidget):
 			print_warning("Aucun fichier en preview.")
 			return
 		self.pt.process()
-		#if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
+# if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
 
-	##################################################
-	# def _show_high_res_image(self, image: np.ndarray):
-	# 	"""
-	# 	Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
-	#
-	# 	:param image: image à affiches
-	# 	"""
-	# 	# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
-	# 	if not hasattr(self, "high_res_window") or self.high_res_window is None: self.high_res_window = HighResViewer(image)
-	# 	else: self.high_res_window.load_image(image)
-	# 	if self.high_res_window:		   # pragma: no cover (toujours vrai)
-	# 		self.high_res_window.show()	   # Affiche la fenêtre
-	# 		self.high_res_window.raise_()  # Met en avant
+##################################################
+# def _show_high_res_image(self, image: np.ndarray):
+# 	"""
+# 	Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
+#
+# 	:param image: image à affiches
+# 	"""
+# 	# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
+# 	if not hasattr(self, "high_res_window") or self.high_res_window is None: self.high_res_window = HighResViewer(image)
+# 	else: self.high_res_window.load_image(image)
+# 	if self.high_res_window:		   # pragma: no cover (toujours vrai)
+# 		self.high_res_window.show()	   # Affiche la fenêtre
+# 		self.high_res_window.raise_()  # Met en avant
 
 # ==================================================
 # endregion Callback
