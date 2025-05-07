@@ -40,7 +40,6 @@ class CheckBox(BaseSettingType):
 		self.value = value
 		if value: self.box.setCheckState(Qt.CheckState.Checked)
 		else:     self.box.setCheckState(Qt.CheckState.Unchecked)
-		self.emit(value)
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:

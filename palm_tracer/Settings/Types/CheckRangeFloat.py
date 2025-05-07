@@ -56,7 +56,6 @@ class CheckRangeFloat(BaseSettingType):
 	def set_value(self, value: list[float]):
 		self.value = value
 		for i in range(2): self.box[i].setValue(value[i])
-		self.emit(value)
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:

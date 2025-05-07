@@ -39,7 +39,6 @@ class BrowseFile(BaseSettingType):
 	def set_value(self, value: str):
 		self.value = value
 		self.box.setText(value)
-		self.emit(value)
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:

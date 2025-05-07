@@ -12,7 +12,7 @@ from typing import cast, Optional
 import napari
 import numpy as np
 from napari.layers import Shapes
-from qtpy.QtCore import Qt, QTimer
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
@@ -42,10 +42,6 @@ class PALMTracerWidget(QWidget):
 		self.last_file = ""
 		self.pt = PALMTracer()
 		self.high_res_window: Optional[HighResViewer] = None
-		self._preview_running = False
-		self._preview_timer = QTimer()
-		self._preview_timer.setSingleShot(True)
-		self._preview_timer.timeout.connect(self._preview)
 		self.__init_ui()
 
 	##################################################
@@ -80,13 +76,17 @@ class PALMTracerWidget(QWidget):
 		if setting and isinstance(setting, FileList):  # pragma: no cover (toujours vrai)
 			setting.connect(self._reset_layer)
 
-		# Mise à jour de la preview
-		self.pt.settings.localization.connect(self._parameter_changed)
-		self.pt.settings.filtering.connect(self._parameter_changed)
-		self.viewer.dims.events.current_step.connect(self._parameter_changed)
+		# Calcul de la preview
+		setting = self.pt.settings.localization["Preview"]
+		if setting and isinstance(setting, Button):  # pragma: no cover (toujours vrai)
+			setting.connect(self._preview)
 
 		# Calcul automatique du Seuil
-		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)
+		setting = self.pt.settings.localization["Auto Threshold"]
+		if setting and isinstance(setting, Button):  # pragma: no cover (toujours vrai)
+			setting.connect(self._auto_threshold)
+
+		self.viewer.dims.events.current_step.connect(self._on_plane_change)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
@@ -113,13 +113,6 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 	# region Callback
 	# ==================================================
-	##################################################
-	def _parameter_changed(self):
-		"""
-		Ajoute un timer avant la mise à jour de la preview pour éviter le spam.
-		"""
-		self._preview_timer.start(100)  # Reset à chaque modif
-
 	##################################################
 	def _load_setting(self):  # pragma: no cover
 		"""Action lors d'un clic sur le bouton Load setting."""
@@ -220,30 +213,29 @@ class PALMTracerWidget(QWidget):
 		return np.asarray(plane, dtype=np.uint16)			 # Renvoie sous le format numpy
 
 	##################################################
+	def _on_plane_change(self, event):
+		# Relancer la prévisualisation si elle à déjà été lancé
+		if "Points Present" in self.viewer.layers: self._preview()
+
+	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		if self._preview_running: return # Système permettant d'éviter les appels multiples.
-		self._preview_running = True
-		try:
-			if not self.pt.settings.localization["Preview"].get_value(): return  # Vérifie si on à la preview d'activée
-			present = self._get_actual_image()
-			if present is None: return
-			past = self._get_actual_image(-1)
-			future = self._get_actual_image(1)
-			s = self.pt.settings.localization.get_settings()
-			t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
-			locs = {
-					"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm_cpu.run(past, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
-					"Present": self.pt.filter_localizations(self.pt.palm_cpu.run(present, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
-					"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
-					}
+		present = self._get_actual_image()
+		if present is None: return
+		past = self._get_actual_image(-1)
+		future = self._get_actual_image(1)
+		s = self.pt.settings.localization.get_settings()
+		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
+		locs = {
+				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm_cpu.run(past, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Present": self.pt.filter_localizations(self.pt.palm_cpu.run(present, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
+				}
 
-			self._add_detection_layers(locs)
-			l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0, (locs.get("Past"), locs.get("Present"), locs.get("Future")))
-			print(f"Preview des {l_past+ l_present+ l_future} points détectés "
-				  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
-		finally:
-			self._preview_running = False
+		self._add_detection_layers(locs)
+		l_past, l_present, l_future = map(len, (locs["Past"], locs["Present"], locs["Future"]))
+		print(f"Preview des {l_past+ l_present+ l_future} points détectés "
+			  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
 
 	##################################################
 	def _auto_threshold(self):
