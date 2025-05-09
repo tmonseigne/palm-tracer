@@ -11,12 +11,11 @@ from typing import cast, Optional
 
 import napari
 import numpy as np
-from napari.layers import Shapes
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Settings.Types import Button, FileList
+from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 from palm_tracer.UI.HighResViewer import HighResViewer
 
@@ -77,16 +76,11 @@ class PALMTracerWidget(QWidget):
 			setting.connect(self._reset_layer)
 
 		# Calcul de la preview
-		setting = self.pt.settings.localization["Preview"]
-		if setting and isinstance(setting, Button):  # pragma: no cover (toujours vrai)
-			setting.connect(self._preview)
+		self.pt.settings.localization["Preview"].connect(self._preview)
+		self.viewer.dims.events.current_step.connect(self._on_plane_change)
 
 		# Calcul automatique du Seuil
-		setting = self.pt.settings.localization["Auto Threshold"]
-		if setting and isinstance(setting, Button):  # pragma: no cover (toujours vrai)
-			setting.connect(self._auto_threshold)
-
-		self.viewer.dims.events.current_step.connect(self._on_plane_change)
+		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
@@ -164,15 +158,21 @@ class PALMTracerWidget(QWidget):
 				if f"ROI {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
 				continue
 
-			args=state_args[state]
+			args = state_args[state]
 
 			# Points
 			l_name = f"Points {state}"
-			if l_name in self.viewer.layers: self.viewer.layers[l_name].data = points
+			if l_name in self.viewer.layers:
+				layer = self.viewer.layers[l_name]
+				layer.data = points  # Remplace tous les points
+				layer.size = 1		 # Remets les différents arguments en cas de nombre de points différents
+				layer.border_color = args["color"]
+				layer.border_width = args["border"]
+				layer.face_color = args["face"]
 			else: self.viewer.add_points(points, size=1, border_color=args["color"], face_color=args["face"], border_width=args["border"], name=l_name)
 
 			# ROIs seulement pour le present
-			if state!="Present": continue
+			if state != "Present": continue
 			roi_size = self.pt.settings.localization["ROI Size"].get_value()
 			roi_shape = self.pt.settings.localization["ROI Shape"].get_value()
 			half_size = roi_size / 2
@@ -188,11 +188,11 @@ class PALMTracerWidget(QWidget):
 			# Si le calque existe mais n’est pas du bon type, on le supprime
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
-				if not isinstance(layer, Shapes) or layer.shape_type[0] != s_type:
-					self.viewer.layers.remove(layer)
-					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
-				else:
-					layer.data = rois
+				layer.data = rois		   # Remplace toutes les formes
+				layer.shape_type = s_type  # Remets les différents arguments en cas de nombre de ROI différents
+				layer.edge_color = args["color"]
+				layer.edge_width = args["edge"]
+				layer.face_color = "transparent"
 			else:
 				self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 
@@ -233,8 +233,8 @@ class PALMTracerWidget(QWidget):
 				}
 
 		self._add_detection_layers(locs)
-		l_past, l_present, l_future = map(len, (locs["Past"], locs["Present"], locs["Future"]))
-		print(f"Preview des {l_past+ l_present+ l_future} points détectés "
+		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0, (locs.get("Past"), locs.get("Present"), locs.get("Future")))
+		print(f"Preview des {l_past + l_present + l_future} points détectés "
 			  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
 
 	##################################################
