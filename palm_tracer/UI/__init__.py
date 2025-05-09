@@ -12,7 +12,6 @@ Ce sous-package contient les classes d'interface utilisateur Napari (QT).
 
 """
 
-from .HighResViewer import HighResViewer
 from .PALMTracerWidget import PALMTracerWidget
 
-__all__ = ["HighResViewer", "PALMTracerWidget"]
+__all__ = ["PALMTracerWidget"]

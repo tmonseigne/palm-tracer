@@ -5,19 +5,22 @@ Ce module définit la classe :class:`.PALMTracerWidget`, qui crée et gère l'in
 Elle contient des sections de paramètres organisées sous forme de layout,
 permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
 
+.. todo::
+    Pour le moment, la partie permettant de mettre en attente et annuler des preview ne fonctionne pas car Napari freeze le temps de la mise à jour.
+    l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
 """
 
 from typing import cast, Optional
 
 import napari
 import numpy as np
+from napari import Viewer
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
-from palm_tracer.UI.HighResViewer import HighResViewer
 
 
 ##################################################
@@ -40,7 +43,8 @@ class PALMTracerWidget(QWidget):
 		self.viewer = viewer
 		self.last_file = ""
 		self.pt = PALMTracer()
-		self.high_res_window: Optional[HighResViewer] = None
+		self.hr_viewer: Optional[Viewer] = None
+		self._preview_running = False
 		self.__init_ui()
 
 	##################################################
@@ -77,7 +81,7 @@ class PALMTracerWidget(QWidget):
 
 		# Calcul de la preview
 		self.pt.settings.localization["Preview"].connect(self._preview)
-		self.viewer.dims.events.current_step.connect(self._on_plane_change)
+		self.viewer.dims.events.current_step.connect(self._on_preview_change)
 
 		# Calcul automatique du Seuil
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)
@@ -170,6 +174,7 @@ class PALMTracerWidget(QWidget):
 				layer.border_width = args["border"]
 				layer.face_color = args["face"]
 			else: self.viewer.add_points(points, size=1, border_color=args["color"], face_color=args["face"], border_width=args["border"], name=l_name)
+			self.viewer.layers[l_name].editable = False
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
@@ -195,6 +200,7 @@ class PALMTracerWidget(QWidget):
 				layer.face_color = "transparent"
 			else:
 				self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
+			self.viewer.layers[l_name].editable = False
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
@@ -213,17 +219,22 @@ class PALMTracerWidget(QWidget):
 		return np.asarray(plane, dtype=np.uint16)			 # Renvoie sous le format numpy
 
 	##################################################
-	def _on_plane_change(self, event):
-		# Relancer la prévisualisation si elle à déjà été lancé
-		if "Points Present" in self.viewer.layers: self._preview()
+	def _on_preview_change(self, event):
+		# self._wait_preview = True									# Marque qu'une mise à jour est requise
+		# if self._preview_running: return							# Relancer la prévisualisation si elle à déjà été lancé
+		if "Points Present" in self.viewer.layers: self._preview()  # Sinon, on lance immédiatement
 
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		present = self._get_actual_image()
-		if present is None: return
-		past = self._get_actual_image(-1)
-		future = self._get_actual_image(1)
+		# self._preview_running = True
+		# self._wait_preview = False  # On réinitialise le drapeau
+
+		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
+		if present is None:
+			# self._preview_running = False
+			return
+
 		s = self.pt.settings.localization.get_settings()
 		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
 		locs = {
@@ -232,10 +243,18 @@ class PALMTracerWidget(QWidget):
 				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
 				}
 
+		# Vérifie si la preview est toujours valide
+		# if self._wait_preview:
+		# 	self._preview() # Relance si un autre changement a été demandé entre-temps
+		# 	return
+
 		self._add_detection_layers(locs)
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0, (locs.get("Past"), locs.get("Present"), locs.get("Future")))
 		print(f"Preview des {l_past + l_present + l_future} points détectés "
 			  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
+
+		# if self._wait_preview: self._preview()		# Si un autre changement a été demandé entre-temps
+		# self._preview_running = False
 
 	##################################################
 	def _auto_threshold(self):
@@ -253,21 +272,29 @@ class PALMTracerWidget(QWidget):
 			print_warning("Aucun fichier en preview.")
 			return
 		self.pt.process()
-# if self.pt.visualization is not None: self._show_high_res_image(self.pt.visualization)
+		self._show_high_res_image()
 
-##################################################
-# def _show_high_res_image(self, image: np.ndarray):
-# 	"""
-# 	Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
-#
-# 	:param image: image à affiches
-# 	"""
-# 	# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
-# 	if not hasattr(self, "high_res_window") or self.high_res_window is None: self.high_res_window = HighResViewer(image)
-# 	else: self.high_res_window.load_image(image)
-# 	if self.high_res_window:		   # pragma: no cover (toujours vrai)
-# 		self.high_res_window.show()	   # Affiche la fenêtre
-# 		self.high_res_window.raise_()  # Met en avant
+	##################################################
+	def _show_high_res_image(self):   # pragma: no cover le systeme pytest à du mal avec les ouvertures en série de fenêtres
+		"""
+		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
+		"""
+		if self.pt.visualization is None: return
+
+		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
+		if not hasattr(self, "high_res_window") or self.hr_viewer is None:
+			self.hr_viewer = Viewer()
+			# Modifier le titre de la fenêtre
+			self.hr_viewer.window._qt_window.setWindowTitle(f"High Resolution Visualization")
+			# Cacher la barre de menu
+			self.hr_viewer.window._qt_window.menuBar().setVisible(False)
+
+		self.hr_viewer.layers.clear()
+		self.hr_viewer.add_image(self.pt.visualization, name="Visualization", visible=False)
+		if self.pt.localizations is None: return
+		points = self.pt.localizations[["Y", "X"]].to_numpy() * self.pt.settings.visualization_hr.get_settings()["Ratio"]
+		layer = self.hr_viewer.add_points(points, size=1, face_color="lime", name="Points")
+		layer.editable = False
 
 # ==================================================
 # endregion Callback
