@@ -1,16 +1,12 @@
 # palm-tracer
 
-[![codecov](https://codecov.io/gh/tmonseigne/palm-tracer/graph/badge.svg?token=5oDCSBI5sO)](https://codecov.io/gh/tmonseigne/palm-tracer)
-[![Documentation Status](https://img.shields.io/badge/Documentation-Online-brightgreen)](https://tmonseigne.github.io/palm-tracer/)
-
-<!-- Badges allowed on public repositories
 ![GitHub License](https://img.shields.io/github/license/tmonseigne/palm-tracer)
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/tmonseigne/palm-tracer/test_and_deploy.yml)](https://github.com/tmonseigne/palm-tracer/actions)
 ![GitHub top language](https://img.shields.io/github/languages/top/tmonseigne/palm-tracer)
--->
+[![Documentation Status](https://img.shields.io/badge/Documentation-Online-brightgreen)](https://tmonseigne.github.io/palm-tracer/)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/tmonseigne/palm-tracer/test_and_deploy.yml)](https://github.com/tmonseigne/palm-tracer/actions)
+[![codecov](https://codecov.io/gh/tmonseigne/palm-tracer/graph/badge.svg?token=5oDCSBI5sO)](https://codecov.io/gh/tmonseigne/palm-tracer)
 
 <!-- PyPi and Napari Badges
-[![License GNU GPL v3.0](https://img.shields.io/pypi/l/palm-tracer.svg?color=green)](https://github.com/tmonseigne/palm-tracer/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/palm-tracer.svg?color=green)](https://pypi.org/project/palm-tracer)
 [![Python Version](https://img.shields.io/pypi/pyversions/palm-tracer.svg?color=green)](https://python.org)
 [![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/palm-tracer)](https://napari-hub.org/plugins/palm-tracer)

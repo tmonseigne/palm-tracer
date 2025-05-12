@@ -8,3 +8,15 @@ Diagramme de classe PALM Tracer
    :alt: Diagramme de classe PALM Tracer
    :align: center
    :caption: Diagramme de classe PALM Tracer
+
+
+.. graphviz:: _static/graph/classes_groups.dot
+   :alt: Diagramme de classe PALM Tracer
+   :align: center
+   :caption: Diagramme de classe PALM Tracer Settings Groups
+
+
+.. graphviz:: _static/graph/classes_types.dot
+   :alt: Diagramme de classe PALM Tracer
+   :align: center
+   :caption: Diagramme de classe PALM Tracer Settings Types
