@@ -81,7 +81,7 @@ class PALMTracerWidget(QWidget):
 			setting.connect(self._reset_layer)
 
 		# Calcul de la preview
-		self.pt.settings.localization["Preview"].connect(self._preview)
+		self.pt.settings.localization["Preview"].connect(lambda: self._thread_process(self._preview, self._add_detection_layers))
 		self.viewer.dims.events.current_step.connect(self._on_preview_change)
 
 		# Calcul automatique du Seuil
@@ -193,11 +193,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _add_detection_layers(self):
-		"""
-		Ajoute des calques à Napari pour les localisations dans le passé, le présent et le futur.
-
-		:param points_dict: Dictionnaire avec clés 'past', 'present', 'future' et valeurs numpy arrays (y, x)
-		"""
+		""" Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant. """
 		state_args = {
 				"Past":    {"border": 0.2, "edge": 0.2, "color": "cyan", "face": "transparent"},
 				"Present": {"border": 0.4, "edge": 0.4, "color": "lime", "face": "lime"},
@@ -267,9 +263,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _on_preview_change(self, event):
-		# self._wait_preview = True									# Marque qu'une mise à jour est requise
-		# if self._preview_running: return							# Relancer la prévisualisation si elle à déjà été lancé
-		if "Points Present" in self.viewer.layers: self._preview()  # Sinon, on lance immédiatement
+		if "Points Present" in self.viewer.layers: self._thread_process(self._preview, self._add_detection_layers)
 
 	##################################################
 	def _preview(self):
