@@ -20,6 +20,7 @@ class CheckRangeInt(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 			- **default ([int, int])** : Valeurs par défaut du paramètre.
 			- **limit ([int, int])** : Valeurs minimale et maximale du paramètre.
 			- **value ([int, int])** : Valeurs minimale et maximale actuelles du paramètre.
@@ -27,11 +28,17 @@ class CheckRangeInt(BaseSettingType):
 	"""
 
 	default: list[int] = field(default_factory=lambda: [0, 100])
+	"""Valeur par défaut du paramètre."""
 	limit: list[int] = field(default_factory=lambda: [0, 100])
+	"""Valeur limite du paramètre."""
 	value: list[int] = field(init=False, default_factory=lambda: [0, 100])
+	"""Valeur actuelle du paramètre."""
 	_active: bool = field(init=False, default=False)
+	"""Indicateur d'activation du paramètre."""
 	_checkbox: QCheckBox = field(init=False)
+	"""CheckBox pour activer le paramètre."""
 	box: list[QSpinBox] = field(init=False, default_factory=lambda: [QSpinBox(), QSpinBox()])
+	"""Objet QT permettant de manipuler le paramètre."""
 
 	##################################################
 	@property

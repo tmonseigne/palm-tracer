@@ -20,6 +20,7 @@ class SpinInt(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 			- **default (int)** : Valeur par défaut du paramètre.
 			- **min (int)** : Valeur minimale du paramètre.
 			- **max (int)** : Valeur maximale du paramètre.
@@ -29,11 +30,17 @@ class SpinInt(BaseSettingType):
 	"""
 
 	default: int = 0
+	"""Valeur par défaut du paramètre."""
 	min: int = 0
+	"""Valeur minimale du paramètre."""
 	max: int = 100
+	"""Valeur maximale du paramètre."""
 	step: int = 1
+	"""Pas à chaque appuie sur une des flèches du paramètre."""
 	value: int = field(init=False, default=0)
+	"""Valeur actuelle du paramètre."""
 	box: QSpinBox = field(init=False)
+	"""Objet QT permettant de manipuler le paramètre."""
 
 	##################################################
 	def get_value(self) -> int:

@@ -20,7 +20,7 @@ charset="utf-8"
 "palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#e6ace6"];
 "palm_tracer.Settings.Types.Combo.Combo" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#e6ace6"];
 "palm_tracer.Settings.Types.FileList.FileList" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#e6ace6"];
-"palm_tracer.Settings.Types.SignalWrapper.SignalWrapper" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="__signal", style="filled", fillcolor="#e6ace6"];
+"palm_tracer.Settings.Types.SignalWrapper.SignalWrapper" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_signal", style="filled", fillcolor="#e6ace6"];
 "palm_tracer.Settings.Types.SpinFloat.SpinFloat" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#e6ace6"];
 "palm_tracer.Settings.Types.SpinInt.SpinInt" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#e6ace6"];
 }

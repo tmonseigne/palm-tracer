@@ -23,6 +23,7 @@ extensions = [
 		"sphinx.ext.autodoc",
 		"sphinx.ext.autosummary",
 		"sphinx.ext.autosectionlabel",
+		"sphinx.ext.intersphinx",
 		"sphinx.ext.napoleon",
 		"sphinx.ext.todo",
 		"sphinx.ext.viewcode",
@@ -36,6 +37,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable", None),
 	"pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "napari": ("https://napari.org/stable", None),
+	"matplotlib": ("https://matplotlib.org/stable/", None),
 }
 
 templates_path = ["_templates"]

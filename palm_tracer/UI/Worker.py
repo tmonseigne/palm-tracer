@@ -17,21 +17,21 @@ class Worker(QObject):
 
 	finished = Signal()
 	"""Signal émis à la fin du traitement (qu’il ait réussi ou échoué)"""
-	result_ready = Signal(object)
+	result = Signal(object)
 	"""Signal émis lorsque la fonction renvoie un résultat (peut être None)"""
-	error_occurred = Signal(str)
+	error = Signal(str)
 	"""Signal émis en cas d’exception pendant l’exécution"""
 
 	##################################################
-	def __init__(self, fn: Callable[[], object], parent: Optional[QObject] = None):
+	def __init__(self, function: Callable[[], object], parent: Optional[QObject] = None):
 		"""
 		Initialisation de la classe
 
-		:param fn: Fonction à exécuter dans le thread secondaire. Ne doit pas interagir avec des objets Qt.
+		:param function: Fonction à exécuter dans le thread secondaire. Ne doit pas interagir avec des objets Qt.
 		:param parent: Parent Qt, par défaut None.
 		"""
 		super().__init__(parent)
-		self.fn = fn
+		self.function = function
 
 	##################################################
 	@Slot()
@@ -41,10 +41,6 @@ class Worker(QObject):
 
         Exécute la fonction `fn`, émet les signaux appropriés en cas de succès ou d'erreur, et signale systématiquement la fin via `finished`.
         """
-		try:
-			result = self.fn()
-			self.result_ready.emit(result)
-		except Exception as e:
-			self.error_occurred.emit(str(e))
-		finally:
-			self.finished.emit()
+		try: self.result.emit(self.function())
+		except Exception as e: self.error.emit(str(e))
+		finally: self.finished.emit()

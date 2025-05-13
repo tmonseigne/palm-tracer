@@ -49,7 +49,7 @@ def add_extension(filename: str, extension: str) -> str:
 	:param extension: Extension finale du fichier
 	"""
 	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
-	if not filename.endswith(extension): filename += extension  # Si le fichier n'a pas déjà l'extension, on l'ajoute
+	if not filename.endswith(extension): filename += extension	   # Si le fichier n'a pas déjà l'extension, on l'ajoute
 	return filename
 
 
@@ -103,7 +103,7 @@ def get_last_file(path: str, name: str) -> str:
 
 ##################################################
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
-	"""Récupère la DLL si elle existe."""
+	"""Charge une DLL, si elle existe."""
 	dll_filename = DLL_PATH / f"{name}_PALM.dll"
 	try:
 		return ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))

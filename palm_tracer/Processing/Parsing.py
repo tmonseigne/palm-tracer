@@ -55,7 +55,7 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remain
 
 
 ##################################################
-def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool = False, gpu=False) -> pd.DataFrame:
+def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool = False) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
@@ -68,14 +68,12 @@ def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool =
 	:param plane: Numéro du plan dans la pile
 	:param gauss_fit: Mode d'ajustement Gaussien.
 	:param sort: Tri des points par Y puis X (sens de lecture Gauche à droite du haut vers le bas).
-	:param gpu: True si la DLL GPU est utilisé, False sinon
 	:return: Dataframe filtré
 	"""
 	# Manipulation du tableau 1D.
 	size = (data.size // N_SEGMENT) * N_SEGMENT									  # Récupération de la taille correcte si non multiple de N_SEGMENT
 	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENT), columns=SEGMENT_COLS)  # Transformation en Dataframe
 	res = res[res["X"] > 0]														  # Filtrage des lignes remplies de 0 et -1
-	if gpu: res["X"], res["Y"] = res["Y"].copy(), res["X"].copy()				  # Échange des contenus des colonnes "X" et "Y"
 
 	if sort: res = res.sort_values(by=["Y", "X"], ascending=[True, True])  # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
 	res = res.reset_index(drop=True)									   # Remise à 0 des index

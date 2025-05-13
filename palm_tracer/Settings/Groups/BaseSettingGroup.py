@@ -24,7 +24,7 @@ class BaseSettingGroup:
 			- **label (str)** : Nom du Groupe
 			- **setting_list (dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]()** : Liste des settings du groupe.
 			- **_settings (dict[str, Union[BaseSettingGroup, BaseSettingType]])** : Liste des visualisations de settings (inputs) du groupe.
-			- **_layout (QFormLayout)** : Layout principal du groupe.
+			- **_widget (QWidget)** : Widget principal du groupe.
 			- **_title (QLabel)** : Nom du Groupe (objet QT).
 			- **_checkbox (QCheckBox)** : Case à cocher pour activer ou non le groupe.
 			- **_header (QFormLayout)** : Titre du groupe.
@@ -32,15 +32,25 @@ class BaseSettingGroup:
 	"""
 
 	_active: bool = field(init=False, default=False)
+	"""État du groupe (activé ou non)"""
 	label: str = field(init=False, default="Base Setting Group")
+	"""Nom du Groupe."""
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
+	"""Liste des settings du groupe."""
 	_inner_groups = list[str]()
+	"""Liste des sous-groupes de settings du groupe."""
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
+	"""Liste des visualisations de settings (inputs) du groupe."""
 	_widget: QWidget = field(init=False)
+	"""Widget principal du groupe."""
 	_title: QLabel = field(init=False)
+	"""Nom du Groupe (objet QT)."""
 	_checkbox: QCheckBox = field(init=False)
+	"""Case à cocher pour activer ou non le groupe."""
 	_header: QFormLayout = field(init=False)
+	"""Titre du groupe."""
 	_body: QWidget = field(init=False)
+	"""Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible)"""
 
 	# ==================================================
 	# region Initialization
@@ -162,10 +172,14 @@ class BaseSettingGroup:
 		return iter(self._settings)
 
 	##################################################
-	def get_value(self): return
+	def get_value(self):
+		"""Fonction vide necessaire aux parcours automatiques."""
+		return
 
 	##################################################
-	def set_value(self, value: Any): return
+	def set_value(self, value: Any):
+		"""Fonction vide necessaire aux parcours automatiques."""
+		return
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -175,10 +189,14 @@ class BaseSettingGroup:
 	# region Hide and Seek
 	# ==================================================
 	##################################################
-	def hide(self): self._widget.hide()
+	def hide(self):
+		"""Cache le widget."""
+		self._widget.hide()
 
 	##################################################
-	def show(self): self._widget.show()
+	def show(self):
+		"""Affiche le widget."""
+		self._widget.show()
 
 	##################################################
 	def toggle_active(self, state: int):

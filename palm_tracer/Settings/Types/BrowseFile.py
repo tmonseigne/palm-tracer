@@ -21,14 +21,18 @@ class BrowseFile(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 			- **default (str)** : Valeur par défaut du paramètre.
 			- **value (str)** : Valeur actuelle du paramètre.
 			- **box (QLineEdit)** : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: str = ""
+	"""Valeur par défaut du paramètre."""
 	value: str = field(init=False, default="")
+	"""Valeur actuelle du paramètre."""
 	box: QLineEdit = field(init=False)  # Boîte de texte pour afficher le chemin
+	"""Objet QT permettant de manipuler le paramètre."""
 
 	##################################################
 	def get_value(self) -> str:

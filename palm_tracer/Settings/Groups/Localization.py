@@ -50,6 +50,7 @@ class Localization(BaseSettingGroup):
 
 	##################################################
 	def toggle_fit_mode(self, mode):
+		"""Change le mode d'ajustement."""
 		if mode == 0:
 			self._settings["Gaussian Fit"].show()
 			self._settings["Spline Fit"].hide()

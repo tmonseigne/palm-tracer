@@ -50,6 +50,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def __init_ui(self):
+		""" Initialisation de l'interface utilisateur du widget. """
 		# Base
 		self.setLayout(QVBoxLayout())
 		self.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -133,16 +134,16 @@ class PALMTracerWidget(QWidget):
 		QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
 		QApplication.processEvents()  # met à jour l'interface
 
-		self.thread = QThread()
+		self.thread = QThread(self)
 		self.worker = Worker(compute_func, self)
 		self.worker.moveToThread(self.thread)
 		self.thread.started.connect(self.worker.run)
 		self.worker.finished.connect(self.thread.quit)
 		self.worker.finished.connect(self.worker.deleteLater)
 		self.thread.finished.connect(self.thread.deleteLater)
-		if post_func: self.worker.result_ready.connect(post_func)
+		if post_func: self.worker.result.connect(post_func)
 		self.worker.finished.connect(lambda: self._process_done())
-		self.worker.error_occurred.connect(lambda msg: print_error(f"Erreur dans le thread : {msg}"))
+		self.worker.error.connect(lambda msg: print_error(f"Erreur dans le thread : {msg}"))
 		self.thread.start()  # Lancer le traitement
 
 	##################################################
@@ -264,6 +265,10 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _on_preview_change(self, event):
+		"""
+		Met à jour la preview au changement du plan affiché dans Napari.
+		:param event:
+		"""
 		if "Points Present" in self.viewer.layers: self._thread_process(self._preview, self._add_detection_layers)
 
 	##################################################
@@ -277,9 +282,9 @@ class PALMTracerWidget(QWidget):
 		s = self.pt.settings.localization.get_settings()
 		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
 		self._preview_locs = {
-				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm_cpu.run(past, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
-				"Present": self.pt.filter_localizations(self.pt.palm_cpu.run(present, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
-				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
+				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm.run(past, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Present": self.pt.filter_localizations(self.pt.palm.run(present, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
 				}
 
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,
@@ -292,7 +297,7 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = self.pt.palm_cpu.auto_threshold(image)  # Calcul du seuil automatique
+		threshold = self.pt.palm.auto_threshold(image)  # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
@@ -318,6 +323,6 @@ class PALMTracerWidget(QWidget):
 		layer = self.viewer_hr.add_points(points, size=1, face_color="lime", name="Points")
 		layer.editable = False
 
-# ==================================================
-# endregion Callback
-# ==================================================
+	# ==================================================
+	# endregion Callback
+	# ==================================================

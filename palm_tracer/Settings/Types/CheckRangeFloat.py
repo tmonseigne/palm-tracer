@@ -20,6 +20,7 @@ class CheckRangeFloat(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 			- **default ([float, float])** : Valeurs par défaut du paramètre.
 			- **limit ([float, float])** : Valeurs minimale et maximale du paramètre.
 			- **value ([float, float])** : Valeurs minimale et maximale actuelles du paramètre.
@@ -27,12 +28,19 @@ class CheckRangeFloat(BaseSettingType):
 	"""
 
 	default: list[float] = field(default_factory=lambda: [-1, 1])
+	"""Valeur par défaut du paramètre."""
 	limit: list[float] = field(default_factory=lambda: [-1, 1])
+	"""Valeur limite du paramètre."""
 	value: list[float] = field(init=False, default_factory=lambda: [-1, 1])
+	"""Valeur actuelle du paramètre."""
 	precision: int = 2
+	"""Precision du paramètre."""
 	_active: bool = field(init=False, default=False)
+	"""Indicateur d'activation du paramètre."""
 	_checkbox: QCheckBox = field(init=False)
+	"""CheckBox pour activer le paramètre."""
 	box: list[QDoubleSpinBox] = field(init=False, default_factory=lambda: [QDoubleSpinBox(), QDoubleSpinBox()])
+	"""Objet QT permettant de manipuler le paramètre."""
 
 	##################################################
 	@property

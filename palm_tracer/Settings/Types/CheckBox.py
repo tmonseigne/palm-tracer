@@ -20,14 +20,18 @@ class CheckBox(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 			- **default (bool)** : Valeur par défaut du paramètre.
 			- **value (bool)** : Valeur actuelle du paramètre.
 			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: bool = False
+	"""Valeur par défaut du paramètre."""
 	value: bool = field(init=False, default=False)
+	"""Valeur actuelle du paramètre."""
 	box: QCheckBox = field(init=False, default_factory=QCheckBox)
+	"""Objet QT permettant de manipuler le paramètre."""
 
 	##################################################
 	def get_value(self) -> bool:

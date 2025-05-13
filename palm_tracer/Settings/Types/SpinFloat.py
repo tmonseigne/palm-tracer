@@ -20,6 +20,7 @@ class SpinFloat(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 			- **default (float)** : Valeur par défaut du paramètre.
 			- **min (float)** : Valeur minimale du paramètre.
 			- **max (float)** : Valeur maximale du paramètre.
@@ -29,12 +30,19 @@ class SpinFloat(BaseSettingType):
 			- **box (QDoubleSpinBox)** : Objet QT permettant de manipuler le paramètre.
 	"""
 	default: float = 0.0
+	"""Valeur par défaut du paramètre."""
 	min: float = 0.0
+	"""Valeur minimale du paramètre."""
 	max: float = 100.0
+	"""Valeur maximale du paramètre."""
 	step: float = 1.0
+	"""Pas à chaque appuie sur une des flèches du paramètre."""
 	precision: int = 2
+	"""Precision du paramètre."""
 	value: float = field(init=False, default=0.0)
+	"""Valeur actuelle du paramètre."""
 	box: QDoubleSpinBox = field(init=False)
+	"""Objet QT permettant de manipuler le paramètre."""
 
 	##################################################
 	def get_value(self) -> float:
