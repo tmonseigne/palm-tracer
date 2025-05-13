@@ -10,7 +10,7 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
     l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
 """
 from concurrent.futures import ThreadPoolExecutor
-from typing import cast, Optional
+from typing import Callable, cast, Optional
 
 import napari
 import numpy as np
@@ -91,7 +91,7 @@ class PALMTracerWidget(QWidget):
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
-		btn.clicked.connect(self._process)
+		btn.clicked.connect(lambda: self._process_start(self._process))
 		self.layout().addWidget(btn)
 
 	##################################################
@@ -114,6 +114,46 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 	# region Callback
 	# ==================================================
+	##################################################
+	def _process_start(self, function: Callable[[], None]):
+		"""
+		Démarre un traitement long dans un thread séparé et met à jour l'interface.
+
+		Cette méthode désactive l'interface utilisateur (UI) et change le curseur en "attente" pendant l'exécution de la fonction passée en paramètre.
+		Elle vérifie si un fichier est en cours de prévisualisation avant de lancer le traitement.
+		Le traitement est exécuté dans un thread séparé pour ne pas bloquer l'interface principale de l'application.
+
+		:param function: La fonction à exécuter dans un thread séparé. Elle ne doit pas prendre de paramètres et ne retourne rien.
+		"""
+		if self._processing: return
+		if self.last_file == "":
+			print_warning("Aucun fichier en preview.")
+			return
+		print(qtpy.QtCore.QTimer)
+		self._processing = True
+		self.layout().setEnabled(False)  # désactive l'interface
+		QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
+		QApplication.processEvents()  # met à jour l'interface
+		self.executor.submit(function)  # Lancer le traitement dans un thread
+
+	##################################################
+	def _process_done(self, function: Optional[Callable[[], None]] = None):
+		"""
+		Finalise un traitement en réactivant l'interface et met à jour l'affichage.
+
+		Cette méthode est appelée lorsque le traitement est terminé.
+		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
+		Elle doit être appelée depuis le thread principal (GUI).
+
+		:param function: La fonction à exécuter dans le thread principal, qui est généralement une mise à jour de l'interface utilisateur après le traitement.
+		                 Si aucune fonction n'est fournie, aucune mise à jour supplémentaire ne sera effectuée.
+		"""
+		if function: function()  # Doit être dans le thread GUI
+		self.layout().setEnabled(True)  # Réactive l'interface
+		QApplication.restoreOverrideCursor()  # Changement du curseur
+		QApplication.processEvents()  # met à jour l'interface
+		self._processing = False
+
 	##################################################
 	def _load_setting(self):  # pragma: no cover
 		"""Action lors d'un clic sur le bouton Load setting."""
@@ -275,30 +315,8 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _process(self):
-		"""Action lors d'un clic sur le bouton process"""
-		if self._processing: return
-		if self.last_file == "":
-			print_warning("Aucun fichier en preview.")
-			return
-		print(qtpy.QtCore.QTimer)
-		self._processing = True
-		self.layout().setEnabled(False)  # désactive l'interface
-		QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
-		QApplication.processEvents()  # met à jour l'interface
-		self.executor.submit(self._run_process)  # Lancer le traitement dans un thread
-
-	##################################################
-	def _run_process(self):
 		self.pt.process()  # Long traitement
-		self._on_process_done()
-
-	##################################################
-	def _on_process_done(self):
-		print("YOUHOU")
-		self._show_high_res_image()  # Doit être dans le thread GUI
-		QApplication.restoreOverrideCursor()
-		self.layout().setEnabled(True)
-		self._processing = False
+		self._process_done(self._show_high_res_image)
 
 	##################################################
 	def _show_high_res_image(self):  # pragma: no cover le systeme pytest à du mal avec les ouvertures en série de fenêtres
