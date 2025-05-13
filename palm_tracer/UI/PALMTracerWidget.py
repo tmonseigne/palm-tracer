@@ -9,19 +9,18 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
     Pour le moment, la partie permettant de mettre en attente et annuler des preview ne fonctionne pas car Napari freeze le temps de la mise à jour.
     l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
 """
-from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, cast, Optional
 
 import napari
 import numpy as np
-import qtpy
 from napari import Viewer
-from qtpy.QtCore import Qt
+from qtpy.QtCore import Qt, QThread
 from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
+from palm_tracer.UI.Worker import Worker
 
 
 ##################################################
@@ -42,11 +41,10 @@ class PALMTracerWidget(QWidget):
 		"""
 		super().__init__()
 		self.viewer = viewer
-		self.last_file = ""
+		self.viewer_hr: Optional[Viewer] = None
 		self.pt = PALMTracer()
-		self.hr_viewer: Optional[Viewer] = None
-		self._preview_running = False
-		self.executor = ThreadPoolExecutor(max_workers=1)
+		self.last_file = ""
+		self._preview_locs: dict[str, None | np.ndarray] = {"Past": None, "Present": None, "Future": None}
 		self._processing = False  # pour éviter les clics multiples
 		self.__init_ui()
 
@@ -91,7 +89,7 @@ class PALMTracerWidget(QWidget):
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
-		btn.clicked.connect(lambda: self._process_start(self._process))
+		btn.clicked.connect(lambda: self._thread_process(self.pt.process, self._show_high_res_image))
 		self.layout().addWidget(btn)
 
 	##################################################
@@ -115,7 +113,7 @@ class PALMTracerWidget(QWidget):
 	# region Callback
 	# ==================================================
 	##################################################
-	def _process_start(self, function: Callable[[], None]):
+	def _thread_process(self, compute_func: Callable[[], None], post_func: Optional[Callable[[], None]] = None):
 		"""
 		Démarre un traitement long dans un thread séparé et met à jour l'interface.
 
@@ -129,26 +127,32 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return
-		print(qtpy.QtCore.QTimer)
 		self._processing = True
 		self.layout().setEnabled(False)  # désactive l'interface
 		QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
 		QApplication.processEvents()  # met à jour l'interface
-		self.executor.submit(function)  # Lancer le traitement dans un thread
+
+		self.thread = QThread()
+		self.worker = Worker(compute_func, self)
+		self.worker.moveToThread(self.thread)
+		self.thread.started.connect(self.worker.run)
+		self.worker.finished.connect(self.thread.quit)
+		self.worker.finished.connect(self.worker.deleteLater)
+		self.thread.finished.connect(self.thread.deleteLater)
+		if post_func: self.worker.result_ready.connect(post_func)
+		self.worker.finished.connect(lambda: self._process_done())
+		self.worker.error_occurred.connect(lambda msg: print_error(f"Erreur dans le thread : {msg}"))
+		self.thread.start()  # Lancer le traitement
 
 	##################################################
-	def _process_done(self, function: Optional[Callable[[], None]] = None):
+	def _process_done(self):
 		"""
 		Finalise un traitement en réactivant l'interface et met à jour l'affichage.
 
 		Cette méthode est appelée lorsque le traitement est terminé.
 		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
 		Elle doit être appelée depuis le thread principal (GUI).
-
-		:param function: La fonction à exécuter dans le thread principal, qui est généralement une mise à jour de l'interface utilisateur après le traitement.
-		                 Si aucune fonction n'est fournie, aucune mise à jour supplémentaire ne sera effectuée.
 		"""
-		if function: function()  # Doit être dans le thread GUI
 		self.layout().setEnabled(True)  # Réactive l'interface
 		QApplication.restoreOverrideCursor()  # Changement du curseur
 		QApplication.processEvents()  # met à jour l'interface
@@ -188,7 +192,7 @@ class PALMTracerWidget(QWidget):
 			print_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
-	def _add_detection_layers(self, points_dict: dict[str, np.ndarray]):
+	def _add_detection_layers(self):
 		"""
 		Ajoute des calques à Napari pour les localisations dans le passé, le présent et le futur.
 
@@ -199,7 +203,7 @@ class PALMTracerWidget(QWidget):
 				"Present": {"border": 0.4, "edge": 0.4, "color": "lime", "face": "lime"},
 				"Future":  {"border": 0.2, "edge": 0.2, "color": "orange", "face": "transparent"}
 				}
-		for state, points in points_dict.items():
+		for state, points in self._preview_locs.items():
 			if points is None or points.size == 0:
 				if f"Points {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"Points {state}"])
 				if f"ROI {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
@@ -270,12 +274,6 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		self.layout().setEnabled(False)
-		self.viewer.window.status = "Preview en cours…"
-		QApplication.processEvents()  # met à jour l'interface
-		# self._preview_running = True
-		# self._wait_preview = False  # On réinitialise le drapeau
-
 		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
 		if present is None:
 			# self._preview_running = False
@@ -283,26 +281,16 @@ class PALMTracerWidget(QWidget):
 
 		s = self.pt.settings.localization.get_settings()
 		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
-		locs = {
+		self._preview_locs = {
 				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm_cpu.run(past, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
 				"Present": self.pt.filter_localizations(self.pt.palm_cpu.run(present, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
 				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm_cpu.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
 				}
 
-		# Vérifie si la preview est toujours valide
-		# if self._wait_preview:
-		# 	self._preview() # Relance si un autre changement a été demandé entre-temps
-		# 	return
-
-		self._add_detection_layers(locs)
-		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0, (locs.get("Past"), locs.get("Present"), locs.get("Future")))
+		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,
+										  (self._preview_locs.get("Past"), self._preview_locs.get("Present"), self._preview_locs.get("Future")))
 		print(f"Preview des {l_past + l_present + l_future} points détectés "
 			  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
-
-		# if self._wait_preview: self._preview()		# Si un autre changement a été demandé entre-temps
-		# self._preview_running = False
-		self.viewer.window.status = "Preview terminé."
-		self.layout().setEnabled(True)
 
 	##################################################
 	def _auto_threshold(self):
@@ -314,11 +302,6 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
-	def _process(self):
-		self.pt.process()  # Long traitement
-		self._process_done(self._show_high_res_image)
-
-	##################################################
 	def _show_high_res_image(self):  # pragma: no cover le systeme pytest à du mal avec les ouvertures en série de fenêtres
 		"""
 		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
@@ -326,18 +309,18 @@ class PALMTracerWidget(QWidget):
 		if self.pt.visualization is None: return
 
 		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
-		if not hasattr(self, "high_res_window") or self.hr_viewer is None:
-			self.hr_viewer = Viewer()
+		if not hasattr(self, "high_res_window") or self.viewer_hr is None:
+			self.viewer_hr = Viewer()
 			# Modifier le titre de la fenêtre
-			self.hr_viewer.window._qt_window.setWindowTitle(f"High Resolution Visualization")
+			self.viewer_hr.window._qt_window.setWindowTitle(f"High Resolution Visualization")
 			# Cacher la barre de menu
-			self.hr_viewer.window._qt_window.menuBar().setVisible(False)
+			self.viewer_hr.window._qt_window.menuBar().setVisible(False)
 
-		self.hr_viewer.layers.clear()
-		self.hr_viewer.add_image(self.pt.visualization, name="Visualization", visible=False)
+		self.viewer_hr.layers.clear()
+		self.viewer_hr.add_image(self.pt.visualization, name="Visualization", visible=False)
 		if self.pt.localizations is None: return
 		points = self.pt.localizations[["Y", "X"]].to_numpy() * self.pt.settings.visualization_hr.get_settings()["Ratio"]
-		layer = self.hr_viewer.add_points(points, size=1, face_color="lime", name="Points")
+		layer = self.viewer_hr.add_points(points, size=1, face_color="lime", name="Points")
 		layer.editable = False
 
 # ==================================================
