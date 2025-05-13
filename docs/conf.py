@@ -28,7 +28,15 @@ extensions = [
 		"sphinx.ext.viewcode",
 		"sphinx.ext.graphviz",
 		"sphinxcontrib.jquery",
+		"sphinx_qt_documentation",
 		]
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+	"pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "napari": ("https://napari.org/stable", None),
+}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
