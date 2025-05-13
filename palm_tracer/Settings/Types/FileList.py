@@ -25,6 +25,7 @@ class FileList(BaseSettingType):
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 			- **default (int)** : Valeur par défaut du paramètre (aucun fichier).
 			- **items (list[str])** : Liste des fichiers actuels.
 			- **box (QComboBox)** : ComboBox affichant les fichiers de la liste.
@@ -32,10 +33,15 @@ class FileList(BaseSettingType):
 	"""
 
 	default: int = -1
+	"""Valeur par défaut du paramètre."""
 	items: list[str] = field(default_factory=lambda: [])
+	"""Liste des fichiers actuels."""
 	value: int = field(init=False, default=-1)
+	"""Valeur actuelle du paramètre."""
 	box: QComboBox = field(init=False)
+	"""Objet QT permettant de manipuler le paramètre."""
 	buttons: dict[str, QPushButton] = field(init=False)
+	""" Boutons d'action [+], [-], [clear]."""
 
 	##################################################
 	def get_value(self) -> int:

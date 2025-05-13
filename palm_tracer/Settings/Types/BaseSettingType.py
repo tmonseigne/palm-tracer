@@ -28,11 +28,15 @@ class BaseSettingType:
 	Attributs :
 			- **label (str)** : Nom du paramètre à afficher.
 			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
+			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
 	"""
 
 	label: str = ""
+	"""Nom du paramètre à afficher."""
 	_layout: QFormLayout = field(init=False)
-	__signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	"""Calque principal."""
+	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	"""Signal permettant de communiquer avec l'interface."""
 
 	# ==================================================
 	# region Initialization
@@ -136,7 +140,7 @@ class BaseSettingType:
 
 		:param f: Fonction ou slot à connecter.
 		"""
-		self.__signal.connect(f)  # Connexion de la fonction fournie au signal.
+		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 
 	##################################################
 	def emit(self, value: Any = None):
@@ -145,7 +149,7 @@ class BaseSettingType:
 
 		Utilisé pour notifier les parties de l'application abonnées au signal.
 		"""
-		self.__signal.emit(value)  # Émission du signal.
+		self._signal.emit(value)  # Émission du signal.
 
 # ==================================================
 # endregion Manipulation

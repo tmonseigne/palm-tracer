@@ -1,4 +1,4 @@
 Tools.Monitoring
 =============================
 
-.. automodule:: palm_tracer.Tools.Monitoring
+.. autoclass:: palm_tracer.Tools.Monitoring

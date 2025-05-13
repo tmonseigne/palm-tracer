@@ -34,6 +34,7 @@ class Settings:
 	"""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
+	""" Dictionnaire de groupes de paramètres. """
 
 	# ==================================================
 	# region Initialization

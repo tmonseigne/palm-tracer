@@ -70,16 +70,27 @@ class Monitoring:
 	"""
 
 	interval: float = 1.0
+	"""Intervalle de temps entre chaque mise à jour des données en secondes."""
 	_cpu: List[float] = field(init=False, default_factory=list)
+	"""Liste des valeurs d'utilisation du CPU."""
 	_gpu: List[float] = field(init=False, default_factory=list)
+	"""Liste des valeurs d'utilisation du GPU."""
 	_memory: List[float] = field(init=False, default_factory=list)
+	"""Liste des valeurs d'utilisation de la mémoire."""
 	_disk: List[float] = field(init=False, default_factory=list)
+	"""Liste des valeurs d'utilisation du disque."""
 	_times: List[float] = field(init=False, default_factory=list)
+	"""Liste des timestamps."""
 	_monitoring: bool = field(init=False, default=False)
+	"""Indique si la surveillance est en cours ou non."""
 	_thread: threading.Thread = field(init=False, default_factory=threading.Thread)
+	"""Le thread qui exécute le monitoring."""
 	_tests_info: List[dict] = field(init=False, default_factory=list)  # Liste des informations des tests
+	"""Liste des informations relatives aux tests exécutés."""
 	_figure: go.Figure = field(init=False, default_factory=go.Figure)
+	"""Figure finale du monitoring."""
 	_gpu_handle: Any = field(init=False, default=None)
+	"""GPU à surveiller."""
 
 	# ==================================================
 	# region Monitoring Manipulation

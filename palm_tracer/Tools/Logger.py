@@ -14,13 +14,14 @@ from palm_tracer.Tools.Utils import print_error, print_warning
 ##################################################
 @dataclass
 class Logger:
-	"""
-	Classe du journal d'activité
-	"""
+	"""	Classe du journal d'activité. """
 
-	filename: str = field(init=False, default="")					 # Fichier à ouvrir
-	file_handle: TextIO = field(init=False, default_factory=TextIO)  # Gestionnaire de fichier
+	filename: str = field(init=False, default="")
+	"""Fichier de log à ouvrir."""
+	file_handle: TextIO = field(init=False, default_factory=TextIO)
+	"""Gestionnaire de fichier."""
 	_isopen: bool = field(init=False, default=False)
+	"""Indicateur d'ouverture du fichier."""
 
 	##################################################
 	def open(self, filename: str):

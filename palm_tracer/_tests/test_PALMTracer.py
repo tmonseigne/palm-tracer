@@ -56,7 +56,7 @@ def test_process_bad_dll(make_napari_viewer):
 	if not pt.is_dll_valid():
 		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
 	else:
-		pt.palm_cpu._dll = None
+		pt.palm._dll = None
 		pt.process()
 
 
