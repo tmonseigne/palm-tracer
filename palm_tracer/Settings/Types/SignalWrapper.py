@@ -19,7 +19,8 @@ class SignalWrapper(QObject):
 			- **_signal (QtCore.Signal)** : Signal Qt encapsulé dans cette classe.
 	"""
 
-	_signal = Signal(object)  # Signal encapsulé, prêt à être utilisé dans l'application.
+	_signal = Signal(object)
+	"""Signal encapsulé, prêt à être utilisé dans l'application."""
 
 	##################################################
 	def __init__(self):

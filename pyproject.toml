@@ -65,6 +65,7 @@ documentation = [
 	"sphinx",
 	"sphinx-autobuild",
 	"sphinx-rtd-theme",
+	"sphinx-qt-documentation",
 	"napari",
 	"pyqt5",
 	"ansi2html", # Utile pour transformer les rapports
