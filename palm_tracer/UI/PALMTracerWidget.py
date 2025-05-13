@@ -9,14 +9,15 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
     Pour le moment, la partie permettant de mettre en attente et annuler des preview ne fonctionne pas car Napari freeze le temps de la mise à jour.
     l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
 """
-
+from concurrent.futures import ThreadPoolExecutor
 from typing import cast, Optional
 
 import napari
 import numpy as np
+import qtpy
 from napari import Viewer
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -45,6 +46,8 @@ class PALMTracerWidget(QWidget):
 		self.pt = PALMTracer()
 		self.hr_viewer: Optional[Viewer] = None
 		self._preview_running = False
+		self.executor = ThreadPoolExecutor(max_workers=1)
+		self._processing = False  # pour éviter les clics multiples
 		self.__init_ui()
 
 	##################################################
@@ -169,7 +172,7 @@ class PALMTracerWidget(QWidget):
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
 				layer.data = points  # Remplace tous les points
-				layer.size = 1		 # Remets les différents arguments en cas de nombre de points différents
+				layer.size = 1  # Remets les différents arguments en cas de nombre de points différents
 				layer.border_color = args["color"]
 				layer.border_width = args["border"]
 				layer.face_color = args["face"]
@@ -193,7 +196,7 @@ class PALMTracerWidget(QWidget):
 			# Si le calque existe mais n’est pas du bon type, on le supprime
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
-				layer.data = rois		   # Remplace toutes les formes
+				layer.data = rois  # Remplace toutes les formes
 				layer.shape_type = s_type  # Remets les différents arguments en cas de nombre de ROI différents
 				layer.edge_color = args["color"]
 				layer.edge_width = args["edge"]
@@ -212,11 +215,11 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]					 # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
 		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
-		plane = layer.data[plane_idx]						 # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.uint16)			 # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
 
 	##################################################
 	def _on_preview_change(self, event):
@@ -227,6 +230,9 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
+		self.layout().setEnabled(False)
+		self.viewer.window.status = "Preview en cours…"
+		QApplication.processEvents()  # met à jour l'interface
 		# self._preview_running = True
 		# self._wait_preview = False  # On réinitialise le drapeau
 
@@ -255,27 +261,47 @@ class PALMTracerWidget(QWidget):
 
 		# if self._wait_preview: self._preview()		# Si un autre changement a été demandé entre-temps
 		# self._preview_running = False
+		self.viewer.window.status = "Preview terminé."
+		self.layout().setEnabled(True)
 
 	##################################################
 	def _auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = self.pt.palm_cpu.auto_threshold(image)				 # Calcul du seuil automatique
+		threshold = self.pt.palm_cpu.auto_threshold(image)  # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
 	def _process(self):
 		"""Action lors d'un clic sur le bouton process"""
+		if self._processing: return
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return
-		self.pt.process()
-		self._show_high_res_image()
+		print(qtpy.QtCore.QTimer)
+		self._processing = True
+		self.layout().setEnabled(False)  # désactive l'interface
+		QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
+		QApplication.processEvents()  # met à jour l'interface
+		self.executor.submit(self._run_process)  # Lancer le traitement dans un thread
 
 	##################################################
-	def _show_high_res_image(self):   # pragma: no cover le systeme pytest à du mal avec les ouvertures en série de fenêtres
+	def _run_process(self):
+		self.pt.process()  # Long traitement
+		self._on_process_done()
+
+	##################################################
+	def _on_process_done(self):
+		print("YOUHOU")
+		self._show_high_res_image()  # Doit être dans le thread GUI
+		QApplication.restoreOverrideCursor()
+		self.layout().setEnabled(True)
+		self._processing = False
+
+	##################################################
+	def _show_high_res_image(self):  # pragma: no cover le systeme pytest à du mal avec les ouvertures en série de fenêtres
 		"""
 		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
 		"""
