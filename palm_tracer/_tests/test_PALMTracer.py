@@ -49,6 +49,18 @@ def test_process_nothing(make_napari_viewer):
 
 
 ##################################################
+def test_process_bad_dll(make_napari_viewer):
+	""" Test pour le process avec tout les élément à False et aucun fichier chargeable. """
+	pt = PALMTracer()
+
+	if not pt.is_dll_valid():
+		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
+	else:
+		pt.palm_cpu._dll = None
+		pt.process()
+
+
+##################################################
 def test_process_multiple_stack(make_napari_viewer):
 	""" Test pour le process avec plusieurs piles. """
 	pt = PALMTracer()

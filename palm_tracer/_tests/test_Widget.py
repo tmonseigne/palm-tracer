@@ -62,18 +62,18 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys):
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
 	# Ajout avec un tableau vide et rien en passé et future.
-	preview = {"Past": None, "Present": np.zeros((2, 0)), "Future": None}
-	my_widget._add_detection_layers(preview)
+	my_widget._preview_locs = {"Past": None, "Present": np.zeros((2, 0)), "Future": None}
+	my_widget._add_detection_layers()
 
 	# Ajout avec des tableaux normaux.
-	preview = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
-	my_widget._add_detection_layers(preview)
+	my_widget._preview_locs =  {"Past": POINTS, "Present": POINTS, "Future": POINTS}
+	my_widget._add_detection_layers()
 
 	# Ajout avec des calques existants et un future vide.
-	preview = {"Past": POINTS, "Present": POINTS, "Future": None}
-	my_widget._add_detection_layers(preview)
+	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": None}
+	my_widget._add_detection_layers()
 	my_widget.pt.settings.localization["ROI Shape"].set_value(1)
-	my_widget._add_detection_layers(preview)
+	my_widget._add_detection_layers()
 	viewer.close()
 	assert True
 
@@ -112,51 +112,23 @@ def test_widget_auto_threshold(make_napari_viewer, capsys):
 
 
 ##################################################
-def test_widget_process(make_napari_viewer, capsys):
+def test_widget_thread_process(make_napari_viewer, capsys):
 	"""Test click sur le bouton process."""
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 
-	my_widget._process()				  # Appel de la méthode process sans fichier dans le batch.
+	my_widget._thread_process(my_widget._auto_threshold)
+
+	# appel avec un process en cours
+	my_widget._processing = True
+	my_widget._thread_process(my_widget._auto_threshold)
+	my_widget._processing = False
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget._process()				  # Appel de la méthode process.
+	my_widget._thread_process(my_widget.pt.process) # Appel de la méthode process
+	my_widget._thread_process(my_widget._auto_threshold) # Appel de la méthode auto threshold mais impossible de l'executer dnas ce conxte (donc erreur prévu)
 	viewer.close()
 	assert True
-
-
-##################################################
-def test_widget_bad_dll(make_napari_viewer, capsys):
-	"""Test avec des dll non chargées."""
-	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
-
-	my_widget.pt.palm_cpu._dll = None	  # Suppression d'une DLL pour provoquer le comportement.
-	# Ajout d'une entrée
-	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
-	file_list.items = [f"{INPUT_DIR}/stack.tif"]
-	file_list.update_box()
-	my_widget._process()				  # Appel de la méthode process.
-	viewer.close()
-	assert True
-
-# ##################################################
-# def test_widget_show_high_res(make_napari_viewer, capsys):
-# 	"""Test click sur le bouton process avec une visualisation HR."""
-# 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
-# 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
-#
-# 	# Ajout d'une entrée
-# 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
-# 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
-# 	file_list.update_box()
-# 	my_widget.pt.settings.visualization_hr.active = True
-# 	my_widget._process()  # Appel de la méthode process avec visualization (il trouvera une localisation précalculé).
-# 	my_widget._process()  # Appel de la méthode process avec visualization déjà active.
-# 	my_widget.hr_viewer.close()
-# 	my_widget.hr_viewer = None
-# 	viewer.close()
-# 	assert True
