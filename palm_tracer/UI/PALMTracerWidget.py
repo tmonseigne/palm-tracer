@@ -121,7 +121,8 @@ class PALMTracerWidget(QWidget):
 		Elle vérifie si un fichier est en cours de prévisualisation avant de lancer le traitement.
 		Le traitement est exécuté dans un thread séparé pour ne pas bloquer l'interface principale de l'application.
 
-		:param function: La fonction à exécuter dans un thread séparé. Elle ne doit pas prendre de paramètres et ne retourne rien.
+		:param compute_func: La fonction à exécuter dans un thread séparé. Elle ne doit pas prendre de paramètres et ne retourne rien.
+		:param post_func: La fonction à exécuter après le thread. Elle ne doit pas prendre de paramètres et ne retourne rien.
 		"""
 		if self._processing: return
 		if self.last_file == "":
