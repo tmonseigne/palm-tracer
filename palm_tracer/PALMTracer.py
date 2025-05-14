@@ -248,7 +248,7 @@ class PALMTracer:
 		if self.localizations is None: return
 		gallery = make_gallery(self._stack, self.localizations, s["ROI Size"], s["ROIs Per Line"])
 		self._logger.add(f"\tEnregistrement de la galerie ({s}).")
-		save_tif(gallery, f"{self._path}/gallery_{s["ROI Size"]}_{s["ROIs Per Line"]}-{self._suffix}.tif")
+		save_tif(gallery, f"{self._path}/gallery_{s['ROI Size']}_{s['ROIs Per Line']}-{self._suffix}.tif")
 
 	##################################################
 	def __filter_localizations(self):

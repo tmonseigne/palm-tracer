@@ -1,7 +1,8 @@
 """ Fichier des tests pour l'utilisation de la DLL CPU. """
 
-import os
 from pathlib import Path
+
+import pytest
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm, Tracking
@@ -17,6 +18,7 @@ path = Path(f"{INPUT_DIR}/big input/{file}.tif")
 
 
 ##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu(make_napari_viewer):
 	"""
 	Test pour le process sur des données importantes.
@@ -54,9 +56,7 @@ def test_palm_cpu(make_napari_viewer):
 
 	"""
 	palm = Palm()
-	if not palm.is_valid():
-		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
-	elif path.exists() and path.is_file():
+	if path.exists() and path.is_file():
 		stack = open_tif(str(path))
 		suffix = get_loc_suffix(threshold=thresh)
 		localizations = palm.run(stack, thresh, default_watershed, default_gaussian, sigma, theta, roi)
@@ -68,6 +68,7 @@ def test_palm_cpu(make_napari_viewer):
 
 
 ##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_gpu(make_napari_viewer):
 	"""
 	Test pour le process sur des données importantes.
@@ -83,9 +84,7 @@ def test_palm_gpu(make_napari_viewer):
 
 	"""
 	palm = Palm("GPU")
-	if not palm.is_valid():
-		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
-	elif path.exists() and path.is_file():
+	if path.exists() and path.is_file():
 		stack = open_tif(str(path))
 		suffix = get_loc_suffix(threshold=thresh)
 		localizations = palm.run(stack, thresh, default_watershed, default_gaussian, sigma, theta, roi)
@@ -97,6 +96,7 @@ def test_palm_gpu(make_napari_viewer):
 
 
 ##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_tracking(make_napari_viewer):
 	"""
 	Test pour le process sur des données importantes.
@@ -113,9 +113,7 @@ def test_tracking(make_napari_viewer):
 	suffix = get_loc_suffix(threshold=thresh)
 	path_tracking = Path(f"{INPUT_DIR}/big input/{file}-localizations-{suffix}.csv")
 
-	if not tracking.is_valid():
-		print_warning("\n====================\nTest non effectué car DLL manquante\n====================\n")
-	elif path_tracking.exists() and path_tracking.is_file():
+	if path_tracking.exists() and path_tracking.is_file():
 		localizations = pd.read_csv(path_tracking)
 		tracks = tracking.run(localizations, max_distance, min_life, decrease, cost_birth)
 		if save_output: tracks.to_csv(f"{OUTPUT_DIR}/{file}-tracking-{suffix}.csv", index=False)

@@ -1,6 +1,9 @@
 """ Fichier des tests pour les fonctions utilitaires. """
 import ctypes
 
+import pytest
+
+from palm_tracer._tests.Utils import is_not_dll_friendly
 from palm_tracer.Tools import Utils
 
 
@@ -58,6 +61,7 @@ def test_get_last_file():
 
 
 ##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_load_dll():
 	"""Test de la fonction get timestamp for files."""
 	res = Utils.load_dll("File")

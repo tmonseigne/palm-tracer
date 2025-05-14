@@ -122,7 +122,7 @@ def get_summary(data: dict) -> str:
 	summary = data["summary"]
 
 	res += (f"{summary.get('collected', 0)} tests collected, "
-			f"{summary.get('passed', 0)} passed ✅, {summary.get('failed', 0)} failed ❌ "
+			f"{summary.get('passed', 0)} passed ✅, {summary.get('failed', 0)} failed ❌, {summary.get('skipped', 0)} skipped ⏭️ "
 			f"in {duration}s on {date} at {time}\n\n")
 	return res
 
@@ -184,9 +184,9 @@ def get_tests(tests: list) -> str:
 		for test in file_tests:
 			test_name = to_title_case(test["nodeid"].split("::")[1][5:])  # Nom du test sans "test_"
 			outcome = test["outcome"]
-			durations = [test["setup"].get("duration", 0),
-						 test["call"].get("duration", 0),
-						 test["teardown"].get("duration", 0)]
+			durations = [test.get("setup", {}).get("duration", 0),
+						 test.get("call", {}).get("duration", 0),
+						 test.get("teardown", {}).get("duration", 0)]
 
 			res += (f"   * - {test_name}\n"
 					f"     - {get_outcome_icon(outcome)}\n"
@@ -196,6 +196,7 @@ def get_tests(tests: list) -> str:
 
 		# Ajouter un lien vers le stdout
 		for test in file_tests:
+			if "call" not in test: continue  # pas de log possible pour skipped, xfailed...
 			test_name = to_title_case(test["nodeid"].split("::")[1][5:])  # Nom du test sans "test_"
 			stdout = test["call"].get("stdout", "")
 			stdout = conv.convert(stdout, full=False)  # Convertir ANSI en HTML

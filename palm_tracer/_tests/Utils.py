@@ -1,3 +1,5 @@
+import os
+import platform
 from typing import Optional
 
 import numpy as np
@@ -11,6 +13,13 @@ max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_gaussian = 4
 save_output = True
 
+##################################################
+def is_headless_macos():
+	return platform.system() == "Darwin" and not os.environ.get("DISPLAY") and os.environ.get("CI") == "true"
+
+##################################################
+def is_not_dll_friendly():
+	return platform.system() != "Windows"
 
 ##################################################
 def get_loc_suffix(gaussian: int = default_gaussian, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
