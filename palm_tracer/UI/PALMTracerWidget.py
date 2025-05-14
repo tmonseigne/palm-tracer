@@ -9,6 +9,7 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
     Pour le moment, la partie permettant de mettre en attente et annuler des preview ne fonctionne pas car Napari freeze le temps de la mise à jour.
     l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
 """
+from pathlib import Path
 from typing import Callable, cast, Optional
 
 import napari
@@ -22,6 +23,8 @@ from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
 from palm_tracer.UI.Worker import Worker
 
+CONFIG_DIR = Path.home() / ".palm_tracer"
+SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 ##################################################
 class PALMTracerWidget(QWidget):
@@ -42,11 +45,13 @@ class PALMTracerWidget(QWidget):
 		super().__init__()
 		self.viewer = viewer
 		self.viewer_hr: Optional[Viewer] = None
+		self.filedialog = QFileDialog(self)
 		self.pt = PALMTracer()
 		self.last_file = ""
 		self._preview_locs: dict[str, None | np.ndarray] = {"Past": None, "Present": None, "Future": None}
 		self._processing = False  # pour éviter les clics multiples
 		self.__init_ui()
+		self._startup_load_setting()
 
 	##################################################
 	def __init_ui(self):
@@ -92,6 +97,13 @@ class PALMTracerWidget(QWidget):
 		btn = QPushButton("Start Processing")
 		btn.clicked.connect(lambda: self._thread_process(self.pt.process, self._show_high_res_image))
 		self.layout().addWidget(btn)
+
+		if SETTINGS_FILE.exists():
+			try:
+				self.pt.settings.update_from_dict(open_json(SETTINGS_FILE))
+				print(f"Chargement du fichier de configuration '{SETTINGS_FILE}'.")
+			except Exception as e:
+				print_warning(f"Erreur lors du chargement du fichier '{SETTINGS_FILE}' : {e}")
 
 	##################################################
 	@staticmethod
@@ -161,14 +173,26 @@ class PALMTracerWidget(QWidget):
 		self._processing = False
 
 	##################################################
-	def _load_setting(self):  # pragma: no cover
+	def _startup_load_setting(self):
 		"""Action lors d'un clic sur le bouton Load setting."""
-		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
-		try:
-			self.pt.settings.update_from_dict(open_json(file_name))
-			print(f"Chargement du fichier de configuration '{file_name}'.")
-		except Exception as e:
-			print_warning(f"Erreur lors du chargement du fichier '{file_name}' : {e}")
+		CONFIG_DIR.mkdir(parents=True, exist_ok=True)	# Création du dossier de config s'il n'existe pas
+		self._load_setting(SETTINGS_FILE)
+
+	##################################################
+	def _on_load_setting_btn(self):  # pragma: no cover
+		"""Action lors d'un clic sur le bouton Load setting."""
+		filename, _ = self.filedialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
+		self._load_setting(filename)
+
+	##################################################
+	def _load_setting(self, filename: Path):  # pragma: no cover
+		"""Chargement d'un fichier de setting."""
+		if filename.exists():
+			try:
+				self.pt.settings.update_from_dict(open_json(str(filename)))
+				print(f"Chargement du fichier de configuration '{filename}'.")
+			except Exception as e:
+				print_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
 
 	##################################################
 	def _reset_layer(self):
