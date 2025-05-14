@@ -77,6 +77,7 @@ class SpinInt(BaseSettingType):
 		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 		self.box.setRange(self.min, self.max)			   # Définition du min, max.
 		self.box.setSingleStep(self.step)				   # Définition du pas à chaque appuie sur une flèche.
+		self.box.valueChanged.connect(self.emit)		   # Définition du comportement lors de la modification des valeurs
 		self.set_value(self.default)					   # Définition de la valeur.
 		self.add_row(self.box)							   # Ajoute le spin au calque.
 

@@ -55,6 +55,16 @@ class Settings:
 		"""Remet les valeurs par défaut des paramètres."""
 		for _, setting in self._settings.items(): setting.reset()
 
+	##################################################
+	def connect(self, f:Any):
+		"""
+		Connecte une fonction ou un slot à l'intégralité des paramètres.
+
+		:param f: Fonction ou slot à connecter.
+		"""
+		for _, setting in self._settings.items(): setting.connect(f)
+
+
 	# ==================================================
 	# endregion Initialization
 	# ==================================================

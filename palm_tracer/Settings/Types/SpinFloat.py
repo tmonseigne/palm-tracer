@@ -83,6 +83,7 @@ class SpinFloat(BaseSettingType):
 		self.box.setRange(self.min, self.max)			   # Définition du min, max.
 		self.box.setSingleStep(self.step)				   # Définition du pas à chaque appuie sur une flèche.
 		self.box.setDecimals(self.precision)			   # Définition de la précision à afficher.
+		self.box.valueChanged.connect(self.emit)		   # Définition du comportement lors de la modification des valeurs
 		self.set_value(self.default)					   # Définition de la valeur.
 		self.add_row(self.box)							   # Ajoute le spin au calque.
 
