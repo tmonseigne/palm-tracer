@@ -3,7 +3,7 @@ Fichier contenant la classe :class:`Combo` dérivée de :class:`.BaseSettingType
 """
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 from qtpy.QtWidgets import QComboBox
 
@@ -46,6 +46,13 @@ class Combo(BaseSettingType):
 		self.box.setCurrentIndex(value)
 
 	##################################################
+	def update_box(self, items: Optional[list[str]] = None):
+		"""Met à jour la ComboBox pour refléter la liste actuelle des options."""
+		self.box.clear()
+		if items is not None: self.items = items
+		self.box.addItems(self.items)
+
+	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
 
@@ -54,10 +61,7 @@ class Combo(BaseSettingType):
 		# Mise à jour des membres
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
-		self.items = data.get("items", [""])
-		# Mise à jour de la boite QT
-		self.box.clear()
-		self.box.addItems(self.items)
+		self.update_box(data.get("items", [""]))
 		self.set_value(data.get("value", self.default))
 
 	##################################################
