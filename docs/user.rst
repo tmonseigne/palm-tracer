@@ -22,8 +22,22 @@ Ce guide vous aidera à installer le projet étape par étape.
 4. Extrayez les fichiers dans un dossier accessible (par exemple, :console:`C:\\palm-tracer`).
 
 
-Étape 2 : Installation de Python
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Étape 2 : Installation de Python et des éléments additionnels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installation (nécessite des droits administrateur)
+
+.. code-block:: console
+
+   Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+.. code-block:: console
+
+   choco install python -y
+   choco install visualstudio2022buildtools --includeRecommended -y
+   choco install vcredist-all -y`
+
+Sinon, vous pouvez tout faire manuellement :
 
 1. Téléchargez Python depuis le `site officiel <https://www.python.org/downloads/>`_.
 2. Pendant l'installation, assurez-vous de cocher l'option **Add Python to PATH**.
@@ -34,6 +48,11 @@ Ce guide vous aidera à installer le projet étape par étape.
 
 .. note::
    Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
+
+4. Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :
+  - `Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_.
+    Pendant l'installation, assurez-vous de cocher **C++ build tools**
+  - vcredist : celui-ci sera installé avec **Build Tools for Visual Studio**.
 
 
 Étape 3 : Création d'un environnement virtuel (optionnel)
@@ -58,9 +77,16 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
    Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Assurez-vous que l'environnement virtuel est activé si vous le souhaitez (voir Étape 3).
-3. Installez les dépendances nécessaires avec la commande : :console:`python -m pip install .[testing,documentation]`
+3. Installez les dépendances nécessaires avec la commande :
+
+.. code-block:: console
+
+   $env:SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PALM_TRACER = "1.0.0"
+   python -m pip install .[testing,documentation]`
 
 .. note::
+   La première ligne est necessaire, si vous avez téléchargé le zip du code source à partir de Git.
+   Si vous avez cloné le dépôt, cela n'est plus necessaire.
    Les éléments supplémentaires tels que testing installent :console:`Napari` entre autres éléments si vous ne l'aviez pas déjà.
 
 Étape 5 : Lancement du plugin
