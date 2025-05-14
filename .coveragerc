@@ -20,4 +20,5 @@ exclude_also =
     if platform.system()
     try
 	except
+	finally
 	GPU

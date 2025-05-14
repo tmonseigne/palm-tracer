@@ -106,6 +106,15 @@ class BaseSettingGroup:
 		for _, setting in self._settings.items():
 			setting.reset()
 
+	##################################################
+	def connect(self, f:Any):
+		"""
+		Connecte une fonction ou un slot à tout les éléments du groupe.
+
+		:param f: Fonction ou slot à connecter.
+		"""
+		for _, setting in self._settings.items(): setting.connect(f)
+
 	# ==================================================
 	# endregion Initialization
 	# ==================================================

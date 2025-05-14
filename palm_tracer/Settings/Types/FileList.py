@@ -8,7 +8,7 @@ Fichier contenant la classe :class:`FileList` dérivée de :class:`.BaseSettingT
 """
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QPushButton
@@ -53,6 +53,7 @@ class FileList(BaseSettingType):
 		if 0 <= value < len(self.items):
 			self.value = value
 			self.box.setCurrentIndex(value)
+			self.emit()
 
 	##################################################
 	def get_selected(self) -> str:
@@ -65,9 +66,10 @@ class FileList(BaseSettingType):
 	def get_list(self) -> list[str]: return self.items
 
 	##################################################
-	def update_box(self):
+	def update_box(self, items: Optional[list[str]] = None):
 		"""Met à jour la ComboBox pour refléter la liste actuelle des fichiers."""
 		self.box.clear()
+		if items is not None: self.items = items
 		self.box.addItems(self.items)
 
 	##################################################
@@ -105,8 +107,8 @@ class FileList(BaseSettingType):
 	def update_from_dict(self, data: dict[str, Any]):
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
-		self.items = data.get("items", [""])
-		self.set_value(data.get("value", self.default))
+		self.update_box(data.get("items", [""]))
+		self.set_value(data.get("value", self.value))
 
 	##################################################
 	def initialize(self):

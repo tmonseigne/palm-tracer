@@ -60,6 +60,7 @@ class CheckBox(BaseSettingType):
 		super().initialize()		  # Appelle l'initialisation de la classe mère.
 		self.box = QCheckBox()		  # Création de la boite.
 		self.set_value(self.default)  # Définition de la valeur.
+		self.box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
 		self.add_row(self.box)		  # Ajoute la check box au calque.
 
 	##################################################

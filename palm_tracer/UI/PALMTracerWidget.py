@@ -9,6 +9,7 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
     Pour le moment, la partie permettant de mettre en attente et annuler des preview ne fonctionne pas car Napari freeze le temps de la mise à jour.
     l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
 """
+from pathlib import Path
 from typing import Callable, cast, Optional
 
 import napari
@@ -19,8 +20,11 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QTabWidget, Q
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import open_json, open_tif, print_error, print_warning
+from palm_tracer.Tools import open_json, open_tif, print_error, print_warning, save_json
 from palm_tracer.UI.Worker import Worker
+
+CONFIG_DIR = Path.home() / ".palm_tracer"
+SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 
 ##################################################
@@ -42,11 +46,13 @@ class PALMTracerWidget(QWidget):
 		super().__init__()
 		self.viewer = viewer
 		self.viewer_hr: Optional[Viewer] = None
+		self.filedialog = QFileDialog(self)
 		self.pt = PALMTracer()
 		self.last_file = ""
 		self._preview_locs: dict[str, None | np.ndarray] = {"Past": None, "Present": None, "Future": None}
 		self._processing = False  # pour éviter les clics multiples
 		self.__init_ui()
+		self.__on_startup()
 
 	##################################################
 	def __init_ui(self):
@@ -83,15 +89,24 @@ class PALMTracerWidget(QWidget):
 
 		# Calcul de la preview
 		self.pt.settings.localization["Preview"].connect(lambda: self._thread_process(self._preview, self._add_detection_layers))
-		self.viewer.dims.events.current_step.connect(self._on_preview_change)
+		self.viewer.dims.events.current_step.connect(self._on_plane_change)
 
 		# Calcul automatique du Seuil
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)
+
+		# Connexion à chaque changement de paramètres
+		self.pt.settings.connect(self._on_change)
 
 		# Launch Button
 		btn = QPushButton("Start Processing")
 		btn.clicked.connect(lambda: self._thread_process(self.pt.process, self._show_high_res_image))
 		self.layout().addWidget(btn)
+
+	##################################################
+	def __on_startup(self):
+		"""Action lors du démarrage après l'initialisation de l'UI."""
+		CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
+		self._load_setting(SETTINGS_FILE)
 
 	##################################################
 	@staticmethod
@@ -130,12 +145,12 @@ class PALMTracerWidget(QWidget):
 			print_warning("Aucun fichier en preview.")
 			return
 		self._processing = True
-		self.layout().setEnabled(False)  # désactive l'interface
+		self.layout().setEnabled(False)							   # désactive l'interface
 		QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
-		QApplication.processEvents()  # met à jour l'interface
+		QApplication.processEvents()							   # met à jour l'interface
 
 		self.thread = QThread(self)
-		self.worker = Worker(compute_func, self)
+		self.worker = Worker(compute_func)
 		self.worker.moveToThread(self.thread)
 		self.thread.started.connect(self.worker.run)
 		self.worker.finished.connect(self.thread.quit)
@@ -155,20 +170,26 @@ class PALMTracerWidget(QWidget):
 		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
 		Elle doit être appelée depuis le thread principal (GUI).
 		"""
-		self.layout().setEnabled(True)  # Réactive l'interface
+		self.layout().setEnabled(True)		  # Réactive l'interface
 		QApplication.restoreOverrideCursor()  # Changement du curseur
-		QApplication.processEvents()  # met à jour l'interface
+		QApplication.processEvents()		  # met à jour l'interface
 		self._processing = False
 
 	##################################################
-	def _load_setting(self):  # pragma: no cover
+	def _load_setting(self, filename: Path):
+		"""Chargement d'un fichier de setting."""
+		if filename.exists():
+			try:
+				self.pt.settings.update_from_dict(open_json(str(filename)))
+				print(f"Chargement du fichier de configuration '{filename}'.")
+			except Exception as e:
+				print_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
+
+	##################################################
+	def _on_load_setting_btn(self):  # pragma: no cover
 		"""Action lors d'un clic sur le bouton Load setting."""
-		file_name, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
-		try:
-			self.pt.settings.update_from_dict(open_json(file_name))
-			print(f"Chargement du fichier de configuration '{file_name}'.")
-		except Exception as e:
-			print_warning(f"Erreur lors du chargement du fichier '{file_name}' : {e}")
+		filename, _ = self.filedialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
+		self._load_setting(Path(filename))
 
 	##################################################
 	def _reset_layer(self):
@@ -257,14 +278,21 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			print_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]  # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]					 # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
 		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
-		plane = layer.data[plane_idx]  # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]						 # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)			 # Renvoie sous le format numpy
 
 	##################################################
-	def _on_preview_change(self, event):
+	def _on_change(self):
+		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
+		# Save settings
+		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
+		if "Points Present" in self.viewer.layers: self._thread_process(self._preview, self._add_detection_layers)
+
+	##################################################
+	def _on_plane_change(self, event):
 		"""
 		Met à jour la preview au changement du plan affiché dans Napari.
 		:param event:
@@ -275,9 +303,7 @@ class PALMTracerWidget(QWidget):
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
 		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
-		if present is None:
-			# self._preview_running = False
-			return
+		if present is None: return
 
 		s = self.pt.settings.localization.get_settings()
 		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
@@ -297,7 +323,7 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = self.pt.palm.auto_threshold(image)  # Calcul du seuil automatique
+		threshold = self.pt.palm.auto_threshold(image)					 # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 

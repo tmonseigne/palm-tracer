@@ -98,6 +98,7 @@ class CheckRangeInt(BaseSettingType):
 			self.box[i].setRange(self.limit[0], self.limit[1])				# Définition du min, max.
 			self.box[i].setValue(self.default[i])							# Définition de la valeur par défaut
 			self.box[i].setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)  # Supprime les flèches
+			self.box[i].valueChanged.connect(self.emit)						# Définition du comportement lors de la modification des valeurs
 
 		self.box[0].valueChanged.connect(self.check_min)  # Définition du comportement lors de la modification des valeurs
 		self.box[1].valueChanged.connect(self.check_max)  # Définition du comportement lors de la modification des valeurs
