@@ -50,7 +50,7 @@ class Palm:
 				 ("watershed", None),			   # Activation du Watershed
 				 ("vol_min", ctypes.c_double(4)),  # Vol minimum toujours à 4.
 				 ("int_min", ctypes.c_double(0)),  # Int minimum toujours à 0.
-				 ("gauss_fit", None),			   # Mode du Gaussian Fit
+				 ("fit", None),					   # Mode du Gaussian Fit
 				 ("sigma_x", None),				   # Valeur initiale du Sigma X
 				 ("sigma_y", None),				   # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
 				 ("theta", None),				   # Valeur Initiale du Theta
@@ -66,7 +66,7 @@ class Palm:
 		return self._dll is not None
 
 	##################################################
-	def __init_args(self, height: int, width: int, threshold: float, watershed: bool, gauss_fit: int,
+	def __init_args(self, height: int, width: int, threshold: float, watershed: bool, fit: int,
 					sigma: float, theta: float, roi_size: int):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe.
@@ -75,7 +75,7 @@ class Palm:
 		:param width: Largeur des images.
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
-		:param gauss_fit: Mode d'ajustement Gaussien.
+		:param fit: Mode d'ajustement Gaussien.
 		:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 		:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 		:param roi_size: Taille de la région d'intérêt (ROI).
@@ -90,7 +90,7 @@ class Palm:
 		self._args["width"] = ctypes.c_ulong(width)
 		self._args["threshold"] = ctypes.c_double(threshold)
 		self._args["watershed"] = ctypes.c_double(0 if watershed else 10)
-		self._args["gauss_fit"] = ctypes.c_ushort(gauss_fit)
+		self._args["fit"] = ctypes.c_ushort(fit)
 		self._args["sigma_x"] = ctypes.c_double(sigma)
 		self._args["sigma_y"] = ctypes.c_double(sigma * 2)
 		self._args["theta"] = ctypes.c_double(theta)
@@ -107,21 +107,29 @@ class Palm:
 		self._args["image"] = np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))
 
 	##################################################
-	def __run_image(self, image: np.ndarray, gauss_fit: int, plane: int = 1) -> pd.DataFrame:
+	def __run_image(self, image: np.ndarray, fit: int, plane: int = 1) -> pd.DataFrame:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
 
 		:param image: Image d'entrée 2D sous forme de tableau numpy d'entier.
-		:param gauss_fit: Mode d'ajustement Gaussien.
+		:param fit: Mode d'ajustement Gaussien.
 		:param plane: Numéro du plan dans la pile
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
 		self.__updata_args(image)
 		self._dll.Process(*self._args.values())
-		return parse_palm_result(self._points, plane, gauss_fit, True)
+		return parse_palm_result(self._points, plane, fit, True)
 
 	##################################################
-	def run(self, stack: np.ndarray, threshold: float, watershed: bool, gauss_fit: int,
+	@staticmethod
+	def get_fit(mode: int = 0, submode: int = 0) -> int:
+		"""Récupère le numéro du fit pour le palm."""
+		if mode == 0: return 0				# Aucun ajustement
+		elif mode == 0: return 1 + submode  # Ajustement Gaussien
+		else: return 0  					# Ajustement Spline
+
+	##################################################
+	def run(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int,
 			sigma: float, theta: float, roi_size: int, planes: Optional[list[int]] = None) -> pd.DataFrame:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
@@ -129,7 +137,7 @@ class Palm:
 		:param stack: Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement).
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
-		:param gauss_fit: Mode d'ajustement Gaussien (défini par `get_gaussian_mode`).
+		:param fit: Mode d'ajustement Gaussien (défini par `get_gaussian_mode`).
 		:param sigma: Valeur initiale du sigma pour l'ajustement Gaussien.
 		:param theta: Valeur initiale du theta pour l'ajustement Gaussien.
 		:param roi_size: Taille de la région d'intérêt (ROI).
@@ -137,9 +145,9 @@ class Palm:
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
 		height, width = stack.shape[-2:]  # Récupère les deux dernières dimensions
-		self.__init_args(height, width, threshold, watershed, gauss_fit, sigma, theta, roi_size)
+		self.__init_args(height, width, threshold, watershed, fit, sigma, theta, roi_size)
 
-		if stack.ndim == 2: return self.__run_image(stack, gauss_fit)
+		if stack.ndim == 2: return self.__run_image(stack, fit)
 
 		n_planes = stack.shape[0]
 		if planes is None: planes = list(range(n_planes))
@@ -149,7 +157,7 @@ class Palm:
 		n_planes = len(planes)
 		start_time = time.time()												  # Temps de début
 		for index, i in enumerate(planes):
-			points = self.__run_image(stack[i], gauss_fit, i + 1)
+			points = self.__run_image(stack[i], fit, i + 1)
 			results.append(points)												  # Ajouter à la liste
 			if index % 50 == 0 or index == n_planes - 1:
 				elapsed_time = time.time() - start_time							  # Temps écoulé

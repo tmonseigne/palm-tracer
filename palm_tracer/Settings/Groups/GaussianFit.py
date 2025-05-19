@@ -17,11 +17,10 @@ class GaussianFit(BaseSettingGroup):
 
 	Attributs :
 			- **Mode (Combo)** : Méthode d'ajustement Gaussien (par défaut : Mode X, Y).
-						- 0 : Pas d'ajustement Gaussien
-						- 1 : Mode X, Y (theta et sigma sont fixes)
-						- 2 : Mode X, Y, Sigma (theta est fixe, Sigma Non)
-						- 3 : Mode X, Y, SigmaX, SigmaY (theta n'est pas fixe, Sigma Si)
-						- 4 : Mode X, Y, SigmaX, SigmaY, Theta (theta et sigma ne sont pas fixes)
+						- 0 : Mode X, Y (theta et sigma sont fixes)
+						- 1 : Mode X, Y, Sigma (theta est fixe, Sigma Non)
+						- 2 : Mode X, Y, SigmaX, SigmaY (theta n'est pas fixe, Sigma Si)
+						- 3 : Mode X, Y, SigmaX, SigmaY, Theta (theta et sigma ne sont pas fixes)
 			- **Sigma (SpinFloat)** : Paramètre σ pour l'ajustement gaussien (par défaut : 1.0).
 			- **Sigma Fixed (CheckBox)** : Indique si le paramètre σ est fixe ou non (par défaut : True).
 			- **Theta (SpinFloat)** : Paramètre θ pour l'ajustement gaussien (par défaut : 1.0).
@@ -30,7 +29,7 @@ class GaussianFit(BaseSettingGroup):
 
 	label: str = "Gaussian Fit"
 	setting_list = {
-			"Mode":  [Combo, ["Mode", 1, ["None", "X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
+			"Mode":  [Combo, ["Mode", 0, ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
 			"Sigma": [SpinFloat, ["σ", 1.0, 0.0, 10.0, 0.1]],
 			"Theta": [SpinFloat, ["θ", 0.0, 0.0, 10.0, 0.1]],
 			}

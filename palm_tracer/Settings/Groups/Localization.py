@@ -31,10 +31,10 @@ class Localization(BaseSettingGroup):
 			"Preview":        [Button, ["Preview"]],
 			"Threshold":      [SpinFloat, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
 			"Auto Threshold": [Button, ["Auto Threshold"]],
-			"ROI Shape":       [Combo, ["ROI Shape", 0, ["Circle", "Square"]]],
+			"ROI Shape":      [Combo, ["ROI Shape", 0, ["Circle", "Square"]]],
 			"ROI Size":       [SpinInt, ["ROI Size", 7, 3, 50, 1]],
 			"Watershed":      [CheckBox, ["Watershed", True]],
-			"Mode":           [Combo, ["Mode", 0, ["Gaussian Fit", "Spline"]]],
+			"Fit":            [Combo, ["Fit", 0, ["Nothing", "Gaussian Fit", "Spline"]]],
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}
@@ -46,14 +46,17 @@ class Localization(BaseSettingGroup):
 		self._settings["Gaussian Fit"].remove_header()
 		self._settings["Spline Fit"].remove_header()
 		self._settings["Spline Fit"].hide()
-		self._settings["Mode"].connect(self.toggle_fit_mode)
+		self._settings["Fit"].connect(self.toggle_fit_mode)
 
 	##################################################
 	def toggle_fit_mode(self, mode):
 		"""Change le mode d'ajustement."""
 		if mode == 0:
+			self._settings["Gaussian Fit"].hide()
+			self._settings["Spline Fit"].hide()
+		elif mode == 1:
 			self._settings["Gaussian Fit"].show()
 			self._settings["Spline Fit"].hide()
 		else:
-			self._settings["Spline Fit"].show()
 			self._settings["Gaussian Fit"].hide()
+			self._settings["Spline Fit"].show()
