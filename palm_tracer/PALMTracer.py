@@ -105,7 +105,7 @@ class PALMTracer:
 			else:
 				self._logger.add("Localisation désactivé.")
 				f = get_last_file(self._path, "localizations")
-				if f.endswith("csv"):						   # Chargement d'une localisation existante
+				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'une localisation pré-calculée.")
 					try:
 						self.localizations = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
@@ -127,10 +127,10 @@ class PALMTracer:
 			else:
 				self._logger.add("Tracking désactivé.")
 				f = get_last_file(self._path, "tracking")
-				if f.endswith("csv"):					# Chargement d'une localisation existante
+				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'un tracking pré-calculée.")
 					try:
-						self.tracks = pd.read_csv(f)   # Lecture du fichier CSV avec pandas
+						self.tracks = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
 						self._logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvée(s).")
 					except Exception as e:
@@ -175,8 +175,9 @@ class PALMTracer:
 		# Filtre sur les plans
 		planes = filters["Plane"].get_value()
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
+		fit = Palm.get_fit(s["Fit"], s["Gaussian Fit Mode"])
 		# Run command
-		self.localizations = self.palm.run(self._stack, s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"],
+		self.localizations = self.palm.run(self._stack, s["Threshold"], s["Watershed"], fit,
 										   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"], planes)
 
 		self.__filter_localizations()

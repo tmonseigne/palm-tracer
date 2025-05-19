@@ -19,6 +19,7 @@ from qtpy.QtCore import Qt, QThread
 from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
+from palm_tracer.Processing import Palm
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning, save_json
 from palm_tracer.UI.Worker import Worker
@@ -306,11 +307,12 @@ class PALMTracerWidget(QWidget):
 		if present is None: return
 
 		s = self.pt.settings.localization.get_settings()
-		t, w, gm, gs, gt, r = s["Threshold"], s["Watershed"], s["Gaussian Fit Mode"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"]
+		t, w, m, gs, gt, r = (s["Threshold"], s["Watershed"], Palm.get_fit(s["Fit"], s["Gaussian Fit Mode"]),
+							   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
 		self._preview_locs = {
-				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm.run(past, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
-				"Present": self.pt.filter_localizations(self.pt.palm.run(present, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy(),
-				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm.run(future, t, w, gm, gs, gt, r))[["Y", "X"]].to_numpy()
+				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm.run(past, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Present": self.pt.filter_localizations(self.pt.palm.run(present, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm.run(future, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy()
 				}
 
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,

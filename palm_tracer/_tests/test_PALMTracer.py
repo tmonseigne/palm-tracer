@@ -143,7 +143,8 @@ def test_process_all(make_napari_viewer):
 	pt = PALMTracer()
 
 	pt.settings.localization.active = True
-	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(4)
+	pt.settings.localization["Fit"].set_value(1)
+	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(3)
 	pt.settings.tracking.active = True
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
