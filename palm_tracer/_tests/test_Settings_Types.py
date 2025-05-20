@@ -117,6 +117,7 @@ def test_file_list(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = FileList("Test")
 	setting_base_test(setting, -1, -1)
+	setting.remove_file() # Suppression d'un fichier alors qu'il n'y en a jamais eu
 	setting.items = ["File1", "File2", "File3"]
 	setting.update_box()
 	setting.set_value(1)
@@ -126,6 +127,7 @@ def test_file_list(make_napari_viewer):
 	setting.clear_files()
 	assert setting.get_list() == [], "Liste de fichiers après nettoyage non valide."
 	assert setting.get_selected() == "", "Valeur non vide."
+	setting.remove_file() # Suppression d'un fichier alors qu'il n'y en a plus
 
 
 ###################################################

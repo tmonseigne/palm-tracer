@@ -185,7 +185,7 @@ class PALMTracerWidget(QWidget):
 				print_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
 
 	##################################################
-	def _on_load_setting_btn(self):  # pragma: no cover
+	def _on_load_setting_btn(self):  # pragma: no cover pytest à du mal avec l'ouverture de boite de dialogue.
 		"""Action lors d'un clic sur le bouton Load setting."""
 		filename, _ = self.filedialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
 		self._load_setting(Path(filename))
@@ -328,7 +328,7 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
-	def _show_high_res_image(self):  # pragma: no cover le systeme pytest à du mal avec les ouvertures en série de fenêtres
+	def _show_high_res_image(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""
 		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
 		"""

@@ -71,7 +71,7 @@ class BrowseFile(BaseSettingType):
 		self.add_row(layout)  # Ajouter au calque principal du setting.
 
 	##################################################
-	def browse_file(self):  # pragma: no cover
+	def browse_file(self):  # pragma: no cover pytest à du mal avec l'ouverture de boite de dialogue.
 		"""Ouvre un dialogue de sélection de fichier et met à jour la boîte avec le chemin sélectionné."""
 		current = self.get_value()
 		# Si le chemin par défaut n'est pas valide, on utilise le chemin principal du projet
