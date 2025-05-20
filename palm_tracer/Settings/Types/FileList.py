@@ -73,7 +73,7 @@ class FileList(BaseSettingType):
 		self.box.addItems(self.items)
 
 	##################################################
-	def add_file(self):  # pragma: no cover
+	def add_file(self):  # pragma: no cover  pytest à du mal avec l'ouverture de boite de dialogue.
 		"""Ajoute un fichier à la liste via un QFileDialog."""
 		# Déterminer le répertoire initial pour la boîte de dialogue
 		initial_dir = (self.items[-1] if self.items else ".")  # Utiliser le dernier fichier ou le répertoire courant
@@ -84,7 +84,7 @@ class FileList(BaseSettingType):
 			self.set_value(len(self.items) - 1)
 
 	##################################################
-	def remove_file(self):  # pragma: no cover
+	def remove_file(self):
 		"""Supprime le fichier actuellement sélectionné dans la ComboBox."""
 		current_index = self.box.currentIndex()
 		if 0 <= current_index < len(self.items):
