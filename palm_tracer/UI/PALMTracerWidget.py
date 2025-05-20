@@ -88,14 +88,12 @@ class PALMTracerWidget(QWidget):
 		if setting and isinstance(setting, FileList):  # pragma: no cover (toujours vrai)
 			setting.connect(self._reset_layer)
 
-		# Calcul de la preview
-		self.pt.settings.localization["Preview"].connect(lambda: self._thread_process(self._preview, self._add_detection_layers))
-		self.viewer.dims.events.current_step.connect(self._on_plane_change)
 
 		# Calcul automatique du Seuil
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)
 
 		# Connexion à chaque changement de paramètres
+		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_detection_layers))
 		self.pt.settings.connect(self._on_change)
 
 		# Launch Button
@@ -224,7 +222,7 @@ class PALMTracerWidget(QWidget):
 				"Future":  {"border": 0.2, "edge": 0.2, "color": "orange", "face": "transparent"}
 				}
 		for state, points in self._preview_locs.items():
-			if points is None or points.size == 0:
+			if not self.pt.settings.localization["Preview"].get_value() or points is None or points.size == 0:
 				if f"Points {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"Points {state}"])
 				if f"ROI {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
 				continue
@@ -262,8 +260,8 @@ class PALMTracerWidget(QWidget):
 				layer = self.viewer.layers[l_name]
 				# Cas particulier en cas de changement de formes.
 				# Il a du mal à mettre à jour, une suppression complete est necessaire bien que couteuse en temps
-				if layer.shape_type != s_type:
-					self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
+				if layer.shape_type[0] != s_type:
+					self.viewer.layers.remove(self.viewer.layers[l_name])
 					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 				else:
 					layer.data = rois  # Remplace toutes les formes
@@ -296,19 +294,13 @@ class PALMTracerWidget(QWidget):
 		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
 		# Save settings
 		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
-		if "Points Present" in self.viewer.layers: self._thread_process(self._preview, self._add_detection_layers)
-
-	##################################################
-	def _on_plane_change(self, event):
-		"""
-		Met à jour la preview au changement du plan affiché dans Napari.
-		:param event:
-		"""
-		if "Points Present" in self.viewer.layers: self._thread_process(self._preview, self._add_detection_layers)
+		self._thread_process(self._preview, self._add_detection_layers)
 
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
+		if not self.pt.settings.localization["Preview"].get_value(): return
+
 		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
 		if present is None: return
 
