@@ -15,9 +15,10 @@ from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
+from mpmath.functions.zetazeros import count_to
 
 from palm_tracer.Processing.Parsing import get_max_points, parse_palm_result
-from palm_tracer.Tools.Utils import format_time, load_dll
+from palm_tracer.Tools.Utils import load_dll
 
 
 ##################################################
@@ -40,21 +41,18 @@ class Palm:
 		self._points = np.zeros((1,), dtype=np.float64)
 
 		self._args = OrderedDict(
-				[("image", None),				   # Image
-				 ("points", None),				   # Liste de points
-				 ("n", None),					   # Nombre maximum de points théorique
-				 ("height", None),				   # Hauteur (nombre de lignes)
-				 ("width", None),				   # Largeur (nombre de colonnes)
-				 ("wavelet", ctypes.c_ulong(1)),   # Wavelet toujours à 1.
-				 ("threshold", None),			   # Seuil
-				 ("watershed", None),			   # Activation du Watershed
-				 ("vol_min", ctypes.c_double(4)),  # Vol minimum toujours à 4.
-				 ("int_min", ctypes.c_double(0)),  # Int minimum toujours à 0.
-				 ("fit", None),					   # Mode du Gaussian Fit
-				 ("sigma_x", None),				   # Valeur initiale du Sigma X
-				 ("sigma_y", None),				   # Valeur initiale du Sigma Y (*2 pour correspondre à métamorph, interet limité)
-				 ("theta", None),				   # Valeur Initiale du Theta
-				 ("roi_size", None)])			   # taille de la ROI
+				[("stack", None),	   # Pile
+				 ("points", None),	   # Liste de points
+				 ("n", None),		   # Nombre maximum de points théorique
+				 ("height", None),	   # Hauteur (nombre de lignes)
+				 ("width", None),	   # Largeur (nombre de colonnes)
+				 ("planes", None),	   # Profondeur (nombre de plans)
+				 ("threshold", None),  # Seuil
+				 ("watershed", None),  # Activation du Watershed
+				 ("fit", None),		   # Mode du Gaussian Fit
+				 ("sigma", None),	   # Valeur initiale du Sigma
+				 ("theta", None),	   # Valeur Initiale du Theta
+				 ("roi_size", None)])  # taille de la ROI
 
 	##################################################
 	def is_valid(self) -> bool:
@@ -66,13 +64,15 @@ class Palm:
 		return self._dll is not None
 
 	##################################################
-	def __init_args(self, height: int, width: int, threshold: float, watershed: bool, fit: int,
+	def __init_args(self, stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int,
 					sigma: float, theta: float, roi_size: int):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe.
 
+		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
 		:param height: Hauteur des images.
 		:param width: Largeur des images.
+		:param planes: Nombre de plans.
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
 		:param fit: Mode d'ajustement Gaussien.
@@ -82,43 +82,20 @@ class Palm:
 		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		# Parsing
-		n = get_max_points(height, width)  # Récupération d'un nombre de points maximum théorique
+		n = get_max_points(height, width, planes)  # Récupération d'un nombre de points maximum théorique
 		if n != self._args["n"]: self._points = np.zeros((n,), dtype=np.float64)
+		self._args["stack"] = np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))
 		self._args["points"] = self._points.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
 		self._args["n"] = ctypes.c_ulong(n)
 		self._args["height"] = ctypes.c_ulong(height)
 		self._args["width"] = ctypes.c_ulong(width)
+		self._args["planes"] = ctypes.c_ulong(planes)
 		self._args["threshold"] = ctypes.c_double(threshold)
 		self._args["watershed"] = ctypes.c_double(0 if watershed else 10)
 		self._args["fit"] = ctypes.c_ushort(fit)
-		self._args["sigma_x"] = ctypes.c_double(sigma)
-		self._args["sigma_y"] = ctypes.c_double(sigma * 2)
+		self._args["sigma"] = ctypes.c_double(sigma)
 		self._args["theta"] = ctypes.c_double(theta)
 		self._args["roi_size"] = ctypes.c_ushort(roi_size)
-
-	##################################################
-	def __updata_args(self, image: np.ndarray):
-		"""
-		Met à jour les arguments necessaires au lancement de la DLL PALM externe.
-		:param image: Image à envoyer
-		"""
-		self._points.fill(0)  # remise à 0 des points
-		# Forcer le type de l'image en np.uint16 et "applati" l'image avant de la passer en pointeur
-		self._args["image"] = np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))
-
-	##################################################
-	def __run_image(self, image: np.ndarray, fit: int, plane: int = 1) -> pd.DataFrame:
-		"""
-		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une image.
-
-		:param image: Image d'entrée 2D sous forme de tableau numpy d'entier.
-		:param fit: Mode d'ajustement Gaussien.
-		:param plane: Numéro du plan dans la pile
-		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
-		"""
-		self.__updata_args(image)
-		self._dll.Process(*self._args.values())
-		return parse_palm_result(self._points, plane, fit, True)
 
 	##################################################
 	@staticmethod
@@ -145,37 +122,22 @@ class Palm:
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		"""
 		height, width = stack.shape[-2:]  # Récupère les deux dernières dimensions
-		self.__init_args(height, width, threshold, watershed, fit, sigma, theta, roi_size)
+		n_planes = 1 if stack.ndim == 2 else stack.shape[0]
 
-		if stack.ndim == 2: return self.__run_image(stack, fit)
-
-		n_planes = stack.shape[0]
 		if planes is None: planes = list(range(n_planes))
 		else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
 
-		results = []
-		n_planes = len(planes)
-		start_time = time.time()												  # Temps de début
-		for index, i in enumerate(planes):
-			points = self.__run_image(stack[i], fit, i + 1)
-			results.append(points)												  # Ajouter à la liste
-			if index % 50 == 0 or index == n_planes - 1:
-				elapsed_time = time.time() - start_time							  # Temps écoulé
-				avg_time_per_plane = elapsed_time / (index + 1)					  # Temps moyen par plan
-				remaining_planes = n_planes - (index + 1)						  # Plans restants
-				estimated_time_remaining = avg_time_per_plane * remaining_planes  # Temps estimé restant
-				# Affichage avec le temps total écoulé et le temps estimé restant
-				sys.stdout.write(f"\rRun PALM on Plane {i} ({(index + 1) / n_planes * 100:.0f}%) "
-								 f"- Total time elapsed: {format_time(elapsed_time)} "
-								 f"- Estimated time remaining: {format_time(estimated_time_remaining)}"
-								 f"- Total time to finish: {format_time(elapsed_time + estimated_time_remaining)}")
-				sys.stdout.flush()
-		print()  # Ajoute un saut de ligne à la fin pour éviter d'écraser la dernière mise à jour
+		# cut de l'image pour n'avoir que les plans voulu
+		new_n_planes = len(planes)
+		# Ajoute une dimension plan artificielle pour une Image 2D ou une vue mémoire (slice) pour une pile 3D
+		new_stack = stack[np.newaxis, :, :] if stack.ndim == 2  else stack[planes[0]:planes[-1]+1]
 
-		# Créer le dataframe final peut-être plus rapide que le mettre à jour à chaque iteration (réallocation des milliers de fois)
-		res = pd.concat(results, ignore_index=True)
-		res["Id"] = range(1, len(res) + 1)  # Mise à jour de l'ID dans le tableau
+		self.__init_args(new_stack, height, width, new_n_planes, threshold, watershed, fit, sigma, theta, roi_size)
+		count = self._dll.Process(*self._args.values())
+		res = parse_palm_result(self._points, count)
+		if planes[0] != 0 : res["Plane"] += planes[0] # en cas de filtre de plans
 		return res
+
 
 	##################################################
 	def auto_threshold(self, image: np.ndarray, roi_size: int = 7, max_iterations: int = 4):

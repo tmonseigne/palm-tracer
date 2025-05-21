@@ -53,6 +53,8 @@ def test_palm_cpu(make_napari_viewer):
 	  10-20% d'utilisation CPU Ram à 4Giga
 	- DLL Recompilé stade 21 : ~2min10 Suppression de la limite physique et conservation de la limite dynamique gain Total ~78%
 	  10-20% d'utilisation CPU Ram à 4Giga
+  	- DLL Recompilé stade 22 : ~20s Passage à l'appel de la stack au lieu de plan par plan gain Total ~96% + 15s d'analyse du csv dans python
+	  jusqu'à 100% d'utilisation CPU Ram à 8Giga en process + quantité importante lors du passage à pandas (30s et 40Giga à vérifier sur pc moins performant).
 
 	"""
 	palm = Palm()
