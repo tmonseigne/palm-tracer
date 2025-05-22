@@ -57,7 +57,7 @@ def test_palm_cpu_stack():
 			if path.exists() and path.is_file():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
-				compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
+				assert compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
 	assert True
 
 
@@ -70,9 +70,14 @@ def test_palm_cpu_stack_plane_selection():
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 	suffix = get_loc_suffix()
 
-	localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi, [2, 4, 6, -1, 10])
+	localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi, [2,3,4,5,6])
 	if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 	assert len(localizations) > 0, "Aucune localisation trouvé"
+	path = Path(f"{INPUT_DIR}/ref/{file}-localizations-plane_select-{suffix}.csv")
+	if path.exists() and path.is_file():
+		print(f"Comparaison avec : '{path}'")
+		ref = pd.read_csv(path)
+		assert compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
 
 
 ##################################################

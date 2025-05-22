@@ -4,9 +4,12 @@ import numpy as np
 import pandas as pd
 
 # Segmentation (Localization)
-N_SEGMENT = 13  # Nombre de paramètres pour la segmentation.
-SEGMENT_COLS = ["Sigma X", "Sigma Y", "Theta", "Y", "X", "Intensity 0", "Intensity Offset",
-				"MSE Gaussian", "Intensity", "Surface", "Z", "Pair Distance", "Id"]
+N_SEGMENT = 16  # Nombre de paramètres pour la segmentation.
+SEGMENT_COLS = ["Id", "Plane", "Index", "X", "Y", "Z", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta",
+				"Intensity 0", "Intensity Offset", "Intensity", "Surface", "MSE Gaussian", "Circularity"]
+
+SEGMENT_COLS_FOR_TRACKING = ["Sigma X", "Sigma Y", "Theta", "Y", "X", "Intensity 0", "Intensity Offset",
+							 "MSE Gaussian", "Intensity", "Surface", "Z", "Pair Distance", "Id"]
 
 SEGMENT_FILE_COLS = ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
 					 "Sigma X", "Sigma Y", "Theta", "MSE Gaussian", "MSE Z", "Pair Distance"]
@@ -18,14 +21,14 @@ TRACK_FILE_COLS = ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity"
 
 
 ##################################################
-def get_max_points(height: int = 256, width: int = 256, density: float = 0.2, n_planes: int = 1) -> int:
+def get_max_points(height: int = 256, width: int = 256, n_planes: int = 1, density: float = 0.2) -> int:
 	"""
 	Calcule le nombre maximal théorique de points détectables basé sur les dimensions et la densité de l'image.
 
 	:param height: Hauteur de l'image (nombre de lignes). Par défaut 256.
 	:param width: Largeur de l'image (nombre de colonnes). Par défaut 256.
-	:param density: Densité de points par pixel. Par défaut 0.2.
 	:param n_planes: Nombre de plans de l'image. Par défaut 1.
+	:param density: Densité de points par pixel. Par défaut 0.2.
 
 	:return: Nombre maximal théorique de points détectables.
 	"""
@@ -51,11 +54,14 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list["str"], remain
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
 		columns = columns + remaining_columns									 # Ajout des colonnes restantes aux colonnes de départ
-	return data[columns]														 # Réorganisation du DataFrame
+
+	if list(data.columns[:len(columns)]) == columns: return data				 # Optimisation : évite la copie si déjà bon ordre
+
+	return data.loc[:, columns]													 # Réorganisation du DataFrame
 
 
 ##################################################
-def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool = False) -> pd.DataFrame:
+def parse_palm_result(data: np.ndarray, count: int) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
@@ -65,34 +71,18 @@ def parse_palm_result(data: np.ndarray, plane: int, gauss_fit: int, sort: bool =
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	:param data: Donnée en entrée récupérées depuis la DLL PALM.
-	:param plane: Numéro du plan dans la pile
-	:param gauss_fit: Mode d'ajustement Gaussien.
-	:param sort: Tri des points par Y puis X (sens de lecture Gauche à droite du haut vers le bas).
 	:return: Dataframe filtré
 	"""
 	# Manipulation du tableau 1D.
-	size = (data.size // N_SEGMENT) * N_SEGMENT									  # Récupération de la taille correcte si non multiple de N_SEGMENT
-	res = pd.DataFrame(data[:size].reshape(-1, N_SEGMENT), columns=SEGMENT_COLS)  # Transformation en Dataframe
-	res = res[res["X"] > 0]														  # Filtrage des lignes remplies de 0 et -1
-
-	if sort: res = res.sort_values(by=["Y", "X"], ascending=[True, True])  # Tri (un tri uniquement sur Y est possible, car peu de chance de doublons)
-	res = res.reset_index(drop=True)									   # Remise à 0 des index
-	res["Id"] = range(1, len(res) + 1)									   # Mise à jour de l'ID dans le tableau.
-	res["Index"] = range(1, len(res) + 1)								   # Ajout de l'index (au sein du plan) dans le tableau.
-	res["Plane"] = plane												   # Ajout d'un plan dans le tableau
-	res["Channel"] = -1													   # Ajout d'un channel dans le tableau
-	res["MSE Z"] = -1													   # Ajout d'un MSE pour Z dans le tableau
-
-	# Ajout de l'intensité intégré (si on à les sigma du gaussian fit ou non)
-	if gauss_fit != 0: res["Integrated Intensity"] = 2 * np.pi * res["Intensity 0"] * res["Sigma X"] * res["Sigma Y"]
-	else: res["Integrated Intensity"] = res["Intensity"]
-
-	# Ajout de la circularité, on complique un peu pour éviter les cas ou Sigma X et Y valent 0
-	# Normalement uniquement lorsque  gauss_fit == 0 comme précédemment mais en prévision du futur (autres méthodes), on sécurise le process
-	# L'utilisation de Numpy permet de passer les divisions par 0 (résultat Nan)
-	circularity = np.minimum(res["Sigma X"], res["Sigma Y"]) / np.maximum(res["Sigma X"], res["Sigma Y"])
-	res["Circularity"] = circularity.fillna(1)  # Remplacement des Nan par 1.
-
+	size = (count // N_SEGMENT) * N_SEGMENT							  # Récupération de la taille correcte si non multiple de N_SEGMENT
+	data = data[:size].reshape(-1, N_SEGMENT)						  # Passage en tableau 2D
+	data = data[data[:, SEGMENT_COLS.index("X")] > 0]				  # Filtrage en amont
+	data = data.astype(np.float32)									  # Conversion en float pour alléger la mémoire (à ce stade la précision est suffisante)
+	res = pd.DataFrame(data, columns=SEGMENT_COLS)  				  # Transformation en Dataframe
+	res["Channel"] = np.full(len(res), -1, dtype=np.int32)			  # Ajout d'un channel dans le tableau
+	res["MSE Z"] = np.full(len(res), -1, dtype=np.float32)			  # Ajout d'un MSE pour Z dans le tableau
+	res["Pair Distance"] = np.zeros(len(res), dtype=np.float32)		  # Ajout d'un Pair Distance dans le tableau
+	res = res.astype({"Id": "int32", "Plane": "int32", "Index": "int32", "Surface": "int32", "Channel": "int32"})
 	return rearrange_dataframe_columns(res, SEGMENT_FILE_COLS, True)  # Réorganisation du DataFrame
 
 
@@ -136,5 +126,5 @@ def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 
 	# Conversion en DataFrame final
 	res = pd.DataFrame(rows)
-	res = rearrange_dataframe_columns(res, SEGMENT_COLS, False)
+	res = rearrange_dataframe_columns(res, SEGMENT_COLS_FOR_TRACKING, False)
 	return np.asarray(res.to_numpy().flatten(), dtype=np.float64)
