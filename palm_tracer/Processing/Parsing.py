@@ -103,40 +103,15 @@ def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 	"""
 	# Ajoute une ligne de -1 à chaque changement de Plan dans la localisation
 	# Création d'un nouveau DataFrame avec les séparateurs -1 insérés
-	rows = []
+	res = []
 	previous_plan = None
-	columns = data.columns  # Récupérer toutes les colonnes
-
+	blank = [-1 for _ in COLS_FOR_TRACKING]
 	for _, row in data.iterrows():
 		if previous_plan is not None and row["Plane"] != previous_plan:
-			rows.append({col: -1 for col in columns})  # Ajout de la ligne de -1
-		rows.append(row.to_dict())  # Ajout de la ligne actuelle
+			res += blank
+		res += row[COLS_FOR_TRACKING].to_list()
 		previous_plan = row["Plane"]
 
 	# Ajout d'une dernière ligne -1 à la fin
-	rows.append({col: -1 for col in columns})
-
-	# Conversion en DataFrame final
-	res = pd.DataFrame(rows)
-	res = rearrange_dataframe_columns(res, COLS_FOR_TRACKING, False)
-	return np.asarray(res.to_numpy().flatten(), dtype=np.float64)
-
-# rows = []
-# previous_plan = None
-#
-# for _, row in data.iterrows():
-# 	if previous_plan is not None and row["Plane"] != previous_plan:
-# 		rows.append({col: -1 for col in COLS_FOR_TRACKING})  # Ajout de la ligne de -1
-# 	rows.append(row.to_dict())  # Ajout de la ligne actuelle
-# 	previous_plan = row["Plane"]
-#
-# # Ajout d'une dernière ligne -1 à la fin
-# rows.append({col: -1 for col in COLS_FOR_TRACKING})
-#
-# # Conversion en DataFrame final
-# res = pd.DataFrame(rows)
-# print(res.shape)
-# res = rearrange_dataframe_columns(res, COLS_FOR_TRACKING, False)
-# print(res.shape)
-#
-# return np.asarray(res.to_numpy().flatten(), dtype=np.float64)
+	res += blank
+	return np.asarray(res, dtype=np.float64)
