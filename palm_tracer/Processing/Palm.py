@@ -59,14 +59,14 @@ class Palm:
 		n = get_max_points(height, width, planes)  # Récupération d'un nombre de points maximum théorique
 		return {
 				"stack":      np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
-				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Tabelau pour la localisation
-				"n":          ctypes.c_ulong(n),  # Nombre maximum de localisation théoriques lors de la localization
-				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
-				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
-				"planes":     ctypes.c_ulong(planes),  # Profondeur (nombre de plans)
-				"threshold":  ctypes.c_double(threshold),  # Seuil de détection
+				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),				 # Tabelau pour la localisation
+				"n":          ctypes.c_ulong(n),						# Nombre maximum de localisation théoriques lors de la localization
+				"height":     ctypes.c_ulong(height),					# Hauteur (nombre de lignes)
+				"width":      ctypes.c_ulong(width),					# Largeur (nombre de colonnes)
+				"planes":     ctypes.c_ulong(planes),					# Profondeur (nombre de plans)
+				"threshold":  ctypes.c_double(threshold),				# Seuil de détection
 				"watershed":  ctypes.c_double(0 if watershed else 10),  # Seuil du Watershed
-				"fit":        ctypes.c_ushort(fit),  # Mode d'ajustement
+				"fit":        ctypes.c_ushort(fit),						# Mode d'ajustement
 				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
 				}
 
@@ -146,9 +146,9 @@ class Palm:
 		:return: Seuil calculé (écart type final).
 		"""
 		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
-		std_dev = float(np.std(image))  # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0  # Demi-taille de la zone ROI
-		height, width = image.shape  # Récupération de la taille de l'image
+		std_dev = float(np.std(image))			 # Calcul initial de l'écart type
+		roi_2 = float(roi_size) / 2.0			 # Demi-taille de la zone ROI
+		height, width = image.shape				 # Récupération de la taille de l'image
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))

@@ -57,11 +57,10 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
-		columns = columns + remaining_columns  # Ajout des colonnes restantes aux colonnes de départ
+		columns = columns + remaining_columns									 # Ajout des colonnes restantes aux colonnes de départ
 
-	if list(data.columns[:len(columns)]) == columns: return data  # Optimisation : évite la copie si déjà bon ordre
-
-	return data.loc[:, columns]  # Réorganisation du DataFrame
+	if list(data.columns[:len(columns)]) == columns: return data				 # Optimisation : évite la copie si déjà bon ordre
+	return data.loc[:, columns]													 # Réorganisation du DataFrame
 
 
 ##################################################
@@ -84,11 +83,11 @@ def parse_result(data: np.ndarray, file_type: str = "Localization") -> pd.DataFr
 	types = PARSING_COLUMNS[file_type]["types"]
 
 	# Manipulation du tableau 1D.
-	size = (data.size // n_columns) * n_columns  # Récupération de la taille correcte si non multiple de N_SEGMENT
-	data = data[:size].reshape(-1, n_columns)  # Passage en tableau 2D
+	size = (data.size // n_columns) * n_columns	  # Récupération de la taille correcte si non multiple de N_SEGMENT
+	data = data[:size].reshape(-1, n_columns)	  # Passage en tableau 2D
 	data = data[data[:, columns.index("X")] > 0]  # Filtrage en amont
-	data = data.astype(np.float32)  # Conversion en float pour alléger la mémoire (à ce stade la précision est suffisante)
-	res = pd.DataFrame(data, columns=columns)  # Transformation en Dataframe
+	data = data.astype(np.float32)				  # Conversion en float pour alléger la mémoire (à ce stade la précision est suffisante)
+	res = pd.DataFrame(data, columns=columns)	  # Transformation en Dataframe
 	res = res.astype(types)
 	return res
 
@@ -102,41 +101,14 @@ def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 	:return: Dataframe
 	"""
 	# Ajoute une ligne de -1 à chaque changement de Plan dans la localisation
-	# Création d'un nouveau DataFrame avec les séparateurs -1 insérés
-	rows = []
+	res = []
 	previous_plan = None
-	columns = data.columns  # Récupérer toutes les colonnes
-
+	blank = [-1 for _ in COLS_FOR_TRACKING]
 	for _, row in data.iterrows():
 		if previous_plan is not None and row["Plane"] != previous_plan:
-			rows.append({col: -1 for col in columns})  # Ajout de la ligne de -1
-		rows.append(row.to_dict())  # Ajout de la ligne actuelle
+			res += blank
+		res += row[COLS_FOR_TRACKING].to_list()
 		previous_plan = row["Plane"]
 
-	# Ajout d'une dernière ligne -1 à la fin
-	rows.append({col: -1 for col in columns})
-
-	# Conversion en DataFrame final
-	res = pd.DataFrame(rows)
-	res = rearrange_dataframe_columns(res, COLS_FOR_TRACKING, False)
-	return np.asarray(res.to_numpy().flatten(), dtype=np.float64)
-
-# rows = []
-# previous_plan = None
-#
-# for _, row in data.iterrows():
-# 	if previous_plan is not None and row["Plane"] != previous_plan:
-# 		rows.append({col: -1 for col in COLS_FOR_TRACKING})  # Ajout de la ligne de -1
-# 	rows.append(row.to_dict())  # Ajout de la ligne actuelle
-# 	previous_plan = row["Plane"]
-#
-# # Ajout d'une dernière ligne -1 à la fin
-# rows.append({col: -1 for col in COLS_FOR_TRACKING})
-#
-# # Conversion en DataFrame final
-# res = pd.DataFrame(rows)
-# print(res.shape)
-# res = rearrange_dataframe_columns(res, COLS_FOR_TRACKING, False)
-# print(res.shape)
-#
-# return np.asarray(res.to_numpy().flatten(), dtype=np.float64)
+	res += blank	# Ajout d'une dernière ligne -1 à la fin
+	return np.asarray(res, dtype=np.float64)

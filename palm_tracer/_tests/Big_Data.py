@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Processing import Palm, Tracking
+from palm_tracer.Processing import Palm
 from palm_tracer.Tools import open_tif, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -111,13 +111,13 @@ def test_tracking(make_napari_viewer):
 	  utilisation de CPU inférieur à 4% (1 seul coeur), Memory Usage 1.5-3Giga. suppression du code inutilisé
 
 	"""
-	tracking = Tracking()
+	palm = Palm()
 	suffix = get_loc_suffix(threshold=thresh)
 	path_tracking = Path(f"{INPUT_DIR}/big input/{file}-localizations-{suffix}.csv")
 
 	if path_tracking.exists() and path_tracking.is_file():
 		localizations = pd.read_csv(path_tracking)
-		tracks = tracking.run(localizations, max_distance, min_life, decrease, cost_birth)
+		tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
 		if save_output: tracks.to_csv(f"{OUTPUT_DIR}/{file}-tracking-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
