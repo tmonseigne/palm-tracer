@@ -6,7 +6,6 @@ Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter le
 """
 
 import ctypes
-import math
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Optional
@@ -27,27 +26,13 @@ class Palm:
 	_dll: ctypes.CDLL = field(init=False)
 	"""DLL chargée."""
 	_locs: np.ndarray = field(init=False)
-	"""Liste des points en sortie de la DLL."""
-	_locs_args: OrderedDict[str, Any] = field(init=False)
-	"""Arguments à passer à la DLL."""
+	"""Liste des localisations en sortie de la DLL."""
 
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._dll = load_dll(self._type)
 		self._locs = np.zeros((1,), dtype=np.float64)
-
-		self._locs_args = OrderedDict(
-				[("stack", None),		   # Pile
-				 ("localizations", None),  # Liste de points
-				 ("n", None),			   # Nombre maximum de points théoriques lors de la localization
-				 ("height", None),		   # Hauteur (nombre de lignes)
-				 ("width", None),		   # Largeur (nombre de colonnes)
-				 ("planes", None),		   # Profondeur (nombre de plans)
-				 ("threshold", None),  	   # Seuil
-				 ("watershed", None),  	   # Activation du Watershed
-				 ("fit", None),			   # Mode d'ajustement
-				 ("fit_params", None)])	   # Paramètres pour l'ajustement
 
 	##################################################
 	def is_valid(self) -> bool:
@@ -59,9 +44,9 @@ class Palm:
 		return self._dll is not None
 
 	##################################################
-	def __init_args(self, stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray):
+	def __get_locs_args(self, stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray):
 		"""
-		Initialise les arguments necessaire au lancement de la DLL PALM externe.
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
 
 		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
 		:param height: Hauteur des images.
@@ -75,28 +60,31 @@ class Palm:
 		"""
 		# Parsing
 		n = get_max_points(height, width, planes)  # Récupération d'un nombre de points maximum théorique
-		if n != self._locs_args["n"]: self._locs = np.zeros((n,), dtype=np.float64)
-		self._locs_args["stack"] = np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort))
-		self._locs_args["localizations"] = self._locs.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
-		self._locs_args["n"] = ctypes.c_ulong(n)
-		self._locs_args["height"] = ctypes.c_ulong(height)
-		self._locs_args["width"] = ctypes.c_ulong(width)
-		self._locs_args["planes"] = ctypes.c_ulong(planes)
-		self._locs_args["threshold"] = ctypes.c_double(threshold)
-		self._locs_args["watershed"] = ctypes.c_double(0 if watershed else 10)
-		self._locs_args["fit"] = ctypes.c_ushort(fit)
-		self._locs_args["fit_params"] = fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
+		self._locs = np.zeros((n,), dtype=np.float64)
+		return {
+				"stack":         np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
+				"localizations": self._locs.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Tabelau pour la localisation
+				"n":             ctypes.c_ulong(n),  # Nombre maximum de localisation théoriques lors de la localization
+				"height":        ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
+				"width":         ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
+				"planes":        ctypes.c_ulong(planes), # Profondeur (nombre de plans)
+				"threshold":     ctypes.c_double(threshold),  # Seuil de détection
+				"watershed":     ctypes.c_double(0 if watershed else 10), # Seuil du Watershed
+				"fit":           ctypes.c_ushort(fit),  # Mode d'ajustement
+				"fit_params":    fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
+				}
 
 	##################################################
 	@staticmethod
 	def get_fit(mode: int = 0, submode: int = 0) -> int:
 		"""Récupère le numéro du fit pour le palm."""
-		if mode == 0: return 0				# Aucun ajustement
+		if mode == 0: return 0  # Aucun ajustement
 		elif mode == 0: return 1 + submode  # Ajustement Gaussien
-		else: return 0  					# Ajustement Spline
+		else: return 0  # Ajustement Spline
 
 	##################################################
-	def run(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray, planes: Optional[list[int]] = None) -> pd.DataFrame:
+	def localization(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray,
+					 planes: Optional[list[int]] = None) -> pd.DataFrame:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
 
@@ -117,14 +105,13 @@ class Palm:
 		# cut de l'image pour n'avoir que les plans voulu
 		new_n_planes = len(planes)
 		# Ajoute une dimension plan artificielle pour une Image 2D ou une vue mémoire (slice) pour une pile 3D
-		new_stack = stack[np.newaxis, :, :] if stack.ndim == 2  else stack[planes[0]:planes[-1]+1]
+		new_stack = stack[np.newaxis, :, :] if stack.ndim == 2 else stack[planes[0]:planes[-1] + 1]
 
-		self.__init_args(new_stack, height, width, new_n_planes, threshold, watershed, fit, fit_params)
-		count = self._dll.Localization(*self._locs_args.values())
+		args = self.__get_locs_args(new_stack, height, width, new_n_planes, threshold, watershed, fit, fit_params)
+		count = self._dll.Localization(*args.values())
 		res = parse_palm_result(self._locs, count)
-		if planes[0] != 0 : res["Plane"] += planes[0] # en cas de filtre de plans
+		if planes[0] != 0: res["Plane"] += planes[0]  # en cas de filtre de plans
 		return res
-
 
 	##################################################
 	def auto_threshold(self, image: np.ndarray, roi_size: int = 7, max_iterations: int = 4):
@@ -137,13 +124,13 @@ class Palm:
 		:return: Seuil calculé (écart type final).
 		"""
 		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
-		std_dev = float(np.std(image))			 # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0			 # Demi-taille de la zone ROI
-		height, width = image.shape				 # Récupération de la taille de l'image
+		std_dev = float(np.std(image))  # Calcul initial de l'écart type
+		roi_2 = float(roi_size) / 2.0  # Demi-taille de la zone ROI
+		height, width = image.shape  # Récupération de la taille de l'image
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))
-			points = self.run(image, std_dev, False, 0, np.array([roi_size, 1, math.pi / 4.0]))
+			points = self.localization(image, std_dev, False, 0, np.array([0, 0, 0]))
 			# Mise à jour du masque basé sur le résultat du PALM
 			# mask.fill(0)
 			for x, y in zip(points['X'], points['Y']):

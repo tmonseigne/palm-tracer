@@ -308,9 +308,9 @@ class PALMTracerWidget(QWidget):
 		t, w, m, gs, gt, r = (s["Threshold"], s["Watershed"], Palm.get_fit(s["Fit"], s["Gaussian Fit Mode"]),
 							   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"])
 		self._preview_locs = {
-				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm.run(past, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy(),
-				"Present": self.pt.filter_localizations(self.pt.palm.run(present, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy(),
-				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm.run(future, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy()
+				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm.localization(past, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Present": self.pt.filter_localizations(self.pt.palm.localization(present, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy(),
+				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm.localization(future, t, w, m, gs, gt, r))[["Y", "X"]].to_numpy()
 				}
 
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,

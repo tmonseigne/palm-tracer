@@ -24,7 +24,7 @@ def test_palm_cpu_image():
 		for fit in range(5):
 			suffix = get_loc_suffix(fit)
 
-			localizations = palm.run(stack[plane], default_threshold, default_watershed, fit, get_gaussian_fit_params())
+			localizations = palm.localization(stack[plane], default_threshold, default_watershed, fit, get_gaussian_fit_params())
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -48,7 +48,7 @@ def test_palm_cpu_stack():
 		for fit in range(5):
 			suffix = get_loc_suffix(fit, watershed)
 
-			localizations = palm.run(stack, default_threshold, watershed, fit, get_gaussian_fit_params())
+			localizations = palm.localization(stack, default_threshold, watershed, fit, get_gaussian_fit_params())
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -70,7 +70,7 @@ def test_palm_cpu_stack_plane_selection():
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 	suffix = get_loc_suffix()
 
-	localizations = palm.run(stack, default_threshold, default_watershed, default_fit, get_gaussian_fit_params(), [2, 3, 4, 5, 6])
+	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_gaussian_fit_params(), [2, 3, 4, 5, 6])
 	if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 	assert len(localizations) > 0, "Aucune localisation trouvé"
 	path = Path(f"{INPUT_DIR}/ref/{file}-localizations-plane_select-{suffix}.csv")
@@ -89,7 +89,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 	file = "stack_quadrant"
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
-	localizations = palm.run(stack, default_threshold, default_watershed, default_fit, get_gaussian_fit_params())
+	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_gaussian_fit_params())
 	if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 	quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),

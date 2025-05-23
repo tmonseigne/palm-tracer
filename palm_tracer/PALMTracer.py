@@ -177,8 +177,8 @@ class PALMTracer:
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
 		fit = Palm.get_fit(s["Fit"], s["Gaussian Fit Mode"])
 		# Run command
-		self.localizations = self.palm.run(self._stack, s["Threshold"], s["Watershed"], fit,
-										   s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"], planes)
+		self.localizations = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit,
+													s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"], s["ROI Size"], planes)
 
 		self.__filter_localizations()
 		self._logger.add("\tEnregistrement du fichier de localisation")
