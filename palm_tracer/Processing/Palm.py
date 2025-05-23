@@ -6,14 +6,13 @@ Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter le
 """
 
 import ctypes
-from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing.Parsing import get_max_points, parse_palm_result
+from palm_tracer.Processing.Parsing import get_max_points, N_TRACK, parse_localization_to_tracking, parse_result
 from palm_tracer.Tools.Utils import load_dll
 
 
@@ -25,14 +24,11 @@ class Palm:
 	"""Type de DLL, par défaut CPU, GPU également possible."""
 	_dll: ctypes.CDLL = field(init=False)
 	"""DLL chargée."""
-	_locs: np.ndarray = field(init=False)
-	"""Liste des localisations en sortie de la DLL."""
 
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._dll = load_dll(self._type)
-		self._locs = np.zeros((1,), dtype=np.float64)
 
 	##################################################
 	def is_valid(self) -> bool:
@@ -44,7 +40,8 @@ class Palm:
 		return self._dll is not None
 
 	##################################################
-	def __get_locs_args(self, stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray):
+	@staticmethod
+	def __get_locs_args(stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
 
@@ -60,18 +57,43 @@ class Palm:
 		"""
 		# Parsing
 		n = get_max_points(height, width, planes)  # Récupération d'un nombre de points maximum théorique
-		self._locs = np.zeros((n,), dtype=np.float64)
 		return {
-				"stack":         np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
-				"localizations": self._locs.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Tabelau pour la localisation
-				"n":             ctypes.c_ulong(n),  # Nombre maximum de localisation théoriques lors de la localization
-				"height":        ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
-				"width":         ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
-				"planes":        ctypes.c_ulong(planes), # Profondeur (nombre de plans)
-				"threshold":     ctypes.c_double(threshold),  # Seuil de détection
-				"watershed":     ctypes.c_double(0 if watershed else 10), # Seuil du Watershed
-				"fit":           ctypes.c_ushort(fit),  # Mode d'ajustement
-				"fit_params":    fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
+				"stack":      np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
+				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Tabelau pour la localisation
+				"n":          ctypes.c_ulong(n),  # Nombre maximum de localisation théoriques lors de la localization
+				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
+				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
+				"planes":     ctypes.c_ulong(planes),  # Profondeur (nombre de plans)
+				"threshold":  ctypes.c_double(threshold),  # Seuil de détection
+				"watershed":  ctypes.c_double(0 if watershed else 10),  # Seuil du Watershed
+				"fit":        ctypes.c_ushort(fit),  # Mode d'ajustement
+				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
+				}
+
+	##################################################
+	@staticmethod
+	def __get_tracks_args(localizations: pd.DataFrame, max_distance: float, min_life: int, decrease: float, cost_birth: float) -> dict[str, Any]:
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le tracking.
+
+		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux frames successives.
+		:param min_life: Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final.
+		:param decrease: Facteur de pénalisation appliqué au coût d'association entre frames éloignées.
+		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
+		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+		n = len(localizations)
+		track_size = n * N_TRACK
+		points = parse_localization_to_tracking(localizations)
+
+		return {"points":       points.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"tracks":       np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"max_distance": ctypes.c_double(max_distance),
+				"min_life":     ctypes.c_ulong(min_life),
+				"decrease":     ctypes.c_double(decrease),
+				"cost_birth":   ctypes.c_double(cost_birth),
+				"planes":       ctypes.c_ulong(localizations["Plane"].max()),  # Nombre de plans
 				}
 
 	##################################################
@@ -109,7 +131,7 @@ class Palm:
 
 		args = self.__get_locs_args(new_stack, height, width, new_n_planes, threshold, watershed, fit, fit_params)
 		count = self._dll.Localization(*args.values())
-		res = parse_palm_result(self._locs, count)
+		res = parse_result(np.ctypeslib.as_array(args["locs"], shape=(count,)), "Localization")
 		if planes[0] != 0: res["Plane"] += planes[0]  # en cas de filtre de plans
 		return res
 
@@ -146,3 +168,22 @@ class Palm:
 			else: break  # pragma: no cover	(ce else est presque impossible à avoir)
 
 		return std_dev
+
+	##################################################
+	def tracking(self, localizations: pd.DataFrame, max_distance: float, min_life: int, decrease: float, cost_birth: float) -> pd.DataFrame:
+		"""
+		Exécute l'algorithme de tracking sur les points localisés.
+
+		Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies,
+		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
+
+		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux frames successives.
+		:param min_life: Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final.
+		:param decrease: Facteur de pénalisation appliqué au coût d'association entre frames éloignées.
+		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
+		:return: DataFrame contenant les trajectoires détectées.
+		"""
+		args = self.__get_tracks_args(localizations, max_distance, min_life, decrease, cost_birth)
+		count = self._dll.Tracking(*args.values())
+		return parse_result(np.ctypeslib.as_array(args["tracks"], shape=(count,)), "Tracking")

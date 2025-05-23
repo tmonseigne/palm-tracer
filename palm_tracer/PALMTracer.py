@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, Tracking
+from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import Filtering, FilteringGF
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
@@ -30,9 +30,6 @@ class PALMTracer:
 	"""Classe principale des paramètres PALMTracer."""
 	palm: Palm = field(init=False, default_factory=lambda: Palm("CPU"))
 	"""Interface vers la DLL C++ Palm."""
-	# gpu: DLL.GPU = field(init=False, default_factory=DLL.GPU)
-	_tracking: Tracking = field(init=False, default_factory=Tracking)
-	"""Interface vers la DLL C++ Tracking."""
 	_logger: Logger = field(init=False, default_factory=Logger)
 	"""Journal d'activité."""
 	localizations: Optional[pd.DataFrame] = field(init=False, default=None)
@@ -57,7 +54,7 @@ class PALMTracer:
 		Cette méthode teste si les deux bibliothèques dynamiques (CPU et tracking) sont correctement chargées et prêtes à être utilisées.
 		:return: True si les deux DLL sont valides, False sinon.
 		"""
-		return self.palm.is_valid() and self._tracking.is_valid()
+		return self.palm.is_valid()
 
 	##################################################
 	def process(self):
@@ -191,7 +188,7 @@ class PALMTracer:
 		# Parse settings
 		s = self.settings.tracking.get_settings()
 		# Run command
-		self.tracks = self._tracking.run(self.localizations, s["Max Distance"], s["Min Length"], s["Decrease"], s["Cost Birth"])
+		self.tracks = self.palm.tracking(self.localizations, s["Max Distance"], s["Min Length"], s["Decrease"], s["Cost Birth"])
 
 		self._logger.add("\tEnregistrement du fichier de tracking.")
 		self._logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvé(s).")
