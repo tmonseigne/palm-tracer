@@ -71,6 +71,7 @@ def parse_palm_result(data: np.ndarray, count: int) -> pd.DataFrame:
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	:param data: Donnée en entrée récupérées depuis la DLL PALM.
+	:param count: nombre de données "utiles" dans le tableau.
 	:return: Dataframe filtré
 	"""
 	# Manipulation du tableau 1D.

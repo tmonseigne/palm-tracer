@@ -61,7 +61,7 @@ def test_palm_cpu(make_napari_viewer):
 	if path.exists() and path.is_file():
 		stack = open_tif(str(path))
 		suffix = get_loc_suffix(threshold=thresh)
-		localizations = palm.run(stack, thresh, default_watershed, default_gaussian, sigma, theta, roi)
+		localizations = palm.run(stack, thresh, default_watershed, default_fit, sigma, theta, roi)
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
@@ -89,7 +89,7 @@ def test_palm_gpu(make_napari_viewer):
 	if path.exists() and path.is_file():
 		stack = open_tif(str(path))
 		suffix = get_loc_suffix(threshold=thresh)
-		localizations = palm.run(stack, thresh, default_watershed, default_gaussian, sigma, theta, roi)
+		localizations = palm.run(stack, thresh, default_watershed, default_fit, sigma, theta, roi)
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
