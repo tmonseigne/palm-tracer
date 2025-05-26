@@ -5,6 +5,8 @@ qui regroupe les paramètres de localisation nécessaires à la configuration de
 
 from dataclasses import dataclass
 
+import numpy as np
+
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
 from palm_tracer.Settings.Groups.SplineFit import SplineFit
@@ -60,3 +62,10 @@ class Localization(BaseSettingGroup):
 		else:
 			self._settings["Gaussian Fit"].hide()
 			self._settings["Spline Fit"].show()
+
+
+	##################################################
+	def get_fit_params(self)->np.ndarray:
+		"""Récupère les paramètres pour lancer la localisation."""
+		s = self.get_settings()
+		return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"]], dtype=np.float64)
