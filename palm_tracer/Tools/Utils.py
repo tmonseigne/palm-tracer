@@ -104,7 +104,7 @@ def get_last_file(path: str, name: str) -> str:
 ##################################################
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	"""Charge une DLL, si elle existe."""
-	dll_filename = DLL_PATH / f"{name}_PALM.dll"
+	dll_filename = DLL_PATH / f"PALMTracer_{name}.dll"
 	try:
 		return ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
 	except OSError as e:

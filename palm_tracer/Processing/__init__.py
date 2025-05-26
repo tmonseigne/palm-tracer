@@ -16,10 +16,9 @@ Ce sous-package contient les fonctions de traitement pour le projet.
 from . import Parsing
 from .Gallery import make_gallery
 from .Palm import Palm
-from .Tracking import Tracking
 from .Visualization import normalize_data, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_roi
 
 # Définir la liste des symboles exportés
-__all__ = ["Parsing", "Gallery", "Palm", "Tracking", "Visualization",
+__all__ = ["Parsing", "Gallery", "Palm", "Visualization",
 		   "make_gallery",
 		   "normalize_data", "plot_histogram", "plot_plane_heatmap", "plot_plane_violin", "render_hr_image", "render_roi"]

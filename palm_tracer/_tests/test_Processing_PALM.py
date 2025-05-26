@@ -21,10 +21,10 @@ def test_palm_cpu_image():
 	file = "stack"
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 	for plane in range(stack.shape[0]):
-		for gaussian in range(5):
-			suffix = get_loc_suffix(gaussian)
+		for fit in range(5):
+			suffix = get_loc_suffix(fit)
 
-			localizations = palm.run(stack[plane], default_threshold, default_watershed, gaussian, sigma, theta, roi)
+			localizations = palm.localization(stack[plane], default_threshold, default_watershed, fit, get_gaussian_fit_params())
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -45,10 +45,10 @@ def test_palm_cpu_stack():
 	file = "stack"
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 	for watershed in [True, False]:
-		for gaussian in range(5):
-			suffix = get_loc_suffix(gaussian, watershed)
+		for fit in range(5):
+			suffix = get_loc_suffix(fit, watershed)
 
-			localizations = palm.run(stack, default_threshold, watershed, gaussian, sigma, theta, roi)
+			localizations = palm.localization(stack, default_threshold, watershed, fit, get_gaussian_fit_params())
 			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
@@ -70,7 +70,7 @@ def test_palm_cpu_stack_plane_selection():
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 	suffix = get_loc_suffix()
 
-	localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi, [2,3,4,5,6])
+	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_gaussian_fit_params(), [2, 3, 4, 5, 6])
 	if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 	assert len(localizations) > 0, "Aucune localisation trouvé"
 	path = Path(f"{INPUT_DIR}/ref/{file}-localizations-plane_select-{suffix}.csv")
@@ -89,7 +89,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 	file = "stack_quadrant"
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
-	localizations = palm.run(stack, default_threshold, default_watershed, default_gaussian, sigma, theta, roi)
+	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_gaussian_fit_params())
 	if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 	quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),
@@ -121,3 +121,32 @@ def test_cpu_auto_threshold():
 		res = palm.auto_threshold(image[i], roi, iterations)
 		# print(f"Image {i} : {res:.6f}")
 		assert is_closed(res, ref[i]), f"Le seuil pour l'image {i} vaut {res} au lieu de {ref[i]}"
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_tracking():
+	"""Test basique sur le tracking."""
+	palm = Palm()
+	file = "stack"
+	for watershed in [True, False]:
+		for fit in range(5):
+			suffix = get_loc_suffix(fit, watershed)
+			suffix_trc = suffix + "-" + get_trc_suffix()
+
+			path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
+			if path.exists() and path.is_file():
+				localizations = pd.read_csv(path)
+				tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
+				if save_output: tracks.to_csv(f"{OUTPUT_DIR}/{file}-tracking-{suffix_trc}.csv", index=False)
+
+				assert len(tracks) > 0, "Aucun Tracking trouvé"
+
+				path = Path(f"{INPUT_DIR}/ref/{file}-tracking-{suffix_trc}.csv")
+				if path.exists() and path.is_file():
+					print(f"Comparaison avec : '{path}'")
+					ref = pd.read_csv(path)
+					assert compare_points(tracks, ref, group_cols=["Track"]), f"Test invalide pour les paramètres {suffix_trc}"
+			else:
+				print_warning(f"Fichier de localisations '{path}' indisponible.")
+	assert True

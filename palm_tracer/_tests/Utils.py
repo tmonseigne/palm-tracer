@@ -10,7 +10,7 @@ from palm_tracer.Tools import print_error, print_success, print_warning
 
 default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
-default_gaussian = 4
+default_fit = 4
 save_output = True
 
 ##################################################
@@ -22,7 +22,7 @@ def is_not_dll_friendly():
 	return platform.system() != "Windows"
 
 ##################################################
-def get_loc_suffix(gaussian: int = default_gaussian, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
+def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
 	"""
 	Génère un suffixe pour les fichiers de localisation.
 
@@ -33,6 +33,8 @@ def get_loc_suffix(gaussian: int = default_gaussian, watershed: bool = default_w
 	"""
 	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
 
+##################################################
+def get_gaussian_fit_params()->np.ndarray:	return np.array([roi, sigma, theta], dtype=np.float64)
 
 ##################################################
 def get_trc_suffix() -> str:
