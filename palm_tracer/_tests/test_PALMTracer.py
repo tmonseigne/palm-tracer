@@ -191,8 +191,8 @@ def test_process_filter_all(make_napari_viewer):
 	pt.settings.filtering["Plane"].set_value([1, 9])  # Suppression du dernier plan uniquement
 	pt.settings.filtering["Intensity"].active = True
 	pt.settings.filtering["Intensity"].set_value([100, 20000])
-	pt.settings.filtering["Gaussian Fit"]["MSE Gaussian"].active = True
-	pt.settings.filtering["Gaussian Fit"]["MSE Gaussian"].set_value([0.01, 10])
+	pt.settings.filtering["Gaussian Fit"]["MSE XY"].active = True
+	pt.settings.filtering["Gaussian Fit"]["MSE XY"].set_value([0.01, 10])
 	pt.settings.filtering["Gaussian Fit"]["Sigma X"].active = True
 	pt.settings.filtering["Gaussian Fit"]["Sigma X"].set_value([0, 10])
 	pt.settings.filtering["Gaussian Fit"]["Sigma Y"].active = True
@@ -202,7 +202,7 @@ def test_process_filter_all(make_napari_viewer):
 	pt.settings.filtering["Gaussian Fit"]["Circularity"].active = True
 	pt.settings.filtering["Gaussian Fit"]["Z"].active = True
 	pt.process()
-	ref = [["Plane", 1, 9], ["Integrated Intensity", 100, 20000], ["MSE Gaussian", 0.01, 10],
+	ref = [["Plane", 1, 9], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.01, 10],
 		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -5, 10],
 		   ["Circularity", 0, 1], ["Z", -1, 1]]
 	for r in ref:

@@ -269,7 +269,7 @@ class PALMTracer:
 		fg = cast(FilteringGF, f["Gaussian Fit"])
 		filters = [[f["Plane"], "Plane"],
 				   [f["Intensity"], "Integrated Intensity"],
-				   [fg["MSE Gaussian"], "MSE Gaussian"],
+				   [fg["MSE XY"], "MSE XY"],
 				   [fg["Sigma X"], "Sigma X"],
 				   [fg["Sigma Y"], "Sigma Y"],
 				   [fg["Theta"], "Theta"],

@@ -16,7 +16,7 @@ class FilteringGF(BaseSettingGroup):
 	Classe contenant les paramètres du filtrage pour l'ajustement Gaussien :
 
 	Attributs :
-			- **MSE Gaussian (CheckRangeFloat)** : Interval de MSE Gaussian sélectionnés (par défaut : [0.6, 2.0]).
+			- **MSE XY (CheckRangeFloat)** : Interval de MSE XY sélectionnés (par défaut : [0.6, 2.0]).
 			- **Sigma X (CheckRangeFloat)** : Interval de Sigma X sélectionés (par défaut : [0.0, 2.0]).
 			- **Sigma Y (CheckRangeFloat)** : Interval de Sigma Y sélectionés (par défaut : [0.0, 2.0]).
 			- **Circularity (CheckRangeFloat)** : Interval de Circularité sélectionés (par défaut : [0.0, 1.0]).
@@ -25,7 +25,7 @@ class FilteringGF(BaseSettingGroup):
 
 	label: str = "Gaussian Fit"
 	setting_list = {
-			"MSE Gaussian": [CheckRangeFloat, ["MSE", [0, 2], [0, 1000]]],
+			"MSE XY": [CheckRangeFloat, ["MSE", [0, 2], [0, 1000]]],
 			"Sigma X":      [CheckRangeFloat, ["Sigma X", [0, 2], [0, 100]]],
 			"Sigma Y":      [CheckRangeFloat, ["Sigma Y", [0, 2], [0, 100]]],
 			"Theta":        [CheckRangeFloat, ["Theta", [-10, 10], [-100, 100]]],

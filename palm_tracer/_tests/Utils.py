@@ -69,7 +69,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	Laisser par défaut les colonnes pour des fichiers de localisation issues de plan-tracer python.
 
 	Changer les colonnes à comparer si la localisaiton viens de Metamorph.
-		["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE Gaussian", "MSE Z", "Pair Distance"]
+		["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance"]
 
 	Changer les colonnes pour le Tracking
 		sort = ["Track"]
