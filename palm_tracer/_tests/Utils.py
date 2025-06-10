@@ -13,13 +13,16 @@ max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4
 save_output = True
 
+
 ##################################################
 def is_headless_macos():
 	return platform.system() == "Darwin" and not os.environ.get("DISPLAY") and os.environ.get("CI") == "true"
 
+
 ##################################################
 def is_not_dll_friendly():
 	return platform.system() != "Windows"
+
 
 ##################################################
 def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
@@ -33,8 +36,12 @@ def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_waters
 	"""
 	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
 
+
 ##################################################
-def get_gaussian_fit_params()->np.ndarray:	return np.array([roi, sigma, theta], dtype=np.float64)
+def get_fit_params(fit: int) -> np.ndarray:
+	if fit!=5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
+	return np.array([roi, 16, 16, 64, 32, 0], dtype=np.float64)
+
 
 ##################################################
 def get_trc_suffix() -> str:
