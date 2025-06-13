@@ -59,7 +59,7 @@ class Palm:
 		n = get_max_points(height, width, planes)  # Récupération d'un nombre de points maximum théorique
 		return {
 				"stack":      np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
-				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),				 # Tabelau pour la localisation
+				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),				 # Tableau pour la localisation
 				"n":          ctypes.c_ulong(n),						# Nombre maximum de localisation théoriques lors de la localization
 				"height":     ctypes.c_ulong(height),					# Hauteur (nombre de lignes)
 				"width":      ctypes.c_ulong(width),					# Largeur (nombre de colonnes)
@@ -152,7 +152,7 @@ class Palm:
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))
-			points = self.localization(image, std_dev, False, 0, np.array([0, 0, 0]))
+			points = self.localization(image, std_dev, False, 0, np.array([7, 0, 0, 0]))
 			# Mise à jour du masque basé sur le résultat du PALM
 			# mask.fill(0)
 			for x, y in zip(points['X'], points['Y']):
