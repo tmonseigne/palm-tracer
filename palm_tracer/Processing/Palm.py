@@ -152,7 +152,7 @@ class Palm:
 
 		for _ in range(max_iterations):
 			# Lancement d'un PALM et récupération de la liste des points (format (x, y))
-			points = self.localization(image, std_dev, False, 0, np.array([0, 0, 0]))
+			points = self.localization(image, std_dev, False, 0, np.array([7, 0, 0, 0]))
 			# Mise à jour du masque basé sur le résultat du PALM
 			# mask.fill(0)
 			for x, y in zip(points['X'], points['Y']):
