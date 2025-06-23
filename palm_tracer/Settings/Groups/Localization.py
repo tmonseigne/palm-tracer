@@ -81,7 +81,8 @@ class Localization(BaseSettingGroup):
 	def get_fit_params(self) -> np.ndarray:
 		"""Récupère les paramètres pour l'ajustement."""
 		s = self.get_settings()
-		if s["Fit"] != 2: return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"]], dtype=np.float64)
+		if s["Fit"] == 0: return np.array([s["ROI Size"]], dtype=np.float64)
+		if s["Fit"] != 2: return np.array([s["ROI Size"], s["Gaussian Fit Sigma"],  2 * s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"]], dtype=np.float64)
 		# Load Mat File
 		calib_file = s["Spline Fit File"]
 		try:

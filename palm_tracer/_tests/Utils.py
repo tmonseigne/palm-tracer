@@ -41,6 +41,7 @@ def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_waters
 
 ##################################################
 def get_fit_params(fit: int) -> np.ndarray:
+	if fit == 0: return np.array([roi], dtype=np.float64)
 	if fit != 5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
 	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
 	sx, sy, sz = calib["coeff"].shape[:3]
