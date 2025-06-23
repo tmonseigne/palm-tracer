@@ -82,7 +82,7 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 	if points is None or points.size == 0 or points.shape[1] != 3: return res.astype(np.uint16)
 
 	# Calcul des nouvelles coordonnées (vectorisé)
-	coords = (points[:, :2] * ratio).astype(int)
+	coords = np.round(points[:, :2] * ratio).astype(int)
 	x, y = coords[:, 0], coords[:, 1]
 
 	values = normalize_data(points[:, 2]) if normalization else points[:, 2]
