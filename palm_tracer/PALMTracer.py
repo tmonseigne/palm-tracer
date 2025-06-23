@@ -98,7 +98,8 @@ class PALMTracer:
 			# Lancement de la localisation
 			if self.settings.localization.active:
 				self._logger.add("Localisation activée.")
-				self.__localization()
+				try: self.__localization()
+				except Exception as e: raise
 			else:
 				self._logger.add("Localisation désactivé.")
 				f = get_last_file(self._path, "localizations")
@@ -172,8 +173,9 @@ class PALMTracer:
 		# Filtre sur les plans
 		planes = filters["Plane"].get_value()
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
-		fit = Palm.get_fit(s["Fit"], s["Gaussian Fit Mode"])
-		fit_params = self.settings.localization.get_fit_params()
+		fit =self.settings.localization.get_fit()
+		try: fit_params = self.settings.localization.get_fit_params()
+		except Exception as e: raise
 		# Run command
 		self.localizations = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
@@ -269,7 +271,7 @@ class PALMTracer:
 		fg = cast(FilteringGF, f["Gaussian Fit"])
 		filters = [[f["Plane"], "Plane"],
 				   [f["Intensity"], "Integrated Intensity"],
-				   [fg["MSE Gaussian"], "MSE Gaussian"],
+				   [fg["MSE XY"], "MSE XY"],
 				   [fg["Sigma X"], "Sigma X"],
 				   [fg["Sigma Y"], "Sigma Y"],
 				   [fg["Theta"], "Theta"],

@@ -97,14 +97,6 @@ class Palm:
 				}
 
 	##################################################
-	@staticmethod
-	def get_fit(mode: int = 0, submode: int = 0) -> int:
-		"""Récupère le numéro du fit pour le palm."""
-		if mode == 0: return 0  # Aucun ajustement
-		elif mode == 0: return 1 + submode  # Ajustement Gaussien
-		else: return 0  # Ajustement Spline
-
-	##################################################
 	def localization(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray,
 					 planes: Optional[list[int]] = None) -> pd.DataFrame:
 		"""

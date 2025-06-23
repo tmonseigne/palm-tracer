@@ -1,25 +1,30 @@
 import os
 import platform
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
-from palm_tracer.Tools import print_error, print_success, print_warning
+from palm_tracer.Tools import FileIO, print_error, print_success, print_warning
 
+INPUT_DIR = Path(__file__).parent / "input"
 default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4
 save_output = True
 
+
 ##################################################
 def is_headless_macos():
 	return platform.system() == "Darwin" and not os.environ.get("DISPLAY") and os.environ.get("CI") == "true"
 
+
 ##################################################
 def is_not_dll_friendly():
 	return platform.system() != "Windows"
+
 
 ##################################################
 def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
@@ -33,8 +38,21 @@ def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_waters
 	"""
 	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
 
+
 ##################################################
-def get_gaussian_fit_params()->np.ndarray:	return np.array([roi, sigma, theta], dtype=np.float64)
+def get_fit_params(fit: int) -> np.ndarray:
+	if fit == 0: return np.array([roi], dtype=np.float64)
+	if fit != 5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
+	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
+	sx, sy, sz = calib["coeff"].shape[:3]
+	return np.concatenate([np.array([roi, sx, sy, sz, calib["z0"], calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+	# np.random.seed(42)
+	# shape = [roi, 16, 16, 297, 0, 10]  # les premiers éléments
+	# nb_random = 16 * 16 * 297 * 64
+	# coeff = np.random.uniform(low=1e-8, high=1e-4, size=nb_random)
+	# coeff = np.asfortranarray(np.load("input/coefficients.npy")) # en colonne major comme matlab
+	# return np.concatenate([np.array(shape, dtype=np.float64), coeff.flatten()])
+
 
 ##################################################
 def get_trc_suffix() -> str:
@@ -69,7 +87,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	Laisser par défaut les colonnes pour des fichiers de localisation issues de plan-tracer python.
 
 	Changer les colonnes à comparer si la localisaiton viens de Metamorph.
-		["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE Gaussian", "MSE Z", "Pair Distance"]
+		["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance"]
 
 	Changer les colonnes pour le Tracking
 		sort = ["Track"]

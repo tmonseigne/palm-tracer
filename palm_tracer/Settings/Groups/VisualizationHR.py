@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import Combo, SpinInt
 
-HR_SOURCE = ["All", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE Gaussian", "Z", "MSE Z"]
+HR_SOURCE = ["All", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"]
 
 
 ##################################################

@@ -8,7 +8,7 @@ import pandas as pd
 PARSING_COLUMNS: dict[str, dict[str, Any]] = {
 		"Localization": {
 				"columns": ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
-							"Sigma X", "Sigma Y", "Theta", "MSE Gaussian", "MSE Z", "Pair Distance",
+							"Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance",
 							"Intensity 0", "Intensity Offset", "Intensity", "Surface", "Circularity"],
 				"types":   {"Id": "int32", "Plane": "int32", "Index": "int32", "Surface": "int32", "Channel": "int32"}
 				},
@@ -86,7 +86,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization") -> pd.DataFr
 	size = (data.size // n_columns) * n_columns	  # Récupération de la taille correcte si non multiple de N_SEGMENT
 	data = data[:size].reshape(-1, n_columns)	  # Passage en tableau 2D
 	data = data[data[:, columns.index("X")] > 0]  # Filtrage en amont
-	data = data.astype(np.float32)				  # Conversion en float pour alléger la mémoire (à ce stade la précision est suffisante)
+	# data = data.astype(np.float32)			  # Conversion en float pour alléger la mémoire (à ce stade la précision est suffisante)
 	res = pd.DataFrame(data, columns=columns)	  # Transformation en Dataframe
 	res = res.astype(types)
 	return res

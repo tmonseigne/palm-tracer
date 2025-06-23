@@ -9,6 +9,7 @@ import os
 from typing import Any
 
 import numpy as np
+import scipy.io as io
 import tifffile as tiff
 from PIL import Image
 
@@ -110,6 +111,32 @@ def save_png(image: np.ndarray, filename: str, normalization: bool = True):
 	im = Image.fromarray(image)					 # Passage par Pillow
 	im.save(filename)							 # Enregistrement
 
+
 # ==================================================
 # endregion PNG IO
+# ==================================================
+
+# ==================================================
+# region Matlab File IO
+# ==================================================
+##################################################
+def open_calibration_mat(filename: str) -> dict[str, Any]:
+	"""
+	Charge un fichier de calibration matlab.
+
+	:param filename: Nom du fichier mat en entrée.
+	:return: Dictionnaire contennant les éléments utiles
+	"""
+	if not os.path.isfile(filename): raise OSError(f"Le fichier de calibration \"{filename}\" est introuvable.")
+	calibration = io.loadmat(filename)
+	cspline = calibration["SXY"]["cspline"][0, 0]				 # Elements de cspline
+	coeff = cspline["coeff"][0][0][0][0]						 # Coefficients de la Spline
+	if isinstance(coeff, (list, tuple)): coeff = coeff[0]		 # les coefficients peuvent être dans un sous-groupe
+	return {"z0":    cspline["z0"][0][0][0][0],					 # Z Initial (0)
+			"dz":    cspline["dz"][0][0][0][0],					 # Pas sur Z
+			"coeff": np.asfortranarray(coeff, dtype=np.float64)  # Passage en column major et en double
+			}
+
+# ==================================================
+# region Matlab File IO
 # ==================================================

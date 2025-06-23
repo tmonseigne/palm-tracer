@@ -6,7 +6,7 @@ qui regroupe les paramètres d'ajustement de spline nécessaires à la configura
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import SpinFloat
+from palm_tracer.Settings.Types import BrowseFile, Combo, SpinFloat
 
 
 ##################################################
@@ -21,6 +21,7 @@ class SplineFit(BaseSettingGroup):
 
 	label: str = "Spline Fit"
 	setting_list = {
-			"Peak":    [SpinFloat, ["Peak", 1.0, 0.0, 10.0, 0.1]],
-			"Cut-Off": [SpinFloat, ["Cut-Off", 1.0, 0.0, 10.0, 0.1]],
+			"Sensor":       [Combo, ["Sensor", 0, ["EMCCD", "sCMOS"]]],
+			"Variance Map": [BrowseFile, ["sCMOS Variance Map", ""]],
+			"File":         [BrowseFile, ["Calibration File", ""]],
 			}

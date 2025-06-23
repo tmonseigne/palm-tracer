@@ -14,7 +14,7 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
-rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
+rng = np.random.default_rng(42)			# Initialisation du générateur avec une seed
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 POINTS = np.stack([rng.uniform(1, SIZE_X - 1, size=SIZE), rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(0, INTENSITY, size=SIZE)], axis=1)
 
