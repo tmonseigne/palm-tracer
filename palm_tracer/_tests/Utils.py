@@ -1,13 +1,15 @@
 import os
 import platform
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
-from palm_tracer.Tools import print_error, print_success, print_warning
+from palm_tracer.Tools import FileIO, print_error, print_success, print_warning
 
+INPUT_DIR = Path(__file__).parent / "input"
 default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4
@@ -39,8 +41,16 @@ def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_waters
 
 ##################################################
 def get_fit_params(fit: int) -> np.ndarray:
-	if fit!=5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
-	return np.array([roi, 16, 16, 64, 32, 0], dtype=np.float64)
+	if fit != 5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
+	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
+	sx, sy, sz = calib["coeff"].shape[:3]
+	return np.concatenate([np.array([roi, sx, sy, sz, calib["z0"], calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+	# np.random.seed(42)
+	# shape = [roi, 16, 16, 297, 0, 10]  # les premiers éléments
+	# nb_random = 16 * 16 * 297 * 64
+	# coeff = np.random.uniform(low=1e-8, high=1e-4, size=nb_random)
+	# coeff = np.asfortranarray(np.load("input/coefficients.npy")) # en colonne major comme matlab
+	# return np.concatenate([np.array(shape, dtype=np.float64), coeff.flatten()])
 
 
 ##################################################

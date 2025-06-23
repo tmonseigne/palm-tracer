@@ -8,6 +8,7 @@ import pytest
 
 from palm_tracer.Tools import FileIO
 
+INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
@@ -99,3 +100,17 @@ def test_save_png_bad_sample():
 	with pytest.raises(ValueError) as exception_info:
 		FileIO.save_png(REF_GRADIENT[1, :], f"{OUTPUT_DIR}/test_save_bad.png")
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+
+##################################################
+def test_open_calibration_mat_bad_file():
+	""" Test de la fonction open_tif avec un fichier inexistant. """
+	with pytest.raises(OSError) as exception_info:
+		calib = FileIO.open_calibration_mat("bad_filename.mat")
+	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+
+##################################################
+def test_open_calibration_mat():
+	""" Test de la fonction open_tif avec un fichier inexistant. """
+	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
+	print(calib)
+	print(calib["coeff"].shape)
