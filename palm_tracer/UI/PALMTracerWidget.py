@@ -305,7 +305,8 @@ class PALMTracerWidget(QWidget):
 		if present is None: return
 
 		s = self.pt.settings.localization.get_settings()
-		t, w, f, fp = (s["Threshold"], s["Watershed"], Palm.get_fit(s["Fit"], s["Gaussian Fit Mode"]), self.pt.settings.localization.get_fit_params())
+		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
+		except Exception as e: raise
 		self._preview_locs = {
 				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
 				"Present": self.pt.filter_localizations(self.pt.palm.localization(present, t, w, f, fp))[["Y", "X"]].to_numpy(),

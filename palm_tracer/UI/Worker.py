@@ -43,4 +43,5 @@ class Worker(QObject):
         """
 		try: self.result.emit(self.function())
 		except Exception as e: self.error.emit(str(e))
+		# except Exception as e: self.error.emit(traceback.format_exc()) # en cas de probleme de trace mais pas forcméent utile a posteriori
 		finally: self.finished.emit()

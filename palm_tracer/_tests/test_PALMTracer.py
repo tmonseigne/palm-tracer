@@ -82,6 +82,38 @@ def test_process_only_localization(make_napari_viewer):
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_process_only_localization_spline_bad(make_napari_viewer):
+	""" Test pour le process de localisation. """
+	pt = PALMTracer()
+
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	pt.settings.localization.active = True
+	pt.settings.localization["Fit"].set_value(2)
+	with pytest.raises(OSError) as exception_info:
+		pt.process()
+	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_process_only_localization_spline(make_napari_viewer):
+	""" Test pour le process de localisation. """
+	pt = PALMTracer()
+
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	pt.settings.localization.active = True
+	pt.settings.localization["Fit"].set_value(2)
+	pt.settings.localization["Spline Fit"]["File"].set_value(f"{INPUT_DIR}/calibration.mat")
+	pt.process()
+	assert True
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_tracking(make_napari_viewer):
 	""" Test pour le process de tracking. """
 	pt = PALMTracer()

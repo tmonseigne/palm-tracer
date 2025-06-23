@@ -24,8 +24,8 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 def test_widget_creation(make_napari_viewer, capsys):
 	"""Test basique de création du widget."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 	viewer.close()
 	assert True
 
@@ -35,16 +35,16 @@ def test_widget_creation(make_napari_viewer, capsys):
 def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 	"""Test remise à zéro des calques."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 
-	my_widget._reset_layer()  # remise à 0 des calques sans fichier dans le batch.
+	my_widget._reset_layer()									# remise à 0 des calques sans fichier dans le batch.
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
-	my_widget._reset_layer()  # remise à 0 des calques sans changement.
+	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
+	my_widget._reset_layer()												 # remise à 0 des calques sans changement.
 	viewer.close()
 	assert True
 
@@ -55,16 +55,16 @@ def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 	""" Test de récupération d'image. """
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
-	assert my_widget._get_actual_image() is not None, "Aucune image récupéré."  # Récupéraiton de l'image
-	assert my_widget._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupéraiton d'une image hors limite
-	assert my_widget._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # Récupéraiton d'une image hors limite
+	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)					   # Attente : qu'il ai mis une image
+	assert my_widget._get_actual_image() is not None, "Aucune image récupéré."				   # Récupéraiton de l'image
+	assert my_widget._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
+	assert my_widget._get_actual_image(100) is None, "Une image hors limite a été récupéré."   # Récupération d'une image hors limite
 	viewer.close()
 
 
@@ -73,8 +73,8 @@ def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	"""Test Ajout des calques de détection."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 	my_widget.pt.settings.localization["Preview"].set_value(True)
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["Preview"].get_value(), timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
@@ -114,8 +114,8 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 def test_widget_preview(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton preview."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 
 	my_widget._preview()  # Appel de la méthode preview alors que c'est décoché (typiquement le cas par défaut à chaque changement de valeur)
 	my_widget.pt.settings.localization["Preview"].set_value(True)
@@ -128,8 +128,8 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
-	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
-	my_widget._preview()  # Appel de la méthode preview.
+	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)		 # Attente : le flag doit passer à False
+	my_widget._preview()													 # Appel de la méthode preview.
 	viewer.close()
 	assert True
 
@@ -140,17 +140,17 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton auto_threshold."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 
-	my_widget._auto_threshold()  # Appel de la méthode auto_threshold sans fichier dans le batch.
+	my_widget._auto_threshold()									# Appel de la méthode auto_threshold sans fichier dans le batch.
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
-	my_widget._auto_threshold()  # Appel de la méthode auto_threshold.
+	my_widget._auto_threshold()												 # Appel de la méthode auto_threshold.
 	viewer.close()
 	assert True
 
@@ -161,8 +161,8 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton process."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 
 	my_widget._thread_process(my_widget._auto_threshold)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
@@ -176,10 +176,9 @@ def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
-	my_widget._thread_process(my_widget.pt.process)  # Appel de la méthode process
+	my_widget._thread_process(my_widget.pt.process)					  # Appel de la méthode process
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
-	my_widget._thread_process(
-			my_widget._auto_threshold)  # Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte (donc erreur prévu)
+	my_widget._thread_process(my_widget._auto_threshold)			  # Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
 	viewer.close()
 	assert True

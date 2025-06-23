@@ -124,8 +124,7 @@ def test_batch_get_stacks(make_napari_viewer):
 ###################################################
 def test_calibration(make_napari_viewer):
 	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
-	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"],
-					SpinInt, 320, 160)
+	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"], SpinInt, 320, 160)
 
 
 ###################################################
@@ -138,61 +137,52 @@ def test_localization(make_napari_viewer):
 ###################################################
 def test_gaussian_fit(make_napari_viewer):
 	"""Test basique de la classe GaussianFit (constructeur, getter, setter)"""
-	group_base_test(GaussianFit(), ["Mode", "Sigma", "Theta"],
-					Combo, 2, 0)
+	group_base_test(GaussianFit(), ["Mode", "Sigma", "Theta"], Combo, 2, 0)
 
 
 ###################################################
 def test_spline_fit(make_napari_viewer):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(SplineFit(), ["Peak", "Cut-Off"],
-					SpinFloat, 2, 1)
+	group_base_test(SplineFit(), ["Sensor", "Variance Map", "File"], Combo, 1, 0)
 
 
 ###################################################
 def test_tracking(make_napari_viewer):
 	"""Test basique de la classe Tracking (constructeur, getter, setter)"""
-	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth"],
-					SpinFloat, 2, 5)
+	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth"], SpinFloat, 2, 5)
 
 
 ###################################################
 def test_gallery(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"],
-					SpinInt, 11, 9)
+	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
 
 
 ###################################################
 def test_visualization_hr(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(VisualizationHR(), ["Ratio", "Source"],
-					SpinInt, 1, 2)
+	group_base_test(VisualizationHR(), ["Ratio", "Source"], SpinInt, 1, 2)
 
 
 ###################################################
 def test_visualization_graph(make_napari_viewer):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(VisualizationGraph(), ["Mode", "Source"],
-					Combo, 1, 0)
+	group_base_test(VisualizationGraph(), ["Mode", "Source"], Combo, 1, 0)
 
 
 ###################################################
 def test_filtering(make_napari_viewer):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	group_base_test(Filtering(), ["Plane", "Intensity", "Gaussian Fit", "Tracks"],
-					CheckRangeInt, [2, 3], [1, 10000])
+	group_base_test(Filtering(), ["Plane", "Intensity", "Gaussian Fit", "Tracks"], CheckRangeInt, [2, 3], [1, 10000])
 
 
 ###################################################
 def test_filtering_gf(make_napari_viewer):
 	"""Test basique de la classe FilteringGF (constructeur, getter, setter)"""
-	group_base_test(FilteringGF(), ["MSE Gaussian", "Sigma X", "Sigma Y", "Theta", "Circularity", "Z"],
-					CheckRangeFloat, [1, 2], [0, 2])
+	group_base_test(FilteringGF(), ["MSE XY", "Sigma X", "Sigma Y", "Theta", "Circularity", "Z"], CheckRangeFloat, [1, 2], [0, 2])
 
 
 ###################################################
 def test_filtering_t(make_napari_viewer):
 	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
-	group_base_test(FilteringT(), ["Length", "D Coeff", "Instant D", "Speed", "Alpha", "Confinement"],
-					CheckRangeInt, [2, 3], [1, 10000])
+	group_base_test(FilteringT(), ["Length", "D Coeff", "Instant D", "Speed", "Alpha", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])

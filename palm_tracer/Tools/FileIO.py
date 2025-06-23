@@ -127,7 +127,7 @@ def open_calibration_mat(filename: str) -> dict[str, Any]:
 	:param filename: Nom du fichier mat en entrée.
 	:return: Dictionnaire contennant les éléments utiles
 	"""
-	if not os.path.isfile(filename): raise OSError(f"Le fichier \"{filename}\" est introuvable.")
+	if not os.path.isfile(filename): raise OSError(f"Le fichier de calibration \"{filename}\" est introuvable.")
 	calibration = io.loadmat(filename)
 	cspline = calibration["SXY"]["cspline"][0, 0]				 # Elements de cspline
 	coeff = cspline["coeff"][0][0][0][0]						 # Coefficients de la Spline

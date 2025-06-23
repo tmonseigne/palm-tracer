@@ -11,6 +11,8 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
 from palm_tracer.Settings.Groups.SplineFit import SplineFit
 from palm_tracer.Settings.Types import Button, CheckBox, Combo, SpinFloat, SpinInt
+from palm_tracer.Tools import print_error
+from palm_tracer.Tools.FileIO import open_calibration_mat
 
 
 ##################################################
@@ -63,9 +65,30 @@ class Localization(BaseSettingGroup):
 			self._settings["Gaussian Fit"].hide()
 			self._settings["Spline Fit"].show()
 
+	##################################################
+	def get_fit(self) -> int:
+		"""Récupère le paramètre indiquant le mode d'ajustement."""
+		s = self.get_settings()
+		mode = s["Fit"]
+		gaussian_mode = s["Gaussian Fit Mode"]
+		#spline_sensor = s["Spline Fit Sensor"]
+		if mode == 0: return 0					  # Aucun ajustement
+		elif mode == 1: return 1 + gaussian_mode  # Ajustement Gaussien
+		else: return 5							  # Ajustement Spline
+		#else: return 5 + spline_sensor			  # Ajustement Spline
 
 	##################################################
-	def get_fit_params(self)->np.ndarray:
-		"""Récupère les paramètres pour lancer la localisation."""
+	def get_fit_params(self) -> np.ndarray:
+		"""Récupère les paramètres pour l'ajustement."""
 		s = self.get_settings()
-		return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"]], dtype=np.float64)
+		if s["Fit"] != 2: return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"]], dtype=np.float64)
+		# Load Mat File
+		calib_file = s["Spline Fit File"]
+		try:
+			calib = open_calibration_mat(s["Spline Fit File"])
+			sx, sy, sz = calib["coeff"].shape[:3]
+			return np.concatenate([np.array([s["ROI Size"], sx, sy, sz, calib["z0"], calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+		except Exception as e: raise
+
+
+##################################################
