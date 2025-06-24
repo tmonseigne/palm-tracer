@@ -129,6 +129,9 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 	file_list.update_box()
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)		 # Attente : le flag doit passer à False
+	my_widget.pt.settings.localization["Preview"].set_value(True)			 # Le flag se remet à false à chaque changement de fichiers maintenant
+	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["Preview"].get_value(), timeout=5000)
+	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)		 # Attente : le flag doit passer à False
 	my_widget._preview()													 # Appel de la méthode preview.
 	viewer.close()
 	assert True

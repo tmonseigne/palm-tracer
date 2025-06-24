@@ -19,7 +19,6 @@ from qtpy.QtCore import Qt, QThread
 from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import Palm
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning, save_json
 from palm_tracer.UI.Worker import Worker
@@ -141,7 +140,7 @@ class PALMTracerWidget(QWidget):
 		"""
 		if self._processing: return
 		if self.last_file == "":
-			print_warning("Aucun fichier en preview.")
+			# print_warning("Aucun fichier en preview.")
 			return
 		self._processing = True
 		self.layout().setEnabled(False)							   # désactive l'interface
@@ -193,10 +192,11 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
+		self.pt.settings.localization["Preview"].set_value(False)
 		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
 		if not selected_file:
 			self.last_file = ""
-			print_warning("Aucun fichier sélectionné.")
+			self.viewer.layers.clear()
 			return
 
 		if self.last_file == selected_file: return
@@ -281,7 +281,7 @@ class PALMTracerWidget(QWidget):
 		:return: l'image désirée (actuellement affichée si time = 0).
 		"""
 		if self.last_file == "":
-			print_warning("Aucun fichier en preview.")
+			# print_warning("Aucun fichier en preview.")
 			return None
 		layer = self.viewer.layers["Raw"]					 # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
