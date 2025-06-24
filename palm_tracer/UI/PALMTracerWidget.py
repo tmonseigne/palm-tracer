@@ -63,7 +63,7 @@ class PALMTracerWidget(QWidget):
 
 		# Load Setting Button
 		btn = QPushButton("Load Setting")
-		btn.clicked.connect(self._load_setting)
+		btn.clicked.connect(self._on_load_setting_btn)
 		self.layout().addWidget(btn)
 
 		self.layout().addWidget(self.pt.settings.batch.widget)

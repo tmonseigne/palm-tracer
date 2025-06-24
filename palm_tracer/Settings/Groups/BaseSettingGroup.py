@@ -7,6 +7,7 @@ Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de b
 from dataclasses import dataclass, field
 from typing import Any, cast, Union
 
+from qtpy import sip
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 
@@ -138,7 +139,7 @@ class BaseSettingGroup:
 	@active.setter
 	def active(self, value: bool):
 		"""Contrôle la modification de l'état actif."""
-		self._checkbox.setChecked(value)
+		if not sip.isdeleted(self._checkbox): self._checkbox.setChecked(value)
 		self.toggle_active(1 if value else 0)
 
 	##################################################
