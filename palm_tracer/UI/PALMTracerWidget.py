@@ -323,7 +323,7 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = self.pt.palm.auto_threshold(image)					 # Calcul du seuil automatique
+		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params()) # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 

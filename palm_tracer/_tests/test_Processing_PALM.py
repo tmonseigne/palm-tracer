@@ -114,12 +114,11 @@ def test_cpu_auto_threshold():
 	""" Test basique sur l'auto-seuillage avec la DLL CPU. """
 	palm = Palm()
 	image = open_tif(f"{INPUT_DIR}/stack.tif")
-	iterations = 4
-	ref = [63.621258, 63.335459, 63.058853, 62.562852, 62.474888,
-		   63.374433, 63.857703, 63.368484, 62.515444, 63.833786]
+	ref = [63.639888, 65.789447, 63.192296, 64.375352, 63.954150,
+		   63.400043, 66.521994, 63.373237, 62.515444, 63.866017]
 	for i in range(image.shape[0]):
-		res = palm.auto_threshold(image[i], roi, iterations)
-		# print(f"Image {i} : {res:.6f}")
+		res = palm.auto_threshold(image[i], get_fit_params(0))
+		# print(f"Image {i} : {res:.6f} VS {ref[i]:.6f}")
 		assert is_closed(res, ref[i]), f"Le seuil pour l'image {i} vaut {res} au lieu de {ref[i]}"
 
 

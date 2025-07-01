@@ -41,6 +41,25 @@ class Palm:
 
 	##################################################
 	@staticmethod
+	def __get_auto_treshold_args(image: np.ndarray, height: int, width: int, fit_params: np.ndarray):
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
+
+		:param image: Image 2D sous forme de tableau NumPy.
+		:param height: Hauteur des images.
+		:param width: Largeur des images.
+		:param fit_params: Paramètres de l'ajustement.
+		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+		return {
+				"image":      np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
+				"height":     ctypes.c_ulong(height),									  # Hauteur (nombre de lignes)
+				"width":      ctypes.c_ulong(width),									  # Largeur (nombre de colonnes)
+				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
+				}
+
+	##################################################
+	@staticmethod
 	def __get_locs_args(stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
@@ -128,38 +147,19 @@ class Palm:
 		return res
 
 	##################################################
-	def auto_threshold(self, image: np.ndarray, roi_size: int = 7, max_iterations: int = 4):
+	def auto_threshold(self, image: np.ndarray, fit_params: np.ndarray) -> float:
 		"""
 		Calcule un seuil automatique basé sur la segmentation de l'image.
 
 		:param image: Image 2D sous forme de tableau NumPy.
-		:param roi_size: Taille des régions d'intérêt (ROI) utilisées pour la segmentation (par défaut 7).
-		:param max_iterations: Nombre d'itérations pour affiner le seuil (par défaut 4).
+		:param fit_params: Paramètres du mode d'ajustement.
 		:return: Seuil calculé (écart type final).
 		"""
-		mask = np.zeros_like(image, dtype=bool)  # Creation du masque
-		std_dev = float(np.std(image))			 # Calcul initial de l'écart type
-		roi_2 = float(roi_size) / 2.0			 # Demi-taille de la zone ROI
-		height, width = image.shape				 # Récupération de la taille de l'image
+		height, width = image.shape  # Récupère les dimensions
+		args = self.__get_auto_treshold_args(image, height, width, fit_params) # Récupère les arguments pour la DLL
+		self._dll.AutoThreshold.restype = ctypes.c_double					   # Force le type de retour
+		return self._dll.AutoThreshold(*args.values())
 
-		for _ in range(max_iterations):
-			# Lancement d'un PALM et récupération de la liste des points (format (x, y))
-			points = self.localization(image, std_dev, False, 0, np.array([7, 0, 0, 0]))
-			# Mise à jour du masque basé sur le résultat du PALM
-			# mask.fill(0)
-			for x, y in zip(points['X'], points['Y']):
-				# Définir les limites de la ROI tout en respectant les bords de l'image
-				x_min, x_max = max(0, int(x - roi_2)), min(width, int(x + roi_2))
-				y_min, y_max = max(0, int(y - roi_2)), min(height, int(y + roi_2))
-				# Mettre à jour le masque pour les pixels dans la ROI
-				mask[y_min:y_max, x_min:x_max] = True
-
-			# Calcul de l'écart type pour les pixels hors segmentation
-			pixels_outside = image[~mask]
-			if len(pixels_outside) > 0: std_dev = np.std(pixels_outside)
-			else: break  # pragma: no cover	(ce else est presque impossible à avoir)
-
-		return std_dev
 
 	##################################################
 	def tracking(self, localizations: pd.DataFrame, max_distance: float, min_life: int, decrease: float, cost_birth: float) -> pd.DataFrame:

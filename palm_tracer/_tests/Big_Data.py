@@ -61,7 +61,7 @@ def test_palm_cpu(make_napari_viewer):
 	if path.exists() and path.is_file():
 		stack = open_tif(str(path))
 		suffix = get_loc_suffix(threshold=thresh)
-		localizations = palm.localization(stack, thresh, default_watershed, default_fit, get_fit_params())
+		localizations = palm.localization(stack, thresh, default_watershed, default_fit, get_fit_params(default_fit))
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
