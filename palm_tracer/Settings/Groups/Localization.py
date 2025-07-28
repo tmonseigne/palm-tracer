@@ -88,7 +88,7 @@ class Localization(BaseSettingGroup):
 		try:
 			calib = open_calibration_mat(s["Spline Fit File"])
 			sx, sy, sz = calib["coeff"].shape[:3]
-			return np.concatenate([np.array([s["ROI Size"], sx, sy, sz, calib["z0"], calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+			return np.concatenate([np.array([s["ROI Size"], sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
 		except Exception as e: raise
 
 

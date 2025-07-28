@@ -132,8 +132,7 @@ def open_calibration_mat(filename: str) -> dict[str, Any]:
 	cspline = calibration["SXY"]["cspline"][0, 0]				 # Elements de cspline
 	coeff = cspline["coeff"][0][0][0][0]						 # Coefficients de la Spline
 	if isinstance(coeff, (list, tuple)): coeff = coeff[0]		 # les coefficients peuvent être dans un sous-groupe
-	return {"z0":    cspline["z0"][0][0][0][0],					 # Z Initial (0)
-			"dz":    cspline["dz"][0][0][0][0],					 # Pas sur Z
+	return {"dz":    cspline["dz"][0][0][0][0],					 # Pas sur Z
 			"coeff": np.asfortranarray(coeff, dtype=np.float64)  # Passage en column major et en double
 			}
 

@@ -45,7 +45,7 @@ def get_fit_params(fit: int) -> np.ndarray:
 	if fit != 5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
 	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
 	sx, sy, sz = calib["coeff"].shape[:3]
-	return np.concatenate([np.array([roi, sx, sy, sz, calib["z0"], calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+	return np.concatenate([np.array([roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
 	# np.random.seed(42)
 	# shape = [roi, 16, 16, 297, 0, 10]  # les premiers éléments
 	# nb_random = 16 * 16 * 297 * 64
