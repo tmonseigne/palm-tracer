@@ -13,6 +13,7 @@ Ce sous-package contient les classes d'interface utilisateur Napari (QT).
 """
 
 from .PALMTracerWidget import PALMTracerWidget
+from .Viewer3DWidget import Viewer3DWidget
 from .Worker import Worker
 
-__all__ = ["PALMTracerWidget", "Worker"]
+__all__ = ["PALMTracerWidget", "Viewer3DWidget", "Worker"]
