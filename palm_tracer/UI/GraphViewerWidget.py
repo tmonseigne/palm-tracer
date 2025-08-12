@@ -1,23 +1,28 @@
 """
-GraphViewerWidget (version minimale) — Plotly + PyQt (QtWebEngine)
+Module contenant la classe :class:`GraphViewerWidget` pour la visualisation interactive
+des graphiques liés aux données PALMTracer (pile TIFF, localisations, tracking).
 
-Objectif de l'étape 1
----------------------
-- Interface en deux parties :
-  • Colonne gauche : bloc infos (fichier, has_loc, has_track),
-    un bloc "Source" (combo) et un bloc "Type de graphe" (combo),
-    puis un bloc "Filtres" (vide pour l'instant).
-  • Zone droite : affichage du graphe Plotly (interactif, hover tooltips, zoom, pan,
-    export via mode bar Plotly).
-- Données minimales : self.datas = {"type": "Intensity", "x": array gaussienne}.
-- Survol souris : mise en valeur des points/colonnes (géré nativement par Plotly).
+Ce widget fournit :
+- Une interface en deux parties :
+  • Colonne gauche : informations fichier + présence localisation/tracking, choix du domaine
+    (Stack / Localization / Tracking) via 3 boutons exclusifs, et sélection de la source.
+  • Zone droite : rendu d’un graphe Plotly dans un QWebEngineView (zoom, pan, hover, export).
+- Un couplage léger avec :class:`PALMTracer` pour accéder aux fichiers en cours et charger
+  automatiquement pile/CSV (localisations/tracking).
+- Des exports HTML/PNG/PDF (PNG via capture Qt en fallback, si Kaleido indisponible).
 
-Remarques
----------
-- Ce widget utilise QtWebEngine pour intégrer Plotly dans Qt via un QWebEngineView.
-  Assurez-vous d'avoir installé le module correspondant (PySide6-Addons).
-- Si QtWebEngine est indisponible, un message explicite est affiché côté droit.
+Notes
+-----
+- Le rendu interactif utilise QtWebEngine (PySide6-Addons / PyQt6-WebEngine / PyQtWebEngine selon binding).
+  Si QtWebEngine n’est pas disponible, un fallback texte explicite est affiché.
+- Le widget ne copie pas l’objet :class:`PALMTracer` ; il garde une **référence** passée au constructeur.
+- Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
+
+.. todo::
+    - Ajouter des filtres (bloc réservé dans l’UI).
+    - Implémenter les sources Tracking (MSD, vitesse, etc.) et leurs graphes associés.
 """
+
 import os
 from typing import cast, Optional
 
@@ -45,19 +50,43 @@ from palm_tracer.Settings.Types import FileList
 
 
 class GraphViewerWidget(QWidget):
-	"""Widget de visualisation interactive avec Plotly.
+	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
 
-	Comportement actuel (Étape 1)
-	-----------------------------
-	- Données internes `self.datas` :
-		{"type": "Intensity", "x": ndarray}
-	- Infos affichées : `self.filename`, `self.has_loc`, `self.has_track`.
-	- Deux ComboBox :
-		• Source (actuellement: "Intensity")
-		• Type de graphe ("Histogramme" ou "Courbe")
-	- Bloc "Filtres" réservé, sans contenu pour l'instant.
-	- Graphe interactif Plotly à droite (hover/zoom/pan/export natifs).
-	"""
+    Ce widget expose une UI compacte pour :
+    - afficher des graphes à partir de la pile TIFF (Stack) ou des CSV (Localization/Tracking),
+    - choisir la *famille* de données (Stack / Localization / Tracking) via 3 boutons exclusifs,
+    - sélectionner la *source* dans une combo (ex. Intensité, Localizations Count, etc.),
+    - exporter la figure (HTML/PNG/PDF).
+
+    Attributs principaux
+    --------------------
+    _pt : PALMTracer
+        Référence vers l’instance principale de PALMTracer (aucune copie).
+    _fig : Optional[go.Figure]
+        Dernière figure Plotly produite (pour export/maj).
+    _html : Optional[str]
+        Dernier HTML généré pour la figure (export .html).
+    _grapher : Grapher
+        Utilitaire de création de figures (histogrammes, scatter, etc.).
+    _file : str
+        Chemin du fichier image courant (TIF).
+    _csv_path : str
+        Chemin de base servant à rechercher les CSV de localisation/tracking.
+    _loc_file, _trc_file : str
+        Derniers CSV de localisation/tracking détectés.
+    _has_loc, _has_trc : bool
+        Présence de données de localisation/tracking.
+    _stack : np.ndarray
+        Pile d’images (chargée depuis `_file`).
+    _loc, _trc : pd.DataFrame
+        Données tabulaires (localisations / tracking) si présentes.
+
+    Remarques
+    ---------
+    - Les boutons de domaine "Localization"/"Tracking" sont automatiquement désactivés si
+      aucune donnée correspondante n’est trouvée (cf. `_refresh_source_buttons`).
+    - L’export PNG utilise un fallback par capture du widget Qt si Kaleido n’est pas utilisé.
+    """
 
 	# ==================================================
 	# region Init
@@ -65,10 +94,12 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def __init__(self, palmtracer: PALMTracer):
 		"""
-		Initialise l'interface et les données minimales.
-		:param palmtracer:
+		Initialise le widget (UI, connexions, état initial) et lie PALMTracer.
+
+		:param palmtracer: Instance principale :class:`PALMTracer`. sans copie (référence partagée).
 		"""
 		super().__init__()
+		# Initialisation des membres
 		self._pt = palmtracer
 		self._fig: Optional[go.Figure] = None
 		self._html: Optional[str] = None
@@ -93,10 +124,22 @@ class GraphViewerWidget(QWidget):
 
 	##################################################
 	def _init_ui(self):
-		"""Construit l'interface : panneau gauche (infos/choix) + graphe Plotly."""
+		"""
+		Construit l'interface utilisateur.
+
+		- Colonne gauche :
+		  • Informations : nom du fichier, présence Localizations/Tracking.
+		  • Domaine : 3 boutons exclusifs (Stack/Localization/Tracking).
+		  • Source : combo dépendante du domaine sélectionné.
+		  • Filtres : section réservée (non implémentée).
+		  • Actions : Actualize files / Export…
+		- Zone droite :
+		  • QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
+		"""
+
 		main_layout = QHBoxLayout(self)
 		main_layout.setContentsMargins(8, 8, 8, 8)
-		main_layout.setSpacing(10)
+		main_layout.setSpacing(8)
 
 		# Colonne gauche
 		left = QFrame(self)
@@ -184,6 +227,7 @@ class GraphViewerWidget(QWidget):
 		main_layout.addWidget(left)
 		main_layout.addWidget(self._web, stretch=1)
 
+	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		self._btg_src.idClicked.connect(self._on_source_changed)
@@ -200,15 +244,23 @@ class GraphViewerWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _refresh_source_buttons(self) -> None:
-		"""Active/désactive les boutons selon disponibilité des données."""
+		"""
+		Active/désactive les boutons de domaine selon la disponibilité des données.
+		Si le bouton actif devient indisponible (ex. pas de localisation), bascule automatiquement sur "Stack".
+		"""
 		self._btn_loc.setEnabled(self._has_loc)
 		self._btn_trk.setEnabled(self._has_trc)
 		# si un bouton désactivé était sélectionné, repasse sur Stack
 		if self._btn_loc.isChecked() and not self._has_loc: self._btn_stack.setChecked(True)
 		if self._btn_trk.isChecked() and not self._has_trc: self._btn_stack.setChecked(True)
 
+	##################################################
 	def _on_source_changed(self, btn_id: int) -> None:
-		"""Callback quand l'utilisateur choisit Stack/Localization/Tracking."""
+		"""
+		Met à jour la liste des sources selon le domaine choisi puis redessine.
+
+		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
+		"""
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
 		self._cmb_src.blockSignals(True)
 		self._cmb_src.clear()
@@ -223,7 +275,7 @@ class GraphViewerWidget(QWidget):
 
 	##################################################
 	def _update_plot(self):
-		"""Construit la figure Plotly selon la source et le type choisis."""
+		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
 
@@ -244,7 +296,7 @@ class GraphViewerWidget(QWidget):
 					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
 					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
 					fig = self._grapher.scatter(np.column_stack((planes, counts)), src_type, limit=False)
-			else :
+			else:
 				s = tmp.get(src_type)  # None si la colonne n'existe pas
 				if s is None: fig = self._grapher.blank(f"Localizations {src_type}")
 				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=False, kde=True, density=True)
@@ -261,6 +313,16 @@ class GraphViewerWidget(QWidget):
 
 	##################################################
 	def _actualize(self):
+		"""
+		Actualise les fichiers/données depuis l’état PALMTracer :
+		- Lit le TIF sélectionné (pile `_stack`) pour l’affichage Stack.
+		- Déduit les chemins CSV "localizations"/"tracking" et charge les DataFrame `_loc`/`_trc`.
+		- Met à jour les libellés d’information et l’état d’activation des boutons de domaine.
+		- Sélectionne par défaut le domaine "Stack" et redessine.
+
+		En cas d’erreur de lecture, logue l’erreur via :func:`print_error`.
+		"""
+
 		# Métadonnées d'information
 		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
 		if self._file != "":
@@ -282,17 +344,21 @@ class GraphViewerWidget(QWidget):
 		self._lbl_has_loc.setText("Yes" if self._has_loc else "No")
 		self._lbl_has_trc.setText("Yes" if self._has_trc else "No")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)  # Change la source pour Stack
+		self._on_source_changed(0)		# Change la source pour Stack
 
 	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:
-		"""Exporte en PNG en *capturant* la vue Qt (fallback sans Kaleido).
+		"""
+		Exporte en PNG via capture du widget QWebEngineView (fallback sans Kaleido).
 
-		Limitation: capture la zone visible (viewport). Pour une image plus
-		grande, redimensionnez temporairement le widget avant capture.
-		:param path:
-		:param scale:
-		:return:
+		Limitations
+		-----------
+		- Capture la zone visible (viewport) : pour une image plus grande, redimensionner temporairement le widget avant capture.
+		- Nécessite QtWebEngine pour capturer le rendu.
+
+		:param path: Chemin de sortie du PNG.
+		:param scale: Facteur d’échelle appliqué à la capture.
+		:return: True si le fichier a été écrit, False sinon.
 		"""
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
 			QApplication.processEvents()
@@ -306,13 +372,20 @@ class GraphViewerWidget(QWidget):
 
 	##################################################
 	def _on_export(self):
-		"""Ouvre une boîte de dialogue et exporte la figure (HTML/PNG/PDF).
-
-		Stratégie:
-		- HTML: sauvegarde l'HTML interactif.
-		- PNG: tente Plotly+Kaleido; en cas d'échec, fallback capture Qt.
-		- PDF: via QWebEngineView.printToPdf.
 		"""
+		Ouvre un dialogue et exporte la figure selon l’extension choisie.
+
+		Formats supportés
+		-----------------
+		- .html : enregistre l’HTML interactif (incluant PlotlyJS).
+		- .png  : exporte une image du rendu (fallback par capture Qt).
+		- .pdf  : imprime via QWebEngineView.printToPdf (si QtWebEngine présent).
+
+		Comportement
+		------------
+		- En l’absence de figure/HTML, avertit l’utilisateur.
+		- Sur échec d’écriture, affiche un message d’erreur.
+			"""
 		if self._fig is None and self._html is None:
 			QMessageBox.warning(self, "Export", "No figures to export.")
 			return
@@ -321,7 +394,7 @@ class GraphViewerWidget(QWidget):
 		if not path: return
 		try:
 			if path.lower().endswith(".png"):
-				ok = False
+				# ok = False
 				# Kaleido tourne à l'infini donc capture de widget QT...
 				# try:  				# 1) Essai Kaleido (si dispo)
 				#	import kaleido
@@ -354,9 +427,9 @@ class GraphViewerWidget(QWidget):
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
 
-# ==================================================
-# endregion Callback
-# ==================================================
+	# ==================================================
+	# endregion Callback
+	# ==================================================
 
 
 ##################################################
