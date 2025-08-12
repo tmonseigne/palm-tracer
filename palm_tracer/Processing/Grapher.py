@@ -21,6 +21,13 @@ class Grapher:
 	"""Créateur de graphiques avec Plotly."""
 
 	##################################################
+	@staticmethod
+	def blank(title: str):
+		fig = go.Figure()
+		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
+		return fig
+
+	##################################################
 	def histogram(self, data: np.ndarray, title: str, limit: bool = True, kde: bool = True, density: bool = True, bins: Optional[int] = None,
 				  color_hist: str = _SEABORN_DEEP[0], color_kde: str = _SEABORN_DEEP[2]) -> go.Figure:
 		"""

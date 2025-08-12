@@ -370,7 +370,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		if self.viewer_graph is None:
-			w = GraphViewerWidget()
+			w = GraphViewerWidget(self.pt)
 			w.setAttribute(Qt.WA_DeleteOnClose, True)
 			# Quand le widget est détruit, remettre la réf à None
 			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
