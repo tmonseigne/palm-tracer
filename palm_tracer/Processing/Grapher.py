@@ -9,24 +9,29 @@ from scipy.stats import gaussian_kde
 
 # Palette "deep" de seaborn (approx)
 _SEABORN_DEEP = ["#4c72b0", "#55a868", "#c44e52", "#8172b2", "#ccb974", "#64b5cd"]
-
+_TEMPLATE = "plotly_white"
+_BLANK_ANNOTATIONS = [dict(text="No valid data.", x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)]
+_GRID_COLOR = "#e6e6e6"
+_GRID_WIDTH = 0.8
+_MARGIN = dict(l=60, r=20, t=60, b=50)
 
 ##################################################
 @dataclass
 class Grapher:
 	"""Créateur de graphiques avec Plotly."""
 
+	##################################################
 	def histogram(self, data: np.ndarray, title: str, limit: bool = True, kde: bool = True, density: bool = True, bins: Optional[int] = None,
 				  color_hist: str = _SEABORN_DEEP[0], color_kde: str = _SEABORN_DEEP[2]) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
-		:param data: tableau numpy 1D/ND (aplati).
+		:param data: Données sous forme de tableau numpy 1D/ND (aplati).
 		:param title: titre du graphe.
-		:param limit: règle des 3σ (trim des outliers).
-		:param kde: superpose la KDE gaussienne.
-		:param density: histogramme en densité (True) ou en comptes (False).
-		:param bins: nbins explicite (sinon Freedman–Diaconis).
+		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param kde: Si True, superpose la KDE gaussienne.
+		:param density: affiche l'histogramme en densité (True) ou en comptes (False).
+		:param bins: nbins explicite (sinon Sturges).
 		:param color_hist: couleur de l'histogramme (seaborn deep).
 		:param color_kde: couleur de la courbe KDE (seaborn deep).
 		:return: go.Figure
@@ -37,55 +42,45 @@ class Grapher:
 
 		# Aucunes données valides
 		if x.size == 0:
-			fig.update_layout(title=title, template="plotly_white",
-							  annotations=[dict(text="Aucune donnée valide", x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)], )
+			fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
 			return fig
 
 		# Limite des données avec la règle des 3 Sigmas
-		mu, sigma = float(np.mean(x)), float(np.std(x))
-		if limit and sigma > 0:
-			limits = [mu - 3 * sigma, mu + 3 * sigma]				   # Limite théoriques des datas
-			x = x[(x >= limits[0]) & (x <= limits[1])]				   # Suppression des datas au dela des limites
-			limits = [max(limits[0], min(x)), min(limits[1], max(x))]  # On resserre les limites autour des datas
-		else:
-			limits = [min(x), max(x)]
+		x, limits = self.__get_range(x, limit)
 
 		# Récupération du nombre de bin
-		if bins is None: bins = self._get_bins_number(x)
+		if bins is None: bins = self.__get_bins_number(x)
 
 		# Histogramme
 		histnorm = "probability density" if density else None
 		fig.add_histogram(x=x, nbinsx=bins, histnorm=histnorm, marker=dict(color=color_hist, line=dict(width=0)), opacity=0.75,
-						  name="Histogram", hovertemplate=("x=%{x:.2f}<br>" + ("density=%{y:.2f}" if density else "count=%{y}") + "<extra></extra>"))
+						  name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
 		# KDE
-		if kde and x.size > 1 and sigma > 0:
+		if kde and x.size > 1 and float(np.std(x)) > 0:
 			# grille régulière sur l'intervalle affiché
-			grid = np.linspace(limits[0], limits[1], 512)
-			gkde = gaussian_kde(x)  # choisit sa propre bandwidth
-			y = gkde(grid)
-			if not density:
-				# convertir la densité en comptes ~ dens * N * bin_width
-				bin_width = (limits[1] - limits[0]) / max(int(bins), 1)
-				y = y * x.size * bin_width
+			xk = np.linspace(limits[0], limits[1], 512)
+			k = gaussian_kde(x)  # choisit sa propre bandwidth
+			y = k(xk)
+			if not density: y = y * x.size * ((limits[1] - limits[0]) / max(int(bins), 1))  # convertir la densité en comptes ~ dens * N * bin_width
 
-			fig.add_trace(go.Scatter(x=grid, y=y, mode="lines", line=dict(dash="dash", width=2, color=color_kde),
-									 name="KDE", hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
+			fig.add_trace(go.Scatter(x=xk, y=y, mode="lines", line=dict(dash="dash", color=color_kde), name="KDE", hoverinfo="skip", hovertemplate=None))
 
 		# Style "seaborn-like" + Espacement entre barres
-		fig.update_layout(title=title, template="plotly_white", margin=dict(l=60, r=20, t=60, b=50),
-						  xaxis=dict(title="Values", range=limits, zeroline=False, showgrid=True, gridcolor="#e6e6e6", gridwidth=0.8),
-						  yaxis=dict(title=("Density" if density else "Count"), zeroline=False, showgrid=True, gridcolor="#e6e6e6", gridwidth=0.8),
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
+						  xaxis=dict(title="Values", range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
+						  yaxis=dict(title=("Density" if density else "Count"), zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
 						  hovermode="x", showlegend=True, bargap=0.15, bargroupgap=0.05)
 		return fig
 
+	##################################################
 	def scatter(self, data: np.ndarray, title: str, limit: bool = True, color: str = _SEABORN_DEEP[0]) -> go.Figure:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
-		:param data: tableau numpy 1D ou 2D.
+		:param data: Données sous forme de tableau numpy 1D ou 2D.
 		:param title: titre du graphe.
-		:param limit: règle des 3σ (trim des outliers).
+		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param color: couleur de la courbe (seaborn deep).
 		:return: go.Figure
 		"""
@@ -94,45 +89,34 @@ class Grapher:
 			y = data[np.isfinite(data)]
 			x = np.arange(y.size, dtype=float)
 		elif data.ndim == 2:
-			if data.shape[0] == 2:  # (2, N) -> lignes = (x, y)
-				x = data[0, :]
-				y = data[1, :]
-			elif data.shape[1] == 2:  # (N, 2) -> colonnes = (x, y)
-				x = data[:, 0]
-				y = data[:, 1]
+			if data.shape[0] == 2: x, y = data[0, :], data[1, :]	 # (2, N) -> lignes = (x, y)
+			elif data.shape[1] == 2:  x, y = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: raise ValueError("data 2D doit avoir 2 lignes ou 2 colonnes (x,y).")
 			mask = np.isfinite(x) & np.isfinite(y)
-			x = x[mask]
-			y = y[mask]
+			x, y = x[mask], y[mask]
 		else: raise ValueError("data doit être 1D ou 2D.")
 
 		fig = go.Figure()
 
 		if x.size == 0:
-			fig.update_layout(title=title, template="plotly_white",
-							  annotations=[dict(text="Aucune donnée valide", x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)], )
+			fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
 			return fig
 
 		# Limite des données avec la règle des 3 Sigmas
-		mu, sigma = float(np.mean(x)), float(np.std(x))
-		if limit and sigma > 0:
-			limits = [mu - 3 * sigma, mu + 3 * sigma]				   # Limite théoriques des datas
-			x = x[(x >= limits[0]) & (x <= limits[1])]				   # Suppression des datas au dela des limites
-			limits = [max(limits[0], min(x)), min(limits[1], max(x))]  # On resserre les limites autour des datas
-		else:
-			limits = [min(x), max(x)]
+		x, limits = self.__get_range(x, limit)
 
 		# faire une courbe style "seaborn-like"
 		fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=color), hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Style "seaborn-like" + Espacement entre barres
-		fig.update_layout(title=title, template="plotly_white", margin=dict(l=60, r=20, t=60, b=50),
-						  xaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor="#e6e6e6", gridwidth=0.8),
-						  yaxis=dict(zeroline=False, showgrid=True, gridcolor="#e6e6e6", gridwidth=0.8), hovermode="x", showlegend=True)
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
+						  xaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
+						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH), hovermode="x", showlegend=True)
 		return fig
 
+	##################################################
 	@staticmethod
-	def _get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
+	def __get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 		"""
 		Calcule un nombre de bin adaptatif pour un histogramme.
 
@@ -144,3 +128,22 @@ class Grapher:
 		# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
 		bins = int(np.ceil(np.log2(n_values) + 1))   # Règle de Sturges
 		return max(limits[0], min(bins, limits[1]))  # Bornes pour éviter des valeurs extrêmes
+
+	##################################################
+	@staticmethod
+	def __get_range(data: np.ndarray, limit) -> tuple[np.ndarray,list[float]]:
+		"""
+		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si necessaire.
+
+		:param data: données à analyser
+		:param limit: limite ou non les données.
+		:return: le tableau (en cas de modification) et les limites du graphiques.
+		"""
+		mu, sigma = float(np.mean(data)), float(np.std(data))
+		if limit and sigma > 0:
+			limits = [mu - 3 * sigma, mu + 3 * sigma]						 # Limite théoriques des datas
+			data = data[(data >= limits[0]) & (data <= limits[1])]			 # Suppression des datas au dela des limites
+			limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
+		else:
+			limits = [min(data), max(data)]
+		return data, limits

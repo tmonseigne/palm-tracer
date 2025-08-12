@@ -56,6 +56,7 @@ class GraphViewerWidget(QtWidgets.QWidget):
 	# ==================================================
 	# region Init
 	# ==================================================
+	##################################################
 	def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
 		"""Initialise l'interface et les données minimales.
 
@@ -75,7 +76,7 @@ class GraphViewerWidget(QtWidgets.QWidget):
 		self.datas: dict[str, object] = {"type": "Intensity", "x": x, }
 
 		# Métadonnées d'information
-		self.filename: str = "blabla"
+		self.filename: str = "myfile.tif"
 		self.has_track: bool = False
 		self.has_loc: bool = False
 
@@ -86,13 +87,7 @@ class GraphViewerWidget(QtWidgets.QWidget):
 		# Tracé initial
 		self._update_plot()
 
-	# ==================================================
-	# endregion Init
-	# ==================================================
-
-	# ---------------------------
-	# UI
-	# ---------------------------
+	##################################################
 	def _init_ui(self) -> None:
 		"""Construit l'interface : panneau gauche (infos/choix) + graphe Plotly."""
 		main_layout = QtWidgets.QHBoxLayout(self)
@@ -148,7 +143,7 @@ class GraphViewerWidget(QtWidgets.QWidget):
 		if _HAS_WEBENGINE: self.web = QWebEngineView(self)
 		else:  # Fallback affichant un message d'erreur explicite
 			self.web = QtWidgets.QTextBrowser(self)
-			self.web.setText("<b>QtWebEngine indisponible</b><br>Installez PyQtWebEngine pour l'affichage Plotly.")
+			self.web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
 		main_layout.addWidget(left)
 		main_layout.addWidget(self.web, stretch=1)
@@ -159,16 +154,19 @@ class GraphViewerWidget(QtWidgets.QWidget):
 		self.cmb_graphtype.currentTextChanged.connect(self._on_change)
 		self.btn_export.clicked.connect(self._on_export)
 
-	# ---------------------------
-	# Callbacks
-	# ---------------------------
+	# ==================================================
+	# endregion Init
+	# ==================================================
+
+	# ==================================================
+	# region Callback
+	# ==================================================
+	##################################################
 	def _on_change(self) -> None:
 		"""Relance le tracé quand il y a un changement."""
 		self._update_plot()
 
-	# ---------------------------
-	# Plot
-	# ---------------------------
+	##################################################
 	def _update_plot(self) -> None:
 		"""Construit la figure Plotly selon la source et le type choisis."""
 		source = self.cmb_source.currentText()
@@ -191,11 +189,9 @@ class GraphViewerWidget(QtWidgets.QWidget):
 		self._html = html
 
 		if _HAS_WEBENGINE and isinstance(self.web, QWebEngineView): self.web.setHtml(html)
-		else: self.web.setText("<b>QtWebEngine indisponible</b><br>Installez PyQtWebEngine pour l'affichage Plotly.")
+		else: self.web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
-	# ---------------------------
-	# Export helpers & slots
-	# ---------------------------
+	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:
 		"""Exporte en PNG en *capturant* la vue Qt (fallback sans Kaleido).
 
@@ -212,6 +208,7 @@ class GraphViewerWidget(QtWidgets.QWidget):
 				return pix.save(path, "PNG")
 		return False
 
+	##################################################
 	def _on_export(self) -> None:
 		"""Ouvre une boîte de dialogue et exporte la figure (HTML/PNG/PDF).
 
@@ -221,7 +218,7 @@ class GraphViewerWidget(QtWidgets.QWidget):
 		- PDF: via QWebEngineView.printToPdf.
 		"""
 		if self._fig is None and self._html is None:
-			QtWidgets.QMessageBox.warning(self, "Export", "Aucune figure à exporter.")
+			QtWidgets.QMessageBox.warning(self, "Export", "No figures to export.")
 			return
 		suggested = (self.filename or "graph").rsplit("/", 1)[-1]
 		path, selected_filter = QtWidgets.QFileDialog.getSaveFileName(self, "Export the graph", suggested, "HTML (*.html);;PNG (*.png);;PDF (*.pdf)")
@@ -238,7 +235,7 @@ class GraphViewerWidget(QtWidgets.QWidget):
 				# except Exception:  # 2) Fallback: capture Qt du QWebEngineView
 				#	ok = self._export_png_via_qt(path, scale=2)
 				ok = self._export_png_via_qt(path, scale=2)
-				if not ok: raise RuntimeError("Échec export PNG (Kaleido & fallback Qt)")
+				if not ok: raise RuntimeError("PNG export failure (Kaleido & Qt fallback).")
 
 			elif path.lower().endswith(".html"):
 				assert self._html is not None
@@ -248,19 +245,24 @@ class GraphViewerWidget(QtWidgets.QWidget):
 				if _HAS_WEBENGINE and isinstance(self.web, QWebEngineView):
 					try: self.web.page().printToPdf(path)
 					except Exception as e:
-						QtWidgets.QMessageBox.warning(self, "Export PDF", f"Échec impression PDF: {e}")
+						QtWidgets.QMessageBox.warning(self, "Export PDF", f"PDF printing failure : {e}")
 						return
 				else:
-					QtWidgets.QMessageBox.warning(self, "Export PDF", "QtWebEngine est requis pour l'export PDF.")
+					QtWidgets.QMessageBox.warning(self, "Export PDF", "QtWebEngine is required for PDF export.")
 					return
 			else:
 				# Pas d'extension reconnue -> HTML par défaut
 				with open(path + ".html", "w", encoding="utf-8") as f: f.write(self._html or "")
 				path = path + ".html"
-			QtWidgets.QMessageBox.information(self, "Export", f"Export réussi :{path}")
-		except Exception as e: QtWidgets.QMessageBox.critical(self, "Export", f"Échec de l'export : {e}")
+			QtWidgets.QMessageBox.information(self, "Export", f"Export successful : {path}")
+		except Exception as e: QtWidgets.QMessageBox.critical(self, "Export", f"Export failed : {e}")
+
+	# ==================================================
+	# endregion Callback
+	# ==================================================
 
 
+##################################################
 if __name__ == "__main__":  # pragma: no cover
 	import sys
 
