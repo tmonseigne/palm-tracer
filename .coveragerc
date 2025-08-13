@@ -5,12 +5,19 @@ source = palm_tracer  # Analyse seulement ce module
 [coverage:report]
 # Exclure toutes les lignes de code dans les fichiers de test, exemples, le main et les init
 omit =
+	*/shibokensupport/*      ; shiboken créer des fichiers virtuels qui n'existent pas
+    */signature_bootstrap.py ; idem
+    */pyscript*              ; idem
     palm_tracer/_tests/*
     examples/*
     main.py
     conftest.py
     __init__.py
     _version.py
+
+# Évite les messages "couldn't parse" restants lors du report (à cause de shiboken)
+ignore_errors = True
+disable_warnings = couldnt-parse
 
 exclude_lines =
     # Ces commentaires excluent des lignes spécifiques si elles sont détectées

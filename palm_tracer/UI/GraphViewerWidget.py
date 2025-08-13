@@ -35,11 +35,11 @@ from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QF
 							QLabel, QMessageBox, QPushButton, QRadioButton, QTextBrowser, QToolButton, QVBoxLayout, QWidget)
 
 # Tentative d'import QtWebEngine (via qtpy)
-try:  # pragma: no cover - dépend de l'environnement
+try:
 	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
 
 	_HAS_WEBENGINE = True
-except Exception:  # pragma: no cover
+except Exception:
 	QWebEngineView = None  # type: ignore
 	_HAS_WEBENGINE = False
 
@@ -165,8 +165,8 @@ class GraphViewerWidget(QWidget):
 
 		h = QHBoxLayout()
 		h.setSpacing(0)
-		self._btn_stack, self._btn_loc, self._btn_trk = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracking")
-		for b in (self._btn_stack, self._btn_loc, self._btn_trk):
+		self._btn_stack, self._btn_loc, self._btn_trc = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracking")
+		for b in (self._btn_stack, self._btn_loc, self._btn_trc):
 			b.setCheckable(True)
 			b.setFocusPolicy(QtCore.Qt.NoFocus)  # évite le focus rectangle
 			h.addWidget(b)
@@ -176,7 +176,7 @@ class GraphViewerWidget(QWidget):
 		self._btg_src.setExclusive(True)
 		self._btg_src.addButton(self._btn_stack, 0)
 		self._btg_src.addButton(self._btn_loc, 1)
-		self._btg_src.addButton(self._btn_trk, 2)
+		self._btg_src.addButton(self._btn_trc, 2)
 
 		# État initial
 		self._btn_stack.setChecked(True)
@@ -259,7 +259,7 @@ class GraphViewerWidget(QWidget):
 
 		# Zone droite : QWebEngineView avec Plotly
 		if _HAS_WEBENGINE: self._web = QWebEngineView(self)
-		else:  # Fallback affichant un message d'erreur explicite
+		else: # pragma: no cover - Fallback affichant un message d'erreur explicite
 			self._web = QTextBrowser(self)
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
@@ -293,32 +293,13 @@ class GraphViewerWidget(QWidget):
 		Si le bouton actif devient indisponible (ex. pas de localisation), bascule automatiquement sur "Stack".
 		"""
 		self._btn_loc.setEnabled(self._has_loc)
-		self._btn_trk.setEnabled(self._has_trc)
+		self._btn_trc.setEnabled(self._has_trc)
 		# si un bouton désactivé était sélectionné, repasse sur Stack
 		if self._btn_loc.isChecked() and not self._has_loc: self._btn_stack.setChecked(True)
-		if self._btn_trk.isChecked() and not self._has_trc: self._btn_stack.setChecked(True)
+		if self._btn_trc.isChecked() and not self._has_trc: self._btn_stack.setChecked(True)
 
 	##################################################
 	def _on_source_changed(self, btn_id: int) -> None:
-		"""
-		Met à jour la liste des sources selon le domaine choisi puis redessine.
-
-		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
-		"""
-		## Exemple: remplir ta combo 'Source' en fonction du domaine
-		self._cmb_src.blockSignals(True)
-		self._cmb_src.clear()
-		if btn_id == 0: self._cmb_src.addItems(["Intensity"])  # Stack
-		elif btn_id == 1: self._cmb_src.addItems(["Localizations Count", "Integrated Intensity", "Intensity", "Sigma X", "Sigma Y",
-												  "Circularity", "Theta", "MSE XY", "Z", "MSE Z"])  # Localization
-		elif btn_id == 2: self._cmb_src.addItems(["MSD", "Velocity", "Displacement"])  # Tracking
-		self._cmb_src.setCurrentIndex(0)
-		self._cmb_src.blockSignals(False)
-		# puis redessiner le graphe si besoin
-		self._update_plot()
-
-	##################################################
-	def _on_hist_type_changed(self, btn_id: int) -> None:
 		"""
 		Met à jour la liste des sources selon le domaine choisi puis redessine.
 
@@ -351,9 +332,10 @@ class GraphViewerWidget(QWidget):
 		if src_id == 0:
 			# filtre de la pile self._stack (par plan et par intensité selon les filtres
 			# tmp = self._stack
-			if src_type == "Intensity": fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma,
-																	  kde=kde, gaussian=gauss, density=density)
-			else: fig = self._grapher.blank("Invalid Selection")
+			# if src_type == "Intensity": fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma,
+			# 														  kde=kde, gaussian=gauss, density=density)
+			# else: fig = self._grapher.blank("Invalid Selection")
+			fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 		elif src_id == 1:
 			# filtre du panda self._loc
 			tmp = self._loc
@@ -378,7 +360,8 @@ class GraphViewerWidget(QWidget):
 		self._html = html
 
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
-		else: self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+		else: # pragma: no cover - Fallback affichant un message d'erreur explicite
+			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
 	##################################################
 	def _actualize(self):
@@ -416,7 +399,7 @@ class GraphViewerWidget(QWidget):
 		self._on_source_changed(0)		# Change la source pour Stack
 
 	##################################################
-	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:
+	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool: # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""
 		Exporte en PNG via capture du widget QWebEngineView (fallback sans Kaleido).
 
@@ -440,7 +423,7 @@ class GraphViewerWidget(QWidget):
 		return False
 
 	##################################################
-	def _on_export(self):
+	def _on_export(self): # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""
 		Ouvre un dialogue et exporte la figure selon l’extension choisie.
 
