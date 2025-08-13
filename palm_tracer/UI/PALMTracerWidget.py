@@ -21,6 +21,7 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QTabWidget, Q
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_error, print_warning, save_json
+from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import Viewer3DWidget
 from palm_tracer.UI.Worker import Worker
 
@@ -48,6 +49,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer = viewer
 		self.viewer_hr: Optional[Viewer] = None
 		self.viewer_3d: Optional[Viewer] = None
+		self.viewer_graph: Optional[GraphViewerWidget] = None
 		self.filedialog = QFileDialog(self)
 		self.pt = PALMTracer()
 		self.last_file = ""
@@ -66,6 +68,8 @@ class PALMTracerWidget(QWidget):
 		# Viewer Button
 		btn_3d = QPushButton("Open 3D Viewer")
 		btn_3d.clicked.connect(self._open_3d_viewer)
+		btn_graph = QPushButton("Open Graph Viewer")
+		btn_graph.clicked.connect(self._open_graph_viewer)
 
 		# Load Setting Button
 		btn = QPushButton("Load Setting")
@@ -79,7 +83,7 @@ class PALMTracerWidget(QWidget):
 		tabs = QTabWidget()  # Création du QTabWidget
 		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget]), "Processing")
 		tabs.addTab(self.__create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget,
-									   self.pt.settings.visualization_graph.widget, btn_3d]), "Visualization")
+									   self.pt.settings.visualization_graph.widget, btn_graph, btn_3d]), "Visualization")
 		tabs.addTab(self.__create_tab([self.pt.settings.filtering.widget]), "Filtering")
 
 		# Layout principal
@@ -361,8 +365,22 @@ class PALMTracerWidget(QWidget):
 			self.viewer_3d = napari.Viewer(ndisplay=3)
 			self.viewer_3d.window._qt_window.setWindowTitle("3D Viewer")
 			self.viewer_3d.window._qt_window.menuBar().setVisible(False)
+			self.viewer_3d.window.add_dock_widget(Viewer3DWidget(self.viewer_3d), area="right")
 
-		self.viewer_3d.window.add_dock_widget(Viewer3DWidget(self.viewer_3d), area="right")
+	##################################################
+	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+		if self.viewer_graph is None:
+			w = GraphViewerWidget(self.pt)
+			w.setAttribute(Qt.WA_DeleteOnClose, True)
+			# Quand le widget est détruit, remettre la réf à None
+			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
+			w.resize(1000, 600)
+			self.viewer_graph = w
+
+		# (re)montrer et mettre au premier plan
+		self.viewer_graph.show()
+		self.viewer_graph.raise_()
+		self.viewer_graph.activateWindow()
 
 	# ==================================================
 	# endregion Callback

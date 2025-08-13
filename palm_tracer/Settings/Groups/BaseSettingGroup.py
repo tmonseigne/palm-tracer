@@ -7,12 +7,18 @@ Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de b
 from dataclasses import dataclass, field
 from typing import Any, cast, Union
 
-from qtpy import sip
+from qtpy import QT_API
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 
 from palm_tracer.Settings.Types import BaseSettingType
 
+if QT_API.startswith("pyqt"):  # pragma: no cover - dépend de l'environnement
+    from qtpy import sip	   # dispo quand le binding est PyQt
+    _IS_PYQT = True
+else:						   # pragma: no cover - dépend de l'environnement
+    import shiboken6		   # dispo quand le binding est PySide6
+    _IS_PYQT = False
 
 ##################################################
 @dataclass
@@ -139,7 +145,8 @@ class BaseSettingGroup:
 	@active.setter
 	def active(self, value: bool):
 		"""Contrôle la modification de l'état actif."""
-		if not sip.isdeleted(self._checkbox): self._checkbox.setChecked(value)
+		if (_IS_PYQT and not sip.isdeleted(self._checkbox)) or (not _IS_PYQT and shiboken6.isValid(self._checkbox)):
+			self._checkbox.setChecked(value)
 		self.toggle_active(1 if value else 0)
 
 	##################################################

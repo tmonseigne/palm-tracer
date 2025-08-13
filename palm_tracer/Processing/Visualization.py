@@ -137,7 +137,7 @@ def plot_histogram(ax: plt.axes, data: np.ndarray, title: str, limit: bool = Tru
 	:param data: Données sous forme de tableau numpy.
 	:param title: Titre de l'histogramme.
 	:param limit: Si True, applique la règle des 3 sigmas pour limiter les données.
-	:param kde: Si True, superpose une courbe gaussienne.
+	:param kde: Si True, superpose une kde gaussienne.
 	:param density: Si True, normalise l'histogramme pour afficher une densité de probabilité.
 	"""
 	data = data.ravel()  # Convertit en un tableau 1D

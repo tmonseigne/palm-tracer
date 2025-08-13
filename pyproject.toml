@@ -35,11 +35,14 @@ dependencies = [
 	"scikit-image",
 	"pillow",
 	"tifffile",
+	"scipy",
 	# Dépendances pour les graphiques
 	"matplotlib",
 	"seaborn",
 	"plotly",
 	"kaleido",
+	"PySide6",
+	"PySide6-Addons",
 	# Dépendances pour les infos cross plateforme
 	"psutil",
 	"py-cpuinfo",
@@ -56,8 +59,6 @@ testing = [
 	"pytest-json-report",
 	"pytest-metadata",
 	"napari",
-	"pyqt5",
-	"scipy",
 	"torch" # Installer pytorch à part : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 ]
 
@@ -67,7 +68,6 @@ documentation = [
 	"sphinx-rtd-theme",
 	"sphinx-qt-documentation",
 	"napari",
-	"pyqt5",
 	"ansi2html", # Utile pour transformer les rapports
 ]
 
