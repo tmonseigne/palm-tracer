@@ -12,7 +12,7 @@ _SEABORN_DEEP = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD
 _TEMPLATE = "plotly_white"
 _BLANK_ANNOTATIONS = [dict(text="No valid data.", x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)]
 _GRID_COLOR = "#e6e6e6"
-_GRID_WIDTH = 0.8
+_GRID_WIDTH = 0.75
 _MARGIN = dict(l=60, r=20, t=60, b=50)
 
 
@@ -102,7 +102,7 @@ class Grapher:
 		return fig
 
 	##################################################
-	def scatter(self, data: np.ndarray, title: str, limit: bool = True) -> go.Figure:
+	def scatter(self, data: np.ndarray, title: str, limit: bool = False) -> go.Figure:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
@@ -139,7 +139,7 @@ class Grapher:
 		# Style "seaborn-like" + Espacement entre barres
 		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
 						  xaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
-						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH), hovermode="x", showlegend=True)
+						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH), hovermode="x", showlegend=False)
 		return fig
 
 	##################################################
