@@ -31,8 +31,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 from qtpy import QtCore, QtGui
-from qtpy.QtWidgets import (QApplication, QButtonGroup, QComboBox, QFileDialog, QFormLayout, QFrame, QGroupBox, QHBoxLayout,
-							QLabel, QMessageBox, QPushButton, QTextBrowser, QVBoxLayout, QWidget)
+from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
+							QLabel, QMessageBox, QPushButton, QRadioButton, QTextBrowser, QToolButton, QVBoxLayout, QWidget)
 
 # Tentative d'import QtWebEngine (via qtpy)
 try:  # pragma: no cover - dépend de l'environnement
@@ -110,6 +110,7 @@ class GraphViewerWidget(QWidget):
 		self._trc_file: str = ""
 		self._has_loc: bool = False
 		self._has_trc: bool = False
+		self._density: bool = False
 
 		self._stack: np.ndarray = np.empty(0)
 		self._loc: pd.DataFrame = pd.DataFrame()
@@ -138,21 +139,21 @@ class GraphViewerWidget(QWidget):
 		"""
 
 		main_layout = QHBoxLayout(self)
-		main_layout.setContentsMargins(8, 8, 8, 8)
-		main_layout.setSpacing(8)
+		main_layout.setContentsMargins(5, 5, 5, 5)
+		main_layout.setSpacing(5)
 
 		# Colonne gauche
 		left = QFrame(self)
 		left.setFrameShape(QFrame.StyledPanel)
 		left.setMinimumWidth(280)
 		vbox = QVBoxLayout(left)
-		vbox.setContentsMargins(8, 8, 8, 8)
-		vbox.setSpacing(8)
+		vbox.setContentsMargins(5, 5, 5, 5)
+		vbox.setSpacing(5)
 
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
 		form = QFormLayout(grp_infos)
-		self._lbl_filename = QLabel(self._file if self._file != "" else "No File")
+		self._lbl_filename = QLabel(self._file if self._file != "" else "No")
 		self._lbl_has_loc = QLabel("Yes" if self._has_loc else "No")
 		self._lbl_has_trc = QLabel("Yes" if self._has_trc else "No")
 		form.addRow("File :", self._lbl_filename)
@@ -180,7 +181,7 @@ class GraphViewerWidget(QWidget):
 		# État initial
 		self._btn_stack.setChecked(True)
 
-		# COMBO BOX
+		# Combo box
 		form = QFormLayout(grp_source)
 		self._cmb_src = QComboBox()
 		form.addRow(h)
@@ -199,6 +200,43 @@ class GraphViewerWidget(QWidget):
 				       QPushButton:disabled    { color: #999; background: #fafafa; }
 				       """)
 
+		# Bloc Affichage (2 colonnes)
+		grp_display = QGroupBox("Display")
+		grid = QGridLayout(grp_display)
+		# Appliquer limites + bouton info
+		self._chk_limits = QCheckBox("Apply limits")
+		self._chk_limits.setChecked(True)
+		info_btn = QToolButton()
+		info_btn.setText("?")
+		info_btn.setAutoRaise(True)
+		info_btn.setToolTip("Limits data to ±3σ around the mean (3-sigma rule).")
+		row0 = QWidget()
+		row0_l = QHBoxLayout(row0)
+		row0_l.setContentsMargins(0, 0, 0, 0)
+		row0_l.addWidget(self._chk_limits)
+		row0_l.addWidget(info_btn)
+		# Autres options
+		self._chk_sigma = QCheckBox("Show σ")
+		self._chk_sigma.setChecked(False)
+		self._chk_gauss = QCheckBox("Show gaussian")
+		self._chk_gauss.setChecked(False)
+		self._chk_kde = QCheckBox("Show KDE")
+		self._chk_kde.setChecked(False)
+		# Sélecteur d'échelle Y : Densité / Comptes
+		self._rb_density = QRadioButton("Density")
+		self._rb_count = QRadioButton("Count")
+		self._rb_density.setChecked(True)
+		self._grp_y_mode = QButtonGroup(self)
+		self._grp_y_mode.addButton(self._rb_density)
+		self._grp_y_mode.addButton(self._rb_count)
+		# Placement 2 colonnes
+		grid.addWidget(row0, 0, 0)
+		grid.addWidget(self._chk_sigma, 0, 1)
+		grid.addWidget(self._chk_gauss, 1, 0)
+		grid.addWidget(self._chk_kde, 1, 1)
+		grid.addWidget(self._rb_density, 2, 0)
+		grid.addWidget(self._rb_count, 2, 1)
+
 		# Bloc Filtres (placeholder vide pour l'instant)
 		grp_filters = QGroupBox("Filters (comming soon)")
 		vbox_filters = QVBoxLayout(grp_filters)
@@ -214,6 +252,7 @@ class GraphViewerWidget(QWidget):
 
 		vbox.addWidget(grp_infos)
 		vbox.addWidget(grp_source)
+		vbox.addWidget(grp_display)
 		vbox.addWidget(grp_filters)
 		vbox.addLayout(actions_row)
 		vbox.addStretch(1)
@@ -232,6 +271,11 @@ class GraphViewerWidget(QWidget):
 		"""Connecte les signaux UI aux callbacks."""
 		self._btg_src.idClicked.connect(self._on_source_changed)
 		self._cmb_src.currentTextChanged.connect(self._update_plot)
+		self._chk_limits.stateChanged.connect(self._update_plot)
+		self._chk_sigma.stateChanged.connect(self._update_plot)
+		self._chk_gauss.stateChanged.connect(self._update_plot)
+		self._chk_kde.stateChanged.connect(self._update_plot)
+		self._grp_y_mode.idClicked.connect(self._update_plot)
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_export.clicked.connect(self._on_export)
 
@@ -274,17 +318,41 @@ class GraphViewerWidget(QWidget):
 		self._update_plot()
 
 	##################################################
+	def _on_hist_type_changed(self, btn_id: int) -> None:
+		"""
+		Met à jour la liste des sources selon le domaine choisi puis redessine.
+
+		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
+		"""
+		## Exemple: remplir ta combo 'Source' en fonction du domaine
+		self._cmb_src.blockSignals(True)
+		self._cmb_src.clear()
+		if btn_id == 0: self._cmb_src.addItems(["Intensity"])  # Stack
+		elif btn_id == 1: self._cmb_src.addItems(["Localizations Count", "Integrated Intensity", "Intensity", "Sigma X", "Sigma Y",
+												  "Circularity", "Theta", "MSE XY", "Z", "MSE Z"])  # Localization
+		elif btn_id == 2: self._cmb_src.addItems(["MSD", "Velocity", "Displacement"])  # Tracking
+		self._cmb_src.setCurrentIndex(0)
+		self._cmb_src.blockSignals(False)
+		# puis redessiner le graphe si besoin
+		self._update_plot()
+
+	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
-
+		limit = self._chk_limits.checkState() == QtCore.Qt.CheckState.Checked
+		sigma = self._chk_sigma.checkState() == QtCore.Qt.CheckState.Checked
+		kde = self._chk_kde.checkState() == QtCore.Qt.CheckState.Checked
+		gauss = self._chk_gauss.checkState() == QtCore.Qt.CheckState.Checked
+		density = self._rb_density.isChecked()
 		# Selection du graphique à afficher
 		fig: go.Figure
 		if src_id == 0:
 			# filtre de la pile self._stack (par plan et par intensité selon les filtres
 			# tmp = self._stack
-			if src_type == "Intensity": fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=False, kde=True, density=True)
+			if src_type == "Intensity": fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma,
+																	  kde=kde, gaussian=gauss, density=density)
 			else: fig = self._grapher.blank("Invalid Selection")
 		elif src_id == 1:
 			# filtre du panda self._loc
@@ -295,11 +363,12 @@ class GraphViewerWidget(QWidget):
 				else:
 					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
 					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-					fig = self._grapher.scatter(np.column_stack((planes, counts)), src_type, limit=False)
+					fig = self._grapher.scatter(np.column_stack((planes, counts)), src_type, limit=limit)
 			else:
 				s = tmp.get(src_type)  # None si la colonne n'existe pas
 				if s is None: fig = self._grapher.blank(f"Localizations {src_type}")
-				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=False, kde=True, density=True)
+				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=limit, show_sigma=sigma,
+													kde=kde, gaussian=gauss, density=density)
 		else:
 			fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
 
