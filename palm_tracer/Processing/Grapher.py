@@ -95,7 +95,7 @@ class Grapher:
 			fig.add_vline(x=mu + 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ + 3σ")  # +3σ
 
 		# Style "seaborn-like" + Espacement entre barres
-		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
+		fig.update_layout(title=f"{title} (μ = {mu:.2f}, σ = {sigma:.2f})", template=_TEMPLATE, margin=_MARGIN,
 						  xaxis=dict(title="Values", range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
 						  yaxis=dict(title=("Density" if density else "Count"), zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
 						  hovermode="x", showlegend=True, bargap=0.15, bargroupgap=0.05)
