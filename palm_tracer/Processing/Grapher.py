@@ -109,7 +109,6 @@ class Grapher:
 		:param data: Données sous forme de tableau numpy 1D ou 2D.
 		:param title: titre du graphe.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param color: couleur de la courbe (seaborn deep).
 		:return: go.Figure
 		"""
 		# Déterminer x,y

@@ -1,7 +1,5 @@
 """ Fichier des tests pour l'utilisation de la DLL CPU. """
 
-from pathlib import Path
-
 import pytest
 
 from palm_tracer._tests.Utils import *
@@ -25,7 +23,7 @@ def test_palm_cpu_image():
 			suffix = get_loc_suffix(fit)
 
 			localizations = palm.localization(stack[plane], default_threshold, default_watershed, fit, get_fit_params(fit))
-			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
+			if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
 
@@ -49,7 +47,7 @@ def test_palm_cpu_stack():
 			suffix = get_loc_suffix(fit, watershed)
 
 			localizations = palm.localization(stack, default_threshold, watershed, fit, get_fit_params(fit))
-			if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
+			if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
 
@@ -71,7 +69,7 @@ def test_palm_cpu_stack_plane_selection():
 	suffix = get_loc_suffix()
 
 	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit), [2, 3, 4, 5, 6])
-	if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
+	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 	assert len(localizations) > 0, "Aucune localisation trouvé"
 	path = Path(f"{INPUT_DIR}/ref/{file}-localizations-plane_select-{suffix}.csv")
 	if path.exists() and path.is_file():
@@ -90,7 +88,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
 
 	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
-	if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
+	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 
 	quadrant = {"Top":    localizations['Plane'].isin([3, 4, 7, 8]),
 				"Bottom": localizations['Plane'].isin([1, 2, 5, 6, 9, 10]),
@@ -137,7 +135,7 @@ def test_tracking():
 			if path.exists() and path.is_file():
 				localizations = pd.read_csv(path)
 				tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
-				if save_output: tracks.to_csv(f"{OUTPUT_DIR}/{file}-tracking-{suffix_trc}.csv", index=False)
+				if save_output: tracks.round(6).to_csv(f"{OUTPUT_DIR}/{file}-tracking-{suffix_trc}.csv", index=False)
 
 				assert len(tracks) > 0, "Aucun Tracking trouvé"
 

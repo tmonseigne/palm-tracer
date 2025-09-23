@@ -8,17 +8,17 @@ import pandas as pd
 PARSING_COLUMNS: dict[str, dict[str, Any]] = {
 		"Localization": {
 				"columns": ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
-							"Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance",
+							"Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z",
 							"Intensity 0", "Intensity Offset", "Intensity", "Surface", "Circularity"],
 				"types":   {"Id": "int32", "Plane": "int32", "Index": "int32", "Surface": "int32", "Channel": "int32"}
 				},
 		"Tracking":     {
-				"columns": ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Color", "Surface"],
-				"types":   {"Track": "int32", "Plane": "int32", "Id": "int32", "Color": "int32", "Surface": "int32"}
+				"columns": ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Surface"],
+				"types":   {"Track": "int32", "Plane": "int32", "Id": "int32", "Surface": "int32"}
 				},
 		}
 
-COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Pair Distance", "Surface"]
+COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
 
 # Tracking
 N_TRACK = 9  # Nombre de paramètres pour le tracking.
