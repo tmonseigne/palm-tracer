@@ -121,7 +121,6 @@ class PALMTracer:
 			if self.settings.tracking.active:
 				self._logger.add("Tracking activé.")
 				self.__tracking()
-
 			else:
 				self._logger.add("Tracking désactivé.")
 				f = get_last_file(self._path, "tracking")
@@ -192,9 +191,19 @@ class PALMTracer:
 		# Run command
 		self.tracks = self.palm.tracking(self.localizations, s["Max Distance"], s["Min Length"], s["Decrease"], s["Cost Birth"])
 
-		self._logger.add("\tEnregistrement du fichier de tracking.")
-		self._logger.add(f"\t\t{len(self.tracks)} tracking(s) trouvé(s).")
+		self._logger.add("\tEnregistrement du fichier de trajectoires.")
+		self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
 		self.tracks.to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
+
+		if self.settings.tracking["Blinking Reconnection"].active:
+			self._logger.add("\tReconnexion des trajectoires après scintillement.")
+			s=self.settings.tracking["Blinking Reconnection"].get_settings()
+			# Run command
+			self.tracks = self.palm.blinking_reconnection(self.tracks, s["Mode"], s["Max Distance"], s["Max Speed"])
+
+			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
+			self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
+			self.tracks.to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
 
 	##################################################
 	def __visualization_hr(self):

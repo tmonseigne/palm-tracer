@@ -28,10 +28,19 @@ def qt_app():
 ##################################################
 def cpu_infos() -> str:
 	info = cpuinfo.get_cpu_info()
-	res = info.get("processor", "Unknown Processor")
+	res = info.get("brand_raw") or info.get("processor", "Unknown Processor")
+
+	try:  # Coeurs / threads (tolérant aux erreurs) En cas de problème notamment sur mac
+		cores = psutil.cpu_count(logical=False) or os.cpu_count()
+		threads = psutil.cpu_count(logical=True) or os.cpu_count()
+	except Exception: cores = threads = os.cpu_count()
+
 	try:  # En cas de problème notamment sur mac
-		cpu_info = psutil.cpu_freq(percpu=False)
-		res += f" ({cpu_info.current / 1000} GHz - {psutil.cpu_count(logical=False)} Cores ({psutil.cpu_count(logical=True)} Logical))"
+		freq = f"Unknown frequency"
+		if hasattr(psutil, "cpu_freq"):
+			cpu_info = psutil.cpu_freq(percpu=False)
+			if cpu_info and getattr(cpu_info, "current", None): freq = f"{cpu_info.current / 1000:.2f} GHz"
+		res += f" ({freq} - {cores} Cores ({threads} Logical))"
 	except RuntimeError: res += "(No CPU Infos)"
 	return res
 

@@ -149,7 +149,7 @@ def test_spline_fit(make_napari_viewer):
 ###################################################
 def test_tracking(make_napari_viewer):
 	"""Test basique de la classe Tracking (constructeur, getter, setter)"""
-	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth"], SpinFloat, 2, 5)
+	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth", "Blinking Reconnection"], SpinFloat, 2, 5)
 
 
 ###################################################

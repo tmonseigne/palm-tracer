@@ -147,3 +147,28 @@ def test_tracking():
 			else:
 				print_warning(f"Fichier de localisations '{path}' indisponible.")
 	assert True
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_blinking_reconnection():
+	"""Test basique sur le tracking."""
+	palm = Palm()
+	file = "tracking"
+	path = Path(f"{INPUT_DIR}/{file}.csv")
+	if path.exists() and path.is_file():
+		t_input = pd.read_csv(path)
+		for i in range(3):
+			t_output = palm.blinking_reconnection(t_input, i, 4, 2)
+			if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{i}.csv", index=False)
+
+			assert len(t_output) > 0, "Aucun Tracking trouvé"
+
+			ref_path = Path(f"{INPUT_DIR}/ref/{file}-blinking-{i}.csv")
+			if ref_path.exists() and ref_path.is_file():
+				print(f"Comparaison avec : '{ref_path}'")
+				ref = pd.read_csv(ref_path)
+				assert compare_points(t_output, ref, group_cols=["Track", "Plane"]), f"Test invalide pour les paramètres {i}"
+	else:
+		print_warning(f"Fichier de Tracking '{path}' indisponible.")
+	assert True

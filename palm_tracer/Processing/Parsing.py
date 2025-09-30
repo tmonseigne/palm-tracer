@@ -21,7 +21,7 @@ PARSING_COLUMNS: dict[str, dict[str, Any]] = {
 COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
 
 # Tracking
-N_TRACK = 9  # Nombre de paramètres pour le tracking.
+N_TRACK = 8  # Nombre de paramètres pour le tracking.
 
 
 ##################################################

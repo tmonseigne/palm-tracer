@@ -116,6 +116,29 @@ class Palm:
 				}
 
 	##################################################
+	@staticmethod
+	def __get_blink_args(tracks: pd.DataFrame, mode: int, max_duration: int, max_speed: float) -> dict[str, Any]:
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le tracking.
+
+		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
+		:param max_duration: Durée maximale d'un scintillemnt.
+		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
+		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+		n = len(tracks)
+		track_size = n * N_TRACK
+
+		return {"input":        np.asarray(tracks, dtype=np.float64).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"output":       np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"nRow":         ctypes.c_ulong(n),
+				"mode":         ctypes.c_ulong(mode),
+				"max_duration": ctypes.c_ulong(max_duration),
+				"max_speed":    ctypes.c_double(max_speed),
+				}
+
+	##################################################
 	def localization(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray,
 					 planes: Optional[list[int]] = None) -> pd.DataFrame:
 		"""
@@ -156,10 +179,9 @@ class Palm:
 		:return: Seuil calculé (écart type final).
 		"""
 		height, width = image.shape  # Récupère les dimensions
-		args = self.__get_auto_treshold_args(image, height, width, fit_params) # Récupère les arguments pour la DLL
-		self._dll.AutoThreshold.restype = ctypes.c_double					   # Force le type de retour
+		args = self.__get_auto_treshold_args(image, height, width, fit_params)  # Récupère les arguments pour la DLL
+		self._dll.AutoThreshold.restype = ctypes.c_double						# Force le type de retour
 		return self._dll.AutoThreshold(*args.values())
-
 
 	##################################################
 	def tracking(self, localizations: pd.DataFrame, max_distance: float, min_life: int, decrease: float, cost_birth: float) -> pd.DataFrame:
@@ -179,3 +201,21 @@ class Palm:
 		args = self.__get_tracks_args(localizations, max_distance, min_life, decrease, cost_birth)
 		count = self._dll.Tracking(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["tracks"], shape=(count,)), "Tracking")
+
+	##################################################
+	def blinking_reconnection(self, tracks: pd.DataFrame, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
+		"""
+		Exécute l'algorithme de tracking sur les points localisés.
+
+		Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies,
+		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
+
+		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
+		:param max_duration: Durée maximale d'un scintillemnt.
+		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
+		:return: DataFrame contenant les trajectoires détectées.
+		"""
+		args = self.__get_blink_args(tracks, mode, max_duration, max_speed)
+		count = self._dll.BlinkingReconnection(*args.values())
+		return parse_result(np.ctypeslib.as_array(args["output"], shape=(count,)), "Tracking")
