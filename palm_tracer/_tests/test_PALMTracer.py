@@ -128,6 +128,20 @@ def test_process_only_tracking(make_napari_viewer):
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_process_only_tracking_blinking(make_napari_viewer):
+	""" Test pour le process de tracking. """
+	pt = PALMTracer()
+
+	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	pt.process()
+	assert True
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_visualization_hr(make_napari_viewer):
 	""" Test pour le process de visualization HR. """
 	pt = PALMTracer()

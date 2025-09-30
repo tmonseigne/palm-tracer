@@ -9,6 +9,7 @@ qui regroupe les paramètres de tracking nécessaires à la configuration de PAL
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnection
 from palm_tracer.Settings.Types import SpinFloat, SpinInt
 
 
@@ -23,4 +24,6 @@ class Tracking(BaseSettingGroup):
 	setting_list = {"Max Distance": [SpinFloat, ["Max Distance", 5.0, 0.0, 1000.0, 1.0, 2]],
 					"Min Length":   [SpinInt, ["Min Length", 1, 0, 1000, 1]],
 					"Decrease":     [SpinFloat, ["Decrease", 10.0, 0.0, 1000.0, 1.0, 2]],
-					"Cost Birth":   [SpinFloat, ["Cost Birth", 0.5, 0.0, 1000.0, 1.0, 2]]}
+					"Cost Birth":   [SpinFloat, ["Cost Birth", 0.5, 0.0, 1000.0, 1.0, 2]],
+					"Blinking Reconnection":   [BlinkingReconnection, []]}
+	_inner_groups = ["Blinking Reconnection"]
