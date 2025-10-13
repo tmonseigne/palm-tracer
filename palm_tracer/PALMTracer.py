@@ -197,9 +197,10 @@ class PALMTracer:
 
 		if self.settings.tracking["Blinking Reconnection"].active:
 			self._logger.add("\tReconnexion des trajectoires après scintillement.")
-			s=self.settings.tracking["Blinking Reconnection"].get_settings()
+			s = self.settings.tracking["Blinking Reconnection"].get_settings()
+			pixel_size = self.settings.calibration.get_settings()["Pixel Size"]
 			# Run command
-			self.tracks = self.palm.blinking_reconnection(self.tracks, s["Mode"], s["Max Distance"], s["Max Speed"])
+			self.tracks = self.palm.blinking_reconnection(self.tracks, pixel_size, s["Mode"], s["Max Distance"], s["Max Speed"])
 
 			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
 			self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")

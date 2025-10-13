@@ -117,7 +117,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_blink_args(tracks: pd.DataFrame, mode: int, max_duration: int, max_speed: float) -> dict[str, Any]:
+	def __get_blink_args(tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> dict[str, Any]:
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le tracking.
 
@@ -133,6 +133,7 @@ class Palm:
 		return {"input":        np.asarray(tracks, dtype=np.float64).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"output":       np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"nRow":         ctypes.c_ulong(n),
+				"pixel_size":   ctypes.c_double(pixel_size),
 				"mode":         ctypes.c_ulong(mode),
 				"max_duration": ctypes.c_ulong(max_duration),
 				"max_speed":    ctypes.c_double(max_speed),
@@ -203,19 +204,20 @@ class Palm:
 		return parse_result(np.ctypeslib.as_array(args["tracks"], shape=(count,)), "Tracking")
 
 	##################################################
-	def blinking_reconnection(self, tracks: pd.DataFrame, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
+	def blinking_reconnection(self, tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
 		"""
 		Exécute l'algorithme de tracking sur les points localisés.
 
 		Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies,
 		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
 
+		:param pixel_size: Taille des pixels en Nanomètres.
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillemnt.
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
 		:return: DataFrame contenant les trajectoires détectées.
 		"""
-		args = self.__get_blink_args(tracks, mode, max_duration, max_speed)
+		args = self.__get_blink_args(tracks, pixel_size, mode, max_duration, max_speed)
 		count = self._dll.BlinkingReconnection(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["output"], shape=(count,)), "Tracking")
