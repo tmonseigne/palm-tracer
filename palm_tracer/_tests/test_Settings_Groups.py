@@ -186,3 +186,14 @@ def test_filtering_gf(make_napari_viewer):
 def test_filtering_t(make_napari_viewer):
 	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
 	group_base_test(FilteringT(), ["Length", "D Coeff", "Instant D", "Speed", "Alpha", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
+
+
+###################################################
+def test_tracks_blinking_reconnection(make_napari_viewer):
+	"""Test basique de la classe TracksBlinkingReconnection (constructeur, getter, setter)"""
+	group_base_test(TracksBlinkingReconnection(), ["Mode", "Max Distance", "Max Speed"], Combo, 1, 0)
+
+###################################################
+def test_tracks_computes(make_napari_viewer):
+	"""Test basique de la classe TracksCompute (constructeur, getter, setter)"""
+	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Log Scale", "Fit"], CheckBox, True, False)

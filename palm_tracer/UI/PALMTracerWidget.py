@@ -81,7 +81,8 @@ class PALMTracerWidget(QWidget):
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget]), "Processing")
+		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget,
+									   self.pt.settings.tracks_compute.widget]), "Processing")
 		tabs.addTab(self.__create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget,
 									   self.pt.settings.visualization_graph.widget, btn_graph, btn_3d]), "Visualization")
 		tabs.addTab(self.__create_tab([self.pt.settings.filtering.widget]), "Filtering")
