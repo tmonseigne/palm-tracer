@@ -140,6 +140,21 @@ def test_process_only_tracking_blinking(make_napari_viewer):
 	pt.process()
 	assert True
 
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_process_only_tracks_compute(make_napari_viewer):
+	""" Test pour le process de tracking. """
+	pt = PALMTracer()
+
+	pt.settings.tracks_compute.active = True
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	pt.process()
+	assert True
+
+
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_visualization_hr(make_napari_viewer):
@@ -192,6 +207,8 @@ def test_process_all(make_napari_viewer):
 	pt.settings.localization["Fit"].set_value(1)
 	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(3)
 	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+	pt.settings.tracks_compute.active = True
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
 	pt.settings.visualization_graph.active = True

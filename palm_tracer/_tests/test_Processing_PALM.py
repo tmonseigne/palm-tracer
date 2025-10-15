@@ -172,3 +172,50 @@ def test_blinking_reconnection():
 	else:
 		print_warning(f"Fichier de Tracking '{path}' indisponible.")
 	assert True
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_tracks_compute():
+	"""Test basique sur le tracking."""
+	palm = Palm()
+	file = "tracking2"
+	path = Path(f"{INPUT_DIR}/{file}.csv")
+	if path.exists() and path.is_file():
+		t_input = pd.read_csv(path)
+		# Test avec ou sans les mise à jour de log et la 3D
+		for p in [True, False]:
+			t_output = palm.tracks_compute(t_input, True, p, p, p, p, 1, 1, 1, np.array([4], dtype=np.float64))
+			for name in ["MSD", "InstantD", "Fit"]:
+				if t_output[name] is None: continue
+				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
+				assert len(t_output[name]) > 0, "Aucun Tracking trouvé"
+
+				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{p}.csv")
+				if ref_path.exists() and ref_path.is_file():
+					print(f"Comparaison avec : '{ref_path}'")
+					ref = pd.read_csv(ref_path)
+					assert compare_points(t_output[name], ref, group_cols=["Track"]), f"Test invalide pour le calcul {name}."
+
+		# Dernier True/False pour la couverture de code
+		t_output = palm.tracks_compute(t_input, False, True, True, False, False, 1, 1, 1, np.array([4], dtype=np.float64))
+
+		# Test sur différents mode de fit
+		for mode in range(4):
+			t_output = palm.tracks_compute(t_input, False, False, True, False, False, mode, 1, 1, np.array([4], dtype=np.float64))
+			for name in ["MSD", "InstantD", "Fit"]:
+				if t_output[name].empty: continue
+				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
+				assert len(t_output[name]) > 0, "Aucun Tracking trouvé"
+
+				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{mode}.csv")
+				if ref_path.exists() and ref_path.is_file():
+					print(f"Comparaison avec : '{ref_path}'")
+					ref = pd.read_csv(ref_path)
+					assert compare_points(t_output[name], ref, group_cols=["Track"]), f"Test invalide pour le calcul {name}."
+
+
+	else:
+		print_warning(f"Fichier de Tracking '{path}' indisponible.")
+	assert True
+	assert True

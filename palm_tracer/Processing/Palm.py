@@ -12,7 +12,7 @@ from typing import Any, Optional
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing.Parsing import get_max_points, N_TRACK, parse_localization_to_tracking, parse_result
+from palm_tracer.Processing.Parsing import get_max_points, log10_dataframe, N_TRACK, parse_irregular_array, parse_localization_to_tracking, parse_result
 from palm_tracer.Tools.Utils import load_dll
 
 
@@ -49,7 +49,7 @@ class Palm:
 		:param height: Hauteur des images.
 		:param width: Largeur des images.
 		:param fit_params: Paramètres de l'ajustement.
-		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		return {
 				"image":      np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
@@ -72,7 +72,7 @@ class Palm:
 		:param watershed: Active ou désactive le mode watershed.
 		:param fit: Mode d'ajustement.
 		:param fit_params: Paramètres de l'ajustement.
-		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		# Parsing
 		n = get_max_points(height, width, planes)  # Récupération d'un nombre de points maximum théorique
@@ -100,7 +100,7 @@ class Palm:
 		:param min_life: Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final.
 		:param decrease: Facteur de pénalisation appliqué au coût d'association entre frames éloignées.
 		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
-		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		n = len(localizations)
 		track_size = n * N_TRACK
@@ -119,13 +119,14 @@ class Palm:
 	@staticmethod
 	def __get_blink_args(tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> dict[str, Any]:
 		"""
-		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le tracking.
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la reconnexion du scintillement.
 
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param pixel_size: Calibration spatiale utile pour les calculs
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillemnt.
-		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
-		:return: Dictionniare d'arguments pour la DLL (attention l'ordre doit être respecté).
+		:param max_speed: Vitesse maximale d'un point entre deux plans (en nanomètre).
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		n = len(tracks)
 		track_size = n * N_TRACK
@@ -137,6 +138,42 @@ class Palm:
 				"mode":         ctypes.c_ulong(mode),
 				"max_duration": ctypes.c_ulong(max_duration),
 				"max_speed":    ctypes.c_double(max_speed),
+				}
+
+	##################################################
+	@staticmethod
+	def __get_tc_args(tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_fit: bool, is_3d: bool,
+					  pixel_size: float, exposure_time, fit_mode: int, fit_params: np.ndarray) -> dict[str, Any]:
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le calcul sur les trajectoires.
+
+		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param is_msd: Calcul MSD à effectuer si vrai.
+		:param is_ind: Calcul Instant Diffusion à effectuer si vrai.
+		:param is_fit: Calcul du fit à effectuer si vrai.
+		:param is_3d: Calcul sur la 3D.
+		:param pixel_size: Calibration spatiale utile pour les calculs.
+		:param exposure_time: Calibration temporelle utile pour les calculs.
+		:param fit_mode: Mode d'ajustement.
+		:param fit_params: Paramètres de l'ajustement (pour le moment uniquement fit length).
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+		n = len(tracks)
+		track_size = n * N_TRACK
+
+		return {"input":         np.asarray(tracks, dtype=np.float64).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"output_msd":    np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"output_ind":    np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"output_fit":    np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"nRow":          ctypes.c_ulong(n),
+				"is_msd":        ctypes.c_bool(is_msd),
+				"is_ind":        ctypes.c_bool(is_ind),
+				"is_fit":        ctypes.c_bool(is_fit),
+				"is_3d":         ctypes.c_bool(is_3d),
+				"pixel_size":    ctypes.c_double(pixel_size),
+				"exposure_time": ctypes.c_double(exposure_time),
+				"fit_mode":      ctypes.c_ulong(fit_mode),
+				"fit_params":    fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
 				}
 
 	##################################################
@@ -206,10 +243,7 @@ class Palm:
 	##################################################
 	def blinking_reconnection(self, tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
 		"""
-		Exécute l'algorithme de tracking sur les points localisés.
-
-		Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies,
-		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
+		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
 
 		:param pixel_size: Taille des pixels en Nanomètres.
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
@@ -221,3 +255,68 @@ class Palm:
 		args = self.__get_blink_args(tracks, pixel_size, mode, max_duration, max_speed)
 		count = self._dll.BlinkingReconnection(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["output"], shape=(count,)), "Tracking")
+
+	##################################################
+	def tracks_compute(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_fit: bool, is_3d: bool, is_log: bool,
+					   pixel_size: float, exposure_time: float, fit_mode: int, fit_params: np.ndarray) -> dict[str, Optional[pd.DataFrame]]:
+		"""
+		Exécute l'algorithme de calcul sur les trajectoires.
+
+		:param pixel_size: Taille des pixels en Nanomètres.
+		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param is_msd: Calcul MSD à effectuer si vrai.
+		:param is_ind: Calcul Instant Diffusion à effectuer si vrai.
+		:param is_fit: Calcul du fit à effectuer si vrai.
+		:param is_3d: Calcul sur la 3D.
+		:param is_log: Applique un logarithme sur le résultat.
+		:param pixel_size: Calibration spatiale utile pour les calculs.
+		:param exposure_time: Calibration temporelle utile pour les calculs.
+		:param fit_mode: Mode d'ajustement.
+		:param fit_params: Paramètres de l'ajustement (pour le moment uniquement fit length).
+		:return: DataFrame contenant les trajectoires détectées.
+		"""
+		new_tracks = tracks.copy()
+		if not is_3d: new_tracks["Z"] = 0  # On simplifie la suite les calculs se font toujorus en 3D mais la dernière dimension sera toujours nulle
+
+		args = self.__get_tc_args(new_tracks, is_msd, is_ind, is_fit, is_3d, pixel_size, exposure_time, fit_mode, fit_params)
+		self._dll.TracksCompute.restype = ctypes.c_bool  # Force le type de retour
+		success = self._dll.TracksCompute(*args.values())
+
+		# Remplissage des tableaux de sortie
+		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InstantD": pd.DataFrame(), "Fit": pd.DataFrame()}
+		if success:
+			n = len(tracks)
+
+			if is_msd:
+				res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["output_msd"], shape=(n,)))
+				ncols = res["MSD"].shape[1]
+				if ncols != 0:
+					cols = [f"Lag {i}" for i in range(1, ncols)]
+					res["MSD"].columns = ["Track"] + cols
+					# Track en entier nullable (préserve les NaN si présents)
+					if "Track" in res["MSD"]: res["MSD"]["Track"] = pd.to_numeric(res["MSD"]["Track"], errors="coerce").astype("Int64")
+					# Mise à jour en fonction de la mise à l'échelle du Log.
+					if is_log: res["MSD"] = log10_dataframe(res["MSD"], cols)
+
+			if is_ind:
+				res["InstantD"] = parse_irregular_array(np.ctypeslib.as_array(args["output_ind"], shape=(n,)))
+				ncols = res["InstantD"].shape[1]
+				if ncols != 0:
+					cols = [f"Window {i}" for i in range(1, ncols)]
+					res["InstantD"].columns = ["Track"] + cols
+					# Track en entier nullable (préserve les NaN si présents)
+					if "Track" in res["InstantD"]: res["InstantD"]["Track"] = pd.to_numeric(res["InstantD"]["Track"], errors="coerce").astype("Int64")
+					# Mise à jour en fonction de la mise à l'échelle du Log.
+					if is_log: res["InstantD"] = log10_dataframe(res["InstantD"], cols)
+
+			if is_fit:
+				res["Fit"] = parse_irregular_array(np.ctypeslib.as_array(args["output_fit"], shape=(n,)))
+				ncols = res["Fit"].shape[1]
+				if ncols != 0:
+					cols = [f"Col {i}" for i in range(1, ncols)]  # les colonnes dépendent du fit
+					res["Fit"].columns = ["Track"] + cols
+					# Track en entier nullable (préserve les NaN si présents)
+					if "Track" in res["Fit"]: res["Fit"]["Track"] = pd.to_numeric(res["Fit"]["Track"], errors="coerce").astype("Int64")
+					# Mise à jour en fonction de la mise à l'échelle du Log.
+					if is_log: res["Fit"] = log10_dataframe(res["Fit"], cols)
+		return res
