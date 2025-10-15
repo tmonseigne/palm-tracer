@@ -14,11 +14,14 @@ from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 from palm_tracer.Settings.Types import BaseSettingType
 
 if QT_API.startswith("pyqt"):  # pragma: no cover - dépend de l'environnement
-    from qtpy import sip	   # dispo quand le binding est PyQt
-    _IS_PYQT = True
+	from qtpy import sip	   # dispo quand le binding est PyQt
+
+	_IS_PYQT = True
 else:						   # pragma: no cover - dépend de l'environnement
-    import shiboken6		   # dispo quand le binding est PySide6
-    _IS_PYQT = False
+	import shiboken6		   # dispo quand le binding est PySide6
+
+	_IS_PYQT = False
+
 
 ##################################################
 @dataclass
@@ -114,7 +117,7 @@ class BaseSettingGroup:
 			setting.reset()
 
 	##################################################
-	def connect(self, f:Any):
+	def connect(self, f: Any):
 		"""
 		Connecte une fonction ou un slot à tout les éléments du groupe.
 
@@ -229,10 +232,9 @@ class BaseSettingGroup:
 		# Supprimer la checkbox et réorganiser le layout
 		if self._header and self._checkbox:
 			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
-			self._checkbox.deleteLater()  # Détruire la checkbox
-
-	# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
-	# self._title.setText(f"       {self.label}")
+			self._checkbox.deleteLater()						# Détruire la checkbox
+		# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
+		# self._title.setText(f"       {self.label}")
 
 	##################################################
 	def remove_header(self):
@@ -250,7 +252,7 @@ class BaseSettingGroup:
 				layout.removeRow(self._header)  # Supprimer la ligne du layout
 
 		# Suppression de la marge
-		body_layout = self._body.layout()				# Récupérer le layout du widget _body
+			body_layout = self._body.layout()				# Récupérer le layout du widget _body
 		if isinstance(body_layout, QFormLayout):		# pragma: no cover (toujours vrai)
 			body_layout.setContentsMargins(0, 0, 0, 0)  # Aucune marge
 
@@ -302,6 +304,6 @@ class BaseSettingGroup:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-# ==================================================
-# endregion IO
-# ==================================================
+	# ==================================================
+	# endregion IO
+	# ==================================================

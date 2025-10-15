@@ -101,12 +101,14 @@ def test_save_png_bad_sample():
 		FileIO.save_png(REF_GRADIENT[1, :], f"{OUTPUT_DIR}/test_save_bad.png")
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 
+
 ##################################################
 def test_open_calibration_mat_bad_file():
 	""" Test de la fonction open_tif avec un fichier inexistant. """
 	with pytest.raises(OSError) as exception_info:
 		calib = FileIO.open_calibration_mat("bad_filename.mat")
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+
 
 ##################################################
 def test_open_calibration_mat():

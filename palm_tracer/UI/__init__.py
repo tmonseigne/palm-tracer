@@ -17,4 +17,4 @@ from .PALMTracerWidget import PALMTracerWidget
 from .Viewer3DWidget import Viewer3DWidget
 from .Worker import Worker
 
-__all__ = ["GraphViewerWidget","PALMTracerWidget", "Viewer3DWidget", "Worker"]
+__all__ = ["GraphViewerWidget", "PALMTracerWidget", "Viewer3DWidget", "Worker"]

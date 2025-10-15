@@ -12,7 +12,6 @@ from typing import Any
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingGroup import BaseSettingGroup
 from .Batch import Batch
-from .TracksBlinkingReconnection import TracksBlinkingReconnection
 from .Calibration import Calibration
 from .Filtering import Filtering
 from .FilteringGF import FilteringGF
@@ -22,6 +21,7 @@ from .GaussianFit import GaussianFit
 from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
+from .TracksBlinkingReconnection import TracksBlinkingReconnection
 from .TracksCompute import TracksCompute
 from .VisualizationGraph import VisualizationGraph
 from .VisualizationHR import VisualizationHR

@@ -36,6 +36,8 @@ class PALMTracer:
 	"""Résultat de la localisation Palm."""
 	tracks: Optional[pd.DataFrame] = field(init=False, default=None)
 	"""Résultat du tracking."""
+	tracks_compute: Optional[dict[str, Optional[pd.DataFrame]]] = field(init=False, default=None)
+	"""Résultat des calculs sur trajctoires."""
 	visualization: Optional[np.ndarray] = field(init=False, default=None)
 	"""Résultat de la visualisation."""
 
@@ -137,6 +139,13 @@ class PALMTracer:
 					self.tracks = None
 					self._logger.add("\tAucune donnée de tracking pré-calculée.")
 
+			# Lancement des calculs sur les trajectoires
+			if self.settings.tracks_compute.active:
+				self._logger.add("Calcul sur les trajectoires activé.")
+				self.__tracks_compute()
+			else:
+				self._logger.add("Calcul sur les trajectoires désactivé.")
+
 			# Lancement de la Visualisation Haute Résolution
 			if self.settings.visualization_hr.active:
 				self._logger.add("Visualisation haute résolution activée.")
@@ -172,7 +181,7 @@ class PALMTracer:
 		# Filtre sur les plans
 		planes = filters["Plane"].get_value()
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
-		fit =self.settings.localization.get_fit()
+		fit = self.settings.localization.get_fit()
 		try: fit_params = self.settings.localization.get_fit_params()
 		except Exception as e: raise
 		# Run command
@@ -205,6 +214,20 @@ class PALMTracer:
 			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
 			self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
 			self.tracks.to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
+
+	##################################################
+	def __tracks_compute(self):
+		""" Lance le tracking à partir des settings passés en paramètres. """
+		if self.tracks is None:
+			self._logger.add("\tAucune donnée de tracking calculée, aucun calcul supplémentaire ne peut être effectué.")
+			return
+
+		# Parse settings
+		sc = self.settings.calibration.get_settings()
+		s = self.settings.tracks_compute.get_settings()
+		# Run command
+		self.tracks_compute = self.palm.tracks_compute(self.tracks, s["MSD"], s["Instant Diffusion"], s["Fit"] != 0, s["3D"], s["Log Scale"],
+													   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
 
 	##################################################
 	def __visualization_hr(self):

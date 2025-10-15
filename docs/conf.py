@@ -33,12 +33,12 @@ extensions = [
 		]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-    "numpy": ("https://numpy.org/doc/stable", None),
-	"pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    "napari": ("https://napari.org/stable", None),
-	"matplotlib": ("https://matplotlib.org/stable/", None),
-}
+		"python":     ("https://docs.python.org/3", None),
+		"numpy":      ("https://numpy.org/doc/stable", None),
+		"pandas":     ("https://pandas.pydata.org/pandas-docs/stable", None),
+		"napari":     ("https://napari.org/stable", None),
+		"matplotlib": ("https://matplotlib.org/stable/", None),
+		}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]

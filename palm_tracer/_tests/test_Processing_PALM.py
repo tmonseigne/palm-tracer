@@ -159,7 +159,7 @@ def test_blinking_reconnection():
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
 		for i in range(3):
-			t_output = palm.blinking_reconnection(t_input,1, i, 4, 2)
+			t_output = palm.blinking_reconnection(t_input, 1, i, 4, 2)
 			if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{i}.csv", index=False)
 
 			assert len(t_output) > 0, "Aucun Tracking trouvé"

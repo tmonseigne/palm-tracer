@@ -110,5 +110,5 @@ def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 		res += row[COLS_FOR_TRACKING].to_list()
 		previous_plan = row["Plane"]
 
-	res += blank	# Ajout d'une dernière ligne -1 à la fin
+	res += blank  # Ajout d'une dernière ligne -1 à la fin
 	return np.asarray(res, dtype=np.float64)

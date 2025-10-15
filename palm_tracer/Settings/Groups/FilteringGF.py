@@ -25,10 +25,10 @@ class FilteringGF(BaseSettingGroup):
 
 	label: str = "Gaussian Fit"
 	setting_list = {
-			"MSE XY": [CheckRangeFloat, ["MSE", [0, 2], [0, 1000]]],
-			"Sigma X":      [CheckRangeFloat, ["Sigma X", [0, 2], [0, 100]]],
-			"Sigma Y":      [CheckRangeFloat, ["Sigma Y", [0, 2], [0, 100]]],
-			"Theta":        [CheckRangeFloat, ["Theta", [-10, 10], [-100, 100]]],
-			"Circularity":  [CheckRangeFloat, ["Circularity", [0, 1], [0, 1]]],
-			"Z":            [CheckRangeFloat, ["Z", [-1, 1], [-1, 1]]]
+			"MSE XY":      [CheckRangeFloat, ["MSE", [0, 2], [0, 1000]]],
+			"Sigma X":     [CheckRangeFloat, ["Sigma X", [0, 2], [0, 100]]],
+			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", [0, 2], [0, 100]]],
+			"Theta":       [CheckRangeFloat, ["Theta", [-10, 10], [-100, 100]]],
+			"Circularity": [CheckRangeFloat, ["Circularity", [0, 1], [0, 1]]],
+			"Z":           [CheckRangeFloat, ["Z", [-1, 1], [-1, 1]]]
 			}

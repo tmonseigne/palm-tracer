@@ -19,6 +19,6 @@ class TracksBlinkingReconnection(BaseSettingGroup):
 	"""
 
 	label: str = "Blinking Reconnection"
-	setting_list = {"Mode": [Combo, ["Mode", 0, ["Immobile", "Diffuse", "Linear"]]],
+	setting_list = {"Mode":         [Combo, ["Mode", 0, ["Immobile", "Diffuse", "Linear"]]],
 					"Max Distance": [SpinInt, ["Max Distance", 1, 1, 1000, 1]],
-					"Max Speed":     [SpinFloat, ["Max Speed", 1, 0.0, 1000.0, 1.0, 2]]}
+					"Max Speed":    [SpinFloat, ["Max Speed", 1, 0.0, 1000.0, 1.0, 2]]}

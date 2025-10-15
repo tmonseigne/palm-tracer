@@ -30,7 +30,6 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
 - Mise à jour de la configuration GitHub Actions pour intégrer MacOS et Unix et ajout des versions python de 3.10 à 3.13.
 
-
 ## [1.0.0] - 2025-05-12
 
 ### Ajouté

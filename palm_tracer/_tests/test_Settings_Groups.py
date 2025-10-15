@@ -193,6 +193,7 @@ def test_tracks_blinking_reconnection(make_napari_viewer):
 	"""Test basique de la classe TracksBlinkingReconnection (constructeur, getter, setter)"""
 	group_base_test(TracksBlinkingReconnection(), ["Mode", "Max Distance", "Max Speed"], Combo, 1, 0)
 
+
 ###################################################
 def test_tracks_computes(make_napari_viewer):
 	"""Test basique de la classe TracksCompute (constructeur, getter, setter)"""

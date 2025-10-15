@@ -6,7 +6,7 @@ qui regroupe les paramètres d'ajustement de spline nécessaires à la configura
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import BrowseFile, Combo, SpinFloat
+from palm_tracer.Settings.Types import BrowseFile, Combo
 
 
 ##################################################
