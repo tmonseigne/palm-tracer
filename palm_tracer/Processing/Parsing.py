@@ -21,7 +21,8 @@ PARSING_COLUMNS: dict[str, dict[str, Any]] = {
 COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
 
 # Tracking
-N_TRACK = 8  # Nombre de paramètres pour le tracking.
+N_COL_TRC = len(PARSING_COLUMNS["Tracking"]["columns"])		 # Nombre de paramètres pour le tracking (8).
+N_COL_LOC = len(PARSING_COLUMNS["Localization"]["columns"])  # Nombre de paramètres pour le tracking (18).
 
 
 ##################################################
@@ -162,8 +163,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	max_len = max(len(r) for r in rows)
 	out = np.full((len(rows), max_len), np.nan, dtype=float)
 	for r_idx, r in enumerate(rows):
-		if r.size:
-			out[r_idx, :r.size] = r
+		if r.size: out[r_idx, :r.size] = r
 
 	columns = [f"Val_{k}" for k in range(max_len)]
 	df = pd.DataFrame(out, columns=columns)

@@ -9,6 +9,7 @@ import pytest
 
 from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import is_not_dll_friendly
+from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -147,11 +148,33 @@ def test_process_only_tracks_compute(make_napari_viewer):
 	""" Test pour le process de tracking. """
 	pt = PALMTracer()
 
-	pt.settings.tracks_compute.active = True
+	tc = cast(TracksCompute, pt.settings.tracks_compute)
+	tc.active = True
 	file_list = cast(FileList, pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
+
 	pt.process()
+
+	tc["MSD"].set_value(True)
+	pt.process()
+
+	tc["MSD"].set_value(False)
+	tc["Instant Diffusion"].set_value(True)
+	tc["Fit"].set_value(1)
+	pt.process()
+
+	# Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
+	paths = pt.settings.batch.get_paths()
+	for path in paths: shutil.rmtree(path, ignore_errors=True)
+	pt.process()
+
+	# restauration des fichiers
+	pt.settings.localization.active = True
+	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+	pt.process()
+
 	assert True
 
 

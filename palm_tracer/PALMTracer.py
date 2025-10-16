@@ -36,7 +36,7 @@ class PALMTracer:
 	"""Résultat de la localisation Palm."""
 	tracks: Optional[pd.DataFrame] = field(init=False, default=None)
 	"""Résultat du tracking."""
-	tracks_compute: Optional[dict[str, Optional[pd.DataFrame]]] = field(init=False, default=None)
+	tracks_compute: Optional[dict[str, pd.DataFrame]] = field(init=False, default=None)
 	"""Résultat des calculs sur trajctoires."""
 	visualization: Optional[np.ndarray] = field(init=False, default=None)
 	"""Résultat de la visualisation."""
@@ -104,7 +104,7 @@ class PALMTracer:
 				except Exception as e: raise
 			else:
 				self._logger.add("Localisation désactivé.")
-				f = get_last_file(self._path, "localizations")
+				f = get_last_file(self._path, "localizations-")
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'une localisation pré-calculée.")
 					try:
@@ -125,7 +125,7 @@ class PALMTracer:
 				self.__tracking()
 			else:
 				self._logger.add("Tracking désactivé.")
-				f = get_last_file(self._path, "tracking")
+				f = get_last_file(self._path, "tracking-")
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'un tracking pré-calculée.")
 					try:
@@ -225,9 +225,25 @@ class PALMTracer:
 		# Parse settings
 		sc = self.settings.calibration.get_settings()
 		s = self.settings.tracks_compute.get_settings()
+
+		if not s["MSD"] and not s["Instant Diffusion"] and s["Fit"]==0:
+			self._logger.add("\tAucune métrique de sélectionnée, aucun calcul supplémentaire ne peut être effectué.")
+			return
+
 		# Run command
-		self.tracks_compute = self.palm.tracks_compute(self.tracks, s["MSD"], s["Instant Diffusion"], s["Fit"] != 0, s["3D"], s["Log Scale"],
+		self.tracks_compute = self.palm.tracks_compute(self.tracks, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
 													   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
+
+		if self.tracks_compute is None: return  # pragma: no cover - Actuellement impossible, mais on conserve une échapatoire, en cas de mise à jour
+		if s["MSD"] and not self.tracks_compute["MSD"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
+			self.tracks_compute["MSD"].to_csv(f"{self._path}/tracking_MSD-{self._suffix}.csv", index=False)
+		if s["Instant Diffusion"] and not self.tracks_compute["InstantD"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées.")
+			self.tracks_compute["InstantD"].to_csv(f"{self._path}/tracking_InstantD-{self._suffix}.csv", index=False)
+		if s["Fit"] != 0 and not self.tracks_compute["Fit"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
+			self.tracks_compute["Fit"].to_csv(f"{self._path}/tracking_Fit-{self._suffix}.csv", index=False)
 
 	##################################################
 	def __visualization_hr(self):
