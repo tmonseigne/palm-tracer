@@ -288,6 +288,7 @@ class Palm:
 		# Remplissage des tableaux de sortie
 		n = len(tracks) * N_COL_TRC
 
+		# TODO Vérifier le nom des colonnes
 		if is_msd:
 			res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["output_msd"], shape=(n,)))
 			ncols = res["MSD"].shape[1]
@@ -315,7 +316,7 @@ class Palm:
 			ncols = res["Fit"].shape[1]
 			if ncols != 0:
 				# les colonnes dépendent du fit
-				cols = ["D(0) (nm²/s)", "MSD(0) (nm²)", "MSE(0)"]
+				cols = ["A(0) (nm²/s)", "B(0) (nm²)", "MSE(0)"]
 				if fit_mode == 1: cols += ["A (nm²/s)", "B (nm²)", "MSE"]
 				elif fit_mode == 2: cols += ["Alpha", "B (nm²)", "MSE", "Average Speed (Last-First)(nm/s)"]
 				elif fit_mode == 3: cols += ["A (nm²)", "B (s)", "C (nm²)", "MSE", "Confinement Radius (nm)"]

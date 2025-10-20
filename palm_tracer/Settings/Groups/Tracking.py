@@ -3,7 +3,7 @@ Fichier contenant la classe :class:`palm_tracer.Settings.Groups.Tracking` dériv
 qui regroupe les paramètres de tracking nécessaires à la configuration de PALM Tracer.
 
 .. todo::
-	Vérifier l'ordre de grandeur et le valeurs par défaut des paramètres de tracking.
+	Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres de tracking.
 """
 
 from dataclasses import dataclass
