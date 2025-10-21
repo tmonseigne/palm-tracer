@@ -241,7 +241,7 @@ class PALMTracer:
 
 		if self.tracks_compute is None: return  # pragma: no cover - Actuellement impossible, mais on conserve une échapatoire, en cas de mise à jour
 
-		self.__filter_tracks_compute()
+		# self.__filter_tracks_compute() le filtre sera pour l'affichage et les histogrammes
 		if s["MSD"] and not self.tracks_compute["MSD"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
 			self.tracks_compute["MSD"].to_csv(f"{self._path}/tracking_MSD-{self._suffix}.csv", index=False)

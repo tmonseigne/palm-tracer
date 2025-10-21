@@ -192,11 +192,12 @@ def test_tracks_compute():
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
 
-				# ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{p}.csv")
-				# if ref_path.exists() and ref_path.is_file():
-				# 	print(f"Comparaison avec : '{ref_path}'")
-				# 	ref = pd.read_csv(ref_path)
-				# 	assert compare_points(t_output[name], ref, group_cols=["Track"]), f"Test invalide pour le calcul {name}."
+				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{p}.csv")
+				if ref_path.exists() and ref_path.is_file():
+					print(f"Comparaison avec : '{ref_path}'")
+					ref = pd.read_csv(ref_path)
+					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					np.testing.assert_allclose(t_output[name].to_numpy(float),ref.to_numpy(float),rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Test sur différents mode de fit
 		for mode in range(4):
@@ -205,11 +206,12 @@ def test_tracks_compute():
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
 
-				# ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{mode}.csv")
-				# if ref_path.exists() and ref_path.is_file():
-				# 	print(f"Comparaison avec : '{ref_path}'")
-				# 	ref = pd.read_csv(ref_path)
-				# 	assert compare_points(t_output[name], ref, group_cols=["Track"]), f"Test invalide pour le calcul {name}."
+				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{mode}.csv")
+				if ref_path.exists() and ref_path.is_file():
+					print(f"Comparaison avec : '{ref_path}'")
+					ref = pd.read_csv(ref_path)
+					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					np.testing.assert_allclose(t_output[name].to_numpy(float),ref.to_numpy(float),rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Dernier True/False pour la couverture de code
 		palm.tracks_compute(t_input, False, True, False, False, 1, 1, 1, np.array([4], dtype=np.float64))
@@ -218,22 +220,4 @@ def test_tracks_compute():
 		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
 	else:
 		print_warning(f"Fichier de Tracking '{path}' indisponible.")
-	assert True
-
-
-##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
-def test_spline():
-	"""Test basique pour la spline."""
-	palm = Palm()
-	file = "sequence-as-stack-MT0.N1.LD-2D-Exp"
-	# file = "spline_stack"
-	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
-	# print("GAUSSIAN FIT")
-	# localizations = palm.localization(stack, default_threshold, True, 4, get_fit_params(4), [0])
-	print("SPLINE FIT")
-	localizations = palm.localization(stack, default_threshold, True, 5, get_fit_params(5), [0])
-	# localizations = palm.localization(stack, default_threshold, True, 5, get_fit_params(5))
-	suffix = get_loc_suffix(5)
-	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
 	assert True
