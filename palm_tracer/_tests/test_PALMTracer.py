@@ -280,8 +280,8 @@ def test_process_filter_all_localization(make_napari_viewer):
 	pt.settings.filtering["Plane"].set_value([1, 9])  # Suppression du dernier plan uniquement
 	pt.settings.filtering["Intensity"].active = True
 	pt.settings.filtering["Intensity"].set_value([100, 20000])
-	pt.settings.filtering["Gaussian Fit"]["MSE XY"].active = True
-	pt.settings.filtering["Gaussian Fit"]["MSE XY"].set_value([0.01, 10])
+	pt.settings.filtering["Gaussian Fit"]["MSE"].active = True
+	pt.settings.filtering["Gaussian Fit"]["MSE"].set_value([0.01, 10])
 	pt.settings.filtering["Gaussian Fit"]["Sigma X"].active = True
 	pt.settings.filtering["Gaussian Fit"]["Sigma X"].set_value([0, 10])
 	pt.settings.filtering["Gaussian Fit"]["Sigma Y"].active = True
@@ -304,6 +304,7 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	""" Test pour le filtrage complet lors de l'exécution. """
 	pt = PALMTracer()
 
+	pt.settings.localization.active = True
 	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(1)
 	pt.settings.tracking.active = True
 	pt.settings.tracking["Blinking Reconnection"].active = True

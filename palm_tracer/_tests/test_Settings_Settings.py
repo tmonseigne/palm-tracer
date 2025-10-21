@@ -8,12 +8,12 @@ from palm_tracer.Settings.Groups import *
 def test_settings(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	settings = Settings()
-	settings.calibration["Pixel Size"].set_value(320)
+	settings.calibration["Pixel Size"].set_value(0.32)
 	dictionary = settings.to_dict()
 	settings.reset()
-	assert settings.calibration["Pixel Size"].get_value() == 160, "Le paramètre n'a pas été remis à sa valeur par défaut."
+	assert settings.calibration["Pixel Size"].get_value() == 0.16, "Le paramètre n'a pas été remis à sa valeur par défaut."
 	settings = Settings.from_dict(dictionary)
-	assert settings.calibration["Pixel Size"].get_value() == 320, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
+	assert settings.calibration["Pixel Size"].get_value() == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
 	print(settings)
 
 

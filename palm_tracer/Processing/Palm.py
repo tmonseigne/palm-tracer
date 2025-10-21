@@ -1,8 +1,5 @@
 """
 Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés.
-
-.. todo::
-	Doit-on garder les identifiants et les plans qui vont de 1 à N au lieu du classique 0 à N-1 ?
 """
 
 import ctypes
@@ -92,7 +89,8 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_tracks_args(localizations: pd.DataFrame, max_distance: float, min_life: int, decrease: float, cost_birth: float) -> dict[str, Any]:
+	def __get_tracks_args(localizations: pd.DataFrame, max_distance: float, min_life: int = 1,
+						  decrease: float = 10, cost_birth: float = 0.5) -> dict[str, Any]:
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le tracking.
 
@@ -123,10 +121,10 @@ class Palm:
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la reconnexion du scintillement.
 
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
-		:param pixel_size: Calibration spatiale utile pour les calculs
+		:param pixel_size: Calibration spatiale utile pour les calculs (en micromètre)
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillemnt.
-		:param max_speed: Vitesse maximale d'un point entre deux plans (en nanomètre).
+		:param max_speed: Vitesse maximale d'un point entre deux plans (en micromètre).
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		n = len(tracks)
@@ -221,7 +219,7 @@ class Palm:
 		return self._dll.AutoThreshold(*args.values())
 
 	##################################################
-	def tracking(self, localizations: pd.DataFrame, max_distance: float, min_life: int, decrease: float, cost_birth: float) -> pd.DataFrame:
+	def tracking(self, localizations: pd.DataFrame, max_distance: float, min_life: int = 1, decrease: float = 10, cost_birth: float = 0.5) -> pd.DataFrame:
 		"""
 		Exécute l'algorithme de tracking sur les points localisés.
 
@@ -245,7 +243,7 @@ class Palm:
 		"""
 		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
 
-		:param pixel_size: Taille des pixels en Nanomètres.
+		:param pixel_size: Taille des pixels en micromètres.
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillemnt.
@@ -263,7 +261,7 @@ class Palm:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
 
-		:param pixel_size: Taille des pixels en Nanomètres.
+		:param pixel_size: Taille des pixels en micromètres.
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		:param is_msd: Calcul MSD à effectuer si vrai.
 		:param is_ind: Calcul Instant Diffusion à effectuer si vrai.
@@ -283,12 +281,11 @@ class Palm:
 
 		args = self.__get_tc_args(new_tracks, is_msd, is_ind, is_3d, pixel_size, exposure_time, fit_mode, fit_params)
 		self._dll.TracksCompute.restype = ctypes.c_bool  # Force le type de retour
-		self._dll.TracksCompute(*args.values()) # Le retour est toujorus vrai pour le moment les calculs manquant sont facilement trouvable.
+		self._dll.TracksCompute(*args.values())  # Le retour est toujours vrai pour le moment les calculs manquant sont facilement trouvable.
 
 		# Remplissage des tableaux de sortie
 		n = len(tracks) * N_COL_TRC
 
-		# TODO Vérifier le nom des colonnes
 		if is_msd:
 			res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["output_msd"], shape=(n,)))
 			ncols = res["MSD"].shape[1]
@@ -316,10 +313,10 @@ class Palm:
 			ncols = res["Fit"].shape[1]
 			if ncols != 0:
 				# les colonnes dépendent du fit
-				cols = ["A(0) (nm²/s)", "B(0) (nm²)", "MSE(0)"]
-				if fit_mode == 1: cols += ["A (nm²/s)", "B (nm²)", "MSE"]
-				elif fit_mode == 2: cols += ["Alpha", "B (nm²)", "MSE", "Average Speed (Last-First)(nm/s)"]
-				elif fit_mode == 3: cols += ["A (nm²)", "B (s)", "C (nm²)", "MSE", "Confinement Radius (nm)"]
+				cols = ["D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"]
+				if fit_mode == 1: cols += ["A (μm²/s)", "B (μm²)", "MSE"]
+				elif fit_mode == 2: cols += ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"]
+				elif fit_mode == 3: cols += ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]
 				res["Fit"].columns = ["Track"] + cols
 				# Track en entier nullable (préserve les NaN si présents)
 				if "Track" in res["Fit"]: res["Fit"]["Track"] = pd.to_numeric(res["Fit"]["Track"], errors="coerce").astype("Int64")

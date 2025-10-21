@@ -6,7 +6,7 @@ qui regroupe les paramètres de calibration nécessaires à la configuration de 
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import SpinFloat, SpinInt
+from palm_tracer.Settings.Types import SpinFloat
 
 
 ##################################################
@@ -16,14 +16,14 @@ class Calibration(BaseSettingGroup):
 	Classe contenant les informations de calibration :
 
 	Attributs :
-			- **Pixel Size (SpinInt)** : Taille d'un pixel en nanomètres (par défaut : 160).
-			- **Exposure (SpinInt)** : Temps d'exposition en millisecondes par image (par défaut : 50).
+			- **Pixel Size (SpinFloat)** : Taille d'un pixel en micromètre (par défaut : 0.160).
+			- **Exposure (SpinFloat)** : Temps d'exposition en secondes par image (par défaut : 0.050).
 			- **Intensity (SpinFloat)** : Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : 0.0120).
 	"""
 
 	label: str = "Calibration"
 	setting_list = {
-			"Pixel Size": [SpinInt, ["Pixel Size (nm)", 160, 1, 500, 10]],
-			"Exposure":   [SpinInt, ["Exposure Time (ms/frame)", 50, 1, 1000, 10]],
-			"Intensity":  [SpinFloat, ["Intensity (photon/ADU", 0.0120, 0.0, 1.0, 0.001, 4]],
+			"Pixel Size": [SpinFloat, ["Pixel Size (μm)", 0.160, 0.001, 1.0, 0.01, 3]],
+			"Exposure":   [SpinFloat, ["Exposure Time (s/frame)", 0.050, 0.001, 1.0, 0.01, 3]],
+			"Intensity":  [SpinFloat, ["Intensity (photon/ADU)", 0.0120, 0.0, 1.0, 0.001, 4]],
 			}
