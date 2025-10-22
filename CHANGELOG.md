@@ -7,7 +7,30 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
-<!-- run command git log v1.0.1..HEAD --pretty=format:"- %s"-->
+<!-- run command : git log v1.1.0..HEAD --pretty=format:"- %s"-->
+
+## [1.1.0] - 2025-10-23
+
+### Ajouté
+
+- Ajout de visualisation des points de la frame précédente et de la frame suivante lors de la preview et ajout d'une ROI circulaire au choix.
+- Ajout de calculs de métriques pour les trajectoires. ([#37](https://github.com/tmonseigne/palm-tracer/pull/37))
+- Ajout d'une option de reconnexion des trajectoires dû à des scintillements (blinking). ([#35](https://github.com/tmonseigne/palm-tracer/pull/35))
+- Ajout d'un visualisateur de graphiques à partir des fichiers CSV précalculés. ([#29](https://github.com/tmonseigne/palm-tracer/pull/29))
+- Ajout d'un visualisateur 3D à partir d'un fichier CSV contenant les colonnes X, Y, Z et Integrated Intensity. ([#28](https://github.com/tmonseigne/palm-tracer/pull/28))
+- Ajout d'un d'un ajustement par Spline 3D. **Attention** : incorrect pour le moment. ([#26](https://github.com/tmonseigne/palm-tracer/pull/26))
+
+### Modifié
+
+- Mise à jour des unités de calcul (micromètre et secondes au lieu de nanomètres et millisecondes).
+- Le calcul du seuil automatique est déporté dans la DLL C++.
+- Modification des DLLs pour n'en avoir plus qu'une. ([#25](https://github.com/tmonseigne/palm-tracer/pull/25))
+- Calcul effectué sur la pile complète au lieu de l'effectuer plan par plan. ([#23](https://github.com/tmonseigne/palm-tracer/pull/23))
+- Diverses mises à jour mineures
+
+### Documentation
+
+- Ajustements divers dans la documentation utilisateur.
 
 ## [1.0.1] - 2025-05-20
 
@@ -35,7 +58,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 ### Ajouté
 
 - Première version stable de PALMTracer.
-- Interface graphique interactive basée sur [napari](https://napari.org/).
+- Interface graphique interactive basée sur [Napari](https://napari.org/).
 - Module d'importation des données SMLM (formats compatibles : .csv).
 - Algorithmes d'analyse de trajectoires (suivi, regroupement, statistiques).
 - Intégration continue avec GitHub Actions.
