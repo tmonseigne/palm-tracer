@@ -1,5 +1,9 @@
 """
 Module contenant les fonctions de traitement de PALM.
+
+.. todo::
+	Ajouter clairement un point dans la doc sur le systeme de filtre, l'enregistrement, le calcul sur l'intégralité des éléments et
+	filtre ensuite lors de la visualisation des graph et des sauvegarde si la case est coché...
 """
 
 import os
@@ -10,6 +14,7 @@ from typing import cast, Optional
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from sympy import limit_seq
 
 from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image
 from palm_tracer.Settings import Settings
@@ -189,10 +194,10 @@ class PALMTracer:
 		# Run command
 		self.localizations = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
-		self.__filter_localizations()
 		self._logger.add("\tEnregistrement du fichier de localisation")
 		self._logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
 		self.localizations.to_csv(f"{self._path}/localizations-{self._suffix}.csv", index=False)
+		if self.settings.filtering["Save"].get_value(): self.__filter_localizations()
 
 	##################################################
 	def __tracking(self):
@@ -210,12 +215,14 @@ class PALMTracer:
 			self.blink = self.palm.blinking_reconnection(self.tracks, pixel_size, s["Mode"], s["Max Duration"], s["Max Speed"])
 
 			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
-			self._logger.add(f"\t\t{len(self.blink)} trajectoire(s) trouvée(s).")
+			self._logger.add(f"\t\t{len(self.blink)} point(s) trouvé(s).")
 			self.blink.to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
+			if self.settings.filtering["Save"].get_value(): self.__filter_tracks(self.blink, "_reconnected")
 
 		self._logger.add("\tEnregistrement du fichier de trajectoires.")
-		self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
+		self._logger.add(f"\t\t{len(self.tracks)} point(s) trouvé(s).")
 		self.tracks.to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
+		if self.settings.filtering["Save"].get_value(): self.__filter_tracks(self.tracks)
 		if self.blink is not None:
 			self.tracks = self.blink
 			self.blink = None
@@ -241,7 +248,6 @@ class PALMTracer:
 
 		if self.tracks_compute is None: return  # pragma: no cover - Actuellement impossible, mais on conserve une échapatoire, en cas de mise à jour
 
-		# self.__filter_tracks_compute() le filtre sera pour l'affichage et les histogrammes
 		if s["MSD"] and not self.tracks_compute["MSD"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
 			self.tracks_compute["MSD"].to_csv(f"{self._path}/tracking_MSD-{self._suffix}.csv", index=False)
@@ -251,6 +257,7 @@ class PALMTracer:
 		if s["Fit"] != 0 and not self.tracks_compute["Fit"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
 			self.tracks_compute["Fit"].to_csv(f"{self._path}/tracking_Fit-{self._suffix}.csv", index=False)
+		if self.settings.filtering["Save"].get_value(): self.__filter_tracks_compute()
 
 	##################################################
 	def __visualization_hr(self):
@@ -310,19 +317,53 @@ class PALMTracer:
 	def __filter_localizations(self):
 		""" Filtre le fichier de localisation. """
 		n_init = len(self.localizations)
-		self.localizations = self.filter_localizations(self.localizations)
-		n_end = len(self.localizations)
+		localizations = self.filter_localizations(self.localizations)
+		n_end = len(localizations)
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
+		self._logger.add("\tEnregistrement du fichier de localisation filtré")
+		self._logger.add(f"\t\t{len(localizations)} localisation(s) trouvée(s).")
+		localizations.to_csv(f"{self._path}/localizations_filtered-{self._suffix}.csv", index=False)
 
 	##################################################
-	def filter_localizations(self, localizations: pd.DataFrame) -> pd.DataFrame:
-		"""
-		Filtre un fichier de localisation.
+	def __filter_tracks(self, datas: pd.DataFrame, suffix:str = ""):
+		""" Filtre le fichier de tracking. """
+		n_init = len(datas)
+		datas = self.filter_tracks(datas)
+		n_end = len(datas)
+		if n_init != n_end:
+			self._logger.add(f"\t\tFiltrage du fichier de trajectoires {n_end} points au lieu de {n_init} : {n_init - n_end} suppression(s)")
+		self._logger.add("\tEnregistrement du fichier de trajectoires filtré")
+		self._logger.add(f"\t\t{len(datas)} point(s) trouvé(s).")
+		datas.to_csv(f"{self._path}/tracking_filtered{suffix}-{self._suffix}.csv", index=False)
 
-		:param localizations: fichier à filtrer
-		:return: fichier filtré.
+	##################################################
+	def __filter_tracks_compute(self):
+		""" Filtre les fichiers de metrique. """
+		n_init = len(self.tracks_compute)
+		tracks_compute = self.filter_tracks_compute(self.tracks_compute)
+		n_end = len(self.tracks_compute)
+		if n_init != n_end:
+			self._logger.add(f"\t\tFiltrage du fichier de calcul sur trajectoires {n_end} trajectoires au lieu de {n_init} : {n_init - n_end} suppression(s)")
+		if not tracks_compute["MSD"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
+			tracks_compute["MSD"].to_csv(f"{self._path}/tracking_MSD_filtered-{self._suffix}.csv", index=False)
+		if not tracks_compute["InstantD"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées.")
+			tracks_compute["InstantD"].to_csv(f"{self._path}/tracking_InstantD_filtered-{self._suffix}.csv", index=False)
+		if not tracks_compute["Fit"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
+			tracks_compute["Fit"].to_csv(f"{self._path}/tracking_Fit_filtered-{self._suffix}.csv", index=False)
+
+	##################################################
+	def filter_localizations(self, datas: pd.DataFrame) -> pd.DataFrame:
 		"""
+		Filtre un dataframe de localisation.
+
+		:param datas: dataframe à filtrer
+		:return: dataframe filtré.
+		"""
+		res = datas.copy()
 		f = cast(Filtering, self.settings.filtering)
 		fg = cast(FilteringGF, f["Gaussian Fit"])
 		filters = [[f["Plane"], "Plane"],
@@ -337,39 +378,99 @@ class PALMTracer:
 		for filt, col in filters:
 			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
 				limits = filt.get_value()
-				localizations = localizations[localizations[col].between(limits[0], limits[1])]  # Bornes incluses
-		return localizations
+				res = res[res[col].between(limits[0], limits[1])]  # Bornes incluses
+		return res
 
 	##################################################
-	def __filter_tracks_compute(self):
-		""" Filtre un fichier de Calcul sur les trajectoires. """
+	def filter_tracks(self, datas: pd.DataFrame) -> pd.DataFrame:
+		"""
+		Filtre un dataframe de trajectoires.
+
+		:param datas: dataframe à filtrer
+		:return: dataframe filtré.
+		"""
+		res = datas.copy()
 		f = cast(FilteringT, self.settings.filtering["Tracks"])
-		# TODO Pas sur du tout de mes filtres, ce sont ceux de PalmTracer mais j'ai du mal avec les dénominations
-		# Pour MSD, on a les différents Lag : Track,Lag 1,Lag 2,Lag 3,Lag 4,Lag 5.........
-		# Pour InstantD, on a les différentes Fenêtres (glissantes) : Track,Window 1,Window 2.........
-		# Pour Fit ça dépend du Fit : 3 premiers résultat du fit linéaire des N premiers points, N suivants résultat du Fit choisi sur tous les points
-		# Fit linéaire : Track,D(0) (μm²/s), MSD(0) (μm²), MSE(0), A (μm²/s), B (μm²), MSE
-		# Fit Puissance : Track,D(0) (μm²/s), MSD(0) (μm²), MSE(0), Alpha, B (μm²), MSE, Average Speed (Last-First)(μm/s)
-		# Fit Exponentiel : Track,D(0) (μm²/s), "MSD(0) (μm²), MSE(0), A (μm²),B (s),C (μm²),MSE,Confinement Radius (μm)
-		filters = [
-				[f["Instant D"], ""],  # TODO c'est sur le calcul de Instant D pas sur le fit, on doit ajouter une option de % de fail
-				# Quelque soit le Fit
-				[f["D Coeff"], "D(0) (μm²/s)"],
-				# Fit Puissance
-				[f["Alpha"], "Alpha"],
-				[f["Speed"], "Average Speed (Last-First)(μm/s)"],
-				# Fit Exponentiel
-				[f["Confinement"], "Confinement Radius (μm)"]]
+		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
+			limits = f["Length"].get_value()
+			counts = res.groupby("Track").size()  # Comptage par trajectoire
+			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
+			print(keep_ids)
+			res = res[res["Track"].isin(keep_ids)]  # Filtrage (on garde l'ordre original)
+		return res
 
-		for key, df in self.tracks_compute.items():
-			print(key, " : ", df)
-			if df.empty: continue
-			n_init = len(df)
+	##################################################
+	def filter_tracks_compute(self, datas: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+		"""
+		Filtre un dataframe de calcul sur les trajectoires.
+
+		:param datas: dataframe à filtrer
+		:return: dataframe filtré.
+		"""
+		res: dict[str, pd.DataFrame] = {k: v.copy() for k, v in datas.items()}
+		if self.tracks is None : return res
+		f = cast(FilteringT, self.settings.filtering["Tracks"])
+
+		# ===== Base : tous les IDs présents dans la référence self.tracks =====
+		keep_ids: set = set(self.tracks["Track"].unique().tolist())
+		#print(f"Base ID ({len(keep_ids)}) : {keep_ids}")
+		# ===== Filtre Longueur =====
+		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
+			limits_l = f["Length"].get_value()
+			counts = self.tracks.groupby("Track").size()
+			ok_len_ids = set(counts.index[(limits_l[0] <= counts) & (counts <= limits_l[1])].tolist())
+			keep_ids &= ok_len_ids  # intersection sur des sets d'IDs
+
+		#print(f"ID After Length filter ({len(keep_ids)}) : {keep_ids}")
+		# ===== Filtre sur Instant D =====
+		if isinstance(f["Instant D"], CheckRangeFloat) and f["Instant D"].active:
+			limits_d = f["Instant D"].get_value()
+
+			# Restreindre aux trajectoires admissibles jusqu'ici
+			df = res["InstantD"]
+			df = df[df["Track"].isin(keep_ids)]
+			if not df.empty:
+				# colonnes de valeurs = toutes sauf 'Track'
+				val_cols = [c for c in df.columns if c != "Track"]
+
+				# masque valeurs valides et hors bornes
+				vals = df[val_cols]
+				valid = vals.notna()
+				outside = (vals <= limits_d[0]) | (limits_d[1] <= vals)
+
+				# % hors bornes par ligne (NaN ignorés)
+				n_valid = valid.sum(axis=1)
+				n_out = (outside & valid).sum(axis=1)
+				pct_out = (n_out / n_valid).fillna(0.0) * 100.0
+				# avec une troisieme valeur limit[2] qui serait le pourcentage de fail max autorisé
+				# Ou alors un nouveau setting type Instant D Failure Tolerance (%), je vais mettre 50% ici
+				ok_ids = set(map(int, np.unique(df.loc[pct_out <= 50.0, "Track"].to_numpy())))
+				keep_ids &= ok_ids
+				# for track_id, pct in zip(df["Track"], pct_out): print(f"Track {track_id}: {pct:.1f}% outside {limits}")
+
+		#print(f"ID After Instant D ({len(keep_ids)}) : {keep_ids}")
+		# ===== Filtre sur Fit =====
+		df = res["Fit"]
+		df = df[df["Track"].isin(keep_ids)]
+		if not df.empty:
+			filters = [
+					# Quelque soit le Fit
+					[f["D Coeff"], "D(0) (μm²/s)"],
+					# Fit Puissance
+					[f["Alpha"], "Alpha"],
+					[f["Speed"], "Average Speed (Last-First)(μm/s)"],
+					# Fit Exponentiel
+					[f["Confinement"], "Confinement Radius (μm)"]]
+
 			for filt, col in filters:
-				if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active and col in df.columns:
+				if col in df.columns and isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
 					limits = filt.get_value()
-					print(f"{col} : {limits}")
+					df = df[df[col].between(limits[0], limits[1])] # Bornes incluses
 
-			n_end = len(df)
-			if n_init != n_end:
-				self._logger.add(f"\t\tFiltrage du fichier de calcul {key} : {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")
+			keep_ids &= set(df["Track"].unique().tolist())
+
+		#print(f"ID After Fit ({len(keep_ids)}) : {keep_ids}")
+		# ===== Filtre final des trajectoires restantes =====
+		for key, df in res.items():
+			res[key] = df[df["Track"].isin(keep_ids)]  # Filtrage (on garde l'ordre original)
+		return res

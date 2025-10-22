@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.FilteringGF import FilteringGF
 from palm_tracer.Settings.Groups.FilteringT import FilteringT
-from palm_tracer.Settings.Types import CheckRangeInt
+from palm_tracer.Settings.Types import CheckBox, CheckRangeInt
 
 
 ##################################################
@@ -29,6 +29,7 @@ class Filtering(BaseSettingGroup):
 
 	label: str = "Filtering"
 	setting_list = {
+			"Save":       [CheckBox, ["Save filtered", False]],
 			"Plane":        [CheckRangeInt, ["Plane", [1, 100000], [1, 100000]]],
 			"Intensity":    [CheckRangeInt, ["Intensity", [0, 100000], [1, 100000]]],
 			"Gaussian Fit": [FilteringGF, []],

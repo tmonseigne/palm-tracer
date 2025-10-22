@@ -276,6 +276,7 @@ def test_process_filter_all_localization(make_napari_viewer):
 	# Passage en Guassian Fit ou les Sigma et Theta sont calculés
 	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(4)
 
+	pt.settings.filtering["Save"].set_value(True)
 	pt.settings.filtering["Plane"].active = True
 	pt.settings.filtering["Plane"].set_value([1, 9])  # Suppression du dernier plan uniquement
 	pt.settings.filtering["Intensity"].active = True
@@ -291,11 +292,13 @@ def test_process_filter_all_localization(make_napari_viewer):
 	pt.settings.filtering["Gaussian Fit"]["Circularity"].active = True
 	pt.settings.filtering["Gaussian Fit"]["Z"].active = True
 	pt.process()
+	# Le filtrage ne modifie plus le dataframe original qui garde constamment son statut "complet".
+	loc = pt.filter_localizations(pt.localizations)
 	ref = [["Plane", 1, 9], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.01, 10],
 		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -5, 10],
 		   ["Circularity", 0, 1], ["Z", -1, 1]]
 	for r in ref:
-		assert pt.localizations[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."
+		assert loc[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."
 
 
 ##################################################
@@ -317,20 +320,21 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 
-	s = cast(FilteringT, pt.settings.filtering["Tracks"]);
-	s["Length"].active = True
-	s["Length"].set_value([2, 10000])
-	s["D Coeff"].active = True
-	s["D Coeff"].set_value([-5, 5])
-	s["Instant D"].active = True
-	s["Instant D"].set_value([-5, 5])
-	s["Speed"].active = True
-	s["Speed"].set_value([-10, 10])
-	s["Alpha"].active = True
-	s["Confinement"].set_value([-10, 10])
+	pt.settings.filtering["Save"].set_value(True)
+	pt.settings.filtering["Tracks"]["Length"].active = True
+	pt.settings.filtering["Tracks"]["Length"].set_value([3, 10000])
+	pt.settings.filtering["Tracks"]["Instant D"].active = True
+	pt.settings.filtering["Tracks"]["Instant D"].set_value([0.01, 5])
+	pt.settings.filtering["Tracks"]["D Coeff"].active = True
+	pt.settings.filtering["Tracks"]["D Coeff"].set_value([1, 5])
+	pt.settings.filtering["Tracks"]["Speed"].active = True
+	pt.settings.filtering["Tracks"]["Speed"].set_value([-10, 10])
+	pt.settings.filtering["Tracks"]["Alpha"].active = True
+	pt.settings.filtering["Tracks"]["Confinement"].set_value([-10, 10])
 	pt.process()
-	#ref = [["Plane", 1, 9], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.01, 10],
-	#	   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -5, 10],
-	#	   ["Circularity", 0, 1], ["Z", -1, 1]]
-	#for r in ref:
-	#	assert pt.localizations[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."
+	# Le filtrage ne modifie plus le dataframe original qui garde constamment son statut "complet".
+	trc = pt.filter_tracks(pt.tracks)
+	trc_cp = pt.filter_tracks_compute(pt.tracks_compute)
+	# Vérification manuelle à l'heure actuelle
+	assert len(trc) == 143, f"Il reste {len(trc)} points au lieu de 143 sur les trajectoires."
+	assert len(trc_cp["MSD"]) == 5, f"Il reste {len(trc_cp)} trajectoires au lieu de 5."
