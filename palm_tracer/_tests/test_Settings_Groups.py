@@ -124,7 +124,7 @@ def test_batch_get_stacks(make_napari_viewer):
 ###################################################
 def test_calibration(make_napari_viewer):
 	"""Test basique de la classe Calibration (constructeur, getter, setter)"""
-	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"], SpinInt, 320, 160)
+	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"], SpinFloat, 0.32, 0.16)
 
 
 ###################################################
@@ -149,7 +149,7 @@ def test_spline_fit(make_napari_viewer):
 ###################################################
 def test_tracking(make_napari_viewer):
 	"""Test basique de la classe Tracking (constructeur, getter, setter)"""
-	group_base_test(Tracking(), ["Max Distance", "Min Length", "Decrease", "Cost Birth", "Blinking Reconnection"], SpinFloat, 2, 5)
+	group_base_test(Tracking(), ["Max Distance", "Blinking Reconnection"], SpinFloat, 2, 1)
 
 
 ###################################################
@@ -173,16 +173,28 @@ def test_visualization_graph(make_napari_viewer):
 ###################################################
 def test_filtering(make_napari_viewer):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	group_base_test(Filtering(), ["Plane", "Intensity", "Gaussian Fit", "Tracks"], CheckRangeInt, [2, 3], [1, 10000])
+	group_base_test(Filtering(), ["Plane", "Intensity", "Gaussian Fit", "Tracks"], CheckRangeInt, [2, 3], [1, 100000])
 
 
 ###################################################
 def test_filtering_gf(make_napari_viewer):
 	"""Test basique de la classe FilteringGF (constructeur, getter, setter)"""
-	group_base_test(FilteringGF(), ["MSE XY", "Sigma X", "Sigma Y", "Theta", "Circularity", "Z"], CheckRangeFloat, [1, 2], [0, 2])
+	group_base_test(FilteringGF(), ["MSE", "Sigma X", "Sigma Y", "Theta", "Circularity", "Z"], CheckRangeFloat, [0.1, 0.9], [0, 1])
 
 
 ###################################################
 def test_filtering_t(make_napari_viewer):
 	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
-	group_base_test(FilteringT(), ["Length", "D Coeff", "Instant D", "Speed", "Alpha", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
+	group_base_test(FilteringT(), ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
+
+
+###################################################
+def test_tracks_blinking_reconnection(make_napari_viewer):
+	"""Test basique de la classe TracksBlinkingReconnection (constructeur, getter, setter)"""
+	group_base_test(TracksBlinkingReconnection(), ["Mode", "Max Duration", "Max Speed"], Combo, 1, 0)
+
+
+###################################################
+def test_tracks_computes(make_napari_viewer):
+	"""Test basique de la classe TracksCompute (constructeur, getter, setter)"""
+	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Log Scale", "Fit"], CheckBox, True, False)

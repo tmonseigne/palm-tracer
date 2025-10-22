@@ -1,13 +1,11 @@
 """ Fichier des tests pour l'utilisation de la DLL CPU. """
-
+import pandas as pd
 import pytest
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import open_tif
 
-INPUT_DIR = Path(__file__).parent / "input"
-OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 
@@ -146,7 +144,9 @@ def test_tracking():
 					assert compare_points(tracks, ref, group_cols=["Track"]), f"Test invalide pour les paramètres {suffix_trc}"
 			else:
 				print_warning(f"Fichier de localisations '{path}' indisponible.")
-	assert True
+
+	tracks = palm.tracking(pd.DataFrame(), max_distance, min_life, decrease, cost_birth)
+	assert tracks.empty
 
 
 ##################################################
@@ -159,7 +159,7 @@ def test_blinking_reconnection():
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
 		for i in range(3):
-			t_output = palm.blinking_reconnection(t_input, i, 4, 2)
+			t_output = palm.blinking_reconnection(t_input, 1, i, 4, 2)
 			if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{i}.csv", index=False)
 
 			assert len(t_output) > 0, "Aucun Tracking trouvé"
@@ -169,6 +169,55 @@ def test_blinking_reconnection():
 				print(f"Comparaison avec : '{ref_path}'")
 				ref = pd.read_csv(ref_path)
 				assert compare_points(t_output, ref, group_cols=["Track", "Plane"]), f"Test invalide pour les paramètres {i}"
+	else:
+		print_warning(f"Fichier de Tracking '{path}' indisponible.")
+
+	tracks = palm.blinking_reconnection(pd.DataFrame(), 1, 0, 4, 2)
+	assert tracks.empty
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_tracks_compute():
+	"""Test basique sur le tracking."""
+	palm = Palm()
+	file = "tracking2"
+	path = Path(f"{INPUT_DIR}/{file}.csv")
+	if path.exists() and path.is_file():
+		t_input = pd.read_csv(path)
+		# Test avec ou sans les mise à jour de log et la 3D
+		for p in [True, False]:
+			t_output = palm.tracks_compute(t_input, True, p, p, p, 1, 1, 1, np.array([4], dtype=np.float64))
+			for name in ["MSD", "InstantD", "Fit"]:
+				if t_output[name].empty: continue
+				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
+
+				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{p}.csv")
+				if ref_path.exists() and ref_path.is_file():
+					print(f"Comparaison avec : '{ref_path}'")
+					ref = pd.read_csv(ref_path)
+					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					np.testing.assert_allclose(t_output[name].to_numpy(float),ref.to_numpy(float),rtol=1e-5, atol=1e-5, equal_nan=True)
+
+		# Test sur différents mode de fit
+		for mode in range(4):
+			t_output = palm.tracks_compute(t_input, False, False, False, False, 1, 1, mode, np.array([4], dtype=np.float64))
+			for name in ["MSD", "InstantD", "Fit"]:
+				if t_output[name].empty: continue
+				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
+
+				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{mode}.csv")
+				if ref_path.exists() and ref_path.is_file():
+					print(f"Comparaison avec : '{ref_path}'")
+					ref = pd.read_csv(ref_path)
+					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					np.testing.assert_allclose(t_output[name].to_numpy(float),ref.to_numpy(float),rtol=1e-5, atol=1e-5, equal_nan=True)
+
+		# Dernier True/False pour la couverture de code
+		palm.tracks_compute(t_input, False, True, False, False, 1, 1, 1, np.array([4], dtype=np.float64))
+		df = t_input.iloc[[0]].copy()  # note les double crochets → DataFrame, pas Series
+		palm.tracks_compute(df, True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
+		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
 	else:
 		print_warning(f"Fichier de Tracking '{path}' indisponible.")
 	assert True

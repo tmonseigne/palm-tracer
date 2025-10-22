@@ -259,7 +259,7 @@ class GraphViewerWidget(QWidget):
 
 		# Zone droite : QWebEngineView avec Plotly
 		if _HAS_WEBENGINE: self._web = QWebEngineView(self)
-		else: # pragma: no cover - Fallback affichant un message d'erreur explicite
+		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
 			self._web = QTextBrowser(self)
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
@@ -360,7 +360,7 @@ class GraphViewerWidget(QWidget):
 		self._html = html
 
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
-		else: # pragma: no cover - Fallback affichant un message d'erreur explicite
+		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
 	##################################################
@@ -399,7 +399,7 @@ class GraphViewerWidget(QWidget):
 		self._on_source_changed(0)		# Change la source pour Stack
 
 	##################################################
-	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool: # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""
 		Exporte en PNG via capture du widget QWebEngineView (fallback sans Kaleido).
 
@@ -423,7 +423,7 @@ class GraphViewerWidget(QWidget):
 		return False
 
 	##################################################
-	def _on_export(self): # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+	def _on_export(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""
 		Ouvre un dialogue et exporte la figure selon l’extension choisie.
 
@@ -478,10 +478,9 @@ class GraphViewerWidget(QWidget):
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
-
-	# ==================================================
-	# endregion Callback
-	# ==================================================
+# ==================================================
+# endregion Callback
+# ==================================================
 
 
 ##################################################

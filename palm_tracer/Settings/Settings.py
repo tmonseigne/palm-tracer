@@ -43,7 +43,7 @@ class Settings:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
-		list_settings = [Batch, Calibration, Localization, Tracking, Gallery, VisualizationHR, VisualizationGraph, Filtering]
+		list_settings = [Batch, Calibration, Localization, Tracking, TracksCompute, Gallery, VisualizationHR, VisualizationGraph, Filtering]
 		for setting in list_settings:
 			self._settings[setting.__name__] = setting()
 
@@ -56,14 +56,13 @@ class Settings:
 		for _, setting in self._settings.items(): setting.reset()
 
 	##################################################
-	def connect(self, f:Any):
+	def connect(self, f: Any):
 		"""
 		Connecte une fonction ou un slot à l'intégralité des paramètres.
 
 		:param f: Fonction ou slot à connecter.
 		"""
 		for _, setting in self._settings.items(): setting.connect(f)
-
 
 	# ==================================================
 	# endregion Initialization
@@ -87,6 +86,10 @@ class Settings:
 	##################################################
 	@property
 	def tracking(self) -> Tracking: return cast(Tracking, self._settings["Tracking"])
+
+	##################################################
+	@property
+	def tracks_compute(self) -> TracksCompute: return cast(TracksCompute, self._settings["TracksCompute"])
 
 	##################################################
 	@property

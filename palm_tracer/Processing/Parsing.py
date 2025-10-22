@@ -21,7 +21,8 @@ PARSING_COLUMNS: dict[str, dict[str, Any]] = {
 COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
 
 # Tracking
-N_TRACK = 8  # Nombre de paramètres pour le tracking.
+N_COL_TRC = len(PARSING_COLUMNS["Tracking"]["columns"])		 # Nombre de paramètres pour le tracking (8).
+N_COL_LOC = len(PARSING_COLUMNS["Localization"]["columns"])  # Nombre de paramètres pour le tracking (18).
 
 
 ##################################################
@@ -64,6 +65,21 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 
 
 ##################################################
+def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+	"""
+	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égale à 0).
+	:param data: dataframe à modifier
+	:param columns:
+	:return:
+	"""
+	# Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
+	pos = data[columns] > 0
+	logged = np.where(pos, np.log10(data[columns]), np.nan)
+	data[columns] = pd.DataFrame(logged, index=data.index, columns=columns)
+	return data
+
+
+##################################################
 def parse_result(data: np.ndarray, file_type: str = "Localization") -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
@@ -93,6 +109,68 @@ def parse_result(data: np.ndarray, file_type: str = "Localization") -> pd.DataFr
 
 
 ##################################################
+def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
+	"""
+	Parsing du résultat de la DLL PALM.
+
+	Entrée : un tableau 1D où chaque bloc est encodé comme : [L, x0, x1, ..., x{L-1}, L2, y0, y1, ..., ...]
+	Le parsing s'arrête dès qu'un L <= 0 est rencontré.
+
+	Règles :
+	- Le premier élément d'un bloc (L) donne le nombre d'éléments qui suivent pour ce bloc.
+	- Les longueurs négatives ou nulle (L <= 0) signalent la fin du flux.
+	- Les blocs tronqués (pas assez d'éléments après L) lèvent une ValueError.
+	- Les valeurs des blocs (sans L) sont retournées dans le DataFrame.
+	- Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN.
+
+	:param data: Données 1D récupérées depuis la DLL PALM. Doit être indexable et de dimension 1.
+	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes (Val_0, Val_1, ...) contiennent les valeurs du bloc, complétées par NaN si
+	nécessaire.
+	:raise ValueError: entrée invalide (nombre de dimensions ou taille finale)
+
+	Exceptions
+	----------
+	ValueError
+	    - Si `data` n'est pas 1D.
+	    - Si un bloc est tronqué (L annonce plus d'éléments que disponibles).
+	"""
+	if data.ndim != 1:
+		raise ValueError("`data` doit être un tableau 1D.")
+
+	rows: list[np.ndarray] = []
+	i = 0
+	N = data.size
+
+	while i < N:
+		# Lecture de L (la longueur annoncée du bloc)
+		L_raw = data[i]
+		try:
+			L = int(L_raw)
+		except (TypeError, ValueError):
+			raise ValueError(f"Longueur de bloc non entière à l'indice {i}: {L_raw!r}") from None
+
+		if L <= 0: break  # fin du flux
+
+		i += 1  # on avance sur le premier élément du bloc
+		if i + L > N: raise ValueError(f"Bloc tronqué: longueur {L} annoncée à l'indice {i - 1}, mais seulement {N - i} élément(s) disponible(s).")
+		# Extraction du bloc (les L valeurs, sans L lui-même)
+		rows.append(np.asarray(data[i:i + L]))
+		i += L  # passer au bloc suivant
+
+	# Construction du DataFrame avec padding NaN
+	if not rows: return pd.DataFrame()  # aucun bloc valide avant un L<=0 ou tableau vide
+
+	max_len = max(len(r) for r in rows)
+	out = np.full((len(rows), max_len), np.nan, dtype=float)
+	for r_idx, r in enumerate(rows):
+		if r.size: out[r_idx, :r.size] = r
+
+	columns = [f"Val_{k}" for k in range(max_len)]
+	df = pd.DataFrame(out, columns=columns)
+	return df
+
+
+##################################################
 def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 	"""
 	Parsing du résultat de la localisation pour la DLL de Tracking.
@@ -110,5 +188,5 @@ def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 		res += row[COLS_FOR_TRACKING].to_list()
 		previous_plan = row["Plane"]
 
-	res += blank	# Ajout d'une dernière ligne -1 à la fin
+	res += blank  # Ajout d'une dernière ligne -1 à la fin
 	return np.asarray(res, dtype=np.float64)

@@ -21,6 +21,8 @@ from .GaussianFit import GaussianFit
 from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
+from .TracksBlinkingReconnection import TracksBlinkingReconnection
+from .TracksCompute import TracksCompute
 from .VisualizationGraph import VisualizationGraph
 from .VisualizationHR import VisualizationHR
 
@@ -35,6 +37,8 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	elif data["type"] == "GaussianFit": return GaussianFit.from_dict(data)
 	elif data["type"] == "SplineFit": return SplineFit.from_dict(data)
 	elif data["type"] == "Tracking": return Tracking.from_dict(data)
+	elif data["type"] == "TracksBlinkingReconnection": return TracksBlinkingReconnection.from_dict(data)
+	elif data["type"] == "TracksCompute": return TracksCompute.from_dict(data)
 	elif data["type"] == "Gallery": return Gallery.from_dict(data)
 	elif data["type"] == "VisualizationHR": return VisualizationHR.from_dict(data)
 	elif data["type"] == "VisualizationGraph": return VisualizationGraph.from_dict(data)
@@ -49,5 +53,6 @@ __all__ = ["create_group_from_dict",
 		   "BaseSettingGroup",
 		   "Batch", "Calibration",
 		   "Filtering", "FilteringGF", "FilteringT",
-		   "Localization", "GaussianFit", "SplineFit", "Tracking",
+		   "Localization", "GaussianFit", "SplineFit",
+		   "Tracking", "TracksBlinkingReconnection", "TracksCompute",
 		   "Gallery", "VisualizationHR", "VisualizationGraph"]

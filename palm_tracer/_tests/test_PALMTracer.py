@@ -9,6 +9,7 @@ import pytest
 
 from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import is_not_dll_friendly
+from palm_tracer.Settings.Groups import FilteringT, TracksCompute
 from palm_tracer.Settings.Types import FileList
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -140,6 +141,43 @@ def test_process_only_tracking_blinking(make_napari_viewer):
 	pt.process()
 	assert True
 
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_process_only_tracks_compute(make_napari_viewer):
+	""" Test pour le process de tracking. """
+	pt = PALMTracer()
+
+	tc = cast(TracksCompute, pt.settings.tracks_compute)
+	tc.active = True
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+
+	pt.process()
+
+	tc["MSD"].set_value(True)
+	pt.process()
+
+	tc["MSD"].set_value(False)
+	tc["Instant Diffusion"].set_value(True)
+	tc["Fit"].set_value(1)
+	pt.process()
+
+	# Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
+	paths = pt.settings.batch.get_paths()
+	for path in paths: shutil.rmtree(path, ignore_errors=True)
+	pt.process()
+
+	# restauration des fichiers
+	pt.settings.localization.active = True
+	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+	pt.process()
+
+	assert True
+
+
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_visualization_hr(make_napari_viewer):
@@ -192,6 +230,11 @@ def test_process_all(make_napari_viewer):
 	pt.settings.localization["Fit"].set_value(1)
 	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(3)
 	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+	pt.settings.tracks_compute.active = True
+	pt.settings.tracks_compute["MSD"].set_value(True)
+	pt.settings.tracks_compute["Instant Diffusion"].set_value(True)
+	pt.settings.tracks_compute["Fit"].set_value(1)
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
 	pt.settings.visualization_graph.active = True
@@ -221,7 +264,7 @@ def test_process_filter_plan(make_napari_viewer):
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
-def test_process_filter_all(make_napari_viewer):
+def test_process_filter_all_localization(make_napari_viewer):
 	""" Test pour le filtrage complet lors de l'exécution. """
 	pt = PALMTracer()
 
@@ -237,8 +280,8 @@ def test_process_filter_all(make_napari_viewer):
 	pt.settings.filtering["Plane"].set_value([1, 9])  # Suppression du dernier plan uniquement
 	pt.settings.filtering["Intensity"].active = True
 	pt.settings.filtering["Intensity"].set_value([100, 20000])
-	pt.settings.filtering["Gaussian Fit"]["MSE XY"].active = True
-	pt.settings.filtering["Gaussian Fit"]["MSE XY"].set_value([0.01, 10])
+	pt.settings.filtering["Gaussian Fit"]["MSE"].active = True
+	pt.settings.filtering["Gaussian Fit"]["MSE"].set_value([0.01, 10])
 	pt.settings.filtering["Gaussian Fit"]["Sigma X"].active = True
 	pt.settings.filtering["Gaussian Fit"]["Sigma X"].set_value([0, 10])
 	pt.settings.filtering["Gaussian Fit"]["Sigma Y"].active = True
@@ -253,3 +296,41 @@ def test_process_filter_all(make_napari_viewer):
 		   ["Circularity", 0, 1], ["Z", -1, 1]]
 	for r in ref:
 		assert pt.localizations[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_process_filter_all_tracking(make_napari_viewer):
+	""" Test pour le filtrage complet lors de l'exécution. """
+	pt = PALMTracer()
+
+	pt.settings.localization.active = True
+	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(1)
+	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+	pt.settings.tracks_compute.active = True
+	pt.settings.tracks_compute["MSD"].set_value(True)
+	pt.settings.tracks_compute["Instant Diffusion"].set_value(True)
+	pt.settings.tracks_compute["Fit"].set_value(1)
+	# Ajout du fichier
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+
+	s = cast(FilteringT, pt.settings.filtering["Tracks"]);
+	s["Length"].active = True
+	s["Length"].set_value([2, 10000])
+	s["D Coeff"].active = True
+	s["D Coeff"].set_value([-5, 5])
+	s["Instant D"].active = True
+	s["Instant D"].set_value([-5, 5])
+	s["Speed"].active = True
+	s["Speed"].set_value([-10, 10])
+	s["Alpha"].active = True
+	s["Confinement"].set_value([-10, 10])
+	pt.process()
+	#ref = [["Plane", 1, 9], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.01, 10],
+	#	   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -5, 10],
+	#	   ["Circularity", 0, 1], ["Z", -1, 1]]
+	#for r in ref:
+	#	assert pt.localizations[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."

@@ -120,9 +120,9 @@ def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list
 		x_min, x_max = max(0, int(round(x - half_size))), min(max_width, int(round(x + half_size)))
 
 		# Dessiner le contour du carré
-		res[y_min:y_max, x_min] = color  # Ligne gauche
-		res[y_min:y_max, x_max] = color  # Ligne droite
-		res[y_min, x_min:x_max] = color  # Ligne haut
+		res[y_min:y_max, x_min] = color						 # Ligne gauche
+		res[y_min:y_max, x_max] = color						 # Ligne droite
+		res[y_min, x_min:x_max] = color						 # Ligne haut
 		res[y_max, x_min:min(max_width, x_max + 1)] = color  # Ligne bas (distance +1 pour avoir un carré "fini")
 
 	return res

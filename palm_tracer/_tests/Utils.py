@@ -10,6 +10,8 @@ from scipy.spatial import cKDTree
 from palm_tracer.Tools import FileIO, print_error, print_success, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
+OUTPUT_DIR = Path(__file__).parent / "output"
+
 default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4

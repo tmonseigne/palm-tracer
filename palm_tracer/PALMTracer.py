@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 
 from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups import Filtering, FilteringGF
+from palm_tracer.Settings.Groups import Filtering, FilteringGF, FilteringT
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
@@ -36,6 +36,10 @@ class PALMTracer:
 	"""Résultat de la localisation Palm."""
 	tracks: Optional[pd.DataFrame] = field(init=False, default=None)
 	"""Résultat du tracking."""
+	blink: Optional[pd.DataFrame] = field(init=False, default=None)
+	"""Résultat du tracking."""
+	tracks_compute: Optional[dict[str, pd.DataFrame]] = field(init=False, default=None)
+	"""Résultat des calculs sur trajctoires."""
 	visualization: Optional[np.ndarray] = field(init=False, default=None)
 	"""Résultat de la visualisation."""
 
@@ -88,10 +92,10 @@ class PALMTracer:
 
 			# Save meta file (Création du DataFrame et sauvegarde en CSV)
 			depth, height, width = self._stack.shape
-			df = pd.DataFrame({"Height":                   [height], "Width": [width], "Plane Number": [depth],
-							   "Pixel Size (nm)":          [self.settings.calibration["Pixel Size"].get_value()],
-							   "Exposure Time (ms/frame)": [self.settings.calibration["Exposure"].get_value()],
-							   "Intensity (photon/ADU)":   [self.settings.calibration["Intensity"].get_value()]})
+			df = pd.DataFrame({"Height":                  [height], "Width": [width], "Plane Number": [depth],
+							   "Pixel Size (μm)":         [self.settings.calibration["Pixel Size"].get_value()],
+							   "Exposure Time (s/frame)": [self.settings.calibration["Exposure"].get_value()],
+							   "Intensity (photon/ADU)":  [self.settings.calibration["Intensity"].get_value()]})
 			df.to_csv(f"{self._path}/meta-{self._suffix}.csv", index=False)
 			self._logger.add("Fichier Meta sauvegardé.")
 
@@ -102,7 +106,7 @@ class PALMTracer:
 				except Exception as e: raise
 			else:
 				self._logger.add("Localisation désactivé.")
-				f = get_last_file(self._path, "localizations")
+				f = get_last_file(self._path, "localizations-")
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'une localisation pré-calculée.")
 					try:
@@ -123,7 +127,7 @@ class PALMTracer:
 				self.__tracking()
 			else:
 				self._logger.add("Tracking désactivé.")
-				f = get_last_file(self._path, "tracking")
+				f = get_last_file(self._path, "tracking-")
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'un tracking pré-calculée.")
 					try:
@@ -136,6 +140,13 @@ class PALMTracer:
 				else:  # Sinon
 					self.tracks = None
 					self._logger.add("\tAucune donnée de tracking pré-calculée.")
+
+			# Lancement des calculs sur les trajectoires
+			if self.settings.tracks_compute.active:
+				self._logger.add("Calcul sur les trajectoires activé.")
+				self.__tracks_compute()
+			else:
+				self._logger.add("Calcul sur les trajectoires désactivé.")
 
 			# Lancement de la Visualisation Haute Résolution
 			if self.settings.visualization_hr.active:
@@ -172,7 +183,7 @@ class PALMTracer:
 		# Filtre sur les plans
 		planes = filters["Plane"].get_value()
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
-		fit =self.settings.localization.get_fit()
+		fit = self.settings.localization.get_fit()
 		try: fit_params = self.settings.localization.get_fit_params()
 		except Exception as e: raise
 		# Run command
@@ -188,22 +199,58 @@ class PALMTracer:
 		""" Lance le tracking à partir des settings passés en paramètres. """
 		# Parse settings
 		s = self.settings.tracking.get_settings()
-		# Run command
-		self.tracks = self.palm.tracking(self.localizations, s["Max Distance"], s["Min Length"], s["Decrease"], s["Cost Birth"])
+		# Run command (par défaut Min Length = 1, Decrease = 10, Cost Birth = 0.5)
+		self.tracks = self.palm.tracking(self.localizations, s["Max Distance"])
+
+		if self.settings.tracking["Blinking Reconnection"].active:
+			self._logger.add("\tReconnexion des trajectoires après scintillement.")
+			s = self.settings.tracking["Blinking Reconnection"].get_settings()
+			pixel_size = self.settings.calibration.get_settings()["Pixel Size"]
+			# Run command
+			self.blink = self.palm.blinking_reconnection(self.tracks, pixel_size, s["Mode"], s["Max Duration"], s["Max Speed"])
+
+			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
+			self._logger.add(f"\t\t{len(self.blink)} trajectoire(s) trouvée(s).")
+			self.blink.to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
 
 		self._logger.add("\tEnregistrement du fichier de trajectoires.")
 		self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
 		self.tracks.to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
+		if self.blink is not None:
+			self.tracks = self.blink
+			self.blink = None
 
-		if self.settings.tracking["Blinking Reconnection"].active:
-			self._logger.add("\tReconnexion des trajectoires après scintillement.")
-			s=self.settings.tracking["Blinking Reconnection"].get_settings()
-			# Run command
-			self.tracks = self.palm.blinking_reconnection(self.tracks, s["Mode"], s["Max Distance"], s["Max Speed"])
+	##################################################
+	def __tracks_compute(self):
+		""" Lance le tracking à partir des settings passés en paramètres. """
+		if self.tracks is None:
+			self._logger.add("\tAucune donnée de tracking calculée, aucun calcul supplémentaire ne peut être effectué.")
+			return
 
-			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
-			self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
-			self.tracks.to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
+		# Parse settings
+		sc = self.settings.calibration.get_settings()
+		s = self.settings.tracks_compute.get_settings()
+
+		if not s["MSD"] and not s["Instant Diffusion"] and s["Fit"] == 0:
+			self._logger.add("\tAucune métrique de sélectionnée, aucun calcul supplémentaire ne peut être effectué.")
+			return
+
+		# Run command
+		self.tracks_compute = self.palm.tracks_compute(self.tracks, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
+													   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
+
+		if self.tracks_compute is None: return  # pragma: no cover - Actuellement impossible, mais on conserve une échapatoire, en cas de mise à jour
+
+		# self.__filter_tracks_compute() le filtre sera pour l'affichage et les histogrammes
+		if s["MSD"] and not self.tracks_compute["MSD"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
+			self.tracks_compute["MSD"].to_csv(f"{self._path}/tracking_MSD-{self._suffix}.csv", index=False)
+		if s["Instant Diffusion"] and not self.tracks_compute["InstantD"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées.")
+			self.tracks_compute["InstantD"].to_csv(f"{self._path}/tracking_InstantD-{self._suffix}.csv", index=False)
+		if s["Fit"] != 0 and not self.tracks_compute["Fit"].empty:
+			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
+			self.tracks_compute["Fit"].to_csv(f"{self._path}/tracking_Fit-{self._suffix}.csv", index=False)
 
 	##################################################
 	def __visualization_hr(self):
@@ -280,7 +327,7 @@ class PALMTracer:
 		fg = cast(FilteringGF, f["Gaussian Fit"])
 		filters = [[f["Plane"], "Plane"],
 				   [f["Intensity"], "Integrated Intensity"],
-				   [fg["MSE XY"], "MSE XY"],
+				   [fg["MSE"], "MSE XY"],
 				   [fg["Sigma X"], "Sigma X"],
 				   [fg["Sigma Y"], "Sigma Y"],
 				   [fg["Theta"], "Theta"],
@@ -293,18 +340,36 @@ class PALMTracer:
 				localizations = localizations[localizations[col].between(limits[0], limits[1])]  # Bornes incluses
 		return localizations
 
-# ##################################################
-# def __filter_tracking(self):
-# 	""" Filtre le fichier de tracking. """
-# 	n_init = len(self.tracks)
-# 	f = self.settings.filtering["Tracking"]
-# 	filters = [[f["Length"], ""],
-# 			   [f["D Coeff"], ""],
-# 			   [f["Instant D"], ""],
-# 			   [f["Speed"], ""],
-# 			   [f["Alpha"], ""],
-# 			   [f["Confinement"], ""]]
-#
-# 	n_end = len(self.tracks)
-# 	if n_init != n_end:
-# 		self.logger.add(f"\t\tFiltrage du fichier de tracking {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")
+	##################################################
+	def __filter_tracks_compute(self):
+		""" Filtre un fichier de Calcul sur les trajectoires. """
+		f = cast(FilteringT, self.settings.filtering["Tracks"])
+		# TODO Pas sur du tout de mes filtres, ce sont ceux de PalmTracer mais j'ai du mal avec les dénominations
+		# Pour MSD, on a les différents Lag : Track,Lag 1,Lag 2,Lag 3,Lag 4,Lag 5.........
+		# Pour InstantD, on a les différentes Fenêtres (glissantes) : Track,Window 1,Window 2.........
+		# Pour Fit ça dépend du Fit : 3 premiers résultat du fit linéaire des N premiers points, N suivants résultat du Fit choisi sur tous les points
+		# Fit linéaire : Track,D(0) (μm²/s), MSD(0) (μm²), MSE(0), A (μm²/s), B (μm²), MSE
+		# Fit Puissance : Track,D(0) (μm²/s), MSD(0) (μm²), MSE(0), Alpha, B (μm²), MSE, Average Speed (Last-First)(μm/s)
+		# Fit Exponentiel : Track,D(0) (μm²/s), "MSD(0) (μm²), MSE(0), A (μm²),B (s),C (μm²),MSE,Confinement Radius (μm)
+		filters = [
+				[f["Instant D"], ""],  # TODO c'est sur le calcul de Instant D pas sur le fit, on doit ajouter une option de % de fail
+				# Quelque soit le Fit
+				[f["D Coeff"], "D(0) (μm²/s)"],
+				# Fit Puissance
+				[f["Alpha"], "Alpha"],
+				[f["Speed"], "Average Speed (Last-First)(μm/s)"],
+				# Fit Exponentiel
+				[f["Confinement"], "Confinement Radius (μm)"]]
+
+		for key, df in self.tracks_compute.items():
+			print(key, " : ", df)
+			if df.empty: continue
+			n_init = len(df)
+			for filt, col in filters:
+				if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active and col in df.columns:
+					limits = filt.get_value()
+					print(f"{col} : {limits}")
+
+			n_end = len(df)
+			if n_init != n_end:
+				self._logger.add(f"\t\tFiltrage du fichier de calcul {key} : {n_end} tracks au lieu de {n_init} : {n_init - n_end} suppression(s)")

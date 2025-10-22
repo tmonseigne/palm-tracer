@@ -16,7 +16,7 @@ import napari
 import numpy as np
 from napari import Viewer
 from qtpy.QtCore import Qt, QThread
-from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -81,7 +81,8 @@ class PALMTracerWidget(QWidget):
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget]), "Processing")
+		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget,
+									   self.pt.settings.tracks_compute.widget]), "Processing")
 		tabs.addTab(self.__create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget,
 									   self.pt.settings.visualization_graph.widget, btn_graph, btn_3d]), "Visualization")
 		tabs.addTab(self.__create_tab([self.pt.settings.filtering.widget]), "Filtering")
@@ -96,7 +97,6 @@ class PALMTracerWidget(QWidget):
 		setting = self.pt.settings.batch["Files"]
 		if setting and isinstance(setting, FileList):  # pragma: no cover (toujours vrai)
 			setting.connect(self._reset_layer)
-
 
 		# Calcul automatique du Seuil
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)
@@ -154,8 +154,8 @@ class PALMTracerWidget(QWidget):
 			return
 		self._processing = True
 		self.layout().setEnabled(False)							   # désactive l'interface
-		QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
-		QApplication.processEvents()							   # met à jour l'interface
+		# QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
+		# QApplication.processEvents()							   # met à jour l'interface
 
 		self.thread = QThread(self)
 		self.worker = Worker(compute_func)
@@ -179,8 +179,8 @@ class PALMTracerWidget(QWidget):
 		Elle doit être appelée depuis le thread principal (GUI).
 		"""
 		self.layout().setEnabled(True)		  # Réactive l'interface
-		QApplication.restoreOverrideCursor()  # Changement du curseur
-		QApplication.processEvents()		  # met à jour l'interface
+		# QApplication.restoreOverrideCursor()  # Changement du curseur
+		# QApplication.processEvents()		  # met à jour l'interface
 		self._processing = False
 
 	##################################################
@@ -244,7 +244,7 @@ class PALMTracerWidget(QWidget):
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
 				layer.data = points  # Remplace tous les points
-				layer.size = 1  # Remets les différents arguments en cas de nombre de points différents
+				layer.size = 1		 # Remets les différents arguments en cas de nombre de points différents
 				layer.border_color = args["color"]
 				layer.border_width = args["border"]
 				layer.face_color = args["face"]
@@ -274,7 +274,7 @@ class PALMTracerWidget(QWidget):
 					self.viewer.layers.remove(self.viewer.layers[l_name])
 					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 				else:
-					layer.data = rois  # Remplace toutes les formes
+					layer.data = rois		   # Remplace toutes les formes
 					layer.shape_type = s_type  # Remets les différents arguments en cas de nombre de ROI différents
 					layer.edge_color = args["color"]
 					layer.edge_width = args["edge"]
@@ -296,8 +296,8 @@ class PALMTracerWidget(QWidget):
 		layer = self.viewer.layers["Raw"]					 # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
 		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
-		plane = layer.data[plane_idx]						 # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.uint16)			 # Renvoie sous le format numpy
+		plane = layer.data[plane_idx]			   # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
 
 	##################################################
 	def _on_change(self):
@@ -333,7 +333,7 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
 		if image is None: return
-		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params()) # Calcul du seuil automatique
+		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
@@ -382,6 +382,6 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.raise_()
 		self.viewer_graph.activateWindow()
 
-	# ==================================================
-	# endregion Callback
-	# ==================================================
+# ==================================================
+# endregion Callback
+# ==================================================
