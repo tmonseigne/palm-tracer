@@ -68,7 +68,7 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 	:param ratio: Ratio d'aggrandissement de l'image.
 	:param points: Localisations des points.
 	:param normalization: Normalisation des valeurs (pour les mettre entre 0 et SCALE).
-	:return: Nouvelle image en uint16.
+	:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 	"""
 
 	if ratio < 1: return np.zeros((height, width), dtype=np.uint16)
@@ -90,6 +90,102 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 	np.add.at(res, (y, x), values)			 # Accumulation des valeurs (plus efficace qu'une boucle)
 	res = res.clip(0, MAX_UI_16)			 # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
 	return np.asarray(res, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
+
+
+##################################################
+def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFrame) -> np.ndarray:
+	"""
+	Construit une image haute résolution (uint16) à partir de trajectoires localisées.
+    Chaque trajectoire est tracée par segments (P0→P1, P1→P2, …) avec une couleur unique.
+
+	Colonnes attendues dans `tracks` :
+		- "Track" : identifiant de la trajectoire (int)
+		- "Plane" : ordre/plan (int) ; uniquement utilisé pour trier temporellement
+		- "X", "Y" : coordonnées (float, en pixels dans l'image de base)
+		- "Color" : intensité à tracer (0..65535). Toute valeur hors bornes est tronquée.
+
+	:param width: Largeur de l'image de base.
+	:param height: Hauteur de l'image de base.
+	:param ratio: Ratio d'aggrandissement de l'image (>=1). Les coordonnées sont multipliées par ce facteur.
+	:param tracks: Tableau des points de trajectoires.
+	:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
+	"""
+
+	if ratio < 1: return np.zeros((height, width), dtype=np.uint16)
+	H, W = int(height * ratio), int(width * ratio)
+	if width < 1 or height < 1: return np.zeros((max(H, 1), max(W, 1)), dtype=np.uint16)
+
+	res = np.zeros((H, W), dtype=np.uint16)
+	cols = {"Track", "Plane", "X", "Y", "Color"}
+	if not cols.issubset(tracks.columns):
+		# Rien à tracer si les colonnes ne sont pas toutes présentes
+		return res
+
+	# Copie minimale + nettoyage
+	df = tracks.loc[:, ["Track", "Plane", "X", "Y", "Color"]].copy()
+
+	# Suppression des lignes invalides sur X/Y (nan/inf)
+	df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=["X", "Y"])
+	if df.empty: return res
+
+	# Mise à l'échelle et conversion entiers rapides
+	# np.rint() pour arrondir au plus proche avant cast en int64
+	df["X"] = np.rint(df["X"].to_numpy(dtype=float) * ratio)
+	df["Y"] = np.rint(df["Y"].to_numpy(dtype=float) * ratio)
+
+	df["Color"] = np.clip(df["Color"], 0, MAX_UI_16).astype(np.uint16, copy=False)
+
+	# Tri stable : par Track puis Plane puis index (ordre d'origine)
+	df = df.sort_values(["Track", "Plane"], kind="mergesort")
+
+	# Conversion en tableaux numpy pour itération rapide
+	track_ids = df["Track"].to_numpy().astype(int)
+	xs = df["X"].to_numpy().astype(int)
+	ys = df["Y"].to_numpy().astype(int)
+	cs = df["Color"].to_numpy().astype(int)
+
+	# Indices de début/fin de chaque groupe Track
+	# track_ids[1:] != track_ids[:-1] Compare chaque élément au précédent
+	# np.flatnonzero pour avoir les indices des True donc indique le dernier élément de chaque trajectoire
+	# np.r_ concatène des séquences. on ajoute 0 et track_ids.size.
+	split_idx = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size]
+
+	# Dessin : Bresenham entier avec écriture max()
+	def _draw_segment_max(x_0: int, y_0: int, x_1: int, y_1: int, c: np.uint16) -> None:
+		dx, dy = abs(x_1 - x_0), -abs(y_1 - y_0)
+		sx, sy = 1 if x_0 < x_1 else -1, 1 if y_0 < y_1 else -1
+		err = dx + dy
+		while True:
+			if 0 <= x_0 < W and 0 <= y_0 < H:
+				# garde la valeur maximale pour conserver la luminosité (en cas de superposition de plusieurs trajectoires)
+				cur = res[y_0, x_0]
+				if c > cur: res[y_0, x_0] = c
+			if x_0 == x_1 and y_0 == y_1: break
+			e2 = err << 1  # 2*err
+			if e2 >= dy:
+				err += dy
+				x_0 += sx
+			if e2 <= dx:
+				err += dx
+				y_0 += sy
+
+	# Pour chaque trajectoire, couleur unique
+	for g in range(len(split_idx) - 1):
+		start, end = split_idx[g], split_idx[g + 1]
+		#if end - start == 0: continue impossible, on vérifie en amont les dataframe vide pouvant provoquer ce cas
+		c_track = cs[start]
+
+		# tracer points isolés
+		if end - start == 1:
+			_draw_segment_max(xs[start], ys[start], xs[start], ys[start], np.uint16(c_track))
+			continue
+
+		# tracer segments successifs
+		for i in range(start, end - 1):
+			x0, y0, x1, y1 = xs[i], ys[i], xs[i + 1], ys[i + 1]
+			_draw_segment_max(x0, y0, x1, y1, np.uint16(c_track))
+
+	return res
 
 
 ##################################################

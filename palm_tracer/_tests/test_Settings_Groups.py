@@ -162,6 +162,9 @@ def test_gallery(make_napari_viewer):
 def test_visualization_hr(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
 	group_base_test(VisualizationHR(), ["Ratio", "Type", "Source"], SpinInt, 1, 2)
+	g = VisualizationHR()
+	g["Type"].set_value(1) # Afficher/masquer les sources
+	g["Type"].set_value(0) # Afficher/masquer les sources
 
 
 ###################################################

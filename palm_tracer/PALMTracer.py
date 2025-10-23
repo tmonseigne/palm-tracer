@@ -14,7 +14,6 @@ from typing import cast, Optional
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from sympy import limit_seq
 
 from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image
 from palm_tracer.Settings import Settings
