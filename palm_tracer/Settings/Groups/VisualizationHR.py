@@ -20,4 +20,18 @@ class VisualizationHR(BaseSettingGroup):
 
 	label: str = "High Resolution"
 	setting_list = {"Ratio":  [SpinInt, ["Up scaling ratio", 2, 1, 100, 1]],
+					"Type":   [Combo, ["Type", 0, ["Localisations", "Tracks"]]],
 					"Source": [Combo, ["Source", 0, HR_SOURCE]]}
+
+	##################################################
+	def initialize_ui(self):
+		super().initialize_ui()
+		self._settings["Type"].connect(self.toggle_type)
+
+	##################################################
+	def toggle_type(self, mode):
+		"""Change le mode d'ajustement."""
+		if mode == 0:
+			self._settings["Source"].show()
+		elif mode == 1:
+			self._settings["Source"].hide()
