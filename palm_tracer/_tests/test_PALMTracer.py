@@ -332,9 +332,6 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	pt.settings.filtering["Tracks"]["Alpha"].active = True
 	pt.settings.filtering["Tracks"]["Confinement"].set_value([-10, 10])
 	pt.process()
-	# Le filtrage ne modifie plus le dataframe original qui garde constamment son statut "complet".
-	trc = pt.filter_tracks(pt.tracks)
-	trc_cp = pt.filter_tracks_compute(pt.tracks_compute)
 	# Vérification manuelle à l'heure actuelle
-	assert len(trc) == 143, f"Il reste {len(trc)} points au lieu de 143 sur les trajectoires."
-	assert len(trc_cp["MSD"]) == 5, f"Il reste {len(trc_cp)} trajectoires au lieu de 5."
+	assert len(pt.tracks) == 143, f"Il reste {len(pt.tracks)} points au lieu de 143 sur les trajectoires."
+	assert len(pt.tracks_compute["MSD"]) == 5, f"Il reste {len(pt.tracks_compute["MSD"])} trajectoires au lieu de 5."

@@ -343,6 +343,7 @@ class PALMTracerWidget(QWidget):
 		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
 		"""
 		if self.pt.visualization is None: return
+		if self.pt.localizations.empty: return
 
 		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
 		if not hasattr(self, "high_res_window") or self.viewer_hr is None:
@@ -354,7 +355,6 @@ class PALMTracerWidget(QWidget):
 
 		self.viewer_hr.layers.clear()
 		self.viewer_hr.add_image(self.pt.visualization, name="Visualization", visible=False)
-		if self.pt.localizations is None: return
 		points = self.pt.localizations[["Y", "X"]].to_numpy() * self.pt.settings.visualization_hr.get_settings()["Ratio"]
 		layer = self.viewer_hr.add_points(points, size=1, face_color="lime", name="Points")
 		layer.editable = False
@@ -382,6 +382,6 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.raise_()
 		self.viewer_graph.activateWindow()
 
-# ==================================================
-# endregion Callback
-# ==================================================
+	# ==================================================
+	# endregion Callback
+	# ==================================================
