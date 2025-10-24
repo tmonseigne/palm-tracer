@@ -15,11 +15,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image
+from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_tracks_image
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import Filtering, FilteringGF, FilteringT
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
-from palm_tracer.Settings.Groups.VisualizationHR import HR_SOURCE
+from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json, save_tif
 from palm_tracer.Tools.FileIO import save_png
@@ -259,6 +259,13 @@ class PALMTracer:
 		if self.settings.filtering["Save"].get_value(): self.__filter_tracks_compute()
 
 	##################################################
+	def __add_color_to_tracks(self, datas: pd.DataFrame) -> pd.DataFrame:
+		""""""
+		res = datas.copy()
+		res["Color"] = 65535
+		return res
+
+	##################################################
 	def __visualization_hr(self):
 		""" Lance la creation d'une visualisation haute résolution à partir des settings passés en paramètres. """
 		# Parse settings
@@ -266,14 +273,23 @@ class PALMTracer:
 
 		# Création de l'image finale
 		depth, height, width = self._stack.shape
-		if self.localizations is not None:
-			sources = HR_SOURCE[1:] if s["Source"] == 0 else [HR_SOURCE[s["Source"]]]
-			for source in sources:
-				self.visualization = render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", source]].to_numpy())
-				self._logger.add(f"\tEnregistrement de la visualisation haute résolution (x{s['Ratio']}, {source}).")
-				save_png(self.visualization, f"{self._path}/visualization_x{s['Ratio']}_{source}-{self._suffix}.png")
+		if s["Type"]==0:
+			if self.localizations is not None:
+				sources = HR_LOC_SOURCE[1:] if s["Source L"] == 0 else [HR_LOC_SOURCE[s["Source L"]]]
+				for source in sources:
+					self.visualization = render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", source]].to_numpy())
+					self._logger.add(f"\tEnregistrement de la visualisation haute résolution (x{s['Ratio']}, {source}).")
+					save_png(self.visualization, f"{self._path}/visualization_x{s['Ratio']}_{source}-{self._suffix}.png")
+			else: self._logger.add(f"\tAucun fichier de localisation pour la visualisation.")
 		else:
-			self._logger.add(f"\tAucun fichier de localisation pour la visualisation.")
+			if self.tracks is not None:
+				sources = HR_LOC_SOURCE[1:] if s["Source T"] == 0 else [HR_TRC_SOURCE[s["Source T"]]]
+				for source in sources:
+					tracks = self.__add_color_to_tracks(self.tracks)
+					self.visualization = render_tracks_image(width, height, s["Ratio"], tracks)
+					self._logger.add(f"\tEnregistrement de la visualisation des trajectoires haute résolution (x{s['Ratio']}, {source}).")
+					save_png(self.visualization, f"{self._path}/visualization_tracks_x{s['Ratio']}_{source}-{self._suffix}.png")
+			else: self._logger.add(f"\tAucun fichier de trajectoires pour la visualisation.")
 
 	##################################################
 	def __visualization_graph(self):
