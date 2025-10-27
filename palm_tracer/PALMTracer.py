@@ -103,10 +103,7 @@ class PALMTracer:
 	def reset_result(self):
 		"""Vide entièrement les DataFrame de résultat dans `_cp`."""
 		for key, value in self._df.items():
-			if isinstance(value, pd.DataFrame): self._df[key] = pd.DataFrame()
-			elif isinstance(value, dict):
-				for subk in list(value.keys()):  # Parcourt les sous-entrées supposées être des DataFrame
-					if isinstance(value[subk], pd.DataFrame): value[subk] = pd.DataFrame()
+			self._df[key] = pd.DataFrame()
 		self.visualization = None
 
 	# ==================================================
@@ -168,7 +165,7 @@ class PALMTracer:
 						self._df["loc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
 						self.__filter_localizations()
-						self._logger.add(f"\t\t{len(self._df["loc"])} localisation(s) trouvée(s).")
+						self._logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
 					except Exception as e:
 						self._df["loc"] = pd.DataFrame()
 						self._logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
@@ -188,7 +185,7 @@ class PALMTracer:
 					try:
 						self._df["trc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
-						self._logger.add(f"\t\t{len(self._df["trc"])} tracking(s) trouvée(s).")
+						self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
 					except Exception as e:
 						self._df["trc"] = pd.DataFrame()
 						self._logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
@@ -248,7 +245,7 @@ class PALMTracer:
 		self._df["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
 		self._logger.add("\tEnregistrement du fichier de localisation")
-		self._logger.add(f"\t\t{len(self._df["loc"])} localisation(s) trouvée(s).")
+		self._logger.add(f"\t\t{len(self._df['loc'])} localisation(s) trouvée(s).")
 		self._df["loc"].to_csv(f"{self._path}/localizations-{self._suffix}.csv", index=False)
 		self.__filter_localizations()
 
@@ -265,7 +262,7 @@ class PALMTracer:
 		self._df["trc"] = self.palm.tracking(df, s["Max Distance"])
 
 		self._logger.add("\tEnregistrement du fichier de trajectoires.")
-		self._logger.add(f"\t\t{len(self._df["trc"])} point(s) trouvé(s).")
+		self._logger.add(f"\t\t{len(self._df['trc'])} point(s) trouvé(s).")
 		self._df["trc"].to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
 		self.__filter_tracks("trc")
 
@@ -277,7 +274,7 @@ class PALMTracer:
 			self._df["blk"] = self.palm.blinking_reconnection(self._df["trc"], pixel_size, s["Mode"], s["Max Duration"], s["Max Speed"])
 
 			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
-			self._logger.add(f"\t\t{len(self._df["blk"])} point(s) trouvé(s).")
+			self._logger.add(f"\t\t{len(self._df['blk'])} point(s) trouvé(s).")
 			self._df["blk"].to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
 			self.__filter_tracks("blk", "_reconnected")
 
@@ -364,7 +361,9 @@ class PALMTracer:
 	##################################################
 	def __visualization_graph(self):
 		""" Lance la creation d'une visualisation graphique à partir des settings passés en paramètres. """
-		if self.localizations.empty: return
+		if self.localizations.empty:
+			self._logger.add(f"\tAucune donnée de localisation pour la visualisation de graphiques.")
+			return
 
 		# Parse settings
 		s = self.settings.visualization_graph.get_settings()
@@ -393,7 +392,9 @@ class PALMTracer:
 	def __gallery(self):
 		""" Lance la génération d'une galerie à partir des settings passés en paramètres. """
 		s = self.settings.gallery.get_settings()
-		if self.localizations.empty: return
+		if self.localizations.empty:
+			self._logger.add(f"\tAucune donnée de localisation pour la génération d'une galerie.")
+			return
 		gallery = make_gallery(self._stack, self.localizations, s["ROI Size"], s["ROIs Per Line"])
 		self._logger.add(f"\tEnregistrement de la galerie ({s}).")
 		save_tif(gallery, f"{self._path}/gallery_{s['ROI Size']}_{s['ROIs Per Line']}-{self._suffix}.tif")
@@ -501,8 +502,11 @@ class PALMTracer:
 		"""
 		Filtre un DataFrame de calcul sur les trajectoires.
 
-		:param datas: DataFrame à filtrer
-		:return: DataFrame filtré.
+		:param tracks: DataFrame de trajectoires
+		:param msd: DataFrame de calcul des MSD
+		:param instant_d: DataFrame de calcul de la diffusion instantannée
+		:param fit: DataFrame de calcul de l'ajustement
+		:return: DataFrames filtrés.
 		"""
 		o_msd = msd.copy()
 		o_ind = instant_d.copy()
