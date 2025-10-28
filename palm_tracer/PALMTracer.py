@@ -324,7 +324,7 @@ class PALMTracer:
 	# region Visualization
 	# ==================================================
 	##################################################
-	def __add_color_to_tracks(self, datas: pd.DataFrame) -> pd.DataFrame:
+	def add_color_to_tracks(self, datas: pd.DataFrame) -> pd.DataFrame:
 		""""""
 		res = datas.copy()
 		res["Color"] = 65535
@@ -353,7 +353,7 @@ class PALMTracer:
 			else:
 				sources = HR_LOC_SOURCE[1:] if s["Source T"] == 0 else [HR_TRC_SOURCE[s["Source T"]]]
 				for source in sources:
-					tracks = self.__add_color_to_tracks(self.tracks)
+					tracks = self.add_color_to_tracks(self.tracks)
 					self.visualization = render_tracks_image(width, height, s["Ratio"], tracks)
 					self._logger.add(f"\tEnregistrement de la visualisation des trajectoires haute résolution (x{s['Ratio']}, {source}).")
 					save_png(self.visualization, f"{self._path}/visualization_tracks_x{s['Ratio']}_{source}-{self._suffix}.png")
@@ -435,7 +435,8 @@ class PALMTracer:
 	def __filter_tracks_compute(self):
 		""" Filtre les fichiers de metrique. """
 		n_init = len(self._df["f_trc_MSD"])
-		self._df["f_trc_MSD"], self._df["f_trc_InstantD"], self._df["f_trc_Fit"] \
+		o_name = "f_trc" if self._df["blk"].empty else "f_blk"
+		self._df[o_name], self._df["f_trc_MSD"], self._df["f_trc_InstantD"], self._df["f_trc_Fit"] \
 			= self.filter_tracks_compute(self.tracks, self._df["trc_MSD"], self._df["trc_InstantD"], self._df["trc_Fit"])
 
 		n_end = len(self._df["f_trc_MSD"])
@@ -492,13 +493,12 @@ class PALMTracer:
 			limits = f["Length"].get_value()
 			counts = res.groupby("Track").size()  # Comptage par trajectoire
 			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
-			print(keep_ids)
 			res = res[res["Track"].isin(keep_ids)]  # Filtrage (on garde l'ordre original)
 		return res
 
 	##################################################
 	def filter_tracks_compute(self, tracks: pd.DataFrame, msd: pd.DataFrame, instant_d: pd.DataFrame,
-							  fit: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+							  fit: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 		"""
 		Filtre un DataFrame de calcul sur les trajectoires.
 
@@ -508,20 +508,21 @@ class PALMTracer:
 		:param fit: DataFrame de calcul de l'ajustement
 		:return: DataFrames filtrés.
 		"""
+		o_trc = tracks.copy()
 		o_msd = msd.copy()
 		o_ind = instant_d.copy()
 		o_fit = fit.copy()
-		if tracks.empty: return o_msd, o_ind, o_fit
+		if o_trc.empty: return o_trc, o_msd, o_ind, o_fit
 
 		f = cast(FilteringT, self.settings.filtering["Tracks"])
 
 		# ===== Base : tous les IDs présents dans la référence =====
-		keep_ids: set = set(tracks["Track"].unique().tolist())
+		keep_ids: set = set(o_trc["Track"].unique().tolist())
 		# print(f"Base ID ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre Longueur =====
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits_l = f["Length"].get_value()
-			counts = tracks.groupby("Track").size()
+			counts = o_trc.groupby("Track").size()
 			ok_len_ids = set(counts.index[(limits_l[0] <= counts) & (counts <= limits_l[1])].tolist())
 			keep_ids &= ok_len_ids  # intersection sur des sets d'IDs
 
@@ -573,10 +574,11 @@ class PALMTracer:
 
 		# print(f"ID After Fit ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre final des trajectoires restantes =====
+		if not o_trc.empty: o_trc = o_trc[o_trc["Track"].isin(keep_ids)]
 		if not o_msd.empty: o_msd = o_msd[o_msd["Track"].isin(keep_ids)]
 		if not o_ind.empty: o_ind = o_ind[o_ind["Track"].isin(keep_ids)]
 		if not o_fit.empty: o_fit = o_fit[o_fit["Track"].isin(keep_ids)]
-		return o_msd, o_ind, o_fit
+		return o_trc, o_msd, o_ind, o_fit
 
 # ==================================================
 # endregion Filtering

@@ -343,7 +343,9 @@ class PALMTracerWidget(QWidget):
 		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
 		"""
 		if self.pt.visualization is None: return
-		if self.pt.localizations.empty: return
+		s = self.pt.settings.visualization_hr.get_settings()
+		if s["Type"] == 0 and self.pt.localizations.empty: return
+		if s["Type"] == 1 and self.pt.tracks.empty: return
 
 		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
 		if not hasattr(self, "high_res_window") or self.viewer_hr is None:
@@ -355,8 +357,16 @@ class PALMTracerWidget(QWidget):
 
 		self.viewer_hr.layers.clear()
 		self.viewer_hr.add_image(self.pt.visualization, name="Visualization", visible=False)
-		points = self.pt.localizations[["Y", "X"]].to_numpy() * self.pt.settings.visualization_hr.get_settings()["Ratio"]
-		layer = self.viewer_hr.add_points(points, size=1, face_color="lime", name="Points")
+		if s["Type"] == 0:
+			points = self.pt.localizations[["Y", "X"]].to_numpy() * s["Ratio"]
+			layer = self.viewer_hr.add_points(points, size=1, face_color="lime", name="Points")
+		else:
+			# df = self.pt.tracks.sort_values(["Track", "Plane"]).reset_index(drop=True) # Tri Inutile
+			tracks_data = self.pt.tracks[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
+			tracks_data[:, 2] *= s["Ratio"]  # Y
+			tracks_data[:, 3] *= s["Ratio"]  # X
+			layer = self.viewer_hr.add_tracks(tracks_data, name="Tracks", blending="translucent", )
+
 		layer.editable = False
 
 	##################################################
