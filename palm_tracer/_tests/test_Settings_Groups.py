@@ -53,14 +53,14 @@ def test_base_group(make_napari_viewer):
 	assert group.get_value() is None, "Get Value ne doit rien retourné pour la classe mère."
 	group.remove_header()
 	group.remove_header()  # Seconde fois pour vérifier les erreur de pointeurs QT
+	group.active = False   # On change le statut malgré la suppression du Header
 
 
 ###################################################
 def test_batch(make_napari_viewer):
 	"""Test basique de la classe Batch (constructeur, getter, setter)"""
 	batch = Batch()
-	group_base_test(batch, ["Files", "Mode"],
-					FileList, -1, -1)
+	group_base_test(batch, ["Files", "Mode"], FileList, -1, -1)
 
 
 ###################################################
@@ -161,7 +161,10 @@ def test_gallery(make_napari_viewer):
 ###################################################
 def test_visualization_hr(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(VisualizationHR(), ["Ratio", "Source"], SpinInt, 1, 2)
+	group_base_test(VisualizationHR(), ["Ratio", "Type", "Source L", "Source T"], SpinInt, 1, 2)
+	g = VisualizationHR()
+	g["Type"].set_value(1) # Afficher/masquer les sources
+	g["Type"].set_value(0) # Afficher/masquer les sources
 
 
 ###################################################

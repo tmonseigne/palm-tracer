@@ -20,6 +20,30 @@ POINTS = np.stack([rng.uniform(1, SIZE_X - 1, size=SIZE), rng.uniform(1, SIZE_Y 
 
 
 ##################################################
+def get_tracks_test() -> pd.DataFrame:
+	t0 = pd.DataFrame({"Track": [0], "Plane": [0], "X": [SIZE_X * 0.25], "Y": [SIZE_Y * 0.25], "Color": [65000]})
+
+	n = 50
+	cx, cy = SIZE_X / 2.0, SIZE_Y / 2.0
+	t = np.linspace(0.0, 7.0 * np.pi, n)  # 3.5 tours environ
+	k = 1.0  # r_max ≈ 22 < 25 → on reste dans l'image en Y
+	r = k * t
+	x_sp = cx + r * np.cos(t)
+	y_sp = cy + r * np.sin(t)
+
+	t1 = pd.DataFrame({"Track": [1] * n, "Plane": np.arange(n, dtype=int), "X": x_sp, "Y": y_sp, "Color": [40000] * n})
+
+	# 3) Trajectoire simple (2 points) horizontale qui traverse la spirale (couleur = 1/6 max)
+	#    Segment passant par y = cy (le centre), donc intersection assurée avec la spirale centrée.
+	t2 = pd.DataFrame({"Track": [2, 2], "Plane": [0, 1], "X": [-1.0, 101], "Y": [cy, cy], "Color": [20000, 20000]})
+	t3 = pd.DataFrame({"Track": [3, 3], "Plane": [0, 1], "X": [cx, cx], "Y": [5.0, 45.0], "Color": [70000, 70000]})
+	return pd.concat([t0, t1, t2, t3], ignore_index=True)
+
+
+TRACKS = get_tracks_test()
+
+
+##################################################
 def test_normalize_data():
 	"""Test de la normalisation de données."""
 	data = np.array([])  # Cas 0 liste vide
@@ -70,6 +94,35 @@ def test_render_hr_image_bad_input():
 	assert np.all(visualization == 0)
 
 	visualization = render_hr_image(SIZE_X, SIZE_Y, RATIO, np.zeros((2, 2)))
+	assert visualization.shape == (SIZE_Y * RATIO, SIZE_X * RATIO)
+	assert np.all(visualization == 0)
+
+
+##################################################
+def test_render_tracks_image():
+	"""Test de la visualisation de l'image en HR."""
+	visualization = render_tracks_image(SIZE_X, SIZE_Y, RATIO, TRACKS)
+	save_png(visualization, f"{OUTPUT_DIR}/test_render_tracks_image.png")
+	assert visualization.shape == (SIZE_Y * RATIO, SIZE_X * RATIO)
+
+
+##################################################
+def test_render_tracks_image_bad_input():
+	""" Test de la visualisation de l'image en HR avec une mauvaise entrée. """
+	visualization = render_tracks_image(SIZE_X, SIZE_Y, 0, TRACKS)
+	assert visualization.shape == (SIZE_Y, SIZE_X)
+	assert np.all(visualization == 0)
+
+	visualization = render_tracks_image(0, SIZE_Y, RATIO, TRACKS)
+	assert visualization.shape == (SIZE_Y * RATIO, 1)
+	assert np.all(visualization == 0)
+
+	visualization = render_tracks_image(SIZE_X, SIZE_Y, RATIO, pd.DataFrame())
+	assert visualization.shape == (SIZE_Y * RATIO, SIZE_X * RATIO)
+	assert np.all(visualization == 0)
+
+	visualization = render_tracks_image(SIZE_X, SIZE_Y, RATIO,
+										pd.DataFrame({"Track": [0], "Plane": [0], "X": [np.nan], "Y": [5.0], "Color": [1]}))
 	assert visualization.shape == (SIZE_Y * RATIO, SIZE_X * RATIO)
 	assert np.all(visualization == 0)
 
