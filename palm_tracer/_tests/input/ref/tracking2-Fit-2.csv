@@ -1,2 +1,2 @@
-Track,D(0) (μm²/s),MSD(0) (μm²),MSE(0),Alpha,B (μm²),MSE,Average Speed (Last-First)(μm/s)
-1,2.5,-10.0,0.968992,2.0,2.0,1.0,1.414214
+Track,Length,Total Intensity,D(0) (μm²/s),MSD(0) (μm²),MSE(0),Alpha,B (μm²),MSE,Average Speed (Last-First)(μm/s)
+1,6,21.0,2.5,-10.0,0.968992,2.0,2.0,1.0,1.414214

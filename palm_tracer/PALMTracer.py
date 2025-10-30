@@ -351,7 +351,7 @@ class PALMTracer:
 			if self.tracks.empty:
 				self._logger.add(f"\tAucune donnée de trajectoires pour la visualisation.")
 			else:
-				sources = HR_LOC_SOURCE[1:] if s["Source T"] == 0 else [HR_TRC_SOURCE[s["Source T"]]]
+				sources = HR_TRC_SOURCE[1:] if s["Source T"] == 0 else [HR_TRC_SOURCE[s["Source T"]]]
 				for source in sources:
 					tracks = self.add_color_to_tracks(self.tracks)
 					self.visualization = render_tracks_image(width, height, s["Ratio"], tracks)
@@ -422,14 +422,14 @@ class PALMTracer:
 	def __filter_tracks(self, name: str, suffix: str = ""):
 		""" Filtre le fichier de tracking. """
 		n_init = len(self._df[name])
-		output_name = f"f_{name}"
-		self._df[output_name] = self.filter_tracks(self._df[name])
-		n_end = len(self._df[output_name])
+		o_name = f"f_{name}"
+		self._df[o_name] = self.filter_tracks(self._df[name])
+		n_end = len(self._df[o_name])
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltrage du fichier de trajectoires {n_end} points au lieu de {n_init} : {n_init - n_end} suppression(s)")
 		if self.settings.filtering["Save"].get_value():
 			self._logger.add("\tEnregistrement du fichier de trajectoires filtré")
-			self._df[output_name].to_csv(f"{self._path}/tracking_filtered{suffix}-{self._suffix}.csv", index=False)
+			self._df[o_name].to_csv(f"{self._path}/tracking_filtered{suffix}-{self._suffix}.csv", index=False)
 
 	##################################################
 	def __filter_tracks_compute(self):
