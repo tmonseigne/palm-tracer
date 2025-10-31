@@ -22,7 +22,9 @@ from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOU
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json, save_tif
-from palm_tracer.Tools.FileIO import save_png
+from palm_tracer.Tools.FileIO import grayscale_to_color, save_png
+
+MAX_UI_16 = np.iinfo(np.uint16).max
 
 
 ##################################################
@@ -324,10 +326,67 @@ class PALMTracer:
 	# region Visualization
 	# ==================================================
 	##################################################
-	def add_color_to_tracks(self, datas: pd.DataFrame) -> pd.DataFrame:
-		""""""
+	def add_color_to_tracks(self, datas: pd.DataFrame, source: str) -> pd.DataFrame:
+		"""
+		Ajoute une couleur pour chaque point des trajectoires en fonction d'un critère agrégé au niveau "Track".
+
+		Règles :
+		- source == "Track Number" : couleur = (Track-1) % MAX_UI_16 + 1
+		- source ∈ {"Length", "Instant D", "MSD", "Total Intensity"} :
+		    * on utilise la table self.tracks_compute["Fit"] (1 ligne par Track) pour récupérer la métrique.
+		    * si Fit est vide, on déclenche le calcul puis on réessaie ; si toujours vide, fallback = "Track Number".
+		    * si une seule piste valide ou si min==max, toutes les pistes prennent la couleur médiane MAX_UI_16//2.
+		    * sinon, étalonnage linéaire min→1, max→MAX_UI_16.
+		    * toute piste absente de Fit ou NaN sur la métrique retombe sur la couleur "Track Number".
+
+		:param datas: DataFrame des points de trajectoires, doit contenir au minimum la colonne 'Track'.
+		:param source: Critère de coloration ("Track Number", "Length", "Instant D", "MSD", "Total Intensity").
+		:return: Copie de `datas` avec une colonne 'Color' de type UInt16.
+		"""
 		res = datas.copy()
-		res["Color"] = 65535
+		# HR_TRC_SOURCE = ["All", "Track Number", "Length", "Instant D", "MSD", "Total Intensity"]
+		# Chemin rapide : simple palette périodique par numéro de piste
+		if source == "Track Number":
+			res = res.assign(Color=((res["Track"] - 1) % MAX_UI_16 + 1).astype("UInt16"))
+			return res
+
+		# Récupération / calcul du Fit (1 ligne par Track) s'il manque
+		fit = self.tracks_compute["Fit"]
+		if fit.empty:  # Vide (non calculé)
+			self._logger.add("\t\tCalcul sur les trajectoires à effectuer pour définir une couleur lors de la visualisation.")
+			self.settings.tracks_compute["Fit"].set_value(True)  # On coche l'option pour les calculs de fit.
+			self.__tracks_compute()  # On lance le calcul
+			fit = self.tracks_compute["Fit"]  # On reaffecte le resultat
+		if fit.empty:  # Toujours vide (erreur de calcul ou autre, on prend le numéro des trajectoires par défaut)
+			res = res.assign(Color=((res["Track"] - 1) % MAX_UI_16 + 1).astype("UInt16"))
+			return res
+
+		res["Color"] = MAX_UI_16 // 2
+
+		# Normalisation : mapping des noms de métriques
+		metric_by_source = {
+				"Length":          "Length",
+				"Total Intensity": "Total Intensity",
+				"Instant D":       "D(0) (μm²/s)",
+				"MSD":             "MSD(0) (μm²)",
+				}
+		metric = metric_by_source[source]
+		vmin, vmax = fit[metric].min(), fit[metric].max()
+		# vmin, vmax = fit[metric].quantile([0.05, 0.95]) A envisager au lieu du min et max en cas d'outlier.
+		if len(fit) == 1 or vmin >= vmax:
+			res["Color"] = MAX_UI_16 // 2
+		else:
+			# Étalonnage linéaire : min→1, max→MAX_UI_16 (inclusif), arrondi au plus proche
+			scale = (MAX_UI_16 - 1) / (vmax - vmin)
+			vals = fit[metric].to_numpy(dtype=float)
+			colors = np.rint(1.0 + (vals - vmin) * scale).astype(np.int64)
+			np.clip(colors, 1, MAX_UI_16, out=colors)
+			color_map = dict(zip(fit["Track"].to_numpy(), colors.astype(np.uint16)))
+			# Application par map (vectorisé) : on remplit avec le fallback quand absent
+			mapped = res["Track"].map(color_map)
+			# 'mapped' est de type float si NaN possibles → on remplace NaN par fallback, puis cast en UInt16
+			res["Color"] = mapped.fillna(MAX_UI_16 // 2).astype("UInt16")
+
 		return res
 
 	##################################################
@@ -353,8 +412,10 @@ class PALMTracer:
 			else:
 				sources = HR_TRC_SOURCE[1:] if s["Source T"] == 0 else [HR_TRC_SOURCE[s["Source T"]]]
 				for source in sources:
-					tracks = self.add_color_to_tracks(self.tracks)
+					tracks = self.add_color_to_tracks(self.tracks, source)
+					tracks.to_csv(f"{self._path}/tracking_hr_color-{self._suffix}.csv", index=False)
 					self.visualization = render_tracks_image(width, height, s["Ratio"], tracks)
+					self.visualization = grayscale_to_color(self.visualization, "viridis")
 					self._logger.add(f"\tEnregistrement de la visualisation des trajectoires haute résolution (x{s['Ratio']}, {source}).")
 					save_png(self.visualization, f"{self._path}/visualization_tracks_x{s['Ratio']}_{source}-{self._suffix}.png")
 
