@@ -8,6 +8,7 @@ import json
 import os
 from typing import Any
 
+import matplotlib.cm as cm
 import numpy as np
 import scipy.io as io
 import tifffile as tiff
@@ -110,6 +111,36 @@ def save_png(image: np.ndarray, filename: str, normalization: bool = True):
 	image = image.clip(0, 255).astype(np.uint8)  # Conversion en entiers 8 bits
 	im = Image.fromarray(image)					 # Passage par Pillow
 	im.save(filename)							 # Enregistrement
+
+
+##################################################
+def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarray:
+	"""
+	Convertie une image 2D Niveau de gris en tableau 3D (pour la couleur RGB) selon la color map. Le format est compatible avec Pillow et Napari.
+	Une color Map Napari serait bien en cas de superposition entre un affichage napari et en fond l'image généré
+	:param data: Image 2D (H, W) uint16.
+	:param color_map: nom de colormap Matplotlib.
+					  privilégier des cartes **perceptuellement uniformes** ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo').
+					   (liste des colormaps : https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+	:return: Image RGB de forme (H, W, 3) en dtype uint8, compatible Pillow et Napari.
+	"""
+	# Récupération de la table de correspondance (LUT)
+	lut = np.zeros((MAX_UI_16 + 1, 3), dtype=np.uint8)
+	# Échantillons continus pour indices 1..65535 inclus
+	# t_k = (k-1)/65534 pour k ∈ [1..65535] ; nombre d’échantillons = 65535
+	t = np.linspace(0.0, 1.0, MAX_UI_16, dtype=np.float32)
+
+	# Récupère la colormap sous forme d’un callable vectorisé (N,4) RGBA ∈ [0,1]
+	cmap = cm.get_cmap(color_map)
+	rgba = cmap(t, bytes=False)  # float32 en [0,1], shape (65535,4)
+	rgb = rgba[:, :3]
+
+	# Mise à l’échelle -> uint8
+	rgb_u8 = np.rint(rgb * MAX_UI_8).astype(np.uint8)  # (65535, 3)
+
+	# Place les couleurs aux indices 1..65535, laisse 0 à (0,0,0)
+	lut[1:] = rgb_u8
+	return lut[data.astype(np.uint16)]
 
 
 # ==================================================
