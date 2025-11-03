@@ -188,8 +188,11 @@ class PALMTracerWidget(QWidget):
 		"""Chargement d'un fichier de setting."""
 		if filename.exists():
 			try:
-				self.pt.settings.update_from_dict(open_json(str(filename)))
 				print(f"Chargement du fichier de configuration '{filename}'.")
+				# Bloque les signaux, agrège les multiples .emit() potentiels :
+				with self.pt.settings.signal_blocked():
+					cfg = open_json(str(filename))
+					self.pt.settings.update_from_dict(cfg)
 			except Exception as e:
 				print_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
 

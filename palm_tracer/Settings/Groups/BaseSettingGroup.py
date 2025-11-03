@@ -3,7 +3,7 @@ Fichier contenant la classe :class:`BaseSettingGroup` et ses sous-classes pour l
 
 Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 """
-
+from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
 from typing import Any, cast, Union
 
@@ -125,6 +125,18 @@ class BaseSettingGroup:
 		"""
 		for _, setting in self._settings.items(): setting.connect(f)
 
+	##################################################
+	def signal_blocked(self) -> AbstractContextManager[Any]:
+		"""
+		Blocage des signaux pour tout le groupe (récursif).
+		Retourne un context manager utilisable avec `with ...:`.
+		"""
+		if not self._settings: return nullcontext()
+
+		stack = ExitStack()
+		for setting in self._settings.values(): stack.enter_context(setting.signal_blocked())  # Chaque enfant doit lui-même retourner un context manager
+		return stack
+
 	# ==================================================
 	# endregion Initialization
 	# ==================================================
@@ -233,6 +245,7 @@ class BaseSettingGroup:
 		if self._header and self._checkbox:
 			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
 			self._checkbox.deleteLater()						# Détruire la checkbox
+
 		# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
 		# self._title.setText(f"       {self.label}")
 
@@ -251,8 +264,8 @@ class BaseSettingGroup:
 			if isinstance(layout, QWidget):		# Vérifier que c'est bien un QFormLayout
 				layout.removeRow(self._header)  # Supprimer la ligne du layout
 
-		# Suppression de la marge
-			body_layout = self._body.layout()				# Récupérer le layout du widget _body
+			# Suppression de la marge
+			body_layout = self._body.layout()			# Récupérer le layout du widget _body
 		if isinstance(body_layout, QFormLayout):		# pragma: no cover (toujours vrai)
 			body_layout.setContentsMargins(0, 0, 0, 0)  # Aucune marge
 

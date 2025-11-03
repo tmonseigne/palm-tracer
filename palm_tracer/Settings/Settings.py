@@ -10,7 +10,7 @@ Ce fichier définit la classe :class:`.Settings`, utilisée pour gérer et enreg
 
 La classe :class:`.Settings` est conçue pour interagir directement avec l'interface utilisateur en facilitant le paramétrage de PALM Tracer.
 """
-
+from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
 from typing import Any, cast
 
@@ -63,6 +63,17 @@ class Settings:
 		:param f: Fonction ou slot à connecter.
 		"""
 		for _, setting in self._settings.items(): setting.connect(f)
+
+	##################################################
+	def signal_blocked(self)-> AbstractContextManager[Any]:
+		"""
+		Blocage des signaux pour l’intégralité des paramètres.
+		Retourne un context manager utilisable avec `with ...:`.
+		"""
+		if not self._settings: return nullcontext()
+		stack = ExitStack()
+		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
+		return stack
 
 	# ==================================================
 	# endregion Initialization
@@ -156,6 +167,6 @@ class Settings:
 	##################################################
 	def __str__(self) -> str: return self.tostring()
 
-# ==================================================
-# endregion IO
-# ==================================================
+	# ==================================================
+	# endregion IO
+	# ==================================================

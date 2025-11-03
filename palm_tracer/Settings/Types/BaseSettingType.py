@@ -168,6 +168,10 @@ class BaseSettingType:
 		"""
 		self._signal.emit(value)  # Émission du signal.
 
-# ==================================================
-# endregion Manipulation
-# ==================================================
+	def signal_blocked(self) -> SignalWrapper.BlockCtx:
+		"""Contexte de blocage des signaux de ce paramètre."""
+		return self._signal.blocked()
+
+	# ==================================================
+	# endregion Manipulation
+	# ==================================================
