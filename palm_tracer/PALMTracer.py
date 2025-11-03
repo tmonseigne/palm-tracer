@@ -354,14 +354,13 @@ class PALMTracer:
 		fit = self.tracks_compute["Fit"]
 		if fit.empty:  # Vide (non calculé)
 			self._logger.add("\t\tCalcul sur les trajectoires à effectuer pour définir une couleur lors de la visualisation.")
-			self.settings.tracks_compute["Fit"].set_value(True)  # On coche l'option pour les calculs de fit.
+			if self.settings.tracks_compute["Fit"].get_value() == 0:  # On active le fit lineaire si aucun n'est sélectionné.
+				self.settings.tracks_compute["Fit"].set_value(1)
 			self.__tracks_compute()  # On lance le calcul
 			fit = self.tracks_compute["Fit"]  # On reaffecte le resultat
 		if fit.empty:  # Toujours vide (erreur de calcul ou autre, on prend le numéro des trajectoires par défaut)
 			res = res.assign(Color=((res["Track"] - 1) % MAX_UI_16 + 1).astype("UInt16"))
 			return res
-
-		res["Color"] = MAX_UI_16 // 2
 
 		# Normalisation : mapping des noms de métriques
 		metric_by_source = {
@@ -373,8 +372,7 @@ class PALMTracer:
 		metric = metric_by_source[source]
 		vmin, vmax = fit[metric].min(), fit[metric].max()
 		# vmin, vmax = fit[metric].quantile([0.05, 0.95]) A envisager au lieu du min et max en cas d'outlier.
-		if len(fit) == 1 or vmin >= vmax:
-			res["Color"] = MAX_UI_16 // 2
+		if len(fit) == 1 or vmin >= vmax: res["Color"] = MAX_UI_16 // 2 # Cas Uniforme
 		else:
 			# Étalonnage linéaire : min→1, max→MAX_UI_16 (inclusif), arrondi au plus proche
 			scale = (MAX_UI_16 - 1) / (vmax - vmin)

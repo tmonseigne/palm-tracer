@@ -10,7 +10,7 @@ import pytest
 
 from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import is_not_dll_friendly
-from palm_tracer.Settings.Groups import FilteringT, TracksCompute
+from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -25,10 +25,11 @@ def test_getter_localization(make_napari_viewer):
 	pt = PALMTracer()
 	df = pt.localizations
 	assert df.empty, "Le Dataframe devrait être vide."
-	ref1 = pd.DataFrame([1,2])
+	ref1 = pd.DataFrame([1, 2])
 	pt._df["f_loc"] = ref1
 	df = pt.localizations
 	assert df.equals(ref1), "Le Dataframe devrait non vide."
+
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
@@ -89,7 +90,7 @@ def test_process_nothing(make_napari_viewer):
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
 	pt.settings.visualization_graph.active = True
-	pt.process()	# Test d'une visualisation sans données.
+	pt.process()  # Test d'une visualisation sans données.
 	pt.settings.visualization_hr["Type"].set_value(1)
 	pt.process()
 	# Test d'un calcul sur trajectoires sans données.
@@ -102,7 +103,6 @@ def test_process_nothing(make_napari_viewer):
 	pt.settings.tracks_compute.active = False
 	pt.settings.tracking.active = True
 	pt.process()
-
 
 
 ##################################################
@@ -407,6 +407,7 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	pt.settings.filtering["Tracks"]["Length"].set_value([42, 10000])
 	pt.process()
 
+
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_filter_outside(make_napari_viewer):
@@ -416,5 +417,38 @@ def test_process_filter_outside(make_napari_viewer):
 	pt.filter_localizations(pt.localizations)
 	pt.filter_tracks(pt.tracks)
 	pt.filter_tracks_compute(pt.tracks, pt._df["trc_MSD"], pt._df["trc_InstantD"], pt._df["trc_Fit"])
-	pt.filter_tracks_compute(pd.DataFrame(data=[1],columns=["Track"]), pd.DataFrame(data=[2],columns=["Track"]),
-							 pd.DataFrame(data=[3],columns=["Track"]),pd.DataFrame(data=[4],columns=["Track"]))
+	pt.filter_tracks_compute(pd.DataFrame(data=[1], columns=["Track"]), pd.DataFrame(data=[2], columns=["Track"]),
+							 pd.DataFrame(data=[3], columns=["Track"]), pd.DataFrame(data=[4], columns=["Track"]))
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_add_color(make_napari_viewer):
+	pt = PALMTracer()
+	file = "tracking2"
+	path = Path(f"{INPUT_DIR}/{file}.csv")
+	df = pd.read_csv(path)
+
+	ref = [1, 1, 1, 1, 1, 1]
+	res = pt.add_color_to_tracks(df, "Track Number") # Premier exemple basique
+	assert (res["Color"].tolist() == ref)
+	res = pt.add_color_to_tracks(df, "Length") # Exemple basique avec erreur de calcul
+	assert (res["Color"].tolist() == ref)
+
+	pt._df["trc"] = df
+	ref = [32767, 32767, 32767, 32767, 32767, 32767]
+	res = pt.add_color_to_tracks(df, "Length") # fit Compute but equality
+	assert (res["Color"].tolist() == ref)
+
+	# Changement des valeurs pour permettre le calcul
+	pt.reset_result()
+	df.loc[df.index[-3:], "Track"] = 2
+	pt._df["trc"] = df
+	pt.settings.tracks_compute["Fit Length"].set_value(2)
+
+	ref = [1, 1, 1, 65535, 65535, 65535]
+	res = pt.add_color_to_tracks(df, "Total Intensity") # fit Compute
+	assert (res["Color"].tolist() == ref)
+
+	res = pt.add_color_to_tracks(df, "Total Intensity") # fit Compute already compute
+	assert (res["Color"].tolist() == ref)
