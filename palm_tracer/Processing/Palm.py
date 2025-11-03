@@ -9,9 +9,11 @@ from typing import Any, Optional
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing.Parsing import (get_max_points, log10_dataframe, N_COL_LOC, N_COL_TRC, parse_irregular_array,
-											parse_localization_to_tracking, parse_result)
+from palm_tracer.Processing.Parsing import (get_max_points, log10_dataframe, N_COL_TRC, parse_irregular_array,
+											parse_localization_to_tracking, parse_result, PARSING_COLUMNS)
 from palm_tracer.Tools.Utils import load_dll
+
+N_TRC_CP_FIT = 10
 
 
 ##################################################
@@ -157,12 +159,12 @@ class Palm:
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		n = len(tracks)
-		track_size = n * N_COL_TRC  # A voir qu'elle est la taille max réelle (à voir pour la partie fit).
+		o_size = n * N_TRC_CP_FIT  # Fit max N valeurs par track donc dans le pire des cas des tracks de 1 points.
 
 		return {"input":         np.asarray(tracks, dtype=np.float64).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-				"output_msd":    np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-				"output_ind":    np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-				"output_fit":    np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"o_msd":         np.zeros((o_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"o_ind":         np.zeros((o_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"o_fit":         np.zeros((o_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"nRow":          ctypes.c_ulong(n),
 				"is_msd":        ctypes.c_bool(is_msd),
 				"is_ind":        ctypes.c_bool(is_ind),
@@ -233,8 +235,9 @@ class Palm:
 		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
 		:return: DataFrame contenant les trajectoires détectées.
 		"""
-		if localizations.empty or localizations.shape[1] != N_COL_LOC: return pd.DataFrame()
-		args = self.__get_tracks_args(localizations, max_distance, min_life, decrease, cost_birth)
+		required = PARSING_COLUMNS["Localization"]["columns"]
+		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
+		args = self.__get_tracks_args(localizations[required], max_distance, min_life, decrease, cost_birth)
 		count = self._dll.Tracking(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["tracks"], shape=(count,)), "Tracking")
 
@@ -250,8 +253,9 @@ class Palm:
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
 		:return: DataFrame contenant les trajectoires détectées.
 		"""
-		if tracks.empty or tracks.shape[1] != N_COL_TRC: return pd.DataFrame()
-		args = self.__get_blink_args(tracks, pixel_size, mode, max_duration, max_speed)
+		required = PARSING_COLUMNS["Tracking"]["columns"]
+		if tracks.empty or not set(required).issubset(tracks.columns): return pd.DataFrame()
+		args = self.__get_blink_args(tracks[required], pixel_size, mode, max_duration, max_speed)
 		count = self._dll.BlinkingReconnection(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["output"], shape=(count,)), "Tracking")
 
@@ -274,20 +278,19 @@ class Palm:
 		:return: DataFrame contenant les trajectoires détectées.
 		"""
 		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InstantD": pd.DataFrame(), "Fit": pd.DataFrame()}
-		if tracks.empty or tracks.shape[1] != N_COL_TRC: return res
-
-		new_tracks = tracks.copy()
+		required = PARSING_COLUMNS["Tracking"]["columns"]
+		if tracks.empty or not set(required).issubset(tracks.columns): return res
+		new_tracks = tracks[required].copy()
 		if not is_3d: new_tracks["Z"] = 0  # On simplifie la suite les calculs se font toujours en 3D mais la dernière dimension sera toujours nulle
-
 		args = self.__get_tc_args(new_tracks, is_msd, is_ind, is_3d, pixel_size, exposure_time, fit_mode, fit_params)
 		self._dll.TracksCompute.restype = ctypes.c_bool  # Force le type de retour
 		self._dll.TracksCompute(*args.values())  # Le retour est toujours vrai pour le moment les calculs manquant sont facilement trouvable.
 
 		# Remplissage des tableaux de sortie
-		n = len(tracks) * N_COL_TRC
+		n = len(tracks) * N_TRC_CP_FIT
 
 		if is_msd:
-			res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["output_msd"], shape=(n,)))
+			res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_msd"], shape=(n,)))
 			ncols = res["MSD"].shape[1]
 			if ncols != 0:
 				cols = [f"Lag {i}" for i in range(1, ncols)]
@@ -298,7 +301,7 @@ class Palm:
 				if is_log: res["MSD"] = log10_dataframe(res["MSD"], cols)
 
 		if is_ind:
-			res["InstantD"] = parse_irregular_array(np.ctypeslib.as_array(args["output_ind"], shape=(n,)))
+			res["InstantD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_ind"], shape=(n,)))
 			ncols = res["InstantD"].shape[1]
 			if ncols != 0:
 				cols = [f"Window {i}" for i in range(1, ncols)]
@@ -309,17 +312,18 @@ class Palm:
 				if is_log: res["InstantD"] = log10_dataframe(res["InstantD"], cols)
 
 		if fit_mode != 0:
-			res["Fit"] = parse_irregular_array(np.ctypeslib.as_array(args["output_fit"], shape=(n,)))
+			res["Fit"] = parse_irregular_array(np.ctypeslib.as_array(args["o_fit"], shape=(n,)))
 			ncols = res["Fit"].shape[1]
 			if ncols != 0:
 				# les colonnes dépendent du fit
-				cols = ["D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"]
+				cols = ["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"]
 				if fit_mode == 1: cols += ["A (μm²/s)", "B (μm²)", "MSE"]
 				elif fit_mode == 2: cols += ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"]
 				elif fit_mode == 3: cols += ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]
-				res["Fit"].columns = ["Track"] + cols
-				# Track en entier nullable (préserve les NaN si présents)
-				if "Track" in res["Fit"]: res["Fit"]["Track"] = pd.to_numeric(res["Fit"]["Track"], errors="coerce").astype("Int64")
+				res["Fit"].columns = ["Track", "Length"] + cols
+				# Track et length en entier nullable (préserve les NaN si présents)
+				res["Fit"]["Track"] = pd.to_numeric(res["Fit"]["Track"], errors="coerce").astype("Int64")
+				res["Fit"]["Length"] = pd.to_numeric(res["Fit"]["Length"], errors="coerce").astype("Int64")
 				# Mise à jour en fonction de la mise à l'échelle du Log.
 				if is_log: res["Fit"] = log10_dataframe(res["Fit"], cols)
 		return res

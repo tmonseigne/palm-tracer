@@ -365,7 +365,7 @@ class PALMTracerWidget(QWidget):
 			tracks_data = self.pt.tracks[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
 			tracks_data[:, 2] *= s["Ratio"]  # Y
 			tracks_data[:, 3] *= s["Ratio"]  # X
-			layer = self.viewer_hr.add_tracks(tracks_data, name="Tracks", blending="translucent", )
+			layer = self.viewer_hr.add_tracks(tracks_data, name="Tracks", blending="translucent")
 
 		layer.editable = False
 

@@ -18,11 +18,14 @@ REF_DICT = {"First param": [0, 1, 2],
 			"élément":     0,
 			"Inception":   {"intern": 0}}
 
-SIZE = 512												# Taille de l'image de test
-NOISE_2D = np.random.rand(SIZE, SIZE) * 255				# Bruit sur une image 2D
-REF_BOOLEAN_MASK = NOISE_2D > 128						# Conversion en booléen
-GRADIENT = np.linspace(0, 255, SIZE, dtype=np.float32)  # Création du dégradé croissant de 0 à 255
-REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))				# Répète le dégradé sur toutes les lignes
+MAX_UI_16 = np.iinfo(np.uint16).max
+MAX_UI_8 = np.iinfo(np.uint8).max
+
+SIZE = 512															   # Taille de l'image de test
+NOISE_2D = np.random.rand(SIZE, SIZE) * MAX_UI_8					   # Bruit sur une image 2D
+REF_BOOLEAN_MASK = NOISE_2D > 128									   # Conversion en booléen
+GRADIENT = np.linspace(0, MAX_UI_8, SIZE, dtype=np.float32)			   # Création du dégradé croissant de 0 à 255
+REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))							   # Répète le dégradé sur toutes les lignes
 REF_STACK = np.stack((REF_GRADIENT, np.fliplr(REF_GRADIENT)), axis=0)  # Empilement du dégradé et son miroir horizontal
 
 
@@ -91,6 +94,14 @@ def test_save_png():
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save.png")
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save_no_normalization.png", False)
 	FileIO.save_png(np.zeros_like(REF_GRADIENT), f"{OUTPUT_DIR}/test_save_black.png")
+	assert True
+
+
+##################################################
+def test_save_png_color():
+	""" Test de la fonction save_png. """
+	img = (REF_GRADIENT * MAX_UI_16 / MAX_UI_8).astype(np.uint16)  # Passage en uint 16
+	FileIO.save_png(FileIO.grayscale_to_color(img), f"{OUTPUT_DIR}/test_save_color.png", normalization=False)
 	assert True
 
 
