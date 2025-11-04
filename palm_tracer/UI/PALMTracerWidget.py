@@ -15,12 +15,13 @@ from typing import Callable, cast, Optional
 import napari
 import numpy as np
 from napari import Viewer
+from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt, QThread
 from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import open_json, open_tif, print_error, print_warning, save_json
+from palm_tracer.Tools import open_json, open_tif, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import Viewer3DWidget
 from palm_tracer.UI.Worker import Worker
@@ -150,10 +151,10 @@ class PALMTracerWidget(QWidget):
 		"""
 		if self._processing: return
 		if self.last_file == "":
-			# print_warning("Aucun fichier en preview.")
+			# show_warning("Aucun fichier en preview.")
 			return
 		self._processing = True
-		self.layout().setEnabled(False)							   # désactive l'interface
+		self.layout().setEnabled(False)  # désactive l'interface
 		# QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
 		# QApplication.processEvents()							   # met à jour l'interface
 
@@ -166,7 +167,7 @@ class PALMTracerWidget(QWidget):
 		self.thread.finished.connect(self.thread.deleteLater)
 		if post_func: self.worker.result.connect(post_func)
 		self.worker.finished.connect(lambda: self._process_done())
-		self.worker.error.connect(lambda msg: print_error(f"Erreur dans le thread : {msg}"))
+		self.worker.error.connect(lambda msg: show_error(f"Erreur dans le thread : {msg}"))
 		self.thread.start()  # Lancer le traitement
 
 	##################################################
@@ -182,19 +183,20 @@ class PALMTracerWidget(QWidget):
 		# QApplication.restoreOverrideCursor()  # Changement du curseur
 		# QApplication.processEvents()		  # met à jour l'interface
 		self._processing = False
+		show_info("Thread Process done")
 
 	##################################################
 	def _load_setting(self, filename: Path):
 		"""Chargement d'un fichier de setting."""
 		if filename.exists():
 			try:
-				print(f"Chargement du fichier de configuration '{filename}'.")
+				show_info(f"Chargement du fichier de configuration '{filename}'.")
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
 				with self.pt.settings.signal_blocked():
 					cfg = open_json(str(filename))
 					self.pt.settings.update_from_dict(cfg)
 			except Exception as e:
-				print_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
+				show_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
 
 	##################################################
 	def _on_load_setting_btn(self):  # pragma: no cover pytest à du mal avec l'ouverture de boite de dialogue.
@@ -222,9 +224,9 @@ class PALMTracerWidget(QWidget):
 		try:
 			raw_data = open_tif(selected_file)
 			self.viewer.add_image(raw_data, name="Raw")
-			print(f"Loaded {selected_file} into Napari viewer.")
+			show_info(f"Loaded {selected_file} into Napari viewer.")
 		except Exception as e:
-			print_error(f"Error loading {selected_file}: {e}")
+			show_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
 	def _add_detection_layers(self):
@@ -294,9 +296,9 @@ class PALMTracerWidget(QWidget):
 		:return: l'image désirée (actuellement affichée si time = 0).
 		"""
 		if self.last_file == "":
-			# print_warning("Aucun fichier en preview.")
+			# show_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]					 # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]		   # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
 		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
 		plane = layer.data[plane_idx]			   # Récupération des données du plan affiché
@@ -328,8 +330,8 @@ class PALMTracerWidget(QWidget):
 
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,
 										  (self._preview_locs.get("Past"), self._preview_locs.get("Present"), self._preview_locs.get("Future")))
-		print(f"Preview des {l_past + l_present + l_future} points détectés "
-			  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
+		show_info(f"Preview des {l_past + l_present + l_future} points détectés "
+				  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
 
 	##################################################
 	def _auto_threshold(self):
@@ -337,7 +339,7 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
-		print(f"Auto Threshold : {threshold}")
+		show_info(f"Auto Threshold : {threshold:.2f}")
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################
