@@ -141,7 +141,7 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
-	# region Callback
+	# region Threading
 	# ==================================================
 	##################################################
 	def _thread_process(self, compute_func: Callable[[], None], post_func: Optional[Callable[[], None]] = None):
@@ -223,8 +223,7 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == selected_file: return
 		else: self.last_file = selected_file
 
-		# Nettoyez tous les layers existants dans le viewer
-		self.viewer.layers.clear()
+		self.viewer.layers.clear()  # Nettoyez tous les layers existants dans le viewer
 
 		# Chargez le fichier TIF sélectionné comme un layer Raw dans le viewer
 		try:
@@ -327,7 +326,7 @@ class PALMTracerWidget(QWidget):
 
 		s = self.pt.settings.localization.get_settings()
 		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
-		except Exception as e: raise
+		except Exception: raise
 		self._preview_locs = {
 				"Past":    None if past is None else self.pt.filter_localizations(self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
 				"Present": self.pt.filter_localizations(self.pt.palm.localization(present, t, w, f, fp))[["Y", "X"]].to_numpy(),
@@ -361,10 +360,8 @@ class PALMTracerWidget(QWidget):
 		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
 		if not hasattr(self, "high_res_window") or self.viewer_hr is None:
 			self.viewer_hr = Viewer()
-			# Modifier le titre de la fenêtre
-			self.viewer_hr.window._qt_window.setWindowTitle(f"High Resolution Visualization")
-			# Cacher la barre de menu
-			self.viewer_hr.window._qt_window.menuBar().setVisible(False)
+			self.viewer_3d.title = "High Resolution Visualization"  # Modifier le titre de la fenêtre
+			self.viewer_3d.window.main_menu.setVisible(False)		# Cacher la barre de menu
 
 		self.viewer_hr.layers.clear()
 		self.viewer_hr.add_image(self.pt.visualization, name="Visualization", visible=False)
@@ -384,15 +381,15 @@ class PALMTracerWidget(QWidget):
 	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		if self.viewer_3d is None:
 			self.viewer_3d = napari.Viewer(ndisplay=3)
-			self.viewer_3d.window._qt_window.setWindowTitle("3D Viewer")
-			self.viewer_3d.window._qt_window.menuBar().setVisible(False)
+			self.viewer_3d.title = "3D Viewer"				   # Modifier le titre de la fenêtre
+			self.viewer_3d.window.main_menu.setVisible(False)  # Cacher la barre de menu
 			self.viewer_3d.window.add_dock_widget(Viewer3DWidget(self.viewer_3d), area="right")
 
 	##################################################
 	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
-			w.setAttribute(Qt.WA_DeleteOnClose, True)
+			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 			# Quand le widget est détruit, remettre la réf à None
 			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
 			w.resize(1000, 600)
@@ -403,6 +400,6 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.raise_()
 		self.viewer_graph.activateWindow()
 
-	# ==================================================
-	# endregion Callback
-	# ==================================================
+		# ==================================================
+		# endregion Process
+		# ==================================================
