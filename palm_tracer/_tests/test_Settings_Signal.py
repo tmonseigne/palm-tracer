@@ -17,10 +17,8 @@ def sw() -> SignalWrapper:
 def test_connect_and_emit_direct(sw: SignalWrapper):
     """Connexion d'un slot Python et émission immédiate."""
     received: List[Any] = []
+    sw.connect(lambda v: received.append(v))
 
-    def slot(v): received.append(v)
-
-    sw.connect(slot)
     sw.emit("X")
     assert received == ["X"]
 

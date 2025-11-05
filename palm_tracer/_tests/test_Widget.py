@@ -26,6 +26,7 @@ def test_widget_creation(make_napari_viewer, capsys):
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
 	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
+	my_widget.prepare_teardown()								# Préparation de la fermeture.
 	viewer.close()
 	assert True
 
@@ -45,6 +46,7 @@ def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 	file_list.update_box()
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 	my_widget._reset_layer()												 # remise à 0 des calques sans changement.
+	my_widget.prepare_teardown()											 # Préparation de la fermeture.
 	viewer.close()
 	assert True
 
@@ -65,6 +67,7 @@ def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 	assert my_widget._get_actual_image() is not None, "Aucune image récupéré."				   # Récupéraiton de l'image
 	assert my_widget._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
 	assert my_widget._get_actual_image(100) is None, "Une image hors limite a été récupéré."   # Récupération d'une image hors limite
+	my_widget.prepare_teardown()															   # Préparation de la fermeture.
 	viewer.close()
 
 
@@ -75,6 +78,7 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
 	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
+
 	my_widget.pt.settings.localization["Preview"].set_value(True)
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["Preview"].get_value(), timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
@@ -85,25 +89,26 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	# Ajout avec des tableaux normaux.
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
 	my_widget._add_detection_layers()
-	qtbot.waitUntil(lambda: f"Points Present" in my_widget.viewer.layers, timeout=5000)
+	qtbot.waitUntil(lambda: "Points Present" in my_widget.viewer.layers, timeout=5000)
 
 	# Ajout avec des calques existants et un future vide.
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": None}
 	my_widget._add_detection_layers()
-	qtbot.waitUntil(lambda: not f"Points Future" in my_widget.viewer.layers, timeout=5000)
+	qtbot.waitUntil(lambda: not "Points Future" in my_widget.viewer.layers, timeout=5000)
 
 	# Ajout avec un tableau vide et rien en passé et future.
 	my_widget._preview_locs = {"Past": np.zeros((2, 0)), "Present": POINTS, "Future": None}
 	my_widget._add_detection_layers()
-	qtbot.waitUntil(lambda: not f"Points Past" in my_widget.viewer.layers, timeout=5000)
+	qtbot.waitUntil(lambda: not "Points Past" in my_widget.viewer.layers, timeout=5000)
 
 	my_widget.pt.settings.localization["ROI Shape"].set_value(1)
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].get_value() == 1, timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
 	my_widget._add_detection_layers()
-	qtbot.waitUntil(lambda: f"Points Future" in my_widget.viewer.layers, timeout=5000)
+	qtbot.waitUntil(lambda: "Points Future" in my_widget.viewer.layers, timeout=5000)
 
+	my_widget.prepare_teardown()  # Préparation de la fermeture.
 	viewer.close()
 	assert True
 
@@ -117,11 +122,12 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
 
-	my_widget._preview()  # Appel de la méthode preview alors que c'est décoché (typiquement le cas par défaut à chaque changement de valeur)
 	my_widget.pt.settings.localization["Preview"].set_value(True)
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["Preview"].get_value(), timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
-	my_widget._preview()  # Appel de la méthode preview alors que c'est coché mais sans fichier
+	my_widget.pt.settings.localization["ROI Shape"].set_value(0)
+	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].get_value() == 0, timeout=5000)
+	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
 
 	# Ajout d'une entrée
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
@@ -129,10 +135,18 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 	file_list.update_box()
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)		 # Attente : le flag doit passer à False
+
 	my_widget.pt.settings.localization["Preview"].set_value(True)			 # Le flag se remet à false à chaque changement de fichiers maintenant
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["Preview"].get_value(), timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)		 # Attente : le flag doit passer à False
-	my_widget._preview()													 # Appel de la méthode preview.
+	qtbot.waitUntil(lambda: "Points Present" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis le layer
+
+	my_widget.pt.settings.localization["ROI Shape"].set_value(1)
+	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].get_value()==1, timeout=5000)
+	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)		 # Attente : le flag doit passer à False
+	qtbot.waitUntil(lambda: "Points Present" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis le layer
+
+	my_widget.prepare_teardown()											 # Préparation de la fermeture.
 	viewer.close()
 	assert True
 
@@ -154,6 +168,7 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 	file_list.update_box()
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
 	my_widget._auto_threshold()												 # Appel de la méthode auto_threshold.
+	my_widget.prepare_teardown()											 # Préparation de la fermeture.
 	viewer.close()
 	assert True
 
@@ -183,5 +198,20 @@ def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
 	my_widget._thread_process(my_widget._auto_threshold)			  # Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
+	my_widget.prepare_teardown()									  # Préparation de la fermeture.
 	viewer.close()
 	assert True
+
+##################################################
+@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_widget_after_close(make_napari_viewer, capsys, qtbot):
+	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
+	my_widget._tearing_down = True
+	my_widget._reset_layer()
+	my_widget._add_detection_layers()
+	my_widget._preview()
+	my_widget._auto_threshold()
+	my_widget.prepare_teardown()		  # Préparation de la fermeture.
+	viewer.close()

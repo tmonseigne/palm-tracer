@@ -70,7 +70,7 @@ class Settings:
 		Blocage des signaux pour l’intégralité des paramètres.
 		Retourne un context manager utilisable avec `with ...:`.
 		"""
-		if not self._settings: return nullcontext()
+		# if not self._settings: return nullcontext() # On n'a pas de settings vide
 		stack = ExitStack()
 		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
 		return stack

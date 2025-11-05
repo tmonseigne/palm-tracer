@@ -1,4 +1,5 @@
 """ Fichier des tests pour l'ensemble des paramètres. """
+from typing import Any, List
 
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import *
@@ -37,3 +38,15 @@ def test_settings_group_getter(make_napari_viewer):
 	assert isinstance(s, VisualizationHR), "Récupération du groupe incorrecte."
 	s = settings.visualization_graph
 	assert isinstance(s, VisualizationGraph), "Récupération du groupe incorrecte."
+	s = settings.filtering
+	assert isinstance(s, Filtering), "Récupération du groupe incorrecte."
+
+
+###################################################
+def test_settings_signal(make_napari_viewer):
+	"""Test de Connexion d'un slot Python, blocage et émission."""
+	settings = Settings()
+
+	received: List[Any] = []
+	settings.connect(lambda v: received.append(v))
+	with settings.signal_blocked(): pass

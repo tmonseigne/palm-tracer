@@ -1,7 +1,10 @@
 """ Fichier des tests pour les groupes de paramètres. """
 
 from pathlib import Path
-from typing import Any, cast, Type
+from typing import Any, cast, List, Type
+
+import numpy as np
+import pytest
 
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Types import *
@@ -44,6 +47,10 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	print(group)
 	print(group.get_settings())
 
+	received: List[Any] = []
+	group.connect(lambda v: received.append(v))
+	with group.signal_blocked(): pass
+
 
 ###################################################
 def test_base_group(make_napari_viewer):
@@ -53,8 +60,11 @@ def test_base_group(make_napari_viewer):
 	assert group.get_value() is None, "Get Value ne doit rien retourné pour la classe mère."
 	group.remove_header()
 	group.remove_header()  # Seconde fois pour vérifier les erreur de pointeurs QT
-	group.active = False   # On change le statut malgré la suppression du Header
+	group.active = False  # On change le statut malgré la suppression du Header
 
+	received: List[Any] = []
+	group.connect(lambda v: received.append(v))
+	with group.signal_blocked(): pass
 
 ###################################################
 def test_batch(make_napari_viewer):
@@ -101,6 +111,9 @@ def test_batch_get_path(make_napari_viewer):
 def test_batch_get_stacks(make_napari_viewer):
 	"""Test du get_path de la classe Batch"""
 	batch = Batch()
+	stacks = batch.get_stacks()
+	assert len(stacks) == 0, "Nombre de pile invalide"
+
 	file_list = cast(FileList, batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
@@ -130,8 +143,24 @@ def test_calibration(make_napari_viewer):
 ###################################################
 def test_localization(make_napari_viewer):
 	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
-	group_base_test(Localization(), ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
+	loc = Localization()
+
+	group_base_test(loc, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
 					CheckBox, True, False)
+
+	loc["Fit"].set_value(0)
+	assert loc.get_fit() == 0, "Numéro du Fit incorrect"
+	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7], dtype=np.float64))
+
+	loc["Fit"].set_value(1)
+	assert loc.get_fit() == 1, "Numéro du Fit incorrect"
+	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7, 1, 2, 0], dtype=np.float64))
+
+	loc["Fit"].set_value(2)
+	assert loc.get_fit() == 5, "Numéro du Fit incorrect"
+	with pytest.raises(OSError) as exception_info:
+		loc.get_fit_params()
+	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
 
 
 ###################################################

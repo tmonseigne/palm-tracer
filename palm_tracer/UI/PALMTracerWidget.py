@@ -249,6 +249,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
+		if self._tearing_down or not getattr(self, "viewer", None): return
 		self.pt.settings.localization["Preview"].set_value(False)
 		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
 		if not selected_file:
@@ -272,6 +273,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _add_detection_layers(self):
 		""" Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant. """
+		if self._tearing_down or not getattr(self, "viewer", None): return
 		state_args = {
 				"Past":    {"border": 0.2, "edge": 0.2, "color": "cyan", "face": "transparent"},
 				"Present": {"border": 0.4, "edge": 0.4, "color": "lime", "face": "lime"},
@@ -355,7 +357,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		if not self.pt.settings.localization["Preview"].get_value(): return
+		if self._tearing_down or not getattr(self, "viewer", None) or not self.pt.settings.localization["Preview"].get_value(): return
 
 		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
 		if present is None: return
@@ -377,6 +379,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
+		if self._tearing_down or not getattr(self, "viewer", None): return
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
@@ -388,7 +391,7 @@ class PALMTracerWidget(QWidget):
 		"""
 		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
 		"""
-		if self.pt.visualization is None: return
+		if self._tearing_down or not getattr(self, "viewer", None) or self.pt.visualization is None: return
 		s = self.pt.settings.visualization_hr.get_settings()
 		if s["Type"] == 0 and self.pt.localizations.empty: return
 		if s["Type"] == 1 and self.pt.tracks.empty: return
