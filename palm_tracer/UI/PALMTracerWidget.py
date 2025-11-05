@@ -17,7 +17,7 @@ import numpy as np
 from napari import Viewer
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt, QThread
-from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget, QSizePolicy
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -64,7 +64,13 @@ class PALMTracerWidget(QWidget):
 		""" Initialisation de l'interface utilisateur du widget. """
 		# Base
 		self.setLayout(QVBoxLayout())
+		# -- Size policy / bornes --
 		self.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
+		self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+		self.setMinimumWidth(360)  # borne basse réaliste (à ajuster)
+		self.setMinimumHeight(220)
+		# IMPORTANT : s’assurer qu’on n’est PAS en mode “désactivé” à l’ouverture (on ne désactive le layout que quand on lance réellement un traitement)
+		self.layout().setEnabled(True)
 
 		# Viewer Button
 		btn_3d = QPushButton("Open 3D Viewer")
