@@ -16,15 +16,17 @@ import napari
 import numpy as np
 from napari import Viewer
 from napari.utils.notifications import show_error, show_info, show_warning
-from qtpy.QtCore import Qt, QThread
-from qtpy.QtWidgets import QFileDialog, QPushButton, QTabWidget, QVBoxLayout, QWidget, QSizePolicy
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import Viewer3DWidget
-from palm_tracer.UI.Worker import Worker
+
+try: from napari.qt.threading import thread_worker, FunctionWorker				# chemin public, à préférer
+except ImportError:    from superqt.utils import thread_worker, FunctionWorker  # très rare fallback
 
 CONFIG_DIR = Path.home() / ".palm_tracer"
 SETTINGS_FILE = CONFIG_DIR / "settings.json"
@@ -55,7 +57,9 @@ class PALMTracerWidget(QWidget):
 		self.pt = PALMTracer()
 		self.last_file = ""
 		self._preview_locs: dict[str, None | np.ndarray] = {"Past": None, "Present": None, "Future": None}
-		self._processing = False  # pour éviter les clics multiples
+		self._processing = False					   # pour éviter les clics multiples
+		self._worker: Optional[FunctionWorker] = None  # worker napari en cours
+		self._tearing_down = False					   # vrai pendant le teardown pour ignorer les callbacks
 		self.__init_ui()
 		self.__on_startup()
 
@@ -69,8 +73,6 @@ class PALMTracerWidget(QWidget):
 		self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 		self.setMinimumWidth(360)  # borne basse réaliste (à ajuster)
 		self.setMinimumHeight(220)
-		# IMPORTANT : s’assurer qu’on n’est PAS en mode “désactivé” à l’ouverture (on ne désactive le layout que quand on lance réellement un traitement)
-		self.layout().setEnabled(True)
 
 		# Viewer Button
 		btn_3d = QPushButton("Open 3D Viewer")
@@ -98,12 +100,8 @@ class PALMTracerWidget(QWidget):
 		self.layout().addWidget(tabs)
 
 		# Add Specific behaviour
-		# Lors de l'ajout d'un fichier avec le bouton +, -, clear du setting batch -> Files, le FileList est mis à jour et le selected également.
-		# La mise à jour du selected fait qu'on le recharge pour la visu napari.
 		# On supprime tous les layers et on charge le fichier tif dans un layer Raw
-		setting = self.pt.settings.batch["Files"]
-		if setting and isinstance(setting, FileList):  # pragma: no cover (toujours vrai)
-			setting.connect(self._reset_layer)
+		self.pt.settings.batch["Files"].connect(self._reset_layer)
 
 		# Calcul automatique du Seuil
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)
@@ -156,25 +154,26 @@ class PALMTracerWidget(QWidget):
 		:param post_func: La fonction à exécuter après le thread. Elle ne doit pas prendre de paramètres et ne retourne rien.
 		"""
 		if self._processing: return
-		if self.last_file == "":
-			# show_warning("Aucun fichier en preview.")
-			return
+		if self.last_file == "": return
 		self._processing = True
-		self.layout().setEnabled(False)  # désactive l'interface
-		# QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)  # Changement du curseur
-		# QApplication.processEvents()							   # met à jour l'interface
+		self._freeze_ui(True)  # à la place de layout().setEnabled(False)
 
-		self.thread = QThread(self)
-		self.worker = Worker(compute_func)
-		self.worker.moveToThread(self.thread)
-		self.thread.started.connect(self.worker.run)
-		self.worker.finished.connect(self.thread.quit)
-		self.worker.finished.connect(self.worker.deleteLater)
-		self.thread.finished.connect(self.thread.deleteLater)
-		if post_func: self.worker.result.connect(post_func)
-		self.worker.finished.connect(lambda: self._process_done())
-		self.worker.error.connect(lambda msg: show_error(f"Erreur dans le thread : {msg}"))
-		self.thread.start()  # Lancer le traitement
+		@thread_worker(start_thread=False)
+		def _run_background() -> None: compute_func()  # STRICTEMENT aucun accès au viewer/layers ici
+
+		w: FunctionWorker = cast(FunctionWorker, _run_background())
+		self._worker = w
+
+		# s'exécute dans le thread UI
+		if post_func is not None: w.returned.connect(lambda _ok: (not self._tearing_down) and post_func())
+
+		def _finish(*_args: object) -> None:  # UI thread : fin propre
+			self._worker = None
+			self._process_done()
+
+		w.finished.connect(_finish)
+		w.errored.connect(lambda e: show_error(f"Erreur dans le thread : {e}"))
+		w.start()
 
 	##################################################
 	def _process_done(self):
@@ -185,12 +184,48 @@ class PALMTracerWidget(QWidget):
 		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
 		Elle doit être appelée depuis le thread principal (GUI).
 		"""
-		self.layout().setEnabled(True)		  # Réactive l'interface
-		# QApplication.restoreOverrideCursor()  # Changement du curseur
-		# QApplication.processEvents()		  # met à jour l'interface
 		self._processing = False
+		self._freeze_ui(False)  # à la place de layout().setEnabled(False)
 		show_info("Thread Process done")
 
+	##################################################
+	def prepare_teardown(self, timeout_ms: int = 30_000):
+		"""À appeler avant viewer.close() pour stopper les workers et neutraliser les callbacks UI."""
+		self._tearing_down = True
+
+		# Déconnecter ce qui peut encore déclencher des callbacks durant la fermeture
+		try: self.viewer.dims.events.current_step.disconnect()
+		except (TypeError, RuntimeError): pass  # TypeError : aucune connexion existante, RuntimeError : déjà déconnecté / objet détruit
+		# try: self.pt.settings.disconnect(self._on_change)  # si tu as un connect global, sinon ignore
+		# except Exception: pass
+
+		# Demander l'arrêt du worker en cours et attendre sa fin
+		if self._worker is not None:
+			try:
+				self._worker.quit()
+				FunctionWorker.await_workers(timeout_ms)  # attend jusqu'à 30s que tous les workers quittent
+			except (RuntimeError, AttributeError): pass   # Worker déjà terminé ou thread détruit
+			self._worker = None
+
+		self._freeze_ui(False) # Réactive l'UI si gelée
+
+	##################################################
+	def _freeze_ui(self, on: bool) -> None:
+		"""Gèle/réactive proprement l'UI sans casser la géométrie."""
+		self.setDisabled(on)			# au lieu de self.layout().setEnabled(False)
+		self.setUpdatesEnabled(not on)  # stoppe/reprend les repaints
+		if on: QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+		else:
+			try: QApplication.restoreOverrideCursor()
+			except RuntimeError: pass  # Aucun curseur à restaurer
+
+	# ==================================================
+	# endregion Threading
+	# ==================================================
+
+	# ==================================================
+	# region Process
+	# ==================================================
 	##################################################
 	def _load_setting(self, filename: Path):
 		"""Chargement d'un fichier de setting."""
@@ -400,6 +435,6 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.raise_()
 		self.viewer_graph.activateWindow()
 
-		# ==================================================
-		# endregion Process
-		# ==================================================
+# ==================================================
+# endregion Process
+# ==================================================
