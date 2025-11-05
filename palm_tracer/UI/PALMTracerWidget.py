@@ -236,6 +236,7 @@ class PALMTracerWidget(QWidget):
 				with self.pt.settings.signal_blocked():
 					cfg = open_json(str(filename))
 					self.pt.settings.update_from_dict(cfg)
+					self.pt.settings.localization["Preview"].set_value(False)
 			except Exception as e:
 				show_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
 
