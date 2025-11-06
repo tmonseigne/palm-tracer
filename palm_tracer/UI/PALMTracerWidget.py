@@ -193,11 +193,10 @@ class PALMTracerWidget(QWidget):
 		"""À appeler avant viewer.close() pour stopper les workers et neutraliser les callbacks UI."""
 		self._tearing_down = True
 
-		# Déconnecter ce qui peut encore déclencher des callbacks durant la fermeture
-		try: self.viewer.dims.events.current_step.disconnect()
+		try: # Déconnecter ce qui peut encore déclencher des callbacks durant la fermeture
+			self.viewer.dims.events.current_step.disconnect()
+			self.pt.settings.disconnect()
 		except (TypeError, RuntimeError): pass  # TypeError : aucune connexion existante, RuntimeError : déjà déconnecté / objet détruit
-		# try: self.pt.settings.disconnect(self._on_change)  # si tu as un connect global, sinon ignore
-		# except Exception: pass
 
 		# Demander l'arrêt du worker en cours et attendre sa fin
 		if self._worker is not None:

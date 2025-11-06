@@ -50,6 +50,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	received: List[Any] = []
 	group.connect(lambda v: received.append(v))
 	with group.signal_blocked(): pass
+	group.disconnect()
 
 
 ###################################################
@@ -65,6 +66,7 @@ def test_base_group(make_napari_viewer):
 	received: List[Any] = []
 	group.connect(lambda v: received.append(v))
 	with group.signal_blocked(): pass
+	group.disconnect()
 
 ###################################################
 def test_batch(make_napari_viewer):

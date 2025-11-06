@@ -39,6 +39,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 		setting.emit("A")
 		setting.emit("B")  # Écrase A
 	assert received == [] if isinstance(setting, Button) else ["B"]
+	setting.disconnect()
 
 
 ###################################################

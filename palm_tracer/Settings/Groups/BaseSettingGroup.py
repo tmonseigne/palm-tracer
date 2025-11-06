@@ -5,11 +5,11 @@ Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de b
 """
 from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
-from typing import Any, cast, Optional, Union
+from typing import Any, Callable, cast, Optional, Union
 
 from qtpy import QT_API
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget, QLayout
+from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 
 from palm_tracer.Settings.Types import BaseSettingType
 
@@ -124,6 +124,16 @@ class BaseSettingGroup:
 		:param f: Fonction ou slot à connecter.
 		"""
 		for _, setting in self._settings.items(): setting.connect(f)
+
+	##################################################
+	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
+		"""
+		Déconnecte une fonction ou un slot à tout les éléments du groupe.
+
+		:param f: Fonction ou slot à déconnecter.
+		:return: nombre de slots déconnectés
+		"""
+		for _, setting in self._settings.items(): setting.disconnect(f)
 
 	##################################################
 	def signal_blocked(self) -> AbstractContextManager[Any]:

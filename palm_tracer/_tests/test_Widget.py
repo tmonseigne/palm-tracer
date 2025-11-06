@@ -194,6 +194,7 @@ def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	file_list = cast(FileList, my_widget.pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
+	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
 	my_widget._thread_process(my_widget.pt.process)					  # Appel de la méthode process
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
 	my_widget._thread_process(my_widget._auto_threshold)			  # Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
@@ -208,10 +209,10 @@ def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 	viewer = make_napari_viewer()		  # Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
-	my_widget._tearing_down = True
+	my_widget._tearing_down = True		  # Simuler le tearing_down actif
 	my_widget._reset_layer()
 	my_widget._add_detection_layers()
 	my_widget._preview()
 	my_widget._auto_threshold()
-	my_widget.prepare_teardown()		  # Préparation de la fermeture.
+	my_widget.prepare_teardown()
 	viewer.close()

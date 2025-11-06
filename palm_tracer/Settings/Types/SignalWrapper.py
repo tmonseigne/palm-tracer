@@ -4,7 +4,7 @@ Fichier contenant la classe :class:`SignalWrapper`.
 Cette classe fournit une abstraction légère pour gérer des signaux dans une application basée sur Qt.
 Elle encapsule un objet `Signal` de PyQt/PySide et facilite la gestion des connexions et des émissions de signaux.
 """
-from typing import Any
+from typing import Any, Callable, Optional
 
 from qtpy.QtCore import QObject, Signal
 
@@ -28,9 +28,10 @@ class SignalWrapper(QObject):
 
 	_signal = Signal(object)
 	"""Signal encapsulé, prêt à être utilisé dans l'application."""
-	_block_count: int = 0		# Compteur de blocs imbriqués.
-	_pending: bool = False		# Indique si une émission est en attente.
-	_pending_value: Any = None  # Dernière valeur reçue pendant le blocage.
+	_block_count: int = 0					  # Compteur de blocs imbriqués.
+	_pending: bool = False					  # Indique si une émission est en attente.
+	_pending_value: Any = None				  # Dernière valeur reçue pendant le blocage.
+	_slots: list[Callable[[Any], None]] = []  # List des Fonctions ou slots connectés
 
 	##################################################
 	def __init__(self):
@@ -45,6 +46,38 @@ class SignalWrapper(QObject):
 		:param f: Fonction ou slot à connecter.
 		"""
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
+		self._slots.append(f)
+
+	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
+		"""
+		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nb déconnectés.
+
+		:param f: Fonction ou slot à déconnecter.
+		:return: nombre de slots déconnectés
+		"""
+		n = 0
+		if f is None:
+			# déconnecte tout
+			for s in list(self._slots):
+				try:
+					self._signal.disconnect(s)
+					n += 1
+				except (TypeError, RuntimeError): pass
+			self._slots.clear()
+			try: self._signal.disconnect()  # PySide/PyQt : coupe tout au cas où
+			except (TypeError, RuntimeError): pass
+			return n
+
+		# déconnecte un slot précis
+		try:
+			self._signal.disconnect(f)
+			n = 1
+		except (TypeError, RuntimeError): n = 0
+
+		# nettoie le registre
+		try: self._slots.remove(f)
+		except ValueError: pass
+		return n
 
 	##################################################
 	def emit(self, value: Any = None):
@@ -63,8 +96,7 @@ class SignalWrapper(QObject):
 	# --- Gestion du blocage des signaux ---------------------------------------
 	class BlockCtx:
 		"""Contexte interne pour `with signal.blocked(): ...`."""
-		def __init__(self, owner: "SignalWrapper"):
-			self._o = owner
+		def __init__(self, owner: "SignalWrapper"): self._o = owner
 		def __enter__(self): self._o._block_begin()
 		def __exit__(self, exc_type, exc, tb): self._o._block_end()
 

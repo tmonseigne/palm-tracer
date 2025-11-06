@@ -50,3 +50,4 @@ def test_settings_signal(make_napari_viewer):
 	received: List[Any] = []
 	settings.connect(lambda v: received.append(v))
 	with settings.signal_blocked(): pass
+	settings.disconnect()
