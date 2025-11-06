@@ -370,9 +370,10 @@ class PALMTracerWidget(QWidget):
 				"Future":  None if future is None else self.pt.filter_localizations(self.pt.palm.localization(future, t, w, f, fp))[["Y", "X"]].to_numpy()
 				}
 
+		# Affichage console (les notifications posent problème en thread externe)
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,
 										  (self._preview_locs.get("Past"), self._preview_locs.get("Present"), self._preview_locs.get("Future")))
-		show_info(f"Preview des {l_past + l_present + l_future} points détectés "
+		print(f"Preview des {l_past + l_present + l_future} points détectés "
 				  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
 
 	##################################################
@@ -382,7 +383,8 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
-		show_info(f"Auto Threshold : {threshold:.2f}")
+		print(f"Auto Threshold : {threshold:.2f}")
+		#show_info(f"Auto Threshold : {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	##################################################

@@ -91,6 +91,8 @@ jobs:
           QT_QPA_PLATFORM: offscreen
           QT_API: pyside6
           QTWEBENGINE_CHROMIUM_FLAGS: --no-sandbox --disable-gpu
+          PYTHONFAULTHANDLER: "1"
+          NAPARI_ASYNC: "0"
           MPLBACKEND: Agg
 
       - name: Manage Test Reports
