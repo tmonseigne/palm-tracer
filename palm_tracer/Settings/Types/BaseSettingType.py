@@ -1,13 +1,14 @@
 """
 Fichier contenant la classe :class:`BaseSettingType` et ses sous-classes pour la gestion des paramètres d'interface utilisateur.
 
-Ce module définit la classe abstraite :class:`BaseSettingType`, qui sert de base pour la création de différents types de paramètres dans une interface utilisateur Qt.
+Ce module définit la classe abstraite :class:`BaseSettingType`,
+qui sert de base pour la création de différents types de paramètres dans une interface utilisateur Qt.
 Les sous-classes permettent de gérer des paramètres spécifiques tels que les entiers, les flottants et les listes déroulantes.
 Ces classes sont utilisées pour créer et configurer des widgets de paramètres dans une interface graphique.
 """
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable, Optional
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFormLayout, QLabel
@@ -160,6 +161,16 @@ class BaseSettingType:
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 
 	##################################################
+	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
+		"""
+		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nb déconnectés.
+
+		:param f: Fonction ou slot à déconnecter.
+		:return: nombre de slots déconnectés
+		"""
+		return self._signal.disconnect(f)
+
+	##################################################
 	def emit(self, value: Any = None):
 		"""
 		Émet le signal encapsulé.
@@ -168,6 +179,10 @@ class BaseSettingType:
 		"""
 		self._signal.emit(value)  # Émission du signal.
 
-# ==================================================
-# endregion Manipulation
-# ==================================================
+	def signal_blocked(self) -> SignalWrapper.BlockCtx:
+		"""Contexte de blocage des signaux de ce paramètre."""
+		return self._signal.blocked()
+
+	# ==================================================
+	# endregion Manipulation
+	# ==================================================

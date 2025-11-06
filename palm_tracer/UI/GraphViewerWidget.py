@@ -99,6 +99,7 @@ class GraphViewerWidget(QWidget):
 		:param palmtracer: Instance principale :class:`PALMTracer`. sans copie (référence partagée).
 		"""
 		super().__init__()
+		self.setWindowTitle("Graph Viewer")
 		# Initialisation des membres
 		self._pt = palmtracer
 		self._fig: Optional[go.Figure] = None

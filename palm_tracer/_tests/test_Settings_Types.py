@@ -1,4 +1,5 @@
 """ Fichier des tests pour les différents types de paramètres. """
+from typing import Any, List
 
 import pytest
 
@@ -27,6 +28,19 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	setting = create_setting_from_dict(dictionary)
 	assert setting.get_value() == change, "Valeur récupérée du dictionnaire non valide."
 
+	# Hide and seek
+	setting.hide()
+	setting.show()
+	# Signal
+	received: List[Any] = []
+	setting.connect(lambda v: received.append(v))
+
+	with setting.signal_blocked():
+		setting.emit("A")
+		setting.emit("B")  # Écrase A
+	assert received == [] if isinstance(setting, Button) else ["B"]
+	setting.disconnect()
+
 
 ###################################################
 def test_base_setting():
@@ -46,21 +60,28 @@ def test_base_setting():
 	assert layout is not None, "Le layout n'existe pas."
 
 
+
 ###################################################
 def test_create_setting_from_dict(make_napari_viewer):
 	"""Test de création de setting par dictionnaire vide excepté le type."""
-	setting = create_setting_from_dict({"type": "SpinInt"})
-	assert isinstance(setting, SpinInt), "La création par dictionnaire vide pour un SpinInt à échoué."
-	setting = create_setting_from_dict({"type": "SpinFloat"})
-	assert isinstance(setting, SpinFloat), "La création par dictionnaire vide pour un SpinFloat à échoué."
+	setting = create_setting_from_dict({"type": "BrowseFile"})
+	assert isinstance(setting, BrowseFile), "La création par dictionnaire vide pour un BrowseFile à échoué."
+	setting = create_setting_from_dict({"type": "Button"})
+	assert isinstance(setting, Button), "La création par dictionnaire vide pour un Button à échoué."
 	setting = create_setting_from_dict({"type": "CheckBox"})
 	assert isinstance(setting, CheckBox), "La création par dictionnaire vide pour un CheckBox à échoué."
 	setting = create_setting_from_dict({"type": "Combo"})
 	assert isinstance(setting, Combo), "La création par dictionnaire vide pour un Combo à échoué."
-	setting = create_setting_from_dict({"type": "BrowseFile"})
-	assert isinstance(setting, BrowseFile), "La création par dictionnaire vide pour un BrowseFile à échoué."
 	setting = create_setting_from_dict({"type": "FileList"})
 	assert isinstance(setting, FileList), "La création par dictionnaire vide pour un FileList à échoué."
+	setting = create_setting_from_dict({"type": "SpinFloat"})
+	assert isinstance(setting, SpinFloat), "La création par dictionnaire vide pour un SpinFloat à échoué."
+	setting = create_setting_from_dict({"type": "SpinInt"})
+	assert isinstance(setting, SpinInt), "La création par dictionnaire vide pour un SpinInt à échoué."
+	setting = create_setting_from_dict({"type": "CheckRangeFloat"})
+	assert isinstance(setting, CheckRangeFloat), "La création par dictionnaire vide pour un CheckRangeFloat à échoué."
+	setting = create_setting_from_dict({"type": "CheckRangeInt"})
+	assert isinstance(setting, CheckRangeInt), "La création par dictionnaire vide pour un CheckRangeInt à échoué."
 
 
 ###################################################

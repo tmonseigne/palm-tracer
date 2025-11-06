@@ -3,9 +3,9 @@ Fichier contenant la classe :class:`BaseSettingGroup` et ses sous-classes pour l
 
 Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 """
-
+from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
-from typing import Any, cast, Union
+from typing import Any, Callable, cast, Optional, Union
 
 from qtpy import QT_API
 from qtpy.QtCore import Qt
@@ -53,11 +53,11 @@ class BaseSettingGroup:
 	"""Liste des visualisations de settings (inputs) du groupe."""
 	_widget: QWidget = field(init=False)
 	"""Widget principal du groupe."""
-	_title: QLabel = field(init=False)
+	_title: Optional[QLabel] = field(init=False)
 	"""Nom du Groupe (objet QT)."""
-	_checkbox: QCheckBox = field(init=False)
+	_checkbox: Optional[QCheckBox] = field(init=False)
 	"""Case à cocher pour activer ou non le groupe."""
-	_header: QFormLayout = field(init=False)
+	_header: Optional[QFormLayout] = field(init=False)
 	"""Titre du groupe."""
 	_body: QWidget = field(init=False)
 	"""Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible)"""
@@ -125,6 +125,28 @@ class BaseSettingGroup:
 		"""
 		for _, setting in self._settings.items(): setting.connect(f)
 
+	##################################################
+	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
+		"""
+		Déconnecte une fonction ou un slot à tout les éléments du groupe.
+
+		:param f: Fonction ou slot à déconnecter.
+		:return: nombre de slots déconnectés
+		"""
+		for _, setting in self._settings.items(): setting.disconnect(f)
+
+	##################################################
+	def signal_blocked(self) -> AbstractContextManager[Any]:
+		"""
+		Blocage des signaux pour tout le groupe (récursif).
+		Retourne un context manager utilisable avec `with ...:`.
+		"""
+		if not self._settings: return nullcontext()
+
+		stack = ExitStack()
+		for setting in self._settings.values(): stack.enter_context(setting.signal_blocked())  # Chaque enfant doit lui-même retourner un context manager
+		return stack
+
 	# ==================================================
 	# endregion Initialization
 	# ==================================================
@@ -148,8 +170,7 @@ class BaseSettingGroup:
 	@active.setter
 	def active(self, value: bool):
 		"""Contrôle la modification de l'état actif."""
-		if (_IS_PYQT and not sip.isdeleted(self._checkbox)) or (not _IS_PYQT and shiboken6.isValid(self._checkbox)):
-			self._checkbox.setChecked(value)
+		if self._checkbox is not None and self.is_valid(self._checkbox): self._checkbox.setChecked(value)
 		self.toggle_active(1 if value else 0)
 
 	##################################################
@@ -209,6 +230,12 @@ class BaseSettingGroup:
 	# region Hide and Seek
 	# ==================================================
 	##################################################
+	@staticmethod
+	def is_valid(obj: object):
+		"""Vérifie qu'un objet est toujours valide et non supprimé. """
+		return obj is not None and ((_IS_PYQT and not sip.isdeleted(obj)) or (not _IS_PYQT and shiboken6.isValid(obj)))
+
+	##################################################
 	def hide(self):
 		"""Cache le widget."""
 		self._widget.hide()
@@ -230,29 +257,46 @@ class BaseSettingGroup:
 		# Appeler la méthode active pour forcer l'état actif
 		self.active = True
 		# Supprimer la checkbox et réorganiser le layout
-		if self._header and self._checkbox:
-			self._header.layout().removeWidget(self._checkbox)  # Retirer la checkbox du layout
-			self._checkbox.deleteLater()						# Détruire la checkbox
-		# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
-		# self._title.setText(f"       {self.label}")
+		cb = getattr(self, "_checkbox", None)
+		if self.is_valid(cb):
+			try:
+				self._header.layout().removeWidget(cb)  # Retirer la checkbox du layout
+				cb.setParent(None)
+				cb.deleteLater()
+			except RuntimeError: pass
+			self._checkbox = None
+
+			# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
+			# self._title.setText(f"       {self.label}")
 
 	##################################################
 	def remove_header(self):
 		""" Active toujours le groupe et supprime la partie header de l'interface. """
 		self.always_active()
 		# Suppression du titre
-		if self._header and self._title:
-			self._header.layout().removeWidget(self._title)  # Retirer le titre du layout
-			self._title.deleteLater()						 # Détruire le titre
+		tit = getattr(self, "_title", None)
+		hdr = getattr(self, "_header", None)
+		if self.is_valid(hdr) and self.is_valid(tit):
+			try:
+				hdr.layout().removeWidget(tit)  # Retirer le titre du layout
+				tit.setParent(None)
+				tit.deleteLater()				# Détruire le titre
+			except RuntimeError: pass			# si déjà retirée
+			self._title = None
 
 		# Suppression du header
-		if self._header and self._widget:		# pragma: no cover (toujours faux)
-			layout = self._widget.layout()		# Récupérer le layout principal
-			if isinstance(layout, QWidget):		# Vérifier que c'est bien un QFormLayout
-				layout.removeRow(self._header)  # Supprimer la ligne du layout
+		if self.is_valid(hdr) and self.is_valid(self._widget):
+			try:
+				layout = self._widget.layout()		 # Récupérer le layout principal
+				if isinstance(layout, QFormLayout):  # pragma: no cover (toujours vrai)
+					layout.removeRow(hdr)			 # Supprimer la ligne du layout
+				hdr.setParent(None)
+				hdr.deleteLater()					 # Détruire le header
+			except RuntimeError: pass				 # si déjà retirée
+			self._header = None
 
 		# Suppression de la marge
-			body_layout = self._body.layout()				# Récupérer le layout du widget _body
+		body_layout = self._body.layout()				# Récupérer le layout du widget _body
 		if isinstance(body_layout, QFormLayout):		# pragma: no cover (toujours vrai)
 			body_layout.setContentsMargins(0, 0, 0, 0)  # Aucune marge
 
