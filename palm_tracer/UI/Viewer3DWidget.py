@@ -1,3 +1,15 @@
+"""
+Widget d'affichage 3D pour napari permettant de charger un fichier CSV et de visualiser les points en 3D
+avec ajustements interactifs des échelles et de la taille des points.
+
+Ce widget ajoute dans le dock de napari :
+	- un bouton de chargement de fichier CSV,
+	- trois champs pour contrôler les échelles en XY et Z et la taille des points,
+	- une option permettant d'exclure les points avec intensité nulle,
+	- un calque napari Points mis à jour dynamiquement.
+
+Le CSV doit contenir les colonnes ``"X"``, ``"Y"``, ``"Z"`` et ``"Integrated Intensity"``.
+"""
 import napari
 import pandas as pd
 from qtpy.QtCore import Qt
@@ -7,8 +19,30 @@ from palm_tracer.Settings.Types import CheckBox, SpinFloat
 
 
 class Viewer3DWidget(QWidget):  # pragma: no cover
+	"""
+	Widget d'affichage 3D pour un viewer napari.
+
+	Ce widget permet :
+		- de charger un fichier CSV contenant des coordonnées 3D
+		- d'ajuster l'échelle XY et Z
+		- de modifier la taille des points
+		- d'activer ou non la suppression des points d'intensité nulle
+		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points`.
+
+	:param viewer: Instance du viewer napari où sera ajouté le calque 3D.
+	:type viewer: :class:`napari.Viewer`
+	"""
+
 	##################################################
 	def __init__(self, viewer: napari.Viewer):
+		"""
+		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
+
+		La création du calque napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
+
+		:param viewer: Viewer napari cible.
+		:type viewer: :class:`napari.Viewer`
+		"""
 		super().__init__()
 		self.viewer = viewer
 		self.points_layer = None
@@ -46,6 +80,15 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 
 	##################################################
 	def load_csv(self):
+		"""
+		Ouvre une boîte de dialogue pour sélectionner un fichier ``.csv`` et charge les données associées dans un :class:`pandas.DataFrame`.
+
+		Le fichier doit contenir les colonnes : ``"X"``, ``"Y"``, ``"Z"``, ``"Integrated Intensity"``
+
+		Si un calque existe déjà, il est supprimé avant la création du nouveau.
+
+		Cette méthode déclenche ensuite :meth:`update_layer` pour créer le calque 3D.
+		"""
 		filename, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "Fichiers CSV (*.csv)")
 		if not filename: return
 		df = pd.read_csv(filename)
@@ -63,8 +106,18 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 
 	##################################################
 	def update_layer(self):
-		if self.data is None:
-			return
+		"""
+		Crée ou met à jour le calque de points 3D dans le viewer napari.
+
+		Transformations appliquées :
+			- réorganisation des coordonnées sous la forme ``(Z, Y, X)``
+			- mise à l'échelle par les valeurs choisies dans les widgets
+			- suppression éventuelle des points dont ``Integrated Intensity == 0``
+			- mise à jour dynamique du calque existant ou création d'un nouveau
+
+		Si aucune donnée n'est encore chargée, la méthode ne fait rien.
+		"""
+		if self.data is None: return
 
 		scale_xy = self.xy_scale_spin.get_value()
 		scale_z = self.z_scale_spin.get_value()

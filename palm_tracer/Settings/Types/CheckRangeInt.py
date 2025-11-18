@@ -18,13 +18,15 @@ class CheckRangeInt(BaseSettingType):
 	Classe pour un paramètre spécifique de type interval de nombre entier.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **default ([int, int])** : Valeurs par défaut du paramètre.
-			- **limit ([int, int])** : Valeurs minimale et maximale du paramètre.
-			- **value ([int, int])** : Valeurs minimale et maximale actuelles du paramètre.
-			- **box ([QSpinBox, QSpinBox])** : Objet QT permettant de manipuler le paramètre.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **default** (:class:`[int, int]`) : Valeurs par défaut du paramètre.
+		- **limit** (:class:`[int, int]`) : Valeurs minimale et maximale du paramètre.
+		- **value** (:class:`[int, int]`) : Valeurs minimale et maximale actuelles du paramètre.
+		- **_active** (:class:`bool`) : Indicateur d'activation du paramètre.
+		- **_checkbox** (:class:`QCheckBox`) : CheckBox pour activer le paramètre.
+		- **box** (:class:`[QSpinBox, QSpinBox]`) : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: list[int] = field(default_factory=lambda: [0, 100])

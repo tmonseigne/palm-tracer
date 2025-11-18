@@ -312,7 +312,7 @@ class PALMTracerWidget(QWidget):
 				s_type = "rectangle"
 
 			l_name = f"ROI {state}"
-			# Si le calque existe mais n’est pas du bon type, on le supprime
+			# Si le calque existe mais n'est pas du bon type, on le supprime
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
 				# Cas particulier en cas de changement de formes.
@@ -334,6 +334,7 @@ class PALMTracerWidget(QWidget):
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
 		"""
 		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres
+
 		:param time: différence de temps entre l'image actuellement affichée et celle désirée.
 		:return: l'image désirée (actuellement affichée si time = 0).
 		"""
@@ -389,9 +390,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _show_high_res_image(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""
-		Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà.
-		"""
+		"""Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà."""
 		if self._tearing_down or not getattr(self, "viewer", None) or self.pt.visualization is None: return
 		s = self.pt.settings.visualization_hr.get_settings()
 		if s["Type"] == 0 and self.pt.localizations.empty: return
@@ -419,6 +418,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+		"""Ouvre une instance napari avec le Viewer 3D si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d = napari.Viewer(ndisplay=3)
 			self.viewer_3d.title = "3D Viewer"				   # Modifier le titre de la fenêtre
@@ -427,6 +427,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+		"""Ouvre le visualisateur de graphiques s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
 			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)

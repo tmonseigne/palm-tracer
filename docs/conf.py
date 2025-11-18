@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath("../palm_tracer"))
 # -- Project information -----------------------------------------------------
 
 project = "PALM Tracer"
-copyright = "2024, Thibaut Monseigne"
+copyright = "2025, Thibaut Monseigne"
 author = "Thibaut Monseigne"
 language = "fr"
 
@@ -21,9 +21,11 @@ language = "fr"
 
 extensions = [
 		"sphinx.ext.autodoc",
+		"sphinx.ext.autodoc.typehints",  # recommandé mais optionnel dans Sphinx 7+
 		"sphinx.ext.autosummary",
 		"sphinx.ext.autosectionlabel",
 		"sphinx.ext.intersphinx",
+		"sphinx.ext.mathjax",
 		"sphinx.ext.napoleon",
 		"sphinx.ext.todo",
 		"sphinx.ext.viewcode",
@@ -32,12 +34,24 @@ extensions = [
 		"sphinx_qt_documentation",
 		]
 
+autodoc_typehints = "both"
+
 intersphinx_mapping = {
-		"python":     ("https://docs.python.org/3", None),
-		"numpy":      ("https://numpy.org/doc/stable", None),
-		"pandas":     ("https://pandas.pydata.org/pandas-docs/stable", None),
-		"napari":     ("https://napari.org/stable", None),
-		"matplotlib": ("https://matplotlib.org/stable/", None),
+		"python":                  ("https://docs.python.org/3", None),
+		"numpy":                   ("https://numpy.org/doc/stable", None),
+		"pandas":                  ("https://pandas.pydata.org/pandas-docs/stable", None),
+		"scipy":                   ("https://docs.scipy.org/doc/scipy/", None),
+		"scikit-image":            ("https://scikit-image.org/docs/stable/", None),
+		"matplotlib":              ("https://matplotlib.org/stable/", None),
+		"seaborn":                 ("https://seaborn.pydata.org/", None),
+		"pillow":                  ("https://pillow.readthedocs.io/en/stable/", None),
+		"psutil":                  ("https://psutil.readthedocs.io/en/latest/", None),
+		"pytest":                  ("https://docs.pytest.org/en/latest/", None),
+		"pytest-cov":              ("https://pytest-cov.readthedocs.io/en/latest/", None),
+		"pytest-qt":               ("https://pytest-qt.readthedocs.io/en/latest/", None),
+		"napari":                  ("https://napari.org/stable/", None),
+		"magicgui":                ("https://pyapp-kit.github.io/magicgui/", None),
+		"sphinx":                  ("https://www.sphinx-doc.org/en/master/", None),
 		}
 
 templates_path = ["_templates"]

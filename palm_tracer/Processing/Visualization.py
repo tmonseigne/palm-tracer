@@ -15,9 +15,9 @@ def normalize_data(data: np.ndarray, scale: int = SCALE) -> np.ndarray:
 	Normalisation des données avec prise en compte de l'ordre de grandeur et adaptation des plages.
 
 	Règles :
-		- Si toutes les valeurs sont dans [0,1], normalisation vers [0, SCALE].
-		- Si valeurs négatives et positives, on prend la puissance de 2 la plus proche de max(abs(min), abs(max)) et on transpose vers [0, SCALE].
-		- Colonne uniforme : on force une valeur constante de SCALE.
+		- Si toutes les valeurs sont dans `[0,1]`, normalisation vers `[0, SCALE]`.
+		- Si valeurs négatives et positives, on prend la puissance de 2 la plus proche de ``max(abs(min), abs(max))`` et on transpose vers `[0, SCALE]`.
+		- Colonne uniforme : on force une valeur constante de ``SCALE``.
 		- Si toutes les valeurs sont positives, on considère 0 comme min et on normalise avec la puissance de 2 la plus proche du max.
 
 	:param data: Données à normaliser.
@@ -67,7 +67,7 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 	:param height: Hauteur de l'image.
 	:param ratio: Ratio d'aggrandissement de l'image.
 	:param points: Localisations des points.
-	:param normalization: Normalisation des valeurs (pour les mettre entre 0 et SCALE).
+	:param normalization: Normalisation des valeurs (pour les mettre entre `0` et `SCALE`).
 	:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 	"""
 
@@ -96,13 +96,13 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFrame) -> np.ndarray:
 	"""
 	Construit une image haute résolution (uint16) à partir de trajectoires localisées.
-    Chaque trajectoire est tracée par segments (P0→P1, P1→P2, …) avec une couleur unique.
+	Chaque trajectoire est tracée par segments (P0→P1, P1→P2, …) avec une couleur unique.
 
 	Colonnes attendues dans `tracks` :
-		- "Track" : identifiant de la trajectoire (int)
-		- "Plane" : ordre/plan (int) ; uniquement utilisé pour trier temporellement
-		- "X", "Y" : coordonnées (float, en pixels dans l'image de base)
-		- "Color" : intensité à tracer (0..65535). Toute valeur hors bornes est tronquée.
+		- "Track" : identifiant de la trajectoire (:class:`int`)
+		- "Plane" : ordre/plan (:class:`int`) ; uniquement utilisé pour trier temporellement
+		- "X", "Y" : coordonnées (``float``, en pixels dans l'image de base)
+		- "Color" : intensité à tracer ``(0..65535)``. Toute valeur hors bornes est tronquée.
 
 	:param width: Largeur de l'image de base.
 	:param height: Hauteur de l'image de base.
@@ -225,7 +225,7 @@ def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list
 
 
 ##################################################
-def plot_histogram(ax: plt.axes, data: np.ndarray, title: str, limit: bool = True, kde: bool = True, density: bool = True):
+def plot_histogram(ax: plt.Axes, data: np.ndarray, title: str, limit: bool = True, kde: bool = True, density: bool = True):
 	"""
 	Trace un histogramme des données avec Seaborn, et optionnellement une courbe kernel density estimation.
 
@@ -270,7 +270,7 @@ def plot_histogram(ax: plt.axes, data: np.ndarray, title: str, limit: bool = Tru
 
 
 ##################################################
-def plot_plane_violin(ax: plt.axes, data: np.ndarray, title: str):
+def plot_plane_violin(ax: plt.Axes, data: np.ndarray, title: str):
 	"""
 	Trace un graphique type violon pour les données en entrée .
 

@@ -12,26 +12,22 @@ from qtpy.QtCore import QObject, Signal
 ##################################################
 class SignalWrapper(QObject):
 	"""
-	Encapsulation d'un signal Qt avec blocage temporaire et coalescence.
-
-	- `blocked()` : contexte pour bloquer temporairement les signaux.
-	- Pendant le blocage, les appels à `emit(value)` ne propagent rien ; seule la
-	  **dernière** valeur est mémorisée.
-	- À la fin du blocage externe (compteur à 0), une **seule** émission est effectuée
-	  avec la dernière valeur mémorisée (ou `None` si aucune).
-
-	Cette classe simplifie la gestion des signaux en fournissant une interface minimale pour connecter des fonctions et émettre des signaux.
-
-	Attributs :
-			- **_signal (QtCore.Signal)** : Signal Qt encapsulé dans cette classe.
+	Encapsulation d'un signal Qt avec connexion, déconnexion, émission, blocage temporaire et coalescence.
+		- :func:`blocked()` : contexte pour bloquer temporairement les signaux.
+		- Pendant le blocage, les appels à :func:`emit(value)` ne propagent rien ; seule la **dernière** valeur est mémorisée.
+		- À la fin du blocage externe (compteur à 0), une **seule** émission est effectuée avec la dernière valeur mémorisée (ou `None` si aucune).
 	"""
 
 	_signal = Signal(object)
 	"""Signal encapsulé, prêt à être utilisé dans l'application."""
-	_block_count: int = 0					  # Compteur de blocs imbriqués.
-	_pending: bool = False					  # Indique si une émission est en attente.
-	_pending_value: Any = None				  # Dernière valeur reçue pendant le blocage.
-	_slots: list[Callable[[Any], None]] = []  # List des Fonctions ou slots connectés
+	_block_count: int = 0
+	"""Compteur de blocs imbriqués."""
+	_pending: bool = False
+	"""Indique si une émission est en attente."""
+	_pending_value: Any = None
+	"""Dernière valeur reçue pendant le blocage."""
+	_slots: list[Callable[[Any], None]] = []
+	"""List des Fonctions ou slots connectés."""
 
 	##################################################
 	def __init__(self):
@@ -101,15 +97,7 @@ class SignalWrapper(QObject):
 		def __exit__(self, exc_type, exc, tb): self._o._block_end()
 
 	def blocked(self) -> "BlockCtx":
-		"""
-		Retourne un contexte de blocage des signaux.
-
-		Usage :
-			with self._signal.blocked():
-				# opérations bruyantes (plusieurs .emit)
-				...
-			# ici, un seul .emit() est relancé automatiquement (si nécessaire)
-		"""
+		"""Retourne un contexte de blocage des signaux."""
 		return SignalWrapper.BlockCtx(self)
 
 	def _block_begin(self):

@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 
 from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_tracks_image
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups import Filtering, FilteringGF, FilteringT
+from palm_tracer.Settings.Groups import Filtering, FilteringL, FilteringT
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
@@ -60,7 +60,7 @@ class PALMTracer:
 	_stack: Optional[np.ndarray] = field(init=False, default=None)
 	"""Pile en cours de traitement."""
 	_suffix: str = field(init=False, default="")
-	"""Suffixe des fichiers pour un traitement (timestamp au format YYYYMMDD_HHMMSS)."""
+	"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
 
 	# ==================================================
 	# region Initialization
@@ -68,10 +68,9 @@ class PALMTracer:
 	##################################################
 	def is_dll_valid(self) -> bool:
 		"""
-		Vérifie la validité des DLL utilisées par le plugin.
+		Vérifie la validité de la DLL utilisée par le plugin.
 
-		Cette méthode teste si les deux bibliothèques dynamiques (CPU et tracking) sont correctement chargées et prêtes à être utilisées.
-		:return: True si les deux DLL sont valides, False sinon.
+		:return: True si la DLL est valide, False sinon.
 		"""
 		return self.palm.is_valid()
 
@@ -328,16 +327,16 @@ class PALMTracer:
 	##################################################
 	def add_color_to_tracks(self, datas: pd.DataFrame, source: str) -> pd.DataFrame:
 		"""
-		Ajoute une couleur pour chaque point des trajectoires en fonction d'un critère agrégé au niveau "Track".
+		Ajoute une couleur pour chaque point des trajectoires en fonction d'un critère agrégé au niveau **Track**.
 
 		Règles :
-		- source == "Track Number" : couleur = (Track-1) % MAX_UI_16 + 1
-		- source ∈ {"Length", "Instant D", "MSD", "Total Intensity"} :
-		    * on utilise la table self.tracks_compute["Fit"] (1 ligne par Track) pour récupérer la métrique.
-		    * si Fit est vide, on déclenche le calcul puis on réessaie ; si toujours vide, fallback = "Track Number".
-		    * si une seule piste valide ou si min==max, toutes les pistes prennent la couleur médiane MAX_UI_16//2.
-		    * sinon, étalonnage linéaire min→1, max→MAX_UI_16.
-		    * toute piste absente de Fit ou NaN sur la métrique retombe sur la couleur "Track Number".
+			- Si source == "Track Number" : couleur = (Track-1) % MAX_UI_16 + 1
+			- Si source ∈ {"Length", "Instant D", "MSD", "Total Intensity"} :
+				* on utilise la table ``self.tracks_compute["Fit"]`` (1 ligne par Track) pour récupérer la métrique.
+				* si `Fit` est vide, on déclenche le calcul puis on réessaie ; si toujours vide, fallback = "Track Number".
+				* si une seule piste valide ou si `min==max`, toutes les pistes prennent la couleur médiane `MAX_UI_16//2`.
+				* sinon, étalonnage linéaire `min→1`, `max→MAX_UI_16`.
+				* toute piste absente de `Fit` ou `NaN` sur la métrique retombe sur la couleur "Track Number".
 
 		:param datas: DataFrame des points de trajectoires, doit contenir au minimum la colonne 'Track'.
 		:param source: Critère de coloration ("Track Number", "Length", "Instant D", "MSD", "Total Intensity").
@@ -522,7 +521,7 @@ class PALMTracer:
 		"""
 		res = datas.copy()
 		f = cast(Filtering, self.settings.filtering)
-		fg = cast(FilteringGF, f["Gaussian Fit"])
+		fg = cast(FilteringL, f["Gaussian Fit"])
 		filters = [[f["Plane"], "Plane"],
 				   [f["Intensity"], "Integrated Intensity"],
 				   [fg["MSE"], "MSE XY"],

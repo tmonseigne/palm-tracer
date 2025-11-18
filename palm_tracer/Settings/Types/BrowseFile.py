@@ -19,12 +19,12 @@ class BrowseFile(BaseSettingType):
 	Classe pour un paramètre spécifique de type recherche de fichier.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **default (str)** : Valeur par défaut du paramètre.
-			- **value (str)** : Valeur actuelle du paramètre.
-			- **box (QLineEdit)** : Objet QT permettant de manipuler le paramètre.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **default** (:class:`str`) : Valeur par défaut du paramètre.
+		- **value** (:class:`str`) : Valeur actuelle du paramètre.
+		- **box** (:class:`QLineEdit`) : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: str = ""
@@ -55,18 +55,18 @@ class BrowseFile(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()  # Appelle l'initialisation de la classe mère
-		self.box = QLineEdit()  # Création de la boite.
+		super().initialize()							   # Appelle l'initialisation de la classe mère
+		self.box = QLineEdit()							   # Création de la boite.
 		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
 
 		browse_button = QPushButton("Choisir un fichier")  # Ajout d'un bouton pour permettre de choisir le fichier
-		browse_button.clicked.connect(self.browse_file)  # Connexion du bouton à la méthode de sélection
+		browse_button.clicked.connect(self.browse_file)    # Connexion du bouton à la méthode de sélection
 
 		# Disposer le QLineEdit et le bouton dans un calque horizontal
-		layout = QHBoxLayout()  # Création d'un calque intermédiaire comprenant le champ de texte et le bouton de sélection.
+		layout = QHBoxLayout()							 # Création d'un calque intermédiaire comprenant le champ de texte et le bouton de sélection.
 		layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
-		layout.addWidget(self.box)  # Ajout du champ de texte
-		layout.addWidget(browse_button)  # Ajout du bouton de sélection
+		layout.addWidget(self.box)						 # Ajout du champ de texte
+		layout.addWidget(browse_button)					 # Ajout du bouton de sélection
 
 		self.add_row(layout)  # Ajouter au calque principal du setting.
 

@@ -5,8 +5,8 @@ des graphiques liés aux données PALMTracer (pile TIFF, localisations, tracking
 Ce widget fournit :
 - Une interface en deux parties :
   • Colonne gauche : informations fichier + présence localisation/tracking, choix du domaine
-    (Stack / Localization / Tracking) via 3 boutons exclusifs, et sélection de la source.
-  • Zone droite : rendu d’un graphe Plotly dans un QWebEngineView (zoom, pan, hover, export).
+	(Stack / Localization / Tracking) via 3 boutons exclusifs, et sélection de la source.
+  • Zone droite : rendu d'un graphe Plotly dans un QWebEngineView (zoom, pan, hover, export).
 - Un couplage léger avec :class:`PALMTracer` pour accéder aux fichiers en cours et charger
   automatiquement pile/CSV (localisations/tracking).
 - Des exports HTML/PNG/PDF (PNG via capture Qt en fallback, si Kaleido indisponible).
@@ -14,13 +14,13 @@ Ce widget fournit :
 Notes
 -----
 - Le rendu interactif utilise QtWebEngine (PySide6-Addons / PyQt6-WebEngine / PyQtWebEngine selon binding).
-  Si QtWebEngine n’est pas disponible, un fallback texte explicite est affiché.
-- Le widget ne copie pas l’objet :class:`PALMTracer` ; il garde une **référence** passée au constructeur.
+  Si QtWebEngine n'est pas disponible, un fallback texte explicite est affiché.
+- Le widget ne copie pas l'objet :class:`PALMTracer` ; il garde une **référence** passée au constructeur.
 - Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
 
 .. todo::
-    - Ajouter des filtres (bloc réservé dans l’UI).
-    - Implémenter les sources Tracking (MSD, vitesse, etc.) et leurs graphes associés.
+	- Ajouter des filtres (bloc réservé dans l'UI).
+	- Implémenter les sources Tracking (MSD, vitesse, etc.) et leurs graphes associés.
 """
 
 import os
@@ -52,41 +52,29 @@ from palm_tracer.Settings.Types import FileList
 class GraphViewerWidget(QWidget):
 	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
 
-    Ce widget expose une UI compacte pour :
-    - afficher des graphes à partir de la pile TIFF (Stack) ou des CSV (Localization/Tracking),
-    - choisir la *famille* de données (Stack / Localization / Tracking) via 3 boutons exclusifs,
-    - sélectionner la *source* dans une combo (ex. Intensité, Localizations Count, etc.),
-    - exporter la figure (HTML/PNG/PDF).
+	Ce widget expose une UI compacte pour :
+		- afficher des graphes à partir de la pile TIFF (Stack) ou des CSV (Localization/Tracking),
+		- choisir la *famille* de données (Stack / Localization / Tracking) via 3 boutons exclusifs,
+		- sélectionner la *source* dans une combo (ex. Intensité, Localizations Count, etc.),
+		- exporter la figure (HTML/PNG/PDF).
 
-    Attributs principaux
-    --------------------
-    _pt : PALMTracer
-        Référence vers l’instance principale de PALMTracer (aucune copie).
-    _fig : Optional[go.Figure]
-        Dernière figure Plotly produite (pour export/maj).
-    _html : Optional[str]
-        Dernier HTML généré pour la figure (export .html).
-    _grapher : Grapher
-        Utilitaire de création de figures (histogrammes, scatter, etc.).
-    _file : str
-        Chemin du fichier image courant (TIF).
-    _csv_path : str
-        Chemin de base servant à rechercher les CSV de localisation/tracking.
-    _loc_file, _trc_file : str
-        Derniers CSV de localisation/tracking détectés.
-    _has_loc, _has_trc : bool
-        Présence de données de localisation/tracking.
-    _stack : np.ndarray
-        Pile d’images (chargée depuis `_file`).
-    _loc, _trc : pd.DataFrame
-        Données tabulaires (localisations / tracking) si présentes.
+	Attributs :
+		- _pt (:class:`PALMTracer <palm_tracer.PALMTracer>`) : Référence vers l'instance principale de PALMTracer (aucune copie).
+		- _fig  (:class:`Optional[go.Figure]`) : Dernière figure Plotly produite (pour export/maj).
+		- _html  (:class:`Optional[str]`)  : Dernier HTML généré pour la figure (export .html).
+		- _grapher  (:class:`Grapher <palm_tracer.Processing.Grapher>`) : Utilitaire de création de figures (histogrammes, scatter, etc.).
+		- _file  (:class:`str`) : Chemin du fichier image courant (TIF).
+		- _csv_path  (:class:`str`) : Chemin de base servant à rechercher les CSV de localisation/tracking.
+		- _loc_file, _trc_file  (:class:`str`) : Derniers CSV de localisation/tracking détectés.
+		- _has_loc, _has_trc  (:class:`bool`) : Présence de données de localisation/tracking.
+		- _stack  (:class:`numpy.ndarray`) : Pile d'images (chargée depuis `_file`).
+		- _loc, _trc  (:class:`pandas.DataFrame`) : Données tabulaires (localisations / tracking) si présentes.
 
-    Remarques
-    ---------
-    - Les boutons de domaine "Localization"/"Tracking" sont automatiquement désactivés si
-      aucune donnée correspondante n’est trouvée (cf. `_refresh_source_buttons`).
-    - L’export PNG utilise un fallback par capture du widget Qt si Kaleido n’est pas utilisé.
-    """
+	Remarques :
+		- Les boutons de domaine "Localization"/"Tracking" sont automatiquement désactivés si
+		  aucune donnée correspondante n'est trouvée (cf. :meth:`_refresh_source_buttons`).
+		- L'export PNG utilise un fallback par capture du widget Qt si Kaleido n'est pas utilisé.
+	"""
 
 	# ==================================================
 	# region Init
@@ -96,7 +84,7 @@ class GraphViewerWidget(QWidget):
 		"""
 		Initialise le widget (UI, connexions, état initial) et lie PALMTracer.
 
-		:param palmtracer: Instance principale :class:`PALMTracer`. sans copie (référence partagée).
+		:param palmtracer: Instance principale :class:`PALMTracer <palm_tracer.PALMTracer>`. sans copie (référence partagée).
 		"""
 		super().__init__()
 		self.setWindowTitle("Graph Viewer")
@@ -127,16 +115,15 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def _init_ui(self):
 		"""
-		Construit l'interface utilisateur.
-
-		- Colonne gauche :
-		  • Informations : nom du fichier, présence Localizations/Tracking.
-		  • Domaine : 3 boutons exclusifs (Stack/Localization/Tracking).
-		  • Source : combo dépendante du domaine sélectionné.
-		  • Filtres : section réservée (non implémentée).
-		  • Actions : Actualize files / Export…
-		- Zone droite :
-		  • QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
+		Construit l'interface utilisateur :
+			- Colonne gauche :
+				- Informations : nom du fichier, présence Localizations/Tracking.
+				- Domaine : 3 boutons exclusifs (Stack/Localization/Tracking).
+				- Source : combo dépendante du domaine sélectionné.
+				- Filtres : section réservée (non implémentée).
+				- Actions : Actualize files / Export…
+			- Zone droite :
+				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
 		"""
 
 		main_layout = QHBoxLayout(self)
@@ -189,17 +176,17 @@ class GraphViewerWidget(QWidget):
 		form.addRow("Source :", self._cmb_src)
 
 		grp_source.setStyleSheet("""
-				       QPushButton {
-				           border: 1px solid #c7c7c7;
-				           padding: 6px 12px;
-				           background: #f7f7f7;
-				       }
-				       QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
-				       QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-				       QPushButton:last-child  { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-				       QPushButton:checked     { background: #e9eff7; border-color: #6aa0e8; }
-				       QPushButton:disabled    { color: #999; background: #fafafa; }
-				       """)
+					   QPushButton {
+						   border: 1px solid #c7c7c7;
+						   padding: 6px 12px;
+						   background: #f7f7f7;
+					   }
+					   QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
+					   QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+					   QPushButton:last-child  { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+					   QPushButton:checked	 { background: #e9eff7; border-color: #6aa0e8; }
+					   QPushButton:disabled	{ color: #999; background: #fafafa; }
+					   """)
 
 		# Bloc Affichage (2 colonnes)
 		grp_display = QGroupBox("Display")
@@ -367,13 +354,13 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def _actualize(self):
 		"""
-		Actualise les fichiers/données depuis l’état PALMTracer :
-		- Lit le TIF sélectionné (pile `_stack`) pour l’affichage Stack.
-		- Déduit les chemins CSV "localizations"/"tracking" et charge les DataFrame `_loc`/`_trc`.
-		- Met à jour les libellés d’information et l’état d’activation des boutons de domaine.
-		- Sélectionne par défaut le domaine "Stack" et redessine.
+		Actualise les fichiers/données depuis l'état PALMTracer :
+			- Lit le TIF sélectionné (pile `_stack`) pour l'affichage Stack.
+			- Déduit les chemins CSV "localizations"/"tracking" et charge les DataFrame `_loc`/`_trc`.
+			- Met à jour les libellés d'information et l'état d'activation des boutons de domaine.
+			- Sélectionne par défaut le domaine "Stack" et redessine.
 
-		En cas d’erreur de lecture, logue l’erreur via :func:`print_error`.
+		En cas d'erreur de lecture, logue l'erreur via :func:`print_error`.
 		"""
 
 		# Métadonnées d'information
@@ -404,13 +391,12 @@ class GraphViewerWidget(QWidget):
 		"""
 		Exporte en PNG via capture du widget QWebEngineView (fallback sans Kaleido).
 
-		Limitations
-		-----------
-		- Capture la zone visible (viewport) : pour une image plus grande, redimensionner temporairement le widget avant capture.
-		- Nécessite QtWebEngine pour capturer le rendu.
+		Limitations :
+			- Capture la zone visible (viewport) : pour une image plus grande, redimensionner temporairement le widget avant capture.
+			- Nécessite QtWebEngine pour capturer le rendu.
 
 		:param path: Chemin de sortie du PNG.
-		:param scale: Facteur d’échelle appliqué à la capture.
+		:param scale: Facteur d'échelle appliqué à la capture.
 		:return: True si le fichier a été écrit, False sinon.
 		"""
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
@@ -426,19 +412,17 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def _on_export(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""
-		Ouvre un dialogue et exporte la figure selon l’extension choisie.
+		Ouvre un dialogue et exporte la figure selon l'extension choisie.
 
-		Formats supportés
-		-----------------
-		- .html : enregistre l’HTML interactif (incluant PlotlyJS).
-		- .png  : exporte une image du rendu (fallback par capture Qt).
-		- .pdf  : imprime via QWebEngineView.printToPdf (si QtWebEngine présent).
+		Formats supportés :
+			- .html : enregistre l'HTML interactif (incluant PlotlyJS).
+			- .png  : exporte une image du rendu (fallback par capture Qt).
+			- .pdf  : imprime via QWebEngineView.printToPdf (si QtWebEngine présent).
 
-		Comportement
-		------------
-		- En l’absence de figure/HTML, avertit l’utilisateur.
-		- Sur échec d’écriture, affiche un message d’erreur.
-			"""
+		Comportement :
+			- En l'absence de figure/HTML, avertit l'utilisateur.
+			- Sur échec d'écriture, affiche un message d'erreur.
+		"""
 		if self._fig is None and self._html is None:
 			QMessageBox.warning(self, "Export", "No figures to export.")
 			return

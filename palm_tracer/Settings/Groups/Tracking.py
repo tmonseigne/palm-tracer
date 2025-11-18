@@ -15,6 +15,10 @@ from palm_tracer.Settings.Types import SpinFloat, SpinInt
 class Tracking(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres de Tracking :
+
+	Attributs :
+		- **Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) : Distance maximale en pixel entre deux plans (par défaut : `1.0`).
+		- **Blinking Reconnection** (:class:`TracksBlinkingReconnection`) : Paramètres de reconnexion en cas de scintillement.
 	"""
 
 	label: str = "Tracking"

@@ -6,3 +6,6 @@ Algorithmie
 
    arrays_indices
    auto_threshold
+   pipeline
+   preview
+   fit

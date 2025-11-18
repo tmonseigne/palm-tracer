@@ -30,15 +30,15 @@ class BaseSettingGroup:
 	Classe mère pour un groupe de setting :
 
 	Attributs :
-			- **active (bool)** : État du groupe (activé ou non)
-			- **label (str)** : Nom du Groupe
-			- **setting_list (dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]()** : Liste des settings du groupe.
-			- **_settings (dict[str, Union[BaseSettingGroup, BaseSettingType]])** : Liste des visualisations de settings (inputs) du groupe.
-			- **_widget (QWidget)** : Widget principal du groupe.
-			- **_title (QLabel)** : Nom du Groupe (objet QT).
-			- **_checkbox (QCheckBox)** : Case à cocher pour activer ou non le groupe.
-			- **_header (QFormLayout)** : Titre du groupe.
-			- **_body (QWidget)** : Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible).
+		- **active** (:class:`bool`) : État du groupe (activé ou non)
+		- **label** (:class:`str`) : Nom du Groupe
+		- **setting_list** (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`) : Liste des settings du groupe.
+		- **_settings** (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`) : Liste des visualisations de settings (inputs) du groupe.
+		- **_widget** (:class:`QWidget`) : Widget principal du groupe.
+		- **_title** (:class:`QLabel`) : Nom du Groupe (objet QT).
+		- **_checkbox** (:class:`QCheckBox`) : Case à cocher pour activer ou non le groupe.
+		- **_header** (:class:`QFormLayout`) : Titre du groupe.
+		- **_body** (:class:`QWidget`) : Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible).
 	"""
 
 	_active: bool = field(init=False, default=False)

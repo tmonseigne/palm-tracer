@@ -17,11 +17,18 @@ HR_TRC_SOURCE = ["All", "Track Number", "Length", "Instant D", "MSD", "Total Int
 class VisualizationHR(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres de Visualisation haute résolution :
+
+	Attributs :
+		- **Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt>`) : Facteur d'agrandissement (par défaut : `2`).
+		- **Type** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) :
+		  Choix du type de visualisation (Localisation ou trajectoires (par défaut : `Localizations`).
+		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) :
+		  Element de la localisation (trajectoire) permettant de définir l'intensité (par défaut : `All`).
 	"""
 
 	label: str = "High Resolution"
 	setting_list = {"Ratio":  [SpinInt, ["Up scaling ratio", 2, 1, 100, 1]],
-					"Type":   [Combo, ["Type", 0, ["Localisations", "Tracks"]]],
+					"Type":   [Combo, ["Type", 0, ["Localizations", "Tracks"]]],
 					"Source L": [Combo, ["Source", 1, HR_LOC_SOURCE]],
 					"Source T": [Combo, ["Source", 1, HR_TRC_SOURCE]]}
 

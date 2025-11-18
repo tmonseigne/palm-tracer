@@ -20,12 +20,18 @@ class FilteringT(BaseSettingGroup):
 	Classe contenant les paramètres du filtrage pour le tracking :
 
 	Attributs :
-			- **Length (CheckRangeInt)** : Interval de longueur sélectionnés (par défaut : [1, 10000]).
-			- **D Coeff (CheckRangeFloat)** : Interval de XXX sélectionés (par défaut : 0-10000).
-			- **Instant D (CheckRangeFloat)** : Interval de XXX sélectionés (par défaut : 0-10000).
-			- **Speed (CheckRangeFloat)** : Interval de vitesse sélectionés (par défaut : 0-10000).
-			- **Alpha (CheckRangeFloat)** : Interval de puissance sélectionés (par défaut : 0-10000).
-			- **Confinement (CheckRangeFloat)** : Interval de confinement sélectionés (par défaut : 0-10000).
+		- **Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt>`) :
+		  Interval de longueur sélectionnés (par défaut : `[1, 10000]`).
+		- **Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat>`) :
+		  Interval de diffusion instantannée sélectionnés (par défaut : `[-5, 5]`).
+		- **D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat>`) :
+		  Interval de direction sélectionnés (par défaut : `[-5, 5]`).
+		- **Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat>`) :
+		  Interval de puissance sélectionnés (par défaut : `[-10, 10]`).
+		- **Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat>`) :
+		  Interval de vitesse sélectionnés (par défaut : `[0, 1]`).
+		- **Confinement** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat>`) :
+		  Interval de confinement sélectionnés (par défaut : `[-10, 10]`).
 	"""
 
 	label: str = "Tracks"

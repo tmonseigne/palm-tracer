@@ -85,7 +85,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization") -> pd.DataFr
 	Parsing du résultat de la DLL PALM.
 
 	On a un tableau 1D de grande taille en entrée :
-		- On le découpe en tableau 2D à 13 colonnes (`N_SEGMENTS`).	La taille du tableau est vérifié et tronqué si nécessaire.
+		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``).	La taille du tableau est vérifié et tronqué si nécessaire.
 		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
@@ -117,22 +117,15 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	Le parsing s'arrête dès qu'un L <= 0 est rencontré.
 
 	Règles :
-	- Le premier élément d'un bloc (L) donne le nombre d'éléments qui suivent pour ce bloc.
-	- Les longueurs négatives ou nulle (L <= 0) signalent la fin du flux.
-	- Les blocs tronqués (pas assez d'éléments après L) lèvent une ValueError.
-	- Les valeurs des blocs (sans L) sont retournées dans le DataFrame.
-	- Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN.
+		- Le premier élément d'un bloc (L) donne le nombre d'éléments qui suivent pour ce bloc.
+		- Les longueurs négatives ou nulle (L <= 0) signalent la fin du flux.
+		- Les blocs tronqués (pas assez d'éléments après L) lèvent une ``ValueError``.
+		- Les valeurs des blocs (sans L) sont retournées dans le DataFrame.
+		- Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN.
 
 	:param data: Données 1D récupérées depuis la DLL PALM. Doit être indexable et de dimension 1.
-	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes (Val_0, Val_1, ...) contiennent les valeurs du bloc, complétées par NaN si
-	nécessaire.
-	:raise ValueError: entrée invalide (nombre de dimensions ou taille finale)
-
-	Exceptions
-	----------
-	ValueError
-	    - Si `data` n'est pas 1D.
-	    - Si un bloc est tronqué (L annonce plus d'éléments que disponibles).
+	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes (Val_0, Val_1, ...) contiennent les valeurs du bloc, complétées par NaN si nécessaire.
+	:raise ValueError: entrée invalide (nombre de dimensions ou taille finale incorrecte)
 	"""
 	if data.ndim != 1:
 		raise ValueError("`data` doit être un tableau 1D.")
@@ -176,7 +169,7 @@ def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
 	Parsing du résultat de la localisation pour la DLL de Tracking.
 
 	:param data: Donnée en entrée récupérées depuis la localisation.
-	:return: Dataframe
+	:return: ``np.ndarray``
 	"""
 	# Ajoute une ligne de -1 à chaque changement de Plan dans la localisation
 	res = []

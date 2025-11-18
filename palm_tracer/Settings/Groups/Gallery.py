@@ -16,8 +16,8 @@ class Gallery(BaseSettingGroup):
 	Classe contenant les paramètres de la Gallerie :
 
 	Attributs :
-			- **ROI Size (SpinInt)** : Taille de la Zone autour des points (par défaut : 9).
-			- **Gallery Size (SpinInt)** : Nombre de points par ligne (par défaut : 20).
+		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt>`) : Taille de la Zone autour des points (par défaut : `9`).
+		- **Gallery Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt>`) : Nombre de points par ligne (par défaut : `20`).
 	"""
 
 	label: str = "Gallery"

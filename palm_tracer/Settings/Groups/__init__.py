@@ -14,7 +14,7 @@ from .BaseSettingGroup import BaseSettingGroup
 from .Batch import Batch
 from .Calibration import Calibration
 from .Filtering import Filtering
-from .FilteringGF import FilteringGF
+from .FilteringL import FilteringL
 from .FilteringT import FilteringT
 from .Gallery import Gallery
 from .GaussianFit import GaussianFit
@@ -43,7 +43,7 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	elif data["type"] == "VisualizationHR": return VisualizationHR.from_dict(data)
 	elif data["type"] == "VisualizationGraph": return VisualizationGraph.from_dict(data)
 	elif data["type"] == "Filtering": return Filtering.from_dict(data)
-	elif data["type"] == "FilteringGF": return FilteringGF.from_dict(data)
+	elif data["type"] == "FilteringL": return FilteringL.from_dict(data)
 	elif data["type"] == "FilteringT": return FilteringT.from_dict(data)
 	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
 
@@ -52,7 +52,7 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 __all__ = ["create_group_from_dict",
 		   "BaseSettingGroup",
 		   "Batch", "Calibration",
-		   "Filtering", "FilteringGF", "FilteringT",
+		   "Filtering", "FilteringL", "FilteringT",
 		   "Localization", "GaussianFit", "SplineFit",
 		   "Tracking", "TracksBlinkingReconnection", "TracksCompute",
 		   "Gallery", "VisualizationHR", "VisualizationGraph"]

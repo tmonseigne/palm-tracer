@@ -77,7 +77,7 @@ class Settings:
 	##################################################
 	def signal_blocked(self)-> AbstractContextManager[Any]:
 		"""
-		Blocage des signaux pour l’intégralité des paramètres.
+		Blocage des signaux pour l'intégralité des paramètres.
 		Retourne un context manager utilisable avec `with ...:`.
 		"""
 		# if not self._settings: return nullcontext() # On n'a pas de settings vide

@@ -21,12 +21,15 @@ class Localization(BaseSettingGroup):
 	Classe contenant les paramètres de Localisation :
 
 	Attributs :
-			- **Preview (CheckBox)** : Activation de la preview ou non (par défaut : False).
-			- **Threshold (SpinFloat)** : Seuil de détection de la localisation en intensité (par défaut : 90).
-			- **Watershed (CheckBox)** : Activation ou désactivation du mode Watershed (par défaut : True).
-			- **Mode (Combo)** : Mode de calcul pour la localisation (par défaut : Gaussian Fit).
-			- **ROI Size (SpinInt)** : Taille du carré autour de la localisation (par défaut : 7).
-			- **Gaussian Fit (GaussianFit)** : Paramètres du Gaussian Fit.
+		- **Preview** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) : Activation de la preview ou non (par défaut : `False`).
+		- **Threshold** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) : Seuil de détection de la localisation en intensité (par défaut : `90`).
+		- **Auto Threshold** (:class:`Button <palm_tracer.Settings.Types.Button>`) : Bouton pour calculer le seuil automatiquement.
+		- **ROI Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) : Forme de la zone autour de la localisation (par défaut : `Circle`).
+		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt>`) : Taille de la zone autour de la localisation (par défaut : `7`).
+		- **Watershed** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) : Activation ou désactivation du mode Watershed (par défaut : `True`).
+		- **Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) : Mode de calcul d'ajustement pour la localisation (par défaut : `Nothing`).
+		- **Gaussian Fit** (:class:`GaussianFit`) : Paramètres du Gaussian Fit.
+		- **Spline Fit** (:class:`SplineFit`) : Paramètres du Spline Fit.
 	"""
 
 	label: str = "Localization"

@@ -42,7 +42,7 @@ class Grapher:
 		:param gaussian: Si True, superpose la gaussienne.
 		:param density: affiche l'histogramme en densité (True) ou en comptes (False).
 		:param bins: nbins explicite (sinon Sturges).
-		:return: go.Figure
+		:return: ``go.Figure``
 		"""
 		x = np.asarray(data).ravel()
 		x = x[np.isfinite(x)]
@@ -109,7 +109,7 @@ class Grapher:
 		:param data: Données sous forme de tableau numpy 1D ou 2D.
 		:param title: titre du graphe.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:return: go.Figure
+		:return: ``go.Figure``
 		"""
 		# Déterminer x,y
 		if data.ndim == 1:
@@ -147,7 +147,7 @@ class Grapher:
 		"""
 		Calcule un nombre de bin adaptatif pour un histogramme.
 
-		:param data: données à analyser
+		:param data: données à analyser.
 		:param limits: bornes pour le nombre de bins.
 		:return: nombre de bins.
 		"""
@@ -162,7 +162,7 @@ class Grapher:
 		"""
 		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si necessaire.
 
-		:param data: données à analyser
+		:param data: données à analyser.
 		:param limit: limite ou non les données.
 		:return: le tableau (en cas de modification) et les limites du graphiques.
 		"""

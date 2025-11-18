@@ -1,4 +1,4 @@
-Guide de l'utilisateur de PALM Tracer
+Installation
 =====================================
 
 .. role:: python(code)
@@ -7,14 +7,11 @@ Guide de l'utilisateur de PALM Tracer
 .. role:: console(code)
    :language: console
 
-Installation
-------------
-
 Ce guide vous aidera à installer le projet étape par étape.
 
 
 Étape 1 : Téléchargement depuis GitHub
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------------------------------------
 
 1. Rendez-vous sur `la page GitHub du projet <https://github.com/tmonseigne/palm-tracer>`_.
 2. Cliquez sur **Code** (le bouton vert).
@@ -23,7 +20,7 @@ Ce guide vous aidera à installer le projet étape par étape.
 
 
 Étape 2 : Installation de Python et des éléments additionnels
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------------------------------------
 
 Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installation (nécessite des droits administrateur)
 
@@ -49,14 +46,17 @@ Sinon, vous pouvez tout faire manuellement :
 .. note::
    Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
 
+   **Attention** : Si Python à changé de version récemment, certaines bibliothèques peuvent ne plus être compatible.
+   Ex : au moment d'écrire ces lignes Python 3.14 est disponible mais Napari n'est pas encore compatible.
+
 4. Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :
-  - `Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_.
-    Pendant l'installation, assurez-vous de cocher **C++ build tools**
-  - vcredist : celui-ci sera installé avec **Build Tools for Visual Studio**.
+
+   - `Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_. Pendant l'installation, assurez-vous de cocher **C++ build tools**
+   - vcredist : celui-ci sera installé avec **Build Tools for Visual Studio**.
 
 
 Étape 3 : Création d'un environnement virtuel (optionnel)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------------------------------------
 
 Un environnement virtuel permet de gérer les dépendances du projet de manière isolée.
 
@@ -72,7 +72,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 
 
 Étape 4 : Installation du plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------------------------------------
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
    Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
@@ -85,12 +85,12 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
    python -m pip install .[testing,documentation]`
 
 .. note::
-   La première ligne est necessaire, si vous avez téléchargé le zip du code source à partir de Git.
-   Si vous avez cloné le dépôt, cela n'est plus necessaire.
-   Les éléments supplémentaires tels que testing installent :console:`Napari` entre autres éléments si vous ne l'aviez pas déjà.
+   | La première ligne est necessaire, si vous avez **téléchargé** le zip du code source à partir de Git.
+   | Si vous avez **cloné** le dépôt, cela n'est plus necessaire.
+   | Les éléments supplémentaires tels que testing installent :console:`Napari` entre autres éléments si vous ne l'aviez pas déjà.
 
 Étape 5 : Lancement du plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------------------------------------
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
    Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
@@ -103,7 +103,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 4. Activez le plugin dans :console:`Napari` : :menuselection:`Plugins --> PALM Tracer`
 
 Étape 6 : Supprimer la mise à l'échelle de Napari
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------------------------------------
 Napari utilise QT et celui-ci est paramétré sur la mise à l'échelle automatique de Windows
 qui permet, notamment, d'agrandir l'interface sur les petits écrans ayant une résolution élevée.
 Cela peut devenir parfois gênant, il est possible de modifier ce comportement.
@@ -116,21 +116,21 @@ Cela peut devenir parfois gênant, il est possible de modifier ce comportement.
 
 C'est terminé ! 🎉 Vous avez installé et configuré le plugin avec succès.
 
-Utilisation
------------
-
-
 FAQ
 ---
 
-**1. Pourquoi utiliser un environnement virtuel ?**
+1. Pourquoi utiliser un environnement virtuel ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Pour éviter les conflits entre les dépendances de différents projets. Ou nécessaire lorsque vous n'avez pas les droits administrateur sur votre système.
 
-**2. Et si je n'ai pas `pip install` ?**
-Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 2 et assurez-vous d'avoir ajouté Python au `PATH`.
+2. Et si je n'ai pas :console:`pip install` ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 2 et assurez-vous d'avoir ajouté Python au :console:`PATH`.
 
-**3. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?**
+3. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Certaines commandes nécessitent des droits administrateur. Il faut lancer le terminal en mode administrateur sous Windows.
 
-**4. Où puis-je trouver plus d'aide ?**
+4. Où puis-je trouver plus d'aide ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Consultez la documentation officielle de Python ou contactez le support du projet.

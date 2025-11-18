@@ -4,12 +4,14 @@ qui regroupe les paramètres de filtrage nécessaires à la configuration de PAL
 
 .. todo::
 	Vérifier l'ordre de grandeur et le valeurs par défaut des paramètres des filtres
+	Borne plane filter a gérer dynamiquement
+	intensité c'est intensité intégré de la localisation donc potentiellement beaucouppppppp
 """
 
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.FilteringGF import FilteringGF
+from palm_tracer.Settings.Groups.FilteringL import FilteringL
 from palm_tracer.Settings.Groups.FilteringT import FilteringT
 from palm_tracer.Settings.Types import CheckBox, CheckRangeInt
 
@@ -21,18 +23,22 @@ class Filtering(BaseSettingGroup):
 	Classe contenant les paramètres de filtrage :
 
 	Attributs :
-			- **Plane (CheckRangeInt)** : Interval de plans sélectionnés (par défaut : [1,10000]).
-			- **Intensity (CheckRangeInt)** : Interval d'intensité sélectionés (par défaut : [1,100000]).
-			- **Gaussian Fit** : Paramètres de filtrage du Gaussian Fit.
-			- **Tracks** : Paramètres de filtrage du Tracking.
+		- **Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) :
+		  Sauvegarde les éléments une fois filtrés (dans un fichiers séparé du fichier non filtré)  (par défaut : `False`).
+		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt>`) :
+		  Interval de plans sélectionnés (par défaut : `[1,10000]`).
+		- **Intensity** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt>`) :
+		  Interval d'intensité sélectionnés (par défaut : `[1,10000000]`).
+		- **Gaussian Fit** (:class:`FilteringL`) : Paramètres de filtrage de la Localisation.
+		- **Tracks** (:class:`FilteringT`) : Paramètres de filtrage du Tracking.
 	"""
 
 	label: str = "Filtering"
 	setting_list = {
 			"Save":       [CheckBox, ["Save filtered", False]],
 			"Plane":        [CheckRangeInt, ["Plane", [1, 100000], [1, 100000]]],
-			"Intensity":    [CheckRangeInt, ["Intensity", [0, 100000], [1, 100000]]],
-			"Gaussian Fit": [FilteringGF, []],
+			"Intensity":    [CheckRangeInt, ["Intensity", [0, 100000], [1, 10000000]]],
+			"Gaussian Fit": [FilteringL, []],
 			"Tracks":       [FilteringT, []]
 			}
 	_inner_groups = ["Gaussian Fit", "Tracks"]

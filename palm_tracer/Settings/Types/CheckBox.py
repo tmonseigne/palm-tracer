@@ -18,12 +18,12 @@ class CheckBox(BaseSettingType):
 	Classe pour un paramètre spécifique de type case à cocher.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **default (bool)** : Valeur par défaut du paramètre.
-			- **value (bool)** : Valeur actuelle du paramètre.
-			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **default** (:class:`bool`) : Valeur par défaut du paramètre.
+		- **value** (:class:`bool`) : Valeur actuelle du paramètre.
+		- **box** (:class:`QSpinBox`) : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: bool = False

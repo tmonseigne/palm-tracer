@@ -1,10 +1,5 @@
 """
 Fichier contenant la classe :class:`FileList` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type liste de fichiers.
-
-.. todo::
-	Envoi de signaux en double avec le update item et le currentIndexChanged à voir pour la suite, pour le moment ce n'est pas gênant.
-	Il passe par une phase avec 0 Items (la fonction clear et envoie un signal à ce moment).
-
 """
 
 from dataclasses import dataclass, field
@@ -23,13 +18,13 @@ class FileList(BaseSettingType):
 	Classe pour un paramètre spécifique de type recherche de fichier.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **default (int)** : Valeur par défaut du paramètre (aucun fichier).
-			- **items (list[str])** : Liste des fichiers actuels.
-			- **box (QComboBox)** : ComboBox affichant les fichiers de la liste.
-			- **buttons (dict[str, QPushButton])** : Boutons d'action [+], [-], [clear].
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **default** (:class:`int`) : Valeur par défaut du paramètre (aucun fichier).
+		- **items** (:class:`list[str]`) : Liste des fichiers actuels.
+		- **box** (:class:`QComboBox`) : ComboBox affichant les fichiers de la liste.
+		- **buttons** (:class:`dict[str, QPushButton]`) : Boutons d'action [+], [-], [clear].
 	"""
 
 	default: int = -1
@@ -68,9 +63,10 @@ class FileList(BaseSettingType):
 	##################################################
 	def update_box(self, items: Optional[list[str]] = None):
 		"""Met à jour la ComboBox pour refléter la liste actuelle des fichiers."""
-		self.box.clear()
-		if items is not None: self.items = items
-		self.box.addItems(self.items)
+		with self.signal_blocked():
+			self.box.clear()
+			if items is not None: self.items = items
+			self.box.addItems(self.items)
 
 	##################################################
 	def add_file(self):  # pragma: no cover  pytest à du mal avec l'ouverture de boite de dialogue.

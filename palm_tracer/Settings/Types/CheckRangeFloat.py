@@ -18,13 +18,16 @@ class CheckRangeFloat(BaseSettingType):
 	Classe pour un paramètre spécifique de type interval de nombre flottant.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **default ([float, float])** : Valeurs par défaut du paramètre.
-			- **limit ([float, float])** : Valeurs minimale et maximale du paramètre.
-			- **value ([float, float])** : Valeurs minimale et maximale actuelles du paramètre.
-			- **box ([QDoubleSpinBox, QDoubleSpinBox])** : Objet QT permettant de manipuler le paramètre.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **default** (:class:`[float, float]`) : Valeurs par défaut du paramètre.
+		- **limit** (:class:`[float, float]`) : Valeurs minimale et maximale du paramètre.
+		- **value** (:class:`[float, float]`) : Valeurs minimale et maximale actuelles du paramètre.
+		- **precision** (:class:`int`) : Précision du paramètre.
+		- **_active** (:class:`bool`) : Indicateur d'activation du paramètre.
+		- **_checkbox** (:class:`QCheckBox`) : CheckBox pour activer le paramètre.
+		- **box** (:class:`[QDoubleSpinBox, QDoubleSpinBox]`) : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: list[float] = field(default_factory=lambda: [-1, 1])

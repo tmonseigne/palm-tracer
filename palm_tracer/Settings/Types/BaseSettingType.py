@@ -22,14 +22,14 @@ class BaseSettingType:
 	"""
 	Classe mère abstraite pour la gestion des paramètres dans l'interface utilisateur.
 
-	Cette classe représente un paramètre d'interface utilisateur avec un calque spécifique. Elle est utilisée comme
-	base pour des paramètres plus spécifiques. Chaque paramètre pourra hériter de cette classe pour définir son
-	comportement et ses options spécifiques.
+	Cette classe représente un paramètre d'interface utilisateur avec un calque spécifique.
+	Elle est utilisée comme	base pour des paramètres plus spécifiques.
+	Chaque paramètre pourra hériter de cette classe pour définir son comportement et ses options spécifiques.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
 	"""
 
 	label: str = ""

@@ -2,20 +2,7 @@
 Quelques fonctions de dessin utiles
 
 Ce module contient des fonctions pour la génération de graphiques interactifs avec Plotly,
-notamment pour gérer des palettes de couleurs et ajouter des éléments visuels représentant
-des données de tests.
-
-**Structure** :
-
-1. **`get_color_map_by_name`**
-
-   - Génère un dictionnaire associant des noms à des couleurs à partir d'une palette spécifiée.
-   - Prend en charge la répétition cyclique des couleurs si la palette est insuffisante.
-
-2. **`draw_test_section`**
-
-   - Ajoute des éléments visuels à un graphique Plotly pour représenter les périodes associées à des tests.
-   - Comprend des zones colorées semi-transparentes et des lignes verticales pour marquer les événements.
+notamment pour gérer des palettes de couleurs et ajouter des éléments visuels représentant des données de tests.
 """
 
 import plotly.express as px  # Pour accéder aux couleurs qualitatives

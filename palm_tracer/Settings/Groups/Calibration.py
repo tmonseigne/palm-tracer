@@ -16,9 +16,10 @@ class Calibration(BaseSettingGroup):
 	Classe contenant les informations de calibration :
 
 	Attributs :
-			- **Pixel Size (SpinFloat)** : Taille d'un pixel en micromètre (par défaut : 0.160).
-			- **Exposure (SpinFloat)** : Temps d'exposition en secondes par image (par défaut : 0.050).
-			- **Intensity (SpinFloat)** : Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : 0.0120).
+		- **Pixel Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) : Taille d'un pixel en micromètre (par défaut : `0.160`).
+		- **Exposure** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) : Temps d'exposition en secondes par image (par défaut : `0.050`).
+		- **Intensity** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) :
+		  Intensité lumineuse en photons par Unités analogique-numériques (ADU) (par défaut : `0.0120`).
 	"""
 
 	label: str = "Calibration"

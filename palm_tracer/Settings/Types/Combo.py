@@ -17,13 +17,13 @@ class Combo(BaseSettingType):
 	Classe pour un paramètre spécifique de type liste déroulante.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **default (int)** : Valeur par défaut du paramètre.
-			- **items (list[str])** : Choix de la liste déroulante.
-			- **value (int)** : Valeur actuelle du paramètre.
-			- **box (QComboBox)** : Objet QT permettant de manipuler le paramètre.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **default** (:class:`int`) : Valeur par défaut du paramètre.
+		- **items** (:class:`list[str]`) : Choix de la liste déroulante.
+		- **value** (:class:`int`) : Valeur actuelle du paramètre.
+		- **box** (:class:`QComboBox`) : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	default: int = 0

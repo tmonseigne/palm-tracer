@@ -18,16 +18,16 @@ class SpinFloat(BaseSettingType):
 	Classe pour un paramètre spécifique de type nombre réel.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **default (float)** : Valeur par défaut du paramètre.
-			- **min (float)** : Valeur minimale du paramètre.
-			- **max (float)** : Valeur maximale du paramètre.
-			- **step (float)** : Pas à chaque appuie sur une des flèches du paramètre.
-			- **precision (int)** : Précision du paramètre.
-			- **value (float)** : Valeur actuelle du paramètre.
-			- **box (QDoubleSpinBox)** : Objet QT permettant de manipuler le paramètre.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **default** (:class:`float`) : Valeur par défaut du paramètre.
+		- **min** (:class:`float`) : Valeur minimale du paramètre.
+		- **max** (:class:`float`) : Valeur maximale du paramètre.
+		- **step** (:class:`float`) : Pas à chaque appuie sur une des flèches du paramètre.
+		- **precision** (:class:`int`) : Précision du paramètre.
+		- **value** (:class:`float`) : Valeur actuelle du paramètre.
+		- **box** (:class:`QDoubleSpinBox`) : Objet QT permettant de manipuler le paramètre.
 	"""
 	default: float = 0.0
 	"""Valeur par défaut du paramètre."""

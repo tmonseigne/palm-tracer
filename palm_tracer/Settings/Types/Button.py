@@ -17,10 +17,10 @@ class Button(BaseSettingType):
 	Classe pour un paramètre spécifique de type boutton à cliquer.
 
 	Attributs :
-			- **label (str)** : Nom du paramètre à afficher.
-			- **_layout (QFormLayout)** : Le calque associé à ce paramètre, initialisé par défaut à un QFormLayout.
-			- **_signal (SignalWrapper)** : Signal permettant de communiquer avec l'interface.
-			- **box (QSpinBox)** : Objet QT permettant de manipuler le paramètre.
+		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+		- **box** (:class:`QSpinBox`) : Objet QT permettant de manipuler le paramètre.
 	"""
 
 	box: QPushButton = field(init=False, default_factory=QPushButton)

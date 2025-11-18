@@ -58,14 +58,14 @@ class Monitoring:
 	et générer des graphiques ou des fichiers texte avec ces données.
 
 	Attributs :
-			- **cpu (List[float])** : Liste des valeurs d'utilisation du CPU.
-			- **memory (List[float])** : Liste des valeurs d'utilisation de la mémoire.
-			- **disk (List[float])** : Liste des valeurs d'utilisation du disque.
-			- **times (List[float])** : Liste des timestamps correspondant aux valeurs des ressources.
-			- **monitoring (bool)** : Indique si la surveillance est en cours ou non.
-			- **thread (threading.Thread)** : Le thread qui exécute le monitoring.
-			- **tests_info (List[dict])** : Liste des informations relatives aux tests exécutés.
-			- **interval (float)** : Intervalle de temps entre chaque mise à jour des données en secondes.
+			- **cpu (:class:`List[float]`)** : Liste des valeurs d'utilisation du CPU.
+			- **memory (:class:`List[float]`)** : Liste des valeurs d'utilisation de la mémoire.
+			- **disk (:class:`List[float]`)** : Liste des valeurs d'utilisation du disque.
+			- **times (:class:`List[float]`)** : Liste des timestamps correspondant aux valeurs des ressources.
+			- **monitoring (:class:`bool`)** : Indique si la surveillance est en cours ou non.
+			- **thread (:class:`threading.Thread`)** : Le thread qui exécute le monitoring.
+			- **tests_info (:class:`List[dict]`)** : Liste des informations relatives aux tests exécutés.
+			- **interval (:class:`float`)** : Intervalle de temps entre chaque mise à jour des données en secondes.
 
 	"""
 
@@ -112,7 +112,7 @@ class Monitoring:
 		self._gpu.clear()
 		if HAVE_GPU:
 			nvmlInit()
-			self._gpu_handle = nvmlDeviceGetHandleByIndex(0)  # Suppose qu’un seul GPU est utilisé
+			self._gpu_handle = nvmlDeviceGetHandleByIndex(0)  # Suppose qu'un seul GPU est utilisé
 		self._memory.clear()
 		self._disk.clear()
 		self._times.clear()
