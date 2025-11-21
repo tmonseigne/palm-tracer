@@ -46,7 +46,7 @@ dependencies = [
 	# Dépendances pour les infos cross plateforme
 	"psutil",
 	"py-cpuinfo",
-	"pynvml"
+	"nvidia-ml-py"
 ]
 
 [project.optional-dependencies]
@@ -59,7 +59,7 @@ testing = [
 	"pytest-json-report",
 	"pytest-metadata",
 	"napari",
-	"torch" # Installer pytorch à part : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+	#"torch" # Installer pytorch à part : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 ]
 
 documentation = [
@@ -73,7 +73,6 @@ documentation = [
 
 [project.entry-points."napari.manifest"]
 palm-tracer = "palm_tracer:napari.yaml"
-
 
 
 [build-system]
