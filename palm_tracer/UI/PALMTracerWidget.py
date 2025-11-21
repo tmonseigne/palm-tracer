@@ -23,7 +23,7 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
-from palm_tracer.UI.Viewer3DWidget import Viewer3DWidget
+from palm_tracer.UI.Viewer3DWidget import create_3d_viewer_window, Viewer3DWidget
 
 try: from napari.qt.threading import thread_worker, FunctionWorker				# chemin public, à préférer
 except ImportError:    from superqt.utils import thread_worker, FunctionWorker  # très rare fallback
@@ -420,10 +420,7 @@ class PALMTracerWidget(QWidget):
 	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""Ouvre une instance napari avec le Viewer 3D si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
-			self.viewer_3d = napari.Viewer(ndisplay=3)
-			self.viewer_3d.title = "3D Viewer"				   # Modifier le titre de la fenêtre
-			self.viewer_3d.window.main_menu.setVisible(False)  # Cacher la barre de menu
-			self.viewer_3d.window.add_dock_widget(Viewer3DWidget(self.viewer_3d), area="right")
+			self.viewer_3d = create_3d_viewer_window()
 
 	##################################################
 	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
@@ -444,3 +441,14 @@ class PALMTracerWidget(QWidget):
 # ==================================================
 # endregion Process
 # ==================================================
+
+
+##################################################
+if __name__ == "__main__":  # pragma: no cover
+	import napari
+
+	viewer = napari.Viewer()										  # Crée le viewer napari
+	viewer.title = "PALMTracer"										  # Modifier le titre de la fenêtre
+	w = PALMTracerWidget(viewer)									  # Crée ton widget en lui passant le viewer
+	viewer.window.add_dock_widget(w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	napari.run()													  # Lance la boucle Qt gérée par napari
