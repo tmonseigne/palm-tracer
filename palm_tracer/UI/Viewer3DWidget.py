@@ -29,6 +29,8 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 		- d'activer ou non la suppression des points d'intensité nulle
 		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points`.
 
+	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer 3D"``
+
 	:param viewer: Instance du viewer napari où sera ajouté le calque 3D.
 	:type viewer: :class:`napari.Viewer`
 	"""
@@ -137,12 +139,44 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 
 
 ##################################################
+def create_3d_viewer_window() -> napari.Viewer:  # pragma: no cover
+	"""
+	Crée une nouvelle fenêtre napari 3D, sans menu,
+	et y ajoute le Viewer3DWidget docké à droite.
+
+	Cette fonction NE lance PAS napari.run() : elle est faite
+	pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
+	"""
+	viewer = napari.Viewer(ndisplay=3)									   # Crée le viewer 3D napari
+	viewer.title = "3D Viewer"											   # Modifier le titre de la fenêtre
+	viewer.window.main_menu.setVisible(False)							   # Cacher la barre de menu
+	widget = Viewer3DWidget(viewer)										   # Crée le widget en lui passant le viewer
+	viewer.window.add_dock_widget(widget, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	return viewer
+
+
+##################################################
+def open_viewer3d_from_plugin(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover
+	"""
+	Callable utilisé par napari pour le menu Plugins > PALM Tracer > Viewer 3D.
+
+	- Ignore le viewer courant.
+	- Crée une nouvelle fenêtre napari 3D dédiée.
+	- Retourne un QWidget stub (caché) juste pour satisfaire
+	  l'API "widget plugin" de napari.
+	"""
+	# Crée la nouvelle fenêtre 3D
+	create_3d_viewer_window()
+
+	# Stub minimal pour napari (sera docké, mais caché)
+	stub = QWidget()
+	stub.hide()
+	return stub
+
+
+##################################################
 if __name__ == "__main__":  # pragma: no cover
 	import napari
 
-	viewer = napari.Viewer(ndisplay=3)								  # Crée le viewer napari
-	viewer.title = "3D Viewer"										  # Modifier le titre de la fenêtre
-	viewer.window.main_menu.setVisible(False)						  # Cacher la barre de menu
-	w = Viewer3DWidget(viewer)										  # Crée ton widget en lui passant le viewer
-	viewer.window.add_dock_widget(w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
-	napari.run()													  # Lance la boucle Qt gérée par napari
+	_v = create_3d_viewer_window()
+	napari.run()  # Lance la boucle Qt gérée par napari
