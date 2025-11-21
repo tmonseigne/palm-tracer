@@ -176,17 +176,14 @@ class GraphViewerWidget(QWidget):
 		form.addRow("Source :", self._cmb_src)
 
 		grp_source.setStyleSheet("""
-					   QPushButton {
-						   border: 1px solid #c7c7c7;
-						   padding: 6px 12px;
-						   background: #f7f7f7;
-					   }
-					   QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
-					   QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-					   QPushButton:last-child  { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-					   QPushButton:checked	 { background: #e9eff7; border-color: #6aa0e8; }
-					   QPushButton:disabled	{ color: #999; background: #fafafa; }
-					   """)
+			QPushButton { border: 1px solid #c7c7c7; padding: 6px 12px; background: #f7f7f7; }
+			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
+			QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+			QPushButton:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+			QPushButton:pressed { background: #e9eff7; border-color: #6aa0e8; }
+			QPushButton:checked	{ background: #e9eff7; border-color: #6aa0e8; }
+			QPushButton:disabled { color: #999; background: #fafafa; }
+		""")
 
 		# Bloc Affichage (2 colonnes)
 		grp_display = QGroupBox("Display")
@@ -463,9 +460,9 @@ class GraphViewerWidget(QWidget):
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
-# ==================================================
-# endregion Callback
-# ==================================================
+		# ==================================================
+		# endregion Callback
+		# ==================================================
 
 
 ##################################################

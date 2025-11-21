@@ -5,7 +5,8 @@ except ImportError:
 
 from . import Processing, Settings, Tools, UI
 from .PALMTracer import PALMTracer
-from .UI import PALMTracerWidget, Viewer3DWidget, open_viewer3d_from_plugin
+from .UI import AlignmentWidget, open_alignment, open_viewer3d, PALMTracerWidget, Viewer3DWidget
 
-__all__ = ("PALMTracer", "PALMTracerWidget","Viewer3DWidget","open_viewer3d_from_plugin",
+__all__ = ("PALMTracer",
+		   "AlignmentWidget", "PALMTracerWidget", "Viewer3DWidget", "open_viewer3d", "open_alignment",
 		   "UI", "Processing", "Settings", "Tools")

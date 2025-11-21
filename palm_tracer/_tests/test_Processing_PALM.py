@@ -4,7 +4,7 @@ import pytest
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
-from palm_tracer.Tools import open_tif
+from palm_tracer.Tools import open_tif, save_tif
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
@@ -197,7 +197,7 @@ def test_tracks_compute():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
 					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
-					np.testing.assert_allclose(t_output[name].to_numpy(float),ref.to_numpy(float),rtol=1e-5, atol=1e-5, equal_nan=True)
+					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Test sur différents mode de fit
 		for mode in range(4):
@@ -211,7 +211,7 @@ def test_tracks_compute():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
 					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
-					np.testing.assert_allclose(t_output[name].to_numpy(float),ref.to_numpy(float),rtol=1e-5, atol=1e-5, equal_nan=True)
+					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Dernier True/False pour la couverture de code
 		palm.tracks_compute(t_input, False, True, False, False, 1, 1, 1, np.array([4], dtype=np.float64))
@@ -220,4 +220,46 @@ def test_tracks_compute():
 		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
 	else:
 		print_warning(f"Fichier de Tracking '{path}' indisponible.")
+	assert True
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_align():
+	"""Test basique pour la spline."""
+	palm = Palm()
+
+	# --- Lecture stack ---
+	file = "stack"
+	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+	z, h, w = stack.shape
+
+	# --- Facteurs de test (identité) ---
+	factors = np.zeros((2, 10), dtype=np.float64)
+	factors[0, 7] = 1.0
+	factors[1, 8] = 1.0
+
+	aligned = palm.align(stack, factors, 1)
+	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-copy.tif")
+	assert aligned.shape == stack.shape, "Mode Copie : les dimensions doivent être identiques"
+	assert np.allclose(aligned, stack, atol=0, rtol=0), "Mode Copie : le résultat doit être IDENTIQUE au stack d'origine."
+
+	aligned = palm.align(stack, factors, 2)
+	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-upsampling.tif")
+	assert aligned.shape == (z, 2 * h, 2 * w), "Mode Upscale : pour un stack 3D seule X et Y doivent être doublées."
+
+	def up2_nn(arr): return np.repeat(np.repeat(arr, 2, axis=-2), 2, axis=-1)
+	ref = np.stack([up2_nn(stack[z]) for z in range(stack.shape[0])], axis=0)
+	assert np.allclose(aligned[..., :-1, :-1], ref[..., :-1, :-1], atol=0, rtol=0), "Mode Upscale : le résultat doit être IDENTIQUE au stack d'origine."
+	# On supprime la derniere ligne et colonne car 0 padding en cas de débord dans l'algo original.
+
+	# --- Facteurs de test (transposition) ---
+	factors = np.zeros((2, 10), dtype=np.float64)
+	factors[0][8] = 1.0
+	factors[1][7] = 1.0
+
+	aligned = palm.align(stack, factors, 1)
+	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-transpose.tif")
+	assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgrè la transposition."
+	assert True
 	assert True

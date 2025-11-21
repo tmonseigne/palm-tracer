@@ -176,6 +176,31 @@ class Palm:
 				}
 
 	##################################################
+	@staticmethod
+	def __get_align_args(stack: np.ndarray, height: int, width: int, planes: int, factors: np.ndarray, upsampling: int):
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour l'alignement.
+
+		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
+		:param height: Hauteur des images.
+		:param width: Largeur des images.
+		:param planes: Nombre de plans.
+		:param factors: Facteurs d'alignement.
+		:param upsampling: Facteur d'agrandissement de l'image.
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+		out = np.zeros((planes, height * upsampling, width * upsampling), dtype=np.uint16)
+		return {
+				"input":      stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),    # Pile
+				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),	  # Sortie
+				"height":     ctypes.c_ulong(height),											  # Hauteur (nombre de lignes)
+				"width":      ctypes.c_ulong(width),											  # Largeur (nombre de colonnes)
+				"planes":     ctypes.c_ulong(planes),											  # Profondeur (nombre de plans)
+				"factors":    factors.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Factor de transformation
+				"upsampling": ctypes.c_ulong(upsampling)										  # Upsampling
+				}
+
+	##################################################
 	def localization(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray,
 					 planes: Optional[list[int]] = None) -> pd.DataFrame:
 		"""
@@ -327,3 +352,21 @@ class Palm:
 				# Mise à jour en fonction de la mise à l'échelle du Log.
 				if is_log: res["Fit"] = log10_dataframe(res["Fit"], cols)
 		return res
+
+	##################################################
+	def align(self, stack: np.ndarray, factors: np.ndarray, upsampling: int = 1) -> np.ndarray:
+		"""
+		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
+
+		:param stack: Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement).
+		:param factors: Facteurs d'alignement.
+		:param upsampling: Facteur d'agrandissement de l'image (par défaut : `1` aucun agrandissement).
+		:return: Image alignée.
+		"""
+		height, width = stack.shape[-2:]  # Récupère les deux dernières dimensions
+		planes = 1 if stack.ndim == 2 else stack.shape[0]
+
+		args = self.__get_align_args(stack, height, width, planes, factors, upsampling)
+		self._dll.Alignment(*args.values())
+		out = np.ctypeslib.as_array(args["output"], shape=(planes, height * upsampling, width * upsampling))
+		return out

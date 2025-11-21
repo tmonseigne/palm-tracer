@@ -12,8 +12,13 @@ contributions:
 
     # Commande pour ouvrir la fenêtre 3D
     - id: palm-tracer.open_viewer3d
-      python_name: palm_tracer:open_viewer3d_from_plugin
+      python_name: palm_tracer:open_viewer3d
       title: Viewer 3D
+
+    # Commande pour ouvrir la fenêtre d'alignement
+    - id: palm-tracer.open_alignment
+      python_name: palm_tracer:open_alignment
+      title: Alignment Tool
 
   widgets:
     - command: palm-tracer.make_qwidget
@@ -22,3 +27,7 @@ contributions:
     # Widget "factice" qui sert juste de point d’entrée menu
     - command: palm-tracer.open_viewer3d
       display_name: Viewer 3D
+
+    # Widget "factice" qui sert juste de point d’entrée menu
+    - command: palm-tracer.open_alignment
+      display_name: Alignment Tool
