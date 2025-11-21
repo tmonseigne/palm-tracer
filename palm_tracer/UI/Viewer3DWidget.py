@@ -134,3 +134,15 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 		else:
 			self.points_layer.data = coords
 			self.points_layer.size = self.size_spin.get_value()
+
+
+##################################################
+if __name__ == "__main__":  # pragma: no cover
+	import napari
+
+	viewer = napari.Viewer(ndisplay=3)								  # Crée le viewer napari
+	viewer.title = "3D Viewer"										  # Modifier le titre de la fenêtre
+	viewer.window.main_menu.setVisible(False)						  # Cacher la barre de menu
+	w = Viewer3DWidget(viewer)										  # Crée ton widget en lui passant le viewer
+	viewer.window.add_dock_widget(w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	napari.run()													  # Lance la boucle Qt gérée par napari

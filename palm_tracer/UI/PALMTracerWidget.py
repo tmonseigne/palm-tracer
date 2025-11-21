@@ -444,3 +444,14 @@ class PALMTracerWidget(QWidget):
 # ==================================================
 # endregion Process
 # ==================================================
+
+
+##################################################
+if __name__ == "__main__":  # pragma: no cover
+	import napari
+
+	viewer = napari.Viewer()										  # Crée le viewer napari
+	viewer.title = "PALMTracer"										  # Modifier le titre de la fenêtre
+	w = PALMTracerWidget(viewer)									  # Crée ton widget en lui passant le viewer
+	viewer.window.add_dock_widget(w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	napari.run()													  # Lance la boucle Qt gérée par napari
