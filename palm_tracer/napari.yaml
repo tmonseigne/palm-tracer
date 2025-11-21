@@ -12,7 +12,7 @@ contributions:
 
     # Commande pour ouvrir la fenêtre 3D
     - id: palm-tracer.open_viewer3d
-      python_name: palm_tracer:open_viewer3d_from_plugin
+      python_name: palm_tracer:open_viewer3d
       title: Viewer 3D
 
   widgets:
