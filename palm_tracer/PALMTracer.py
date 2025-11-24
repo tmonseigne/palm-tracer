@@ -102,10 +102,15 @@ class PALMTracer:
 
 	##################################################
 	def reset_result(self):
-		"""Vide entièrement les DataFrame de résultat dans `_cp`."""
-		for key, value in self._df.items():
-			self._df[key] = pd.DataFrame()
+		"""Vide entièrement les DataFrame de résultat dans `_df`."""
+		for key in self._df: self._df[key] = pd.DataFrame()
 		self.visualization = None
+
+	##################################################
+	def reset_filtered(self):
+		"""Vide entièrement les DataFrames filtrés dans `_df`."""
+		for key in self._df:
+			if key.startswith("f_"): self._df[key] = pd.DataFrame()
 
 	# ==================================================
 	# endregion Initialization
@@ -371,7 +376,7 @@ class PALMTracer:
 		metric = metric_by_source[source]
 		vmin, vmax = fit[metric].min(), fit[metric].max()
 		# vmin, vmax = fit[metric].quantile([0.05, 0.95]) A envisager au lieu du min et max en cas d'outlier.
-		if len(fit) == 1 or vmin >= vmax: res["Color"] = MAX_UI_16 // 2 # Cas Uniforme
+		if len(fit) == 1 or vmin >= vmax: res["Color"] = MAX_UI_16 // 2  # Cas Uniforme
 		else:
 			# Étalonnage linéaire : min→1, max→MAX_UI_16 (inclusif), arrondi au plus proche
 			scale = (MAX_UI_16 - 1) / (vmax - vmin)
@@ -492,7 +497,7 @@ class PALMTracer:
 	##################################################
 	def __filter_tracks_compute(self):
 		""" Filtre les fichiers de metrique. """
-		n_init = len(self._df["f_trc_MSD"])
+		n_init = len(self._df["trc_MSD"])
 		o_name = "f_trc" if self._df["blk"].empty else "f_blk"
 		self._df[o_name], self._df["f_trc_MSD"], self._df["f_trc_InstantD"], self._df["f_trc_Fit"] \
 			= self.filter_tracks_compute(self.tracks, self._df["trc_MSD"], self._df["trc_InstantD"], self._df["trc_Fit"])
@@ -520,6 +525,7 @@ class PALMTracer:
 		:return: DataFrame filtré.
 		"""
 		res = datas.copy()
+		if res.empty: return res
 		f = cast(Filtering, self.settings.filtering)
 		fg = cast(FilteringL, f["Gaussian Fit"])
 		filters = [[f["Plane"], "Plane"],
@@ -546,6 +552,7 @@ class PALMTracer:
 		:return: DataFrame filtré.
 		"""
 		res = datas.copy()
+		if res.empty: return res
 		f = cast(FilteringT, self.settings.filtering["Tracks"])
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits = f["Length"].get_value()
@@ -638,6 +645,29 @@ class PALMTracer:
 		if not o_fit.empty: o_fit = o_fit[o_fit["Track"].isin(keep_ids)]
 		return o_trc, o_msd, o_ind, o_fit
 
+	##################################################
+	def update_filtered(self):
+		"""Recalcul les filtres sur le dernier dataframe disponible pour chacun."""
+
+		self._suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
+		loc = self.localizations
+		trc = self._df["trc"] if self._df["f_trc"].empty else self._df["f_trc"]
+		blk = self._df["blk"] if self._df["f_blk"].empty else self._df["f_blk"]
+		tc = self.tracks_compute
+
+		self._df["f_loc"] = self.filter_localizations(loc)
+		self._df["f_trc"] = self.filter_tracks(trc)
+		self._df["f_blk"] = self.filter_tracks(blk)
+
+		o_name = "f_trc" if self._df["blk"].empty else "f_blk"
+		self._df[o_name], self._df["f_trc_MSD"], self._df["f_trc_InstantD"], self._df["f_trc_Fit"] \
+			= self.filter_tracks_compute(self.tracks, tc["MSD"], tc["InstantD"], tc["Fit"])
+
+		if self.settings.filtering["Save"].get_value():
+			to_save = [["f_loc", "localizations_filtered"], ["f_trc", "tracking_filtered"], ["f_blk", "tracking_filtered_reconnected"],
+					   ["f_trc_MSD", "tracking_MSD_filtered"], ["f_trc_InstantD", "tracking_InstantD_filtered"], ["f_trc_Fit", "tracking_Fit_filtered"]]
+			for n in to_save:
+				if not self._df[n[0]].empty: self._df[n[0]].to_csv(f"{self._path}/{n[1]}-{self._suffix}.csv", index=False)
 # ==================================================
 # endregion Filtering
 # ==================================================

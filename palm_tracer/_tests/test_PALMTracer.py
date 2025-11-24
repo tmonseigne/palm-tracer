@@ -19,7 +19,6 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la premi
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_getter_localization(make_napari_viewer):
 	"""Test pour le getter de la localisation."""
 	pt = PALMTracer()
@@ -29,10 +28,12 @@ def test_getter_localization(make_napari_viewer):
 	pt._df["f_loc"] = ref1
 	df = pt.localizations
 	assert df.equals(ref1), "Le Dataframe devrait non vide."
+	pt.reset_filtered()
+	df = pt.localizations
+	assert df.empty, "Le Dataframe devrait être vide."
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_getter_tracks(make_napari_viewer):
 	"""Test pour le process sans fichiers en entrée."""
 	pt = PALMTracer()
@@ -50,10 +51,12 @@ def test_getter_tracks(make_napari_viewer):
 	pt._df["f_blk"] = ref3
 	df = pt.tracks
 	assert df.equals(ref3), "Le Dataframe devrait non vide."
+	pt.reset_filtered()
+	df = pt.tracks
+	assert df.equals(ref2), "Le Dataframe devrait non vide."
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_getter_tracks_compute(make_napari_viewer):
 	"""Test pour le process sans fichiers en entrée."""
 	pt = PALMTracer()
@@ -64,6 +67,70 @@ def test_getter_tracks_compute(make_napari_viewer):
 	df = pt.tracks_compute
 	assert df["MSD"].equals(ref1), "Le Dataframe devrait non vide."
 
+
+##################################################
+def test_reset_result(make_napari_viewer):
+	"""Test pour le process sans fichiers en entrée."""
+	pt = PALMTracer()
+
+	pt._df["loc"] = pd.DataFrame([1, 1])
+	pt._df["blk"] = pd.DataFrame([1, 2])
+	pt._df["trc"] = pd.DataFrame([1, 3])
+	pt._df["trc_MSD"] = pd.DataFrame([1, 4])
+	pt._df["trc_InstantD"] = pd.DataFrame([1, 5])
+	pt._df["trc_Fit"] = pd.DataFrame([1, 6])
+	pt._df["f_loc"] = pd.DataFrame([1, 7])
+	pt._df["f_blk"] = pd.DataFrame([1, 8])
+	pt._df["f_trc"] = pd.DataFrame([1, 9])
+	pt._df["f_trc_MSD"] = pd.DataFrame([1, 10])
+	pt._df["f_trc_InstantD"] = pd.DataFrame([1, 11])
+	pt._df["f_trc_Fit"] = pd.DataFrame([1, 12])
+
+	pt.reset_result()
+	for key in pt._df:
+		assert pt._df[key].empty, "Le Dataframe devrait être vide."
+
+
+##################################################
+def test_reset_filtered(make_napari_viewer):
+	"""Test pour le process sans fichiers en entrée."""
+	pt = PALMTracer()
+
+	pt._df["loc"] = pd.DataFrame([1, 1])
+	pt._df["blk"] = pd.DataFrame([1, 2])
+	pt._df["trc"] = pd.DataFrame([1, 3])
+	pt._df["trc_MSD"] = pd.DataFrame([1, 4])
+	pt._df["trc_InstantD"] = pd.DataFrame([1, 5])
+	pt._df["trc_Fit"] = pd.DataFrame([1, 6])
+	pt._df["f_loc"] = pd.DataFrame([1, 7])
+	pt._df["f_blk"] = pd.DataFrame([1, 8])
+	pt._df["f_trc"] = pd.DataFrame([1, 9])
+	pt._df["f_trc_MSD"] = pd.DataFrame([1, 10])
+	pt._df["f_trc_InstantD"] = pd.DataFrame([1, 11])
+	pt._df["f_trc_Fit"] = pd.DataFrame([1, 12])
+
+	pt.reset_filtered()
+	for key in pt._df:
+		if key.startswith("f_"): assert pt._df[key].empty, "Le Dataframe devrait être vide."
+		else: assert not pt._df[key].empty, "Le Dataframe doit subsiter."
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_update_filtered(make_napari_viewer):
+	"""Test pour le process sans fichiers en entrée."""
+	pt = PALMTracer()
+	pt.update_filtered() # Tout est vide
+	pt.settings.filtering["Save"].set_value(True)
+	pt.update_filtered() # Tout est vide, mais je demande à enregistrer
+
+	pt.settings.localization.active = True
+	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	pt.process()
+	pt.update_filtered() # Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
@@ -430,14 +497,14 @@ def test_add_color(make_napari_viewer):
 	df = pd.read_csv(path)
 
 	ref = [1, 1, 1, 1, 1, 1]
-	res = pt.add_color_to_tracks(df, "Track Number") # Premier exemple basique
+	res = pt.add_color_to_tracks(df, "Track Number")  # Premier exemple basique
 	assert (res["Color"].tolist() == ref)
-	res = pt.add_color_to_tracks(df, "Length") # Exemple basique avec erreur de calcul
+	res = pt.add_color_to_tracks(df, "Length")  # Exemple basique avec erreur de calcul
 	assert (res["Color"].tolist() == ref)
 
 	pt._df["trc"] = df
 	ref = [32767, 32767, 32767, 32767, 32767, 32767]
-	res = pt.add_color_to_tracks(df, "Length") # fit Compute but equality
+	res = pt.add_color_to_tracks(df, "Length")  # fit Compute but equality
 	assert (res["Color"].tolist() == ref)
 
 	# Changement des valeurs pour permettre le calcul
@@ -447,8 +514,8 @@ def test_add_color(make_napari_viewer):
 	pt.settings.tracks_compute["Fit Length"].set_value(2)
 
 	ref = [1, 1, 1, 65535, 65535, 65535]
-	res = pt.add_color_to_tracks(df, "Total Intensity") # fit Compute
+	res = pt.add_color_to_tracks(df, "Total Intensity")  # fit Compute
 	assert (res["Color"].tolist() == ref)
 
-	res = pt.add_color_to_tracks(df, "Total Intensity") # fit Compute already compute
+	res = pt.add_color_to_tracks(df, "Total Intensity")  # fit Compute already compute
 	assert (res["Color"].tolist() == ref)
