@@ -25,7 +25,7 @@ def test_getter_localization(make_napari_viewer):
 	df = pt.localizations
 	assert df.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
-	pt._df["f_loc"] = ref1
+	pt.df["f_loc"] = ref1
 	df = pt.localizations
 	assert df.equals(ref1), "Le Dataframe devrait non vide."
 	pt.reset_filtered()
@@ -42,13 +42,13 @@ def test_getter_tracks(make_napari_viewer):
 	ref1 = pd.DataFrame([1, 2])
 	ref2 = pd.DataFrame([3, 4])
 	ref3 = pd.DataFrame([5, 6])
-	pt._df["f_trc"] = ref1
+	pt.df["f_trc"] = ref1
 	df = pt.tracks
 	assert df.equals(ref1), "Le Dataframe devrait non vide."
-	pt._df["blk"] = ref2
+	pt.df["blk"] = ref2
 	df = pt.tracks
 	assert df.equals(ref2), "Le Dataframe devrait non vide."
-	pt._df["f_blk"] = ref3
+	pt.df["f_blk"] = ref3
 	df = pt.tracks
 	assert df.equals(ref3), "Le Dataframe devrait non vide."
 	pt.reset_filtered()
@@ -63,7 +63,7 @@ def test_getter_tracks_compute(make_napari_viewer):
 	df = pt.tracks_compute
 	assert df["MSD"].empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
-	pt._df["f_trc_MSD"] = ref1
+	pt.df["f_MSD"] = ref1
 	df = pt.tracks_compute
 	assert df["MSD"].equals(ref1), "Le Dataframe devrait non vide."
 
@@ -73,22 +73,22 @@ def test_reset_result(make_napari_viewer):
 	"""Test pour le process sans fichiers en entrée."""
 	pt = PALMTracer()
 
-	pt._df["loc"] = pd.DataFrame([1, 1])
-	pt._df["blk"] = pd.DataFrame([1, 2])
-	pt._df["trc"] = pd.DataFrame([1, 3])
-	pt._df["trc_MSD"] = pd.DataFrame([1, 4])
-	pt._df["trc_InstantD"] = pd.DataFrame([1, 5])
-	pt._df["trc_Fit"] = pd.DataFrame([1, 6])
-	pt._df["f_loc"] = pd.DataFrame([1, 7])
-	pt._df["f_blk"] = pd.DataFrame([1, 8])
-	pt._df["f_trc"] = pd.DataFrame([1, 9])
-	pt._df["f_trc_MSD"] = pd.DataFrame([1, 10])
-	pt._df["f_trc_InstantD"] = pd.DataFrame([1, 11])
-	pt._df["f_trc_Fit"] = pd.DataFrame([1, 12])
+	pt.df["loc"] = pd.DataFrame([1, 1])
+	pt.df["blk"] = pd.DataFrame([1, 2])
+	pt.df["trc"] = pd.DataFrame([1, 3])
+	pt.df["MSD"] = pd.DataFrame([1, 4])
+	pt.df["InD"] = pd.DataFrame([1, 5])
+	pt.df["Fit"] = pd.DataFrame([1, 6])
+	pt.df["f_loc"] = pd.DataFrame([1, 7])
+	pt.df["f_blk"] = pd.DataFrame([1, 8])
+	pt.df["f_trc"] = pd.DataFrame([1, 9])
+	pt.df["f_MSD"] = pd.DataFrame([1, 10])
+	pt.df["f_InD"] = pd.DataFrame([1, 11])
+	pt.df["f_Fit"] = pd.DataFrame([1, 12])
 
 	pt.reset_result()
-	for key in pt._df:
-		assert pt._df[key].empty, "Le Dataframe devrait être vide."
+	for key in pt.df:
+		assert pt.df[key].empty, "Le Dataframe devrait être vide."
 
 
 ##################################################
@@ -96,23 +96,23 @@ def test_reset_filtered(make_napari_viewer):
 	"""Test pour le process sans fichiers en entrée."""
 	pt = PALMTracer()
 
-	pt._df["loc"] = pd.DataFrame([1, 1])
-	pt._df["blk"] = pd.DataFrame([1, 2])
-	pt._df["trc"] = pd.DataFrame([1, 3])
-	pt._df["trc_MSD"] = pd.DataFrame([1, 4])
-	pt._df["trc_InstantD"] = pd.DataFrame([1, 5])
-	pt._df["trc_Fit"] = pd.DataFrame([1, 6])
-	pt._df["f_loc"] = pd.DataFrame([1, 7])
-	pt._df["f_blk"] = pd.DataFrame([1, 8])
-	pt._df["f_trc"] = pd.DataFrame([1, 9])
-	pt._df["f_trc_MSD"] = pd.DataFrame([1, 10])
-	pt._df["f_trc_InstantD"] = pd.DataFrame([1, 11])
-	pt._df["f_trc_Fit"] = pd.DataFrame([1, 12])
+	pt.df["loc"] = pd.DataFrame([1, 1])
+	pt.df["blk"] = pd.DataFrame([1, 2])
+	pt.df["trc"] = pd.DataFrame([1, 3])
+	pt.df["MSD"] = pd.DataFrame([1, 4])
+	pt.df["InD"] = pd.DataFrame([1, 5])
+	pt.df["Fit"] = pd.DataFrame([1, 6])
+	pt.df["f_loc"] = pd.DataFrame([1, 7])
+	pt.df["f_blk"] = pd.DataFrame([1, 8])
+	pt.df["f_trc"] = pd.DataFrame([1, 9])
+	pt.df["f_MSD"] = pd.DataFrame([1, 10])
+	pt.df["f_InD"] = pd.DataFrame([1, 11])
+	pt.df["f_Fit"] = pd.DataFrame([1, 12])
 
 	pt.reset_filtered()
-	for key in pt._df:
-		if key.startswith("f_"): assert pt._df[key].empty, "Le Dataframe devrait être vide."
-		else: assert not pt._df[key].empty, "Le Dataframe doit subsiter."
+	for key in pt.df:
+		if key.startswith("f_"): assert pt.df[key].empty, "Le Dataframe devrait être vide."
+		else: assert not pt.df[key].empty, "Le Dataframe doit subsiter."
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
@@ -483,7 +483,7 @@ def test_process_filter_outside(make_napari_viewer):
 	pt.settings.filtering["Tracks"]["Instant D"].active = True
 	pt.filter_localizations(pt.localizations)
 	pt.filter_tracks(pt.tracks)
-	pt.filter_tracks_compute(pt.tracks, pt._df["trc_MSD"], pt._df["trc_InstantD"], pt._df["trc_Fit"])
+	pt.filter_tracks_compute(pt.tracks, pt.df["MSD"], pt.df["InD"], pt.df["Fit"])
 	pt.filter_tracks_compute(pd.DataFrame(data=[1], columns=["Track"]), pd.DataFrame(data=[2], columns=["Track"]),
 							 pd.DataFrame(data=[3], columns=["Track"]), pd.DataFrame(data=[4], columns=["Track"]))
 
@@ -502,7 +502,7 @@ def test_add_color(make_napari_viewer):
 	res = pt.add_color_to_tracks(df, "Length")  # Exemple basique avec erreur de calcul
 	assert (res["Color"].tolist() == ref)
 
-	pt._df["trc"] = df
+	pt.df["trc"] = df
 	ref = [32767, 32767, 32767, 32767, 32767, 32767]
 	res = pt.add_color_to_tracks(df, "Length")  # fit Compute but equality
 	assert (res["Color"].tolist() == ref)
@@ -510,7 +510,7 @@ def test_add_color(make_napari_viewer):
 	# Changement des valeurs pour permettre le calcul
 	pt.reset_result()
 	df.loc[df.index[-3:], "Track"] = 2
-	pt._df["trc"] = df
+	pt.df["trc"] = df
 	pt.settings.tracks_compute["Fit Length"].set_value(2)
 
 	ref = [1, 1, 1, 65535, 65535, 65535]

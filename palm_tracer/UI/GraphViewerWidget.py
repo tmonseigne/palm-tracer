@@ -43,10 +43,12 @@ except Exception:
 	QWebEngineView = None  # type: ignore
 	_HAS_WEBENGINE = False
 
-from palm_tracer.Tools import get_last_file, open_tif, print_error
+from palm_tracer.Tools import open_tif, print_error
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Grapher
 from palm_tracer.Settings.Types import FileList
+
+FILE_STATUS = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
 
 
 class GraphViewerWidget(QWidget):
@@ -64,11 +66,8 @@ class GraphViewerWidget(QWidget):
 		- _html  (:class:`Optional[str]`)  : Dernier HTML généré pour la figure (export .html).
 		- _grapher  (:class:`Grapher <palm_tracer.Processing.Grapher>`) : Utilitaire de création de figures (histogrammes, scatter, etc.).
 		- _file  (:class:`str`) : Chemin du fichier image courant (TIF).
-		- _csv_path  (:class:`str`) : Chemin de base servant à rechercher les CSV de localisation/tracking.
-		- _loc_file, _trc_file  (:class:`str`) : Derniers CSV de localisation/tracking détectés.
-		- _has_loc, _has_trc  (:class:`bool`) : Présence de données de localisation/tracking.
 		- _stack  (:class:`numpy.ndarray`) : Pile d'images (chargée depuis `_file`).
-		- _loc, _trc  (:class:`pandas.DataFrame`) : Données tabulaires (localisations / tracking) si présentes.
+		- _df  (:class:`pandas.DataFrame`) : Dictionnaires de dataframe.
 
 	Remarques :
 		- Les boutons de domaine "Localization"/"Tracking" sont automatiquement désactivés si
@@ -94,16 +93,10 @@ class GraphViewerWidget(QWidget):
 		self._html: Optional[str] = None
 		self._grapher = Grapher()
 		self._file: str = ""
-		self._csv_path: str = ""
-		self._loc_file: str = ""
-		self._trc_file: str = ""
-		self._has_loc: bool = False
-		self._has_trc: bool = False
 		self._density: bool = False
 
 		self._stack: np.ndarray = np.empty(0)
-		self._loc: pd.DataFrame = pd.DataFrame()
-		self._trc: pd.DataFrame = pd.DataFrame()
+		self._df = {"loc": pd.DataFrame(), "trc": pd.DataFrame(), "MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
 
 		# Construction UI
 		self._init_ui()
@@ -141,12 +134,19 @@ class GraphViewerWidget(QWidget):
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
 		form = QFormLayout(grp_infos)
-		self._lbl_filename = QLabel(self._file if self._file != "" else "No")
-		self._lbl_has_loc = QLabel("Yes" if self._has_loc else "No")
-		self._lbl_has_trc = QLabel("Yes" if self._has_trc else "No")
+
+		# Nom de fichier courant
+		self._lbl_filename = QLabel(self._file if self._file != "" else "No file")
+
+		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
+		self._status = {"loc": QLabel("No"), "trc": QLabel("No"), "MSD": QLabel("No"), "InD": QLabel("No"), "Fit": QLabel("No")}
+
 		form.addRow("File :", self._lbl_filename)
-		form.addRow("Localization :", self._lbl_has_loc)
-		form.addRow("Tracking :", self._lbl_has_trc)
+		form.addRow("Localization :", self._status["loc"])
+		form.addRow("Tracking :", self._status["trc"])
+		form.addRow("MSD :", self._status["MSD"])
+		form.addRow("Instant D :", self._status["InD"])
+		form.addRow("Fit :", self._status["Fit"])
 
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
@@ -277,11 +277,12 @@ class GraphViewerWidget(QWidget):
 		Active/désactive les boutons de domaine selon la disponibilité des données.
 		Si le bouton actif devient indisponible (ex. pas de localisation), bascule automatiquement sur "Stack".
 		"""
-		self._btn_loc.setEnabled(self._has_loc)
-		self._btn_trc.setEnabled(self._has_trc)
+		self._update_df()
+		self._btn_loc.setEnabled(not self._df["loc"].empty)
+		self._btn_trc.setEnabled(not self._df["trc"].empty)
 		# si un bouton désactivé était sélectionné, repasse sur Stack
-		if self._btn_loc.isChecked() and not self._has_loc: self._btn_stack.setChecked(True)
-		if self._btn_trc.isChecked() and not self._has_trc: self._btn_stack.setChecked(True)
+		if self._btn_loc.isChecked() and self._df["loc"].empty: self._btn_stack.setChecked(True)
+		if self._btn_trc.isChecked() and self._df["trc"].empty: self._btn_stack.setChecked(True)
 
 	##################################################
 	def _on_source_changed(self, btn_id: int) -> None:
@@ -323,7 +324,7 @@ class GraphViewerWidget(QWidget):
 			fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 		elif src_id == 1:
 			# filtre du panda self._loc
-			tmp = self._loc
+			tmp = self._df["loc"]
 			if src_type == "Localizations Count":
 				s = tmp["Plane"].astype(np.int64, copy=False)
 				if s.empty: fig = self._grapher.blank(src_type)
@@ -349,6 +350,56 @@ class GraphViewerWidget(QWidget):
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
 	##################################################
+	def _update_df(self):
+		"""Récupère les dataframes et met à jour les status."""
+		# Récupération des clés
+		loc_key = self._pt.get_localization_key()
+		trc_key = self._pt.get_tracks_key()
+		tc_key = self._pt.get_tracks_compute_key()
+
+		# Mise à jour des Dataframe
+		self._df["loc"] = self._pt.df[loc_key]
+		self._df["trc"] = self._pt.df[trc_key]
+		self._df["MSD"] = self._pt.df[tc_key[0]]
+		self._df["InD"] = self._pt.df[tc_key[1]]
+		self._df["Fit"] = self._pt.df[tc_key[2]]
+
+		# Mise à jour des Status
+		status = self._get_status(loc_key, trc_key, tc_key)
+		for key in status: self._status[key].setText(status[key])
+
+	##################################################
+	def _get_status(self, loc_key: str, trc_key: str, tc_key: list[str]) -> dict[str, str]:
+		"""
+
+		:param loc_key:
+		:param trc_key:
+		:param tc_key:
+		:return:
+		"""
+		res = {"loc": FILE_STATUS[0], "trc": FILE_STATUS[0], "MSD": FILE_STATUS[0], "InD": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
+
+		if self._df["loc"].empty: res["loc"] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
+		elif "f_" in loc_key: res["loc"] = FILE_STATUS[2]  # Tableau filtré
+		else: res["loc"] = FILE_STATUS[1]  # Tableau standard
+
+		if self._df["trc"].empty: res["trc"] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
+		elif "f_" in trc_key:
+			if "blk" in trc_key: res["trc"] = FILE_STATUS[4]  # Tableau reconnecté filtré
+			else: res["trc"] = FILE_STATUS[2]  # Tableau filtré
+		else:
+			if "blk" in trc_key: res["trc"] = FILE_STATUS[3]  # Tableau reconnecté non filtré
+			else: res["trc"] = FILE_STATUS[1]  # Tableau standard
+
+		tcs = ["MSD", "InD", "Fit"]
+		for i in range(3):
+			if self._df[tcs[i]].empty: res[tcs[i]] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
+			elif "f_" in tc_key[i]: res[tcs[i]] = FILE_STATUS[2]  # Tableau filtré
+			else: res[tcs[i]] = FILE_STATUS[1]  # Tableau standard
+
+		return res
+
+	##################################################
 	def _actualize(self):
 		"""
 		Actualise les fichiers/données depuis l'état PALMTracer :
@@ -366,22 +417,9 @@ class GraphViewerWidget(QWidget):
 			try: self._stack = open_tif(self._file)
 			except Exception as e: print_error(f"Error loading {self._file} in GraphViewer : {e}")
 
-		base_path, _ = os.path.splitext(self._file)
-		self._csv_path = f"{base_path}_PALM_Tracer"
-
-		self._loc_file = get_last_file(self._csv_path, "localizations")
-		self._has_loc = self._loc_file.endswith("csv")
-		if self._has_loc: self._loc = pd.read_csv(self._loc_file)
-
-		self._trc_file = get_last_file(self._csv_path, "tracking")
-		self._has_trc = self._trc_file.endswith("csv")
-		if self._has_trc: self._trc = pd.read_csv(self._trc_file)
-
 		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
-		self._lbl_has_loc.setText("Yes" if self._has_loc else "No")
-		self._lbl_has_trc.setText("Yes" if self._has_trc else "No")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)		# Change la source pour Stack
+		self._on_source_changed(0)  # Change la source pour Stack
 
 	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
@@ -460,9 +498,10 @@ class GraphViewerWidget(QWidget):
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
-		# ==================================================
-		# endregion Callback
-		# ==================================================
+
+# ==================================================
+# endregion Callback
+# ==================================================
 
 
 ##################################################
