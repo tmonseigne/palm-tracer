@@ -10,6 +10,8 @@ Ce widget ajoute dans le dock de napari :
 
 Le CSV doit contenir les colonnes ``"X"``, ``"Y"``, ``"Z"`` et ``"Integrated Intensity"``.
 """
+from pathlib import Path
+
 import napari
 import pandas as pd
 from qtpy.QtCore import Qt
@@ -18,7 +20,7 @@ from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 from palm_tracer.Settings.Types import CheckBox, SpinFloat
 
 
-class Viewer3DWidget(QWidget):  # pragma: no cover
+class Viewer3DWidget(QWidget):
 	"""
 	Widget d'affichage 3D pour un viewer napari.
 
@@ -48,7 +50,7 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 		super().__init__()
 		self.viewer = viewer
 		self.points_layer = None
-		self.data = None  # DataFrame d'origine
+		self.data = pd.DataFrame()  # DataFrame d'origine
 		self.z_scale = 1.0
 		self._widget = QWidget()
 		layout = QFormLayout(self._widget)
@@ -91,15 +93,15 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 
 		Cette méthode déclenche ensuite :meth:`update_layer` pour créer le calque 3D.
 		"""
-		filename, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "Fichiers CSV (*.csv)")
-		if not filename: return
-		df = pd.read_csv(filename)
+		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "Fichiers CSV (*.csv)")
+		if not path or not Path(path).is_file(): return
+		df = pd.read_csv(path)
 		if not all(col in df.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):
 			print("Le fichier doit contenir les colonnes X, Y, Z et Integrated Intensity.")
 			return
 
 		self.data = df.copy()
-		# Supprimer le calque précédent s'il existe, (le nombre de points peu changer
+		# Supprimer le calque précédent s'il existe, (le nombre de points peu changer)
 		if self.points_layer is not None:
 			try: self.viewer.layers.remove(self.points_layer)
 			except Exception as e: print(f"Erreur lors de la suppression de l'ancien layer : {e}")
@@ -119,7 +121,7 @@ class Viewer3DWidget(QWidget):  # pragma: no cover
 
 		Si aucune donnée n'est encore chargée, la méthode ne fait rien.
 		"""
-		if self.data is None: return
+		if self.data.empty: return
 
 		scale_xy = self.xy_scale_spin.get_value()
 		scale_z = self.z_scale_spin.get_value()

@@ -240,7 +240,7 @@ class PALMTracerWidget(QWidget):
 				show_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
 
 	##################################################
-	def _on_load_setting_btn(self):  # pragma: no cover pytest à du mal avec l'ouverture de boite de dialogue.
+	def _on_load_setting_btn(self):
 		"""Action lors d'un clic sur le bouton Load setting."""
 		filename, _ = self.filedialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
 		self._load_setting(Path(filename))

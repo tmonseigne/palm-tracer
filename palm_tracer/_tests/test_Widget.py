@@ -4,9 +4,10 @@ from pathlib import Path
 from typing import cast
 
 import numpy as np
+import pandas as pd
 import pytest
 
-from palm_tracer import PALMTracerWidget
+from palm_tracer import PALMTracerWidget, Viewer3DWidget
 from palm_tracer._tests.Utils import is_headless_macos, is_not_dll_friendly
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
@@ -26,6 +27,22 @@ def test_widget_creation(make_napari_viewer, capsys):
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
 	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
+	my_widget.prepare_teardown()								# Préparation de la fermeture.
+	viewer.close()
+	assert True
+
+
+##################################################
+@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+def test_widget_on_load_setting(make_napari_viewer, capsys, monkeypatch, fake_getopenfilename):
+	"""Test remise à zéro des calques."""
+	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
+
+	fake_getopenfilename(PALMTracerWidget, None)				# Simuler un "Cancel" sur le QFileDialog
+	my_widget._on_load_setting_btn()
+
 	my_widget.prepare_teardown()								# Préparation de la fermeture.
 	viewer.close()
 	assert True
@@ -216,3 +233,34 @@ def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 	my_widget._auto_threshold()
 	my_widget.prepare_teardown()
 	viewer.close()
+
+##################################################
+@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+def test_viewer3d(make_napari_viewer, capsys, monkeypatch, fake_getopenfilename):
+	"""Test basique de création du widget."""
+	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = Viewer3DWidget(viewer)							# Créer notre widget, en passant par le viewer.
+
+	fake_getopenfilename(Viewer3DWidget, None)	# Simuler un "Cancel" sur le QFileDialog
+	my_widget.load_csv()
+
+	fake_getopenfilename(Viewer3DWidget, "file.csv")  # Simuler un fichier inexistant
+	my_widget.load_csv()
+
+	fake_getopenfilename(Viewer3DWidget, f"{INPUT_DIR}/bad_localizations.csv")
+	my_widget.load_csv()
+
+	fake_getopenfilename(Viewer3DWidget, f"{INPUT_DIR}/localizations.csv")
+	my_widget.load_csv()
+
+	my_widget.load_csv() # Pour recommencer avec un layer déjà actif
+
+	my_widget.outliers.set_value(True) # Suppression des outliers
+	my_widget.update_layer()
+
+	my_widget.data = pd.DataFrame()
+	my_widget.update_layer() # Mise à jour avec un dataframe vide
+
+	viewer.close()
+	assert True

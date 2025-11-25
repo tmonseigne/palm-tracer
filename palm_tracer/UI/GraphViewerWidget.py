@@ -132,7 +132,7 @@ class GraphViewerWidget(QWidget):
 
 		# Colonne gauche
 		left = QFrame(self)
-		left.setFrameShape(QFrame.StyledPanel)
+		left.setFrameShape(QFrame.Shape.StyledPanel)
 		left.setMinimumWidth(280)
 		vbox = QVBoxLayout(left)
 		vbox.setContentsMargins(5, 5, 5, 5)
@@ -156,7 +156,7 @@ class GraphViewerWidget(QWidget):
 		self._btn_stack, self._btn_loc, self._btn_trc = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracking")
 		for b in (self._btn_stack, self._btn_loc, self._btn_trc):
 			b.setCheckable(True)
-			b.setFocusPolicy(QtCore.Qt.NoFocus)  # évite le focus rectangle
+			b.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
 			h.addWidget(b)
 
 		# Groupe exclusif
@@ -402,7 +402,7 @@ class GraphViewerWidget(QWidget):
 			if not pix.isNull():
 				if scale != 1.0:
 					size = pix.size() * scale
-					pix = pix.scaled(size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+					pix = pix.scaled(size, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
 				return pix.save(path, "PNG")
 		return False
 
