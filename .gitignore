@@ -153,4 +153,5 @@ cython_debug/
 palm_tracer/DLL/
 palm_tracer/_tests/input/big input/
 palm_tracer/_tests/input/*test*
+**Tubulin-A647**
 tests/
