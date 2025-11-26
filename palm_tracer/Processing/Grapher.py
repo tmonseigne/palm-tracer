@@ -102,13 +102,15 @@ class Grapher:
 		return fig
 
 	##################################################
-	def scatter(self, data: np.ndarray, title: str, limit: bool = False) -> go.Figure:
+	def scatter(self, data: np.ndarray, title: str, limit: bool = False, xlabel: str = "", ylabel: str = "") -> go.Figure:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
 		:param data: Données sous forme de tableau numpy 1D ou 2D.
 		:param title: titre du graphe.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
 		:return: ``go.Figure``
 		"""
 		# Déterminer x,y
@@ -137,8 +139,10 @@ class Grapher:
 
 		# Style "seaborn-like" + Espacement entre barres
 		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
-						  xaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
-						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH), hovermode="x", showlegend=False)
+						  xaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=xlabel)),
+						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=ylabel)),
+						  hovermode="x", showlegend=False)
+
 		return fig
 
 	##################################################

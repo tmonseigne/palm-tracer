@@ -76,7 +76,7 @@ class GraphViewerWidget(QWidget):
 	"""
 
 	# ==================================================
-	# region Init
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, palmtracer: PALMTracer):
@@ -226,6 +226,13 @@ class GraphViewerWidget(QWidget):
 		grp_filters = QGroupBox("Filters (comming soon)")
 		vbox_filters = QVBoxLayout(grp_filters)
 		vbox_filters.addWidget(QLabel("—"))
+		self._btn_reset_f = QPushButton("Reset")
+		self._btn_update_f = QPushButton("Update")
+		actions_row = QHBoxLayout()
+		actions_row.addStretch(1)
+		actions_row.addWidget(self._btn_reset_f)
+		actions_row.addWidget(self._btn_update_f)
+		vbox_filters.addLayout(actions_row)
 
 		# Actions
 		actions_row = QHBoxLayout()
@@ -263,9 +270,11 @@ class GraphViewerWidget(QWidget):
 		self._grp_y_mode.idClicked.connect(self._update_plot)
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_export.clicked.connect(self._on_export)
+		self._btn_reset_f.clicked.connect(self._reset_filtered)
+		self._btn_update_f.clicked.connect(self.update_filtered)
 
 	# ==================================================
-	# endregion Init
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
@@ -300,8 +309,31 @@ class GraphViewerWidget(QWidget):
 		elif btn_id == 2: self._cmb_src.addItems(["MSD", "Velocity", "Displacement"])  # Tracking
 		self._cmb_src.setCurrentIndex(0)
 		self._cmb_src.blockSignals(False)
-		# puis redessiner le graphe si besoin
-		self._update_plot()
+
+		self._update_filters()  # Mise à jour des filtres à afficher
+		self._update_plot()		# puis redessiner le graphe si besoin
+
+	##################################################
+	def _reset_filtered(self):
+		"""Supprime les dataframes de filtre."""
+		self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
+		self._update_df()		   # Récupération des bons dataframe
+		self._update_plot()		   # puis redessiner le graphe si besoin
+
+	##################################################
+	def update_filtered(self):
+		"""Applique les filtres sur les dataframes."""
+		self._pt.update_filtered()  # Mise à jour des filtres
+		self._update_df()			# Récupération des bons dataframe
+		self._update_plot()			# puis redessiner le graphe si besoin
+
+	##################################################
+	def _update_filters(self):
+		"""
+		Mets à jour les filtres à afficher.
+		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles.
+		"""
+		print("TODO")
 
 	##################################################
 	def _update_plot(self):
@@ -331,12 +363,12 @@ class GraphViewerWidget(QWidget):
 				else:
 					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
 					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-					fig = self._grapher.scatter(np.column_stack((planes, counts)), src_type, limit=limit)
+					fig = self._grapher.scatter(np.column_stack((planes, counts)), src_type, limit=limit, xlabel="Plane", ylabel="Count")
 			else:
 				s = tmp.get(src_type)  # None si la colonne n'existe pas
 				if s is None: fig = self._grapher.blank(f"Localizations {src_type}")
-				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=limit, show_sigma=sigma,
-													kde=kde, gaussian=gauss, density=density)
+				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=limit,
+													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 		else:
 			fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
 

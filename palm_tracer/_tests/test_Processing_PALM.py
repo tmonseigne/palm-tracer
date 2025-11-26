@@ -188,7 +188,7 @@ def test_tracks_compute():
 		# Test avec ou sans les mise à jour de log et la 3D
 		for p in [True, False]:
 			t_output = palm.tracks_compute(t_input, True, p, p, p, 1, 1, 1, np.array([4], dtype=np.float64))
-			for name in ["MSD", "InstantD", "Fit"]:
+			for name in ["MSD", "InD", "Fit"]:
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
 
@@ -202,7 +202,7 @@ def test_tracks_compute():
 		# Test sur différents mode de fit
 		for mode in range(4):
 			t_output = palm.tracks_compute(t_input, False, False, False, False, 1, 1, mode, np.array([4], dtype=np.float64))
-			for name in ["MSD", "InstantD", "Fit"]:
+			for name in ["MSD", "InD", "Fit"]:
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
 
