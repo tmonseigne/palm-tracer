@@ -292,9 +292,6 @@ class PALMTracer:
 			self.df["blk"].to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
 			self.__filter_tracks("blk", "_reconnected")
 
-		if not self.df["blk"].empty:
-			self.df["trc"] = self.df["blk"]
-			self.df["blk"] = pd.DataFrame()
 
 	##################################################
 	def __tracks_compute(self):
