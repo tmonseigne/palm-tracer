@@ -11,7 +11,7 @@ import pandas as pd
 
 from palm_tracer.Processing.Parsing import (get_max_points, log10_dataframe, N_COL_TRC, parse_irregular_array,
 											parse_localization_to_tracking, parse_result, PARSING_COLUMNS)
-from palm_tracer.Tools.Utils import load_dll
+from palm_tracer.Tools.Utils import load_dll, print_warning
 
 N_TRC_CP_FIT = 10
 
@@ -351,6 +351,15 @@ class Palm:
 				res["Fit"]["Length"] = pd.to_numeric(res["Fit"]["Length"], errors="coerce").astype("Int64")
 				# Mise à jour en fonction de la mise à l'échelle du Log.
 				if is_log: res["Fit"] = log10_dataframe(res["Fit"], cols)
+
+		# Restauration des identifiants de trajectoire
+		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
+		track_ids = pd.unique(tracks["Track"])
+		for key in res:
+			if len(res[key]) != track_ids.size: print_warning("Problème avec les identifiants des trajectoires, attention au filtrage")
+			else:
+				res[key].drop(columns=["Track"], inplace=True)
+				res[key].insert(0, "Track", track_ids)
 		return res
 
 	##################################################

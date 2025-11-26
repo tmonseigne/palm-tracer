@@ -83,9 +83,9 @@ def test_on_source_change(qtbot):
 	w.show()
 	qtbot.waitExposed(w)
 
-	qtbot.mouseClick(w._btn_loc, QtCore.Qt.LeftButton)
+	qtbot.mouseClick(w._btn_loc, QtCore.Qt.MouseButton.LeftButton)
 	qtbot.waitUntil(lambda: w._btg_src.checkedId() == 1, timeout=2000)
-	qtbot.mouseClick(w._btn_trc, QtCore.Qt.LeftButton)
+	qtbot.mouseClick(w._btn_trc, QtCore.Qt.MouseButton.LeftButton)
 	qtbot.waitUntil(lambda: w._btg_src.checkedId() == 2, timeout=2000)
 	w.close()
 	assert True
@@ -103,18 +103,18 @@ def test_on_type_change(qtbot):
 	w.show()
 	qtbot.waitExposed(w)
 
-	w._loc.drop(index=w._loc.index, inplace=True)  # vider le csv
+	w._df["loc"].drop(index=w._df["loc"].index, inplace=True)  # vider le csv
 	w._update_plot()
 	w._actualize()  # reload csv
-	qtbot.mouseClick(w._btn_loc, QtCore.Qt.LeftButton)
+	qtbot.mouseClick(w._btn_loc, QtCore.Qt.MouseButton.LeftButton)
 	qtbot.waitUntil(lambda: w._btg_src.checkedId() == 1, timeout=2000)
 
-	w._loc.drop(index=w._loc.index, inplace=True)  # vider le csv
+	w._df["loc"].drop(index=w._df["loc"].index, inplace=True)  # vider le csv
 	w._update_plot()
 	w._actualize()  # reload csv
 	w._update_plot()
 
-	qtbot.mouseClick(w._btn_loc, QtCore.Qt.LeftButton)
+	qtbot.mouseClick(w._btn_loc, QtCore.Qt.MouseButton.LeftButton)
 	qtbot.waitUntil(lambda: w._btg_src.checkedId() == 1, timeout=2000)
 	w._cmb_src.setCurrentIndex(1)
 	qtbot.waitUntil(lambda: w._cmb_src.currentIndex() == 1, timeout=2000)

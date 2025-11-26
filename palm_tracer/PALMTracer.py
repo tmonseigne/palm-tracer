@@ -292,7 +292,6 @@ class PALMTracer:
 			self.df["blk"].to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
 			self.__filter_tracks("blk", "_reconnected")
 
-
 	##################################################
 	def __tracks_compute(self):
 		""" Lance le tracking à partir des settings passés en paramètres. """
@@ -310,11 +309,9 @@ class PALMTracer:
 			return
 
 		# Run command
-		res = self.palm.tracks_compute(self.tracks, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
+		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
-		self.df["MSD"] = res["MSD"]
-		self.df["InD"] = res["InD"]
-		self.df["Fit"] = res["Fit"]
+		for key in res: self.df[key] = res[key]
 
 		if s["MSD"] and not res["MSD"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
@@ -599,20 +596,19 @@ class PALMTracer:
 		if isinstance(f["Instant D"], CheckRangeFloat) and f["Instant D"].active and not o_ind.empty:
 			limits_d = f["Instant D"].get_value()
 
-			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]  # Restreindre aux trajectoires admissibles jusqu'ici
+			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]					   # Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_ind.empty:
-				# colonnes de valeurs = toutes sauf 'Track'
-				val_cols = [c for c in o_ind.columns if c != "Track"]
-
-				# masque valeurs valides et hors bornes
+				val_cols = [c for c in o_ind.columns if c != "Track"]		   # colonnes de valeurs = toutes sauf 'Track'
 				vals = o_ind[val_cols]
-				valid = vals.notna()
-				outside = (vals <= limits_d[0]) | (limits_d[1] <= vals)
+				vals_np = vals.to_numpy(dtype=float)						   # Convertir en numpy pour un contrôle fin
+				finite = np.isfinite(vals_np)								   # masque des valeurs finies (ni NaN, ni ±inf)
+				outside = (vals_np <= limits_d[0]) | (vals_np >= limits_d[1])  # valeurs hors bornes (sur le numpy brut)
+				outside &= finite											   # On ne compte les "outside" que là où c'est vraiment une valeur finie
+				n_valid, n_out = finite.sum(axis=1),  outside.sum(axis=1)	   # nombre de valeurs valides/hors bornes par ligne
+				pct_out_np = np.zeros_like(n_out, dtype=float)				   # pourcentage hors bornes (évite la division par 0 avec where=)
+				np.divide(n_out, n_valid, out=pct_out_np, where=n_valid > 0)
+				pct_out = pd.Series(pct_out_np * 100.0, index=o_ind.index)
 
-				# % hors bornes par ligne (NaN ignorés)
-				n_valid = valid.sum(axis=1)
-				n_out = (outside & valid).sum(axis=1)
-				pct_out = (n_out / n_valid).fillna(0.0) * 100.0
 				# avec une troisieme valeur limit[2] qui serait le pourcentage de fail max autorisé
 				# Ou alors un nouveau setting type Instant D Failure Tolerance (%), je vais mettre 50% ici
 				ok_ids = set(map(int, np.unique(o_ind.loc[pct_out <= 50.0, "Track"].to_numpy())))
@@ -646,15 +642,15 @@ class PALMTracer:
 		return o_trc, o_msd, o_ind, o_fit
 
 	##################################################
-	def update_filtered(self, last:bool = True):
+	def update_filtered(self, last: bool = True):
 		"""Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original."""
 
 		self._suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
 		loc = self.df["loc"] if self.df["f_loc"].empty or not last else self.df["f_loc"]
 		trc = self.df["trc"] if self.df["f_trc"].empty or not last else self.df["f_trc"]
 		blk = self.df["blk"] if self.df["f_blk"].empty or not last else self.df["f_blk"]
-		if last : tc = self.tracks_compute
-		else : tc =  {"MSD": self.df["MSD"], "InD": self.df["InD"], "Fit": self.df["Fit"]}
+		if last: tc = self.tracks_compute
+		else: tc = {"MSD": self.df["MSD"], "InD": self.df["InD"], "Fit": self.df["Fit"]}
 
 		self.df["f_loc"] = self.filter_localizations(loc)
 		self.df["f_trc"] = self.filter_tracks(trc)
@@ -669,6 +665,6 @@ class PALMTracer:
 					   ["f_MSD", "tracking_MSD_filtered"], ["f_InD", "tracking_InstantD_filtered"], ["f_Fit", "tracking_Fit_filtered"]]
 			for n in to_save:
 				if not self.df[n[0]].empty: self.df[n[0]].to_csv(f"{self._path}/{n[1]}-{self._suffix}.csv", index=False)
-# ==================================================
-# endregion Filtering
-# ==================================================
+	# ==================================================
+	# endregion Filtering
+	# ==================================================

@@ -445,14 +445,43 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(1)
 	pt.settings.tracking.active = True
 	pt.settings.tracking["Blinking Reconnection"].active = True
-	pt.settings.tracks_compute.active = True
-	pt.settings.tracks_compute["MSD"].set_value(True)
-	pt.settings.tracks_compute["Instant Diffusion"].set_value(True)
-	pt.settings.tracks_compute["Fit"].set_value(1)
+
 	# Ajout du fichier
 	file_list = cast(FileList, pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
+
+	pt.process()
+	assert len(pt.tracks) == 455, f"Il reste {len(pt.tracks)} points au lieu de 143 sur les trajectoires."
+
+	pt.settings.filtering["Tracks"]["Length"].active = True
+	pt.settings.filtering["Tracks"]["Length"].set_value([3, 10000])
+
+	pt.process()
+	assert len(pt.tracks) == 143, f"Il reste {len(pt.tracks)} points au lieu de 143 sur les trajectoires."
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_process_filter_all_tracks_compute(make_napari_viewer):
+	""" Test pour le filtrage complet lors de l'exécution. """
+	pt = PALMTracer()
+
+	pt.settings.localization.active = True
+	pt.settings.localization["Gaussian Fit"]["Mode"].set_value(1)
+	pt.settings.tracking.active = True
+	pt.settings.tracking["Blinking Reconnection"].active = True
+
+	# Ajout du fichier
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+
+	pt.settings.tracks_compute.active = True
+	pt.settings.tracks_compute["MSD"].set_value(True)
+	pt.settings.tracks_compute["Instant Diffusion"].set_value(True)
+	pt.settings.tracks_compute["Fit"].set_value(1)
+	pt.settings.tracks_compute["Fit Length"].set_value(2)
 
 	pt.settings.filtering["Tracks"]["Length"].active = True
 	pt.settings.filtering["Tracks"]["Length"].set_value([3, 10000])
@@ -467,12 +496,15 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	pt.process()
 	pt.settings.filtering["Save"].set_value(True)
 	pt.process()
+
 	# Vérification manuelle à l'heure actuelle
-	assert len(pt.tracks) == 143, f"Il reste {len(pt.tracks)} points au lieu de 143 sur les trajectoires."
-	assert len(pt.tracks_compute["MSD"]) == 5, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 5."
+	assert len(pt.tracks) == 55, f"Il reste {len(pt.tracks)} points au lieu de 55 sur les trajectoires."
+	assert len(pt.tracks_compute["MSD"]) == 14, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 14."
 	# Filtre massif plus rien à la sortie
 	pt.settings.filtering["Tracks"]["Length"].set_value([42, 10000])
 	pt.process()
+	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
+	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
 
 
 ##################################################
