@@ -19,7 +19,6 @@ Notes
 - Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
 
 .. todo::
-	- Ajouter des filtres (bloc réservé dans l'UI).
 	- Implémenter les sources Tracking (MSD, vitesse, etc.) et leurs graphes associés.
 """
 
@@ -30,7 +29,8 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
-from qtpy import QtCore, QtGui
+from qtpy.QtGui import QPixmap
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
 							QLabel, QMessageBox, QPushButton, QRadioButton, QTextBrowser, QToolButton, QVBoxLayout, QWidget)
 
@@ -158,7 +158,7 @@ class GraphViewerWidget(QWidget):
 		self._btn_stack, self._btn_loc, self._btn_trc = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracking")
 		for b in (self._btn_stack, self._btn_loc, self._btn_trc):
 			b.setCheckable(True)
-			b.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
+			b.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
 			h.addWidget(b)
 
 		# Groupe exclusif
@@ -229,10 +229,7 @@ class GraphViewerWidget(QWidget):
 		vbox_filters = QVBoxLayout(grp_filters)
 		# Integration des Filtres
 		self._filters = Filtering()
-		print(self._filters)
-		print(self._pt.settings.filtering)
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
-		print(self._filters)
 		vbox_filters.addWidget(self._filters.widget)
 		# Masquage initial
 		self._filters["Save"].hide()
@@ -278,7 +275,7 @@ class GraphViewerWidget(QWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		self._btg_src.idClicked.connect(self._on_source_changed)
-		self._cmb_src.currentTextChanged.connect(self._update_filters)
+		self._cmb_src.currentTextChanged.connect(self._update_filters_ui)
 		self._cmb_src.currentTextChanged.connect(self._update_plot)
 		self._chk_limits.stateChanged.connect(self._update_plot)
 		self._chk_sigma.stateChanged.connect(self._update_plot)
@@ -288,7 +285,7 @@ class GraphViewerWidget(QWidget):
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_export.clicked.connect(self._on_export)
 		self._btn_reset_f.clicked.connect(self._reset_filtered)
-		self._btn_update_f.clicked.connect(self.update_filtered)
+		self._btn_update_f.clicked.connect(self._update_filtered)
 
 	# ==================================================
 	# endregion Initialisation
@@ -327,7 +324,7 @@ class GraphViewerWidget(QWidget):
 		self._cmb_src.setCurrentIndex(0)
 		self._cmb_src.blockSignals(False)
 
-		self._update_filters()  # Mise à jour des filtres à afficher
+		self._update_filters_ui()  # Mise à jour des filtres à afficher
 		self._update_plot()		# puis redessiner le graphe si besoin
 
 	##################################################
@@ -338,7 +335,7 @@ class GraphViewerWidget(QWidget):
 		self._update_plot()		   # puis redessiner le graphe si besoin
 
 	##################################################
-	def update_filtered(self):
+	def _update_filtered(self):
 		"""Applique les filtres sur les dataframes."""
 		with self._pt.settings.signal_blocked():
 			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
@@ -348,7 +345,7 @@ class GraphViewerWidget(QWidget):
 		self._update_plot()			# puis redessiner le graphe si besoin
 
 	##################################################
-	def _update_filters(self):
+	def _update_filters_ui(self):
 		"""
 		Mets à jour les filtres à afficher.
 		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles.
@@ -371,10 +368,10 @@ class GraphViewerWidget(QWidget):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
-		limit = self._chk_limits.checkState() == QtCore.Qt.CheckState.Checked
-		sigma = self._chk_sigma.checkState() == QtCore.Qt.CheckState.Checked
-		kde = self._chk_kde.checkState() == QtCore.Qt.CheckState.Checked
-		gauss = self._chk_gauss.checkState() == QtCore.Qt.CheckState.Checked
+		limit = self._chk_limits.checkState() == Qt.CheckState.Checked
+		sigma = self._chk_sigma.checkState() == Qt.CheckState.Checked
+		kde = self._chk_kde.checkState() == Qt.CheckState.Checked
+		gauss = self._chk_gauss.checkState() == Qt.CheckState.Checked
 		density = self._rb_density.isChecked()
 		# Selection du graphique à afficher
 		fig: go.Figure
@@ -434,31 +431,43 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def _get_status(self, loc_key: str, trc_key: str, tc_key: list[str]) -> dict[str, str]:
 		"""
+		Retourne un dictionnaire décrivant le statut des tableaux actuellement chargés dans ``self._df``
+		pour les différentes catégories de données (Localisation, Trajectoires, MSD, Diffusion instantanée, Fit).
 
-		:param loc_key:
-		:param trc_key:
-		:param tc_key:
-		:return:
+		Cette méthode analyse les clés fournies (``loc_key``, ``trc_key``, ``tc_key``) afin de déterminer si chaque tableau correspond :
+			- à un tableau standard,
+			- à un tableau filtré,
+			- à un tableau reconnecté (pour les trajectoires),
+			- ou à une absence de données.
+
+		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`.
+
+		Le dictionnaire retourné contient systématiquement les clés suivantes : ``"loc"``, ``"trc"``, ``"MSD"``, ``"InD"``, ``"Fit"``
+
+		:param loc_key: Nom de la clé du tableau de localisation.
+		:param trc_key: Nom de la clé du tableau de trajectoires.
+		:param tc_key: Liste de trois clés correspondant respectivement aux tableaux MSD, diffusion instantanée et Fit.
+		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
 		"""
 		res = {"loc": FILE_STATUS[0], "trc": FILE_STATUS[0], "MSD": FILE_STATUS[0], "InD": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
 
 		if self._df["loc"].empty: res["loc"] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
-		elif "f_" in loc_key: res["loc"] = FILE_STATUS[2]  # Tableau filtré
-		else: res["loc"] = FILE_STATUS[1]  # Tableau standard
+		elif "f_" in loc_key: res["loc"] = FILE_STATUS[2]	   # Tableau filtré
+		else: res["loc"] = FILE_STATUS[1]					   # Tableau standard
 
 		if self._df["trc"].empty: res["trc"] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
 		elif "f_" in trc_key:
 			if "blk" in trc_key: res["trc"] = FILE_STATUS[4]  # Tableau reconnecté filtré
-			else: res["trc"] = FILE_STATUS[2]  # Tableau filtré
+			else: res["trc"] = FILE_STATUS[2]				  # Tableau filtré
 		else:
 			if "blk" in trc_key: res["trc"] = FILE_STATUS[3]  # Tableau reconnecté non filtré
-			else: res["trc"] = FILE_STATUS[1]  # Tableau standard
+			else: res["trc"] = FILE_STATUS[1]				  # Tableau standard
 
 		tcs = ["MSD", "InD", "Fit"]
 		for i in range(3):
 			if self._df[tcs[i]].empty: res[tcs[i]] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
-			elif "f_" in tc_key[i]: res[tcs[i]] = FILE_STATUS[2]  # Tableau filtré
-			else: res[tcs[i]] = FILE_STATUS[1]  # Tableau standard
+			elif "f_" in tc_key[i]: res[tcs[i]] = FILE_STATUS[2]	 # Tableau filtré
+			else: res[tcs[i]] = FILE_STATUS[1]						 # Tableau standard
 
 		return res
 
@@ -467,12 +476,12 @@ class GraphViewerWidget(QWidget):
 		"""
 		Actualise les fichiers/données depuis l'état PALMTracer :
 			- Lit le TIF sélectionné (pile `_stack`) pour l'affichage Stack.
-			- Déduit les chemins CSV "localizations"/"tracking" et charge les DataFrame `_loc`/`_trc`.
 			- Met à jour les libellés d'information et l'état d'activation des boutons de domaine.
 			- Sélectionne par défaut le domaine "Stack" et redessine.
 
 		En cas d'erreur de lecture, logue l'erreur via :func:`print_error`.
 		"""
+		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
 
 		# Métadonnées d'information
 		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
@@ -499,11 +508,11 @@ class GraphViewerWidget(QWidget):
 		"""
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
 			QApplication.processEvents()
-			pix: QtGui.QPixmap = self._web.grab()
+			pix: QPixmap = self._web.grab()
 			if not pix.isNull():
 				if scale != 1.0:
 					size = pix.size() * scale
-					pix = pix.scaled(size, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+					pix = pix.scaled(size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 				return pix.save(path, "PNG")
 		return False
 

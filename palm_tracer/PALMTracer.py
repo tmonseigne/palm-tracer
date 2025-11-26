@@ -649,8 +649,7 @@ class PALMTracer:
 		loc = self.df["loc"] if self.df["f_loc"].empty or not last else self.df["f_loc"]
 		trc = self.df["trc"] if self.df["f_trc"].empty or not last else self.df["f_trc"]
 		blk = self.df["blk"] if self.df["f_blk"].empty or not last else self.df["f_blk"]
-		if last: tc = self.tracks_compute
-		else: tc = {"MSD": self.df["MSD"], "InD": self.df["InD"], "Fit": self.df["Fit"]}
+		tc = self.tracks_compute if last else {"MSD": self.df["MSD"], "InD": self.df["InD"], "Fit": self.df["Fit"]}
 
 		self.df["f_loc"] = self.filter_localizations(loc)
 		self.df["f_trc"] = self.filter_tracks(trc)

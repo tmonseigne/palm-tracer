@@ -1,8 +1,23 @@
 """
-Module contenant la classe :class:`AlignmentWidget`
-............ completer la doc
+Module contenant la classe :class:`AlignmentWidget`, un outil minimaliste pour la gestion de l’alignement géométrique entre acquisitions dans PALMTracer.
 
+Ce widget offre une interface simple organisée en deux onglets : ``Compute Alignment Coefficients``, ``Apply Alignment``
 
+Fonctionnalités principales
+---------------------------
+- Interface légère en PySide6/PyQt6 basée sur des :class:`QTabWidget`, :class:`QGroupBox` et :class:`QPushButton`.
+- Gestion simple des entrées (sélection de fichiers TIFF / TXT via :class:`QFileDialog`).
+- Chargement des images via :func:`palm_tracer.Tools.open_tif` et sauvegarde via :func:`palm_tracer.Tools.save_tif`.
+- Chargement des coefficients d’alignement sous forme d’un tableau NumPy de taille ``(2, 10)``.
+- Application de l’alignement via :meth:`Palm.align`, issue du module :mod:`palm_tracer.Processing`.
+
+Notes
+-----
+- Le widget est autonome : il peut être lancé directement (``python AlignmentWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
+
+.. todo::
+   - Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle).
+   - Prévoir une visualisation intermédiaire (overlay, difference map).
 """
 
 import os
@@ -22,8 +37,7 @@ class AlignmentWidget(QWidget):
 
 	Ce widget fournit deux onglets :
 		- ``Compute Alignment Coefficients`` :
-			- Bouton pour charger un fichier TIFF contenant une seule image,
-			  composée de deux vues placées côte à côte (référence / déformation).
+			- Bouton pour charger un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte (référence / déformation).
 			- Bouton pour lancer le calcul des coefficients.
 
 		- ``Apply Alignment`` :
