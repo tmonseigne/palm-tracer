@@ -310,7 +310,7 @@ class PALMTracer:
 			return
 
 		# Run command
-		res = self.palm.tracks_compute(self.df["trc"], s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
+		res = self.palm.tracks_compute(self.tracks, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
 		self.df["MSD"] = res["MSD"]
 		self.df["InD"] = res["InD"]
@@ -503,7 +503,7 @@ class PALMTracer:
 	def __filter_tracks_compute(self):
 		""" Filtre les fichiers de metrique. """
 		n_init = len(self.df["MSD"])
-		o_name = "f_trc" if self.df["blk"].empty else "f_blk"
+		o_name = self.get_tracks_key()
 		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
 			= self.filter_tracks_compute(self.tracks, self.df["MSD"], self.df["InD"], self.df["Fit"])
 
@@ -588,7 +588,6 @@ class PALMTracer:
 
 		# ===== Base : tous les IDs présents dans la référence =====
 		keep_ids: set = set(o_trc["Track"].unique().tolist())
-		# print(f"Base ID ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre Longueur =====
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits_l = f["Length"].get_value()
@@ -596,7 +595,6 @@ class PALMTracer:
 			ok_len_ids = set(counts.index[(limits_l[0] <= counts) & (counts <= limits_l[1])].tolist())
 			keep_ids &= ok_len_ids  # intersection sur des sets d'IDs
 
-		# print(f"ID After Length filter ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre sur Instant D =====
 		if isinstance(f["Instant D"], CheckRangeFloat) and f["Instant D"].active and not o_ind.empty:
 			limits_d = f["Instant D"].get_value()
@@ -619,9 +617,7 @@ class PALMTracer:
 				# Ou alors un nouveau setting type Instant D Failure Tolerance (%), je vais mettre 50% ici
 				ok_ids = set(map(int, np.unique(o_ind.loc[pct_out <= 50.0, "Track"].to_numpy())))
 				keep_ids &= ok_ids
-		# for track_id, pct in zip(df["Track"], pct_out): print(f"Track {track_id}: {pct:.1f}% outside {limits}")
 
-		# print(f"ID After Instant D ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre sur Fit =====
 		if not o_fit.empty:
 			o_fit = o_fit[o_fit["Track"].isin(keep_ids)]  # Restreindre aux trajectoires admissibles jusqu'ici
@@ -642,7 +638,6 @@ class PALMTracer:
 
 				keep_ids &= set(o_fit["Track"].unique().tolist())
 
-		# print(f"ID After Fit ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre final des trajectoires restantes =====
 		if not o_trc.empty: o_trc = o_trc[o_trc["Track"].isin(keep_ids)]
 		if not o_msd.empty: o_msd = o_msd[o_msd["Track"].isin(keep_ids)]
