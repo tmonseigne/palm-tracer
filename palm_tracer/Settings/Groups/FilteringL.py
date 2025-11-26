@@ -24,7 +24,7 @@ class FilteringL(BaseSettingGroup):
 		- **Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat>`) : Interval de Z sélectionnés (par défaut : `[-5, 5]`).
 	"""
 
-	label: str = "Gaussian Fit"
+	label: str = "Localization"
 	setting_list = {
 			"MSE":         [CheckRangeFloat, ["MSE", [0, 1], [0, 1]]],
 			"Sigma X":     [CheckRangeFloat, ["Sigma X", [0, 10], [0, 10]]],

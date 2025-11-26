@@ -34,6 +34,8 @@ from qtpy import QtCore, QtGui
 from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
 							QLabel, QMessageBox, QPushButton, QRadioButton, QTextBrowser, QToolButton, QVBoxLayout, QWidget)
 
+from palm_tracer.Settings.Groups import Filtering
+
 # Tentative d'import QtWebEngine (via qtpy)
 try:
 	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
@@ -126,7 +128,7 @@ class GraphViewerWidget(QWidget):
 		# Colonne gauche
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
-		left.setMinimumWidth(280)
+		left.setMinimumWidth(300)
 		vbox = QVBoxLayout(left)
 		vbox.setContentsMargins(5, 5, 5, 5)
 		vbox.setSpacing(5)
@@ -225,7 +227,21 @@ class GraphViewerWidget(QWidget):
 		# Bloc Filtres (placeholder vide pour l'instant)
 		grp_filters = QGroupBox("Filters (comming soon)")
 		vbox_filters = QVBoxLayout(grp_filters)
-		vbox_filters.addWidget(QLabel("—"))
+		# Integration des Filtres
+		self._filters = Filtering()
+		print(self._filters)
+		print(self._pt.settings.filtering)
+		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+		print(self._filters)
+		vbox_filters.addWidget(self._filters.widget)
+		# Masquage initial
+		self._filters["Save"].hide()
+		self._filters["Localization"].remove_header()
+		self._filters["Tracks"].remove_header()
+		self._filters["Localization"].hide()
+		self._filters["Tracks"].hide()
+
+		# Bouttons de gestion des filtres
 		self._btn_reset_f = QPushButton("Reset")
 		self._btn_update_f = QPushButton("Update")
 		actions_row = QHBoxLayout()
@@ -262,6 +278,7 @@ class GraphViewerWidget(QWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		self._btg_src.idClicked.connect(self._on_source_changed)
+		self._cmb_src.currentTextChanged.connect(self._update_filters)
 		self._cmb_src.currentTextChanged.connect(self._update_plot)
 		self._chk_limits.stateChanged.connect(self._update_plot)
 		self._chk_sigma.stateChanged.connect(self._update_plot)
@@ -323,7 +340,10 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def update_filtered(self):
 		"""Applique les filtres sur les dataframes."""
-		self._pt.update_filtered()  # Mise à jour des filtres
+		with self._pt.settings.signal_blocked():
+			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
+			self._pt.update_filtered()  # Mise à jour des filtres
+
 		self._update_df()			# Récupération des bons dataframe
 		self._update_plot()			# puis redessiner le graphe si besoin
 
@@ -333,7 +353,18 @@ class GraphViewerWidget(QWidget):
 		Mets à jour les filtres à afficher.
 		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles.
 		"""
-		print("TODO")
+		src_id = self._btg_src.checkedId()
+		src_type = self._cmb_src.currentText()
+
+		if src_id == 0: # Stack
+			self._filters["Localization"].hide()
+			self._filters["Tracks"].hide()
+		elif src_id == 1: # Localisation
+			self._filters["Localization"].show()
+			self._filters["Tracks"].hide()
+		else: # Tracking
+			self._filters["Localization"].hide()
+			self._filters["Tracks"].show()
 
 	##################################################
 	def _update_plot(self):

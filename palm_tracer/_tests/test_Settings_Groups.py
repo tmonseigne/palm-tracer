@@ -207,7 +207,7 @@ def test_visualization_graph(make_napari_viewer):
 ###################################################
 def test_filtering(make_napari_viewer):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	group_base_test(Filtering(), ["Save", "Plane", "Intensity", "Gaussian Fit", "Tracks"], CheckBox, True, False)
+	group_base_test(Filtering(), ["Save", "Plane", "Intensity", "Localization", "Tracks"], CheckBox, True, False)
 
 
 ###################################################

@@ -106,7 +106,7 @@ class PALMTracer:
 	def tracks_compute(self) -> dict[str, pd.DataFrame]:
 		"""Getter des calculs sur trajectoires (filtrés si non vide). """
 		keys = self.get_tracks_compute_key()
-		return {"MSD": self.df[keys[0]], "InstantD": self.df[keys[1]], "Fit": self.df[keys[2]]}
+		return {"MSD": self.df[keys[0]], "InD": self.df[keys[1]], "Fit": self.df[keys[2]]}
 
 	##################################################
 	def reset_result(self):
@@ -313,15 +313,15 @@ class PALMTracer:
 		res = self.palm.tracks_compute(self.df["trc"], s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
 		self.df["MSD"] = res["MSD"]
-		self.df["InD"] = res["InstantD"]
+		self.df["InD"] = res["InD"]
 		self.df["Fit"] = res["Fit"]
 
 		if s["MSD"] and not res["MSD"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
 			res["MSD"].to_csv(f"{self._path}/tracking_MSD-{self._suffix}.csv", index=False)
-		if s["Instant Diffusion"] and not res["InstantD"].empty:
+		if s["Instant Diffusion"] and not res["InD"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées.")
-			res["InstantD"].to_csv(f"{self._path}/tracking_InstantD-{self._suffix}.csv", index=False)
+			res["InD"].to_csv(f"{self._path}/tracking_InstantD-{self._suffix}.csv", index=False)
 		if s["Fit"] != 0 and not res["Fit"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
 			res["Fit"].to_csv(f"{self._path}/tracking_Fit-{self._suffix}.csv", index=False)
@@ -532,7 +532,7 @@ class PALMTracer:
 		res = datas.copy()
 		if res.empty: return res
 		f = cast(Filtering, self.settings.filtering)
-		fg = cast(FilteringL, f["Gaussian Fit"])
+		fg = cast(FilteringL, f["Localization"])
 		filters = [[f["Plane"], "Plane"],
 				   [f["Intensity"], "Integrated Intensity"],
 				   [fg["MSE"], "MSE XY"],
@@ -651,14 +651,15 @@ class PALMTracer:
 		return o_trc, o_msd, o_ind, o_fit
 
 	##################################################
-	def update_filtered(self):
-		"""Recalcul les filtres sur le dernier dataframe disponible pour chacun."""
+	def update_filtered(self, last:bool = True):
+		"""Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original."""
 
 		self._suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
-		loc = self.localizations
-		trc = self.df["trc"] if self.df["f_trc"].empty else self.df["f_trc"]
-		blk = self.df["blk"] if self.df["f_blk"].empty else self.df["f_blk"]
-		tc = self.tracks_compute
+		loc = self.df["loc"] if self.df["f_loc"].empty or not last else self.df["f_loc"]
+		trc = self.df["trc"] if self.df["f_trc"].empty or not last else self.df["f_trc"]
+		blk = self.df["blk"] if self.df["f_blk"].empty or not last else self.df["f_blk"]
+		if last : tc = self.tracks_compute
+		else : tc =  {"MSD": self.df["MSD"], "InD": self.df["InD"], "Fit": self.df["Fit"]}
 
 		self.df["f_loc"] = self.filter_localizations(loc)
 		self.df["f_trc"] = self.filter_tracks(trc)
@@ -666,7 +667,7 @@ class PALMTracer:
 
 		o_name = "f_trc" if self.df["blk"].empty else "f_blk"
 		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
-			= self.filter_tracks_compute(self.tracks, tc["MSD"], tc["InstantD"], tc["Fit"])
+			= self.filter_tracks_compute(self.tracks, tc["MSD"], tc["InD"], tc["Fit"])
 
 		if self.settings.filtering["Save"].get_value():
 			to_save = [["f_loc", "localizations_filtered"], ["f_trc", "tracking_filtered"], ["f_blk", "tracking_filtered_reconnected"],
