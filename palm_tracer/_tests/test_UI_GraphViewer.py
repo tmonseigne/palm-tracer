@@ -179,32 +179,54 @@ def test_status(w: GraphViewerWidget, qtbot, capsys):
 	# Clés vides (il vérifie juste que les dataframe ne sont pas vide dans ce cas il indique que c'est bon)
 	ref = {"loc": FILE_STATUS[1], "trc": FILE_STATUS[1], "MSD": FILE_STATUS[1], "InD": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
 	res = w._get_status("", "", ["", "", ""])
-	for key in res: assert res[key] == ref[key], "Status incorrect."
+	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Clés pour dataframes simples
 	res = w._get_status("loc", "trc", ["MSD", "InD", "Fit"])
-	for key in res: assert res[key] == ref[key], "Status incorrect."
+	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Clés pour dataframes filtrés
 	ref = {"loc": FILE_STATUS[2], "trc": FILE_STATUS[2], "MSD": FILE_STATUS[2], "InD": FILE_STATUS[2], "Fit": FILE_STATUS[2]}
 	res = w._get_status("f_loc", "f_trc", ["f_MSD", "f_InD", "f_Fit"])
-	for key in res: assert res[key] == ref[key], "Status incorrect."
+	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Clés pour dataframes simples mais trajectoires reconnecté
 	ref = {"loc": FILE_STATUS[1], "trc": FILE_STATUS[3], "MSD": FILE_STATUS[1], "InD": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
 	res = w._get_status("loc", "blk", ["MSD", "InD", "Fit"])
-	for key in res: assert res[key] == ref[key], "Status incorrect."
+	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Clés pour dataframes filtrés mais trajectoires reconnecté
 	ref = {"loc": FILE_STATUS[2], "trc": FILE_STATUS[4], "MSD": FILE_STATUS[2], "InD": FILE_STATUS[2], "Fit": FILE_STATUS[2]}
 	res = w._get_status("f_loc", "f_blk", ["f_MSD", "f_InD", "f_Fit"])
-	for key in res: assert res[key] == ref[key], "Status incorrect."
+	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Vider les dataframes
 	ref = {"loc": FILE_STATUS[0], "trc": FILE_STATUS[0], "MSD": FILE_STATUS[0], "InD": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
 	for key in w._df: w._df[key] = pd.DataFrame()
 	res = w._get_status("f_loc", "f_blk", ["f_MSD", "f_InD", "f_Fit"])
-	for key in res: assert res[key] == ref[key], "Status incorrect."
+	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
+
+	w.close()
+	assert True
+
+##################################################
+@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+def test_tracks_source(w: GraphViewerWidget, qtbot, capsys):
+	qtbot.addWidget(w)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Récupération des sources classique
+	ref = ["Length", "MSD", "Instant Diffusion", "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE"]
+	res = w._get_tracks_src()
+	assert ref == res, f"Liste des sources incorrecte.\nAttendu: {ref}\nObtenu : {res}"
+
+	# Avec des Dataframes Vide
+	ref = ["Length"]
+	for key in w._df: w._df[key] = pd.DataFrame()
+	res = w._get_tracks_src()
+	assert ref == res, f"Liste des sources incorrecte.\nAttendu: {ref}\nObtenu : {res}"
 
 	w.close()
 	assert True

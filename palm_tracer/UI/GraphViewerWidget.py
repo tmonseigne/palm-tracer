@@ -29,8 +29,8 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
-from qtpy.QtGui import QPixmap
 from qtpy.QtCore import Qt
+from qtpy.QtGui import QPixmap
 from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
 							QLabel, QMessageBox, QPushButton, QRadioButton, QTextBrowser, QToolButton, QVBoxLayout, QWidget)
 
@@ -52,7 +52,20 @@ from palm_tracer.Settings.Types import FileList
 
 FILE_STATUS = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
 
+DATA_SRC: dict[str, list] = {
+		"stk": ["Intensity"],
+		"loc": ["Localizations Count", "Integrated Intensity", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
+		"trc": ["Length"],
+		"MSD": ["MSD"],
+		"InD": ["Instant Diffusion"],
+		"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],		# Pour tous Fit
+				["A (μm²/s)", "B (μm²)", "MSE"],									# Fit Linéaire
+				["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],    # Fit Puissance
+				["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
+		}
 
+
+##################################################
 class GraphViewerWidget(QWidget):
 	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
 
@@ -155,7 +168,7 @@ class GraphViewerWidget(QWidget):
 
 		h = QHBoxLayout()
 		h.setSpacing(0)
-		self._btn_stack, self._btn_loc, self._btn_trc = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracking")
+		self._btn_stack, self._btn_loc, self._btn_trc = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracks")
 		for b in (self._btn_stack, self._btn_loc, self._btn_trc):
 			b.setCheckable(True)
 			b.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
@@ -317,15 +330,14 @@ class GraphViewerWidget(QWidget):
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
 		self._cmb_src.blockSignals(True)
 		self._cmb_src.clear()
-		if btn_id == 0: self._cmb_src.addItems(["Intensity"])  # Stack
-		elif btn_id == 1: self._cmb_src.addItems(["Localizations Count", "Integrated Intensity", "Intensity", "Sigma X", "Sigma Y",
-												  "Circularity", "Theta", "MSE XY", "Z", "MSE Z"])  # Localization
-		elif btn_id == 2: self._cmb_src.addItems(["MSD", "Velocity", "Displacement"])  # Tracking
+		if btn_id == 0: self._cmb_src.addItems(DATA_SRC["stk"])    # Stack
+		elif btn_id == 1: self._cmb_src.addItems(DATA_SRC["loc"])  # Localization
+		elif btn_id == 2: self._cmb_src.addItems(self._get_tracks_src())  # Tracking
 		self._cmb_src.setCurrentIndex(0)
 		self._cmb_src.blockSignals(False)
 
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
-		self._update_plot()		# puis redessiner le graphe si besoin
+		self._update_plot()		   # puis redessiner le graphe si besoin
 
 	##################################################
 	def _reset_filtered(self):
@@ -353,13 +365,13 @@ class GraphViewerWidget(QWidget):
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
 
-		if src_id == 0: # Stack
+		if src_id == 0:  # Stack
 			self._filters["Localization"].hide()
 			self._filters["Tracks"].hide()
-		elif src_id == 1: # Localisation
+		elif src_id == 1:  # Localisation
 			self._filters["Localization"].show()
 			self._filters["Tracks"].hide()
-		else: # Tracking
+		else:  # Tracking
 			self._filters["Localization"].hide()
 			self._filters["Tracks"].show()
 
@@ -391,14 +403,31 @@ class GraphViewerWidget(QWidget):
 				else:
 					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
 					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-					fig = self._grapher.scatter(np.column_stack((planes, counts)), src_type, limit=limit, xlabel="Plane", ylabel="Count")
+					fig = self._grapher.scatter(np.column_stack((planes, counts)), f"Localizations {src_type}", limit=limit, xlabel="Plane", ylabel="Count")
 			else:
 				s = tmp.get(src_type)  # None si la colonne n'existe pas
 				if s is None: fig = self._grapher.blank(f"Localizations {src_type}")
 				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=limit,
 													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 		else:
-			fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
+			if src_type == "Length": # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
+				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"]) # Groupement par track + calcul min et max
+				group["delta"] = group["max"] - group["min"] # Calcul du delta
+				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy())) # Conversion vers numpy 2D : colonne Track + delta
+				fig = self._grapher.scatter(res, f"Tracks {src_type}", limit=limit, xlabel="Track", ylabel="Length")
+			elif src_type == "MSD":
+				# TODO que faire pour celui là un histogramme par lag ? le MSD moyen par track, l'histogramme des MSD peu importe le lag ?
+				fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
+			elif src_type == "Instant Diffusion":
+				# TODO que faire pour celui là un histogramme par fenêtre ? le Instant D moyen par track, l'histogramme des Instant D peu importe la fenêtre ?
+				fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
+			else:
+				s = self._df["Fit"].get(src_type)  # None si la colonne n'existe pas
+				if s is None: fig = self._grapher.blank(f"Tracks {src_type}")
+				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Tracks {src_type}", limit=limit,
+													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+
+			#fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
 
 		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
 		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
@@ -468,6 +497,18 @@ class GraphViewerWidget(QWidget):
 			if self._df[tcs[i]].empty: res[tcs[i]] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
 			elif "f_" in tc_key[i]: res[tcs[i]] = FILE_STATUS[2]	 # Tableau filtré
 			else: res[tcs[i]] = FILE_STATUS[1]						 # Tableau standard
+		return res
+
+	##################################################
+	def _get_tracks_src(self) -> list[str]:
+		"""
+
+		:return: La liste des sources disponible pour les trajectoires.
+		"""
+		res = list(DATA_SRC["trc"])
+		if not self._df["MSD"].empty: res+=DATA_SRC["MSD"]
+		if not self._df["InD"].empty: res+=DATA_SRC["InD"]
+		if not self._df["Fit"].empty: res+=self._df["Fit"].columns[2:].tolist()
 
 		return res
 
@@ -491,7 +532,7 @@ class GraphViewerWidget(QWidget):
 
 		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)  # Change la source pour Stack
+		self._on_source_changed(0)		# Change la source pour Stack
 
 	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
@@ -571,9 +612,9 @@ class GraphViewerWidget(QWidget):
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
 
-# ==================================================
-# endregion Callback
-# ==================================================
+	# ==================================================
+	# endregion Callback
+	# ==================================================
 
 
 ##################################################
