@@ -410,18 +410,19 @@ def test_process_filter_all_localization(make_napari_viewer):
 
 	pt.settings.filtering["Plane"].active = True
 	pt.settings.filtering["Plane"].set_value([1, 9])  # Suppression du dernier plan uniquement
-	pt.settings.filtering["Intensity"].active = True
-	pt.settings.filtering["Intensity"].set_value([100, 20000])
-	pt.settings.filtering["Localization"]["MSE"].active = True
-	pt.settings.filtering["Localization"]["MSE"].set_value([0.01, 10])
+	pt.settings.filtering["Localization"]["Intensity"].active = True
+	pt.settings.filtering["Localization"]["Intensity"].set_value([100, 20000])
 	pt.settings.filtering["Localization"]["Sigma X"].active = True
 	pt.settings.filtering["Localization"]["Sigma X"].set_value([0, 10])
 	pt.settings.filtering["Localization"]["Sigma Y"].active = True
 	pt.settings.filtering["Localization"]["Sigma Y"].set_value([0, 10])
+	pt.settings.filtering["Localization"]["Circularity"].active = True
 	pt.settings.filtering["Localization"]["Theta"].active = True
 	pt.settings.filtering["Localization"]["Theta"].set_value([-5, 10])
-	pt.settings.filtering["Localization"]["Circularity"].active = True
 	pt.settings.filtering["Localization"]["Z"].active = True
+	pt.settings.filtering["Localization"]["MSE XY"].active = True
+	pt.settings.filtering["Localization"]["MSE XY"].set_value([0.01, 10])
+	pt.settings.filtering["Localization"]["MSE Z"].active = True
 	pt.process()
 	pt.settings.filtering["Save"].set_value(True)
 	pt.process()

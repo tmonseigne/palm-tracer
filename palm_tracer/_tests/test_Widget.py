@@ -47,6 +47,20 @@ def test_widget_on_load_setting(make_napari_viewer, capsys, monkeypatch, fake_ge
 	viewer.close()
 	assert True
 
+##################################################
+@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+def test_widget_reset_setting(make_napari_viewer, capsys, monkeypatch, fake_getopenfilename):
+	"""Test remise à zéro des calques."""
+	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
+	viewer = make_napari_viewer()								# Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)						# Créer notre widget, en passant par le viewer.
+
+	my_widget._on_reset_setting_btn()
+
+	my_widget.prepare_teardown()								# Préparation de la fermeture.
+	viewer.close()
+	assert True
+
 
 ##################################################
 @pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")

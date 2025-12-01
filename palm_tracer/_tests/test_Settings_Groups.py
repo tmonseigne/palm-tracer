@@ -207,13 +207,13 @@ def test_visualization_graph(make_napari_viewer):
 ###################################################
 def test_filtering(make_napari_viewer):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	group_base_test(Filtering(), ["Save", "Plane", "Intensity", "Localization", "Tracks"], CheckBox, True, False)
+	group_base_test(Filtering(), ["Save", "Plane","Localization", "Tracks"], CheckBox, True, False)
 
 
 ###################################################
-def test_filtering_gf(make_napari_viewer):
+def test_filtering_gl(make_napari_viewer):
 	"""Test basique de la classe FilteringL (constructeur, getter, setter)"""
-	group_base_test(FilteringL(), ["MSE", "Sigma X", "Sigma Y", "Theta", "Circularity", "Z"], CheckRangeFloat, [0.1, 0.9], [0, 1])
+	group_base_test(FilteringL(), ["Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "Z", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [0, 10000000])
 
 
 ###################################################

@@ -162,6 +162,26 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.mouseClick(w._btn_trc, Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
 
+	# Affichage de Longeur
+	w._update_plot()
+
+	# Affichage de MSD
+	w._cmb_src.setCurrentIndex(1)
+	assert w._cmb_src.currentIndex() == 1, "Index de la donnée incorrecte."
+	w._update_plot()
+
+	# Affichage de Instant D
+	w._cmb_src.setCurrentIndex(2)
+	assert w._cmb_src.currentIndex() == 2, "Index de la donnée incorrecte."
+	w._update_plot()
+
+	# Une colonne de Fit
+	w._cmb_src.setCurrentIndex(3)
+	assert w._cmb_src.currentIndex() == 3, "Index de la donnée incorrecte."
+	w._update_plot()
+
+	# En cas de colonne inexistante.
+	w._df["Fit"].drop(columns=[w._cmb_src.currentText()], inplace=True)
 	w._update_plot()
 
 	w.close()

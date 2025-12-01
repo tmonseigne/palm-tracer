@@ -54,7 +54,7 @@ FILE_STATUS = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconne
 
 DATA_SRC: dict[str, list] = {
 		"stk": ["Intensity"],
-		"loc": ["Localizations Count", "Integrated Intensity", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
+		"loc": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
 		"trc": ["Length"],
 		"MSD": ["MSD"],
 		"InD": ["Instant Diffusion"],
@@ -215,6 +215,7 @@ class GraphViewerWidget(QWidget):
 		row0_l.setContentsMargins(0, 0, 0, 0)
 		row0_l.addWidget(self._chk_limits)
 		row0_l.addWidget(info_btn)
+
 		# Autres options
 		self._chk_sigma = QCheckBox("Show σ")
 		self._chk_sigma.setChecked(False)
@@ -222,6 +223,7 @@ class GraphViewerWidget(QWidget):
 		self._chk_gauss.setChecked(False)
 		self._chk_kde = QCheckBox("Show KDE")
 		self._chk_kde.setChecked(False)
+
 		# Sélecteur d'échelle Y : Densité / Comptes
 		self._rb_density = QRadioButton("Density")
 		self._rb_count = QRadioButton("Count")
@@ -229,6 +231,7 @@ class GraphViewerWidget(QWidget):
 		self._grp_y_mode = QButtonGroup(self)
 		self._grp_y_mode.addButton(self._rb_density)
 		self._grp_y_mode.addButton(self._rb_count)
+
 		# Placement 2 colonnes
 		grid.addWidget(row0, 0, 0)
 		grid.addWidget(self._chk_sigma, 0, 1)
@@ -288,8 +291,7 @@ class GraphViewerWidget(QWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		self._btg_src.idClicked.connect(self._on_source_changed)
-		self._cmb_src.currentTextChanged.connect(self._update_filters_ui)
-		self._cmb_src.currentTextChanged.connect(self._update_plot)
+		self._cmb_src.currentIndexChanged.connect(self._on_source_cmb_changed)
 		self._chk_limits.stateChanged.connect(self._update_plot)
 		self._chk_sigma.stateChanged.connect(self._update_plot)
 		self._chk_gauss.stateChanged.connect(self._update_plot)
@@ -305,7 +307,7 @@ class GraphViewerWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
-	# region Callback
+	# region UI Callback
 	# ==================================================
 	##################################################
 	def _refresh_source_buttons(self) -> None:
@@ -323,15 +325,15 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def _on_source_changed(self, btn_id: int) -> None:
 		"""
-		Met à jour la liste des sources selon le domaine choisi puis redessine.
+		Mets à jour la liste des sources selon le domaine choisi puis redessine.
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
 		self._cmb_src.blockSignals(True)
 		self._cmb_src.clear()
-		if btn_id == 0: self._cmb_src.addItems(DATA_SRC["stk"])    # Stack
-		elif btn_id == 1: self._cmb_src.addItems(DATA_SRC["loc"])  # Localization
+		if btn_id == 0: self._cmb_src.addItems(DATA_SRC["stk"])			  # Stack
+		elif btn_id == 1: self._cmb_src.addItems(DATA_SRC["loc"])		  # Localization
 		elif btn_id == 2: self._cmb_src.addItems(self._get_tracks_src())  # Tracking
 		self._cmb_src.setCurrentIndex(0)
 		self._cmb_src.blockSignals(False)
@@ -340,21 +342,16 @@ class GraphViewerWidget(QWidget):
 		self._update_plot()		   # puis redessiner le graphe si besoin
 
 	##################################################
-	def _reset_filtered(self):
-		"""Supprime les dataframes de filtre."""
-		self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
-		self._update_df()		   # Récupération des bons dataframe
+	def _on_source_cmb_changed(self, btn_id: int) -> None:
+		"""
+		Mets à jour les filtres et l'affichage lors du changement de la variable d'intérêt.
+
+		:param btn_id: Identifiant de la variable d'intérêt sélectionnée.
+		"""
+		# TODO Ajouter une option lors de la selection MSD pour choisir le Lag et faire Histo par ce Lag
+
+		self._update_filters_ui()  # Mise à jour des filtres à afficher
 		self._update_plot()		   # puis redessiner le graphe si besoin
-
-	##################################################
-	def _update_filtered(self):
-		"""Applique les filtres sur les dataframes."""
-		with self._pt.settings.signal_blocked():
-			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
-			self._pt.update_filtered()  # Mise à jour des filtres
-
-		self._update_df()			# Récupération des bons dataframe
-		self._update_plot()			# puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filters_ui(self):
@@ -363,100 +360,38 @@ class GraphViewerWidget(QWidget):
 		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles.
 		"""
 		src_id = self._btg_src.checkedId()
-		src_type = self._cmb_src.currentText()
 
-		if src_id == 0:  # Stack
-			self._filters["Localization"].hide()
+		if src_id == 0:	   # Stack
+			self._filters["Save"].hide()
 			self._filters["Tracks"].hide()
 		elif src_id == 1:  # Localisation
 			self._filters["Localization"].show()
 			self._filters["Tracks"].hide()
-		else:  # Tracking
+		else:			   # Tracking
 			self._filters["Localization"].hide()
 			self._filters["Tracks"].show()
 
 	##################################################
-	def _update_plot(self):
-		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-		src_id = self._btg_src.checkedId()
-		src_type = self._cmb_src.currentText()
-		limit = self._chk_limits.checkState() == Qt.CheckState.Checked
-		sigma = self._chk_sigma.checkState() == Qt.CheckState.Checked
-		kde = self._chk_kde.checkState() == Qt.CheckState.Checked
-		gauss = self._chk_gauss.checkState() == Qt.CheckState.Checked
-		density = self._rb_density.isChecked()
-		# Selection du graphique à afficher
-		fig: go.Figure
-		if src_id == 0:
-			# filtre de la pile self._stack (par plan et par intensité selon les filtres
-			# tmp = self._stack
-			# if src_type == "Intensity": fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma,
-			# 														  kde=kde, gaussian=gauss, density=density)
-			# else: fig = self._grapher.blank("Invalid Selection")
-			fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
-		elif src_id == 1:
-			# filtre du panda self._loc
-			tmp = self._df["loc"]
-			if src_type == "Localizations Count":
-				s = tmp["Plane"].astype(np.int64, copy=False)
-				if s.empty: fig = self._grapher.blank(src_type)
-				else:
-					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
-					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-					fig = self._grapher.scatter(np.column_stack((planes, counts)), f"Localizations {src_type}", limit=limit, xlabel="Plane", ylabel="Count")
-			else:
-				s = tmp.get(src_type)  # None si la colonne n'existe pas
-				if s is None: fig = self._grapher.blank(f"Localizations {src_type}")
-				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=limit,
-													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
-		else:
-			if src_type == "Length": # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"]) # Groupement par track + calcul min et max
-				group["delta"] = group["max"] - group["min"] # Calcul du delta
-				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy())) # Conversion vers numpy 2D : colonne Track + delta
-				fig = self._grapher.scatter(res, f"Tracks {src_type}", limit=limit, xlabel="Track", ylabel="Length")
-			elif src_type == "MSD":
-				# TODO que faire pour celui là un histogramme par lag ? le MSD moyen par track, l'histogramme des MSD peu importe le lag ?
-				fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
-			elif src_type == "Instant Diffusion":
-				# TODO que faire pour celui là un histogramme par fenêtre ? le Instant D moyen par track, l'histogramme des Instant D peu importe la fenêtre ?
-				fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
-			else:
-				s = self._df["Fit"].get(src_type)  # None si la colonne n'existe pas
-				if s is None: fig = self._grapher.blank(f"Tracks {src_type}")
-				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Tracks {src_type}", limit=limit,
-													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+	def _get_tracks_src(self) -> list[str]:
+		"""
+		Génère la liste des variables d'intérêt pour les Trajectoires en fonction des fichiers disponibles.
 
-			#fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
+		:return: La liste des sources disponible pour les trajectoires.
+		"""
+		res = list(DATA_SRC["trc"])
+		if not self._df["MSD"].empty: res += DATA_SRC["MSD"]
+		if not self._df["InD"].empty: res += DATA_SRC["InD"]
+		if not self._df["Fit"].empty: res += self._df["Fit"].columns[2:].tolist()
 
-		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
-		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
-		self._fig = fig
-		self._html = html
+		return res
 
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
-		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
-			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+	# ==================================================
+	# endregion UI Callback
+	# ==================================================
 
-	##################################################
-	def _update_df(self):
-		"""Récupère les dataframes et met à jour les status."""
-		# Récupération des clés
-		loc_key = self._pt.get_localization_key()
-		trc_key = self._pt.get_tracks_key()
-		tc_key = self._pt.get_tracks_compute_key()
-
-		# Mise à jour des Dataframe
-		self._df["loc"] = self._pt.df[loc_key]
-		self._df["trc"] = self._pt.df[trc_key]
-		self._df["MSD"] = self._pt.df[tc_key[0]]
-		self._df["InD"] = self._pt.df[tc_key[1]]
-		self._df["Fit"] = self._pt.df[tc_key[2]]
-
-		# Mise à jour des Status
-		status = self._get_status(loc_key, trc_key, tc_key)
-		for key in status: self._status[key].setText(status[key])
-
+	# ==================================================
+	# region PALMTracer Link
+	# ==================================================
 	##################################################
 	def _get_status(self, loc_key: str, trc_key: str, tc_key: list[str]) -> dict[str, str]:
 		"""
@@ -480,17 +415,17 @@ class GraphViewerWidget(QWidget):
 		"""
 		res = {"loc": FILE_STATUS[0], "trc": FILE_STATUS[0], "MSD": FILE_STATUS[0], "InD": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
 
-		if self._df["loc"].empty: res["loc"] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
-		elif "f_" in loc_key: res["loc"] = FILE_STATUS[2]	   # Tableau filtré
-		else: res["loc"] = FILE_STATUS[1]					   # Tableau standard
+		if self._df["loc"].empty: res["loc"] = FILE_STATUS[0]	  # Aucun tableau ou tableau vide
+		elif "f_" in loc_key: res["loc"] = FILE_STATUS[2]		  # Tableau filtré
+		else: res["loc"] = FILE_STATUS[1]						  # Tableau standard
 
-		if self._df["trc"].empty: res["trc"] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
+		if self._df["trc"].empty: res["trc"] = FILE_STATUS[0]	  # Aucun tableau ou tableau vide
 		elif "f_" in trc_key:
-			if "blk" in trc_key: res["trc"] = FILE_STATUS[4]  # Tableau reconnecté filtré
-			else: res["trc"] = FILE_STATUS[2]				  # Tableau filtré
+			if "blk" in trc_key: res["trc"] = FILE_STATUS[4]	  # Tableau reconnecté filtré
+			else: res["trc"] = FILE_STATUS[2]					  # Tableau filtré
 		else:
-			if "blk" in trc_key: res["trc"] = FILE_STATUS[3]  # Tableau reconnecté non filtré
-			else: res["trc"] = FILE_STATUS[1]				  # Tableau standard
+			if "blk" in trc_key: res["trc"] = FILE_STATUS[3]	  # Tableau reconnecté non filtré
+			else: res["trc"] = FILE_STATUS[1]					  # Tableau standard
 
 		tcs = ["MSD", "InD", "Fit"]
 		for i in range(3):
@@ -500,17 +435,23 @@ class GraphViewerWidget(QWidget):
 		return res
 
 	##################################################
-	def _get_tracks_src(self) -> list[str]:
-		"""
+	def _update_df(self):
+		"""Récupère les dataframes et met à jour les status."""
+		# Récupération des clés
+		loc_key = self._pt.get_localization_key()
+		trc_key = self._pt.get_tracks_key()
+		tc_key = self._pt.get_tracks_compute_key()
 
-		:return: La liste des sources disponible pour les trajectoires.
-		"""
-		res = list(DATA_SRC["trc"])
-		if not self._df["MSD"].empty: res+=DATA_SRC["MSD"]
-		if not self._df["InD"].empty: res+=DATA_SRC["InD"]
-		if not self._df["Fit"].empty: res+=self._df["Fit"].columns[2:].tolist()
+		# Mise à jour des Dataframe
+		self._df["loc"] = self._pt.df[loc_key]
+		self._df["trc"] = self._pt.df[trc_key]
+		self._df["MSD"] = self._pt.df[tc_key[0]]
+		self._df["InD"] = self._pt.df[tc_key[1]]
+		self._df["Fit"] = self._pt.df[tc_key[2]]
 
-		return res
+		# Mise à jour des Status
+		status = self._get_status(loc_key, trc_key, tc_key)
+		for key in status: self._status[key].setText(status[key])
 
 	##################################################
 	def _actualize(self):
@@ -532,7 +473,89 @@ class GraphViewerWidget(QWidget):
 
 		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)		# Change la source pour Stack
+		self._on_source_changed(0)  # Change la source pour Stack
+
+	##################################################
+	def _reset_filtered(self):
+		"""Supprime les dataframes de filtre."""
+		self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
+		self._update_df()		   # Récupération des bons dataframe
+		self._update_plot()		   # puis redessiner le graphe si besoin
+
+	##################################################
+	def _update_filtered(self):
+		"""Applique les filtres sur les dataframes."""
+		with self._pt.settings.signal_blocked():
+			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
+			self._pt.update_filtered()  # Mise à jour des filtres
+
+		self._update_df()	 # Récupération des bons dataframe
+		self._update_plot()  # puis redessiner le graphe si besoin
+
+	# ==================================================
+	# endregion PALMTracer Link
+	# ==================================================
+
+	# ==================================================
+	# region Drawing
+	# ==================================================
+	##################################################
+	def _update_plot(self):
+		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
+		src_id = self._btg_src.checkedId()
+		src_type = self._cmb_src.currentText()
+		limit = self._chk_limits.checkState() == Qt.CheckState.Checked
+		sigma = self._chk_sigma.checkState() == Qt.CheckState.Checked
+		kde = self._chk_kde.checkState() == Qt.CheckState.Checked
+		gauss = self._chk_gauss.checkState() == Qt.CheckState.Checked
+		density = self._rb_density.isChecked()
+
+		# Selection du graphique à afficher
+		fig: go.Figure
+		if src_id == 0:
+			# TODO filtre de la pile self._stack (par plan)
+			fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+		elif src_id == 1:
+			# filtre du panda self._loc
+			tmp = self._df["loc"]
+			if src_type == "Localizations Count":
+				s = tmp["Plane"].astype(np.int64, copy=False)
+				if s.empty: fig = self._grapher.blank(src_type)
+				else:
+					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
+					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
+					fig = self._grapher.scatter(np.column_stack((planes, counts)), f"Localizations {src_type}", limit=limit, xlabel="Plane", ylabel="Count")
+			else:
+				s = tmp.get(src_type)  # None si la colonne n'existe pas
+				if s is None: fig = self._grapher.blank(f"Localizations {src_type}")
+				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=limit,
+													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+		else:
+			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
+				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])		# Groupement par track + calcul min et max
+				group["delta"] = group["max"] - group["min"]								# Calcul du delta
+				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
+				fig = self._grapher.scatter(res, f"Tracks {src_type}", limit=limit, xlabel="Track", ylabel="Length")
+			elif src_type == "MSD":
+				# TODO Ajouter une option lors de la selection MSD pour choisir le Lag et faire Histo par ce Lag
+				fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
+			elif src_type == "Instant Diffusion":
+				res = pd.to_numeric(self._df["InD"].drop(columns=["Track"]).stack(), errors="coerce").to_numpy().ravel()
+				fig = self._grapher.histogram(res, f"Tracks {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+			else:
+				s = self._df["Fit"].get(src_type)  # None si la colonne n'existe pas
+				if s is None: fig = self._grapher.blank(f"Tracks {src_type}")
+				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Tracks {src_type}", limit=limit,
+													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+
+		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
+		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
+		self._fig = fig
+		self._html = html
+
+		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
+		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
+			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
 	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
@@ -611,9 +634,8 @@ class GraphViewerWidget(QWidget):
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
-
 	# ==================================================
-	# endregion Callback
+	# endregion Drawing
 	# ==================================================
 
 

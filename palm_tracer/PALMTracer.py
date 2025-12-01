@@ -529,15 +529,16 @@ class PALMTracer:
 		res = datas.copy()
 		if res.empty: return res
 		f = cast(Filtering, self.settings.filtering)
-		fg = cast(FilteringL, f["Localization"])
+		fl = cast(FilteringL, f["Localization"])
 		filters = [[f["Plane"], "Plane"],
-				   [f["Intensity"], "Integrated Intensity"],
-				   [fg["MSE"], "MSE XY"],
-				   [fg["Sigma X"], "Sigma X"],
-				   [fg["Sigma Y"], "Sigma Y"],
-				   [fg["Theta"], "Theta"],
-				   [fg["Circularity"], "Circularity"],
-				   [fg["Z"], "Z"]]
+				   [fl["Intensity"], "Integrated Intensity"],
+				   [fl["Sigma X"], "Sigma X"],
+				   [fl["Sigma Y"], "Sigma Y"],
+				   [fl["Theta"], "Theta"],
+				   [fl["Circularity"], "Circularity"],
+				   [fl["Z"], "Z"],
+				   [fl["MSE XY"], "MSE XY"],
+				   [fl["MSE Z"], "MSE Z"]]
 
 		for filt, col in filters:
 			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
