@@ -17,7 +17,7 @@ import numpy as np
 from napari import Viewer
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -81,9 +81,15 @@ class PALMTracerWidget(QWidget):
 		btn_graph.clicked.connect(self._open_graph_viewer)
 
 		# Load Setting Button
-		btn = QPushButton("Load Setting")
-		btn.clicked.connect(self._on_load_setting_btn)
-		self.layout().addWidget(btn)
+		btn_load = QPushButton("Load Setting")
+		btn_load.clicked.connect(self._on_load_setting_btn)
+		btn_reset = QPushButton("Reset Setting")
+		btn_reset.clicked.connect(self._on_reset_setting_btn)
+		setting_action_row = QHBoxLayout()
+		setting_action_row.addWidget(btn_load)
+		setting_action_row.addWidget(btn_reset)
+		self.layout().addLayout(setting_action_row)
+
 
 		self.layout().addWidget(self.pt.settings.batch.widget)
 		self.layout().addWidget(self.pt.settings.calibration.widget)
@@ -193,7 +199,7 @@ class PALMTracerWidget(QWidget):
 		"""À appeler avant viewer.close() pour stopper les workers et neutraliser les callbacks UI."""
 		self._tearing_down = True
 
-		try: # Déconnecter ce qui peut encore déclencher des callbacks durant la fermeture
+		try:  # Déconnecter ce qui peut encore déclencher des callbacks durant la fermeture
 			self.viewer.dims.events.current_step.disconnect()
 			self.pt.settings.disconnect()
 		except (TypeError, RuntimeError): pass  # TypeError : aucune connexion existante, RuntimeError : déjà déconnecté / objet détruit
@@ -206,7 +212,7 @@ class PALMTracerWidget(QWidget):
 			except (RuntimeError, AttributeError): pass   # Worker déjà terminé ou thread détruit
 			self._worker = None
 
-		self._freeze_ui(False) # Réactive l'UI si gelée
+		self._freeze_ui(False)  # Réactive l'UI si gelée
 
 	##################################################
 	def _freeze_ui(self, on: bool) -> None:
@@ -244,6 +250,11 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton Load setting."""
 		filename, _ = self.filedialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
 		self._load_setting(Path(filename))
+
+	##################################################
+	def _on_reset_setting_btn(self):
+		"""Action lors d'un clic sur le bouton Reset setting."""
+		self.pt.settings.reset()
 
 	##################################################
 	def _reset_layer(self):
@@ -447,8 +458,8 @@ class PALMTracerWidget(QWidget):
 if __name__ == "__main__":  # pragma: no cover
 	import napari
 
-	viewer = napari.Viewer()										  # Crée le viewer napari
-	viewer.title = "PALMTracer"										  # Modifier le titre de la fenêtre
-	w = PALMTracerWidget(viewer)									  # Crée ton widget en lui passant le viewer
-	viewer.window.add_dock_widget(w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
-	napari.run()													  # Lance la boucle Qt gérée par napari
+	_viewer = napari.Viewer()											# Crée le viewer napari
+	_viewer.title = "PALMTracer"										# Modifier le titre de la fenêtre
+	_w = PALMTracerWidget(_viewer)										# Crée ton widget en lui passant le viewer
+	_viewer.window.add_dock_widget(_w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	napari.run()														# Lance la boucle Qt gérée par napari
