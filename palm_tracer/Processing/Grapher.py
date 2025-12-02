@@ -169,6 +169,7 @@ class Grapher:
 
 		fig = go.Figure()
 
+		# Aucunes données valides
 		if x.size == 0:
 			fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
 			return fig

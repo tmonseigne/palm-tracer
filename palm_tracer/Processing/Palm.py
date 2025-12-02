@@ -318,7 +318,7 @@ class Palm:
 			res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_msd"], shape=(n,)))
 			ncols = res["MSD"].shape[1]
 			if ncols != 0:
-				cols = [f"Lag {i}" for i in range(1, ncols)]
+				cols = [f"Step {i}" for i in range(1, ncols)]
 				res["MSD"].columns = ["Track"] + cols
 				# Track en entier nullable (préserve les NaN si présents)
 				if "Track" in res["MSD"]: res["MSD"]["Track"] = pd.to_numeric(res["MSD"]["Track"], errors="coerce").astype("Int64")

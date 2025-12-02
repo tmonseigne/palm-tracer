@@ -129,10 +129,15 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	# Plot pour La pile
+	# Plot pour la pile
 	qtbot.mouseClick(w._btn_stack, Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
 
+	w._update_plot()
+
+	# Plot pour la pile filtrée
+	w._filters["Plane"].active = True
+	w._filters["Plane"].set_value([2, 50])
 	w._update_plot()
 
 	# Plot pour les localisations
@@ -168,6 +173,14 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	# Affichage de MSD
 	w._cmb_src.setCurrentIndex(1)
 	assert w._cmb_src.currentIndex() == 1, "Index de la donnée incorrecte."
+	w._update_plot()
+
+	# En cas de colonne inexistante.
+	w._df["MSD"].drop(columns=["Step 1"], inplace=True)
+	w._update_plot()
+
+	# Changement de Step.
+	w._msd_step.set_value(2)
 	w._update_plot()
 
 	# Affichage de Instant D

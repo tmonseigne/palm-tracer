@@ -48,7 +48,7 @@ except Exception:
 from palm_tracer.Tools import open_tif, print_error
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Grapher
-from palm_tracer.Settings.Types import FileList
+from palm_tracer.Settings.Types import FileList, SpinInt
 
 FILE_STATUS = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
 
@@ -166,6 +166,16 @@ class GraphViewerWidget(QWidget):
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
 
+		grp_source.setStyleSheet("""
+			QPushButton { border: 1px solid #c7c7c7; padding: 6px 12px; background: #f7f7f7; }
+			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
+			QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+			QPushButton:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+			QPushButton:pressed { background: #e9eff7; border-color: #6aa0e8; }
+			QPushButton:checked	{ background: #e9eff7; border-color: #6aa0e8; }
+			QPushButton:disabled { color: #999; background: #fafafa; }
+		""")
+
 		h = QHBoxLayout()
 		h.setSpacing(0)
 		self._btn_stack, self._btn_loc, self._btn_trc = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracks")
@@ -190,15 +200,10 @@ class GraphViewerWidget(QWidget):
 		form.addRow(h)
 		form.addRow("Source :", self._cmb_src)
 
-		grp_source.setStyleSheet("""
-			QPushButton { border: 1px solid #c7c7c7; padding: 6px 12px; background: #f7f7f7; }
-			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
-			QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-			QPushButton:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-			QPushButton:pressed { background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:checked	{ background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:disabled { color: #999; background: #fafafa; }
-		""")
+		# Sélection du Step pour MSD
+		self._msd_step = SpinInt("MSD Step", 1, 1, 10000, 1)
+		form.addRow(self._msd_step.layout)
+		self._msd_step.hide()  # Masquage initial
 
 		# Bloc Affichage (2 colonnes)
 		grp_display = QGroupBox("Display")
@@ -301,6 +306,8 @@ class GraphViewerWidget(QWidget):
 		self._btn_export.clicked.connect(self._on_export)
 		self._btn_reset_f.clicked.connect(self._reset_filtered)
 		self._btn_update_f.clicked.connect(self._update_filtered)
+		self._msd_step.connect(self._update_plot)
+		self._filters.connect(self._update_plot)
 
 	# ==================================================
 	# endregion Initialisation
@@ -348,8 +355,9 @@ class GraphViewerWidget(QWidget):
 
 		:param btn_id: Identifiant de la variable d'intérêt sélectionnée.
 		"""
-		# TODO Ajouter une option lors de la selection MSD pour choisir le Lag et faire Histo par ce Lag
-
+		# Affichage de l'option lors de la selection MSD pour choisir le Step et faire Histogram par ce Step
+		if self._btg_src.checkedId() == 2 and btn_id == 1: self._msd_step.show()
+		else: self._msd_step.hide()
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
 		self._update_plot()		   # puis redessiner le graphe si besoin
 
@@ -473,7 +481,7 @@ class GraphViewerWidget(QWidget):
 
 		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)  # Change la source pour Stack
+		self._on_source_changed(0)		# Change la source pour Stack
 
 	##################################################
 	def _reset_filtered(self):
@@ -513,8 +521,11 @@ class GraphViewerWidget(QWidget):
 		# Selection du graphique à afficher
 		fig: go.Figure
 		if src_id == 0:
-			# TODO filtre de la pile self._stack (par plan)
-			fig = self._grapher.histogram(self._stack, f"Stack {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+			if self._filters["Plane"].active:
+				limits = self._filters["Plane"].get_value()
+				stack = self._stack[max(limits[0] - 1, 0):min(limits[1], int(self._stack.shape[0])), ...]
+			else: stack = self._stack
+			fig = self._grapher.histogram(stack, f"Stack {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 		elif src_id == 1:
 			# filtre du panda self._loc
 			tmp = self._df["loc"]
@@ -537,8 +548,11 @@ class GraphViewerWidget(QWidget):
 				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
 				fig = self._grapher.scatter(res, f"Tracks {src_type}", limit=limit, xlabel="Track", ylabel="Length")
 			elif src_type == "MSD":
-				# TODO Ajouter une option lors de la selection MSD pour choisir le Lag et faire Histo par ce Lag
-				fig = self._grapher.blank(f"Tracking {src_type} Not Yet Implemented.")
+				step = self._msd_step.get_value()
+				s = self._df["MSD"].get(f"Step {step}")  # None si la colonne n'existe pas
+				if s is None: fig = self._grapher.blank(f"Tracks MSD Step {step}")
+				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Tracks MSD Step {step}", limit=limit,
+													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 			elif src_type == "Instant Diffusion":
 				res = pd.to_numeric(self._df["InD"].drop(columns=["Track"]).stack(), errors="coerce").to_numpy().ravel()
 				fig = self._grapher.histogram(res, f"Tracks {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
