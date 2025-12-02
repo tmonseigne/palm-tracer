@@ -17,9 +17,6 @@ Notes
   Si QtWebEngine n'est pas disponible, un fallback texte explicite est affiché.
 - Le widget ne copie pas l'objet :class:`PALMTracer` ; il garde une **référence** passée au constructeur.
 - Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
-
-.. todo::
-	- Implémenter les sources Tracking (MSD, vitesse, etc.) et leurs graphes associés.
 """
 
 import os
@@ -209,6 +206,8 @@ class GraphViewerWidget(QWidget):
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
 		# Appliquer limites + bouton info
+		self._chk_log_scale = QCheckBox("Use Log Scale")
+
 		self._chk_limits = QCheckBox("Apply limits")
 		self._chk_limits.setChecked(True)
 		info_btn = QToolButton()
@@ -244,6 +243,7 @@ class GraphViewerWidget(QWidget):
 		grid.addWidget(self._chk_kde, 1, 1)
 		grid.addWidget(self._rb_density, 2, 0)
 		grid.addWidget(self._rb_count, 2, 1)
+		grid.addWidget(self._chk_log_scale, 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
 		grp_filters = QGroupBox("Filters (comming soon)")
@@ -518,49 +518,17 @@ class GraphViewerWidget(QWidget):
 		gauss = self._chk_gauss.checkState() == Qt.CheckState.Checked
 		density = self._rb_density.isChecked()
 
+		# Préparation des Données
+		datas, title = self.get_plot_datas()
+
 		# Selection du graphique à afficher
 		fig: go.Figure
-		if src_id == 0:
-			if self._filters["Plane"].active:
-				limits = self._filters["Plane"].get_value()
-				stack = self._stack[max(limits[0] - 1, 0):min(limits[1], int(self._stack.shape[0])), ...]
-			else: stack = self._stack
-			fig = self._grapher.histogram(stack, f"Stack {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
-		elif src_id == 1:
-			# filtre du panda self._loc
-			tmp = self._df["loc"]
-			if src_type == "Localizations Count":
-				s = tmp["Plane"].astype(np.int64, copy=False)
-				if s.empty: fig = self._grapher.blank(src_type)
-				else:
-					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
-					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-					fig = self._grapher.scatter(np.column_stack((planes, counts)), f"Localizations {src_type}", limit=limit, xlabel="Plane", ylabel="Count")
-			else:
-				s = tmp.get(src_type)  # None si la colonne n'existe pas
-				if s is None: fig = self._grapher.blank(f"Localizations {src_type}")
-				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Localizations {src_type}", limit=limit,
-													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+		if src_id == 1 and src_type == "Localizations Count":
+			fig = self._grapher.scatter(datas, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
+		elif src_id == 2 and src_type == "Length":
+			fig = self._grapher.scatter(datas, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
 		else:
-			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])		# Groupement par track + calcul min et max
-				group["delta"] = group["max"] - group["min"]								# Calcul du delta
-				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
-				fig = self._grapher.scatter(res, f"Tracks {src_type}", limit=limit, xlabel="Track", ylabel="Length")
-			elif src_type == "MSD":
-				step = self._msd_step.get_value()
-				s = self._df["MSD"].get(f"Step {step}")  # None si la colonne n'existe pas
-				if s is None: fig = self._grapher.blank(f"Tracks MSD Step {step}")
-				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Tracks MSD Step {step}", limit=limit,
-													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
-			elif src_type == "Instant Diffusion":
-				res = pd.to_numeric(self._df["InD"].drop(columns=["Track"]).stack(), errors="coerce").to_numpy().ravel()
-				fig = self._grapher.histogram(res, f"Tracks {src_type}", limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
-			else:
-				s = self._df["Fit"].get(src_type)  # None si la colonne n'existe pas
-				if s is None: fig = self._grapher.blank(f"Tracks {src_type}")
-				else: fig = self._grapher.histogram(s.to_numpy(dtype=float, copy=False), f"Tracks {src_type}", limit=limit,
-													show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+			fig = self._grapher.histogram(datas, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 
 		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
 		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
@@ -570,6 +538,66 @@ class GraphViewerWidget(QWidget):
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
 		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+
+	##################################################
+	def get_plot_datas(self) -> tuple[np.ndarray, str]:
+		""" Récupère et prépare les données pour l'affichage."""
+		src_id = self._btg_src.checkedId()
+		src_type = self._cmb_src.currentText()
+		log_scale = self._chk_log_scale.isChecked()
+
+		# Stack
+		if src_id == 0:
+			tmp = self._stack
+			# Filtrage par PLan, si sélectionné
+			if self._filters["Plane"].active:
+				limits = self._filters["Plane"].get_value()
+				tmp = tmp[max(limits[0] - 1, 0):min(limits[1], int(tmp.shape[0])), ...]
+			# évite le warning de la division par 0 pour les log de 0 (le where calcul partout et ensuite remplace par des nan)
+			with np.errstate(divide='ignore', invalid='ignore'):
+				return np.where(tmp > 0, np.log10(tmp), np.nan) if log_scale else tmp, f"Stack {src_type}"
+
+		# Localizations
+		elif src_id == 1:
+			if src_type == "Localizations Count":
+				s = self._df["loc"]["Plane"].astype(np.int64)
+				if s.empty:  return np.empty(0), src_type
+				else:
+					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
+					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
+					return np.column_stack((planes, counts)), src_type
+			else:
+				s = self._df["loc"].get(src_type)  # None si la colonne n'existe pas
+				if s is None: return np.empty(0), f"Localizations {src_type}"
+				res = s.to_numpy(dtype=float)
+				with np.errstate(divide='ignore', invalid='ignore'):  # Application du Log.
+					return np.where(res > 0, np.log10(res), np.nan) if log_scale else res, f"Localizations {src_type}"
+
+		# Tracks
+		else:
+			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
+				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])		# Groupement par track + calcul min et max
+				group["delta"] = group["max"] - group["min"]								# Calcul du delta
+				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
+				return res, f"Tracks {src_type}"
+			elif src_type == "MSD":
+				step = self._msd_step.get_value()  # Récupération du numéro du Step.
+				col = f"Step {step}"			   # Récupération du numéro de la colonne.
+				if not {"Track", col}.issubset(self._df["MSD"].columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence des colonnes
+				track, values = self._df["MSD"]["Track"].astype(int).to_numpy(), self._df["MSD"][col].astype(float).to_numpy()  # Récupération
+				with np.errstate(divide='ignore', invalid='ignore'):															# Application du Log.
+					res = np.column_stack((track, np.where(values > 0, np.log10(values), np.nan) if log_scale else values))
+				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"
+			elif src_type == "Instant Diffusion":
+				s = pd.to_numeric(self._df["InD"].drop(columns=["Track"]).stack(), errors="coerce").to_numpy().ravel()  # Récupération des colonnes
+				with np.errstate(divide='ignore', invalid='ignore'):													# Application du Log.
+					return np.where(s > 0, np.log10(s), np.nan) if log_scale else s, f"Tracks {src_type}"
+			else:
+				if not {"Track", src_type}.issubset(self._df["Fit"].columns): return np.empty(0), f"Tracks {src_type}"  # Vérification de présence des colonnes
+				track, values = self._df["Fit"]["Track"].astype(int).to_numpy(), self._df["Fit"][src_type].astype(float).to_numpy()  # Récupération
+				with np.errstate(divide='ignore', invalid='ignore'):																 # Application du Log.
+					res = np.column_stack((track, np.where(values > 0, np.log10(values), np.nan) if log_scale else values))
+				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"  # Retour avec filtrage des Lignes NaN
 
 	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
