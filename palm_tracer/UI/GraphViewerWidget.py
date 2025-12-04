@@ -20,7 +20,7 @@ Notes
 """
 
 import os
-from typing import cast, Optional
+from typing import Any, cast, Optional
 
 import numpy as np
 import pandas as pd
@@ -197,53 +197,55 @@ class GraphViewerWidget(QWidget):
 		form.addRow(h)
 		form.addRow("Source :", self._cmb_src)
 
-		# Sélection du Step pour MSD
-		self._msd_step = SpinInt("MSD Step", 1, 1, 10000, 1)
-		form.addRow(self._msd_step.layout)
-		self._msd_step.hide()  # Masquage initial
-
 		# Bloc Affichage (2 colonnes)
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
-		# Appliquer limites + bouton info
-		self._chk_log_scale = QCheckBox("Use Log Scale")
+		self._display_settings: dict[str, Any] = {
+				"MSD":     SpinInt("MSD Step", 1, 1, 10000, 1),
+				"Log":     QCheckBox("Use Log Scale"),
+				"Limits":  QCheckBox("Apply Limits"),
+				"Sigma":   QCheckBox("Show σ"),
+				"Gauss":   QCheckBox("Show Gaussian"),
+				"KDE":     QCheckBox("Show KDE"),
+				"Y Scale": QButtonGroup(self)
+				}
 
-		self._chk_limits = QCheckBox("Apply limits")
-		self._chk_limits.setChecked(True)
+		# Sélection du Step pour MSD
+		form.addRow(self._display_settings["MSD"].layout)
+		self._display_settings["MSD"].hide()  # Masquage initial
+
+		# Appliquer limites + bouton info
+		self._display_settings["Limits"].setChecked(True)
 		info_btn = QToolButton()
 		info_btn.setText("?")
 		info_btn.setAutoRaise(True)
 		info_btn.setToolTip("Limits data to ±3σ around the mean (3-sigma rule).")
-		row0 = QWidget()
-		row0_l = QHBoxLayout(row0)
-		row0_l.setContentsMargins(0, 0, 0, 0)
-		row0_l.addWidget(self._chk_limits)
-		row0_l.addWidget(info_btn)
+		row_limits = QWidget()
+		row_l = QHBoxLayout(row_limits)
+		row_l.setContentsMargins(0, 0, 0, 0)
+		row_l.addWidget(self._display_settings["Limits"])
+		row_l.addWidget(info_btn)
 
 		# Autres options
-		self._chk_sigma = QCheckBox("Show σ")
-		self._chk_sigma.setChecked(False)
-		self._chk_gauss = QCheckBox("Show gaussian")
-		self._chk_gauss.setChecked(False)
-		self._chk_kde = QCheckBox("Show KDE")
-		self._chk_kde.setChecked(False)
+		self._display_settings["Sigma"].setChecked(False)
+		self._display_settings["Gauss"].setChecked(False)
+		self._display_settings["KDE"].setChecked(False)
 
 		# Sélecteur d'échelle Y : Densité / Comptes
 		self._rb_density = QRadioButton("Density")
 		self._rb_count = QRadioButton("Count")
 		self._rb_density.setChecked(True)
-		self._grp_y_mode = QButtonGroup(self)
-		self._grp_y_mode.addButton(self._rb_density)
-		self._grp_y_mode.addButton(self._rb_count)
+		self._display_settings["Y Scale"].addButton(self._rb_density)
+		self._display_settings["Y Scale"].addButton(self._rb_count)
 
 		# Placement 2 colonnes
-		grid.addWidget(row0, 0, 0)
-		grid.addWidget(self._chk_sigma, 0, 1)
-		grid.addWidget(self._chk_gauss, 1, 0)
-		grid.addWidget(self._chk_kde, 1, 1)
+		grid.addWidget(row_limits, 0, 0)
+		grid.addWidget(self._display_settings["Sigma"], 0, 1)
+		grid.addWidget(self._display_settings["Gauss"], 1, 0)
+		grid.addWidget(self._display_settings["KDE"], 1, 1)
 		grid.addWidget(self._rb_density, 2, 0)
 		grid.addWidget(self._rb_count, 2, 1)
-		grid.addWidget(self._chk_log_scale, 3, 0)
+		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
 		grp_filters = QGroupBox("Filters (comming soon)")
@@ -295,18 +297,23 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
+		# Sources
 		self._btg_src.idClicked.connect(self._on_source_changed)
 		self._cmb_src.currentIndexChanged.connect(self._on_source_cmb_changed)
-		self._chk_limits.stateChanged.connect(self._update_plot)
-		self._chk_sigma.stateChanged.connect(self._update_plot)
-		self._chk_gauss.stateChanged.connect(self._update_plot)
-		self._chk_kde.stateChanged.connect(self._update_plot)
-		self._grp_y_mode.idClicked.connect(self._update_plot)
+
+		# Display Options Connexion
+		for _, setting in self._display_settings.items():
+			if isinstance(setting, QCheckBox): setting.stateChanged.connect(self._update_plot)
+			elif isinstance(setting, QButtonGroup): setting.idClicked.connect(self._update_plot)
+			elif isinstance(setting, SpinInt): setting.connect(self._update_plot)
+
+		# Updates
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_export.clicked.connect(self._on_export)
+
+		# Filters
 		self._btn_reset_f.clicked.connect(self._reset_filtered)
 		self._btn_update_f.clicked.connect(self._update_filtered)
-		self._msd_step.connect(self._update_plot)
 		self._filters.connect(self._update_plot)
 
 	# ==================================================
@@ -356,8 +363,8 @@ class GraphViewerWidget(QWidget):
 		:param btn_id: Identifiant de la variable d'intérêt sélectionnée.
 		"""
 		# Affichage de l'option lors de la selection MSD pour choisir le Step et faire Histogram par ce Step
-		if self._btg_src.checkedId() == 2 and btn_id == 1: self._msd_step.show()
-		else: self._msd_step.hide()
+		if self._btg_src.checkedId() == 2 and btn_id == 1: self._display_settings["MSD"].show()
+		else: self._display_settings["MSD"].hide()
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
 		self._update_plot()		   # puis redessiner le graphe si besoin
 
@@ -512,23 +519,23 @@ class GraphViewerWidget(QWidget):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
-		limit = self._chk_limits.checkState() == Qt.CheckState.Checked
-		sigma = self._chk_sigma.checkState() == Qt.CheckState.Checked
-		kde = self._chk_kde.checkState() == Qt.CheckState.Checked
-		gauss = self._chk_gauss.checkState() == Qt.CheckState.Checked
+		limit = self._display_settings["Limits"].checkState() == Qt.CheckState.Checked
+		sigma = self._display_settings["Sigma"].checkState() == Qt.CheckState.Checked
+		kde = self._display_settings["KDE"].checkState() == Qt.CheckState.Checked
+		gauss = self._display_settings["Gauss"].checkState() == Qt.CheckState.Checked
 		density = self._rb_density.isChecked()
 
 		# Préparation des Données
-		datas, title = self.get_plot_datas()
+		data, title = self.get_plot_data()
 
 		# Selection du graphique à afficher
 		fig: go.Figure
 		if src_id == 1 and src_type == "Localizations Count":
-			fig = self._grapher.scatter(datas, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
+			fig = self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
 		elif src_id == 2 and src_type == "Length":
-			fig = self._grapher.scatter(datas, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
+			fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
 		else:
-			fig = self._grapher.histogram(datas, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+			fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 
 		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
 		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
@@ -540,11 +547,11 @@ class GraphViewerWidget(QWidget):
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
 	##################################################
-	def get_plot_datas(self) -> tuple[np.ndarray, str]:
+	def get_plot_data(self) -> tuple[np.ndarray, str]:
 		""" Récupère et prépare les données pour l'affichage."""
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
-		log_scale = self._chk_log_scale.isChecked()
+		log_scale = self._display_settings["Log"].isChecked()
 
 		# Stack
 		if src_id == 0:
@@ -553,9 +560,7 @@ class GraphViewerWidget(QWidget):
 			if self._filters["Plane"].active:
 				limits = self._filters["Plane"].get_value()
 				tmp = tmp[max(limits[0] - 1, 0):min(limits[1], int(tmp.shape[0])), ...]
-			# évite le warning de la division par 0 pour les log de 0 (le where calcul partout et ensuite remplace par des nan)
-			with np.errstate(divide='ignore', invalid='ignore'):
-				return np.where(tmp > 0, np.log10(tmp), np.nan) if log_scale else tmp, f"Stack {src_type}"
+			return self.__log_data(tmp, log_scale), f"Stack {src_type}"
 
 		# Localizations
 		elif src_id == 1:
@@ -569,9 +574,7 @@ class GraphViewerWidget(QWidget):
 			else:
 				s = self._df["loc"].get(src_type)  # None si la colonne n'existe pas
 				if s is None: return np.empty(0), f"Localizations {src_type}"
-				res = s.to_numpy(dtype=float)
-				with np.errstate(divide='ignore', invalid='ignore'):  # Application du Log.
-					return np.where(res > 0, np.log10(res), np.nan) if log_scale else res, f"Localizations {src_type}"
+				return self.__log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src_type}"
 
 		# Tracks
 		else:
@@ -581,23 +584,32 @@ class GraphViewerWidget(QWidget):
 				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
 				return res, f"Tracks {src_type}"
 			elif src_type == "MSD":
-				step = self._msd_step.get_value()  # Récupération du numéro du Step.
-				col = f"Step {step}"			   # Récupération du numéro de la colonne.
-				if not {"Track", col}.issubset(self._df["MSD"].columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence des colonnes
+				step = self._display_settings["MSD"].get_value()														# Récupération du numéro du Step.
+				col = f"Step {step}"																					# Récupération du nom de la colonne.
+				if not {"Track", col}.issubset(self._df["MSD"].columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence.
 				track, values = self._df["MSD"]["Track"].astype(int).to_numpy(), self._df["MSD"][col].astype(float).to_numpy()  # Récupération
-				with np.errstate(divide='ignore', invalid='ignore'):															# Application du Log.
-					res = np.column_stack((track, np.where(values > 0, np.log10(values), np.nan) if log_scale else values))
+				res = np.column_stack((track, self.__log_data(values, log_scale)))
 				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"
 			elif src_type == "Instant Diffusion":
 				s = pd.to_numeric(self._df["InD"].drop(columns=["Track"]).stack(), errors="coerce").to_numpy().ravel()  # Récupération des colonnes
-				with np.errstate(divide='ignore', invalid='ignore'):													# Application du Log.
-					return np.where(s > 0, np.log10(s), np.nan) if log_scale else s, f"Tracks {src_type}"
+				return self.__log_data(s, log_scale), f"Tracks {src_type}"
 			else:
 				if not {"Track", src_type}.issubset(self._df["Fit"].columns): return np.empty(0), f"Tracks {src_type}"  # Vérification de présence des colonnes
 				track, values = self._df["Fit"]["Track"].astype(int).to_numpy(), self._df["Fit"][src_type].astype(float).to_numpy()  # Récupération
-				with np.errstate(divide='ignore', invalid='ignore'):																 # Application du Log.
-					res = np.column_stack((track, np.where(values > 0, np.log10(values), np.nan) if log_scale else values))
+				res = np.column_stack((track, self.__log_data(values, log_scale)))
 				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"  # Retour avec filtrage des Lignes NaN
+
+	##################################################
+	@staticmethod
+	def __log_data(data: np.ndarray, log: bool) -> np.ndarray:
+		"""
+		Application du log avec suppression du warning pour les valeurs <= 0 et remplacement par Nan de ces valeurs.
+
+		:param data: Données à transformer
+		:param log: Application du log ou non
+		:return: Données transformées
+		"""
+		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
 
 	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
