@@ -19,8 +19,8 @@ save_output = True
 
 
 ##################################################
-def is_headless_macos():
-	return platform.system() == "Darwin" and not os.environ.get("DISPLAY") and os.environ.get("CI") == "true"
+def is_headless():
+	return platform.system() in ("Linux", "Darwin") and os.environ.get("CI") == "true"
 
 
 ##################################################

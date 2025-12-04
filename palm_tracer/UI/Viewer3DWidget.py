@@ -18,6 +18,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
 from palm_tracer.Settings.Types import CheckBox, SpinFloat
+from palm_tracer.Tools import print_warning
 
 
 class Viewer3DWidget(QWidget):
@@ -104,7 +105,7 @@ class Viewer3DWidget(QWidget):
 		# Supprimer le calque précédent s'il existe, (le nombre de points peu changer)
 		if self.points_layer is not None:
 			try: self.viewer.layers.remove(self.points_layer)
-			except Exception as e: print(f"Erreur lors de la suppression de l'ancien layer : {e}")
+			except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien layer : {e}")
 			self.points_layer = None
 		self.update_layer()
 

@@ -12,6 +12,8 @@ from pytest_metadata.plugin import metadata_key
 from palm_tracer.Tools import Monitoring, print_error, print_warning
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
+os.environ["NAPARI_GUI_BACKEND"] = "none"
+os.environ["VISPY_USE_APP"] = "mock"
 
 all_tests_monitoring = Monitoring()
 

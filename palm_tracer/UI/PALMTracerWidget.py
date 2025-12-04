@@ -21,7 +21,7 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, 
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import open_json, open_tif, save_json
+from palm_tracer.Tools import open_json, open_tif, print_warning, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 
@@ -291,8 +291,12 @@ class PALMTracerWidget(QWidget):
 				}
 		for state, points in self._preview_locs.items():
 			if not self.pt.settings.localization["Preview"].get_value() or points is None or points.size == 0:
-				if f"Points {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"Points {state}"])
-				if f"ROI {state}" in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
+				if f"Points {state}" in self.viewer.layers:
+					try: self.viewer.layers.remove(self.viewer.layers[f"Points {state}"])
+					except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien layer : {e}")
+				if f"ROI {state}" in self.viewer.layers:
+					try: self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
+					except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien layer : {e}")
 				continue
 
 			args = state_args[state]
@@ -329,7 +333,8 @@ class PALMTracerWidget(QWidget):
 				# Cas particulier en cas de changement de formes.
 				# Il a du mal à mettre à jour, une suppression complete est necessaire bien que couteuse en temps
 				if layer.shape_type[0] != s_type:
-					self.viewer.layers.remove(self.viewer.layers[l_name])
+					try: self.viewer.layers.remove(self.viewer.layers[l_name])
+					except Exception as e: print_warning(f"Erreur lors de la suppression de l'ancien layer : {e}")
 					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 				else:
 					layer.data = rois		   # Remplace toutes les formes

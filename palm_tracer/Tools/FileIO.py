@@ -8,7 +8,7 @@ import json
 import os
 from typing import Any
 
-import matplotlib.cm as cm
+import matplotlib as mpl
 import numpy as np
 import scipy.io as io
 import tifffile as tiff
@@ -132,7 +132,7 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 	t = np.linspace(0.0, 1.0, MAX_UI_16, dtype=np.float32)
 
 	# Récupère la colormap sous forme d'un callable vectorisé (N,4) RGBA ∈ [0,1]
-	cmap = cm.get_cmap(color_map)
+	cmap = mpl.colormaps.get_cmap(color_map)
 	rgba = cmap(t, bytes=False)  # float32 en [0,1], shape (65535,4)
 	rgb = rgba[:, :3]
 

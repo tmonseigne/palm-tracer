@@ -8,7 +8,7 @@ import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer import PALMTracer
-from palm_tracer._tests.Utils import is_headless_macos
+from palm_tracer._tests.Utils import is_headless
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.UI import GraphViewerWidget
 from palm_tracer.UI.GraphViewerWidget import FILE_STATUS
@@ -49,7 +49,7 @@ def w() -> GraphViewerWidget:
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_creation(w: GraphViewerWidget, qtbot):
 	"""Test basique de création du widget."""
 	qtbot.addWidget(w)
@@ -61,7 +61,7 @@ def test_widget_creation(w: GraphViewerWidget, qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_actualize(w: GraphViewerWidget, qtbot):
 	"""Test basique de création du widget."""
 	qtbot.addWidget(w)
@@ -83,7 +83,7 @@ def test_actualize(w: GraphViewerWidget, qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_reset_filtered(w: GraphViewerWidget, qtbot, capsys):
 	"""Test basique de création du widget."""
 	qtbot.addWidget(w)
@@ -100,7 +100,7 @@ def test_reset_filtered(w: GraphViewerWidget, qtbot, capsys):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_update_filtered(w: GraphViewerWidget, qtbot, capsys):
 	"""Test basique de création du widget."""
 	qtbot.addWidget(w)
@@ -121,7 +121,7 @@ def test_update_filtered(w: GraphViewerWidget, qtbot, capsys):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	"""Test basique de création du widget."""
 	qtbot.addWidget(w)
@@ -159,7 +159,7 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -293,7 +293,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_status(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -335,7 +335,7 @@ def test_status(w: GraphViewerWidget, qtbot, capsys):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless_macos(), reason="Napari/VisPy causes segfault in headless macOS")
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_tracks_source(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
