@@ -38,19 +38,11 @@ class PALMTracer:
 	"""Interface vers la DLL C++ Palm."""
 	_logger: Logger = field(init=False, default_factory=Logger)
 	"""Journal d'activité."""
-	_df: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
-			"loc":            pd.DataFrame(),
-			"blk":            pd.DataFrame(),
-			"trc":            pd.DataFrame(),
-			"trc_MSD":        pd.DataFrame(),
-			"trc_InstantD":   pd.DataFrame(),
-			"trc_Fit":        pd.DataFrame(),
-			"f_loc":          pd.DataFrame(),
-			"f_blk":          pd.DataFrame(),
-			"f_trc":          pd.DataFrame(),
-			"f_trc_MSD":      pd.DataFrame(),
-			"f_trc_InstantD": pd.DataFrame(),
-			"f_trc_Fit":      pd.DataFrame()})
+	df: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
+			"loc":   pd.DataFrame(), "blk": pd.DataFrame(), "trc": pd.DataFrame(),
+			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),
+			"f_loc": pd.DataFrame(), "f_blk": pd.DataFrame(), "f_trc": pd.DataFrame(),
+			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})
 	"""Résultats des différents calculs."""
 
 	visualization: Optional[np.ndarray] = field(init=False, default=None)
@@ -75,37 +67,58 @@ class PALMTracer:
 		return self.palm.is_valid()
 
 	##################################################
+	def get_localization_key(self) -> str:
+		"""Clé de la localisation (filtrée si elle est non vide) """
+		return "loc" if self.df["f_loc"].empty else "f_loc"
+
+	##################################################
+	def get_tracks_key(self) -> str:
+		"""Clé des trajectoires (filtrée si elle est non vide) et reconnecté si elle est non vide également. """
+		if self.df["f_blk"].empty:
+			if self.df["blk"].empty:
+				if self.df["f_trc"].empty:
+					return "trc"
+				return "f_trc"
+			return "blk"
+		return "f_blk"
+
+	##################################################
+	def get_tracks_compute_key(self) -> list[str]:
+		"""Clé des calculs sur trajectoires (filtrés si non vide). """
+		if self.df["f_MSD"].empty and self.df["f_InD"].empty and self.df["f_Fit"].empty:
+			return ["MSD", "InD", "Fit"]
+		return ["f_MSD", "f_InD", "f_Fit"]
+
+	##################################################
 	@property
 	def localizations(self) -> pd.DataFrame:
 		"""Getter de la localisation (filtrée si elle est non vide) """
-		return self._df["loc"] if self._df["f_loc"].empty else self._df["f_loc"]
+		return self.df[self.get_localization_key()]
 
 	##################################################
 	@property
 	def tracks(self) -> pd.DataFrame:
 		"""Getter des trajectoires (filtrée si elle est non vide) et reconnecté si elle est non vide également. """
-		if self._df["f_blk"].empty:
-			if self._df["blk"].empty:
-				if self._df["f_trc"].empty:
-					return self._df["trc"]
-				return self._df["f_trc"]
-			return self._df["blk"]
-		return self._df["f_blk"]
+		return self.df[self.get_tracks_key()]
 
 	##################################################
 	@property
 	def tracks_compute(self) -> dict[str, pd.DataFrame]:
 		"""Getter des calculs sur trajectoires (filtrés si non vide). """
-		if self._df["f_trc_MSD"].empty and self._df["f_trc_InstantD"].empty and self._df["f_trc_Fit"].empty:
-			return {"MSD": self._df["trc_MSD"], "InstantD": self._df["trc_InstantD"], "Fit": self._df["trc_Fit"]}
-		return {"MSD": self._df["f_trc_MSD"], "InstantD": self._df["f_trc_InstantD"], "Fit": self._df["f_trc_Fit"]}
+		keys = self.get_tracks_compute_key()
+		return {"MSD": self.df[keys[0]], "InD": self.df[keys[1]], "Fit": self.df[keys[2]]}
 
 	##################################################
 	def reset_result(self):
-		"""Vide entièrement les DataFrame de résultat dans `_cp`."""
-		for key, value in self._df.items():
-			self._df[key] = pd.DataFrame()
+		"""Vide entièrement les DataFrame de résultat dans `_df`."""
+		for key in self.df: self.df[key] = pd.DataFrame()
 		self.visualization = None
+
+	##################################################
+	def reset_filtered(self):
+		"""Vide entièrement les DataFrames filtrés dans `_df`."""
+		for key in self.df:
+			if key.startswith("f_"): self.df[key] = pd.DataFrame()
 
 	# ==================================================
 	# endregion Initialization
@@ -163,15 +176,15 @@ class PALMTracer:
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'une localisation pré-calculée.")
 					try:
-						self._df["loc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+						self.df["loc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
 						self.__filter_localizations()
 						self._logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
 					except Exception as e:
-						self._df["loc"] = pd.DataFrame()
+						self.df["loc"] = pd.DataFrame()
 						self._logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
 				else:  # Sinon
-					self._df["loc"] = pd.DataFrame()
+					self.df["loc"] = pd.DataFrame()
 					self._logger.add("\tAucune donnée de localisation pré-calculée.")
 
 			# Lancement du tracking
@@ -184,14 +197,14 @@ class PALMTracer:
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'un tracking pré-calculée.")
 					try:
-						self._df["trc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+						self.df["trc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
 						self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
 					except Exception as e:
-						self._df["trc"] = pd.DataFrame()
+						self.df["trc"] = pd.DataFrame()
 						self._logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
 				else:  # Sinon
-					self._df["trc"] = pd.DataFrame()
+					self.df["trc"] = pd.DataFrame()
 					self._logger.add("\tAucune donnée de tracking pré-calculée.")
 
 			# Lancement des calculs sur les trajectoires
@@ -243,11 +256,11 @@ class PALMTracer:
 		try: fit_params = self.settings.localization.get_fit_params()
 		except Exception as e: raise
 		# Run command
-		self._df["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
+		self.df["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
 		self._logger.add("\tEnregistrement du fichier de localisation")
-		self._logger.add(f"\t\t{len(self._df['loc'])} localisation(s) trouvée(s).")
-		self._df["loc"].to_csv(f"{self._path}/localizations-{self._suffix}.csv", index=False)
+		self._logger.add(f"\t\t{len(self.df['loc'])} localisation(s) trouvée(s).")
+		self.df["loc"].to_csv(f"{self._path}/localizations-{self._suffix}.csv", index=False)
 		self.__filter_localizations()
 
 	##################################################
@@ -260,11 +273,11 @@ class PALMTracer:
 		# Parse settings
 		s = self.settings.tracking.get_settings()
 		# Run command (par défaut Min Length = 1, Decrease = 10, Cost Birth = 0.5)
-		self._df["trc"] = self.palm.tracking(df, s["Max Distance"])
+		self.df["trc"] = self.palm.tracking(df, s["Max Distance"])
 
 		self._logger.add("\tEnregistrement du fichier de trajectoires.")
-		self._logger.add(f"\t\t{len(self._df['trc'])} point(s) trouvé(s).")
-		self._df["trc"].to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
+		self._logger.add(f"\t\t{len(self.df['trc'])} point(s) trouvé(s).")
+		self.df["trc"].to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
 		self.__filter_tracks("trc")
 
 		if self.settings.tracking["Blinking Reconnection"].active:
@@ -272,16 +285,12 @@ class PALMTracer:
 			s = self.settings.tracking["Blinking Reconnection"].get_settings()
 			pixel_size = self.settings.calibration.get_settings()["Pixel Size"]
 			# Run command sur la version non filtrée des trajectoires
-			self._df["blk"] = self.palm.blinking_reconnection(self._df["trc"], pixel_size, s["Mode"], s["Max Duration"], s["Max Speed"])
+			self.df["blk"] = self.palm.blinking_reconnection(self.df["trc"], pixel_size, s["Mode"], s["Max Duration"], s["Max Speed"])
 
 			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
-			self._logger.add(f"\t\t{len(self._df['blk'])} point(s) trouvé(s).")
-			self._df["blk"].to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
+			self._logger.add(f"\t\t{len(self.df['blk'])} point(s) trouvé(s).")
+			self.df["blk"].to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
 			self.__filter_tracks("blk", "_reconnected")
-
-		if not self._df["blk"].empty:
-			self._df["trc"] = self._df["blk"]
-			self._df["blk"] = pd.DataFrame()
 
 	##################################################
 	def __tracks_compute(self):
@@ -300,18 +309,16 @@ class PALMTracer:
 			return
 
 		# Run command
-		res = self.palm.tracks_compute(self._df["trc"], s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
+		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
-		self._df["trc_MSD"] = res["MSD"]
-		self._df["trc_InstantD"] = res["InstantD"]
-		self._df["trc_Fit"] = res["Fit"]
+		for key in res: self.df[key] = res[key]
 
 		if s["MSD"] and not res["MSD"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
 			res["MSD"].to_csv(f"{self._path}/tracking_MSD-{self._suffix}.csv", index=False)
-		if s["Instant Diffusion"] and not res["InstantD"].empty:
+		if s["Instant Diffusion"] and not res["InD"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées.")
-			res["InstantD"].to_csv(f"{self._path}/tracking_InstantD-{self._suffix}.csv", index=False)
+			res["InD"].to_csv(f"{self._path}/tracking_InstantD-{self._suffix}.csv", index=False)
 		if s["Fit"] != 0 and not res["Fit"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
 			res["Fit"].to_csv(f"{self._path}/tracking_Fit-{self._suffix}.csv", index=False)
@@ -371,7 +378,7 @@ class PALMTracer:
 		metric = metric_by_source[source]
 		vmin, vmax = fit[metric].min(), fit[metric].max()
 		# vmin, vmax = fit[metric].quantile([0.05, 0.95]) A envisager au lieu du min et max en cas d'outlier.
-		if len(fit) == 1 or vmin >= vmax: res["Color"] = MAX_UI_16 // 2 # Cas Uniforme
+		if len(fit) == 1 or vmin >= vmax: res["Color"] = MAX_UI_16 // 2  # Cas Uniforme
 		else:
 			# Étalonnage linéaire : min→1, max→MAX_UI_16 (inclusif), arrondi au plus proche
 			scale = (MAX_UI_16 - 1) / (vmax - vmin)
@@ -467,49 +474,49 @@ class PALMTracer:
 	##################################################
 	def __filter_localizations(self):
 		""" Filtre le fichier de localisation. """
-		n_init = len(self._df["loc"])
-		self._df["f_loc"] = self.filter_localizations(self._df["loc"])
-		n_end = len(self._df["f_loc"])
+		n_init = len(self.df["loc"])
+		self.df["f_loc"] = self.filter_localizations(self.df["loc"])
+		n_end = len(self.df["f_loc"])
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
 		if self.settings.filtering["Save"].get_value():
 			self._logger.add("\tEnregistrement du fichier de localisation filtré")
-			self._df["f_loc"].to_csv(f"{self._path}/localizations_filtered-{self._suffix}.csv", index=False)
+			self.df["f_loc"].to_csv(f"{self._path}/localizations_filtered-{self._suffix}.csv", index=False)
 
 	##################################################
 	def __filter_tracks(self, name: str, suffix: str = ""):
 		""" Filtre le fichier de tracking. """
-		n_init = len(self._df[name])
+		n_init = len(self.df[name])
 		o_name = f"f_{name}"
-		self._df[o_name] = self.filter_tracks(self._df[name])
-		n_end = len(self._df[o_name])
+		self.df[o_name] = self.filter_tracks(self.df[name])
+		n_end = len(self.df[o_name])
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltrage du fichier de trajectoires {n_end} points au lieu de {n_init} : {n_init - n_end} suppression(s)")
 		if self.settings.filtering["Save"].get_value():
 			self._logger.add("\tEnregistrement du fichier de trajectoires filtré")
-			self._df[o_name].to_csv(f"{self._path}/tracking_filtered{suffix}-{self._suffix}.csv", index=False)
+			self.df[o_name].to_csv(f"{self._path}/tracking_filtered{suffix}-{self._suffix}.csv", index=False)
 
 	##################################################
 	def __filter_tracks_compute(self):
 		""" Filtre les fichiers de metrique. """
-		n_init = len(self._df["f_trc_MSD"])
-		o_name = "f_trc" if self._df["blk"].empty else "f_blk"
-		self._df[o_name], self._df["f_trc_MSD"], self._df["f_trc_InstantD"], self._df["f_trc_Fit"] \
-			= self.filter_tracks_compute(self.tracks, self._df["trc_MSD"], self._df["trc_InstantD"], self._df["trc_Fit"])
+		n_init = len(self.df["MSD"])
+		o_name = self.get_tracks_key()
+		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
+			= self.filter_tracks_compute(self.tracks, self.df["MSD"], self.df["InD"], self.df["Fit"])
 
-		n_end = len(self._df["f_trc_MSD"])
+		n_end = len(self.df["f_MSD"])
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltrage du fichier de calcul sur trajectoires {n_end} trajectoires au lieu de {n_init} : {n_init - n_end} suppression(s)")
 		if self.settings.filtering["Save"].get_value():
-			if not self._df["f_trc_MSD"].empty:
+			if not self.df["f_MSD"].empty:
 				self._logger.add("\tEnregistrement du fichier de calcul des MSD filtré.")
-				self._df["f_trc_MSD"].to_csv(f"{self._path}/tracking_MSD_filtered-{self._suffix}.csv", index=False)
-			if not self._df["f_trc_InstantD"].empty:
+				self.df["f_MSD"].to_csv(f"{self._path}/tracking_MSD_filtered-{self._suffix}.csv", index=False)
+			if not self.df["f_InD"].empty:
 				self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées filtré.")
-				self._df["f_trc_InstantD"].to_csv(f"{self._path}/tracking_InstantD_filtered-{self._suffix}.csv", index=False)
-			if not self._df["f_trc_Fit"].empty:
+				self.df["f_InD"].to_csv(f"{self._path}/tracking_InstantD_filtered-{self._suffix}.csv", index=False)
+			if not self.df["f_Fit"].empty:
 				self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement filtré.")
-				self._df["f_trc_Fit"].to_csv(f"{self._path}/tracking_Fit_filtered-{self._suffix}.csv", index=False)
+				self.df["f_Fit"].to_csv(f"{self._path}/tracking_Fit_filtered-{self._suffix}.csv", index=False)
 
 	##################################################
 	def filter_localizations(self, datas: pd.DataFrame) -> pd.DataFrame:
@@ -520,16 +527,18 @@ class PALMTracer:
 		:return: DataFrame filtré.
 		"""
 		res = datas.copy()
+		if res.empty: return res
 		f = cast(Filtering, self.settings.filtering)
-		fg = cast(FilteringL, f["Gaussian Fit"])
+		fl = cast(FilteringL, f["Localization"])
 		filters = [[f["Plane"], "Plane"],
-				   [f["Intensity"], "Integrated Intensity"],
-				   [fg["MSE"], "MSE XY"],
-				   [fg["Sigma X"], "Sigma X"],
-				   [fg["Sigma Y"], "Sigma Y"],
-				   [fg["Theta"], "Theta"],
-				   [fg["Circularity"], "Circularity"],
-				   [fg["Z"], "Z"]]
+				   [fl["Intensity"], "Integrated Intensity"],
+				   [fl["Sigma X"], "Sigma X"],
+				   [fl["Sigma Y"], "Sigma Y"],
+				   [fl["Theta"], "Theta"],
+				   [fl["Circularity"], "Circularity"],
+				   [fl["Z"], "Z"],
+				   [fl["MSE XY"], "MSE XY"],
+				   [fl["MSE Z"], "MSE Z"]]
 
 		for filt, col in filters:
 			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
@@ -546,6 +555,7 @@ class PALMTracer:
 		:return: DataFrame filtré.
 		"""
 		res = datas.copy()
+		if res.empty: return res
 		f = cast(FilteringT, self.settings.filtering["Tracks"])
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits = f["Length"].get_value()
@@ -576,7 +586,6 @@ class PALMTracer:
 
 		# ===== Base : tous les IDs présents dans la référence =====
 		keep_ids: set = set(o_trc["Track"].unique().tolist())
-		# print(f"Base ID ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre Longueur =====
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits_l = f["Length"].get_value()
@@ -584,32 +593,28 @@ class PALMTracer:
 			ok_len_ids = set(counts.index[(limits_l[0] <= counts) & (counts <= limits_l[1])].tolist())
 			keep_ids &= ok_len_ids  # intersection sur des sets d'IDs
 
-		# print(f"ID After Length filter ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre sur Instant D =====
 		if isinstance(f["Instant D"], CheckRangeFloat) and f["Instant D"].active and not o_ind.empty:
 			limits_d = f["Instant D"].get_value()
 
-			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]  # Restreindre aux trajectoires admissibles jusqu'ici
+			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]					   # Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_ind.empty:
-				# colonnes de valeurs = toutes sauf 'Track'
-				val_cols = [c for c in o_ind.columns if c != "Track"]
-
-				# masque valeurs valides et hors bornes
+				val_cols = [c for c in o_ind.columns if c != "Track"]		   # colonnes de valeurs = toutes sauf 'Track'
 				vals = o_ind[val_cols]
-				valid = vals.notna()
-				outside = (vals <= limits_d[0]) | (limits_d[1] <= vals)
+				vals_np = vals.to_numpy(dtype=float)						   # Convertir en numpy pour un contrôle fin
+				finite = np.isfinite(vals_np)								   # masque des valeurs finies (ni NaN, ni ±inf)
+				outside = (vals_np <= limits_d[0]) | (vals_np >= limits_d[1])  # valeurs hors bornes (sur le numpy brut)
+				outside &= finite											   # On ne compte les "outside" que là où c'est vraiment une valeur finie
+				n_valid, n_out = finite.sum(axis=1),  outside.sum(axis=1)	   # nombre de valeurs valides/hors bornes par ligne
+				pct_out_np = np.zeros_like(n_out, dtype=float)				   # pourcentage hors bornes (évite la division par 0 avec where=)
+				np.divide(n_out, n_valid, out=pct_out_np, where=n_valid > 0)
+				pct_out = pd.Series(pct_out_np * 100.0, index=o_ind.index)
 
-				# % hors bornes par ligne (NaN ignorés)
-				n_valid = valid.sum(axis=1)
-				n_out = (outside & valid).sum(axis=1)
-				pct_out = (n_out / n_valid).fillna(0.0) * 100.0
 				# avec une troisieme valeur limit[2] qui serait le pourcentage de fail max autorisé
 				# Ou alors un nouveau setting type Instant D Failure Tolerance (%), je vais mettre 50% ici
 				ok_ids = set(map(int, np.unique(o_ind.loc[pct_out <= 50.0, "Track"].to_numpy())))
 				keep_ids &= ok_ids
-		# for track_id, pct in zip(df["Track"], pct_out): print(f"Track {track_id}: {pct:.1f}% outside {limits}")
 
-		# print(f"ID After Instant D ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre sur Fit =====
 		if not o_fit.empty:
 			o_fit = o_fit[o_fit["Track"].isin(keep_ids)]  # Restreindre aux trajectoires admissibles jusqu'ici
@@ -630,7 +635,6 @@ class PALMTracer:
 
 				keep_ids &= set(o_fit["Track"].unique().tolist())
 
-		# print(f"ID After Fit ({len(keep_ids)}) : {keep_ids}")
 		# ===== Filtre final des trajectoires restantes =====
 		if not o_trc.empty: o_trc = o_trc[o_trc["Track"].isin(keep_ids)]
 		if not o_msd.empty: o_msd = o_msd[o_msd["Track"].isin(keep_ids)]
@@ -638,6 +642,29 @@ class PALMTracer:
 		if not o_fit.empty: o_fit = o_fit[o_fit["Track"].isin(keep_ids)]
 		return o_trc, o_msd, o_ind, o_fit
 
-# ==================================================
-# endregion Filtering
-# ==================================================
+	##################################################
+	def update_filtered(self, last: bool = True):
+		"""Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original."""
+
+		self._suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
+		loc = self.df["loc"] if self.df["f_loc"].empty or not last else self.df["f_loc"]
+		trc = self.df["trc"] if self.df["f_trc"].empty or not last else self.df["f_trc"]
+		blk = self.df["blk"] if self.df["f_blk"].empty or not last else self.df["f_blk"]
+		tc = self.tracks_compute if last else {"MSD": self.df["MSD"], "InD": self.df["InD"], "Fit": self.df["Fit"]}
+
+		self.df["f_loc"] = self.filter_localizations(loc)
+		self.df["f_trc"] = self.filter_tracks(trc)
+		self.df["f_blk"] = self.filter_tracks(blk)
+
+		o_name = "f_trc" if self.df["blk"].empty else "f_blk"
+		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
+			= self.filter_tracks_compute(self.tracks, tc["MSD"], tc["InD"], tc["Fit"])
+
+		if self.settings.filtering["Save"].get_value():
+			to_save = [["f_loc", "localizations_filtered"], ["f_trc", "tracking_filtered"], ["f_blk", "tracking_filtered_reconnected"],
+					   ["f_MSD", "tracking_MSD_filtered"], ["f_InD", "tracking_InstantD_filtered"], ["f_Fit", "tracking_Fit_filtered"]]
+			for n in to_save:
+				if not self.df[n[0]].empty: self.df[n[0]].to_csv(f"{self._path}/{n[1]}-{self._suffix}.csv", index=False)
+	# ==================================================
+	# endregion Filtering
+	# ==================================================

@@ -101,7 +101,7 @@ class CheckRangeFloat(BaseSettingType):
 		for i in range(2):
 			self.box[i] = QDoubleSpinBox(None)						# Création de la boite.
 			self.box[i].setAlignment(Qt.AlignmentFlag.AlignCenter)  # Définir l'alignement au centre.
-			self.box[i].setFixedWidth(30)							# Réduit la largeur
+			self.box[i].setFixedWidth(50)							# Réduit la largeur
 			self.box[i].setRange(self.limit[0], self.limit[1])		# Définition du min, max.
 			self.box[i].setValue(self.default[i])					# Définition de la valeur par défaut
 			self.box[i].setDecimals(self.precision)					# Définition de la précision à afficher.
@@ -113,6 +113,7 @@ class CheckRangeFloat(BaseSettingType):
 
 		# Ligne du paramètre
 		hbox = QHBoxLayout()
+		hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement l'alignement à gauche.
 		hbox.addWidget(self._checkbox)
 		hbox.addWidget(QLabel(self.label + " : "))
 		hbox.addWidget(self.box[0])

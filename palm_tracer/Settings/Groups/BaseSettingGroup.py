@@ -296,9 +296,8 @@ class BaseSettingGroup:
 			self._header = None
 
 		# Suppression de la marge
-		body_layout = self._body.layout()				# Récupérer le layout du widget _body
-		if isinstance(body_layout, QFormLayout):		# pragma: no cover (toujours vrai)
-			body_layout.setContentsMargins(0, 0, 0, 0)  # Aucune marge
+		body_layout = self._body.layout()													# Récupérer le layout du widget _body
+		if isinstance(body_layout, QFormLayout):body_layout.setContentsMargins(0, 0, 0, 0)  # pragma: no cover (toujours vrai, Aucune marge)
 
 	# ==================================================
 	# endregion Hide and Seek

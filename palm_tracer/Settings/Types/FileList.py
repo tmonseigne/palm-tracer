@@ -3,6 +3,7 @@ Fichier contenant la classe :class:`FileList` dérivée de :class:`.BaseSettingT
 """
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Optional
 
 from qtpy.QtCore import Qt
@@ -69,13 +70,13 @@ class FileList(BaseSettingType):
 			self.box.addItems(self.items)
 
 	##################################################
-	def add_file(self):  # pragma: no cover  pytest à du mal avec l'ouverture de boite de dialogue.
+	def add_file(self):
 		"""Ajoute un fichier à la liste via un QFileDialog."""
 		# Déterminer le répertoire initial pour la boîte de dialogue
 		initial_dir = (self.items[-1] if self.items else ".")  # Utiliser le dernier fichier ou le répertoire courant
-		filename, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier", initial_dir, "Tous les fichiers (*)")
-		if filename:
-			self.items.append(filename)
+		path, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier", initial_dir, "Tous les fichiers (*)")
+		if path and Path(path).is_file():
+			self.items.append(path)
 			self.update_box()
 			self.set_value(len(self.items) - 1)
 

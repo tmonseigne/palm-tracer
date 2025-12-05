@@ -11,7 +11,7 @@ import pandas as pd
 
 from palm_tracer.Processing.Parsing import (get_max_points, log10_dataframe, N_COL_TRC, parse_irregular_array,
 											parse_localization_to_tracking, parse_result, PARSING_COLUMNS)
-from palm_tracer.Tools.Utils import load_dll
+from palm_tracer.Tools.Utils import load_dll, print_warning
 
 N_TRC_CP_FIT = 10
 
@@ -302,7 +302,7 @@ class Palm:
 		:param fit_params: Paramètres de l'ajustement (pour le moment uniquement fit length).
 		:return: DataFrame contenant les trajectoires détectées.
 		"""
-		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InstantD": pd.DataFrame(), "Fit": pd.DataFrame()}
+		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
 		required = PARSING_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return res
 		new_tracks = tracks[required].copy()
@@ -318,7 +318,7 @@ class Palm:
 			res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_msd"], shape=(n,)))
 			ncols = res["MSD"].shape[1]
 			if ncols != 0:
-				cols = [f"Lag {i}" for i in range(1, ncols)]
+				cols = [f"Step {i}" for i in range(1, ncols)]
 				res["MSD"].columns = ["Track"] + cols
 				# Track en entier nullable (préserve les NaN si présents)
 				if "Track" in res["MSD"]: res["MSD"]["Track"] = pd.to_numeric(res["MSD"]["Track"], errors="coerce").astype("Int64")
@@ -326,15 +326,15 @@ class Palm:
 				if is_log: res["MSD"] = log10_dataframe(res["MSD"], cols)
 
 		if is_ind:
-			res["InstantD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_ind"], shape=(n,)))
-			ncols = res["InstantD"].shape[1]
+			res["InD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_ind"], shape=(n,)))
+			ncols = res["InD"].shape[1]
 			if ncols != 0:
 				cols = [f"Window {i}" for i in range(1, ncols)]
-				res["InstantD"].columns = ["Track"] + cols
+				res["InD"].columns = ["Track"] + cols
 				# Track en entier nullable (préserve les NaN si présents)
-				if "Track" in res["InstantD"]: res["InstantD"]["Track"] = pd.to_numeric(res["InstantD"]["Track"], errors="coerce").astype("Int64")
+				if "Track" in res["InD"]: res["InD"]["Track"] = pd.to_numeric(res["InD"]["Track"], errors="coerce").astype("Int64")
 				# Mise à jour en fonction de la mise à l'échelle du Log.
-				if is_log: res["InstantD"] = log10_dataframe(res["InstantD"], cols)
+				if is_log: res["InD"] = log10_dataframe(res["InD"], cols)
 
 		if fit_mode != 0:
 			res["Fit"] = parse_irregular_array(np.ctypeslib.as_array(args["o_fit"], shape=(n,)))
@@ -351,6 +351,15 @@ class Palm:
 				res["Fit"]["Length"] = pd.to_numeric(res["Fit"]["Length"], errors="coerce").astype("Int64")
 				# Mise à jour en fonction de la mise à l'échelle du Log.
 				if is_log: res["Fit"] = log10_dataframe(res["Fit"], cols)
+
+		# Restauration des identifiants de trajectoire
+		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
+		track_ids = pd.unique(tracks["Track"])
+		for key in res:
+			if len(res[key]) != track_ids.size: print_warning("Problème avec les identifiants des trajectoires, attention au filtrage")
+			else:
+				res[key].drop(columns=["Track"], inplace=True)
+				res[key].insert(0, "Track", track_ids)
 		return res
 
 	##################################################

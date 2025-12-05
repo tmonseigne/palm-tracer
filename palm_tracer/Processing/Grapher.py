@@ -21,21 +21,17 @@ _MARGIN = dict(l=60, r=20, t=60, b=50)
 class Grapher:
 	"""Créateur de graphiques avec Plotly."""
 
-	##################################################
-	@staticmethod
-	def blank(title: str):
-		fig = go.Figure()
-		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
-		return fig
-
-	##################################################
-	def histogram(self, data: np.ndarray, title: str, limit: bool = False, show_sigma: bool = False, kde: bool = False, gaussian: bool = False,
-				  density: bool = True, bins: Optional[int] = None) -> go.Figure:
+	def get_fig(self, graph_type: str, data: Optional[np.ndarray] = None, title: str = "", xlabel: str = "", ylabel: str = "",
+				limit: bool = False, show_sigma: bool = False, kde: bool = False, gaussian: bool = False,
+				density: bool = True, bins: Optional[int] = None):
 		"""
-		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
+		Retourne le graphique selon le type choisi.
 
-		:param data: Données sous forme de tableau numpy 1D/ND (aplati).
+		:param graph_type: Type de Graphique.
+		:param data: Données sous forme de tableau numpy 2D/1D/ND.
 		:param title: titre du graphe.
+		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:param kde: Si True, superpose la KDE gaussienne.
@@ -44,7 +40,49 @@ class Grapher:
 		:param bins: nbins explicite (sinon Sturges).
 		:return: ``go.Figure``
 		"""
-		x = np.asarray(data).ravel()
+		if data is None: return self.blank(title)
+		if graph_type == "histogram": return self.histogram(data, title, xlabel, ylabel, limit, show_sigma, kde, gaussian, density, bins)
+		elif graph_type == "scatter": return self.scatter(data, title, xlabel, ylabel, limit, show_sigma)
+		else: return self.blank(title)
+
+	##################################################
+	@staticmethod
+	def blank(title: str):
+		"""
+		Créé une figure vide avec une annotation standard au centre ``_BLANK_ANNOTATIONS``.
+
+		:param title: Titre de la figure
+		:return: ``go.Figure`` Figure avec l'annotation
+		"""
+		fig = go.Figure()
+		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
+		return fig
+
+	##################################################
+	def histogram(self, data: np.ndarray, title: str, xlabel: str = "", ylabel: str = "",
+				  limit: bool = False, show_sigma: bool = False, kde: bool = False,
+				  gaussian: bool = False, density: bool = True, bins: Optional[int] = None) -> go.Figure:
+		"""
+		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
+
+		:param data: Données sous forme de tableau numpy 1D/ND (aplati).
+		:param title: titre du graphe.
+		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
+		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
+		:param kde: Si True, superpose la KDE gaussienne.
+		:param gaussian: Si True, superpose la gaussienne.
+		:param density: affiche l'histogramme en densité (True) ou en comptes (False).
+		:param bins: nbins explicite (sinon Sturges).
+		:return: ``go.Figure``
+		"""
+		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
+			if data.shape[0] == 2: _, x = data[0, :], data[1, :]	 # (2, N) -> lignes = (x, y)
+			elif data.shape[1] == 2:  _, x = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
+			else: x = np.asarray(data).ravel()
+		else: x = np.asarray(data).ravel()
+
 		x = x[np.isfinite(x)]
 		fig = go.Figure()
 
@@ -54,7 +92,7 @@ class Grapher:
 			return fig
 
 		# Limite des données avec la règle des 3 Sigmas
-		mu, sigma = float(np.mean(data)), float(np.std(data))
+		mu, sigma = float(np.mean(x)), float(np.std(x))
 		x, limits = self.__get_range(x, limit)
 
 		# Récupération du nombre de bin
@@ -84,7 +122,7 @@ class Grapher:
 			fig.add_trace(go.Scatter(x=xg, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
 									 name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
-		# Sigmas
+		# Mu et Sigmas
 		if show_sigma and x.size > 1 and sigma > 0:
 			fig.add_vline(x=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
 			fig.add_vline(x=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # -1σ
@@ -95,22 +133,28 @@ class Grapher:
 			fig.add_vline(x=mu + 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ + 3σ")  # +3σ
 
 		# Style "seaborn-like" + Espacement entre barres
+		xlabel = "Values" if xlabel == "" else xlabel
+		ylabel = ("Density" if density else "Count") if ylabel == "" else ylabel
 		fig.update_layout(title=f"{title} (μ = {mu:.2f}, σ = {sigma:.2f})", template=_TEMPLATE, margin=_MARGIN,
-						  xaxis=dict(title="Values", range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
-						  yaxis=dict(title=("Density" if density else "Count"), zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
+						  xaxis=dict(title=xlabel, range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
+						  yaxis=dict(title=ylabel, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
 						  hovermode="x", showlegend=True, bargap=0.15, bargroupgap=0.05)
 		return fig
 
 	##################################################
-	def scatter(self, data: np.ndarray, title: str, limit: bool = False) -> go.Figure:
+	def scatter(self, data: np.ndarray, title: str, xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False) -> go.Figure:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
 		:param data: Données sous forme de tableau numpy 1D ou 2D.
 		:param title: titre du graphe.
+		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:return: ``go.Figure``
 		"""
+
 		# Déterminer x,y
 		if data.ndim == 1:
 			y = data[np.isfinite(data)]
@@ -125,20 +169,34 @@ class Grapher:
 
 		fig = go.Figure()
 
+		# Aucunes données valides
 		if x.size == 0:
 			fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
 			return fig
 
 		# Limite des données avec la règle des 3 Sigmas
-		x, limits = self.__get_range(x, limit)
+		_, limits = self.__get_range(y, limit)
+		mu, sigma = float(np.mean(y)), float(np.std(y))
 
 		# faire une courbe style "seaborn-like"
 		fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
+		# Mu et Sigmas
+		if show_sigma and x.size > 1 and sigma > 0:
+			fig.add_hline(y=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
+			fig.add_hline(y=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # -1σ
+			fig.add_hline(y=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # +1σ
+			fig.add_hline(y=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
+			fig.add_hline(y=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
+			fig.add_hline(y=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
+			fig.add_hline(y=mu + 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ + 3σ")  # +3σ
+
 		# Style "seaborn-like" + Espacement entre barres
 		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
-						  xaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
-						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH), hovermode="x", showlegend=False)
+						  xaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=xlabel)),
+						  yaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=ylabel)),
+						  hovermode="x", showlegend=False)
+
 		return fig
 
 	##################################################

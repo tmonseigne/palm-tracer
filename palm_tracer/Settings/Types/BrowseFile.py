@@ -4,6 +4,7 @@ Fichier contenant la classe :class:`BrowseFile` dérivée de :class:`.BaseSettin
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from qtpy.QtCore import Qt
@@ -71,13 +72,13 @@ class BrowseFile(BaseSettingType):
 		self.add_row(layout)  # Ajouter au calque principal du setting.
 
 	##################################################
-	def browse_file(self):  # pragma: no cover pytest à du mal avec l'ouverture de boite de dialogue.
+	def browse_file(self):
 		"""Ouvre un dialogue de sélection de fichier et met à jour la boîte avec le chemin sélectionné."""
 		current = self.get_value()
 		# Si le chemin par défaut n'est pas valide, on utilise le chemin principal du projet
 		if not os.path.exists(current) or current == "": current = os.getcwd()
 		path, _ = QFileDialog.getOpenFileName(self.box, "Sélectionner un fichier", current)
-		if path: self.box.setText(path)  # Met à jour le chemin dans la boîte de texte
+		if path and Path(path).is_file(): self.box.setText(path)  # Met à jour le chemin dans la boîte de texte
 
 	##################################################
 	def reset(self): self.set_value("")

@@ -3,6 +3,7 @@ from typing import Any, List
 
 import pytest
 
+from palm_tracer._tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
 
 
@@ -126,15 +127,27 @@ def test_combo(make_napari_viewer):
 
 
 ###################################################
-def test_browse_file(make_napari_viewer):
+def test_browse_file(make_napari_viewer, monkeypatch, fake_getopenfilename):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
+
+	fake_getopenfilename(BrowseFile, None)	# Simuler un "Cancel" sur le QFileDialog
+	setting.browse_file()
+	assert setting.get_value() == "", "Le setting devrait être vide"
+
+	fake_getopenfilename(BrowseFile, "file.tif")# Simuler un fichier inexistant
+	setting.browse_file()
+	assert setting.get_value() == "", "Le setting devrait être vide."
+
+	fake_getopenfilename(BrowseFile, f"{INPUT_DIR}/stack.tif")
+	setting.browse_file()
+	assert "stack.tif" in setting.get_value(), "Le setting devrait être '...stack.tif'"
 	assert True
 
 
 ###################################################
-def test_file_list(make_napari_viewer):
+def test_file_list(make_napari_viewer, monkeypatch, fake_getopenfilename):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = FileList("Test")
 	setting_base_test(setting, -1, -1)
@@ -149,6 +162,18 @@ def test_file_list(make_napari_viewer):
 	assert setting.get_list() == [], "Liste de fichiers après nettoyage non valide."
 	assert setting.get_selected() == "", "Valeur non vide."
 	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a plus
+
+	fake_getopenfilename(BrowseFile, None)	# Simuler un "Cancel" sur le QFileDialog
+	setting.add_file()
+	assert setting.get_list() == [], "Liste de fichiers non valide."
+
+	fake_getopenfilename(BrowseFile, "file.tif")# Simuler un fichier inexistant
+	setting.add_file()
+	assert setting.get_list() == [], "Liste de fichiers non valide."
+
+	fake_getopenfilename(BrowseFile, f"{INPUT_DIR}/stack.tif")
+	setting.add_file()
+	assert "stack.tif" in setting.get_selected(), "Le setting devrait être '...stack.tif'"
 
 
 ###################################################

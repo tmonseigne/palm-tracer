@@ -25,11 +25,8 @@ class Filtering(BaseSettingGroup):
 	Attributs :
 		- **Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) :
 		  Sauvegarde les éléments une fois filtrés (dans un fichiers séparé du fichier non filtré)  (par défaut : `False`).
-		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt>`) :
-		  Interval de plans sélectionnés (par défaut : `[1,10000]`).
-		- **Intensity** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt>`) :
-		  Interval d'intensité sélectionnés (par défaut : `[1,10000000]`).
-		- **Gaussian Fit** (:class:`FilteringL`) : Paramètres de filtrage de la Localisation.
+		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt>`) : Interval de plans sélectionnés (par défaut : `[1,10000]`).
+		- **Localization** (:class:`FilteringL`) : Paramètres de filtrage de la Localisation.
 		- **Tracks** (:class:`FilteringT`) : Paramètres de filtrage du Tracking.
 	"""
 
@@ -37,15 +34,14 @@ class Filtering(BaseSettingGroup):
 	setting_list = {
 			"Save":       [CheckBox, ["Save filtered", False]],
 			"Plane":        [CheckRangeInt, ["Plane", [1, 100000], [1, 100000]]],
-			"Intensity":    [CheckRangeInt, ["Intensity", [0, 100000], [1, 10000000]]],
-			"Gaussian Fit": [FilteringL, []],
+			"Localization": [FilteringL, []],
 			"Tracks":       [FilteringT, []]
 			}
-	_inner_groups = ["Gaussian Fit", "Tracks"]
+	_inner_groups = ["Localization", "Tracks"]
 
 	##################################################
 	def initialize_ui(self):
 		super().initialize_ui()
 		self.remove_header()
-		self._settings["Gaussian Fit"].always_active()
+		self._settings["Localization"].always_active()
 		self._settings["Tracks"].always_active()

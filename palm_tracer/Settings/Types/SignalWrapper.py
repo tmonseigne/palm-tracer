@@ -53,15 +53,13 @@ class SignalWrapper(QObject):
 		"""
 		n = 0
 		if f is None:
-			# déconnecte tout
+			# déconnecte tout ce qu'on connaît
 			for s in list(self._slots):
 				try:
 					self._signal.disconnect(s)
 					n += 1
-				except (TypeError, RuntimeError): pass
+				except (TypeError, RuntimeError): pass  # déjà déconnecté / objet détruit → on ignore
 			self._slots.clear()
-			try: self._signal.disconnect()  # PySide/PyQt : coupe tout au cas où
-			except (TypeError, RuntimeError): pass
 			return n
 
 		# déconnecte un slot précis
