@@ -39,6 +39,10 @@ class Palm:
 		"""
 		return self._dll is not None
 
+	# ==================================================
+	# region Argument Parser
+	# ==================================================
+
 	##################################################
 	@staticmethod
 	def __get_auto_treshold_args(image: np.ndarray, height: int, width: int, fit_params: np.ndarray):
@@ -53,8 +57,8 @@ class Palm:
 		"""
 		return {
 				"image":      np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
-				"height":     ctypes.c_ulong(height),									  # Hauteur (nombre de lignes)
-				"width":      ctypes.c_ulong(width),									  # Largeur (nombre de colonnes)
+				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
+				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
 				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
 				}
 
@@ -78,14 +82,14 @@ class Palm:
 		n = get_max_points(height, width, planes)  # Récupération d'un nombre de points maximum théorique
 		return {
 				"stack":      np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
-				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),				 # Tableau pour la localisation
-				"n":          ctypes.c_ulong(n),						# Nombre maximum de localisation théoriques lors de la localization
-				"height":     ctypes.c_ulong(height),					# Hauteur (nombre de lignes)
-				"width":      ctypes.c_ulong(width),					# Largeur (nombre de colonnes)
-				"planes":     ctypes.c_ulong(planes),					# Profondeur (nombre de plans)
-				"threshold":  ctypes.c_double(threshold),				# Seuil de détection
+				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Tableau pour la localisation
+				"n":          ctypes.c_ulong(n),  # Nombre maximum de localisation théoriques lors de la localization
+				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
+				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
+				"planes":     ctypes.c_ulong(planes),  # Profondeur (nombre de plans)
+				"threshold":  ctypes.c_double(threshold),  # Seuil de détection
 				"watershed":  ctypes.c_double(0 if watershed else 10),  # Seuil du Watershed
-				"fit":        ctypes.c_ushort(fit),						# Mode d'ajustement
+				"fit":        ctypes.c_ushort(fit),  # Mode d'ajustement
 				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
 				}
 
@@ -191,14 +195,45 @@ class Palm:
 		"""
 		out = np.zeros((planes, height * upsampling, width * upsampling), dtype=np.uint16)
 		return {
-				"input":      stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),    # Pile
-				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),	  # Sortie
-				"height":     ctypes.c_ulong(height),											  # Hauteur (nombre de lignes)
-				"width":      ctypes.c_ulong(width),											  # Largeur (nombre de colonnes)
-				"planes":     ctypes.c_ulong(planes),											  # Profondeur (nombre de plans)
+				"input":      stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
+				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Sortie
+				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
+				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
+				"planes":     ctypes.c_ulong(planes),  # Profondeur (nombre de plans)
 				"factors":    factors.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Factor de transformation
-				"upsampling": ctypes.c_ulong(upsampling)										  # Upsampling
+				"upsampling": ctypes.c_ulong(upsampling)  # Upsampling
 				}
+
+	##################################################
+	@staticmethod
+	def __get_wavelett_args(stack: np.ndarray, height: int, width: int, planes: int, level: int):
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour l'alignement.
+
+		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
+		:param height: Hauteur des images.
+		:param width: Largeur des images.
+		:param planes: Nombre de plans.
+		:param level: Niveau d'ondelette en sortie.
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+		out = np.zeros((planes, height, width), dtype=np.float64)
+		return {
+				"input":  stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
+				"output": out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),    # Sortie
+				"height": ctypes.c_ulong(height),											# Hauteur (nombre de lignes)
+				"width":  ctypes.c_ulong(width),											# Largeur (nombre de colonnes)
+				"planes": ctypes.c_ulong(planes),											# Profondeur (nombre de plans)
+				"level":  ctypes.c_ulong(level)												# Upsampling
+				}
+
+	# ==================================================
+	# endregion Argument Parser
+	# ==================================================
+
+	# ==================================================
+	# region DLL Call
+	# ==================================================
 
 	##################################################
 	def localization(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray,
@@ -240,9 +275,9 @@ class Palm:
 		:param fit_params: Paramètres du mode d'ajustement.
 		:return: Seuil calculé (écart type final).
 		"""
-		height, width = image.shape												# Récupère les dimensions
+		height, width = image.shape  # Récupère les dimensions
 		args = self.__get_auto_treshold_args(image, height, width, fit_params)  # Récupère les arguments pour la DLL
-		self._dll.AutoThreshold.restype = ctypes.c_double						# Force le type de retour
+		self._dll.AutoThreshold.restype = ctypes.c_double  # Force le type de retour
 		return self._dll.AutoThreshold(*args.values())
 
 	##################################################
@@ -379,3 +414,24 @@ class Palm:
 		self._dll.Alignment(*args.values())
 		out = np.ctypeslib.as_array(args["output"], shape=(planes, height * upsampling, width * upsampling))
 		return out
+
+	##################################################
+	def wavelett(self, stack: np.ndarray, level: int = 2) -> np.ndarray:
+		"""
+		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
+
+		:param stack: Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement).
+		:param level: Niveau d'ondelette en sortie.
+		:return: Image décomposée.
+		"""
+		height, width = stack.shape[-2:]  # Récupère les deux dernières dimensions
+		planes = 1 if stack.ndim == 2 else stack.shape[0]
+
+		args = self.__get_wavelett_args(stack, height, width, planes, level)
+		self._dll.Wavelett(*args.values())
+		out = np.ctypeslib.as_array(args["output"], shape=(planes, height, width))
+		return out
+
+# ==================================================
+# endregion DLL Call
+# ==================================================

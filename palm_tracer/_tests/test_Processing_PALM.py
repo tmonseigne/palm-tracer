@@ -1,5 +1,4 @@
 """ Fichier des tests pour l'utilisation de la DLL CPU. """
-import pandas as pd
 import pytest
 
 from palm_tracer._tests.Utils import *
@@ -261,5 +260,18 @@ def test_align():
 	aligned = palm.align(stack, factors, 1)
 	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-transpose.tif")
 	assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgrè la transposition."
-	assert True
-	assert True
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_wavelett():
+	"""Test basique pour la spline."""
+	palm = Palm()
+
+	# --- Lecture stack ---
+	file = "stack"
+	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+
+	for i in range(5):
+		wavelett = palm.wavelett(stack, i)
+		if save_output: save_tif(wavelett, f"{OUTPUT_DIR}/{file}-wavelett-{i}.tif")
+		assert wavelett.shape == stack.shape, "Les dimensions doivent être identiques"

@@ -1,15 +1,10 @@
 """ Fichier des tests pour la lecture/écriture des fichiers. """
 
-import os
-from pathlib import Path
-
-import numpy as np
 import pytest
 
+from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import FileIO
 
-INPUT_DIR = Path(__file__).parent / "input"
-OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 REF_DICT = {"First param": [0, 1, 2],
