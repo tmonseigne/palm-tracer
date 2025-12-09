@@ -415,8 +415,8 @@ class PALMTracerWidget(QWidget):
 		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
 		if not hasattr(self, "high_res_window") or self.viewer_hr is None:
 			self.viewer_hr = Viewer()
-			self.viewer_3d.title = "High Resolution Visualization"  # Modifier le titre de la fenêtre
-			self.viewer_3d.window.main_menu.setVisible(False)		# Cacher la barre de menu
+			self.viewer_hr.title = "High Resolution Visualization"  # Modifier le titre de la fenêtre
+			self.viewer_hr.window.main_menu.setVisible(False)		# Cacher la barre de menu
 
 		self.viewer_hr.layers.clear()
 		self.viewer_hr.add_image(self.pt.visualization, name="Visualization", visible=False)

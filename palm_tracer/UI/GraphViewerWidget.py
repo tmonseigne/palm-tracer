@@ -248,7 +248,7 @@ class GraphViewerWidget(QWidget):
 		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
-		grp_filters = QGroupBox("Filters (comming soon)")
+		grp_filters = QGroupBox("Filters")
 		vbox_filters = QVBoxLayout(grp_filters)
 		# Integration des Filtres
 		self._filters = Filtering()
