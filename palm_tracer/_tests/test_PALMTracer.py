@@ -140,7 +140,7 @@ def test_load_bad_dll(make_napari_viewer):
 	""" Test pour le process avec tout les élément à False et aucun fichier chargeable. """
 	pt = PALMTracer()
 	pt.palm._dll = None
-	pt.load()
+	pt.load("")
 
 
 ##################################################
@@ -148,12 +148,7 @@ def test_load_bad_dll(make_napari_viewer):
 def test_load_nothing(make_napari_viewer):
 	"""Test pour le chargement avec fichier mais sans settings."""
 	pt = PALMTracer()
-	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.items = [f"{INPUT_DIR}/stack.tif"]
-	file_list.update_box()
-	paths = pt.settings.batch.get_paths()
-	for path in paths: shutil.rmtree(path, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
-	pt.load()
+	pt.load("bad path")
 
 
 ##################################################
@@ -164,6 +159,8 @@ def test_load(make_napari_viewer):
 	file_list = cast(FileList, pt.settings.batch["Files"])
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
+	paths = pt.settings.batch.get_paths()
+	for path in paths: shutil.rmtree(path, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
 	pt.settings.localization.active = True
 	pt.process()
 	pt.load()
