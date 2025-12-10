@@ -24,6 +24,7 @@ from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_warning, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
+from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
 try: from napari.qt.threading import thread_worker, FunctionWorker				# chemin public, à préférer
 except ImportError:    from superqt.utils import thread_worker, FunctionWorker  # très rare fallback
@@ -234,7 +235,7 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
-	# region Process
+	# region Settings Callback
 	# ==================================================
 	##################################################
 	def _load_setting(self, filename: Path):
@@ -261,6 +262,20 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton Reset setting."""
 		self.pt.settings.reset()
 
+	##################################################
+	def _on_change(self):
+		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
+		# Save settings
+		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
+		self._thread_process(self._preview, self._add_detection_layers)
+
+	# ==================================================
+	# endregion Settings Callback
+	# ==================================================
+
+	# ==================================================
+	# region Layers Callback
+	# ==================================================
 	##################################################
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
@@ -368,12 +383,6 @@ class PALMTracerWidget(QWidget):
 		plane = layer.data[plane_idx]			   # Récupération des données du plan affiché
 		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
 
-	##################################################
-	def _on_change(self):
-		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
-		# Save settings
-		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
-		self._thread_process(self._preview, self._add_detection_layers)
 
 	##################################################
 	def _preview(self):
@@ -409,6 +418,13 @@ class PALMTracerWidget(QWidget):
 		#show_info(f"Auto Threshold : {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
+	# ==================================================
+	# endregion Layers Callback
+	# ==================================================
+
+	# ==================================================
+	# region Extern Viewer
+	# ==================================================
 	##################################################
 	def _show_high_res_image(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà."""
@@ -439,13 +455,13 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre une instance napari avec le Viewer 3D si elle n'existe pas déjà."""
+		"""Ouvre une instance napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d = create_viewer3d()
 
 	##################################################
 	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre le visualisateur de graphiques s'il n'existe pas déjà."""
+		"""Ouvre le visualisateur de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
 			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
@@ -460,7 +476,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.activateWindow()
 
 	# ==================================================
-	# endregion Process
+	# endregion Extern Viewer
 	# ==================================================
 
 
