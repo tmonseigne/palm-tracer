@@ -5,8 +5,9 @@ except ImportError:
 
 from . import Processing, Settings, Tools, UI
 from .PALMTracer import PALMTracer
-from .UI import AlignmentWidget, open_alignment, open_viewer3d, PALMTracerWidget, Viewer3DWidget
+from .UI import AlignmentWidget, open_alignment, open_viewer3d, open_viewerhr, PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
 
 __all__ = ("PALMTracer",
-		   "AlignmentWidget", "PALMTracerWidget", "Viewer3DWidget", "open_viewer3d", "open_alignment",
+		   "AlignmentWidget", "PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget",
+		   "open_viewer3d", "open_viewerhr", "open_alignment",
 		   "UI", "Processing", "Settings", "Tools")

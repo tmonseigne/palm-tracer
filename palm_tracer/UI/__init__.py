@@ -16,5 +16,7 @@ from .AlignmentWidget import AlignmentWidget, open_alignment
 from .GraphViewerWidget import GraphViewerWidget
 from .PALMTracerWidget import PALMTracerWidget
 from .Viewer3DWidget import open_viewer3d, Viewer3DWidget
+from .ViewerHRWidget import open_viewerhr, ViewerHRWidget
 
-__all__ = ["GraphViewerWidget", "PALMTracerWidget", "Viewer3DWidget", "AlignmentWidget", "open_viewer3d", "open_alignment"]
+__all__ = ["GraphViewerWidget", "PALMTracerWidget", "Viewer3DWidget",  "ViewerHRWidget", "AlignmentWidget",
+		   "open_viewer3d", "open_viewerhr", "open_alignment"]
