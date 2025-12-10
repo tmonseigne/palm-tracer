@@ -61,7 +61,6 @@ def test_base_setting():
 	assert layout is not None, "Le layout n'existe pas."
 
 
-
 ###################################################
 def test_create_setting_from_dict(make_napari_viewer):
 	"""Test de création de setting par dictionnaire vide excepté le type."""
@@ -99,7 +98,6 @@ def test_spin_int(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = SpinInt("Test", 1, 0, 10, 1)
 	setting_base_test(setting, 5, 1)
-	assert True
 
 
 ###################################################
@@ -107,7 +105,6 @@ def test_spin_float(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = SpinFloat("Test", 1.0, 0.0, 10.0, 1.0)
 	setting_base_test(setting, 5.0, 1.0)
-	assert True
 
 
 ###################################################
@@ -115,7 +112,6 @@ def test_check_box(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = CheckBox("Test")
 	setting_base_test(setting, True, False)
-	assert True
 
 
 ###################################################
@@ -123,7 +119,6 @@ def test_combo(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = Combo("Test", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
-	assert True
 
 
 ###################################################
@@ -132,18 +127,17 @@ def test_browse_file(make_napari_viewer, monkeypatch, fake_getopenfilename):
 	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
 
-	fake_getopenfilename(BrowseFile, None)	# Simuler un "Cancel" sur le QFileDialog
+	fake_getopenfilename(BrowseFile, None)  # Simuler un "Cancel" sur le QFileDialog
 	setting.browse_file()
 	assert setting.get_value() == "", "Le setting devrait être vide"
 
-	fake_getopenfilename(BrowseFile, "file.tif")# Simuler un fichier inexistant
+	fake_getopenfilename(BrowseFile, "file.tif")  # Simuler un fichier inexistant
 	setting.browse_file()
 	assert setting.get_value() == "", "Le setting devrait être vide."
 
 	fake_getopenfilename(BrowseFile, f"{INPUT_DIR}/stack.tif")
 	setting.browse_file()
 	assert "stack.tif" in setting.get_value(), "Le setting devrait être '...stack.tif'"
-	assert True
 
 
 ###################################################
@@ -163,11 +157,11 @@ def test_file_list(make_napari_viewer, monkeypatch, fake_getopenfilename):
 	assert setting.get_selected() == "", "Valeur non vide."
 	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a plus
 
-	fake_getopenfilename(BrowseFile, None)	# Simuler un "Cancel" sur le QFileDialog
+	fake_getopenfilename(BrowseFile, None)  # Simuler un "Cancel" sur le QFileDialog
 	setting.add_file()
 	assert setting.get_list() == [], "Liste de fichiers non valide."
 
-	fake_getopenfilename(BrowseFile, "file.tif")# Simuler un fichier inexistant
+	fake_getopenfilename(BrowseFile, "file.tif")  # Simuler un fichier inexistant
 	setting.add_file()
 	assert setting.get_list() == [], "Liste de fichiers non valide."
 

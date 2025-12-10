@@ -102,6 +102,20 @@ def get_last_file(path: str, name: str) -> str:
 
 
 ##################################################
+def extract_suffix(filename: str, separator: str = "-") -> str:
+	"""
+	Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurence en cas de présence multiple).
+
+	:param filename: Nom du fichier.
+	:param separator: Séparateur avant le suffixe
+	:return: Suffixe si le séparateur est présent sinon une chaine vide
+	"""
+	base, _ = os.path.splitext(os.path.basename(filename))
+	parts = base.rsplit(separator, 1)
+	return parts[1] if len(parts) == 2 else ""
+
+
+##################################################
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	"""Charge une DLL, si elle existe."""
 	dll_filename = DLL_PATH / f"PALMTracer_{name}.dll"

@@ -27,7 +27,6 @@ def test_widget_creation(qtbot):
 	w.show()
 	qtbot.waitExposed(w)
 	w.close()
-	assert True
 
 
 ##################################################
@@ -60,7 +59,6 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	assert w._stack is None
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -100,7 +98,6 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	assert w._coefs is None
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -124,7 +121,6 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	out, err = capsys.readouterr()
 	assert "Can't Compute alignment coefficients without correct tif file." in out
 	w.close()
-	assert True
 
 
 ##################################################
@@ -157,7 +153,6 @@ def test_compute(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	assert "Compute alignment coefficients isn't implemented yet. Use original PALMTracer." in out
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -194,7 +189,6 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	assert "Can't align tif file without factors." in out
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -233,4 +227,3 @@ def test_align(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	assert f"File saved at " in out
 
 	w.close()
-	assert True

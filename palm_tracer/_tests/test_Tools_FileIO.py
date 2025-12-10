@@ -28,7 +28,6 @@ REF_STACK = np.stack((REF_GRADIENT, np.fliplr(REF_GRADIENT)), axis=0)  # Empilem
 def test_save_json():
 	""" Test de la fonction save_json. """
 	FileIO.save_json(f"{OUTPUT_DIR}/test_save_json.json", REF_DICT)
-	assert True
 
 
 ##################################################
@@ -50,14 +49,12 @@ def test_open_json_bad_file():
 def test_save_tif():
 	"""	Test de la fonction save_tif. """
 	FileIO.save_tif(REF_STACK, f"{OUTPUT_DIR}/test_save_stack.tif")
-	assert True
 
 
 ##################################################
 def test_save_tif_2d():
 	""" Test de la fonction save_tif avec une image 2D. """
 	FileIO.save_tif(REF_GRADIENT, f"{OUTPUT_DIR}/test_save_stack_2D.tif")
-	assert True
 
 
 ##################################################
@@ -89,7 +86,6 @@ def test_save_png():
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save.png")
 	FileIO.save_png(REF_GRADIENT, f"{OUTPUT_DIR}/test_save_no_normalization.png", False)
 	FileIO.save_png(np.zeros_like(REF_GRADIENT), f"{OUTPUT_DIR}/test_save_black.png")
-	assert True
 
 
 ##################################################
@@ -97,7 +93,6 @@ def test_save_png_color():
 	""" Test de la fonction save_png. """
 	img = (REF_GRADIENT * MAX_UI_16 / MAX_UI_8).astype(np.uint16)  # Passage en uint 16
 	FileIO.save_png(FileIO.grayscale_to_color(img), f"{OUTPUT_DIR}/test_save_color.png", normalization=False)
-	assert True
 
 
 ##################################################

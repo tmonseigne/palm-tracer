@@ -68,6 +68,7 @@ def test_base_group(make_napari_viewer):
 	with group.signal_blocked(): pass
 	group.disconnect()
 
+
 ###################################################
 def test_batch(make_napari_viewer):
 	"""Test basique de la classe Batch (constructeur, getter, setter)"""
@@ -207,7 +208,7 @@ def test_visualization_graph(make_napari_viewer):
 ###################################################
 def test_filtering(make_napari_viewer):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	group_base_test(Filtering(), ["Save", "Plane","Localization", "Tracks"], CheckBox, True, False)
+	group_base_test(Filtering(), ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
 
 
 ###################################################

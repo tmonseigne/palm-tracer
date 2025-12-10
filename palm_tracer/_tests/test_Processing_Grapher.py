@@ -31,7 +31,6 @@ def test_blank():
 	g = Grapher()
 	res = g.blank("blank")
 	res.write_html(f"{OUTPUT_DIR}/grapher_blank.html", full_html=False, include_plotlyjs="cdn")
-	assert True
 
 
 ##################################################
@@ -65,8 +64,6 @@ def test_histogram():
 	res = g.histogram(np.zeros((3, 3, 3)), "Histogram 6")
 	res.write_html(f"{OUTPUT_DIR}/grapher_Histogramm_6.html", full_html=False)
 
-	assert True
-
 
 ##################################################
 def test_scatter():
@@ -98,5 +95,3 @@ def test_scatter():
 	# Entrée 3D
 	with pytest.raises(ValueError) as exception_info: g.scatter(np.zeros((3, 3, 3)), "scatter fail")
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-
-	assert True

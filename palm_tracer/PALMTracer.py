@@ -22,7 +22,8 @@ from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOU
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json, save_tif
-from palm_tracer.Tools.FileIO import grayscale_to_color, save_png
+from palm_tracer.Tools.FileIO import grayscale_to_color, open_json, save_png
+from palm_tracer.Tools.Utils import extract_suffix
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 
@@ -125,8 +126,48 @@ class PALMTracer:
 	# ==================================================
 
 	##################################################
+	def load(self):
+		"""Charge les précédents résultats du fichier courant."""
+		if not self.is_dll_valid():
+			print_warning("Process non effectué car DLL manquantes.")
+			return
+
+		# Chargement des settings
+		self._path = self.settings.batch.get_paths()[0]		# Parsing du batch
+		settings_filename = get_last_file(self._path, "settings")
+		self._suffix = extract_suffix(settings_filename)
+		if not settings_filename or  not self._suffix:
+			print_warning("Aucun fichier de paramètres valide à charger.")
+			return
+
+		print(f"Chargement du fichier de configuration '{settings_filename}'.")
+		with self.settings.signal_blocked():
+			cfg = open_json(str(settings_filename))
+			self.settings.update_from_dict(cfg)
+			self.settings.localization["Preview"].set_value(False)
+
+		# Chargement des fichiers associés à ce setting.
+		params = [["localizations", "loc"], ["localizations_filtered", "f_loc"],
+				  ["tracking", "trc"], ["tracking_filtered", "f_trc"],
+				  ["tracking-reconnected", "blk"], ["tracking_filtered_reconnected", "f_blk"],
+				  ["tracking_MSD", "MSD"], ["tracking_MSD", "f_MSD"],
+				  ["tracking_InstantD", "InD"], ["tracking_InstantD_filtered", "f_InD"],
+				  ["tracking_Fit", "Fit"], ["tracking_Fit_filtered", "f_Fit"],
+				  ]
+
+		# Reset result Dataframes
+		self.reset_result()
+		for p in params:
+			f = f"{self._path}/{p[0]}-{self._suffix}.csv"
+			try:
+				self.df[p[1]] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+			except Exception as e:
+				self.df[p[1]] = pd.DataFrame()
+				print(f"\tErreur lors du chargement du fichier '{f}' : {e}")
+
+	##################################################
 	def process(self):
-		""" Lance le process de PALM selon les éléments en paramètres. """
+		"""Lance le process de PALM selon les éléments en paramètres."""
 
 		if not self.is_dll_valid():
 			print_warning("Process non effectué car DLL manquantes.")
@@ -665,6 +706,6 @@ class PALMTracer:
 					   ["f_MSD", "tracking_MSD_filtered"], ["f_InD", "tracking_InstantD_filtered"], ["f_Fit", "tracking_Fit_filtered"]]
 			for n in to_save:
 				if not self.df[n[0]].empty: self.df[n[0]].to_csv(f"{self._path}/{n[1]}-{self._suffix}.csv", index=False)
-	# ==================================================
-	# endregion Filtering
-	# ==================================================
+# ==================================================
+# endregion Filtering
+# ==================================================

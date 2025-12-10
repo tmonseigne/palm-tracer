@@ -29,7 +29,6 @@ def test_palm_cpu_image():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
 				assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
-	assert True
 
 
 ##################################################
@@ -53,7 +52,6 @@ def test_palm_cpu_stack():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
 				assert compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
-	assert True
 
 
 ##################################################
@@ -100,7 +98,6 @@ def test_palm_cpu_stack_dll_check_quadrant():
 	if path.exists() and path.is_file():
 		ref = pd.read_csv(path)
 		assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
-	assert True
 
 
 ##################################################
@@ -219,7 +216,6 @@ def test_tracks_compute():
 		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
 	else:
 		print_warning(f"Fichier de Tracking '{path}' indisponible.")
-	assert True
 
 
 ##################################################
@@ -248,6 +244,7 @@ def test_align():
 	assert aligned.shape == (z, 2 * h, 2 * w), "Mode Upscale : pour un stack 3D seule X et Y doivent être doublées."
 
 	def up2_nn(arr): return np.repeat(np.repeat(arr, 2, axis=-2), 2, axis=-1)
+
 	ref = np.stack([up2_nn(stack[z]) for z in range(stack.shape[0])], axis=0)
 	assert np.allclose(aligned[..., :-1, :-1], ref[..., :-1, :-1], atol=0, rtol=0), "Mode Upscale : le résultat doit être IDENTIQUE au stack d'origine."
 	# On supprime la derniere ligne et colonne car 0 padding en cas de débord dans l'algo original.
@@ -260,6 +257,7 @@ def test_align():
 	aligned = palm.align(stack, factors, 1)
 	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-transpose.tif")
 	assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgrè la transposition."
+
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")

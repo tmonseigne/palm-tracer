@@ -21,13 +21,13 @@ def test_rearrange_dataframe_columns():
 ##################################################
 def test_parse_irregular_array():
 	""" Test de la fonction parse_irregular_array."""
-	data = np.array([2,1,2,2,3,4])
+	data = np.array([2, 1, 2, 2, 3, 4])
 	print(parse_irregular_array(data))
-	data = np.array([[2,1,2,2,3,4]])
+	data = np.array([[2, 1, 2, 2, 3, 4]])
 	assert pytest.raises(ValueError, parse_irregular_array, data)
-	data = np.array(["hey",1,2,2,3,4])
+	data = np.array(["hey", 1, 2, 2, 3, 4])
 	assert pytest.raises(ValueError, parse_irregular_array, data)
-	data = np.array([2,1,2,2,3])
+	data = np.array([2, 1, 2, 2, 3])
 	assert pytest.raises(ValueError, parse_irregular_array, data)
 	data = np.array([])
 	print(parse_irregular_array(data))

@@ -47,23 +47,40 @@ def test_get_timestamp_for_files():
 	print(f"Timestamp with hour : {res}")
 	res = Utils.get_timestamp_for_files(False)
 	print(f"Timestamp without hour : {res}")
-	assert True
 
 
 ##################################################
 def test_get_last_file():
-	"""Test de la fonction get timestamp for files."""
+	"""Test de la fonction get_last_file."""
 	res = Utils.get_last_file("input", "File")
 	# L'ordre de création des fichiers de test lors de la copie peut changer, on ne peut faire un vrai assert
 	# assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
 	print(res)
-	assert True
+
+
+##################################################
+def test_extract_suffix():
+	"""Test de la fonction extract_suffix."""
+	res = Utils.extract_suffix("")
+	assert res == "", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+
+	res = Utils.extract_suffix("filename")
+	assert res == "", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+
+	res = Utils.extract_suffix("filename.json")
+	assert res == "", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+
+	res = Utils.extract_suffix("filename-01.json")
+	assert res == "01", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+
+	res = Utils.extract_suffix("filename-01-02-03.json")
+	assert res == "03", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
 
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_load_dll():
-	"""Test de la fonction get timestamp for files."""
+	"""Test de la fonction load_dll."""
 	res = Utils.load_dll("File")
 	assert res is None, "La Dll n'existe pas, None devrait être retourné."
 	res = Utils.load_dll("CPU")
@@ -74,21 +91,18 @@ def test_load_dll():
 def test_print_error():
 	"""Test de la fonction print error."""
 	Utils.print_error("Message d'erreur"), "L'affichage n'a pas pu être effectué"
-	assert True
 
 
 ##################################################
 def test_print_warning():
 	"""Test de la fonction print warning."""
 	Utils.print_warning("Message d'avertissement"), "L'affichage n'a pas pu être effectué"
-	assert True
 
 
 ##################################################
 def test_print_success():
 	"""Test de la fonction print warning."""
 	Utils.print_success("Message de succes"), "L'affichage n'a pas pu être effectué"
-	assert True
 
 
 ##################################################

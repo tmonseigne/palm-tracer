@@ -1,7 +1,5 @@
 """ Fichier des tests pour l'utilisation de la DLL CPU. """
 
-from pathlib import Path
-
 import pytest
 
 from palm_tracer._tests.Utils import *

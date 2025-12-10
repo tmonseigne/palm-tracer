@@ -116,10 +116,15 @@ class PALMTracerWidget(QWidget):
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_detection_layers))
 		self.pt.settings.connect(self._on_change)
 
-		# Launch Button
-		btn = QPushButton("Start Processing")
-		btn.clicked.connect(lambda: self._thread_process(self.pt.process, self._show_high_res_image))
-		self.layout().addWidget(btn)
+		# Launch/Load Button
+		btn_process = QPushButton("Start Processing")
+		btn_process.clicked.connect(lambda: self._thread_process(self.pt.process, self._show_high_res_image))
+		btn_load = QPushButton("Load Last Result")
+		btn_load.clicked.connect(self.pt.load)
+		btn_action_row = QHBoxLayout()
+		btn_action_row.addWidget(btn_process)
+		btn_action_row.addWidget(btn_load)
+		self.layout().addLayout(btn_action_row)
 
 	##################################################
 	def __on_startup(self):

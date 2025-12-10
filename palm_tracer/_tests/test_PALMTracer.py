@@ -114,14 +114,15 @@ def test_reset_filtered(make_napari_viewer):
 		if key.startswith("f_"): assert pt.df[key].empty, "Le Dataframe devrait être vide."
 		else: assert not pt.df[key].empty, "Le Dataframe doit subsiter."
 
+
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_update_filtered(make_napari_viewer):
 	"""Test pour le process sans fichiers en entrée."""
 	pt = PALMTracer()
-	pt.update_filtered() # Tout est vide
+	pt.update_filtered()  # Tout est vide
 	pt.settings.filtering["Save"].set_value(True)
-	pt.update_filtered() # Tout est vide, mais je demande à enregistrer
+	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
 
 	pt.settings.localization.active = True
 	pt.settings.tracking.active = True
@@ -130,7 +131,45 @@ def test_update_filtered(make_napari_viewer):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	pt.process()
-	pt.update_filtered() # Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
+	pt.update_filtered()  # Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_load_bad_dll(make_napari_viewer):
+	""" Test pour le process avec tout les élément à False et aucun fichier chargeable. """
+	pt = PALMTracer()
+	pt.palm._dll = None
+	pt.load()
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_load_nothing(make_napari_viewer):
+	"""Test pour le chargement avec fichier mais sans settings."""
+	pt = PALMTracer()
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	paths = pt.settings.batch.get_paths()
+	for path in paths: shutil.rmtree(path, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
+	pt.load()
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_load(make_napari_viewer):
+	"""Test pour le chargement avec fichier mais sans settings."""
+	pt = PALMTracer()
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	pt.settings.localization.active = True
+	pt.process()
+	pt.load()
+	assert not pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
+	assert pt.df["f_loc"].empty, "Le Dataframe de localizations filtré devrait être vide."
+
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
@@ -138,7 +177,6 @@ def test_process_no_input(make_napari_viewer):
 	"""Test pour le process sans fichiers en entrée."""
 	pt = PALMTracer()
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -205,7 +243,6 @@ def test_process_only_localization(make_napari_viewer):
 	file_list.update_box()
 	pt.settings.localization.active = True
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -237,7 +274,6 @@ def test_process_only_localization_spline(make_napari_viewer):
 	pt.settings.localization["Fit"].set_value(2)
 	pt.settings.localization["Spline Fit"]["File"].set_value(f"{INPUT_DIR}/calibration.mat")
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -251,7 +287,6 @@ def test_process_only_tracking(make_napari_viewer):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -266,7 +301,6 @@ def test_process_only_tracking_blinking(make_napari_viewer):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -302,8 +336,6 @@ def test_process_only_tracks_compute(make_napari_viewer):
 	pt.settings.tracking["Blinking Reconnection"].active = True
 	pt.process()
 
-	assert True
-
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
@@ -321,8 +353,6 @@ def test_process_only_visualization_hr(make_napari_viewer):
 	pt.settings.visualization_hr["Source T"].set_value(0)
 	pt.process()
 
-	assert True
-
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
@@ -335,7 +365,6 @@ def test_process_only_visualization_graph(make_napari_viewer):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -349,7 +378,6 @@ def test_process_only_gallery(make_napari_viewer):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -374,7 +402,6 @@ def test_process_all(make_napari_viewer):
 	file_list.items = [f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 	pt.process()
-	assert True
 
 
 ##################################################
@@ -391,7 +418,6 @@ def test_process_filter_plan(make_napari_viewer):
 	pt.settings.filtering["Plane"].set_value([2, 3])
 	pt.process()
 	assert pt.localizations["Plane"].isin([2, 3]).all(), "Le DataFrame contient des valeurs hors [2, 3] dans la colonne Plane."
-	assert True
 
 
 ##################################################

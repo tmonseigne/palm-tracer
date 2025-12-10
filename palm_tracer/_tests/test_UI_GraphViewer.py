@@ -57,7 +57,6 @@ def test_widget_creation(w: GraphViewerWidget, qtbot):
 	w.show()
 	qtbot.waitExposed(w)
 	w.close()
-	assert True
 
 
 ##################################################
@@ -79,7 +78,6 @@ def test_actualize(w: GraphViewerWidget, qtbot):
 	assert w._filters["Plane"].get_value() == ref, "Filtre incorrect."
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -96,7 +94,6 @@ def test_reset_filtered(w: GraphViewerWidget, qtbot, capsys):
 	assert w._status["loc"].text() == "Yes", "Status Incorrect."
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -117,7 +114,6 @@ def test_update_filtered(w: GraphViewerWidget, qtbot, capsys):
 	assert w._pt.settings.filtering["Plane"].get_value() == new_f, "Filtre incorrect."
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -155,7 +151,6 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	w._update_plot()
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -166,9 +161,9 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	ref_title:str
-	ref_shape:tuple
-	ref_data:list[int]|list[list[int]]
+	ref_title: str
+	ref_shape: tuple
+	ref_data: list[int] | list[list[int]]
 
 	# Plot pour la pile
 	qtbot.mouseClick(w._btn_stack, Qt.MouseButton.LeftButton)
@@ -289,7 +284,6 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	np.testing.assert_array_equal(data, ref_data)
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -331,7 +325,6 @@ def test_status(w: GraphViewerWidget, qtbot, capsys):
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	w.close()
-	assert True
 
 
 ##################################################
@@ -354,4 +347,3 @@ def test_tracks_source(w: GraphViewerWidget, qtbot, capsys):
 	assert ref == res, f"Liste des sources incorrecte.\nAttendu: {ref}\nObtenu : {res}"
 
 	w.close()
-	assert True
