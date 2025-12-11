@@ -31,7 +31,7 @@ def test_widget_creation(qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_getopenfilename):
+def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
@@ -46,13 +46,13 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	qtbot.waitExposed(w)
 
 	# Simuler un "Cancel" sur le QFileDialog
-	fake_getopenfilename(AlignmentWidget, None)
+	fake_qfiledialog(AlignmentWidget, None)
 	qtbot.mouseClick(w._btn_load_tif_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "No TIFF file selected." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
 
 	# Bad Tif Input
-	fake_getopenfilename(AlignmentWidget, "nofile.tif")
+	fake_qfiledialog(AlignmentWidget, "nofile.tif")
 	qtbot.mouseClick(w._btn_load_tif_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Unable to read the TIFF file" in out
@@ -63,7 +63,7 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_getopenfilename):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_getopenfilename):
+def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
@@ -78,20 +78,20 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	qtbot.waitExposed(w)
 
 	# Simuler un "Cancel" sur le QFileDialog
-	fake_getopenfilename(AlignmentWidget, None)
+	fake_qfiledialog(AlignmentWidget, None)
 	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "No coefficient file selected." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
 
 	# Bad Coef Input
-	fake_getopenfilename(AlignmentWidget, "nofile.txt")
+	fake_qfiledialog(AlignmentWidget, "nofile.txt")
 	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Unable to read the coefficient file" in out
 	assert w._coefs is None
 
 	# Bad Coef Input
-	fake_getopenfilename(AlignmentWidget, f"{INPUT_DIR}/bad_alignment_coefficient.txt")
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/bad_alignment_coefficient.txt")
 	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10)." in out
@@ -102,7 +102,7 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_getopenfilename):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_bad_compute(qtbot, capsys, monkeypatch, fake_getopenfilename):
+def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
@@ -126,7 +126,7 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_getopenfilename):
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
-def test_compute(qtbot, capsys, monkeypatch, fake_getopenfilename):
+def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
@@ -141,7 +141,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	qtbot.waitExposed(w)
 
 	# Chargement du fichier Tif
-	fake_getopenfilename(AlignmentWidget, f"{INPUT_DIR}/stack.tif")
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/stack.tif")
 	qtbot.mouseClick(w._btn_load_tif_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "TIFF loaded successfully." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
@@ -157,7 +157,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_getopenfilename):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_bad_align(qtbot, capsys, monkeypatch, fake_getopenfilename):
+def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
@@ -177,7 +177,7 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	assert "Can't align without correct tif file." in out
 
 	# Chargement du fichier Tif
-	fake_getopenfilename(AlignmentWidget, f"{INPUT_DIR}/stack.tif")
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/stack.tif")
 	qtbot.mouseClick(w._btn_load_tif_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "TIFF loaded successfully." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
@@ -194,7 +194,7 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_getopenfilename):
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
-def test_align(qtbot, capsys, monkeypatch, fake_getopenfilename):
+def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
@@ -209,14 +209,14 @@ def test_align(qtbot, capsys, monkeypatch, fake_getopenfilename):
 	qtbot.waitExposed(w)
 
 	# Chargement du fichier Tif
-	fake_getopenfilename(AlignmentWidget, f"{INPUT_DIR}/stack.tif")
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/stack.tif")
 	qtbot.mouseClick(w._btn_load_tif_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "TIFF loaded successfully." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
 	assert w._stack is not None
 
 	# Chargement du fichier Coef
-	fake_getopenfilename(AlignmentWidget, f"{INPUT_DIR}/alignment_coefficient.txt", "Text files (*.txt);;All files (*.*)")
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/alignment_coefficient.txt", "Text files (*.txt);;All files (*.*)")
 	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Coefficients loaded successfully." in out  # On vérifie juste que le warning attendu est bien passé par print_warning

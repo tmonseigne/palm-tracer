@@ -165,6 +165,13 @@ class PALMTracer:
 				self.df[p[1]] = pd.DataFrame()
 				print(f"\tErreur lors du chargement du fichier '{f}' : {e}")
 
+		# Chargement de la pile
+		try:
+			self._stack = self.settings.batch.get_stacks()[0]
+			print(f"\tPile chargé avec succès (taille : {self._stack.shape}).")
+		except Exception as e:
+			print(f"\tErreur lors du chargement de la pile : {e}")
+
 	##################################################
 	def process(self):
 		"""Lance le process de PALM selon les éléments en paramètres."""

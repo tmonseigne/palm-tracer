@@ -10,7 +10,7 @@ import numpy as np
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import Combo, FileList
-from palm_tracer.Tools import open_tif
+from palm_tracer.Tools import open_tif, print_warning
 
 
 ##################################################
@@ -71,5 +71,9 @@ class Batch(BaseSettingGroup):
 			for file in files:
 				res.append(open_tif(file))
 			if mode == 2:  # Mode fichiers Concaténés
-				res = [np.concatenate(res, axis=0)]
+				try:
+					res = [np.concatenate(res, axis=0)] # On concatène la liste des fichiers
+				except ValueError as e:
+					print_warning(f"Error lors de la concatenation des piles (elles seront traité indépendamment):\nValueError: {e}")
+
 		return res

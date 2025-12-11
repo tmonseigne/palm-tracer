@@ -118,7 +118,7 @@ def test_batch_get_stacks(make_napari_viewer):
 	assert len(stacks) == 0, "Nombre de pile invalide"
 
 	file_list = cast(FileList, batch["Files"])
-	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"]
+	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"]
 	file_list.update_box()
 
 	batch["Mode"].set_value(0)
@@ -128,13 +128,20 @@ def test_batch_get_stacks(make_napari_viewer):
 
 	batch["Mode"].set_value(1)
 	stacks = batch.get_stacks()
-	assert len(stacks) == 2, "Nombre de pile invalide"
+	assert len(stacks) == 3, "Nombre de pile invalide"
 	assert stacks[0].shape == (10, 128, 256), "Taille de la pile non valide"
 
 	batch["Mode"].set_value(2)
 	stacks = batch.get_stacks()
 	assert len(stacks) == 1, "Nombre de pile invalide"
-	assert stacks[0].shape == (20, 128, 256), "Taille de la pile non valide"
+	assert stacks[0].shape == (30, 128, 256), "Taille de la pile non valide"
+
+	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack_quadrant.tif", f"{INPUT_DIR}/stack.tif"]
+	file_list.update_box()
+	batch["Mode"].set_value(2)
+	stacks = batch.get_stacks()
+	assert len(stacks) == 3, "Nombre de pile invalide"
+	assert stacks[0].shape == (10, 128, 256), "Taille de la pile non valide"
 
 
 ###################################################

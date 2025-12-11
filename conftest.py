@@ -30,26 +30,25 @@ def qt_app():
 
 ##################################################
 @pytest.fixture
-def fake_getopenfilename(monkeypatch):
+def fake_qfiledialog(monkeypatch):
 	"""
-	Fixture générique pour simuler QFileDialog.getOpenFileName sur n'importe
-	quel module Qt qui a importé QFileDialog.
+	Fixture générique pour simuler QFileDialog.getOpenFileName et QFileDialog.getExistingDirectory sur n'importe quel module Qt qui a importé QFileDialog.
 
 	Usage dans un test :
 
 		import palm_tracer.GUI.AlignmentWidget as alignment_mod
 
-		fake_getopenfilename(alignment_mod, "/chemin/vers/stack.tif")
+		fake_qfiledialog(alignment_mod, "/chemin/vers/stack.tif")
 		# -> le prochain appel à alignment_mod.QFileDialog.getOpenFileName(...)
 		#    renverra ("/chemin/vers/stack.tif", "TIFF images (*.tif *.tiff)")
 
-		fake_getopenfilename(alignment_mod, None)
+		fake_qfiledialog(alignment_mod, None)
 		# -> simule un "Cancel" (aucun fichier choisi)
 	"""
 
 	def _factory(target, filename: str | None, filter_str: str = "TIFF images (*.tif *.tiff)"):
 		"""
-		Configure un faux QFileDialog.getOpenFileName dans le module donné.
+        Configure un faux QFileDialog.<method> dans le module donné.
 
 		:param target: Module Python qui contient le symbole QFileDialog (ex. ``palm_tracer.UI.AlignmentWidget``).
 		:param filename: Chemin complet du fichier à renvoyer. Mettre :obj:`None` pour simuler l'annulation.
@@ -67,8 +66,13 @@ def fake_getopenfilename(monkeypatch):
 			if filename is None: return "", ""  # Cas où l'utilisateur clique sur "Annuler"
 			return filename, filter_str
 
-		# PATCH : on remplace la méthode getOpenFileName utilisée par ce module
-		monkeypatch.setattr(module.QFileDialog, "getOpenFileName", _fake_get_open_file_name)
+		def _fake_get_existing_directory(parent=None, caption="", directory="", *args, **kwargs):
+			if filename is None: return ""  # Cas où l'utilisateur clique sur "Annuler"
+			return filename
+
+		# PATCH : on remplace les méthodes getOpenFileName et getExistingDirectory utilisées par ce module
+		monkeypatch.setattr(module.QFileDialog, "getOpenFileName",_fake_get_open_file_name)
+		monkeypatch.setattr(module.QFileDialog,"getExistingDirectory",_fake_get_existing_directory)
 
 	return _factory
 

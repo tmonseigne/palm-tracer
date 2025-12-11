@@ -101,6 +101,11 @@ class ViewerHRWidget(QWidget):
 		layout.addRow(action_widget)
 		self.update_source()
 
+		# Chargement et génération par défaut (si l'objet palmtracer est déjà configuré avec une pile, il lancera une première génération)
+		self._pt.load()
+		self.generate()
+
+
 	##################################################
 	def load_folder(self):
 		"""
@@ -109,7 +114,6 @@ class ViewerHRWidget(QWidget):
 		Cette méthode déclenche ensuite :meth:`generate` pour créer le calque HR.
 		"""
 		path = QFileDialog.getExistingDirectory(self, "Load Folder", ".")
-		if not path or not Path(path).is_dir(): return
 		self._pt.load(path)
 		self.generate()
 
@@ -127,16 +131,19 @@ class ViewerHRWidget(QWidget):
 	def generate(self):
 		"""Crée ou met à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer napari."""
 		path, stack, suffix = self._pt._path, self._pt._stack, self._pt._suffix
-		depth, height, width = stack.shape
 		if not path or not Path(path).is_dir():
-			print_warning(f"Aucun chemin valide pour les informations \"{path}\"")
-			return
-		if depth == 0 or width == 0 or height == 0:
-			print_warning(f"Dimensions de la pile originale incorrecte : {stack.shape}")
+			print_warning(f"Le chemin de destination \"{path}\" n'est pas valide.")
 			return
 
+		if stack is None :
+			print_warning(f"Aucune Pile de chargée.")
+			return
+
+		depth, height, width = stack.shape
+
 		# On supprime les calques (la mise à jour n'est pas optimale sous Napari)
-		self.viewer.layers.clear()
+		try: self.viewer.layers.clear()
+		except Exception as e: print_warning(f"Erreur lors de la suppression des anciens calques : {e}")
 
 		data_type = self.type_cmb.get_value()
 		data_source = self.source_cmb.get_value()
@@ -178,7 +185,9 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
-		if self._filename: save_png(self.visualization, self._filename)
+		if self._filename:
+			save_png(self.visualization, self._filename)
+			print("Sauvegarde du fichier image.")
 
 
 ##################################################

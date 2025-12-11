@@ -125,7 +125,9 @@ class PALMTracerWidget(QWidget):
 		btn_action_row = QHBoxLayout()
 		btn_action_row.addWidget(btn_process)
 		btn_action_row.addWidget(btn_load)
-		self.layout().addLayout(btn_action_row)
+		action_widget = QWidget()
+		action_widget.setLayout(btn_action_row)
+		self.layout().addWidget(action_widget)
 
 	##################################################
 	def __on_startup(self):
