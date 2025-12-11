@@ -12,9 +12,10 @@ from pathlib import Path
 import napari
 import numpy as np
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QFileDialog, QFormLayout, QPushButton, QWidget, QHBoxLayout
+from qtpy.QtWidgets import QApplication, QFileDialog, QFormLayout, QHBoxLayout, QPushButton, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
+from palm_tracer.Processing import render_hr_image, render_tracks_image
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import Combo, SpinFloat, SpinInt
 from palm_tracer.Tools import print_warning
@@ -51,9 +52,10 @@ class ViewerHRWidget(QWidget):
 		"""
 		super().__init__()
 		self.viewer = viewer
+		self._stack: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
+		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
+		self._filename: str = ""
 		self._pt = palmtracer
-		self.visualization:np.ndarray = np.zeros((1,1), dtype=np.uint16)
-
 		self._widget = QWidget()
 		layout = QFormLayout(self._widget)
 		layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
@@ -115,25 +117,43 @@ class ViewerHRWidget(QWidget):
 	def update_source(self):
 		"""Met à jour les sources disponibles pour définir l'intensité des points. """
 		with self.source_cmb.signal_blocked():
-			src = HR_LOC_SOURCE[1:] if self.type_cmb.get_value() == 0 else HR_TRC_SOURCE[1:]
+			data_type = self.type_cmb.get_value()
+			src = HR_LOC_SOURCE[1:] if data_type == 0 else HR_TRC_SOURCE[1:]
 			self.source_cmb.items = src
 			self.source_cmb.update_box()
+			self.color_cmb.set_value(data_type)  # Place la color map sur grayscale par défaut pour les localisations et sur viridis pour les trajectoires.
 
 	##################################################
 	def generate(self):
 		"""Crée ou met à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer napari."""
+		path, stack, suffix = self._pt._path, self._pt._stack, self._pt._suffix
+		depth, height, width = stack.shape
+		if not path or not Path(path).is_dir():
+			print_warning(f"Aucun chemin valide pour les informations \"{path}\"")
+			return
+		if depth == 0 or width == 0 or height == 0:
+			print_warning(f"Dimensions de la pile originale incorrecte : {stack.shape}")
+			return
+
 		# On supprime les calques (la mise à jour n'est pas optimale sous Napari)
 		self.viewer.layers.clear()
 
 		data_type = self.type_cmb.get_value()
+		data_source = self.source_cmb.get_value()
 		upscale = self.upscale_spin.get_value()
+		point_size = self.size_spin.get_value()
+		color = self.color_cmb.items[self.color_cmb.get_value()]
+
 		if data_type == 0:  # Localisations
 			loc = self._pt.localizations
 			if loc.empty:
 				print_warning("Aucun fichier de localisation disponible.")
 				return
 			points = loc[["Y", "X"]].to_numpy() * upscale
-			layer = self.viewer.add_points(points, size=self.size_spin.get_value(), face_color="lime", name="Points")
+			layer = self.viewer.add_points(points, size=point_size, face_color="lime", name="Points")
+
+			src = HR_LOC_SOURCE[data_source + 1]
+			self.visualization = render_hr_image(width, height, upscale, loc[["X", "Y", src]].to_numpy())
 
 		else:  # Trajectoires
 			trc = self._pt.tracks
@@ -141,31 +161,24 @@ class ViewerHRWidget(QWidget):
 				print_warning("Aucun fichier de trajectoires disponible.")
 				return
 			tracks_data = trc[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
-			tracks_data[:, 2] *= upscale  # Y
-			tracks_data[:, 3] *= upscale  # X
+			tracks_data[:, 2:4] *= upscale
 			layer = self.viewer.add_tracks(tracks_data, name="Tracks", blending="translucent")
 
+			src = HR_TRC_SOURCE[data_source + 1]
+			trc = self._pt.add_color_to_tracks(trc, src)
+			trc.to_csv(f"{path}/tracking_hr_color-{suffix}.csv", index=False)
+			self.visualization = render_tracks_image(width, height, upscale, trc)
+
 		layer.editable = False
-
-		# Ajout de l'image généré en fond
-		self.viewer.add_image(self.visualization, name="Visualization", visible=False)
-
+		if color != "grayscale": self.visualization = grayscale_to_color(self.visualization, color)
+		self._filename = f"{path}/visualization_{data_type}_x{upscale}_{src}-{suffix}.png"
+		layer = self.viewer.add_image(self.visualization, name="Visualization", visible=False)
+		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
 
 	##################################################
 	def save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
-		if self.type_cmb.get_value() == 0:
-			data_type = "localizations"
-			src = HR_LOC_SOURCE[self.source_cmb.get_value() + 1]
-		else:
-			data_type = "tracks"
-			src = HR_TRC_SOURCE[self.source_cmb.get_value() + 1]
-		filename = f"{self._pt._path}/visualization_{data_type}_x{self.upscale_spin.get_value()}_{src}-{self._pt._suffix}.png"
-
-		color = self.color_cmb.items[self.color_cmb.get_value()]
-		if color != "grayscale": self.visualization = grayscale_to_color(self.visualization, color)
-
-		save_png(self.visualization, filename)
+		if self._filename: save_png(self.visualization, self._filename)
 
 
 ##################################################
