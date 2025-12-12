@@ -15,6 +15,10 @@ PALM Tracer pour Napari
    :target: https://github.com/tmonseigne/palm-tracer
    :alt: GitHub
 
+.. image:: https://img.shields.io/github/actions/workflow/status/tmonseigne/palm-tracer/test_and_deploy.yml
+   :target: https://github.com/tmonseigne/palm-tracer/actions
+   :alt: Workflow
+
 .. image:: https://img.shields.io/badge/Documentation-Online-brightgreen
    :target: https://tmonseigne.github.io/palm-tracer/
    :alt: Documentation
@@ -23,9 +27,9 @@ PALM Tracer pour Napari
    :target: https://codecov.io/gh/tmonseigne/palm-tracer
    :alt: codecov
 
-.. image:: https://img.shields.io/github/actions/workflow/status/tmonseigne/palm-tracer/test_and_deploy.yml
-   :target: https://github.com/tmonseigne/palm-tracer/actions
-   :alt: Workflow
+.. image:: https://img.shields.io/endpoint?url=https://tmonseigne.github.io/palm-tracer/cloc.json
+   :target: https://github.com/tmonseigne/palm-tracer
+   :alt: Lines of Code
 
 
 PALM Tracer est un logiciel tout-en-un pour l'analyse des données de microscopie et de localisation de molécules uniques (SMLM).

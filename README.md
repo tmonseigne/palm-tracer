@@ -5,6 +5,7 @@
 [![Documentation Status](https://img.shields.io/badge/Documentation-Online-brightgreen)](https://tmonseigne.github.io/palm-tracer/)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/tmonseigne/palm-tracer/test_and_deploy.yml)](https://github.com/tmonseigne/palm-tracer/actions)
 [![codecov](https://codecov.io/gh/tmonseigne/palm-tracer/graph/badge.svg?token=5oDCSBI5sO)](https://codecov.io/gh/tmonseigne/palm-tracer)
+![CLOC](https://img.shields.io/endpoint?url=https://tmonseigne.github.io/palm-tracer/cloc.json)
 
 <!-- PyPi and Napari Badges
 [![PyPI](https://img.shields.io/pypi/v/palm-tracer.svg?color=green)](https://pypi.org/project/palm-tracer)
