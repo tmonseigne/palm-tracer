@@ -126,17 +126,17 @@ class PALMTracer:
 	# ==================================================
 
 	##################################################
-	def load(self):
+	def load(self, path: str = ""):
 		"""Charge les précédents résultats du fichier courant."""
 		if not self.is_dll_valid():
 			print_warning("Process non effectué car DLL manquantes.")
 			return
 
 		# Chargement des settings
-		self._path = self.settings.batch.get_paths()[0]		# Parsing du batch
+		self._path = self.settings.batch.get_paths()[0] if path == "" else path  # Parsing du batch
 		settings_filename = get_last_file(self._path, "settings")
 		self._suffix = extract_suffix(settings_filename)
-		if not settings_filename or  not self._suffix:
+		if not settings_filename or not self._suffix:
 			print_warning("Aucun fichier de paramètres valide à charger.")
 			return
 
@@ -152,8 +152,7 @@ class PALMTracer:
 				  ["tracking-reconnected", "blk"], ["tracking_filtered_reconnected", "f_blk"],
 				  ["tracking_MSD", "MSD"], ["tracking_MSD", "f_MSD"],
 				  ["tracking_InstantD", "InD"], ["tracking_InstantD_filtered", "f_InD"],
-				  ["tracking_Fit", "Fit"], ["tracking_Fit_filtered", "f_Fit"],
-				  ]
+				  ["tracking_Fit", "Fit"], ["tracking_Fit_filtered", "f_Fit"]]
 
 		# Reset result Dataframes
 		self.reset_result()
@@ -161,9 +160,17 @@ class PALMTracer:
 			f = f"{self._path}/{p[0]}-{self._suffix}.csv"
 			try:
 				self.df[p[1]] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+				print(f"\tFichier '{f}' chargé avec succès.")
 			except Exception as e:
 				self.df[p[1]] = pd.DataFrame()
 				print(f"\tErreur lors du chargement du fichier '{f}' : {e}")
+
+		# Chargement de la pile
+		try:
+			self._stack = self.settings.batch.get_stacks()[0]
+			print(f"\tPile chargé avec succès (taille : {self._stack.shape}).")
+		except Exception as e:
+			print(f"\tErreur lors du chargement de la pile : {e}")
 
 	##################################################
 	def process(self):

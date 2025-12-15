@@ -10,6 +10,11 @@ contributions:
       python_name: palm_tracer:PALMTracerWidget
       title: PALM Tracer
 
+    # Commande pour ouvrir la fenêtre HR
+    - id: palm-tracer.open_viewerhr
+      python_name: palm_tracer:open_viewerhr
+      title: Viewer 3D
+
     # Commande pour ouvrir la fenêtre 3D
     - id: palm-tracer.open_viewer3d
       python_name: palm_tracer:open_viewer3d
@@ -23,6 +28,10 @@ contributions:
   widgets:
     - command: palm-tracer.make_qwidget
       display_name: PALM Tracer
+
+    # Widget "factice" qui sert juste de point d’entrée menu
+    - command: palm-tracer.open_viewerhr
+      display_name: Viewer HR
 
     # Widget "factice" qui sert juste de point d’entrée menu
     - command: palm-tracer.open_viewer3d

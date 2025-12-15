@@ -24,6 +24,7 @@ from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import open_json, open_tif, print_warning, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
+from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
 try: from napari.qt.threading import thread_worker, FunctionWorker				# chemin public, à préférer
 except ImportError:    from superqt.utils import thread_worker, FunctionWorker  # très rare fallback
@@ -75,10 +76,12 @@ class PALMTracerWidget(QWidget):
 		self.setMinimumHeight(220)
 
 		# Viewer Button
-		btn_3d = QPushButton("Open 3D Viewer")
-		btn_3d.clicked.connect(self._open_3d_viewer)
 		btn_graph = QPushButton("Open Graph Viewer")
 		btn_graph.clicked.connect(self._open_graph_viewer)
+		btn_hr = QPushButton("Open HR Viewer")
+		btn_hr.clicked.connect(self._open_hr_viewer)
+		btn_3d = QPushButton("Open 3D Viewer")
+		btn_3d.clicked.connect(self._open_3d_viewer)
 
 		# Load Setting Button
 		btn_load = QPushButton("Load Setting")
@@ -88,7 +91,9 @@ class PALMTracerWidget(QWidget):
 		setting_action_row = QHBoxLayout()
 		setting_action_row.addWidget(btn_load)
 		setting_action_row.addWidget(btn_reset)
-		self.layout().addLayout(setting_action_row)
+		action_widget = QWidget()  # Encapsulation dans un QWidget
+		action_widget.setLayout(setting_action_row)
+		self.layout().addWidget(action_widget)
 
 
 		self.layout().addWidget(self.pt.settings.batch.widget)
@@ -99,7 +104,7 @@ class PALMTracerWidget(QWidget):
 		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget,
 									   self.pt.settings.tracks_compute.widget]), "Processing")
 		tabs.addTab(self.__create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget,
-									   self.pt.settings.visualization_graph.widget, btn_graph, btn_3d]), "Visualization")
+									   self.pt.settings.visualization_graph.widget, btn_graph,btn_hr, btn_3d]), "Visualization")
 		tabs.addTab(self.__create_tab([self.pt.settings.filtering.widget]), "Filtering")
 
 		# Layout principal
@@ -118,13 +123,15 @@ class PALMTracerWidget(QWidget):
 
 		# Launch/Load Button
 		btn_process = QPushButton("Start Processing")
-		btn_process.clicked.connect(lambda: self._thread_process(self.pt.process, self._show_high_res_image))
+		btn_process.clicked.connect(lambda: self._thread_process(self.pt.process))
 		btn_load = QPushButton("Load Last Result")
 		btn_load.clicked.connect(self.pt.load)
 		btn_action_row = QHBoxLayout()
 		btn_action_row.addWidget(btn_process)
 		btn_action_row.addWidget(btn_load)
-		self.layout().addLayout(btn_action_row)
+		action_widget = QWidget()
+		action_widget.setLayout(btn_action_row)
+		self.layout().addWidget(action_widget)
 
 	##################################################
 	def __on_startup(self):
@@ -234,7 +241,7 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
-	# region Process
+	# region Settings Callback
 	# ==================================================
 	##################################################
 	def _load_setting(self, filename: Path):
@@ -261,6 +268,20 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton Reset setting."""
 		self.pt.settings.reset()
 
+	##################################################
+	def _on_change(self):
+		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
+		# Save settings
+		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
+		self._thread_process(self._preview, self._add_detection_layers)
+
+	# ==================================================
+	# endregion Settings Callback
+	# ==================================================
+
+	# ==================================================
+	# region Layers Callback
+	# ==================================================
 	##################################################
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
@@ -368,12 +389,6 @@ class PALMTracerWidget(QWidget):
 		plane = layer.data[plane_idx]			   # Récupération des données du plan affiché
 		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
 
-	##################################################
-	def _on_change(self):
-		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
-		# Save settings
-		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
-		self._thread_process(self._preview, self._add_detection_layers)
 
 	##################################################
 	def _preview(self):
@@ -409,43 +424,28 @@ class PALMTracerWidget(QWidget):
 		#show_info(f"Auto Threshold : {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
+	# ==================================================
+	# endregion Layers Callback
+	# ==================================================
+
+	# ==================================================
+	# region Extern Viewer
+	# ==================================================
 	##################################################
-	def _show_high_res_image(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre la fenêtre de visualisation ou la met à jour si elle existe déjà."""
-		if self._tearing_down or not getattr(self, "viewer", None) or self.pt.visualization is None: return
-		s = self.pt.settings.visualization_hr.get_settings()
-		if s["Type"] == 0 and self.pt.localizations.empty: return
-		if s["Type"] == 1 and self.pt.tracks.empty: return
-
-		# Vérifier si la fenêtre existe déjà, mise à jour de l'image si la fenêtre est déjà ouverte
-		if not hasattr(self, "high_res_window") or self.viewer_hr is None:
-			self.viewer_hr = Viewer()
-			self.viewer_hr.title = "High Resolution Visualization"  # Modifier le titre de la fenêtre
-			self.viewer_hr.window.main_menu.setVisible(False)		# Cacher la barre de menu
-
-		self.viewer_hr.layers.clear()
-		self.viewer_hr.add_image(self.pt.visualization, name="Visualization", visible=False)
-		if s["Type"] == 0:
-			points = self.pt.localizations[["Y", "X"]].to_numpy() * s["Ratio"]
-			layer = self.viewer_hr.add_points(points, size=1, face_color="lime", name="Points")
-		else:
-			# df = self.pt.tracks.sort_values(["Track", "Plane"]).reset_index(drop=True) # Tri Inutile
-			tracks_data = self.pt.tracks[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
-			tracks_data[:, 2] *= s["Ratio"]  # Y
-			tracks_data[:, 3] *= s["Ratio"]  # X
-			layer = self.viewer_hr.add_tracks(tracks_data, name="Tracks", blending="translucent")
-
-		layer.editable = False
+	def _open_hr_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+		"""Ouvre une instance napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
+		if self.viewer_hr is None:
+			self.viewer_hr = create_viewerhr(self.pt)
 
 	##################################################
 	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre une instance napari avec le Viewer 3D si elle n'existe pas déjà."""
+		"""Ouvre une instance napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d = create_viewer3d()
 
 	##################################################
 	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre le visualisateur de graphiques s'il n'existe pas déjà."""
+		"""Ouvre le visualisateur de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
 			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
@@ -460,7 +460,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.activateWindow()
 
 	# ==================================================
-	# endregion Process
+	# endregion Extern Viewer
 	# ==================================================
 
 
