@@ -11,6 +11,7 @@ from pathlib import Path
 
 import napari
 import numpy as np
+from napari.utils.notifications import show_info, show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QFormLayout, QHBoxLayout, QPushButton, QWidget
 
@@ -18,7 +19,6 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import render_hr_image, render_tracks_image
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import Combo, SpinFloat, SpinInt
-from palm_tracer.Tools import print_warning
 from palm_tracer.Tools.FileIO import grayscale_to_color, save_png
 
 
@@ -132,18 +132,18 @@ class ViewerHRWidget(QWidget):
 		"""Crée ou met à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer napari."""
 		path, stack, suffix = self._pt._path, self._pt._stack, self._pt._suffix
 		if not path or not Path(path).is_dir():
-			print_warning(f"Le chemin de destination \"{path}\" n'est pas valide.")
+			show_warning(f"Le chemin de destination \"{path}\" n'est pas valide.")
 			return
 
 		if stack is None :
-			print_warning(f"Aucune Pile de chargée.")
+			show_warning(f"Aucune Pile de chargée.")
 			return
 
 		depth, height, width = stack.shape
 
 		# On supprime les calques (la mise à jour n'est pas optimale sous Napari)
 		try: self.viewer.layers.clear()
-		except Exception as e: print_warning(f"Erreur lors de la suppression des anciens calques : {e}")
+		except Exception as e: show_warning(f"Erreur lors de la suppression des anciens calques : {e}")
 
 		data_type = self.type_cmb.get_value()
 		data_source = self.source_cmb.get_value()
@@ -154,7 +154,7 @@ class ViewerHRWidget(QWidget):
 		if data_type == 0:  # Localisations
 			loc = self._pt.localizations
 			if loc.empty:
-				print_warning("Aucun fichier de localisation disponible.")
+				show_warning("Aucun fichier de localisation disponible.")
 				return
 			points = loc[["Y", "X"]].to_numpy() * upscale
 			layer = self.viewer.add_points(points, size=point_size, face_color="lime", name="Points")
@@ -165,7 +165,7 @@ class ViewerHRWidget(QWidget):
 		else:  # Trajectoires
 			trc = self._pt.tracks
 			if trc.empty:
-				print_warning("Aucun fichier de trajectoires disponible.")
+				show_warning("Aucun fichier de trajectoires disponible.")
 				return
 			tracks_data = trc[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
 			tracks_data[:, 2:4] *= upscale
@@ -187,7 +187,7 @@ class ViewerHRWidget(QWidget):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
 			save_png(self.visualization, self._filename)
-			print("Sauvegarde du fichier image.")
+			show_info("Sauvegarde du fichier image.")
 
 
 ##################################################

@@ -4,6 +4,7 @@ Aperçu (Preview)
 .. _preview_page:
 
 .. figure:: ../_static/img/WIP.png
+   :figclass: centered-caption
    :alt: Work In Progress
    :align: center
    :width: 50%

@@ -9,3 +9,4 @@ Algorithmie
    pipeline
    preview
    fit
+   alignment

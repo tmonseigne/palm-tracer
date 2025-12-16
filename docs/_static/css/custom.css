@@ -31,3 +31,40 @@
 .test-page details[open] > summary {
   background-color: #ccf;
 }
+
+/* Centre et met en gras la légende des figures */
+.centered-caption figcaption,
+.centered-caption .caption,
+.centered-caption .caption-text {
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Tableaux "image-grid" : layout uniquement, sans style visuel */
+table.image-grid {
+  border: none !important;
+  border-collapse: collapse !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+table.image-grid tr,
+table.image-grid td,
+table.image-grid th {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Évite les espacements internes imposés par certains thèmes */
+table.image-grid td > * {
+  margin: 0 !important;
+  margin-bottom: 1em !important;  /* ajustement ici  en cas de lignes multiples*/
+}
+
+/* Optionnel : centre le contenu des cellules */
+table.image-grid td {
+  vertical-align: middle;
+  text-align: center;
+}

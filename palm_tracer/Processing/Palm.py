@@ -13,7 +13,7 @@ from palm_tracer.Processing.Parsing import (get_max_points, log10_dataframe, N_C
 											parse_localization_to_tracking, parse_result, PARSING_COLUMNS)
 from palm_tracer.Tools.Utils import load_dll, print_warning
 
-N_TRC_CP_FIT = 10
+N_TRC_CP_FIT = 12
 
 
 ##################################################

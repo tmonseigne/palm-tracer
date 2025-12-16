@@ -16,7 +16,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Enregistrement des données filtrées optionnel lors du processing. ([#39](https://github.com/tmonseigne/palm-tracer/pull/39))
 - Ajout de la visualisation haute résolution des trajectoires. ([#40](https://github.com/tmonseigne/palm-tracer/pull/40))
 - Ajout de la couleur à la visualisation haute résolution des trajectoires. ([#44](https://github.com/tmonseigne/palm-tracer/pull/44))
-- Ajout Visualisateur 3D. ([#46](https://github.com/tmonseigne/palm-tracer/pull/46) et [#52](https://github.com/tmonseigne/palm-tracer/pull/52))
+- Ajout d'une visionneuse 3D. ([#46](https://github.com/tmonseigne/palm-tracer/pull/46) et [#52](https://github.com/tmonseigne/palm-tracer/pull/52))
 - Ajout d'un outil d'alignement de piles (avec un fichier de coefficient précalculé) ([#47](https://github.com/tmonseigne/palm-tracer/issues/47)).
 - Ajout d'une option de chargement des résultats précédents piour le fichier en cours ([#55](https://github.com/tmonseigne/palm-tracer/issues/55)).
 
@@ -24,8 +24,8 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
 - Certaines informations (thread fini, pile chargée...) utilisent les notifications internes à Napari. ([#45](https://github.com/tmonseigne/palm-tracer/pull/45))
 - Lors de chargements de paramètres précédents, les différents process sont bloqué jusqu'à la fin du chargement. ([#43](https://github.com/tmonseigne/palm-tracer/issues/43))
-- Amélioration du visualisateur de graphiques (ajout des filtres et lien avec l'interface principale). ([#54](https://github.com/tmonseigne/palm-tracer/pull/54))
-- Amélioration du visualisateur haute résolution (ajout d'options de modifications dynamiques). ([#56](https://github.com/tmonseigne/palm-tracer/pull/56))
+- Amélioration d'une visionneuse de graphiques (ajout des filtres et lien avec l'interface principale). ([#54](https://github.com/tmonseigne/palm-tracer/pull/54))
+- Amélioration d'une visionneuse haute résolution (ajout d'options de modifications dynamiques). ([#56](https://github.com/tmonseigne/palm-tracer/pull/56))
 - Diverses mises à jour mineures
 
 ### Documentation
@@ -40,8 +40,8 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Ajout de visualisation des points de la frame précédente et de la frame suivante lors de la preview et ajout d'une ROI circulaire au choix.
 - Ajout de calculs de métriques pour les trajectoires. ([#37](https://github.com/tmonseigne/palm-tracer/pull/37))
 - Ajout d'une option de reconnexion des trajectoires dû à des scintillements (blinking). ([#35](https://github.com/tmonseigne/palm-tracer/pull/35))
-- Ajout d'un visualisateur de graphiques à partir des fichiers CSV précalculés. ([#29](https://github.com/tmonseigne/palm-tracer/pull/29))
-- Ajout d'un visualisateur 3D à partir d'un fichier CSV contenant les colonnes X, Y, Z et Integrated Intensity. ([#28](https://github.com/tmonseigne/palm-tracer/pull/28))
+- Ajout d'une visionneuse de graphiques à partir des fichiers CSV précalculés. ([#29](https://github.com/tmonseigne/palm-tracer/pull/29))
+- Ajout d'une visionneuse 3D à partir d'un fichier CSV contenant les colonnes X, Y, Z et Integrated Intensity. ([#28](https://github.com/tmonseigne/palm-tracer/pull/28))
 - Ajout d'un d'un ajustement par Spline 3D. **Attention** : incorrect pour le moment. ([#26](https://github.com/tmonseigne/palm-tracer/pull/26))
 
 ### Modifié

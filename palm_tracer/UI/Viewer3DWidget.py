@@ -14,11 +14,11 @@ from pathlib import Path
 
 import napari
 import pandas as pd
+from napari.utils.notifications import show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
 from palm_tracer.Settings.Types import CheckBox, SpinFloat
-from palm_tracer.Tools import print_warning
 
 
 class Viewer3DWidget(QWidget):
@@ -98,14 +98,14 @@ class Viewer3DWidget(QWidget):
 		if not path or not Path(path).is_file(): return
 		df = pd.read_csv(path)
 		if not all(col in df.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):
-			print("Le fichier doit contenir les colonnes X, Y, Z et Integrated Intensity.")
+			show_warning("Le fichier doit contenir les colonnes X, Y, Z et Integrated Intensity.")
 			return
 
 		self.data = df.copy()
 		# Supprimer le calque précédent s'il existe, (le nombre de points peu changer)
 		if self.points_layer is not None:
 			try: self.viewer.layers.remove(self.points_layer)
-			except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien layer : {e}")
+			except Exception as e: show_warning(F"erreur lors de la suppression de l'ancien calque : {e}")
 			self.points_layer = None
 		self.update_layer()
 

@@ -23,7 +23,7 @@ from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SO
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 from palm_tracer.Tools import get_last_file, Logger, print_warning, save_json, save_tif
 from palm_tracer.Tools.FileIO import grayscale_to_color, open_json, save_png
-from palm_tracer.Tools.Utils import extract_suffix
+from palm_tracer.Tools.Utils import extract_suffix, get_timestamp_for_files
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 
@@ -193,7 +193,7 @@ class PALMTracer:
 			self.reset_result()
 			# Logger
 			os.makedirs(self._path, exist_ok=True)
-			self._suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
+			self._suffix = get_timestamp_for_files()
 			self._logger.open(f"{self._path}/log-{self._suffix}.log")
 			self._logger.add("Commencer le traitement.")
 			self._logger.add(f"Dossier de sortie : {self._path}")

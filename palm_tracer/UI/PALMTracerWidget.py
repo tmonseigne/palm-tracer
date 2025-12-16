@@ -125,7 +125,7 @@ class PALMTracerWidget(QWidget):
 		btn_process = QPushButton("Start Processing")
 		btn_process.clicked.connect(lambda: self._thread_process(self.pt.process))
 		btn_load = QPushButton("Load Last Result")
-		btn_load.clicked.connect(self.pt.load)
+		btn_load.clicked.connect(lambda *_: self.pt.load())
 		btn_action_row = QHBoxLayout()
 		btn_action_row.addWidget(btn_process)
 		btn_action_row.addWidget(btn_load)
@@ -319,10 +319,10 @@ class PALMTracerWidget(QWidget):
 			if not self.pt.settings.localization["Preview"].get_value() or points is None or points.size == 0:
 				if f"Points {state}" in self.viewer.layers:
 					try: self.viewer.layers.remove(self.viewer.layers[f"Points {state}"])
-					except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien layer : {e}")
+					except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien calque : {e}")
 				if f"ROI {state}" in self.viewer.layers:
 					try: self.viewer.layers.remove(self.viewer.layers[f"ROI {state}"])
-					except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien layer : {e}")
+					except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien calque : {e}")
 				continue
 
 			args = state_args[state]
@@ -360,7 +360,7 @@ class PALMTracerWidget(QWidget):
 				# Il a du mal à mettre à jour, une suppression complete est necessaire bien que couteuse en temps
 				if layer.shape_type[0] != s_type:
 					try: self.viewer.layers.remove(self.viewer.layers[l_name])
-					except Exception as e: print_warning(f"Erreur lors de la suppression de l'ancien layer : {e}")
+					except Exception as e: print_warning(f"Erreur lors de la suppression de l'ancien calque : {e}")
 					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 				else:
 					layer.data = rois		   # Remplace toutes les formes
@@ -436,28 +436,39 @@ class PALMTracerWidget(QWidget):
 		"""Ouvre une instance napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
 		if self.viewer_hr is None:
 			self.viewer_hr = create_viewerhr(self.pt)
+			self._bind_viewer_lifecycle("viewer_hr")
 
 	##################################################
 	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""Ouvre une instance napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d = create_viewer3d()
+			self._bind_viewer_lifecycle("viewer_3d")
 
 	##################################################
 	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre le visualisateur de graphiques, s'il n'existe pas déjà."""
+		"""Ouvre la visionneuse de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
 			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 			# Quand le widget est détruit, remettre la réf à None
 			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
-			w.resize(1000, 600)
+			w.resize(1280, 720)
 			self.viewer_graph = w
 
 		# (re)montrer et mettre au premier plan
 		self.viewer_graph.show()
 		self.viewer_graph.raise_()
 		self.viewer_graph.activateWindow()
+
+	##################################################
+	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:
+		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
+		viewer = getattr(self, viewer_attr)
+		if viewer is None: return
+		qt_window = viewer.window._qt_window									  # QMainWindow
+		qt_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)		  # garantit que "close" détruit vraiment la fenêtre.
+		qt_window.destroyed.connect(lambda *_: setattr(self, viewer_attr, None))  # Quand la fenêtre est détruite, on invalide le pointeur Python.
 
 	# ==================================================
 	# endregion Extern Viewer

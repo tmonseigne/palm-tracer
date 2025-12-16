@@ -1,6 +1,8 @@
 Seuillage automatique
 =====================
 
+.. _auto_threshold_page:
+
 .. function:: auto_threshold(image: np.ndarray, roi_size: int = 7, max_iterations: int = 4) -> float
 
 	Calcule un seuil automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe.

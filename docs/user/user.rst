@@ -6,3 +6,7 @@ Guide de l'utilisateur de PALM Tracer
 
    install
    manual
+   viewer_graph
+   viewer_hr
+   viewer_3d
+   tool_alignment

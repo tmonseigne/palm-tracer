@@ -29,9 +29,8 @@ https://napari.org/stable/plugins/index.html
 
 ## Installation
 
-You can install dependencies via :
 
-    python -m pip install .[testing,documentation]
+For full installation guide : [click here](https://tmonseigne.github.io/palm-tracer/user/install.html)
 
 <!--
 You can install `palm-tracer` via [pip]:
