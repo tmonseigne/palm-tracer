@@ -30,7 +30,7 @@ import glob
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from colorama import Fore, Style
 
@@ -82,20 +82,24 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 
 
 ##################################################
-def get_last_file(path: str, name: str) -> str:
+def get_last_file(path: str, name: str, sort_mode: Literal["time", "alpha"] = "alpha") -> str:
 	"""
 	Récupère le dernier fichier (le plus récent) qui contient le paramètre `name` dans son nom dans le chemin `path`.
 
 	:param path: Chemin du dossier où chercher les fichiers.
 	:param name: Chaîne à rechercher dans les noms de fichiers.
+	:param sort_mode: Mode de tri : "time" : date de modification (par défaut), "alpha" : ordre alphabétique.
 	:return: Chemin complet du dernier fichier trouvé ou une chaîne vide si aucun fichier ne correspond.
 	"""
 	try:
 		search_pattern = os.path.join(path, f"*{name}*")  # Générer le chemin avec le filtre pour les fichiers contenant `name`
 		files = glob.glob(search_pattern)				  # Récupérer tous les fichiers correspondant au motif
 		if not files: return ""							  # Aucun fichier trouvé
-		files.sort(key=os.path.getmtime, reverse=True)	  # Trier les fichiers par date de modification décroissante
-		return files[0]									  # Retourner le fichier le plus récent
+
+		if sort_mode == "mtime": files.sort(key=os.path.getmtime)  # Trier les fichiers par date de modification décroissante
+		elif sort_mode == "alpha": files.sort()					   # Trier les fichiers par ordre alphabétique.
+
+		return files[-1]								  # Retourner le fichier le plus récent
 	except Exception as e:
 		print(f"Erreur lors de la recherche du fichier : {e}")
 		return ""

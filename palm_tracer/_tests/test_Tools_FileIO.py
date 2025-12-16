@@ -1,5 +1,4 @@
 """ Fichier des tests pour la lecture/écriture des fichiers. """
-
 import pytest
 
 from palm_tracer._tests.Utils import *

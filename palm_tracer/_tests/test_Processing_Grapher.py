@@ -1,13 +1,9 @@
 """ Fichier des tests pour le grapher. """
-from pathlib import Path
-
-import numpy as np
 import pytest
 
+from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Grapher
 
-OUTPUT_DIR = Path(__file__).parent / "output"
-rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
 SIZE = 1000
 POINTS = rng.normal(loc=0.0, scale=1.0, size=SIZE).astype(np.float32)
 IDX = np.arange(1, SIZE + 1, dtype=POINTS.dtype)

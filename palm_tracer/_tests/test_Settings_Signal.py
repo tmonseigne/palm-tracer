@@ -1,5 +1,4 @@
 """ Tests unitaires pour SignalWrapper."""
-
 from typing import Any, List
 
 import pytest

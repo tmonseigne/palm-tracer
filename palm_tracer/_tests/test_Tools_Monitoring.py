@@ -1,8 +1,8 @@
 """ Fichier des tests pour le monitoring. """
-
-import os
 import time
-from pathlib import Path
+
+from palm_tracer._tests.Utils import *
+from palm_tracer.Tools import Monitoring
 
 try:
 	import torch
@@ -11,9 +11,6 @@ try:
 except ImportError:
 	HAVE_GPU = False
 
-from palm_tracer.Tools import Monitoring
-
-OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 default_duration = 2
 

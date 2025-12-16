@@ -1,21 +1,16 @@
 """ Fichier des tests pour le widget. """
-from pathlib import Path
 from typing import cast
 
-import numpy as np
-import pandas as pd
 import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer import PALMTracer
-from palm_tracer._tests.Utils import is_headless
+from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.UI import GraphViewerWidget
 from palm_tracer.UI.GraphViewerWidget import FILE_STATUS
 
-INPUT_DIR = Path(__file__).parent / "input"
 OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"
-rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)

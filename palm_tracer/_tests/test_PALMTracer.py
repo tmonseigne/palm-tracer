@@ -1,20 +1,14 @@
 """ Fichier des tests pour la classe PALMTracer """
-
-import os
 import shutil
-from pathlib import Path
 from typing import cast
 
-import pandas as pd
 import pytest
 
 from palm_tracer import PALMTracer
-from palm_tracer._tests.Utils import is_not_dll_friendly
+from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList
 
-INPUT_DIR = Path(__file__).parent / "input"
-OUTPUT_DIR = Path(__file__).parent / "output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 

@@ -1,15 +1,11 @@
 """ Fichier des tests pour les groupes de paramètres. """
-
-from pathlib import Path
 from typing import Any, cast, List, Type
 
-import numpy as np
 import pytest
 
+from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Types import *
-
-INPUT_DIR = Path(__file__).parent / "input"
 
 
 ###################################################

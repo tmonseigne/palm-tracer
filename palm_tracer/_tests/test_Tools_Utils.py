@@ -3,7 +3,7 @@ import ctypes
 
 import pytest
 
-from palm_tracer._tests.Utils import is_not_dll_friendly
+from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import Utils
 
 
@@ -52,7 +52,10 @@ def test_get_timestamp_for_files():
 ##################################################
 def test_get_last_file():
 	"""Test de la fonction get_last_file."""
-	res = Utils.get_last_file("input", "File")
+	res = Utils.get_last_file(INPUT_DIR, "File", "alpha")
+	print(res)
+	assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
+	res = Utils.get_last_file(INPUT_DIR, "File", "time")
 	# L'ordre de création des fichiers de test lors de la copie peut changer, on ne peut faire un vrai assert
 	# assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
 	print(res)

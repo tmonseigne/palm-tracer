@@ -1,5 +1,4 @@
 """ Fichier des tests pour l'utilisation des DLL. """
-
 import pytest
 
 from palm_tracer.Processing.Parsing import *
