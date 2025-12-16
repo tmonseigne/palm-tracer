@@ -7,7 +7,31 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
-<!-- run command : git log v1.1.0..HEAD --pretty=format:"- %s"-->
+<!-- run command : git log v1.2.0..HEAD --pretty=format:"- %s"-->
+
+## [1.2.0] - 2025-12-15
+
+### Ajouté
+
+- Enregistrement des données filtrées optionnel lors du processing. ([#39](https://github.com/tmonseigne/palm-tracer/pull/39))
+- Ajout de la visualisation haute résolution des trajectoires. ([#40](https://github.com/tmonseigne/palm-tracer/pull/40))
+- Ajout de la couleur à la visualisation haute résolution des trajectoires. ([#44](https://github.com/tmonseigne/palm-tracer/pull/44))
+- Ajout Visualisateur 3D. ([#46](https://github.com/tmonseigne/palm-tracer/pull/46) et [#52](https://github.com/tmonseigne/palm-tracer/pull/52))
+- Ajout d'un outil d'alignement de piles (avec un fichier de coefficient précalculé) ([#47](https://github.com/tmonseigne/palm-tracer/issues/47)).
+- Ajout d'une option de chargement des résultats précédents piour le fichier en cours ([#55](https://github.com/tmonseigne/palm-tracer/issues/55)).
+
+### Modifié
+
+- Certaines informations (thread fini, pile chargée...) utilisent les notifications internes à Napari. ([#45](https://github.com/tmonseigne/palm-tracer/pull/45))
+- Lors de chargements de paramètres précédents, les différents process sont bloqué jusqu'à la fin du chargement. ([#43](https://github.com/tmonseigne/palm-tracer/issues/43))
+- Amélioration du visualisateur de graphiques (ajout des filtres et lien avec l'interface principale). ([#54](https://github.com/tmonseigne/palm-tracer/pull/54))
+- Amélioration du visualisateur haute résolution (ajout d'options de modifications dynamiques). ([#56](https://github.com/tmonseigne/palm-tracer/pull/56))
+- Diverses mises à jour mineures
+
+### Documentation
+
+- Ajout d'un manuel utilisateur simple.
+- Ajustements divers dans la documentation.
 
 ## [1.1.0] - 2025-10-23
 
