@@ -155,7 +155,7 @@ def test_blinking_reconnection():
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
 		for i in range(3):
-			t_output = palm.blinking_reconnection(t_input, 1, i, 4, 2)
+			t_output = palm.blinking_reconnection(t_input, 0.001, i, 4, 2)
 			if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{i}.csv", index=False)
 
 			assert len(t_output) > 0, "Aucun Tracking trouvé"
@@ -168,7 +168,7 @@ def test_blinking_reconnection():
 	else:
 		print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
-	tracks = palm.blinking_reconnection(pd.DataFrame(), 1, 0, 4, 2)
+	tracks = palm.blinking_reconnection(pd.DataFrame(), 0.001, 0, 4, 2)
 	assert tracks.empty
 
 
@@ -183,7 +183,7 @@ def test_tracks_compute():
 		t_input = pd.read_csv(path)
 		# Test avec ou sans les mise à jour de log et la 3D
 		for p in [True, False]:
-			t_output = palm.tracks_compute(t_input, True, p, p, p, 1, 1, 1, np.array([4], dtype=np.float64))
+			t_output = palm.tracks_compute(t_input, True, p, p, p, 0.001, 1, 1, np.array([4], dtype=np.float64))
 			for name in ["MSD", "InD", "Fit"]:
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
@@ -197,7 +197,7 @@ def test_tracks_compute():
 
 		# Test sur différents mode de fit
 		for mode in range(4):
-			t_output = palm.tracks_compute(t_input, False, False, False, False, 1, 1, mode, np.array([4], dtype=np.float64))
+			t_output = palm.tracks_compute(t_input, False, False, False, False, 0.001, 1, mode, np.array([4], dtype=np.float64))
 			for name in ["MSD", "InD", "Fit"]:
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
@@ -210,10 +210,10 @@ def test_tracks_compute():
 					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Dernier True/False pour la couverture de code
-		palm.tracks_compute(t_input, False, True, False, False, 1, 1, 1, np.array([4], dtype=np.float64))
+		palm.tracks_compute(t_input, False, True, False, False, 0.001, 1, 1, np.array([4], dtype=np.float64))
 		df = t_input.iloc[[0]].copy()  # note les double crochets → DataFrame, pas Series
-		palm.tracks_compute(df, True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
-		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
+		palm.tracks_compute(df, True, True, False, False, 0.001, 1, 1, np.array([18], dtype=np.float64))
+		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 0.001, 1, 1, np.array([18], dtype=np.float64))
 	else:
 		print_warning(f"Fichier de Tracking '{path}' indisponible.")
 

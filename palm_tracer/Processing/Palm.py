@@ -139,7 +139,7 @@ class Palm:
 		return {"input":        np.asarray(tracks, dtype=np.float64).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"output":       np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"nRow":         ctypes.c_ulong(n),
-				"pixel_size":   ctypes.c_double(pixel_size),
+				"pixel_size":   ctypes.c_double(pixel_size * 1000),  # Passage en nanomètre pour les calculs sur la DLL.
 				"mode":         ctypes.c_ulong(mode),
 				"max_duration": ctypes.c_ulong(max_duration),
 				"max_speed":    ctypes.c_double(max_speed),
@@ -173,7 +173,7 @@ class Palm:
 				"is_msd":        ctypes.c_bool(is_msd),
 				"is_ind":        ctypes.c_bool(is_ind),
 				"is_3d":         ctypes.c_bool(is_3d),
-				"pixel_size":    ctypes.c_double(pixel_size),
+				"pixel_size":    ctypes.c_double(pixel_size * 1000),  # Passage en nanomètre pour les calculs sur la DLL.
 				"exposure_time": ctypes.c_double(exposure_time),
 				"fit_mode":      ctypes.c_ulong(fit_mode),
 				"fit_params":    fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
@@ -208,7 +208,7 @@ class Palm:
 	@staticmethod
 	def __get_wavelett_args(stack: np.ndarray, height: int, width: int, planes: int, level: int):
 		"""
-		Initialise les arguments necessaire au lancement de la DLL PALM externe pour l'alignement.
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la récupération des plans d'ondelette.
 
 		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
 		:param height: Hauteur des images.
@@ -225,6 +225,46 @@ class Palm:
 				"width":  ctypes.c_ulong(width),											# Largeur (nombre de colonnes)
 				"planes": ctypes.c_ulong(planes),											# Profondeur (nombre de plans)
 				"level":  ctypes.c_ulong(level)												# Upsampling
+				}
+
+	##################################################
+	@staticmethod
+	def __get_astigcalib_args(points: np.ndarray, pixel_size: float):
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
+
+		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y, z].
+		:param pixel_size: Taille des pixels en micromètres.
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+
+		out = np.zeros((2, 5), dtype=np.float64)
+		return {
+				"input":      points.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
+				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"size":       ctypes.c_ulong(len(points)),		  # Nombre de points dans le tableau d'entrée
+				"pixel_size": ctypes.c_double(pixel_size * 1000)  # Passage en nanomètre pour les calculs sur la DLL.
+				}
+
+	##################################################
+	@staticmethod
+	def __get_astigestim_args(points: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float):
+		"""
+		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
+
+		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y, z].
+		:param pixel_size: Taille des pixels en micromètres.
+		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
+		"""
+		n = len(points)
+		out = np.zeros(n, dtype=np.float64)
+		return {
+				"input":      points.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
+				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"size":       ctypes.c_ulong(n),		   # Nombre de points dans le tableau d'entrée
+				"pixel_size": ctypes.c_double(pixel_size * 1000),  # Passage en nanomètre pour les calculs sur la DLL.
+				"model":      model.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"z_max":      ctypes.c_double(z_max)
 				}
 
 	# ==================================================
@@ -325,13 +365,12 @@ class Palm:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
 
-		:param pixel_size: Taille des pixels en micromètres.
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		:param is_msd: Calcul MSD à effectuer si vrai.
 		:param is_ind: Calcul Instant Diffusion à effectuer si vrai.
 		:param is_3d: Calcul sur la 3D.
 		:param is_log: Applique un logarithme sur le résultat.
-		:param pixel_size: Calibration spatiale utile pour les calculs.
+		:param pixel_size: Taille des pixels en micromètres.
 		:param exposure_time: Calibration temporelle utile pour les calculs.
 		:param fit_mode: Mode d'ajustement.
 		:param fit_params: Paramètres de l'ajustement (pour le moment uniquement fit length).
@@ -430,6 +469,38 @@ class Palm:
 		args = self.__get_wavelett_args(stack, height, width, planes, level)
 		self._dll.Wavelett(*args.values())
 		out = np.ctypeslib.as_array(args["output"], shape=(planes, height, width))
+		return out
+
+	##################################################
+	def astigmatism_3d_calibration(self, points: np.ndarray, pixel_size: float) -> np.ndarray:
+		"""
+		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
+
+		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y, z].
+		:param pixel_size: Taille des pixels en micromètres.
+		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
+		"""
+
+		args = self.__get_astigcalib_args(points, pixel_size)
+		self._dll.Astigmatism3DCalibration(*args.values())
+		out = np.ctypeslib.as_array(args["output"], shape=(2, 5))
+		return out
+
+	##################################################
+	def astigmatism_3d_estimation(self, points: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float = 800) -> np.ndarray:
+		"""
+		Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle.
+
+		:param points: Ensemble des points à estimer sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y].
+		:param pixel_size: Taille des pixels en micromètres.
+		:param model: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
+		:param z_max: Distance absolue maximale sur Z par rapport à l'origine.
+		:return: Ensemble des Z estimés pour chaque point.
+		"""
+		n = len(points)
+		args = self.__get_astigestim_args(points, pixel_size, model, z_max)
+		self._dll.Astigmatism3DEstimation(*args.values())
+		out = np.ctypeslib.as_array(args["output"], shape=n)
 		return out
 
 # ==================================================
