@@ -113,7 +113,6 @@ class CheckRangeFloat(BaseSettingType):
 
 		# Ligne du paramètre
 		hbox = QHBoxLayout()
-		hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement l'alignement à gauche.
 		hbox.addWidget(self._checkbox)
 		hbox.addWidget(QLabel(self.label + " : "))
 		hbox.addWidget(self.box[0])

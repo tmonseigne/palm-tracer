@@ -31,7 +31,12 @@ from qtpy.QtGui import QPixmap
 from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
 							QLabel, QMessageBox, QPushButton, QRadioButton, QTextBrowser, QToolButton, QVBoxLayout, QWidget)
 
+from palm_tracer.PALMTracer import PALMTracer
+from palm_tracer.Processing import Grapher
 from palm_tracer.Settings.Groups import Filtering
+from palm_tracer.Settings.Types import FileList, SpinInt
+from palm_tracer.Tools import open_tif, print_error
+from palm_tracer.UI.Utils import add_setting_row, make_form, make_group, init_layout, STYLESHEET_GENERAL
 
 # Tentative d'import QtWebEngine (via qtpy)
 try:
@@ -42,12 +47,9 @@ except Exception:
 	QWebEngineView = None  # type: ignore
 	_HAS_WEBENGINE = False
 
-from palm_tracer.Tools import open_tif, print_error
-from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import Grapher
-from palm_tracer.Settings.Types import FileList, SpinInt
+COMMON_SPACE: int = 5
 
-FILE_STATUS = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
+FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
 
 DATA_SRC: dict[str, list] = {
 		"stk": ["Intensity"],
@@ -132,20 +134,17 @@ class GraphViewerWidget(QWidget):
 		"""
 
 		main_layout = QHBoxLayout(self)
-		main_layout.setContentsMargins(5, 5, 5, 5)
-		main_layout.setSpacing(5)
+		init_layout(main_layout)
 
 		# Colonne gauche
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
 		left.setMinimumWidth(300)
 		vbox = QVBoxLayout(left)
-		vbox.setContentsMargins(5, 5, 5, 5)
-		vbox.setSpacing(5)
+		init_layout(vbox, COMMON_SPACE)
 
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
-		form = QFormLayout(grp_infos)
 
 		# Nom de fichier courant
 		self._lbl_filename = QLabel(self._file if self._file != "" else "No file")
@@ -153,25 +152,16 @@ class GraphViewerWidget(QWidget):
 		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
 		self._status = {"loc": QLabel("No"), "trc": QLabel("No"), "MSD": QLabel("No"), "InD": QLabel("No"), "Fit": QLabel("No")}
 
-		form.addRow("File :", self._lbl_filename)
-		form.addRow("Localization :", self._status["loc"])
-		form.addRow("Tracking :", self._status["trc"])
-		form.addRow("MSD :", self._status["MSD"])
-		form.addRow("Instant D :", self._status["InD"])
-		form.addRow("Fit :", self._status["Fit"])
+		form = make_form(grp_infos, COMMON_SPACE)
+		add_setting_row(form, "File :", self._lbl_filename)
+		add_setting_row(form, "Localization :", self._status["loc"])
+		add_setting_row(form, "Tracking :", self._status["trc"])
+		add_setting_row(form, "MSD :", self._status["MSD"])
+		add_setting_row(form, "Instant D :", self._status["InD"])
+		add_setting_row(form, "Fit :", self._status["Fit"])
 
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
-
-		grp_source.setStyleSheet("""
-			QPushButton { border: 1px solid #c7c7c7; padding: 6px 12px; background: #f7f7f7; }
-			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
-			QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-			QPushButton:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-			QPushButton:pressed { background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:checked	{ background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:disabled { color: #999; background: #fafafa; }
-		""")
 
 		h = QHBoxLayout()
 		h.setSpacing(0)
@@ -192,7 +182,7 @@ class GraphViewerWidget(QWidget):
 		self._btn_stack.setChecked(True)
 
 		# Combo box
-		form = QFormLayout(grp_source)
+		form = make_form(grp_source, COMMON_SPACE)
 		self._cmb_src = QComboBox()
 		form.addRow(h)
 		form.addRow("Source :", self._cmb_src)
@@ -207,10 +197,10 @@ class GraphViewerWidget(QWidget):
 				"Sigma":   QCheckBox("Show σ"),
 				"Gauss":   QCheckBox("Show Gaussian"),
 				"KDE":     QCheckBox("Show KDE"),
-				"Y Scale": QButtonGroup(self)
+				"Y Scale": QButtonGroup(None)
 				}
 
-		# Sélection du Step pour MSD
+		# Sélection du Step pour MSD (dans la partie source)
 		form.addRow(self._display_settings["MSD"].layout)
 		self._display_settings["MSD"].hide()  # Masquage initial
 
@@ -248,8 +238,7 @@ class GraphViewerWidget(QWidget):
 		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
-		grp_filters = QGroupBox("Filters")
-		vbox_filters = QVBoxLayout(grp_filters)
+		grp_filters, vbox_filters = make_group(self, "Filters")
 		# Integration des Filtres
 		self._filters = Filtering()
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
@@ -293,6 +282,8 @@ class GraphViewerWidget(QWidget):
 
 		main_layout.addWidget(left)
 		main_layout.addWidget(self._web, stretch=1)
+
+		self.setStyleSheet(STYLESHEET_GENERAL)
 
 	##################################################
 	def _connect_signals(self):

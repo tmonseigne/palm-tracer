@@ -51,7 +51,8 @@ class BaseSettingType:
 	def initialize(self):
 		"""Initialise le paramètre."""
 		self._layout = QFormLayout(None)
-		self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
+		self._layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+		self._layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
 	##################################################
 	def reset(self):
@@ -149,7 +150,7 @@ class BaseSettingType:
 
 		:param box: Input box à ajouter
 		"""
-		self._layout.addRow(QLabel(self.label + " : "), box)  # Ajoute le setting.
+		self._layout.addRow(self.label + " : ", box)  # Ajoute le setting.
 
 	##################################################
 	def connect(self, f: Any):

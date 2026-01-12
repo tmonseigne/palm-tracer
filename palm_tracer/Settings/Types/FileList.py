@@ -111,7 +111,6 @@ class FileList(BaseSettingType):
 	def initialize(self):
 		super().initialize()							 # Appelle l'initialisation de la classe mère.
 		self.box = QComboBox(None)						 # Création de la boite.
-		# self.box.setFixedWidth(150)					 # Réduire la largeur de la boite.
 		self.update_box()								 # Ajout des choix possibles.
 		self.set_value(self.default)					 # Définition de la valeur.
 		self.box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement de selection
@@ -124,7 +123,6 @@ class FileList(BaseSettingType):
 
 		# Créer un layout horizontal pour les boutons
 		button_layout = QHBoxLayout()
-		button_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
 		button_layout.addWidget(self.buttons["add"])
 		button_layout.addWidget(self.buttons["remove"])
 		button_layout.addWidget(self.buttons["clear"])

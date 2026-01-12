@@ -24,12 +24,14 @@ import os
 from typing import Optional
 
 import numpy as np
-from qtpy.QtWidgets import QApplication, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import open_tif, print_error, print_warning, save_tif
+from palm_tracer.UI.Utils import add_setting_row, make_form, make_group, make_tab, init_layout, STYLESHEET_GENERAL, STYLESHEET_INFO
 
 _alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+
 
 class AlignmentWidget(QWidget):
 	"""
@@ -60,12 +62,6 @@ class AlignmentWidget(QWidget):
 		self._stack: Optional[np.ndarray] = None
 		self._coefs: Optional[np.ndarray] = None
 
-		self._lbl_tif_compute: Optional[QLabel] = None
-		self._lbl_tif_apply: Optional[QLabel] = None
-		self._lbl_coef_apply: Optional[QLabel] = None
-
-		self._spin_upscale: Optional[QSpinBox] = None
-
 		self._init_ui()
 		self._connect_signals()
 
@@ -73,104 +69,68 @@ class AlignmentWidget(QWidget):
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
-		main_layout.setContentsMargins(5, 5, 5, 5)
-		main_layout.setSpacing(5)
+		init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
 
 		# ---------- Onglet 1 : Compute Alignment Coefficients ----------
-		tab_compute = QWidget(self)
-		tab_compute_layout = QVBoxLayout(tab_compute)
-		tab_compute_layout.setContentsMargins(10, 10, 10, 10)
-		tab_compute_layout.setSpacing(10)
+		tab_compute, tab_layout = make_tab(self._tabs)
+		grp, grp_layout = make_group(tab_compute, "Inputs")
 
-		grp_compute_input = QGroupBox("Input image", tab_compute)
-		grp_compute_layout = QVBoxLayout(grp_compute_input)
-		grp_compute_layout.setContentsMargins(10, 10, 10, 10)
-		grp_compute_layout.setSpacing(6)
-
-		self._btn_load_tif_compute = QPushButton("Load TIFF file", grp_compute_input)
+		self._btn_load_tif_compute = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_compute.setToolTip(
 				"The file must contain a single image (a single frame) composed of two regions placed side by side:\n"
 				"- on the left: the reference image.\n"
 				"- on the right: the distorted image."
 				)
 
-		self._lbl_tif_compute = QLabel("No file loaded", grp_compute_input)
-		self._lbl_tif_compute.setStyleSheet("color: #666666; font-style: italic; padding: 2px;")
+		self._lbl_tif_compute = QLabel("No file loaded", grp)
+		self._lbl_tif_compute.setStyleSheet(STYLESHEET_INFO)
 
-		grp_compute_layout.addWidget(QLabel("Input image for coefficient calculation:"))
-		grp_compute_layout.addWidget(self._btn_load_tif_compute)
-		grp_compute_layout.addWidget(self._lbl_tif_compute)
+		grp_layout.addWidget(self._btn_load_tif_compute)
+		grp_layout.addWidget(self._lbl_tif_compute)
 
-		grp_compute_action = QGroupBox("Action", tab_compute)
-		grp_action_layout = QVBoxLayout(grp_compute_action)
-		grp_action_layout.setContentsMargins(10, 10, 10, 10)
-		grp_action_layout.setSpacing(6)
-
-		self._btn_compute_coeffs = QPushButton("Compute coefficients (not implemented)", grp_compute_action)
+		self._btn_compute_coeffs = QPushButton("Compute coefficients (not implemented)", tab_compute)
 		self._btn_compute_coeffs.setToolTip("Start calculating alignment coefficients from the loaded image.")
 
-		grp_action_layout.addWidget(self._btn_compute_coeffs)
-
-		tab_compute_layout.addWidget(grp_compute_input)
-		tab_compute_layout.addWidget(grp_compute_action)
-		tab_compute_layout.addStretch(1)
+		tab_layout.addWidget(grp)
+		tab_layout.addWidget(self._btn_compute_coeffs)
+		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Apply Alignment ----------
-		tab_apply = QWidget(self)
-		tab_apply_layout = QVBoxLayout(tab_apply)
-		tab_apply_layout.setContentsMargins(10, 10, 10, 10)
-		tab_apply_layout.setSpacing(10)
+		tab_apply, tab_layout = make_tab(self._tabs)
+		grp, grp_layout = make_group(tab_apply, "Inputs")
 
-		grp_apply_inputs = QGroupBox("Inputs", tab_apply)
-		grp_apply_layout = QVBoxLayout(grp_apply_inputs)
-		grp_apply_layout.setContentsMargins(10, 10, 10, 10)
-		grp_apply_layout.setSpacing(6)
-
-		self._btn_load_tif_apply = QPushButton("Load TIFF file", grp_apply_inputs)
+		self._btn_load_tif_apply = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_apply.setToolTip("Load the TIFF file to which the alignment should be applied.")
 
-		self._btn_load_coef_apply = QPushButton("Load coefficients file", grp_apply_inputs)
+		self._btn_load_coef_apply = QPushButton("Load coefficients file", grp)
 		self._btn_load_coef_apply.setToolTip("Load the file containing the alignment coefficients.")
 
-		self._lbl_tif_apply = QLabel("No TIFF file loaded", grp_apply_inputs)
-		self._lbl_tif_apply.setStyleSheet("color: #666666; font-style: italic; padding: 2px;")
+		self._lbl_tif_apply = QLabel("No TIFF file loaded", grp)
+		self._lbl_tif_apply.setStyleSheet(STYLESHEET_INFO)
 
-		self._lbl_coef_apply = QLabel("No coefficients file loaded", grp_apply_inputs)
-		self._lbl_coef_apply.setStyleSheet("color: #666666; font-style: italic; padding: 2px;")
+		self._lbl_coef_apply = QLabel("No coefficients file loaded", grp)
+		self._lbl_coef_apply.setStyleSheet(STYLESHEET_INFO)
 
-		hl_upscale = QHBoxLayout()
-		label_upscale = QLabel("Upscaling factor:", grp_apply_inputs)
-		self._spin_upscale = QSpinBox(grp_apply_inputs)
-		self._spin_upscale.setMinimum(1)
-		self._spin_upscale.setValue(1)
+		self._spin_upscale = QSpinBox(grp, minimum=1, maximum=1000, singleStep=1, value=1)
 		self._spin_upscale.setToolTip("Integer upscaling factor for the output aligned image (1 = no upscaling).")
 
-		hl_upscale.addWidget(label_upscale)
-		hl_upscale.addWidget(self._spin_upscale)
-		hl_upscale.addStretch(1)
+		form = make_form(None)
+		add_setting_row(form, "Upscaling factor:", self._spin_upscale)
 
-		grp_apply_layout.addWidget(QLabel("Input files for alignment:"))
-		grp_apply_layout.addWidget(self._btn_load_tif_apply)
-		grp_apply_layout.addWidget(self._lbl_tif_apply)
-		grp_apply_layout.addWidget(self._btn_load_coef_apply)
-		grp_apply_layout.addWidget(self._lbl_coef_apply)
-		grp_apply_layout.addLayout(hl_upscale)
+		grp_layout.addWidget(self._btn_load_tif_apply)
+		grp_layout.addWidget(self._lbl_tif_apply)
+		grp_layout.addWidget(self._btn_load_coef_apply)
+		grp_layout.addWidget(self._lbl_coef_apply)
+		grp_layout.addLayout(form)
 
-		grp_apply_action = QGroupBox("Action", tab_apply)
-		grp_apply_action_layout = QVBoxLayout(grp_apply_action)
-		grp_apply_action_layout.setContentsMargins(10, 10, 10, 10)
-		grp_apply_action_layout.setSpacing(6)
-
-		self._btn_start_alignment = QPushButton("Start alignment", grp_apply_action)
+		self._btn_start_alignment = QPushButton("Start alignment", tab_apply)
 		self._btn_start_alignment.setToolTip("Applies alignment to the image using the loaded coefficients.")
 
-		grp_apply_action_layout.addWidget(self._btn_start_alignment)
-
-		tab_apply_layout.addWidget(grp_apply_inputs)
-		tab_apply_layout.addWidget(grp_apply_action)
-		tab_apply_layout.addStretch(1)
+		tab_layout.addWidget(grp)
+		tab_layout.addWidget(self._btn_start_alignment)
+		tab_layout.addStretch(1)
 
 		# ---------- Ajout des onglets ----------
 		self._tabs.addTab(tab_compute, "Compute Alignment Coefficients")
@@ -179,16 +139,8 @@ class AlignmentWidget(QWidget):
 		main_layout.addWidget(self._tabs)
 
 		# ---------- Style proche du GraphViewer ----------
-		# On applique un style général aux QPushButton inspiré du bloc "Source"
-		self.setStyleSheet("""
-			QPushButton { border: 1px solid #c7c7c7; padding: 5px; background: #f7f7f7; }
-			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
-			QPushButton:first-child { border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
-			QPushButton:last-child { border-top-right-radius: 5px; border-bottom-right-radius: 5px; }
-			QPushButton:pressed { background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:checked	{ background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:disabled { color: #999; background: #fafafa; }
-		""")
+		# On applique un style général aux QPushButton
+		self.setStyleSheet(STYLESHEET_GENERAL)
 
 	##################################################
 	def _connect_signals(self):
