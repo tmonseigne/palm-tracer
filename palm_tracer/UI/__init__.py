@@ -12,7 +12,7 @@ Ce sous-package contient les classes d'interface utilisateur Napari (QT).
 
 """
 
-import Utils
+from . import Utils
 from .AlignmentWidget import AlignmentWidget, open_alignment
 from .GraphViewerWidget import GraphViewerWidget
 from .PALMTracerWidget import PALMTracerWidget

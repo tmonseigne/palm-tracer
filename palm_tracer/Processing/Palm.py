@@ -260,7 +260,7 @@ class Palm:
 		out = np.zeros(n, dtype=np.float64)
 		return {
 				"input":      points.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
-				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"output":     out.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"size":       ctypes.c_ulong(n),		   # Nombre de points dans le tableau d'entrée
 				"pixel_size": ctypes.c_double(pixel_size * 1000),  # Passage en nanomètre pour les calculs sur la DLL.
 				"model":      model.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
@@ -476,7 +476,7 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
-		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y, z].
+		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
 		:param pixel_size: Taille des pixels en micromètres.
 		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
@@ -500,7 +500,7 @@ class Palm:
 		n = len(points)
 		args = self.__get_astigestim_args(points, pixel_size, model, z_max)
 		self._dll.Astigmatism3DEstimation(*args.values())
-		out = np.ctypeslib.as_array(args["output"], shape=n)
+		out = np.ctypeslib.as_array(args["output"], shape=(n,))
 		return out
 
 # ==================================================

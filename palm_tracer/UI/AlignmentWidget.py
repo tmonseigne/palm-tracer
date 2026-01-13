@@ -28,7 +28,7 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QSpin
 
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import open_tif, print_error, print_warning, save_tif
-from palm_tracer.UI.Utils import add_setting_row, make_form, make_group, make_tab, init_layout, STYLESHEET_GENERAL, STYLESHEET_INFO
+from palm_tracer.UI.Utils import add_setting_row, init_layout, make_form, make_group, make_tab, STYLESHEET_GENERAL, STYLESHEET_INFO
 
 _alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
@@ -61,6 +61,7 @@ class AlignmentWidget(QWidget):
 		self._palm = Palm()
 		self._stack: Optional[np.ndarray] = None
 		self._coefs: Optional[np.ndarray] = None
+		self._output_filename: str = ""
 
 		self._init_ui()
 		self._connect_signals()
