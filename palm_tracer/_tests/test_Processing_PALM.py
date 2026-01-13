@@ -277,7 +277,7 @@ def test_wavelett():
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
-@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif")
+@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif très certainement les sigma sont dans une unité intermédiaire sur le fichier en entrée.")
 def test_astigmatism_3d_calibration():
 	"""Test basique pour la calibration de l'astigatisme 3D."""
 	palm = Palm()
@@ -291,7 +291,7 @@ def test_astigmatism_3d_calibration():
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
-@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif")
+@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif très certainement les sigma sont dans une unité intermédiaire sur le fichier en entrée.")
 def test_astigmatism_3d_estimation():
 	"""Test basique pour l'estimation de l'astigmatisme 3D."""
 	palm = Palm()
@@ -301,5 +301,4 @@ def test_astigmatism_3d_estimation():
 	model = pd.read_csv(Path(f"{INPUT_DIR}/ref/astigmatism_3d_model.csv"), index_col=0)
 	res = palm.astigmatism_3d_estimation(localizations.to_numpy(dtype=float, copy=True)[:,:-1], 108,model.to_numpy(),50)
 	ref = localizations["Z"].to_numpy()
-	print(res)
 	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu: {ref}\nObtenu : {res}"
