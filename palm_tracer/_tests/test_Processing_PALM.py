@@ -221,7 +221,7 @@ def test_tracks_compute():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_align():
-	"""Test basique pour la spline."""
+	"""Test basique pour l'alignement."""
 	palm = Palm()
 
 	# --- Lecture stack ---
@@ -262,7 +262,7 @@ def test_align():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_wavelett():
-	"""Test basique pour la spline."""
+	"""Test basique pour récupérer un plan d'ondelette."""
 	palm = Palm()
 
 	# --- Lecture stack ---
@@ -273,3 +273,33 @@ def test_wavelett():
 		wavelett = palm.wavelett(stack, i)
 		if save_output: save_tif(wavelett, f"{OUTPUT_DIR}/{file}-wavelett-{i}.tif")
 		assert wavelett.shape == stack.shape, "Les dimensions doivent être identiques"
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif")
+def test_astigmatism_3d_calibration():
+	"""Test basique pour la calibration de l'astigatisme 3D."""
+	palm = Palm()
+
+	# --- Lecture d'un fichier de localisation ---
+	localizations = pd.read_csv(f"{INPUT_DIR}/astigmatism_3d_calibration.csv")
+	res = palm.astigmatism_3d_calibration(localizations.to_numpy(dtype=float, copy=True), 108)
+	ref = pd.read_csv(Path(f"{INPUT_DIR}/ref/astigmatism_3d_model.csv"), index_col=0)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu: \n\t{ref}\nObtenu : \n\t{res}"
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif")
+def test_astigmatism_3d_estimation():
+	"""Test basique pour l'estimation de l'astigmatisme 3D."""
+	palm = Palm()
+
+	# --- Lecture des fichiers ---
+	localizations = pd.read_csv(f"{INPUT_DIR}/astigmatism_3d_calibration.csv")
+	model = pd.read_csv(Path(f"{INPUT_DIR}/ref/astigmatism_3d_model.csv"), index_col=0)
+	res = palm.astigmatism_3d_estimation(localizations.to_numpy(dtype=float, copy=True)[:,:-1], 108,model.to_numpy(),50)
+	ref = localizations["Z"].to_numpy()
+	print(res)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu: {ref}\nObtenu : {res}"

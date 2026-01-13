@@ -21,14 +21,11 @@ from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog
 							QTabWidget, QVBoxLayout, QWidget)
 
 from palm_tracer.Processing import Palm
+from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_ROWS, MODEL_COLS
 from palm_tracer.Tools import print_error, print_warning
 from palm_tracer.UI.Utils import add_setting_row, init_layout, make_form, make_group, make_tab, STYLESHEET_GENERAL, STYLESHEET_INFO
 
 _alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
-REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
-MODEL_COLS = ["Z0", "W", "C3", "C4", "A"]
-MODEL_ROWS = ["X", "Y"]
-
 
 class Astigmatism3DWidget(QWidget):
 	"""
@@ -191,9 +188,9 @@ class Astigmatism3DWidget(QWidget):
 			return
 
 		# --- vérification de la forme des données ---
-		if not set(REQUIRED_COLS).issubset(self._loc.columns):
+		if not set(DLL_REQUIRED_COLS).issubset(self._loc.columns):
 			print_error(f"The localization file is not in the correct format.\n"
-						f"\tExpected format, at least columns: {', '.join(sorted(REQUIRED_COLS))}.\n"
+						f"\tExpected format, at least columns: {', '.join(sorted(DLL_REQUIRED_COLS))}.\n"
 						f"\tFound columns: {', '.join(self._loc.columns)}")
 			self._loc = None
 			return
@@ -227,7 +224,7 @@ class Astigmatism3DWidget(QWidget):
 			self._model = pd.read_csv(filename, index_col=0)
 		except Exception as e:
 			self._model = None
-			print_error(f"Unable to read the coefficient file: {e}.")
+			print_error(f"Unable to read the model file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
@@ -249,7 +246,7 @@ class Astigmatism3DWidget(QWidget):
 		if self._loc is None: print("Can't Compute model without correct file loaded.")
 		else:
 			pixel_size = self._spin_px_compute.value()
-			points = self._loc.loc[:, REQUIRED_COLS].to_numpy(dtype=float, copy=True)
+			points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
 			self._model = self._palm.astigmatism_3d_calibration(points, pixel_size)
 			model = pd.DataFrame(self._model, columns=MODEL_COLS, index=MODEL_ROWS)
 			model.to_csv(os.path.join(self._folder, "astigmatism_3d_model.csv"))
@@ -276,9 +273,9 @@ class Astigmatism3DWidget(QWidget):
 
 			pixel_size = self._spin_px_estimate.value()
 			z_max = self._spin_z_estimate.value()
-			points = self._loc.loc[:, REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
+			points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 			estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
-			self._loc[REQUIRED_COLS[-1]] = estimated_z
+			self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
 			self._loc.to_csv(self._filename)
 			print("Localization file with estimation saved successfully.")
 

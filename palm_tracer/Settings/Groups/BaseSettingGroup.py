@@ -237,7 +237,7 @@ class BaseSettingGroup:
 
 	##################################################
 	@staticmethod
-	def _find_form_row_of_widget(form: QFormLayout, w: QWidget) -> int:
+	def _find_form_row_of_widget(form: QFormLayout, w: QWidget) -> int:   # pragma: no cover (lié aux étrangetés de QT Python)
 		"""Retourne l'index de ligne contenant le widget `w`, ou -1 si absent."""
 		for r in range(form.rowCount()):
 			for role in (QFormLayout.ItemRole.LabelRole, QFormLayout.ItemRole.FieldRole, QFormLayout.ItemRole.SpanningRole):

@@ -1,0 +1,233 @@
+""" Fichier des tests pour le widget. """
+import shutil
+
+import pytest
+from qtpy.QtCore import Qt
+
+from palm_tracer._tests.Utils import *
+from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # classe
+
+LOC_FILE = f"{INPUT_DIR}/astigmatism_3d_calibration.csv"
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_widget_creation(qtbot):
+	"""Test basique de création du widget."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Simuler un "Cancel" sur le QFileDialog
+	fake_qfiledialog(Astigmatism3DWidget, None)
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "No file selected." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
+
+	# Bad file Input
+	fake_qfiledialog(Astigmatism3DWidget, "nofile.csv")
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Unable to read the CSV file" in out
+	assert w._loc is None
+
+	# Bad Localization Input
+	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "The localization file is not in the correct format." in out
+	assert w._loc is None
+
+	# Simuler un "Cancel" sur le QFileDialog
+	fake_qfiledialog(Astigmatism3DWidget, None)
+	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "No file selected." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
+
+	# Bad file Input
+	fake_qfiledialog(Astigmatism3DWidget, "nofile.csv")
+	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Unable to read the CSV file" in out
+	assert w._loc is None
+
+	# Bad Localization Input
+	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
+	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "The localization file is not in the correct format." in out
+	assert w._loc is None
+
+	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Simuler un "Cancel" sur le QFileDialog
+	fake_qfiledialog(Astigmatism3DWidget, None)
+	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "No model file selected." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
+
+	# Bad Coef Input
+	fake_qfiledialog(Astigmatism3DWidget, "nofile.txt")
+	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Unable to read the model file:" in out
+	assert w._model is None
+
+	# Bad Model Input
+	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
+	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "The model file is not in the correct format. Expected format: two lines of five values (2x5)." in out
+	assert w._model is None
+
+	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de lancement de la calibration sans fichier chargé."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Compute sans Tif
+	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Can't Compute model without correct file loaded." in out
+	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de lancement de la calibration"""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Chargement du fichier de localisation
+	fake_qfiledialog(Astigmatism3DWidget, LOC_FILE)
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "CSV loaded successfully." in out
+	assert w._loc is not None
+	#
+	# Lancement du calcul
+	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Model saved successfully." in out
+
+	os.remove(f"{INPUT_DIR}/astigmatism_3d_model.csv")
+
+	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de lancement de l'estimation sans fichier chargé."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Estimation sans localisation
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Can't estimate without correct localization file loaded." in out
+
+	# Chargement du fichier de localisation
+	fake_qfiledialog(Astigmatism3DWidget, LOC_FILE)
+	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "CSV loaded successfully." in out
+	assert w._loc is not None
+
+	# Estimation sans model
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Can't estimate without correct model file loaded." in out
+
+	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de lancement de l'estimation."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	backup_file = f"{LOC_FILE}.tmp"
+	shutil.copy2(LOC_FILE, backup_file)
+
+	# Chargement du fichier de localisation
+	fake_qfiledialog(Astigmatism3DWidget, LOC_FILE)
+	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "CSV loaded successfully." in out
+	assert w._loc is not None
+
+	# Chargement du fichier model
+	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/ref/astigmatism_3d_model.csv")
+	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Model loaded successfully." in out
+	assert w._model is not None
+
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert f"Backup done at" in out
+	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration.csv"))
+
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton) # Test de multiple backup
+	out, err = capsys.readouterr()
+	assert f"Backup done at" in out
+	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration_1.csv"))
+
+	w._check_b_estimate.setChecked(False)  # On recommence sans le backup
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert f"Localization file with estimation saved successfully." in out
+
+	shutil.copy2(backup_file, LOC_FILE)
+	if os.path.isfile(backup_file): os.remove(backup_file)
+	shutil.rmtree(f"{INPUT_DIR}/backup", ignore_errors=True)
+
+	w.close()
