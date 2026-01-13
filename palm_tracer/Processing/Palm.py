@@ -127,10 +127,10 @@ class Palm:
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la reconnexion du scintillement.
 
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
-		:param pixel_size: Calibration spatiale utile pour les calculs (en micromètre)
+		:param pixel_size: Calibration spatiale utile pour les calculs (en nanomètres)
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillemnt.
-		:param max_speed: Vitesse maximale d'un point entre deux plans (en micromètre).
+		:param max_speed: Vitesse maximale d'un point entre deux plans (en nanomètres).
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		n = len(tracks)
@@ -139,7 +139,7 @@ class Palm:
 		return {"input":        np.asarray(tracks, dtype=np.float64).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"output":       np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"nRow":         ctypes.c_ulong(n),
-				"pixel_size":   ctypes.c_double(pixel_size * 1000),  # Passage en nanomètre pour les calculs sur la DLL.
+				"pixel_size":   ctypes.c_double(pixel_size),  # Passage en nanomètre pour les calculs sur la DLL.
 				"mode":         ctypes.c_ulong(mode),
 				"max_duration": ctypes.c_ulong(max_duration),
 				"max_speed":    ctypes.c_double(max_speed),
@@ -173,7 +173,7 @@ class Palm:
 				"is_msd":        ctypes.c_bool(is_msd),
 				"is_ind":        ctypes.c_bool(is_ind),
 				"is_3d":         ctypes.c_bool(is_3d),
-				"pixel_size":    ctypes.c_double(pixel_size * 1000),  # Passage en nanomètre pour les calculs sur la DLL.
+				"pixel_size":    ctypes.c_double(pixel_size),  # Passage en nanomètre pour les calculs sur la DLL.
 				"exposure_time": ctypes.c_double(exposure_time),
 				"fit_mode":      ctypes.c_ulong(fit_mode),
 				"fit_params":    fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
@@ -234,7 +234,7 @@ class Palm:
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
 
 		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y, z].
-		:param pixel_size: Taille des pixels en micromètres.
+		:param pixel_size: Taille des pixels en nanomètres.
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 
@@ -242,8 +242,8 @@ class Palm:
 		return {
 				"input":      points.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
 				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-				"size":       ctypes.c_ulong(len(points)),		  # Nombre de points dans le tableau d'entrée
-				"pixel_size": ctypes.c_double(pixel_size * 1000)  # Passage en nanomètre pour les calculs sur la DLL.
+				"size":       ctypes.c_ulong(len(points)),  # Nombre de points dans le tableau d'entrée
+				"pixel_size": ctypes.c_double(pixel_size)   # Passage en nanomètre pour les calculs sur la DLL.
 				}
 
 	##################################################
@@ -253,7 +253,7 @@ class Palm:
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
 
 		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y, z].
-		:param pixel_size: Taille des pixels en micromètres.
+		:param pixel_size: Taille des pixels en nanomètres.
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		n = len(points)
@@ -262,7 +262,7 @@ class Palm:
 				"input":      points.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
 				"output":     out.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"size":       ctypes.c_ulong(n),		   # Nombre de points dans le tableau d'entrée
-				"pixel_size": ctypes.c_double(pixel_size * 1000),  # Passage en nanomètre pour les calculs sur la DLL.
+				"pixel_size": ctypes.c_double(pixel_size),  # Passage en nanomètre pour les calculs sur la DLL.
 				"model":      model.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"z_max":      ctypes.c_double(z_max)
 				}
@@ -346,7 +346,7 @@ class Palm:
 		"""
 		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
 
-		:param pixel_size: Taille des pixels en micromètres.
+		:param pixel_size: Taille des pixels en nanomètres.
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillemnt.
@@ -370,11 +370,15 @@ class Palm:
 		:param is_ind: Calcul Instant Diffusion à effectuer si vrai.
 		:param is_3d: Calcul sur la 3D.
 		:param is_log: Applique un logarithme sur le résultat.
-		:param pixel_size: Taille des pixels en micromètres.
+		:param pixel_size: Taille des pixels en micromètre.
 		:param exposure_time: Calibration temporelle utile pour les calculs.
 		:param fit_mode: Mode d'ajustement.
 		:param fit_params: Paramètres de l'ajustement (pour le moment uniquement fit length).
 		:return: DataFrame contenant les trajectoires détectées.
+
+		.. note::
+			Pour obtenir des valeurs de diffusion en **µm²**, le paramètre ``pixel_size``
+			doit être exprimé en micromètres par pixel (µm/px)
 		"""
 		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
 		required = PARSING_COLUMNS["Tracking"]["columns"]
@@ -477,7 +481,7 @@ class Palm:
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
 		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
-		:param pixel_size: Taille des pixels en micromètres.
+		:param pixel_size: Taille des pixels en nanomètres.
 		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
 
@@ -492,7 +496,7 @@ class Palm:
 		Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle.
 
 		:param points: Ensemble des points à estimer sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y].
-		:param pixel_size: Taille des pixels en micromètres.
+		:param pixel_size: Taille des pixels en nanomètres.
 		:param model: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		:param z_max: Distance absolue maximale sur Z par rapport à l'origine.
 		:return: Ensemble des Z estimés pour chaque point.

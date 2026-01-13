@@ -42,7 +42,7 @@ class Astigmatism3DWidget(QWidget):
 
 		- ``Estimate Z`` :
 			- Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X,Sigma Y.
-			- Spin float pour la taille des pixel en micromètres (μm).
+			- Spin float pour la taille des pixel en micromètres (μm) avec 3 décimales.
 			- Spin float pour la hauteur max sur Z.
 			- Checkbox pour sauvegarder l'original dans un dossier backup.
 			- Bouton pour lancer l'estimation.

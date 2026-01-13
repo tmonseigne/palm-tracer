@@ -333,7 +333,7 @@ class PALMTracer:
 			s = self.settings.tracking["Blinking Reconnection"].get_settings()
 			pixel_size = self.settings.calibration.get_settings()["Pixel Size"]
 			# Run command sur la version non filtrée des trajectoires
-			self.df["blk"] = self.palm.blinking_reconnection(self.df["trc"], pixel_size, s["Mode"], s["Max Duration"], s["Max Speed"])
+			self.df["blk"] = self.palm.blinking_reconnection(self.df["trc"], pixel_size * 1000, s["Mode"], s["Max Duration"], s["Max Speed"] * 1000)
 
 			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
 			self._logger.add(f"\t\t{len(self.df['blk'])} point(s) trouvé(s).")
@@ -356,7 +356,7 @@ class PALMTracer:
 			self._logger.add("\tAucune métrique de sélectionnée, aucun calcul supplémentaire ne peut être effectué.")
 			return
 
-		# Run command
+		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
 		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
 		for key in res: self.df[key] = res[key]
