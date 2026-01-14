@@ -216,7 +216,7 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert f"Backup done at" in out
 	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration.csv"))
 
-	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton) # Test de multiple backup
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)  # Test de multiple backup
 	out, err = capsys.readouterr()
 	assert f"Backup done at" in out
 	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration_1.csv"))
@@ -231,3 +231,17 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	shutil.rmtree(f"{INPUT_DIR}/backup", ignore_errors=True)
 
 	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de vérification de lien entre les spin pixel size."""
+	assert False
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_update_plot(qtbot, capsys):
+	"""Test basique de mises à jour du graphique."""
+	assert False

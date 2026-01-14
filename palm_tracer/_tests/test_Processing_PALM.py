@@ -299,7 +299,7 @@ def test_astigmatism_3d_estimation():
 	# --- Lecture des fichiers ---
 	localizations = pd.read_csv(f"{INPUT_DIR}/astigmatism_3d_calibration.csv")
 	model = pd.read_csv(Path(f"{INPUT_DIR}/ref/astigmatism_3d_model.csv"), index_col=0)
-	res = palm.astigmatism_3d_estimation(localizations.to_numpy(dtype=float, copy=True)[:,:-1], 108,model.to_numpy(),50)
+	res = palm.astigmatism_3d_estimation(localizations.to_numpy(dtype=float, copy=True)[:,:-1], 108,model.to_numpy(),500)
 	ref = localizations["Z"].to_numpy()
 	# Vérification que Z est trié en ordre décroissant
 	assert np.all(ref[:-1] >= ref[1:]), "Le fichier contient les éléments Z en ordre décroissant, le résultat doit donc être dans le même ordre."

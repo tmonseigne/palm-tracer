@@ -18,15 +18,26 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
+import plotly.io as pio
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGridLayout, QHBoxLayout, QLabel,
-							QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget)
+from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGridLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget,
+							QTextBrowser, QWidget)
 
-from palm_tracer.Processing import Palm
+from palm_tracer.Processing import Grapher, Palm
 from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_COLS, model_projection_validity, MODEL_ROWS, model_validity
 from palm_tracer.Tools import print_error, print_warning
 from palm_tracer.UI.Utils import (add_setting_row, COMMON_SPACE, init_layout, make_form, make_group, make_horizontal_separator,
 								  make_tab, make_vertical_separator, STYLESHEET_GENERAL, STYLESHEET_INFO)
+
+# Tentative d'import QtWebEngine (via qtpy)
+try:
+	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
+
+	_HAS_WEBENGINE = True
+except Exception:
+	QWebEngineView = None  # type: ignore
+	_HAS_WEBENGINE = False
 
 _alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
@@ -64,16 +75,22 @@ class Astigmatism3DWidget(QWidget):
 		self._palm = Palm()
 		self._folder = ""
 		self._filename: str = ""
-		self._loc: Optional[pd.DataFrame] = None
-		self._model: Optional[pd.DataFrame] = None
+		self._loc: pd.DataFrame = pd.DataFrame()
+		self._model: pd.DataFrame = pd.DataFrame()
+
+		self._fig: go.Figure = go.Figure()
+		self._html: str = ""
+		self._grapher = Grapher()
 
 		self._init_ui()
 		self._connect_signals()
+		self._update_plot()
 
 	##################################################
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
-		main_layout = QVBoxLayout(self)
+
+		main_layout = QHBoxLayout(self)
 		init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
@@ -104,42 +121,42 @@ class Astigmatism3DWidget(QWidget):
 		tab_layout.addWidget(grp)
 		tab_layout.addWidget(self._btn_compute)
 
-		# Groupe Vérification de cohérence
+		# --- Groupe Vérification de cohérence ---
 		self._sanity: list[dict[str, dict[str, QLabel | str]]] = [{
 				# Columns 1 title "Sigma Sanity Check"
-				"rmse_x":  {"label": QLabel("RMSE x:"), "value": QLabel("--"), "unit": QLabel("px"),
+				"rmse_x":  {"label": QLabel("RMSE x:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							"tips":  "Root Mean Square Error on x (0 for a perfect model)."},
-				"rmse_y":  {"label": QLabel("RMSE y:"), "value": QLabel("--"), "unit": QLabel("px"),
+				"rmse_y":  {"label": QLabel("RMSE y:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							"tips":  "Root Mean Square Error on y (0 for a perfect model)."},
-				"rmse_xy": {"label": QLabel("RMSE xy:"), "value": QLabel("--"), "unit": QLabel("px"),
+				"rmse_xy": {"label": QLabel("RMSE xy:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							"tips":  "Root Mean Square Error on x and y (0 for a perfect model)."},
-				"mae_x":   {"label": QLabel("MAE x:"), "value": QLabel("--"), "unit": QLabel("px"),
+				"mae_x":   {"label": QLabel("MAE x:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							"tips":  "Mean Absolute Error on x (0 for a perfect model)."},
-				"mae_y":   {"label": QLabel("MAE y"), "value": QLabel("--"), "unit": QLabel("px"),
+				"mae_y":   {"label": QLabel("MAE y"), "value": QLabel("     --"), "unit": QLabel("px"),
 							"tips":  "Mean Absolute Error on y (0 for a perfect model)."},
-				"r2_x":    {"label": QLabel("R² x:"), "value": QLabel("--"), "unit": QLabel("%"),
+				"r2_x":    {"label": QLabel("R² x:"), "value": QLabel("     --"), "unit": QLabel("%"),
 							"tips":  "Percent of variance explained on x (100 % for a perfect model)."},
-				"r2_y":    {"label": QLabel("R² y:"), "value": QLabel("--"), "unit": QLabel("%"),
+				"r2_y":    {"label": QLabel("R² y:"), "value": QLabel("     --"), "unit": QLabel("%"),
 							"tips":  "Percent of variance explained on y (100 % for a perfect model)."}}, {
 
 				# Columns 2 title "Z Sanity Check"
-				"rmse_z":    {"label": QLabel("RMSE z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+				"rmse_z":    {"label": QLabel("RMSE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
 							  "tips":  "Root Mean Square Error on z (0 for a perfect model)."},
-				"mae_z":     {"label": QLabel("MAE z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+				"mae_z":     {"label": QLabel("MAE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
 							  "tips":  "Mean Absolute Error on z (0 for a perfect model)."},
-				"p95_abs_z": {"label": QLabel("P95 z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+				"p95_abs_z": {"label": QLabel("P95 z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
 							  "tips":  "95e percentile of error distance on z."},
-				"bias_z":    {"label": QLabel("Bias z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+				"bias_z":    {"label": QLabel("Bias z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
 							  "tips":  "Mean of error distance on z."},
-				"std_z":     {"label": QLabel("STD z"), "value": QLabel("--"), "unit": QLabel("nm"),
+				"std_z":     {"label": QLabel("STD z"), "value": QLabel("     --"), "unit": QLabel("nm"),
 							  "tips":  "Standard deviation of error distance on z."},
-				"mean_dist": {"label": QLabel("Curve Mean dist:"), "value": QLabel("--"), "unit": QLabel("px"),
+				"mean_dist": {"label": QLabel("Curve Mean dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							  "tips":  "Mean of error distance with the curve."},
-				"p95_dist":  {"label": QLabel("Curve P95 dist:"), "value": QLabel("--"), "unit": QLabel("px"),
+				"p95_dist":  {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							  "tips":  "95e percentile of error distance with the curve."}}]
 
 		grp, grp_layout = make_group(tab_compute, "Sanity Check")
-		grp_layout.addLayout(self.build_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
+		grp_layout.addLayout(self._init_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
 
 		tab_layout.addWidget(grp)
 		tab_layout.addStretch(1)
@@ -192,14 +209,20 @@ class Astigmatism3DWidget(QWidget):
 		self._tabs.addTab(tab_compute, "Compute Model")
 		self._tabs.addTab(tab_estimate, "Estimate Z")
 
-		main_layout.addWidget(self._tabs)
+		# Zone droite : QWebEngineView avec Plotly
+		if _HAS_WEBENGINE: self._web = QWebEngineView(self)
+		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
+			self._web = QTextBrowser(self)
+			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
-		# ---------- Style proche du GraphViewer ----------
+		main_layout.addWidget(self._tabs)
+		main_layout.addWidget(self._web, stretch=1)
+
 		# On applique un style général aux QPushButton
 		self.setStyleSheet(STYLESHEET_GENERAL)
 
 	##################################################
-	def build_sanity_check_layout(self, sanity: list[dict[str, dict[str, QLabel | str]]], titles: list[str]) -> QHBoxLayout:
+	def _init_sanity_check_layout(self, sanity: list[dict[str, dict[str, QLabel | str]]], titles: list[str]) -> QHBoxLayout:
 		"""
 		Construit le layout du groupe "Sanity Check" avec 2 colonnes d'indicateurs.
 
@@ -235,8 +258,8 @@ class Astigmatism3DWidget(QWidget):
 		title_lbl = QLabel(title)
 		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 		title_lbl.setStyleSheet("font-weight: 600;")
-		grid.addWidget(title_lbl, 0, 0, 1, 3)
-		grid.addWidget(make_horizontal_separator(), 1, 0, 1, 3)
+		grid.addWidget(title_lbl, 0, 0, 1, 3)					 # Titre
+		grid.addWidget(make_horizontal_separator(), 1, 0, 1, 3)  # Séparateur horizontal
 
 		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
 		grid.setColumnStretch(0, 0)  # label
@@ -252,7 +275,7 @@ class Astigmatism3DWidget(QWidget):
 
 			lbl.setToolTip(tips)  # Tooltips collé au label
 
-			# Alignements demandés : gauche | droite | gauche
+			# Alignements : gauche | droite | gauche
 			lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 			val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 			unit.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
@@ -266,6 +289,42 @@ class Astigmatism3DWidget(QWidget):
 		return grid
 
 	##################################################
+	def _update_sanity_values(self, points: np.ndarray, model: np.ndarray, pixel_size: float):
+		"""
+		Mise à jour de l'onglet Sanity Check
+		:param points: points du jeu de donnée.
+		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
+		"""
+		metrics = model_validity(points, model, pixel_size, 1)
+		for key in metrics:
+			val: QLabel = self._sanity[0][key]["value"]
+			if "r2" in key: val.setText(f"{100 * metrics[key]:0.2f}")
+			else: val.setText(f"{metrics[key]:0.4f}")
+
+		z_max = np.max(np.abs(points[:, 2]))
+		metrics = model_projection_validity(points, model, z_max, 5000, pixel_size, 1)
+		for key in metrics:
+			val = self._sanity[1][key]["value"]
+			val.setText(f"{metrics[key]:0.4f}")
+
+	##################################################
+	def _update_plot(self):
+		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
+
+		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
+		z_max = self._spin_z_estimate.value()
+		fig = self._grapher.astigmatism3d_curve("Astigmatism model", self._model.to_numpy(), pixel_size, z_max)
+		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
+		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
+		self._fig = fig
+		self._html = html
+
+		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
+		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
+			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+
+	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux des boutons aux callbacks."""
 		self._btn_load_compute.clicked.connect(self._on_load_loc)
@@ -275,9 +334,14 @@ class Astigmatism3DWidget(QWidget):
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
 		self._btn_estimate.clicked.connect(self._on_estimate)
 
-		# Lien entre les deux spin
+		# --- Lien entre les deux spin ---
 		self._spin_px_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_estimate, v))
 		self._spin_px_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_compute, v))
+
+		# --- Mise à jour de l'affichage de la courbe ---
+		self._spin_px_compute.valueChanged.connect(self._update_plot)
+		self._spin_px_estimate.valueChanged.connect(self._update_plot)
+		self._spin_z_estimate.valueChanged.connect(self._update_plot)
 
 	##################################################
 	# Callbacks
@@ -297,7 +361,7 @@ class Astigmatism3DWidget(QWidget):
 			self._folder, self._basename = os.path.dirname(self._filename), os.path.basename(self._filename)  # dossier du fichier, nom + extension
 			self._loc = pd.read_csv(self._filename)
 		except Exception as e:
-			self._loc = None
+			self._loc = pd.DataFrame()
 			print_error(f"Unable to read the CSV file : {e}.")
 			return
 
@@ -306,7 +370,7 @@ class Astigmatism3DWidget(QWidget):
 			print_error(f"The localization file is not in the correct format.\n"
 						f"\tExpected format, at least columns: {', '.join(sorted(DLL_REQUIRED_COLS))}.\n"
 						f"\tFound columns: {', '.join(self._loc.columns)}")
-			self._loc = None
+			self._loc = pd.DataFrame()
 			return
 
 		# --- mise à jour du label associé au bouton ---
@@ -314,6 +378,9 @@ class Astigmatism3DWidget(QWidget):
 		self._lbl_compute.setToolTip(self._filename)
 		self._lbl_loc_estimate.setText(self._basename)
 		self._lbl_loc_estimate.setToolTip(self._filename)
+
+		# --- mise à jour du Z Max ---
+		self._spin_z_estimate.setValue(self._loc["Z"].abs().max())
 
 		print(f"CSV loaded successfully. {len(self._loc)} points, {len(self._loc.columns)} columns")
 
@@ -337,13 +404,13 @@ class Astigmatism3DWidget(QWidget):
 			print(f"Selected file: {filename}.")
 			self._model = pd.read_csv(filename, index_col=0)
 		except Exception as e:
-			self._model = None
+			self._model = pd.DataFrame()
 			print_error(f"Unable to read the model file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if len(self._model) != len(MODEL_ROWS) or len(self._model.columns) != len(MODEL_COLS):
-			self._model = None
+			self._model = pd.DataFrame()
 			print_error(f"The model file is not in the correct format. Expected format: two lines of five values (2x5).")
 			return
 
@@ -352,38 +419,40 @@ class Astigmatism3DWidget(QWidget):
 		self._lbl_model_estimate.setText(basename)
 		self._lbl_model_estimate.setToolTip(filename)
 
+		# --- mise à jour de l'affichage ---
+		self._update_plot()
+
 		print("Model loaded successfully.")
 
 	##################################################
 	def _on_compute(self):
 		"""Callback du bouton 'Compute coefficients'."""
-		if self._loc is None: print("Can't Compute model without correct file loaded.")
+		if self._loc.empty: print("Can't Compute model without correct file loaded.")
 		else:
 			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 			points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
-			self._model = self._palm.astigmatism_3d_calibration(points, pixel_size)
-			model = pd.DataFrame(self._model, columns=MODEL_COLS, index=MODEL_ROWS)
-			model.to_csv(os.path.join(self._folder, "astigmatism_3d_model.csv"))
+			model = self._palm.astigmatism_3d_calibration(points, pixel_size)
+			self._model = pd.DataFrame(model, columns=MODEL_COLS, index=MODEL_ROWS)
+			basename = "astigmatism_3d_model.csv"
+			filename = os.path.join(self._folder, basename)
+			self._model.to_csv(filename)
 			print("Model saved successfully.")
-			# Mise à jour de l'onglet Sanity Check
-			metrics = model_validity(points, model.to_numpy(), pixel_size, 1)
-			for key in metrics:
-				if "r2" in key: self._sanity[0][key]["value"].setText(f"{100 * metrics[key]:0.2f}")
-				else: self._sanity[0][key]["value"].setText(f"{metrics[key]:0.5f}")
-
-			z_max = np.max(np.abs(points[:, 2]))
-			metrics = model_projection_validity(points, model.to_numpy(), z_max, 5000, pixel_size, 1)
-			for key in metrics: self._sanity[1][key]["value"].setText(f"{metrics[key]:0.5f}")
+			# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
+			self._update_sanity_values(points, model, pixel_size)
+			self._update_plot()
+			self._lbl_model_estimate.setText(basename)
+			self._lbl_model_estimate.setToolTip(filename)
 
 	##################################################
 	def _on_estimate(self):
 		"""Callback du bouton 'Start alignment'."""
-		if self._loc is None: print("Can't estimate without correct localization file loaded.")
-		elif self._model is None: print("Can't estimate without correct model file loaded.")
+		if self._loc.empty: print("Can't estimate without correct localization file loaded.")
+		elif self._model.empty: print("Can't estimate without correct model file loaded.")
 		else:
+			# --- Enregistre un backup (si sélectionné) ---
 			if self._check_b_estimate.isChecked():
 				backup_dir = os.path.join(self._folder, "backup")
-				os.makedirs(backup_dir, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
+				os.makedirs(backup_dir, exist_ok=True)		  # Créer le dossier de sorties (la première fois, il n'existe pas)
 				name, ext = os.path.splitext(self._basename)  # Séparation extension et nom de fichier
 				backup_filename = os.path.join(backup_dir, self._basename)
 				i = 1
@@ -394,6 +463,7 @@ class Astigmatism3DWidget(QWidget):
 				shutil.copy2(self._filename, backup_filename)
 				print(f"Backup done at {backup_filename}.")
 
+			# --- Estimation ---
 			pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
 			z_max = self._spin_z_estimate.value()
 			points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
