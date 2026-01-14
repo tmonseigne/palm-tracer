@@ -275,8 +275,12 @@ class Astigmatism3DWidget(QWidget):
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
 		self._btn_estimate.clicked.connect(self._on_estimate)
 
+		# Lien entre les deux spin
+		self._spin_px_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_estimate, v))
+		self._spin_px_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_compute, v))
+
 	##################################################
-	# Callbacks : pour l'instant uniquement des print()
+	# Callbacks
 	##################################################
 	def _on_load_loc(self):
 		"""Callback du bouton 'Load Localization file (CSV)'."""
@@ -355,7 +359,7 @@ class Astigmatism3DWidget(QWidget):
 		"""Callback du bouton 'Compute coefficients'."""
 		if self._loc is None: print("Can't Compute model without correct file loaded.")
 		else:
-			pixel_size = self._spin_px_compute.value()
+			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 			points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
 			self._model = self._palm.astigmatism_3d_calibration(points, pixel_size)
 			model = pd.DataFrame(self._model, columns=MODEL_COLS, index=MODEL_ROWS)
@@ -390,7 +394,7 @@ class Astigmatism3DWidget(QWidget):
 				shutil.copy2(self._filename, backup_filename)
 				print(f"Backup done at {backup_filename}.")
 
-			pixel_size = self._spin_px_estimate.value()
+			pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
 			z_max = self._spin_z_estimate.value()
 			points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 			estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
@@ -398,6 +402,12 @@ class Astigmatism3DWidget(QWidget):
 			self._loc.to_csv(self._filename, index=False)
 			print("Localization file with estimation saved successfully.")
 
+	##################################################
+	@staticmethod
+	def _sync_spin(target: QDoubleSpinBox, value: float) -> None:
+		target.blockSignals(True)
+		target.setValue(value)
+		target.blockSignals(False)
 
 ##################################################
 def open_astigmatism3d():  # pragma: no cover
@@ -422,6 +432,6 @@ if __name__ == "__main__":  # pragma: no cover
 
 	app = QApplication(sys.argv)
 	w = Astigmatism3DWidget()
-	w.resize(500, 250)
+	w.resize(1000, 600)
 	w.show()
 	sys.exit(app.exec_())
