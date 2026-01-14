@@ -1,6 +1,6 @@
 """Fichier de fonctions génériques et constantes pour les widgets"""
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFormLayout, QGroupBox, QHBoxLayout, QLayout, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QFormLayout, QFrame, QGroupBox, QHBoxLayout, QLayout, QVBoxLayout, QWidget
 
 # ==================================================
 # region Constants
@@ -119,6 +119,26 @@ def make_form(parent: QWidget | None, space: int = COMMON_SPACE) -> QFormLayout:
 	form.setVerticalSpacing(space)
 	form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint)
 	return form
+
+
+##################################################
+def make_vertical_separator() -> QFrame:
+	"""Crée un séparateur vertical discret."""
+	sep = QFrame()
+	sep.setFrameShape(QFrame.Shape.VLine)
+	sep.setFrameShadow(QFrame.Shadow.Sunken)
+	sep.setStyleSheet("""QFrame {color: #B0B0B0;}""")
+	return sep
+
+
+##################################################
+def make_horizontal_separator() -> QFrame:
+	"""Crée un séparateur horizontal discret."""
+	sep = QFrame()
+	sep.setFrameShape(QFrame.Shape.HLine)
+	sep.setFrameShadow(QFrame.Shadow.Sunken)
+	sep.setStyleSheet("QFrame { color: #B0B0B0; }")
+	return sep
 
 # ==================================================
 # endregion Functions

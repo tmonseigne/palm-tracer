@@ -46,11 +46,11 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 
 
 ##################################################
-def sigma_model(model: np.ndarray, z: np.ndarray, pixel_size: float, sampling: float) -> np.ndarray:
+def sigma_model(model: np.ndarray, z: np.ndarray, pixel_size: float, sampling: float = 1) -> np.ndarray:
 	"""Modèle astigmatique sigma(z).
 
-	:param model:
-	:param z:
+	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param z: Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle.
 	:param pixel_size: Taille des pixels en nanomètres.
 	:param sampling: Facteur d'agrandissement (les fichiers de localisation sauvegardés, le sont avant agrandissement donc laisser à 1).
 	:return:
@@ -67,7 +67,7 @@ def sigma_model(model: np.ndarray, z: np.ndarray, pixel_size: float, sampling: f
 
 
 ##################################################
-def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sampling: float) -> dict:
+def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sampling: float = 1) -> dict:
 	"""
 	Calcule des métriques d'erreur entre (Sx, Sy) observés et (Sx, Sy) prédits par le modèle aux mêmes positions Z.
 
@@ -114,7 +114,8 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 			}
 
 
-def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: float, n_curve: int, pixel_size: float, sampling: float) -> dict:
+##################################################
+def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: float, n_curve: int, pixel_size: float, sampling: float = 1) -> dict:
 	"""
 	Évalue la validité d'un modèle astigmatique pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle.
 
@@ -141,8 +142,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z]
 	                (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
-	:param model: Modèle astigmatique de forme (2, 5) :
-	              paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
 	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z.
 	                Doit être suffisamment grand pour éviter une quantification de Z.

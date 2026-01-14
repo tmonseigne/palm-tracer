@@ -16,16 +16,20 @@ import os
 import shutil
 from typing import Optional
 
+import numpy as np
 import pandas as pd
-from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QLabel, QPushButton, QSpinBox,
-							QTabWidget, QVBoxLayout, QWidget)
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGridLayout, QHBoxLayout, QLabel,
+							QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget)
 
 from palm_tracer.Processing import Palm
-from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_ROWS, MODEL_COLS
+from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_COLS, model_projection_validity, MODEL_ROWS, model_validity
 from palm_tracer.Tools import print_error, print_warning
-from palm_tracer.UI.Utils import add_setting_row, init_layout, make_form, make_group, make_tab, STYLESHEET_GENERAL, STYLESHEET_INFO
+from palm_tracer.UI.Utils import (add_setting_row, COMMON_SPACE, init_layout, make_form, make_group, make_horizontal_separator,
+								  make_tab, make_vertical_separator, STYLESHEET_GENERAL, STYLESHEET_INFO)
 
 _alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+
 
 class Astigmatism3DWidget(QWidget):
 	"""
@@ -99,6 +103,45 @@ class Astigmatism3DWidget(QWidget):
 
 		tab_layout.addWidget(grp)
 		tab_layout.addWidget(self._btn_compute)
+
+		# Groupe Vérification de cohérence
+		self._sanity: list[dict[str, dict[str, QLabel | str]]] = [{
+				# Columns 1 title "Sigma Sanity Check"
+				"rmse_x":  {"label": QLabel("RMSE x:"), "value": QLabel("--"), "unit": QLabel("px"),
+							"tips":  "Root Mean Square Error on x (0 for a perfect model)."},
+				"rmse_y":  {"label": QLabel("RMSE y:"), "value": QLabel("--"), "unit": QLabel("px"),
+							"tips":  "Root Mean Square Error on y (0 for a perfect model)."},
+				"rmse_xy": {"label": QLabel("RMSE xy:"), "value": QLabel("--"), "unit": QLabel("px"),
+							"tips":  "Root Mean Square Error on x and y (0 for a perfect model)."},
+				"mae_x":   {"label": QLabel("MAE x:"), "value": QLabel("--"), "unit": QLabel("px"),
+							"tips":  "Mean Absolute Error on x (0 for a perfect model)."},
+				"mae_y":   {"label": QLabel("MAE y"), "value": QLabel("--"), "unit": QLabel("px"),
+							"tips":  "Mean Absolute Error on y (0 for a perfect model)."},
+				"r2_x":    {"label": QLabel("R² x:"), "value": QLabel("--"), "unit": QLabel("%"),
+							"tips":  "Percent of variance explained on x (100 % for a perfect model)."},
+				"r2_y":    {"label": QLabel("R² y:"), "value": QLabel("--"), "unit": QLabel("%"),
+							"tips":  "Percent of variance explained on y (100 % for a perfect model)."}}, {
+
+				# Columns 2 title "Z Sanity Check"
+				"rmse_z":    {"label": QLabel("RMSE z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+							  "tips":  "Root Mean Square Error on z (0 for a perfect model)."},
+				"mae_z":     {"label": QLabel("MAE z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+							  "tips":  "Mean Absolute Error on z (0 for a perfect model)."},
+				"p95_abs_z": {"label": QLabel("P95 z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+							  "tips":  "95e percentile of error distance on z."},
+				"bias_z":    {"label": QLabel("Bias z:"), "value": QLabel("--"), "unit": QLabel("nm"),
+							  "tips":  "Mean of error distance on z."},
+				"std_z":     {"label": QLabel("STD z"), "value": QLabel("--"), "unit": QLabel("nm"),
+							  "tips":  "Standard deviation of error distance on z."},
+				"mean_dist": {"label": QLabel("Curve Mean dist:"), "value": QLabel("--"), "unit": QLabel("px"),
+							  "tips":  "Mean of error distance with the curve."},
+				"p95_dist":  {"label": QLabel("Curve P95 dist:"), "value": QLabel("--"), "unit": QLabel("px"),
+							  "tips":  "95e percentile of error distance with the curve."}}]
+
+		grp, grp_layout = make_group(tab_compute, "Sanity Check")
+		grp_layout.addLayout(self.build_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
+
+		tab_layout.addWidget(grp)
 		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Estimate Z ----------
@@ -154,6 +197,73 @@ class Astigmatism3DWidget(QWidget):
 		# ---------- Style proche du GraphViewer ----------
 		# On applique un style général aux QPushButton
 		self.setStyleSheet(STYLESHEET_GENERAL)
+
+	##################################################
+	def build_sanity_check_layout(self, sanity: list[dict[str, dict[str, QLabel | str]]], titles: list[str]) -> QHBoxLayout:
+		"""
+		Construit le layout du groupe "Sanity Check" avec 2 colonnes d'indicateurs.
+
+		Chaque colonne affiche :
+		- un titre de colonne
+		- une liste de lignes, chaque ligne contenant : label | value | unit
+		  avec l'alignement : gauche | droite | gauche.
+
+		:param sanity: Structure de données : liste de 2 dictionnaires (une colonne par dict).
+					   Chaque entrée attend : "label": QLabel, "value": QLabel, "unit": QLabel, "tips": str
+		:param titles: Titres des 2 colonnes.
+		:return: Un QHBoxLayout prêt à être ajouté au calque du groupe.
+		"""
+		res = QHBoxLayout()
+		res.setContentsMargins(0, 0, 0, 0)
+		res.setSpacing(COMMON_SPACE)
+
+		res.addLayout(self._make_column_grid(sanity[0], titles[0]), stretch=1)
+		res.addWidget(make_vertical_separator())
+		res.addLayout(self._make_column_grid(sanity[1], titles[1]), stretch=1)
+		return res
+
+	##################################################
+	@staticmethod
+	def _make_column_grid(elements: dict[str, dict[str, QLabel | str]], title: str) -> QGridLayout:
+		"""Construit une colonne (titre + lignes) sous forme de QGridLayout."""
+		grid = QGridLayout()
+		grid.setContentsMargins(0, 0, 0, 0)
+		grid.setHorizontalSpacing(COMMON_SPACE)
+		grid.setVerticalSpacing(COMMON_SPACE)
+
+		# Titre de colonne
+		title_lbl = QLabel(title)
+		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+		title_lbl.setStyleSheet("font-weight: 600;")
+		grid.addWidget(title_lbl, 0, 0, 1, 3)
+		grid.addWidget(make_horizontal_separator(), 1, 0, 1, 3)
+
+		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
+		grid.setColumnStretch(0, 0)  # label
+		grid.setColumnStretch(1, 1)  # value (s'étire)
+		grid.setColumnStretch(2, 0)  # unit
+
+		row = 2
+		for key, item in elements.items():
+			lbl: QLabel = item["label"]
+			val: QLabel = item["value"]
+			unit: QLabel = item["unit"]
+			tips: str = item["tips"]
+
+			lbl.setToolTip(tips)  # Tooltips collé au label
+
+			# Alignements demandés : gauche | droite | gauche
+			lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+			val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+			unit.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+			grid.addWidget(lbl, row, 0)
+			grid.addWidget(val, row, 1)
+			grid.addWidget(unit, row, 2)
+
+			row += 1
+
+		return grid
 
 	##################################################
 	def _connect_signals(self):
@@ -251,6 +361,15 @@ class Astigmatism3DWidget(QWidget):
 			model = pd.DataFrame(self._model, columns=MODEL_COLS, index=MODEL_ROWS)
 			model.to_csv(os.path.join(self._folder, "astigmatism_3d_model.csv"))
 			print("Model saved successfully.")
+			# Mise à jour de l'onglet Sanity Check
+			metrics = model_validity(points, model.to_numpy(), pixel_size, 1)
+			for key in metrics:
+				if "r2" in key: self._sanity[0][key]["value"].setText(f"{100 * metrics[key]:0.2f}")
+				else: self._sanity[0][key]["value"].setText(f"{metrics[key]:0.5f}")
+
+			z_max = np.max(np.abs(points[:, 2]))
+			metrics = model_projection_validity(points, model.to_numpy(), z_max, 5000, pixel_size, 1)
+			for key in metrics: self._sanity[1][key]["value"].setText(f"{metrics[key]:0.5f}")
 
 	##################################################
 	def _on_estimate(self):
@@ -276,7 +395,7 @@ class Astigmatism3DWidget(QWidget):
 			points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 			estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
 			self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
-			self._loc.to_csv(self._filename)
+			self._loc.to_csv(self._filename, index=False)
 			print("Localization file with estimation saved successfully.")
 
 

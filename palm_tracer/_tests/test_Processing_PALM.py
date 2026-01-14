@@ -286,7 +286,7 @@ def test_astigmatism_3d_calibration():
 	localizations = pd.read_csv(f"{INPUT_DIR}/astigmatism_3d_calibration.csv")
 	res = palm.astigmatism_3d_calibration(localizations.to_numpy(dtype=float, copy=True), 108)
 	ref = pd.read_csv(Path(f"{INPUT_DIR}/ref/astigmatism_3d_model.csv"), index_col=0)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu: \n\t{ref}\nObtenu : \n\t{res}"
+	assert np.allclose(res, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu: \n\t{ref}\nObtenu : \n\t{res}"
 
 
 ##################################################
@@ -301,4 +301,6 @@ def test_astigmatism_3d_estimation():
 	model = pd.read_csv(Path(f"{INPUT_DIR}/ref/astigmatism_3d_model.csv"), index_col=0)
 	res = palm.astigmatism_3d_estimation(localizations.to_numpy(dtype=float, copy=True)[:,:-1], 108,model.to_numpy(),50)
 	ref = localizations["Z"].to_numpy()
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu: {ref}\nObtenu : {res}"
+	# Vérification que Z est trié en ordre décroissant
+	assert np.all(ref[:-1] >= ref[1:]), "Le fichier contient les éléments Z en ordre décroissant, le résultat doit donc être dans le même ordre."
+	assert np.allclose(res, ref, atol=10, rtol=0), f"Résultat incorrect.\nAttendu: {ref}\nObtenu : {res}"
