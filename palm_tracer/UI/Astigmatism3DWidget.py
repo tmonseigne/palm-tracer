@@ -281,7 +281,7 @@ class Astigmatism3DWidget(QWidget):
 
 
 ##################################################
-def open_alignment():  # pragma: no cover
+def open_astigmatism3d():  # pragma: no cover
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
 

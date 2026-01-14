@@ -25,6 +25,11 @@ contributions:
       python_name: palm_tracer:open_alignment
       title: Alignment Tool
 
+    # Commande pour ouvrir la fenêtre d'alignement
+    - id: palm-tracer.open_astigmatism3d
+      python_name: palm_tracer:open_astigmatism3d
+      title: Astigmatism 3D Tool
+
   widgets:
     - command: palm-tracer.make_qwidget
       display_name: PALM Tracer
@@ -40,3 +45,7 @@ contributions:
     # Widget "factice" qui sert juste de point d’entrée menu
     - command: palm-tracer.open_alignment
       display_name: Alignment Tool
+
+    # Widget "factice" qui sert juste de point d’entrée menu
+    - command: palm-tracer.open_astigmatism3d
+      display_name: Astigmatism 3D Tool
