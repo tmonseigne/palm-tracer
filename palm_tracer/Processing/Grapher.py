@@ -224,7 +224,10 @@ class Grapher:
 		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
 						  xaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text="Sigma X")),
 						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text="Sigma Y")),
-						  hovermode="x", showlegend=False)
+						  hovermode="closest", showlegend=False)
+
+		# fig.update_xaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
+		# fig.update_yaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
 		return fig
 
 	##################################################

@@ -8,8 +8,7 @@ Notes
 - Le widget est autonome : il peut être lancé directement (``python Astigmatism3DWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
 
 .. todo::
-   - Ajouter une visualisation (la ligne coloré avec ou sans un scatter des points ?)
-   - Ajouter une métrique type MSE du modèle par rapport aux datas ?
+   - Vérifier si les fichiers de calib vont sur un Z croissant ou décroissant
 """
 
 import os
@@ -25,8 +24,8 @@ from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog
 							QTextBrowser, QWidget)
 
 from palm_tracer.Processing import Grapher, Palm
-from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_COLS, model_projection_validity, MODEL_ROWS, model_validity
-from palm_tracer.Tools import print_error, print_warning
+from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_COLS, model_projection_validity, MODEL_ROWS, model_validity, z_from_planes
+from palm_tracer.Tools import print_error, print_success, print_warning
 from palm_tracer.UI.Utils import (add_setting_row, COMMON_SPACE, init_layout, make_form, make_group, make_horizontal_separator,
 								  make_tab, make_vertical_separator, STYLESHEET_GENERAL, STYLESHEET_INFO)
 
@@ -50,6 +49,7 @@ class Astigmatism3DWidget(QWidget):
 		- ``Compute Astigmatism Model`` :
 			- Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X, Sigma Y, Z.
 			- Spin float pour la taille des pixel en micromètres (μm/px) avec 3 décimales.
+			- Spin float pour la hauteur max sur Z (utilisé si le Z doit être calculé à partir des plans).
 			- Bouton pour lancer le calcul du modèle.
 
 		- ``Estimate Z`` :
@@ -108,8 +108,16 @@ class Astigmatism3DWidget(QWidget):
 		self._spin_px_compute = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_compute.setToolTip("Pixel size in micrometers.")
 
+		self._check_z_from_plane = QCheckBox(grp)
+		self._check_z_from_plane.setToolTip("Use the plane column to define the Z column.")
+
+		self._spin_z_compute = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=500)
+		self._spin_z_compute.setToolTip("Maximum absolute value of Z.")
+
 		form = make_form(None)
 		add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
+		add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
+		add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
@@ -180,7 +188,7 @@ class Astigmatism3DWidget(QWidget):
 		self._spin_px_estimate = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_estimate.setToolTip("Pixel size in micrometers.")
 
-		self._spin_z_estimate = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=600)
+		self._spin_z_estimate = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=500)
 		self._spin_z_estimate.setToolTip("Maximum absolute value of Z.")
 
 		self._check_b_estimate = QCheckBox(grp)
@@ -258,7 +266,7 @@ class Astigmatism3DWidget(QWidget):
 		title_lbl = QLabel(title)
 		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 		title_lbl.setStyleSheet("font-weight: 600;")
-		grid.addWidget(title_lbl, 0, 0, 1, 3)					 # Titre
+		grid.addWidget(title_lbl, 0, 0, 1, 3)  # Titre
 		grid.addWidget(make_horizontal_separator(), 1, 0, 1, 3)  # Séparateur horizontal
 
 		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
@@ -337,6 +345,8 @@ class Astigmatism3DWidget(QWidget):
 		# --- Lien entre les deux spin ---
 		self._spin_px_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_estimate, v))
 		self._spin_px_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_compute, v))
+		self._spin_z_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_estimate, v))
+		self._spin_z_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_compute, v))
 
 		# --- Mise à jour de l'affichage de la courbe ---
 		self._spin_px_compute.valueChanged.connect(self._update_plot)
@@ -382,7 +392,7 @@ class Astigmatism3DWidget(QWidget):
 		# --- mise à jour du Z Max ---
 		self._spin_z_estimate.setValue(self._loc["Z"].abs().max())
 
-		print(f"CSV loaded successfully. {len(self._loc)} points, {len(self._loc.columns)} columns")
+		print_success(f"CSV loaded successfully. {len(self._loc)} points, {len(self._loc.columns)} columns")
 
 	##################################################
 	def _on_load_model(self):
@@ -422,62 +432,92 @@ class Astigmatism3DWidget(QWidget):
 		# --- mise à jour de l'affichage ---
 		self._update_plot()
 
-		print("Model loaded successfully.")
+		print_success("Model loaded successfully.")
 
 	##################################################
 	def _on_compute(self):
-		"""Callback du bouton 'Compute coefficients'."""
-		if self._loc.empty: print("Can't Compute model without correct file loaded.")
-		else:
-			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
-			points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
-			model = self._palm.astigmatism_3d_calibration(points, pixel_size)
-			self._model = pd.DataFrame(model, columns=MODEL_COLS, index=MODEL_ROWS)
-			basename = "astigmatism_3d_model.csv"
-			filename = os.path.join(self._folder, basename)
-			self._model.to_csv(filename)
-			print("Model saved successfully.")
-			# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
-			self._update_sanity_values(points, model, pixel_size)
-			self._update_plot()
-			self._lbl_model_estimate.setText(basename)
-			self._lbl_model_estimate.setToolTip(filename)
+		"""Callback du bouton 'Compute model'."""
+		# --- Vérification ---
+		if self._loc.empty:
+			print_warning("Can't Compute model without correct file loaded.")
+			return
+
+		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
+		points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
+
+		# --- Mise à jour de Z (si sélectionné) ---
+		if self._check_z_from_plane.isChecked():
+			if "Plane" not in self._loc.columns:
+				print_warning("No Plane Column in file. We can't use it to intialize Z.")
+				return
+			z_max = self._spin_z_compute.value()
+			z = z_from_planes(self._loc["Plane"].to_numpy(), -z_max, z_max)  # Attention, savoir si on va de -Zmax à + Zmax ou de +Zmax à -Zmax
+			points[:, 2] = z
+
+		# --- Calcul ---
+		model = self._palm.astigmatism_3d_calibration(points, pixel_size)
+		self._model = pd.DataFrame(model, columns=MODEL_COLS, index=MODEL_ROWS)
+
+		# --- FIchier de sortie ---
+		basename = "astigmatism_3d_model.csv"
+		filename = os.path.join(self._folder, basename)
+		self._model.to_csv(filename)
+		print_success("Model saved successfully.")
+
+		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
+		self._update_sanity_values(points, model, pixel_size)
+		self._update_plot()
+		self._lbl_model_estimate.setText(basename)
+		self._lbl_model_estimate.setToolTip(filename)
 
 	##################################################
 	def _on_estimate(self):
-		"""Callback du bouton 'Start alignment'."""
-		if self._loc.empty: print("Can't estimate without correct localization file loaded.")
-		elif self._model.empty: print("Can't estimate without correct model file loaded.")
-		else:
-			# --- Enregistre un backup (si sélectionné) ---
-			if self._check_b_estimate.isChecked():
-				backup_dir = os.path.join(self._folder, "backup")
-				os.makedirs(backup_dir, exist_ok=True)		  # Créer le dossier de sorties (la première fois, il n'existe pas)
-				name, ext = os.path.splitext(self._basename)  # Séparation extension et nom de fichier
-				backup_filename = os.path.join(backup_dir, self._basename)
-				i = 1
-				# si le fichier existe déjà, on ajoute un _1 à la fin si _1 existe _2......
-				while os.path.exists(backup_filename):
-					backup_filename = os.path.join(backup_dir, f"{name}_{i}{ext}")
-					i += 1
-				shutil.copy2(self._filename, backup_filename)
-				print(f"Backup done at {backup_filename}.")
+		"""Callback du bouton 'Estimate'."""
+		# --- Vérifications ---
+		if self._loc.empty:
+			print_warning("Can't estimate without correct localization file loaded.")
+			return
+		if self._model.empty:
+			print_warning("Can't estimate without correct model file loaded.")
+			return
 
-			# --- Estimation ---
-			pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
-			z_max = self._spin_z_estimate.value()
-			points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
-			estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
-			self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
-			self._loc.to_csv(self._filename, index=False)
-			print("Localization file with estimation saved successfully.")
+		# --- Enregistre un backup (si sélectionné) ---
+		if self._check_b_estimate.isChecked():
+			backup_dir = os.path.join(self._folder, "backup")
+			os.makedirs(backup_dir, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
+			name, ext = os.path.splitext(self._basename)  # Séparation extension et nom de fichier
+			backup_filename = os.path.join(backup_dir, self._basename)
+			i = 1
+			# si le fichier existe déjà, on ajoute un _1 à la fin si _1 existe _2......
+			while os.path.exists(backup_filename):
+				backup_filename = os.path.join(backup_dir, f"{name}_{i}{ext}")
+				i += 1
+			shutil.copy2(self._filename, backup_filename)
+			print(f"Backup done at {backup_filename}.")
+
+		# --- Estimation ---
+		pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
+		z_max = self._spin_z_estimate.value()
+		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
+		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
+		self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
+		self._loc.to_csv(self._filename, index=False)
+		print_success("Localization file with estimation saved successfully.")
 
 	##################################################
 	@staticmethod
-	def _sync_spin(target: QDoubleSpinBox, value: float) -> None:
+	def _sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
+		"""
+		Synchronise une spinbox avec la valeur envoyé (par signal).
+		On bloque les signaux le temps de la mise à jour pour éviter les appels en série.
+
+		:param target: Spinbox à mettre à jour.
+		:param value: Valeur à insérer.
+		"""
 		target.blockSignals(True)
 		target.setValue(value)
 		target.blockSignals(False)
+
 
 ##################################################
 def open_astigmatism3d():  # pragma: no cover
