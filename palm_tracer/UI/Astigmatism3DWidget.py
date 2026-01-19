@@ -13,6 +13,7 @@ Notes
 
 import os
 import shutil
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -323,8 +324,16 @@ class Astigmatism3DWidget(QWidget):
 		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 		z_max = self._spin_z_estimate.value()
 		fig = self._grapher.astigmatism3d_curve("Astigmatism model", self._model.to_numpy(), pixel_size, z_max)
-		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
-		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
+		# Mode bar (export, zoom...)
+		config = dict(
+				responsive=True,
+				displayModeBar=True,
+				displaylogo=False,
+				modeBarButtonsToRemove=["zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d",
+										"resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian"],
+				toImageButtonOptions=dict(format="png", filename="astigmatism_3d_model", height=1200, width=1200, scale=2))
+
+		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config=config)
 		self._fig = fig
 		self._html = html
 
@@ -352,6 +361,9 @@ class Astigmatism3DWidget(QWidget):
 		self._spin_px_compute.valueChanged.connect(self._update_plot)
 		self._spin_px_estimate.valueChanged.connect(self._update_plot)
 		self._spin_z_estimate.valueChanged.connect(self._update_plot)
+
+		profile = self._web.page().profile()
+		profile.downloadRequested.connect(self._on_download_requested)
 
 	##################################################
 	# Callbacks
@@ -503,6 +515,27 @@ class Astigmatism3DWidget(QWidget):
 		self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
 		self._loc.to_csv(self._filename, index=False)
 		print_success("Localization file with estimation saved successfully.")
+
+	##################################################
+	def _on_download_requested(self, download):
+		"""
+		Intercepte le téléchargement Plotly (Save image) pour demander
+		explicitement où enregistrer le fichier.
+		"""
+		suggested_name = download.suggestedFileName()
+		print(suggested_name)
+		path, _ = QFileDialog.getSaveFileName(self, "Enregistrer l'image", os.path.join(self._folder, "astigmatism_3d_model"), "Images (*.png)")
+
+		print(path)
+		if not path:
+			download.cancel()
+			return
+
+		path = Path(path)
+		# Qt6: on règle le dossier + le nom de fichier séparément.
+		download.setDownloadDirectory(str(path.parent))
+		download.setDownloadFileName(path.name)
+		download.accept()
 
 	##################################################
 	@staticmethod

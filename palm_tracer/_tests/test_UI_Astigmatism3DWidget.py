@@ -43,14 +43,14 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Unable to read the CSV file" in out
-	assert w._loc is None
+	assert w._loc.empty
 
 	# Bad Localization Input
 	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "The localization file is not in the correct format." in out
-	assert w._loc is None
+	assert w._loc.empty
 
 	# Simuler un "Cancel" sur le QFileDialog
 	fake_qfiledialog(Astigmatism3DWidget, None)
@@ -63,14 +63,14 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Unable to read the CSV file" in out
-	assert w._loc is None
+	assert w._loc.empty
 
 	# Bad Localization Input
 	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
 	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "The localization file is not in the correct format." in out
-	assert w._loc is None
+	assert w._loc.empty
 
 	w.close()
 
@@ -96,14 +96,14 @@ def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Unable to read the model file:" in out
-	assert w._model is None
+	assert w._model.empty
 
 	# Bad Model Input
 	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
 	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "The model file is not in the correct format. Expected format: two lines of five values (2x5)." in out
-	assert w._model is None
+	assert w._model.empty
 
 	w.close()
 
@@ -141,7 +141,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "CSV loaded successfully." in out
-	assert w._loc is not None
+	assert not w._loc.empty
 	#
 	# Lancement du calcul
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
@@ -173,7 +173,7 @@ def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "CSV loaded successfully." in out
-	assert w._loc is not None
+	assert not w._loc.empty
 
 	# Estimation sans model
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
@@ -202,14 +202,14 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "CSV loaded successfully." in out
-	assert w._loc is not None
+	assert not w._loc.empty
 
 	# Chargement du fichier model
 	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/ref/astigmatism_3d_model.csv")
 	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Model loaded successfully." in out
-	assert w._model is not None
+	assert not w._model.empty
 
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
@@ -237,11 +237,18 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de vérification de lien entre les spin pixel size."""
-	assert False
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
 
+	init = w._spin_z_compute.value()
+	w._spin_z_compute.setValue(init + 1)
+	assert w._spin_z_estimate.value() == init + 1, "Mise à jour du spin sur Z invalide"
 
-##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_update_plot(qtbot, capsys):
-	"""Test basique de mises à jour du graphique."""
-	assert False
+	init = w._spin_px_compute.value()
+	w._spin_px_compute.setValue(init + 0.1)
+	assert w._spin_px_estimate.value() == init + 0.1, "Mise à jour du spin sur Pixel Size invalide"
+
+	w.close()
