@@ -26,7 +26,7 @@ from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_COLS, 
 from palm_tracer.Tools import print_error, print_success, print_warning
 from palm_tracer.UI.StandAloneWidget import StandAloneWidget
 
-_alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+_windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
 class Astigmatism3DWidget(StandAloneWidget):
@@ -305,6 +305,9 @@ class Astigmatism3DWidget(StandAloneWidget):
 	# endregion Initialisation
 	# ==================================================
 
+	# ==================================================
+	# region UI
+	# ==================================================
 	##################################################
 	def _update_sanity_values(self, points: np.ndarray, model: np.ndarray, pixel_size: float):
 		"""
@@ -333,9 +336,13 @@ class Astigmatism3DWidget(StandAloneWidget):
 		fig = self._grapher.astigmatism3d_curve("Astigmatism model", self._model.to_numpy(), pixel_size, z_max)
 		self._update_web_widget(self._web, fig)
 
-	##################################################
-	# Callbacks
-	##################################################
+	# ==================================================
+	# endregion UI
+	# ==================================================
+
+	# ==================================================
+	# region Callbacks
+	# ==================================================
 	##################################################
 	def _download_initial_path(self) -> Path:
 		""" Renvoie un chemin initial pour le téléchargement par plotly."""
@@ -495,6 +502,10 @@ class Astigmatism3DWidget(StandAloneWidget):
 		self._loc.to_csv(self._loc_filename, index=False)
 		print_success("Localization file with estimation saved successfully.")
 
+	# ==================================================
+	# endregion Callbacks
+	# ==================================================
+
 
 ##################################################
 def open_astigmatism3d():  # pragma: no cover
@@ -507,13 +518,7 @@ def open_astigmatism3d():  # pragma: no cover
 	widget = Astigmatism3DWidget()
 	widget.resize(500, 250)
 	widget.show()
-	_alignment_windows.append(widget)  # éviter que Python le détruise en le stockant
-
-
-# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
-# stub = QWidget()
-# stub.hide()
-# return stub
+	_windows.append(widget)  # éviter que Python le détruise en le stockant
 
 ##################################################
 if __name__ == "__main__":  # pragma: no cover

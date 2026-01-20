@@ -279,6 +279,8 @@ class GraphViewerWidget(StandAloneWidget):
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
+		self._connect_web_widget(self._web)
+
 		# Sources
 		self._btg_src.idClicked.connect(self._on_source_changed)
 		self._cmb_src.currentIndexChanged.connect(self._on_source_cmb_changed)
@@ -663,10 +665,9 @@ class GraphViewerWidget(StandAloneWidget):
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
-
-# ==================================================
-# endregion Drawing
-# ==================================================
+	# ==================================================
+	# endregion Drawing
+	# ==================================================
 
 
 ##################################################

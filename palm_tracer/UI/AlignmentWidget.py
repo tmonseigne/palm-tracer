@@ -30,7 +30,7 @@ from palm_tracer.Processing import Palm
 from palm_tracer.Tools import open_tif, print_error, print_warning, save_tif
 from palm_tracer.UI.StandAloneWidget import StandAloneWidget
 
-_alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+_windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
 class AlignmentWidget(StandAloneWidget):
@@ -48,6 +48,9 @@ class AlignmentWidget(StandAloneWidget):
 			- Bouton pour lancer l'alignement.
 	"""
 
+	# ==================================================
+	# region Initialisation
+	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
 		"""
@@ -149,9 +152,13 @@ class AlignmentWidget(StandAloneWidget):
 		self._btn_load_coef_apply.clicked.connect(self._on_load_coef)
 		self._btn_start_alignment.clicked.connect(self._on_start_alignment)
 
-	##################################################
-	# Callbacks : pour l'instant uniquement des print()
-	##################################################
+	# ==================================================
+	# endregion Initialisation
+	# ==================================================
+
+	# ==================================================
+	# region Callbacks
+	# ==================================================
 	def _on_load_tif(self):
 		"""Callback du bouton 'Load TIFF file'."""
 		# --- boîte de dialogue pour sélectionner un .tif ---
@@ -238,6 +245,10 @@ class AlignmentWidget(StandAloneWidget):
 			save_tif(aligned, self._output_filename)
 			print(f"File saved at {self._output_filename} (upscale={upscale}).")
 
+	# ==================================================
+	# endregion Callbacks
+	# ==================================================
+
 
 ##################################################
 def open_alignment():  # pragma: no cover
@@ -250,13 +261,12 @@ def open_alignment():  # pragma: no cover
 	widget = AlignmentWidget()
 	widget.resize(500, 250)
 	widget.show()
-	_alignment_windows.append(widget)  # éviter que Python le détruise en le stockant
+	_windows.append(widget)  # éviter que Python le détruise en le stockant
+	# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
+	# stub = QWidget()
+	# stub.hide()
+	# return stub
 
-
-# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
-# stub = QWidget()
-# stub.hide()
-# return stub
 
 ##################################################
 if __name__ == "__main__":  # pragma: no cover

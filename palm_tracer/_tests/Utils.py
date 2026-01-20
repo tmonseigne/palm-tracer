@@ -10,6 +10,7 @@ from scipy.spatial import cKDTree
 from palm_tracer.Tools import FileIO, print_error, print_success, print_warning
 
 INPUT_DIR = Path(__file__).parent / "input"
+REF_DIR = INPUT_DIR / "ref"
 OUTPUT_DIR = Path(__file__).parent / "output"
 
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
@@ -202,3 +203,23 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		res = exact_matches == total_points
 
 	return res
+
+
+##################################################
+class _FakeDownload:
+	def __init__(self, suggested="plot.png"):
+		self._suggested = suggested
+		self.directory = None
+		self.filename = None
+		self.accepted = False
+		self.canceled = False
+
+	def suggestedFileName(self): return self._suggested
+
+	def setDownloadDirectory(self, d): self.directory = d
+
+	def setDownloadFileName(self, f): self.filename = f
+
+	def accept(self): self.accepted = True
+
+	def cancel(self): self.canceled = True

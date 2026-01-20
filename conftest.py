@@ -70,9 +70,14 @@ def fake_qfiledialog(monkeypatch):
 			if filename is None: return ""  # Cas où l'utilisateur clique sur "Annuler"
 			return filename
 
+		def _fake_get_save_file_name(parent=None, caption="", directory="", *args, **kwargs):
+			if filename is None: return "", ""  # Cas où l'utilisateur clique sur "Annuler"
+			return filename, filter_str
+
 		# PATCH : on remplace les méthodes getOpenFileName et getExistingDirectory utilisées par ce module
-		monkeypatch.setattr(module.QFileDialog, "getOpenFileName",_fake_get_open_file_name)
-		monkeypatch.setattr(module.QFileDialog,"getExistingDirectory",_fake_get_existing_directory)
+		monkeypatch.setattr(module.QFileDialog, "getOpenFileName", _fake_get_open_file_name)
+		monkeypatch.setattr(module.QFileDialog, "getSaveFileName", _fake_get_save_file_name)
+		monkeypatch.setattr(module.QFileDialog, "getExistingDirectory", _fake_get_existing_directory)
 
 	return _factory
 
