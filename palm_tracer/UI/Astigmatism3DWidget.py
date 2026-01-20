@@ -11,7 +11,6 @@ Notes
    - Vérifier si les fichiers de calib vont sur un Z croissant ou décroissant
 """
 
-import os
 import shutil
 from pathlib import Path
 from typing import Optional
@@ -74,8 +73,9 @@ class Astigmatism3DWidget(QWidget):
 		self.setWindowTitle("Astigmatism 3D Tool")
 
 		self._palm = Palm()
-		self._folder = ""
-		self._filename: str = ""
+		self._loc_filename: Path = Path()
+		self._mod_filename: Path = Path()
+		self._png_filename: Path = Path()
 		self._loc: pd.DataFrame = pd.DataFrame()
 		self._model: pd.DataFrame = pd.DataFrame()
 
@@ -362,8 +362,9 @@ class Astigmatism3DWidget(QWidget):
 		self._spin_px_estimate.valueChanged.connect(self._update_plot)
 		self._spin_z_estimate.valueChanged.connect(self._update_plot)
 
-		profile = self._web.page().profile()
-		profile.downloadRequested.connect(self._on_download_requested)
+		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):  # pragma: no cover Vérification en cas d'UI defectueuse
+			profile = self._web.page().profile()
+			profile.downloadRequested.connect(self._on_download_requested)
 
 	##################################################
 	# Callbacks
@@ -371,17 +372,17 @@ class Astigmatism3DWidget(QWidget):
 	def _on_load_loc(self):
 		"""Callback du bouton 'Load Localization file (CSV)'."""
 		# --- boîte de dialogue pour sélectionner un .csv ---
-		self._filename, _ = QFileDialog.getOpenFileName(self, "Select Localization CSV file", "", "CSV files (*.csv)")
+		filename, _ = QFileDialog.getOpenFileName(self, "Select Localization CSV file", "", "CSV files (*.csv)")
 
-		if not self._filename:
+		if not filename:
 			print_warning("No file selected.")
 			return
 
 		# --- lecture du fichier ---
 		try:
-			print(f"Selected file: {self._filename}.")
-			self._folder, self._basename = os.path.dirname(self._filename), os.path.basename(self._filename)  # dossier du fichier, nom + extension
-			self._loc = pd.read_csv(self._filename)
+			print(f"Selected file: {filename}.")
+			self._loc_filename = Path(filename)
+			self._loc = pd.read_csv(filename)
 		except Exception as e:
 			self._loc = pd.DataFrame()
 			print_error(f"Unable to read the CSV file : {e}.")
@@ -396,10 +397,10 @@ class Astigmatism3DWidget(QWidget):
 			return
 
 		# --- mise à jour du label associé au bouton ---
-		self._lbl_compute.setText(self._basename)
-		self._lbl_compute.setToolTip(self._filename)
-		self._lbl_loc_estimate.setText(self._basename)
-		self._lbl_loc_estimate.setToolTip(self._filename)
+		self._lbl_compute.setText(self._loc_filename.name)
+		self._lbl_compute.setToolTip(filename)
+		self._lbl_loc_estimate.setText(self._loc_filename.name)
+		self._lbl_loc_estimate.setToolTip(filename)
 
 		# --- mise à jour du Z Max ---
 		self._spin_z_estimate.setValue(self._loc["Z"].abs().max())
@@ -424,6 +425,7 @@ class Astigmatism3DWidget(QWidget):
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
+			self._mod_filename = Path(filename)
 			self._model = pd.read_csv(filename, index_col=0)
 		except Exception as e:
 			self._model = pd.DataFrame()
@@ -437,8 +439,7 @@ class Astigmatism3DWidget(QWidget):
 			return
 
 		# --- mise à jour du label de statut ---
-		basename = os.path.basename(filename)
-		self._lbl_model_estimate.setText(basename)
+		self._lbl_model_estimate.setText(self._mod_filename.name)
 		self._lbl_model_estimate.setToolTip(filename)
 
 		# --- mise à jour de l'affichage ---
@@ -470,17 +471,16 @@ class Astigmatism3DWidget(QWidget):
 		model = self._palm.astigmatism_3d_calibration(points, pixel_size)
 		self._model = pd.DataFrame(model, columns=MODEL_COLS, index=MODEL_ROWS)
 
-		# --- FIchier de sortie ---
-		basename = "astigmatism_3d_model.csv"
-		filename = os.path.join(self._folder, basename)
-		self._model.to_csv(filename)
+		# --- Fichier de sortie ---
+		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
+		self._model.to_csv(str(self._mod_filename))
 		print_success("Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
 		self._update_sanity_values(points, model, pixel_size)
 		self._update_plot()
-		self._lbl_model_estimate.setText(basename)
-		self._lbl_model_estimate.setToolTip(filename)
+		self._lbl_model_estimate.setText(self._mod_filename.name)
+		self._lbl_model_estimate.setToolTip(str(self._mod_filename))
 
 	##################################################
 	def _on_estimate(self):
@@ -495,17 +495,22 @@ class Astigmatism3DWidget(QWidget):
 
 		# --- Enregistre un backup (si sélectionné) ---
 		if self._check_b_estimate.isChecked():
-			backup_dir = os.path.join(self._folder, "backup")
-			os.makedirs(backup_dir, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-			name, ext = os.path.splitext(self._basename)  # Séparation extension et nom de fichier
-			backup_filename = os.path.join(backup_dir, self._basename)
+			backup_dir: Path = self._loc_filename.parent / "backup"
+			backup_dir.mkdir(parents=True, exist_ok=True)
+
+			name: str = self._loc_filename.stem  # "fichier"
+			ext: str = self._loc_filename.suffix  # ".csv"
+
+			backup_filename: Path = backup_dir / self._loc_filename.name
 			i = 1
-			# si le fichier existe déjà, on ajoute un _1 à la fin si _1 existe _2......
-			while os.path.exists(backup_filename):
-				backup_filename = os.path.join(backup_dir, f"{name}_{i}{ext}")
+
+			# Si le fichier existe déjà, on ajoute _1, _2, ...
+			while backup_filename.exists():
+				backup_filename = backup_dir / f"{name}_{i}{ext}"
 				i += 1
-			shutil.copy2(self._filename, backup_filename)
-			print(f"Backup done at {backup_filename}.")
+
+			shutil.copy2(self._loc_filename, backup_filename)
+			print(f"Backup done at {backup_filename}")
 
 		# --- Estimation ---
 		pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
@@ -513,7 +518,7 @@ class Astigmatism3DWidget(QWidget):
 		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
 		self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
-		self._loc.to_csv(self._filename, index=False)
+		self._loc.to_csv(self._loc_filename, index=False)
 		print_success("Localization file with estimation saved successfully.")
 
 	##################################################
@@ -522,11 +527,11 @@ class Astigmatism3DWidget(QWidget):
 		Intercepte le téléchargement Plotly (Save image) pour demander
 		explicitement où enregistrer le fichier.
 		"""
-		suggested_name = download.suggestedFileName()
-		print(suggested_name)
-		path, _ = QFileDialog.getSaveFileName(self, "Enregistrer l'image", os.path.join(self._folder, "astigmatism_3d_model"), "Images (*.png)")
+		parent: Path = self._mod_filename.parent if self._mod_filename != Path() else self._loc_filename.parent if self._loc_filename != Path() else Path.cwd()
+		output_name: Path = parent / "astigmatism_3d_model"
 
-		print(path)
+		path, _ = QFileDialog.getSaveFileName(self, "Enregistrer l'image", str(output_name), "Images (*.png)")
+
 		if not path:
 			download.cancel()
 			return
@@ -567,7 +572,7 @@ def open_astigmatism3d():  # pragma: no cover
 	# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
 	# stub = QWidget()
 	# stub.hide()
-	# return stub
+# return stub
 
 ##################################################
 if __name__ == "__main__":  # pragma: no cover
