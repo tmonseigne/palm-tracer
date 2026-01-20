@@ -17,31 +17,19 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.io as pio
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGridLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget,
-							QTextBrowser, QWidget)
+							QWidget)
 
 from palm_tracer.Processing import Grapher, Palm
 from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_COLS, model_projection_validity, MODEL_ROWS, model_validity, z_from_planes
 from palm_tracer.Tools import print_error, print_success, print_warning
-from palm_tracer.UI.Utils import (add_setting_row, COMMON_SPACE, init_layout, make_form, make_group, make_horizontal_separator,
-								  make_tab, make_vertical_separator, STYLESHEET_GENERAL, STYLESHEET_INFO)
-
-# Tentative d'import QtWebEngine (via qtpy)
-try:
-	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
-
-	_HAS_WEBENGINE = True
-except Exception:
-	QWebEngineView = None  # type: ignore
-	_HAS_WEBENGINE = False
+from palm_tracer.UI.StandAloneWidget import StandAloneWidget
 
 _alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class Astigmatism3DWidget(QWidget):
+class Astigmatism3DWidget(StandAloneWidget):
 	"""
 	Widget minimaliste pour le calcul d'un modèle d’astigmatisme en lien avec la position axiale et l'estimation d'une position axiale en fonction d'un modèle.
 
@@ -62,6 +50,9 @@ class Astigmatism3DWidget(QWidget):
 	 La partie de droite sert à visualiser le modèle calculé ou chargé.
 	"""
 
+	# ==================================================
+	# region Initialisation
+	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
 		"""
@@ -79,8 +70,6 @@ class Astigmatism3DWidget(QWidget):
 		self._loc: pd.DataFrame = pd.DataFrame()
 		self._model: pd.DataFrame = pd.DataFrame()
 
-		self._fig: go.Figure = go.Figure()
-		self._html: str = ""
 		self._grapher = Grapher()
 
 		self._init_ui()
@@ -92,19 +81,19 @@ class Astigmatism3DWidget(QWidget):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 
 		main_layout = QHBoxLayout(self)
-		init_layout(main_layout)
+		self._init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
 
 		# ---------- Onglet 1 : Compute Model ----------
-		tab_compute, tab_layout = make_tab(self._tabs)
-		grp, grp_layout = make_group(tab_compute, "Inputs")
+		tab_compute, tab_layout = self._make_tab(self._tabs)
+		grp, grp_layout = self._make_group(tab_compute, "Inputs")
 
 		self._btn_load_compute = QPushButton("Load Localization file (CSV)", grp)
 		self._btn_load_compute.setToolTip("The file must contain at least 3 columns : Sigma X, Sigma Y, Z")
 
 		self._lbl_compute = QLabel("No file loaded", grp)
-		self._lbl_compute.setStyleSheet(STYLESHEET_INFO)
+		self._lbl_compute.setStyleSheet(self.STYLESHEET_INFO)
 
 		self._spin_px_compute = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_compute.setToolTip("Pixel size in micrometers.")
@@ -115,10 +104,10 @@ class Astigmatism3DWidget(QWidget):
 		self._spin_z_compute = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=500)
 		self._spin_z_compute.setToolTip("Maximum absolute value of Z.")
 
-		form = make_form(None)
-		add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
-		add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
-		add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
+		form = self._make_form(None)
+		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
+		self._add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
+		self._add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
@@ -164,27 +153,27 @@ class Astigmatism3DWidget(QWidget):
 				"p95_dist":  {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							  "tips":  "95e percentile of error distance with the curve."}}]
 
-		grp, grp_layout = make_group(tab_compute, "Sanity Check")
+		grp, grp_layout = self._make_group(tab_compute, "Sanity Check")
 		grp_layout.addLayout(self._init_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
 
 		tab_layout.addWidget(grp)
 		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Estimate Z ----------
-		tab_estimate, tab_layout = make_tab(self._tabs)
-		grp, grp_layout = make_group(tab_estimate, "Inputs")
+		tab_estimate, tab_layout = self._make_tab(self._tabs)
+		grp, grp_layout = self._make_group(tab_estimate, "Inputs")
 
 		self._btn_load_loc_estimate = QPushButton("Load Localization file (CSV)", grp)
 		self._btn_load_loc_estimate.setToolTip("The file must contain at least 3 columns : Sigma X, Sigma Y, Z")
 
 		self._lbl_loc_estimate = QLabel("No file loaded", grp)
-		self._lbl_loc_estimate.setStyleSheet(STYLESHEET_INFO)
+		self._lbl_loc_estimate.setStyleSheet(self.STYLESHEET_INFO)
 
 		self._btn_load_model_estimate = QPushButton("Load Model file (CSV)", grp)
 		self._btn_load_model_estimate.setToolTip("The file is a csv with 2 lines and 5 columns.")
 
 		self._lbl_model_estimate = QLabel("No Model file loaded", grp)
-		self._lbl_model_estimate.setStyleSheet(STYLESHEET_INFO)
+		self._lbl_model_estimate.setStyleSheet(self.STYLESHEET_INFO)
 
 		self._spin_px_estimate = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_estimate.setToolTip("Pixel size in micrometers.")
@@ -196,10 +185,10 @@ class Astigmatism3DWidget(QWidget):
 		self._check_b_estimate.setChecked(True)
 		self._check_b_estimate.setToolTip("Save original localisation file in backup folder.")
 
-		form = make_form(None)
-		add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate)
-		add_setting_row(form, "Z Max (nm):", self._spin_z_estimate)
-		add_setting_row(form, "Save Backup:", self._check_b_estimate)
+		form = self._make_form(None)
+		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate)
+		self._add_setting_row(form, "Z Max (nm):", self._spin_z_estimate)
+		self._add_setting_row(form, "Save Backup:", self._check_b_estimate)
 
 		grp_layout.addWidget(self._btn_load_loc_estimate)
 		grp_layout.addWidget(self._lbl_loc_estimate)
@@ -218,17 +207,10 @@ class Astigmatism3DWidget(QWidget):
 		self._tabs.addTab(tab_compute, "Compute Model")
 		self._tabs.addTab(tab_estimate, "Estimate Z")
 
-		# Zone droite : QWebEngineView avec Plotly
-		if _HAS_WEBENGINE: self._web = QWebEngineView(self)
-		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
-			self._web = QTextBrowser(self)
-			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+		self._web = self._make_web_widget()
 
 		main_layout.addWidget(self._tabs)
 		main_layout.addWidget(self._web, stretch=1)
-
-		# On applique un style général aux QPushButton
-		self.setStyleSheet(STYLESHEET_GENERAL)
 
 	##################################################
 	def _init_sanity_check_layout(self, sanity: list[dict[str, dict[str, QLabel | str]]], titles: list[str]) -> QHBoxLayout:
@@ -247,28 +229,27 @@ class Astigmatism3DWidget(QWidget):
 		"""
 		res = QHBoxLayout()
 		res.setContentsMargins(0, 0, 0, 0)
-		res.setSpacing(COMMON_SPACE)
+		res.setSpacing(self.COMMON_SPACE)
 
 		res.addLayout(self._make_column_grid(sanity[0], titles[0]), stretch=1)
-		res.addWidget(make_vertical_separator())
+		res.addWidget(self._make_vertical_separator())
 		res.addLayout(self._make_column_grid(sanity[1], titles[1]), stretch=1)
 		return res
 
 	##################################################
-	@staticmethod
-	def _make_column_grid(elements: dict[str, dict[str, QLabel | str]], title: str) -> QGridLayout:
+	def _make_column_grid(self, elements: dict[str, dict[str, QLabel | str]], title: str) -> QGridLayout:
 		"""Construit une colonne (titre + lignes) sous forme de QGridLayout."""
 		grid = QGridLayout()
 		grid.setContentsMargins(0, 0, 0, 0)
-		grid.setHorizontalSpacing(COMMON_SPACE)
-		grid.setVerticalSpacing(COMMON_SPACE)
+		grid.setHorizontalSpacing(self.COMMON_SPACE)
+		grid.setVerticalSpacing(self.COMMON_SPACE)
 
 		# Titre de colonne
 		title_lbl = QLabel(title)
 		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 		title_lbl.setStyleSheet("font-weight: 600;")
 		grid.addWidget(title_lbl, 0, 0, 1, 3)  # Titre
-		grid.addWidget(make_horizontal_separator(), 1, 0, 1, 3)  # Séparateur horizontal
+		grid.addWidget(self._make_horizontal_separator(), 1, 0, 1, 3)  # Séparateur horizontal
 
 		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
 		grid.setColumnStretch(0, 0)  # label
@@ -298,6 +279,33 @@ class Astigmatism3DWidget(QWidget):
 		return grid
 
 	##################################################
+	def _connect_signals(self):
+		"""Connecte les signaux des boutons aux callbacks."""
+		self._btn_load_compute.clicked.connect(self._on_load_loc)
+		self._btn_compute.clicked.connect(self._on_compute)
+
+		self._btn_load_loc_estimate.clicked.connect(self._on_load_loc)
+		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
+		self._btn_estimate.clicked.connect(self._on_estimate)
+
+		# --- Lien entre les deux spin ---
+		self._spin_px_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_estimate, v))
+		self._spin_px_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_compute, v))
+		self._spin_z_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_estimate, v))
+		self._spin_z_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_compute, v))
+
+		# --- Mise à jour de l'affichage de la courbe ---
+		self._spin_px_compute.valueChanged.connect(self._update_plot)
+		self._spin_px_estimate.valueChanged.connect(self._update_plot)
+		self._spin_z_estimate.valueChanged.connect(self._update_plot)
+
+		self._connect_web_widget(self._web)
+
+	# ==================================================
+	# endregion Initialisation
+	# ==================================================
+
+	##################################################
 	def _update_sanity_values(self, points: np.ndarray, model: np.ndarray, pixel_size: float):
 		"""
 		Mise à jour de l'onglet Sanity Check
@@ -320,54 +328,20 @@ class Astigmatism3DWidget(QWidget):
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-
 		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 		z_max = self._spin_z_estimate.value()
 		fig = self._grapher.astigmatism3d_curve("Astigmatism model", self._model.to_numpy(), pixel_size, z_max)
-		# Mode bar (export, zoom...)
-		config = dict(
-				responsive=True,
-				displayModeBar=True,
-				displaylogo=False,
-				modeBarButtonsToRemove=["zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d",
-										"resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian"],
-				toImageButtonOptions=dict(format="png", filename="astigmatism_3d_model", height=1200, width=1200, scale=2))
-
-		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config=config)
-		self._fig = fig
-		self._html = html
-
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
-		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
-			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
-
-	##################################################
-	def _connect_signals(self):
-		"""Connecte les signaux des boutons aux callbacks."""
-		self._btn_load_compute.clicked.connect(self._on_load_loc)
-		self._btn_compute.clicked.connect(self._on_compute)
-
-		self._btn_load_loc_estimate.clicked.connect(self._on_load_loc)
-		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
-		self._btn_estimate.clicked.connect(self._on_estimate)
-
-		# --- Lien entre les deux spin ---
-		self._spin_px_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_estimate, v))
-		self._spin_px_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_compute, v))
-		self._spin_z_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_estimate, v))
-		self._spin_z_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_compute, v))
-
-		# --- Mise à jour de l'affichage de la courbe ---
-		self._spin_px_compute.valueChanged.connect(self._update_plot)
-		self._spin_px_estimate.valueChanged.connect(self._update_plot)
-		self._spin_z_estimate.valueChanged.connect(self._update_plot)
-
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):  # pragma: no cover Vérification en cas d'UI defectueuse
-			profile = self._web.page().profile()
-			profile.downloadRequested.connect(self._on_download_requested)
+		self._update_web_widget(self._web, fig)
 
 	##################################################
 	# Callbacks
+	##################################################
+	##################################################
+	def _download_initial_path(self) -> Path:
+		""" Renvoie un chemin initial pour le téléchargement par plotly."""
+		parent: Path = self._mod_filename.parent if self._mod_filename != Path() else self._loc_filename.parent if self._loc_filename != Path() else Path.cwd()
+		return parent / "astigmatism_3d_model"
+
 	##################################################
 	def _on_load_loc(self):
 		"""Callback du bouton 'Load Localization file (CSV)'."""
@@ -521,41 +495,6 @@ class Astigmatism3DWidget(QWidget):
 		self._loc.to_csv(self._loc_filename, index=False)
 		print_success("Localization file with estimation saved successfully.")
 
-	##################################################
-	def _on_download_requested(self, download):
-		"""
-		Intercepte le téléchargement Plotly (Save image) pour demander
-		explicitement où enregistrer le fichier.
-		"""
-		parent: Path = self._mod_filename.parent if self._mod_filename != Path() else self._loc_filename.parent if self._loc_filename != Path() else Path.cwd()
-		output_name: Path = parent / "astigmatism_3d_model"
-
-		path, _ = QFileDialog.getSaveFileName(self, "Enregistrer l'image", str(output_name), "Images (*.png)")
-
-		if not path:
-			download.cancel()
-			return
-
-		path = Path(path)
-		# Qt6: on règle le dossier + le nom de fichier séparément.
-		download.setDownloadDirectory(str(path.parent))
-		download.setDownloadFileName(path.name)
-		download.accept()
-
-	##################################################
-	@staticmethod
-	def _sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
-		"""
-		Synchronise une spinbox avec la valeur envoyé (par signal).
-		On bloque les signaux le temps de la mise à jour pour éviter les appels en série.
-
-		:param target: Spinbox à mettre à jour.
-		:param value: Valeur à insérer.
-		"""
-		target.blockSignals(True)
-		target.setValue(value)
-		target.blockSignals(False)
-
 
 ##################################################
 def open_astigmatism3d():  # pragma: no cover
@@ -569,9 +508,11 @@ def open_astigmatism3d():  # pragma: no cover
 	widget.resize(500, 250)
 	widget.show()
 	_alignment_windows.append(widget)  # éviter que Python le détruise en le stockant
-	# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
-	# stub = QWidget()
-	# stub.hide()
+
+
+# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
+# stub = QWidget()
+# stub.hide()
 # return stub
 
 ##################################################

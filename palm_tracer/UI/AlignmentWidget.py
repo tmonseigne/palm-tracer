@@ -28,12 +28,12 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QSpin
 
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import open_tif, print_error, print_warning, save_tif
-from palm_tracer.UI.Utils import add_setting_row, init_layout, make_form, make_group, make_tab, STYLESHEET_GENERAL, STYLESHEET_INFO
+from palm_tracer.UI.StandAloneWidget import StandAloneWidget
 
 _alignment_windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class AlignmentWidget(QWidget):
+class AlignmentWidget(StandAloneWidget):
 	"""
 	Widget minimaliste pour la gestion de l'alignement entre acquisitions.
 
@@ -70,13 +70,13 @@ class AlignmentWidget(QWidget):
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
-		init_layout(main_layout)
+		self._init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
 
 		# ---------- Onglet 1 : Compute Alignment Coefficients ----------
-		tab_compute, tab_layout = make_tab(self._tabs)
-		grp, grp_layout = make_group(tab_compute, "Inputs")
+		tab_compute, tab_layout = self._make_tab(self._tabs)
+		grp, grp_layout = self._make_group(tab_compute, "Inputs")
 
 		self._btn_load_tif_compute = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_compute.setToolTip(
@@ -86,7 +86,7 @@ class AlignmentWidget(QWidget):
 				)
 
 		self._lbl_tif_compute = QLabel("No file loaded", grp)
-		self._lbl_tif_compute.setStyleSheet(STYLESHEET_INFO)
+		self._lbl_tif_compute.setStyleSheet(self.STYLESHEET_INFO)
 
 		grp_layout.addWidget(self._btn_load_tif_compute)
 		grp_layout.addWidget(self._lbl_tif_compute)
@@ -99,8 +99,8 @@ class AlignmentWidget(QWidget):
 		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Apply Alignment ----------
-		tab_apply, tab_layout = make_tab(self._tabs)
-		grp, grp_layout = make_group(tab_apply, "Inputs")
+		tab_apply, tab_layout = self._make_tab(self._tabs)
+		grp, grp_layout = self._make_group(tab_apply, "Inputs")
 
 		self._btn_load_tif_apply = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_apply.setToolTip("Load the TIFF file to which the alignment should be applied.")
@@ -109,16 +109,16 @@ class AlignmentWidget(QWidget):
 		self._btn_load_coef_apply.setToolTip("Load the file containing the alignment coefficients.")
 
 		self._lbl_tif_apply = QLabel("No TIFF file loaded", grp)
-		self._lbl_tif_apply.setStyleSheet(STYLESHEET_INFO)
+		self._lbl_tif_apply.setStyleSheet(self.STYLESHEET_INFO)
 
 		self._lbl_coef_apply = QLabel("No coefficients file loaded", grp)
-		self._lbl_coef_apply.setStyleSheet(STYLESHEET_INFO)
+		self._lbl_coef_apply.setStyleSheet(self.STYLESHEET_INFO)
 
 		self._spin_upscale = QSpinBox(grp, minimum=1, maximum=1000, singleStep=1, value=1)
 		self._spin_upscale.setToolTip("Integer upscaling factor for the output aligned image (1 = no upscaling).")
 
-		form = make_form(None)
-		add_setting_row(form, "Upscaling factor:", self._spin_upscale)
+		form = self._make_form(None)
+		self._add_setting_row(form, "Upscaling factor:", self._spin_upscale)
 
 		grp_layout.addWidget(self._btn_load_tif_apply)
 		grp_layout.addWidget(self._lbl_tif_apply)
@@ -138,10 +138,6 @@ class AlignmentWidget(QWidget):
 		self._tabs.addTab(tab_apply, "Apply Alignment")
 
 		main_layout.addWidget(self._tabs)
-
-		# ---------- Style proche du GraphViewer ----------
-		# On applique un style général aux QPushButton
-		self.setStyleSheet(STYLESHEET_GENERAL)
 
 	##################################################
 	def _connect_signals(self):
@@ -256,10 +252,11 @@ def open_alignment():  # pragma: no cover
 	widget.show()
 	_alignment_windows.append(widget)  # éviter que Python le détruise en le stockant
 
-	# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
-	# stub = QWidget()
-	# stub.hide()
-	# return stub
+
+# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
+# stub = QWidget()
+# stub.hide()
+# return stub
 
 ##################################################
 if __name__ == "__main__":  # pragma: no cover

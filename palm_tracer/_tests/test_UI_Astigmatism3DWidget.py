@@ -216,10 +216,55 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert f"Backup done at" in out
 	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration.csv"))
 
+	shutil.copy2(backup_file, LOC_FILE)
+	if os.path.isfile(backup_file): os.remove(backup_file)
+	shutil.rmtree(f"{INPUT_DIR}/backup", ignore_errors=True)
+
+	w.close()
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de lancement de l'estimation."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	backup_file = f"{LOC_FILE}.tmp"
+	shutil.copy2(LOC_FILE, backup_file)
+
+	# Chargement du fichier de localisation
+	fake_qfiledialog(Astigmatism3DWidget, LOC_FILE)
+	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "CSV loaded successfully." in out
+	assert not w._loc.empty
+
+	# Chargement du fichier model
+	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/ref/astigmatism_3d_model.csv")
+	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Model loaded successfully." in out
+	assert not w._model.empty
+
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert f"Backup done at" in out
+	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration.csv"))
+
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)  # Test de multiple backup
 	out, err = capsys.readouterr()
 	assert f"Backup done at" in out
 	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration_1.csv"))
+
+	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)  # Test de multiple backup
+	out, err = capsys.readouterr()
+	assert f"Backup done at" in out
+	assert os.path.isfile(Path(f"{INPUT_DIR}/backup/astigmatism_3d_calibration_2.csv"))
 
 	w._check_b_estimate.setChecked(False)  # On recommence sans le backup
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
