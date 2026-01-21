@@ -31,6 +31,18 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 				"columns": ["Track", "Length", "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],
 				"types":   ["Track", "Length"]
 				},
+		"Fit_1":                {
+				"columns": ["A (μm²/s)", "B (μm²)", "MSE"],
+				"types":   []
+				},
+		"Fit_2":                {
+				"columns": ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],
+				"types":   []
+				},
+		"Fit_3":                {
+				"columns": ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"],
+				"types":   []
+				},
 		"Astigmatism 3D Model": {
 				"columns": ["Z0", "W", "C3", "C4", "A"],
 				"types":   []
@@ -41,9 +53,9 @@ COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
 MODEL_ROWS = ["X", "Y"]
 
 # Dimensions utiles fréquement
-N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])										# Nombre de paramètres pour les metadonnées (6).
-N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])									# Nombre de paramètres pour le tracking (8).
-N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])								# Nombre de paramètres pour le tracking (18).
+N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])  # Nombre de paramètres pour les metadonnées (6).
+N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # Nombre de paramètres pour le tracking (8).
+N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # Nombre de paramètres pour le tracking (18).
 SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["columns"]))  # Dimensions pour le model d'astigmatisme 3D (2,5).
 
 
@@ -96,10 +108,10 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
-		columns = columns + remaining_columns									 # Ajout des colonnes restantes aux colonnes de départ
+		columns = columns + remaining_columns  # Ajout des colonnes restantes aux colonnes de départ
 
-	if list(data.columns[:len(columns)]) == columns: return data				 # Optimisation : évite la copie si déjà bon ordre
-	return data.loc[:, columns]													 # Réorganisation du DataFrame
+	if list(data.columns[:len(columns)]) == columns: return data  # Optimisation : évite la copie si déjà bon ordre
+	return data.loc[:, columns]  # Réorganisation du DataFrame
 
 
 ##################################################
@@ -131,8 +143,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 		- Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN.
 
 	:param data: Données 1D récupérées depuis la DLL PALM. Doit être indexable et de dimension 1.
-	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes (Val_0, Val_1, ...) contiennent les valeurs du bloc, complétées par NaN si
-	nécessaire.
+	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes contiennent les valeurs du bloc, complétées par NaN si nécessaire.
 	:raise ValueError: entrée invalide (nombre de dimensions ou taille finale incorrecte)
 	"""
 	if data.ndim != 1:
@@ -198,10 +209,10 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 
 	if file_type == "Localization" or file_type == "Tracking":
 		# Manipulation du tableau 1D.
-		size = (data.size // n_columns) * n_columns	  # Récupération de la taille correcte si non multiple de N_SEGMENT
-		data = data[:size].reshape(-1, n_columns)	  # Passage en tableau 2D
+		size = (data.size // n_columns) * n_columns  # Récupération de la taille correcte si non multiple de N_SEGMENT
+		data = data[:size].reshape(-1, n_columns)  # Passage en tableau 2D
 		data = data[data[:, columns.index("X")] > 0]  # Filtrage sur les X inférieurs ou égal à 0 en amont.
-		res = pd.DataFrame(data, columns=columns)	  # Transformation en Dataframe
+		res = pd.DataFrame(data, columns=columns)  # Transformation en Dataframe
 	elif file_type == "Astigmatism 3D Model":
 		res = pd.DataFrame(data, columns=columns, index=MODEL_ROWS)
 	else:
@@ -214,10 +225,8 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 		else:
 			# les colonnes dépendent du fit
 			log_col = columns[2:]
-			if fit_mode == 1: log_col += ["A (μm²/s)", "B (μm²)", "MSE"]
-			elif fit_mode == 2: log_col += ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"]
-			elif fit_mode == 3: log_col += ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]
-			else: raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
+			if not 1 <= fit_mode <= 3: raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
+			log_col += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
 			res.columns = columns[:2] + log_col
 
 	if is_log and log_col: res = log10_dataframe(res, log_col)  # Mise à jour en fonction de la mise à l'échelle du Log.
