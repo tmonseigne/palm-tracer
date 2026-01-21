@@ -104,7 +104,6 @@ class Astigmatism3DWidget(StandAloneWidget):
 		self._check_z_flip = QCheckBox(grp)
 		self._check_z_flip.setToolTip("Flip Sign of Z .")
 
-
 		form = self._make_form(None)
 		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
 		self._add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
@@ -220,9 +219,9 @@ class Astigmatism3DWidget(StandAloneWidget):
 		Construit le layout du groupe "Sanity Check" avec 2 colonnes d'indicateurs.
 
 		Chaque colonne affiche :
-		- un titre de colonne
-		- une liste de lignes, chaque ligne contenant : label | value | unit
-		  avec l'alignement : gauche | droite | gauche.
+			- un titre de colonne
+			- une liste de lignes, chaque ligne contenant : label | value | unit
+			  avec l'alignement : gauche | droite | gauche.
 
 		:param sanity: Structure de données : liste de 2 dictionnaires (une colonne par dict).
 					   Chaque entrée attend : "label": QLabel, "value": QLabel, "unit": QLabel, "tips": str
@@ -523,6 +522,7 @@ def open_astigmatism3d():  # pragma: no cover
 	widget.resize(500, 250)
 	widget.show()
 	_windows.append(widget)  # éviter que Python le détruise en le stockant
+
 
 ##################################################
 if __name__ == "__main__":  # pragma: no cover

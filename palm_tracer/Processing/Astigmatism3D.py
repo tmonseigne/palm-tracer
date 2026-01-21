@@ -128,7 +128,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	- MAE_Z (*Mean Absolute Error*) : Erreur moyenne absolue sur Z, plus robuste aux outliers que le RMSE.
 	  Modèle parfait : MAE_Z = 0.
 
-	- P95_|Z| : 95e percentile de |ΔZ|. Indique une borne haute réaliste de l'erreur axiale pour la majorité des localisations.
+	- P95_Z : 95e percentile de ΔZ. Indique une borne haute réaliste de l'erreur axiale pour la majorité des localisations.
 
 	- Bias_Z : Moyenne de ΔZ. Reflète un biais systématique du modèle.
 	  Modèle parfait : Bias_Z = 0.
