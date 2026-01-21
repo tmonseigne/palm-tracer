@@ -470,7 +470,7 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	file_list.update_box()
 
 	pt.process()
-	assert len(pt.tracks) == 455, f"Il reste {len(pt.tracks)} points au lieu de 143 sur les trajectoires."
+	assert len(pt.tracks) == 455, f"Il reste {len(pt.tracks)} points au lieu de 455 sur les trajectoires (aucun filtre)."
 
 	pt.settings.filtering["Tracks"]["Length"].active = True
 	pt.settings.filtering["Tracks"]["Length"].set_value([3, 10000])

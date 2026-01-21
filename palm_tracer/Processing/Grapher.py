@@ -7,6 +7,8 @@ import numpy as np
 import plotly.graph_objects as go
 from scipy.stats import gaussian_kde
 
+from palm_tracer.Processing.Astigmatism3D import MODEL_COLS, MODEL_ROWS, sigma_model
+
 # Palette "deep" de seaborn (approx)
 _SEABORN_DEEP = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD", "#FFD92F", "#E7298A", "#66A61E", "#E6AB02"]
 _TEMPLATE = "plotly_white"
@@ -55,7 +57,7 @@ class Grapher:
 		:return: ``go.Figure`` Figure avec l'annotation
 		"""
 		fig = go.Figure()
-		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
+		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS, margin=_MARGIN)
 		return fig
 
 	##################################################
@@ -78,18 +80,16 @@ class Grapher:
 		:return: ``go.Figure``
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
-			if data.shape[0] == 2: _, x = data[0, :], data[1, :]	 # (2, N) -> lignes = (x, y)
+			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # (2, N) -> lignes = (x, y)
 			elif data.shape[1] == 2:  _, x = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: x = np.asarray(data).ravel()
 		else: x = np.asarray(data).ravel()
 
 		x = x[np.isfinite(x)]
-		fig = go.Figure()
-
 		# Aucunes données valides
-		if x.size == 0:
-			fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
-			return fig
+		if x.size == 0: return self.blank(title)
+
+		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
 		mu, sigma = float(np.mean(x)), float(np.std(x))
@@ -167,12 +167,10 @@ class Grapher:
 			x, y = x[mask], y[mask]
 		else: raise ValueError("data doit être 1D ou 2D.")
 
-		fig = go.Figure()
-
 		# Aucunes données valides
-		if x.size == 0:
-			fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS)
-			return fig
+		if x.size == 0: return self.blank(title)
+
+		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
 		_, limits = self.__get_range(y, limit)
@@ -197,6 +195,39 @@ class Grapher:
 						  yaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=ylabel)),
 						  hovermode="x", showlegend=False)
 
+		return fig
+
+	##################################################
+	def astigmatism3d_curve(self, title: str, model: np.ndarray, pixel_size: float = 160, z_max: float =  500, n_points: int = 5000) -> go.Figure:
+		"""
+
+		:param title: titre du graphe.
+		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
+		:param z_max: Valeur absolue maximale sur Z.
+		:param n_points: Nombre de points sur la courbe (résolution)
+		:return:
+		"""
+
+		if len(model) != len(MODEL_ROWS) or len(model[0]) != len(MODEL_COLS): return self.blank(title)
+
+		fig = go.Figure()
+
+		z = np.linspace(-z_max, z_max, n_points, dtype=np.float64)
+		sx = sigma_model(model[0], z, pixel_size, 1)
+		sy = sigma_model(model[1], z, pixel_size, 1)
+
+		fig.add_trace(go.Scatter(x=sx, y=sy, customdata=z,
+								 mode="markers", marker=dict(size=6, color=z, colorscale="Viridis", colorbar=dict(title="Z (nm)"), showscale=True),
+								 hovertemplate="σ(x:%{x:.3f}, y:%{y:.3f}) = %{customdata:.0f} nm<extra></extra>"))
+
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
+						  xaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text="Sigma X")),
+						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text="Sigma Y")),
+						  hovermode="closest", showlegend=False)
+
+		# fig.update_xaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
+		# fig.update_yaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
 		return fig
 
 	##################################################

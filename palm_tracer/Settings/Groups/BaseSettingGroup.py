@@ -236,6 +236,17 @@ class BaseSettingGroup:
 		return obj is not None and ((_IS_PYQT and not sip.isdeleted(obj)) or (not _IS_PYQT and shiboken6.isValid(obj)))
 
 	##################################################
+	@staticmethod
+	def _find_form_row_of_widget(form: QFormLayout, w: QWidget) -> int:   # pragma: no cover (lié aux étrangetés de QT Python)
+		"""Retourne l'index de ligne contenant le widget `w`, ou -1 si absent."""
+		for r in range(form.rowCount()):
+			for role in (QFormLayout.ItemRole.LabelRole, QFormLayout.ItemRole.FieldRole, QFormLayout.ItemRole.SpanningRole):
+				item = form.itemAt(r, role)
+				if item is not None and item.widget() is w:
+					return r
+		return -1
+
+	##################################################
 	def hide(self):
 		"""Cache le widget."""
 		self._widget.hide()
@@ -278,7 +289,7 @@ class BaseSettingGroup:
 		hdr = getattr(self, "_header", None)
 		if self.is_valid(hdr) and self.is_valid(tit):
 			try:
-				hdr.layout().removeWidget(tit)  # Retirer le titre du layout
+				if hdr.layout() is not None: hdr.layout().removeWidget(tit)  # Retirer le titre du layout
 				tit.setParent(None)
 				tit.deleteLater()				# Détruire le titre
 			except RuntimeError: pass			# si déjà retirée
@@ -287,9 +298,10 @@ class BaseSettingGroup:
 		# Suppression du header
 		if self.is_valid(hdr) and self.is_valid(self._widget):
 			try:
-				layout = self._widget.layout()		 # Récupérer le layout principal
+				layout = self._widget.layout()		 # Récupérer le layout principal (QFormLayout)
 				if isinstance(layout, QFormLayout):  # pragma: no cover (toujours vrai)
-					layout.removeRow(hdr)			 # Supprimer la ligne du layout
+					row = self._find_form_row_of_widget(layout, hdr)
+					if row >= 0: layout.removeRow(row)  # suppression sûre
 				hdr.setParent(None)
 				hdr.deleteLater()					 # Détruire le header
 			except RuntimeError: pass				 # si déjà retirée

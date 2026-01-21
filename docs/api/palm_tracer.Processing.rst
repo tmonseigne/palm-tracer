@@ -6,6 +6,7 @@ Ce sous-package gère les fonctions de traitement du projet.
 .. toctree::
    :maxdepth: 1
 
+   palm_tracer.Processing.Astigmatism3D
    palm_tracer.Processing.Gallery
    palm_tracer.Processing.Grapher
    palm_tracer.Processing.Palm

@@ -24,7 +24,7 @@ def test_palm_cpu_image():
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
 
-			path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{plane}_{suffix}.csv")
+			path = REF_DIR / f"{file}-localizations-{plane}_{suffix}.csv"
 			if path.exists() and path.is_file():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
@@ -47,7 +47,7 @@ def test_palm_cpu_stack():
 
 			assert len(localizations) > 0, "Aucune localisation trouvé"
 
-			path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
+			path = REF_DIR / f"{file}-localizations-{suffix}.csv"
 			if path.exists() and path.is_file():
 				print(f"Comparaison avec : '{path}'")
 				ref = pd.read_csv(path)
@@ -66,7 +66,7 @@ def test_palm_cpu_stack_plane_selection():
 	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit), [2, 3, 4, 5, 6])
 	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
 	assert len(localizations) > 0, "Aucune localisation trouvé"
-	path = Path(f"{INPUT_DIR}/ref/{file}-localizations-plane_select-{suffix}.csv")
+	path = REF_DIR / f"{file}-localizations-plane_select-{suffix}.csv"
 	if path.exists() and path.is_file():
 		print(f"Comparaison avec : '{path}'")
 		ref = pd.read_csv(path)
@@ -94,7 +94,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 	assert (localizations.loc[quadrant["Left"], 'X'] <= 128).all(), "Des éléments ont été trouvé dans la zone noire à gauche de l'image."
 	assert (localizations.loc[quadrant["Right"], 'X'] >= 128).all(), "Des éléments ont été trouvé dans la zone noire à droite de l'image."
 
-	path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
+	path = REF_DIR / f"{file}-localizations-{suffix}.csv"
 	if path.exists() and path.is_file():
 		ref = pd.read_csv(path)
 		assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
@@ -125,7 +125,7 @@ def test_tracking():
 			suffix = get_loc_suffix(fit, watershed)
 			suffix_trc = suffix + "-" + get_trc_suffix()
 
-			path = Path(f"{INPUT_DIR}/ref/{file}-localizations-{suffix}.csv")
+			path = REF_DIR / f"{file}-localizations-{suffix}.csv"
 			if path.exists() and path.is_file():
 				localizations = pd.read_csv(path)
 				tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
@@ -133,7 +133,7 @@ def test_tracking():
 
 				assert len(tracks) > 0, "Aucun Tracking trouvé"
 
-				path = Path(f"{INPUT_DIR}/ref/{file}-tracking-{suffix_trc}.csv")
+				path = REF_DIR / f"{file}-tracking-{suffix_trc}.csv"
 				if path.exists() and path.is_file():
 					print(f"Comparaison avec : '{path}'")
 					ref = pd.read_csv(path)
@@ -160,7 +160,7 @@ def test_blinking_reconnection():
 
 			assert len(t_output) > 0, "Aucun Tracking trouvé"
 
-			ref_path = Path(f"{INPUT_DIR}/ref/{file}-blinking-{i}.csv")
+			ref_path = REF_DIR / f"{file}-blinking-{i}.csv"
 			if ref_path.exists() and ref_path.is_file():
 				print(f"Comparaison avec : '{ref_path}'")
 				ref = pd.read_csv(ref_path)
@@ -188,7 +188,7 @@ def test_tracks_compute():
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
 
-				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{p}.csv")
+				ref_path = REF_DIR / f"{file}-{name}-{p}.csv"
 				if ref_path.exists() and ref_path.is_file():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
@@ -202,7 +202,7 @@ def test_tracks_compute():
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
 
-				ref_path = Path(f"{INPUT_DIR}/ref/{file}-{name}-{mode}.csv")
+				ref_path = REF_DIR / f"{file}-{name}-{mode}.csv"
 				if ref_path.exists() and ref_path.is_file():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
@@ -221,7 +221,7 @@ def test_tracks_compute():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_align():
-	"""Test basique pour la spline."""
+	"""Test basique pour l'alignement."""
 	palm = Palm()
 
 	# --- Lecture stack ---
@@ -262,7 +262,7 @@ def test_align():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_wavelett():
-	"""Test basique pour la spline."""
+	"""Test basique pour récupérer un plan d'ondelette."""
 	palm = Palm()
 
 	# --- Lecture stack ---
@@ -273,3 +273,34 @@ def test_wavelett():
 		wavelett = palm.wavelett(stack, i)
 		if save_output: save_tif(wavelett, f"{OUTPUT_DIR}/{file}-wavelett-{i}.tif")
 		assert wavelett.shape == stack.shape, "Les dimensions doivent être identiques"
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif très certainement les sigma sont dans une unité intermédiaire sur le fichier en entrée.")
+def test_astigmatism_3d_calibration():
+	"""Test basique pour la calibration de l'astigatisme 3D."""
+	palm = Palm()
+
+	# --- Lecture d'un fichier de localisation ---
+	localizations = pd.read_csv(INPUT_DIR / "astigmatism_3d_calibration.csv")
+	res = palm.astigmatism_3d_calibration(localizations.to_numpy(dtype=float, copy=True), 108)
+	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model.csv", index_col=0)
+	assert np.allclose(res, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu: \n\t{ref}\nObtenu : \n\t{res}"
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+@pytest.mark.xfail(reason="Calcul incorrect, en attente de correctif très certainement les sigma sont dans une unité intermédiaire sur le fichier en entrée.")
+def test_astigmatism_3d_estimation():
+	"""Test basique pour l'estimation de l'astigmatisme 3D."""
+	palm = Palm()
+
+	# --- Lecture des fichiers ---
+	localizations = pd.read_csv(INPUT_DIR / "astigmatism_3d_calibration.csv")
+	model = pd.read_csv(REF_DIR / "astigmatism_3d_model.csv", index_col=0)
+	res = palm.astigmatism_3d_estimation(localizations.to_numpy(dtype=float, copy=True)[:, :-1], 108, model.to_numpy(), 500)
+	ref = localizations["Z"].to_numpy()
+	# Vérification que Z est trié en ordre décroissant
+	assert np.all(ref[:-1] >= ref[1:]), "Le fichier contient les éléments Z en ordre décroissant, le résultat doit donc être dans le même ordre."
+	assert np.allclose(res, ref, atol=10, rtol=0), f"Résultat incorrect.\nAttendu: {ref}\nObtenu : {res}"

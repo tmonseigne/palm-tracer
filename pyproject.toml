@@ -41,6 +41,8 @@ dependencies = [
 	"seaborn",
 	"plotly",
 	"kaleido",
+	# Dépendances pour l'interface
+	"napari",
 	"PySide6",
 	"PySide6-Addons",
 	# Dépendances pour les infos cross plateforme
@@ -58,7 +60,6 @@ testing = [
 	"pytest-json",
 	"pytest-json-report",
 	"pytest-metadata",
-	"napari",
 	#"torch" # Installer pytorch à part : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 ]
 
@@ -67,7 +68,6 @@ documentation = [
 	"sphinx-autobuild",
 	"sphinx-rtd-theme",
 	"sphinx-qt-documentation",
-	"napari",
 	"ansi2html", # Utile pour transformer les rapports
 ]
 

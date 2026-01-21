@@ -74,7 +74,6 @@ class SpinInt(BaseSettingType):
 	def initialize(self):
 		super().initialize()							   # Appelle l'initialisation de la classe mère.
 		self.box = QSpinBox(None)						   # Création de la boite.
-		self.box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement du calque à gauche.
 		self.box.setRange(self.min, self.max)			   # Définition du min, max.
 		self.box.setSingleStep(self.step)				   # Définition du pas à chaque appuie sur une flèche.
 		self.box.valueChanged.connect(self.emit)		   # Définition du comportement lors de la modification des valeurs

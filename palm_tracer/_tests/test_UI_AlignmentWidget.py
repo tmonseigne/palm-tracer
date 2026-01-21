@@ -6,7 +6,6 @@ from qtpy.QtCore import Qt
 from palm_tracer._tests.Utils import *
 from palm_tracer.UI.AlignmentWidget import AlignmentWidget  # classe
 
-INPUT_FILE = INPUT_DIR / "stack.tif"
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
@@ -27,13 +26,7 @@ def test_widget_creation(qtbot):
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""
-	Test basique de création du widget.
-
-	- Clic sur 'Compute coefficients' sans stack -> message d'erreur.
-	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée -> message 'not implemented'.
-	"""
+	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -59,13 +52,7 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""
-	Test basique de création du widget.
-
-	- Clic sur 'Compute coefficients' sans stack -> message d'erreur.
-	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée -> message 'not implemented'.
-	"""
+	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -220,5 +207,7 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_start_alignment, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert f"File saved at " in out
+
+	if os.path.isfile(w._output_filename): os.remove(w._output_filename)
 
 	w.close()

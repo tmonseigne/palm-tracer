@@ -107,7 +107,6 @@ class CheckRangeInt(BaseSettingType):
 
 		# Ligne du paramètre
 		hbox = QHBoxLayout()
-		hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définir l'alignement à gauche.
 		hbox.addWidget(self._checkbox)
 		hbox.addWidget(QLabel(self.label + " : "))
 		hbox.addWidget(self.box[0])

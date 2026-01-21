@@ -25,13 +25,17 @@ from typing import Any, cast, Optional
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.io as pio
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QPixmap
-from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
-							QLabel, QMessageBox, QPushButton, QRadioButton, QTextBrowser, QToolButton, QVBoxLayout, QWidget)
+from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
+							QLabel, QMessageBox, QPushButton, QRadioButton, QToolButton, QVBoxLayout, QWidget)
 
+from palm_tracer.PALMTracer import PALMTracer
+from palm_tracer.Processing import Grapher
 from palm_tracer.Settings.Groups import Filtering
+from palm_tracer.Settings.Types import FileList, SpinInt
+from palm_tracer.Tools import open_tif, print_error
+from palm_tracer.UI.StandAloneWidget import StandAloneWidget
 
 # Tentative d'import QtWebEngine (via qtpy)
 try:
@@ -42,28 +46,9 @@ except Exception:
 	QWebEngineView = None  # type: ignore
 	_HAS_WEBENGINE = False
 
-from palm_tracer.Tools import open_tif, print_error
-from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import Grapher
-from palm_tracer.Settings.Types import FileList, SpinInt
-
-FILE_STATUS = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
-
-DATA_SRC: dict[str, list] = {
-		"stk": ["Intensity"],
-		"loc": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
-		"trc": ["Length"],
-		"MSD": ["MSD"],
-		"InD": ["Instant Diffusion"],
-		"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],		# Pour tous Fit
-				["A (μm²/s)", "B (μm²)", "MSE"],									# Fit Linéaire
-				["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],    # Fit Puissance
-				["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
-		}
-
 
 ##################################################
-class GraphViewerWidget(QWidget):
+class GraphViewerWidget(StandAloneWidget):
 	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
 
 	Ce widget expose une UI compacte pour :
@@ -86,6 +71,20 @@ class GraphViewerWidget(QWidget):
 		  aucune donnée correspondante n'est trouvée (cf. :meth:`_refresh_source_buttons`).
 		- L'export PNG utilise un fallback par capture du widget Qt si Kaleido n'est pas utilisé.
 	"""
+
+	FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
+
+	DATA_SRC: dict[str, list] = {
+			"stk": ["Intensity"],
+			"loc": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
+			"trc": ["Length"],
+			"MSD": ["MSD"],
+			"InD": ["Instant Diffusion"],
+			"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # Pour tous Fit
+					["A (μm²/s)", "B (μm²)", "MSE"],  # Fit Linéaire
+					["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # Fit Puissance
+					["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
+			}
 
 	# ==================================================
 	# region Initialisation
@@ -132,20 +131,17 @@ class GraphViewerWidget(QWidget):
 		"""
 
 		main_layout = QHBoxLayout(self)
-		main_layout.setContentsMargins(5, 5, 5, 5)
-		main_layout.setSpacing(5)
+		self._init_layout(main_layout)
 
 		# Colonne gauche
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
 		left.setMinimumWidth(300)
 		vbox = QVBoxLayout(left)
-		vbox.setContentsMargins(5, 5, 5, 5)
-		vbox.setSpacing(5)
+		self._init_layout(vbox)
 
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
-		form = QFormLayout(grp_infos)
 
 		# Nom de fichier courant
 		self._lbl_filename = QLabel(self._file if self._file != "" else "No file")
@@ -153,25 +149,16 @@ class GraphViewerWidget(QWidget):
 		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
 		self._status = {"loc": QLabel("No"), "trc": QLabel("No"), "MSD": QLabel("No"), "InD": QLabel("No"), "Fit": QLabel("No")}
 
-		form.addRow("File :", self._lbl_filename)
-		form.addRow("Localization :", self._status["loc"])
-		form.addRow("Tracking :", self._status["trc"])
-		form.addRow("MSD :", self._status["MSD"])
-		form.addRow("Instant D :", self._status["InD"])
-		form.addRow("Fit :", self._status["Fit"])
+		form = self._make_form(grp_infos)
+		self._add_setting_row(form, "File :", self._lbl_filename)
+		self._add_setting_row(form, "Localization :", self._status["loc"])
+		self._add_setting_row(form, "Tracking :", self._status["trc"])
+		self._add_setting_row(form, "MSD :", self._status["MSD"])
+		self._add_setting_row(form, "Instant D :", self._status["InD"])
+		self._add_setting_row(form, "Fit :", self._status["Fit"])
 
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
-
-		grp_source.setStyleSheet("""
-			QPushButton { border: 1px solid #c7c7c7; padding: 6px 12px; background: #f7f7f7; }
-			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
-			QPushButton:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-			QPushButton:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-			QPushButton:pressed { background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:checked	{ background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:disabled { color: #999; background: #fafafa; }
-		""")
 
 		h = QHBoxLayout()
 		h.setSpacing(0)
@@ -192,7 +179,7 @@ class GraphViewerWidget(QWidget):
 		self._btn_stack.setChecked(True)
 
 		# Combo box
-		form = QFormLayout(grp_source)
+		form = self._make_form(grp_source)
 		self._cmb_src = QComboBox()
 		form.addRow(h)
 		form.addRow("Source :", self._cmb_src)
@@ -207,10 +194,10 @@ class GraphViewerWidget(QWidget):
 				"Sigma":   QCheckBox("Show σ"),
 				"Gauss":   QCheckBox("Show Gaussian"),
 				"KDE":     QCheckBox("Show KDE"),
-				"Y Scale": QButtonGroup(self)
+				"Y Scale": QButtonGroup(None)
 				}
 
-		# Sélection du Step pour MSD
+		# Sélection du Step pour MSD (dans la partie source)
 		form.addRow(self._display_settings["MSD"].layout)
 		self._display_settings["MSD"].hide()  # Masquage initial
 
@@ -248,8 +235,7 @@ class GraphViewerWidget(QWidget):
 		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
-		grp_filters = QGroupBox("Filters")
-		vbox_filters = QVBoxLayout(grp_filters)
+		grp_filters, vbox_filters = self._make_group(self, "Filters")
 		# Integration des Filtres
 		self._filters = Filtering()
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
@@ -285,11 +271,7 @@ class GraphViewerWidget(QWidget):
 		vbox.addLayout(actions_row)
 		vbox.addStretch(1)
 
-		# Zone droite : QWebEngineView avec Plotly
-		if _HAS_WEBENGINE: self._web = QWebEngineView(self)
-		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
-			self._web = QTextBrowser(self)
-			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+		self._web = self._make_web_widget()
 
 		main_layout.addWidget(left)
 		main_layout.addWidget(self._web, stretch=1)
@@ -297,6 +279,8 @@ class GraphViewerWidget(QWidget):
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
+		self._connect_web_widget(self._web)
+
 		# Sources
 		self._btg_src.idClicked.connect(self._on_source_changed)
 		self._cmb_src.currentIndexChanged.connect(self._on_source_cmb_changed)
@@ -346,14 +330,14 @@ class GraphViewerWidget(QWidget):
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
 		self._cmb_src.blockSignals(True)
 		self._cmb_src.clear()
-		if btn_id == 0: self._cmb_src.addItems(DATA_SRC["stk"])			  # Stack
-		elif btn_id == 1: self._cmb_src.addItems(DATA_SRC["loc"])		  # Localization
+		if btn_id == 0: self._cmb_src.addItems(self.DATA_SRC["stk"])  # Stack
+		elif btn_id == 1: self._cmb_src.addItems(self.DATA_SRC["loc"])  # Localization
 		elif btn_id == 2: self._cmb_src.addItems(self._get_tracks_src())  # Tracking
 		self._cmb_src.setCurrentIndex(0)
 		self._cmb_src.blockSignals(False)
 
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
-		self._update_plot()		   # puis redessiner le graphe si besoin
+		self._update_plot()  # puis redessiner le graphe si besoin
 
 	##################################################
 	def _on_source_cmb_changed(self, btn_id: int) -> None:
@@ -366,7 +350,7 @@ class GraphViewerWidget(QWidget):
 		if self._btg_src.checkedId() == 2 and btn_id == 1: self._display_settings["MSD"].show()
 		else: self._display_settings["MSD"].hide()
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
-		self._update_plot()		   # puis redessiner le graphe si besoin
+		self._update_plot()  # puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filters_ui(self):
@@ -376,13 +360,13 @@ class GraphViewerWidget(QWidget):
 		"""
 		src_id = self._btg_src.checkedId()
 
-		if src_id == 0:	   # Stack
+		if src_id == 0:  # Stack
 			self._filters["Save"].hide()
 			self._filters["Tracks"].hide()
 		elif src_id == 1:  # Localisation
 			self._filters["Localization"].show()
 			self._filters["Tracks"].hide()
-		else:			   # Tracking
+		else:  # Tracking
 			self._filters["Localization"].hide()
 			self._filters["Tracks"].show()
 
@@ -393,9 +377,9 @@ class GraphViewerWidget(QWidget):
 
 		:return: La liste des sources disponible pour les trajectoires.
 		"""
-		res = list(DATA_SRC["trc"])
-		if not self._df["MSD"].empty: res += DATA_SRC["MSD"]
-		if not self._df["InD"].empty: res += DATA_SRC["InD"]
+		res = list(self.DATA_SRC["trc"])
+		if not self._df["MSD"].empty: res += self.DATA_SRC["MSD"]
+		if not self._df["InD"].empty: res += self.DATA_SRC["InD"]
 		if not self._df["Fit"].empty: res += self._df["Fit"].columns[2:].tolist()
 
 		return res
@@ -419,7 +403,7 @@ class GraphViewerWidget(QWidget):
 			- à un tableau reconnecté (pour les trajectoires),
 			- ou à une absence de données.
 
-		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`.
+		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`self.FILE_STATUS`.
 
 		Le dictionnaire retourné contient systématiquement les clés suivantes : ``"loc"``, ``"trc"``, ``"MSD"``, ``"InD"``, ``"Fit"``
 
@@ -428,25 +412,25 @@ class GraphViewerWidget(QWidget):
 		:param tc_key: Liste de trois clés correspondant respectivement aux tableaux MSD, diffusion instantanée et Fit.
 		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
 		"""
-		res = {"loc": FILE_STATUS[0], "trc": FILE_STATUS[0], "MSD": FILE_STATUS[0], "InD": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
+		res = {"loc": self.FILE_STATUS[0], "trc": self.FILE_STATUS[0], "MSD": self.FILE_STATUS[0], "InD": self.FILE_STATUS[0], "Fit": self.FILE_STATUS[0]}
 
-		if self._df["loc"].empty: res["loc"] = FILE_STATUS[0]	  # Aucun tableau ou tableau vide
-		elif "f_" in loc_key: res["loc"] = FILE_STATUS[2]		  # Tableau filtré
-		else: res["loc"] = FILE_STATUS[1]						  # Tableau standard
+		if self._df["loc"].empty: res["loc"] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
+		elif "f_" in loc_key: res["loc"] = self.FILE_STATUS[2]  # Tableau filtré
+		else: res["loc"] = self.FILE_STATUS[1]  # Tableau standard
 
-		if self._df["trc"].empty: res["trc"] = FILE_STATUS[0]	  # Aucun tableau ou tableau vide
+		if self._df["trc"].empty: res["trc"] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
 		elif "f_" in trc_key:
-			if "blk" in trc_key: res["trc"] = FILE_STATUS[4]	  # Tableau reconnecté filtré
-			else: res["trc"] = FILE_STATUS[2]					  # Tableau filtré
+			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[4]  # Tableau reconnecté filtré
+			else: res["trc"] = self.FILE_STATUS[2]  # Tableau filtré
 		else:
-			if "blk" in trc_key: res["trc"] = FILE_STATUS[3]	  # Tableau reconnecté non filtré
-			else: res["trc"] = FILE_STATUS[1]					  # Tableau standard
+			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[3]  # Tableau reconnecté non filtré
+			else: res["trc"] = self.FILE_STATUS[1]  # Tableau standard
 
 		tcs = ["MSD", "InD", "Fit"]
 		for i in range(3):
-			if self._df[tcs[i]].empty: res[tcs[i]] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
-			elif "f_" in tc_key[i]: res[tcs[i]] = FILE_STATUS[2]	 # Tableau filtré
-			else: res[tcs[i]] = FILE_STATUS[1]						 # Tableau standard
+			if self._df[tcs[i]].empty: res[tcs[i]] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
+			elif "f_" in tc_key[i]: res[tcs[i]] = self.FILE_STATUS[2]  # Tableau filtré
+			else: res[tcs[i]] = self.FILE_STATUS[1]  # Tableau standard
 		return res
 
 	##################################################
@@ -488,14 +472,14 @@ class GraphViewerWidget(QWidget):
 
 		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)		# Change la source pour Stack
+		self._on_source_changed(0)  # Change la source pour Stack
 
 	##################################################
 	def _reset_filtered(self):
 		"""Supprime les dataframes de filtre."""
 		self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
-		self._update_df()		   # Récupération des bons dataframe
-		self._update_plot()		   # puis redessiner le graphe si besoin
+		self._update_df()  # Récupération des bons dataframe
+		self._update_plot()  # puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filtered(self):
@@ -504,7 +488,7 @@ class GraphViewerWidget(QWidget):
 			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
 			self._pt.update_filtered()  # Mise à jour des filtres
 
-		self._update_df()	 # Récupération des bons dataframe
+		self._update_df()  # Récupération des bons dataframe
 		self._update_plot()  # puis redessiner le graphe si besoin
 
 	# ==================================================
@@ -537,14 +521,7 @@ class GraphViewerWidget(QWidget):
 		else:
 			fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 
-		# Mode bar (export, zoom...) : laissé par défaut; on peut alléger si besoin
-		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config={"responsive": True, "displaylogo": False})
-		self._fig = fig
-		self._html = html
-
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
-		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
-			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+		self._update_web_widget(self._web, fig)
 
 	##################################################
 	def get_plot_data(self) -> tuple[np.ndarray, str]:
@@ -579,13 +556,13 @@ class GraphViewerWidget(QWidget):
 		# Tracks
 		else:
 			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])		# Groupement par track + calcul min et max
-				group["delta"] = group["max"] - group["min"]								# Calcul du delta
+				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])  # Groupement par track + calcul min et max
+				group["delta"] = group["max"] - group["min"]  # Calcul du delta
 				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
 				return res, f"Tracks {src_type}"
 			elif src_type == "MSD":
-				step = self._display_settings["MSD"].get_value()														# Récupération du numéro du Step.
-				col = f"Step {step}"																					# Récupération du nom de la colonne.
+				step = self._display_settings["MSD"].get_value()  # Récupération du numéro du Step.
+				col = f"Step {step}"  # Récupération du nom de la colonne.
 				if not {"Track", col}.issubset(self._df["MSD"].columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence.
 				track, values = self._df["MSD"]["Track"].astype(int).to_numpy(), self._df["MSD"][col].astype(float).to_numpy()  # Récupération
 				res = np.column_stack((track, self.__log_data(values, log_scale)))

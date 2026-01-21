@@ -8,7 +8,6 @@ from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.UI import GraphViewerWidget
-from palm_tracer.UI.GraphViewerWidget import FILE_STATUS
 
 OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
@@ -290,7 +289,7 @@ def test_status(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.waitExposed(w)
 
 	# Clés vides (il vérifie juste que les dataframe ne sont pas vide dans ce cas il indique que c'est bon)
-	ref = {"loc": FILE_STATUS[1], "trc": FILE_STATUS[1], "MSD": FILE_STATUS[1], "InD": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
+	ref = {"loc": w.FILE_STATUS[1], "trc": w.FILE_STATUS[1], "MSD": w.FILE_STATUS[1], "InD": w.FILE_STATUS[1], "Fit": w.FILE_STATUS[1]}
 	res = w._get_status("", "", ["", "", ""])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
@@ -299,22 +298,22 @@ def test_status(w: GraphViewerWidget, qtbot, capsys):
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Clés pour dataframes filtrés
-	ref = {"loc": FILE_STATUS[2], "trc": FILE_STATUS[2], "MSD": FILE_STATUS[2], "InD": FILE_STATUS[2], "Fit": FILE_STATUS[2]}
+	ref = {"loc": w.FILE_STATUS[2], "trc": w.FILE_STATUS[2], "MSD": w.FILE_STATUS[2], "InD": w.FILE_STATUS[2], "Fit": w.FILE_STATUS[2]}
 	res = w._get_status("f_loc", "f_trc", ["f_MSD", "f_InD", "f_Fit"])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Clés pour dataframes simples mais trajectoires reconnecté
-	ref = {"loc": FILE_STATUS[1], "trc": FILE_STATUS[3], "MSD": FILE_STATUS[1], "InD": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
+	ref = {"loc": w.FILE_STATUS[1], "trc": w.FILE_STATUS[3], "MSD": w.FILE_STATUS[1], "InD": w.FILE_STATUS[1], "Fit": w.FILE_STATUS[1]}
 	res = w._get_status("loc", "blk", ["MSD", "InD", "Fit"])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Clés pour dataframes filtrés mais trajectoires reconnecté
-	ref = {"loc": FILE_STATUS[2], "trc": FILE_STATUS[4], "MSD": FILE_STATUS[2], "InD": FILE_STATUS[2], "Fit": FILE_STATUS[2]}
+	ref = {"loc": w.FILE_STATUS[2], "trc": w.FILE_STATUS[4], "MSD": w.FILE_STATUS[2], "InD": w.FILE_STATUS[2], "Fit": w.FILE_STATUS[2]}
 	res = w._get_status("f_loc", "f_blk", ["f_MSD", "f_InD", "f_Fit"])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
 
 	# Vider les dataframes
-	ref = {"loc": FILE_STATUS[0], "trc": FILE_STATUS[0], "MSD": FILE_STATUS[0], "InD": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
+	ref = {"loc": w.FILE_STATUS[0], "trc": w.FILE_STATUS[0], "MSD": w.FILE_STATUS[0], "InD": w.FILE_STATUS[0], "Fit": w.FILE_STATUS[0]}
 	for key in w._df: w._df[key] = pd.DataFrame()
 	res = w._get_status("f_loc", "f_blk", ["f_MSD", "f_InD", "f_Fit"])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu: {ref}\nObtenu : {res}"
