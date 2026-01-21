@@ -97,17 +97,19 @@ class Astigmatism3DWidget(StandAloneWidget):
 
 		self._spin_px_compute = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_compute.setToolTip("Pixel size in micrometers.")
-
-		self._check_z_from_plane = QCheckBox(grp)
-		self._check_z_from_plane.setToolTip("Use the plane column to define the Z column.")
-
 		self._spin_z_compute = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=500)
 		self._spin_z_compute.setToolTip("Maximum absolute value of Z.")
+		self._check_z_from_plane = QCheckBox(grp)
+		self._check_z_from_plane.setToolTip("Use the plane column to define the Z column.")
+		self._check_z_flip = QCheckBox(grp)
+		self._check_z_flip.setToolTip("Flip Sign of Z .")
+
 
 		form = self._make_form(None)
 		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
 		self._add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
 		self._add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
+		self._add_setting_row(form, "Flip Z:", self._check_z_flip)
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
@@ -447,6 +449,8 @@ class Astigmatism3DWidget(StandAloneWidget):
 			z_max = self._spin_z_compute.value()
 			z = z_from_planes(self._loc["Plane"].to_numpy(), -z_max, z_max)  # Attention, savoir si on va de -Zmax à + Zmax ou de +Zmax à -Zmax
 			points[:, 2] = z
+
+		if self._check_z_flip.isChecked(): points[:, 2] *= -1
 
 		# --- Calcul ---
 		model = self._palm.astigmatism_3d_calibration(points, pixel_size)

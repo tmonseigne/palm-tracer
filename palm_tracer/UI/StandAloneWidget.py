@@ -46,7 +46,7 @@ class StandAloneWidget(QWidget):
 									   "resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian"],
 			"toImageButtonOptions":   dict(format="png", height=1200, width=1200, scale=2)}
 
-	COMMON_SPACE: int = 10
+	COMMON_SPACE: int = 5
 
 	# ==================================================
 	# endregion Constants

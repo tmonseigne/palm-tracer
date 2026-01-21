@@ -146,7 +146,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	out, err = capsys.readouterr()
 	assert "CSV loaded successfully." in out
 	assert not w._loc.empty
-	#
+
 	# Lancement du calcul
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
@@ -175,9 +175,10 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert "CSV loaded successfully." in out
 	assert not w._loc.empty
 
-	# passage de Zmax à 460, coche de get Z from plane
+	# passage de Zmax à 460, coche de get Z from plane et Z flip
 	w._spin_z_compute.setValue(460)
 	w._check_z_from_plane.setChecked(True)
+	w._check_z_flip.setChecked(True)
 
 	# Lancement du calcul
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
