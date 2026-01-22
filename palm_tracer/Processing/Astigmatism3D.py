@@ -2,10 +2,6 @@
 import numpy as np
 from scipy.spatial import cKDTree
 
-DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
-MODEL_COLS = ["Z0", "W", "C3", "C4", "A"]
-MODEL_ROWS = ["X", "Y"]
-
 
 ##################################################
 def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
@@ -104,13 +100,9 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 		return float(1.0 - ss_res / ss_tot) if ss_tot > 0 else float("nan")
 
 	return {
-			"rmse_x":  rmse_x,
-			"rmse_y":  rmse_y,
-			"rmse_xy": rmse_xy,
-			"mae_x":   mae_x,
-			"mae_y":   mae_y,
-			"r2_x":    r2(sx_obs, sx_hat),
-			"r2_y":    r2(sy_obs, sy_hat)
+			"rmse_x": rmse_x, "rmse_y": rmse_y, "rmse_xy": rmse_xy,
+			"mae_x":  mae_x, "mae_y": mae_y,
+			"r2_x":   r2(sx_obs, sx_hat), "r2_y": r2(sy_obs, sy_hat)
 			}
 
 

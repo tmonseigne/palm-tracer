@@ -172,7 +172,7 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 	# Pour chaque trajectoire, couleur unique
 	for g in range(len(split_idx) - 1):
 		start, end = split_idx[g], split_idx[g + 1]
-		#if end - start == 0: continue impossible, on vérifie en amont les dataframe vide pouvant provoquer ce cas
+		# if end - start == 0: continue impossible, on vérifie en amont les dataframe vide pouvant provoquer ce cas
 		c_track = cs[start]
 
 		# tracer points isolés

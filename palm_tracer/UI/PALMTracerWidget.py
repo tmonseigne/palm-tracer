@@ -95,7 +95,6 @@ class PALMTracerWidget(QWidget):
 		action_widget.setLayout(setting_action_row)
 		self.layout().addWidget(action_widget)
 
-
 		self.layout().addWidget(self.pt.settings.batch.widget)
 		self.layout().addWidget(self.pt.settings.calibration.widget)
 
@@ -104,7 +103,7 @@ class PALMTracerWidget(QWidget):
 		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget,
 									   self.pt.settings.tracks_compute.widget]), "Processing")
 		tabs.addTab(self.__create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget,
-									   self.pt.settings.visualization_graph.widget, btn_graph,btn_hr, btn_3d]), "Visualization")
+									   self.pt.settings.visualization_graph.widget, btn_graph, btn_hr, btn_3d]), "Visualization")
 		tabs.addTab(self.__create_tab([self.pt.settings.filtering.widget]), "Filtering")
 
 		# Layout principal
@@ -383,12 +382,11 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == "":
 			# show_warning("Aucun fichier en preview.")
 			return None
-		layer = self.viewer.layers["Raw"]		   # Récupération du layer Raw
+		layer = self.viewer.layers["Raw"]					 # Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
 		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
-		plane = layer.data[plane_idx]			   # Récupération des données du plan affiché
-		return np.asarray(plane, dtype=np.uint16)  # Renvoie sous le format numpy
-
+		plane = layer.data[plane_idx]						 # Récupération des données du plan affiché
+		return np.asarray(plane, dtype=np.uint16)			 # Renvoie sous le format numpy
 
 	##################################################
 	def _preview(self):
@@ -410,8 +408,8 @@ class PALMTracerWidget(QWidget):
 		# Affichage console (les notifications posent problème en thread externe)
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,
 										  (self._preview_locs.get("Past"), self._preview_locs.get("Present"), self._preview_locs.get("Future")))
-		print(f"Preview des {l_past + l_present + l_future} points détectés "
-				  f"({l_present} sur l'image actuelle, {l_past} sur l'image précédente, {l_future} sur l'image suivante).")
+		print(f"Preview des {l_past + l_present + l_future} points détectés ({l_present} sur l'image actuelle, "
+			  f"{l_past} sur l'image précédente, {l_future} sur l'image suivante).")
 
 	##################################################
 	def _auto_threshold(self):
@@ -421,7 +419,7 @@ class PALMTracerWidget(QWidget):
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
 		print(f"Auto Threshold : {threshold:.2f}")
-		#show_info(f"Auto Threshold : {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
+		# show_info(f"Auto Threshold : {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # Changement du seuil dans les settings
 
 	# ==================================================

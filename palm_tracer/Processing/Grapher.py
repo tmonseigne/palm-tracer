@@ -7,7 +7,8 @@ import numpy as np
 import plotly.graph_objects as go
 from scipy.stats import gaussian_kde
 
-from palm_tracer.Processing.Astigmatism3D import MODEL_COLS, MODEL_ROWS, sigma_model
+from palm_tracer.Processing.Astigmatism3D import sigma_model
+from palm_tracer.Processing.Parsing import SHAPE_MODEL
 
 # Palette "deep" de seaborn (approx)
 _SEABORN_DEEP = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD", "#FFD92F", "#E7298A", "#66A61E", "#E6AB02"]
@@ -198,7 +199,7 @@ class Grapher:
 		return fig
 
 	##################################################
-	def astigmatism3d_curve(self, title: str, model: np.ndarray, pixel_size: float = 160, z_max: float =  500, n_points: int = 5000) -> go.Figure:
+	def astigmatism3d_curve(self, title: str, model: np.ndarray, pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
 		"""
 
 		:param title: titre du graphe.
@@ -209,7 +210,7 @@ class Grapher:
 		:return:
 		"""
 
-		if len(model) != len(MODEL_ROWS) or len(model[0]) != len(MODEL_COLS): return self.blank(title)
+		if model.shape != SHAPE_MODEL: return self.blank(title)
 
 		fig = go.Figure()
 
