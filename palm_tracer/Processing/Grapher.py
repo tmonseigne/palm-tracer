@@ -24,9 +24,12 @@ _MARGIN = dict(l=60, r=20, t=60, b=50)
 class Grapher:
 	"""Créateur de graphiques avec Plotly."""
 
+	# ==================================================
+	# region Statistic Figure
+	# ==================================================
 	def get_fig(self, graph_type: str, data: Optional[np.ndarray] = None, title: str = "", xlabel: str = "", ylabel: str = "",
 				limit: bool = False, show_sigma: bool = False, kde: bool = False, gaussian: bool = False,
-				density: bool = True, bins: Optional[int] = None):
+				density: bool = True, bins: Optional[int] = None) -> go.Figure:
 		"""
 		Retourne le graphique selon le type choisi.
 
@@ -50,7 +53,7 @@ class Grapher:
 
 	##################################################
 	@staticmethod
-	def blank(title: str):
+	def blank(title: str = "") -> go.Figure:
 		"""
 		Créé une figure vide avec une annotation standard au centre ``_BLANK_ANNOTATIONS``.
 
@@ -62,7 +65,7 @@ class Grapher:
 		return fig
 
 	##################################################
-	def histogram(self, data: np.ndarray, title: str, xlabel: str = "", ylabel: str = "",
+	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "",
 				  limit: bool = False, show_sigma: bool = False, kde: bool = False,
 				  gaussian: bool = False, density: bool = True, bins: Optional[int] = None) -> go.Figure:
 		"""
@@ -143,7 +146,7 @@ class Grapher:
 		return fig
 
 	##################################################
-	def scatter(self, data: np.ndarray, title: str, xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False) -> go.Figure:
+	def scatter(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False) -> go.Figure:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
@@ -154,6 +157,7 @@ class Grapher:
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:return: ``go.Figure``
+		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendu (1D, 2D mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
 
 		# Déterminer x,y
@@ -198,19 +202,23 @@ class Grapher:
 
 		return fig
 
+	# ==================================================
+	# endregion Statistic Figure
+	# ==================================================
+
 	##################################################
-	def astigmatism3d_curve(self, title: str, model: np.ndarray, pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
+	def astigmatism3d_curve(self, model: np.ndarray, title: str = "", pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
 		"""
 
-		:param title: titre du graphe.
 		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+		:param title: titre du graphe.
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 		:param z_max: Valeur absolue maximale sur Z.
 		:param n_points: Nombre de points sur la courbe (résolution)
-		:return:
+		:return: ``go.Figure``
+		:raises ValueError: Si les dimensions du modèle ne correspondent pas à ceux attendu (2x5)
 		"""
-
-		if model.shape != SHAPE_MODEL: return self.blank(title)
+		if model.shape != SHAPE_MODEL: raise ValueError(f"Le modèle doit être de dimension {SHAPE_MODEL}.")
 
 		fig = go.Figure()
 

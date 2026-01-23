@@ -360,7 +360,7 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
 	ref = (512, 1024)
 	res = my_widget.visualization.shape
-	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu: {ref}\nObtenu : {res}"
+	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Passage aux tracks (avec changement automatique de la color map sur viridis)
 	my_widget.type_cmb.set_value(1)
@@ -406,7 +406,7 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
 	ref = (512, 1024)
 	res = my_widget.visualization.shape
-	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu: {ref}\nObtenu : {res}"
+	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 
 	my_widget.save()
 

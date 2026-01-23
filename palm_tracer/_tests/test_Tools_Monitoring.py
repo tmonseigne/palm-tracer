@@ -11,7 +11,6 @@ try:
 except ImportError:
 	HAVE_GPU = False
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 default_duration = 2
 
 

@@ -2,8 +2,6 @@
 from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import Logger
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
 
 ##################################################
 def test_logger():

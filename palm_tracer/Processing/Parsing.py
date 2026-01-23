@@ -23,7 +23,7 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 				"columns": ["Track", "Step"],
 				"types":   ["Track"]
 				},
-		"Instant diffusion":    {
+		"Instant Diffusion":    {
 				"columns": ["Track", "Window"],
 				"types":   ["Track"]
 				},
@@ -76,7 +76,7 @@ def get_max_points(height: int = 256, width: int = 256, n_planes: int = 1, densi
 
 	:return: Nombre maximal théorique de points détectables.
 	"""
-	return int(height * width * density * n_planes) * len(FILES_COLUMNS["Localization"]["columns"])
+	return int(height * width * density * n_planes) * N_COL_LOC
 
 
 ##################################################
@@ -107,66 +107,12 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
 	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égale à 0).
 	:param data: dataframe à modifier
-	:param columns:
+	:param columns: Colonnes à modifier
 	:return: dataframe avec les colonnes ayant été modifié.
 	"""
-	logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)	# Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
+	logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
 	data[columns] = pd.DataFrame(logged, index=data.index, columns=columns)
 	return data
-
-
-##################################################
-def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool = False, fit_mode: int = 0) -> pd.DataFrame:
-	"""
-	Parsing du résultat de la DLL PALM.
-
-	Pour les localisations et les trajectoires, On a un tableau 1D de grande taille en entrée :
-		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``).	La taille du tableau est vérifié et tronqué si nécessaire.
-		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
-		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
-
-	Pour les calculs sur trajectoire, on a un tableau 1D representant un talbeau 2D irrégulier
-	(avec un nombre de colonnes non constant (:func:`parse_irregular_array`)
-
-	:param data: Donnée en entrée récupérées depuis la DLL PALM.
-	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit)
-	:param is_log: Applique un logarithme sur le résultat (si necessaire, pour les calculs sur trajectoires).
-	:param fit_mode: Mode d'ajustement (si necessaire, pour les calculs sur trajectoires).
-	:return: Dataframe parsé
-	"""
-	# Récupération des éléments
-	columns, types = FILES_COLUMNS[file_type]["columns"], FILES_COLUMNS[file_type]["types"]
-	n_columns = len(columns)
-	log_col = []
-
-	if file_type == "Localization" or file_type == "Tracking":
-		# Manipulation du tableau 1D.
-		size = (data.size // n_columns) * n_columns	  # Récupération de la taille correcte si non multiple de N_SEGMENT
-		data = data[:size].reshape(-1, n_columns)	  # Passage en tableau 2D
-		data = data[data[:, columns.index("X")] > 0]  # Filtrage sur les X inférieurs ou égal à 0 en amont.
-		res = pd.DataFrame(data, columns=columns)	  # Transformation en Dataframe
-	elif file_type == "Astigmatism 3D Model":
-		res = pd.DataFrame(data, columns=columns, index=MODEL_ROWS)
-	else:
-		res = parse_irregular_array(data)
-		ncols = res.shape[1]
-		if ncols != 0:
-			if file_type == "MSD" or file_type == "Instant diffusion":
-				log_col = [f"{columns[1]} {i}" for i in range(1, ncols)]
-				res.columns = [columns[0]] + log_col
-			elif file_type == "Fit":
-				# les colonnes dépendent du fit
-				log_col = columns[2:]
-				if fit_mode == 1: log_col += ["A (μm²/s)", "B (μm²)", "MSE"]
-				elif fit_mode == 2: log_col += ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"]
-				elif fit_mode == 3: log_col += ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]
-				res.columns = columns[:2] + log_col
-
-	if is_log and log_col: res = log10_dataframe(res, log_col)  # Mise à jour en fonction de la mise à l'échelle du Log.
-	for key in types:
-		# Vérification en cas de Dataframe Vide et conversion en entier nullable (préserve les NaN si présents)
-		if key in res.columns: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")
-	return res
 
 
 ##################################################
@@ -223,6 +169,62 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	columns = [f"Val_{k}" for k in range(max_len)]
 	df = pd.DataFrame(out, columns=columns)
 	return df
+
+
+##################################################
+def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool = False, fit_mode: int = 0) -> pd.DataFrame:
+	"""
+	Parsing du résultat de la DLL PALM.
+
+	Pour les localisations et les trajectoires, On a un tableau 1D de grande taille en entrée :
+		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``).	La taille du tableau est vérifié et tronqué si nécessaire.
+		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
+		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
+
+	Pour les calculs sur trajectoire, on a un tableau 1D representant un talbeau 2D irrégulier
+	(avec un nombre de colonnes non constant (:func:`parse_irregular_array`)
+
+	:param data: Donnée en entrée récupérées depuis la DLL PALM.
+	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit)
+	:param is_log: Applique un logarithme sur le résultat (si necessaire, pour les calculs sur trajectoires).
+	:param fit_mode: Mode d'ajustement (si necessaire, pour les calculs sur trajectoires).
+	:return: Dataframe parsé
+	"""
+	# Récupération des éléments
+	if not file_type in FILES_COLUMNS: raise ValueError(f"file_type incorrect.")
+	columns, types = FILES_COLUMNS[file_type]["columns"], FILES_COLUMNS[file_type]["types"]
+	n_columns = len(columns)
+	log_col = []
+
+	if file_type == "Localization" or file_type == "Tracking":
+		# Manipulation du tableau 1D.
+		size = (data.size // n_columns) * n_columns	  # Récupération de la taille correcte si non multiple de N_SEGMENT
+		data = data[:size].reshape(-1, n_columns)	  # Passage en tableau 2D
+		data = data[data[:, columns.index("X")] > 0]  # Filtrage sur les X inférieurs ou égal à 0 en amont.
+		res = pd.DataFrame(data, columns=columns)	  # Transformation en Dataframe
+	elif file_type == "Astigmatism 3D Model":
+		res = pd.DataFrame(data, columns=columns, index=MODEL_ROWS)
+	else:
+		res = parse_irregular_array(data)
+		ncols = res.shape[1]
+		if ncols == 0: return pd.DataFrame()
+		if file_type == "MSD" or file_type == "Instant Diffusion":
+			log_col = [f"{columns[1]} {i}" for i in range(1, ncols)]
+			res.columns = [columns[0]] + log_col
+		else:
+			# les colonnes dépendent du fit
+			log_col = columns[2:]
+			if fit_mode == 1: log_col += ["A (μm²/s)", "B (μm²)", "MSE"]
+			elif fit_mode == 2: log_col += ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"]
+			elif fit_mode == 3: log_col += ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]
+			else: raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
+			res.columns = columns[:2] + log_col
+
+	if is_log and log_col: res = log10_dataframe(res, log_col)  # Mise à jour en fonction de la mise à l'échelle du Log.
+	for key in types:
+		# Vérification en cas de Dataframe Vide et conversion en entier nullable (préserve les NaN si présents)
+		if key in res.columns: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")
+	return res
 
 
 ##################################################

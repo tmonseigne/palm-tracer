@@ -392,7 +392,7 @@ class Palm:
 		n = len(tracks) * N_TRC_CP_FIT
 
 		if is_msd: res["MSD"] = parse_result(np.ctypeslib.as_array(args["o_msd"], shape=(n,)), "MSD", is_log)
-		if is_ind: res["InD"] = parse_result(np.ctypeslib.as_array(args["o_ind"], shape=(n,)), "Instant diffusion", is_log)
+		if is_ind: res["InD"] = parse_result(np.ctypeslib.as_array(args["o_ind"], shape=(n,)), "Instant Diffusion", is_log)
 		if fit_mode != 0: res["Fit"] = parse_result(np.ctypeslib.as_array(args["o_fit"], shape=(n,)), "Fit", is_log, fit_mode)
 
 		# Restauration des identifiants de trajectoire

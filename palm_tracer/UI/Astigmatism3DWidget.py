@@ -335,10 +335,12 @@ class Astigmatism3DWidget(StandAloneWidget):
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
-		z_max = self._spin_z_estimate.value()
-		fig = self._grapher.astigmatism3d_curve("Astigmatism model", self._model.to_numpy(), pixel_size, z_max)
-		self._update_web_widget(self._web, fig)
+		try:
+			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
+			z_max = self._spin_z_estimate.value()
+			fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title="Astigmatism model", pixel_size=pixel_size, z_max=z_max)
+			self._update_web_widget(self._web, fig)
+		except ValueError: pass
 
 	# ==================================================
 	# endregion UI

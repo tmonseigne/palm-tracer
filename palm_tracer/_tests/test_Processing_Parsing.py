@@ -5,6 +5,23 @@ from palm_tracer.Processing.Parsing import *
 
 
 ##################################################
+def test_get_meta():
+	"""Test basique de get_meta."""
+
+	with pytest.raises(ValueError) as exception_info: get_meta([])
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+	get_meta(np.zeros(shape=(1, N_COL_META)))
+
+
+##################################################
+def test_get_max_point():
+	"""Test basique de get_max_points."""
+	res = get_max_points(100, 100, 1, 0.01)
+	ref = 1800  # Résultat attendu 1% de 100x100 pixel x 18 (le nombre de colonnes d'un fichier de localisation) = 1800
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref},\tObtenu : {res}"
+
+
+##################################################
 def test_rearrange_dataframe_columns():
 	""" test de la fonction rearrange_dataframe_columns."""
 	df = pd.DataFrame({"X": [1, 2, 3], "Y": [4, 5, 6], "Z": [7, 8, 9]})
@@ -18,10 +35,22 @@ def test_rearrange_dataframe_columns():
 
 
 ##################################################
+def test_log10_dataframe():
+	"""Test basique de log10_dataframe."""
+	data = pd.DataFrame([[0, 0], [1, 1]], columns=["A", "B"])
+	res = log10_dataframe(data, ["B"])
+	ref = [[0, np.nan], [1, 0]]
+	assert np.allclose(res, ref, atol=0, rtol=0, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
 def test_parse_irregular_array():
 	""" Test de la fonction parse_irregular_array."""
 	data = np.array([2, 1, 2, 2, 3, 4])
-	print(parse_irregular_array(data))
+	res = parse_irregular_array(data)
+	ref = np.array([[1, 2], [3, 4]])
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
 	data = np.array([[2, 1, 2, 2, 3, 4]])
 	assert pytest.raises(ValueError, parse_irregular_array, data)
 	data = np.array(["hey", 1, 2, 2, 3, 4])
@@ -29,6 +58,66 @@ def test_parse_irregular_array():
 	data = np.array([2, 1, 2, 2, 3])
 	assert pytest.raises(ValueError, parse_irregular_array, data)
 	data = np.array([])
-	print(parse_irregular_array(data))
+	res = parse_irregular_array(data)
+	assert res.empty
 	data = np.array([0])
-	print(parse_irregular_array(data))
+	res = parse_irregular_array(data)
+	assert res.empty
+
+
+##################################################
+def test_parse_result():
+	"""Test basique de parse_result."""
+	data = np.arange(20)
+	res = parse_result(data, "Localization")
+	ref = np.arange(18)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+	res = parse_result(data, "Tracking")
+	ref = np.arange(16).reshape(2, 8)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	data = np.arange(10).reshape((2, 5))
+	res = parse_result(data, "Astigmatism 3D Model")
+	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
+
+	data = np.array([2, 1, 2, 2, 3, 4])
+	res = parse_result(data, "MSD")
+	ref = [[1, 2], [3, 4]]
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	res = parse_result(data, "Instant Diffusion")
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	with pytest.raises(ValueError) as exception_info: parse_result(data, "Fit")
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+
+	data = np.array([9, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+	res = parse_result(data, "Fit", is_log=True, fit_mode=1)
+	ref = [[1, 1, 0, 0, 0, 0, 0, 0, 0]]
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	data = np.array([10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+	res = parse_result(data, "Fit", fit_mode=2)
+	ref = np.ones(10)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	data = np.array([11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+	res = parse_result(data, "Fit", fit_mode=3)
+	ref = np.ones(11)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	res = parse_result(np.array([]), "Fit")
+	assert res.empty, "Le dataframe devrait être vide."
+
+	with pytest.raises(ValueError) as exception_info: parse_result(data, "mon type")
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+
+
+##################################################
+def test_parse_localization_for_tracking():
+	""" Test de la fonction parse_localization_for_tracking."""
+	data = parse_result(np.arange(36), "Localization")
+	res = parse_localization_for_tracking(data)
+	ref = [0, 4, 5, 6, 15, 16, -1, -1, -1, -1, -1, -1, 18, 22, 23, 24, 33, 34, -1, -1, -1, -1, -1, -1]
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"

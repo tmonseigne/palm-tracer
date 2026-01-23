@@ -6,8 +6,6 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import open_tif, print_warning
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
 thresh = 340.6
 file = "Tubulin-A647-3D-stacks_1"
 path = Path(f"{INPUT_DIR}/big input/{file}.tif")

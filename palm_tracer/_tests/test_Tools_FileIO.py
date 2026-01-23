@@ -4,8 +4,6 @@ import pytest
 from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import FileIO
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
 REF_DICT = {"First param": [0, 1, 2],
 			"2nd param":   True,
 			"3rd param":   "True",

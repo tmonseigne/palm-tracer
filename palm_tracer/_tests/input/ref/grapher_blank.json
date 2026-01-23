@@ -1,0 +1,17 @@
+{
+  "layout": {
+	"annotations": [
+	  {
+		"showarrow": false,
+		"text": "No valid data.",
+		"x": 0.5,
+		"xref": "paper",
+		"y": 0.5,
+		"yref": "paper"
+	  }
+	],
+	"title": {
+	  "text": "blank"
+	}
+  }
+}
