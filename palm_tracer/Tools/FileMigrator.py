@@ -141,7 +141,12 @@ class FileMigrator:
 
 	##################################################
 	def update_meta(self, column: str, v: int | float):
-		"""Mets à jour l'objet meta et vérifie si une valeur différente est présente."""
+		"""
+		Mets à jour l'objet meta et vérifie si une valeur différente est présente.
+
+		:param column: Colonne à mettre à jour
+		:param v: Valeur à insérer
+		"""
 		ref = self.meta.loc[0, column]
 		if ref == -1: self.meta.loc[0, column] = v
 		elif ref != v:
@@ -150,8 +155,19 @@ class FileMigrator:
 
 	##################################################
 	def migrate_localization(self):
-		""""""
-		if len(self.files["loc"]) == 0: print("No localization file in folder.")
+		"""
+		Migre le fichier de localisations PALMTracer vers le format courant.
+
+		Cette méthode :
+			- lit le fichier ``locPALMTracer.txt`` s'il est présent
+			- extrait les métadonnées globales (dimensions, calibration temporelle et spatiale)
+			- met à jour :attr:`meta` via :meth:`update_meta`
+			- renomme et complète les colonnes selon ``FILES_COLUMNS["Localization"]``
+			- écrit le fichier CSV converti dans :attr:`output_folder`.
+
+		Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK["loc"].new``.
+		"""
+		if len(self.files["loc"]) == 0: print_warning("No localization file in folder.")
 		else:
 			file = self.files["loc"][0]
 			data, header = self.open_old_file(file, header=True, skiprows=2)
@@ -168,8 +184,18 @@ class FileMigrator:
 
 	##################################################
 	def migrate_tracks(self):
-		""""""
-		if len(self.files["trc"]) == 0: print("No tracking file in folder.")
+		"""
+		Migre le fichier de tracking PALMTracer vers le format courant.
+
+		Cette méthode :
+			- lit le fichier ``trcPALMTracer.txt`` s'il est présent
+			- extrait et harmonise les métadonnées globales (image, calibration)
+			- renomme et complète les colonnes selon ``FILES_COLUMNS["Tracking"]``
+			- écrit le fichier CSV converti dans :attr:`output_folder`.
+
+		Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK["trc"].new``.
+		"""
+		if len(self.files["trc"]) == 0: print_warning("No tracking file in folder.")
 		else:
 			file = self.files["trc"][0]
 			data, header = self.open_old_file(file, header=True, skiprows=2)
@@ -186,8 +212,18 @@ class FileMigrator:
 
 	##################################################
 	def migrate_astigmatism_3d_model(self):
-		""""""
-		if len(self.files["A3D"]) == 0: print("No Astimagmatism 3D Model file in folder.")
+		"""
+		Migre le fichier de modèle d'astigmatisme 3D PALMTracer.
+
+		Cette méthode :
+			- lit le fichier ``3DFit.txt`` s'il est présent
+			- assigne explicitement les noms de colonnes et les indices de lignes
+			  à partir de ``FILES_COLUMNS["Astigmatism 3D Model"]`` et ``MODEL_ROWS``
+			- écrit le modèle sous forme de CSV dans :attr:`output_folder`.
+
+		Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK["A3D"].new``.
+		"""
+		if len(self.files["A3D"]) == 0: print_warning("No Astimagmatism 3D Model file in folder.")
 		else:
 			file = self.files["A3D"][0]
 			data, header = self.open_old_file(file, header=False, skiprows=2)
@@ -198,32 +234,74 @@ class FileMigrator:
 
 	##################################################
 	def migrate_tracks_msd(self):
-		""""""
-		if len(self.files["MSD"]) == 0: print("No MSD file in folder.")
+		"""
+		Migre le fichier MSD (Mean Square Displacement) PALMTracer.
+
+		Cette méthode :
+			- lit un fichier à structure irrégulière (nombre de colonnes variable par ligne)
+			- supprime la colonne ROI (première colonne)
+			- renomme les colonnes sous la forme : ``Track, <metric> 1, <metric> 2, ..., <metric> N`` ;
+			- écrit le fichier CSV converti dans :attr:`output_folder`.
+
+		Le nom de la métrique est issu de ``FILES_COLUMNS["MSD"]["columns"]``.
+
+		Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK["MSD"].new``.
+		"""
+		if len(self.files["MSD"]) == 0: print_warning("No MSD file in folder.")
 		else:
 			file = self.files["MSD"][0]
 			data, header = self.open_old_irregular_file(file, skiprows=2)
-			data = data.iloc[:, 1:].copy() # Suppression de la colonne ROI
-			data.columns = ["Track"] + [f"{FILES_COLUMNS["MSD"]["columns"][1]} {i}" for i in range(data.shape[1] - 1)]
+			data = data.iloc[:, 1:].copy()  # Suppression de la colonne ROI
+			data.columns = ["Track"] + [f"{FILES_COLUMNS["MSD"]["columns"][1]} {i}" for i in range(1, data.shape[1])]
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['MSD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("MSD file migrated.")
 
 	##################################################
 	def migrate_tracks_instant_diffusion(self):
-		""""""
-		if len(self.files["InD"]) == 0: print("No Instant Diffusion file in folder.")
+		"""
+		Migre le fichier de diffusion instantanée PALMTracer.
+
+		Cette méthode :
+			- lit un fichier à structure irrégulière (nombre de colonnes variable par ligne)
+			- supprime la colonne ROI (première colonne)
+			- renomme les colonnes sous la forme : ``Track, <metric> 1, <metric> 2, ..., <metric> N`` ;
+			- écrit le fichier CSV converti dans :attr:`output_folder`.
+
+		Le nom de la métrique est issu de ``FILES_COLUMNS["InD"]["columns"]``.
+
+		Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK["InD"].new``.
+		"""
+		if len(self.files["InD"]) == 0: print_warning("No Instant Diffusion file in folder.")
 		else:
 			file = self.files["InD"][0]
 			data, header = self.open_old_irregular_file(file, skiprows=2)
-			data = data.iloc[:, 1:].copy() # Suppression de la colonne ROI
-			data.columns = ["Track"] + [f"{FILES_COLUMNS["Instant Diffusion"]["columns"][1]} {i}" for i in range(data.shape[1] - 1)] # Renommage
+			data = data.iloc[:, 1:].copy()  # Suppression de la colonne ROI
+			data.columns = ["Track"] + [f"{FILES_COLUMNS["Instant Diffusion"]["columns"][1]} {i}" for i in range(1, data.shape[1])]  # Renommage
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['InD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("Instant Diffusion file migrated.")
 
 	##################################################
 	def migrate_tracks_fit(self):
-		""""""
-		if len(self.files["Fit"]) == 0: print("No Fit file in folder.")
+		"""
+		Migre le fichier de fit de trajectoires PALMTracer.
+
+		Cette méthode :
+			- lit le fichier ``trcPALMTracer-Full-D.txt``
+			- neutralise la colonne ROI (remplacée par une valeur constante)
+			- corrige l'ordre des colonnes (ROI / Track)
+			- détecte automatiquement le mode de fit en fonction du nombre de colonnes
+			- applique les noms de colonnes appropriés à partir de ``FILES_COLUMNS``
+			- écrit le fichier CSV converti dans :attr:`output_folder`.
+
+		Le mode de fit est déterminé comme suit :
+			- 9 colonnes  → Fit mode 1
+			- 10 colonnes → Fit mode 2
+			- 11 colonnes → Fit mode 3
+
+		.. warning::
+		   Toute incohérence sur le nombre de colonnes peut conduire à un mauvais mode de fit.
+		"""
+		if len(self.files["Fit"]) == 0: print_warning("No Fit file in folder.")
 		else:
 			file = self.files["Fit"][0]
 			data, header = self.open_old_file(file, header=True, skiprows=3)
@@ -276,18 +354,12 @@ class FileMigrator:
 		"""
 		Ouvre un fichier PALMTracer (MetaMorph) au format texte tabulé, en tolérant les lignes avec un nombre de colonnes variable.
 
-		Le fichier est supposé structuré de la façon suivante :
-			- ``skiprows`` premières lignes : informations globales
-			- ligne suivante (optionnelle)  : titres des colonnes
-			- reste du fichier              : données tabulaires (tabulées)
-
 		Si certaines lignes n'ont pas le même nombre de colonnes, la fonction :
 		- détecte le nombre maximal de colonnes,
 		- complète les lignes plus courtes avec des valeurs manquantes (NaN),
 		- tronque les lignes plus longues à la largeur max (rare, mais protège).
 
 		:param file: Chemin vers le fichier PALMTracer à ouvrir.
-		:param header: Indique si une ligne de titres de colonnes est présente après les lignes d'en-tête.
 		:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
 		:param sep: Séparateur de colonnes utilisé dans le fichier.
 		:return: Tuple ``(dataframe, header_lines)``.
@@ -374,11 +446,17 @@ class FileMigrator:
 	##################################################
 	def dataframe_migrator(self, data: pd.DataFrame, target_cols: list[str]) -> pd.DataFrame:
 		"""
-		Retourne le ataframe modifié.
+		Normalise un DataFrame PALMTracer vers un schéma de colonnes cible.
 
-		:param data:
-		:param target_cols:
-		:return: Nom de la nouvelle colonne
+		Cette méthode :
+			- renomme les colonnes existantes à l'aide de :meth:`column_migrator`
+			- ignore les colonnes non reconnues
+			- ajoute les colonnes manquantes initialisées à 0
+			- retourne le DataFrame réordonné selon ``target_cols``.
+
+		:param data: DataFrame d'entrée issu du format PALMTracer.
+		:param target_cols: Liste ordonnée des colonnes attendues dans le format cible.
+		:return: DataFrame conforme au schéma cible.
 		"""
 		# Renommage robuste : on construit old_col -> new_col
 		rename_map: dict[str, str] = {}

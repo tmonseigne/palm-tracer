@@ -339,8 +339,9 @@ class Astigmatism3DWidget(StandAloneWidget):
 			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 			z_max = self._spin_z_estimate.value()
 			fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title="Astigmatism model", pixel_size=pixel_size, z_max=z_max)
-			self._update_web_widget(self._web, fig)
-		except ValueError: pass
+		except ValueError:
+			fig = self._grapher.blank("Astigmatism model")
+		self._update_web_widget(self._web, fig)
 
 	# ==================================================
 	# endregion UI

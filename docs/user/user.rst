@@ -10,3 +10,5 @@ Guide de l'utilisateur de PALM Tracer
    viewer_hr
    viewer_3d
    tool_alignment
+   tool_astig
+   tool_fm
