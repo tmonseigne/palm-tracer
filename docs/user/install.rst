@@ -49,7 +49,16 @@ Méthode 2 : téléchargement manuel (ZIP)
 2. Cliquez sur **Code** (le bouton vert).
 3. Choisissez **Download ZIP** pour télécharger les fichiers du projet sur votre ordinateur.
 4. Extrayez les fichiers dans un dossier accessible (par exemple, :console:`C:\\palm-tracer`).
-5. Dezippez le fichier :console:`DLL.7z`. Le mot de passe vous est demandé lors de l'extraction. Le fichier extrait est automatiquement placé dans le dossier approprié (:console:`palm-tracer\\palm_tracer\\DLL`).
+5. Dezippez le fichier :console:`DLL.7z` :
+    - Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`
+    - Le mot de passe vous est demandé lors de l'extraction.
+    - Le fichier extrait est automatiquement placé dans le dossier approprié (:console:`palm-tracer\\palm_tracer\\DLL`).
+
+.. note::
+   | Attention, l'extraction avec l'outil intégré à Windows créé des sous-dossiers.
+   | Si vous avez extrait dans :console:`C:\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :console:`palm_tracer, docs, README.md...`.
+	Ils ont peut être été mis dans un sous-dossier :console:`palm-tracer-master` et doivent être remonté d'un cran.
+
 
 Étape 2 : Installation de Python et des éléments additionnels
 ------------------------------------------------------------------------
@@ -68,7 +77,7 @@ Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer 
 
 Sinon, vous pouvez tout faire manuellement :
 
-1. Téléchargez Python depuis le `site officiel <https://www.python.org/downloads/>`_.
+1. Téléchargez Python 64-bit depuis le `site officiel <https://www.python.org/downloads/>`_.
 2. Pendant l'installation, assurez-vous de cocher l'option **Add Python to PATH**.
 3. Une fois installé, vérifiez que Python fonctionne :
 
@@ -79,7 +88,7 @@ Sinon, vous pouvez tout faire manuellement :
    Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
 
    **Attention** : Si Python à changé de version récemment, certaines bibliothèques peuvent ne plus être compatible.
-   Ex : au moment d'écrire ces lignes Python 3.14 est disponible mais Napari n'est pas encore compatible.
+   Ex : au moment d'écrire ces lignes Python 3.14 est disponible mais Napari n'est pas encore compatible, il faut utiliser Python 3.13.
 
 4. Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :
 
@@ -114,7 +123,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 .. code-block:: console
 
    $env:SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PALM_TRACER = "1.0.0"
-   python -m pip install .[testing,documentation]
+   python -m pip install -e .[testing,documentation]
 
 .. note::
    | La première ligne est nécessaire, si vous avez **téléchargé** le zip du code source à partir de Git.
