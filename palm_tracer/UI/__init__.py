@@ -12,14 +12,14 @@ Ce sous-package contient les classes d'interface utilisateur Napari (QT).
 
 """
 
-from .AlignmentWidget import AlignmentWidget, open_alignment
-from .Astigmatism3DWidget import Astigmatism3DWidget, open_astigmatism3d
+from .AlignmentWidget import AlignmentWidget
+from .Astigmatism3DWidget import Astigmatism3DWidget
+from .FileMigratorWidget import FileMigratorWidget
 from .GraphViewerWidget import GraphViewerWidget
 from .PALMTracerWidget import PALMTracerWidget
 from .StandAloneWidget import StandAloneWidget
-from .Viewer3DWidget import open_viewer3d, Viewer3DWidget
-from .ViewerHRWidget import open_viewerhr, ViewerHRWidget
+from .Viewer3DWidget import Viewer3DWidget
+from .ViewerHRWidget import ViewerHRWidget
 
-__all__ = ["PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget",
-		   "StandAloneWidget", "AlignmentWidget", "Astigmatism3DWidget", "GraphViewerWidget",
-		   "open_viewer3d", "open_viewerhr", "open_alignment", "open_astigmatism3d"]
+__all__ = ["PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget", "StandAloneWidget",
+		   "AlignmentWidget", "Astigmatism3DWidget", "FileMigratorWidget", "GraphViewerWidget"]

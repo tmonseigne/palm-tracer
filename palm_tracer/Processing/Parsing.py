@@ -71,7 +71,7 @@ def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	arr = np.asarray(data).reshape(1, -1)  # Aplatit vers (N,) puis force (1, N)
 	if arr.shape[1] != len(columns): raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
 
-	res = pd.DataFrame(arr, columns=columns)  # Transformation en Dataframe
+	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en Dataframe
 	for key in types: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")  # Conversion en entier nullable (préserve les NaN si présents)
 	return res
 

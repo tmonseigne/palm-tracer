@@ -7,28 +7,33 @@ categories: [ "Image Processing", "Visualization" ]
 contributions:
   commands:
     - id: palm-tracer.make_qwidget
-      python_name: palm_tracer:PALMTracerWidget
+      python_name: palm_tracer.UI.PALMTracerWidget:PALMTracerWidget
       title: PALM Tracer
 
     # Commande pour ouvrir la fenêtre HR
     - id: palm-tracer.open_viewerhr
-      python_name: palm_tracer:open_viewerhr
+      python_name: palm_tracer.UI.ViewerHRWidget:open_viewerhr
       title: Viewer 3D
 
     # Commande pour ouvrir la fenêtre 3D
     - id: palm-tracer.open_viewer3d
-      python_name: palm_tracer:open_viewer3d
+      python_name: palm_tracer.UI.Viewer3DWidget:open_viewer3d
       title: Viewer 3D
 
     # Commande pour ouvrir la fenêtre d'alignement
     - id: palm-tracer.open_alignment
-      python_name: palm_tracer:open_alignment
+      python_name: palm_tracer.UI.AlignmentWidget:open_alignment
       title: Alignment Tool
 
     # Commande pour ouvrir la fenêtre d'alignement
     - id: palm-tracer.open_astigmatism3d
-      python_name: palm_tracer:open_astigmatism3d
+      python_name: palm_tracer.UI.Astigmatism3DWidget:open_astigmatism3d
       title: Astigmatism 3D Tool
+
+    # Commande pour ouvrir la fenêtre d'alignement
+    - id: palm-tracer.open_migrator
+      python_name: palm_tracer.UI.FileMigratorWidget:open_migrator
+      title: File Migrator Tool
 
   widgets:
     - command: palm-tracer.make_qwidget
@@ -49,3 +54,7 @@ contributions:
     # Widget "factice" qui sert juste de point d’entrée menu
     - command: palm-tracer.open_astigmatism3d
       display_name: Astigmatism 3D Tool
+
+    # Widget "factice" qui sert juste de point d’entrée menu
+    - command: palm-tracer.open_migrator
+      display_name: File Migrator Tool

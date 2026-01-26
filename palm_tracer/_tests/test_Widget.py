@@ -3,7 +3,8 @@ from typing import cast
 
 import pytest
 
-from palm_tracer import PALMTracer, PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
+from palm_tracer import PALMTracer
+from palm_tracer.UI import PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList

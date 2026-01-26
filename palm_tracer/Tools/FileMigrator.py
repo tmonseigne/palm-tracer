@@ -42,12 +42,12 @@ class FileMigrator:
 	"""
 
 	FILES_LINK: dict[str, Link] = field(init=False, default_factory=lambda:
-	{"loc": Link("locPALMTracer.txt", "localizations.csv"),
-	 "trc": Link("trcPALMTracer.txt", "tracking.csv"),
-	 "A3D": Link("3DFit.txt", "astigmatism_3d_model.csv"),
-	 "MSD": Link("trcPALMTracer-Full-MSD.txt", "tracking_MSD.csv"),
-	 "InD": Link("trcPALMTracer-Full-Dinst.txt", "tracking_InstantD.csv"),
-	 "Fit": Link("trcPALMTracer-Full-D.txt", "tracking_Fit.csv")})
+	{"loc": Link("locPALMTracer.txt", "localizations"),
+	 "trc": Link("trcPALMTracer.txt", "tracking"),
+	 "A3D": Link("3DFit.txt", "astigmatism_3d_model"),
+	 "MSD": Link("trcPALMTracer-Full-MSD.txt", "tracking_MSD"),
+	 "InD": Link("trcPALMTracer-Full-Dinst.txt", "tracking_InstantD"),
+	 "Fit": Link("trcPALMTracer-Full-D.txt", "tracking_Fit")})
 
 	input_folder: Path = field(init=False, default_factory=lambda: Path())
 	output_folder: Path = field(init=False, default_factory=lambda: Path())
@@ -163,7 +163,7 @@ class FileMigrator:
 			self.update_meta("Exposure Time (s/frame)", float(metas[5]))
 
 			data = self.dataframe_migrator(data, FILES_COLUMNS["Localization"]["columns"])
-			data.to_csv(self.output_folder / f"localizations-{self.suffix}.csv", index=False)  # Enregistrement
+			data.to_csv(self.output_folder / f"{self.FILES_LINK['loc'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("Localization file migrated.")
 
 	##################################################
@@ -181,7 +181,7 @@ class FileMigrator:
 			self.update_meta("Exposure Time (s/frame)", float(metas[5]))
 
 			data = self.dataframe_migrator(data, FILES_COLUMNS["Tracking"]["columns"])
-			data.to_csv(self.output_folder / f"tracking-{self.suffix}.csv", index=False)  # Enregistrement
+			data.to_csv(self.output_folder / f"{self.FILES_LINK['trc'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("Tracking file migrated.")
 
 	##################################################
@@ -205,7 +205,7 @@ class FileMigrator:
 			data, header = self.open_old_irregular_file(file, skiprows=2)
 			data = data.iloc[:, 1:].copy() # Suppression de la colonne ROI
 			data.columns = ["Track"] + [f"{FILES_COLUMNS["MSD"]["columns"][1]} {i}" for i in range(data.shape[1] - 1)]
-			data.to_csv(self.output_folder / f"tracking_MSD-{self.suffix}.csv", index=False)  # Enregistrement
+			data.to_csv(self.output_folder / f"{self.FILES_LINK['MSD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("MSD file migrated.")
 
 	##################################################
@@ -217,7 +217,7 @@ class FileMigrator:
 			data, header = self.open_old_irregular_file(file, skiprows=2)
 			data = data.iloc[:, 1:].copy() # Suppression de la colonne ROI
 			data.columns = ["Track"] + [f"{FILES_COLUMNS["Instant Diffusion"]["columns"][1]} {i}" for i in range(data.shape[1] - 1)] # Renommage
-			data.to_csv(self.output_folder / f"tracking_InstantD-{self.suffix}.csv", index=False)  # Enregistrement
+			data.to_csv(self.output_folder / f"{self.FILES_LINK['InD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("Instant Diffusion file migrated.")
 
 	##################################################
@@ -232,11 +232,11 @@ class FileMigrator:
 			ncols = len(cols)
 			cols[0], cols[1] = cols[1], cols[0]  # switch les noms de colonnes ROI et Trace
 			data = data[cols]  # Change l'ordre des colonnes
-			cols = FILES_COLUMNS["Fit"]["columns"]
+			cols = FILES_COLUMNS["Fit"]["columns"].copy()
 			fit_mode = 1 if ncols == 9 else 2 if ncols == 10 else 3
 			cols += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
 			data.columns = cols  # remplacer les noms de colonnes
-			data.to_csv(self.output_folder / f"tracking_Fit-{self.suffix}.csv", index=False)  # Enregistrement
+			data.to_csv(self.output_folder / f"{self.FILES_LINK['Fit'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("Fit file migrated.")
 
 	##################################################
