@@ -252,7 +252,7 @@ class FileMigrator:
 			file = self.files["MSD"][0]
 			data, header = self.open_old_irregular_file(file, skiprows=2)
 			data = data.iloc[:, 1:].copy()  # Suppression de la colonne ROI
-			data.columns = ["Track"] + [f"{FILES_COLUMNS["MSD"]["columns"][1]} {i}" for i in range(1, data.shape[1])]
+			data.columns = ["Track"] + [f"{FILES_COLUMNS['MSD']['columns'][1]} {i}" for i in range(1, data.shape[1])]
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['MSD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("MSD file migrated.")
 
@@ -276,7 +276,7 @@ class FileMigrator:
 			file = self.files["InD"][0]
 			data, header = self.open_old_irregular_file(file, skiprows=2)
 			data = data.iloc[:, 1:].copy()  # Suppression de la colonne ROI
-			data.columns = ["Track"] + [f"{FILES_COLUMNS["Instant Diffusion"]["columns"][1]} {i}" for i in range(1, data.shape[1])]  # Renommage
+			data.columns = ["Track"] + [f"{FILES_COLUMNS['Instant Diffusion']['columns'][1]} {i}" for i in range(1, data.shape[1])]  # Renommage
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['InD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			print_success("Instant Diffusion file migrated.")
 

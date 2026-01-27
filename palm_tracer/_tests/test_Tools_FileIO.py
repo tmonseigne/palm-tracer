@@ -112,5 +112,5 @@ def test_open_calibration_mat_bad_file():
 def test_open_calibration_mat():
 	""" Test de la fonction open_tif avec un fichier inexistant. """
 	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
-	print(calib)
-	print(calib["coeff"].shape)
+	res, ref = calib["coeff"].shape, (14, 14, 6, 64)
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"

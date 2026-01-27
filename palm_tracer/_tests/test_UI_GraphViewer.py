@@ -165,8 +165,8 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	data, title = w.get_plot_data()
 	ref_title, ref_shape = "Stack Intensity", (10, 128, 256)
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 	# Plot pour la pile filtrée
 	w._filters["Plane"].active = True
@@ -174,8 +174,8 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	data, title = w.get_plot_data()
 	ref_title, ref_shape = "Stack Intensity", (9, 128, 256)
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 	# Plot pour les localisations
 	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)
@@ -184,24 +184,24 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	w._cmb_src.setCurrentIndex(1)
 	assert w._cmb_src.currentIndex() == 1, "Index de la donnée incorrecte."
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Intensity", (6,), [1, 1, 0, 1, 1, 1]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
 	w._df["loc"].drop(columns=[w._cmb_src.currentText()], inplace=True)
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Intensity", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	w._actualize()  # Restaurer le csv
@@ -211,8 +211,8 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	w._df["loc"] = w._df["loc"].iloc[0:0]
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Count", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Plot pour les trajectoires
@@ -223,8 +223,8 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	# Affichage de Longeur
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Length", (9, 2), [[1, 98], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Affichage de MSD
@@ -232,23 +232,23 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	assert w._cmb_src.currentIndex() == 1, "Index de la donnée incorrecte."
 	data, title = w.get_plot_data()
 	ref_title, ref_shape = "Tracks MSD Step 1", (14, 2)
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 	# Changement de Step.
 	w._display_settings["MSD"].set_value(3)
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks MSD Step 3", (6, 2), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	# np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
 	w._display_settings["MSD"].set_value(8)
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks MSD Step 8", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Affichage de Instant D
@@ -256,8 +256,8 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	assert w._cmb_src.currentIndex() == 2, "Index de la donnée incorrecte."
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Instant Diffusion", (27,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	# np.testing.assert_array_equal(data, ref_data)
 
 	# Une colonne de Fit
@@ -265,16 +265,16 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	assert w._cmb_src.currentIndex() == 3, "Index de la donnée incorrecte."
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Total Intensity", (14, 2), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\tObtenu : {title}"
 	# np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
 	w._df["Fit"].drop(columns=[w._cmb_src.currentText()], inplace=True)
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Total Intensity", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\nAttendu : {ref_shape}\nObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\nObtenu : {title}"
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	w.close()

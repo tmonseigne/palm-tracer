@@ -556,25 +556,31 @@ class GraphViewerWidget(StandAloneWidget):
 		# Tracks
 		else:
 			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])  # Groupement par track + calcul min et max
-				group["delta"] = group["max"] - group["min"]  # Calcul du delta
+				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])		# Groupement par track + calcul min et max
+				group["delta"] = group["max"] - group["min"]								# Calcul du delta
 				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
 				return res, f"Tracks {src_type}"
+
 			elif src_type == "MSD":
-				step = self._display_settings["MSD"].get_value()  # Récupération du numéro du Step.
-				col = f"Step {step}"  # Récupération du nom de la colonne.
-				if not {"Track", col}.issubset(self._df["MSD"].columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence.
-				track, values = self._df["MSD"]["Track"].astype(int).to_numpy(), self._df["MSD"][col].astype(float).to_numpy()  # Récupération
-				res = np.column_stack((track, self.__log_data(values, log_scale)))
-				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"
+				res = self._df["MSD"]
+				step = self._display_settings["MSD"].get_value()											# Récupération du numéro du Step.
+				col = f"Step {step}"																		# Récupération du nom de la colonne.
+				if not {"Track", col}.issubset(res.columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification  de présence des colonnes
+				track, values = res["Track"].astype(int).to_numpy(), res[col].astype(float).to_numpy()		# Séparation track et valeur
+				res = np.column_stack((track, self.__log_data(values, log_scale)))							# Application du log sur les valeurs
+				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"							# Retour avec filtrage des Lignes NaN
+
 			elif src_type == "Instant Diffusion":
-				s = pd.to_numeric(self._df["InD"].drop(columns=["Track"]).stack(), errors="coerce").to_numpy().ravel()  # Récupération des colonnes
-				return self.__log_data(s, log_scale), f"Tracks {src_type}"
+				res = self._df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()			# Récupération des colonnes
+				res = self.__log_data(res, log_scale)														# Application du log sur les valeurs
+				return res[np.isfinite(res)], f"Tracks {src_type}"											# Retour avec filtrage des Lignes NaN
+
 			else:
-				if not {"Track", src_type}.issubset(self._df["Fit"].columns): return np.empty(0), f"Tracks {src_type}"  # Vérification de présence des colonnes
-				track, values = self._df["Fit"]["Track"].astype(int).to_numpy(), self._df["Fit"][src_type].astype(float).to_numpy()  # Récupération
-				res = np.column_stack((track, self.__log_data(values, log_scale)))
-				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"  # Retour avec filtrage des Lignes NaN
+				res = self._df["Fit"]
+				if not {"Track", src_type}.issubset(res.columns): return np.empty(0), f"Tracks {src_type}"   # Vérification de présence des colonnes
+				track, values = res["Track"].astype(int).to_numpy(), res[src_type].astype(float).to_numpy()  # Séparation track et valeur
+				res = np.column_stack((track, self.__log_data(values, log_scale)))							 # Application du log sur les valeurs
+				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"								 # Retour avec filtrage des Lignes NaN
 
 	##################################################
 	@staticmethod

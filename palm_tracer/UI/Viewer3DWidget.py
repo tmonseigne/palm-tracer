@@ -13,6 +13,7 @@ Le CSV doit contenir les colonnes ``"X"``, ``"Y"``, ``"Z"`` et ``"Integrated Int
 from pathlib import Path
 
 import napari
+import numpy as np
 import pandas as pd
 from napari.utils.notifications import show_warning
 from qtpy.QtCore import Qt
@@ -126,10 +127,8 @@ class Viewer3DWidget(QWidget):
 
 		scale_xy = self.xy_scale_spin.get_value()
 		scale_z = self.z_scale_spin.get_value()
-		coords = self.data[["Z", "Y", "X"]].copy().to_numpy()
-		coords[:, 0] *= scale_z  # Z * scale
-		coords[:, 1] *= scale_xy  # Y * scale
-		coords[:, 2] *= scale_xy  # X * scale
+		coords = self.data[["Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
+		coords = coords * np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)
 
 		if self.outliers.get_value(): coords = coords[self.data["Integrated Intensity"] != 0]
 

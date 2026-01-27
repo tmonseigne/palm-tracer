@@ -139,6 +139,6 @@ def test_migrate():
 	for ref_file in sorted((REF_DIR / "stack_PALM_Tracer").glob("*.csv")):
 		res_file = sorted(OUTPUT_FOLDER.glob(f"{ref_file.stem}-*.csv"))[0]
 		ref, res = pd.read_csv(ref_file), pd.read_csv(res_file)
-		ref, res = ref.apply(pd.to_numeric, errors="ignore"), res.apply(pd.to_numeric, errors="ignore")
+		ref, res = ref.apply(pd.to_numeric, errors="coerce"), res.apply(pd.to_numeric, errors="coerce")
 		pd.testing.assert_frame_equal(ref, res, check_dtype=False), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
