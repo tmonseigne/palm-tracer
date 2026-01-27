@@ -15,7 +15,9 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import make_gallery, Palm, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_tracks_image
+from palm_tracer.Processing import make_gallery, Palm
+from palm_tracer.Processing.Parsing import get_meta
+from palm_tracer.Processing.Visualization import plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_tracks_image
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import Filtering, FilteringL, FilteringT
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
@@ -206,10 +208,8 @@ class PALMTracer:
 
 			# Save meta file (Création du DataFrame et sauvegarde en CSV)
 			depth, height, width = self._stack.shape
-			df = pd.DataFrame({"Height":                  [height], "Width": [width], "Plane Number": [depth],
-							   "Pixel Size (μm)":         [self.settings.calibration["Pixel Size"].get_value()],
-							   "Exposure Time (s/frame)": [self.settings.calibration["Exposure"].get_value()],
-							   "Intensity (photon/ADU)":  [self.settings.calibration["Intensity"].get_value()]})
+			df = get_meta([height, width, depth, self.settings.calibration["Pixel Size"].get_value(),
+						   self.settings.calibration["Exposure"].get_value(), self.settings.calibration["Intensity"].get_value()])
 			df.to_csv(f"{self._path}/meta-{self._suffix}.csv", index=False)
 			self._logger.add("Fichier Meta sauvegardé.")
 
@@ -653,7 +653,7 @@ class PALMTracer:
 				finite = np.isfinite(vals_np)								   # masque des valeurs finies (ni NaN, ni ±inf)
 				outside = (vals_np <= limits_d[0]) | (vals_np >= limits_d[1])  # valeurs hors bornes (sur le numpy brut)
 				outside &= finite											   # On ne compte les "outside" que là où c'est vraiment une valeur finie
-				n_valid, n_out = finite.sum(axis=1),  outside.sum(axis=1)	   # nombre de valeurs valides/hors bornes par ligne
+				n_valid, n_out = finite.sum(axis=1), outside.sum(axis=1)	   # nombre de valeurs valides/hors bornes par ligne
 				pct_out_np = np.zeros_like(n_out, dtype=float)				   # pourcentage hors bornes (évite la division par 0 avec where=)
 				np.divide(n_out, n_valid, out=pct_out_np, where=n_valid > 0)
 				pct_out = pd.Series(pct_out_np * 100.0, index=o_ind.index)

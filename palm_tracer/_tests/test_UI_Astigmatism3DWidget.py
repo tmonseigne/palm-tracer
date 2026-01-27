@@ -360,7 +360,6 @@ def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert "Model loaded successfully." in out
 	assert not w._model.empty
 
-
 	# Simuler un "Cancel" sur le QFileDialog
 	fake_qfiledialog(Astigmatism3DWidget, None)
 	dl = _FakeDownload("astigmatism.png")

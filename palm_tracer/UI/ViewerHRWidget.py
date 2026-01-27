@@ -16,7 +16,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QFormLayout, QHBoxLayout, QPushButton, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import render_hr_image, render_tracks_image
+from palm_tracer.Processing.Visualization import render_hr_image, render_tracks_image
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import Combo, SpinFloat, SpinInt
 from palm_tracer.Tools.FileIO import grayscale_to_color, save_png
@@ -105,7 +105,6 @@ class ViewerHRWidget(QWidget):
 		self._pt.load()
 		self.generate()
 
-
 	##################################################
 	def load_folder(self):
 		"""
@@ -135,7 +134,7 @@ class ViewerHRWidget(QWidget):
 			show_warning(f"Le chemin de destination \"{path}\" n'est pas valide.")
 			return
 
-		if stack is None :
+		if stack is None:
 			show_warning(f"Aucune Pile de chargée.")
 			return
 

@@ -3,7 +3,8 @@ from typing import cast
 
 import pytest
 
-from palm_tracer import PALMTracer, PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
+from palm_tracer import PALMTracer
+from palm_tracer.UI import PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList
@@ -360,7 +361,7 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
 	ref = (512, 1024)
 	res = my_widget.visualization.shape
-	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu: {ref}\nObtenu : {res}"
+	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Passage aux tracks (avec changement automatique de la color map sur viridis)
 	my_widget.type_cmb.set_value(1)
@@ -406,7 +407,7 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
 	ref = (512, 1024)
 	res = my_widget.visualization.shape
-	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu: {ref}\nObtenu : {res}"
+	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 
 	my_widget.save()
 

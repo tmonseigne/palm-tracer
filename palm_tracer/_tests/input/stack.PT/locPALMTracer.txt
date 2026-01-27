@@ -1,0 +1,10 @@
+Width	Height	nb_Planes	nb_Points	Pixel_Size(um)	Frame_Duration(s)	Gaussian_Fit	Spectral
+256	128	10	3349	0.10	0.05	X Y sigma	False
+id	Plane	Index	Channel	Integrated_Intensity	CentroidX(px)	CentroidY(px)	SigmaX(px)	SigmaY(px)	Angle(rad)	MSE(Gauss)	CentroidZ(um)	MSE_Z(um)	Pair_Distance(px)
+1	1	1	-1	0.00	6.76	6.72	0.10	0.10	0.00	0.00	-1.00	-1.00	0.00
+2	1	2	-1	6.92	1.55	9.27	0.91	0.91	0.00	0.16	-1.00	-1.00	0.00
+3	1	3	-1	8.30	4.51	1.02	0.40	0.40	0.00	0.67	-1.00	-1.00	0.00
+4	1	4	-1	7.66	0.54	8.90	0.89	0.89	0.00	0.12	-1.00	-1.00	0.00
+5	1	5	-1	8.41	5.42	3.73	0.46	0.46	0.00	0.20	-1.00	-1.00	0.00
+6	1	6	-1	4.98	5.79	1.62	1.86	1.86	0.00	0.09	-1.00	-1.00	0.00
+7	1	7	-1	4.52	0.47	9.21	1.06	1.06	0.00	0.10	-1.00	-1.00	0.00

@@ -73,7 +73,7 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert w._coefs is None
 
 	# Bad Coef Input
-	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/bad_alignment_coefficient.txt")
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/bad_alignment_coeffs.txt")
 	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10)." in out
@@ -198,7 +198,7 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert w._stack is not None
 
 	# Chargement du fichier Coef
-	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/alignment_coefficient.txt", "Text files (*.txt);;All files (*.*)")
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/alignment_coeffs.txt", "Text files (*.txt);;All files (*.*)")
 	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
 	assert "Coefficients loaded successfully." in out  # On vérifie juste que le warning attendu est bien passé par print_warning

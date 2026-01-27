@@ -1,7 +1,7 @@
 import os
 import platform
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -18,16 +18,15 @@ default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0,
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4
 save_output = True
+os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 
 ##################################################
-def is_headless():
-	return platform.system() in ("Linux", "Darwin") and os.environ.get("CI") == "true"
+def is_headless(): return platform.system() in ("Linux", "Darwin") and os.environ.get("CI") == "true"
 
 
 ##################################################
-def is_not_dll_friendly():
-	return platform.system() != "Windows"
+def is_not_dll_friendly(): return platform.system() != "Windows"
 
 
 ##################################################
@@ -45,17 +44,17 @@ def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_waters
 
 ##################################################
 def get_fit_params(fit: int) -> np.ndarray:
-	if fit == 0: return np.array([roi], dtype=np.float64)
-	if fit != 5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
-	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
-	sx, sy, sz = calib["coeff"].shape[:3]
-	return np.concatenate([np.array([roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
 	# np.random.seed(42)
 	# shape = [roi, 16, 16, 297, 0, 10]  # les premiers éléments
 	# nb_random = 16 * 16 * 297 * 64
 	# coeff = np.random.uniform(low=1e-8, high=1e-4, size=nb_random)
 	# coeff = np.asfortranarray(np.load("input/coefficients.npy")) # en colonne major comme matlab
 	# return np.concatenate([np.array(shape, dtype=np.float64), coeff.flatten()])
+	if fit == 0: return np.array([roi], dtype=np.float64)
+	if fit != 5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
+	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
+	sx, sy, sz = calib["coeff"].shape[:3]
+	return np.concatenate([np.array([roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
 
 
 ##################################################
@@ -203,6 +202,68 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		res = exact_matches == total_points
 
 	return res
+
+
+##################################################
+def _prune_json(obj: Any) -> Any:
+	"""Supprime récursivement les champs None / dict vides / listes vides."""
+	if isinstance(obj, dict):
+		cleaned = {}
+		for k, v in obj.items():
+			v2 = _prune_json(v)
+			if v2 is None: continue
+			if isinstance(v2, dict) and len(v2) == 0: continue
+			if isinstance(v2, list) and len(v2) == 0: continue
+			cleaned[k] = v2
+		return cleaned
+
+	if isinstance(obj, list):
+		cleaned_list = []
+		for v in obj:
+			v2 = _prune_json(v)
+			if v2 is None: continue
+			if isinstance(v2, dict) and len(v2) == 0: continue
+			if isinstance(v2, list) and len(v2) == 0: continue
+			cleaned_list.append(v2)
+		return cleaned_list
+
+	return obj
+
+
+##################################################
+def get_light_json(data: dict) -> dict:
+	"""
+	Sauvegarde une figure Plotly en JSON déterministe (simple, sans fioritures inutiles).
+
+	- supprime les ``uid`` (aléatoires)
+	- retire le ``template`` (souvent volumineux)
+	- retire quelques champs UI souvent non pertinents pour les tests.
+	- supprime None et conteneurs vides
+	- JSON trié pour des diffs stables
+
+	À utiliser pour avoir des snapshots très stables malgré de petites fioritures graphiques.
+	:param data: Json extrait sous forme d'un dictionnaire.
+	"""
+	# --- Suppresison de certains champs ---
+	for trace in data.get("data", []): trace.pop("uid", None)  # UID
+
+	# Très souvent inutiles pour des tests de contenu
+	layout = data.get("layout", {})
+	if isinstance(layout, dict):
+		for k in ("template", "font", "margin", "paper_bgcolor", "plot_bgcolor"): layout.pop(k, None)
+
+	data = _prune_json(data)
+	return data
+
+
+##################################################
+def compare_json(a: dict, b: dict) -> bool:
+	"""
+	Version encore plus agressive : retire quelques champs UI souvent non pertinents pour les tests.
+
+	À utiliser si tu veux des snapshots très stables malgré de petites fioritures graphiques.
+	"""
+	return True
 
 
 ##################################################

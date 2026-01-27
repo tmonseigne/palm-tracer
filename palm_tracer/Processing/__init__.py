@@ -13,13 +13,10 @@ Ce sous-package contient les fonctions de traitement pour le projet.
 """
 
 # Exemple d'importation des modules pour un accès direct
-from . import Parsing
+from . import Parsing, Visualization
 from .Gallery import make_gallery
 from .Grapher import Grapher
 from .Palm import Palm
-from .Visualization import normalize_data, plot_histogram, plot_plane_heatmap, plot_plane_violin, render_hr_image, render_roi, render_tracks_image
 
 # Définir la liste des symboles exportés
-__all__ = ["Parsing", "Gallery", "Grapher", "Palm", "Visualization",
-		   "make_gallery",
-		   "normalize_data", "plot_histogram", "plot_plane_heatmap", "plot_plane_violin", "render_hr_image", "render_tracks_image", "render_roi"]
+__all__ = ["Parsing", "Gallery", "Grapher", "Palm", "Visualization", "make_gallery"]

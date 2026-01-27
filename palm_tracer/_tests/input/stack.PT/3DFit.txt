@@ -1,0 +1,4 @@
+#3D Calibration Curve fitting for SigmaX and SigmaY (in µm) | Astigmatic Focus: Line 1: Theta, Line 2: X, Line 3: Y
+0
+ 0.30	 0.44	-0.70	-0.28	 0.24
+-0.30	 0.58	 1.38	 0.03	 0.24

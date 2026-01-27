@@ -9,8 +9,7 @@ from typing import Any, Optional
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing.Parsing import (get_max_points, log10_dataframe, N_COL_TRC, parse_irregular_array,
-											parse_localization_to_tracking, parse_result, PARSING_COLUMNS)
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, get_max_points, SHAPE_MODEL, N_COL_TRC, parse_localization_for_tracking, parse_result
 from palm_tracer.Tools.Utils import load_dll, print_warning
 
 N_TRC_CP_FIT = 12
@@ -50,16 +49,16 @@ class Palm:
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
 
 		:param image: Image 2D sous forme de tableau NumPy.
-		:param height: Hauteur des images.
-		:param width: Largeur des images.
+		:param height: Hauteur des images (nombre de lignes).
+		:param width: Largeur des images (nombre de colonnes).
 		:param fit_params: Paramètres de l'ajustement.
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		return {
-				"image":      np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Image
-				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
-				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
-				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
+				"image":      np.asarray(image, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
+				"height":     ctypes.c_ulong(height),
+				"width":      ctypes.c_ulong(width),
+				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
 				}
 
 	##################################################
@@ -69,9 +68,9 @@ class Palm:
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
 
 		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
-		:param height: Hauteur des images.
-		:param width: Largeur des images.
-		:param planes: Nombre de plans.
+		:param height: Hauteur des images (nombre de lignes).
+		:param width: Largeur des images (nombre de colonnes).
+		:param planes: Profondeur (nombre de plans).
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
 		:param fit: Mode d'ajustement.
@@ -84,13 +83,13 @@ class Palm:
 				"stack":      np.asarray(stack, dtype=np.uint16).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
 				"locs":       np.zeros((n,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Tableau pour la localisation
 				"n":          ctypes.c_ulong(n),  # Nombre maximum de localisation théoriques lors de la localization
-				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
-				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
-				"planes":     ctypes.c_ulong(planes),  # Profondeur (nombre de plans)
-				"threshold":  ctypes.c_double(threshold),  # Seuil de détection
-				"watershed":  ctypes.c_double(0 if watershed else 10),  # Seuil du Watershed
-				"fit":        ctypes.c_ushort(fit),  # Mode d'ajustement
-				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
+				"height":     ctypes.c_ulong(height),
+				"width":      ctypes.c_ulong(width),
+				"planes":     ctypes.c_ulong(planes),
+				"threshold":  ctypes.c_double(threshold),
+				"watershed":  ctypes.c_double(0 if watershed else 10),
+				"fit":        ctypes.c_ushort(fit),
+				"fit_params": fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
 				}
 
 	##################################################
@@ -109,7 +108,7 @@ class Palm:
 		"""
 		n = len(localizations)
 		track_size = n * N_COL_TRC
-		points = parse_localization_to_tracking(localizations)
+		points = parse_localization_for_tracking(localizations)
 
 		return {"points":       points.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"tracks":       np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
@@ -139,7 +138,7 @@ class Palm:
 		return {"input":        np.asarray(tracks, dtype=np.float64).flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"output":       np.zeros((track_size,), dtype=np.float64).ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"nRow":         ctypes.c_ulong(n),
-				"pixel_size":   ctypes.c_double(pixel_size),  # Passage en nanomètre pour les calculs sur la DLL.
+				"pixel_size":   ctypes.c_double(pixel_size),
 				"mode":         ctypes.c_ulong(mode),
 				"max_duration": ctypes.c_ulong(max_duration),
 				"max_speed":    ctypes.c_double(max_speed),
@@ -173,7 +172,7 @@ class Palm:
 				"is_msd":        ctypes.c_bool(is_msd),
 				"is_ind":        ctypes.c_bool(is_ind),
 				"is_3d":         ctypes.c_bool(is_3d),
-				"pixel_size":    ctypes.c_double(pixel_size),  # Passage en nanomètre pour les calculs sur la DLL.
+				"pixel_size":    ctypes.c_double(pixel_size),
 				"exposure_time": ctypes.c_double(exposure_time),
 				"fit_mode":      ctypes.c_ulong(fit_mode),
 				"fit_params":    fit_params.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  # Paramètres pour l'ajustement
@@ -181,27 +180,27 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_align_args(stack: np.ndarray, height: int, width: int, planes: int, factors: np.ndarray, upsampling: int):
+	def __get_align_args(stack: np.ndarray, height: int, width: int, planes: int, factors: np.ndarray, upsampling: int = 1):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour l'alignement.
 
 		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
-		:param height: Hauteur des images.
-		:param width: Largeur des images.
-		:param planes: Nombre de plans.
+		:param height: Hauteur des images (nombre de lignes).
+		:param width: Largeur des images (nombre de colonnes).
+		:param planes: Profondeur (nombre de plans).
 		:param factors: Facteurs d'alignement.
 		:param upsampling: Facteur d'agrandissement de l'image.
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		out = np.zeros((planes, height * upsampling, width * upsampling), dtype=np.uint16)
 		return {
-				"input":      stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
-				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Sortie
-				"height":     ctypes.c_ulong(height),  # Hauteur (nombre de lignes)
-				"width":      ctypes.c_ulong(width),  # Largeur (nombre de colonnes)
-				"planes":     ctypes.c_ulong(planes),  # Profondeur (nombre de plans)
-				"factors":    factors.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),  # Factor de transformation
-				"upsampling": ctypes.c_ulong(upsampling)  # Upsampling
+				"input":      stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
+				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
+				"height":     ctypes.c_ulong(height),
+				"width":      ctypes.c_ulong(width),
+				"planes":     ctypes.c_ulong(planes),
+				"factors":    factors.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"upsampling": ctypes.c_ulong(upsampling)
 				}
 
 	##################################################
@@ -211,25 +210,25 @@ class Palm:
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la récupération des plans d'ondelette.
 
 		:param stack: Pile d'images en entrée sous forme de tableau numpy 3D.
-		:param height: Hauteur des images.
-		:param width: Largeur des images.
-		:param planes: Nombre de plans.
+		:param height: Hauteur des images (nombre de lignes).
+		:param width: Largeur des images (nombre de colonnes).
+		:param planes: Profondeur (nombre de plans).
 		:param level: Niveau d'ondelette en sortie.
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 		out = np.zeros((planes, height, width), dtype=np.float64)
 		return {
-				"input":  stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),  # Pile
-				"output": out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),    # Sortie
-				"height": ctypes.c_ulong(height),											# Hauteur (nombre de lignes)
-				"width":  ctypes.c_ulong(width),											# Largeur (nombre de colonnes)
-				"planes": ctypes.c_ulong(planes),											# Profondeur (nombre de plans)
-				"level":  ctypes.c_ulong(level)												# Upsampling
+				"input":  stack.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
+				"output": out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+				"height": ctypes.c_ulong(height),
+				"width":  ctypes.c_ulong(width),
+				"planes": ctypes.c_ulong(planes),
+				"level":  ctypes.c_ulong(level)
 				}
 
 	##################################################
 	@staticmethod
-	def __get_astigcalib_args(points: np.ndarray, pixel_size: float):
+	def __get_astig_calib_args(points: np.ndarray, pixel_size: float):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
 
@@ -238,17 +237,17 @@ class Palm:
 		:return: Dictionnaire d'arguments pour la DLL (attention l'ordre doit être respecté).
 		"""
 
-		out = np.zeros((2, 5), dtype=np.float64)
+		out = np.zeros(SHAPE_MODEL, dtype=np.float64)
 		return {
 				"input":      points.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
 				"output":     out.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"size":       ctypes.c_ulong(len(points)),  # Nombre de points dans le tableau d'entrée
-				"pixel_size": ctypes.c_double(pixel_size)   # Passage en nanomètre pour les calculs sur la DLL.
+				"pixel_size": ctypes.c_double(pixel_size)
 				}
 
 	##################################################
 	@staticmethod
-	def __get_astigestim_args(points: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float):
+	def __get_astig_estim_args(points: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
 
@@ -261,8 +260,8 @@ class Palm:
 		return {
 				"input":      points.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_ushort)),
 				"output":     out.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-				"size":       ctypes.c_ulong(n),		   # Nombre de points dans le tableau d'entrée
-				"pixel_size": ctypes.c_double(pixel_size),  # Passage en nanomètre pour les calculs sur la DLL.
+				"size":       ctypes.c_ulong(n),  # Nombre de points dans le tableau d'entrée
+				"pixel_size": ctypes.c_double(pixel_size),
 				"model":      model.flatten().ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
 				"z_max":      ctypes.c_double(z_max)
 				}
@@ -335,7 +334,7 @@ class Palm:
 		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
 		:return: DataFrame contenant les trajectoires détectées.
 		"""
-		required = PARSING_COLUMNS["Localization"]["columns"]
+		required = FILES_COLUMNS["Localization"]["columns"]
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
 		args = self.__get_tracks_args(localizations[required], max_distance, min_life, decrease, cost_birth)
 		count = self._dll.Tracking(*args.values())
@@ -353,7 +352,7 @@ class Palm:
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
 		:return: DataFrame contenant les trajectoires détectées.
 		"""
-		required = PARSING_COLUMNS["Tracking"]["columns"]
+		required = FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return pd.DataFrame()
 		args = self.__get_blink_args(tracks[required], pixel_size, mode, max_duration, max_speed)
 		count = self._dll.BlinkingReconnection(*args.values())
@@ -381,7 +380,7 @@ class Palm:
 			doit être exprimé en micromètres par pixel (µm/px)
 		"""
 		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
-		required = PARSING_COLUMNS["Tracking"]["columns"]
+		required = FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return res
 		new_tracks = tracks[required].copy()
 		if not is_3d: new_tracks["Z"] = 0  # On simplifie la suite les calculs se font toujours en 3D mais la dernière dimension sera toujours nulle
@@ -392,43 +391,9 @@ class Palm:
 		# Remplissage des tableaux de sortie
 		n = len(tracks) * N_TRC_CP_FIT
 
-		if is_msd:
-			res["MSD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_msd"], shape=(n,)))
-			ncols = res["MSD"].shape[1]
-			if ncols != 0:
-				cols = [f"Step {i}" for i in range(1, ncols)]
-				res["MSD"].columns = ["Track"] + cols
-				# Track en entier nullable (préserve les NaN si présents)
-				if "Track" in res["MSD"]: res["MSD"]["Track"] = pd.to_numeric(res["MSD"]["Track"], errors="coerce").astype("Int64")
-				# Mise à jour en fonction de la mise à l'échelle du Log.
-				if is_log: res["MSD"] = log10_dataframe(res["MSD"], cols)
-
-		if is_ind:
-			res["InD"] = parse_irregular_array(np.ctypeslib.as_array(args["o_ind"], shape=(n,)))
-			ncols = res["InD"].shape[1]
-			if ncols != 0:
-				cols = [f"Window {i}" for i in range(1, ncols)]
-				res["InD"].columns = ["Track"] + cols
-				# Track en entier nullable (préserve les NaN si présents)
-				if "Track" in res["InD"]: res["InD"]["Track"] = pd.to_numeric(res["InD"]["Track"], errors="coerce").astype("Int64")
-				# Mise à jour en fonction de la mise à l'échelle du Log.
-				if is_log: res["InD"] = log10_dataframe(res["InD"], cols)
-
-		if fit_mode != 0:
-			res["Fit"] = parse_irregular_array(np.ctypeslib.as_array(args["o_fit"], shape=(n,)))
-			ncols = res["Fit"].shape[1]
-			if ncols != 0:
-				# les colonnes dépendent du fit
-				cols = ["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"]
-				if fit_mode == 1: cols += ["A (μm²/s)", "B (μm²)", "MSE"]
-				elif fit_mode == 2: cols += ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"]
-				elif fit_mode == 3: cols += ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]
-				res["Fit"].columns = ["Track", "Length"] + cols
-				# Track et length en entier nullable (préserve les NaN si présents)
-				res["Fit"]["Track"] = pd.to_numeric(res["Fit"]["Track"], errors="coerce").astype("Int64")
-				res["Fit"]["Length"] = pd.to_numeric(res["Fit"]["Length"], errors="coerce").astype("Int64")
-				# Mise à jour en fonction de la mise à l'échelle du Log.
-				if is_log: res["Fit"] = log10_dataframe(res["Fit"], cols)
+		if is_msd: res["MSD"] = parse_result(np.ctypeslib.as_array(args["o_msd"], shape=(n,)), "MSD", is_log)
+		if is_ind: res["InD"] = parse_result(np.ctypeslib.as_array(args["o_ind"], shape=(n,)), "Instant Diffusion", is_log)
+		if fit_mode != 0: res["Fit"] = parse_result(np.ctypeslib.as_array(args["o_fit"], shape=(n,)), "Fit", is_log, fit_mode)
 
 		# Restauration des identifiants de trajectoire
 		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
@@ -476,7 +441,7 @@ class Palm:
 		return out
 
 	##################################################
-	def astigmatism_3d_calibration(self, points: np.ndarray, pixel_size: float) -> np.ndarray:
+	def astigmatism_3d_calibration(self, points: np.ndarray, pixel_size: float) -> pd.DataFrame:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
@@ -485,10 +450,9 @@ class Palm:
 		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
 
-		args = self.__get_astigcalib_args(points, pixel_size)
+		args = self.__get_astig_calib_args(points, pixel_size)
 		self._dll.Astigmatism3DCalibration(*args.values())
-		out = np.ctypeslib.as_array(args["output"], shape=(2, 5))
-		return out
+		return parse_result(np.ctypeslib.as_array(args["output"], shape=SHAPE_MODEL), "Astigmatism 3D Model")
 
 	##################################################
 	def astigmatism_3d_estimation(self, points: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float = 800) -> np.ndarray:
@@ -502,7 +466,7 @@ class Palm:
 		:return: Ensemble des Z estimés pour chaque point.
 		"""
 		n = len(points)
-		args = self.__get_astigestim_args(points, pixel_size, model, z_max)
+		args = self.__get_astig_estim_args(points, pixel_size, model, z_max)
 		self._dll.Astigmatism3DEstimation(*args.values())
 		out = np.ctypeslib.as_array(args["output"], shape=(n,))
 		return out

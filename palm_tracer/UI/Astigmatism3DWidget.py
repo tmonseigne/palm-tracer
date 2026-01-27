@@ -22,9 +22,12 @@ from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog
 							QWidget)
 
 from palm_tracer.Processing import Grapher, Palm
-from palm_tracer.Processing.Astigmatism3D import DLL_REQUIRED_COLS, MODEL_COLS, model_projection_validity, MODEL_ROWS, model_validity, z_from_planes
+from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, z_from_planes
+from palm_tracer.Processing.Parsing import SHAPE_MODEL
 from palm_tracer.Tools import print_error, print_success, print_warning
 from palm_tracer.UI.StandAloneWidget import StandAloneWidget
+
+DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
 _windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
@@ -332,9 +335,12 @@ class Astigmatism3DWidget(StandAloneWidget):
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
-		z_max = self._spin_z_estimate.value()
-		fig = self._grapher.astigmatism3d_curve("Astigmatism model", self._model.to_numpy(), pixel_size, z_max)
+		try:
+			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
+			z_max = self._spin_z_estimate.value()
+			fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title="Astigmatism model", pixel_size=pixel_size, z_max=z_max)
+		except ValueError:
+			fig = self._grapher.blank("Astigmatism model")
 		self._update_web_widget(self._web, fig)
 
 	# ==================================================
@@ -415,7 +421,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 			return
 
 		# --- vérification de la forme des données ---
-		if len(self._model) != len(MODEL_ROWS) or len(self._model.columns) != len(MODEL_COLS):
+		if self._model.shape != SHAPE_MODEL:
 			self._model = pd.DataFrame()
 			print_error(f"The model file is not in the correct format. Expected format: two lines of five values (2x5).")
 			return
@@ -452,8 +458,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		if self._check_z_flip.isChecked(): points[:, 2] *= -1
 
 		# --- Calcul ---
-		model = self._palm.astigmatism_3d_calibration(points, pixel_size)
-		self._model = pd.DataFrame(model, columns=MODEL_COLS, index=MODEL_ROWS)
+		self._model = self._palm.astigmatism_3d_calibration(points, pixel_size)
 
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
@@ -461,7 +466,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		print_success("Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
-		self._update_sanity_values(points, model, pixel_size)
+		self._update_sanity_values(points, self._model.to_numpy(), pixel_size)
 		self._update_plot()
 		self._lbl_model_estimate.setText(self._mod_filename.name)
 		self._lbl_model_estimate.setToolTip(str(self._mod_filename))

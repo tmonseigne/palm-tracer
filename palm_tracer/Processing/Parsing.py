@@ -1,28 +1,79 @@
 """ Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes. """
-from typing import Any
 
 import numpy as np
 import pandas as pd
 
-# Segmentation (Localization)
-PARSING_COLUMNS: dict[str, dict[str, Any]] = {
-		"Localization": {
+# Titre des colonnes selon les fichiers et indications des colonnes entières
+FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
+		"Meta":                 {
+				"columns": ["Height", "Width", "Plane Number", "Pixel Size (μm)", "Exposure Time (s/frame)", "Intensity (photon/ADU)"],
+				"types":   ["Height", "Width", "Plane Number"]
+				},
+		"Localization":         {
 				"columns": ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
 							"Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z",
 							"Intensity 0", "Intensity Offset", "Intensity", "Surface", "Circularity"],
-				"types":   {"Id": "int32", "Plane": "int32", "Index": "int32", "Surface": "int32", "Channel": "int32"}
+				"types":   ["Id", "Plane", "Index", "Surface", "Channel"]
 				},
-		"Tracking":     {
+		"Tracking":             {
 				"columns": ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Surface"],
-				"types":   {"Track": "int32", "Plane": "int32", "Id": "int32", "Surface": "int32"}
+				"types":   ["Track", "Plane", "Id", "Surface"]
+				},
+		"MSD":                  {
+				"columns": ["Track", "Step"],
+				"types":   ["Track"]
+				},
+		"Instant Diffusion":    {
+				"columns": ["Track", "Window"],
+				"types":   ["Track"]
+				},
+		"Fit":                  {
+				"columns": ["Track", "Length", "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],
+				"types":   ["Track", "Length"]
+				},
+		"Fit_1":                {
+				"columns": ["A (μm²/s)", "B (μm²)", "MSE"],
+				"types":   []
+				},
+		"Fit_2":                {
+				"columns": ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],
+				"types":   []
+				},
+		"Fit_3":                {
+				"columns": ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"],
+				"types":   []
+				},
+		"Astigmatism 3D Model": {
+				"columns": ["Z0", "W", "C3", "C4", "A"],
+				"types":   []
 				},
 		}
 
 COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
+MODEL_ROWS = ["X", "Y"]
 
-# Tracking
-N_COL_TRC = len(PARSING_COLUMNS["Tracking"]["columns"])		 # Nombre de paramètres pour le tracking (8).
-N_COL_LOC = len(PARSING_COLUMNS["Localization"]["columns"])  # Nombre de paramètres pour le tracking (18).
+# Dimensions utiles fréquement
+N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])  # Nombre de paramètres pour les metadonnées (6).
+N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # Nombre de paramètres pour le tracking (8).
+N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # Nombre de paramètres pour le tracking (18).
+SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["columns"]))  # Dimensions pour le model d'astigmatisme 3D (2,5).
+
+
+##################################################
+def get_meta(data: list | np.ndarray) -> pd.DataFrame:
+	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
+	:param data: liste des informations en entrée
+	:return: Dataframe contennant les metadonnées
+	:raises ValueError: Si le nombre d'éléments ne corresponds au nombre attendu pour le fichier meta.
+	"""
+	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
+
+	arr = np.asarray(data).reshape(1, -1)  # Aplatit vers (N,) puis force (1, N)
+	if arr.shape[1] != len(columns): raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
+
+	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en Dataframe
+	for key in types: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")  # Conversion en entier nullable (préserve les NaN si présents)
+	return res
 
 
 ##################################################
@@ -37,7 +88,7 @@ def get_max_points(height: int = 256, width: int = 256, n_planes: int = 1, densi
 
 	:return: Nombre maximal théorique de points détectables.
 	"""
-	return int(height * width * density * n_planes) * len(PARSING_COLUMNS["Localization"]["columns"])
+	return int(height * width * density * n_planes) * N_COL_LOC
 
 
 ##################################################
@@ -53,15 +104,14 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 	"""
 	# Vérifier que toutes les colonnes spécifiées existent dans le DataFrame
 	missing_columns = [col for col in columns if col not in data.columns]
-	if missing_columns:
-		raise ValueError(f"Les colonnes suivantes sont absentes du DataFrame : {missing_columns}")
+	if missing_columns: raise ValueError(f"Les colonnes suivantes sont absentes du DataFrame : {missing_columns}")
 
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
-		columns = columns + remaining_columns									 # Ajout des colonnes restantes aux colonnes de départ
+		columns = columns + remaining_columns  # Ajout des colonnes restantes aux colonnes de départ
 
-	if list(data.columns[:len(columns)]) == columns: return data				 # Optimisation : évite la copie si déjà bon ordre
-	return data.loc[:, columns]													 # Réorganisation du DataFrame
+	if list(data.columns[:len(columns)]) == columns: return data  # Optimisation : évite la copie si déjà bon ordre
+	return data.loc[:, columns]  # Réorganisation du DataFrame
 
 
 ##################################################
@@ -69,43 +119,12 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
 	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égale à 0).
 	:param data: dataframe à modifier
-	:param columns:
-	:return:
+	:param columns: Colonnes à modifier
+	:return: dataframe avec les colonnes ayant été modifié.
 	"""
-	# Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
-	pos = data[columns] > 0
-	logged = np.where(pos, np.log10(data[columns]), np.nan)
+	logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
 	data[columns] = pd.DataFrame(logged, index=data.index, columns=columns)
 	return data
-
-
-##################################################
-def parse_result(data: np.ndarray, file_type: str = "Localization") -> pd.DataFrame:
-	"""
-	Parsing du résultat de la DLL PALM.
-
-	On a un tableau 1D de grande taille en entrée :
-		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``).	La taille du tableau est vérifié et tronqué si nécessaire.
-		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
-		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
-
-	:param data: Donnée en entrée récupérées depuis la DLL PALM.
-	:param file_type: Type de fichier à parser ("Localization" ou "Tracking")
-	:return: Dataframe filtré
-	"""
-	# Récupération des éléments
-	columns = PARSING_COLUMNS[file_type]["columns"]
-	n_columns = len(columns)
-	types = PARSING_COLUMNS[file_type]["types"]
-
-	# Manipulation du tableau 1D.
-	size = (data.size // n_columns) * n_columns	  # Récupération de la taille correcte si non multiple de N_SEGMENT
-	data = data[:size].reshape(-1, n_columns)	  # Passage en tableau 2D
-	data = data[data[:, columns.index("X")] > 0]  # Filtrage en amont
-	# data = data.astype(np.float32)			  # Conversion en float pour alléger la mémoire (à ce stade la précision est suffisante)
-	res = pd.DataFrame(data, columns=columns)	  # Transformation en Dataframe
-	res = res.astype(types)
-	return res
 
 
 ##################################################
@@ -124,7 +143,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 		- Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN.
 
 	:param data: Données 1D récupérées depuis la DLL PALM. Doit être indexable et de dimension 1.
-	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes (Val_0, Val_1, ...) contiennent les valeurs du bloc, complétées par NaN si nécessaire.
+	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes contiennent les valeurs du bloc, complétées par NaN si nécessaire.
 	:raise ValueError: entrée invalide (nombre de dimensions ou taille finale incorrecte)
 	"""
 	if data.ndim != 1:
@@ -132,23 +151,23 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 
 	rows: list[np.ndarray] = []
 	i = 0
-	N = data.size
+	n = data.size
 
-	while i < N:
+	while i < n:
 		# Lecture de L (la longueur annoncée du bloc)
-		L_raw = data[i]
+		l_raw = data[i]
 		try:
-			L = int(L_raw)
+			l = int(l_raw)
 		except (TypeError, ValueError):
-			raise ValueError(f"Longueur de bloc non entière à l'indice {i}: {L_raw!r}") from None
+			raise ValueError(f"Longueur de bloc non entière à l'indice {i}: {l_raw!r}") from None
 
-		if L <= 0: break  # fin du flux
+		if l <= 0: break  # fin du flux
 
 		i += 1  # on avance sur le premier élément du bloc
-		if i + L > N: raise ValueError(f"Bloc tronqué: longueur {L} annoncée à l'indice {i - 1}, mais seulement {N - i} élément(s) disponible(s).")
+		if i + l > n: raise ValueError(f"Bloc tronqué: longueur {l} annoncée à l'indice {i - 1}, mais seulement {n - i} élément(s) disponible(s).")
 		# Extraction du bloc (les L valeurs, sans L lui-même)
-		rows.append(np.asarray(data[i:i + L]))
-		i += L  # passer au bloc suivant
+		rows.append(np.asarray(data[i:i + l]))
+		i += l  # passer au bloc suivant
 
 	# Construction du DataFrame avec padding NaN
 	if not rows: return pd.DataFrame()  # aucun bloc valide avant un L<=0 ou tableau vide
@@ -164,7 +183,61 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 
 
 ##################################################
-def parse_localization_to_tracking(data: pd.DataFrame) -> np.ndarray:
+def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool = False, fit_mode: int = 0) -> pd.DataFrame:
+	"""
+	Parsing du résultat de la DLL PALM.
+
+	Pour les localisations et les trajectoires, On a un tableau 1D de grande taille en entrée :
+		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``).	La taille du tableau est vérifié et tronqué si nécessaire.
+		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
+		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
+
+	Pour les calculs sur trajectoire, on a un tableau 1D representant un talbeau 2D irrégulier
+	(avec un nombre de colonnes non constant (:func:`parse_irregular_array`)
+
+	:param data: Donnée en entrée récupérées depuis la DLL PALM.
+	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit)
+	:param is_log: Applique un logarithme sur le résultat (si necessaire, pour les calculs sur trajectoires).
+	:param fit_mode: Mode d'ajustement (si necessaire, pour les calculs sur trajectoires).
+	:return: Dataframe parsé
+	"""
+	# Récupération des éléments
+	if not file_type in FILES_COLUMNS: raise ValueError(f"file_type incorrect.")
+	columns, types = FILES_COLUMNS[file_type]["columns"], FILES_COLUMNS[file_type]["types"]
+	n_columns = len(columns)
+	log_col = []
+
+	if file_type == "Localization" or file_type == "Tracking":
+		# Manipulation du tableau 1D.
+		size = (data.size // n_columns) * n_columns  # Récupération de la taille correcte si non multiple de N_SEGMENT
+		data = data[:size].reshape(-1, n_columns)  # Passage en tableau 2D
+		data = data[data[:, columns.index("X")] > 0]  # Filtrage sur les X inférieurs ou égal à 0 en amont.
+		res = pd.DataFrame(data, columns=columns)  # Transformation en Dataframe
+	elif file_type == "Astigmatism 3D Model":
+		res = pd.DataFrame(data, columns=columns, index=MODEL_ROWS)
+	else:
+		res = parse_irregular_array(data)
+		ncols = res.shape[1]
+		if ncols == 0: return pd.DataFrame()
+		if file_type == "MSD" or file_type == "Instant Diffusion":
+			log_col = [f"{columns[1]} {i}" for i in range(1, ncols)]
+			res.columns = [columns[0]] + log_col
+		else:
+			# les colonnes dépendent du fit
+			log_col = columns[2:]
+			if not 1 <= fit_mode <= 3: raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
+			log_col += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
+			res.columns = columns[:2] + log_col
+
+	if is_log and log_col: res = log10_dataframe(res, log_col)  # Mise à jour en fonction de la mise à l'échelle du Log.
+	for key in types:
+		# Vérification en cas de Dataframe Vide et conversion en entier nullable (préserve les NaN si présents)
+		if key in res.columns: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")
+	return res
+
+
+##################################################
+def parse_localization_for_tracking(data: pd.DataFrame) -> np.ndarray:
 	"""
 	Parsing du résultat de la localisation pour la DLL de Tracking.
 

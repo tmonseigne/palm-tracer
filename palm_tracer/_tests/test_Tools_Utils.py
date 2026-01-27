@@ -65,19 +65,19 @@ def test_get_last_file():
 def test_extract_suffix():
 	"""Test de la fonction extract_suffix."""
 	res = Utils.extract_suffix("")
-	assert res == "", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+	assert res == "", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
 
 	res = Utils.extract_suffix("filename")
-	assert res == "", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+	assert res == "", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
 
 	res = Utils.extract_suffix("filename.json")
-	assert res == "", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+	assert res == "", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
 
 	res = Utils.extract_suffix("filename-01.json")
-	assert res == "01", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+	assert res == "01", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
 
 	res = Utils.extract_suffix("filename-01-02-03.json")
-	assert res == "03", f"Suffixe incorrect.\nAttendu: \"\"\tObtenu : {res}"
+	assert res == "03", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
 
 
 ##################################################

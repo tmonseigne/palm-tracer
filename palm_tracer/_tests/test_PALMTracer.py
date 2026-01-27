@@ -9,8 +9,6 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
 
 ##################################################
 def test_getter_localization(make_napari_viewer):

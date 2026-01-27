@@ -1,5 +1,5 @@
 """ Fichier des tests pour les groupes de paramètres. """
-from typing import Any, cast, List, Type
+from typing import cast, List, Type
 
 import pytest
 

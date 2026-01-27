@@ -10,3 +10,4 @@ Algorithmie
    preview
    fit
    alignment
+   astig

@@ -4,8 +4,6 @@ import pytest
 from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import FileIO
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-
 REF_DICT = {"First param": [0, 1, 2],
 			"2nd param":   True,
 			"3rd param":   "True",
@@ -114,5 +112,5 @@ def test_open_calibration_mat_bad_file():
 def test_open_calibration_mat():
 	""" Test de la fonction open_tif avec un fichier inexistant. """
 	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
-	print(calib)
-	print(calib["coeff"].shape)
+	res, ref = calib["coeff"].shape, (14, 14, 6, 64)
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"

@@ -1,0 +1,187 @@
+"""
+Module contenant la classe :class:`FileMigratorWidget`, un outil minimaliste pour la gestion de l'ancien format de fichier Metamoprh.
+"""
+
+from pathlib import Path
+from typing import Optional
+
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QApplication, QFileDialog, QGridLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+
+from palm_tracer.Tools import FileMigrator, print_error, print_success, print_warning
+from palm_tracer.UI.StandAloneWidget import StandAloneWidget
+
+_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+
+
+class FileMigratorWidget(StandAloneWidget):
+	"""Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."""
+
+	# ==================================================
+	# region Initialisation
+	# ==================================================
+	##################################################
+	def __init__(self, parent: Optional[QWidget] = None):
+		"""
+		Construit le widget et initialise l'interface.
+
+		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
+		"""
+		super().__init__(parent)
+		self.setWindowTitle("File Migrator Tool")
+
+		self._fm: FileMigrator = FileMigrator()
+
+		self._init_ui()
+		self._connect_signals()
+
+	##################################################
+	def _init_ui(self):
+		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
+		main_layout = QVBoxLayout(self)
+		self._init_layout(main_layout)
+
+		self._btn_load_folder = QPushButton("Load folder")
+		self._btn_load_folder.setToolTip("Folder must be a PALMTracer analysis result in Metamorph and ends with .PT.")
+
+		self._lbl_load_folder = QLabel("No folder loaded")
+		self._lbl_load_folder.setStyleSheet(self.STYLESHEET_INFO)
+
+		self._btn_migrate = QPushButton("Migrate")
+		self._btn_migrate.setToolTip("Start migration to the actual format.")
+
+		self._filelist: dict[str, dict[str, QLabel]] = {
+				"loc":    {"label": QLabel("Localization:"), "value": QLabel("--")},
+				"trc":    {"label": QLabel("Tracking:"), "value": QLabel("--")},
+				"MSD":    {"label": QLabel("Tracking MSD:"), "value": QLabel("--")},
+				"InD":    {"label": QLabel("Tracking Instant Diffusion:"), "value": QLabel("--")},
+				"Fit":    {"label": QLabel("Tracking Fit"), "value": QLabel("--")},
+				"A3D":    {"label": QLabel("Astigmatism 3D Model:"), "value": QLabel("--")},
+				"Unused": {"label": QLabel("Unused files:"), "value": QLabel("--")}}
+
+		main_layout.addWidget(self._btn_load_folder)
+		main_layout.addWidget(self._lbl_load_folder)
+		main_layout.addLayout(self._init_files_layout(self._filelist, "Files"))
+		main_layout.addWidget(self._btn_migrate)
+		main_layout.addStretch(1)
+
+	##################################################
+	def _init_files_layout(self, elements: dict[str, dict[str, QLabel]], title: str) -> QGridLayout:
+		"""Construit le layout de la liste des fichiers."""
+		grid = QGridLayout()
+		grid.setContentsMargins(0, 0, 0, 0)
+		grid.setHorizontalSpacing(self.COMMON_SPACE)
+		grid.setVerticalSpacing(self.COMMON_SPACE)
+
+		# Titre de colonne
+		title_lbl = QLabel(title)
+		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+		title_lbl.setStyleSheet("font-weight: 600;")
+		grid.addWidget(title_lbl, 0, 0, 1, 2)  # Titre
+		grid.addWidget(self._make_horizontal_separator(), 1, 0, 1, 2)  # Séparateur horizontal
+
+		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
+		grid.setColumnStretch(0, 0)  # label
+		grid.setColumnStretch(1, 1)  # value (s'étire)
+
+		row = 2
+		for key, item in elements.items():
+			lbl: QLabel = item["label"]
+			val: QLabel = item["value"]
+
+			# Alignements : gauche | droite
+			lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+			val.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+			grid.addWidget(lbl, row, 0)
+			grid.addWidget(val, row, 1)
+
+			row += 1
+
+		return grid
+
+	##################################################
+	def _connect_signals(self):
+		"""Connecte les signaux des boutons aux callbacks."""
+		self._btn_load_folder.clicked.connect(self._on_load_folder)
+		self._btn_migrate.clicked.connect(self._on_migrate)
+
+	# ==================================================
+	# endregion Initialisation
+	# ==================================================
+
+	# ==================================================
+	# region Callbacks
+	# ==================================================
+	##################################################
+	def _update_filelist(self):
+		"""Mise à jour de la liste des fichiers."""
+		for key, item in self._fm.files.items():
+			if key != "Unused": self._filelist[key]["value"].setText("--" if len(item) == 0 else item[0].name)
+			else: self._filelist[key]["value"].setText("--" if len(item) == 0 else "\n".join(n.name for n in item))
+
+	##################################################
+	def _on_load_folder(self):
+		"""Callback du bouton 'Load folder'."""
+		# --- boîte de dialogue pour sélectionner un dossier ---
+		folder = QFileDialog.getExistingDirectory(self, "Select folder", "")
+
+		if not folder:
+			print_warning("No folder selected.")
+			return
+
+		# --- lecture du dossier ---
+		try:
+			folder = Path(folder)
+			self._fm.open(folder)
+			self._fm.analyze()
+			self._update_filelist()
+		except Exception as e:
+			print_error(f"Unable to read the folder : {e}.")
+			return
+
+		# --- mise à jour du label associé au bouton ---
+		self._lbl_load_folder.setText(folder.name)
+		self._lbl_load_folder.setToolTip(str(folder))
+
+		print(f"Folder loaded successfully.")
+
+	##################################################
+	def _on_migrate(self):
+		"""Callback du bouton 'Migrate'."""
+		try:
+			self._fm.migrate()
+		except Exception as e:
+			print_error(f"Error during migration: {e}.")
+			return
+		print_success("Migration successfull.")
+
+
+	# ==================================================
+	# endregion Callbacks
+	# ==================================================
+
+
+##################################################
+def open_migrator():  # pragma: no cover
+	"""
+	Ouvre la fenêtre de l'outil de migration en mode autonome.
+
+	Cette fonction est utilisée par le plugin napari comme point d'entrée :
+	elle crée simplement un :class:`FileMigratorWidget`, l'affiche et le renvoie. Le widget ne dépend pas de napari et s'ouvre dans sa propre fenêtre.
+	"""
+	widget = FileMigratorWidget()
+	widget.resize(500, 250)
+	widget.show()
+	_windows.append(widget)  # éviter que Python le détruise en le stockant
+
+
+##################################################
+if __name__ == "__main__":  # pragma: no cover
+	import sys
+
+	app = QApplication(sys.argv)
+	w = FileMigratorWidget()
+	w.resize(500, 250)
+	w.show()
+	sys.exit(app.exec_())

@@ -1,0 +1,7 @@
+Width	Height	nb_Planes	nb_Tracks	Pixel_Size(um)	Frame_Duration(s)	Gaussian_Fit	Spectral
+256	256	10	834	0.1	0.05	X Y sigma	False
+Track	Plane	CentroidX(px)	CentroidY(px)	CentroidZ(um)	Integrated_Intensity	id	Pair_Distance(px)
+ 1	 1	 2.57	 4.77	-1	 8.18	 129	 0
+ 1	 2	 4.49	 5.81	-1	 4.67	 545	 0
+ 1	 3	 3.39	 5.28	-1	 6.88	 993	 0
+ 1	 4	 4.58	 0.72	-1	 4.91	 1390	 0
