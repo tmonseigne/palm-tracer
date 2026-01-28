@@ -215,17 +215,17 @@ class PALMTracer:
 			# Lancement de la localisation
 			if self.settings.localization.active:
 				self._logger.add("Localisation activée.")
-				try: self.__localization()
+				try: self._localization()
 				except Exception as e: raise
-			else:
+			else:  # Chargement d'une localisation existante
 				self._logger.add("Localisation désactivé.")
 				f = get_last_file(self._path, "localizations-")
-				if f.endswith("csv"):  # Chargement d'une localisation existante
+				if f.endswith("csv"):
 					self._logger.add("\tChargement d'une localisation pré-calculée.")
 					try:
-						self.df["loc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+						self.df["loc"] = pd.read_csv(f)
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
-						self.__filter_localizations()
+						self._filter_localizations()
 						self._logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
 					except Exception as e:
 						self.df["loc"] = pd.DataFrame()
@@ -237,17 +237,17 @@ class PALMTracer:
 			# Lancement du tracking
 			if self.settings.tracking.active:
 				self._logger.add("Tracking activé.")
-				self.__tracking()
-			else:
+				self._tracking()
+			else:  # Chargement d'un tracking existant
 				self._logger.add("Tracking désactivé.")
 				# Les fichiers reconnectés se nomment tracking-reconnected pour être pris en compte automatiquement.
 				f = get_last_file(self._path, "tracking-")
-				if f.endswith("csv"):  # Chargement d'une localisation existante
+				if f.endswith("csv"):
 					self._logger.add("\tChargement d'un tracking pré-calculée.")
 					try:
-						self.df["trc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+						self.df["trc"] = pd.read_csv(f)
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
-						self.__filter_tracks("trc")
+						self._filter_tracks("trc")
 						self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
 					except Exception as e:
 						self.df["trc"] = pd.DataFrame()
@@ -259,14 +259,14 @@ class PALMTracer:
 			# Lancement des calculs sur les trajectoires
 			if self.settings.tracks_compute.active:
 				self._logger.add("Calcul sur les trajectoires activé.")
-				self.__tracks_compute()
+				self._tracks_compute()
 			else:
 				self._logger.add("Calcul sur les trajectoires désactivé.")
 
 			# Lancement de la Visualisation Haute Résolution
 			if self.settings.visualization_hr.active:
 				self._logger.add("Visualisation haute résolution activée.")
-				self.__visualization_hr()
+				self._visualization_hr()
 			else:
 				self._logger.add("Visualisation haute résolution désactivée.")
 				self.visualization = None
@@ -274,14 +274,14 @@ class PALMTracer:
 			# Lancement de la Visualisation graphique
 			if self.settings.visualization_graph.active:
 				self._logger.add("Visualisation graphique activée.")
-				self.__visualization_graph()
+				self._visualization_graph()
 			else:
 				self._logger.add("Visualisation graphique désactivée.")
 
 			# Lancement de la génération de Galleries
 			if self.settings.gallery.active:
 				self._logger.add("Génération de la galerie activée.")
-				self.__gallery()
+				self._gallery()
 			else:
 				self._logger.add("Génération de la galerie désactivée.")
 
@@ -293,7 +293,7 @@ class PALMTracer:
 	# region Basic Process
 	# ==================================================
 	##################################################
-	def __localization(self):
+	def _localization(self):
 		""" Lance la localisation à partir des settings passés en paramètres. """
 		# Parse settings
 		s = self.settings.localization.get_settings()
@@ -310,10 +310,10 @@ class PALMTracer:
 		self._logger.add("\tEnregistrement du fichier de localisation")
 		self._logger.add(f"\t\t{len(self.df['loc'])} localisation(s) trouvée(s).")
 		self.df["loc"].to_csv(f"{self._path}/localizations-{self._suffix}.csv", index=False)
-		self.__filter_localizations()
+		self._filter_localizations()
 
 	##################################################
-	def __tracking(self):
+	def _tracking(self):
 		""" Lance le tracking à partir des settings passés en paramètres. """
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
 		if df.empty:
@@ -327,7 +327,7 @@ class PALMTracer:
 		self._logger.add("\tEnregistrement du fichier de trajectoires.")
 		self._logger.add(f"\t\t{len(self.df['trc'])} point(s) trouvé(s).")
 		self.df["trc"].to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
-		self.__filter_tracks("trc")
+		self._filter_tracks("trc")
 
 		# La reconnexion ne peut se faire que lors d'un (re)calcul de trajectoire, donc il n'est pas séparer du process initial.
 		# Le but est d'éviter des erreurs de manipulations de reconnexions succesives instables.
@@ -341,10 +341,10 @@ class PALMTracer:
 			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
 			self._logger.add(f"\t\t{len(self.df['blk'])} point(s) trouvé(s).")
 			self.df["blk"].to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
-			self.__filter_tracks("blk", "_reconnected")
+			self._filter_tracks("blk", "_reconnected")
 
 	##################################################
-	def __tracks_compute(self):
+	def _tracks_compute(self):
 		""" Lance le tracking à partir des settings passés en paramètres. """
 		df = self.tracks  # Récupère automatiquement le "bon" dataframe (blinking et filtré ou non)
 		if df.empty:
@@ -373,7 +373,7 @@ class PALMTracer:
 		if s["Fit"] != 0 and not res["Fit"].empty:
 			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
 			res["Fit"].to_csv(f"{self._path}/tracking_Fit-{self._suffix}.csv", index=False)
-		self.__filter_tracks_compute()
+		self._filter_tracks_compute()
 
 	# ==================================================
 	# endregion Basic Process
@@ -413,9 +413,9 @@ class PALMTracer:
 			self._logger.add("\t\tCalcul sur les trajectoires à effectuer pour définir une couleur lors de la visualisation.")
 			if self.settings.tracks_compute["Fit"].get_value() == 0:  # On active le fit lineaire si aucun n'est sélectionné.
 				self.settings.tracks_compute["Fit"].set_value(1)
-			self.__tracks_compute()  # On lance le calcul
+			self._tracks_compute()			  # On lance le calcul
 			fit = self.tracks_compute["Fit"]  # On reaffecte le resultat
-		if fit.empty:  # Toujours vide (erreur de calcul ou autre, on prend le numéro des trajectoires par défaut)
+		if fit.empty:						  # Toujours vide (erreur de calcul ou autre, on prend le numéro des trajectoires par défaut)
 			res = res.assign(Color=((res["Track"] - 1) % MAX_UI_16 + 1).astype("UInt16"))
 			return res
 
@@ -445,7 +445,7 @@ class PALMTracer:
 		return res
 
 	##################################################
-	def __visualization_hr(self):
+	def _visualization_hr(self):
 		""" Lance la creation d'une visualisation haute résolution à partir des settings passés en paramètres. """
 		# Parse settings
 		s = self.settings.visualization_hr.get_settings()
@@ -475,7 +475,7 @@ class PALMTracer:
 					save_png(self.visualization, f"{self._path}/visualization_tracks_x{s['Ratio']}_{source}-{self._suffix}.png")
 
 	##################################################
-	def __visualization_graph(self):
+	def _visualization_graph(self):
 		""" Lance la creation d'une visualisation graphique à partir des settings passés en paramètres. """
 		if self.localizations.empty:
 			self._logger.add(f"\tAucune donnée de localisation pour la visualisation de graphiques.")
@@ -505,7 +505,7 @@ class PALMTracer:
 				plt.close(fig)
 
 	##################################################
-	def __gallery(self):
+	def _gallery(self):
 		""" Lance la génération d'une galerie à partir des settings passés en paramètres. """
 		s = self.settings.gallery.get_settings()
 		if self.localizations.empty:
@@ -523,7 +523,7 @@ class PALMTracer:
 	# region Filtering
 	# ==================================================
 	##################################################
-	def __filter_localizations(self):
+	def _filter_localizations(self):
 		""" Filtre le fichier de localisation. """
 		n_init = len(self.df["loc"])
 		self.df["f_loc"] = self.filter_localizations(self.df["loc"])
@@ -535,7 +535,7 @@ class PALMTracer:
 			self.df["f_loc"].to_csv(f"{self._path}/localizations_filtered-{self._suffix}.csv", index=False)
 
 	##################################################
-	def __filter_tracks(self, name: str, suffix: str = ""):
+	def _filter_tracks(self, name: str, suffix: str = ""):
 		""" Filtre le fichier de tracking. """
 		n_init = len(self.df[name])
 		o_name = f"f_{name}"
@@ -548,7 +548,7 @@ class PALMTracer:
 			self.df[o_name].to_csv(f"{self._path}/tracking_filtered{suffix}-{self._suffix}.csv", index=False)
 
 	##################################################
-	def __filter_tracks_compute(self):
+	def _filter_tracks_compute(self):
 		""" Filtre les fichiers de metrique. """
 		n_init = len(self.df["MSD"])
 		o_name = self.get_tracks_key()
@@ -606,9 +606,9 @@ class PALMTracer:
 		f = cast(FilteringT, self.settings.filtering["Tracks"])
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits = f["Length"].get_value()
-			counts = res.groupby("Track").size()  # Comptage par trajectoire
+			counts = res.groupby("Track").size()									# Comptage par trajectoire
 			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
-			res = res[res["Track"].isin(keep_ids)]  # Filtrage (on garde l'ordre original)
+			res = res[res["Track"].isin(keep_ids)]									# Filtrage (on garde l'ordre original)
 		return res
 
 	##################################################
@@ -631,29 +631,29 @@ class PALMTracer:
 
 		f = cast(FilteringT, self.settings.filtering["Tracks"])
 
-		# ===== Base : tous les IDs présents dans la référence =====
+		# ----- Base : tous les IDs présents dans la référence -----
 		keep_ids: set = set(o_trc["Track"].unique().tolist())
-		# ===== Filtre Longueur =====
+		# ----- Filtre Longueur -----
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits_l = f["Length"].get_value()
 			counts = o_trc.groupby("Track").size()
 			ok_len_ids = set(counts.index[(limits_l[0] <= counts) & (counts <= limits_l[1])].tolist())
 			keep_ids &= ok_len_ids  # intersection sur des sets d'IDs
 
-		# ===== Filtre sur Instant D =====
+		# ----- Filtre sur Instant D -----
 		if isinstance(f["Instant D"], CheckRangeFloat) and f["Instant D"].active and not o_ind.empty:
 			limits_d = f["Instant D"].get_value()
 
-			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]					   # Restreindre aux trajectoires admissibles jusqu'ici
+			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]  # Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_ind.empty:
-				val_cols = [c for c in o_ind.columns if c != "Track"]		   # colonnes de valeurs = toutes sauf 'Track'
+				val_cols = [c for c in o_ind.columns if c != "Track"]  # colonnes de valeurs = toutes sauf 'Track'
 				vals = o_ind[val_cols]
-				vals_np = vals.to_numpy(dtype=float)						   # Convertir en numpy pour un contrôle fin
-				finite = np.isfinite(vals_np)								   # masque des valeurs finies (ni NaN, ni ±inf)
+				vals_np = vals.to_numpy(dtype=float)  # Convertir en numpy pour un contrôle fin
+				finite = np.isfinite(vals_np)  # masque des valeurs finies (ni NaN, ni ±inf)
 				outside = (vals_np <= limits_d[0]) | (vals_np >= limits_d[1])  # valeurs hors bornes (sur le numpy brut)
-				outside &= finite											   # On ne compte les "outside" que là où c'est vraiment une valeur finie
-				n_valid, n_out = finite.sum(axis=1), outside.sum(axis=1)	   # nombre de valeurs valides/hors bornes par ligne
-				pct_out_np = np.zeros_like(n_out, dtype=float)				   # pourcentage hors bornes (évite la division par 0 avec where=)
+				outside &= finite  # On ne compte les "outside" que là où c'est vraiment une valeur finie
+				n_valid, n_out = finite.sum(axis=1), outside.sum(axis=1)  # nombre de valeurs valides/hors bornes par ligne
+				pct_out_np = np.zeros_like(n_out, dtype=float)  # pourcentage hors bornes (évite la division par 0 avec where=)
 				np.divide(n_out, n_valid, out=pct_out_np, where=n_valid > 0)
 				pct_out = pd.Series(pct_out_np * 100.0, index=o_ind.index)
 
@@ -662,7 +662,7 @@ class PALMTracer:
 				ok_ids = set(map(int, np.unique(o_ind.loc[pct_out <= 50.0, "Track"].to_numpy())))
 				keep_ids &= ok_ids
 
-		# ===== Filtre sur Fit =====
+		# ----- Filtre sur Fit -----
 		if not o_fit.empty:
 			o_fit = o_fit[o_fit["Track"].isin(keep_ids)]  # Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_fit.empty:
@@ -682,7 +682,7 @@ class PALMTracer:
 
 				keep_ids &= set(o_fit["Track"].unique().tolist())
 
-		# ===== Filtre final des trajectoires restantes =====
+		# ----- Filtre final des trajectoires restantes -----
 		if not o_trc.empty: o_trc = o_trc[o_trc["Track"].isin(keep_ids)]
 		if not o_msd.empty: o_msd = o_msd[o_msd["Track"].isin(keep_ids)]
 		if not o_ind.empty: o_ind = o_ind[o_ind["Track"].isin(keep_ids)]

@@ -50,22 +50,26 @@ class PALMTracerWidget(QWidget):
 		:param viewer: Viewer napari.
 		"""
 		super().__init__()
+		# ----- Viewers -----
 		self.viewer = viewer
 		self.viewer_hr: Optional[Viewer] = None
 		self.viewer_3d: Optional[Viewer] = None
 		self.viewer_graph: Optional[GraphViewerWidget] = None
-		self.filedialog = QFileDialog(self)
+		# ----- Threading -----
+		self._processing = False  # pour éviter les clics multiples
+		self._worker: Optional[FunctionWorker] = None  # worker napari en cours
+		self._tearing_down = False  # vrai pendant le teardown pour ignorer les callbacks
+		# ----- Objets -----
 		self.pt = PALMTracer()
 		self.last_file = ""
 		self._preview_locs: dict[str, None | np.ndarray] = {"Past": None, "Present": None, "Future": None}
-		self._processing = False					   # pour éviter les clics multiples
-		self._worker: Optional[FunctionWorker] = None  # worker napari en cours
-		self._tearing_down = False					   # vrai pendant le teardown pour ignorer les callbacks
-		self.__init_ui()
-		self.__on_startup()
+		# ----- UI -----
+		self._init_ui()
+		self._connect_signal()
+		self._on_startup()
 
 	##################################################
-	def __init_ui(self):
+	def _init_ui(self):
 		""" Initialisation de l'interface utilisateur du widget. """
 		# Base
 		self.setLayout(QVBoxLayout())
@@ -76,12 +80,9 @@ class PALMTracerWidget(QWidget):
 		self.setMinimumHeight(220)
 
 		# Viewer Button
-		btn_graph = QPushButton("Open Graph Viewer")
-		btn_graph.clicked.connect(self._open_graph_viewer)
-		btn_hr = QPushButton("Open HR Viewer")
-		btn_hr.clicked.connect(self._open_hr_viewer)
-		btn_3d = QPushButton("Open 3D Viewer")
-		btn_3d.clicked.connect(self._open_3d_viewer)
+		self.btn_viewer_graph = QPushButton("Open Graph Viewer")
+		self.btn_viewer_hr = QPushButton("Open HR Viewer")
+		self.btn_viewer_3d = QPushButton("Open 3D Viewer")
 
 		# Load Setting Button
 		btn_load = QPushButton("Load Setting")
@@ -100,11 +101,11 @@ class PALMTracerWidget(QWidget):
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(self.__create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget,
-									   self.pt.settings.tracks_compute.widget]), "Processing")
-		tabs.addTab(self.__create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget,
-									   self.pt.settings.visualization_graph.widget, btn_graph, btn_hr, btn_3d]), "Visualization")
-		tabs.addTab(self.__create_tab([self.pt.settings.filtering.widget]), "Filtering")
+		tabs.addTab(self._create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget,
+									  self.pt.settings.tracks_compute.widget]), "Processing")
+		tabs.addTab(self._create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget, self.pt.settings.visualization_graph.widget,
+									  self.btn_viewer_graph, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
+		tabs.addTab(self._create_tab([self.pt.settings.filtering.widget]), "Filtering")
 
 		# Layout principal
 		self.layout().addWidget(tabs)
@@ -118,7 +119,7 @@ class PALMTracerWidget(QWidget):
 
 		# Connexion à chaque changement de paramètres
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_detection_layers))
-		self.pt.settings.connect(self._on_change)
+		self.pt.settings.connect(self._on_change_setting)
 
 		# Launch/Load Button
 		btn_process = QPushButton("Start Processing")
@@ -132,15 +133,21 @@ class PALMTracerWidget(QWidget):
 		action_widget.setLayout(btn_action_row)
 		self.layout().addWidget(action_widget)
 
+	def _connect_signal(self):
+		"""Connecte les signaux UI aux callbacks."""
+		self.btn_viewer_graph.clicked.connect(self._open_graph_viewer)
+		self.btn_viewer_hr.clicked.connect(self._open_hr_viewer)
+		self.btn_viewer_3d.clicked.connect(self._open_3d_viewer)
+
 	##################################################
-	def __on_startup(self):
+	def _on_startup(self):
 		"""Action lors du démarrage après l'initialisation de l'UI."""
 		CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
 		self._load_setting(SETTINGS_FILE)
 
 	##################################################
 	@staticmethod
-	def __create_tab(widgets: list[QWidget]) -> QWidget:
+	def _create_tab(widgets: list[QWidget]) -> QWidget:
 		"""Crée l'onglet 'Processing' avec son QFormLayout"""
 		widget = QWidget()
 		layout = QVBoxLayout()
@@ -259,7 +266,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _on_load_setting_btn(self):
 		"""Action lors d'un clic sur le bouton Load setting."""
-		filename, _ = self.filedialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
+		filename, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
 		self._load_setting(Path(filename))
 
 	##################################################
@@ -268,7 +275,7 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.reset()
 
 	##################################################
-	def _on_change(self):
+	def _on_change_setting(self):
 		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
 		# Save settings
 		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())

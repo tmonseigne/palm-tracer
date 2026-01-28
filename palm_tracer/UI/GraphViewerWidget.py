@@ -80,9 +80,9 @@ class GraphViewerWidget(StandAloneWidget):
 			"trc": ["Length"],
 			"MSD": ["MSD"],
 			"InD": ["Instant Diffusion"],
-			"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # Pour tous Fit
-					["A (μm²/s)", "B (μm²)", "MSE"],  # Fit Linéaire
-					["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # Fit Puissance
+			"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],		# Pour Tous Fit
+					["A (μm²/s)", "B (μm²)", "MSE"],									# Fit Linéaire
+					["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],	# Fit Puissance
 					["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
 			}
 
@@ -330,14 +330,14 @@ class GraphViewerWidget(StandAloneWidget):
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
 		self._cmb_src.blockSignals(True)
 		self._cmb_src.clear()
-		if btn_id == 0: self._cmb_src.addItems(self.DATA_SRC["stk"])  # Stack
-		elif btn_id == 1: self._cmb_src.addItems(self.DATA_SRC["loc"])  # Localization
+		if btn_id == 0: self._cmb_src.addItems(self.DATA_SRC["stk"])	  # Stack
+		elif btn_id == 1: self._cmb_src.addItems(self.DATA_SRC["loc"])	  # Localization
 		elif btn_id == 2: self._cmb_src.addItems(self._get_tracks_src())  # Tracking
 		self._cmb_src.setCurrentIndex(0)
 		self._cmb_src.blockSignals(False)
 
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
-		self._update_plot()  # puis redessiner le graphe si besoin
+		self._update_plot()		   # puis redessiner le graphe si besoin
 
 	##################################################
 	def _on_source_cmb_changed(self, btn_id: int) -> None:
@@ -350,7 +350,7 @@ class GraphViewerWidget(StandAloneWidget):
 		if self._btg_src.checkedId() == 2 and btn_id == 1: self._display_settings["MSD"].show()
 		else: self._display_settings["MSD"].hide()
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
-		self._update_plot()  # puis redessiner le graphe si besoin
+		self._update_plot()		   # puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filters_ui(self):
@@ -415,22 +415,22 @@ class GraphViewerWidget(StandAloneWidget):
 		res = {"loc": self.FILE_STATUS[0], "trc": self.FILE_STATUS[0], "MSD": self.FILE_STATUS[0], "InD": self.FILE_STATUS[0], "Fit": self.FILE_STATUS[0]}
 
 		if self._df["loc"].empty: res["loc"] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
-		elif "f_" in loc_key: res["loc"] = self.FILE_STATUS[2]  # Tableau filtré
-		else: res["loc"] = self.FILE_STATUS[1]  # Tableau standard
+		elif "f_" in loc_key: res["loc"] = self.FILE_STATUS[2]		# Tableau filtré
+		else: res["loc"] = self.FILE_STATUS[1]						# Tableau standard
 
 		if self._df["trc"].empty: res["trc"] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
 		elif "f_" in trc_key:
-			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[4]  # Tableau reconnecté filtré
-			else: res["trc"] = self.FILE_STATUS[2]  # Tableau filtré
+			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[4]   # Tableau reconnecté filtré
+			else: res["trc"] = self.FILE_STATUS[2]					# Tableau filtré
 		else:
-			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[3]  # Tableau reconnecté non filtré
-			else: res["trc"] = self.FILE_STATUS[1]  # Tableau standard
+			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[3]   # Tableau reconnecté non filtré
+			else: res["trc"] = self.FILE_STATUS[1]					# Tableau standard
 
 		tcs = ["MSD", "InD", "Fit"]
 		for i in range(3):
 			if self._df[tcs[i]].empty: res[tcs[i]] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
-			elif "f_" in tc_key[i]: res[tcs[i]] = self.FILE_STATUS[2]  # Tableau filtré
-			else: res[tcs[i]] = self.FILE_STATUS[1]  # Tableau standard
+			elif "f_" in tc_key[i]: res[tcs[i]] = self.FILE_STATUS[2]	  # Tableau filtré
+			else: res[tcs[i]] = self.FILE_STATUS[1]						  # Tableau standard
 		return res
 
 	##################################################
@@ -472,14 +472,14 @@ class GraphViewerWidget(StandAloneWidget):
 
 		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)  # Change la source pour Stack
+		self._on_source_changed(0)		# Change la source pour Stack
 
 	##################################################
 	def _reset_filtered(self):
 		"""Supprime les dataframes de filtre."""
 		self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
-		self._update_df()  # Récupération des bons dataframe
-		self._update_plot()  # puis redessiner le graphe si besoin
+		self._update_df()		   # Récupération des bons dataframe
+		self._update_plot()		   # puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filtered(self):
@@ -488,7 +488,7 @@ class GraphViewerWidget(StandAloneWidget):
 			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
 			self._pt.update_filtered()  # Mise à jour des filtres
 
-		self._update_df()  # Récupération des bons dataframe
+		self._update_df()	 # Récupération des bons dataframe
 		self._update_plot()  # puis redessiner le graphe si besoin
 
 	# ==================================================
@@ -537,7 +537,7 @@ class GraphViewerWidget(StandAloneWidget):
 			if self._filters["Plane"].active:
 				limits = self._filters["Plane"].get_value()
 				tmp = tmp[max(limits[0] - 1, 0):min(limits[1], int(tmp.shape[0])), ...]
-			return self.__log_data(tmp, log_scale), f"Stack {src_type}"
+			return self._log_data(tmp, log_scale), f"Stack {src_type}"
 
 		# Localizations
 		elif src_id == 1:
@@ -551,7 +551,7 @@ class GraphViewerWidget(StandAloneWidget):
 			else:
 				s = self._df["loc"].get(src_type)  # None si la colonne n'existe pas
 				if s is None: return np.empty(0), f"Localizations {src_type}"
-				return self.__log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src_type}"
+				return self._log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src_type}"
 
 		# Tracks
 		else:
@@ -567,24 +567,24 @@ class GraphViewerWidget(StandAloneWidget):
 				col = f"Step {step}"																		# Récupération du nom de la colonne.
 				if not {"Track", col}.issubset(res.columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification  de présence des colonnes
 				track, values = res["Track"].astype(int).to_numpy(), res[col].astype(float).to_numpy()		# Séparation track et valeur
-				res = np.column_stack((track, self.__log_data(values, log_scale)))							# Application du log sur les valeurs
+				res = np.column_stack((track, self._log_data(values, log_scale)))							# Application du log sur les valeurs
 				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"							# Retour avec filtrage des Lignes NaN
 
 			elif src_type == "Instant Diffusion":
 				res = self._df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()			# Récupération des colonnes
-				res = self.__log_data(res, log_scale)														# Application du log sur les valeurs
+				res = self._log_data(res, log_scale)														# Application du log sur les valeurs
 				return res[np.isfinite(res)], f"Tracks {src_type}"											# Retour avec filtrage des Lignes NaN
 
 			else:
 				res = self._df["Fit"]
 				if not {"Track", src_type}.issubset(res.columns): return np.empty(0), f"Tracks {src_type}"   # Vérification de présence des colonnes
 				track, values = res["Track"].astype(int).to_numpy(), res[src_type].astype(float).to_numpy()  # Séparation track et valeur
-				res = np.column_stack((track, self.__log_data(values, log_scale)))							 # Application du log sur les valeurs
+				res = np.column_stack((track, self._log_data(values, log_scale)))							 # Application du log sur les valeurs
 				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"								 # Retour avec filtrage des Lignes NaN
 
 	##################################################
 	@staticmethod
-	def __log_data(data: np.ndarray, log: bool) -> np.ndarray:
+	def _log_data(data: np.ndarray, log: bool) -> np.ndarray:
 		"""
 		Application du log avec suppression du warning pour les valeurs <= 0 et remplacement par Nan de ces valeurs.
 
