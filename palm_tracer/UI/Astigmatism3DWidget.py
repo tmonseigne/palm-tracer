@@ -84,13 +84,13 @@ class Astigmatism3DWidget(StandAloneWidget):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 
 		main_layout = QHBoxLayout(self)
-		self._init_layout(main_layout)
+		self.init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
 
 		# ---------- Onglet 1 : Compute Model ----------
-		tab_compute, tab_layout = self._make_tab(self._tabs)
-		grp, grp_layout = self._make_group(tab_compute, "Inputs")
+		tab_compute, tab_layout = self.make_tab(self._tabs)
+		grp, grp_layout = self.make_group(tab_compute, "Inputs")
 
 		self._btn_load_compute = QPushButton("Load Localization file (CSV)", grp)
 		self._btn_load_compute.setToolTip("The file must contain at least 3 columns : Sigma X, Sigma Y, Z")
@@ -107,11 +107,11 @@ class Astigmatism3DWidget(StandAloneWidget):
 		self._check_z_flip = QCheckBox(grp)
 		self._check_z_flip.setToolTip("Flip Sign of Z .")
 
-		form = self._make_form(None)
-		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
-		self._add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
-		self._add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
-		self._add_setting_row(form, "Flip Z:", self._check_z_flip)
+		form = self.make_form(None)
+		self.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
+		self.add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
+		self.add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
+		self.add_setting_row(form, "Flip Z:", self._check_z_flip)
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
@@ -157,15 +157,15 @@ class Astigmatism3DWidget(StandAloneWidget):
 				"p95_dist":  {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							  "tips":  "95e percentile of error distance with the curve."}}]
 
-		grp, grp_layout = self._make_group(tab_compute, "Sanity Check")
+		grp, grp_layout = self.make_group(tab_compute, "Sanity Check")
 		grp_layout.addLayout(self._init_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
 
 		tab_layout.addWidget(grp)
 		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Estimate Z ----------
-		tab_estimate, tab_layout = self._make_tab(self._tabs)
-		grp, grp_layout = self._make_group(tab_estimate, "Inputs")
+		tab_estimate, tab_layout = self.make_tab(self._tabs)
+		grp, grp_layout = self.make_group(tab_estimate, "Inputs")
 
 		self._btn_load_loc_estimate = QPushButton("Load Localization file (CSV)", grp)
 		self._btn_load_loc_estimate.setToolTip("The file must contain at least 3 columns : Sigma X, Sigma Y, Z")
@@ -189,10 +189,10 @@ class Astigmatism3DWidget(StandAloneWidget):
 		self._check_b_estimate.setChecked(True)
 		self._check_b_estimate.setToolTip("Save original localisation file in backup folder.")
 
-		form = self._make_form(None)
-		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate)
-		self._add_setting_row(form, "Z Max (nm):", self._spin_z_estimate)
-		self._add_setting_row(form, "Save Backup:", self._check_b_estimate)
+		form = self.make_form(None)
+		self.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate)
+		self.add_setting_row(form, "Z Max (nm):", self._spin_z_estimate)
+		self.add_setting_row(form, "Save Backup:", self._check_b_estimate)
 
 		grp_layout.addWidget(self._btn_load_loc_estimate)
 		grp_layout.addWidget(self._lbl_loc_estimate)
@@ -236,7 +236,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		res.setSpacing(self.COMMON_SPACE)
 
 		res.addLayout(self._make_column_grid(sanity[0], titles[0]), stretch=1)
-		res.addWidget(self._make_vertical_separator())
+		res.addWidget(self.make_vertical_separator())
 		res.addLayout(self._make_column_grid(sanity[1], titles[1]), stretch=1)
 		return res
 
@@ -253,7 +253,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 		title_lbl.setStyleSheet("font-weight: 600;")
 		grid.addWidget(title_lbl, 0, 0, 1, 3)  # Titre
-		grid.addWidget(self._make_horizontal_separator(), 1, 0, 1, 3)  # Séparateur horizontal
+		grid.addWidget(self.make_horizontal_separator(), 1, 0, 1, 3)  # Séparateur horizontal
 
 		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
 		grid.setColumnStretch(0, 0)  # label

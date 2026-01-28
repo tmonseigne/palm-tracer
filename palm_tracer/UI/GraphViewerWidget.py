@@ -131,14 +131,14 @@ class GraphViewerWidget(StandAloneWidget):
 		"""
 
 		main_layout = QHBoxLayout(self)
-		self._init_layout(main_layout)
+		self.init_layout(main_layout)
 
 		# Colonne gauche
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
 		left.setMinimumWidth(300)
 		vbox = QVBoxLayout(left)
-		self._init_layout(vbox)
+		self.init_layout(vbox)
 
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
@@ -149,13 +149,13 @@ class GraphViewerWidget(StandAloneWidget):
 		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
 		self._status = {"loc": QLabel("No"), "trc": QLabel("No"), "MSD": QLabel("No"), "InD": QLabel("No"), "Fit": QLabel("No")}
 
-		form = self._make_form(grp_infos)
-		self._add_setting_row(form, "File :", self._lbl_filename)
-		self._add_setting_row(form, "Localization :", self._status["loc"])
-		self._add_setting_row(form, "Tracking :", self._status["trc"])
-		self._add_setting_row(form, "MSD :", self._status["MSD"])
-		self._add_setting_row(form, "Instant D :", self._status["InD"])
-		self._add_setting_row(form, "Fit :", self._status["Fit"])
+		form = self.make_form(grp_infos)
+		self.add_setting_row(form, "File :", self._lbl_filename)
+		self.add_setting_row(form, "Localization :", self._status["loc"])
+		self.add_setting_row(form, "Tracking :", self._status["trc"])
+		self.add_setting_row(form, "MSD :", self._status["MSD"])
+		self.add_setting_row(form, "Instant D :", self._status["InD"])
+		self.add_setting_row(form, "Fit :", self._status["Fit"])
 
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
@@ -179,7 +179,7 @@ class GraphViewerWidget(StandAloneWidget):
 		self._btn_stack.setChecked(True)
 
 		# Combo box
-		form = self._make_form(grp_source)
+		form = self.make_form(grp_source)
 		self._cmb_src = QComboBox()
 		form.addRow(h)
 		form.addRow("Source :", self._cmb_src)
@@ -235,7 +235,7 @@ class GraphViewerWidget(StandAloneWidget):
 		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
-		grp_filters, vbox_filters = self._make_group(self, "Filters")
+		grp_filters, vbox_filters = self.make_group(self, "Filters")
 		# Integration des Filtres
 		self._filters = Filtering()
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())

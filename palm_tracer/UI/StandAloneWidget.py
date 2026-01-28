@@ -69,7 +69,7 @@ class StandAloneWidget(QWidget):
 	# ==================================================
 	##################################################
 	@staticmethod
-	def _add_setting_row(form: QFormLayout, label: str, widget: QWidget):
+	def add_setting_row(form: QFormLayout, label: str, widget: QWidget):
 		"""
 		Ajoute une ligne de paramètre dans un :class:`QFormLayout`.
 
@@ -89,7 +89,7 @@ class StandAloneWidget(QWidget):
 
 	##################################################
 	@staticmethod
-	def _init_layout(layout: QLayout, space: int = COMMON_SPACE):
+	def init_layout(layout: QLayout, space: int = COMMON_SPACE):
 		"""
 		Configure un layout avec des marges et un espacement uniformes.
 
@@ -102,7 +102,8 @@ class StandAloneWidget(QWidget):
 		layout.setSpacing(space)
 
 	##################################################
-	def _make_tab(self, parent: QWidget | None, space: int = COMMON_SPACE) -> tuple[QWidget, QVBoxLayout]:
+	@staticmethod
+	def make_tab(parent: QWidget | None = None, space: int = COMMON_SPACE) -> tuple[QWidget, QVBoxLayout]:
 		"""
 		Crée un onglet prêt à l'emploi (widget conteneur + layout vertical).
 
@@ -115,11 +116,12 @@ class StandAloneWidget(QWidget):
 		"""
 		tab = QWidget(parent)
 		layout = QVBoxLayout(tab)
-		self._init_layout(layout, space)
+		StandAloneWidget.init_layout(layout, space)
 		return tab, layout
 
 	##################################################
-	def _make_group(self, parent: QWidget | None, name: str, space: int = COMMON_SPACE) -> tuple[QGroupBox, QVBoxLayout]:
+	@staticmethod
+	def make_group(parent: QWidget | None = None, name: str= "", space: int = COMMON_SPACE) -> tuple[QGroupBox, QVBoxLayout]:
 		"""
 		Crée un :class:`QGroupBox` avec un layout vertical configuré.
 
@@ -131,12 +133,12 @@ class StandAloneWidget(QWidget):
 		"""
 		group = QGroupBox(name, parent)
 		layout = QVBoxLayout(group)
-		self._init_layout(layout, space)
+		StandAloneWidget.init_layout(layout, space)
 		return group, layout
 
 	##################################################
 	@staticmethod
-	def _make_form(parent: QWidget | None, space: int = COMMON_SPACE) -> QFormLayout:
+	def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE) -> QFormLayout:
 		"""
 		Crée et configure un :class:`QFormLayout` pour des paramètres.
 
@@ -161,7 +163,7 @@ class StandAloneWidget(QWidget):
 
 	##################################################
 	@staticmethod
-	def _make_vertical_separator() -> QFrame:
+	def make_vertical_separator() -> QFrame:
 		"""
 		Crée un séparateur vertical discret.
 
@@ -175,7 +177,7 @@ class StandAloneWidget(QWidget):
 
 	##################################################
 	@staticmethod
-	def _make_horizontal_separator() -> QFrame:
+	def make_horizontal_separator() -> QFrame:
 		"""
 		Crée un séparateur horizontal discret.
 

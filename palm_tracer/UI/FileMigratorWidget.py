@@ -39,7 +39,7 @@ class FileMigratorWidget(StandAloneWidget):
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
-		self._init_layout(main_layout)
+		self.init_layout(main_layout)
 
 		self._btn_load_folder = QPushButton("Load folder")
 		self._btn_load_folder.setToolTip("Folder must be a PALMTracer analysis result in Metamorph and ends with .PT.")
@@ -78,7 +78,7 @@ class FileMigratorWidget(StandAloneWidget):
 		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 		title_lbl.setStyleSheet("font-weight: 600;")
 		grid.addWidget(title_lbl, 0, 0, 1, 2)  # Titre
-		grid.addWidget(self._make_horizontal_separator(), 1, 0, 1, 2)  # Séparateur horizontal
+		grid.addWidget(self.make_horizontal_separator(), 1, 0, 1, 2)  # Séparateur horizontal
 
 		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
 		grid.setColumnStretch(0, 0)  # label

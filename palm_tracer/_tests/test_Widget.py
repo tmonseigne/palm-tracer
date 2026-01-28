@@ -116,24 +116,24 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 
 	# Ajout avec des tableaux normaux.
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
-	my_widget._add_detection_layers()
+	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Present" in my_widget.viewer.layers, timeout=5000)
 
 	# Ajout avec des calques existants et un future vide.
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": None}
-	my_widget._add_detection_layers()
+	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: not "Points Future" in my_widget.viewer.layers, timeout=5000)
 
 	# Ajout avec un tableau vide et rien en passé et future.
 	my_widget._preview_locs = {"Past": np.zeros((2, 0)), "Present": POINTS, "Future": None}
-	my_widget._add_detection_layers()
+	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: not "Points Past" in my_widget.viewer.layers, timeout=5000)
 
 	my_widget.pt.settings.localization["ROI Shape"].set_value(1)
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].get_value() == 1, timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
-	my_widget._add_detection_layers()
+	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Future" in my_widget.viewer.layers, timeout=5000)
 
 	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
@@ -246,7 +246,7 @@ def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 	my_widget = PALMTracerWidget(viewer)  # Créer notre widget, en passant par le viewer.
 	my_widget._tearing_down = True		  # Simuler le tearing_down actif
 	my_widget._reset_layer()
-	my_widget._add_detection_layers()
+	my_widget._add_preview_layers()
 	my_widget._preview()
 	my_widget._auto_threshold()
 

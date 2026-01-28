@@ -73,13 +73,13 @@ class AlignmentWidget(StandAloneWidget):
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
-		self._init_layout(main_layout)
+		self.init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
 
 		# ---------- Onglet 1 : Compute Alignment Coefficients ----------
-		tab_compute, tab_layout = self._make_tab(self._tabs)
-		grp, grp_layout = self._make_group(tab_compute, "Inputs")
+		tab_compute, tab_layout = self.make_tab(self._tabs)
+		grp, grp_layout = self.make_group(tab_compute, "Inputs")
 
 		self._btn_load_tif_compute = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_compute.setToolTip(
@@ -102,8 +102,8 @@ class AlignmentWidget(StandAloneWidget):
 		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Apply Alignment ----------
-		tab_apply, tab_layout = self._make_tab(self._tabs)
-		grp, grp_layout = self._make_group(tab_apply, "Inputs")
+		tab_apply, tab_layout = self.make_tab(self._tabs)
+		grp, grp_layout = self.make_group(tab_apply, "Inputs")
 
 		self._btn_load_tif_apply = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_apply.setToolTip("Load the TIFF file to which the alignment should be applied.")
@@ -120,8 +120,8 @@ class AlignmentWidget(StandAloneWidget):
 		self._spin_upscale = QSpinBox(grp, minimum=1, maximum=1000, singleStep=1, value=1)
 		self._spin_upscale.setToolTip("Integer upscaling factor for the output aligned image (1 = no upscaling).")
 
-		form = self._make_form(None)
-		self._add_setting_row(form, "Upscaling factor:", self._spin_upscale)
+		form = self.make_form(None)
+		self.add_setting_row(form, "Upscaling factor:", self._spin_upscale)
 
 		grp_layout.addWidget(self._btn_load_tif_apply)
 		grp_layout.addWidget(self._lbl_tif_apply)
