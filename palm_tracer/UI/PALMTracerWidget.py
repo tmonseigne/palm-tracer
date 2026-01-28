@@ -57,9 +57,9 @@ class PALMTracerWidget(QWidget):
 		self.viewer_3d: Optional[Viewer] = None
 		self.viewer_graph: Optional[GraphViewerWidget] = None
 		# ----- Threading -----
-		self._processing = False  # pour éviter les clics multiples
+		self._processing = False					   # pour éviter les clics multiples
 		self._worker: Optional[FunctionWorker] = None  # worker napari en cours
-		self._tearing_down = False  # vrai pendant le teardown pour ignorer les callbacks
+		self._tearing_down = False					   # vrai pendant le teardown pour ignorer les callbacks
 		# ----- Objets -----
 		self.pt = PALMTracer()
 		self.last_file = ""
@@ -104,7 +104,7 @@ class PALMTracerWidget(QWidget):
 		tabs.addTab(self._create_tab([self.pt.settings.localization.widget, self.pt.settings.tracking.widget,
 									  self.pt.settings.tracks_compute.widget]), "Processing")
 		tabs.addTab(self._create_tab([self.pt.settings.gallery.widget, self.pt.settings.visualization_hr.widget,
-									  #self.pt.settings.visualization_graph.widget,
+									  # self.pt.settings.visualization_graph.widget,
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
 		tabs.addTab(self._create_tab([self.pt.settings.filtering.widget]), "Filtering")
 
@@ -136,6 +136,9 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.batch["Files"].connect(self._reset_layer)					   # Supprime les layers et charge le fichier tif dans un layer Raw
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)  # Calcul automatique du Seuil
 		self.pt.settings.connect(self._on_change_setting)							   # Connexion à chaque changement de paramètres
+		filter_loc = self.pt.settings.filtering["Localization"]
+		filter_loc["X"].connect(self._add_roi_filter_layer)							   # Mise à jour de la ROI dans l'affichage.
+		filter_loc["Y"].connect(self._add_roi_filter_layer)							   # Mise à jour de la ROI dans l'affichage.
 
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
@@ -276,6 +279,7 @@ class PALMTracerWidget(QWidget):
 					cfg = open_json(str(filename))
 					self.pt.settings.update_from_dict(cfg)
 					self.pt.settings.localization["Preview"].set_value(False)
+					self.pt.settings.filtering.deactivate_filters()
 			except Exception as e:
 				show_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
 
@@ -305,7 +309,7 @@ class PALMTracerWidget(QWidget):
 	# region Layers Callback
 	# ==================================================
 	##################################################
-	def _remove_layer(self, name:str):
+	def _remove_layer(self, name: str):
 		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
 		if name in self.viewer.layers:
 			try: self.viewer.layers.remove(self.viewer.layers[name])
@@ -316,6 +320,7 @@ class PALMTracerWidget(QWidget):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		if self._tearing_down or not getattr(self, "viewer", None): return
 		self.pt.settings.localization["Preview"].set_value(False)
+		self.pt.settings.filtering.deactivate_filters()
 		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
 		if not selected_file:
 			self.last_file = ""
@@ -394,6 +399,46 @@ class PALMTracerWidget(QWidget):
 			else:
 				self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 			self.viewer.layers[l_name].editable = False
+
+	##################################################
+	def _add_roi_filter_layer(self):
+		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
+		if self._tearing_down or not getattr(self, "viewer", None) or self.last_file == "": return
+		# Suppression du calque "ROI Filter" s'il existe
+		l_name = "ROI Filter"
+
+		filter_loc = self.pt.settings.filtering["Localization"]
+		is_xf, is_yf = filter_loc["X"].active, filter_loc["Y"].active
+
+		if not is_xf and not is_yf:  # Aucun filtre -> rien à afficher
+			self._remove_layer(l_name)
+			return
+
+		raw_data = self.viewer.layers["Raw"].data  # Récupération du layer Raw
+		x0, x1 = 0, raw_data.shape[-1] - 1		   # shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
+		y0, y1 = 0, raw_data.shape[-2] - 1		   # shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
+
+		if is_xf:
+			xf = filter_loc["X"].get_value()
+			x0, x1 = max(x0, min(xf[0], x1)), max(x0, min(xf[1], x1))
+
+		if is_yf:
+			yf = filter_loc["Y"].get_value()
+			y0, y1 = max(y0, min(yf[0], y1)), max(y0, min(yf[1], y1))
+
+		# Si range dégénéré (ligne/colonne), on peut soit l'accepter soit ne rien afficher. Ici: si rectangle vide, on ne crée pas de layer.
+		if x1 <= x0 or y1 <= y0:
+			self._remove_layer(l_name)
+			return
+
+		# Napari attend un tableau (N, 2) pour un shape, la succession des points à tracer.
+		rect = [[[y0, x0], [y0, x1], [y1, x1], [y1, x0]]]						 # haut-gauche, haut-droite, bas-droite, bas-gauche
+		if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rect  # Remplace le rectangle
+		else:																	 # Création du Calque s'il n'existe pas
+			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.25, face_color="transparent")
+			layer.editable = False	  # Rendre non éditable (napari)
+			layer.selectable = False  # évite la sélection à la souris si supporté
+			layer.visible = True	  # l'affiche
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
@@ -487,7 +532,7 @@ class PALMTracerWidget(QWidget):
 		viewer = getattr(self, viewer_attr)
 		if viewer is None: return
 		qt_window = viewer.window._qt_window									  # QMainWindow
-		qt_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)		  # garantit que "close" détruit vraiment la fenêtre.
+		qt_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)		  # Garantit que "close" détruit vraiment la fenêtre.
 		qt_window.destroyed.connect(lambda *_: setattr(self, viewer_attr, None))  # Quand la fenêtre est détruite, on invalide le pointeur Python.
 
 

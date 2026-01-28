@@ -257,7 +257,6 @@ Il comprend :
     Si le nombre de détections dépasse, le nombre définit de lignes x colonnes, un nouveau plan est ajouté au résultat.
     Exemple : pour une acquisition de 1000 détections, en définissant 10 lignes/colonnes et une taille de zone d'intérêt à 9, le résultat sera une image de 90x90 pixels par plan, avec 10 plans.
   - **High Resolution** : Une ou plusieurs images haute résolution sont générées selon le facteur d'agrandissement choisi et la source pour définir l'intensité.
-  - **Graph** : Un ou plusieurs graphiques sont générés selon le type de graphiques et la source d'information.
   - **Graph Viewer** : Ouvre une fenêtre dédiée aux représentations statistiques. (plus d'informations :ref:`ici <viewer_graph_page>`)
   - **HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes résolutions. (plus d'informations :ref:`ici <viewer_hr_page>`)
   - **3D Viewer** : uvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)
@@ -298,6 +297,8 @@ Une fois appliqués, les filtres affectent :
    **Remarques** : Les filtres ne modifient pas les données brutes ou les résultats de traitement internes.
    Ils sont appliqués dynamiquement lors de la visualisation ou de l'exportation.
 
+.. note::
+   Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtré.
 
 FAQ
 ---

@@ -43,3 +43,7 @@ class FilteringT(BaseSettingGroup):
 			"Speed":       [CheckRangeFloat, ["Speed (µm/s)", [0, 1], [0, 100]]],
 			"Confinement": [CheckRangeFloat, ["Confinement (µm)", [-10, 10], [-100, 100]]]
 			}
+
+	##################################################
+	def deactivate_filters(self):
+		for key in self.setting_list: self._settings[key].active = False

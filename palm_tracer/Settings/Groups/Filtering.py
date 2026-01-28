@@ -32,7 +32,7 @@ class Filtering(BaseSettingGroup):
 
 	label: str = "Filtering"
 	setting_list = {
-			"Save":       [CheckBox, ["Save filtered", False]],
+			"Save":         [CheckBox, ["Save filtered", False]],
 			"Plane":        [CheckRangeInt, ["Plane", [1, 100000], [1, 100000]]],
 			"Localization": [FilteringL, []],
 			"Tracks":       [FilteringT, []]
@@ -45,3 +45,12 @@ class Filtering(BaseSettingGroup):
 		self.remove_header()
 		self._settings["Localization"].always_active()
 		self._settings["Tracks"].always_active()
+
+	##################################################
+	def deactivate_filters(self):
+		self._settings["Save"].set_value(False)
+		self._settings["Plane"].active = False
+		fl = self._settings["Localization"]
+		if isinstance(fl, FilteringL) : fl.deactivate_filters()
+		ft = self._settings["Tracks"]
+		if isinstance(ft, FilteringT) : ft.deactivate_filters()

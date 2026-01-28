@@ -91,6 +91,7 @@ class CheckRangeInt(BaseSettingType):
 		self._checkbox = QCheckBox()
 		self._checkbox.setChecked(self._active)
 		self._checkbox.stateChanged.connect(self.toggle_active)
+		self._checkbox.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
 
 		# Spin box
 		for i in range(2):

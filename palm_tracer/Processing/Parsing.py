@@ -122,7 +122,8 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	:param columns: Colonnes à modifier
 	:return: dataframe avec les colonnes ayant été modifié.
 	"""
-	logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
+	with np.errstate(divide='ignore', invalid='ignore'):
+		logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
 	data[columns] = pd.DataFrame(logged, index=data.index, columns=columns)
 	return data
 
