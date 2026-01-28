@@ -8,7 +8,6 @@ Module contenant les fonctions de traitement de PALM.
 
 import os
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import cast, Optional
 
 import numpy as np
@@ -241,12 +240,14 @@ class PALMTracer:
 				self.__tracking()
 			else:
 				self._logger.add("Tracking désactivé.")
+				# Les fichiers reconnectés se nomment tracking-reconnected pour être pris en compte automatiquement.
 				f = get_last_file(self._path, "tracking-")
 				if f.endswith("csv"):  # Chargement d'une localisation existante
 					self._logger.add("\tChargement d'un tracking pré-calculée.")
 					try:
 						self.df["trc"] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
 						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
+						self.__filter_tracks("trc")
 						self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
 					except Exception as e:
 						self.df["trc"] = pd.DataFrame()
@@ -328,6 +329,8 @@ class PALMTracer:
 		self.df["trc"].to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
 		self.__filter_tracks("trc")
 
+		# La reconnexion ne peut se faire que lors d'un (re)calcul de trajectoire, donc il n'est pas séparer du process initial.
+		# Le but est d'éviter des erreurs de manipulations de reconnexions succesives instables.
 		if self.settings.tracking["Blinking Reconnection"].active:
 			self._logger.add("\tReconnexion des trajectoires après scintillement.")
 			s = self.settings.tracking["Blinking Reconnection"].get_settings()
@@ -579,14 +582,10 @@ class PALMTracer:
 		f = cast(Filtering, self.settings.filtering)
 		fl = cast(FilteringL, f["Localization"])
 		filters = [[f["Plane"], "Plane"],
+				   [fl["X"], "X"], [fl["Y"], "Y"], [fl["Z"], "Z"],
 				   [fl["Intensity"], "Integrated Intensity"],
-				   [fl["Sigma X"], "Sigma X"],
-				   [fl["Sigma Y"], "Sigma Y"],
-				   [fl["Theta"], "Theta"],
-				   [fl["Circularity"], "Circularity"],
-				   [fl["Z"], "Z"],
-				   [fl["MSE XY"], "MSE XY"],
-				   [fl["MSE Z"], "MSE Z"]]
+				   [fl["Sigma X"], "Sigma X"], [fl["Sigma Y"], "Sigma Y"], [fl["Theta"], "Theta"], [fl["Circularity"], "Circularity"],
+				   [fl["MSE XY"], "MSE XY"], [fl["MSE Z"], "MSE Z"]]
 
 		for filt, col in filters:
 			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
@@ -694,7 +693,7 @@ class PALMTracer:
 	def update_filtered(self, last: bool = True):
 		"""Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original."""
 
-		self._suffix = datetime.now().strftime("%Y%d%m_%H%M%S")
+		self._suffix = get_timestamp_for_files()
 		loc = self.df["loc"] if self.df["f_loc"].empty or not last else self.df["f_loc"]
 		trc = self.df["trc"] if self.df["f_trc"].empty or not last else self.df["f_trc"]
 		blk = self.df["blk"] if self.df["f_blk"].empty or not last else self.df["f_blk"]
@@ -713,6 +712,6 @@ class PALMTracer:
 					   ["f_MSD", "tracking_MSD_filtered"], ["f_InD", "tracking_InstantD_filtered"], ["f_Fit", "tracking_Fit_filtered"]]
 			for n in to_save:
 				if not self.df[n[0]].empty: self.df[n[0]].to_csv(f"{self._path}/{n[1]}-{self._suffix}.csv", index=False)
-# ==================================================
-# endregion Filtering
-# ==================================================
+	# ==================================================
+	# endregion Filtering
+	# ==================================================

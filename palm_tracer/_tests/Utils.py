@@ -12,13 +12,13 @@ from palm_tracer.Tools import FileIO, print_error, print_success, print_warning
 INPUT_DIR = Path(__file__).parent / "input"
 REF_DIR = INPUT_DIR / "ref"
 OUTPUT_DIR = Path(__file__).parent / "output"
+os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
 default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4
 save_output = True
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 
 ##################################################
