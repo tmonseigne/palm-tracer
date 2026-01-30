@@ -68,11 +68,11 @@ class ViewerHRWidget(QWidget):
 		layout.addWidget(btn)
 
 		# Spinbox taille des points
-		self.size_spin = SpinFloat("Point Size", 1, 0.1, 10, 0.1, 1)
+		self.size_spin = SpinFloat("Point Size", 1, [0.1, 10], 0.1, 1)
 		layout.addRow(self.size_spin.layout)
 
 		# Spinbox facteur d'agrandissement
-		self.upscale_spin = SpinInt("Upscale Ratio", 4, 1, 100, 2)
+		self.upscale_spin = SpinInt("Upscale Ratio", 4, [1, 100], 2)
 		layout.addRow(self.upscale_spin.layout)
 
 		# Combo box pour la source

@@ -14,7 +14,7 @@ class SignalWrapper(QObject):
 	"""
 	Encapsulation d'un signal Qt avec connexion, déconnexion, émission, blocage temporaire et coalescence.
 		- :func:`blocked()` : contexte pour bloquer temporairement les signaux.
-		- Pendant le blocage, les appels à :func:`emit(value)` ne propagent rien ; seule la **dernière** valeur est mémorisée.
+		- Pendant le blocage, les appels à :func:`emit()` ne propagent rien ; seule la **dernière** valeur est mémorisée.
 		- À la fin du blocage externe (compteur à 0), une **seule** émission est effectuée avec la dernière valeur mémorisée (ou `None` si aucune).
 	"""
 

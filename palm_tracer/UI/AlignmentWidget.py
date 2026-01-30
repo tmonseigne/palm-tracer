@@ -20,20 +20,21 @@ Notes
    - Prévoir une visualisation intermédiaire (overlay, difference map).
 """
 
-import os
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
-from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.Processing import Palm
-from palm_tracer.Tools import open_tif, print_error, print_warning, save_tif
-from palm_tracer.UI.StandAloneWidget import StandAloneWidget
+from palm_tracer.Tools import Ui
+from palm_tracer.Tools.FileIO import open_tif, save_tif
+from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
 _windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class AlignmentWidget(StandAloneWidget):
+class AlignmentWidget(BaseStandAloneWidget):
 	"""
 	Widget minimaliste pour la gestion de l'alignement entre acquisitions.
 
@@ -73,13 +74,13 @@ class AlignmentWidget(StandAloneWidget):
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
-		self.init_layout(main_layout)
+		Ui.init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
 
 		# ---------- Onglet 1 : Compute Alignment Coefficients ----------
-		tab_compute, tab_layout = self.make_tab(self._tabs)
-		grp, grp_layout = self.make_group(tab_compute, "Inputs")
+		tab_compute, tab_layout = Ui.make_tab(self._tabs)
+		grp, grp_layout = Ui.make_group(tab_compute, "Inputs")
 
 		self._btn_load_tif_compute = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_compute.setToolTip(
@@ -88,8 +89,7 @@ class AlignmentWidget(StandAloneWidget):
 				"- on the right: the distorted image."
 				)
 
-		self._lbl_tif_compute = QLabel("No file loaded", grp)
-		self._lbl_tif_compute.setStyleSheet(self.STYLESHEET_INFO)
+		self._lbl_tif_compute = Ui.make_path_label("No file loaded", grp)
 
 		grp_layout.addWidget(self._btn_load_tif_compute)
 		grp_layout.addWidget(self._lbl_tif_compute)
@@ -102,8 +102,8 @@ class AlignmentWidget(StandAloneWidget):
 		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Apply Alignment ----------
-		tab_apply, tab_layout = self.make_tab(self._tabs)
-		grp, grp_layout = self.make_group(tab_apply, "Inputs")
+		tab_apply, tab_layout = Ui.make_tab(self._tabs)
+		grp, grp_layout = Ui.make_group(tab_apply, "Inputs")
 
 		self._btn_load_tif_apply = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_apply.setToolTip("Load the TIFF file to which the alignment should be applied.")
@@ -111,17 +111,14 @@ class AlignmentWidget(StandAloneWidget):
 		self._btn_load_coef_apply = QPushButton("Load coefficients file", grp)
 		self._btn_load_coef_apply.setToolTip("Load the file containing the alignment coefficients.")
 
-		self._lbl_tif_apply = QLabel("No TIFF file loaded", grp)
-		self._lbl_tif_apply.setStyleSheet(self.STYLESHEET_INFO)
-
-		self._lbl_coef_apply = QLabel("No coefficients file loaded", grp)
-		self._lbl_coef_apply.setStyleSheet(self.STYLESHEET_INFO)
+		self._lbl_tif_apply = Ui.make_path_label("No TIFF file loaded", grp)
+		self._lbl_coef_apply = Ui.make_path_label("No coefficients file loaded", grp)
 
 		self._spin_upscale = QSpinBox(grp, minimum=1, maximum=1000, singleStep=1, value=1)
 		self._spin_upscale.setToolTip("Integer upscaling factor for the output aligned image (1 = no upscaling).")
 
-		form = self.make_form(None)
-		self.add_setting_row(form, "Upscaling factor:", self._spin_upscale)
+		form = Ui.make_form(None)
+		Ui.add_setting_row(form, "Upscaling factor:", self._spin_upscale)
 
 		grp_layout.addWidget(self._btn_load_tif_apply)
 		grp_layout.addWidget(self._lbl_tif_apply)
@@ -165,28 +162,25 @@ class AlignmentWidget(StandAloneWidget):
 		filename, _ = QFileDialog.getOpenFileName(self, "Select TIFF file", "", "TIFF images (*.tif *.tiff)")
 
 		if not filename:
-			print_warning("No TIFF file selected.")
+			Ui.print_warning("No TIFF file selected.")
 			return
 
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
-			folder, basename = os.path.dirname(filename), os.path.basename(filename)  # dossier du fichier, nom + extension
-			name, ext = os.path.splitext(basename)  # séparation nom / extension
-			self._output_filename = os.path.join(folder, f"{name}_aligned{ext}")  # Construction du chemin de sortie
-			self._stack = open_tif(filename)
+			filename = Path(filename)
+			self._output_filename = filename.with_name(f"{filename.stem}_aligned{filename.suffix}")  # Construction du chemin de sortie
+			self._stack = open_tif(str(filename))
 		except Exception as e:
 			self._stack = None
-			print_error(f"Unable to read the TIFF file : {e}.")
+			Ui.print_error(f"Unable to read the TIFF file : {e}.")
 			return
 
 		# --- mise à jour du label associé au bouton ---
-		self._lbl_tif_compute.setText(basename)
-		self._lbl_tif_compute.setToolTip(filename)
-		self._lbl_tif_apply.setText(basename)
-		self._lbl_tif_apply.setToolTip(filename)
+		Ui.update_path_label(self._lbl_tif_compute, filename)
+		Ui.update_path_label(self._lbl_tif_apply, filename)
 
-		print(f"TIFF loaded successfully. Shape={self._stack.shape}, dtype={self._stack.dtype}")
+		Ui.print_success(f"TIFF loaded successfully. Shape={self._stack.shape}, dtype={self._stack.dtype}")
 
 	##################################################
 	def _on_load_coef(self):
@@ -203,7 +197,7 @@ class AlignmentWidget(StandAloneWidget):
 		filename, _ = QFileDialog.getOpenFileName(self, "Select coefficients file", "", "Text files (*.txt);;All files (*.*)")
 
 		if not filename:
-			print_warning("No coefficient file selected.")
+			Ui.print_warning("No coefficient file selected.")
 			return
 
 		# --- lecture du fichier ---
@@ -212,42 +206,36 @@ class AlignmentWidget(StandAloneWidget):
 			self._coefs = np.loadtxt(filename, comments="#", dtype=np.float64)
 		except Exception as e:
 			self._coefs = None
-			print_error(f"Unable to read the coefficient file: {e}.")
+			Ui.print_error(f"Unable to read the coefficient file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if self._coefs.ndim != 2 or self._coefs.shape != (2, 10):
 			self._coefs = None
-			print_error(f"The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
+			Ui.print_error(f"The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
 			return
 
 		# --- mise à jour du label de statut ---
-		basename = os.path.basename(filename)
-		self._lbl_coef_apply.setText(basename)
-		self._lbl_coef_apply.setToolTip(filename)
+		Ui.update_path_label(self._lbl_coef_apply, Path(filename))
 
-		print("Coefficients loaded successfully.")
+		Ui.print_success("Coefficients loaded successfully.")
 
 	##################################################
 	def _on_compute_coeffs(self):
 		"""Callback du bouton 'Compute coefficients'."""
-		if self._stack is None: print("Can't Compute alignment coefficients without correct tif file.")
-		else: print_warning("Compute alignment coefficients isn't implemented yet. Use original PALMTracer.")
+		if self._stack is None: Ui.print_warning("Can't Compute alignment coefficients without correct tif file.")
+		else: Ui.print_warning("Compute alignment coefficients isn't implemented yet. Use original PALMTracer.")
 
 	##################################################
 	def _on_start_alignment(self):
 		"""Callback du bouton 'Start alignment'."""
-		if self._stack is None: print("Can't align without correct tif file.")
-		elif self._coefs is None: print("Can't align tif file without factors.")
+		if self._stack is None: Ui.print_warning("Can't align without correct tif file.")
+		elif self._coefs is None: Ui.print_warning("Can't align tif file without factors.")
 		else:
 			upscale = self._spin_upscale.value()
 			aligned = self._palm.align(self._stack, self._coefs, upscale)
 			save_tif(aligned, self._output_filename)
-			print(f"File saved at {self._output_filename} (upscale={upscale}).")
-
-	# ==================================================
-	# endregion Callbacks
-	# ==================================================
+			Ui.print_success(f"File saved at {self._output_filename} (upscale={upscale}).")
 
 
 ##################################################
@@ -262,10 +250,12 @@ def open_alignment():  # pragma: no cover
 	widget.resize(500, 250)
 	widget.show()
 	_windows.append(widget)  # éviter que Python le détruise en le stockant
-	# Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
-	# stub = QWidget()
-	# stub.hide()
-	# return stub
+
+
+#	Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
+#	stub = QWidget()
+#	stub.hide()
+#	return stub
 
 
 ##################################################

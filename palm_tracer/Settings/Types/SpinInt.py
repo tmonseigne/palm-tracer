@@ -9,6 +9,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -19,66 +20,60 @@ class SpinInt(BaseSettingType):
 
 	Attributs :
 		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
 		- **default** (:class:`int`) : Valeur par défaut du paramètre.
-		- **min** (:class:`int`) : Valeur minimale du paramètre.
-		- **max** (:class:`int`) : Valeur maximale du paramètre.
+		- **limits** (:class:`int`) : Valeurs limites du paramètre.
 		- **step** (:class:`int`) : Pas à chaque appuie sur une des flèches du paramètre.
 		- **value** (:class:`int`) : Valeur actuelle du paramètre.
 		- **box** (:class:`QSpinBox`) : Objet QT permettant de manipuler le paramètre.
+		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
 	"""
 
 	default: int = 0
-	"""Valeur par défaut du paramètre."""
-	min: int = 0
-	"""Valeur minimale du paramètre."""
-	max: int = 100
-	"""Valeur maximale du paramètre."""
+	value: int = field(init=False, default=0)
+
+	limits: list[int] = field(default_factory=lambda: [0, 100])
+	"""Valeurs limites du paramètre."""
 	step: int = 1
 	"""Pas à chaque appuie sur une des flèches du paramètre."""
-	value: int = field(init=False, default=0)
-	"""Valeur actuelle du paramètre."""
-	box: QSpinBox = field(init=False)
-	"""Objet QT permettant de manipuler le paramètre."""
+
+	_box: QSpinBox = field(init=False)
 
 	##################################################
 	def get_value(self) -> int:
-		self.value = self.box.value()
+		self.value = self._box.value()
 		return self.value
 
 	##################################################
 	def set_value(self, value: int):
 		self.value = value
-		self.box.setValue(value)
+		self._box.setValue(value)
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default,
-				"min":  self.min, "max": self.max, "step": self.step, "value": self.value}
+		return {"type":   type(self).__name__, "label": self.label, "default": self.default,
+				"limits": self.limits, "step": self.step, "value": self.value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		# Mise à jour des membres
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
-		self.min = data.get("min", 0)
-		self.max = data.get("max", 100)
+		self.limits = data.get("limits", [0, 100])
 		self.step = data.get("step", 1)
 		# Mise à jour de la boite QT
-		self.box.setRange(self.min, self.max)
-		self.box.setSingleStep(self.step)
+		self._box.setRange(self.limits[0], self.limits[1])
+		self._box.setSingleStep(self.step)
 		self.set_value(data.get("value", self.default))
 
 	##################################################
 	def initialize(self):
-		super().initialize()							   # Appelle l'initialisation de la classe mère.
-		self.box = QSpinBox(None)						   # Création de la boite.
-		self.box.setRange(self.min, self.max)			   # Définition du min, max.
-		self.box.setSingleStep(self.step)				   # Définition du pas à chaque appuie sur une flèche.
-		self.box.valueChanged.connect(self.emit)		   # Définition du comportement lors de la modification des valeurs
-		self.set_value(self.default)					   # Définition de la valeur.
-		self.add_row(self.box)							   # Ajoute le spin au calque.
+		super().initialize()					   # Appelle l'initialisation de la classe mère.
+		self._box = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
+		self._box.valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
+		self.set_value(self.default)			   # Définition de la valeur.
+		self._layout.addWidget(self._box)		   # Ajout du champ de texte
+		self._layout.addStretch(1)				   # pousse tout à gauche, espace vide à droite
 
 	##################################################
 	def reset(self): self.set_value(self.default)

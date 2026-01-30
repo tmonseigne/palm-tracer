@@ -17,9 +17,9 @@ from .Astigmatism3DWidget import Astigmatism3DWidget
 from .FileMigratorWidget import FileMigratorWidget
 from .GraphViewerWidget import GraphViewerWidget
 from .PALMTracerWidget import PALMTracerWidget
-from .StandAloneWidget import StandAloneWidget
+from .BaseStandAloneWidget import BaseStandAloneWidget
 from .Viewer3DWidget import Viewer3DWidget
 from .ViewerHRWidget import ViewerHRWidget
 
-__all__ = ["PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget", "StandAloneWidget",
+__all__ = ["PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget", "BaseStandAloneWidget",
 		   "AlignmentWidget", "Astigmatism3DWidget", "FileMigratorWidget", "GraphViewerWidget"]

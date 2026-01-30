@@ -34,8 +34,8 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Grapher
 from palm_tracer.Settings.Groups import Filtering
 from palm_tracer.Settings.Types import FileList, SpinInt
-from palm_tracer.Tools import open_tif, print_error
-from palm_tracer.UI.StandAloneWidget import StandAloneWidget
+from palm_tracer.Tools import Ui, FileIO
+from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
 # Tentative d'import QtWebEngine (via qtpy)
 try:
@@ -48,7 +48,7 @@ except Exception:
 
 
 ##################################################
-class GraphViewerWidget(StandAloneWidget):
+class GraphViewerWidget(BaseStandAloneWidget):
 	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
 
 	Ce widget expose une UI compacte pour :
@@ -131,14 +131,14 @@ class GraphViewerWidget(StandAloneWidget):
 		"""
 
 		main_layout = QHBoxLayout(self)
-		self.init_layout(main_layout)
+		Ui.init_layout(main_layout)
 
 		# Colonne gauche
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
 		left.setMinimumWidth(300)
 		vbox = QVBoxLayout(left)
-		self.init_layout(vbox)
+		Ui.init_layout(vbox)
 
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
@@ -149,13 +149,13 @@ class GraphViewerWidget(StandAloneWidget):
 		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
 		self._status = {"loc": QLabel("No"), "trc": QLabel("No"), "MSD": QLabel("No"), "InD": QLabel("No"), "Fit": QLabel("No")}
 
-		form = self.make_form(grp_infos)
-		self.add_setting_row(form, "File :", self._lbl_filename)
-		self.add_setting_row(form, "Localization :", self._status["loc"])
-		self.add_setting_row(form, "Tracking :", self._status["trc"])
-		self.add_setting_row(form, "MSD :", self._status["MSD"])
-		self.add_setting_row(form, "Instant D :", self._status["InD"])
-		self.add_setting_row(form, "Fit :", self._status["Fit"])
+		form = Ui.make_form(grp_infos)
+		Ui.add_setting_row(form, "File :", self._lbl_filename)
+		Ui.add_setting_row(form, "Localization :", self._status["loc"])
+		Ui.add_setting_row(form, "Tracking :", self._status["trc"])
+		Ui.add_setting_row(form, "MSD :", self._status["MSD"])
+		Ui.add_setting_row(form, "Instant D :", self._status["InD"])
+		Ui.add_setting_row(form, "Fit :", self._status["Fit"])
 
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
@@ -179,7 +179,7 @@ class GraphViewerWidget(StandAloneWidget):
 		self._btn_stack.setChecked(True)
 
 		# Combo box
-		form = self.make_form(grp_source)
+		form = Ui.make_form(grp_source)
 		self._cmb_src = QComboBox()
 		form.addRow(h)
 		form.addRow("Source :", self._cmb_src)
@@ -188,7 +188,7 @@ class GraphViewerWidget(StandAloneWidget):
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
 		self._display_settings: dict[str, Any] = {
-				"MSD":     SpinInt("MSD Step", 1, 1, 10000, 1),
+				"MSD":     SpinInt("MSD Step", 1, [1, 10000], 1),
 				"Log":     QCheckBox("Use Log Scale"),
 				"Limits":  QCheckBox("Apply Limits"),
 				"Sigma":   QCheckBox("Show σ"),
@@ -209,7 +209,7 @@ class GraphViewerWidget(StandAloneWidget):
 		info_btn.setToolTip("Limits data to ±3σ around the mean (3-sigma rule).")
 		row_limits = QWidget()
 		row_l = QHBoxLayout(row_limits)
-		row_l.setContentsMargins(0, 0, 0, 0)
+		Ui.init_layout(row_l, 0, 0)
 		row_l.addWidget(self._display_settings["Limits"])
 		row_l.addWidget(info_btn)
 
@@ -235,7 +235,7 @@ class GraphViewerWidget(StandAloneWidget):
 		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
-		grp_filters, vbox_filters = self.make_group(self, "Filters")
+		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
 		self._filters = Filtering()
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
@@ -460,15 +460,15 @@ class GraphViewerWidget(StandAloneWidget):
 			- Met à jour les libellés d'information et l'état d'activation des boutons de domaine.
 			- Sélectionne par défaut le domaine "Stack" et redessine.
 
-		En cas d'erreur de lecture, logue l'erreur via :func:`print_error`.
+		En cas d'erreur de lecture, logue l'erreur via :func:`palm_tracer.Tools.Ui.print_error`.
 		"""
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
 
 		# Métadonnées d'information
 		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
 		if self._file != "":
-			try: self._stack = open_tif(self._file)
-			except Exception as e: print_error(f"Error loading {self._file} in GraphViewer : {e}")
+			try: self._stack = FileIO.open_tif(self._file)
+			except Exception as e: Ui.print_error(f"Error loading {self._file} in GraphViewer : {e}")
 
 		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
@@ -670,10 +670,6 @@ class GraphViewerWidget(StandAloneWidget):
 				path = path + ".html"
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
-
-	# ==================================================
-	# endregion Drawing
-	# ==================================================
 
 
 ##################################################

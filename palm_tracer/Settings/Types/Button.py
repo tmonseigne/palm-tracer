@@ -23,8 +23,7 @@ class Button(BaseSettingType):
 		- **box** (:class:`QSpinBox`) : Objet QT permettant de manipuler le paramètre.
 	"""
 
-	box: QPushButton = field(init=False, default_factory=QPushButton)
-	"""Objet QT permettant de manipuler le paramètre."""
+	_box: QPushButton = field(init=False)
 
 	##################################################
 	def get_value(self) -> bool: return True
@@ -39,16 +38,16 @@ class Button(BaseSettingType):
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		self.label = data.get("label", "")
-		self.box.setText(self.label)
+		self._box.setText(self.label)
 
 	##################################################
 	def initialize(self):
-		super().initialize()				# Appelle l'initialisation de la classe mère.
-		self.box = QPushButton(self.label)  # Création de la boite.
-		self._layout.addRow(self.box)
+		super().initialize()				 # Appelle l'initialisation de la classe mère.
+		self._box = QPushButton(self.label)  # Création de la boite.
+		self._layout.addWidget(self._box)	 # Ajout du champ de texte
 
 	##################################################
 	def reset(self): pass
 
 	##################################################
-	def connect(self, f: Any): self.box.clicked.connect(f)
+	def connect(self, f: Any): self._box.clicked.connect(f)

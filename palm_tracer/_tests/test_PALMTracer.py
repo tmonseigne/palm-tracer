@@ -8,7 +8,7 @@ from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import get_timestamp_for_files, open_tif
+from palm_tracer.Tools import FileIO
 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_tracer"
 OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
@@ -323,7 +323,7 @@ def test_process_only_tracking(make_napari_viewer):
 	# Ajout d'un fichier de localisations
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	pt.settings.tracking.active = True
@@ -345,7 +345,7 @@ def test_process_only_tracking_blinking(make_napari_viewer):
 	# Ajout d'un fichier de localisations
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	pt.settings.tracking.active = True
@@ -368,7 +368,7 @@ def test_process_only_tracks_compute(make_napari_viewer):
 	# Ajout d'un fichier de tracking
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
-	dst = OUTPUT_FOLDER / f"tracking-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	tc = cast(TracksCompute, pt.settings.tracks_compute)
@@ -404,10 +404,10 @@ def test_process_only_visualization_hr(make_napari_viewer):
 	# Ajout des fichiers de localisations et trajectoires
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
-	dst = OUTPUT_FOLDER / f"tracking-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	pt.settings.visualization_hr.active = True
@@ -436,10 +436,10 @@ def test_process_only_visualization_graph(make_napari_viewer):
 	# Ajout des fichiers de localisation et tracking
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
-	dst = OUTPUT_FOLDER / f"tracking-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	pt.settings.visualization_graph.active = True
@@ -460,7 +460,7 @@ def test_process_only_gallery(make_napari_viewer):
 	# Ajout du fichier de localisation
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	pt.settings.gallery.active = True
@@ -470,7 +470,7 @@ def test_process_only_gallery(make_napari_viewer):
 	pt.process()
 
 	# dimension 270 (30 ROI / lignes(colonnes) * taille de ROI de 9) et 1 frame (30 * 30 = 900 / frame et environ 450 en entrée)
-	res, ref = open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
+	res, ref = FileIO.open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], tif=[1])
 
@@ -512,7 +512,7 @@ def test_process_filter_plan(make_napari_viewer):
 	# Ajout du fichier de localisation
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	file_list = cast(FileList, pt.settings.batch["Files"])
@@ -539,7 +539,7 @@ def test_process_filter_all_localization(make_napari_viewer):
 	# Ajout du fichier de localisation
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	# Ajout du fichier
@@ -598,7 +598,7 @@ def test_process_filter_all_tracking(make_napari_viewer):
 	# Ajout du fichier de trajectoires
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
-	dst = OUTPUT_FOLDER / f"tracking-{get_timestamp_for_files()}.csv"
+	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
 	# Ajout du fichier

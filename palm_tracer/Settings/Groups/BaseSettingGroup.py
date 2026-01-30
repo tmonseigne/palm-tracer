@@ -8,10 +8,10 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional, Union
 
 from qtpy import QT_API
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 
 from palm_tracer.Settings.Types import BaseSettingType
+from palm_tracer.Tools import Ui
 
 if QT_API.startswith("pyqt"):  # pragma: no cover - dépend de l'environnement
 	from qtpy import sip	   # dispo quand le binding est PyQt
@@ -41,12 +41,13 @@ class BaseSettingGroup:
 		- **_body** (:class:`QWidget`) : Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible).
 	"""
 
-	_active: bool = field(init=False, default=False)
-	"""État du groupe (activé ou non)"""
 	label: str = field(init=False, default="Base Setting Group")
 	"""Nom du Groupe."""
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
 	"""Liste des settings du groupe."""
+
+	_active: bool = field(init=False, default=False)
+	"""État du groupe (activé ou non)"""
 	_inner_groups = list[str]()
 	"""Liste des sous-groupes de settings du groupe."""
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
@@ -75,16 +76,14 @@ class BaseSettingGroup:
 	def initialize(self):
 		"""Initialise le dictionnaire de paramètres."""
 		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
-		for key, value in self.setting_list.items():
-			self._settings[key] = value[0](*value[1])
+		for key, value in self.setting_list.items(): self._settings[key] = value[0](*value[1])
 
 	##################################################
 	def initialize_ui(self):
 		"""Initialise l'interface utilisateur."""
 		# Base
 		self._widget = QWidget()
-		layout = QFormLayout(self._widget)
-		layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
+		layout = Ui.make_form(self._widget)
 
 		# Title Row
 		self._title = QLabel(f"{self.label}")
@@ -99,10 +98,11 @@ class BaseSettingGroup:
 		# Settings part (must be managed by the derived class.)
 		self._body = QWidget()
 		body = QFormLayout(self._body)
-		body.setContentsMargins(20, 0, 0, 0)  # Léger décalage.
+		body.setContentsMargins(5, 0, 0, 0)  # Léger décalage.
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup): body.addRow(setting.widget)
-			else: body.addRow(setting.layout)
+			else: body.addRow(setting.label, setting.layout)
+
 		layout.addRow(self._body)
 
 		self._widget.setLayout(layout)
@@ -113,9 +113,15 @@ class BaseSettingGroup:
 	##################################################
 	def reset(self):
 		"""Remet les valeurs par défaut des paramètres."""
-		for _, setting in self._settings.items():
-			setting.reset()
+		for _, setting in self._settings.items(): setting.reset()
 
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Signals
+	# ==================================================
 	##################################################
 	def connect(self, f: Any):
 		"""
@@ -148,7 +154,7 @@ class BaseSettingGroup:
 		return stack
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Signals
 	# ==================================================
 
 	# ==================================================
@@ -237,7 +243,7 @@ class BaseSettingGroup:
 
 	##################################################
 	@staticmethod
-	def _find_form_row_of_widget(form: QFormLayout, w: QWidget) -> int:   # pragma: no cover (lié aux étrangetés de QT Python)
+	def _find_form_row_of_widget(form: QFormLayout, w: QWidget) -> int:  # pragma: no cover (lié aux étrangetés de QT Python)
 		"""Retourne l'index de ligne contenant le widget `w`, ou -1 si absent."""
 		for r in range(form.rowCount()):
 			for role in (QFormLayout.ItemRole.LabelRole, QFormLayout.ItemRole.FieldRole, QFormLayout.ItemRole.SpanningRole):
@@ -277,9 +283,6 @@ class BaseSettingGroup:
 			except RuntimeError: pass
 			self._checkbox = None
 
-			# Ajouter des espaces au nom du groupe pour conserver à minima l'alignement, oui et non à voir.
-			# self._title.setText(f"       {self.label}")
-
 	##################################################
 	def remove_header(self):
 		""" Active toujours le groupe et supprime la partie header de l'interface. """
@@ -291,8 +294,8 @@ class BaseSettingGroup:
 			try:
 				if hdr.layout() is not None: hdr.layout().removeWidget(tit)  # Retirer le titre du layout
 				tit.setParent(None)
-				tit.deleteLater()				# Détruire le titre
-			except RuntimeError: pass			# si déjà retirée
+				tit.deleteLater()											 # Détruire le titre
+			except RuntimeError: pass										 # si déjà retirée
 			self._title = None
 
 		# Suppression du header
@@ -351,14 +354,9 @@ class BaseSettingGroup:
 		"""
 		msg = f"{line_prefix}- Activate : {self.active}\n"
 		for key, setting in self._settings.items():
-			if isinstance(setting, BaseSettingGroup):
-				msg += f"{line_prefix}- {key} :\n{setting.tostring(f'{line_prefix}  ')}"
+			if isinstance(setting, BaseSettingGroup): msg += f"{line_prefix}- {key} :\n{setting.tostring(f'{line_prefix}  ')}"
 			else: msg += f"{line_prefix}- {key} : {setting.get_value()}\n"
 		return msg
 
 	##################################################
 	def __str__(self) -> str: return self.tostring()
-
-	# ==================================================
-	# endregion IO
-	# ==================================================

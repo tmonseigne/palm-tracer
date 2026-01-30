@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, get_max_points, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL
-from palm_tracer.Tools.Utils import load_dll, print_warning
+from palm_tracer.Tools import FileIO, Ui
 
 N_TRC_CP_FIT = 12
 
@@ -27,7 +27,7 @@ class Palm:
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		self._dll = load_dll(self._type)
+		self._dll = FileIO.load_dll(self._type)
 
 	##################################################
 	def is_valid(self) -> bool:
@@ -399,7 +399,7 @@ class Palm:
 		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
 		track_ids = pd.unique(tracks["Track"])
 		for key in res:
-			if len(res[key]) != track_ids.size: print_warning("Problème avec les identifiants des trajectoires, attention au filtrage")
+			if len(res[key]) != track_ids.size: Ui.print_warning("Problème avec les identifiants des trajectoires, attention au filtrage")
 			else:
 				res[key].drop(columns=["Track"], inplace=True)
 				res[key].insert(0, "Track", track_ids)

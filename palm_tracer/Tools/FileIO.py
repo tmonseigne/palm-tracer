@@ -4,9 +4,13 @@ Fichier de fonctions de manipulation de fichiers
 Ce module regroupe diverses fonctions pour la gestion et la manipulation de fichiers.
 """
 
+import ctypes
+import glob
 import json
 import os
-from typing import Any
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Literal, Optional
 
 import matplotlib as mpl
 import numpy as np
@@ -14,9 +18,107 @@ import scipy.io as io
 import tifffile as tiff
 from PIL import Image
 
+from palm_tracer.Tools import Ui
+
 MAX_UI_8 = np.iinfo(np.uint8).max
 MAX_UI_16 = np.iinfo(np.uint16).max
+DLL_PATH = Path(__file__).parent.parent / "DLL"
 
+
+# ==================================================
+# region File Management
+# ==================================================
+##################################################
+def add_extension(filename: str, extension: str) -> str:
+	"""
+	Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle
+
+	:param filename: Nom du fichier
+	:param extension: Extension finale du fichier
+	"""
+	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
+	if not filename.endswith(extension): filename += extension  # Si le fichier n'a pas déjà l'extension, on l'ajoute
+	return filename
+
+
+##################################################
+def add_suffix(filename: str, suffix: str) -> str:
+	"""
+	Ajoute un suffixe à un nom de fichier (gère la possibilité d'une extension ou non au nom de fichier).
+
+	:param filename: Nom de fichier d'origine.
+	:param suffix: Suffixe à ajouter.
+	:return: Nom de fichier avec l'horodatage ajouté.
+	"""
+	# Insérer le suffixe avant l'extension du fichier s'il y en a une
+	if "." in filename:
+		name, ext = filename.rsplit(".", 1)
+		return f"{name}{suffix}.{ext}"
+	return f"{filename}{suffix}"
+
+
+##################################################
+def get_timestamp_for_files(with_hour: bool = True) -> str:
+	"""
+	Créé un horodatage au format -AAAAMMJJ_HHMMSS pour un nom de fichier.
+
+	:param with_hour: Ajoute ou non l'heure au timestamp
+	:return: Horodatage.
+	"""
+	if with_hour: return datetime.now().strftime("%Y%m%d_%H%M%S")  # Formater la date et l'heure
+	return datetime.now().strftime("%Y%m%d")					   # Formater la date
+
+
+##################################################
+def get_last_file(path: str, name: str, sort_mode: Literal["time", "alpha"] = "alpha") -> str:
+	"""
+	Récupère le dernier fichier (le plus récent) qui contient le paramètre `name` dans son nom dans le chemin `path`.
+
+	:param path: Chemin du dossier où chercher les fichiers.
+	:param name: Chaîne à rechercher dans les noms de fichiers.
+	:param sort_mode: Mode de tri : "time" : date de modification (par défaut), "alpha" : ordre alphabétique.
+	:return: Chemin complet du dernier fichier trouvé ou une chaîne vide si aucun fichier ne correspond.
+	"""
+	try:
+		search_pattern = os.path.join(path, f"*{name}*")		   # Générer le chemin avec le filtre pour les fichiers contenant `name`
+		files = glob.glob(search_pattern)						   # Récupérer tous les fichiers correspondant au motif
+		if not files: return ""									   # Aucun fichier trouvé
+		if sort_mode == "mtime": files.sort(key=os.path.getmtime)  # Trier les fichiers par date de modification décroissante
+		elif sort_mode == "alpha": files.sort()					   # Trier les fichiers par ordre alphabétique.
+		return files[-1]										   # Retourner le fichier le plus récent
+	except Exception as e:
+		print(f"Erreur lors de la recherche du fichier : {e}")
+		return ""
+
+
+##################################################
+def extract_suffix(filename: str, separator: str = "-") -> str:
+	"""
+	Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurence en cas de présence multiple).
+
+	:param filename: Nom du fichier.
+	:param separator: Séparateur avant le suffixe
+	:return: Suffixe si le séparateur est présent sinon une chaine vide
+	"""
+	base, _ = os.path.splitext(os.path.basename(filename))
+	parts = base.rsplit(separator, 1)
+	return parts[1] if len(parts) == 2 else ""
+
+
+##################################################
+def load_dll(name: str) -> Optional[ctypes.CDLL]:
+	"""Charge une DLL, si elle existe."""
+	dll_filename = DLL_PATH / f"PALMTracer_{name}.dll"
+	try:
+		return ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
+	except OSError as e:
+		Ui.print_warning(f"Impossible de charger la DLL '{dll_filename}':\n\t{e}")
+		return None
+
+
+# ==================================================
+# endregion File Management
+# ==================================================
 
 # ==================================================
 # region JSON IO
@@ -63,7 +165,7 @@ def save_tif(stack: np.ndarray, filename: str):
 	"""
 	if stack.ndim == 2: stack = stack[np.newaxis, ...]		 # Si le tableau est 2D, le transformer en 3D avec une seule frame
 	if stack.ndim != 3: raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
-	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)	 # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
+	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)   # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
 	tiff.imwrite(filename, stack, photometric="minisblack")  # Sauvegarde la pile avec tifffile
 
 

@@ -1,4 +1,6 @@
 """ Fichier des tests pour la lecture/écriture des fichiers. """
+import ctypes
+
 import pytest
 
 from palm_tracer._tests.Utils import *
@@ -19,6 +21,89 @@ REF_BOOLEAN_MASK = NOISE_2D > 128									   # Conversion en booléen
 GRADIENT = np.linspace(0, MAX_UI_8, SIZE, dtype=np.float32)			   # Création du dégradé croissant de 0 à 255
 REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))							   # Répète le dégradé sur toutes les lignes
 REF_STACK = np.stack((REF_GRADIENT, np.fliplr(REF_GRADIENT)), axis=0)  # Empilement du dégradé et son miroir horizontal
+
+
+##################################################
+def test_add_extension():
+	"""Test de la fonction add extension."""
+	filename = "filename.extension"
+
+	res = FileIO.add_extension(filename, "new")
+	assert res == "filename.extension.new", "Le nom de fichier ne correspond pas"
+
+	filename = "filename"
+	res = FileIO.add_extension(filename, "new")
+	assert res == "filename.new", "Le nom de fichier ne correspond pas"
+
+	filename = "file.name.extension"
+	res = FileIO.add_extension(filename, "new")
+	assert res == "file.name.extension.new", "Le nom de fichier ne correspond pas"
+
+	filename = "file/name/extension"
+	res = FileIO.add_extension(filename, "new")
+	assert res == "file/name/extension.new", "Le nom de fichier ne correspond pas"
+
+
+##################################################
+def test_add_suffix():
+	"""Test de la fonction add extension."""
+	filename = "filename.extension"
+	suffix = "_suffix"
+	res = FileIO.add_suffix(filename, suffix)
+	assert res == "filename_suffix.extension", "Le nom de fichier ne correspond pas"
+	filename = "filename"
+	res = FileIO.add_suffix(filename, suffix)
+	assert res == "filename_suffix", "Le nom de fichier ne correspond pas"
+
+
+##################################################
+def test_get_timestamp_for_files():
+	"""Test de la fonction get timestamp for files."""
+	res = FileIO.get_timestamp_for_files(True)
+	print(f"Timestamp with hour : {res}")
+	res = FileIO.get_timestamp_for_files(False)
+	print(f"Timestamp without hour : {res}")
+
+
+##################################################
+def test_get_last_file():
+	"""Test de la fonction get_last_file."""
+	res = FileIO.get_last_file(INPUT_DIR, "File", "alpha")
+	print(res)
+	assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
+	res = FileIO.get_last_file(INPUT_DIR, "File", "time")
+	# L'ordre de création des fichiers de test lors de la copie peut changer, on ne peut faire un vrai assert
+	# assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
+	print(res)
+
+
+##################################################
+def test_extract_suffix():
+	"""Test de la fonction extract_suffix."""
+	res = FileIO.extract_suffix("")
+	assert res == "", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
+
+	res = FileIO.extract_suffix("filename")
+	assert res == "", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
+
+	res = FileIO.extract_suffix("filename.json")
+	assert res == "", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
+
+	res = FileIO.extract_suffix("filename-01.json")
+	assert res == "01", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
+
+	res = FileIO.extract_suffix("filename-01-02-03.json")
+	assert res == "03", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
+
+
+##################################################
+@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
+def test_load_dll():
+	"""Test de la fonction load_dll."""
+	res = FileIO.load_dll("File")
+	assert res is None, "La Dll n'existe pas, None devrait être retourné."
+	res = FileIO.load_dll("CPU")
+	assert isinstance(res, ctypes.CDLL), "La Dll devrait être chargé."
 
 
 ##################################################

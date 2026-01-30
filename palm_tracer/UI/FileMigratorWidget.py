@@ -5,16 +5,15 @@ Module contenant la classe :class:`FileMigratorWidget`, un outil minimaliste pou
 from pathlib import Path
 from typing import Optional
 
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QFileDialog, QGridLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from palm_tracer.Tools import FileMigrator, print_error, print_success, print_warning
-from palm_tracer.UI.StandAloneWidget import StandAloneWidget
+from palm_tracer.Tools import FileMigrator, Ui
+from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
 _windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class FileMigratorWidget(StandAloneWidget):
+class FileMigratorWidget(BaseStandAloneWidget):
 	"""Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."""
 
 	# ==================================================
@@ -39,13 +38,12 @@ class FileMigratorWidget(StandAloneWidget):
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
-		self.init_layout(main_layout)
+		Ui.init_layout(main_layout)
 
 		self._btn_load_folder = QPushButton("Load folder")
 		self._btn_load_folder.setToolTip("Folder must be a PALMTracer analysis result in Metamorph and ends with .PT.")
 
-		self._lbl_load_folder = QLabel("No folder loaded")
-		self._lbl_load_folder.setStyleSheet(self.STYLESHEET_INFO)
+		self._lbl_load_folder = Ui.make_path_label("No folder loaded")
 
 		self._btn_migrate = QPushButton("Migrate")
 		self._btn_migrate.setToolTip("Start migration to the actual format.")
@@ -61,44 +59,9 @@ class FileMigratorWidget(StandAloneWidget):
 
 		main_layout.addWidget(self._btn_load_folder)
 		main_layout.addWidget(self._lbl_load_folder)
-		main_layout.addLayout(self._init_files_layout(self._filelist, "Files"))
+		main_layout.addLayout(Ui.make_info_grid(self._filelist, "Files", 2), stretch=1)
 		main_layout.addWidget(self._btn_migrate)
 		main_layout.addStretch(1)
-
-	##################################################
-	def _init_files_layout(self, elements: dict[str, dict[str, QLabel]], title: str) -> QGridLayout:
-		"""Construit le layout de la liste des fichiers."""
-		grid = QGridLayout()
-		grid.setContentsMargins(0, 0, 0, 0)
-		grid.setHorizontalSpacing(self.COMMON_SPACE)
-		grid.setVerticalSpacing(self.COMMON_SPACE)
-
-		# Titre de colonne
-		title_lbl = QLabel(title)
-		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-		title_lbl.setStyleSheet("font-weight: 600;")
-		grid.addWidget(title_lbl, 0, 0, 1, 2)  # Titre
-		grid.addWidget(self.make_horizontal_separator(), 1, 0, 1, 2)  # Séparateur horizontal
-
-		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
-		grid.setColumnStretch(0, 0)  # label
-		grid.setColumnStretch(1, 1)  # value (s'étire)
-
-		row = 2
-		for key, item in elements.items():
-			lbl: QLabel = item["label"]
-			val: QLabel = item["value"]
-
-			# Alignements : gauche | droite
-			lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-			val.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-
-			grid.addWidget(lbl, row, 0)
-			grid.addWidget(val, row, 1)
-
-			row += 1
-
-		return grid
 
 	##################################################
 	def _connect_signals(self):
@@ -127,7 +90,7 @@ class FileMigratorWidget(StandAloneWidget):
 		folder = QFileDialog.getExistingDirectory(self, "Select folder", "")
 
 		if not folder:
-			print_warning("No folder selected.")
+			Ui.print_warning("No folder selected.")
 			return
 
 		# --- lecture du dossier ---
@@ -137,12 +100,11 @@ class FileMigratorWidget(StandAloneWidget):
 			self._fm.analyze()
 			self._update_filelist()
 		except Exception as e:
-			print_error(f"Unable to read the folder : {e}.")
+			Ui.print_error(f"Unable to read the folder : {e}.")
 			return
 
 		# --- mise à jour du label associé au bouton ---
-		self._lbl_load_folder.setText(folder.name)
-		self._lbl_load_folder.setToolTip(str(folder))
+		Ui.update_path_label(self._lbl_load_folder, folder)
 
 		print(f"Folder loaded successfully.")
 
@@ -152,14 +114,9 @@ class FileMigratorWidget(StandAloneWidget):
 		try:
 			self._fm.migrate()
 		except Exception as e:
-			print_error(f"Error during migration: {e}.")
+			Ui.print_error(f"Error during migration: {e}.")
 			return
-		print_success("Migration successfull.")
-
-
-	# ==================================================
-	# endregion Callbacks
-	# ==================================================
+		Ui.print_success("Migration successfull.")
 
 
 ##################################################

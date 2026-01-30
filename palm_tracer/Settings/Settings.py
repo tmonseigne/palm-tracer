@@ -14,7 +14,16 @@ from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional
 
-from palm_tracer.Settings.Groups import *
+from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.Batch import Batch
+from palm_tracer.Settings.Groups.Calibration import Calibration
+from palm_tracer.Settings.Groups.Localization import Localization
+from palm_tracer.Settings.Groups.Tracking import Tracking
+from palm_tracer.Settings.Groups.TracksCompute import TracksCompute
+from palm_tracer.Settings.Groups.Gallery import Gallery
+from palm_tracer.Settings.Groups.VisualizationHR import VisualizationHR
+from palm_tracer.Settings.Groups.VisualizationGraph import VisualizationGraph
+from palm_tracer.Settings.Groups.Filtering import Filtering
 
 
 ##################################################

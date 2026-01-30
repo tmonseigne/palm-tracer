@@ -27,23 +27,20 @@ class CheckBox(BaseSettingType):
 	"""
 
 	default: bool = False
-	"""Valeur par défaut du paramètre."""
 	value: bool = field(init=False, default=False)
-	"""Valeur actuelle du paramètre."""
-	box: QCheckBox = field(init=False, default_factory=QCheckBox)
-	"""Objet QT permettant de manipuler le paramètre."""
+	_box: QCheckBox = field(init=False)
 
 	##################################################
 	def get_value(self) -> bool:
-		if self.box.checkState() == Qt.CheckState.Unchecked: self.value = False
+		if self._box.checkState() == Qt.CheckState.Unchecked: self.value = False
 		else: self.value = True
 		return self.value
 
 	##################################################
 	def set_value(self, value: bool):
 		self.value = value
-		if value: self.box.setCheckState(Qt.CheckState.Checked)
-		else:     self.box.setCheckState(Qt.CheckState.Unchecked)
+		if value: self._box.setCheckState(Qt.CheckState.Checked)
+		else:     self._box.setCheckState(Qt.CheckState.Unchecked)
 
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
@@ -57,11 +54,12 @@ class CheckBox(BaseSettingType):
 
 	##################################################
 	def initialize(self):
-		super().initialize()		  # Appelle l'initialisation de la classe mère.
-		self.box = QCheckBox()		  # Création de la boite.
-		self.set_value(self.default)  # Définition de la valeur.
-		self.box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-		self.add_row(self.box)		  # Ajoute la check box au calque.
+		super().initialize()					   # Appelle l'initialisation de la classe mère.
+		self._box = QCheckBox()					   # Création de la boite.
+		self.set_value(self.default)			   # Définition de la valeur.
+		self._box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
+		self._layout.addWidget(self._box)		   # Ajout du champ de texte
+		self._layout.addStretch(1)				   # pousse tout à gauche, espace vide à droite
 
 	##################################################
 	def reset(self): self.set_value(self.default)

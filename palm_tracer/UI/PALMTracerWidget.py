@@ -21,9 +21,9 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, 
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import open_json, open_tif, print_warning, save_json
+from palm_tracer.Tools.FileIO import open_json, open_tif, save_json
+from palm_tracer.Tools import Ui
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
-from palm_tracer.UI.StandAloneWidget import StandAloneWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
@@ -73,11 +73,11 @@ class PALMTracerWidget(QWidget):
 	def _init_ui(self):
 		""" Initialisation de l'interface utilisateur du widget. """
 		# Base
-		self.setLayout(QVBoxLayout())
+		main_layout = QVBoxLayout(self)
+		Ui.init_layout(main_layout, 0, 0)
 		# -- Size policy / bornes --
 		self.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
 		self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-		self.setContentsMargins(0, 0, 0, 0)
 		self.setMinimumWidth(360)  # borne basse réaliste (à ajuster)
 		self.setMinimumHeight(220)
 
@@ -159,7 +159,7 @@ class PALMTracerWidget(QWidget):
 		et une largeur qui s'adapte à l'onglet.
 		"""
 		# Widget "conteneur" qui porte le layout réel
-		tab, layout = StandAloneWidget.make_tab()
+		tab, layout = Ui.make_tab()
 
 		for w in widgets:
 			layout.addWidget(w)
@@ -313,7 +313,7 @@ class PALMTracerWidget(QWidget):
 		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
 		if name in self.viewer.layers:
 			try: self.viewer.layers.remove(self.viewer.layers[name])
-			except Exception as e: print_warning(F"erreur lors de la suppression de l'ancien calque {name} : {e}")
+			except Exception as e: Ui.print_warning(F"erreur lors de la suppression de l'ancien calque {name} : {e}")
 
 	##################################################
 	def _reset_layer(self):
@@ -337,6 +337,8 @@ class PALMTracerWidget(QWidget):
 			raw_data = open_tif(selected_file)
 			self.viewer.add_image(raw_data, name="Raw")
 			show_info(f"Loaded {selected_file} into Napari viewer.")
+			# Mise à jour des filtres pour X,Y et planes
+			z, y, x = raw_data.shape
 		except Exception as e:
 			show_error(f"Error loading {selected_file}: {e}")
 

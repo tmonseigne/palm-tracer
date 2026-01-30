@@ -96,14 +96,14 @@ def test_create_setting_from_dict_fail(make_napari_viewer):
 ###################################################
 def test_spin_int(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = SpinInt("Test", 1, 0, 10, 1)
+	setting = SpinInt("Test", 1, [0, 10], 1)
 	setting_base_test(setting, 5, 1)
 
 
 ###################################################
 def test_spin_float(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = SpinFloat("Test", 1.0, 0.0, 10.0, 1.0)
+	setting = SpinFloat("Test", 1.0, [0.0, 10.0], 1.0)
 	setting_base_test(setting, 5.0, 1.0)
 
 
