@@ -44,7 +44,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 
 
 ###################################################
-def test_base_setting():
+def test_base_setting(make_napari_viewer):
 	"""Test basique de la classe abstraite"""
 	setting = BaseSettingType("Test")
 	with pytest.raises(NotImplementedError) as exception_info: setting.get_value()
@@ -59,6 +59,8 @@ def test_base_setting():
 	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
 	layout = setting.layout
 	assert layout is not None, "Le layout n'existe pas."
+	label_widget = setting.label_widget
+	assert label_widget is not None, "Le widget n'existe pas."
 
 
 ###################################################

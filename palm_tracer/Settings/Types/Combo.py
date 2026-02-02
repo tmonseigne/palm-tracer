@@ -33,6 +33,26 @@ class Combo(BaseSettingType):
 
 	_box: QComboBox = field(init=False)
 
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		super().initialize()  # .							Appelle l'initialisation de la classe mère.
+		self._box = QComboBox(None)  # 						Création de la boite.
+		self._box.addItems(self.items)  # 					Ajout des choix possibles.
+		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
+		self.set_value(self.default)  # 					Définition de la valeur.
+		self._layout.addWidget(self._box)  # 				Ajout du champ de texte
+		self._layout.addStretch(1)  # 						Pousse tout à gauche, espace vide à droite
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	def get_value(self) -> int:
 		self.value = self._box.currentIndex()
@@ -43,13 +63,13 @@ class Combo(BaseSettingType):
 		self.value = value
 		self._box.setCurrentIndex(value)
 
-	##################################################
-	def update_box(self, items: Optional[list[str]] = None):
-		"""Met à jour la ComboBox pour refléter la liste actuelle des options."""
-		self._box.clear()
-		if items is not None: self.items = items
-		self._box.addItems(self.items)
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
 
+	# ==================================================
+	# region  Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
@@ -62,15 +82,16 @@ class Combo(BaseSettingType):
 		self.update_box(data.get("items", [""]))
 		self.set_value(data.get("value", self.default))
 
-	##################################################
-	def initialize(self):
-		super().initialize()							  # Appelle l'initialisation de la classe mère.
-		self._box = QComboBox(None)						  # Création de la boite.
-		self._box.addItems(self.items)					  # Ajout des choix possibles.
-		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-		self.set_value(self.default)					  # Définition de la valeur.
-		self._layout.addWidget(self._box)				  # Ajout du champ de texte
-		self._layout.addStretch(1)						  # pousse tout à gauche, espace vide à droite
+	# ==================================================
+	# endregion  Parsing
+	# ==================================================
 
+	# ==================================================
+	# region  Callbacks
+	# ==================================================
 	##################################################
-	def reset(self): self.set_value(self.default)
+	def update_box(self, items: Optional[list[str]] = None):
+		"""Met à jour la ComboBox pour refléter la liste actuelle des options."""
+		self._box.clear()
+		if items is not None: self.items = items
+		self._box.addItems(self.items)

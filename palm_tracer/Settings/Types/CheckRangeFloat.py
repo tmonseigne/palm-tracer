@@ -5,7 +5,6 @@ Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSet
 from dataclasses import dataclass, field
 from typing import Any
 
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QDoubleSpinBox, QLabel
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
@@ -74,28 +73,8 @@ class CheckRangeFloat(BaseSettingType):
 		self._layout.addWidget(self._box[1])
 		self._layout.addStretch(1)  # pousse tout à gauche, espace vide à droite
 
-	##################################################
-	def reset(self): self.set_value(self.default)
-
 	# ==================================================
 	# endregion Initialization
-	# ==================================================
-
-	# ==================================================
-	# region Hide and Seek
-	# ==================================================
-	##################################################
-	def hide(self):
-		"""Cache les widgets."""
-		for b in self._box: b.hide()
-
-	##################################################
-	def show(self):
-		"""Affiche les widgets."""
-		for b in self._box: b.show()
-
-	# ==================================================
-	# endregion Hide and Seek
 	# ==================================================
 
 	# ==================================================
@@ -129,7 +108,30 @@ class CheckRangeFloat(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region  Hide and Seek
+	# ==================================================
+	##################################################
+	def hide(self):
+		"""Cache le paramètre."""
+		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, False)
+		else:  # fallback si pas attaché
+			self._label_widget.hide()
+			for b in self._box: b.hide()
+
+	##################################################
+	def show(self):
+		"""Affiche le paramètre."""
+		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, True)
+		else:  # fallback si pas attaché
+			self._label_widget.show()
+			for b in self._box: b.show()
+
+	# ==================================================
+	# endregion  Hide and Seek
+	# ==================================================
+
+	# ==================================================
+	# region  Parsing
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
@@ -157,7 +159,11 @@ class CheckRangeFloat(BaseSettingType):
 		self._active = bool(state)
 
 	# ==================================================
-	# endregion Parsing
+	# endregion  Parsing
+	# ==================================================
+
+	# ==================================================
+	# region  Callbacks
 	# ==================================================
 
 	##################################################

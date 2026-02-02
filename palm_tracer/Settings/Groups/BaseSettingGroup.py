@@ -13,12 +13,12 @@ from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 from palm_tracer.Settings.Types import BaseSettingType
 from palm_tracer.Tools import Ui
 
-if QT_API.startswith("pyqt"):  # pragma: no cover - dépend de l'environnement
-	from qtpy import sip	   # dispo quand le binding est PyQt
+if QT_API.startswith("pyqt"):  # . 	pragma: no cover - dépend de l'environnement
+	from qtpy import sip  # .		dispo quand le binding est PyQt
 
 	_IS_PYQT = True
-else:						   # pragma: no cover - dépend de l'environnement
-	import shiboken6		   # dispo quand le binding est PySide6
+else:  # .							pragma: no cover - dépend de l'environnement
+	import shiboken6  # .			dispo quand le binding est PySide6
 
 	_IS_PYQT = False
 
@@ -101,7 +101,7 @@ class BaseSettingGroup:
 		body.setContentsMargins(5, 0, 0, 0)  # Léger décalage.
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup): body.addRow(setting.widget)
-			else: body.addRow(setting.label, setting.layout)
+			else: setting.attach_to_form(body)
 
 		layout.addRow(self._body)
 
@@ -117,44 +117,6 @@ class BaseSettingGroup:
 
 	# ==================================================
 	# endregion Initialization
-	# ==================================================
-
-	# ==================================================
-	# region Signals
-	# ==================================================
-	##################################################
-	def connect(self, f: Any):
-		"""
-		Connecte une fonction ou un slot à tout les éléments du groupe.
-
-		:param f: Fonction ou slot à connecter.
-		"""
-		for _, setting in self._settings.items(): setting.connect(f)
-
-	##################################################
-	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
-		"""
-		Déconnecte une fonction ou un slot à tout les éléments du groupe.
-
-		:param f: Fonction ou slot à déconnecter.
-		:return: nombre de slots déconnectés
-		"""
-		for _, setting in self._settings.items(): setting.disconnect(f)
-
-	##################################################
-	def signal_blocked(self) -> AbstractContextManager[Any]:
-		"""
-		Blocage des signaux pour tout le groupe (récursif).
-		Retourne un context manager utilisable avec `with ...:`.
-		"""
-		if not self._settings: return nullcontext()
-
-		stack = ExitStack()
-		for setting in self._settings.values(): stack.enter_context(setting.signal_blocked())  # Chaque enfant doit lui-même retourner un context manager
-		return stack
-
-	# ==================================================
-	# endregion Signals
 	# ==================================================
 
 	# ==================================================
@@ -294,32 +256,32 @@ class BaseSettingGroup:
 			try:
 				if hdr.layout() is not None: hdr.layout().removeWidget(tit)  # Retirer le titre du layout
 				tit.setParent(None)
-				tit.deleteLater()											 # Détruire le titre
-			except RuntimeError: pass										 # si déjà retirée
+				tit.deleteLater()  # .										   Détruire le titre
+			except RuntimeError: pass  # .									   Si déjà retirée
 			self._title = None
 
 		# Suppression du header
 		if self.is_valid(hdr) and self.is_valid(self._widget):
 			try:
-				layout = self._widget.layout()		 # Récupérer le layout principal (QFormLayout)
-				if isinstance(layout, QFormLayout):  # pragma: no cover (toujours vrai)
+				layout = self._widget.layout()  # .		  Récupérer le layout principal (QFormLayout)
+				if isinstance(layout, QFormLayout):  # .  pragma: no cover (toujours vrai)
 					row = self._find_form_row_of_widget(layout, hdr)
-					if row >= 0: layout.removeRow(row)  # suppression sûre
+					if row >= 0: layout.removeRow(row)  # Suppression sûre
 				hdr.setParent(None)
-				hdr.deleteLater()					 # Détruire le header
-			except RuntimeError: pass				 # si déjà retirée
+				hdr.deleteLater()  # .					  Détruire le titre
+			except RuntimeError: pass  # .				  Si déjà retirée
 			self._header = None
 
 		# Suppression de la marge
-		body_layout = self._body.layout()													# Récupérer le layout du widget _body
-		if isinstance(body_layout, QFormLayout):body_layout.setContentsMargins(0, 0, 0, 0)  # pragma: no cover (toujours vrai, Aucune marge)
+		body_layout = self._body.layout()  # .												   Récupérer le layout du widget _body
+		if isinstance(body_layout, QFormLayout): body_layout.setContentsMargins(0, 0, 0, 0)  # pragma: no cover (toujours vrai, Aucune marge)
 
 	# ==================================================
 	# endregion Hide and Seek
 	# ==================================================
 
 	# ==================================================
-	# region IO
+	# region Parsing
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
@@ -360,3 +322,41 @@ class BaseSettingGroup:
 
 	##################################################
 	def __str__(self) -> str: return self.tostring()
+
+	# ==================================================
+	# endregion Parsing
+	# ==================================================
+
+	# ==================================================
+	# region Signals
+	# ==================================================
+	##################################################
+	def connect(self, f: Any):
+		"""
+		Connecte une fonction ou un slot à tout les éléments du groupe.
+
+		:param f: Fonction ou slot à connecter.
+		"""
+		for _, setting in self._settings.items(): setting.connect(f)
+
+	##################################################
+	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
+		"""
+		Déconnecte une fonction ou un slot à tout les éléments du groupe.
+
+		:param f: Fonction ou slot à déconnecter.
+		:return: nombre de slots déconnectés
+		"""
+		for _, setting in self._settings.items(): setting.disconnect(f)
+
+	##################################################
+	def signal_blocked(self) -> AbstractContextManager[Any]:
+		"""
+		Blocage des signaux pour tout le groupe (récursif).
+		Retourne un context manager utilisable avec `with ...:`.
+		"""
+		if not self._settings: return nullcontext()
+
+		stack = ExitStack()
+		for setting in self._settings.values(): stack.enter_context(setting.signal_blocked())  # Chaque enfant doit lui-même retourner un context manager
+		return stack

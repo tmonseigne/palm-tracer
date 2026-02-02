@@ -87,11 +87,14 @@ class SignalWrapper(QObject):
 		self._signal.emit(value)  # Émission du signal.
 
 	##################################################
-	# --- Gestion du blocage des signaux ---------------------------------------
+	# --- Gestion du blocage des signaux ---
 	class BlockCtx:
 		"""Contexte interne pour `with signal.blocked(): ...`."""
+
 		def __init__(self, owner: "SignalWrapper"): self._o = owner
+
 		def __enter__(self): self._o._block_begin()
+
 		def __exit__(self, exc_type, exc, tb): self._o._block_end()
 
 	def blocked(self) -> "BlockCtx":

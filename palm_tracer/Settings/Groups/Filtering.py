@@ -51,6 +51,6 @@ class Filtering(BaseSettingGroup):
 		self._settings["Save"].set_value(False)
 		self._settings["Plane"].active = False
 		fl = self._settings["Localization"]
-		if isinstance(fl, FilteringL) : fl.deactivate_filters()
+		if isinstance(fl, FilteringL): fl.deactivate_filters()
 		ft = self._settings["Tracks"]
-		if isinstance(ft, FilteringT) : ft.deactivate_filters()
+		if isinstance(ft, FilteringT): ft.deactivate_filters()

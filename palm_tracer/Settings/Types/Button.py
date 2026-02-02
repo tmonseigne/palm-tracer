@@ -25,12 +25,38 @@ class Button(BaseSettingType):
 
 	_box: QPushButton = field(init=False)
 
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		super().initialize()  # .			   Appelle l'initialisation de la classe mère.
+		self._box = QPushButton(self.label)  # Création de la boite.
+		self._layout.addWidget(self._box)  # . Ajout du champ de texte
+
+	##################################################
+	def reset(self): pass
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	def get_value(self) -> bool: return True
 
 	##################################################
 	def set_value(self, value: str): pass
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region  Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type": type(self).__name__, "label": self.label}
@@ -40,14 +66,12 @@ class Button(BaseSettingType):
 		self.label = data.get("label", "")
 		self._box.setText(self.label)
 
-	##################################################
-	def initialize(self):
-		super().initialize()				 # Appelle l'initialisation de la classe mère.
-		self._box = QPushButton(self.label)  # Création de la boite.
-		self._layout.addWidget(self._box)	 # Ajout du champ de texte
+	# ==================================================
+	# endregion  Parsing
+	# ==================================================
 
-	##################################################
-	def reset(self): pass
-
+	# ==================================================
+	# region  Callbacks
+	# ==================================================
 	##################################################
 	def connect(self, f: Any): self._box.clicked.connect(f)

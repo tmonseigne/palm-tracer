@@ -64,15 +64,15 @@ class Batch(BaseSettingGroup):
 		file_list = cast(FileList, self._settings["Files"])
 		files = file_list.get_list()
 		mode = self._settings["Mode"].get_value()
-		if not files: return res  # Aucun fichier dans le Batch
-		if mode == 0:  # Mode Only One
+		if not files: return res  # .					   Aucun fichier dans le Batch
+		if mode == 0:  # .								   Mode Only One
 			res.append(FileIO.open_tif(file_list.get_selected()))
-		else:  # Mode fichiers séparés ou concaténés
+		else:  # .										   Mode fichiers séparés ou concaténés
 			for file in files:
 				res.append(FileIO.open_tif(file))
-			if mode == 2:  # Mode fichiers Concaténés
+			if mode == 2:  # .							   Mode fichiers Concaténés
 				try:
-					res = [np.concatenate(res, axis=0)] # On concatène la liste des fichiers
+					res = [np.concatenate(res, axis=0)]  # On concatène la liste des fichiers
 				except ValueError as e:
 					Ui.print_warning(f"Error lors de la concatenation des piles (elles seront traité indépendamment):\nValueError: {e}")
 

@@ -30,6 +30,25 @@ class CheckBox(BaseSettingType):
 	value: bool = field(init=False, default=False)
 	_box: QCheckBox = field(init=False)
 
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
+		self._box = QCheckBox()  # .				 Création de la boite.
+		self.set_value(self.default)  # .			 Définition de la valeur.
+		self._box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
+		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte
+		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	def get_value(self) -> bool:
 		if self._box.checkState() == Qt.CheckState.Unchecked: self.value = False
@@ -42,6 +61,13 @@ class CheckBox(BaseSettingType):
 		if value: self._box.setCheckState(Qt.CheckState.Checked)
 		else:     self._box.setCheckState(Qt.CheckState.Unchecked)
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region  Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type": type(self).__name__, "label": self.label, "default": self.default, "value": self.value}
@@ -51,15 +77,3 @@ class CheckBox(BaseSettingType):
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
 		self.set_value(data.get("value", False))
-
-	##################################################
-	def initialize(self):
-		super().initialize()					   # Appelle l'initialisation de la classe mère.
-		self._box = QCheckBox()					   # Création de la boite.
-		self.set_value(self.default)			   # Définition de la valeur.
-		self._box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-		self._layout.addWidget(self._box)		   # Ajout du champ de texte
-		self._layout.addStretch(1)				   # pousse tout à gauche, espace vide à droite
-
-	##################################################
-	def reset(self): self.set_value(self.default)

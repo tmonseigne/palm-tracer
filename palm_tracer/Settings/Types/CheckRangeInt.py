@@ -5,7 +5,6 @@ Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSet
 from dataclasses import dataclass, field
 from typing import Any
 
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QLabel, QSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
@@ -58,7 +57,7 @@ class CheckRangeInt(BaseSettingType):
 		for i in range(2):
 			# Création de la boite.
 			self._box[i] = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], value=self.default[i], buttons=False)
-			self._box[i].valueChanged.connect(self.emit)   # Définition du comportement lors de la modification des valeurs
+			self._box[i].valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
 
 		self._box[0].valueChanged.connect(self.check_min)  # Définition du comportement lors de la modification des valeurs
 		self._box[1].valueChanged.connect(self.check_max)  # Définition du comportement lors de la modification des valeurs
@@ -70,28 +69,8 @@ class CheckRangeInt(BaseSettingType):
 		self._layout.addWidget(self._box[1])
 		self._layout.addStretch(1)  # pousse tout à gauche, espace vide à droite
 
-	##################################################
-	def reset(self): self.set_value(self.default)
-
 	# ==================================================
 	# endregion Initialization
-	# ==================================================
-
-	# ==================================================
-	# region Hide and Seek
-	# ==================================================
-	##################################################
-	def hide(self):
-		"""Cache les widgets."""
-		for b in self._box: b.hide()
-
-	##################################################
-	def show(self):
-		"""Affiche les widgets."""
-		for b in self._box: b.show()
-
-	# ==================================================
-	# endregion Hide and Seek
 	# ==================================================
 
 	# ==================================================
@@ -125,6 +104,23 @@ class CheckRangeInt(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
+	# region  Hide and Seek
+	# ==================================================
+	##################################################
+	def hide(self):
+		"""Cache les widgets."""
+		for b in self._box: b.hide()
+
+	##################################################
+	def show(self):
+		"""Affiche les widgets."""
+		for b in self._box: b.show()
+
+	# ==================================================
+	# endregion  Hide and Seek
+	# ==================================================
+
+	# ==================================================
 	# region Parsing
 	# ==================================================
 	##################################################
@@ -149,6 +145,9 @@ class CheckRangeInt(BaseSettingType):
 	# endregion Parsing
 	# ==================================================
 
+	# ==================================================
+	# region  Callbacks
+	# ==================================================
 	##################################################
 	def toggle_active(self, state: int):
 		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""

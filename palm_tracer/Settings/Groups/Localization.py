@@ -74,10 +74,9 @@ class Localization(BaseSettingGroup):
 		mode = s["Fit"]
 		gaussian_mode = s["Gaussian Fit Mode"]
 		# spline_sensor = s["Spline Fit Sensor"]
-		if mode == 0: return 0					  # Aucun ajustement
+		if mode == 0: return 0  # .					Aucun ajustement
 		elif mode == 1: return 1 + gaussian_mode  # Ajustement Gaussien
-		else: return 5							  # Ajustement Spline
-		# else: return 5 + spline_sensor		  # Ajustement Spline
+		else: return 5  # + spline_sensor 		  # Ajustement Spline
 
 	##################################################
 	def get_fit_params(self) -> np.ndarray:

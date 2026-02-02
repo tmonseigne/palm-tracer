@@ -41,6 +41,25 @@ class SpinFloat(BaseSettingType):
 
 	_box: QDoubleSpinBox = field(init=False)
 
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
+		self._box = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
+		self._box.valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
+		self.set_value(self.default)  # .			 Définition de la valeur.
+		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte
+		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	def get_value(self) -> float:
 		self.value = self._box.value()
@@ -51,6 +70,13 @@ class SpinFloat(BaseSettingType):
 		self.value = value
 		self._box.setValue(value)
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region  Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type":   type(self).__name__, "label": self.label, "default": self.default,
@@ -70,15 +96,3 @@ class SpinFloat(BaseSettingType):
 		self._box.setSingleStep(self.step)
 		self._box.setDecimals(self.precision)
 		self.set_value(data.get("value", self.default))
-
-	##################################################
-	def initialize(self):
-		super().initialize()					   # Appelle l'initialisation de la classe mère.
-		self._box = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
-		self._box.valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
-		self.set_value(self.default)			   # Définition de la valeur.
-		self._layout.addWidget(self._box)		   # Ajout du champ de texte
-		self._layout.addStretch(1)				   # pousse tout à gauche, espace vide à droite
-
-	##################################################
-	def reset(self): self.set_value(self.default)

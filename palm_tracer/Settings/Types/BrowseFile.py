@@ -31,6 +31,30 @@ class BrowseFile(BaseSettingType):
 	value: str = field(init=False, default="")
 	_box: QLineEdit = field(init=False)
 
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		super().initialize()  # .							  Appelle l'initialisation de la classe mère
+		self._box = QLineEdit()  # .						  Création de la boite.
+		self._box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
+
+		browse_button = QPushButton("Choisir un fichier")  # .Ajout d'un bouton pour permettre de choisir le fichier
+		browse_button.clicked.connect(self.browse_file)  # .  Connexion du bouton à la méthode de sélection
+
+		# Disposer le QLineEdit et le bouton dans un calque horizontal
+		self._layout.addWidget(self._box)  # .				  Ajout du champ de texte
+		self._layout.addWidget(browse_button)  # .			  Ajout du bouton de sélection
+		self._layout.addStretch(1)  # .						  Pousse tout à gauche, espace vide à droite
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	def get_value(self) -> str:
 		self.value = self._box.text()
@@ -41,6 +65,13 @@ class BrowseFile(BaseSettingType):
 		self.value = value
 		self._box.setText(value)
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region  Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type": type(self).__name__, "label": self.label, "value": self.value}
@@ -50,20 +81,13 @@ class BrowseFile(BaseSettingType):
 		self.label = data.get("label", "")
 		self.set_value(data.get("value", ""))
 
-	##################################################
-	def initialize(self):
-		super().initialize()								# Appelle l'initialisation de la classe mère
-		self._box = QLineEdit()								# Création de la boite.
-		self._box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
+	# ==================================================
+	# endregion  Parsing
+	# ==================================================
 
-		browse_button = QPushButton("Choisir un fichier")   # Ajout d'un bouton pour permettre de choisir le fichier
-		browse_button.clicked.connect(self.browse_file)		# Connexion du bouton à la méthode de sélection
-
-		# Disposer le QLineEdit et le bouton dans un calque horizontal
-		self._layout.addWidget(self._box)					# Ajout du champ de texte
-		self._layout.addWidget(browse_button)				# Ajout du bouton de sélection
-		self._layout.addStretch(1)							# pousse tout à gauche, espace vide à droite
-
+	# ==================================================
+	# region  Callbacks
+	# ==================================================
 	##################################################
 	def browse_file(self):
 		"""Ouvre un dialogue de sélection de fichier et met à jour la boîte avec le chemin sélectionné."""
@@ -73,6 +97,3 @@ class BrowseFile(BaseSettingType):
 		path, _ = QFileDialog.getOpenFileName(self._box, "Sélectionner un fichier", str(current))
 		if not path: return
 		if Path(path).is_file(): self._box.setText(path)  # Met à jour le chemin dans la boîte de texte
-
-	##################################################
-	def reset(self): self.set_value("")
