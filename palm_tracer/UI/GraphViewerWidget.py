@@ -188,7 +188,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
 		self._display_settings: dict[str, Any] = {
-				"MSD":     SpinInt("MSD Step", 1, [1, 10000], 1),
+				"MSD":     SpinInt("MSD Step", "", 1, [1, 10000], 1),
 				"Log":     QCheckBox("Use Log Scale"),
 				"Limits":  QCheckBox("Apply Limits"),
 				"Sigma":   QCheckBox("Show σ"),
@@ -198,7 +198,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 				}
 
 		# Sélection du Step pour MSD (dans la partie source)
-		form.addRow(self._display_settings["MSD"].layout)
+		cast(SpinInt, self._display_settings["MSD"]).attach_to_form(form)
 		self._display_settings["MSD"].hide()  # Masquage initial
 
 		# Appliquer limites + bouton info

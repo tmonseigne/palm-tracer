@@ -32,8 +32,8 @@ class Filtering(BaseSettingGroup):
 
 	label: str = "Filtering"
 	setting_list = {
-			"Save":         [CheckBox, ["Save filtered", False]],
-			"Plane":        [CheckRangeInt, ["Plane", [1, 100000], [1, 100000]]],
+			"Save":         [CheckBox, ["Save filtered", "", False]],
+			"Plane":        [CheckRangeInt, ["Plane", "", [1, 100000], [1, 100000]]],
 			"Localization": [FilteringL, []],
 			"Tracks":       [FilteringT, []]
 			}

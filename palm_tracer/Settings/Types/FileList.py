@@ -36,7 +36,7 @@ class FileList(BaseSettingType):
 	buttons: dict[str, QPushButton] = field(init=False)
 	""" Boutons d'action [+], [-], [clear]."""
 
-	_box: QComboBox = field(init=False)
+	_box: QComboBox = field(init=False, default_factory=lambda: QComboBox())
 
 	# ==================================================
 	# region Initialization
@@ -47,7 +47,6 @@ class FileList(BaseSettingType):
 		self._layout = QVBoxLayout()
 		Ui.init_layout(self._layout)
 
-		self._box = QComboBox(None)  # .					Création de la boite.
 		self.update_box()  # .								Ajout des choix possibles.
 		self.set_value(self.default)  # .					Définition de la valeur.
 		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement de selection

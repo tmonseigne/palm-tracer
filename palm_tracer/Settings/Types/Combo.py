@@ -31,7 +31,7 @@ class Combo(BaseSettingType):
 	items: list[str] = field(default_factory=lambda: [""])
 	"""Choix de la liste déroulante."""
 
-	_box: QComboBox = field(init=False)
+	_box: QComboBox = field(init=False, default_factory=lambda: QComboBox())
 
 	# ==================================================
 	# region Initialization
@@ -39,7 +39,6 @@ class Combo(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()  # .							Appelle l'initialisation de la classe mère.
-		self._box = QComboBox(None)  # 						Création de la boite.
 		self._box.addItems(self.items)  # 					Ajout des choix possibles.
 		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
 		self.set_value(self.default)  # 					Définition de la valeur.
@@ -92,6 +91,7 @@ class Combo(BaseSettingType):
 	##################################################
 	def update_box(self, items: Optional[list[str]] = None):
 		"""Met à jour la ComboBox pour refléter la liste actuelle des options."""
-		self._box.clear()
-		if items is not None: self.items = items
-		self._box.addItems(self.items)
+		with self.signal_blocked():
+			self._box.clear()
+			if items is not None: self.items = items
+			self._box.addItems(self.items)

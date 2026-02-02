@@ -27,8 +27,8 @@ class Batch(BaseSettingGroup):
 
 	label: str = "Batch"
 	setting_list = {
-			"Files": [FileList, ["Files", 0, []]],
-			"Mode":  [Combo, ["Mode", 0, ["Only one", "Each File separately", "All in One"]]],
+			"Files": [FileList, ["Files", "", 0, []]],
+			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]],
 			}
 
 	##################################################

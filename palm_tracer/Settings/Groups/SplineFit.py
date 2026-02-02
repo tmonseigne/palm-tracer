@@ -23,7 +23,7 @@ class SplineFit(BaseSettingGroup):
 
 	label: str = "Spline Fit"
 	setting_list = {
-			"Sensor":       [Combo, ["Sensor", 0, ["EMCCD", "sCMOS"]]],
-			"Variance Map": [BrowseFile, ["sCMOS Variance Map", ""]],
-			"File":         [BrowseFile, ["Calibration File", ""]],
+			"Sensor":       [Combo, ["Sensor", "", 0, ["EMCCD", "sCMOS"]]],
+			"Variance Map": [BrowseFile, ["sCMOS Variance Map", "", ""]],
+			"File":         [BrowseFile, ["Calibration File", "", ""]],
 			}

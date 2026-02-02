@@ -46,7 +46,6 @@ class SpinInt(BaseSettingType):
 		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
 		self._box = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
 		self._box.valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
-		self.set_value(self.default)  # .			 Définition de la valeur.
 		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte.
 		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite.
 

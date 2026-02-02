@@ -28,7 +28,7 @@ class CheckBox(BaseSettingType):
 
 	default: bool = False
 	value: bool = field(init=False, default=False)
-	_box: QCheckBox = field(init=False)
+	_box: QCheckBox = field(init=False, default_factory=lambda: QCheckBox())
 
 	# ==================================================
 	# region Initialization
@@ -36,7 +36,6 @@ class CheckBox(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
-		self._box = QCheckBox()  # .				 Création de la boite.
 		self.set_value(self.default)  # .			 Définition de la valeur.
 		self._box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
 		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte

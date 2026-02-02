@@ -29,7 +29,7 @@ class BrowseFile(BaseSettingType):
 
 	default: str = ""
 	value: str = field(init=False, default="")
-	_box: QLineEdit = field(init=False)
+	_box: QLineEdit = field(init=False, default_factory=lambda: QLineEdit())
 
 	# ==================================================
 	# region Initialization
@@ -37,7 +37,6 @@ class BrowseFile(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()  # .							  Appelle l'initialisation de la classe mère
-		self._box = QLineEdit()  # .						  Création de la boite.
 		self._box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
 
 		browse_button = QPushButton("Choisir un fichier")  # .Ajout d'un bouton pour permettre de choisir le fichier

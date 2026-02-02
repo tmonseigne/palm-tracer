@@ -68,23 +68,23 @@ class ViewerHRWidget(QWidget):
 		layout.addWidget(btn)
 
 		# Spinbox taille des points
-		self.size_spin = SpinFloat("Point Size", 1, [0.1, 10], 0.1, 1)
-		layout.addRow(self.size_spin.layout)
+		self.size_spin = SpinFloat("Point Size", "", 1, [0.1, 10], 0.1, 1)
+		self.size_spin.attach_to_form(layout)
 
 		# Spinbox facteur d'agrandissement
-		self.upscale_spin = SpinInt("Upscale Ratio", 4, [1, 100], 2)
-		layout.addRow(self.upscale_spin.layout)
+		self.upscale_spin = SpinInt("Upscale Ratio", "", 4, [1, 100], 2)
+		self.upscale_spin.attach_to_form(layout)
 
 		# Combo box pour la source
-		self.type_cmb = Combo("Visualization Type", 0, ["Localization", "Tracks"])
+		self.type_cmb = Combo("Visualization Type", "", 0, ["Localization", "Tracks"])
+		self.type_cmb.attach_to_form(layout)
 		self.type_cmb.connect(self.update_source)
-		layout.addRow(self.type_cmb.layout)
 
 		self.source_cmb = Combo("Color Source")
-		layout.addRow(self.source_cmb.layout)
+		self.source_cmb.attach_to_form(layout)
 
-		self.color_cmb = Combo("PNG Color Map", 0, ["grayscale", "viridis", "magma", "plasma", "inferno", "cividis", "turbo"])
-		layout.addRow(self.color_cmb.layout)
+		self.color_cmb = Combo("PNG Color Map", "", 0, ["grayscale", "viridis", "magma", "plasma", "inferno", "cividis", "turbo"])
+		self.color_cmb.attach_to_form(layout)
 
 		btn_generate = QPushButton("Generate")
 		btn_generate.clicked.connect(self.generate)

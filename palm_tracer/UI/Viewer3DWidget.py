@@ -66,23 +66,23 @@ class Viewer3DWidget(QWidget):
 		layout.addWidget(btn)
 
 		# Spinbox taille des points
-		self.size_spin = SpinFloat("Point Size", 0.5, [0.1, 10], 0.1, 1)
+		self.size_spin = SpinFloat("Point Size", "", 0.5, [0.1, 10], 0.1, 1)
+		self.size_spin.attach_to_form(layout)
 		self.size_spin.connect(self.update_layer)
-		layout.addRow(self.size_spin.layout)
 
 		# Spinbox échelle Z
-		self.xy_scale_spin = SpinFloat("XY Scale", 1.0, [0.0, 1000], 1.0, 1)
+		self.xy_scale_spin = SpinFloat("XY Scale", "", 1.0, [0.0, 1000], 1.0, 1)
+		self.xy_scale_spin.attach_to_form(layout)
 		self.xy_scale_spin.connect(self.update_layer)
-		layout.addRow(self.xy_scale_spin.layout)
 
 		# Spinbox échelle Z
-		self.z_scale_spin = SpinFloat("Z Scale", 1.0, [0.0, 1000], 1.0, 1)
+		self.z_scale_spin = SpinFloat("Z Scale", "", 1.0, [0.0, 1000], 1.0, 1)
+		self.z_scale_spin.attach_to_form(layout)
 		self.z_scale_spin.connect(self.update_layer)
-		layout.addRow(self.z_scale_spin.layout)
 
-		self.outliers = CheckBox("Remove Outliers", False)
+		self.outliers = CheckBox("Remove Outliers", "", False)
+		self.outliers.attach_to_form(layout)
 		self.outliers.connect(self.update_layer)
-		layout.addRow(self.outliers.layout)
 
 	##################################################
 	def load_csv(self):

@@ -37,6 +37,8 @@ class BaseSettingType:
 
 	label: str = ""
 	"""Nom du paramètre à afficher."""
+	tooltip: str = ""
+	"""Affichage détaillé en overlay."""
 	default: Any = None
 	"""Valeur par défaut du paramètre."""
 	value: Any = None
@@ -44,9 +46,9 @@ class BaseSettingType:
 
 	_layout: QHBoxLayout | QVBoxLayout = field(init=False)
 	"""Calque principal."""
-	_box: QWidget = field(init=False)
+	_box: QWidget = field(init=False, default_factory=lambda: QWidget())
 	"""Objet QT permettant de manipuler le paramètre."""
-	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	_signal: SignalWrapper = field(init=False, default_factory=lambda: SignalWrapper())
 	"""Signal permettant de communiquer avec l'interface."""
 
 	# Elements additionnel pour le Hide and Seek
@@ -69,6 +71,7 @@ class BaseSettingType:
 	def initialize(self):
 		"""Initialise le paramètre."""
 		self._label_widget = QLabel(self.label)
+		if self.tooltip: self._label_widget.setToolTip(self.tooltip)
 		self._layout = QHBoxLayout()
 		Ui.init_layout(self._layout, 0, 0)
 

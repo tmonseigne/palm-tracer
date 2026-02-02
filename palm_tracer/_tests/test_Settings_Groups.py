@@ -196,10 +196,11 @@ def test_gallery(make_napari_viewer):
 ###################################################
 def test_visualization_hr(make_napari_viewer):
 	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(VisualizationHR(), ["Ratio", "Type", "Source L", "Source T"], SpinInt, 1, 2)
 	g = VisualizationHR()
+	group_base_test(g, ["Ratio", "Type", "Source L", "Source T"], SpinInt, 1, 2)
 	g["Type"].set_value(1)  # Afficher/masquer les sources
 	g["Type"].set_value(0)  # Afficher/masquer les sources
+	g["Type"].set_value(2)  # Impossible mais prévu
 
 
 ###################################################
@@ -211,19 +212,25 @@ def test_visualization_graph(make_napari_viewer):
 ###################################################
 def test_filtering(make_napari_viewer):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	group_base_test(Filtering(), ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
+	g = Filtering()
+	group_base_test(g, ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
+	g.deactivate_filters()
 
 
 ###################################################
-def test_filtering_gl(make_napari_viewer):
+def test_filtering_l(make_napari_viewer):
 	"""Test basique de la classe FilteringL (constructeur, getter, setter)"""
-	group_base_test(FilteringL(), ["X", "Y", "Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [0, 100000])
+	g = FilteringL()
+	group_base_test(g, ["X", "Y", "Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [0, 100000])
+	g.deactivate_filters()
 
 
 ###################################################
 def test_filtering_t(make_napari_viewer):
 	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
-	group_base_test(FilteringT(), ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
+	g = FilteringT()
+	group_base_test(g, ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
+	g.deactivate_filters()
 
 
 ###################################################

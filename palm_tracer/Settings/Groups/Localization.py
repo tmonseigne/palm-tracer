@@ -34,13 +34,13 @@ class Localization(BaseSettingGroup):
 
 	label: str = "Localization"
 	setting_list = {
-			"Preview":        [CheckBox, ["Preview", False]],
-			"Threshold":      [SpinFloat, ["Threshold", 90.0, [0.0, 1000], 1.0, 2]],
-			"Auto Threshold": [Button, ["Auto Threshold"]],
-			"ROI Shape":      [Combo, ["ROI Shape", 0, ["Circle", "Square"]]],
-			"ROI Size":       [SpinInt, ["ROI Size", 7, [3, 50], 1]],
-			"Watershed":      [CheckBox, ["Watershed", True]],
-			"Fit":            [Combo, ["Fit", 0, ["Nothing", "Gaussian Fit", "Spline"]]],
+			"Preview":        [CheckBox, ["Preview", "", False]],
+			"Threshold":      [SpinFloat, ["Threshold", "", 90.0, [0.0, 1000], 1.0, 2]],
+			"Auto Threshold": [Button, ["Auto Threshold", ""]],
+			"ROI Shape":      [Combo, ["ROI Shape", "", 0, ["Circle", "Square"]]],
+			"ROI Size":       [SpinInt, ["ROI Size", "", 7, [3, 50], 1]],
+			"Watershed":      [CheckBox, ["Watershed", "", True]],
+			"Fit":            [Combo, ["Fit", "", 0, ["Nothing", "Gaussian Fit", "Spline"]]],
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}

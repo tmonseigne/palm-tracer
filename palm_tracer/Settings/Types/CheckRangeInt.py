@@ -90,6 +90,16 @@ class CheckRangeInt(BaseSettingType):
 		self.toggle_active(1 if value else 0)
 
 	##################################################
+	@property
+	def box(self) -> list[QSpinBox]:
+		"""
+		Retourne l'objet QT principal associé à ce paramètre.
+
+		:return: Le :class:`QWidget` associé à ce paramètre.
+		"""
+		return self._box
+
+	##################################################
 	def get_value(self) -> list[int]:
 		for i in range(2): self.value[i] = self._box[i].value()
 		return self.value

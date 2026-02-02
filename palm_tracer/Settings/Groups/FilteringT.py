@@ -36,12 +36,12 @@ class FilteringT(BaseSettingGroup):
 
 	label: str = "Tracks"
 	setting_list = {
-			"Length":      [CheckRangeInt, ["Length", [1, 10000], [1, 100000]]],
-			"Instant D":   [CheckRangeFloat, ["Instant D", [-5, 5], [-10, 10]]],
-			"D Coeff":     [CheckRangeFloat, ["D Coeff (μm²/s)", [-5, 5], [-10, 10]]],
-			"Alpha":       [CheckRangeFloat, ["Alpha (Power)", [-10, 10], [-100, 100]]],
-			"Speed":       [CheckRangeFloat, ["Speed (µm/s)", [0, 1], [0, 100]]],
-			"Confinement": [CheckRangeFloat, ["Confinement (µm)", [-10, 10], [-100, 100]]]
+			"Length":      [CheckRangeInt, ["Length", "", [1, 10000], [1, 100000]]],
+			"Instant D":   [CheckRangeFloat, ["Instant D", "", [-5, 5], [-10, 10]]],
+			"D Coeff":     [CheckRangeFloat, ["D Coeff (μm²/s)", "", [-5, 5], [-10, 10]]],
+			"Alpha":       [CheckRangeFloat, ["Alpha (Power)", "", [-10, 10], [-100, 100]]],
+			"Speed":       [CheckRangeFloat, ["Speed (µm/s)", "", [0, 1], [0, 100]]],
+			"Confinement": [CheckRangeFloat, ["Confinement (µm)", "", [-10, 10], [-100, 100]]]
 			}
 
 	##################################################
