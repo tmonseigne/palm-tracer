@@ -87,23 +87,23 @@ def test_batch_get_path(make_napari_viewer):
 
 	path = batch.get_paths()
 	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
-	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
+	assert path[0] == str(Path("output/File 1_PALM_Tracer")), "Le nom du dossier ne correspond pas."
 
 	file_list.set_value(1)
 	path = batch.get_paths()
 	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
-	assert path[0] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
+	assert path[0] == str(Path("output/File 2_PALM_Tracer")), "Le nom du dossier ne correspond pas."
 
 	batch["Mode"].set_value(1)
 	path = batch.get_paths()
 	assert len(path) == 2, "Il devrait y avoir deux dossiers."
-	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
-	assert path[1] == "output/File 2_PALM_Tracer", "Le nom du dossier ne correspond pas."
+	assert path[0] == str(Path("output/File 1_PALM_Tracer")), "Le nom du dossier ne correspond pas."
+	assert path[1] == str(Path("output/File 2_PALM_Tracer")), "Le nom du dossier ne correspond pas."
 
 	batch["Mode"].set_value(2)
 	path = batch.get_paths()
 	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
-	assert path[0] == "output/File 1_PALM_Tracer", "Le nom du dossier ne correspond pas."
+	assert path[0] == str(Path("output/File 1_PALM_Tracer")), "Le nom du dossier ne correspond pas."
 
 
 ###################################################

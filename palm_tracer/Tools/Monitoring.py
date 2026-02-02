@@ -26,6 +26,7 @@ import re
 import threading
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, List
 
 import plotly.express as px  # Pour accéder aux couleurs qualitatives
@@ -332,7 +333,7 @@ class Monitoring:
 	# endregion IO
 	# ==================================================
 	##################################################
-	def save(self, filename: str, full_html: bool = False):
+	def save(self, filename: str | Path, full_html: bool = False):
 		"""
 		Sauvegarde les données de monitoring dans un fichier spécifié en fonction de l'extension du fichier.
 
@@ -356,7 +357,8 @@ class Monitoring:
 		:param full_html: Option pour l'enregistrement html permettant de ne sauver que le div
 		"""
 		try:
-			_, extension = os.path.splitext(filename)
+			path = Path(filename)
+			extension = path.suffix
 			if extension in [".png", ".jpg", ".jpeg", ".bmp", ".svg"]:
 				Ui.print_warning("Kaleido doesn't work so well need update. No Image Saved.")
 			# self._figure.write_image(filename, width=1280, height=720, scale=1, engine="kaleido")

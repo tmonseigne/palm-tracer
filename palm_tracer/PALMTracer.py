@@ -6,8 +6,8 @@ Module contenant les fonctions de traitement de PALM.
 	filtre ensuite lors de la visualisation des graph et des sauvegarde si la case est coché...
 """
 
-import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import cast, Optional
 
 import numpy as np
@@ -190,7 +190,7 @@ class PALMTracer:
 			# Reset result Dataframes
 			self.reset_result()
 			# Logger
-			os.makedirs(self._path, exist_ok=True)
+			Path(self._path).mkdir(parents=True, exist_ok=True)
 			self._suffix = FileIO.get_timestamp_for_files()
 			self._logger.open(f"{self._path}/log-{self._suffix}.log")
 			self._logger.add("Commencer le traitement.")
@@ -406,13 +406,13 @@ class PALMTracer:
 
 		# Récupération / calcul du Fit (1 ligne par Track) s'il manque
 		fit = self.tracks_compute["Fit"]
-		if fit.empty:						  # Vide (non calculé)
+		if fit.empty:  # .						Vide (non calculé)
 			self._logger.add("\t\tCalcul sur les trajectoires à effectuer pour définir une couleur lors de la visualisation.")
 			# On active le fit lineaire si aucun n'est sélectionné.
 			if self.settings.tracks_compute["Fit"].get_value() == 0: self.settings.tracks_compute["Fit"].set_value(1)
-			self._tracks_compute()			  # On lance le calcul
+			self._tracks_compute()  # .			On lance le calcul
 			fit = self.tracks_compute["Fit"]  # On reaffecte le resultat
-		if fit.empty:						  # Toujours vide (erreur de calcul ou autre, on prend le numéro des trajectoires par défaut)
+		if fit.empty:  # .						Toujours vide (erreur de calcul ou autre, on prend le numéro des trajectoires par défaut)
 			res = res.assign(Color=((res["Track"] - 1) % MAX_UI_16 + 1).astype("UInt16"))
 			return res
 
@@ -603,9 +603,9 @@ class PALMTracer:
 		f = cast(FilteringT, self.settings.filtering["Tracks"])
 		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
 			limits = f["Length"].get_value()
-			counts = res.groupby("Track").size()									# Comptage par trajectoire
+			counts = res.groupby("Track").size()  # Comptage par trajectoire
 			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
-			res = res[res["Track"].isin(keep_ids)]									# Filtrage (on garde l'ordre original)
+			res = res[res["Track"].isin(keep_ids)]  # Filtrage (on garde l'ordre original)
 		return res
 
 	##################################################
@@ -641,16 +641,16 @@ class PALMTracer:
 		if isinstance(f["Instant D"], CheckRangeFloat) and f["Instant D"].active and not o_ind.empty:
 			limits_d = f["Instant D"].get_value()
 
-			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]					   # Restreindre aux trajectoires admissibles jusqu'ici
+			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]  # .					 Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_ind.empty:
-				val_cols = [c for c in o_ind.columns if c != "Track"]		   # colonnes de valeurs = toutes sauf 'Track'
+				val_cols = [c for c in o_ind.columns if c != "Track"]  # .		 Colonnes de valeurs = toutes sauf 'Track'
 				vals = o_ind[val_cols]
-				vals_np = vals.to_numpy(dtype=float)						   # Convertir en numpy pour un contrôle fin
-				finite = np.isfinite(vals_np)								   # masque des valeurs finies (ni NaN, ni ±inf)
-				outside = (vals_np <= limits_d[0]) | (vals_np >= limits_d[1])  # valeurs hors bornes (sur le numpy brut)
-				outside &= finite											   # On ne compte les "outside" que là où c'est vraiment une valeur finie
-				n_valid, n_out = finite.sum(axis=1), outside.sum(axis=1)	   # nombre de valeurs valides/hors bornes par ligne
-				pct_out_np = np.zeros_like(n_out, dtype=float)				   # pourcentage hors bornes (évite la division par 0 avec where=)
+				vals_np = vals.to_numpy(dtype=float)  # .						 Convertir en numpy pour un contrôle fin
+				finite = np.isfinite(vals_np)  # .								 Masque des valeurs finies (ni NaN, ni ±inf)
+				outside = (vals_np <= limits_d[0]) | (vals_np >= limits_d[1])  # Valeurs hors bornes (sur le numpy brut)
+				outside &= finite  # .											 On ne compte les "outside" que là où c'est vraiment une valeur finie
+				n_valid, n_out = finite.sum(axis=1), outside.sum(axis=1)  # .	 Nombre de valeurs valides/hors bornes par ligne
+				pct_out_np = np.zeros_like(n_out, dtype=float)  # .				 Pourcentage hors bornes (évite la division par 0 avec where=)
 				np.divide(n_out, n_valid, out=pct_out_np, where=n_valid > 0)
 				pct_out = pd.Series(pct_out_np * 100.0, index=o_ind.index)
 

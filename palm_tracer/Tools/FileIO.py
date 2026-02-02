@@ -5,9 +5,7 @@ Ce module regroupe diverses fonctions pour la gestion et la manipulation de fich
 """
 
 import ctypes
-import glob
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, Optional
@@ -37,7 +35,7 @@ def add_extension(filename: str, extension: str) -> str:
 	:param extension: Extension finale du fichier
 	"""
 	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
-	if not filename.endswith(extension): filename += extension  # Si le fichier n'a pas déjà l'extension, on l'ajoute
+	if not filename.endswith(extension): filename += extension  # .	 Si le fichier n'a pas déjà l'extension, on l'ajoute
 	return filename
 
 
@@ -66,11 +64,11 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 	:return: Horodatage.
 	"""
 	if with_hour: return datetime.now().strftime("%Y%m%d_%H%M%S")  # Formater la date et l'heure
-	return datetime.now().strftime("%Y%m%d")					   # Formater la date
+	return datetime.now().strftime("%Y%m%d")  # .					 Formater la date
 
 
 ##################################################
-def get_last_file(path: str, name: str, sort_mode: Literal["time", "alpha"] = "alpha") -> str:
+def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha"] = "alpha") -> str:
 	"""
 	Récupère le dernier fichier (le plus récent) qui contient le paramètre `name` dans son nom dans le chemin `path`.
 
@@ -80,19 +78,20 @@ def get_last_file(path: str, name: str, sort_mode: Literal["time", "alpha"] = "a
 	:return: Chemin complet du dernier fichier trouvé ou une chaîne vide si aucun fichier ne correspond.
 	"""
 	try:
-		search_pattern = os.path.join(path, f"*{name}*")		   # Générer le chemin avec le filtre pour les fichiers contenant `name`
-		files = glob.glob(search_pattern)						   # Récupérer tous les fichiers correspondant au motif
-		if not files: return ""									   # Aucun fichier trouvé
-		if sort_mode == "mtime": files.sort(key=os.path.getmtime)  # Trier les fichiers par date de modification décroissante
-		elif sort_mode == "alpha": files.sort()					   # Trier les fichiers par ordre alphabétique.
-		return files[-1]										   # Retourner le fichier le plus récent
+		folder = Path(path)
+		if not folder.is_dir(): return ""  # .									   Ce n'est pas un dossier
+		files = [p for p in folder.iterdir() if p.is_file() and name in p.name]  # Récupérer tous les fichiers contenant le nom
+		if not files: return ""  # .											   Aucun fichier trouvé
+		if sort_mode == "time": files.sort(key=lambda p: p.stat().st_mtime)  # .   Trier les fichiers par date de modification décroissante
+		else: files.sort(key=lambda p: p.name)  # .								   Trier les fichiers par ordre alphabétique.
+		return str(files[-1])  # .												   Retourner le dernier fichier de la liste (le plus récent)
 	except Exception as e:
 		print(f"Erreur lors de la recherche du fichier : {e}")
 		return ""
 
 
 ##################################################
-def extract_suffix(filename: str, separator: str = "-") -> str:
+def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 	"""
 	Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurence en cas de présence multiple).
 
@@ -100,8 +99,8 @@ def extract_suffix(filename: str, separator: str = "-") -> str:
 	:param separator: Séparateur avant le suffixe
 	:return: Suffixe si le séparateur est présent sinon une chaine vide
 	"""
-	base, _ = os.path.splitext(os.path.basename(filename))
-	parts = base.rsplit(separator, 1)
+	stem = Path(filename).stem
+	parts = stem.rsplit(separator, 1)
 	return parts[1] if len(parts) == 2 else ""
 
 
@@ -124,26 +123,29 @@ def load_dll(name: str) -> Optional[ctypes.CDLL]:
 # region JSON IO
 # ==================================================
 ##################################################
-def save_json(filename: str, data: dict[str, Any]):
+def save_json(filename: str | Path, data: dict[str, Any]):
 	"""
 	Enregistre un dictionnaire au format JSON.
 
 	:param filename: Chemin du fichier JSON de sortie.
 	:param data: Données à enregistrer.
 	"""
-	with open(filename, "w", encoding="utf-8") as file: json.dump(data, file, indent=4, ensure_ascii=False)
+	path = Path(filename)
+	path.parent.mkdir(parents=True, exist_ok=True) # Au cas où, création des dossiers et sous-dossiers
+	path.write_text(json.dumps(data, indent=4, ensure_ascii=False), encoding="utf-8")
 
 
 ##################################################
-def open_json(filename: str) -> dict[str, Any]:
+def open_json(filename: str | Path) -> dict[str, Any]:
 	"""
 	Ouvre un fichier JSON et récupère le dictionnaire.
 
 	:param filename: Chemin du fichier JSON d'entrée.
 	:return: Dictionnaire contenu dans le JSON.
 	"""
-	if not os.path.isfile(filename): raise OSError(f"Le fichier \"{filename}\" est introuvable.")
-	with open(filename, "r", encoding="utf-8") as file: return json.load(file)
+	path = Path(filename)
+	if not path.is_file(): raise OSError(f'Le fichier "{path}" est introuvable.')
+	return json.loads(path.read_text(encoding="utf-8"))
 
 
 # ==================================================
@@ -163,14 +165,14 @@ def save_tif(stack: np.ndarray, filename: str):
 				  - Si 3D (frames x hauteur x largeur), sauvegarde les frames en multi-frame.
 	:param filename: Nom du fichier TIF de sortie.
 	"""
-	if stack.ndim == 2: stack = stack[np.newaxis, ...]		 # Si le tableau est 2D, le transformer en 3D avec une seule frame
+	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # Si le tableau est 2D, le transformer en 3D avec une seule frame
 	if stack.ndim != 3: raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
-	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)   # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
+	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
 	tiff.imwrite(filename, stack, photometric="minisblack")  # Sauvegarde la pile avec tifffile
 
 
 ##################################################
-def open_tif(filename: str) -> np.ndarray:
+def open_tif(filename: str | Path) -> np.ndarray:
 	"""
 	Ouvre un fichier TIF en tant que pile 3D (frames x hauteur x largeur).
 	Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D.
@@ -182,10 +184,9 @@ def open_tif(filename: str) -> np.ndarray:
 		Attention les données doivent rester telle quelle pour le transfert à la DLL.
 		Aucun cast en float ne doit être fait.
 	"""
-	if not os.path.isfile(filename): raise OSError(f"Le fichier \"{filename}\" est introuvable.")
-	stack = tiff.imread(filename)  # Lecture du fichier avec tifffile
-	# return np.asarray(stack, dtype=np.float32)  # Assurer que le type est np.float32
-	return stack
+	path = Path(filename)
+	if not path.is_file(): raise OSError(f'Le fichier "{path}" est introuvable.')
+	return tiff.imread(str(path))
 
 
 # ==================================================
@@ -196,7 +197,7 @@ def open_tif(filename: str) -> np.ndarray:
 # region PNG IO
 # ==================================================
 ##################################################
-def save_png(image: np.ndarray, filename: str, normalization: bool = True):
+def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True):
 	"""
 	Sauvegarde un tableau 2D dans un fichier PNG avec Pillow.
 
@@ -211,8 +212,8 @@ def save_png(image: np.ndarray, filename: str, normalization: bool = True):
 		else: image = np.zeros_like(image, dtype=np.uint8)  # Cas d'une image uniforme
 
 	image = image.clip(0, 255).astype(np.uint8)  # Conversion en entiers 8 bits
-	im = Image.fromarray(image)					 # Passage par Pillow
-	im.save(filename)							 # Enregistrement
+	im = Image.fromarray(image)  # Passage par Pillow
+	im.save(filename)  # Enregistrement
 
 
 ##################################################
@@ -254,22 +255,22 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 # region Matlab File IO
 # ==================================================
 ##################################################
-def open_calibration_mat(filename: str) -> dict[str, Any]:
+def open_calibration_mat(filename: str | Path) -> dict[str, Any]:
 	"""
 	Charge un fichier de calibration matlab.
 
 	:param filename: Nom du fichier mat en entrée.
 	:return: Dictionnaire contennant les éléments utiles
 	"""
-	if not os.path.isfile(filename): raise OSError(f"Le fichier de calibration \"{filename}\" est introuvable.")
-	calibration = io.loadmat(filename)
-	cspline = calibration["SXY"]["cspline"][0, 0]				 # Elements de cspline
-	coeff = cspline["coeff"][0][0][0][0]						 # Coefficients de la Spline
-	if isinstance(coeff, (list, tuple)): coeff = coeff[0]		 # les coefficients peuvent être dans un sous-groupe
-	return {"dz":    cspline["dz"][0][0][0][0],					 # Pas sur Z
+	path = Path(filename)
+	if not path.is_file(): raise OSError(f'Le fichier de calibration "{path}" est introuvable.')
+
+	calibration = io.loadmat(str(path))
+	cspline = calibration["SXY"]["cspline"][0, 0]  # .			   Élément cspline
+	coeff = cspline["coeff"][0][0][0][0]  # .					   Coefficients de la spline
+	if isinstance(coeff, (list, tuple)): coeff = coeff[0]  # .	   Parfois dans un sous-groupe
+
+	return {
+			"dz":    cspline["dz"][0][0][0][0],
 			"coeff": np.asfortranarray(coeff, dtype=np.float64)  # Passage en column major et en double
 			}
-
-# ==================================================
-# region Matlab File IO
-# ==================================================
