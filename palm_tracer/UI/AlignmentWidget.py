@@ -252,12 +252,6 @@ def open_alignment():  # pragma: no cover
 	_windows.append(widget)  # éviter que Python le détruise en le stockant
 
 
-#	Stub minimal pour napari (c'est moche il créé un widget vide, je prefere laisser sans rien avec un Warning)
-#	stub = QWidget()
-#	stub.hide()
-#	return stub
-
-
 ##################################################
 if __name__ == "__main__":  # pragma: no cover
 	import sys

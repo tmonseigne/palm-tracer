@@ -89,8 +89,8 @@ class FileMigrator:
 		"""
 		if self.input_folder == Path(): raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
 
-		for key in self.files: self.files[key].clear()								# Reset propre (évite d'empiler d'anciennes analyses).
-		old_name_to_key = {link.old: key for key, link in self.FILES_LINK.items()}  # index inversé : ancien nom -> clé logique
+		for key in self.files: self.files[key].clear()  # .							  Reset propre (évite d'empiler d'anciennes analyses).
+		old_name_to_key = {link.old: key for key, link in self.FILES_LINK.items()}  # Index inversé : ancien nom -> clé logique
 
 		# Parcours non récursif : uniquement les fichiers présents à la racine du dossier PT
 		for p in self.input_folder.iterdir():
@@ -251,7 +251,7 @@ class FileMigrator:
 		else:
 			file = self.files["MSD"][0]
 			data, header = self.open_old_irregular_file(file, skiprows=2)
-			data = data.iloc[:, 1:].copy()																	  # Suppression de la colonne ROI
+			data = data.iloc[:, 1:].copy()  # .																	Suppression de la colonne ROI
 			data.columns = ["Track"] + [f"{FILES_COLUMNS['MSD']['columns'][1]} {i}" for i in range(1, data.shape[1])]
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['MSD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("MSD file migrated.")
@@ -275,9 +275,9 @@ class FileMigrator:
 		else:
 			file = self.files["InD"][0]
 			data, header = self.open_old_irregular_file(file, skiprows=2)
-			data = data.iloc[:, 1:].copy()  # Suppression de la colonne ROI
+			data = data.iloc[:, 1:].copy()  # .																	Suppression de la colonne ROI
 			data.columns = ["Track"] + [f"{FILES_COLUMNS['Instant Diffusion']['columns'][1]} {i}" for i in range(1, data.shape[1])]  # Renommage
-			data.to_csv(self.output_folder / f"{self.FILES_LINK['InD'].new}-{self.suffix}.csv", index=False)						 # Enregistrement
+			data.to_csv(self.output_folder / f"{self.FILES_LINK['InD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("Instant Diffusion file migrated.")
 
 	##################################################
@@ -305,15 +305,15 @@ class FileMigrator:
 		else:
 			file = self.files["Fit"][0]
 			data, header = self.open_old_file(file, header=True, skiprows=3)
-			data.iloc[:, 0] = -1  # la colonne ROI n'est plus utilisé mais sera remplacé par la colonne length (à -1)
+			data.iloc[:, 0] = -1  # La colonne ROI n'est plus utilisé mais sera remplacé par la colonne length (à -1)
 			cols = list(data.columns)
 			ncols = len(cols)
-			cols[0], cols[1] = cols[1], cols[0]																  # switch les noms de colonnes ROI et Trace
-			data = data[cols]																				  # Change l'ordre des colonnes
+			cols[0], cols[1] = cols[1], cols[0]  #																Switch les noms de colonnes ROI et Trace
+			data = data[cols]  # .																				Change l'ordre des colonnes
 			cols = FILES_COLUMNS["Fit"]["columns"].copy()
 			fit_mode = 1 if ncols == 9 else 2 if ncols == 10 else 3
 			cols += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
-			data.columns = cols																				  # remplacer les noms de colonnes
+			data.columns = cols  # .																			Remplacer les noms de colonnes
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['Fit'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("Fit file migrated.")
 
@@ -410,10 +410,10 @@ class FileMigrator:
 		:return: Nom de la nouvelle colonne
 		"""
 		# Nettoyage du nom de la colonne
-		s = name.strip().lower()		   # Changement de casse
-		s = s.replace("_", "")			   # Remplacement des underscores
-		s = re.sub(r"\(.*?\)", "", s)	   # supprime tout ce qui est entre parenthèses
-		s = re.sub(r"\s+", "", s).strip()  # remplacement des espaces
+		s = name.strip().lower()  # .		 Changement de casse
+		s = s.replace("_", "")  # .			 Remplacement des underscores
+		s = re.sub(r"\(.*?\)", "", s)  # .	 Supprime tout ce qui est entre parenthèses
+		s = re.sub(r"\s+", "", s).strip()  # Remplacement des espaces
 
 		if s in ("mse", "msegauss", "msegaussian"): return "MSE XY"
 		if s in ("angle", "anglerad", "angle(rad)"): return "Theta"

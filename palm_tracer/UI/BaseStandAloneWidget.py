@@ -41,7 +41,9 @@ class BaseStandAloneWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _make_web_widget(self):
-		"""Créé un Widget pour integrer plotly
+		"""
+		Créé un Widget pour integrer plotly
+
 		:return: QWebEngineView ou QTextBrowser si indisponible
 		"""
 		# Zone droite : QWebEngineView avec Plotly
@@ -55,6 +57,7 @@ class BaseStandAloneWidget(QWidget):
 	def _update_web_widget(self, web: QWebEngineView | QTextBrowser, fig: go.Figure, config: dict[str, Any] | None = None):
 		"""
 		Créé un Widget pour integrer plotly
+
 		:return: :class:`QWebEngineView` ou :class:`QTextBrowser` si indisponible
 		"""
 		if config is None: config = Ui.CONFIG_PLOTLY
@@ -74,10 +77,7 @@ class BaseStandAloneWidget(QWidget):
 
 	##################################################
 	def _on_download_requested(self, download):
-		"""
-		Intercepte le téléchargement Plotly (Save image) pour demander
-		explicitement où enregistrer le fichier.
-		"""
+		"""Intercepte le téléchargement Plotly (Save image) pour demander explicitement où enregistrer le fichier."""
 		path, _ = QFileDialog.getSaveFileName(self, "Enregistrer l'image", str(self._download_initial_path()), "Images (*.png)")
 
 		if not path:
@@ -92,7 +92,7 @@ class BaseStandAloneWidget(QWidget):
 
 	##################################################
 	def _download_initial_path(self) -> Path:
-		""" Renvoie un chemin initial pour le téléchargement par plotly. à Définir dans les classes filles."""
+		"""Renvoie un chemin initial pour le téléchargement par plotly. à Définir dans les classes filles."""
 		return Path.cwd() / "image"
 
 	# ==================================================

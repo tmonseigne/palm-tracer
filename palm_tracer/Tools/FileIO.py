@@ -131,7 +131,7 @@ def save_json(filename: str | Path, data: dict[str, Any]):
 	:param data: Données à enregistrer.
 	"""
 	path = Path(filename)
-	path.parent.mkdir(parents=True, exist_ok=True) # Au cas où, création des dossiers et sous-dossiers
+	path.parent.mkdir(parents=True, exist_ok=True)  # Au cas où, création des dossiers et sous-dossiers
 	path.write_text(json.dumps(data, indent=4, ensure_ascii=False), encoding="utf-8")
 
 
@@ -165,9 +165,9 @@ def save_tif(stack: np.ndarray, filename: str):
 				  - Si 3D (frames x hauteur x largeur), sauvegarde les frames en multi-frame.
 	:param filename: Nom du fichier TIF de sortie.
 	"""
-	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # Si le tableau est 2D, le transformer en 3D avec une seule frame
+	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # .	   Si le tableau est 2D, le transformer en 3D avec une seule frame
 	if stack.ndim != 3: raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
-	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
+	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # .S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
 	tiff.imwrite(filename, stack, photometric="minisblack")  # Sauvegarde la pile avec tifffile
 
 
@@ -212,8 +212,8 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 		else: image = np.zeros_like(image, dtype=np.uint8)  # Cas d'une image uniforme
 
 	image = image.clip(0, 255).astype(np.uint8)  # Conversion en entiers 8 bits
-	im = Image.fromarray(image)  # Passage par Pillow
-	im.save(filename)  # Enregistrement
+	im = Image.fromarray(image)  # .			   Passage par Pillow
+	im.save(filename)  # .						   Enregistrement
 
 
 ##################################################

@@ -525,7 +525,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 	##################################################
 	def get_plot_data(self) -> tuple[np.ndarray, str]:
-		""" Récupère et prépare les données pour l'affichage."""
+		"""Récupère et prépare les données pour l'affichage."""
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
 		log_scale = self._display_settings["Log"].isChecked()

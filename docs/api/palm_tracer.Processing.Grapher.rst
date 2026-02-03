@@ -1,4 +1,4 @@
 Processing.Grapher
 =================================
 
-.. automodule:: palm_tracer.Processing.Grapher
+.. autoclass:: palm_tracer.Processing.Grapher

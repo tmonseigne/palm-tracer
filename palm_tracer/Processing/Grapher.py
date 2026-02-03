@@ -1,4 +1,4 @@
-""" Fichier contenant une classe pour Créé des graphiques. """
+"""Fichier contenant une classe pour Créé des graphiques."""
 
 from dataclasses import dataclass
 from typing import Optional
@@ -84,7 +84,7 @@ class Grapher:
 		:return: ``go.Figure``
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
-			if data.shape[0] == 2: _, x = data[0, :], data[1, :]	 # (2, N) -> lignes = (x, y)
+			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
 			elif data.shape[1] == 2:  _, x = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: x = np.asarray(data).ravel()
 		else: x = np.asarray(data).ravel()
@@ -129,8 +129,8 @@ class Grapher:
 		# Mu et Sigmas
 		if show_sigma and x.size > 1 and sigma > 0:
 			fig.add_vline(x=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_vline(x=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # -1σ
-			fig.add_vline(x=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # +1σ
+			fig.add_vline(x=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
+			fig.add_vline(x=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
 			fig.add_vline(x=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
 			fig.add_vline(x=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
 			fig.add_vline(x=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
@@ -165,7 +165,7 @@ class Grapher:
 			y = data[np.isfinite(data)]
 			x = np.arange(y.size, dtype=float)
 		elif data.ndim == 2:
-			if data.shape[0] == 2: x, y = data[0, :], data[1, :]	 # (2, N) -> lignes = (x, y)
+			if data.shape[0] == 2: x, y = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
 			elif data.shape[1] == 2:  x, y = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: raise ValueError("data 2D doit avoir 2 lignes ou 2 colonnes (x,y).")
 			mask = np.isfinite(x) & np.isfinite(y)
@@ -187,8 +187,8 @@ class Grapher:
 		# Mu et Sigmas
 		if show_sigma and x.size > 1 and sigma > 0:
 			fig.add_hline(y=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_hline(y=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")	  # -1σ
-			fig.add_hline(y=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")	  # +1σ
+			fig.add_hline(y=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
+			fig.add_hline(y=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
 			fig.add_hline(y=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
 			fig.add_hline(y=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
 			fig.add_hline(y=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
@@ -251,7 +251,7 @@ class Grapher:
 		"""
 		n_values = len(data)
 		# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
-		bins = int(np.ceil(np.log2(n_values) + 1))   # Règle de Sturges
+		bins = int(np.ceil(np.log2(n_values) + 1))  # .Règle de Sturges
 		return max(limits[0], min(bins, limits[1]))  # Bornes pour éviter des valeurs extrêmes
 
 	##################################################
@@ -266,8 +266,8 @@ class Grapher:
 		"""
 		mu, sigma = float(np.mean(data)), float(np.std(data))
 		if limit and sigma > 0:
-			limits = [mu - 3 * sigma, mu + 3 * sigma]						 # Limite théoriques des datas
-			data = data[(data >= limits[0]) & (data <= limits[1])]			 # Suppression des datas au dela des limites
+			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .					   Limite théoriques des datas
+			data = data[(data >= limits[0]) & (data <= limits[1])]  # .		   Suppression des datas au dela des limites
 			limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
 		else:
 			limits = [min(data), max(data)]

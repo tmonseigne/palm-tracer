@@ -28,7 +28,7 @@ MAX_UI_16 = np.iinfo(np.uint16).max
 ##################################################
 @dataclass
 class PALMTracer:
-	""" Classe principale de PALM Tracer. """
+	"""Classe principale de PALM Tracer."""
 
 	settings: Settings = field(init=False, default_factory=Settings)
 	"""Classe principale des paramètres PALMTracer."""
@@ -66,12 +66,12 @@ class PALMTracer:
 
 	##################################################
 	def get_localization_key(self) -> str:
-		"""Clé de la localisation (filtrée si elle est non vide) """
+		"""Clé de la localisation (filtrée si elle est non vide)"""
 		return "loc" if self.df["f_loc"].empty else "f_loc"
 
 	##################################################
 	def get_tracks_key(self) -> str:
-		"""Clé des trajectoires (filtrée si elle est non vide) et reconnecté si elle est non vide également. """
+		"""Clé des trajectoires (filtrée si elle est non vide) et reconnecté si elle est non vide également."""
 		if self.df["f_blk"].empty:
 			if self.df["blk"].empty:
 				if self.df["f_trc"].empty:
@@ -82,7 +82,7 @@ class PALMTracer:
 
 	##################################################
 	def get_tracks_compute_key(self) -> list[str]:
-		"""Clé des calculs sur trajectoires (filtrés si non vide). """
+		"""Clé des calculs sur trajectoires (filtrés si non vide)."""
 		if self.df["f_MSD"].empty and self.df["f_InD"].empty and self.df["f_Fit"].empty:
 			return ["MSD", "InD", "Fit"]
 		return ["f_MSD", "f_InD", "f_Fit"]
@@ -90,19 +90,19 @@ class PALMTracer:
 	##################################################
 	@property
 	def localizations(self) -> pd.DataFrame:
-		"""Getter de la localisation (filtrée si elle est non vide) """
+		"""Getter de la localisation (filtrée si elle est non vide)"""
 		return self.df[self.get_localization_key()]
 
 	##################################################
 	@property
 	def tracks(self) -> pd.DataFrame:
-		"""Getter des trajectoires (filtrée si elle est non vide) et reconnecté si elle est non vide également. """
+		"""Getter des trajectoires (filtrée si elle est non vide) et reconnecté si elle est non vide également."""
 		return self.df[self.get_tracks_key()]
 
 	##################################################
 	@property
 	def tracks_compute(self) -> dict[str, pd.DataFrame]:
-		"""Getter des calculs sur trajectoires (filtrés si non vide). """
+		"""Getter des calculs sur trajectoires (filtrés si non vide)."""
 		keys = self.get_tracks_compute_key()
 		return {"MSD": self.df[keys[0]], "InD": self.df[keys[1]], "Fit": self.df[keys[2]]}
 
@@ -291,7 +291,7 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def _localization(self):
-		""" Lance la localisation à partir des settings passés en paramètres. """
+		"""Lance la localisation à partir des settings passés en paramètres."""
 		# Parse settings
 		s = self.settings.localization.get_settings()
 		filters = self.settings.filtering
@@ -311,7 +311,7 @@ class PALMTracer:
 
 	##################################################
 	def _tracking(self):
-		""" Lance le tracking à partir des settings passés en paramètres. """
+		"""Lance le tracking à partir des settings passés en paramètres."""
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
 		if df.empty:
 			self._logger.add("\tAucune donnée de localisation calculée, aucun calcul supplémentaire ne peut être effectué.")
@@ -342,7 +342,7 @@ class PALMTracer:
 
 	##################################################
 	def _tracks_compute(self):
-		""" Lance le tracking à partir des settings passés en paramètres. """
+		"""Lance le tracking à partir des settings passés en paramètres."""
 		df = self.tracks  # Récupère automatiquement le "bon" dataframe (blinking et filtré ou non)
 		if df.empty:
 			self._logger.add("\tAucune donnée de tracking calculée, aucun calcul supplémentaire ne peut être effectué.")
@@ -443,7 +443,7 @@ class PALMTracer:
 
 	##################################################
 	def _visualization_hr(self):
-		""" Lance la creation d'une visualisation haute résolution à partir des settings passés en paramètres. """
+		"""Lance la creation d'une visualisation haute résolution à partir des settings passés en paramètres."""
 		# Parse settings
 		s = self.settings.visualization_hr.get_settings()
 
@@ -473,7 +473,7 @@ class PALMTracer:
 
 	##################################################
 	def _visualization_graph(self):
-		""" Lance la creation d'une visualisation graphique à partir des settings passés en paramètres. """
+		"""Lance la creation d'une visualisation graphique à partir des settings passés en paramètres."""
 		if self.localizations.empty:
 			self._logger.add(f"\tAucune donnée de localisation pour la visualisation de graphiques.")
 			return
@@ -503,7 +503,7 @@ class PALMTracer:
 
 	##################################################
 	def _gallery(self):
-		""" Lance la génération d'une galerie à partir des settings passés en paramètres. """
+		"""Lance la génération d'une galerie à partir des settings passés en paramètres."""
 		s = self.settings.gallery.get_settings()
 		if self.localizations.empty:
 			self._logger.add(f"\tAucune donnée de localisation pour la génération d'une galerie.")
@@ -521,7 +521,7 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def _filter_localizations(self):
-		""" Filtre le fichier de localisation. """
+		"""Filtre le fichier de localisation."""
 		n_init = len(self.df["loc"])
 		self.df["f_loc"] = self.filter_localizations(self.df["loc"])
 		n_end = len(self.df["f_loc"])
@@ -533,7 +533,7 @@ class PALMTracer:
 
 	##################################################
 	def _filter_tracks(self, name: str, suffix: str = ""):
-		""" Filtre le fichier de tracking. """
+		"""Filtre le fichier de tracking."""
 		n_init = len(self.df[name])
 		o_name = f"f_{name}"
 		self.df[o_name] = self.filter_tracks(self.df[name])
@@ -546,7 +546,7 @@ class PALMTracer:
 
 	##################################################
 	def _filter_tracks_compute(self):
-		""" Filtre les fichiers de metrique. """
+		"""Filtre les fichiers de metrique."""
 		n_init = len(self.df["MSD"])
 		o_name = self.get_tracks_key()
 		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
@@ -600,12 +600,12 @@ class PALMTracer:
 		"""
 		res = datas.copy()
 		if res.empty: return res
-		f = cast(FilteringT, self.settings.filtering["Tracks"])
-		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
-			limits = f["Length"].get_value()
-			counts = res.groupby("Track").size()  # Comptage par trajectoire
+		f = cast(CheckRangeInt, cast(FilteringT, self.settings.filtering["Tracks"])["Length"])  # Linter passage
+		if f.active:
+			limits = f.get_value()
+			counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
 			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
-			res = res[res["Track"].isin(keep_ids)]  # Filtrage (on garde l'ordre original)
+			res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
 		return res
 
 	##################################################
@@ -631,15 +631,17 @@ class PALMTracer:
 		# ----- Base : tous les IDs présents dans la référence -----
 		keep_ids: set = set(o_trc["Track"].unique().tolist())
 		# ----- Filtre Longueur -----
-		if isinstance(f["Length"], CheckRangeInt) and f["Length"].active:
-			limits_l = f["Length"].get_value()
+		f_tmp = cast(CheckRangeInt, f["Length"])
+		if f_tmp.active:
+			limits_l = f_tmp.get_value()
 			counts = o_trc.groupby("Track").size()
 			ok_len_ids = set(counts.index[(limits_l[0] <= counts) & (counts <= limits_l[1])].tolist())
 			keep_ids &= ok_len_ids  # intersection sur des sets d'IDs
 
 		# ----- Filtre sur Instant D -----
-		if isinstance(f["Instant D"], CheckRangeFloat) and f["Instant D"].active and not o_ind.empty:
-			limits_d = f["Instant D"].get_value()
+		f_tmp = cast(CheckRangeInt, f["Instant D"])
+		if f_tmp.active and not o_ind.empty:
+			limits_d = f_tmp.get_value()
 
 			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]  # .					 Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_ind.empty:

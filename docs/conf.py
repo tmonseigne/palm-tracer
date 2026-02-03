@@ -1,4 +1,4 @@
-""" Configuration file for the Sphinx documentation builder. """
+"""Configuration file for the Sphinx documentation builder."""
 
 # -- Gestion des fichiers à ajouter ------------------------------------------
 
@@ -71,10 +71,11 @@ html_context = {"allow_html_in_rst": True}
 
 autosummary_generate = True
 autodoc_default_options = {
-		"members":          True,
-		"private-members":  True,
-		"undoc-members":    True,
-		"show-inheritance": True,
+		"members":           True,
+		"private-members":   True,
+		"undoc-members":     True,
+		"show-inheritance":  True,
+		# "inherited-members": True, # A éviter sur l'ensemble de l'API pour les élément héritant de l'API QT...
 		}
 autodoc_member_order = "bysource"
 add_module_names = False

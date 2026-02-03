@@ -200,7 +200,7 @@ class BaseSettingGroup:
 	##################################################
 	@staticmethod
 	def is_valid(obj: object):
-		"""Vérifie qu'un objet est toujours valide et non supprimé. """
+		"""Vérifie qu'un objet est toujours valide et non supprimé."""
 		return obj is not None and ((_IS_PYQT and not sip.isdeleted(obj)) or (not _IS_PYQT and shiboken6.isValid(obj)))
 
 	##################################################
@@ -232,7 +232,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def always_active(self):
-		""" Active toujours le groupe et supprime la checkbox de l'interface. """
+		"""Active toujours le groupe et supprime la checkbox de l'interface."""
 		# Appeler la méthode active pour forcer l'état actif
 		self.active = True
 		# Supprimer la checkbox et réorganiser le layout
@@ -247,7 +247,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def remove_header(self):
-		""" Active toujours le groupe et supprime la partie header de l'interface. """
+		"""Active toujours le groupe et supprime la partie header de l'interface."""
 		self.always_active()
 		# Suppression du titre
 		tit = getattr(self, "_title", None)
@@ -255,7 +255,7 @@ class BaseSettingGroup:
 		if self.is_valid(hdr) and self.is_valid(tit):
 			try:
 				if hdr.layout() is not None: hdr.layout().removeWidget(tit)  # Retirer le titre du layout
-				tit.setParent(None)
+				tit.setParent(None)  # .									   Supprime la parenté
 				tit.deleteLater()  # .										   Détruire le titre
 			except RuntimeError: pass  # .									   Si déjà retirée
 			self._title = None
@@ -263,18 +263,17 @@ class BaseSettingGroup:
 		# Suppression du header
 		if self.is_valid(hdr) and self.is_valid(self._widget):
 			try:
-				layout = self._widget.layout()  # .		  Récupérer le layout principal (QFormLayout)
-				if isinstance(layout, QFormLayout):  # .  pragma: no cover (toujours vrai)
-					row = self._find_form_row_of_widget(layout, hdr)
-					if row >= 0: layout.removeRow(row)  # Suppression sûre
-				hdr.setParent(None)
-				hdr.deleteLater()  # .					  Détruire le titre
-			except RuntimeError: pass  # .				  Si déjà retirée
+				layout = cast(QFormLayout, self._widget.layout())  # .		   Récupérer le layout principal (QFormLayout)
+				row = self._find_form_row_of_widget(layout, hdr)  # .		   Récupération de la ligne
+				if row >= 0: layout.removeRow(row)  # .						   Suppression sûre
+				hdr.setParent(None)  # .									   Supprime la parenté
+				hdr.deleteLater()  # .										   Détruire le titre
+			except RuntimeError: pass  # .									   Si déjà retirée
 			self._header = None
 
 		# Suppression de la marge
-		body_layout = self._body.layout()  # .												   Récupérer le layout du widget _body
-		if isinstance(body_layout, QFormLayout): body_layout.setContentsMargins(0, 0, 0, 0)  # pragma: no cover (toujours vrai, Aucune marge)
+		body_layout = cast(QFormLayout, self._body.layout())  # .			   Récupérer le layout du widget _body
+		body_layout.setContentsMargins(0, 0, 0, 0)
 
 	# ==================================================
 	# endregion Hide and Seek
@@ -299,7 +298,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
-		""" Met à jour la classe à partir d'un dictionnaire."""
+		"""Met à jour la classe à partir d'un dictionnaire."""
 		self.label = data.get("label", self.label)
 		self.active = data.get("active", False)
 		settings = data["settings"]

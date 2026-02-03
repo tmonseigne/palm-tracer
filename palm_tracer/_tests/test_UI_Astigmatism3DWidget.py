@@ -1,4 +1,4 @@
-""" Fichier des tests pour le widget. """
+"""Fichier des tests pour le widget."""
 import shutil
 
 import pytest

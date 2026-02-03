@@ -1,4 +1,4 @@
-""" Fichier permettant de transformer un rapport Pytest JSON en reStructuredText pour sphinx """
+"""Fichier permettant de transformer un rapport Pytest JSON en reStructuredText pour sphinx"""
 
 import datetime
 import json
@@ -238,7 +238,7 @@ def get_outcome_icon(outcome: str) -> str:
 # ==================================================
 ##################################################
 def usage():
-	""" Affiche l'usage du script en ligne de commande. """
+	"""Affiche l'usage du script en ligne de commande."""
 	print("Usage:\n"
 		  "  python pytest_json_to_rst.py <REPORT_FILE> <OUTPUT_FILE>\n"
 		  "  Args:\n"

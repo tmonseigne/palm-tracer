@@ -39,11 +39,11 @@ class Combo(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()  # .							Appelle l'initialisation de la classe mère.
-		self._box.addItems(self.items)  # 					Ajout des choix possibles.
+		self._box.addItems(self.items)  # .					Ajout des choix possibles.
 		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-		self.set_value(self.default)  # 					Définition de la valeur.
-		self._layout.addWidget(self._box)  # 				Ajout du champ de texte
-		self._layout.addStretch(1)  # 						Pousse tout à gauche, espace vide à droite
+		self.set_value(self.default)  # .					Définition de la valeur.
+		self._layout.addWidget(self._box)  # .				Ajout du champ de texte
+		self._layout.addStretch(1)  # .						Pousse tout à gauche, espace vide à droite
 
 	# ==================================================
 	# endregion Initialization

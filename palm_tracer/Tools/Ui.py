@@ -1,4 +1,18 @@
-"""Fichier de fonctions génériques pour la gestion des interfaces Utilisateurs QT et l'affichage console"""
+"""
+Fonctions utilitaires génériques pour la construction d'interfaces utilisateur Qt et l'affichage console coloré.
+
+Ce module regroupe :
+	- des helpers pour créer et configurer rapidement des layouts Qt cohérents (onglets, groupes, formulaires, séparateurs, spinbox, etc.) ;
+	- des fonctions de synchronisation de widgets (callbacks) ;
+	- des fonctions d'affichage console coloré (erreurs, warnings, succès) ;
+	- quelques utilitaires généraux liés à l'IHM.
+
+L'objectif est d'assurer :
+	- une ergonomie homogène sur l'ensemble des interfaces ;
+	- une réduction du boilerplate Qt ;
+	- une meilleure lisibilité et maintenabilité du code UI.
+"""
+
 from pathlib import Path
 from typing import Any
 
@@ -127,10 +141,10 @@ def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: 
 	Crée et configure un :class:`QFormLayout` pour des paramètres.
 
 	Configuration appliquée :
-	- labels alignés à droite et centrés verticalement ;
-	- formulaire ancré en haut à gauche ;
-	- espacements horizontaux/verticaux adaptés à une UI de réglages ;
-	- politique de croissance des champs : les widgets de droite restent à leur *sizeHint* (évite qu'ils s'étirent jusqu'au bord droit).
+		- labels alignés à droite et centrés verticalement ;
+		- formulaire ancré en haut à gauche ;
+		- espacements horizontaux/verticaux adaptés à une UI de réglages ;
+		- politique de croissance des champs : les widgets de droite restent à leur *sizeHint* (évite qu'ils s'étirent jusqu'au bord droit).
 
 	:param parent: Parent Qt du layout (peut être ``None`` si défini plus tard).
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
@@ -150,15 +164,26 @@ def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: 
 def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, size: int = 2, parent: QWidget | None = None,
 				   space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> QGridLayout:
 	"""
-	Construit une colonne (titre + lignes) sous forme de QGridLayout.
+	Construit une colonne d'informations structurée sous forme de :class:`QGridLayout`.
+
+	La grille est composée de : un titre de section (ligne 0), un séparateur horizontal, plusieurs lignes ``label / value`` (et éventuellement ``unit``).
+
+	La colonne ``value`` est extensible afin de conserver un alignement propre, tandis que les labels et unités gardent leur taille naturelle.
 
 	:param elements:
-	:param title:
-	:param size:
-	:param parent:
-	:param space:
-	:param margin:
-	:return:
+		Dictionnaire décrivant les lignes à afficher.
+		Chaque entrée doit contenir :
+
+			- ``"label"`` : :class:`QLabel` (libellé) ;
+			- ``"value"`` : :class:`QLabel` (valeur associée) ;
+			- optionnellement ``"unit"`` : :class:`QLabel` (unité) si ``size == 3`` ;
+			- optionnellement ``"tips"`` : ``str`` (tooltip appliqué au label).
+	:param title: Titre de la colonne affichée en haut de la grille.
+	:param size: Nombre de colonnes : ``2`` → ``label | value``, ``3`` → ``label | value | unit``.
+	:param parent: Parent Qt du layout (optionnel).
+	:param space: Espacement interne entre les éléments (en pixels).
+	:param margin: Marges du layout (en pixels).
+	:return: Le :class:`QGridLayout` configuré.
 	"""
 	layout = QGridLayout(parent)
 	init_layout(layout, space, margin)
@@ -202,10 +227,13 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 ##################################################
 def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 	"""
+	Crée un :class:`QLabel` stylisé pour afficher un chemin ou un nom de fichier.
 
-	:param value:
-	:param parent:
-	:return:
+	Le label utilise un style visuel discret (texte grisé et italique), adapté à l'affichage d'informations secondaires.
+
+	:param value: Texte initial affiché (généralement un nom de fichier).
+	:param parent: Parent Qt du label.
+	:return: Le :class:`QLabel` configuré.
 	"""
 	lbl = QLabel(value, parent)
 	lbl.setStyleSheet(STYLESHEET_INFO)
@@ -215,9 +243,12 @@ def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 ##################################################
 def update_path_label(lbl: QLabel, path: Path):
 	"""
+	Met à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
 
-	:param lbl:
-	:param path:
+	Le texte visible correspond uniquement au ``name`` du fichier/dossier, le chemin complet est placé dans le tooltip.
+
+	:param lbl: Label à mettre à jour.
+	:param path: Chemin à afficher.
 	"""
 	lbl.setText(path.name)
 	lbl.setToolTip(str(path))
@@ -257,15 +288,24 @@ def make_horizontal_separator(color: str = "#B0B0B0") -> QFrame:
 def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: int | float = 1,
 			  step: int | float = 1, value: int | float = 0, decimals: int = 0, buttons: bool = True) -> QDoubleSpinBox | QSpinBox:
 	"""
+	Crée une :class:`QSpinBox` ou :class:`QDoubleSpinBox` configurée de manière compacte.
 
-	:param parent:
-	:param minimum:
-	:param maximum:
-	:param step:
-	:param value:
-	:param decimals:
-	:param buttons:
-	:return:
+	Le type de spinbox est choisi automatiquement : :class:`QSpinBox` si ``decimals <= 0``, :class:`QDoubleSpinBox` sinon.
+
+	Configuration appliquée :
+		- suppression des marges et paddings inutiles ;
+		- alignement centré du texte ;
+		- largeur ajustée dynamiquement en fonction du range et du nombre de décimales ;
+		- possibilité de masquer les boutons d'incrément.
+
+	:param parent: Parent Qt du widget.
+	:param minimum: Valeur minimale autorisée.
+	:param maximum: Valeur maximale autorisée.
+	:param step: Pas d'incrément.
+	:param value: Valeur initiale.
+	:param decimals: Nombre de décimales (si > 0 → spinbox flottante).
+	:param buttons: Affiche ou non les boutons up/down.
+	:return: La spinbox configurée (:class:`QSpinBox` ou :class:`QDoubleSpinBox`).
 	"""
 	if decimals <= 0:
 		spin = QSpinBox(parent, minimum=minimum, maximum=maximum, singleStep=step, value=value)
@@ -285,9 +325,12 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 ##################################################
 def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 	"""
-	Ajuste la largeur du widget :class:`QSpinBox` (ou :class:`QDoubleSpinBox`) au nombre de caractères affichables.
+	Ajuste la largeur fixe d'une spinbox en fonction du contenu affichable.
 
-	:param spin:
+	La largeur est estimée à partir du nombre maximal de caractères nécessaires (valeur max, signe, décimales) et de la métrique de police du widget.
+	Cela permet d'éviter les widgets trop larges et de garantir que toutes les valeurs restent visibles sans troncature.
+
+	:param spin: Spinbox à ajuster.
 	"""
 	# ---- estimation du nombre de caractères ----
 	min_val, max_val = spin.minimum(), spin.maximum()
@@ -315,11 +358,13 @@ def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 	"""
 	Synchronise une spinbox avec la valeur envoyé (par signal).
+
 	On bloque les signaux le temps de la mise à jour pour éviter les appels en série.
 
-	s'utilise comme ceci :
-		spin_1.valueChanged.connect(lambda v: Utils.sync_spin(spin_2, v))
-		spin_2.valueChanged.connect(lambda v: Utils.sync_spin(spin_1, v))
+	Exemple d'utilisation ::
+
+	    spin_1.valueChanged.connect(lambda v: sync_spin(spin_2, v))
+	    spin_2.valueChanged.connect(lambda v: sync_spin(spin_1, v))
 
 	:param target: Spinbox à mettre à jour.
 	:param value: Valeur à insérer.
@@ -331,14 +376,15 @@ def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 
 def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | None = None, maximum: float | int | None = None, ):
 	"""
-	Mets à jour les limites de la :class:`QSpinBox` (ou :class:`QDoubleSpinBox`).
+	Met à jour dynamiquement les bornes d'une spinbox.
 
-	.. note::
-        Qt ajuste automatiquement la valeur courante si elle sort du range.
+	Les bornes non spécifiées conservent leur valeur actuelle.
 
-	:param spin:
-	:param minimum:
-	:param maximum:
+	.. note:: Qt ajuste automatiquement la valeur courante si elle sort du nouvel intervalle.
+
+	:param spin: Spinbox cible.
+	:param minimum: Nouvelle borne minimale (optionnelle).
+	:param maximum: Nouvelle borne maximale (optionnelle).
 	"""
 	r0, r1 = spin.minimum() if minimum is None else minimum, spin.maximum() if maximum is None else maximum
 	spin.setRange(r0, r1)

@@ -52,7 +52,7 @@ class Batch(BaseSettingGroup):
 				results.append(str(path.with_suffix("")) + suffix)
 			return results
 
-		return [str(Path.cwd()/suffix)]  # Retourne le chemin courant si aucun fichiers
+		return [str(Path.cwd() / suffix)]  # Retourne le chemin courant si aucun fichiers
 
 	##################################################
 	def get_stacks(self) -> list[np.ndarray]:

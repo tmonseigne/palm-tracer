@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'ensemble des paramètres. """
+"""Fichier des tests pour l'ensemble des paramètres."""
 from typing import Any, List
 
 from palm_tracer.Settings import Settings

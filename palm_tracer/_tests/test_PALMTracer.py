@@ -1,4 +1,4 @@
-""" Fichier des tests pour la classe PALMTracer """
+"""Fichier des tests pour la classe PALMTracer"""
 import shutil
 from typing import cast
 
@@ -160,7 +160,7 @@ def test_update_filtered(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_load_bad_dll(make_napari_viewer):
-	""" Test pour le process avec tout les élément à False et aucun fichier chargeable. """
+	"""Test pour le process avec tout les élément à False et aucun fichier chargeable."""
 	pt = PALMTracer()
 	pt.palm._dll = None
 	pt.load("")
@@ -206,7 +206,7 @@ def test_process_no_input(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_nothing(make_napari_viewer):
-	""" Test pour le process avec tout les élément à False et aucun fichier chargeable. """
+	"""Test pour le process avec tout les élément à False et aucun fichier chargeable."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -241,7 +241,7 @@ def test_process_nothing(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_bad_dll(make_napari_viewer):
-	""" Test pour le process avec tout les élément à False et aucun fichier chargeable. """
+	"""Test pour le process avec tout les élément à False et aucun fichier chargeable."""
 	pt = PALMTracer()
 	pt.palm._dll = None
 	pt.process()
@@ -250,7 +250,7 @@ def test_process_bad_dll(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_multiple_stack(make_napari_viewer):
-	""" Test pour le process avec plusieurs piles. """
+	"""Test pour le process avec plusieurs piles."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -266,7 +266,7 @@ def test_process_multiple_stack(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_localization(make_napari_viewer):
-	""" Test pour le process de localisation. """
+	"""Test pour le process de localisation."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -281,7 +281,7 @@ def test_process_only_localization(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_localization_spline_bad(make_napari_viewer):
-	""" Test pour le process de localisation. """
+	"""Test pour le process de localisation."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -299,7 +299,7 @@ def test_process_only_localization_spline_bad(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_localization_spline(make_napari_viewer):
-	""" Test pour le process de localisation. """
+	"""Test pour le process de localisation."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -316,7 +316,7 @@ def test_process_only_localization_spline(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_tracking(make_napari_viewer):
-	""" Test pour le process de tracking. """
+	"""Test pour le process de tracking."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -338,7 +338,7 @@ def test_process_only_tracking(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_tracking_blinking(make_napari_viewer):
-	""" Test pour le process de tracking. """
+	"""Test pour le process de tracking."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -361,7 +361,7 @@ def test_process_only_tracking_blinking(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_tracks_compute(make_napari_viewer):
-	""" Test pour le process de tracking. """
+	"""Test pour le process de tracking."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -397,7 +397,7 @@ def test_process_only_tracks_compute(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_visualization_hr(make_napari_viewer):
-	""" Test pour le process de visualization HR. """
+	"""Test pour le process de visualization HR."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -429,7 +429,7 @@ def test_process_only_visualization_hr(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_visualization_graph(make_napari_viewer):
-	""" Test pour le process de visualization de graph. """
+	"""Test pour le process de visualization de graph."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -453,7 +453,7 @@ def test_process_only_visualization_graph(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_only_gallery(make_napari_viewer):
-	""" Test pour le process de visualization HR. """
+	"""Test pour le process de visualization HR."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -478,7 +478,7 @@ def test_process_only_gallery(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_all(make_napari_viewer):
-	""" Test Basique pour le process complet. """
+	"""Test Basique pour le process complet."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -505,7 +505,7 @@ def test_process_all(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_filter_plan(make_napari_viewer):
-	""" Test pour le filtrage des plans lors de l'exécution. """
+	"""Test pour le filtrage des plans lors de l'exécution."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -532,7 +532,7 @@ def test_process_filter_plan(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_filter_all_localization(make_napari_viewer):
-	""" Test pour le filtrage complet lors de l'exécution. """
+	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -591,7 +591,7 @@ def test_process_filter_all_localization(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_filter_all_tracking(make_napari_viewer):
-	""" Test pour le filtrage complet lors de l'exécution. """
+	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -624,7 +624,7 @@ def test_process_filter_all_tracking(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_filter_all_tracks_compute(make_napari_viewer):
-	""" Test pour le filtrage complet lors de l'exécution. """
+	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 	pt = PALMTracer()
 
@@ -671,7 +671,7 @@ def test_process_filter_all_tracks_compute(make_napari_viewer):
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_process_filter_outside(make_napari_viewer):
-	""" Test pour le filtrage hors exécution. """
+	"""Test pour le filtrage hors exécution."""
 	clean_output()
 	pt = PALMTracer()
 	pt.settings.filtering["Tracks"]["Instant D"].active = True

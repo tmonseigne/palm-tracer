@@ -71,7 +71,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _init_ui(self):
-		""" Initialisation de l'interface utilisateur du widget. """
+		"""Initialisation de l'interface utilisateur du widget."""
 		# Base
 		main_layout = QVBoxLayout(self)
 		Ui.init_layout(main_layout, 0, 0)
@@ -296,7 +296,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _on_change_setting(self):
-		""" Mets à jour le fichier de setting et la preview à chaque changement de setting."""
+		"""Mets à jour le fichier de setting et la preview à chaque changement de setting."""
 		# Save settings
 		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
 		self._thread_process(self._preview, self._add_preview_layers)
@@ -350,7 +350,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _add_preview_layers(self):
-		""" Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant. """
+		"""Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant."""
 		if self._tearing_down or not getattr(self, "viewer", None): return
 		state_args = {
 				"Past":    {"border": 0.2, "edge": 0.2, "color": "cyan", "face": "transparent"},

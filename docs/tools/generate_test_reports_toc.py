@@ -1,4 +1,4 @@
-""" Fichier permettant de mettre à jour le toctree du fichier de test """
+"""Fichier permettant de mettre à jour le toctree du fichier de test"""
 
 from pathlib import Path
 

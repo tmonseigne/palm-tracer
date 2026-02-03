@@ -14,7 +14,7 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class Logger:
-	"""	Classe du journal d'activité. """
+	"""	Classe du journal d'activité."""
 
 	filename: str = field(init=False, default="")
 	"""Fichier de log à ouvrir."""

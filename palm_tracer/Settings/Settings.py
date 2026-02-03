@@ -43,7 +43,7 @@ class Settings:
 	"""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
-	""" Dictionnaire de groupes de paramètres. """
+	"""Dictionnaire de groupes de paramètres."""
 
 	# ==================================================
 	# region Initialization
@@ -159,7 +159,7 @@ class Settings:
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
-		""" Met à jour la classe à partir d'un dictionnaire."""
+		"""Met à jour la classe à partir d'un dictionnaire."""
 		groups = data["PALM Tracer Settings"]
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_dict(groups[name])

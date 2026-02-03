@@ -14,10 +14,10 @@ Ce sous-package contient les classes d'interface utilisateur Napari (QT).
 
 from .AlignmentWidget import AlignmentWidget
 from .Astigmatism3DWidget import Astigmatism3DWidget
+from .BaseStandAloneWidget import BaseStandAloneWidget
 from .FileMigratorWidget import FileMigratorWidget
 from .GraphViewerWidget import GraphViewerWidget
 from .PALMTracerWidget import PALMTracerWidget
-from .BaseStandAloneWidget import BaseStandAloneWidget
 from .Viewer3DWidget import Viewer3DWidget
 from .ViewerHRWidget import ViewerHRWidget
 

@@ -34,7 +34,7 @@ class FileList(BaseSettingType):
 	items: list[str] = field(default_factory=lambda: [])
 	"""Liste des fichiers actuels."""
 	buttons: dict[str, QPushButton] = field(init=False)
-	""" Boutons d'action [+], [-], [clear]."""
+	"""Boutons d'action [+], [-], [clear]."""
 
 	_box: QComboBox = field(init=False, default_factory=lambda: QComboBox())
 

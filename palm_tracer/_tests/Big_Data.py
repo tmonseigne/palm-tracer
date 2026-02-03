@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'utilisation de la DLL CPU. """
+"""Fichier des tests pour l'utilisation de la DLL CPU."""
 
 import pytest
 

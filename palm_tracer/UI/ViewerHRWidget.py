@@ -118,7 +118,7 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def update_source(self):
-		"""Met à jour les sources disponibles pour définir l'intensité des points. """
+		"""Met à jour les sources disponibles pour définir l'intensité des points."""
 		with self.source_cmb.signal_blocked():
 			data_type = self.type_cmb.get_value()
 			src = HR_LOC_SOURCE[1:] if data_type == 0 else HR_TRC_SOURCE[1:]
@@ -198,10 +198,10 @@ def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cove
 	Cette fonction NE lance PAS napari.run() : elle est faite
 	pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 	"""
-	viewer = napari.Viewer(ndisplay=2)									   # Crée le viewer HR napari
-	viewer.title = "HR Viewer"											   # Modifier le titre de la fenêtre
-	viewer.window.main_menu.setVisible(False)							   # Cacher la barre de menu
-	widget = ViewerHRWidget(viewer, palmtracer)							   # Crée le widget en lui passant le viewer
+	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari
+	viewer.title = "HR Viewer"  # .											 Modifier le titre de la fenêtre
+	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
+	widget = ViewerHRWidget(viewer, palmtracer)  # .						 Crée le widget en lui passant le viewer
 	viewer.window.add_dock_widget(widget, name="Viewer HR", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
 	return viewer
 

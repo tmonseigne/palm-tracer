@@ -1,4 +1,4 @@
-""" Fichier des tests pour les différents types de paramètres. """
+"""Fichier des tests pour les différents types de paramètres."""
 from typing import Any, List
 
 import pytest

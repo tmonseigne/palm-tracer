@@ -1,4 +1,4 @@
-""" Fichier des tests pour les groupes de paramètres. """
+"""Fichier des tests pour les groupes de paramètres."""
 from typing import cast, List, Type
 
 import pytest

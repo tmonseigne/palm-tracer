@@ -300,7 +300,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 	# ==================================================
 	##################################################
 	def _download_initial_path(self) -> Path:
-		""" Renvoie un chemin initial pour le téléchargement par plotly."""
+		"""Renvoie un chemin initial pour le téléchargement par plotly."""
 		parent: Path = self._mod_filename.parent if self._mod_filename != Path() else self._loc_filename.parent if self._loc_filename != Path() else Path.cwd()
 		return parent / "astigmatism_3d_model"
 
@@ -327,8 +327,8 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		# --- vérification de la forme des données ---
 		if not set(DLL_REQUIRED_COLS).issubset(self._loc.columns):
 			Ui.print_error(f"The localization file is not in the correct format.\n"
-						f"\tExpected format, at least columns: {', '.join(sorted(DLL_REQUIRED_COLS))}.\n"
-						f"\tFound columns: {', '.join(self._loc.columns)}")
+						   f"\tExpected format, at least columns: {', '.join(sorted(DLL_REQUIRED_COLS))}.\n"
+						   f"\tFound columns: {', '.join(self._loc.columns)}")
 			self._loc = pd.DataFrame()
 			return
 

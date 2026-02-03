@@ -149,10 +149,10 @@ def create_viewer3d() -> napari.Viewer:  # pragma: no cover
 	Cette fonction NE lance PAS napari.run() : elle est faite
 	pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 	"""
-	viewer = napari.Viewer(ndisplay=3)									   # Crée le viewer 3D napari
-	viewer.title = "3D Viewer"											   # Modifier le titre de la fenêtre
-	viewer.window.main_menu.setVisible(False)							   # Cacher la barre de menu
-	widget = Viewer3DWidget(viewer)										   # Crée le widget en lui passant le viewer
+	viewer = napari.Viewer(ndisplay=3)  # .									 Crée le viewer 3D napari
+	viewer.title = "3D Viewer"  # .											 Modifier le titre de la fenêtre
+	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
+	widget = Viewer3DWidget(viewer)  # .									 Crée le widget en lui passant le viewer
 	viewer.window.add_dock_widget(widget, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
 	return viewer
 

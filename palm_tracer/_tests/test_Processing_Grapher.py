@@ -1,4 +1,4 @@
-""" Fichier des tests pour le grapher. """
+"""Fichier des tests pour le grapher."""
 import json
 
 import plotly.graph_objects as go
@@ -75,7 +75,7 @@ def test_histogram():
 	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_2.json")
 	ref = json.loads((REF_DIR / "grapher_Histogramm_2.json").read_text(encoding="utf-8"))
 	# Attention, le Calcul du KDE diffère entre les OS...
-	if platform.system() == "Windows" : assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+	if platform.system() == "Windows": assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 2D
 	res = g.histogram(np.stack((IDX, POINTS), axis=0), "Histogram", limit=True)

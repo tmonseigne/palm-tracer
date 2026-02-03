@@ -1,4 +1,4 @@
-""" Fichier des tests pour les fonctions en lien avec l'affichage. """
+"""Fichier des tests pour les fonctions en lien avec l'affichage."""
 
 from palm_tracer.Tools import Ui
 

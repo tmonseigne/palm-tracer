@@ -1,4 +1,4 @@
-""" Tests unitaires pour SignalWrapper."""
+"""Tests unitaires pour SignalWrapper."""
 from typing import Any, List
 
 import pytest
@@ -38,12 +38,12 @@ def test_disconnect(sw: SignalWrapper):
 	assert received2 == ["X"]
 	sw.disconnect(slot)
 	sw.emit("Y")
-	assert received == ["X"]		# On n'est pas sensé avoir reçu la suite.
+	assert received == ["X"]  # .	  On n'est pas sensé avoir reçu la suite.
 	assert received2 == ["X", "Y"]  # On n'a pas déconnecté celui là.
 	sw.disconnect()
 	sw.emit("Z")
 
-	assert received == ["X"]		# On n'est pas sensé avoir reçu la suite.
+	assert received == ["X"]  # .	  On n'est pas sensé avoir reçu la suite.
 	assert received2 == ["X", "Y"]  # On n'est pas sensé avoir reçu la suite.
 
 
@@ -166,7 +166,7 @@ def test_coalescence_overwrite_multiple_times(sw: SignalWrapper):
 
 ##################################################
 def test_emit_direct_after_previous_block(sw: SignalWrapper):
-	""" Après un blocage avec émission, un emit direct doit passer immédiatement (et ne pas être coalescé par un ancien état). """
+	"""Après un blocage avec émission, un emit direct doit passer immédiatement (et ne pas être coalescé par un ancien état)."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 

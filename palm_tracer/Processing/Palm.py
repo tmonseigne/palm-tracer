@@ -18,7 +18,7 @@ N_TRC_CP_FIT = 12
 ##################################################
 @dataclass
 class Palm:
-	""" Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés. """
+	"""Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés."""
 	_type: str = field(init=True, default="CPU")
 	"""Type de DLL, par défaut CPU, GPU également possible."""
 	_dll: ctypes.CDLL = field(init=False)
@@ -292,7 +292,7 @@ class Palm:
 		n_planes = 1 if stack.ndim == 2 else stack.shape[0]
 
 		if planes is None: planes = list(range(n_planes))
-		else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
+		else: planes = [p for p in planes if 0 <= p < n_planes]
 
 		# cut de l'image pour n'avoir que les plans voulu
 		new_n_planes = len(planes)
@@ -314,9 +314,9 @@ class Palm:
 		:param fit_params: Paramètres du mode d'ajustement.
 		:return: Seuil calculé (écart type final).
 		"""
-		height, width = image.shape  # Récupère les dimensions
+		height, width = image.shape  # .										 Récupère les dimensions
 		args = self._get_auto_treshold_args(image, height, width, fit_params)  # Récupère les arguments pour la DLL
-		self._dll.AutoThreshold.restype = ctypes.c_double					   # Force le type de retour
+		self._dll.AutoThreshold.restype = ctypes.c_double  # .					 Force le type de retour
 		return self._dll.AutoThreshold(*args.values())
 
 	##################################################
@@ -383,10 +383,10 @@ class Palm:
 		required = FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return res
 		new_tracks = tracks[required].copy()
-		if not is_3d: new_tracks["Z"] = 0				 # On simplifie, la suite les calculs se font toujours en 3D mais la dernière dimension sera nulle
+		if not is_3d: new_tracks["Z"] = 0  # .			   On simplifie, la suite les calculs se font toujours en 3D mais la dernière dimension sera nulle
 		args = self._get_tc_args(new_tracks, is_msd, is_ind, is_3d, pixel_size, exposure_time, fit_mode, fit_params)
 		self._dll.TracksCompute.restype = ctypes.c_bool  # Force le type de retour
-		self._dll.TracksCompute(*args.values())			 # Le retour est toujours vrai pour le moment les calculs manquant sont facilement trouvable.
+		self._dll.TracksCompute(*args.values())  # .	   Le retour est toujours vrai pour le moment les calculs manquant sont facilement trouvable.
 
 		# Remplissage des tableaux de sortie
 		n = len(tracks) * N_TRC_CP_FIT
@@ -470,7 +470,3 @@ class Palm:
 		self._dll.Astigmatism3DEstimation(*args.values())
 		out = np.ctypeslib.as_array(args["output"], shape=(n,))
 		return out
-
-	# ==================================================
-	# endregion DLL Call
-	# ==================================================
