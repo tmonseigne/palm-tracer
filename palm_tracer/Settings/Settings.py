@@ -14,7 +14,16 @@ from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional
 
-from palm_tracer.Settings.Groups import *
+from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.Batch import Batch
+from palm_tracer.Settings.Groups.Calibration import Calibration
+from palm_tracer.Settings.Groups.Filtering import Filtering
+from palm_tracer.Settings.Groups.Gallery import Gallery
+from palm_tracer.Settings.Groups.Localization import Localization
+from palm_tracer.Settings.Groups.Tracking import Tracking
+from palm_tracer.Settings.Groups.TracksCompute import TracksCompute
+from palm_tracer.Settings.Groups.VisualizationGraph import VisualizationGraph
+from palm_tracer.Settings.Groups.VisualizationHR import VisualizationHR
 
 
 ##################################################
@@ -34,7 +43,7 @@ class Settings:
 	"""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
-	""" Dictionnaire de groupes de paramètres. """
+	"""Dictionnaire de groupes de paramètres."""
 
 	# ==================================================
 	# region Initialization
@@ -75,7 +84,7 @@ class Settings:
 		for _, setting in self._settings.items(): setting.disconnect(f)
 
 	##################################################
-	def signal_blocked(self)-> AbstractContextManager[Any]:
+	def signal_blocked(self) -> AbstractContextManager[Any]:
 		"""
 		Blocage des signaux pour l'intégralité des paramètres.
 		Retourne un context manager utilisable avec `with ...:`.
@@ -150,7 +159,7 @@ class Settings:
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
-		""" Met à jour la classe à partir d'un dictionnaire."""
+		"""Met à jour la classe à partir d'un dictionnaire."""
 		groups = data["PALM Tracer Settings"]
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_dict(groups[name])
@@ -176,7 +185,3 @@ class Settings:
 
 	##################################################
 	def __str__(self) -> str: return self.tostring()
-
-	# ==================================================
-	# endregion IO
-	# ==================================================

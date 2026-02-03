@@ -1,4 +1,4 @@
-""" Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes. """
+"""Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes."""
 
 import numpy as np
 import pandas as pd
@@ -53,9 +53,9 @@ COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
 MODEL_ROWS = ["X", "Y"]
 
 # Dimensions utiles fréquement
-N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])  # Nombre de paramètres pour les metadonnées (6).
-N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # Nombre de paramètres pour le tracking (8).
-N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # Nombre de paramètres pour le tracking (18).
+N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])  # .									  Nombre de paramètres pour les metadonnées (6).
+N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # .								  Nombre de paramètres pour le tracking (8).
+N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # .							  Nombre de paramètres pour le tracking (18).
 SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["columns"]))  # Dimensions pour le model d'astigmatisme 3D (2,5).
 
 
@@ -68,10 +68,10 @@ def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	"""
 	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
 
-	arr = np.asarray(data).reshape(1, -1)  # Aplatit vers (N,) puis force (1, N)
+	arr = np.asarray(data).reshape(1, -1)  # .												 Aplatit vers (N,) puis force (1, N)
 	if arr.shape[1] != len(columns): raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
 
-	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en Dataframe
+	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # .							 Transformation en Dataframe
 	for key in types: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")  # Conversion en entier nullable (préserve les NaN si présents)
 	return res
 
@@ -108,10 +108,10 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
-		columns = columns + remaining_columns  # Ajout des colonnes restantes aux colonnes de départ
+		columns = columns + remaining_columns  # .								   Ajout des colonnes restantes aux colonnes de départ
 
-	if list(data.columns[:len(columns)]) == columns: return data  # Optimisation : évite la copie si déjà bon ordre
-	return data.loc[:, columns]  # Réorganisation du DataFrame
+	if list(data.columns[:len(columns)]) == columns: return data  # .			   Optimisation : évite la copie si déjà bon ordre
+	return data.loc[:, columns]  # .											   Réorganisation du DataFrame
 
 
 ##################################################
@@ -122,7 +122,8 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	:param columns: Colonnes à modifier
 	:return: dataframe avec les colonnes ayant été modifié.
 	"""
-	logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
+	with np.errstate(divide='ignore', invalid='ignore'):
+		logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
 	data[columns] = pd.DataFrame(logged, index=data.index, columns=columns)
 	return data
 
@@ -209,10 +210,10 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 
 	if file_type == "Localization" or file_type == "Tracking":
 		# Manipulation du tableau 1D.
-		size = (data.size // n_columns) * n_columns  # Récupération de la taille correcte si non multiple de N_SEGMENT
-		data = data[:size].reshape(-1, n_columns)  # Passage en tableau 2D
+		size = (data.size // n_columns) * n_columns  # .Récupération de la taille correcte si non multiple de N_SEGMENT
+		data = data[:size].reshape(-1, n_columns)  # .	Passage en tableau 2D
 		data = data[data[:, columns.index("X")] > 0]  # Filtrage sur les X inférieurs ou égal à 0 en amont.
-		res = pd.DataFrame(data, columns=columns)  # Transformation en Dataframe
+		res = pd.DataFrame(data, columns=columns)  # .	Transformation en Dataframe
 	elif file_type == "Astigmatism 3D Model":
 		res = pd.DataFrame(data, columns=columns, index=MODEL_ROWS)
 	else:

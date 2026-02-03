@@ -27,10 +27,10 @@ class VisualizationHR(BaseSettingGroup):
 	"""
 
 	label: str = "High Resolution"
-	setting_list = {"Ratio":  [SpinInt, ["Up scaling ratio", 2, 1, 100, 1]],
-					"Type":   [Combo, ["Type", 0, ["Localizations", "Tracks"]]],
-					"Source L": [Combo, ["Source", 1, HR_LOC_SOURCE]],
-					"Source T": [Combo, ["Source", 1, HR_TRC_SOURCE]]}
+	setting_list = {"Ratio":    [SpinInt, ["Up scaling ratio", "", 2, [1, 100], 1]],
+					"Type":     [Combo, ["Type", "", 0, ["Localizations", "Tracks"]]],
+					"Source L": [Combo, ["Source", "", 1, HR_LOC_SOURCE]],
+					"Source T": [Combo, ["Source", "", 1, HR_TRC_SOURCE]]}
 
 	##################################################
 	def initialize_ui(self):
@@ -47,3 +47,6 @@ class VisualizationHR(BaseSettingGroup):
 		elif mode == 1:
 			self._settings["Source L"].hide()
 			self._settings["Source T"].show()
+		else:  # Impossible mais prévu
+			self._settings["Source L"].hide()
+			self._settings["Source T"].hide()

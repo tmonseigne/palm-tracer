@@ -24,7 +24,7 @@ class Calibration(BaseSettingGroup):
 
 	label: str = "Calibration"
 	setting_list = {
-			"Pixel Size": [SpinFloat, ["Pixel Size (μm)", 0.160, 0.001, 1.0, 0.01, 3]],
-			"Exposure":   [SpinFloat, ["Exposure Time (s/frame)", 0.050, 0.001, 1.0, 0.01, 3]],
-			"Intensity":  [SpinFloat, ["Intensity (photon/ADU)", 0.0120, 0.0, 1.0, 0.001, 4]],
+			"Pixel Size": [SpinFloat, ["Pixel Size (μm)", "", 0.160, [0.001, 1.0], 0.01, 3]],
+			"Exposure":   [SpinFloat, ["Exposure Time (s/frame)", "", 0.050, [0.001, 1.0], 0.01, 3]],
+			"Intensity":  [SpinFloat, ["Intensity (photon/ADU)", "", 0.0120, [0.0, 1.0], 0.001, 4]]
 			}

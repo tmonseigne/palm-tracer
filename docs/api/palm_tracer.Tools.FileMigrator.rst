@@ -1,4 +1,4 @@
 Tools.FileMigrator
 ==========================
 
-.. automodule:: palm_tracer.Tools.FileMigrator
+.. autoclass:: palm_tracer.Tools.FileMigrator

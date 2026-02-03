@@ -36,7 +36,7 @@ from .SpinInt import SpinInt
 
 
 def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
-	""" Créé un setting en fonction d'un dictionnaire en entrée. """
+	"""Créé un setting en fonction d'un dictionnaire en entrée."""
 	if not "type" in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
 	if data["type"] == "BrowseFile": return BrowseFile.from_dict(data)
 	elif data["type"] == "Button": return Button.from_dict(data)

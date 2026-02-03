@@ -1,4 +1,4 @@
-""" Fichier des tests pour les fonctions de visualisation. """
+"""Fichier des tests pour les fonctions de visualisation."""
 import matplotlib
 
 from palm_tracer._tests.Utils import *
@@ -77,7 +77,7 @@ def test_render_hr_image():
 
 ##################################################
 def test_render_hr_image_bad_input():
-	""" Test de la visualisation de l'image en HR avec une mauvaise entrée. """
+	"""Test de la visualisation de l'image en HR avec une mauvaise entrée."""
 	visualization = render_hr_image(SIZE_X, SIZE_Y, 0, POINTS)
 	assert visualization.shape == (SIZE_Y, SIZE_X)
 	assert np.all(visualization == 0)
@@ -101,7 +101,7 @@ def test_render_tracks_image():
 
 ##################################################
 def test_render_tracks_image_bad_input():
-	""" Test de la visualisation de l'image en HR avec une mauvaise entrée. """
+	"""Test de la visualisation de l'image en HR avec une mauvaise entrée."""
 	visualization = render_tracks_image(SIZE_X, SIZE_Y, 0, TRACKS)
 	assert visualization.shape == (SIZE_Y, SIZE_X)
 	assert np.all(visualization == 0)
@@ -139,7 +139,7 @@ def test_render_roi_bad_input():
 
 ##################################################
 def test_plot_histogram():
-	""" Test de la visualisation du histogramme. """
+	"""Test de la visualisation du histogramme."""
 	datas = rng.normal(loc=10, scale=5, size=(int(SIZE * np.sqrt(SIZE)), 1))
 	# Ajouter des aberrations (bruit) aux points
 	aberration = rng.uniform(-5, 5, datas.shape)
@@ -163,7 +163,7 @@ def test_plot_histogram():
 
 ##################################################
 def test_plot_histogram_bad_input():
-	""" Test de la visualisation du histogramme avec une mauvaise entrée. """
+	"""Test de la visualisation du histogramme avec une mauvaise entrée."""
 	fig, ax = plt.subplots()
 	plot_histogram(ax, np.zeros((2, 2)), "Histogram")
 	fig.savefig(f"{OUTPUT_DIR}/test_plot_histogram_bad_input_constant_datas.png", bbox_inches="tight")
@@ -177,7 +177,7 @@ def test_plot_histogram_bad_input():
 
 ##################################################
 def test_plot_violin():
-	""" Test de la visualisation des violons. """
+	"""Test de la visualisation des violons."""
 	datas = np.hstack((rng.integers(0, 10, size=(100000, 1)), rng.normal(loc=10, scale=5, size=(100000, 1))))
 	fig, ax = plt.subplots()
 	plot_plane_violin(ax, datas, "Violin")
@@ -187,7 +187,7 @@ def test_plot_violin():
 
 ##################################################
 def test_plot_violin_bad_input():
-	""" Test de la visualisation des violons avec une mauvaise entrée. """
+	"""Test de la visualisation des violons avec une mauvaise entrée."""
 	fig, ax = plt.subplots()
 	plot_plane_violin(ax, np.zeros((0, 0)), "Violin")
 	fig.savefig(f"{OUTPUT_DIR}/test_plot_violin_no_datas.png", bbox_inches="tight")
@@ -196,7 +196,7 @@ def test_plot_violin_bad_input():
 
 ##################################################
 def test_plot_heatmap():
-	""" Test de la visualisation des Heat map. """
+	"""Test de la visualisation des Heat map."""
 	datas = np.hstack((rng.integers(0, 1000, size=(100000, 1)), rng.normal(loc=10, scale=5, size=(100000, 1))))
 	fig, ax = plt.subplots()
 	plot_plane_heatmap(ax, datas, "Heat Map")
@@ -211,7 +211,7 @@ def test_plot_heatmap():
 
 ##################################################
 def test_plot_heatmap_bad_input():
-	""" Test de la visualisation des Heat map. """
+	"""Test de la visualisation des Heat map."""
 	fig, ax = plt.subplots()
 	plot_plane_heatmap(ax, np.zeros((0, 0)), "Heat Map")
 	fig.savefig(f"{OUTPUT_DIR}/test_plot_heatmap_no_datas.png", bbox_inches="tight")

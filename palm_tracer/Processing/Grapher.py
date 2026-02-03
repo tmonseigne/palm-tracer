@@ -1,4 +1,4 @@
-""" Fichier contenant une classe pour Créé des graphiques. """
+"""Fichier contenant une classe pour Créé des graphiques."""
 
 from dataclasses import dataclass
 from typing import Optional
@@ -84,7 +84,7 @@ class Grapher:
 		:return: ``go.Figure``
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
-			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # (2, N) -> lignes = (x, y)
+			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
 			elif data.shape[1] == 2:  _, x = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: x = np.asarray(data).ravel()
 		else: x = np.asarray(data).ravel()
@@ -97,10 +97,10 @@ class Grapher:
 
 		# Limite des données avec la règle des 3 Sigmas
 		mu, sigma = float(np.mean(x)), float(np.std(x))
-		x, limits = self.__get_range(x, limit)
+		x, limits = self._get_range(x, limit)
 
 		# Récupération du nombre de bin
-		if bins is None: bins = self.__get_bins_number(x)
+		if bins is None: bins = self._get_bins_number(x)
 
 		# Histogramme
 		histnorm = "probability density" if density else None
@@ -129,8 +129,8 @@ class Grapher:
 		# Mu et Sigmas
 		if show_sigma and x.size > 1 and sigma > 0:
 			fig.add_vline(x=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_vline(x=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # -1σ
-			fig.add_vline(x=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # +1σ
+			fig.add_vline(x=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
+			fig.add_vline(x=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
 			fig.add_vline(x=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
 			fig.add_vline(x=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
 			fig.add_vline(x=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
@@ -165,7 +165,7 @@ class Grapher:
 			y = data[np.isfinite(data)]
 			x = np.arange(y.size, dtype=float)
 		elif data.ndim == 2:
-			if data.shape[0] == 2: x, y = data[0, :], data[1, :]  # (2, N) -> lignes = (x, y)
+			if data.shape[0] == 2: x, y = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
 			elif data.shape[1] == 2:  x, y = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: raise ValueError("data 2D doit avoir 2 lignes ou 2 colonnes (x,y).")
 			mask = np.isfinite(x) & np.isfinite(y)
@@ -178,7 +178,7 @@ class Grapher:
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
-		_, limits = self.__get_range(y, limit)
+		_, limits = self._get_range(y, limit)
 		mu, sigma = float(np.mean(y)), float(np.std(y))
 
 		# faire une courbe style "seaborn-like"
@@ -187,8 +187,8 @@ class Grapher:
 		# Mu et Sigmas
 		if show_sigma and x.size > 1 and sigma > 0:
 			fig.add_hline(y=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_hline(y=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # -1σ
-			fig.add_hline(y=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # +1σ
+			fig.add_hline(y=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
+			fig.add_hline(y=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
 			fig.add_hline(y=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
 			fig.add_hline(y=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
 			fig.add_hline(y=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
@@ -241,7 +241,7 @@ class Grapher:
 
 	##################################################
 	@staticmethod
-	def __get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
+	def _get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 		"""
 		Calcule un nombre de bin adaptatif pour un histogramme.
 
@@ -251,12 +251,12 @@ class Grapher:
 		"""
 		n_values = len(data)
 		# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
-		bins = int(np.ceil(np.log2(n_values) + 1))  # Règle de Sturges
+		bins = int(np.ceil(np.log2(n_values) + 1))  # .Règle de Sturges
 		return max(limits[0], min(bins, limits[1]))  # Bornes pour éviter des valeurs extrêmes
 
 	##################################################
 	@staticmethod
-	def __get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float]]:
+	def _get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float]]:
 		"""
 		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si necessaire.
 
@@ -266,8 +266,8 @@ class Grapher:
 		"""
 		mu, sigma = float(np.mean(data)), float(np.std(data))
 		if limit and sigma > 0:
-			limits = [mu - 3 * sigma, mu + 3 * sigma]  # Limite théoriques des datas
-			data = data[(data >= limits[0]) & (data <= limits[1])]  # Suppression des datas au dela des limites
+			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .					   Limite théoriques des datas
+			data = data[(data >= limits[0]) & (data <= limits[1])]  # .		   Suppression des datas au dela des limites
 			limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
 		else:
 			limits = [min(data), max(data)]

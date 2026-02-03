@@ -68,23 +68,23 @@ class ViewerHRWidget(QWidget):
 		layout.addWidget(btn)
 
 		# Spinbox taille des points
-		self.size_spin = SpinFloat("Point Size", 1, 0.1, 10, 0.1, 1)
-		layout.addRow(self.size_spin.layout)
+		self.size_spin = SpinFloat("Point Size", "", 1, [0.1, 10], 0.1, 1)
+		self.size_spin.attach_to_form(layout)
 
 		# Spinbox facteur d'agrandissement
-		self.upscale_spin = SpinInt("Upscale Ratio", 4, 1, 100, 2)
-		layout.addRow(self.upscale_spin.layout)
+		self.upscale_spin = SpinInt("Upscale Ratio", "", 4, [1, 100], 2)
+		self.upscale_spin.attach_to_form(layout)
 
 		# Combo box pour la source
-		self.type_cmb = Combo("Visualization Type", 0, ["Localization", "Tracks"])
+		self.type_cmb = Combo("Visualization Type", "", 0, ["Localization", "Tracks"])
+		self.type_cmb.attach_to_form(layout)
 		self.type_cmb.connect(self.update_source)
-		layout.addRow(self.type_cmb.layout)
 
 		self.source_cmb = Combo("Color Source")
-		layout.addRow(self.source_cmb.layout)
+		self.source_cmb.attach_to_form(layout)
 
-		self.color_cmb = Combo("PNG Color Map", 0, ["grayscale", "viridis", "magma", "plasma", "inferno", "cividis", "turbo"])
-		layout.addRow(self.color_cmb.layout)
+		self.color_cmb = Combo("PNG Color Map", "", 0, ["grayscale", "viridis", "magma", "plasma", "inferno", "cividis", "turbo"])
+		self.color_cmb.attach_to_form(layout)
 
 		btn_generate = QPushButton("Generate")
 		btn_generate.clicked.connect(self.generate)
@@ -118,7 +118,7 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def update_source(self):
-		"""Met à jour les sources disponibles pour définir l'intensité des points. """
+		"""Met à jour les sources disponibles pour définir l'intensité des points."""
 		with self.source_cmb.signal_blocked():
 			data_type = self.type_cmb.get_value()
 			src = HR_LOC_SOURCE[1:] if data_type == 0 else HR_TRC_SOURCE[1:]
@@ -198,10 +198,10 @@ def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cove
 	Cette fonction NE lance PAS napari.run() : elle est faite
 	pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 	"""
-	viewer = napari.Viewer(ndisplay=2)									   # Crée le viewer HR napari
-	viewer.title = "HR Viewer"											   # Modifier le titre de la fenêtre
-	viewer.window.main_menu.setVisible(False)							   # Cacher la barre de menu
-	widget = ViewerHRWidget(viewer, palmtracer)							   # Crée le widget en lui passant le viewer
+	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari
+	viewer.title = "HR Viewer"  # .											 Modifier le titre de la fenêtre
+	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
+	widget = ViewerHRWidget(viewer, palmtracer)  # .						 Crée le widget en lui passant le viewer
 	viewer.window.add_dock_widget(widget, name="Viewer HR", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
 	return viewer
 

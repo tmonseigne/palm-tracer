@@ -8,13 +8,13 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TextIO
 
-from palm_tracer.Tools.Utils import print_error, print_warning
+from palm_tracer.Tools import Ui
 
 
 ##################################################
 @dataclass
 class Logger:
-	"""	Classe du journal d'activité. """
+	"""	Classe du journal d'activité."""
 
 	filename: str = field(init=False, default="")
 	"""Fichier de log à ouvrir."""
@@ -32,7 +32,7 @@ class Logger:
 			self._isopen = True
 			print(f"[{self._get_time()}] Log ouvert : {self.filename}")
 		except Exception as e:
-			print_error(f"Erreur lors de l'ouverture du fichier {self.filename} : {e}")
+			Ui.print_error(f"Erreur lors de l'ouverture du fichier {self.filename} : {e}")
 
 	##################################################
 	def close(self):
@@ -43,7 +43,7 @@ class Logger:
 			self.file_handle.close()
 			print(f"[{self._get_time()}] Log fermé : {self.filename}")
 		else:
-			print_warning(f"[{self._get_time()}] Aucun fichier à fermer.")
+			Ui.print_warning(f"[{self._get_time()}] Aucun fichier à fermer.")
 		self.filename = ""
 		self.file_handle = TextIO()
 		self._isopen = False
@@ -58,9 +58,9 @@ class Logger:
 				self.file_handle.write(timestamped_msg + "\n")
 				self.file_handle.flush()  # S'assure que les données sont écrites immédiatement
 			except Exception as e:
-				print_error(f"Erreur lors de l'écriture dans le fichier {self.filename} : {e}")
+				Ui.print_error(f"Erreur lors de l'écriture dans le fichier {self.filename} : {e}")
 		else:
-			print_warning(f"[{self._get_time()}] Aucun fichier de log ouvert pour écrire.")
+			Ui.print_warning(f"[{self._get_time()}] Aucun fichier de log ouvert pour écrire.")
 
 	##################################################
 	@staticmethod

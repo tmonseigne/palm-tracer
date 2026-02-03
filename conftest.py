@@ -9,7 +9,7 @@ import psutil
 import pytest
 from pytest_metadata.plugin import metadata_key
 
-from palm_tracer.Tools import Monitoring, print_error, print_warning
+from palm_tracer.Tools import Monitoring, Ui
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 os.environ["NAPARI_GUI_BACKEND"] = "none"
@@ -108,7 +108,7 @@ def add_to_json(path, datas_name, datas):
 		with open(path) as f: data = json.load(f)
 		data[datas_name] = datas
 		with open(path, "w") as f: json.dump(data, f, indent=4)
-	except FileNotFoundError: print_warning("Json File not found.")
+	except FileNotFoundError: Ui.print_warning("Json File not found.")
 
 
 ##################################################
@@ -153,7 +153,7 @@ def pytest_sessionfinish(session, exitstatus):
 	all_tests_monitoring.stop()
 	for ext in ["png", "html", "json", "txt"]:
 		try: all_tests_monitoring.save(f"reports/monitoring.{ext}")
-		except Exception as e: print_error(f"Impossible de sauvegarder le monitoring au format {ext} : {e}")
+		except Exception as e: Ui.print_error(f"Impossible de sauvegarder le monitoring au format {ext} : {e}")
 	add_to_json("reports/test_report.json", "metadata", session.config.stash[metadata_key])
 
 

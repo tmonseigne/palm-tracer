@@ -1,4 +1,4 @@
-""" Fichier des tests pour le logger. """
+"""Fichier des tests pour le logger."""
 from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import Logger
 

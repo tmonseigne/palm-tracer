@@ -27,31 +27,48 @@ class Combo(BaseSettingType):
 	"""
 
 	default: int = 0
-	"""Valeur par défaut du paramètre."""
+	value: int = field(init=False, default=0)
 	items: list[str] = field(default_factory=lambda: [""])
 	"""Choix de la liste déroulante."""
-	value: int = field(init=False, default=0)
-	"""Valeur actuelle du paramètre."""
-	box: QComboBox = field(init=False)
-	"""Objet QT permettant de manipuler le paramètre."""
 
+	_box: QComboBox = field(init=False, default_factory=lambda: QComboBox())
+
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		super().initialize()  # .							Appelle l'initialisation de la classe mère.
+		self._box.addItems(self.items)  # .					Ajout des choix possibles.
+		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
+		self.set_value(self.default)  # .					Définition de la valeur.
+		self._layout.addWidget(self._box)  # .				Ajout du champ de texte
+		self._layout.addStretch(1)  # .						Pousse tout à gauche, espace vide à droite
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	def get_value(self) -> int:
-		self.value = self.box.currentIndex()
+		self.value = self._box.currentIndex()
 		return self.value
 
 	##################################################
 	def set_value(self, value: int):
 		self.value = value
-		self.box.setCurrentIndex(value)
+		self._box.setCurrentIndex(value)
 
-	##################################################
-	def update_box(self, items: Optional[list[str]] = None):
-		"""Met à jour la ComboBox pour refléter la liste actuelle des options."""
-		self.box.clear()
-		if items is not None: self.items = items
-		self.box.addItems(self.items)
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
 
+	# ==================================================
+	# region  Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
@@ -64,14 +81,17 @@ class Combo(BaseSettingType):
 		self.update_box(data.get("items", [""]))
 		self.set_value(data.get("value", self.default))
 
-	##################################################
-	def initialize(self):
-		super().initialize()							 # Appelle l'initialisation de la classe mère.
-		self.box = QComboBox(None)						 # Création de la boite.
-		self.box.addItems(self.items)					 # Ajout des choix possibles.
-		self.box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-		self.set_value(self.default)					 # Définition de la valeur.
-		self.add_row(self.box)							 # Ajoute la liste déroulante au calque.
+	# ==================================================
+	# endregion  Parsing
+	# ==================================================
 
+	# ==================================================
+	# region  Callbacks
+	# ==================================================
 	##################################################
-	def reset(self): self.set_value(self.default)
+	def update_box(self, items: Optional[list[str]] = None):
+		"""Met à jour la ComboBox pour refléter la liste actuelle des options."""
+		with self.signal_blocked():
+			self._box.clear()
+			if items is not None: self.items = items
+			self._box.addItems(self.items)

@@ -1,4 +1,4 @@
-""" Module contenant les fonctions de visualisation. """
+"""Module contenant les fonctions de visualisation."""
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -54,7 +54,7 @@ def get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 	"""
 	n_values = len(data)
 	# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
-	bins = int(np.ceil(np.log2(n_values) + 1))	 # Règle de Sturges
+	bins = int(np.ceil(np.log2(n_values) + 1))  # .Règle de Sturges
 	return max(limits[0], min(bins, limits[1]))  # Bornes pour éviter des valeurs extrêmes
 
 
@@ -87,8 +87,8 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 
 	values = normalize_data(points[:, 2]) if normalization else points[:, 2]
 
-	np.add.at(res, (y, x), values)			 # Accumulation des valeurs (plus efficace qu'une boucle)
-	res = res.clip(0, MAX_UI_16)			 # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
+	np.add.at(res, (y, x), values)  # .		   Accumulation des valeurs (plus efficace qu'une boucle)
+	res = res.clip(0, MAX_UI_16)  # .		   Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
 	return np.asarray(res, dtype=np.uint16)  # Forcer le type de l'image en np.uint16
 
 
@@ -202,23 +202,23 @@ def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list
 	# Normalisation des niveaux de gris sur 0-255
 	min_val, max_val = image.min(), image.max()
 	if max_val > min_val: image = ((image - min_val) / (max_val - min_val) * MAX_UI_8).astype(np.uint8)
-	else: image = np.zeros_like(image, dtype=np.uint8)  # Cas d'une image uniforme
+	else: image = np.zeros_like(image, dtype=np.uint8)  # .	   Cas d'une image uniforme
 
 	# Conversion en RGB
 	res = np.stack([image] * 3, axis=-1)
 
 	if points is None or points.size == 0 or points.shape[1] != 2: return res
 	# Dessin des contours des ROIs
-	half_size = (roi_size / 2.0)  # Demi taille de la ROI.
+	half_size = (roi_size / 2.0)  # .						   Demi taille de la ROI.
 	max_height, max_width = image.shape[0], image.shape[1]
 	for x, y in points:
 		y_min, y_max = max(0, int(round(y - half_size))), min(max_height, int(round(y + half_size)))
 		x_min, x_max = max(0, int(round(x - half_size))), min(max_width, int(round(x + half_size)))
 
 		# Dessiner le contour du carré
-		res[y_min:y_max, x_min] = color						 # Ligne gauche
-		res[y_min:y_max, x_max] = color						 # Ligne droite
-		res[y_min, x_min:x_max] = color						 # Ligne haut
+		res[y_min:y_max, x_min] = color  # .				   Ligne gauche
+		res[y_min:y_max, x_max] = color  # .				   Ligne droite
+		res[y_min, x_min:x_max] = color  # .				   Ligne haut
 		res[y_max, x_min:min(max_width, x_max + 1)] = color  # Ligne bas (distance +1 pour avoir un carré "fini")
 
 	return res
@@ -246,8 +246,8 @@ def plot_histogram(ax: plt.Axes, data: np.ndarray, title: str, limit: bool = Tru
 	if limit:
 		mu, sigma = np.mean(data), np.std(data)
 		if sigma == 0: return
-		limits = [mu - 3 * sigma, mu + 3 * sigma]						 # Limite théoriques des datas
-		data = data[(data >= limits[0]) & (data <= limits[1])]			 # Suppression des datas au dela des limites
+		limits = [mu - 3 * sigma, mu + 3 * sigma]  # .					   Limite théoriques des datas
+		data = data[(data >= limits[0]) & (data <= limits[1])]  # .		   Suppression des datas au dela des limites
 		limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
 	else:
 		limits = [min(data), max(data)]

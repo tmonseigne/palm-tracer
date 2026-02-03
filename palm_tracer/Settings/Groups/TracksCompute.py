@@ -31,12 +31,12 @@ class TracksCompute(BaseSettingGroup):
 	"""
 
 	label: str = "Tracks Compute"
-	setting_list = {"MSD":               [CheckBox, ["MSD", False]],
-					"Instant Diffusion": [CheckBox, ["Instant Diffusion", False]],
-					"Fit Length":        [SpinInt, ["Fit Length", 4, 2, 1000, 1]],
-					"3D":                [CheckBox, ["3D", False]],
-					"Log Scale":         [CheckBox, ["Log Scale", False]],
-					"Fit":               [Combo, ["Fit", 0, ["None", "Linear", "Power", "Exponential"]]]}
+	setting_list = {"MSD":               [CheckBox, ["MSD", "", False]],
+					"Instant Diffusion": [CheckBox, ["Instant Diffusion", "", False]],
+					"Fit Length":        [SpinInt, ["Fit Length", "", 4, [2, 1000], 1]],
+					"3D":                [CheckBox, ["3D", "", False]],
+					"Log Scale":         [CheckBox, ["Log Scale", "", False]],
+					"Fit":               [Combo, ["Fit", "", 0, ["None", "Linear", "Power", "Exponential"]]]}
 
 #	##################################################
 #	def initialize_ui(self):

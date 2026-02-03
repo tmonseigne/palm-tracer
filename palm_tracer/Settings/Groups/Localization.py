@@ -34,13 +34,13 @@ class Localization(BaseSettingGroup):
 
 	label: str = "Localization"
 	setting_list = {
-			"Preview":        [CheckBox, ["Preview", False]],
-			"Threshold":      [SpinFloat, ["Threshold", 90.0, 0.0, 1000, 1.0, 2]],
-			"Auto Threshold": [Button, ["Auto Threshold"]],
-			"ROI Shape":      [Combo, ["ROI Shape", 0, ["Circle", "Square"]]],
-			"ROI Size":       [SpinInt, ["ROI Size", 7, 3, 50, 1]],
-			"Watershed":      [CheckBox, ["Watershed", True]],
-			"Fit":            [Combo, ["Fit", 0, ["Nothing", "Gaussian Fit", "Spline"]]],
+			"Preview":        [CheckBox, ["Preview", "", False]],
+			"Threshold":      [SpinFloat, ["Threshold", "", 90.0, [0.0, 1000], 1.0, 2]],
+			"Auto Threshold": [Button, ["Auto Threshold", ""]],
+			"ROI Shape":      [Combo, ["ROI Shape", "", 0, ["Circle", "Square"]]],
+			"ROI Size":       [SpinInt, ["ROI Size", "", 7, [3, 50], 1]],
+			"Watershed":      [CheckBox, ["Watershed", "", True]],
+			"Fit":            [Combo, ["Fit", "", 0, ["Nothing", "Gaussian Fit", "Spline"]]],
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}
@@ -74,10 +74,9 @@ class Localization(BaseSettingGroup):
 		mode = s["Fit"]
 		gaussian_mode = s["Gaussian Fit Mode"]
 		# spline_sensor = s["Spline Fit Sensor"]
-		if mode == 0: return 0					  # Aucun ajustement
+		if mode == 0: return 0  # .					Aucun ajustement
 		elif mode == 1: return 1 + gaussian_mode  # Ajustement Gaussien
-		else: return 5							  # Ajustement Spline
-		# else: return 5 + spline_sensor		  # Ajustement Spline
+		else: return 5  # + spline_sensor 		  # Ajustement Spline
 
 	##################################################
 	def get_fit_params(self) -> np.ndarray:

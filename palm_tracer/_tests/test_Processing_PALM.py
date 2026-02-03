@@ -1,27 +1,27 @@
-""" Fichier des tests pour l'utilisation de la DLL CPU. """
+"""Fichier des tests pour l'utilisation de la DLL CPU."""
 import pytest
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Parsing import MODEL_ROWS
-from palm_tracer.Tools import open_tif, save_tif
-
+from palm_tracer.Tools import FileIO
 
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_dll_valid():
-	""" Test sur la présence d ela DLL PALM. """
+	"""Test sur la présence d ela DLL PALM."""
 	palm = Palm()
 	assert palm.is_valid(), "Erreur lors du chargement de la DLL"
+
 
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_image():
-	""" Test sur le lancement de PALM sur une frame. """
+	"""Test sur le lancement de PALM sur une frame."""
 	palm = Palm()
 	file = "stack"
-	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 	for plane in range(stack.shape[0]):
 		for fit in range(6):
 			suffix = get_loc_suffix(fit)
@@ -41,10 +41,10 @@ def test_palm_cpu_image():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_stack():
-	""" Test sur le lancement de PALM sur une pile. """
+	"""Test sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	file = "stack"
-	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 	for watershed in [True, False]:
 		for fit in range(6):
 			suffix = get_loc_suffix(fit, watershed)
@@ -64,10 +64,10 @@ def test_palm_cpu_stack():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_stack_plane_selection():
-	""" Test sur le lancement de PALM sur une pile. """
+	"""Test sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	file = "stack"
-	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 	suffix = get_loc_suffix()
 
 	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit), [2, 3, 4, 5, 6])
@@ -83,11 +83,11 @@ def test_palm_cpu_stack_plane_selection():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_stack_dll_check_quadrant():
-	"""	Test sur le lancement de PALM sur une pile. """
+	"""	Test sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	suffix = get_loc_suffix()
 	file = "stack_quadrant"
-	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 
 	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
 	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
@@ -110,9 +110,9 @@ def test_palm_cpu_stack_dll_check_quadrant():
 ##################################################
 @pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_cpu_auto_threshold():
-	""" Test basique sur l'auto-seuillage avec la DLL CPU. """
+	"""Test basique sur l'auto-seuillage avec la DLL CPU."""
 	palm = Palm()
-	image = open_tif(f"{INPUT_DIR}/stack.tif")
+	image = FileIO.open_tif(f"{INPUT_DIR}/stack.tif")
 	ref = [63.639888, 65.789447, 63.192296, 64.375352, 63.954150,
 		   63.400043, 66.521994, 63.373237, 62.515444, 63.866017]
 	for i in range(image.shape[0]):
@@ -146,7 +146,7 @@ def test_tracking():
 					ref = pd.read_csv(path)
 					assert compare_points(tracks, ref, group_cols=["Track"]), f"Test invalide pour les paramètres {suffix_trc}"
 			else:
-				print_warning(f"Fichier de localisations '{path}' indisponible.")
+				Ui.print_warning(f"Fichier de localisations '{path}' indisponible.")
 
 	tracks = palm.tracking(pd.DataFrame(), max_distance, min_life, decrease, cost_birth)
 	assert tracks.empty
@@ -173,7 +173,7 @@ def test_blinking_reconnection():
 				ref = pd.read_csv(ref_path)
 				assert compare_points(t_output, ref, group_cols=["Track", "Plane"]), f"Test invalide pour les paramètres {i}"
 	else:
-		print_warning(f"Fichier de Tracking '{path}' indisponible.")
+		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
 	tracks = palm.blinking_reconnection(pd.DataFrame(), 1, 0, 4, 2)
 	assert tracks.empty
@@ -222,7 +222,7 @@ def test_tracks_compute():
 		palm.tracks_compute(df, True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
 		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
 	else:
-		print_warning(f"Fichier de Tracking '{path}' indisponible.")
+		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
 
 ##################################################
@@ -233,7 +233,7 @@ def test_align():
 
 	# --- Lecture stack ---
 	file = "stack"
-	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 	z, h, w = stack.shape
 
 	# --- Facteurs de test (identité) ---
@@ -242,12 +242,12 @@ def test_align():
 	factors[1, 8] = 1.0
 
 	aligned = palm.align(stack, factors, 1)
-	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-copy.tif")
+	if save_output: FileIO.save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-copy.tif")
 	assert aligned.shape == stack.shape, "Mode Copie : les dimensions doivent être identiques"
 	assert np.allclose(aligned, stack, atol=0, rtol=0), "Mode Copie : le résultat doit être IDENTIQUE au stack d'origine."
 
 	aligned = palm.align(stack, factors, 2)
-	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-upsampling.tif")
+	if save_output: FileIO.save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-upsampling.tif")
 	assert aligned.shape == (z, 2 * h, 2 * w), "Mode Upscale : pour un stack 3D seule X et Y doivent être doublées."
 
 	def up2_nn(arr): return np.repeat(np.repeat(arr, 2, axis=-2), 2, axis=-1)
@@ -262,7 +262,7 @@ def test_align():
 	factors[1][7] = 1.0
 
 	aligned = palm.align(stack, factors, 1)
-	if save_output: save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-transpose.tif")
+	if save_output: FileIO.save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-transpose.tif")
 	assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgrè la transposition."
 
 
@@ -274,11 +274,11 @@ def test_wavelett():
 
 	# --- Lecture stack ---
 	file = "stack"
-	stack = open_tif(f"{INPUT_DIR}/{file}.tif")
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 
 	for i in range(5):
 		wavelett = palm.wavelett(stack, i)
-		if save_output: save_tif(wavelett, f"{OUTPUT_DIR}/{file}-wavelett-{i}.tif")
+		if save_output: FileIO.save_tif(wavelett, f"{OUTPUT_DIR}/{file}-wavelett-{i}.tif")
 		assert wavelett.shape == stack.shape, "Les dimensions doivent être identiques"
 
 

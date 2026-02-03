@@ -25,5 +25,5 @@ class VisualizationGraph(BaseSettingGroup):
 
 	label: str = "Graph"
 	setting_list = {
-			"Mode":   [Combo, ["Mode", 0, GRAPH_MODE]],
-			"Source": [Combo, ["Source", 0, GRAPH_SOURCE]]}
+			"Mode":   [Combo, ["Mode", "", 0, GRAPH_MODE]],
+			"Source": [Combo, ["Source", "", 0, GRAPH_SOURCE]]}

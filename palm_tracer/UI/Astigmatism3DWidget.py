@@ -6,9 +6,6 @@ Ce widget offre une interface simple organisée en deux onglets : ``Compute Asti
 Notes
 -----
 - Le widget est autonome : il peut être lancé directement (``python Astigmatism3DWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
-
-.. todo::
-   - Vérifier si les fichiers de calib vont sur un Z croissant ou décroissant
 """
 
 import shutil
@@ -17,22 +14,20 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGridLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget,
-							QWidget)
+from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
 from palm_tracer.Processing import Grapher, Palm
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, z_from_planes
 from palm_tracer.Processing.Parsing import SHAPE_MODEL
-from palm_tracer.Tools import print_error, print_success, print_warning
-from palm_tracer.UI.StandAloneWidget import StandAloneWidget
+from palm_tracer.Tools import Ui
+from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
 DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
 _windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class Astigmatism3DWidget(StandAloneWidget):
+class Astigmatism3DWidget(BaseStandAloneWidget):
 	"""
 	Widget minimaliste pour le calcul d'un modèle d’astigmatisme en lien avec la position axiale et l'estimation d'une position axiale en fonction d'un modèle.
 
@@ -84,19 +79,18 @@ class Astigmatism3DWidget(StandAloneWidget):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 
 		main_layout = QHBoxLayout(self)
-		self._init_layout(main_layout)
+		Ui.init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
 
 		# ---------- Onglet 1 : Compute Model ----------
-		tab_compute, tab_layout = self._make_tab(self._tabs)
-		grp, grp_layout = self._make_group(tab_compute, "Inputs")
+		tab_compute, tab_layout = Ui.make_tab(self._tabs)
+		grp, grp_layout = Ui.make_group(tab_compute, "Inputs")
 
 		self._btn_load_compute = QPushButton("Load Localization file (CSV)", grp)
 		self._btn_load_compute.setToolTip("The file must contain at least 3 columns : Sigma X, Sigma Y, Z")
 
-		self._lbl_compute = QLabel("No file loaded", grp)
-		self._lbl_compute.setStyleSheet(self.STYLESHEET_INFO)
+		self._lbl_compute = Ui.make_path_label("No file loaded", grp)
 
 		self._spin_px_compute = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_compute.setToolTip("Pixel size in micrometers.")
@@ -107,11 +101,11 @@ class Astigmatism3DWidget(StandAloneWidget):
 		self._check_z_flip = QCheckBox(grp)
 		self._check_z_flip.setToolTip("Flip Sign of Z .")
 
-		form = self._make_form(None)
-		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
-		self._add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
-		self._add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
-		self._add_setting_row(form, "Flip Z:", self._check_z_flip)
+		form = Ui.make_form(None)
+		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
+		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
+		Ui.add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
+		Ui.add_setting_row(form, "Flip Z:", self._check_z_flip)
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
@@ -157,27 +151,24 @@ class Astigmatism3DWidget(StandAloneWidget):
 				"p95_dist":  {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							  "tips":  "95e percentile of error distance with the curve."}}]
 
-		grp, grp_layout = self._make_group(tab_compute, "Sanity Check")
+		grp, grp_layout = Ui.make_group(tab_compute, "Sanity Check")
 		grp_layout.addLayout(self._init_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
 
 		tab_layout.addWidget(grp)
 		tab_layout.addStretch(1)
 
 		# ---------- Onglet 2 : Estimate Z ----------
-		tab_estimate, tab_layout = self._make_tab(self._tabs)
-		grp, grp_layout = self._make_group(tab_estimate, "Inputs")
+		tab_estimate, tab_layout = Ui.make_tab(self._tabs)
+		grp, grp_layout = Ui.make_group(tab_estimate, "Inputs")
 
 		self._btn_load_loc_estimate = QPushButton("Load Localization file (CSV)", grp)
 		self._btn_load_loc_estimate.setToolTip("The file must contain at least 3 columns : Sigma X, Sigma Y, Z")
 
-		self._lbl_loc_estimate = QLabel("No file loaded", grp)
-		self._lbl_loc_estimate.setStyleSheet(self.STYLESHEET_INFO)
-
 		self._btn_load_model_estimate = QPushButton("Load Model file (CSV)", grp)
 		self._btn_load_model_estimate.setToolTip("The file is a csv with 2 lines and 5 columns.")
 
-		self._lbl_model_estimate = QLabel("No Model file loaded", grp)
-		self._lbl_model_estimate.setStyleSheet(self.STYLESHEET_INFO)
+		self._lbl_loc_estimate = Ui.make_path_label("No file loaded", grp)
+		self._lbl_model_estimate = Ui.make_path_label("No Model file loaded", grp)
 
 		self._spin_px_estimate = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_estimate.setToolTip("Pixel size in micrometers.")
@@ -189,10 +180,10 @@ class Astigmatism3DWidget(StandAloneWidget):
 		self._check_b_estimate.setChecked(True)
 		self._check_b_estimate.setToolTip("Save original localisation file in backup folder.")
 
-		form = self._make_form(None)
-		self._add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate)
-		self._add_setting_row(form, "Z Max (nm):", self._spin_z_estimate)
-		self._add_setting_row(form, "Save Backup:", self._check_b_estimate)
+		form = Ui.make_form(None)
+		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate)
+		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_estimate)
+		Ui.add_setting_row(form, "Save Backup:", self._check_b_estimate)
 
 		grp_layout.addWidget(self._btn_load_loc_estimate)
 		grp_layout.addWidget(self._lbl_loc_estimate)
@@ -232,55 +223,12 @@ class Astigmatism3DWidget(StandAloneWidget):
 		:return: Un QHBoxLayout prêt à être ajouté au calque du groupe.
 		"""
 		res = QHBoxLayout()
-		res.setContentsMargins(0, 0, 0, 0)
-		res.setSpacing(self.COMMON_SPACE)
+		Ui.init_layout(res, 0, 0)
 
-		res.addLayout(self._make_column_grid(sanity[0], titles[0]), stretch=1)
-		res.addWidget(self._make_vertical_separator())
-		res.addLayout(self._make_column_grid(sanity[1], titles[1]), stretch=1)
+		res.addLayout(Ui.make_info_grid(sanity[0], titles[0], 3), stretch=1)
+		res.addWidget(Ui.make_vertical_separator())
+		res.addLayout(Ui.make_info_grid(sanity[1], titles[1], 3), stretch=1)
 		return res
-
-	##################################################
-	def _make_column_grid(self, elements: dict[str, dict[str, QLabel | str]], title: str) -> QGridLayout:
-		"""Construit une colonne (titre + lignes) sous forme de QGridLayout."""
-		grid = QGridLayout()
-		grid.setContentsMargins(0, 0, 0, 0)
-		grid.setHorizontalSpacing(self.COMMON_SPACE)
-		grid.setVerticalSpacing(self.COMMON_SPACE)
-
-		# Titre de colonne
-		title_lbl = QLabel(title)
-		title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-		title_lbl.setStyleSheet("font-weight: 600;")
-		grid.addWidget(title_lbl, 0, 0, 1, 3)  # Titre
-		grid.addWidget(self._make_horizontal_separator(), 1, 0, 1, 3)  # Séparateur horizontal
-
-		# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
-		grid.setColumnStretch(0, 0)  # label
-		grid.setColumnStretch(1, 1)  # value (s'étire)
-		grid.setColumnStretch(2, 0)  # unit
-
-		row = 2
-		for key, item in elements.items():
-			lbl: QLabel = item["label"]
-			val: QLabel = item["value"]
-			unit: QLabel = item["unit"]
-			tips: str = item["tips"]
-
-			lbl.setToolTip(tips)  # Tooltips collé au label
-
-			# Alignements : gauche | droite | gauche
-			lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-			val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-			unit.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-
-			grid.addWidget(lbl, row, 0)
-			grid.addWidget(val, row, 1)
-			grid.addWidget(unit, row, 2)
-
-			row += 1
-
-		return grid
 
 	##################################################
 	def _connect_signals(self):
@@ -293,10 +241,10 @@ class Astigmatism3DWidget(StandAloneWidget):
 		self._btn_estimate.clicked.connect(self._on_estimate)
 
 		# --- Lien entre les deux spin ---
-		self._spin_px_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_estimate, v))
-		self._spin_px_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_px_compute, v))
-		self._spin_z_compute.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_estimate, v))
-		self._spin_z_estimate.valueChanged.connect(lambda v: self._sync_spin(self._spin_z_compute, v))
+		self._spin_px_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_estimate, v))
+		self._spin_px_estimate.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_compute, v))
+		self._spin_z_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_z_estimate, v))
+		self._spin_z_estimate.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_z_compute, v))
 
 		# --- Mise à jour de l'affichage de la courbe ---
 		self._spin_px_compute.valueChanged.connect(self._update_plot)
@@ -352,7 +300,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 	# ==================================================
 	##################################################
 	def _download_initial_path(self) -> Path:
-		""" Renvoie un chemin initial pour le téléchargement par plotly."""
+		"""Renvoie un chemin initial pour le téléchargement par plotly."""
 		parent: Path = self._mod_filename.parent if self._mod_filename != Path() else self._loc_filename.parent if self._loc_filename != Path() else Path.cwd()
 		return parent / "astigmatism_3d_model"
 
@@ -363,7 +311,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		filename, _ = QFileDialog.getOpenFileName(self, "Select Localization CSV file", "", "CSV files (*.csv)")
 
 		if not filename:
-			print_warning("No file selected.")
+			Ui.print_warning("No file selected.")
 			return
 
 		# --- lecture du fichier ---
@@ -373,27 +321,25 @@ class Astigmatism3DWidget(StandAloneWidget):
 			self._loc = pd.read_csv(filename)
 		except Exception as e:
 			self._loc = pd.DataFrame()
-			print_error(f"Unable to read the CSV file : {e}.")
+			Ui.print_error(f"Unable to read the CSV file : {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if not set(DLL_REQUIRED_COLS).issubset(self._loc.columns):
-			print_error(f"The localization file is not in the correct format.\n"
-						f"\tExpected format, at least columns: {', '.join(sorted(DLL_REQUIRED_COLS))}.\n"
-						f"\tFound columns: {', '.join(self._loc.columns)}")
+			Ui.print_error(f"The localization file is not in the correct format.\n"
+						   f"\tExpected format, at least columns: {', '.join(sorted(DLL_REQUIRED_COLS))}.\n"
+						   f"\tFound columns: {', '.join(self._loc.columns)}")
 			self._loc = pd.DataFrame()
 			return
 
 		# --- mise à jour du label associé au bouton ---
-		self._lbl_compute.setText(self._loc_filename.name)
-		self._lbl_compute.setToolTip(filename)
-		self._lbl_loc_estimate.setText(self._loc_filename.name)
-		self._lbl_loc_estimate.setToolTip(filename)
+		Ui.update_path_label(self._lbl_compute, self._loc_filename)
+		Ui.update_path_label(self._lbl_loc_estimate, self._loc_filename)
 
 		# --- mise à jour du Z Max ---
 		self._spin_z_estimate.setValue(self._loc["Z"].abs().max())
 
-		print_success(f"CSV loaded successfully. {len(self._loc)} points, {len(self._loc.columns)} columns")
+		Ui.print_success(f"CSV loaded successfully. {len(self._loc)} points, {len(self._loc.columns)} columns")
 
 	##################################################
 	def _on_load_model(self):
@@ -407,7 +353,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		filename, _ = QFileDialog.getOpenFileName(self, "Select Model CSV file", "", "CSV files (*.csv)")
 
 		if not filename:
-			print_warning("No model file selected.")
+			Ui.print_warning("No model file selected.")
 			return
 
 		# --- lecture du fichier ---
@@ -417,30 +363,29 @@ class Astigmatism3DWidget(StandAloneWidget):
 			self._model = pd.read_csv(filename, index_col=0)
 		except Exception as e:
 			self._model = pd.DataFrame()
-			print_error(f"Unable to read the model file: {e}.")
+			Ui.print_error(f"Unable to read the model file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if self._model.shape != SHAPE_MODEL:
 			self._model = pd.DataFrame()
-			print_error(f"The model file is not in the correct format. Expected format: two lines of five values (2x5).")
+			Ui.print_error(f"The model file is not in the correct format. Expected format: two lines of five values (2x5).")
 			return
 
 		# --- mise à jour du label de statut ---
-		self._lbl_model_estimate.setText(self._mod_filename.name)
-		self._lbl_model_estimate.setToolTip(filename)
+		Ui.update_path_label(self._lbl_model_estimate, self._mod_filename)
 
 		# --- mise à jour de l'affichage ---
 		self._update_plot()
 
-		print_success("Model loaded successfully.")
+		Ui.print_success("Model loaded successfully.")
 
 	##################################################
 	def _on_compute(self):
 		"""Callback du bouton 'Compute model'."""
 		# --- Vérification ---
 		if self._loc.empty:
-			print_warning("Can't Compute model without correct file loaded.")
+			Ui.print_warning("Can't Compute model without correct file loaded.")
 			return
 
 		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
@@ -449,7 +394,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		# --- Mise à jour de Z (si sélectionné) ---
 		if self._check_z_from_plane.isChecked():
 			if "Plane" not in self._loc.columns:
-				print_warning("No Plane Column in file. We can't use it to intialize Z.")
+				Ui.print_warning("No Plane Column in file. We can't use it to intialize Z.")
 				return
 			z_max = self._spin_z_compute.value()
 			z = z_from_planes(self._loc["Plane"].to_numpy(), -z_max, z_max)  # Attention, savoir si on va de -Zmax à + Zmax ou de +Zmax à -Zmax
@@ -463,23 +408,22 @@ class Astigmatism3DWidget(StandAloneWidget):
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
 		self._model.to_csv(str(self._mod_filename))
-		print_success("Model saved successfully.")
+		Ui.print_success("Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
 		self._update_sanity_values(points, self._model.to_numpy(), pixel_size)
 		self._update_plot()
-		self._lbl_model_estimate.setText(self._mod_filename.name)
-		self._lbl_model_estimate.setToolTip(str(self._mod_filename))
+		Ui.update_path_label(self._lbl_model_estimate, self._mod_filename)
 
 	##################################################
 	def _on_estimate(self):
 		"""Callback du bouton 'Estimate'."""
 		# --- Vérifications ---
 		if self._loc.empty:
-			print_warning("Can't estimate without correct localization file loaded.")
+			Ui.print_warning("Can't estimate without correct localization file loaded.")
 			return
 		if self._model.empty:
-			print_warning("Can't estimate without correct model file loaded.")
+			Ui.print_warning("Can't estimate without correct model file loaded.")
 			return
 
 		# --- Enregistre un backup (si sélectionné) ---
@@ -508,11 +452,7 @@ class Astigmatism3DWidget(StandAloneWidget):
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
 		self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
 		self._loc.to_csv(self._loc_filename, index=False)
-		print_success("Localization file with estimation saved successfully.")
-
-	# ==================================================
-	# endregion Callbacks
-	# ==================================================
+		Ui.print_success("Localization file with estimation saved successfully.")
 
 
 ##################################################

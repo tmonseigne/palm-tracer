@@ -9,6 +9,7 @@ qui regroupe les paramètres de filtrage nécessaires à la configuration de PAL
 """
 
 from dataclasses import dataclass
+from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.FilteringL import FilteringL
@@ -32,8 +33,8 @@ class Filtering(BaseSettingGroup):
 
 	label: str = "Filtering"
 	setting_list = {
-			"Save":       [CheckBox, ["Save filtered", False]],
-			"Plane":        [CheckRangeInt, ["Plane", [1, 100000], [1, 100000]]],
+			"Save":         [CheckBox, ["Save filtered", "", False]],
+			"Plane":        [CheckRangeInt, ["Plane", "", [1, 100000], [1, 100000]]],
 			"Localization": [FilteringL, []],
 			"Tracks":       [FilteringT, []]
 			}
@@ -45,3 +46,12 @@ class Filtering(BaseSettingGroup):
 		self.remove_header()
 		self._settings["Localization"].always_active()
 		self._settings["Tracks"].always_active()
+
+	##################################################
+	def deactivate_filters(self):
+		self._settings["Save"].set_value(False)
+		self._settings["Plane"].active = False
+		fl = cast(FilteringL, self._settings["Localization"])
+		fl.deactivate_filters()
+		ft = cast(FilteringT, self._settings["Tracks"])
+		ft.deactivate_filters()

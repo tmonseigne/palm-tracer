@@ -1,4 +1,4 @@
-""" Fichier des tests pour l'utilisation des DLL. """
+"""Fichier des tests pour l'utilisation des DLL."""
 import pytest
 
 from palm_tracer.Processing.Parsing import *
@@ -23,7 +23,7 @@ def test_get_max_point():
 
 ##################################################
 def test_rearrange_dataframe_columns():
-	""" test de la fonction rearrange_dataframe_columns."""
+	"""test de la fonction rearrange_dataframe_columns."""
 	df = pd.DataFrame({"X": [1, 2, 3], "Y": [4, 5, 6], "Z": [7, 8, 9]})
 	res = rearrange_dataframe_columns(df, ["Y"], True)
 	assert res.columns.tolist() == ["Y", "X", "Z"], "Erreur dans la fonction rearrange_dataframe_columns."
@@ -45,7 +45,7 @@ def test_log10_dataframe():
 
 ##################################################
 def test_parse_irregular_array():
-	""" Test de la fonction parse_irregular_array."""
+	"""Test de la fonction parse_irregular_array."""
 	data = np.array([2, 1, 2, 2, 3, 4])
 	res = parse_irregular_array(data)
 	ref = np.array([[1, 2], [3, 4]])
@@ -116,7 +116,7 @@ def test_parse_result():
 
 ##################################################
 def test_parse_localization_for_tracking():
-	""" Test de la fonction parse_localization_for_tracking."""
+	"""Test de la fonction parse_localization_for_tracking."""
 	data = parse_result(np.arange(36), "Localization")
 	res = parse_localization_for_tracking(data)
 	ref = [0, 4, 5, 6, 15, 16, -1, -1, -1, -1, -1, -1, 18, 22, 23, 24, 33, 34, -1, -1, -1, -1, -1, -1]

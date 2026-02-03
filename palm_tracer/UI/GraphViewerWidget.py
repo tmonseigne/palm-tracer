@@ -19,7 +19,7 @@ Notes
 - Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
 """
 
-import os
+from pathlib import Path
 from typing import Any, cast, Optional
 
 import numpy as np
@@ -34,8 +34,8 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Grapher
 from palm_tracer.Settings.Groups import Filtering
 from palm_tracer.Settings.Types import FileList, SpinInt
-from palm_tracer.Tools import open_tif, print_error
-from palm_tracer.UI.StandAloneWidget import StandAloneWidget
+from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
 # Tentative d'import QtWebEngine (via qtpy)
 try:
@@ -48,7 +48,7 @@ except Exception:
 
 
 ##################################################
-class GraphViewerWidget(StandAloneWidget):
+class GraphViewerWidget(BaseStandAloneWidget):
 	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
 
 	Ce widget expose une UI compacte pour :
@@ -80,9 +80,9 @@ class GraphViewerWidget(StandAloneWidget):
 			"trc": ["Length"],
 			"MSD": ["MSD"],
 			"InD": ["Instant Diffusion"],
-			"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # Pour tous Fit
-					["A (μm²/s)", "B (μm²)", "MSE"],  # Fit Linéaire
-					["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # Fit Puissance
+			"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # .	  Pour Tous Fit
+					["A (μm²/s)", "B (μm²)", "MSE"],  # .								  Fit Linéaire
+					["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # . Fit Puissance
 					["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
 			}
 
@@ -131,14 +131,14 @@ class GraphViewerWidget(StandAloneWidget):
 		"""
 
 		main_layout = QHBoxLayout(self)
-		self._init_layout(main_layout)
+		Ui.init_layout(main_layout)
 
 		# Colonne gauche
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
 		left.setMinimumWidth(300)
 		vbox = QVBoxLayout(left)
-		self._init_layout(vbox)
+		Ui.init_layout(vbox)
 
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
@@ -149,13 +149,13 @@ class GraphViewerWidget(StandAloneWidget):
 		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
 		self._status = {"loc": QLabel("No"), "trc": QLabel("No"), "MSD": QLabel("No"), "InD": QLabel("No"), "Fit": QLabel("No")}
 
-		form = self._make_form(grp_infos)
-		self._add_setting_row(form, "File :", self._lbl_filename)
-		self._add_setting_row(form, "Localization :", self._status["loc"])
-		self._add_setting_row(form, "Tracking :", self._status["trc"])
-		self._add_setting_row(form, "MSD :", self._status["MSD"])
-		self._add_setting_row(form, "Instant D :", self._status["InD"])
-		self._add_setting_row(form, "Fit :", self._status["Fit"])
+		form = Ui.make_form(grp_infos)
+		Ui.add_setting_row(form, "File :", self._lbl_filename)
+		Ui.add_setting_row(form, "Localization :", self._status["loc"])
+		Ui.add_setting_row(form, "Tracking :", self._status["trc"])
+		Ui.add_setting_row(form, "MSD :", self._status["MSD"])
+		Ui.add_setting_row(form, "Instant D :", self._status["InD"])
+		Ui.add_setting_row(form, "Fit :", self._status["Fit"])
 
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
@@ -179,7 +179,7 @@ class GraphViewerWidget(StandAloneWidget):
 		self._btn_stack.setChecked(True)
 
 		# Combo box
-		form = self._make_form(grp_source)
+		form = Ui.make_form(grp_source)
 		self._cmb_src = QComboBox()
 		form.addRow(h)
 		form.addRow("Source :", self._cmb_src)
@@ -188,7 +188,7 @@ class GraphViewerWidget(StandAloneWidget):
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
 		self._display_settings: dict[str, Any] = {
-				"MSD":     SpinInt("MSD Step", 1, 1, 10000, 1),
+				"MSD":     SpinInt("MSD Step", "", 1, [1, 10000], 1),
 				"Log":     QCheckBox("Use Log Scale"),
 				"Limits":  QCheckBox("Apply Limits"),
 				"Sigma":   QCheckBox("Show σ"),
@@ -198,7 +198,7 @@ class GraphViewerWidget(StandAloneWidget):
 				}
 
 		# Sélection du Step pour MSD (dans la partie source)
-		form.addRow(self._display_settings["MSD"].layout)
+		cast(SpinInt, self._display_settings["MSD"]).attach_to_form(form)
 		self._display_settings["MSD"].hide()  # Masquage initial
 
 		# Appliquer limites + bouton info
@@ -209,7 +209,7 @@ class GraphViewerWidget(StandAloneWidget):
 		info_btn.setToolTip("Limits data to ±3σ around the mean (3-sigma rule).")
 		row_limits = QWidget()
 		row_l = QHBoxLayout(row_limits)
-		row_l.setContentsMargins(0, 0, 0, 0)
+		Ui.init_layout(row_l, 0, 0)
 		row_l.addWidget(self._display_settings["Limits"])
 		row_l.addWidget(info_btn)
 
@@ -235,7 +235,7 @@ class GraphViewerWidget(StandAloneWidget):
 		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
-		grp_filters, vbox_filters = self._make_group(self, "Filters")
+		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
 		self._filters = Filtering()
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
@@ -330,14 +330,14 @@ class GraphViewerWidget(StandAloneWidget):
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
 		self._cmb_src.blockSignals(True)
 		self._cmb_src.clear()
-		if btn_id == 0: self._cmb_src.addItems(self.DATA_SRC["stk"])  # Stack
-		elif btn_id == 1: self._cmb_src.addItems(self.DATA_SRC["loc"])  # Localization
+		if btn_id == 0: self._cmb_src.addItems(self.DATA_SRC["stk"])  # .	Stack
+		elif btn_id == 1: self._cmb_src.addItems(self.DATA_SRC["loc"])  # .	Localization
 		elif btn_id == 2: self._cmb_src.addItems(self._get_tracks_src())  # Tracking
 		self._cmb_src.setCurrentIndex(0)
 		self._cmb_src.blockSignals(False)
 
-		self._update_filters_ui()  # Mise à jour des filtres à afficher
-		self._update_plot()  # puis redessiner le graphe si besoin
+		self._update_filters_ui()  # .										Mise à jour des filtres à afficher
+		self._update_plot()  # .											Puis redessiner le graphe si besoin
 
 	##################################################
 	def _on_source_cmb_changed(self, btn_id: int) -> None:
@@ -350,7 +350,7 @@ class GraphViewerWidget(StandAloneWidget):
 		if self._btg_src.checkedId() == 2 and btn_id == 1: self._display_settings["MSD"].show()
 		else: self._display_settings["MSD"].hide()
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
-		self._update_plot()  # puis redessiner le graphe si besoin
+		self._update_plot()  # .	 Puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filters_ui(self):
@@ -414,23 +414,23 @@ class GraphViewerWidget(StandAloneWidget):
 		"""
 		res = {"loc": self.FILE_STATUS[0], "trc": self.FILE_STATUS[0], "MSD": self.FILE_STATUS[0], "InD": self.FILE_STATUS[0], "Fit": self.FILE_STATUS[0]}
 
-		if self._df["loc"].empty: res["loc"] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
-		elif "f_" in loc_key: res["loc"] = self.FILE_STATUS[2]  # Tableau filtré
-		else: res["loc"] = self.FILE_STATUS[1]  # Tableau standard
+		if self._df["loc"].empty: res["loc"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
+		elif "f_" in loc_key: res["loc"] = self.FILE_STATUS[2]  # .			Tableau filtré
+		else: res["loc"] = self.FILE_STATUS[1]  # .							Tableau standard
 
-		if self._df["trc"].empty: res["trc"] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
+		if self._df["trc"].empty: res["trc"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
 		elif "f_" in trc_key:
-			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[4]  # Tableau reconnecté filtré
-			else: res["trc"] = self.FILE_STATUS[2]  # Tableau filtré
+			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[4]  # .		Tableau reconnecté filtré
+			else: res["trc"] = self.FILE_STATUS[2]  # .						Tableau filtré
 		else:
-			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[3]  # Tableau reconnecté non filtré
-			else: res["trc"] = self.FILE_STATUS[1]  # Tableau standard
+			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[3]  # .		Tableau reconnecté non filtré
+			else: res["trc"] = self.FILE_STATUS[1]  # .						Tableau standard
 
 		tcs = ["MSD", "InD", "Fit"]
 		for i in range(3):
 			if self._df[tcs[i]].empty: res[tcs[i]] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
-			elif "f_" in tc_key[i]: res[tcs[i]] = self.FILE_STATUS[2]  # Tableau filtré
-			else: res[tcs[i]] = self.FILE_STATUS[1]  # Tableau standard
+			elif "f_" in tc_key[i]: res[tcs[i]] = self.FILE_STATUS[2]  # .	Tableau filtré
+			else: res[tcs[i]] = self.FILE_STATUS[1]  # .					Tableau standard
 		return res
 
 	##################################################
@@ -460,26 +460,26 @@ class GraphViewerWidget(StandAloneWidget):
 			- Met à jour les libellés d'information et l'état d'activation des boutons de domaine.
 			- Sélectionne par défaut le domaine "Stack" et redessine.
 
-		En cas d'erreur de lecture, logue l'erreur via :func:`print_error`.
+		En cas d'erreur de lecture, logue l'erreur via :func:`palm_tracer.Tools.Ui.print_error`.
 		"""
 		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
 
 		# Métadonnées d'information
 		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
 		if self._file != "":
-			try: self._stack = open_tif(self._file)
-			except Exception as e: print_error(f"Error loading {self._file} in GraphViewer : {e}")
+			try: self._stack = FileIO.open_tif(self._file)
+			except Exception as e: Ui.print_error(f"Error loading {self._file} in GraphViewer : {e}")
 
-		self._lbl_filename.setText(os.path.basename(self._file) if self._file != "" else "No File")
+		self._lbl_filename.setText(Path(self._file).name if self._file else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)  # Change la source pour Stack
+		self._on_source_changed(0)  # .	  Change la source pour Stack
 
 	##################################################
 	def _reset_filtered(self):
 		"""Supprime les dataframes de filtre."""
 		self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
-		self._update_df()  # Récupération des bons dataframe
-		self._update_plot()  # puis redessiner le graphe si besoin
+		self._update_df()  # .		 Récupération des bons dataframe
+		self._update_plot()  # .	 Puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filtered(self):
@@ -488,8 +488,8 @@ class GraphViewerWidget(StandAloneWidget):
 			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
 			self._pt.update_filtered()  # Mise à jour des filtres
 
-		self._update_df()  # Récupération des bons dataframe
-		self._update_plot()  # puis redessiner le graphe si besoin
+		self._update_df()  # .			  Récupération des bons dataframe
+		self._update_plot()  # .		  Puis redessiner le graphe si besoin
 
 	# ==================================================
 	# endregion PALMTracer Link
@@ -525,7 +525,7 @@ class GraphViewerWidget(StandAloneWidget):
 
 	##################################################
 	def get_plot_data(self) -> tuple[np.ndarray, str]:
-		""" Récupère et prépare les données pour l'affichage."""
+		"""Récupère et prépare les données pour l'affichage."""
 		src_id = self._btg_src.checkedId()
 		src_type = self._cmb_src.currentText()
 		log_scale = self._display_settings["Log"].isChecked()
@@ -537,7 +537,7 @@ class GraphViewerWidget(StandAloneWidget):
 			if self._filters["Plane"].active:
 				limits = self._filters["Plane"].get_value()
 				tmp = tmp[max(limits[0] - 1, 0):min(limits[1], int(tmp.shape[0])), ...]
-			return self.__log_data(tmp, log_scale), f"Stack {src_type}"
+			return self._log_data(tmp, log_scale), f"Stack {src_type}"
 
 		# Localizations
 		elif src_id == 1:
@@ -551,40 +551,40 @@ class GraphViewerWidget(StandAloneWidget):
 			else:
 				s = self._df["loc"].get(src_type)  # None si la colonne n'existe pas
 				if s is None: return np.empty(0), f"Localizations {src_type}"
-				return self.__log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src_type}"
+				return self._log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src_type}"
 
 		# Tracks
 		else:
 			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])		# Groupement par track + calcul min et max
-				group["delta"] = group["max"] - group["min"]								# Calcul du delta
+				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])  # .	  Groupement par track + calcul min et max
+				group["delta"] = group["max"] - group["min"]  # .							  Calcul du delta
 				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
 				return res, f"Tracks {src_type}"
 
 			elif src_type == "MSD":
 				res = self._df["MSD"]
-				step = self._display_settings["MSD"].get_value()											# Récupération du numéro du Step.
-				col = f"Step {step}"																		# Récupération du nom de la colonne.
+				step = self._display_settings["MSD"].get_value()  # .										  Récupération du numéro du Step.
+				col = f"Step {step}"  # .																	  Récupération du nom de la colonne.
 				if not {"Track", col}.issubset(res.columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification  de présence des colonnes
-				track, values = res["Track"].astype(int).to_numpy(), res[col].astype(float).to_numpy()		# Séparation track et valeur
-				res = np.column_stack((track, self.__log_data(values, log_scale)))							# Application du log sur les valeurs
-				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"							# Retour avec filtrage des Lignes NaN
+				track, values = res["Track"].astype(int).to_numpy(), res[col].astype(float).to_numpy()  # .	  Séparation track et valeur
+				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
+				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"  # .					  Retour avec filtrage des Lignes NaN
 
 			elif src_type == "Instant Diffusion":
-				res = self._df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()			# Récupération des colonnes
-				res = self.__log_data(res, log_scale)														# Application du log sur les valeurs
-				return res[np.isfinite(res)], f"Tracks {src_type}"											# Retour avec filtrage des Lignes NaN
+				res = self._df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .		  Récupération des colonnes
+				res = self._log_data(res, log_scale)  # .													  Application du log sur les valeurs
+				return res[np.isfinite(res)], f"Tracks {src_type}"  # .										  Retour avec filtrage des Lignes NaN
 
 			else:
 				res = self._df["Fit"]
-				if not {"Track", src_type}.issubset(res.columns): return np.empty(0), f"Tracks {src_type}"   # Vérification de présence des colonnes
+				if not {"Track", src_type}.issubset(res.columns): return np.empty(0), f"Tracks {src_type}"  # Vérification de présence des colonnes
 				track, values = res["Track"].astype(int).to_numpy(), res[src_type].astype(float).to_numpy()  # Séparation track et valeur
-				res = np.column_stack((track, self.__log_data(values, log_scale)))							 # Application du log sur les valeurs
-				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"								 # Retour avec filtrage des Lignes NaN
+				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
+				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"  # .							  Retour avec filtrage des Lignes NaN
 
 	##################################################
 	@staticmethod
-	def __log_data(data: np.ndarray, log: bool) -> np.ndarray:
+	def _log_data(data: np.ndarray, log: bool) -> np.ndarray:
 		"""
 		Application du log avec suppression du warning pour les valeurs <= 0 et remplacement par Nan de ces valeurs.
 
@@ -670,10 +670,6 @@ class GraphViewerWidget(StandAloneWidget):
 				path = path + ".html"
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
-
-	# ==================================================
-	# endregion Drawing
-	# ==================================================
 
 
 ##################################################

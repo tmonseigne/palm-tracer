@@ -1,14 +1,14 @@
-""" Configuration file for the Sphinx documentation builder. """
+"""Configuration file for the Sphinx documentation builder."""
 
 # -- Gestion des fichiers à ajouter ------------------------------------------
 
-import os
 import shutil
 import sys
+from pathlib import Path
 
 # Ajout du chemin vers le dossier palm_tracer
-sys.path.insert(0, os.path.abspath("../"))
-sys.path.insert(0, os.path.abspath("../palm_tracer"))
+root = Path(__file__).resolve().parent.parent
+sys.path[:0] = [str(root), str(root / "palm_tracer")]
 
 # -- Project information -----------------------------------------------------
 
@@ -37,21 +37,21 @@ extensions = [
 autodoc_typehints = "both"
 
 intersphinx_mapping = {
-		"python":                  ("https://docs.python.org/3", None),
-		"numpy":                   ("https://numpy.org/doc/stable", None),
-		"pandas":                  ("https://pandas.pydata.org/pandas-docs/stable", None),
-		"scipy":                   ("https://docs.scipy.org/doc/scipy/", None),
-		"scikit-image":            ("https://scikit-image.org/docs/stable/", None),
-		"matplotlib":              ("https://matplotlib.org/stable/", None),
-		"seaborn":                 ("https://seaborn.pydata.org/", None),
-		"pillow":                  ("https://pillow.readthedocs.io/en/stable/", None),
-		"psutil":                  ("https://psutil.readthedocs.io/en/latest/", None),
-		"pytest":                  ("https://docs.pytest.org/en/latest/", None),
-		"pytest-cov":              ("https://pytest-cov.readthedocs.io/en/latest/", None),
-		"pytest-qt":               ("https://pytest-qt.readthedocs.io/en/latest/", None),
-		"napari":                  ("https://napari.org/stable/", None),
-		"magicgui":                ("https://pyapp-kit.github.io/magicgui/", None),
-		"sphinx":                  ("https://www.sphinx-doc.org/en/master/", None),
+		"python":       ("https://docs.python.org/3", None),
+		"numpy":        ("https://numpy.org/doc/stable", None),
+		"pandas":       ("https://pandas.pydata.org/pandas-docs/stable", None),
+		"scipy":        ("https://docs.scipy.org/doc/scipy/", None),
+		"scikit-image": ("https://scikit-image.org/docs/stable/", None),
+		"matplotlib":   ("https://matplotlib.org/stable/", None),
+		"seaborn":      ("https://seaborn.pydata.org/", None),
+		"pillow":       ("https://pillow.readthedocs.io/en/stable/", None),
+		"psutil":       ("https://psutil.readthedocs.io/en/latest/", None),
+		"pytest":       ("https://docs.pytest.org/en/latest/", None),
+		"pytest-cov":   ("https://pytest-cov.readthedocs.io/en/latest/", None),
+		"pytest-qt":    ("https://pytest-qt.readthedocs.io/en/latest/", None),
+		"napari":       ("https://napari.org/stable/", None),
+		"magicgui":     ("https://pyapp-kit.github.io/magicgui/", None),
+		"sphinx":       ("https://www.sphinx-doc.org/en/master/", None),
 		}
 
 templates_path = ["_templates"]
@@ -71,10 +71,11 @@ html_context = {"allow_html_in_rst": True}
 
 autosummary_generate = True
 autodoc_default_options = {
-		"members":          True,
-		"private-members":  True,
-		"undoc-members":    True,
-		"show-inheritance": True,
+		"members":           True,
+		"private-members":   True,
+		"undoc-members":     True,
+		"show-inheritance":  True,
+		# "inherited-members": True, # A éviter sur l'ensemble de l'API pour les élément héritant de l'API QT...
 		}
 autodoc_member_order = "bysource"
 add_module_names = False
@@ -84,14 +85,12 @@ todo_include_todos = True
 suppress_warnings = ["autosectionlabel.*"]
 
 
-# Spécifie les répertoires source et destination
-def copy_dir(source, dest):
-	# Copie les fichiers si le dossier source existe
-	if os.path.exists(source):
-		# Crée le dossier de destination s'il n'existe pas.
-		os.makedirs(dest, exist_ok=True)
-		# Copie récursivement les fichiers du dossier source vers le dossier de destination.
-		shutil.copytree(source, dest, dirs_exist_ok=True)
+def copy_dir(src: str | Path, dst: str | Path) -> None:
+	"""Copie récursivement un dossier source vers un dossier destination."""
+	src, dst = Path(src), Path(dst)
+	if not src.exists(): return  # .				 Copie les fichiers si le dossier source existe
+	dst.mkdir(parents=True, exist_ok=True)  # .		 Crée le dossier de destination s'il n'existe pas
+	shutil.copytree(src, dst, dirs_exist_ok=True)  # Copie récursivement les fichiers du dossier source vers le dossier de destination.
 
 
 copy_dir("reports", "_build/html/reports")

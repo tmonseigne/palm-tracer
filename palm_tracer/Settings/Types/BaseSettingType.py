@@ -10,10 +10,10 @@ Ces classes sont utilisées pour créer et configurer des widgets de paramètres
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFormLayout, QLabel
+from qtpy.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -28,16 +28,36 @@ class BaseSettingType:
 
 	Attributs :
 		- **label** (:class:`str`) : Nom du paramètre à afficher.
+		- **default** (:class:`Any`) : Valeur par défaut du paramètre.
+		- **value** (:class:`Any`) : Valeur actuelle du paramètre.
 		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
+		- **_box** (:class:`QWidget`) : Objet QT permettant de manipuler le paramètre.
 		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
 	"""
 
 	label: str = ""
 	"""Nom du paramètre à afficher."""
-	_layout: QFormLayout = field(init=False)
+	tooltip: str = ""
+	"""Affichage détaillé en overlay."""
+	default: Any = None
+	"""Valeur par défaut du paramètre."""
+	value: Any = None
+	"""Valeur actuelle du paramètre."""
+
+	_layout: QHBoxLayout | QVBoxLayout = field(init=False)
 	"""Calque principal."""
-	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	_box: QWidget = field(init=False, default_factory=lambda: QWidget())
+	"""Objet QT permettant de manipuler le paramètre."""
+	_signal: SignalWrapper = field(init=False, default_factory=lambda: SignalWrapper())
 	"""Signal permettant de communiquer avec l'interface."""
+
+	# Elements additionnel pour le Hide and Seek
+	_label_widget: QLabel = field(init=False)
+	"""Widget associé au label."""
+	_form_layout: Optional[QFormLayout] = field(init=False, default=None)
+	"""Formulaire dans lequel est le paramètre."""
+	_row_index: int = field(init=False, default=-1)
+	"""Position dans le formulaire."""
 
 	# ==================================================
 	# region Initialization
@@ -50,14 +70,24 @@ class BaseSettingType:
 	##################################################
 	def initialize(self):
 		"""Initialise le paramètre."""
-		self._layout = QFormLayout(None)
-		self._layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-		self._layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+		self._label_widget = QLabel(self.label)
+		if self.tooltip: self._label_widget.setToolTip(self.tooltip)
+		self._layout = QHBoxLayout()
+		Ui.init_layout(self._layout, 0, 0)
+
+	##################################################
+	def attach_to_form(self, form: QFormLayout):
+		"""Enregistre le QFormLayout et la row index pour permettre show/hide propre.
+		:param form: :class:`QFormLayout` dans lequle va être insérer le paramètre.
+		"""
+		self._form_layout = form
+		self._row_index = form.rowCount()  # rowCount() avant addRow = index de la nouvelle ligne
+		form.addRow(self._label_widget, self.layout)
 
 	##################################################
 	def reset(self):
 		"""Réinitialise le paramètre à sa valeur par défaut."""
-		raise NotImplementedError("La méthode 'reset' doit être implémentée dans la sous-classe.")
+		self.set_value(self.default)
 
 	# ==================================================
 	# endregion Initialization
@@ -68,7 +98,7 @@ class BaseSettingType:
 	# ==================================================
 	##################################################
 	@property
-	def layout(self) -> QFormLayout:
+	def layout(self) -> QHBoxLayout:
 		"""
 		Retourne le calque associé à ce paramètre.
 
@@ -77,6 +107,26 @@ class BaseSettingType:
 		:return: Le calque associé à ce paramètre.
 		"""
 		return self._layout
+
+	##################################################
+	@property
+	def box(self) -> QWidget:
+		"""
+		Retourne l'objet QT principal associé à ce paramètre.
+
+		:return: Le :class:`QWidget` associé à ce paramètre.
+		"""
+		return self._box
+
+	##################################################
+	@property
+	def label_widget(self) -> QLabel:
+		"""
+		Retourne l'objet QT pour le label associé à ce paramètre.
+
+		:return: Le :class:`QLabel` associé à ce paramètre.
+		"""
+		return self._label_widget
 
 	##################################################
 	def get_value(self) -> Any:
@@ -91,11 +141,38 @@ class BaseSettingType:
 
 	##################################################
 	def set_value(self, value: Any):
-		"""Appliquer la valeur au paramètre"""
+		"""
+		Appliquer la valeur au paramètre
+
+		:param value: Valeur
+		"""
 		raise NotImplementedError("La méthode 'set_value' doit être implémentée dans la sous-classe.")
 
 	# ==================================================
 	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region Hide and Seek
+	# ==================================================
+	##################################################
+	def hide(self):
+		"""Cache le paramètre."""
+		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, False)
+		else:  # fallback si pas attaché
+			self._label_widget.hide()
+			self._box.hide()
+
+	##################################################
+	def show(self):
+		"""Affiche le paramètre."""
+		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, True)
+		else:  # fallback si pas attaché
+			self._label_widget.show()
+			self._box.show()
+
+	# ==================================================
+	# endregion Hide and Seek
 	# ==================================================
 
 	# ==================================================
@@ -116,7 +193,7 @@ class BaseSettingType:
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
-		""" Met à jour la classe à partir d'un dictionnaire."""
+		"""Met à jour la classe à partir d'un dictionnaire."""
 		raise NotImplementedError("La méthode 'update_from_dict' doit être implémentée dans la sous-classe.")
 
 	# ==================================================
@@ -124,34 +201,8 @@ class BaseSettingType:
 	# ==================================================
 
 	# ==================================================
-	# region Hide and Seek
+	# region Signals
 	# ==================================================
-	##################################################
-	def hide(self):
-		"""Cache le widget."""
-		self._layout.setRowVisible(0, False)
-
-	##################################################
-	def show(self):
-		"""Affiche le widget."""
-		self._layout.setRowVisible(0, True)
-
-	# ==================================================
-	# endregion Hide and Seek
-	# ==================================================
-
-	# ==================================================
-	# region Manipulation
-	# ==================================================
-	##################################################
-	def add_row(self, box):
-		"""
-		Ajoute la ligne avec le label et l'input
-
-		:param box: Input box à ajouter
-		"""
-		self._layout.addRow(self.label + " : ", box)  # Ajoute le setting.
-
 	##################################################
 	def connect(self, f: Any):
 		"""
@@ -177,13 +228,11 @@ class BaseSettingType:
 		Émet le signal encapsulé.
 
 		Utilisé pour notifier les parties de l'application abonnées au signal.
+
+		:param value: Valeur à emettre
 		"""
 		self._signal.emit(value)  # Émission du signal.
 
 	def signal_blocked(self) -> SignalWrapper.BlockCtx:
 		"""Contexte de blocage des signaux de ce paramètre."""
 		return self._signal.blocked()
-
-	# ==================================================
-	# endregion Manipulation
-	# ==================================================

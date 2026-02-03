@@ -1,14 +1,17 @@
-""" Fichier permettant de mettre à jour le toctree du fichier de test """
+"""Fichier permettant de mettre à jour le toctree du fichier de test"""
 
-import os
+from pathlib import Path
 
 
 def generate_toctree_rst(dst: str = "tests.rst"):
-	reports_path = "docs/reports"  # Répertoire contenant les fichiers `.rst`
-	pattern = "test_report_ci_"    # Modèle pour les fichiers à inclure
+	"""Génère un fichier toctree Sphinx listant les rapports de tests CI."""
+
+	docs_path = Path("docs")
+	reports_path = docs_path / "reports"  # Répertoire contenant les fichiers `.rst`
+	pattern = "test_report_ci_"  # .		Modèle pour les fichiers à inclure
 
 	# Recherche des fichiers correspondants
-	files = [f for f in os.listdir(reports_path) if f.startswith(pattern) and f.endswith(".rst")]
+	files = sorted(f for f in reports_path.glob(f"{pattern}*.rst"))
 
 	# Génération du contenu du fichier .rst
 	content = ("Tests\n"
@@ -18,11 +21,11 @@ def generate_toctree_rst(dst: str = "tests.rst"):
 			   "   :maxdepth: 1\n\n"
 			   "   reports/test_report_main_computer\n")
 
-	for file in sorted(files):  # Trie pour un ordre cohérent
-		content += f"   reports/{os.path.splitext(file)[0]}\n"
+	for f in files: content += f"   reports/{f.stem}\n"
 
 	# Écriture dans le fichier de sortie
-	with open(os.path.join("docs", dst), "w", encoding="utf-8") as f: f.write(content)
+	output_file = docs_path / dst
+	output_file.write_text(content, encoding="utf-8")
 	print(f"{dst} generated successfully.")
 
 

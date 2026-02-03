@@ -13,10 +13,9 @@ Ce sous-package contient les fonctions de traitement pour le projet.
 """
 
 # Exemple d'importation des modules pour un accès direct
-from . import Parsing, Visualization
-from .Gallery import make_gallery
+from . import Gallery, Parsing, Visualization
 from .Grapher import Grapher
 from .Palm import Palm
 
 # Définir la liste des symboles exportés
-__all__ = ["Parsing", "Gallery", "Grapher", "Palm", "Visualization", "make_gallery"]
+__all__ = ["Gallery", "Grapher", "Palm", "Parsing", "Visualization"]

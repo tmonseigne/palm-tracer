@@ -7,22 +7,23 @@ import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
-from palm_tracer.Tools import FileIO, print_error, print_success, print_warning
+from palm_tracer.Tools import FileIO, Ui
 
 INPUT_DIR = Path(__file__).parent / "input"
 REF_DIR = INPUT_DIR / "ref"
 OUTPUT_DIR = Path(__file__).parent / "output"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
+IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
 
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
 default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4
 save_output = True
-os.makedirs(OUTPUT_DIR, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 
 
 ##################################################
-def is_headless(): return platform.system() in ("Linux", "Darwin") and os.environ.get("CI") == "true"
+def is_headless(): return platform.system() in ("Linux", "Darwin") and IS_CI
 
 
 ##################################################
@@ -110,14 +111,14 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 
 	# Comparaison des tailles
 	if len(a) != len(b):
-		print_warning("les fichiers n'ont pas le même nombre d'entrées.")
+		Ui.print_warning("les fichiers n'ont pas le même nombre d'entrées.")
 		res = False
 
 	# Vérification de la présence des colonnes requises
 	missing_a = [col for col in compare_cols if col not in a.columns]
 	missing_b = [col for col in compare_cols if col not in b.columns]
 	if missing_a or missing_b:
-		print_error(f"Colonnes manquantes : {missing_a + missing_b}")
+		Ui.print_error(f"Colonnes manquantes : {missing_a + missing_b}")
 		return False
 
 	total_points = 0
@@ -133,10 +134,10 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		group_a = group_a.reset_index(drop=True)
 		group_b = group_b.reset_index(drop=True)
 		if len(group_a) != len(group_b):
-			print_warning(f"{len(group_a)} points in A, {len(group_b)} points in B pour { {col: int(val) for col, val in zip(group_cols, group_values)} }.")
+			Ui.print_warning(f"{len(group_a)} points in A, {len(group_b)} points in B pour { {col: int(val) for col, val in zip(group_cols, group_values)} }.")
 
 		if group_b.empty:
-			print_warning(f"Pas de correspondance pour {dict(zip(group_cols, group_values))} dans B.")
+			Ui.print_warning(f"Pas de correspondance pour {dict(zip(group_cols, group_values))} dans B.")
 			continue
 
 		# Utilisation d'un KDTree pour accélérer la recherche des plus proches voisins
@@ -173,9 +174,9 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 
 			# S'il y a eu des différences
 			if diff:
-				print_warning(f"Différences pour Point ({row_a['X']:.2f}, {row_a['Y']:.2f}, {row_a['Z']:.2f}) :")
+				Ui.print_warning(f"Différences pour Point ({row_a['X']:.2f}, {row_a['Y']:.2f}, {row_a['Z']:.2f}) :")
 				for key, (val_a, val_b) in diff.items():
-					print_warning(f"  {key}: {val_a:.5f} vs {val_b:.5f}")
+					Ui.print_warning(f"  {key}: {val_a:.5f} vs {val_b:.5f}")
 
 			if exact_match: exact_matches += 1  # Incrémentation du compteur
 
@@ -184,20 +185,20 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		non_matched_b = group_b.drop(index=matched_b_indices, errors="ignore")
 
 		if not non_matched_a.empty:
-			print_warning(f"Points supplémentaires dans A pour { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
+			Ui.print_warning(f"Points supplémentaires dans A pour { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
 			for _, row in non_matched_a.iterrows():
-				print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
+				Ui.print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
 
 		if not non_matched_b.empty:
-			print_warning(f"Points supplémentaires dans B pour  { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
+			Ui.print_warning(f"Points supplémentaires dans B pour  { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
 			for _, row in non_matched_b.iterrows():
-				print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
+				Ui.print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
 
 	if total_points > 0:
 		exact_match_ratio = exact_matches / total_points * 100
 		msg = f"Comparaison terminée : {total_points} Points comparés, {exact_matches} Points identiques ({exact_match_ratio:.2f}%)"
-		if total_points == exact_matches: print_success(msg)
-		else: print_warning(msg)
+		if total_points == exact_matches: Ui.print_success(msg)
+		else: Ui.print_warning(msg)
 
 		res = exact_matches == total_points
 

@@ -9,8 +9,8 @@ from typing import Any, Optional
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing.Parsing import FILES_COLUMNS, get_max_points, SHAPE_MODEL, N_COL_TRC, parse_localization_for_tracking, parse_result
-from palm_tracer.Tools.Utils import load_dll, print_warning
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, get_max_points, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL
+from palm_tracer.Tools import FileIO, Ui
 
 N_TRC_CP_FIT = 12
 
@@ -18,7 +18,7 @@ N_TRC_CP_FIT = 12
 ##################################################
 @dataclass
 class Palm:
-	""" Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés. """
+	"""Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés."""
 	_type: str = field(init=True, default="CPU")
 	"""Type de DLL, par défaut CPU, GPU également possible."""
 	_dll: ctypes.CDLL = field(init=False)
@@ -27,7 +27,7 @@ class Palm:
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		self._dll = load_dll(self._type)
+		self._dll = FileIO.load_dll(self._type)
 
 	##################################################
 	def is_valid(self) -> bool:
@@ -44,7 +44,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_auto_treshold_args(image: np.ndarray, height: int, width: int, fit_params: np.ndarray):
+	def _get_auto_treshold_args(image: np.ndarray, height: int, width: int, fit_params: np.ndarray):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
 
@@ -63,7 +63,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_locs_args(stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray):
+	def _get_locs_args(stack: np.ndarray, height: int, width: int, planes: int, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la localisation.
 
@@ -94,8 +94,8 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_tracks_args(localizations: pd.DataFrame, max_distance: float, min_life: int = 1,
-						  decrease: float = 10, cost_birth: float = 0.5) -> dict[str, Any]:
+	def _get_tracks_args(localizations: pd.DataFrame, max_distance: float, min_life: int = 1,
+						 decrease: float = 10, cost_birth: float = 0.5) -> dict[str, Any]:
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le tracking.
 
@@ -121,7 +121,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_blink_args(tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> dict[str, Any]:
+	def _get_blink_args(tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> dict[str, Any]:
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la reconnexion du scintillement.
 
@@ -146,8 +146,8 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_tc_args(tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool,
-					  pixel_size: float, exposure_time, fit_mode: int, fit_params: np.ndarray) -> dict[str, Any]:
+	def _get_tc_args(tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool,
+					 pixel_size: float, exposure_time, fit_mode: int, fit_params: np.ndarray) -> dict[str, Any]:
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour le calcul sur les trajectoires.
 
@@ -180,7 +180,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_align_args(stack: np.ndarray, height: int, width: int, planes: int, factors: np.ndarray, upsampling: int = 1):
+	def _get_align_args(stack: np.ndarray, height: int, width: int, planes: int, factors: np.ndarray, upsampling: int = 1):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour l'alignement.
 
@@ -205,7 +205,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_wavelett_args(stack: np.ndarray, height: int, width: int, planes: int, level: int):
+	def _get_wavelett_args(stack: np.ndarray, height: int, width: int, planes: int, level: int):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la récupération des plans d'ondelette.
 
@@ -228,7 +228,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_astig_calib_args(points: np.ndarray, pixel_size: float):
+	def _get_astig_calib_args(points: np.ndarray, pixel_size: float):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
 
@@ -247,7 +247,7 @@ class Palm:
 
 	##################################################
 	@staticmethod
-	def __get_astig_estim_args(points: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float):
+	def _get_astig_estim_args(points: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float):
 		"""
 		Initialise les arguments necessaire au lancement de la DLL PALM externe pour la calibration 3D de l'astigmatisme.
 
@@ -292,14 +292,14 @@ class Palm:
 		n_planes = 1 if stack.ndim == 2 else stack.shape[0]
 
 		if planes is None: planes = list(range(n_planes))
-		else: planes = [p for p in planes if isinstance(p, int) and 0 <= p < n_planes]
+		else: planes = [p for p in planes if 0 <= p < n_planes]
 
 		# cut de l'image pour n'avoir que les plans voulu
 		new_n_planes = len(planes)
 		# Ajoute une dimension plan artificielle pour une Image 2D ou une vue mémoire (slice) pour une pile 3D
 		new_stack = stack[np.newaxis, :, :] if stack.ndim == 2 else stack[planes[0]:planes[-1] + 1]
 
-		args = self.__get_locs_args(new_stack, height, width, new_n_planes, threshold, watershed, fit, fit_params)
+		args = self._get_locs_args(new_stack, height, width, new_n_planes, threshold, watershed, fit, fit_params)
 		count = self._dll.Localization(*args.values())
 		res = parse_result(np.ctypeslib.as_array(args["locs"], shape=(count,)), "Localization")
 		if planes[0] != 0: res["Plane"] += planes[0]  # en cas de filtre de plans
@@ -314,9 +314,9 @@ class Palm:
 		:param fit_params: Paramètres du mode d'ajustement.
 		:return: Seuil calculé (écart type final).
 		"""
-		height, width = image.shape  # Récupère les dimensions
-		args = self.__get_auto_treshold_args(image, height, width, fit_params)  # Récupère les arguments pour la DLL
-		self._dll.AutoThreshold.restype = ctypes.c_double  # Force le type de retour
+		height, width = image.shape  # .										 Récupère les dimensions
+		args = self._get_auto_treshold_args(image, height, width, fit_params)  # Récupère les arguments pour la DLL
+		self._dll.AutoThreshold.restype = ctypes.c_double  # .					 Force le type de retour
 		return self._dll.AutoThreshold(*args.values())
 
 	##################################################
@@ -336,7 +336,7 @@ class Palm:
 		"""
 		required = FILES_COLUMNS["Localization"]["columns"]
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
-		args = self.__get_tracks_args(localizations[required], max_distance, min_life, decrease, cost_birth)
+		args = self._get_tracks_args(localizations[required], max_distance, min_life, decrease, cost_birth)
 		count = self._dll.Tracking(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["tracks"], shape=(count,)), "Tracking")
 
@@ -354,7 +354,7 @@ class Palm:
 		"""
 		required = FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return pd.DataFrame()
-		args = self.__get_blink_args(tracks[required], pixel_size, mode, max_duration, max_speed)
+		args = self._get_blink_args(tracks[required], pixel_size, mode, max_duration, max_speed)
 		count = self._dll.BlinkingReconnection(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["output"], shape=(count,)), "Tracking")
 
@@ -383,10 +383,10 @@ class Palm:
 		required = FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return res
 		new_tracks = tracks[required].copy()
-		if not is_3d: new_tracks["Z"] = 0  # On simplifie la suite les calculs se font toujours en 3D mais la dernière dimension sera toujours nulle
-		args = self.__get_tc_args(new_tracks, is_msd, is_ind, is_3d, pixel_size, exposure_time, fit_mode, fit_params)
+		if not is_3d: new_tracks["Z"] = 0  # .			   On simplifie, la suite les calculs se font toujours en 3D mais la dernière dimension sera nulle
+		args = self._get_tc_args(new_tracks, is_msd, is_ind, is_3d, pixel_size, exposure_time, fit_mode, fit_params)
 		self._dll.TracksCompute.restype = ctypes.c_bool  # Force le type de retour
-		self._dll.TracksCompute(*args.values())  # Le retour est toujours vrai pour le moment les calculs manquant sont facilement trouvable.
+		self._dll.TracksCompute(*args.values())  # .	   Le retour est toujours vrai pour le moment les calculs manquant sont facilement trouvable.
 
 		# Remplissage des tableaux de sortie
 		n = len(tracks) * N_TRC_CP_FIT
@@ -399,7 +399,7 @@ class Palm:
 		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
 		track_ids = pd.unique(tracks["Track"])
 		for key in res:
-			if len(res[key]) != track_ids.size: print_warning("Problème avec les identifiants des trajectoires, attention au filtrage")
+			if len(res[key]) != track_ids.size: Ui.print_warning("Problème avec les identifiants des trajectoires, attention au filtrage")
 			else:
 				res[key].drop(columns=["Track"], inplace=True)
 				res[key].insert(0, "Track", track_ids)
@@ -418,7 +418,7 @@ class Palm:
 		height, width = stack.shape[-2:]  # Récupère les deux dernières dimensions
 		planes = 1 if stack.ndim == 2 else stack.shape[0]
 
-		args = self.__get_align_args(stack, height, width, planes, factors, upsampling)
+		args = self._get_align_args(stack, height, width, planes, factors, upsampling)
 		self._dll.Alignment(*args.values())
 		out = np.ctypeslib.as_array(args["output"], shape=(planes, height * upsampling, width * upsampling))
 		return out
@@ -435,7 +435,7 @@ class Palm:
 		height, width = stack.shape[-2:]  # Récupère les deux dernières dimensions
 		planes = 1 if stack.ndim == 2 else stack.shape[0]
 
-		args = self.__get_wavelett_args(stack, height, width, planes, level)
+		args = self._get_wavelett_args(stack, height, width, planes, level)
 		self._dll.Wavelett(*args.values())
 		out = np.ctypeslib.as_array(args["output"], shape=(planes, height, width))
 		return out
@@ -450,7 +450,7 @@ class Palm:
 		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
 
-		args = self.__get_astig_calib_args(points, pixel_size)
+		args = self._get_astig_calib_args(points, pixel_size)
 		self._dll.Astigmatism3DCalibration(*args.values())
 		return parse_result(np.ctypeslib.as_array(args["output"], shape=SHAPE_MODEL), "Astigmatism 3D Model")
 
@@ -466,11 +466,7 @@ class Palm:
 		:return: Ensemble des Z estimés pour chaque point.
 		"""
 		n = len(points)
-		args = self.__get_astig_estim_args(points, pixel_size, model, z_max)
+		args = self._get_astig_estim_args(points, pixel_size, model, z_max)
 		self._dll.Astigmatism3DEstimation(*args.values())
 		out = np.ctypeslib.as_array(args["output"], shape=(n,))
 		return out
-
-# ==================================================
-# endregion DLL Call
-# ==================================================

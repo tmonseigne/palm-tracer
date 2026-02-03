@@ -6,10 +6,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QPushButton
+from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -29,26 +29,63 @@ class FileList(BaseSettingType):
 	"""
 
 	default: int = -1
-	"""Valeur par défaut du paramètre."""
+	value: int = field(init=False, default=-1)
+
 	items: list[str] = field(default_factory=lambda: [])
 	"""Liste des fichiers actuels."""
-	value: int = field(init=False, default=-1)
-	"""Valeur actuelle du paramètre."""
-	box: QComboBox = field(init=False)
-	"""Objet QT permettant de manipuler le paramètre."""
 	buttons: dict[str, QPushButton] = field(init=False)
-	""" Boutons d'action [+], [-], [clear]."""
+	"""Boutons d'action [+], [-], [clear]."""
+
+	_box: QComboBox = field(init=False, default_factory=lambda: QComboBox())
+
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		self._label_widget = QLabel(self.label)
+		self._layout = QVBoxLayout()
+		Ui.init_layout(self._layout)
+
+		self.update_box()  # .								Ajout des choix possibles.
+		self.set_value(self.default)  # .					Définition de la valeur.
+		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement de selection
+
+		# Créer les boutons d'action
+		self.buttons = {"add": QPushButton("+"), "remove": QPushButton("-"), "clear": QPushButton("Clear")}
+		self.buttons["add"].clicked.connect(self.add_file)
+		self.buttons["remove"].clicked.connect(self.remove_file)
+		self.buttons["clear"].clicked.connect(self.clear_files)
+
+		# Créer un layout horizontal pour les boutons
+		actions = QHBoxLayout()
+		actions.addWidget(self.buttons["add"])
+		actions.addWidget(self.buttons["remove"])
+		actions.addWidget(self.buttons["clear"])
+
+		self._layout.addLayout(actions)
+		self._layout.addWidget(self._box)
 
 	##################################################
+	def reset(self): self.clear_files()
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
+	##################################################
 	def get_value(self) -> int:
-		self.value = self.box.currentIndex()
+		self.value = self._box.currentIndex()
 		return self.value
 
 	##################################################
 	def set_value(self, value: int):
 		if 0 <= value < len(self.items):
 			self.value = value
-			self.box.setCurrentIndex(value)
+			self._box.setCurrentIndex(value)
 			self.emit()
 
 	##################################################
@@ -61,13 +98,38 @@ class FileList(BaseSettingType):
 	##################################################
 	def get_list(self) -> list[str]: return self.items
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region  Parsing
+	# ==================================================
+	##################################################
+	def to_dict(self) -> dict[str, Any]:
+		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
+
+	##################################################
+	def update_from_dict(self, data: dict[str, Any]):
+		self.label = data.get("label", "")
+		self.default = data.get("default", False)
+		self.update_box(data.get("items", [""]))
+		self.set_value(data.get("value", self.value))
+
+	# ==================================================
+	# endregion  Parsing
+	# ==================================================
+
+	# ==================================================
+	# region Callbacks
+	# ==================================================
 	##################################################
 	def update_box(self, items: Optional[list[str]] = None):
 		"""Met à jour la ComboBox pour refléter la liste actuelle des fichiers."""
 		with self.signal_blocked():
-			self.box.clear()
+			self._box.clear()
 			if items is not None: self.items = items
-			self.box.addItems(self.items)
+			self._box.addItems(self.items)
 
 	##################################################
 	def add_file(self):
@@ -83,7 +145,7 @@ class FileList(BaseSettingType):
 	##################################################
 	def remove_file(self):
 		"""Supprime le fichier actuellement sélectionné dans la ComboBox."""
-		current_index = self.box.currentIndex()
+		current_index = self._box.currentIndex()
 		if 0 <= current_index < len(self.items):
 			self.items.pop(current_index)
 			self.update_box()
@@ -95,40 +157,3 @@ class FileList(BaseSettingType):
 		self.items.clear()
 		self.update_box()
 		self.emit()
-
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		self.label = data.get("label", "")
-		self.default = data.get("default", False)
-		self.update_box(data.get("items", [""]))
-		self.set_value(data.get("value", self.value))
-
-	##################################################
-	def initialize(self):
-		super().initialize()							 # Appelle l'initialisation de la classe mère.
-		self.box = QComboBox(None)						 # Création de la boite.
-		self.update_box()								 # Ajout des choix possibles.
-		self.set_value(self.default)					 # Définition de la valeur.
-		self.box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement de selection
-
-		# Créer les boutons d'action
-		self.buttons = {"add": QPushButton("+"), "remove": QPushButton("-"), "clear": QPushButton("Clear")}
-		self.buttons["add"].clicked.connect(self.add_file)
-		self.buttons["remove"].clicked.connect(self.remove_file)
-		self.buttons["clear"].clicked.connect(self.clear_files)
-
-		# Créer un layout horizontal pour les boutons
-		button_layout = QHBoxLayout()
-		button_layout.addWidget(self.buttons["add"])
-		button_layout.addWidget(self.buttons["remove"])
-		button_layout.addWidget(self.buttons["clear"])
-
-		self.add_row(button_layout)
-		self._layout.addRow(self.box)
-
-	##################################################
-	def reset(self): self.clear_files()

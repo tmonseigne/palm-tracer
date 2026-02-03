@@ -28,12 +28,18 @@ class FilteringL(BaseSettingGroup):
 
 	label: str = "Localization"
 	setting_list = {
-			"Intensity":   [CheckRangeInt, ["Intensity", [0, 10000000], [0, 10000000]]],
-			"Sigma X":     [CheckRangeFloat, ["Sigma X", [0, 10], [0, 10]]],
-			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", [0, 10], [0, 10]]],
-			"Circularity": [CheckRangeFloat, ["Circularity", [0, 1], [0, 1]]],
-			"Theta":       [CheckRangeFloat, ["Theta", [-180, 180], [-180, 180]]],
-			"Z":           [CheckRangeFloat, ["Z", [-5, 5], [-5, 5]]],
-			"MSE XY":      [CheckRangeFloat, ["MSE XY", [0, 1], [0, 1]]],
-			"MSE Z":       [CheckRangeFloat, ["MSE Z", [0, 1], [0, 1]]]
+			"X":           [CheckRangeInt, ["X", "", [0, 100000], [0, 100000]]],
+			"Y":           [CheckRangeInt, ["Y", "", [0, 100000], [0, 100000]]],
+			"Z":           [CheckRangeInt, ["Z", "", [-1000, 1000], [-1000, 1000]]],
+			"Intensity":   [CheckRangeInt, ["Intensity", "", [0, 10000000], [0, 10000000]]],
+			"Sigma X":     [CheckRangeFloat, ["Sigma X", "", [0, 10], [0, 10]]],
+			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", "", [0, 10], [0, 10]]],
+			"Circularity": [CheckRangeFloat, ["Circularity", "", [0, 1], [0, 1]]],
+			"Theta":       [CheckRangeFloat, ["Theta", "", [-180, 180], [-180, 180]]],
+			"MSE XY":      [CheckRangeFloat, ["MSE XY", "", [0, 1], [0, 1]]],
+			"MSE Z":       [CheckRangeFloat, ["MSE Z", "", [0, 1], [0, 1]]]
 			}
+
+	##################################################
+	def deactivate_filters(self):
+		for key in self.setting_list: self._settings[key].active = False

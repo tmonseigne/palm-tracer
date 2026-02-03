@@ -5,10 +5,10 @@ Fichier contenant la classe :class:`SpinFloat` dérivée de :class:`.BaseSetting
 from dataclasses import dataclass, field
 from typing import Any
 
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDoubleSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -30,61 +30,68 @@ class SpinFloat(BaseSettingType):
 		- **box** (:class:`QDoubleSpinBox`) : Objet QT permettant de manipuler le paramètre.
 	"""
 	default: float = 0.0
-	"""Valeur par défaut du paramètre."""
-	min: float = 0.0
-	"""Valeur minimale du paramètre."""
-	max: float = 100.0
-	"""Valeur maximale du paramètre."""
+	value: float = field(init=False, default=0.0)
+
+	limits: list[float] = field(default_factory=lambda: [0.0, 100.0])
+	"""Valeurs limites du paramètre."""
 	step: float = 1.0
 	"""Pas à chaque appuie sur une des flèches du paramètre."""
 	precision: int = 2
 	"""Precision du paramètre."""
-	value: float = field(init=False, default=0.0)
-	"""Valeur actuelle du paramètre."""
-	box: QDoubleSpinBox = field(init=False)
-	"""Objet QT permettant de manipuler le paramètre."""
 
+	_box: QDoubleSpinBox = field(init=False)
+
+	# ==================================================
+	# region Initialization
+	# ==================================================
+	##################################################
+	def initialize(self):
+		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
+		self._box = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
+		self._box.valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
+		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte
+		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite
+
+	# ==================================================
+	# endregion Initialization
+	# ==================================================
+
+	# ==================================================
+	# region Getter/Setter
+	# ==================================================
 	##################################################
 	def get_value(self) -> float:
-		self.value = self.box.value()
+		self.value = self._box.value()
 		return self.value
 
 	##################################################
 	def set_value(self, value: float):
 		self.value = value
-		self.box.setValue(value)
+		self._box.setValue(value)
 
+	# ==================================================
+	# endregion Getter/Setter
+	# ==================================================
+
+	# ==================================================
+	# region  Parsing
+	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type":  type(self).__name__, "label": self.label, "default": self.default,
-				"min":   self.min, "max": self.max, "step": self.step, "precision": self.precision,
-				"value": self.value}
+		return {"type":   type(self).__name__, "label": self.label, "default": self.default,
+				"limits": self.limits, "step": self.step, "precision": self.precision,
+				"value":  self.value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		# Mise à jour des membres
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
-		self.min = data.get("min", 0.0)
-		self.max = data.get("max", 100.0)
+		self.limits = data.get("limits", [0.0, 100.0])
 		self.step = data.get("step", 1.0)
 		self.precision = data.get("precision", 2)
 		# Mise à jour de la boite QT
-		self.box.setRange(self.min, self.max)
-		self.box.setSingleStep(self.step)
-		self.box.setDecimals(self.precision)
+		self._box.setRange(self.limits[0], self.limits[1])
+		self._box.setSingleStep(self.step)
+		self._box.setDecimals(self.precision)
 		self.set_value(data.get("value", self.default))
-
-	##################################################
-	def initialize(self):
-		super().initialize()							   # Appelle l'initialisation de la classe mère.
-		self.box = QDoubleSpinBox(None)					   # Création de la boite.
-		self.box.setRange(self.min, self.max)			   # Définition du min, max.
-		self.box.setSingleStep(self.step)				   # Définition du pas à chaque appuie sur une flèche.
-		self.box.setDecimals(self.precision)			   # Définition de la précision à afficher.
-		self.box.valueChanged.connect(self.emit)		   # Définition du comportement lors de la modification des valeurs
-		self.set_value(self.default)					   # Définition de la valeur.
-		self.add_row(self.box)							   # Ajoute le spin au calque.
-
-	##################################################
-	def reset(self): self.set_value(self.default)

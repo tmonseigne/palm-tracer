@@ -1,10 +1,11 @@
-""" Fichier permettant de transformer un rapport Pytest JSON en reStructuredText pour sphinx """
+"""Fichier permettant de transformer un rapport Pytest JSON en reStructuredText pour sphinx"""
 
 import datetime
 import json
-import os
 import re
 import sys
+from pathlib import Path
+from typing import Any
 
 from ansi2html import Ansi2HTMLConverter
 
@@ -31,39 +32,39 @@ def format_duration(duration: float) -> str:
 	:param duration: Durée en secondes (float).
 	:return: Chaîne formatée avec la meilleure unité.
 	"""
-	if duration < 1:  # Moins d'une seconde : millisecondes
-		return f"{round(duration * 1000)}ms"
-	elif duration < 60:  # Moins d'une minute : secondes
-		return f"{duration:.2f}s"
-	elif duration < 3600:  # Moins d'une heure : minutes et secondes
-		minutes = int(duration // 60)
-		seconds = round(duration % 60, 2)
-		return f"{minutes}min {seconds:.0f}s"
-	else:  # Une heure ou plus : heures, minutes et secondes
-		hours = int(duration // 3600)
-		minutes = int((duration % 3600) // 60)
-		seconds = round(duration % 60, 2)
-		return f"{hours}h {minutes}min {seconds:.0f}s"
+	if duration < 1: return f"{round(duration * 1000)}ms"  # .											   Moins d'une seconde : millisecondes
+	if duration < 60: return f"{duration:.2f}s"  # .													   Moins d'une minute : secondes
+	if duration < 3600: return f"{int(duration // 60)}min {round(duration % 60, 2):.0f}s"  # .			   Moins d'une heure : minutes et secondes
+	return f"{int(duration // 3600)}h {int((duration % 3600) // 60)}min {round(duration % 60, 2):.0f}s"  # Une heure ou plus : heures, minutes et secondes
 
 
 # ==================================================
 # region Generation
 # ==================================================
 ##################################################
-def generate_rst_from_json(src: str, dst: str):
+def generate_rst_from_json(src: str | Path, dst: str | Path):
 	"""
 	Génère un fichier reStructuredText à partir d'un rapport Pytest en format JSON.
 
 	:param src: Chemin du fichier JSON contenant les résultats de Pytest.
 	:param dst: Chemin du fichier de sortie reStructuredText.
 	"""
+	src_path = Path(src)
+	dst_path = Path(dst)
+
 	try:
-		with open(src) as f: data = json.load(f)  # Read json
-	except FileNotFoundError: print("Json File not found.")
+		data = json.loads(src_path.read_text(encoding="utf-8"))
+	except FileNotFoundError:
+		print("Json file not found.")
+		return
+	except json.JSONDecodeError as exc:
+		print(f"Json decode error: {exc}")
+		return
 
-	title, monitoring = get_files_info(dst)
+	title, monitoring = get_files_info(dst_path)
 
-	with open(dst, "w", encoding="utf-8") as f:
+	dst_path.parent.mkdir(parents=True, exist_ok=True)
+	with dst_path.open("w", encoding="utf-8", newline="\n") as f:
 		f.write(f"{title}\n{'=' * len(title)}\n\n")
 		f.write(get_metadata(data["metadata"]))
 		f.write(get_summary(data))
@@ -72,7 +73,7 @@ def generate_rst_from_json(src: str, dst: str):
 
 
 ##################################################
-def get_files_info(src: str, monitoring_ext: str = "html") -> list[str]:
+def get_files_info(src: str | Path, monitoring_ext: str = "html") -> list[str]:
 	"""
 	Extrait les informations du fichier source pour générer un titre et un nom de fichier pour le monitoring.
 
@@ -80,14 +81,14 @@ def get_files_info(src: str, monitoring_ext: str = "html") -> list[str]:
 	:param monitoring_ext: Extension du fichier de monitoring (par défaut "html").
 	:return: Liste contenant le titre et le nom du fichier de monitoring.
 	"""
-	file_basename = os.path.splitext(os.path.basename(src))[0]
+	file_basename = Path(src).stem
 	title = to_title_case(file_basename)
 	monitoring_file = file_basename.replace("test_report", "monitoring") + f".{monitoring_ext}"
 	return [title, monitoring_file]
 
 
 ##################################################
-def get_metadata(metadata: dict) -> str:
+def get_metadata(metadata: dict[str, Any]) -> str:
 	"""
 	Génère une section reStructuredText pour afficher les métadonnées du rapport.
 
@@ -99,7 +100,7 @@ def get_metadata(metadata: dict) -> str:
 		   ".. list-table::\n\n")
 
 	for key, value in metadata.items():
-		if key != "Packages" and key != "Plugins":
+		if key not in {"Packages", "Plugins"}:
 			res += f"   * - {key}\n     - {value}\n"
 
 	return res + "\n"
@@ -196,14 +197,14 @@ def get_tests(tests: list) -> str:
 
 		# Ajouter un lien vers le stdout
 		for test in file_tests:
-			if "call" not in test: continue  # pas de log possible pour skipped, xfailed...
+			if "call" not in test: continue  # .							Pas de log possible pour skipped, xfailed...
 			test_name = to_title_case(test["nodeid"].split("::")[1][5:])  # Nom du test sans "test_"
 			stdout = test["call"].get("stdout", "")
-			stdout = conv.convert(stdout, full=False)  # Convertir ANSI en HTML
-			stdout = stdout.replace("\n", "<br>")  # Remplacer les sauts de ligne par <br> pour un bon affichage en HTML
-			stdout = re.sub(r"^(<br>)+", "", stdout)  # Supprime les "<br>" initiaux
-			stdout = re.sub(r"(<br>)+$", "", stdout)  # Supprime les "<br>" finaux
-			if stdout:  # Si le stdout existe, l'afficher dans un bloc repliable
+			stdout = conv.convert(stdout, full=False)  # .					Convertir ANSI en HTML
+			stdout = stdout.replace("\n", "<br>")  # .						Remplacer les sauts de ligne par <br> pour un bon affichage en HTML
+			stdout = re.sub(r"^(<br>)+", "", stdout)  # .					Supprime les "<br>" initiaux
+			stdout = re.sub(r"(<br>)+$", "", stdout)  # .					Supprime les "<br>" finaux
+			if stdout:  # .													Si le stdout existe, l'afficher dans un bloc repliable
 				res += f".. raw:: html\n\n"
 				res += f"   <details>\n"
 				res += f"      <summary>Log Test : {test_name}</summary>\n"
@@ -223,11 +224,11 @@ def get_outcome_icon(outcome: str) -> str:
 	:return: Emoji correspondant au résultat.
 	"""
 	icons = {
-			"passed":  "✅",  # Test réussi
-			"failed":  "❌",  # Test échoué
-			"xpassed": "⚠️",  # Test attendu comme échoué, mais a réussi
-			"xfailed": "✔️",  # Test attendu comme échoué et a échoué
-			"skipped": "⏭️",  # Test sauté
+			"passed":  "✅",  # .		Test réussi
+			"failed":  "❌",  # .		Test échoué
+			"xpassed": "⚠️",  # .		Test attendu comme échoué, mais a réussi
+			"xfailed": "✔️",  # .		Test attendu comme échoué et a échoué
+			"skipped": "⏭️",  # .		Test sauté
 			}
 	return icons.get(outcome, "❓")  # Par défaut, une icône d'interrogation pour les résultats inconnus
 
@@ -237,7 +238,7 @@ def get_outcome_icon(outcome: str) -> str:
 # ==================================================
 ##################################################
 def usage():
-	""" Affiche l'usage du script en ligne de commande. """
+	"""Affiche l'usage du script en ligne de commande."""
 	print("Usage:\n"
 		  "  python pytest_json_to_rst.py <REPORT_FILE> <OUTPUT_FILE>\n"
 		  "  Args:\n"
@@ -247,17 +248,16 @@ def usage():
 
 ##################################################
 if __name__ == "__main__":
-	if len(sys.argv) < 2:
+	if len(sys.argv) < 3:
 		usage()
-		exit(0)
+		raise SystemExit(0)
 
-	# Get the source and destination directories.
-	source, destination = sys.argv[1], sys.argv[2]
+	source, destination = Path(sys.argv[1]), Path(sys.argv[2])
 
-	if not os.path.exists(source):
-		print(f"ERROR: The report file '{source}' does not exists.")
+	if not source.exists():
+		print(f"ERROR: The report file '{source}' does not exist.")
 		usage()
-		exit(1)
+		raise SystemExit(1)
 
 	print(f"Start generation: input ({source}), output ({destination})")
 	generate_rst_from_json(source, destination)

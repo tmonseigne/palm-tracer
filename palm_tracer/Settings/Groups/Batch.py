@@ -2,15 +2,15 @@
 Fichier contenant la classe :class:`Batch` dérivée de :class:`.BaseSettingGroup`, qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
 """
 
-import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import cast
 
 import numpy as np
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import Combo, FileList
-from palm_tracer.Tools import open_tif, print_warning
+from palm_tracer.Tools import FileIO, Ui
 
 
 ##################################################
@@ -27,8 +27,8 @@ class Batch(BaseSettingGroup):
 
 	label: str = "Batch"
 	setting_list = {
-			"Files": [FileList, ["Files", 0, []]],
-			"Mode":  [Combo, ["Mode", 0, ["Only one", "Each File separately", "All in One"]]],
+			"Files": [FileList, ["Files", "", 0, []]],
+			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]],
 			}
 
 	##################################################
@@ -43,16 +43,16 @@ class Batch(BaseSettingGroup):
 		mode = self._settings["Mode"].get_value()
 
 		files = file_list.get_list().copy()
+		results: list[str] = []
 		if files:  # Si aucun fichier n'est présent
 			if mode == 0: files = [file_list.get_selected()]
-			elif mode == 2: files = [file_list.get_list()[0]]
-			res = list[str]()
+			elif mode == 2: files = [files[0]]
 			for file in files:
-				base_path, _ = os.path.splitext(file)
-				res.append(f"{base_path}{suffix}")
-			return res
+				path = Path(file)
+				results.append(str(path.with_suffix("")) + suffix)
+			return results
 
-		return [f"{os.getcwd()}/{suffix}"]  # Retourne le chemin courant si aucun fichiers
+		return [str(Path.cwd() / suffix)]  # Retourne le chemin courant si aucun fichiers
 
 	##################################################
 	def get_stacks(self) -> list[np.ndarray]:
@@ -64,16 +64,16 @@ class Batch(BaseSettingGroup):
 		file_list = cast(FileList, self._settings["Files"])
 		files = file_list.get_list()
 		mode = self._settings["Mode"].get_value()
-		if not files: return res  # Aucun fichier dans le Batch
-		if mode == 0:  # Mode Only One
-			res.append(open_tif(file_list.get_selected()))
-		else:  # Mode fichiers séparés ou concaténés
+		if not files: return res  # .					   Aucun fichier dans le Batch
+		if mode == 0:  # .								   Mode Only One
+			res.append(FileIO.open_tif(file_list.get_selected()))
+		else:  # .										   Mode fichiers séparés ou concaténés
 			for file in files:
-				res.append(open_tif(file))
-			if mode == 2:  # Mode fichiers Concaténés
+				res.append(FileIO.open_tif(file))
+			if mode == 2:  # .							   Mode fichiers Concaténés
 				try:
-					res = [np.concatenate(res, axis=0)] # On concatène la liste des fichiers
+					res = [np.concatenate(res, axis=0)]  # On concatène la liste des fichiers
 				except ValueError as e:
-					print_warning(f"Error lors de la concatenation des piles (elles seront traité indépendamment):\nValueError: {e}")
+					Ui.print_warning(f"Error lors de la concatenation des piles (elles seront traité indépendamment):\nValueError: {e}")
 
 		return res

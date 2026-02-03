@@ -1,4 +1,4 @@
-""" Fichier des tests pour la lecture/écriture des fichiers. """
+"""Fichier des tests pour la lecture/écriture des fichiers."""
 import shutil
 
 import pytest
@@ -12,7 +12,7 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 ##################################################
 def test_open():
-	""" Test de la classe FileMigrator. """
+	"""Test de la classe FileMigrator."""
 	m = FileMigrator()
 
 	with pytest.raises(ValueError) as exception_info: m.open(INPUT_DIR)
@@ -100,7 +100,7 @@ def test_column_migrator():
 
 ##################################################
 def test_analyze():
-	""" Test de la classe FileMigrator. """
+	"""Test de la classe FileMigrator."""
 	m = FileMigrator()
 	print(m.input_folder)
 	with pytest.raises(RuntimeError) as exception_info: m.analyze()
@@ -120,7 +120,7 @@ def test_analyze():
 
 ##################################################
 def test_migrate():
-	""" Test de la classe FileMigrator. """
+	"""Test de la classe FileMigrator."""
 	m = FileMigrator()
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
 

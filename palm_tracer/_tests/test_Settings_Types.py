@@ -1,7 +1,8 @@
-""" Fichier des tests pour les différents types de paramètres. """
+"""Fichier des tests pour les différents types de paramètres."""
 from typing import Any, List
 
 import pytest
+from qtpy.QtWidgets import QFormLayout
 
 from palm_tracer._tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
@@ -32,6 +33,13 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	# Hide and seek
 	setting.hide()
 	setting.show()
+
+	# Hide and seek
+	form = QFormLayout()
+	setting.attach_to_form(form)
+	setting.hide()
+	setting.show()
+
 	# Signal
 	received: List[Any] = []
 	setting.connect(lambda v: received.append(v))
@@ -44,7 +52,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 
 
 ###################################################
-def test_base_setting():
+def test_base_setting(make_napari_viewer):
 	"""Test basique de la classe abstraite"""
 	setting = BaseSettingType("Test")
 	with pytest.raises(NotImplementedError) as exception_info: setting.get_value()
@@ -59,6 +67,9 @@ def test_base_setting():
 	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
 	layout = setting.layout
 	assert layout is not None, "Le layout n'existe pas."
+	label_widget = setting.label_widget
+	assert label_widget is not None, "Le widget n'existe pas."
+	box = setting.box
 
 
 ###################################################
@@ -96,14 +107,14 @@ def test_create_setting_from_dict_fail(make_napari_viewer):
 ###################################################
 def test_spin_int(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = SpinInt("Test", 1, 0, 10, 1)
+	setting = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
 	setting_base_test(setting, 5, 1)
 
 
 ###################################################
 def test_spin_float(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = SpinFloat("Test", 1.0, 0.0, 10.0, 1.0)
+	setting = SpinFloat("Test", "", 1.0, [0.0, 10.0], 1.0)
 	setting_base_test(setting, 5.0, 1.0)
 
 
@@ -117,7 +128,7 @@ def test_check_box(make_napari_viewer):
 ###################################################
 def test_combo(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = Combo("Test", 0, ["Choix 1", "Choix 2"])
+	setting = Combo("Test", "", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
 
 
@@ -173,7 +184,7 @@ def test_file_list(make_napari_viewer, monkeypatch, fake_qfiledialog):
 ###################################################
 def test_check_range_int(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = CheckRangeInt("Test", [0, 0], [-10, 10])
+	setting = CheckRangeInt("Test", "", [0, 0], [-10, 10])
 	setting_base_test(setting, [5, 3], [0, 0])
 
 	# Special tests
@@ -187,11 +198,16 @@ def test_check_range_int(make_napari_viewer):
 	setting.active = True
 	assert setting.active == True, "Le paramètre doit être activés."
 
+	setting.box[1].setValue(10)
+	assert setting.get_value() == [3, 10], "Valeur non valide."
+	setting.update_limits(4, 6)
+	assert setting.get_value() == [4, 6], "Valeur non valide."
+
 
 ###################################################
 def test_check_range_float(make_napari_viewer):
 	"""Test basique de la classe (constructeur, getter, setter)"""
-	setting = CheckRangeFloat("Test", [0.0, 0.0], [-10, 10])
+	setting = CheckRangeFloat("Test", "", [0.0, 0.0], [-10, 10])
 	setting_base_test(setting, [5.0, 3.0], [0.0, 0.0])
 
 	# Special tests
@@ -204,6 +220,11 @@ def test_check_range_float(make_napari_viewer):
 
 	setting.active = True
 	assert setting.active == True, "Le paramètre doit être activés."
+
+	setting.box[1].setValue(10)
+	assert setting.get_value() == [3, 10], "Valeur non valide."
+	setting.update_limits(4, 6)
+	assert setting.get_value() == [4, 6], "Valeur non valide."
 
 
 ###################################################
