@@ -198,6 +198,11 @@ def test_check_range_int(make_napari_viewer):
 	setting.active = True
 	assert setting.active == True, "Le paramètre doit être activés."
 
+	setting.box[1].setValue(10)
+	assert setting.get_value() == [3, 10], "Valeur non valide."
+	setting.update_limits(4, 6)
+	assert setting.get_value() == [4, 6], "Valeur non valide."
+
 
 ###################################################
 def test_check_range_float(make_napari_viewer):
@@ -215,6 +220,11 @@ def test_check_range_float(make_napari_viewer):
 
 	setting.active = True
 	assert setting.active == True, "Le paramètre doit être activés."
+
+	setting.box[1].setValue(10)
+	assert setting.get_value() == [3, 10], "Valeur non valide."
+	setting.update_limits(4, 6)
+	assert setting.get_value() == [4, 6], "Valeur non valide."
 
 
 ###################################################

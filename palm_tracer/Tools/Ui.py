@@ -241,7 +241,7 @@ def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 
 
 ##################################################
-def update_path_label(lbl: QLabel, path: Path):
+def update_path_label(lbl: QLabel, path: str | Path):
 	"""
 	Met à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
 
@@ -250,6 +250,7 @@ def update_path_label(lbl: QLabel, path: Path):
 	:param lbl: Label à mettre à jour.
 	:param path: Chemin à afficher.
 	"""
+	path = Path(path)
 	lbl.setText(path.name)
 	lbl.setToolTip(str(path))
 
@@ -286,7 +287,7 @@ def make_horizontal_separator(color: str = "#B0B0B0") -> QFrame:
 
 ##################################################
 def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: int | float = 1,
-			  step: int | float = 1, value: int | float = 0, decimals: int = 0, buttons: bool = True) -> QDoubleSpinBox | QSpinBox:
+			  step: int | float = 1, value: int | float = 0, decimals: int = 0, buttons: bool = True) -> QSpinBox | QDoubleSpinBox:
 	"""
 	Crée une :class:`QSpinBox` ou :class:`QDoubleSpinBox` configurée de manière compacte.
 

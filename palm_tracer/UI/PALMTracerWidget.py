@@ -273,10 +273,10 @@ class PALMTracerWidget(QWidget):
 		"""Chargement d'un fichier de setting."""
 		if filename.exists():
 			try:
-				show_info(f"Chargement du fichier de configuration '{filename}'.")
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
 				with self.pt.settings.signal_blocked():
 					cfg = open_json(str(filename))
+					show_info(f"Chargement du fichier de configuration '{filename}'.")
 					self.pt.settings.update_from_dict(cfg)
 					self.pt.settings.localization["Preview"].set_value(False)
 					self.pt.settings.filtering.deactivate_filters()
@@ -535,7 +535,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.activateWindow()
 
 	##################################################
-	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:
+	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
 		viewer = getattr(self, viewer_attr)
 		if viewer is None: return

@@ -144,7 +144,7 @@ def open_json(filename: str | Path) -> dict[str, Any]:
 	:return: Dictionnaire contenu dans le JSON.
 	"""
 	path = Path(filename)
-	if not path.is_file(): raise OSError(f'Le fichier "{path}" est introuvable.')
+	if not path.is_file(): raise OSError(f"Le fichier '{path}' est introuvable.")
 	return json.loads(path.read_text(encoding="utf-8"))
 
 
