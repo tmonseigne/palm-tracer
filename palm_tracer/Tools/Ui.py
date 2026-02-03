@@ -78,7 +78,7 @@ def init_layout(layout: QLayout, space: int = COMMON_SPACE, margin: int = COMMON
 	:param margin: Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``COMMON_SPACE``.
 	"""
 	layout.setContentsMargins(margin, margin, margin, margin)
-	layout.setSpacing(space)			 # Fait comme setHorizontalSpacing et setVerticalSpacing sur tous les types de calques sauf QFormLayout
+	layout.setSpacing(space)  # .		   Fait comme setHorizontalSpacing et setVerticalSpacing sur tous les types de calques sauf QFormLayout
 	if isinstance(layout, QFormLayout):  # Cas particulier
 		layout.setHorizontalSpacing(space)
 		layout.setVerticalSpacing(space)
@@ -167,13 +167,13 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	title_lbl = QLabel(title)
 	title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 	title_lbl.setStyleSheet("font-weight: 600;")
-	layout.addWidget(title_lbl, 0, 0, 1, size)  # Titre
+	layout.addWidget(title_lbl, 0, 0, 1, size)  # .					Titre
 	layout.addWidget(make_horizontal_separator(), 1, 0, 1, size)  # Séparateur horizontal
 
 	# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
-	layout.setColumnStretch(0, 0)					# label
-	layout.setColumnStretch(1, 1)					# value (s'étire)
-	if size == 3:    layout.setColumnStretch(2, 0)  # unit
+	layout.setColumnStretch(0, 0)  # .								Label
+	layout.setColumnStretch(1, 1)  # .								Value (s'étire)
+	if size == 3:    layout.setColumnStretch(2, 0)  # .				Unit
 
 	row = 2
 	for key, item in elements.items():
@@ -181,9 +181,9 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 		val: QLabel = item["value"]
 		tips: str = item.get("tips", "")
 
-		if tips: lbl.setToolTip(tips)  # Tooltips collé au label
+		if tips: lbl.setToolTip(tips)  # .							Tooltips collé au label
 
-		# Alignements : gauche | droite | gauche
+		# Alignements : gauche | droite | gauche (si une unité)
 		val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
 		layout.addWidget(lbl, row, 0)
@@ -255,7 +255,7 @@ def make_horizontal_separator(color: str = "#B0B0B0") -> QFrame:
 
 ##################################################
 def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: int | float = 1,
-			  step: int | float = 1, value: int | float = 0, decimals: int = 0, buttons:bool = True) -> QDoubleSpinBox | QSpinBox:
+			  step: int | float = 1, value: int | float = 0, decimals: int = 0, buttons: bool = True) -> QDoubleSpinBox | QSpinBox:
 	"""
 
 	:param parent:
@@ -269,39 +269,39 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 	"""
 	if decimals <= 0:
 		spin = QSpinBox(parent, minimum=minimum, maximum=maximum, singleStep=step, value=value)
-		spin.setStyleSheet("QSpinBox { padding: 0; }")								   # Suppression du padidng
-		if not buttons: spin.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)		   # Supprime les flèches
+		spin.setStyleSheet("QSpinBox { padding: 0; }")  # .								 Suppression du padidng
+		if not buttons: spin.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)  # .	 Supprime les flèches
 	else:
 		spin = QDoubleSpinBox(parent, decimals=decimals, minimum=minimum, maximum=maximum, singleStep=step, value=value)
-		spin.setStyleSheet("QDoubleSpinBox { padding: 0; }")						   # Suppression du padidng
+		spin.setStyleSheet("QDoubleSpinBox { padding: 0; }")  # .						 Suppression du padidng
 		if not buttons: spin.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.NoButtons)  # Supprime les flèches
 
-	spin.setContentsMargins(0, 0, 0, 0)												   # Suppresison des marges
-	spin.setAlignment(Qt.AlignmentFlag.AlignCenter)									   # Définir l'alignement au centre.
-	set_spinbox_width(spin)															   # Définition de la largeur maximale
+	spin.setContentsMargins(0, 0, 0, 0)  # .											 Suppresison des marges
+	spin.setAlignment(Qt.AlignmentFlag.AlignCenter)  # .								 Définir l'alignement au centre.
+	set_spin_width(spin)  # .															 Définition de la largeur maximale
 	return spin
 
 
 ##################################################
-def set_spinbox_width(spinbox: QSpinBox | QDoubleSpinBox):
+def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 	"""
 	Ajuste la largeur du widget :class:`QSpinBox` (ou :class:`QDoubleSpinBox`) au nombre de caractères affichables.
 
-	:param spinbox:
+	:param spin:
 	"""
 	# ---- estimation du nombre de caractères ----
-	min_val, max_val = spinbox.minimum(), spinbox.maximum()
+	min_val, max_val = spin.minimum(), spin.maximum()
 	max_abs = max(abs(min_val), abs(max_val))
 	has_sign = min_val < 0
 	char_count = max(1, len(str(int(max_abs))))
 	if has_sign: char_count += 1
-	if isinstance(spinbox, QDoubleSpinBox): char_count += 1 + spinbox.decimals()  # "." + décimales
+	if isinstance(spin, QDoubleSpinBox): char_count += 1 + spin.decimals()  # "." + décimales
 
 	# ---- conversion caractères → pixels ----
-	metrics = QFontMetrics(spinbox.font())
+	metrics = QFontMetrics(spin.font())
 	# petite marge de confort (boutons up/down, padding) "−" est en général le caractère le plus long en cas de police non uniforme.
 	width_px = char_count * metrics.horizontalAdvance("−") + 50
-	spinbox.setFixedWidth(width_px)
+	spin.setFixedWidth(width_px)
 
 
 # ==================================================
@@ -327,6 +327,21 @@ def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 	target.blockSignals(True)
 	target.setValue(value)
 	target.blockSignals(False)
+
+
+def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | None = None, maximum: float | int | None = None, ):
+	"""
+	Mets à jour les limites de la :class:`QSpinBox` (ou :class:`QDoubleSpinBox`).
+
+	.. note::
+        Qt ajuste automatiquement la valeur courante si elle sort du range.
+
+	:param spin:
+	:param minimum:
+	:param maximum:
+	"""
+	r0, r1 = spin.minimum() if minimum is None else minimum, spin.maximum() if maximum is None else maximum
+	spin.setRange(r0, r1)
 
 
 # ==================================================

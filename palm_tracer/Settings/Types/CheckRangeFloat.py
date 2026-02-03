@@ -163,11 +163,6 @@ class CheckRangeFloat(BaseSettingType):
 			self._box[i].setDecimals(self.precision)
 			self.set_value(data.get("value", self.default))
 
-	##################################################
-	def toggle_active(self, state: int):
-		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
-		self._active = bool(state)
-
 	# ==================================================
 	# endregion  Parsing
 	# ==================================================
@@ -175,6 +170,10 @@ class CheckRangeFloat(BaseSettingType):
 	# ==================================================
 	# region  Callbacks
 	# ==================================================
+	##################################################
+	def toggle_active(self, state: int):
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		self._active = bool(state)
 
 	##################################################
 	def check_min(self, value: float):
@@ -187,3 +186,8 @@ class CheckRangeFloat(BaseSettingType):
 		"""S'assure que min ≤ max."""
 		self.value[1] = value
 		if self.value[1] < self.value[0]: self._box[0].setValue(self.value[1])  # Ajuste min si max est trop bas
+
+	##################################################
+	def update_limits(self, minimum: float | None = None, maximum: float | None = None):
+		"""Mets à jour le max ."""
+		for b in self._box: Ui.update_spin_limits(b, minimum, maximum)
