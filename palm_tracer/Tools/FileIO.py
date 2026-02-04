@@ -186,7 +186,9 @@ def open_tif(filename: str | Path) -> np.ndarray:
 	"""
 	path = Path(filename)
 	if not path.is_file(): raise OSError(f'Le fichier "{path}" est introuvable.')
-	return tiff.imread(str(path))
+	res = tiff.imread(str(path))  # .									 Conserve dtype
+	if not res.flags["C_CONTIGUOUS"]: res = np.ascontiguousarray(res)  # Garantit contiguïté sans copie si déjà C-contiguous
+	return res
 
 
 # ==================================================

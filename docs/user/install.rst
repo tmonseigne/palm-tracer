@@ -10,7 +10,7 @@ Installation
 Ce guide vous aidera à installer le projet étape par étape.
 
 
-.. note::
+.. important::
    | Toutes les lignes de commandes décrites sont effectuées à partir de :console:`PowerShell` sous Windows (le terminal :console:`cmd` ne possède pas toujours la même syntaxe et sur les autres systèmes d'exploitation, des différences peuvent apparaitre).
    | De préférence, le terminal doit être lancé en mode administrateur pour éviter des problèmes de droits, dans le cas contraire, il est possible que des blocages apparaissent.
    | Dans le cadre d'utilisation par une session non administrateur, il est nécessaire de lancer avant les commandes :console:`Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` pour autoriser l'exécution de scripts dans la session en cours.
@@ -188,6 +188,12 @@ Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 2 et assure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Certaines commandes nécessitent des droits administrateur. Il faut lancer le terminal en mode administrateur sous Windows.
 
-5. Où puis-je trouver plus d'aide ?
+5. Je dois tout recommencer à chaque mise à jour ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers mettra automatiquement à jour votre Napari.
+
+.. warning:: Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :console:`DLL.7z` avec le mot de passe.
+
+6. Où puis-je trouver plus d'aide ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Consultez la documentation officielle de Python ou contactez le support du projet.
