@@ -87,7 +87,6 @@ def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 	"""Test de récupération d'image."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
@@ -152,7 +151,6 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_widget_preview(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton preview."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
@@ -225,7 +223,6 @@ def test_widget_roi_filter_layer(make_napari_viewer, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton auto_threshold."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
@@ -250,7 +247,6 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton process."""
 	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
@@ -281,7 +277,6 @@ def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)

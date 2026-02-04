@@ -97,7 +97,6 @@ def test_extract_suffix():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_load_dll():
 	"""Test de la fonction load_dll."""
 	res = FileIO.load_dll("File")

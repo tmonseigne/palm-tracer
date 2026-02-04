@@ -8,7 +8,6 @@ from palm_tracer.Tools import FileIO
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_dll_valid():
 	"""Test sur la présence d ela DLL PALM."""
 	palm = Palm()
@@ -16,7 +15,6 @@ def test_palm_dll_valid():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_image():
 	"""Test sur le lancement de PALM sur une frame."""
 	palm = Palm()
@@ -39,7 +37,6 @@ def test_palm_cpu_image():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_stack():
 	"""Test sur le lancement de PALM sur une pile."""
 	palm = Palm()
@@ -62,7 +59,6 @@ def test_palm_cpu_stack():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_stack_plane_selection():
 	"""Test sur le lancement de PALM sur une pile."""
 	palm = Palm()
@@ -81,7 +77,6 @@ def test_palm_cpu_stack_plane_selection():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu_stack_dll_check_quadrant():
 	"""	Test sur le lancement de PALM sur une pile."""
 	palm = Palm()
@@ -108,7 +103,6 @@ def test_palm_cpu_stack_dll_check_quadrant():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_cpu_auto_threshold():
 	"""Test basique sur l'auto-seuillage avec la DLL CPU."""
 	palm = Palm()
@@ -122,7 +116,6 @@ def test_cpu_auto_threshold():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_tracking():
 	"""Test basique sur le tracking."""
 	palm = Palm()
@@ -153,7 +146,6 @@ def test_tracking():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_blinking_reconnection():
 	"""Test basique sur le tracking."""
 	palm = Palm()
@@ -180,7 +172,6 @@ def test_blinking_reconnection():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_tracks_compute():
 	"""Test basique sur le tracking."""
 	palm = Palm()
@@ -226,7 +217,6 @@ def test_tracks_compute():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_align():
 	"""Test basique pour l'alignement."""
 	palm = Palm()
@@ -267,7 +257,6 @@ def test_align():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_wavelett():
 	"""Test basique pour récupérer un plan d'ondelette."""
 	palm = Palm()
@@ -283,7 +272,6 @@ def test_wavelett():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_astigmatism_3d_calibration():
 	"""Test basique pour la calibration de l'astigatisme 3D."""
 	palm = Palm()
@@ -297,7 +285,6 @@ def test_astigmatism_3d_calibration():
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_astigmatism_3d_estimation():
 	"""Test basique pour l'estimation de l'astigmatisme 3D."""
 	palm = Palm()

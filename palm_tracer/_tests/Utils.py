@@ -27,10 +27,6 @@ def is_headless(): return platform.system() in ("Linux", "Darwin") and IS_CI
 
 
 ##################################################
-def is_not_dll_friendly(): return platform.system() != "Windows"
-
-
-##################################################
 def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
 	"""
 	Génère un suffixe pour les fichiers de localisation.
