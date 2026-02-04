@@ -59,7 +59,11 @@ jobs:
         run: |
           choco install vcredist2010 -y
           choco install 7zip -y
-          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}"
+
+      - name: Extract DLL archive
+        shell: bash
+        run: |
+          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -y
 
       # strategy borrowed from vispy for installing OpenGL libs on windows
       - name: Set up OpenGL for Windows
