@@ -32,6 +32,8 @@ L’interface est organisée en deux onglets, correspondant aux deux étapes cla
    - Estimate Z : estimation de la position axiale à partir d’un modèle existant.
 
 La partie droite de la fenêtre affiche en permanence une visualisation du modèle astigmatique courant (courbes Sigma X et Sigma Y en fonction de Z).
+Vous pouvez appuyer sur l'icone camera (📷) au dessus du graphique pour enregistrer une image png directement.
+
 
 .. list-table::
    :align: center

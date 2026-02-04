@@ -376,3 +376,5 @@ Lors d'un appui sur :guilabel:`Export…`, vous aurez le choix entre plusieurs f
 - **HTML** enregistre une page web interactive (incluant PlotlyJS) comme sur la visionneuse.
 - **PNG** exporte une image du rendu du graphique.
 - **PDF** exporte l'image dans un fichier PDF
+
+Vous pouvez également appuyer sur l'icone camera (📷) au dessus du graphique pour enregistrer une image png directement.
