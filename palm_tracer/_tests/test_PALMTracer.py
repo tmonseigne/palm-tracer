@@ -10,7 +10,7 @@ from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO
 
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_tracer"
+OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
 
 
@@ -672,6 +672,7 @@ def test_add_color(make_napari_viewer):
 	file = "tracking2"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
 	df = pd.read_csv(path)
+	pt._path = OUTPUT_DIR
 
 	ref = [1, 1, 1, 1, 1, 1]
 	res = pt.add_color_to_tracks(df, "Track Number")  # Premier exemple basique
