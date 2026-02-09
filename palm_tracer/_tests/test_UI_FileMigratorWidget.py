@@ -50,7 +50,6 @@ def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de la calibration"""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)

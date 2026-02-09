@@ -109,8 +109,7 @@ class FileMigrator:
 		Règle de nommage du dossier de sortie :
 		- si l'entrée est ``monfichierdebase.PT`` alors sortie ``monfichierdebase_PALM_Tracer``
 
-		.. warning::
-		   Cette méthode suppose que :meth:`open` et :meth:`analyze` ont déjà été appelées.
+		.. warning:: Cette méthode suppose que :meth:`open` et :meth:`analyze` ont déjà été appelées.
 
 		:raises RuntimeError: si :attr:`input_folder` n'est pas défini.
 		"""

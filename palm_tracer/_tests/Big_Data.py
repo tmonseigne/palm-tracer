@@ -12,7 +12,6 @@ path = Path(f"{INPUT_DIR}/big input/{file}.tif")
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_cpu(make_napari_viewer):
 	"""
 	Test pour le process sur des données importantes.
@@ -64,7 +63,6 @@ def test_palm_cpu(make_napari_viewer):
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_palm_gpu(make_napari_viewer):
 	"""
 	Test pour le process sur des données importantes.
@@ -92,7 +90,6 @@ def test_palm_gpu(make_napari_viewer):
 
 
 ##################################################
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_tracking(make_napari_viewer):
 	"""
 	Test pour le process sur des données importantes.

@@ -54,12 +54,26 @@ jobs:
       #   uses: jurplel/install-qt-action@v4
 
       # Installation of vcredist2010 if problem install all (vcredist-all)
-      - name: Install Dependencies and Libraries
+      - name: Install Dependencies and Libraries Windows
         if: runner.os == 'Windows'
         run: |
           choco install vcredist2010 -y
           choco install 7zip -y
-          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}"
+
+      # Mise à jour avec un vrai 7zip sur macOS (no comment...)
+      - name: Install Dependencies, 7-Zip (macOS) and extract archive
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install sevenzip libomp
+          7zz x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -y
+
+      # Extraction des bibliothèques dynamiques
+      - name: Extract archive (Unix/Windows)
+        if: runner.os != 'macOS'
+        shell: bash
+        run: |
+          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -y
 
       # strategy borrowed from vispy for installing OpenGL libs on windows
       - name: Set up OpenGL for Windows

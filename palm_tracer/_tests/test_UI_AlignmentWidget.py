@@ -107,7 +107,6 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
@@ -175,7 +174,6 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-@pytest.mark.skipif(is_not_dll_friendly(), reason="DLL uniquement sur Windows")
 def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.

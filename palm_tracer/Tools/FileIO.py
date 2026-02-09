@@ -6,6 +6,7 @@ Ce module regroupe diverses fonctions pour la gestion et la manipulation de fich
 
 import ctypes
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, Optional
@@ -107,11 +108,13 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 ##################################################
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	"""Charge une DLL, si elle existe."""
-	dll_filename = DLL_PATH / f"PALMTracer_{name}.dll"
+	ext = "dll" if sys.platform.startswith("win") else "dylib" if sys.platform == "darwin" else "so"
+	path = DLL_PATH / f"PALMTracer_{name}.{ext}"
+
 	try:
-		return ctypes.cdll.LoadLibrary(str(dll_filename.resolve()))
+		return ctypes.cdll.LoadLibrary(str(path.resolve()))  # Resolve permet d'assurer un chemin absolu et non relatif (pour des DLL ça peut être vital).
 	except OSError as e:
-		Ui.print_warning(f"Impossible de charger la DLL '{dll_filename}':\n\t{e}")
+		Ui.print_warning(f"Impossible de charger la DLL '{path.name}':\n\t{e}")
 		return None
 
 
@@ -186,7 +189,9 @@ def open_tif(filename: str | Path) -> np.ndarray:
 	"""
 	path = Path(filename)
 	if not path.is_file(): raise OSError(f'Le fichier "{path}" est introuvable.')
-	return tiff.imread(str(path))
+	res = tiff.imread(str(path))  # .									 Conserve dtype
+	if not res.flags["C_CONTIGUOUS"]: res = np.ascontiguousarray(res)  # Garantit contiguïté sans copie si déjà C-contiguous
+	return res
 
 
 # ==================================================
