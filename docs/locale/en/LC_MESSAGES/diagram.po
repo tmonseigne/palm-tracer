@@ -1,0 +1,11 @@
+#: ../../diagram.rst:2 ../../diagram.rst:7
+msgid "Diagramme de classe PALM Tracer"
+msgstr "PALM Tracer Class Diagram"
+
+#: ../../diagram.rst:13
+msgid "Diagramme de classe PALM Tracer Settings Groups"
+msgstr "PALM Tracer Settings Groups class diagram"
+
+#: ../../diagram.rst:19
+msgid "Diagramme de classe PALM Tracer Settings Types"
+msgstr "PALM Tracer Settings Types class diagram"

@@ -39,22 +39,22 @@ contributions:
     - command: palm-tracer.make_qwidget
       display_name: PALM Tracer
 
-    # Widget "factice" qui sert juste de point d’entrée menu
+    # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_viewerhr
       display_name: Viewer HR
 
-    # Widget "factice" qui sert juste de point d’entrée menu
+    # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_viewer3d
       display_name: Viewer 3D
 
-    # Widget "factice" qui sert juste de point d’entrée menu
+    # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_alignment
       display_name: Alignment Tool
 
-    # Widget "factice" qui sert juste de point d’entrée menu
+    # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_astigmatism3d
       display_name: Astigmatism 3D Tool
 
-    # Widget "factice" qui sert juste de point d’entrée menu
+    # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_migrator
       display_name: File Migrator Tool

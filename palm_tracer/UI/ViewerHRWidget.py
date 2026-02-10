@@ -90,7 +90,7 @@ class ViewerHRWidget(QWidget):
 		btn_generate.clicked.connect(self.generate)
 		btn_save = QPushButton("Save")
 		btn_save.clicked.connect(self.save)
-		# Ligne de bouttons
+		# Ligne de boutons
 		action_row = QHBoxLayout()
 		action_row.addWidget(btn_generate)
 		action_row.addWidget(btn_save)
@@ -131,18 +131,18 @@ class ViewerHRWidget(QWidget):
 		"""Crée ou met à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer napari."""
 		path, stack, suffix = self._pt._path, self._pt._stack, self._pt._suffix
 		if not path or not Path(path).is_dir():
-			show_warning(f"Le chemin de destination \"{path}\" n'est pas valide.")
+			show_warning(f"The destination path '{path}' is invalid.")
 			return
 
 		if stack is None:
-			show_warning(f"Aucune Pile de chargée.")
+			show_warning(f"No stack loaded.")
 			return
 
 		depth, height, width = stack.shape
 
 		# On supprime les calques (la mise à jour n'est pas optimale sous Napari)
 		try: self.viewer.layers.clear()
-		except Exception as e: show_warning(f"Erreur lors de la suppression des anciens calques : {e}")
+		except Exception as e: show_warning(f"Error when deleting old layers: {e}")
 
 		data_type = self.type_cmb.get_value()
 		data_source = self.source_cmb.get_value()
@@ -153,7 +153,7 @@ class ViewerHRWidget(QWidget):
 		if data_type == 0:  # Localisations
 			loc = self._pt.localizations
 			if loc.empty:
-				show_warning("Aucun fichier de localisation disponible.")
+				show_warning("No localization file available.")
 				return
 			points = loc[["Y", "X"]].to_numpy() * upscale
 			layer = self.viewer.add_points(points, size=point_size, face_color="lime", name="Points")
@@ -164,7 +164,7 @@ class ViewerHRWidget(QWidget):
 		else:  # Trajectoires
 			trc = self._pt.tracks
 			if trc.empty:
-				show_warning("Aucun fichier de trajectoires disponible.")
+				show_warning("No tracking file available.")
 				return
 			tracks_data = trc[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
 			tracks_data[:, 2:4] *= upscale
@@ -186,7 +186,7 @@ class ViewerHRWidget(QWidget):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
 			save_png(self.visualization, self._filename)
-			show_info("Sauvegarde du fichier image.")
+			show_info("Saving the image file.")
 
 
 ##################################################

@@ -70,7 +70,7 @@ Voici un exemple d'utilisation de la fonction :
 	# Calcul du seuil
 	seuil = palm.auto_threshold(image)
 
-	print(f"Seuil calculé : {seuil}")
+	print(f"Computed threshold: {seuil}")
 
 
 Remarques

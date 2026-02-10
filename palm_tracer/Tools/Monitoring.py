@@ -43,7 +43,7 @@ try:
 
 	HAVE_GPU = not os.getenv("GITHUB_ACTIONS") == "true"
 except ImportError:
-	Ui.print_warning("pynvml non disponible, le monitoring GPU sera désactivé.")
+	Ui.print_warning("pynvml is not available, GPU monitoring will be disabled.")
 	HAVE_GPU = False
 
 
@@ -376,7 +376,7 @@ class Monitoring:
 					f.write("Liste des tests : \n")
 					for test in self._tests_info: f.write(f"{test['File']}, {test['Test']}, {test['Timestamp']}\n")
 		except Exception as e:
-			Ui.print_error(f"Erreur lors de la sauvegarde des données : {e}")
+			Ui.print_error(f"Error while saving data: {e}")
 
 	##################################################
 	def tostring(self) -> str:

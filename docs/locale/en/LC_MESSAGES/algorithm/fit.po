@@ -1,0 +1,11 @@
+#: ../../algorithm/fit.rst:2
+msgid "Ajustement de la localisation"
+msgstr ""
+
+#: ../../algorithm/fit.rst:6
+msgid "Work In Progress"
+msgstr ""
+
+#: ../../algorithm/fit.rst:13
+msgid "Page en cours d'écriture."
+msgstr "Page currently being written."

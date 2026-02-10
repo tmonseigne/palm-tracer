@@ -1,0 +1,98 @@
+msgid "Glossaire"
+msgstr "Glossary"
+
+#: ../../glossary.rst:33
+msgid "Ajustement gaussien"
+msgstr "Gaussian fitting"
+
+#: ../../glossary.rst:35
+msgid "Ajustement d'une gaussienne (2D/3D) sur une PSF pour estimer les paramètres (position, amplitude, fond, largeur, etc.)."
+msgstr "Fitting a (2D/3D) Gaussian to a PSF to estimate parameters (position, amplitude, background, width, etc.)."
+
+#: ../../glossary.rst:15
+msgid "Correction de dérive"
+msgstr "Drift correction"
+
+#: ../../glossary.rst:17
+msgid "Estimation puis compensation de la dérive afin d'aligner les localisations (ou les images) dans un repère stable."
+msgstr "Estimation and compensation of drift in order to align localizations (or images) within a stable reference frame."
+
+#: ../../glossary.rst:12
+msgid "Dérive"
+msgstr "Drift"
+
+#: ../../glossary.rst:14
+msgid "Déplacement lent et global du champ d'observation au cours du temps (microscope, échantillon, stabilité mécanique/thermique), mesurable en :math:`(x, y)` et parfois en :math:`z`."
+msgstr "Slow, global displacement of the field of view over time (microscope, sample, mechanical/thermal stability), measurable in :math:`(x, y)` and sometimes in :math:`z`."
+
+#: ../../glossary.rst:36
+msgid "Image haute résolution"
+msgstr "High-resolution image"
+
+#: ../../glossary.rst:38
+msgid "Image reconstruite à partir d'un ensemble de localisations (nuage de points) en appliquant un rendu (binning, gaussien, histogramme, etc.)."
+msgstr "Image reconstructed from a set of localizations (point cloud) by applying a rendering method (binning, Gaussian rendering, histogram, etc.)."
+
+#: ../../glossary.rst:6
+msgid "Localisation"
+msgstr "Localization"
+
+#: ../../glossary.rst:8
+msgid "Estimation de la position :math:`(x, y)` (et éventuellement :math:`z`) d'une molécule unique à partir de son image (PSF), généralement par ajustement d'un modèle ou d'une PSF expérimentale."
+msgstr "Estimation of the position :math:`(x, y)` (and possibly :math:`z`) of a single molecule from its image (PSF), typically by fitting a model or an experimental PSF."
+
+#: ../../glossary.rst:39
+msgid "Pipeline"
+msgstr "Pipeline"
+
+#: ../../glossary.rst:41
+msgid "Enchaînement reproductible d'étapes de traitement (prétraitement, localisation, filtrage, suivi, rendu, export), avec des paramètres sauvegardés."
+msgstr "Reproducible sequence of processing steps (pre-processing, localization, filtering, tracking, rendering, export), with saved parameters."
+
+#: ../../glossary.rst:21
+msgid "PSF (Point Spread Function)"
+msgstr "PSF (Point Spread Function)"
+
+#: ../../glossary.rst:23
+msgid "Réponse impulsionnelle optique du microscope. Elle décrit l'image formée par une source ponctuelle et conditionne la précision de localisation."
+msgstr "Optical impulse response of the microscope. It describes the image formed by a point source and determines localization precision."
+
+#: ../../glossary.rst:18
+msgid "ROI (Region Of Interest)"
+msgstr "ROI (Region Of Interest)"
+
+#: ../../glossary.rst:20
+msgid "Sous-région d'une image extraite autour d'une zone d'intérêt (ex. autour d'un maximum local) pour effectuer un traitement local (seuillage, fit, etc.)."
+msgstr "Sub-region of an image extracted around an area of interest (e.g., around a local maximum) to perform local processing (thresholding, fitting, etc.)."
+
+#: ../../glossary.rst:27
+msgid "Seuil (Threshold)"
+msgstr "Threshold"
+
+#: ../../glossary.rst:29
+msgid "Valeur limite utilisée pour discriminer un signal (pixels/objets) du fond. Peut être fixe, automatique, ou dépendre d'un modèle de bruit."
+msgstr "Limit value used to separate a signal (pixels/objects) from the background. It can be fixed, automatic, or depend on a noise model."
+
+#: ../../glossary.rst:24
+msgid "SNR (Signal-to-Noise Ratio)"
+msgstr "SNR (Signal-to-Noise Ratio)"
+
+#: ../../glossary.rst:26
+msgid "Rapport signal sur bruit, indicateur de la qualité d'un signal mesuré. Un SNR faible dégrade la précision de localisation et augmente le risque de faux positifs."
+msgstr "Signal-to-noise ratio, an indicator of the quality of a measured signal. A low SNR degrades localization precision and increases the risk of false positives."
+
+#: ../../glossary.rst:9
+msgid "Suivi"
+msgstr "Tracking"
+
+#: ../../glossary.rst:11
+msgid "Association des localisations d'une même molécule au fil des frames afin de former une trajectoire (track)."
+msgstr "Association of localizations belonging to the same molecule across frames in order to form a trajectory (track)."
+
+#: ../../glossary.rst:30
+msgid "Watershed"
+msgstr "Watershed"
+
+#: ../../glossary.rst:32
+msgid "Méthode de segmentation basée sur la topographie d'une image (analogie "bassin versant"), souvent utilisée pour séparer des objets proches."
+msgstr "Segmentation method based on an image's topography (\"watershed\" analogy), often used to separate nearby objects."

@@ -1,0 +1,163 @@
+#: ../../user/tool_astig.rst:2
+msgid "Outil d'astimagtisme 3D"
+msgstr "3D astigmatism tool"
+
+#: ../../user/tool_astig.rst:9
+msgid "Cette page décrit l'outil **Astigmatism 3D**, utilisé pour calibrer un modèle d'astigmatisme axial et estimer la position axiale (Z) à partir des largeurs de PSF (Sigma X / Sigma Y)."
+msgstr "This page describes the **Astigmatism 3D** tool, used to calibrate an axial astigmatism model and estimate the axial position (Z) from PSF widths (Sigma X / Sigma Y)."
+
+#: ../../user/tool_astig.rst:12
+msgid "Lancement"
+msgstr "Launch"
+
+#: ../../user/tool_astig.rst:14
+msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :console:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :console:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+
+#: ../../user/tool_astig.rst:16
+msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."
+msgstr "Make sure the virtual environment is activated if you are using one."
+
+#: ../../user/tool_astig.rst:17
+msgid "Lancez Napari avec la commande : :console:`napari`"
+msgstr "Launch Napari with the command: :console:`napari`"
+
+#: ../../user/tool_astig.rst:20
+msgid "Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où."
+msgstr "If you did not create a virtual environment, Napari can be launched from anywhere."
+
+#: ../../user/tool_astig.rst:22
+msgid "lancez l'outil dans Napari : :menuselection:`Plugins --> PALM Tracer --> Astigmatism 3D Tool`"
+msgstr "Launch the tool in Napari: :menuselection:`Plugins --> PALM Tracer --> Astigmatism 3D Tool`"
+
+#: ../../user/tool_astig.rst:26
+msgid "Organisation de l'interface"
+msgstr "Interface organization"
+
+#: ../../user/tool_astig.rst:28
+msgid "L'outil est organisé en deux onglets correspondant aux deux étapes principales du workflow."
+msgstr "The tool is organized into two tabs corresponding to the two main steps of the workflow."
+
+#: ../../user/tool_astig.rst:30
+msgid "L'interface est organisée en deux onglets, correspondant aux deux étapes classiques du workflow astigmatique :"
+msgstr "The interface is organized into two tabs, corresponding to the two classical steps of the astigmatic workflow:"
+
+#: ../../user/tool_astig.rst:31
+msgid "Compute Model : calibration du modèle d'astigmatisme à partir de données calibrées"
+msgstr "Compute Model: calibration of the astigmatism model from calibrated data"
+
+#: ../../user/tool_astig.rst:32
+msgid "Estimate Z : estimation de la position axiale à partir d'un modèle existant."
+msgstr "Estimate Z: estimation of the axial position from an existing model."
+
+#: ../../user/tool_astig.rst:34
+msgid "La partie droite de la fenêtre affiche en permanence une visualisation du modèle astigmatique courant (courbes Sigma X et Sigma Y en fonction de Z). Vous pouvez appuyer sur l'icone camera (📷) au dessus du graphique pour enregistrer une image png directement."
+msgstr "The right part of the window continuously displays a visualization of the current astigmatic model (Sigma X and Sigma Y curves as a function of Z). You can click the camera icon (📷) above the graph to directly save a PNG image."
+
+#: ../../user/tool_astig.rst:43 ../../user/tool_astig.rst:49
+msgid "Onglet 1 : Calcul du modèle."
+msgstr "Tab 1: Model computation."
+
+#: ../../user/tool_astig.rst:51 ../../user/tool_astig.rst:57
+msgid "Onglet 2 : Estimation de la position axiale (Z)"
+msgstr "Tab 2: Axial position estimation (Z)"
+
+#: ../../user/tool_astig.rst:61
+msgid "Calcul du modèle"
+msgstr "Model computation"
+
+#: ../../user/tool_astig.rst:63
+msgid "Cet onglet permet de calculer un modèle d'astigmatisme à partir d'un jeu de localisations calibrées en Z."
+msgstr "This tab allows computing an astigmatism model from a set of Z-calibrated localizations."
+
+#: ../../user/tool_astig.rst:65
+msgid "Après chargement d'un fichier CSV contenant au minimum les colonnes ``Sigma X``, ``Sigma Y`` et ``Z``, les paramètres suivants peuvent être ajustés :"
+msgstr "After loading a CSV file containing at least the columns ``Sigma X``, ``Sigma Y``, and ``Z``, the following parameters can be adjusted:"
+
+#: ../../user/tool_astig.rst:66
+msgid "la taille de pixel (µm/px),"
+msgstr "the pixel size (µm/px),"
+
+#: ../../user/tool_astig.rst:67
+msgid "la valeur maximale de Z,"
+msgstr "the maximum Z value,"
+
+#: ../../user/tool_astig.rst:68
+msgid "la reconstruction éventuelle de Z à partir des plans,"
+msgstr "optional reconstruction of Z from planes,"
+
+#: ../../user/tool_astig.rst:69
+msgid "l'inversion du signe de Z."
+msgstr "inversion of the Z sign."
+
+#: ../../user/tool_astig.rst:71
+msgid "Après chargement, le nom du fichier apparaît sous le bouton correspondant. Un survol du nom avec le curseur de la souris affiche le **chemin complet** du fichier."
+msgstr "After loading, the file name appears below the corresponding button. Hovering over the name with the mouse cursor displays the **full file path**."
+
+#: ../../user/tool_astig.rst:73 ../../user/tool_astig.rst:80
+msgid "Affichage du chemin complet du fichier."
+msgstr "Display of the full file path."
+
+#: ../../user/tool_astig.rst:82
+msgid "Si Z n'est pas calibré, les plans sont utilisés (donc une colonne ``PLane`` est nécessaire) pour remplir la colonne Z, il faut activer l'option *Get Z from plane* et indiquer la valeur maximale absolue de Z (Z Max) en nanomètres pour reconstruire Z sur l'intervalle [-Z Max ; +Z Max]."
+msgstr "If Z is not calibrated, planes are used (therefore a ``Plane`` column is required) to fill the Z column. You must enable the *Get Z from plane* option and specify the absolute maximum Z value (Z Max) in nanometers to reconstruct Z over the interval [-Z Max; +Z Max]."
+
+#: ../../user/tool_astig.rst:84 ../../user/tool_astig.rst:106
+msgid "L'ordre croissant ou décroissant des plans ne peut être détecté automatiquement. Une inversion de Z peut être nécessaire selon la convention expérimentale."
+msgstr "The increasing or decreasing order of planes cannot be detected automatically. A Z inversion may be required depending on the experimental convention."
+
+#: ../../user/tool_astig.rst:86
+msgid "L'appui sur le bouton :guilabel:`Compute model` permet de lancer le calcul. Celui-ci génère un fichier :console:`astigmatism_3d_model.csv` dans le dossier du fichier de calibration."
+msgstr "Clicking the :guilabel:`Compute model` button starts the computation. This generates a file named :console:`astigmatism_3d_model.csv` in the calibration file directory."
+
+#: ../../user/tool_astig.rst:88
+msgid "Les indicateurs de cohérence (Sanity Check) sont mis à jour automatiquement et le modèle est affiché dans la zone de visualisation."
+msgstr "Consistency indicators (Sanity Check) are automatically updated, and the model is displayed in the visualization area."
+
+#: ../../user/tool_astig.rst:90 ../../user/tool_astig.rst:97
+msgid "Interface de calcul du modèle d'astigmatisme 3D."
+msgstr "3D astigmatism model computation interface."
+
+#: ../../user/tool_astig.rst:99
+msgid "La zone Sanity Check fournit des indicateurs simples permettant d'évaluer rapidement la qualité du modèle."
+msgstr "The Sanity Check area provides simple indicators to quickly assess the quality of the model."
+
+#: ../../user/tool_astig.rst:101
+msgid "La colonne de gauche regroupe des métriques liées aux largeurs de PSF (RMSE, MAE, R² sur Sigma X et Sigma Y). La colonne de droite concerne la cohérence axiale du modèle (erreurs sur Z, biais, dispersion et distance à la courbe)."
+msgstr "The left column groups metrics related to PSF widths (RMSE, MAE, R² on Sigma X and Sigma Y). The right column concerns the axial consistency of the model (Z errors, bias, dispersion, and distance to the curve)."
+
+#: ../../user/tool_astig.rst:103
+msgid "Ces valeurs permettent de détecter rapidement un modèle incohérent, une inversion de Z ou un domaine axial mal défini. Comme pour les noms de fichier, un survol avec le curseur de la souris permet d'avoir une explication sur chaque métrique"
+msgstr "These values allow quickly detecting an inconsistent model, a Z inversion, or a poorly defined axial range. As with file names, hovering with the mouse cursor provides an explanation for each metric."
+
+#: ../../user/tool_astig.rst:108 ../../user/tool_astig.rst:115
+msgid "Affichage des explications des métriques de sanity check."
+msgstr "Display of explanations for sanity check metrics."
+
+#: ../../user/tool_astig.rst:117
+msgid "Un fichier de calibration idéal possède un nombre impair de lignes (pour avoir la ligne centrale avec Z=0) réparties linéairement sur l'intervalle [-Z Max ; +Z Max]. Le pas entre les plans doit être aussi petit que possible pour garantir la fiabilité du modèle. Les irrégularités dans la répartition des plans (pas non régulier, intervalle non centré en 0, etc.) ne peuvent pas être automatiquement prises en compte. Il est conseillé dans ces cas particuliers de remplir la colonne Z en amont."
+msgstr "An ideal calibration file has an odd number of rows (to have the central row with Z=0) linearly distributed over the interval [-Z Max; +Z Max]. The spacing between planes should be as small as possible to ensure model reliability. Irregularities in plane distribution (non-uniform spacing, interval not centered at 0, etc.) cannot be automatically handled. In such cases, it is recommended to fill the Z column beforehand."
+
+#: ../../user/tool_astig.rst:123
+msgid "Estimation de la position axiale (Z)"
+msgstr "Axial position estimation (Z)"
+
+#: ../../user/tool_astig.rst:125
+msgid "Cet onglet permet d'estimer la position axiale pour un fichier de localisations donné contenant au moins les colonnes *Sigma X*, *Sigma Y* et *Z*, à partir d'un modèle d'astigmatisme existant."
+msgstr "This tab allows estimating the axial position for a given localization file containing at least the columns *Sigma X*, *Sigma Y*, and *Z*, using an existing astigmatism model."
+
+#: ../../user/tool_astig.rst:128
+msgid "Les paramètres de taille de pixel et de domaine axial doivent être cohérents avec ceux utilisés lors de la calibration du modèle."
+msgstr "Pixel size and axial range parameters must be consistent with those used during model calibration."
+
+#: ../../user/tool_astig.rst:130
+msgid "Si l'option Save Backup est activée, une copie du fichier original est sauvegardée avant la mise à jour de la colonne Z."
+msgstr "If the Save Backup option is enabled, a copy of the original file is saved before updating the Z column."
+
+#: ../../user/tool_astig.rst:132
+msgid "Le bouton :guilabel:`Estimate Z` lance l'estimation. Le fichier CSV est alors réécrit au même emplacement, avec la colonne Z mise à jour."
+msgstr "Clicking the :guilabel:`Estimate Z` button starts the estimation. The CSV file is then rewritten at the same location, with the Z column updated."
+
+#: ../../user/tool_astig.rst:134 ../../user/tool_astig.rst:141
+msgid "Interface d'estimation de la position axiale (Z)."
+msgstr "Axial position estimation (Z) interface."

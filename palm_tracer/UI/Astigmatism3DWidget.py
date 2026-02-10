@@ -1,5 +1,5 @@
 """
-Module contenant la classe :class:`Astigmatism3DWidget`, un outil minimaliste pour le calcul d'un modèle d’astigmatisme en lien avec la position axiale.
+Module contenant la classe :class:`Astigmatism3DWidget`, un outil minimaliste pour le calcul d'un modèle d'astigmatisme en lien avec la position axiale.
 
 Ce widget offre une interface simple organisée en deux onglets : ``Compute Astigmatism Model``, ``Estimate Z``
 
@@ -29,7 +29,7 @@ _windows = []  # pour garder une référence globale, éviter le Garbage Collect
 
 class Astigmatism3DWidget(BaseStandAloneWidget):
 	"""
-	Widget minimaliste pour le calcul d'un modèle d’astigmatisme en lien avec la position axiale et l'estimation d'une position axiale en fonction d'un modèle.
+	Widget minimaliste pour le calcul d'un modèle d'astigmatisme en lien avec la position axiale et l'estimation d'une position axiale en fonction d'un modèle.
 
 	Ce widget fournit deux onglets :
 		- ``Compute Astigmatism Model`` :

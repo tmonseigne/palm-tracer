@@ -1,0 +1,119 @@
+#: ../../user/tool_alignment.rst:2
+msgid "Outil d'alignement"
+msgstr "Alignment tool"
+
+#: ../../user/tool_alignment.rst:9
+msgid "Cette page décrit l'interface et le flux d'utilisation actuels. Certaines fonctionnalités (calcul automatique des coefficients) sont en cours d'implémentation."
+msgstr "This page describes the current interface and usage workflow. Some features (automatic computation of coefficients) are currently under implementation."
+
+#: ../../user/tool_alignment.rst:12
+msgid "Lancement"
+msgstr "Launch"
+
+#: ../../user/tool_alignment.rst:14
+msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :console:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :console:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+
+#: ../../user/tool_alignment.rst:16
+msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."
+msgstr "Make sure the virtual environment is activated if you are using one."
+
+#: ../../user/tool_alignment.rst:17
+msgid "Lancez Napari avec la commande : :console:`napari`"
+msgstr "Launch Napari with the command: :console:`napari`"
+
+#: ../../user/tool_alignment.rst:19
+msgid "Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où."
+msgstr "If you did not create a virtual environment, Napari can be launched from anywhere."
+
+#: ../../user/tool_alignment.rst:21
+msgid "lancez l'outil dans Napari : :menuselection:`Plugins --> PALM Tracer --> Alignment Tool`"
+msgstr "Launch the tool in Napari: :menuselection:`Plugins --> PALM Tracer --> Alignment Tool`"
+
+#: ../../user/tool_alignment.rst:25
+msgid "Organisation de l'interface"
+msgstr "Interface organization"
+
+#: ../../user/tool_alignment.rst:27
+msgid "L'outil est organisé en deux onglets correspondant aux deux étapes principales du workflow."
+msgstr "The tool is organized into two tabs corresponding to the two main steps of the workflow."
+
+#: ../../user/tool_alignment.rst:34 ../../user/tool_alignment.rst:40
+msgid "Onglet 1 : Calcul des coefficients d'alignement"
+msgstr "Tab 1: Alignment coefficient computation"
+
+#: ../../user/tool_alignment.rst:42 ../../user/tool_alignment.rst:48
+msgid "Onglet 2 : Alignement"
+msgstr "Tab 2: Alignment"
+
+#: ../../user/tool_alignment.rst:52
+msgid "Calcul des coefficients (non implémenté actuellement)"
+msgstr "Coefficient computation (not implemented yet)"
+
+#: ../../user/tool_alignment.rst:54
+msgid "Cette fonctionnalité n'est pas encore implémentée dans la version actuelle."
+msgstr "This feature is not yet implemented in the current version."
+
+#: ../../user/tool_alignment.rst:56
+msgid "Le calcul des coefficients d'alignement repose sur un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte : vue de référence (gauche), vue déformée (droite)."
+msgstr "The computation of alignment coefficients is based on a TIFF file containing a single image composed of two side-by-side views: the reference view (left) and the distorted view (right)."
+
+#: ../../user/tool_alignment.rst:58 ../../user/tool_alignment.rst:65
+msgid "Exemple de fichier utilisé pour le calcul des coefficients."
+msgstr "Example of a file used for coefficient computation."
+
+#: ../../user/tool_alignment.rst:67
+msgid "Après chargement, le nom du fichier apparaît sous le bouton correspondant. Un survol du nom avec le curseur de la souris affiche le **chemin complet** du fichier."
+msgstr "After loading, the file name appears below the corresponding button. Hovering over the name with the mouse cursor displays the **full path** of the file."
+
+#: ../../user/tool_alignment.rst:69 ../../user/tool_alignment.rst:76
+msgid "Affichage du chemin complet du fichier."
+msgstr "Display of the full file path."
+
+#: ../../user/tool_alignment.rst:78
+msgid "L'appui sur le bouton :guilabel:`Compute coefficients` permet de lancer le calcul. Celui-ci génère un fichier :console:`alignment_coeffs.csv` dans le dossier du fichier de référence."
+msgstr "Clicking the :guilabel:`Compute coefficients` button starts the computation. This generates a file named :console:`alignment_coeffs.csv` in the directory of the reference file."
+
+#: ../../user/tool_alignment.rst:81
+msgid "Alignement d'une pile"
+msgstr "Stack alignment"
+
+#: ../../user/tool_alignment.rst:83
+msgid "Cette étape permet d'appliquer des coefficients d'alignement à une pile d'images TIFF. Vous devez fournir : un fichier TIFF à aligner, un fichier de coefficients d'alignement."
+msgstr "This step applies alignment coefficients to a stack of TIFF images. You must provide: a TIFF file to be aligned and an alignment coefficient file."
+
+#: ../../user/tool_alignment.rst:85
+msgid "Le format actuellement pris en charge correspond à celui de Metamorph : un fichier texte contenant une ligne d'en-tête suivie de deux lignes de 10 valeurs."
+msgstr "The currently supported format corresponds to the Metamorph format: a text file containing one header line followed by two lines of 10 values."
+
+#: ../../user/tool_alignment.rst:87
+msgid "Comme précédemment, le nom du fichier chargé est affiché sous le bouton, et un survol permet d'en visualiser le chemin complet."
+msgstr "As before, the name of the loaded file is displayed below the button, and hovering over it allows the full path to be viewed."
+
+#: ../../user/tool_alignment.rst:89 ../../user/tool_alignment.rst:96
+msgid "Interface d'alignement d'une pile."
+msgstr "Stack alignment interface."
+
+#: ../../user/tool_alignment.rst:98
+msgid "Il est possible d'indiquer un facteur d'agrandissement pour augmenter la précision subpixel de la déformation."
+msgstr "It is possible to specify a magnification factor to increase the subpixel accuracy of the deformation."
+
+#: ../../user/tool_alignment.rst
+msgid "L'agrandissement modifie la résolution spatiale des données :"
+msgstr "Magnification modifies the spatial resolution of the data:"
+
+#: ../../user/tool_alignment.rst
+msgid "la taille de pixel est divisée par le facteur d'agrandissement, par exemple, **100 nm/pixel** devient **50 nm/pixel** avec un facteur de 2."
+msgstr "the pixel size is divided by the magnification factor; for example, **100 nm/pixel** becomes **50 nm/pixel** with a factor of 2."
+
+#: ../../user/tool_alignment.rst
+msgid "Pensez à mettre à jour vos paramètres de calibration pour les traitements ultérieurs."
+msgstr "Remember to update your calibration parameters for subsequent processing steps."
+
+#: ../../user/tool_alignment.rst:106
+msgid "L'appui sur le bouton :guilabel:`Start Alignment` lance le calcul d'alignement. Un nouveau fichier TIFF est généré dans le même dossier que le fichier d'origine, avec le suffixe :console:`_aligned`. Exemple : :console:`stack.tif` → :console:`stack_aligned.tif`."
+msgstr "Clicking the :guilabel:`Start Alignment` button starts the alignment computation. A new TIFF file is generated in the same directory as the original file, with the suffix :console:`_aligned`. Example: :console:`stack.tif` → :console:`stack_aligned.tif`."
+
+#: ../../user/tool_alignment.rst:109
+msgid "Le fichier original n'est **pas modifié**."
+msgstr "The original file is **not modified**."

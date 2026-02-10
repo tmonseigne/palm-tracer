@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type boutton à cliquer.
+Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type bouton à cliquer.
 """
 
 from dataclasses import dataclass, field
@@ -14,7 +14,7 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 @dataclass
 class Button(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type boutton à cliquer.
+	Classe pour un paramètre spécifique de type bouton à cliquer.
 
 	Attributs :
 		- **label** (:class:`str`) : Nom du paramètre à afficher.

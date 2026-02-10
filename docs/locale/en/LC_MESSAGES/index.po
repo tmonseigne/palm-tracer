@@ -1,0 +1,7 @@
+#: ../../index.rst:4
+msgid "PALM Tracer pour Napari"
+msgstr "PALM Tracer for Napari"
+
+#: ../../index.rst:35
+msgid "PALM Tracer est un logiciel tout-en-un pour l'analyse des données de microscopie et de localisation de molécules uniques (SMLM)."
+msgstr "PALM Tracer is an all-in-one software package for analyzing single-molecule localization microscopy (SMLM) data."

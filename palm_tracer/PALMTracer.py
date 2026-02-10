@@ -126,7 +126,7 @@ class PALMTracer:
 	def load(self, path: str = ""):
 		"""Charge les précédents résultats du fichier courant."""
 		if not self.is_dll_valid():
-			Ui.print_warning("Process non effectué car DLL manquantes.")
+			Ui.print_warning("Process not completed due to missing DLLs.")
 			return
 
 		# Chargement des settings
@@ -134,10 +134,10 @@ class PALMTracer:
 		settings_filename = FileIO.get_last_file(self._path, "settings")
 		self._suffix = FileIO.extract_suffix(settings_filename)
 		if not settings_filename or not self._suffix:
-			Ui.print_warning("Aucun fichier de paramètres valide à charger.")
+			Ui.print_warning("No valid settings file to load.")
 			return
 
-		print(f"Chargement du fichier de configuration '{settings_filename}'.")
+		print(f"Loading setting file '{settings_filename}'.")
 		with self.settings.signal_blocked():
 			cfg = FileIO.open_json(str(settings_filename))
 			self.settings.update_from_dict(cfg)
@@ -147,42 +147,42 @@ class PALMTracer:
 		params = [["localizations", "loc"], ["localizations_filtered", "f_loc"],
 				  ["tracking", "trc"], ["tracking_filtered", "f_trc"],
 				  ["tracking-reconnected", "blk"], ["tracking_filtered_reconnected", "f_blk"],
-				  ["tracking_MSD", "MSD"], ["tracking_MSD", "f_MSD"],
+				  ["tracking_MSD", "MSD"], ["tracking_MSD_filtered", "f_MSD"],
 				  ["tracking_InstantD", "InD"], ["tracking_InstantD_filtered", "f_InD"],
 				  ["tracking_Fit", "Fit"], ["tracking_Fit_filtered", "f_Fit"]]
 
 		# Reset result Dataframes
 		self.reset_result()
-		print(f"\tChargement des fichiers du dossier '{self._path}' avec le timestamp {self._suffix}.")
+		print(f"\tLoading files from the '{self._path}' folder with the timestamp {self._suffix}.")
 		for p in params:
 			f = f"{self._path}/{p[0]}-{self._suffix}.csv"
 			try:
 				self.df[p[1]] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
-				print(f"\tFichier '{p[0]}' chargé avec succès.")
+				print(f"\tFile '{p[0]}' loaded successfully.")
 			except Exception as e:
 				self.df[p[1]] = pd.DataFrame()
-				print(f"\tErreur lors du chargement du fichier '{p[0]}' : {e}")
+				print(f"\tError loading file '{p[0]}': {e}")
 
 		# Chargement de la pile
 		try:
 			self._stack = self.settings.batch.get_stacks()[0]
-			print(f"\tPile chargé avec succès (taille : {self._stack.shape}).")
+			print(f"\tStack loaded successfully (size: {self._stack.shape}).")
 		except Exception as e:
-			print(f"\tErreur lors du chargement de la pile : {e}")
+			print(f"\tError loading stack: {e}")
 
 	##################################################
 	def process(self):
 		"""Lance le process de PALM selon les éléments en paramètres."""
 
 		if not self.is_dll_valid():
-			Ui.print_warning("Process non effectué car DLL manquantes.")
+			Ui.print_warning("Process not completed due to missing DLLs.")
 			return
 
 		# Parsing du batch
 		paths = self.settings.batch.get_paths()
 		stacks = self.settings.batch.get_stacks()
 		if len(stacks) == 0:
-			Ui.print_warning("Aucun fichier.")
+			Ui.print_warning("No files.")
 			return
 
 		# Parcours du batch
@@ -193,12 +193,12 @@ class PALMTracer:
 			Path(self._path).mkdir(parents=True, exist_ok=True)
 			self._suffix = FileIO.get_timestamp_for_files()
 			self._logger.open(f"{self._path}/log-{self._suffix}.log")
-			self._logger.add("Commencer le traitement.")
-			self._logger.add(f"Dossier de sortie : {self._path}")
+			self._logger.add("Start Processing.")
+			self._logger.add(f"Output folder: {self._path}")
 
 			# Save settings
 			FileIO.save_json(f"{self._path}/settings-{self._suffix}.json", self.settings.to_dict())
-			self._logger.add("Paramètres sauvegardés.")
+			self._logger.add("Settings saved.")
 
 			# Si transformation de la zone en entrée (par une ROI) à faire ici.
 
@@ -207,83 +207,83 @@ class PALMTracer:
 			df = Parsing.get_meta([height, width, depth, self.settings.calibration["Pixel Size"].get_value(),
 								   self.settings.calibration["Exposure"].get_value(), self.settings.calibration["Intensity"].get_value()])
 			df.to_csv(f"{self._path}/meta-{self._suffix}.csv", index=False)
-			self._logger.add("Fichier Meta sauvegardé.")
+			self._logger.add("Meta file saved.")
 
 			# Lancement de la localisation
 			if self.settings.localization.active:
-				self._logger.add("Localisation activée.")
+				self._logger.add("Localization enabled.")
 				try: self._localization()
 				except Exception as e: raise
 			else:  # Chargement d'une localisation existante
-				self._logger.add("Localisation désactivé.")
+				self._logger.add("Localization disabled.")
 				f = FileIO.get_last_file(self._path, "localizations-")
 				if f.endswith("csv"):
-					self._logger.add("\tChargement d'une localisation pré-calculée.")
+					self._logger.add("\tLoading a pre-computed localization.")
 					try:
 						self.df["loc"] = pd.read_csv(f)
-						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
+						self._logger.add(f"\tFile '{f}' loaded successfully.")
 						self._filter_localizations()
-						self._logger.add(f"\t\t{len(self.localizations)} localisation(s) trouvée(s).")
+						self._logger.add(f"\t\t{len(self.localizations)} localization(s) found.")
 					except Exception as e:
 						self.df["loc"] = pd.DataFrame()
-						self._logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
+						self._logger.add(f"\tError loading file '{f}': {e}")
 				else:  # Sinon
 					self.df["loc"] = pd.DataFrame()
-					self._logger.add("\tAucune donnée de localisation pré-calculée.")
+					self._logger.add("\tNo pre-computed localization data.")
 
 			# Lancement du tracking
 			if self.settings.tracking.active:
-				self._logger.add("Tracking activé.")
+				self._logger.add("Tracking enabled.")
 				self._tracking()
 			else:  # Chargement d'un tracking existant
-				self._logger.add("Tracking désactivé.")
+				self._logger.add("Tracking disabled.")
 				# Les fichiers reconnectés se nomment tracking-reconnected pour être pris en compte automatiquement.
 				f = FileIO.get_last_file(self._path, "tracking-")
 				if f.endswith("csv"):
-					self._logger.add("\tChargement d'un tracking pré-calculée.")
+					self._logger.add("\tLoading a pre-computed tracking.")
 					try:
 						self.df["trc"] = pd.read_csv(f)
-						self._logger.add(f"\tFichier '{f}' chargé avec succès.")
+						self._logger.add(f"\tFile '{f}' loaded successfully.")
 						self._filter_tracks("trc")
-						self._logger.add(f"\t\t{len(self.tracks)} trajectoire(s) trouvée(s).")
+						self._logger.add(f"\t\t{len(self.tracks)} track(s) found.")
 					except Exception as e:
 						self.df["trc"] = pd.DataFrame()
-						self._logger.add(f"\tErreur lors du chargement du fichier '{f}' : {e}")
+						self._logger.add(f"\tError loading file '{f}': {e}")
 				else:  # Sinon
 					self.df["trc"] = pd.DataFrame()
-					self._logger.add("\tAucune donnée de tracking pré-calculée.")
+					self._logger.add("\tNo pre-computed tracking data.")
 
 			# Lancement des calculs sur les trajectoires
 			if self.settings.tracks_compute.active:
-				self._logger.add("Calcul sur les trajectoires activé.")
+				self._logger.add("Tracks computes enabled.")
 				self._tracks_compute()
 			else:
-				self._logger.add("Calcul sur les trajectoires désactivé.")
+				self._logger.add("Tracks computes disabled.")
 
 			# Lancement de la Visualisation Haute Résolution
 			if self.settings.visualization_hr.active:
-				self._logger.add("Visualisation haute résolution activée.")
+				self._logger.add("High-resolution visualization enabled.")
 				self._visualization_hr()
 			else:
-				self._logger.add("Visualisation haute résolution désactivée.")
+				self._logger.add("High-resolution visualization disabled.")
 				self.visualization = None
 
 			# Lancement de la Visualisation graphique
 			if self.settings.visualization_graph.active:
-				self._logger.add("Visualisation graphique activée.")
+				self._logger.add("Graphical visualization enabled.")
 				self._visualization_graph()
 			else:
-				self._logger.add("Visualisation graphique désactivée.")
+				self._logger.add("Graphical visualization disabled.")
 
 			# Lancement de la génération de Galleries
 			if self.settings.gallery.active:
-				self._logger.add("Génération de la galerie activée.")
+				self._logger.add("Gallery generationenabled.")
 				self._gallery()
 			else:
-				self._logger.add("Génération de la galerie désactivée.")
+				self._logger.add("Gallery generationdisabled.")
 
 			# Fermeture du Log
-			self._logger.add("Traitement terminé.")
+			self._logger.add("Processing complete.")
 			self._logger.close()
 
 	# ==================================================
@@ -304,8 +304,8 @@ class PALMTracer:
 		# Run command
 		self.df["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
-		self._logger.add("\tEnregistrement du fichier de localisation")
-		self._logger.add(f"\t\t{len(self.df['loc'])} localisation(s) trouvée(s).")
+		self._logger.add("\tSaving the localization file.")
+		self._logger.add(f"\t\t{len(self.df['loc'])} localization(s) found.")
 		self.df["loc"].to_csv(f"{self._path}/localizations-{self._suffix}.csv", index=False)
 		self._filter_localizations()
 
@@ -314,29 +314,29 @@ class PALMTracer:
 		"""Lance le tracking à partir des settings passés en paramètres."""
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
 		if df.empty:
-			self._logger.add("\tAucune donnée de localisation calculée, aucun calcul supplémentaire ne peut être effectué.")
+			self._logger.add("\tNo location data calculated, no additional calculations can be performed.")
 			return
 		# Parse settings
 		s = self.settings.tracking.get_settings()
 		# Run command (par défaut Min Length = 1, Decrease = 10, Cost Birth = 0.5)
 		self.df["trc"] = self.palm.tracking(df, s["Max Distance"])
 
-		self._logger.add("\tEnregistrement du fichier de trajectoires.")
-		self._logger.add(f"\t\t{len(self.df['trc'])} point(s) trouvé(s).")
+		self._logger.add("\tSaving the tracking file.")
+		self._logger.add(f"\t\t{len(self.df['trc'])} point(s) found.")
 		self.df["trc"].to_csv(f"{self._path}/tracking-{self._suffix}.csv", index=False)
 		self._filter_tracks("trc")
 
 		# La reconnexion ne peut se faire que lors d'un (re)calcul de trajectoire, donc il n'est pas séparer du process initial.
 		# Le but est d'éviter des erreurs de manipulations de reconnexions succesives instables.
 		if self.settings.tracking["Blinking Reconnection"].active:
-			self._logger.add("\tReconnexion des trajectoires après scintillement.")
+			self._logger.add("\tReconnection of tracks after blinking.")
 			s = self.settings.tracking["Blinking Reconnection"].get_settings()
 			pixel_size = self.settings.calibration.get_settings()["Pixel Size"]
 			# Run command sur la version non filtrée des trajectoires
 			self.df["blk"] = self.palm.blinking_reconnection(self.df["trc"], pixel_size * 1000, s["Mode"], s["Max Duration"], s["Max Speed"] * 1000)
 
-			self._logger.add("\tEnregistrement du fichier de trajectoires reconnectées.")
-			self._logger.add(f"\t\t{len(self.df['blk'])} point(s) trouvé(s).")
+			self._logger.add("\tSaving the reconnected tracking file.")
+			self._logger.add(f"\t\t{len(self.df['blk'])} point(s) found.")
 			self.df["blk"].to_csv(f"{self._path}/tracking-reconnected-{self._suffix}.csv", index=False)
 			self._filter_tracks("blk", "_reconnected")
 
@@ -345,7 +345,7 @@ class PALMTracer:
 		"""Lance le tracking à partir des settings passés en paramètres."""
 		df = self.tracks  # Récupère automatiquement le "bon" dataframe (blinking et filtré ou non)
 		if df.empty:
-			self._logger.add("\tAucune donnée de tracking calculée, aucun calcul supplémentaire ne peut être effectué.")
+			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
 			return
 
 		# Parse settings
@@ -353,7 +353,7 @@ class PALMTracer:
 		s = self.settings.tracks_compute.get_settings()
 
 		if not s["MSD"] and not s["Instant Diffusion"] and s["Fit"] == 0:
-			self._logger.add("\tAucune métrique de sélectionnée, aucun calcul supplémentaire ne peut être effectué.")
+			self._logger.add("\tNo metrics selected, no additional calculations can be performed.")
 			return
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
@@ -362,13 +362,13 @@ class PALMTracer:
 		for key in res: self.df[key] = res[key]
 
 		if s["MSD"] and not res["MSD"].empty:
-			self._logger.add("\tEnregistrement du fichier de calcul des MSD.")
+			self._logger.add("\tSaving the MSD file.")
 			res["MSD"].to_csv(f"{self._path}/tracking_MSD-{self._suffix}.csv", index=False)
 		if s["Instant Diffusion"] and not res["InD"].empty:
-			self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées.")
+			self._logger.add("\tSaving the Instant diffusion file.")
 			res["InD"].to_csv(f"{self._path}/tracking_InstantD-{self._suffix}.csv", index=False)
 		if s["Fit"] != 0 and not res["Fit"].empty:
-			self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement.")
+			self._logger.add("\tSaving the fit file.")
 			res["Fit"].to_csv(f"{self._path}/tracking_Fit-{self._suffix}.csv", index=False)
 		self._filter_tracks_compute()
 
@@ -407,7 +407,7 @@ class PALMTracer:
 		# Récupération / calcul du Fit (1 ligne par Track) s'il manque
 		fit = self.tracks_compute["Fit"]
 		if fit.empty:  # .						Vide (non calculé)
-			self._logger.add("\t\tCalcul sur les trajectoires à effectuer pour définir une couleur lors de la visualisation.")
+			self._logger.add("\t\tTracks compute to be performed to define a color during visualization.")
 			# On active le fit lineaire si aucun n'est sélectionné.
 			if self.settings.tracks_compute["Fit"].get_value() == 0: self.settings.tracks_compute["Fit"].set_value(1)
 			self._tracks_compute()  # .			On lance le calcul
@@ -451,16 +451,16 @@ class PALMTracer:
 		depth, height, width = self._stack.shape
 		if s["Type"] == 0:
 			if self.localizations.empty:
-				self._logger.add(f"\tAucune donnée de localisation pour la visualisation.")
+				self._logger.add(f"\tNo localization data for high-resolution visualization.")
 			else:
 				sources = HR_LOC_SOURCE[1:] if s["Source L"] == 0 else [HR_LOC_SOURCE[s["Source L"]]]
 				for source in sources:
 					self.visualization = Viz.render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", source]].to_numpy())
-					self._logger.add(f"\tEnregistrement de la visualisation haute résolution (x{s['Ratio']}, {source}).")
+					self._logger.add(f"\tSaving high-resolution visualization (x{s['Ratio']}, {source}).")
 					FileIO.save_png(self.visualization, f"{self._path}/visualization_x{s['Ratio']}_{source}-{self._suffix}.png")
 		else:
 			if self.tracks.empty:
-				self._logger.add(f"\tAucune donnée de trajectoires pour la visualisation.")
+				self._logger.add(f"\tNo tracking data for high-resolution visualization.")
 			else:
 				sources = HR_TRC_SOURCE[1:] if s["Source T"] == 0 else [HR_TRC_SOURCE[s["Source T"]]]
 				for source in sources:
@@ -468,14 +468,14 @@ class PALMTracer:
 					tracks.to_csv(f"{self._path}/tracking_hr_color-{self._suffix}.csv", index=False)
 					self.visualization = Viz.render_tracks_image(width, height, s["Ratio"], tracks)
 					self.visualization = FileIO.grayscale_to_color(self.visualization, "viridis")
-					self._logger.add(f"\tEnregistrement de la visualisation des trajectoires haute résolution (x{s['Ratio']}, {source}).")
+					self._logger.add(f"\tSaving tracking high-resolution visualization (x{s['Ratio']}, {source}).")
 					FileIO.save_png(self.visualization, f"{self._path}/visualization_tracks_x{s['Ratio']}_{source}-{self._suffix}.png")
 
 	##################################################
 	def _visualization_graph(self):
 		"""Lance la creation d'une visualisation graphique à partir des settings passés en paramètres."""
 		if self.localizations.empty:
-			self._logger.add(f"\tAucune donnée de localisation pour la visualisation de graphiques.")
+			self._logger.add(f"\tNo localization data for graphical visualization.")
 			return
 
 		# Parse settings
@@ -486,7 +486,7 @@ class PALMTracer:
 		for source in sources:
 			loc = self.localizations[["Plane", source]].to_numpy()
 			if np.all(loc[:, 1] == loc[0, 1]):
-				self._logger.add(f"\tAnnulation de la visualisation graphique : {source} uniforme.")
+				self._logger.add(f"\tCanceling the graphical visualization: {source} uniform.")
 				continue
 
 			for mode in modes:
@@ -497,7 +497,7 @@ class PALMTracer:
 					Viz.plot_plane_heatmap(ax, loc, source + " Heatmap")
 				else:  # elif mode == "Plane Violin":
 					Viz.plot_plane_violin(ax, loc, source + " Violin")
-				self._logger.add(f"\tEnregistrement de la visualisation graphique ({mode}, {source}).")
+				self._logger.add(f"\tSaving graphical visualization ({mode}, {source}).")
 				fig.savefig(f"{self._path}/graph_{mode}_{source}-{self._suffix}.png", bbox_inches="tight")
 				plt.close(fig)
 
@@ -506,10 +506,10 @@ class PALMTracer:
 		"""Lance la génération d'une galerie à partir des settings passés en paramètres."""
 		s = self.settings.gallery.get_settings()
 		if self.localizations.empty:
-			self._logger.add(f"\tAucune donnée de localisation pour la génération d'une galerie.")
+			self._logger.add(f"\tNo localization data for gallery generation.")
 			return
 		gallery = Gallery.make_gallery(self._stack, self.localizations, s["ROI Size"], s["ROIs Per Line"])
-		self._logger.add(f"\tEnregistrement de la galerie ({s}).")
+		self._logger.add(f"\tSaving gallery ({s}).")
 		FileIO.save_tif(gallery, f"{self._path}/gallery_{s['ROI Size']}_{s['ROIs Per Line']}-{self._suffix}.tif")
 
 	# ==================================================
@@ -526,9 +526,9 @@ class PALMTracer:
 		self.df["f_loc"] = self.filter_localizations(self.df["loc"])
 		n_end = len(self.df["f_loc"])
 		if n_init != n_end:
-			self._logger.add(f"\t\tFiltrage du fichier de localisation {n_end} localisations au lieu de {n_init} : {n_init - n_end} suppression(s)")
+			self._logger.add(f"\t\tFiltering of localization file {n_end} localizations instead of {n_init}: {n_init - n_end} deletion(s).")
 		if self.settings.filtering["Save"].get_value():
-			self._logger.add("\tEnregistrement du fichier de localisation filtré")
+			self._logger.add("\tSaving the filtered localization file.")
 			self.df["f_loc"].to_csv(f"{self._path}/localizations_filtered-{self._suffix}.csv", index=False)
 
 	##################################################
@@ -539,9 +539,9 @@ class PALMTracer:
 		self.df[o_name] = self.filter_tracks(self.df[name])
 		n_end = len(self.df[o_name])
 		if n_init != n_end:
-			self._logger.add(f"\t\tFiltrage du fichier de trajectoires {n_end} points au lieu de {n_init} : {n_init - n_end} suppression(s)")
+			self._logger.add(f"\t\tFiltering of tracking file {n_end} points instead of {n_init}: {n_init - n_end} deletion(s)")
 		if self.settings.filtering["Save"].get_value():
-			self._logger.add("\tEnregistrement du fichier de trajectoires filtré")
+			self._logger.add("\tSaving the filtered tracking file.")
 			self.df[o_name].to_csv(f"{self._path}/tracking_filtered{suffix}-{self._suffix}.csv", index=False)
 
 	##################################################
@@ -554,16 +554,16 @@ class PALMTracer:
 
 		n_end = len(self.df["f_MSD"])
 		if n_init != n_end:
-			self._logger.add(f"\t\tFiltrage du fichier de calcul sur trajectoires {n_end} trajectoires au lieu de {n_init} : {n_init - n_end} suppression(s)")
+			self._logger.add(f"\t\tFiltering of tracks compute files {n_end} tracks instead of {n_init}: {n_init - n_end} deletion(s)")
 		if self.settings.filtering["Save"].get_value():
 			if not self.df["f_MSD"].empty:
-				self._logger.add("\tEnregistrement du fichier de calcul des MSD filtré.")
+				self._logger.add("\tSaving the filtered MSD file.")
 				self.df["f_MSD"].to_csv(f"{self._path}/tracking_MSD_filtered-{self._suffix}.csv", index=False)
 			if not self.df["f_InD"].empty:
-				self._logger.add("\tEnregistrement du fichier de calcul des diffusions instantannées filtré.")
+				self._logger.add("\tSaving the filtered instant diffusion file.")
 				self.df["f_InD"].to_csv(f"{self._path}/tracking_InstantD_filtered-{self._suffix}.csv", index=False)
 			if not self.df["f_Fit"].empty:
-				self._logger.add("\tEnregistrement du fichier de calcul des métriques de l'ajustement filtré.")
+				self._logger.add("\tSaving the filtered fit file.")
 				self.df["f_Fit"].to_csv(f"{self._path}/tracking_Fit_filtered-{self._suffix}.csv", index=False)
 
 	##################################################

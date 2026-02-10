@@ -1,0 +1,7 @@
+#: ../../algorithm/astig.rst:2
+msgid "Astigmatisme 3D"
+msgstr ""
+
+#: ../../algorithm/astig.rst:13
+msgid "Page en cours d'écriture."
+msgstr "Page currently being written."

@@ -1,0 +1,7 @@
+#: ../../algorithm/pipeline.rst:2
+msgid "Pipeline des traitements"
+msgstr ""
+
+#: ../../algorithm/pipeline.rst:13
+msgid "Page en cours d'écriture."
+msgstr "Page currently being written."

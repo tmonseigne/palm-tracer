@@ -48,7 +48,7 @@ Organisation de l'interface
 
    Vue d'ensemble de la visionneuse de graphiques
 
-L’interface de la visionneuse de graphiques est organisée en 2 volets principaux :
+L'interface de la visionneuse de graphiques est organisée en 2 volets principaux :
 
 - À gauche : le panneau des options permettant de paramétrer les graphiques
 - À droite : le graphique généré

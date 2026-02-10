@@ -71,10 +71,10 @@ html_context = {"allow_html_in_rst": True}
 
 autosummary_generate = True
 autodoc_default_options = {
-		"members":           True,
-		"private-members":   True,
-		"undoc-members":     True,
-		"show-inheritance":  True,
+		"members":          True,
+		"private-members":  True,
+		"undoc-members":    True,
+		"show-inheritance": True,
 		# "inherited-members": True, # A éviter sur l'ensemble de l'API pour les élément héritant de l'API QT...
 		}
 autodoc_member_order = "bysource"
@@ -84,6 +84,20 @@ todo_include_todos = True
 
 suppress_warnings = ["autosectionlabel.*"]
 
+# -- Multilingue ----------------------------------------------------------
+locale_dirs = ["locale/"]
+gettext_compact = False
+
+
+# Création des fichiers de reférences de texte pour la traduction
+# sphinx-build -b gettext docs/ docs/_build/gettext
+# Création des fichiers de traductions
+# sphinx-intl update -p docs/_build/gettext -d docs/locale -l fr -l en
+# Build de la documentation avec les traductions
+# sphinx-build -b html -D language=fr docs docs/_build/html
+# sphinx-build -b html -D language=en docs docs/_build/html/en
+# subprocess.run(f"sphinx-build -b html -D language=fr docs docs/_build/html/", shell=True)  # lance la compilation de la doc.
+# subprocess.run(f"sphinx-build -b html -D language=en docs docs/_build/html/en", shell=True)  # lance la compilation de la doc.
 
 def copy_dir(src: str | Path, dst: str | Path) -> None:
 	"""Copie récursivement un dossier source vers un dossier destination."""
@@ -94,3 +108,19 @@ def copy_dir(src: str | Path, dst: str | Path) -> None:
 
 
 copy_dir("reports", "_build/html/reports")
+
+default_language_code = "fr"
+
+languages = [("Français", "fr"), ("English", "en")]
+
+
+def setup(app):
+	"""Ajoute des variables de contexte HTML (Jinja) en fonction de la langue réellement utilisée."""
+
+	def _inject_context(app_, pagename, templatename, context, doctree):
+		cur = app_.config.language or default_language_code
+		context["default_language_code"] = default_language_code
+		context["current_language_code"] = cur
+		context["languages"] = languages
+
+	app.connect("html-page-context", _inject_context)

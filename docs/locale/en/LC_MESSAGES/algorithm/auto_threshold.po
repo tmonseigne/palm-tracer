@@ -1,0 +1,135 @@
+#: ../../algorithm/auto_threshold.rst:2
+msgid "Seuillage automatique"
+msgstr "Automatic thresholding"
+
+#: ../../algorithm/auto_threshold.rst:8
+msgid "Calcule un seuil automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe."
+msgstr "Computes an automatic threshold based on image segmentation using an external DLL library."
+
+#: ../../algorithm/auto_threshold.rst:10
+msgid "Cette fonction applique une segmentation itérative à l'image en exploitant la méthode **PALM (Point Accumulation for Localized Mean)**. L'objectif est d'affiner progressivement un seuil basé sur l'écart type des pixels non segmentés."
+msgstr "This function applies an iterative segmentation to the image using the **PALM (Point Accumulation for Localized Mean)** method. The goal is to progressively refine a threshold based on the standard deviation of the non-segmented pixels."
+
+#: ../../algorithm/auto_threshold.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../algorithm/auto_threshold.rst:13
+msgid "Image en niveaux de gris sous forme de tableau NumPy 2D."
+msgstr "Grayscale image provided as a 2D NumPy array."
+
+#: ../../algorithm/auto_threshold.rst:15
+msgid "Taille des régions d'intérêt (ROI) utilisées pour la segmentation. Défaut : 7."
+msgstr "Size of the regions of interest (ROI) used for segmentation. Default: 7."
+
+#: ../../algorithm/auto_threshold.rst:17
+msgid "Nombre maximal d'itérations pour l'affinement du seuil. Défaut : 4."
+msgstr "Maximum number of iterations for threshold refinement. Default: 4."
+
+#: ../../algorithm/auto_threshold.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: ../../algorithm/auto_threshold.rst:20
+msgid "Seuil calculé après convergence (écart type des pixels non segmentés)."
+msgstr "Threshold computed after convergence (standard deviation of non-segmented pixels)."
+
+#: ../../algorithm/auto_threshold.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: ../../algorithm/auto_threshold.rst:25
+msgid "Algorithme"
+msgstr "Algorithm"
+
+#: ../../algorithm/auto_threshold.rst:27
+msgid "L'algorithme fonctionne en plusieurs étapes :"
+msgstr "The algorithm operates in multiple steps:"
+
+#: ../../algorithm/auto_threshold.rst:29
+msgid "**Initialisation :**"
+msgstr "**Initialization:**"
+
+#: ../../algorithm/auto_threshold.rst:31
+msgid "Création d'un masque vide (même taille que l'image, rempli de zéros)."
+msgstr "Create an empty mask (same size as the image, filled with zeros)."
+
+#: ../../algorithm/auto_threshold.rst:32
+msgid "Calcul de l'écart type initial de l'image (:math:`\\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}`)."
+msgstr "Compute the initial standard deviation of the image (:math:`\\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}`)."
+
+#: ../../algorithm/auto_threshold.rst:33
+msgid "Définition de la demi-taille de la région d'intérêt (`roi_size`)."
+msgstr "Define the half-size of the region of interest (`roi_size`)."
+
+#: ../../algorithm/auto_threshold.rst:35
+msgid "**Segmentation itérative :**"
+msgstr "**Iterative segmentation:**"
+
+#: ../../algorithm/auto_threshold.rst:37
+msgid "Lancement de la fonction PALM de la DLL pour détecter des points caractéristiques avec les paramètres suivants :"
+msgstr "Call the DLL PALM function to detect characteristic points with the following parameters:"
+
+#: ../../algorithm/auto_threshold.rst:38
+msgid "Le seuil est égal à l'écart-type calculé."
+msgstr "The threshold is equal to the computed standard deviation."
+
+#: ../../algorithm/auto_threshold.rst:39
+msgid "Le watershed est désactivé."
+msgstr "Watershed is disabled."
+
+#: ../../algorithm/auto_threshold.rst:40
+msgid "Le fit Gaussien est désactivé."
+msgstr "Gaussian fitting is disabled."
+
+#: ../../algorithm/auto_threshold.rst:41
+msgid "Sigma vaut 1."
+msgstr "Sigma is set to 1."
+
+#: ../../algorithm/auto_threshold.rst:42
+msgid "Theta vaut :math:`\\pi / 4`."
+msgstr "Theta is set to :math:`\\pi / 4`."
+
+#: ../../algorithm/auto_threshold.rst:43
+msgid "Mise à jour du masque en activant les pixels correspondant aux régions détectées (ROI autour de chaque points détectés)."
+msgstr "Update the mask by enabling the pixels corresponding to the detected regions (ROI around each detected point)."
+
+#: ../../algorithm/auto_threshold.rst:44
+msgid "Recalcule de l'écart type sur les pixels *hors* segmentation."
+msgstr "Recompute the standard deviation using the pixels *outside* the segmentation."
+
+#: ../../algorithm/auto_threshold.rst:45
+msgid "Répétition jusqu'à `max_iterations` ou convergence."
+msgstr "Repeat until `max_iterations` is reached or until convergence."
+
+#: ../../algorithm/auto_threshold.rst:47
+msgid "**Critère d'arrêt :**"
+msgstr "**Stopping criterion:**"
+
+#: ../../algorithm/auto_threshold.rst:49
+msgid "Si tous les pixels sont segmentés avant la fin des itérations, la boucle s'arrête prématurément. Cela n'est possible que si les points détectés et leur zone d'intérêt couvrent l'intégralité de l'image."
+msgstr "If all pixels are segmented before the end of the iterations, the loop stops early. This is only possible if the detected points and their regions of interest cover the entire image."
+
+#: ../../algorithm/auto_threshold.rst:54
+msgid "Exemple d'utilisation"
+msgstr "Usage example"
+
+#: ../../algorithm/auto_threshold.rst:56
+msgid "Voici un exemple d'utilisation de la fonction :"
+msgstr "Here is an example of how to use the function:"
+
+#: ../../algorithm/auto_threshold.rst:77
+msgid "Remarques"
+msgstr "Notes"
+
+#: ../../algorithm/auto_threshold.rst:79
+msgid "L'utilisation de la DLL est essentielle au bon fonctionnement de cette fonction."
+msgstr "Using the DLL is essential for this function to work correctly."
+
+#: ../../algorithm/auto_threshold.rst:80
+msgid "La performance dépend de la taille de l'image et du nombre d'itérations."
+msgstr "Performance depends on the image size and on the number of iterations."
+
+#: ../../algorithm/auto_threshold.rst:81
+msgid "L'approche PALM permet une segmentation robuste sur des images bruitées."
+msgstr "The PALM approach provides robust segmentation on noisy images."

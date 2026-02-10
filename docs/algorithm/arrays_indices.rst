@@ -17,13 +17,13 @@ Tableaux 1D : Vecteurs et Espaces
 
 Un tableau à une seule dimension est appelé **vecteur**. Il peut être représenté sous forme **horizontale** ou **verticale**. Chaque élément est indexé par un indice :math:`(i)` correspondant à sa position :
 
-Mathématiquement, un vecteur ligne (:math:`V \in \mathbb{R}^{1 \times n}`\) s’écrit :
+Mathématiquement, un vecteur ligne (:math:`V \in \mathbb{R}^{1 \times n}`\) s'écrit :
 
 .. math::
 
 	V = \begin{bmatrix} v_0 & v_1 & v_2 & \dots & v_{n-1} \end{bmatrix}
 
-Un vecteur colonne (:math:`V \in \mathbb{R}^{n \times 1}`) s’écrit :
+Un vecteur colonne (:math:`V \in \mathbb{R}^{n \times 1}`) s'écrit :
 
 .. math::
 
@@ -55,7 +55,7 @@ Tableaux 2D : Matrices
 
 Un tableau 2D est une **matrice** (:math:`M \in \mathbb{R}^{m \times n}`), où chaque élément est référencé par un couple d'indices :math:`(i, j)`, représentant respectivement **la ligne** et **la colonne**.:
 
-Mathématiquement, une matrice :math:`M` de taille :math:`m \times n` s’écrit :
+Mathématiquement, une matrice :math:`M` de taille :math:`m \times n` s'écrit :
 
 .. math::
 
@@ -83,10 +83,10 @@ En Python avec `numpy` :
 
 	En informatique :
 
-	- L’indice **i** représente la ligne (axe **Y**).
-	- L’indice **j** représente la colonne (axe **X**).
+	- L'indice **i** représente la ligne (axe **Y**).
+	- L'indice **j** représente la colonne (axe **X**).
 	- Si on parle de **coordonnées cartésiennes** :math:`(x, y)`, l'ordre est inversé : :math:`x` correspond aux colonnes, :math:`y` aux lignes.
-	- Donc, un point :math:`(x, y)` se trouve à l’indice :math:`(y, x)` dans un tableau.
+	- Donc, un point :math:`(x, y)` se trouve à l'indice :math:`(y, x)` dans un tableau.
 
 	Exemple :
 
@@ -117,13 +117,13 @@ Vérification :
 	A = np.array([[1, 2], [3, 4]], order='C')  # Row-major (C-contiguous)
 	B = np.array([[1, 2], [3, 4]], order='F')  # Column-major (F-contiguous)
 
-	print(f"A (Row-major) :\n{A}")
-	print(f"Stockage mémoire : {A.ravel(order="K")}", )  # Affiche l'ordre réel en mémoire
-	print(f"C-contiguous : {A.flags['C_CONTIGUOUS']}, F-contiguous : {A.flags['F_CONTIGUOUS']}")
+	print(f"A (Row-major):\n{A}")
+	print(f"Memory storage: {A.ravel(order="K")}", )  # Affiche l'ordre réel en mémoire
+	print(f"C-contiguous: {A.flags['C_CONTIGUOUS']}, F-contiguous : {A.flags['F_CONTIGUOUS']}")
 
 	print(f"B (Column-major):\n{B}")
-	print(f"Stockage mémoire : {B.ravel(order="K")}", )  # Affiche l'ordre réel en mémoire
-	print(f"C-contiguous : {B.flags['C_CONTIGUOUS']}, F-contiguous : {B.flags['F_CONTIGUOUS']}")
+	print(f"Memory storage: {B.ravel(order="K")}", )  # Affiche l'ordre réel en mémoire
+	print(f"C-contiguous: {B.flags['C_CONTIGUOUS']}, F-contiguous : {B.flags['F_CONTIGUOUS']}")
 
 
 Tableaux 3D : Tenseurs et Interprétation
@@ -170,7 +170,7 @@ Cas des images et conventions
 
 2. **Images multi-canaux (TIFF, hyperspectral)**
 	- Certaines images (TIFF) suivent une convention :math:`(plan, Y, X)` où :
-		- **Plan** = différentes tranches de l'image (e.g., différentes tranches d’une image volumique)
+		- **Plan** = différentes tranches de l'image (e.g., différentes tranches d'une image volumique)
 		- **Y** = hauteur (lignes)
 		- **X** = largeur (colonnes)
 
@@ -181,7 +181,7 @@ Cas des images et conventions
 		img_tiff = tifffile.imread("image.tiff")
 		print(img_tiff.shape)  # (Nombre de plans, Hauteur, Largeur)
 
-Visualisation d’un tenseur en perspective
+Visualisation d'un tenseur en perspective
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Pour mieux comprendre un tableau 3D , on peut écrire une notation matricielle en **perspective**, simulant une profondeur :
@@ -206,4 +206,4 @@ Cela permet d'afficher mentalement chaque **plan matriciel** séparément.
 Conclusion
 ----------
 
-Les tableaux sont des structures puissantes, mais il est essentiel de bien comprendre l’ordre des indices selon le contexte (mathématique, NumPy, images, etc.).
+Les tableaux sont des structures puissantes, mais il est essentiel de bien comprendre l'ordre des indices selon le contexte (mathématique, NumPy, images, etc.).

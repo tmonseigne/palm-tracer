@@ -1,0 +1,7 @@
+#: ../../tests.rst:2
+msgid "Tests"
+msgstr "Tests"
+
+#: ../../tests.rst:4
+msgid "Liste des rapports de tests générés :"
+msgstr "List of test reports generated:"

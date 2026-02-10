@@ -30,9 +30,9 @@ class Logger:
 		try:
 			self.file_handle = open(self.filename, "a", encoding="utf-8")  # Ouverture en mode ajout
 			self._isopen = True
-			print(f"[{self._get_time()}] Log ouvert : {self.filename}")
+			print(f"[{self._get_time()}] Log opened : {self.filename}")
 		except Exception as e:
-			Ui.print_error(f"Erreur lors de l'ouverture du fichier {self.filename} : {e}")
+			Ui.print_error(f"Error opening file {self.filename} : {e}")
 
 	##################################################
 	def close(self):
@@ -41,9 +41,9 @@ class Logger:
 			self.file_handle.write("\n")
 			self.file_handle.flush()
 			self.file_handle.close()
-			print(f"[{self._get_time()}] Log fermé : {self.filename}")
+			print(f"[{self._get_time()}] Log closed : {self.filename}")
 		else:
-			Ui.print_warning(f"[{self._get_time()}] Aucun fichier à fermer.")
+			Ui.print_warning(f"[{self._get_time()}] No files to close.")
 		self.filename = ""
 		self.file_handle = TextIO()
 		self._isopen = False
@@ -58,9 +58,9 @@ class Logger:
 				self.file_handle.write(timestamped_msg + "\n")
 				self.file_handle.flush()  # S'assure que les données sont écrites immédiatement
 			except Exception as e:
-				Ui.print_error(f"Erreur lors de l'écriture dans le fichier {self.filename} : {e}")
+				Ui.print_error(f"Error writing to file {self.filename} : {e}")
 		else:
-			Ui.print_warning(f"[{self._get_time()}] Aucun fichier de log ouvert pour écrire.")
+			Ui.print_warning(f"[{self._get_time()}] No log file open for writing.")
 
 	##################################################
 	@staticmethod

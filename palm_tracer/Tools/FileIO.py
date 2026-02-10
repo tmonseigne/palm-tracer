@@ -87,7 +87,7 @@ def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha
 		else: files.sort(key=lambda p: p.name)  # .								   Trier les fichiers par ordre alphabétique.
 		return str(files[-1])  # .												   Retourner le dernier fichier de la liste (le plus récent)
 	except Exception as e:
-		print(f"Erreur lors de la recherche du fichier : {e}")
+		print(f"Error while searching for the file: {e}")
 		return ""
 
 
@@ -114,7 +114,7 @@ def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	try:
 		return ctypes.cdll.LoadLibrary(str(path.resolve()))  # Resolve permet d'assurer un chemin absolu et non relatif (pour des DLL ça peut être vital).
 	except OSError as e:
-		Ui.print_warning(f"Impossible de charger la DLL '{path.name}':\n\t{e}")
+		Ui.print_warning(f"Unable to load the DLL '{path.name}':\n\t{e}")
 		return None
 
 

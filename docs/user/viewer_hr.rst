@@ -49,7 +49,7 @@ Organisation de l'interface
 
    Vue d'ensemble de Napari avec le widget Viewer HR
 
-L’interface Napari avec la visionneuse haute résolution est organisée en trois volets principaux :
+L'interface Napari avec la visionneuse haute résolution est organisée en trois volets principaux :
 
 - À gauche : le panneau des calques (Layers)
 - Au centre : la fenêtre de visualisation
@@ -78,7 +78,7 @@ Fonctionnalités principales :
 - Afficher / masquer un calque
 - Modifier la transparence
 - Changer la colormap
-- Réorganiser l’ordre des calques
+- Réorganiser l'ordre des calques
 
 
 Volet de visualisation
@@ -136,20 +136,20 @@ Vous aurez dans la console un bloc de message comme ceci :
 
 .. code-block:: console
 
-   Chargement du fichier de configuration 'VOTRE_CHEMIN\settings-20251216_163843.json'.
-   Fichier 'VOTRE_CHEMIN/localizations-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/localizations_filtered-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking_filtered-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking-reconnected-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking_filtered_reconnected-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking_MSD-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking_MSD-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking_InstantD-20251216_163843.csv' chargé avec succès.
-   Fichier 'VOTRE_CHEMIN/tracking_InstantD_filtered-20251216_163843.csv' chargé avec succès.
-   Erreur lors du chargement du fichier 'VOTRE_CHEMIN/tracking_Fit-20251216_163843.csv' : [Errno 2] No such file or directory: 'C:\\Git\\palm-tracer\\palm_tracer\\_tests\\input/stack_PALM_Tracer/tracking_Fit-20251216_163843.csv'
-   Erreur lors du chargement du fichier 'VOTRE_CHEMIN/tracking_Fit_filtered-20251216_163843.csv' : [Errno 2] No such file or directory: 'C:\\Git\\palm-tracer\\palm_tracer\\_tests\\input/stack_PALM_Tracer/tracking_Fit_filtered-20251216_163843.csv'
-   Pile chargé avec succès (taille : (10, 128, 256)).
+   Loading files from the 'YOUR_PATH' folder with the timestamp 20251216_163843.
+   File 'localizations' loaded successfully.
+   File 'localizations_filtered' loaded successfully.
+   File 'tracking' loaded successfully.
+   File 'tracking_filtered' loaded successfully.
+   File 'tracking-reconnected' loaded successfully.
+   File 'tracking_filtered_reconnected' loaded successfully.
+   File 'tracking_MSD' loaded successfully.
+   File 'tracking_MSD' loaded successfully.
+   File 'tracking_InstantD' loaded successfully.
+   File 'tracking_InstantD_filtered' loaded successfully.
+   Error loading file 'tracking_Fit' : [Errno 2] No such file or directory: 'C:\\Git\\palm-tracer\\palm_tracer\\_tests\\input/stack_PALM_Tracer/tracking_Fit-20251216_163843.csv'
+   Error loading file 'tracking_Fit_filtered' : [Errno 2] No such file or directory: 'C:\\Git\\palm-tracer\\palm_tracer\\_tests\\input/stack_PALM_Tracer/tracking_Fit_filtered-20251216_163843.csv'
+   Stack loaded successfully.(size: (10, 128, 256)).
 
 Il vous donne un état des lieux du chargement des fichiers et vous pouvez ainsi voir les éléments qui n'ont pas été calculés lors de cet horodatage.
 Ici à 16h 38min 43s le 16 décembre 2025, touts les éléments ont été calculés et filtrés excepté le fit sur les trajectoires (il indique qu'il n'a pas trouvé le fichier correspondant).

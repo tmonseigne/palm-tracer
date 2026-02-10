@@ -1,0 +1,176 @@
+#: ../../algorithm/arrays_indices.rst:2
+msgid "Tableaux et Indices"
+msgstr "Arrays and Indices"
+
+#: ../../algorithm/arrays_indices.rst:10
+msgid "Les tableaux sont des structures fondamentales en algorithmie et en programmation scientifique. En Python, ils sont principalement manipulés avec :console:`numpy`, qui offre une gestion optimisée des tableaux multidimensionnels (ou **tenseurs**)."
+msgstr "Arrays are fundamental data structures in algorithms and scientific programming. In Python, they are mainly handled with :console:`numpy`, which provides optimized support for multidimensional arrays (or **tensors**)."
+
+#: ../../algorithm/arrays_indices.rst:13
+msgid "Cette section explique comment interpréter les indices dans des tableaux 1D, 2D et 3D et leurs conventions d'affichage avec des exemples mathématiques et Python ainsi que quelques subtilités à prendre en compte."
+msgstr "This section explains how to interpret indices in 1D, 2D and 3D arrays and their display conventions, with mathematical and Python examples, as well as a few subtleties to keep in mind."
+
+#: ../../algorithm/arrays_indices.rst:16
+msgid "Tableaux 1D : Vecteurs et Espaces"
+msgstr "1D arrays: vectors and spaces"
+
+#: ../../algorithm/arrays_indices.rst:18
+msgid "Un tableau à une seule dimension est appelé **vecteur**. Il peut être représenté sous forme **horizontale** ou **verticale**. Chaque élément est indexé par un indice :math:`(i)` correspondant à sa position :"
+msgstr "A one-dimensional array is called a **vector**. It can be represented in a **horizontal** or **vertical** form. Each element is indexed by an index :math:`(i)` corresponding to its position:"
+
+#: ../../algorithm/arrays_indices.rst:20
+#, python-brace-format
+msgid "Mathématiquement, un vecteur ligne (:math:`V \\in \\mathbb{R}^{1 \\times n}`\\) s'écrit :"
+msgstr "Mathematically, a row vector (:math:`V \\in \\mathbb{R}^{1 \\times n}`\\) is written as:"
+
+#: ../../algorithm/arrays_indices.rst:26
+#, python-brace-format
+msgid "Un vecteur colonne (:math:`V \\in \\mathbb{R}^{n \\times 1}`) s'écrit :"
+msgstr "A column vector (:math:`V \\in \\mathbb{R}^{n \\times 1}`) is written as:"
+
+#: ../../algorithm/arrays_indices.rst:32 ../../algorithm/arrays_indices.rst:70
+msgid "En Python avec `numpy` :"
+msgstr "In Python with `numpy`:"
+
+#: ../../algorithm/arrays_indices.rst:48
+msgid "**Subtilité**"
+msgstr "**Subtlety**"
+
+#: ../../algorithm/arrays_indices.rst:50
+msgid "En :console:`numpy`, un tableau de forme :math:`(n,)` est un vecteur sans deuxième dimension. Contrairement à un vecteur explicite de forme :math:`(1, n)` ou :math:`(n, 1)`, il ne se comporte pas toujours comme une matrice."
+msgstr "In :console:`numpy`, an array with shape :math:`(n,)` is a vector without a second dimension. Unlike an explicit vector with shape :math:`(1, n)` or :math:`(n, 1)`, it does not always behave like a matrix."
+
+#: ../../algorithm/arrays_indices.rst:54
+msgid "Tableaux 2D : Matrices"
+msgstr "2D arrays: matrices"
+
+#: ../../algorithm/arrays_indices.rst:56
+#, python-brace-format
+msgid "Un tableau 2D est une **matrice** (:math:`M \\in \\mathbb{R}^{m \\times n}`), où chaque élément est référencé par un couple d'indices :math:`(i, j)`, représentant respectivement **la ligne** et **la colonne**.:"
+msgstr "A 2D array is a **matrix** (:math:`M \\in \\mathbb{R}^{m \\times n}`), where each element is referenced by a pair of indices :math:`(i, j)`, representing **the row** and **the column**, respectively:"
+
+#: ../../algorithm/arrays_indices.rst:58
+msgid "Mathématiquement, une matrice :math:`M` de taille :math:`m \\times n` s'écrit :"
+msgstr "Mathematically, a matrix :math:`M` of size :math:`m \\times n` is written as:"
+
+#: ../../algorithm/arrays_indices.rst:82
+msgid "**Attention : Coordonnées (x, y) vs Indices (i, j)**"
+msgstr "**Warning: coordinates (x, y) vs indices (i, j)**"
+
+#: ../../algorithm/arrays_indices.rst:84
+msgid "En informatique :"
+msgstr "In computing:"
+
+#: ../../algorithm/arrays_indices.rst:86
+msgid "L'indice **i** représente la ligne (axe **Y**)."
+msgstr "Index **i** represents the row (the **Y** axis)."
+
+#: ../../algorithm/arrays_indices.rst:87
+msgid "L'indice **j** représente la colonne (axe **X**)."
+msgstr "Index **j** represents the column (the **X** axis)."
+
+#: ../../algorithm/arrays_indices.rst:88
+msgid "Si on parle de **coordonnées cartésiennes** :math:`(x, y)`, l'ordre est inversé : :math:`x` correspond aux colonnes, :math:`y` aux lignes."
+msgstr "If we talk about **Cartesian coordinates** :math:`(x, y)`, the order is reversed: :math:`x` corresponds to columns, and :math:`y` to rows."
+
+#: ../../algorithm/arrays_indices.rst:89
+msgid "Donc, un point :math:`(x, y)` se trouve à l'indice :math:`(y, x)` dans un tableau."
+msgstr "Therefore, a point :math:`(x, y)` is located at index :math:`(y, x)` in an array."
+
+#: ../../algorithm/arrays_indices.rst:91
+msgid "Exemple :"
+msgstr "Example:"
+
+#: ../../algorithm/arrays_indices.rst:104
+msgid "Ordre des dimensions en mémoire (C vs Fortran)"
+msgstr "Memory order (C vs Fortran)"
+
+#: ../../algorithm/arrays_indices.rst:106
+msgid "La manière dont un tableau est stocké en mémoire peut affecter les performances :"
+msgstr "The way an array is stored in memory can impact performance:"
+
+#: ../../algorithm/arrays_indices.rst:108
+msgid "**Ordre C (row-major)** : Les éléments d'une ligne sont contigus en mémoire (par défaut en :console:`numpy`)."
+msgstr "**C order (row-major)**: elements of a row are contiguous in memory (default in :console:`numpy`)."
+
+#: ../../algorithm/arrays_indices.rst:109
+msgid "**Ordre Fortran (column-major)** : Les éléments d'une colonne sont contigus en mémoire (par défaut dans des languages scientifiques tel que :console:`Matlab`, :console:`R`, :console:`Julia`)."
+msgstr "**Fortran order (column-major)**: elements of a column are contiguous in memory (default in scientific languages such as :console:`Matlab`, :console:`R`, and :console:`Julia`)."
+
+#: ../../algorithm/arrays_indices.rst:111
+msgid "Vérification :"
+msgstr "Check:"
+
+#: ../../algorithm/arrays_indices.rst:130
+msgid "Tableaux 3D : Tenseurs et Interprétation"
+msgstr "3D arrays: tensors and interpretation"
+
+#: ../../algorithm/arrays_indices.rst:132
+#, python-brace-format
+msgid "Un tableau 3D, qui ajoute une profondeur (axe supplémentaire), représente un **tenseur**  (:math:`T \\in \\mathbb{R}^{m \\times n \\times l}`), où chaque élément est référencé par un triplet d'indices :math:`(i,j,k)`. Il peut être vu comme une pile de matrices :"
+msgstr "A 3D array, which adds a depth (an additional axis), represents a **tensor** (:math:`T \\in \\mathbb{R}^{m \\times n \\times l}`), where each element is referenced by a triplet of indices :math:`(i, j, k)`. It can be seen as a stack of matrices:"
+
+#: ../../algorithm/arrays_indices.rst:142
+msgid "ou de façon explicite :"
+msgstr "or explicitly:"
+
+#: ../../algorithm/arrays_indices.rst:144
+#, python-brace-format
+msgid "T[i, j, k] \\quad \\text{où } i, j, k \\text{ sont respectivement les indices de profondeur, ligne et colonne}"
+msgstr "T[i, j, k] \\quad \\text{where } i, j, k \\text{ are respectively the depth, row, and column indices}"
+
+#: ../../algorithm/arrays_indices.rst:148
+msgid "En Python :"
+msgstr "In Python:"
+
+#: ../../algorithm/arrays_indices.rst:159
+msgid "Cas des images et conventions"
+msgstr "Images and conventions"
+
+#: ../../algorithm/arrays_indices.rst:161
+msgid "**Images RGB (Profondeur = 3)**"
+msgstr "**RGB images (depth = 3)**"
+
+#: ../../algorithm/arrays_indices.rst:162
+msgid "Une image RGB est souvent stockée sous la forme :math:`(hauteur, largeur, 3)`, où la dernière dimension représente les canaux **Rouge, Vert, Bleu**."
+msgstr "An RGB image is often stored with shape :math:`(height, width, 3)`, where the last dimension represents the **Red, Green, Blue** channels."
+
+#: ../../algorithm/arrays_indices.rst:171
+msgid "**Images multi-canaux (TIFF, hyperspectral)**"
+msgstr "**Multi-channel images (TIFF, hyperspectral)**"
+
+#: ../../algorithm/arrays_indices.rst:172
+msgid "Certaines images (TIFF) suivent une convention :math:`(plan, Y, X)` où :"
+msgstr "Some images (TIFF) follow a convention :math:`(plane, Y, X)` where:"
+
+#: ../../algorithm/arrays_indices.rst:173
+msgid "**Plan** = différentes tranches de l'image (e.g., différentes tranches d'une image volumique)"
+msgstr "**Plane** = different slices of the image (e.g., different slices of a volumetric image)"
+
+#: ../../algorithm/arrays_indices.rst:174
+msgid "**Y** = hauteur (lignes)"
+msgstr "**Y** = height (rows)"
+
+#: ../../algorithm/arrays_indices.rst:175
+msgid "**X** = largeur (colonnes)"
+msgstr "**X** = width (columns)"
+
+#: ../../algorithm/arrays_indices.rst:185
+msgid "Visualisation d'un tenseur en perspective"
+msgstr "Visualizing a tensor in perspective"
+
+#: ../../algorithm/arrays_indices.rst:187
+msgid "Pour mieux comprendre un tableau 3D , on peut écrire une notation matricielle en **perspective**, simulant une profondeur :"
+msgstr "To better understand a 3D array, one can write a matrix notation in **perspective**, simulating depth:"
+
+#: ../../algorithm/arrays_indices.rst:203
+msgid "Cela permet d'afficher mentalement chaque **plan matriciel** séparément."
+msgstr "This makes it possible to mentally visualize each **matrix plane** separately."
+
+#: ../../algorithm/arrays_indices.rst:207
+msgid "Conclusion"
+msgstr "Conclusion"
+
+#: ../../algorithm/arrays_indices.rst:209
+msgid "Les tableaux sont des structures puissantes, mais il est essentiel de bien comprendre l'ordre des indices selon le contexte (mathématique, NumPy, images, etc.)."
+msgstr "Arrays are powerful structures, but it is essential to clearly understand index ordering depending on the context (mathematics, NumPy, images, etc.)."

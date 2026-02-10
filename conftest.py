@@ -153,7 +153,7 @@ def pytest_sessionfinish(session, exitstatus):
 	all_tests_monitoring.stop()
 	for ext in ["png", "html", "json", "txt"]:
 		try: all_tests_monitoring.save(f"reports/monitoring.{ext}")
-		except Exception as e: Ui.print_error(f"Impossible de sauvegarder le monitoring au format {ext} : {e}")
+		except Exception as e: Ui.print_error(f"Unable to save monitoring in format {ext} : {e}")
 	add_to_json("reports/test_report.json", "metadata", session.config.stash[metadata_key])
 
 

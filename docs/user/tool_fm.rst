@@ -6,7 +6,7 @@ Outil de migration de fichiers
 .. role:: console(code)
    :language: console
 
-Cette page décrit l’utilisation de l’outil **File Migrator**, destiné à convertir des dossiers de résultats PALMTracer issus de MetaMorph
+Cette page décrit l'utilisation de l'outil **File Migrator**, destiné à convertir des dossiers de résultats PALMTracer issus de MetaMorph
 vers le format de fichiers actuel utilisé par PALMTracer dans Napari.
 
 Lancement
@@ -26,8 +26,8 @@ Lancement
 Organisation de l'interface
 ----------------------------------
 
-L’interface est volontairement simple et se compose : d’un bouton de sélection du dossier à migrer, d’un récapitulatif des fichiers détectés dans ce dossier,
-d’un bouton de lancement de la migration. **Aucune modification** n’est effectuée sur le dossier source.
+L'interface est volontairement simple et se compose : d'un bouton de sélection du dossier à migrer, d'un récapitulatif des fichiers détectés dans ce dossier,
+d'un bouton de lancement de la migration. **Aucune modification** n'est effectuée sur le dossier source.
 
 .. figure:: ../_static/img/tool_fm/interface.png
    :figclass: centered-caption
@@ -44,7 +44,7 @@ Utilisation
 
 Cliquez sur :guilabel:`Load folder` pour sélectionner un dossier de résultats PALMTracer issu de MetaMorph.
 Le dossier sélectionné doit correspondre à un dossier .PT généré par MetaMorph.
-S’il ne respecte pas strictement cette convention de nommage, un avertissement est affiché, mais l’analyse peut tout de même être effectuée.
+S'il ne respecte pas strictement cette convention de nommage, un avertissement est affiché, mais l'analyse peut tout de même être effectuée.
 
 Une fois le dossier chargé : son nom est affiché sous le bouton, le contenu du dossier est analysé, les fichiers reconnus sont listés par catégorie.
 Un survol du nom avec le curseur de la souris affiche le **chemin complet** du dossier.
@@ -61,9 +61,9 @@ Un survol du nom avec le curseur de la souris affiche le **chemin complet** du d
 
 
 Cliquez sur :guilabel:`Migrate` pour lancer la conversion des fichiers.
-La migration crée un nouveau dossier de sortie, situé au même niveau que le dossier d’origine.
+La migration crée un nouveau dossier de sortie, situé au même niveau que le dossier d'origine.
 
-Règle de nommage : ``mon_experience.PT`` → ``mon_experience_PALM_Tracer``. Le dossier source n’est **jamais** modifié.
+Règle de nommage : ``mon_experience.PT`` → ``mon_experience_PALM_Tracer``. Le dossier source n'est **jamais** modifié.
 
 Fichiers actuellement pris en charge :
    - Fichier de localisations : ``locPALMTracer.txt``

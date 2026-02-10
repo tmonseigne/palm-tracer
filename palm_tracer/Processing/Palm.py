@@ -284,7 +284,7 @@ class Palm:
 		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
 		track_ids = pd.unique(tracks["Track"])
 		for key in res:
-			if len(res[key]) != track_ids.size: Ui.print_warning("Problème avec les identifiants des trajectoires, attention au filtrage")
+			if len(res[key]) != track_ids.size: Ui.print_warning("Problem with trajectory identifiers, be careful with filtering")
 			else:
 				res[key].drop(columns=["Track"], inplace=True)
 				res[key].insert(0, "Track", track_ids)

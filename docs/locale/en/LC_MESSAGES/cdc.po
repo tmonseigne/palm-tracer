@@ -1,0 +1,496 @@
+#: ../../cdc.rst:2
+msgid "Cahier des charges PALM Tracer Python"
+msgstr "PALM Tracer Python specifications"
+
+#: ../../cdc.rst:11
+msgid "Description"
+msgstr "Description"
+
+#: ../../cdc.rst:13
+msgid "Le but du projet est de transposer `PALM Tracer <https://www.iins.u-bordeaux.fr/projectSIBARITA70>`_ présent en tant que plugin de `Metamorph <https://fr.moleculardevices.com/products/cellular-imaging-systems/high-content-analysis/metamorph-microscopy>`_."
+msgstr "The goal of the project is to port `PALM Tracer <https://www.iins.u-bordeaux.fr/projectSIBARITA70>`_, currently available as a `Metamorph <https://fr.moleculardevices.com/products/cellular-imaging-systems/high-content-analysis/metamorph-microscopy>`_ plugin."
+
+#: ../../cdc.rst:16
+msgid "Il a été développé en C++ et sera transposé vers un environnement Python. La transposition sera "intelligente", c'est-à-dire qu'elle ne se limitera pas à un simple copié collé du plugin existant."
+msgstr "It was developed in C++ and will be ported to a Python environment. The porting process will be "intelligent", meaning it will not be limited to a simple copy-paste of the existing plugin."
+
+#: ../../cdc.rst:19
+msgid "Une étude devra être effectuée afin de définir les éléments nécessaires à cette nouvelle version ainsi que les modifications nécessaires aux anciennes fonctionnalités."
+msgstr "A preliminary study will be conducted to define the elements required for this new version as well as the necessary modifications to existing functionalities."
+
+#: ../../cdc.rst:21
+msgid "Le projet se fera sous la `licence publique générale GNU 3.0 <http://www.gnu.org/licenses/gpl-3.0.txt>`_ *(modifiable en fonction des limitations de brevets)*"
+msgstr "The project will be released under the `GNU General Public License 3.0 <http://www.gnu.org/licenses/gpl-3.0.txt>`_ *(subject to patent-related constraints)*."
+
+#: ../../cdc.rst:24
+msgid "Spécifications techniques"
+msgstr "Technical specifications"
+
+#: ../../cdc.rst:26
+msgid "L'environnement de développement sera Python avec la bibliothèque `Napari <https://napari.org/stable/>`_ pour l'interface. Durant la première phase, la majeure partie des fonctions sera intégrée par des DLL C++ déjà utilisés dans le plugin d'origine. Une étude sera menée afin de vérifier les performances de cette méthode comparée à un process entièrement en python. Le développement pourrait contenir 4 étapes principales :"
+msgstr "The development environment will be based on Python, using the `Napari <https://napari.org/stable/>`_ library for the user interface. During the first phase, most functionalities will rely on existing C++ DLLs already used in the original plugin. A performance study will be carried out to compare this approach with a fully Python-based process. The development may be divided into four main stages:"
+
+#: ../../cdc.rst:31
+msgid "Proposer l'ensemble des traitements hors ligne de PALM Tracer pour un usage interne. En parallèle, de nouveaux traitements hors ligne seront ajoutés."
+msgstr "Provide the complete set of PALM Tracer offline processing tools for internal use. In parallel, new offline processing methods will be added."
+
+#: ../../cdc.rst:33
+msgid "Un déploiement externe pourra être envisagé à la fin ou au cours de la première étape, les spécifications Napari (en cas de déploiement officiel) et les limites de licences seront à prévoir."
+msgstr "An external deployment may be considered at the end of or during the first stage. Napari specifications (in the case of an official release) and licensing constraints will have to be addressed."
+
+#: ../../cdc.rst:34
+msgid "Une seconde étape consistera à ajouter divers traitements en ligne (pseudo temps réel)."
+msgstr "A second stage will consist of adding various online (pseudo real-time) processing methods."
+
+#: ../../cdc.rst:35
+msgid "Une troisième étape consistera à intégrer un module d'acquisition afin de remplacer entièrement le programme Metamorph."
+msgstr "A third stage will involve integrating an acquisition module in order to fully replace the Metamorph software."
+
+#: ../../cdc.rst:37
+msgid "Le versionnage se fera sous Git avec **GitHub** et l'intégration continue avec **GitHub Action**. Des fichiers exemple seront ajoutés au dépôt afin de pouvoir tester les différents traitements et permettre un exemple d'utilisation aux nouveaux utilisateurs."
+msgstr "Version control will be handled using Git with **GitHub**, and continuous integration will rely on **GitHub Actions**. Example files will be added to the repository in order to test the different processing steps and to provide usage examples for new users."
+
+#: ../../cdc.rst:42
+msgid "Besoins et fonctionnalités"
+msgstr "Requirements and features"
+
+#: ../../cdc.rst:44
+msgid "`État d'avancement des fonctionnalités <https://docs.google.com/spreadsheets/d/e/2PACX-1vSPxOeVrw6X-nY-u93qMAqFKf2eiyFgSI_tAKIc-BzaVCgvwG-fmkywWFDKAapWqiZsdv2gkcm3VLne/pubhtml?gid=0&single=true>`_"
+msgstr "`Feature development status <https://docs.google.com/spreadsheets/d/e/2PACX-1vSPxOeVrw6X-nY-u93qMAqFKf2eiyFgSI_tAKIc-BzaVCgvwG-fmkywWFDKAapWqiZsdv2gkcm3VLne/pubhtml?gid=0&single=true>`_"
+
+#: ../../cdc.rst:47
+msgid "Management"
+msgstr "Project management"
+
+#: ../../cdc.rst:49
+msgid "Versionning *(la taille et la décomposition du projet nécessitent un versionnage propre)*"
+msgstr "Versioning *(the size and modular structure of the project require proper version control)*"
+
+#: ../../cdc.rst:50
+msgid "Intégration continue *(l'intégration continue permettra de vérifier la bonne santé du projet)*"
+msgstr "Continuous integration *(continuous integration will help ensure the overall health of the project)*"
+
+#: ../../cdc.rst:51
+msgid "Tests unitaires"
+msgstr "Unit tests"
+
+#: ../../cdc.rst:52
+msgid "Tests d'intégration"
+msgstr "Integration tests"
+
+#: ../../cdc.rst:53
+msgid "Génération de la documentation (code et manuel)"
+msgstr "Documentation generation (code and user manual)"
+
+#: ../../cdc.rst:54
+msgid "Fichier de langue *(secondaire, mais proposition d'une interface multilingue)*"
+msgstr "Language files *(secondary, but enabling a multilingual interface)*"
+
+#: ../../cdc.rst:55
+msgid "Permettre de facilement ajouter une langue pour la communauté."
+msgstr "Allow the community to easily add new languages."
+
+#: ../../cdc.rst:56
+msgid "Fichier de paramètres (settings) chargé automatiquement (ou créé si inexistant) (certaines options pourront ainsi être préremplies en fonction de l'utilisateur)"
+msgstr "Settings file automatically loaded (or created if missing), allowing some options to be pre-filled depending on the user."
+
+#: ../../cdc.rst:57
+msgid "Définir si le fichier est enregistré au fur et à mesure des changements ou à la fermeture"
+msgstr "Define whether the file is saved incrementally as changes occur or only upon closing."
+
+#: ../../cdc.rst:60
+msgid "Base"
+msgstr "Core features"
+
+#: ../../cdc.rst:62
+msgid "Lecture/écriture de fichiers datas :"
+msgstr "Data file input/output:"
+
+#: ../../cdc.rst:63
+msgid "Streaming Metaseries Format (:console:`.smf`) (In/Out)"
+msgstr "Streaming MetaSeries Format (:console:`.smf`) (input/output)"
+
+#: ../../cdc.rst:64
+msgid "MetaMorph Stack File (:console:`.stk`) (In/Out)"
+msgstr "MetaMorph Stack File (:console:`.stk`) (input/output)"
+
+#: ../../cdc.rst:65
+msgid "MetaSeries Single/Multi-plane TIFF (:console:`.tif`) (In/Out)"
+msgstr "MetaSeries single/multi-plane TIFF (:console:`.tif`) (input/output)"
+
+#: ../../cdc.rst:66
+msgid "Portable Network Graphics (:console:`.png`) (Out)"
+msgstr "Portable Network Graphics (:console:`.png`) (output)"
+
+#: ../../cdc.rst:67
+msgid "Lecture/écriture de fichiers pipeline : *(à moins d'un format spécifique largement répandu, JSON)*"
+msgstr "Pipeline file input/output: *(unless a widely adopted specific format is used, such as JSON)*"
+
+#: ../../cdc.rst:68
+msgid "Prévoir un outil de conversion pipeline PALM Tracer metamorph -> PALM Tracer Python"
+msgstr "Provide a conversion tool for PALM Tracer Metamorph pipelines to PALM Tracer Python."
+
+#: ../../cdc.rst:69
+msgid "Lecture écriture de fichiers de pre-processing : *(CSV plus simple pour des analyses futures. l'entête actuel pourra être enregistré à part)*"
+msgstr "Pre-processing file input/output: *(CSV is preferred for future analyses; the current header can be stored separately)*"
+
+#: ../../cdc.rst:70
+msgid "Prévoir un outil de conversion de fichiers de localisation PALM Tracer metamorph -> PALM Tracer Python *(il s'agit juste de supprimer l'entête et d'en faire un CSV)*"
+msgstr "Provide a conversion tool for PALM Tracer Metamorph localization files to PALM Tracer Python *(this mainly consists in removing the header and converting to CSV)*"
+
+#: ../../cdc.rst:71
+msgid "Outil de Génération de données simulées (`Sample Maker <https://github.com/tmonseigne/Sample-Maker>`_) *(pour les tests de base, mais aussi pour des éléments plus complexes)*"
+msgstr "Simulated data generation tool (`Sample Maker <https://github.com/tmonseigne/Sample-Maker>`_) *(for basic tests as well as more complex scenarios)*"
+
+#: ../../cdc.rst:72
+msgid "Optimisation des algorithmes *(attention aux MAJ des bibliothèques)*"
+msgstr "Algorithm optimization *(pay attention to library updates)*"
+
+#: ../../cdc.rst:73
+msgid "Vérifier la performance DLL C++ (date : ≈2010) et code Python."
+msgstr "Evaluate the performance of the C++ DLLs (≈2010) compared to the Python code."
+
+#: ../../cdc.rst:74
+msgid "Vérifier l'interfaçage sur python pour multithreading et portage GPU."
+msgstr "Validate the Python interfacing for multithreading and GPU porting."
+
+#: ../../cdc.rst:75
+msgid "Mode Bash pour traitement par lot (pour lancer un pipeline sur un dossier avec ou sans sous-dossiers)"
+msgstr "Bash mode for batch processing (to run a pipeline on a directory with or without subdirectories)."
+
+#: ../../cdc.rst:76
+msgid "Possibilité de lancer en ligne de commande ou plus simplement pour néophyte une option traitement par lots dans l'interface"
+msgstr "Ability to launch batch processing from the command line or, for beginners, via a dedicated batch-processing option in the interface."
+
+#: ../../cdc.rst:77
+msgid "Génération de fichiers automatique (ou non par le biais d'une option) lors de l'exécution d'un pipeline (copie du pipeline, fichier texte avec la configuration matérielle, temps d'exécution, ressources utilisées, nombre de molécules trouvées…)"
+msgstr "Automatic file generation (optionally enabled) during pipeline execution (pipeline copy, text file with hardware configuration, execution time, resource usage, number of detected molecules, etc.)."
+
+#: ../../cdc.rst:79
+msgid "Possibilité de Cut un fichier (prendre des frames N à N). *Il est possible que lors de l'acquisition il y ait eu un problème sur certains frames et donc les éliminer de l'analyse.*"
+msgstr "Ability to cut a file (select frames from N to N). *During acquisition, issues may have occurred on some frames, which should therefore be removed from the analysis.*"
+
+#: ../../cdc.rst:83
+msgid "Visualization (dépendant des limitations de Napari)"
+msgstr "Visualization (depending on Napari limitations)"
+
+#: ../../cdc.rst:85
+msgid "Drag and Drop d'une image *(basique, mais pas si évident suivent les GUIS)*"
+msgstr "Drag-and-drop image loading *(basic but not trivial depending on the GUI)*"
+
+#: ../../cdc.rst:86
+msgid "Affichage de l'image avec le pourcentage de zoom"
+msgstr "Image display with zoom percentage."
+
+#: ../../cdc.rst:87
+msgid "Affichage d'un histogramme shrinkable"
+msgstr "Display of a shrinkable histogram."
+
+#: ../../cdc.rst:88
+#, python-format
+msgid "Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme « blanc » à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)"
+msgstr "Proposal to include a checkbox for automatic image shrinking (default value: 0.5% of the "white" histogram, which appears consistent with the provided example images, but remains configurable)."
+
+#: ../../cdc.rst:89
+msgid "Affichage d'un choix de Look-Up Table Monochrome, Pseudo Color, Gold, Personnalisable (les autres sont-elles nécessaires ou surcharge ?)"
+msgstr "Display of selectable Look-Up Tables: Monochrome, Pseudo Color, Gold, Custom (are additional LUTs necessary or excessive?)."
+
+#: ../../cdc.rst:90
+msgid "Option de Seuillage"
+msgstr "Thresholding option."
+
+#: ../../cdc.rst:91
+msgid "Option de changement d'échantillonnage."
+msgstr "Resampling option."
+
+#: ../../cdc.rst:92
+msgid "Play/pause des différents frames"
+msgstr "Play/pause of individual frames."
+
+#: ../../cdc.rst:95
+msgid "Processing"
+msgstr "Processing"
+
+#: ../../cdc.rst:97
+msgid "Options d'acquisition (pixel size, exposition…)"
+msgstr "Acquisition options (pixel size, exposure, etc.)."
+
+#: ../../cdc.rst:98
+msgid "2D/3D Localization"
+msgstr "2D/3D localization"
+
+#: ../../cdc.rst:99
+msgid "Preview 2D Localization"
+msgstr "2D localization preview"
+
+#: ../../cdc.rst:100
+msgid "GPU portage (on/off) *pourquoi demander ? si possible GPU*"
+msgstr "GPU support (on/off) *why ask? Use GPU if possible.*"
+
+#: ../../cdc.rst:101
+msgid "Auto seuil et spin pour rerégler"
+msgstr "Automatic thresholding with spin box adjustment."
+
+#: ../../cdc.rst:102
+msgid "Taille des ROIs"
+msgstr "ROI size"
+
+#: ../../cdc.rst:103
+msgid "Watershed (On/Off)"
+msgstr "Watershed (on/off)"
+
+#: ../../cdc.rst:104
+msgid "Gaussian fit (définir les options, qui fait quoi un chapitre dans la doc pourra être dédié)"
+msgstr "Gaussian fitting (define options; a dedicated documentation section may describe the implementation details)."
+
+#: ../../cdc.rst:105
+msgid "Options pour la 3D ?"
+msgstr "3D-related options?"
+
+#: ../../cdc.rst:106 ../../cdc.rst:125
+msgid "Tracking"
+msgstr "Tracking"
+
+#: ../../cdc.rst:107
+msgid "Distance max (unité à définir correctement on parle en pixel, µm ou autre ?)"
+msgstr "Maximum distance (units to be clearly defined: pixels, µm, or others?)."
+
+#: ../../cdc.rst:108
+msgid "Distance minimum (définir clairement que l'on parle de nombre de frames si une molécule est trouvée sur moins de frames que le minimum est-elle juste supprimé du tracking ? Dans ce cas, la longueur minimale serait plus au moment de la génération de l'image HR pour conserver un max d'infos au moment du pre-processing)"
+msgstr "Minimum distance (clearly define whether this refers to the number of frames; if a molecule is detected in fewer frames than the minimum, is it simply removed from tracking? In that case, the minimum length may be better applied during HR image generation to preserve as much information as possible during pre-processing)."
+
+#: ../../cdc.rst:109
+msgid "Drift Correction"
+msgstr "Drift correction"
+
+#: ../../cdc.rst:110
+msgid "*Débruitage avec réseau de neurones (Méthode d'Abdel)*"
+msgstr "*Denoising using neural networks (Abdel's method)*"
+
+#: ../../cdc.rst:111
+msgid "*ROI Map (Demande de Laetitia sur le test d'Abdel)*"
+msgstr "*ROI map (requested by Laetitia for Abdel's test)*"
+
+#: ../../cdc.rst:114
+msgid "Filtrage"
+msgstr "Filtering"
+
+#: ../../cdc.rst:117
+msgid "High Resolution Processing"
+msgstr "High-resolution processing"
+
+#: ../../cdc.rst:119
+msgid "Localisation"
+msgstr "Localization"
+
+#: ../../cdc.rst:120
+msgid "Indiquer si des fichiers de localisations sont trouvés ou rendre l'onglet inactif tant que pas de dossiers"
+msgstr "Indicate whether localization files are detected, or disable the tab until directories are available."
+
+#: ../../cdc.rst:121 ../../cdc.rst:127
+msgid "Option de Drift si pré-process effectué"
+msgstr "Drift option if pre-processing has been performed."
+
+#: ../../cdc.rst:122
+msgid "Options de filtrage"
+msgstr "Filtering options"
+
+#: ../../cdc.rst:123
+msgid "Niveau de zoom (limité à des puissances de 2 ? ça l'air d'être le cas, mais caché)"
+msgstr "Zoom level (limited to powers of two? This appears to be the case, but is hidden)."
+
+#: ../../cdc.rst:124
+msgid "Channel utilisé (intensité lumineuse ou autre)"
+msgstr "Selected channel (light intensity or other)."
+
+#: ../../cdc.rst:126
+msgid "Indiquer si des fichiers de tracking sont trouvés ou rendre l'onglet inactif tant que pas de dossiers"
+msgstr "Indicate whether tracking files are detected, or disable the tab until directories are available."
+
+#: ../../cdc.rst:128
+msgid "Option de filtrage"
+msgstr "Filtering option"
+
+#: ../../cdc.rst:129
+msgid "Niveau de zoom"
+msgstr "Zoom level"
+
+#: ../../cdc.rst:130
+msgid "Channel utilisé (trace, vitesse ou autre)"
+msgstr "Selected channel (trajectory, velocity, or other)."
+
+#: ../../cdc.rst:133
+msgid "Sorties"
+msgstr "Outputs"
+
+#: ../../cdc.rst:135
+msgid "Au cours des prétraitements et générations d'images HR. Un sous-dossier sera créé avec ce schéma :"
+msgstr "During pre-processing and high-resolution image generation, a subdirectory will be created following this structure:"
+
+#: ../../cdc.rst:150
+msgid "**Meta** : Fichier contenant les entêtes des fichiers précédents (Width, Height, nb_Planes, Pixel_Size(um), Frame_Duration(s)) avec d'autres éléments comme la date, la configuration matérielle, les éléments d'acquisitions (pixel size, exposition…), la version de PALM Tracer."
+msgstr "**Meta**: File containing the headers of the previous files (Width, Height, nb_Planes, Pixel_Size (µm), Frame_Duration (s)), along with additional information such as date, hardware configuration, acquisition parameters (pixel size, exposure, etc.), and the PALM Tracer version."
+
+#: ../../cdc.rst:152
+msgid "**Localization**, Tracking, Drift tableaux de coordonnées"
+msgstr "**Localization**, Tracking, Drift: coordinate tables."
+
+#: ../../cdc.rst:153
+msgid "**Fichiers Images** : Format différent possible si c'est plus conventionnel, l'enregistrement se fait automatiquement à la fin de chaque processing."
+msgstr "**Image files**: Different formats may be used if more conventional; files are saved automatically at the end of each processing step."
+
+#: ../../cdc.rst:154
+msgid "**Pipeline** : Fichier mis à jour continuellement en fonction des process effectués, il contient 4 parties (Général, Processing, Localisation, Tracking, Filtering) avec les dernières options utilisées pour cela et la date du dernier lancement. Il permettra de garder une trace et d'être chargé comme pipeline de Batch."
+msgstr "**Pipeline**: File continuously updated according to the executed processes. It contains four sections (General, Processing, Localization, Tracking, Filtering) with the latest options used and the date of the last run. It allows traceability and can be loaded as a batch pipeline."
+
+#: ../../cdc.rst:156
+msgid "**Log** : Log (temps, ressources, n molécules...)"
+msgstr "**Log**: Log file (time, resources, number of molecules, etc.)."
+
+#: ../../cdc.rst:159
+msgid "Protocole de test"
+msgstr "Test protocol"
+
+#: ../../cdc.rst:161
+msgid "**Données simulées** : Le protocole pour générer un jeu de données sera similaire à la thèse d'adel (Kechkar, 2013) :"
+msgstr "**Simulated data**: The protocol for generating a dataset will be similar to Adel's thesis (Kechkar, 2013):"
+
+#: ../../cdc.rst:163
+msgid "Image simulée contrôlée"
+msgstr "Controlled simulated image"
+
+#: ../../cdc.rst:164
+msgid "Image motif bande / carré / soleil 3D"
+msgstr "Stripe / square / 3D sun pattern images"
+
+#: ../../cdc.rst:165
+msgid "À définir, mais une image contenant un ensemble de problèmes connu serait envisageable également"
+msgstr "To be defined, but an image containing a set of known issues could also be considered."
+
+#: ../../cdc.rst:166
+msgid "Une gamme de variants selon la densité de particules et le SNR"
+msgstr "A range of variants based on particle density and SNR."
+
+#: ../../cdc.rst:167
+msgid "À définir, mais densités possible 0.1, 0.25, 0.5, 0.75, 1 molécules/μm²"
+msgstr "To be defined, but possible densities include 0.1, 0.25, 0.5, 0.75, and 1 molecule/µm²."
+
+#: ../../cdc.rst:168
+msgid "À définir, mais SNR possible 2, 4, 6, 8, 10"
+msgstr "To be defined, but possible SNR values include 2, 4, 6, 8, and 10."
+
+#: ../../cdc.rst:169
+msgid "Donc 25 (5x5) combinaisons de la même image simulée"
+msgstr "This results in 25 (5×5) combinations of the same simulated image."
+
+#: ../../cdc.rst:171
+msgid "**Rapport** : Un rapport sera généré lors de l'exécution d'un pipeline de test et directement intégré à la doc en ligne générée automatiquement. On recueillera les informations suivantes :"
+msgstr "**Report**: A report will be generated during the execution of a test pipeline and directly integrated into the automatically generated online documentation. The following information will be collected:"
+
+#: ../../cdc.rst:174
+msgid "Configuration matérielle"
+msgstr "Hardware configuration"
+
+#: ../../cdc.rst:175
+msgid "Fichier en entrée"
+msgstr "Input file"
+
+#: ../../cdc.rst:176
+msgid "Définition des variants (densité, SNR, méthodes)"
+msgstr "Definition of variants (density, SNR, methods)"
+
+#: ../../cdc.rst:177
+msgid "Précision (accuracy) de la localisation"
+msgstr "Localization accuracy"
+
+#: ../../cdc.rst:178
+msgid "Matrice de confusion simplifiée : Nombre de molécules, faux positifs et faux négatifs"
+msgstr "Simplified confusion matrix: number of molecules, false positives, and false negatives."
+
+#: ../../cdc.rst:179
+msgid "Temps d'exécution total et détaillé"
+msgstr "Total and detailed execution time"
+
+#: ../../cdc.rst:180
+msgid "Mémoire max utilisé"
+msgstr "Maximum memory usage"
+
+#: ../../cdc.rst:181
+msgid "Nombre de cœur max utilisé"
+msgstr "Maximum number of CPU cores used"
+
+#: ../../cdc.rst:183
+msgid "**Process différents** : En cas de process différents pour un résultat similaire, un schéma comparatif des 2 méthodes sera généré. Un outil pourrait être dédié à la génération de graphiques et rapport avec plusieurs rapports en entrée."
+msgstr "**Different processes**: When different processes lead to similar results, a comparative diagram of the two methods will be generated. A dedicated tool could be developed to generate plots and reports from multiple input reports."
+
+#: ../../cdc.rst:186
+msgid "Documentation"
+msgstr "Documentation"
+
+#: ../../cdc.rst:188
+msgid "La documentation sera répartie en plusieurs parties générées dynamiquement ou statiquement selon les cas. Les différentes parties seront :"
+msgstr "The documentation will be divided into several parts, generated dynamically or statically depending on the case. The different sections will include:"
+
+#: ../../cdc.rst:191
+msgid "Présentation (readme ou autre)"
+msgstr "Overview (README or similar)"
+
+#: ../../cdc.rst:192
+msgid "Guide d'utilisation qui devra être rédigé depuis le début du process (installation et Utilisation). C'est-à-dire que l'installation de python devra également être indiquée pour pallier les différences de niveau en informatique de l'utilisateur."
+msgstr "User guide to be written from the beginning of the process (installation and usage). This includes instructions for installing Python to accommodate users with varying levels of computer expertise."
+
+#: ../../cdc.rst:194
+msgid "Licence"
+msgstr "License"
+
+#: ../../cdc.rst:195
+msgid "Documentation du code (API)"
+msgstr "Code documentation (API)"
+
+#: ../../cdc.rst:196
+msgid "Quelques pages sur différents processus complexes expliqués"
+msgstr "Several pages explaining different complex processes."
+
+#: ../../cdc.rst:197
+msgid "Résultats des tests de l'intégration continue. Une partie pourra être statique avec les tests sur différentes machines et leurs configurations respectives l'autre sera dépendante du CI et donc les spécifications du CI devront être reportées."
+msgstr "Results of continuous integration tests. One part may be static, presenting tests on different machines and configurations, while another part will depend on the CI system, requiring CI specifications to be reported."
+
+#: ../../cdc.rst:201
+msgid "Glossaire"
+msgstr "Glossary"
+
+#: ../../cdc.rst:203
+msgid "**Environnement de développement** : L'environnement de développement, dans ce cas, correspond aux langages, bibliothèques et systèmes d'exploitation utilisés."
+msgstr "**Development environment**: In this context, the development environment refers to the programming languages, libraries, and operating systems used."
+
+#: ../../cdc.rst:204
+msgid "**Langage de programmation** : Un langage de programmation est le moyen d'écrire du code source avant qu'il ne soit analysé par la machine."
+msgstr "**Programming language**: A programming language is a means of writing source code before it is processed by a machine."
+
+#: ../../cdc.rst:205
+msgid "**Bibliothèque** : En développement informatique, une bibliothèque est un ensemble de fonctions (code) déjà développé pouvant être réutilisé."
+msgstr "**Library**: In software development, a library is a collection of already developed functions (code) that can be reused."
+
+#: ../../cdc.rst:206
+msgid "**DLL (bibliothèque de liens dynamiques)** : Ensemble de fonctions (code) enregistré en langage machine préchargé au lancement du programme. Le code source n'est pas forcément disponible."
+msgstr "**DLL (Dynamic Link Library)**: A set of functions (code) stored in machine language and preloaded at program startup. The source code is not necessarily available."
+
+#: ../../cdc.rst:207
+msgid "**Calcul hors ligne** : Calcul prenant un certain temps à être effectué (ce n'est donc pas instantané)."
+msgstr "**Offline computation**: A computation that takes a non-negligible amount of time to complete (i.e., not instantaneous)."
+
+#: ../../cdc.rst:208
+msgid "**Calcul en ligne** : Calcul étant effectué en pseudo temps réel presque instantanément et sans temps d'attente pour l'utilisateur."
+msgstr "**Online computation**: A computation performed in pseudo real-time, almost instantaneously and without noticeable waiting time for the user."
+
+#: ../../cdc.rst:209
+msgid "**Versionning** : Le versionning permet de conserver en mémoire toutes les modifications apportées aux fichiers afin de garder une trace et permettre de passer facilement d'une version à l'autre"
+msgstr "**Versioning**: Versioning makes it possible to keep track of all changes made to files, ensuring traceability and allowing easy switching between versions."
+
+#: ../../cdc.rst:210
+msgid "**Intégration continue (CI)** : L'Intégration continue (Continuous Integration) est un une routine automatique qui se lance pour vérifier que le code marche toujours. Cela peut être juste : compiler un programme, le lancer ou voir si le programme est bien propre, le compiler, le lancer avec des tests, analyser le code, la gestion de la mémoire… Cela peut être lancé à chaque mise à jour ou tous les jours, semaines… ou à la demande."
+msgstr "**Continuous integration (CI)**: Continuous Integration is an automated routine used to verify that the code remains functional. This may involve compiling the program, running it, checking code quality, executing tests, analyzing the code, managing memory, and more. It can be triggered on every update, daily, weekly, or on demand."
+
+#: ../../cdc.rst:211
+msgid "**ROI (Region Of Interest)** : Zone d'intérêt sélection permettant de récupérer un ensemble de pixels autour d'un point donné."
+msgstr "**ROI (Region Of Interest)**: A selected area of interest used to retrieve a set of pixels around a given point."

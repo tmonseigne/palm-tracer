@@ -123,7 +123,7 @@ class PALMTracerWidget(QWidget):
 
 	def _connect_signal(self):
 		"""Connecte les signaux UI aux callbacks."""
-		# Bouttons QT classiques
+		# Boutons QT classiques
 		self.btn_viewer_gr.clicked.connect(self._open_graph_viewer)
 		self.btn_viewer_hr.clicked.connect(self._open_hr_viewer)
 		self.btn_viewer_3d.clicked.connect(self._open_3d_viewer)
@@ -215,7 +215,7 @@ class PALMTracerWidget(QWidget):
 			self._process_done()
 
 		w.finished.connect(_finish)
-		w.errored.connect(lambda e: show_error(f"Erreur dans le thread : {e}"))
+		w.errored.connect(lambda e: show_error(f"Error in thread: {e}"))
 		w.start()
 
 	##################################################
@@ -229,7 +229,7 @@ class PALMTracerWidget(QWidget):
 		"""
 		self._processing = False
 		self._freeze_ui(False)
-		show_info("Thread Process done")
+		show_info("Thread Process done.")
 
 	##################################################
 	def prepare_teardown(self, timeout_ms: int = 30_000):
@@ -276,12 +276,12 @@ class PALMTracerWidget(QWidget):
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
 				with self.pt.settings.signal_blocked():
 					cfg = open_json(str(filename))
-					show_info(f"Chargement du fichier de configuration '{filename}'.")
+					show_info(f"Loading the setting file '{filename}'.")
 					self.pt.settings.update_from_dict(cfg)
 					self.pt.settings.localization["Preview"].set_value(False)
 					self.pt.settings.filtering.deactivate_filters()
 			except Exception as e:
-				show_warning(f"Erreur lors du chargement du fichier '{filename}' : {e}")
+				show_warning(f"Error loading file '{filename}': {e}")
 
 	##################################################
 	def _on_load_setting_btn(self):
@@ -313,7 +313,7 @@ class PALMTracerWidget(QWidget):
 		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
 		if name in self.viewer.layers:
 			try: self.viewer.layers.remove(self.viewer.layers[name])
-			except Exception as e: Ui.print_warning(F"erreur lors de la suppression de l'ancien calque {name} : {e}")
+			except Exception as e: Ui.print_warning(F"Error when deleting the old layer '{name}' : {e}")
 
 	##################################################
 	def _reset_layer(self):
@@ -445,7 +445,7 @@ class PALMTracerWidget(QWidget):
 		else:  # .																   Création du Calque s'il n'existe pas
 			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.25, face_color="transparent")
 			layer.editable = False  # .											   Rendre non éditable (napari)
-			layer.selectable = False  # .										   Evite la sélection à la souris si supporté
+			layer.selectable = False  # .										   Évite la sélection à la souris si supporté
 			layer.visible = True  # .											   L'affiche
 
 	##################################################
@@ -483,8 +483,8 @@ class PALMTracerWidget(QWidget):
 		# Affichage console (les notifications posent problème en thread externe)
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,
 										  (self._preview_locs.get("Past"), self._preview_locs.get("Present"), self._preview_locs.get("Future")))
-		print(f"Preview des {l_past + l_present + l_future} points détectés ({l_present} sur l'image actuelle, "
-			  f"{l_past} sur l'image précédente, {l_future} sur l'image suivante).")
+		print(f"Preview of {l_past + l_present + l_future} detected points ({l_present} on the current frame, "
+			  f"{l_past} on the previous frame, {l_future} on the next frame).")
 
 	##################################################
 	def _auto_threshold(self):
@@ -493,8 +493,8 @@ class PALMTracerWidget(QWidget):
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
-		print(f"Auto Threshold : {threshold:.2f}")
-		# show_info(f"Auto Threshold : {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
+		print(f"Auto Threshold: {threshold:.2f}")
+		# show_info(f"Auto Threshold: {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
 		self.pt.settings.localization["Threshold"].set_value(threshold)  # .							  Changement du seuil dans les settings
 
 	# ==================================================

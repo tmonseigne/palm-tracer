@@ -1,0 +1,43 @@
+{# Switch langue qui conserve la page courante (pagename) - version sans pathto(master_doc) #}
+
+{% set default_lang = default_language_code %}
+{% set cur_lang = current_language_code %}
+
+{# Profondeur de la page courante dans l'arborescence (index => 0, generated/modules => 1, a/b/c => 2, etc.) #}
+{% set depth = pagename.count('/') %}
+
+{# Racine de la langue courante (relatif) #}
+{% set rel_to_lang_root = ('../' * depth) %}
+
+{# Racine du site (relatif) : si on est dans /en/, il faut remonter d'un niveau de plus #}
+{% if cur_lang == default_lang %}
+{% set rel_to_site_root = rel_to_lang_root %}
+{% else %}
+{% set rel_to_site_root = rel_to_lang_root ~ '../' %}
+{% endif %}
+
+<div class="rst-versions" role="note" aria-label="versions">
+  <div class="rst-current-version">
+    {{ _('Language') }}: {{ current_language_code }}
+  </div>
+
+  <div class="rst-other-versions" style="display:block;">
+    {% if languages|length >= 1 %}
+    <dl>
+      <dt>{{ _('Languages') }}</dt>
+      {% for label, code in languages %}
+      {# Préfixe de langue : défaut -> "" ; sinon -> "en/" #}
+      {% if code == default_language_code %}
+      {% set lang_prefix = "" %}
+      {% else %}
+      {% set lang_prefix = code ~ "/" %}
+      {% endif %}
+
+      <dd>
+        <a href="{{ rel_to_site_root ~ lang_prefix ~ pagename ~ '.html' }}">{{ label }}</a>
+      </dd>
+      {% endfor %}
+    </dl>
+    {% endif %}
+  </div>
+</div>

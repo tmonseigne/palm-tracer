@@ -1,0 +1,7 @@
+#: ../../algorithm/alignment.rst:2
+msgid "Alignement"
+msgstr "Alignment"
+
+#: ../../algorithm/alignment.rst:13
+msgid "Page en cours d'écriture."
+msgstr "Page currently being written."

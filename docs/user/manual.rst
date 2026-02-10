@@ -7,9 +7,9 @@ Manuel d'utilisation
 .. role:: console(code)
    :language: console
 
-Ce guide décrit l’utilisation de PALMTracer, un plugin Napari dédié à l’analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats.
+Ce guide décrit l'utilisation de PALMTracer, un plugin Napari dédié à l'analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats.
 
-PALMTracer fonctionne comme un widget intégré dans l’interface de Napari, offrant un ensemble d'outils organisés en onglets : Processing, Visualization et Filtering.
+PALMTracer fonctionne comme un widget intégré dans l'interface de Napari, offrant un ensemble d'outils organisés en onglets : Processing, Visualization et Filtering.
 
 
 Lancement
@@ -32,7 +32,7 @@ Lancement
 Organisation de l'interface
 ----------------------------------
 
-L’interface Napari avec PALMTracer est organisée en trois volets principaux :
+L'interface Napari avec PALMTracer est organisée en trois volets principaux :
 
 - À gauche : le panneau des calques (Layers)
 - Au centre : la fenêtre de visualisation
@@ -65,7 +65,7 @@ Fonctionnalités principales :
 - Afficher / masquer un calque
 - Modifier la transparence
 - Changer la colormap
-- Réorganiser l’ordre des calques
+- Réorganiser l'ordre des calques
 
 .. figure:: ../_static/img/manual/Napari_Layers.png
    :figclass: centered-caption
@@ -144,7 +144,7 @@ Ouverture de fichiers
    - "Each File separately" : chaque fichier est analysé indépendamment.
    - "All in One" : Tous les fichiers sont combinés et analysés comme un seul ensemble.
 
-Lorsqu’un fichier est sélectionné, PALMTracer :
+Lorsqu'un fichier est sélectionné, PALMTracer :
 
 - Efface les anciens calques.
 - Charge automatiquement le fichier dans un calque Raw.
@@ -165,7 +165,7 @@ Calibration de l'acquisition
 Dans la section :guilabel:`Calibration`, renseignez :
 
 - Taille de pixel en micromètres (µm).
-- Temps d’exposition en secondes par image.
+- Temps d'exposition en secondes par image.
 - Intensité lumineuse en photons par unités analogique-numériques (ADU).
 
 Ces paramètres sont utilisés pour :
@@ -186,8 +186,8 @@ Ces paramètres sont utilisés pour :
 Onglet Processing
 ----------------------------------
 
-L’onglet :guilabel:`Processing` regroupe l’ensemble des paramètres liés au traitement principal :
-la localisation et l’éventuel suivi des molécules (tracking), puis les calculs sur les trajectoires.
+L'onglet :guilabel:`Processing` regroupe l'ensemble des paramètres liés au traitement principal :
+la localisation et l'éventuel suivi des molécules (tracking), puis les calculs sur les trajectoires.
 
 Il est constitué de trois modules :
    - **Localisation**
@@ -209,9 +209,9 @@ Localisation
 La section *Localisation* permet de configurer les paramètres qui influencent directement la détection des molécules sur chaque image.
 
 Les paramètres les plus courants incluent :
-   - **Preview** : si activé, lance la détection en temps réel sur l’image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`).
-   - **Threshold** : seuil d’intensité utilisé pour isoler les candidats moléculaires.
-     Un bouton :guilabel:`Auto` peut estimer automatiquement un seuil optimal à partir de l’image courante (plus d'informations :ref:`ici <auto_threshold_page>`).
+   - **Preview** : si activé, lance la détection en temps réel sur l'image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`).
+   - **Threshold** : seuil d'intensité utilisé pour isoler les candidats moléculaires.
+     Un bouton :guilabel:`Auto` peut estimer automatiquement un seuil optimal à partir de l'image courante (plus d'informations :ref:`ici <auto_threshold_page>`).
    - **ROI Shape** : forme de la zone d'intérêt lors de la preview (cercle ou carré), les calculs se font toujours sur une ROI carré en revanche.
    - **ROI Size** : taille de la fenêtre extraite autour de chaque détection.
    - **Watershed** : active/désactive un prétraitement de séparation des détections proches.
@@ -237,7 +237,7 @@ Les paramètres peuvent inclure :
 Calculs sur les trajectoires
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Cette section permet d’appliquer différents calculs sur les trajectoires reconstruites :
+Cette section permet d'appliquer différents calculs sur les trajectoires reconstruites :
    - **MSD** : (Mean Squared Displacement) : Calcul du MSD par trajectoire et par plans successifs.
    - **Instant Diffusion** : Calcul de la diffusion instantanée par trajectoire et par plans successifs.
    - **Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée.
@@ -273,7 +273,7 @@ Il comprend :
 Onglet Filtering
 ----------------------------------
 
-L’onglet **Filtering** permet de sélectionner ou d’exclure des points ou des trajectoires selon divers critères statistiques ou géométriques.
+L'onglet **Filtering** permet de sélectionner ou d'exclure des points ou des trajectoires selon divers critères statistiques ou géométriques.
 
 Les filtres permettent de définir des seuils minimum et maximum pour divers paramètres comme une limitation des plans sur lesquels travailler,
 ou des critères basés sur les propriétés des points ou des trajectoires.

@@ -195,7 +195,7 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	layout.addWidget(title_lbl, 0, 0, 1, size)  # .					Titre
 	layout.addWidget(make_horizontal_separator(), 1, 0, 1, size)  # Séparateur horizontal
 
-	# Colonnes fixes : label | value | unit. On force la colonne "value" à s’étendre, pour garder l’alignement propre.
+	# Colonnes fixes : label | value | unit. On force la colonne "value" à s'étendre, pour garder l'alignement propre.
 	layout.setColumnStretch(0, 0)  # .								Label
 	layout.setColumnStretch(1, 1)  # .								Value (s'étire)
 	if size == 3:    layout.setColumnStretch(2, 0)  # .				Unit

@@ -5,7 +5,6 @@ import pytest
 
 from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Groups import TracksCompute
 from palm_tracer.Settings.Types import CheckRangeInt, FileList
 from palm_tracer.UI import PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
 from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
@@ -44,7 +43,7 @@ def test_widget_on_load_setting(make_napari_viewer, capsys, monkeypatch, fake_qf
 	fake_qfiledialog(PALMTracerWidget, None)  # Simuler un "Cancel" sur le QFileDialog
 	my_widget._on_load_setting_btn()
 	out, err = capsys.readouterr()
-	assert "WARNING: Erreur lors du chargement du fichier '" in out
+	assert "WARNING: Error loading file '" in out
 
 	my_widget.prepare_teardown()
 	viewer.close()
@@ -174,7 +173,7 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 		qtbot.waitUntil(lambda: setting["Preview"].get_value(), timeout=5000)
 		my_widget._preview()  # .										Preview simple
 		out, err = capsys.readouterr()
-		assert "Preview des 142 points détectés (46 sur l'image actuelle, 48 sur l'image précédente, 48 sur l'image suivante)." in out
+		assert "Preview of 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in out
 
 	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
 		my_widget.prepare_teardown()
@@ -237,7 +236,7 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 	my_widget._auto_threshold()  # .										   Appel de la méthode auto_threshold.
 
 	out, err = capsys.readouterr()
-	assert "Auto Threshold : 63.95" in out
+	assert "Auto Threshold: 63.95" in out
 
 	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
 		my_widget.prepare_teardown()
@@ -341,33 +340,33 @@ def test_viewerhr_load(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfil
 	my_widget = ViewerHRWidget(viewer, pt)
 
 	out, err = capsys.readouterr()
-	assert "Aucun fichier de paramètres valide à charger." in out
+	assert "No valid settings file to load." in out
 
 	my_widget.save()  # .												  Sauvegarde sans aucun élément de chargé
 
 	fake_qfiledialog(ViewerHRWidget, None)  # .							  Simuler un "Cancel" sur le QFileDialog
 	my_widget.load_folder()
 	out, err = capsys.readouterr()
-	assert "Aucun fichier de paramètres valide à charger." in out
+	assert "No valid settings file to load." in out
 
 	fake_qfiledialog(ViewerHRWidget, "folder")  # .						  Simuler un dossier inexistant
 	my_widget.load_folder()
 	out, err = capsys.readouterr()
-	assert "Le chemin de destination \"folder\" n'est pas valide." in out
+	assert "The destination path 'folder' is invalid." in out
 
 	fake_qfiledialog(ViewerHRWidget, INPUT_DIR)  # .					  Simuler un dossier existant, mais sans fichier settings compatible.
 	my_widget.load_folder()
 	out, err = capsys.readouterr()
-	assert "Aucune Pile de chargée." in out
+	assert "No stack loaded." in out
 
 	fake_qfiledialog(ViewerHRWidget, f"{INPUT_DIR}/stack_PALM_Tracer")  # Dossier valide
 	my_widget.load_folder()
 	out, err = capsys.readouterr()
-	assert "Pile chargé avec succès (taille : (10, 128, 256))." in out
+	assert "Stack loaded successfully (size: (10, 128, 256))." in out
 
 	my_widget.load_folder()  # .										  Pour recommencer sur un dossier existant
 	out, err = capsys.readouterr()
-	assert "Pile chargé avec succès (taille : (10, 128, 256))." in out
+	assert "Stack loaded successfully (size: (10, 128, 256))." in out
 
 	try: viewer.close()
 	except Exception as e: pass
@@ -383,7 +382,7 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	add_basic_file(pt)  # .												Ajout d'une entrée
 	pt.settings.localization.active = True
 	pt.settings.tracking.active = True
-	tc = cast(TracksCompute, pt.settings.tracks_compute)
+	tc = pt.settings.tracks_compute
 	tc.active = True
 	tc["MSD"].set_value(True)
 	tc["Instant Diffusion"].set_value(True)
@@ -411,7 +410,7 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	my_widget.generate()
 	qtbot.waitUntil(lambda: len(layers) == 0, timeout=5000)  # .		 Attente : qu'il n'ai aucune image
 	out, err = capsys.readouterr()
-	assert "Aucun fichier de trajectoires disponible." in out
+	assert "No tracking file available." in out
 
 	# Retour aux localizations (avec changement automatique de la color map sur grayscale)
 	my_widget.type_cmb.set_value(0)
@@ -419,7 +418,7 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	my_widget.generate()
 	qtbot.waitUntil(lambda: len(layers) == 0, timeout=5000)  # .		 Attente : qu'il n'ai aucune image
 	out, err = capsys.readouterr()
-	assert "Aucun fichier de localisation disponible." in out
+	assert "No localization file available." in out
 
 	try: viewer.close()
 	except Exception as e: pass
@@ -442,7 +441,16 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	res = my_widget.visualization.shape
 	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 
+	out, err = capsys.readouterr()
+	assert "File 'localizations' loaded successfully." in out
+	for file in ["localizations_filtered", "tracking", "tracking_filtered",
+				 "tracking-reconnected", "tracking_filtered_reconnected",
+				 "tracking_MSD", "tracking_MSD_filtered", "tracking_InstantD", "tracking_InstantD_filtered",
+				 "tracking_Fit", "tracking_Fit_filtered"]:
+		assert f"Error loading file '{file}'" in out
+
 	my_widget.save()
+	assert Path(my_widget._filename).is_file()
 
 	try: viewer.close()
 	except Exception as e: pass

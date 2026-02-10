@@ -1,0 +1,3 @@
+#: ../../algorithm/algorithm.rst:2
+msgid "Algorithmie"
+msgstr "Algorithms"

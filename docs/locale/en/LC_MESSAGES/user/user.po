@@ -1,0 +1,3 @@
+#: ../../user/user.rst:2
+msgid "Guide de l'utilisateur de PALM Tracer"
+msgstr "PALM Tracer User Guide"

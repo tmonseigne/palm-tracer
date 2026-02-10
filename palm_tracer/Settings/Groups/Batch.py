@@ -74,6 +74,6 @@ class Batch(BaseSettingGroup):
 				try:
 					res = [np.concatenate(res, axis=0)]  # On concatène la liste des fichiers
 				except ValueError as e:
-					Ui.print_warning(f"Error lors de la concatenation des piles (elles seront traité indépendamment):\nValueError: {e}")
+					Ui.print_warning(f"Error when concatenating stacks (they will be processed independently):\nValueError: {e}")
 
 		return res

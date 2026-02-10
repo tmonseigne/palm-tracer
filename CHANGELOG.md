@@ -86,11 +86,11 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Modifié
 
 - Interface : le bouton de prévisualisation a été remplacé par une case à cocher pour plus de clarté. ([#21](https://github.com/tmonseigne/palm-tracer/pull/21))
-- Interface : amélioration de l’ergonomie pour le choix du mode de fit. ([#20](https://github.com/tmonseigne/palm-tracer/pull/20))
+- Interface : amélioration de l'ergonomie pour le choix du mode de fit. ([#20](https://github.com/tmonseigne/palm-tracer/pull/20))
 
 ### Documentation
 
-- Mise à jour du guide d’installation avec correction de bugs. ([#16](https://github.com/tmonseigne/palm-tracer/pull/16))
+- Mise à jour du guide d'installation avec correction de bugs. ([#16](https://github.com/tmonseigne/palm-tracer/pull/16))
 - Ajustements divers dans la documentation utilisateur.
 
 ### CI/CD

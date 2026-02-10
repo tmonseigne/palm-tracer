@@ -247,7 +247,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self._filters["Localization"].hide()
 		self._filters["Tracks"].hide()
 
-		# Bouttons de gestion des filtres
+		# Boutons de gestion des filtres
 		self._btn_reset_f = QPushButton("Reset")
 		self._btn_update_f = QPushButton("Update")
 		actions_row = QHBoxLayout()
