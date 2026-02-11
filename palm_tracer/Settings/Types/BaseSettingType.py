@@ -26,23 +26,18 @@ class BaseSettingType:
 	Elle est utilisée comme	base pour des paramètres plus spécifiques.
 	Chaque paramètre pourra hériter de cette classe pour définir son comportement et ses options spécifiques.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **default** (:class:`Any`) : Valeur par défaut du paramètre.
-		- **value** (:class:`Any`) : Valeur actuelle du paramètre.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_box** (:class:`QWidget`) : Objet QT permettant de manipuler le paramètre.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
 	"""
 
 	label: str = ""
-	"""Nom du paramètre à afficher."""
+	"""Nom du paramètre à afficher (:class:`str`)."""
 	tooltip: str = ""
-	"""Affichage détaillé en overlay."""
-	default: Any = None
-	"""Valeur par défaut du paramètre."""
-	value: Any = None
-	"""Valeur actuelle du paramètre."""
+	"""Description détaillée en overlay."""
+	default: Any = field(init=False, default=None)
+	"""Valeur par défaut du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
+	_value: Any = field(init=False, default=None)
+	"""Valeur actuelle du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
 
 	_layout: QHBoxLayout | QVBoxLayout = field(init=False)
 	"""Calque principal."""
@@ -55,9 +50,9 @@ class BaseSettingType:
 	_label_widget: QLabel = field(init=False)
 	"""Widget associé au label."""
 	_form_layout: Optional[QFormLayout] = field(init=False, default=None)
-	"""Formulaire dans lequel est le paramètre."""
+	"""Formulaire parent dans lequel est le paramètre."""
 	_row_index: int = field(init=False, default=-1)
-	"""Position dans le formulaire."""
+	"""Position dans le formulaire parent."""
 
 	# ==================================================
 	# region Initialization
@@ -77,8 +72,10 @@ class BaseSettingType:
 
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
-		"""Enregistre le QFormLayout et la row index pour permettre show/hide propre.
-		:param form: :class:`QFormLayout` dans lequle va être insérer le paramètre.
+		"""
+		Enregistre le QFormLayout et la position dnas le formulaire pour permettre un show/hide propre.
+
+		:param form: :class:`QFormLayout` dans lequel va être inséré le paramètre.
 		"""
 		self._form_layout = form
 		self._row_index = form.rowCount()  # rowCount() avant addRow = index de la nouvelle ligne
@@ -87,7 +84,7 @@ class BaseSettingType:
 	##################################################
 	def reset(self):
 		"""Réinitialise le paramètre à sa valeur par défaut."""
-		self.set_value(self.default)
+		self.value = self.default
 
 	# ==================================================
 	# endregion Initialization
@@ -99,54 +96,32 @@ class BaseSettingType:
 	##################################################
 	@property
 	def layout(self) -> QHBoxLayout:
-		"""
-		Retourne le calque associé à ce paramètre.
-
-		Cette méthode permet d'accéder au calque pour intégrer le paramètre dans l'interface utilisateur.
-
-		:return: Le calque associé à ce paramètre.
-		"""
+		"""Calque principal associé au paramètre."""
 		return self._layout
 
 	##################################################
 	@property
 	def box(self) -> QWidget:
-		"""
-		Retourne l'objet QT principal associé à ce paramètre.
-
-		:return: Le :class:`QWidget` associé à ce paramètre.
-		"""
+		"""Objet QT permettant de manipuler le paramètre (:class:`QSpinBox`, :class:`QCheckBox`, :class:`QComboBox`...)."""
 		return self._box
 
 	##################################################
 	@property
 	def label_widget(self) -> QLabel:
-		"""
-		Retourne l'objet QT pour le label associé à ce paramètre.
-
-		:return: Le :class:`QLabel` associé à ce paramètre.
-		"""
+		"""Objet QT pour le label associé au paramètre."""
 		return self._label_widget
 
 	##################################################
-	def get_value(self) -> Any:
-		"""
-		Retourne la valeur du paramètre.
-
-		Cette méthode permet d'accéder à la valeur du paramètre pour la récupérer dans l'interface utilisateur.
-
-		:return: La valeur associée à ce paramètre.
-		"""
-		raise NotImplementedError("La méthode 'get_value' doit être implémentée dans la sous-classe.")
+	@property
+	def value(self) -> Any:
+		"""Valeur actuelle du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
+		return True
 
 	##################################################
-	def set_value(self, value: Any):
-		"""
-		Appliquer la valeur au paramètre
-
-		:param value: Valeur
-		"""
-		raise NotImplementedError("La méthode 'set_value' doit être implémentée dans la sous-classe.")
+	@value.setter
+	def value(self, value: Any):
+		"""Valeur actuelle du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
+		pass
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -218,7 +193,7 @@ class BaseSettingType:
 		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nb déconnectés.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: nombre de slots déconnectés
+		:return: Nombre de slots déconnectés
 		"""
 		return self._signal.disconnect(f)
 

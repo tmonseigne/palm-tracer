@@ -15,9 +15,8 @@ Notes
 -----
 - Le widget est autonome : il peut être lancé directement (``python AlignmentWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
 
-.. todo::
-   - Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle).
-   - Prévoir une visualisation intermédiaire (overlay, difference map).
+.. todo:: Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle).
+		  Prévoir une visualisation intermédiaire (overlay, difference map).
 """
 
 from pathlib import Path
@@ -169,7 +168,7 @@ class AlignmentWidget(BaseStandAloneWidget):
 		try:
 			print(f"Selected file: {filename}.")
 			filename = Path(filename)
-			self._output_filename = filename.with_name(f"{filename.stem}_aligned{filename.suffix}")  # Construction du chemin de sortie
+			self._output_filename = str(filename.with_name(f"{filename.stem}_aligned{filename.suffix}"))  # Construction du chemin de sortie
 			self._stack = open_tif(str(filename))
 		except Exception as e:
 			self._stack = None

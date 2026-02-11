@@ -98,11 +98,7 @@ class Monitoring:
 	##################################################
 	@property
 	def n_entries(self) -> int:
-		"""
-		Retourne le nombre d'entrées (mesures) dans le monitoring.
-
-		:return: Nombre d'entrées dans les listes de données.
-		"""
+		"""Nombre d'entrées (mesures) dans le monitoring (:class:`int`)."""
 		return len(self._times)
 
 	##################################################
@@ -224,7 +220,7 @@ class Monitoring:
 
 		:param names: Liste des noms des fichiers pour lesquels une couleur doit être attribuée.
 		:param palette: Liste des couleurs à utiliser pour les fichiers. Si non spécifié, la palette `Plotly` est utilisée par défaut.
-		:return: Un dictionnaire où les clés sont les noms de fichiers et les valeurs sont les couleurs attribuées.
+		:return: Dictionnaire où les clés sont les noms de fichiers et les valeurs sont les couleurs attribuées.
 		"""
 		unique_names = set(names)  # Récupérer les noms uniques
 		color_map = {}  # .			 Dictionnaire pour associer chaque fichier à une couleur

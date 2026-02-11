@@ -6,7 +6,7 @@ import seaborn as sns
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 MAX_UI_8 = np.iinfo(np.uint8).max
-SCALE = MAX_UI_16 / 8  # Échelle cible de normalization (permet une résolution de superposition de points de 8 fois)
+SCALE = MAX_UI_16 // 8  # Échelle cible de normalization (permet une résolution de superposition de points de 8 fois)
 
 
 ##################################################
@@ -21,7 +21,7 @@ def normalize_data(data: np.ndarray, scale: int = SCALE) -> np.ndarray:
 		- Si toutes les valeurs sont positives, on considère 0 comme min et on normalise avec la puissance de 2 la plus proche du max.
 
 	:param data: Données à normaliser.
-	:param scale: échelle de normalisation
+	:param scale: Échelle de normalisation
 	:return: Données normalisées.
 	"""
 	if data is None or data.size == 0: return np.zeros_like(data)
@@ -30,15 +30,15 @@ def normalize_data(data: np.ndarray, scale: int = SCALE) -> np.ndarray:
 	# Cas 1 : Colonne uniforme (toutes les valeurs identiques)
 	if min_val == max_val: return np.full_like(data, scale)
 
-	# Cas 2 : Valeurs entre 0 et 1
+	# Cas 2 : Valeurs entre 0 et 1.
 	if min_val >= 0 and max_val <= 1: return scale * data
 
-	# Cas 3 : Valeurs négatives et positives -> on centre autour de 0
+	# Cas 3 : Valeurs négatives et positives ⇾ on centre autour de 0.
 	if min_val < 0 < max_val:
 		bound = 2 ** np.ceil(np.log2(max(abs(min_val), abs(max_val))))
 		return (scale / (2 * bound)) * (data + bound)
 
-	# Cas 4 : Valeurs positives -> on prend 0 comme min et on ajuste avec la puissance de 2 la plus proche du max
+	# Cas 4 : Valeurs positives ⇾ on prend 0 comme min et on ajuste avec la puissance de 2 la plus proche du max
 	bound = 2 ** np.ceil(np.log2(max_val))
 	return (scale / bound) * data
 
@@ -48,9 +48,9 @@ def get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 	"""
 	Calcule un nombre de bin adaptatif pour un histogramme.
 
-	:param data: données à analyser
-	:param limits: bornes pour le nombre de bins.
-	:return: nombre de bins.
+	:param data: Données à analyser
+	:param limits: Bornes pour le nombre de bins.
+	:return: Nombre de bins.
 	"""
 	n_values = len(data)
 	# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
@@ -101,7 +101,7 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 	Colonnes attendues dans `tracks` :
 		- "Track" : identifiant de la trajectoire (:class:`int`)
 		- "Plane" : ordre/plan (:class:`int`) ; uniquement utilisé pour trier temporellement
-		- "X", "Y" : coordonnées (``float``, en pixels dans l'image de base)
+		- "X", "Y" : coordonnées (:class:`float`, en pixels dans l'image de base)
 		- "Color" : intensité à tracer ``(0..65535)``. Toute valeur hors bornes est tronquée.
 
 	:param width: Largeur de l'image de base.
@@ -112,10 +112,10 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 	"""
 
 	if ratio < 1: return np.zeros((height, width), dtype=np.uint16)
-	H, W = int(height * ratio), int(width * ratio)
-	if width < 1 or height < 1: return np.zeros((max(H, 1), max(W, 1)), dtype=np.uint16)
+	h, w = int(height * ratio), int(width * ratio)
+	if width < 1 or height < 1: return np.zeros((max(h, 1), max(w, 1)), dtype=np.uint16)
 
-	res = np.zeros((H, W), dtype=np.uint16)
+	res = np.zeros((h, w), dtype=np.uint16)
 	cols = {"Track", "Plane", "X", "Y", "Color"}
 	if not cols.issubset(tracks.columns):
 		# Rien à tracer si les colonnes ne sont pas toutes présentes
@@ -147,7 +147,7 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 	# Indices de début/fin de chaque groupe Track
 	# track_ids[1:] != track_ids[:-1] Compare chaque élément au précédent
 	# np.flatnonzero pour avoir les indices des True donc indique le dernier élément de chaque trajectoire
-	# np.r_ concatène des séquences. on ajoute 0 et track_ids.size.
+	# np.r_ concatène des séquences. On ajoute 0 et track_ids.size.
 	split_idx = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size]
 
 	# Dessin : Bresenham entier avec écriture max()
@@ -156,7 +156,7 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 		sx, sy = 1 if x_0 < x_1 else -1, 1 if y_0 < y_1 else -1
 		err = dx + dy
 		while True:
-			if 0 <= x_0 < W and 0 <= y_0 < H:
+			if 0 <= x_0 < w and 0 <= y_0 < h:
 				# garde la valeur maximale pour conserver la luminosité (en cas de superposition de plusieurs trajectoires)
 				cur = res[y_0, x_0]
 				if c > cur: res[y_0, x_0] = c
@@ -218,8 +218,8 @@ def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list
 		# Dessiner le contour du carré
 		res[y_min:y_max, x_min] = color  # .				   Ligne gauche
 		res[y_min:y_max, x_max] = color  # .				   Ligne droite
-		res[y_min, x_min:x_max] = color  # .				   Ligne haut
-		res[y_max, x_min:min(max_width, x_max + 1)] = color  # Ligne bas (distance +1 pour avoir un carré "fini")
+		res[y_min, x_min:x_max] = color  # .				   Ligne haute
+		res[y_max, x_min:min(max_width, x_max + 1)] = color  # Ligne basse (distance +1 pour avoir un carré "fini")
 
 	return res
 
@@ -295,10 +295,9 @@ def plot_plane_heatmap(ax: plt.Axes, data: np.ndarray, title: str, cmap="magma")
 	Trace une heatmap montrant la densité des valeurs par plan.
 
 	:param ax: Axe sur lequel tracer la heatmap.
-	:param data: Données sous forme de tableau numpy.
-	             La première colonne représente les plans, la deuxième les valeurs.
+	:param data: Données sous forme de tableau numpy. La première colonne représente les plans, la deuxième les valeurs.
 	:param title: Titre du graphique.
-	:param cmap: Color Map utilisé pour tracer la heatmap (liste des colormaps : https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+	:param cmap: Color Map utilisé pour tracer la heatmap (`liste des colormaps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_).
 	"""
 
 	if data.shape[0] == 0 or data.shape[1] < 2:    return

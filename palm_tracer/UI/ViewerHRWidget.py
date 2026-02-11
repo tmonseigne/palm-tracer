@@ -30,14 +30,14 @@ class ViewerHRWidget(QWidget):
 		- de charger un dossier,
 		- de modifier la taille des points
 		- de modifier le facteur d'agrandissement
-		- de sélectionner la source d"information permettant la coloration des points
+		- de sélectionner la source d'information permettant la coloration des points
 		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points` ou :class:`napari.layers.Tracks`.
 		- de sauvegarder une image PNG résultat de la visualisation.
 
 	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer HR"``
 
 	:param viewer: Instance du viewer napari où sera ajouté le calque HR.
-	:type viewer: :class:`napari.Viewer`
+	:param palmtracer: Instance PALMTracer à lier.
 	"""
 
 	##################################################
@@ -48,7 +48,6 @@ class ViewerHRWidget(QWidget):
 		La création du calque napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
 
 		:param viewer: Viewer napari cible.
-		:type viewer: :class:`napari.Viewer`
 		"""
 		super().__init__()
 		self.viewer = viewer
@@ -120,16 +119,15 @@ class ViewerHRWidget(QWidget):
 	def update_source(self):
 		"""Met à jour les sources disponibles pour définir l'intensité des points."""
 		with self.source_cmb.signal_blocked():
-			data_type = self.type_cmb.get_value()
+			data_type = self.type_cmb.value
 			src = HR_LOC_SOURCE[1:] if data_type == 0 else HR_TRC_SOURCE[1:]
-			self.source_cmb.items = src
-			self.source_cmb.update_box()
-			self.color_cmb.set_value(data_type)  # Place la color map sur grayscale par défaut pour les localisations et sur viridis pour les trajectoires.
+			self.source_cmb.update_box(src)
+			self.color_cmb.value = data_type  # Place la color map sur grayscale par défaut pour les localisations et sur viridis pour les trajectoires.
 
 	##################################################
 	def generate(self):
 		"""Crée ou met à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer napari."""
-		path, stack, suffix = self._pt._path, self._pt._stack, self._pt._suffix
+		path, stack, suffix = self._pt.path, self._pt.stack, self._pt.suffix
 		if not path or not Path(path).is_dir():
 			show_warning(f"The destination path '{path}' is invalid.")
 			return
@@ -140,15 +138,15 @@ class ViewerHRWidget(QWidget):
 
 		depth, height, width = stack.shape
 
-		# On supprime les calques (la mise à jour n'est pas optimale sous Napari)
+		# On supprime les calques (la mise à jour n'est pas optimale sous Napari).
 		try: self.viewer.layers.clear()
 		except Exception as e: show_warning(f"Error when deleting old layers: {e}")
 
-		data_type = self.type_cmb.get_value()
-		data_source = self.source_cmb.get_value()
-		upscale = self.upscale_spin.get_value()
-		point_size = self.size_spin.get_value()
-		color = self.color_cmb.items[self.color_cmb.get_value()]
+		data_type = self.type_cmb.value
+		data_source = self.source_cmb.value
+		upscale = self.upscale_spin.value
+		point_size = self.size_spin.value
+		color = self.color_cmb.items[self.color_cmb.value]
 
 		if data_type == 0:  # Localisations
 			loc = self._pt.localizations

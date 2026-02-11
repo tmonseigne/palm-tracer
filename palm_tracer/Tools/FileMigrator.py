@@ -15,6 +15,12 @@ from palm_tracer.Tools import FileIO, Ui
 
 ##################################################
 class Link(NamedTuple):
+	"""
+	Structure permettant le lien entre nouvelle et ancienne nomenclature.
+
+	:param old: Ancien nom de fichier.
+	:param new: Nouveau nom de fichier.
+	"""
 	old: str
 	new: str
 
@@ -48,15 +54,20 @@ class FileMigrator:
 	 "MSD": Link("trcPALMTracer-Full-MSD.txt", "tracking_MSD"),
 	 "InD": Link("trcPALMTracer-Full-Dinst.txt", "tracking_InstantD"),
 	 "Fit": Link("trcPALMTracer-Full-D.txt", "tracking_Fit")})
+	"""Correspondances entre les anciens noms et les nouveaux."""
 
 	input_folder: Path = field(init=False, default_factory=lambda: Path())
+	"""Dossier source sélectionné par l'utilisateur."""
 	output_folder: Path = field(init=False, default_factory=lambda: Path())
+	"""Dossier cible où seront écrits les fichiers convertis."""
 	files: dict[str, list[Path]] = field(init=False, default_factory=lambda: {"loc":    [], "trc": [], "A3D": [],
 																			  "MSD":    [], "InD": [], "Fit": [],
 																			  "Unused": []})
-
+	"""Dictionnaire ``{type: [paths...]}`` rempli par :meth:`analyze`."""
 	suffix: str = field(init=False, default="")
+	"""Suffixe optionnel ajouté au nom du dossier de sortie."""
 	meta: pd.DataFrame = field(init=False, default_factory=lambda: get_meta(np.zeros(shape=(1, N_COL_META), dtype=int) - 1))
+	"""Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers."""
 
 	##################################################
 	def open(self, folder: Path):
@@ -67,9 +78,9 @@ class FileMigrator:
 		Si ce n'est pas le cas, un avertissement est affiché (sans empêcher l'analyse).
 
 		:param folder: Chemin du dossier à analyser.
-		:raises FileNotFoundError: si ``folder`` n'existe pas.
-		:raises NotADirectoryError: si ``folder`` n'est pas un dossier.
-		:raises ValueError: si ``folder`` ne finit pas par .PT comme un dossier de sortie type de PALMTracer sur Metamorph.
+		:raises FileNotFoundError: Si ``folder`` n'existe pas.
+		:raises NotADirectoryError: Si ``folder`` n'est pas un dossier.
+		:raises ValueError: Si ``folder`` ne finit pas par .PT comme un dossier de sortie type de PALMTracer sur Metamorph.
 		"""
 		if not folder.exists(): raise FileNotFoundError(f"Input folder does not exist: {folder}")
 		if not folder.is_dir(): raise NotADirectoryError(f"Input path is not a directory: {folder}")
@@ -85,12 +96,12 @@ class FileMigrator:
 			- réinitialise :attr:`files` puis la remplit avec des chemins trouvés.
 			- ne lit pas le contenu des fichiers (uniquement leur présence).
 
-		:raises RuntimeError: si aucun dossier n'a été sélectionné via :meth:`open`.
+		:raises RuntimeError: Si aucun dossier n'a été sélectionné via :meth:`open`.
 		"""
 		if self.input_folder == Path(): raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
 
 		for key in self.files: self.files[key].clear()  # .							  Reset propre (évite d'empiler d'anciennes analyses).
-		old_name_to_key = {link.old: key for key, link in self.FILES_LINK.items()}  # Index inversé : ancien nom -> clé logique
+		old_name_to_key = {link.old: key for key, link in self.FILES_LINK.items()}  # Index inversé : ancien nom ⇾ clé logique
 
 		# Parcours non récursif : uniquement les fichiers présents à la racine du dossier PT
 		for p in self.input_folder.iterdir():
@@ -111,7 +122,7 @@ class FileMigrator:
 
 		.. warning:: Cette méthode suppose que :meth:`open` et :meth:`analyze` ont déjà été appelées.
 
-		:raises RuntimeError: si :attr:`input_folder` n'est pas défini.
+		:raises RuntimeError: Si :attr:`input_folder` n'est pas défini.
 		"""
 
 		if self.input_folder == Path(): raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
@@ -282,32 +293,31 @@ class FileMigrator:
 	##################################################
 	def migrate_tracks_fit(self):
 		"""
-		Migre le fichier de fit de trajectoires PALMTracer.
+		Migre le fichier d'ajustement de trajectoires PALMTracer.
 
 		Cette méthode :
 			- lit le fichier ``trcPALMTracer-Full-D.txt``
 			- neutralise la colonne ROI (remplacée par une valeur constante)
 			- corrige l'ordre des colonnes (ROI / Track)
-			- détecte automatiquement le mode de fit en fonction du nombre de colonnes
+			- détecte automatiquement le mode d'ajustement en fonction du nombre de colonnes
 			- applique les noms de colonnes appropriés à partir de ``FILES_COLUMNS``
 			- écrit le fichier CSV converti dans :attr:`output_folder`.
 
-		Le mode de fit est déterminé comme suit :
-			- 9 colonnes  → Fit mode 1
-			- 10 colonnes → Fit mode 2
-			- 11 colonnes → Fit mode 3
+		Le mode d'ajustement est déterminé comme suit :
+			- 9 colonnes  → Fit mode 1.
+			- 10 colonnes → Fit mode 2.
+			- 11 colonnes → Fit mode 3.
 
-		.. warning::
-		   Toute incohérence sur le nombre de colonnes peut conduire à un mauvais mode de fit.
+		.. warning:: Toute incohérence sur le nombre de colonnes peut conduire à un mauvais mode d'ajustement.
 		"""
 		if len(self.files["Fit"]) == 0: Ui.print_warning("No Fit file in folder.")
 		else:
 			file = self.files["Fit"][0]
 			data, header = self.open_old_file(file, header=True, skiprows=3)
-			data.iloc[:, 0] = -1  # La colonne ROI n'est plus utilisé mais sera remplacé par la colonne length (à -1)
+			data.iloc[:, 0] = -1  # La colonne ROI n'est plus utilisé, mais sera remplacé par la colonne length (à -1).
 			cols = list(data.columns)
 			ncols = len(cols)
-			cols[0], cols[1] = cols[1], cols[0]  #																Switch les noms de colonnes ROI et Trace
+			cols[0], cols[1] = cols[1], cols[0]  # .															Switch les noms de colonnes ROI et Trace
 			data = data[cols]  # .																				Change l'ordre des colonnes
 			cols = FILES_COLUMNS["Fit"]["columns"].copy()
 			fit_mode = 1 if ncols == 9 else 2 if ncols == 10 else 3
@@ -332,7 +342,7 @@ class FileMigrator:
 			:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
 			:param sep: Séparateur de colonnes utilisé dans le fichier.
 			:return: Tuple ``(dataframe, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``).
-			:raises FileNotFoundError: si le fichier n'existe pas.
+			:raises FileNotFoundError: Si le fichier n'existe pas.
 		"""
 		if not file.is_file(): raise FileNotFoundError(f"Filename invalid: {file}")
 
@@ -340,8 +350,7 @@ class FileMigrator:
 		with file.open("r", encoding="utf-8", errors="replace") as f:
 			for _ in range(skiprows):
 				line = f.readline()
-				if not line:
-					raise ValueError(f"File does not contain {skiprows} header lines: {file}")
+				if not line: raise ValueError(f"File does not contain {skiprows} header lines: {file}")
 				header_lines.append(line.rstrip("\n"))
 
 		df = pd.read_csv(file, sep=sep, header=0 if header else None, skiprows=skiprows, engine="python")  # On récupère le tableau
@@ -362,8 +371,8 @@ class FileMigrator:
 		:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
 		:param sep: Séparateur de colonnes utilisé dans le fichier.
 		:return: Tuple ``(dataframe, header_lines)``.
-		:raises FileNotFoundError: si le fichier n'existe pas.
-		:raises ValueError: si le fichier ne contient pas assez de lignes d'en-tête.
+		:raises FileNotFoundError: Si le fichier n'existe pas.
+		:raises ValueError: Si le fichier ne contient pas assez de lignes d'en-tête.
 		"""
 		if not file.is_file(): raise FileNotFoundError(f"Filename invalid: {file}")
 
@@ -393,7 +402,7 @@ class FileMigrator:
 		# 4) Rectangularisation (pad avec None)
 		rect_rows: list[list[str]] = []
 		for row in rows:
-			if len(row) < max_cols: row = row + [""] * (max_cols - len(row))
+			if len(row) < max_cols: row += [""] * (max_cols - len(row))
 			elif len(row) > max_cols: row = row[:max_cols]
 			rect_rows.append(row)
 
@@ -453,11 +462,11 @@ class FileMigrator:
 			- ajoute les colonnes manquantes initialisées à 0
 			- retourne le DataFrame réordonné selon ``target_cols``.
 
-		:param data: DataFrame d'entrée issu du format PALMTracer.
+		:param data: DataFrame d'entrée issue du format PALMTracer.
 		:param target_cols: Liste ordonnée des colonnes attendues dans le format cible.
-		:return: DataFrame conforme au schéma cible.
+		:return: :class:`DataFrame <pandas.DataFrame>` conforme au schéma cible.
 		"""
-		# Renommage robuste : on construit old_col -> new_col
+		# Renommage robuste : on construit old_col ⇾ new_col
 		rename_map: dict[str, str] = {}
 		for col in data.columns:
 			key = self.column_migrator(col)

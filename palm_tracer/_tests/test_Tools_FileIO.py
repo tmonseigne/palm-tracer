@@ -72,8 +72,8 @@ def test_get_last_file():
 	print(res)
 	assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
 	res = FileIO.get_last_file(INPUT_DIR, "File", "time")
-	# L'ordre de création des fichiers de test lors de la copie peut changer, on ne peut faire un vrai assert
-	# assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
+	# L'ordre de création des fichiers de test lors de la copie peut changer, on ne peut faire un vrai assert.
+	# assert res.endswith("File-03.txt"), "Fichier trouvé incorrect."
 	print(res)
 
 
@@ -122,7 +122,7 @@ def test_open_json():
 def test_open_json_bad_file():
 	"""Test de la fonction open_json avec un fichier inexistant."""
 	with pytest.raises(OSError) as exception_info:
-		dictionary = FileIO.open_json("bad_filename.json")
+		_ = FileIO.open_json("bad_filename.json")
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
 
 
@@ -157,7 +157,7 @@ def test_open_tif():
 def test_open_tif_bad_file():
 	"""Test de la fonction open_tif avec un fichier inexistant."""
 	with pytest.raises(OSError) as exception_info:
-		stack = FileIO.open_tif("bad_filename.png")
+		_ = FileIO.open_tif("bad_filename.png")
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
 
 
@@ -188,7 +188,7 @@ def test_save_png_bad_sample():
 def test_open_calibration_mat_bad_file():
 	"""Test de la fonction open_tif avec un fichier inexistant."""
 	with pytest.raises(OSError) as exception_info:
-		calib = FileIO.open_calibration_mat("bad_filename.mat")
+		_ = FileIO.open_calibration_mat("bad_filename.mat")
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
 
 

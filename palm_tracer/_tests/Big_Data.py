@@ -1,7 +1,5 @@
 """Fichier des tests pour l'utilisation de la DLL CPU."""
 
-import pytest
-
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import FileIO, Ui
@@ -12,11 +10,11 @@ path = Path(f"{INPUT_DIR}/big input/{file}.tif")
 
 
 ##################################################
-def test_palm_cpu(make_napari_viewer):
+def test_palm_cpu(qtbot):
 	"""
 	Test pour le process sur des données importantes.
 
-	- DLL Recompilé stade 0 : ~10min, utilisation de CPU inférieur à 4% (1 seul coeur), Memory Usage 4-5Giga. Passage à VS 2022
+	- DLL Recompilé stade 0 : ~10min, utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 4-5Giga. Passage à VS 2022
 	  l'augmentation de durée peut être du aux nombreux old method dnas la DLL non optimisé dans les compilateurs recents (malloc/free...)
 	- DLL Recompilé stade 1 : même temps Passage à C++20
 	- DLL Recompilé stade 2 : même temps suppression de commentaires e code (normal aucune influence) et arrangement des fichiers
@@ -42,7 +40,7 @@ def test_palm_cpu(make_napari_viewer):
 	  ENtre 20 et 90% d'utilisation CPU Ram à 4Giga
 	- DLL Recompilé stade 19 : ~3min-3min30 Limitation à 4 threads pour accès mémoire simultanée gain Total ~70%
 	  15% d'utilisation CPU Ram à 4Giga
-	- DLL Recompilé stade 20 : ~2min30 Limitation aux nombres de coeur physiques et ajout d'une limite dynamique gain Total ~75%
+	- DLL Recompilé stade 20 : ~2min30 Limitation aux nombres de cœur physiques et ajout d'une limite dynamique gain Total ~75%
 	  10-20% d'utilisation CPU Ram à 4Giga
 	- DLL Recompilé stade 21 : ~2min10 Suppression de la limite physique et conservation de la limite dynamique gain Total ~78%
 	  10-20% d'utilisation CPU Ram à 4Giga
@@ -63,43 +61,16 @@ def test_palm_cpu(make_napari_viewer):
 
 
 ##################################################
-def test_palm_gpu(make_napari_viewer):
-	"""
-	Test pour le process sur des données importantes.
-
-	- DLL Recompilé stade 0 : ~2min15, départ de la nouvelle dll
-	- DLL Recompilé stade 1 : ~2min40, départ de la nouvelle dll calcul de la décomposition en wavelett
-	  Opération la plus rentable à lancer sur GPU pour éviter les aller retours mémoire, conclusion :
-	  - Perte de performance
-	  - Manque de pertinennce tant que les calculs sont simple et sur des images simples
-	    (sur une pile de plusieurs milliers d'images, cela "pourrait" devenir interessant)
-	  - Ma carte graphique est d'un très haut niveau donc sur une classique possiblement encore plus de perte.
-	  - la quantité d'utilisation du CPU baisse évidemment
-
-	"""
-	palm = Palm("GPU")
-	if path.exists() and path.is_file():
-		stack = FileIO.open_tif(str(path))
-		suffix = get_loc_suffix(threshold=thresh)
-		localizations = palm.localization(stack, thresh, default_watershed, default_fit, sigma, theta, roi)
-		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
-		assert len(localizations) > 0, "Aucune localisation trouvé"
-	else:
-		Ui.print_warning("Test non effectué car fichier manquant.")
-	assert True
-
-
-##################################################
-def test_tracking(make_napari_viewer):
+def test_tracking(qtbot):
 	"""
 	Test pour le process sur des données importantes.
 
 	- DLL Recompilé stade 0 : ~10min (-2min pour le chargement du fichier ~8min),
-	  utilisation de CPU inférieur à 4% (1 seul coeur), Memory Usage 1.5-3Giga. Passage à VS 2022
+	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. Passage à VS 2022
 	- DLL Recompilé stade 1 : ~4min30 (-2min pour le chargement du fichier ~2min30),
-	  utilisation de CPU inférieur à 4% (1 seul coeur), Memory Usage 1.5-3Giga. Precalcul et suppression du code inutile
+	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. Precalcul et suppression du code inutile
 	- DLL Recompilé stade 1 : ~4min15 (-2min pour le chargement du fichier ~2min15),
-	  utilisation de CPU inférieur à 4% (1 seul coeur), Memory Usage 1.5-3Giga. suppression du code inutilisé
+	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. suppression du code inutilisé
 
 	"""
 	palm = Palm()

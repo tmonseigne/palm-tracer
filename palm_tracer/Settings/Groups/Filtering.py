@@ -2,10 +2,8 @@
 Fichier contenant la classe :class:`Filtering` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de filtrage nécessaires à la configuration de PALM Tracer.
 
-.. todo::
-	Vérifier l'ordre de grandeur et le valeurs par défaut des paramètres des filtres
-	Borne plane filter a gérer dynamiquement
-	intensité c'est intensité intégré de la localisation donc potentiellement beaucouppppppp
+.. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres
+	      intensité c'est intensité intégré de la localisation donc potentiellement beaucouppppppp
 """
 
 from dataclasses import dataclass
@@ -24,11 +22,12 @@ class Filtering(BaseSettingGroup):
 	Classe contenant les paramètres de filtrage :
 
 	Attributs :
-		- **Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) :
-		  Sauvegarde les éléments une fois filtrés (dans un fichiers séparé du fichier non filtré)  (par défaut : `False`).
-		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt>`) : Interval de plans sélectionnés (par défaut : `[1,10000]`).
-		- **Localization** (:class:`FilteringL`) : Paramètres de filtrage de la Localisation.
-		- **Tracks** (:class:`FilteringT`) : Paramètres de filtrage du Tracking.
+		- **Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
+		  Sauvegarde les éléments une fois filtrés (dans un fichier séparé du fichier non filtré)  (par défaut : `False`).
+		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
+		  Interval de plans sélectionnés (par défaut : `[1,10000]`).
+		- **Localization** (:class:`FilteringL <palm_tracer.Settings.Groups.FilteringL.FilteringL>`) : Paramètres de filtrage de la Localisation.
+		- **Tracks** (:class:`FilteringT <palm_tracer.Settings.Groups.FilteringT.FilteringT>`) : Paramètres de filtrage du Tracking.
 	"""
 
 	label: str = "Filtering"
@@ -49,7 +48,8 @@ class Filtering(BaseSettingGroup):
 
 	##################################################
 	def deactivate_filters(self):
-		self._settings["Save"].set_value(False)
+		""" Désactive tous les filtres."""
+		self._settings["Save"].value = False
 		self._settings["Plane"].active = False
 		fl = cast(FilteringL, self._settings["Localization"])
 		fl.deactivate_filters()

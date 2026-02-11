@@ -1,24 +1,15 @@
 """Fichier des tests pour le widget."""
-from typing import cast
 
 import pytest
 
-from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Types import CheckRangeInt, FileList
+from palm_tracer.Settings.Types import CheckRangeInt
 from palm_tracer.UI import PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
 from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
-
-
-##################################################
-def add_basic_file(pt: PALMTracer):
-	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.items = [f"{INPUT_DIR}/stack.tif"]
-	file_list.update_box()
 
 
 ##################################################
@@ -78,10 +69,10 @@ def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 	assert "INFO: Loaded" in out
 	my_widget._reset_layer()  # .											   Remise à 0 des calques sans changement.
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -93,15 +84,15 @@ def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 	my_widget = PALMTracerWidget(viewer)
 
 	add_basic_file(my_widget.pt)  # .															 Ajout d'une entrée
-	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # .				 Attente : qu'il ai mis une image
+	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # .				 Attente : qu'il ait mis une image
 	assert my_widget._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupéraiton de l'image
 	assert my_widget._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
 	assert my_widget._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # .Récupération d'une image hors limite
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -113,11 +104,11 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	my_widget = PALMTracerWidget(viewer)
 	layers = my_widget.viewer.layers
 
-	my_widget.pt.settings.localization["Preview"].set_value(True)
-	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["Preview"].get_value(), timeout=5000)
+	my_widget.pt.settings.localization["Preview"].value = True
+	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["Preview"].value, timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
-	my_widget.pt.settings.localization["ROI Shape"].set_value(0)
-	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].get_value() == 0, timeout=5000)
+	my_widget.pt.settings.localization["ROI Shape"].value = 0
+	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].value == 0, timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
 
 	# Ajout avec des tableaux normaux.
@@ -125,7 +116,7 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Present" in layers, timeout=5000)
 
-	# Ajout avec des calques existants et un future vide.
+	# Ajout avec des calques existants et un futur vide.
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": None}
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: not "Points Future" in layers, timeout=5000)
@@ -135,17 +126,17 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: not "Points Past" in layers, timeout=5000)
 
-	my_widget.pt.settings.localization["ROI Shape"].set_value(1)
-	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].get_value() == 1, timeout=5000)
+	my_widget.pt.settings.localization["ROI Shape"].value = 1
+	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].value == 1, timeout=5000)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Future" in layers, timeout=5000)
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -158,27 +149,27 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 
 	setting = my_widget.pt.settings.localization
 	layers = my_widget.viewer.layers
-	with setting.signal_blocked():  # L'éxecution ne devra pas être dans un sub-process pour vérifier la couverture (sans partir sur des configs complexes)
-		setting["Preview"].set_value(True)
-		qtbot.waitUntil(lambda: setting["Preview"].get_value(), timeout=5000)
-		my_widget._preview()  # .										Passage par le point get_actual_image = None pour le temps présent
+	with setting.signal_blocked():  # L'éxecution ne devra pas être dans un sub-process pour vérifier la couverture (sans partir sur des configs complexes).
+		setting["Preview"].value = True
+		qtbot.waitUntil(lambda: setting["Preview"].value, timeout=5000)
+		my_widget._preview()  # .										Passage par le point get_actual_image = None pour le temps présent.
 
 	# Ajout d'une entrée
-	add_basic_file(my_widget.pt)  # .									Ajout d'une entrée
-	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .			Attente : qu'il ai mis une image
-	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : le flag doit passer à False
+	add_basic_file(my_widget.pt)  # .									Ajout d'une entrée.
+	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .			Attente : qu'il ait mis une image.
+	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : le flag doit passer à False.
 
 	with setting.signal_blocked():
-		setting["Preview"].set_value(True)  # .							Le flag se remet à false à chaque changement de fichiers
-		qtbot.waitUntil(lambda: setting["Preview"].get_value(), timeout=5000)
+		setting["Preview"].value = True  # .							Le flag se remet à False à chaque changement de fichiers
+		qtbot.waitUntil(lambda: setting["Preview"].value, timeout=5000)
 		my_widget._preview()  # .										Preview simple
 		out, err = capsys.readouterr()
 		assert "Preview of 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in out
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -194,30 +185,30 @@ def test_widget_roi_filter_layer(make_napari_viewer, capsys, qtbot):
 	layers = my_widget.viewer.layers
 	l_name = "ROI Filter"
 
-	my_widget._add_roi_filter_layer()  # .							Lancement sans aucune entrée
+	my_widget._add_roi_filter_layer()  # .							Lancement sans aucune entrée.
 	# Ajout d'une entrée
-	add_basic_file(my_widget.pt)  # .								Ajout d'une entrée
-	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .		Attente : qu'il ai mis une image
+	add_basic_file(my_widget.pt)  # .								Ajout d'une entrée.
+	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .		Attente : qu'il ait mis une image.
 
-	filter_x.active = True  # .										On active le filtre sur X
-	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ai mis une image
+	filter_x.active = True  # .										On active le filtre sur X.
+	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ait mis une image.
 
-	filter_y.active = True  # .										On active le filtre sur Y (l'image existe déjà)
-	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ai mis une image
+	filter_y.active = True  # .										On active le filtre sur Y (l'image existe déjà).
+	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ait mis une image.
 
-	filter_x.box[0].setValue(filter_x.box[1].value())  # .			Cas dégénéré, min et max sont égaux
-	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .Attente : Il supprime le calque en cas dégénéré
+	filter_x.box[0].setValue(filter_x.box[1].value())  # .			Cas dégénéré, min et max sont égaux.
+	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .Attente : Il supprime le calque en cas dégénéré.
 
-	filter_x.active = False  # .									On désactive le filtre sur X (l'image est recréé)
-	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ai mis une image à nouveau
+	filter_x.active = False  # .									On désactive le filtre sur X (l'image est recréé).
+	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ait mis une image à nouveau.
 
-	filter_y.active = False  # .									On désactive le filtre sur Y (l'image est à nouveau supprimé)
-	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .Attente : Il supprime le calque
+	filter_y.active = False  # .									On désactive le filtre sur Y (l'image est à nouveau supprimé).
+	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .Attente : Il supprime le calque.
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -232,16 +223,16 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 
 	# Ajout d'une entrée
 	add_basic_file(my_widget.pt)  # .										   Ajout d'une entrée
-	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai mis une image
+	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 	my_widget._auto_threshold()  # .										   Appel de la méthode auto_threshold.
 
 	out, err = capsys.readouterr()
 	assert "Auto Threshold: 63.95" in out
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -268,10 +259,10 @@ def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	my_widget._thread_process(my_widget._auto_threshold)  # .			Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -285,10 +276,10 @@ def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 	my_widget._preview()
 	my_widget._auto_threshold()
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers on été touché.
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
 		viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -316,18 +307,18 @@ def test_viewer3d(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledial
 	qtbot.waitUntil(lambda: my_widget.points_layer is not None, timeout=5000)  # .	 Attente : que le thread soit terminé
 	qtbot.waitUntil(lambda: "Points 3D" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 
-	my_widget.load_csv()  # .														 Pour recommencer avec un layer déjà actif
+	my_widget.load_csv()  # .														 Pour recommencer avec un calque déjà actif
 	qtbot.waitUntil(lambda: my_widget.points_layer is not None, timeout=5000)  # .	 Attente : que le thread soit terminé
 	qtbot.waitUntil(lambda: "Points 3D" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 
-	my_widget.outliers.set_value(True)  # .											 Suppression des outliers
+	my_widget.outliers.value = True  # .											 Suppression des outliers
 	my_widget.update_layer()
 
 	my_widget.data = pd.DataFrame()
 	my_widget.update_layer()  # .													 Mise à jour avec un dataframe vide
 
 	try: viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -369,7 +360,7 @@ def test_viewerhr_load(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfil
 	assert "Stack loaded successfully (size: (10, 128, 256))." in out
 
 	try: viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -384,25 +375,25 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	pt.settings.tracking.active = True
 	tc = pt.settings.tracks_compute
 	tc.active = True
-	tc["MSD"].set_value(True)
-	tc["Instant Diffusion"].set_value(True)
-	tc["Fit"].set_value(1)
+	tc["MSD"].value = True
+	tc["Instant Diffusion"].value = True
+	tc["Fit"].value = 1
 	pt.process()
 	my_widget = ViewerHRWidget(viewer, pt)
 	layers = my_widget.viewer.layers
-	qtbot.waitUntil(lambda: "Points" in layers, timeout=5000)  # .		Attente : qu'il ai une image
-	qtbot.waitUntil(lambda: "Visualization" in layers, timeout=5000)  # Attente : qu'il ai une image
+	qtbot.waitUntil(lambda: "Points" in layers, timeout=5000)  # .		Attente : qu'il ait une image
+	qtbot.waitUntil(lambda: "Visualization" in layers, timeout=5000)  # Attente : qu'il ait une image
 	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
 	ref = (512, 1024)
 	res = my_widget.visualization.shape
 	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Passage aux tracks (avec changement automatique de la color map sur viridis)
-	my_widget.type_cmb.set_value(1)
-	assert my_widget.color_cmb.get_value() == 1, "La color map devrait être à 1 (viridis) au lieu de 0 (grayscale)."
+	my_widget.type_cmb.value = 1
+	assert my_widget.color_cmb.value == 1, "La color map devrait être à 1 (viridis) au lieu de 0 (grayscale)."
 	my_widget.generate()
-	qtbot.waitUntil(lambda: "Tracks" in layers, timeout=5000)  # .		Attente : qu'il ai une image
-	qtbot.waitUntil(lambda: "Visualization" in layers, timeout=5000)  # Attente : qu'il ai une image
+	qtbot.waitUntil(lambda: "Tracks" in layers, timeout=5000)  # .		Attente : qu'il ait une image
+	qtbot.waitUntil(lambda: "Visualization" in layers, timeout=5000)  # Attente : qu'il ait une image
 
 	# Suppression des données
 	my_widget._pt.reset_result()
@@ -413,15 +404,15 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	assert "No tracking file available." in out
 
 	# Retour aux localizations (avec changement automatique de la color map sur grayscale)
-	my_widget.type_cmb.set_value(0)
-	assert my_widget.color_cmb.get_value() == 0, "La color map devrait être à 0 (grayscale) au lieu de 1 (viridis)."
+	my_widget.type_cmb.value = 0
+	assert my_widget.color_cmb.value == 0, "La color map devrait être à 0 (grayscale) au lieu de 1 (viridis)."
 	my_widget.generate()
 	qtbot.waitUntil(lambda: len(layers) == 0, timeout=5000)  # .		 Attente : qu'il n'ai aucune image
 	out, err = capsys.readouterr()
 	assert "No localization file available." in out
 
 	try: viewer.close()
-	except Exception as e: pass
+	except Exception: pass
 
 
 ##################################################
@@ -435,7 +426,7 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	pt.settings.localization.active = True
 	pt.process()
 	my_widget = ViewerHRWidget(viewer, pt)
-	qtbot.waitUntil(lambda: "Visualization" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ai une image
+	qtbot.waitUntil(lambda: "Visualization" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait une image
 	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
 	ref = (512, 1024)
 	res = my_widget.visualization.shape
@@ -453,4 +444,4 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	assert Path(my_widget._filename).is_file()
 
 	try: viewer.close()
-	except Exception as e: pass
+	except Exception: pass

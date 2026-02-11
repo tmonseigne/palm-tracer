@@ -18,23 +18,17 @@ class FileList(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type recherche de fichier.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
-		- **default** (:class:`int`) : Valeur par défaut du paramètre (aucun fichier).
-		- **items** (:class:`list[str]`) : Liste des fichiers actuels.
-		- **box** (:class:`QComboBox`) : ComboBox affichant les fichiers de la liste.
-		- **buttons** (:class:`dict[str, QPushButton]`) : Boutons d'action [+], [-], [clear].
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
 	"""
 
-	default: int = -1
-	value: int = field(init=False, default=-1)
+	default: int = field(init=False, default=0)
+	_value: int = field(init=False, default=0)
 
-	items: list[str] = field(default_factory=lambda: [])
-	"""Liste des fichiers actuels."""
+	items: list[str] = field(init=False, default_factory=lambda: [])
+	"""Liste des fichiers actuels (:class:`list[str]`)."""
 	buttons: dict[str, QPushButton] = field(init=False)
-	"""Boutons d'action [+], [-], [clear]."""
+	"""Boutons d'action [+], [-], [clear] (:class:`dict[str, QPushButton]`)."""
 
 	_box: QComboBox = field(init=False, default_factory=lambda: QComboBox())
 
@@ -48,7 +42,7 @@ class FileList(BaseSettingType):
 		Ui.init_layout(self._layout)
 
 		self.update_box()  # .								Ajout des choix possibles.
-		self.set_value(self.default)  # .					Définition de la valeur.
+		self.value = self.default  # .					Définition de la valeur.
 		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement de selection
 
 		# Créer les boutons d'action
@@ -77,26 +71,33 @@ class FileList(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_value(self) -> int:
-		self.value = self._box.currentIndex()
-		return self.value
+	@property
+	def value(self) -> int:
+		"""Valeur actuelle du paramètre (:class:`int`)."""
+		self._value = self._box.currentIndex()
+		return self._value
 
 	##################################################
-	def set_value(self, value: int):
+	@value.setter
+	def value(self, value: int):
+		"""Valeur actuelle du paramètre (:class:`int`)."""
 		if 0 <= value < len(self.items):
-			self.value = value
+			self._value = value
 			self._box.setCurrentIndex(value)
 			self.emit()
 
 	##################################################
 	def get_selected(self) -> str:
-		value = self.get_value()
+		"""Récupère l'élément selectionné."""
+		value = self._value
 		if 0 <= value < len(self.items):
 			return self.items[value]
 		return ""
 
 	##################################################
-	def get_list(self) -> list[str]: return self.items
+	def get_list(self) -> list[str]:
+		"""Récupère la liste des éléments."""
+		return self.items
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -107,14 +108,14 @@ class FileList(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
+		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
 		self.update_box(data.get("items", [""]))
-		self.set_value(data.get("value", self.value))
+		self.value = data.get("value", self._value)
 
 	# ==================================================
 	# endregion  Parsing
@@ -133,23 +134,23 @@ class FileList(BaseSettingType):
 
 	##################################################
 	def add_file(self):
-		"""Ajoute un fichier à la liste via un QFileDialog."""
+		"""Ajoute un fichier à la liste via un :class:`QFileDialog`."""
 		# Déterminer le répertoire initial pour la boîte de dialogue
 		initial_dir = (self.items[-1] if self.items else ".")  # Utiliser le dernier fichier ou le répertoire courant
 		path, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier", initial_dir, "Tous les fichiers (*)")
 		if path and Path(path).is_file():
 			self.items.append(path)
 			self.update_box()
-			self.set_value(len(self.items) - 1)
+			self.value = len(self.items) - 1
 
 	##################################################
 	def remove_file(self):
-		"""Supprime le fichier actuellement sélectionné dans la ComboBox."""
+		"""Supprime le fichier actuellement sélectionné dans la :class:`QComboBox`."""
 		current_index = self._box.currentIndex()
 		if 0 <= current_index < len(self.items):
 			self.items.pop(current_index)
 			self.update_box()
-			self.set_value(0)
+			self.value = 0
 
 	##################################################
 	def clear_files(self):

@@ -34,13 +34,13 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 	Ce widget fournit deux onglets :
 		- ``Compute Astigmatism Model`` :
 			- Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X, Sigma Y, Z.
-			- Spin float pour la taille des pixel en micromètres (μm/px) avec 3 décimales.
+			- Spin float pour la taille des pixels en micromètres (μm/px) avec 3 décimales.
 			- Spin float pour la hauteur max sur Z (utilisé si le Z doit être calculé à partir des plans).
 			- Bouton pour lancer le calcul du modèle.
 
 		- ``Estimate Z`` :
 			- Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X,Sigma Y.
-			- Spin float pour la taille des pixel en micromètres (μm) avec 3 décimales.
+			- Spin float pour la taille des pixels en micromètres (μm) avec 3 décimales.
 			- Spin float pour la hauteur max sur Z.
 			- Checkbox pour sauvegarder l'original dans un dossier backup.
 			- Bouton pour lancer l'estimation.
@@ -208,7 +208,8 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		main_layout.addWidget(self._web, stretch=1)
 
 	##################################################
-	def _init_sanity_check_layout(self, sanity: list[dict[str, dict[str, QLabel | str]]], titles: list[str]) -> QHBoxLayout:
+	@staticmethod
+	def _init_sanity_check_layout(sanity: list[dict[str, dict[str, QLabel | str]]], titles: list[str]) -> QHBoxLayout:
 		"""
 		Construit le layout du groupe "Sanity Check" avec 2 colonnes d'indicateurs.
 
@@ -264,7 +265,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 	def _update_sanity_values(self, points: np.ndarray, model: np.ndarray, pixel_size: float):
 		"""
 		Mise à jour de l'onglet Sanity Check
-		:param points: points du jeu de donnée.
+		:param points: Points du jeu de donnée.
 		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 		"""

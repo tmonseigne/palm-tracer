@@ -7,7 +7,7 @@ from palm_tracer.Tools import Ui
 
 
 ##################################################
-def test_builders(make_napari_viewer):
+def test_builders(qtbot):
 	"""Test des fonctions de build."""
 	main_widget = QWidget()
 	tab, layout = Ui.make_tab(main_widget)  # Création d'un onglet
@@ -49,7 +49,7 @@ def test_builders(make_napari_viewer):
 
 
 ##################################################
-def test_builders_spin(make_napari_viewer):
+def test_builders_spin(qtbot):
 	"""Test des fonctions de build."""
 	main_widget = QWidget()
 

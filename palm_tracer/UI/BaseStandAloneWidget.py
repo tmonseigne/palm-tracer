@@ -22,7 +22,7 @@ except Exception:
 
 ##################################################
 class BaseStandAloneWidget(QWidget):
-	"""Classe mère avec les fonctions interne aux widgets Stand Alone (Hors Napari)."""
+	"""Classe mère avec les fonctions internes aux widgets Stand Alone (Hors Napari)."""
 
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -48,7 +48,7 @@ class BaseStandAloneWidget(QWidget):
 		"""
 		# Zone droite : QWebEngineView avec Plotly
 		if _HAS_WEBENGINE: res = QWebEngineView(self)
-		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
+		else:  # pragma: no cover — Fallback affichant un message d'erreur explicite
 			res = QTextBrowser(self)
 			res.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 		return res
@@ -65,7 +65,7 @@ class BaseStandAloneWidget(QWidget):
 		self._fig = fig
 		self._html = html
 		if _HAS_WEBENGINE and isinstance(web, QWebEngineView): web.setHtml(html)
-		else:  # pragma: no cover - Fallback affichant un message d'erreur explicite
+		else:  # pragma: no cover — Fallback affichant un message d'erreur explicite
 			web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 
 	##################################################
@@ -85,14 +85,14 @@ class BaseStandAloneWidget(QWidget):
 			return
 
 		path = Path(path)
-		# Qt6: on règle le dossier + le nom de fichier séparément.
+		# Qt6 : on règle le dossier + le nom de fichier séparément.
 		download.setDownloadDirectory(str(path.parent))
 		download.setDownloadFileName(path.name)
 		download.accept()
 
 	##################################################
 	def _download_initial_path(self) -> Path:
-		"""Renvoie un chemin initial pour le téléchargement par plotly. à Définir dans les classes filles."""
+		"""Renvoie un chemin initial pour le téléchargement par plotly. À Définir dans les classes filles."""
 		return Path.cwd() / "image"
 
 	# ==================================================

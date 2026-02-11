@@ -8,11 +8,11 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 	"""Estime une position Z (en unités physiques) à partir d'indices de plans.
 
 	Les indices de plans sont supposés répartis linéairement entre ``z_min`` et ``z_max`` :
-	- ``min(planes)``  -> ``z_min``
-	- ``max(planes)``  -> ``z_max``
+	- ``min(planes)``  ⇾ ``z_min``
+	- ``max(planes)``  ⇾ ``z_max``
 	- valeurs intermédiaires interpolées linéairement.
 
-	:param planes: Tableau des indices de plans (entiers). Peut être de n'importe quelle forme.
+	:param planes: Tableau des indices de plans (entiers). Peut-être de n'importe quelle forme.
 	:param z_min: Valeur minimale de Z correspondant au premier plan.
 	:param z_max: Valeur maximale de Z correspondant au dernier plan.
 
@@ -34,7 +34,7 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 
 	:return: Tableau NumPy contenant les valeurs de Z estimées.
 	"""
-	# Indices centrés : impair -> un plan à 0 ; pair -> 0 entre les deux plans centraux.
+	# Indices centrés : impair ⇾ un plan à 0 ; pair ⇾ 0 entre les deux plans centraux.
 	if center: indices = np.arange(n_planes, dtype=np.float64) - 0.5 * (n_planes - 1)
 	# Indices classiques : plan 0 à 0, puis positifs.
 	else: indices = np.arange(n_planes, dtype=np.float64)
@@ -94,8 +94,9 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 
 	mae_x, mae_y = float(np.mean(np.abs(ex))), float(np.mean(np.abs(ey)))
 
-	# R² (sur sigma) : utile pour un score "qualité de fit"
+	# R² (sur sigma) : utile pour un score "qualité de l'ajustement"
 	def r2(y, yhat):
+		"""Basic R2 Compute"""
 		ss_res, ss_tot = np.sum((y - yhat) ** 2), np.sum((y - np.mean(y)) ** 2)
 		return float(1.0 - ss_res / ss_tot) if ss_tot > 0 else float("nan")
 

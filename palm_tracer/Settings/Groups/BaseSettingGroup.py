@@ -13,11 +13,11 @@ from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 from palm_tracer.Settings.Types import BaseSettingType
 from palm_tracer.Tools import Ui
 
-if QT_API.startswith("pyqt"):  # . 	pragma: no cover - dépend de l'environnement
+if QT_API.startswith("pyqt"):  # . 	pragma: no cover — dépend de l'environnement
 	from qtpy import sip  # .		dispo quand le binding est PyQt
 
 	_IS_PYQT = True
-else:  # .							pragma: no cover - dépend de l'environnement
+else:  # .							pragma: no cover — dépend de l'environnement
 	import shiboken6  # .			dispo quand le binding est PySide6
 
 	_IS_PYQT = False
@@ -26,42 +26,29 @@ else:  # .							pragma: no cover - dépend de l'environnement
 ##################################################
 @dataclass
 class BaseSettingGroup:
-	"""
-	Classe mère pour un groupe de setting :
-
-	Attributs :
-		- **active** (:class:`bool`) : État du groupe (activé ou non)
-		- **label** (:class:`str`) : Nom du Groupe
-		- **setting_list** (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`) : Liste des settings du groupe.
-		- **_settings** (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`) : Liste des visualisations de settings (inputs) du groupe.
-		- **_widget** (:class:`QWidget`) : Widget principal du groupe.
-		- **_title** (:class:`QLabel`) : Nom du Groupe (objet QT).
-		- **_checkbox** (:class:`QCheckBox`) : Case à cocher pour activer ou non le groupe.
-		- **_header** (:class:`QFormLayout`) : Titre du groupe.
-		- **_body** (:class:`QWidget`) : Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible).
-	"""
+	"""Classe mère pour un groupe de setting."""
 
 	label: str = field(init=False, default="Base Setting Group")
 	"""Nom du Groupe."""
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
-	"""Liste des settings du groupe."""
+	"""Liste des settings du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."""
 
 	_active: bool = field(init=False, default=False)
 	"""État du groupe (activé ou non)"""
 	_inner_groups = list[str]()
 	"""Liste des sous-groupes de settings du groupe."""
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
-	"""Liste des visualisations de settings (inputs) du groupe."""
+	"""Liste des visualisations de settings (inputs) du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
 	_widget: QWidget = field(init=False)
 	"""Widget principal du groupe."""
 	_title: Optional[QLabel] = field(init=False)
-	"""Nom du Groupe (objet QT)."""
+	"""QLabel du titre du Groupe (:class:`QLabel`)."""
 	_checkbox: Optional[QCheckBox] = field(init=False)
-	"""Case à cocher pour activer ou non le groupe."""
+	"""Case à cocher pour activer ou non le groupe (:class:`QCheckBox`)."""
 	_header: Optional[QFormLayout] = field(init=False)
-	"""Titre du groupe."""
+	"""Titre du groupe (:class:`QFormLayout`)."""
 	_body: QWidget = field(init=False)
-	"""Corps du groupe (encapsulé dans un QWidget pour avoir un Hide/Show disponible)"""
+	"""Corps du groupe encapsulé dans un QWidget pour avoir un Hide/Show disponible (:class:`QWidget`)."""
 
 	# ==================================================
 	# region Initialization
@@ -125,13 +112,13 @@ class BaseSettingGroup:
 	##################################################
 	@property
 	def widget(self) -> QWidget:
-		"""Retourne le calque associé à ce groupe de paramètres."""
+		"""Retourne le calque associé à ce groupe de paramètres (:class:`QWidget`)."""
 		return self._widget
 
 	##################################################
 	@property
 	def active(self) -> bool:
-		"""Permet la lecture de l'état actif."""
+		"""État du groupe, activé ou non (:class:`bool`)."""
 		return self._active
 
 	##################################################
@@ -142,21 +129,32 @@ class BaseSettingGroup:
 		self.toggle_active(1 if value else 0)
 
 	##################################################
-	def get_setting_names(self) -> list[str]:
-		"""Récupère le nom des paramètres de ce groupe."""
+	@property
+	def value(self):
+		"""Fonction vide necessaire aux parcours automatiques."""
+		return
+
+	##################################################
+	@value.setter
+	def value(self, value: Any):
+		"""Fonction vide necessaire aux parcours automatiques."""
+		return
+
+	##################################################
+	@property
+	def settings_names(self) -> list[str]:
+		"""Récupère les noms des paramètres de ce groupe."""
 		return list(self._settings.keys())
 
 	##################################################
-	def get_settings(self) -> dict[str, Any]:
-		"""
-		Récupère les valeurs des Settings
-		:return: Dictionnaire de valeurs
-		"""
-		res = {key: setting.get_value() for key, setting in self._settings.items()}
+	@property
+	def settings(self) -> dict[str, Any]:
+		"""Récupère les valeurs des Settings."""
+		res = {key: setting.value for key, setting in self._settings.items()}
 		for group in self._inner_groups:
 			setting_group = cast(BaseSettingGroup, self._settings[group])
 			res.pop(group, None)  # Supprime la clé si elle existe
-			tmp = {f"{group} {key}": value for key, value in setting_group.get_settings().items()}
+			tmp = {f"{group} {key}": value for key, value in setting_group.settings.items()}
 			res = {**res, **tmp}  # Fusionne les dictionnaires
 		return res
 
@@ -179,16 +177,6 @@ class BaseSettingGroup:
 	def __iter__(self):
 		"""Surcharge pour obtenir l'itérable des clés"""
 		return iter(self._settings)
-
-	##################################################
-	def get_value(self):
-		"""Fonction vide necessaire aux parcours automatiques."""
-		return
-
-	##################################################
-	def set_value(self, value: Any):
-		"""Fonction vide necessaire aux parcours automatiques."""
-		return
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -316,7 +304,7 @@ class BaseSettingGroup:
 		msg = f"{line_prefix}- Activate : {self.active}\n"
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup): msg += f"{line_prefix}- {key} :\n{setting.tostring(f'{line_prefix}  ')}"
-			else: msg += f"{line_prefix}- {key} : {setting.get_value()}\n"
+			else: msg += f"{line_prefix}- {key} : {setting.value}\n"
 		return msg
 
 	##################################################
@@ -332,7 +320,7 @@ class BaseSettingGroup:
 	##################################################
 	def connect(self, f: Any):
 		"""
-		Connecte une fonction ou un slot à tout les éléments du groupe.
+		Connecte une fonction ou un slot à tous les éléments du groupe.
 
 		:param f: Fonction ou slot à connecter.
 		"""
@@ -341,10 +329,10 @@ class BaseSettingGroup:
 	##################################################
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
 		"""
-		Déconnecte une fonction ou un slot à tout les éléments du groupe.
+		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: nombre de slots déconnectés
+		:return: Nombre de slots déconnectés
 		"""
 		for _, setting in self._settings.items(): setting.disconnect(f)
 

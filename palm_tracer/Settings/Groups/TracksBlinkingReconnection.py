@@ -13,14 +13,16 @@ from palm_tracer.Settings.Types import Combo, SpinFloat, SpinInt
 @dataclass
 class TracksBlinkingReconnection(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de reconnexion de trajectoires en cas de scintillement
-	Par principe on pourrait mettre le minimum de la Distance maximale à 2.
+	Classe contenant les paramètres de reconnexion de trajectoires en cas de scintillement.
+
+	Par principe, on pourrait mettre le minimum de la Distance maximale à 2.
 	Mais, si on veut reconnecter sur 2 frames consécutives avec des distances plus longues que la sélection d'origine, c'est possible.
 
 	Attributs :
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) : Méthode de déplacement du point (par défaut : `Immobile`).
-		- **Max Duration** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt>`) : Durée maximale du scinetillement en nombre de plans (par défaut : `1`).
-		- **Max Speed** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) : Vitesse maximale du point en μm/plan (par défaut : `1.0`).
+		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode de déplacement du point (par défaut : `Immobile`).
+		- **Max Duration** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
+		  Durée maximale du scinetillement en nombre de plans (par défaut : `1`).
+		- **Max Speed** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Vitesse maximale du point en μm/plan (par défaut : `1.0`).
 	"""
 
 	label: str = "Blinking Reconnection"

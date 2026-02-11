@@ -68,3 +68,9 @@ table.image-grid td {
   vertical-align: middle;
   text-align: center;
 }
+
+/* Masque le préfixe de la classe dans les signatures (RTD/Furo selon markup) */
+.sig .sig-prename.descclassname,
+.sig .sig-prename.descclassname + .sig-name.descname::before {
+  display: none;
+}

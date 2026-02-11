@@ -21,7 +21,6 @@ language = "fr"
 
 extensions = [
 		"sphinx.ext.autodoc",
-		"sphinx.ext.autodoc.typehints",  # recommandé mais optionnel dans Sphinx 7+
 		"sphinx.ext.autosummary",
 		"sphinx.ext.autosectionlabel",
 		"sphinx.ext.intersphinx",
@@ -52,6 +51,7 @@ intersphinx_mapping = {
 		"napari":       ("https://napari.org/stable/", None),
 		"magicgui":     ("https://pyapp-kit.github.io/magicgui/", None),
 		"sphinx":       ("https://www.sphinx-doc.org/en/master/", None),
+		"plotly":       ("https://plotly.com/python-api-reference/", None),
 		}
 
 templates_path = ["_templates"]
@@ -69,25 +69,18 @@ html_context = {"allow_html_in_rst": True}
 
 # -- Automatisation ----------------------------------------------------------
 
-autosummary_generate = True
-autodoc_default_options = {
-		"members":          True,
-		"private-members":  True,
-		"undoc-members":    True,
-		"show-inheritance": True,
-		# "inherited-members": True, # A éviter sur l'ensemble de l'API pour les élément héritant de l'API QT...
-		}
-autodoc_member_order = "bysource"
-add_module_names = False
-
+autosummary_generate = False  # .			Evite des arborescences trop profondes et des liens internes vers de nouvelles pages
+autodoc_member_order = "bysource"  # .		Evite le tri alphabétique
+add_module_names = False  # .				Evite le nom des module(s) parent au début des objets
+toc_object_entries_show_parents = "hide"  # Evite le nom des module(s) parent au début des objets dans l'arborescence
 todo_include_todos = True
+python_use_unqualified_type_names = True  # Evite le nom des module(s) parent au début des objets
 
 suppress_warnings = ["autosectionlabel.*"]
 
 # -- Multilingue ----------------------------------------------------------
 locale_dirs = ["locale/"]
 gettext_compact = False
-
 
 # Création des fichiers de reférences de texte pour la traduction
 # sphinx-build -b gettext docs/ docs/_build/gettext
@@ -96,8 +89,6 @@ gettext_compact = False
 # Build de la documentation avec les traductions
 # sphinx-build -b html -D language=fr docs docs/_build/html
 # sphinx-build -b html -D language=en docs docs/_build/html/en
-# subprocess.run(f"sphinx-build -b html -D language=fr docs docs/_build/html/", shell=True)  # lance la compilation de la doc.
-# subprocess.run(f"sphinx-build -b html -D language=en docs docs/_build/html/en", shell=True)  # lance la compilation de la doc.
 
 def copy_dir(src: str | Path, dst: str | Path) -> None:
 	"""Copie récursivement un dossier source vers un dossier destination."""
@@ -108,6 +99,7 @@ def copy_dir(src: str | Path, dst: str | Path) -> None:
 
 
 copy_dir("reports", "_build/html/reports")
+copy_dir("reports", "_build/html/en/reports")
 
 default_language_code = "fr"
 

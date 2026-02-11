@@ -49,7 +49,7 @@ class SignalWrapper(QObject):
 		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nb déconnectés.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: nombre de slots déconnectés
+		:return: Nombre de slots déconnectés
 		"""
 		n = 0
 		if f is None:

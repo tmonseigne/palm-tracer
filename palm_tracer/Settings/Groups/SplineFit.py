@@ -16,9 +16,10 @@ class SplineFit(BaseSettingGroup):
 	Classe contenant les paramètres du Spline Fit :
 
 	Attributs :
-		- **Sensor** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) : Sélection du type de capteur (par défaut : `EMCCD`).
-		- **sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile>`) : Fichier de calibration du capteur sCMOS.
-		- **Calibration File** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile>`) : Fichier de calibration de la PSF (calculé à partir de SMAP.
+		- **Sensor** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Sélection du type de capteur (par défaut : `EMCCD`).
+		- **sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) : Fichier de calibration du capteur sCMOS.
+		- **Calibration File** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) :
+		  Fichier de calibration de la PSF (calculé à partir de SMAP).
 	"""
 
 	label: str = "Spline Fit"

@@ -88,7 +88,7 @@ def test_histogram():
 	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_4.json")
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Entrée 2D mais avec plus de 2 lignes ou colonnes (il compacte tout)
+	# Entrée 2D, mais avec plus de 2 lignes ou colonnes (il compacte tout)
 	res = g.histogram(np.zeros((3, 3)), "Histogram")
 	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_5.json")
 	ref = json.loads((REF_DIR / "grapher_Histogramm_5.json").read_text(encoding="utf-8"))
@@ -133,7 +133,7 @@ def test_scatter():
 	ref = json.loads((REF_DIR / "grapher_scatter_4.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Entrée 2D mais avec plus de 2 lignes ou colonnes
+	# Entrée 2D, mais avec plus de 2 lignes ou colonnes
 	with pytest.raises(ValueError) as exception_info: g.scatter(np.zeros((3, 3)), "scatter fail")
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 

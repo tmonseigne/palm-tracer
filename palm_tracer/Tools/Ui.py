@@ -105,7 +105,7 @@ def make_tab(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: i
 
 	L'onglet est représenté par un :class:`QWidget` et contient un :class:`QVBoxLayout` configuré avec des marges et un espacement uniformes.
 
-	:param parent: Parent Qt du widget onglet (peut être ``None`` si défini plus tard).
+	:param parent: Parent Qt du widget onglet (peut-être ``None`` si définie plus tard).
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
 	:param margin: Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``COMMON_SPACE``.
 
@@ -122,7 +122,7 @@ def make_group(parent: QWidget | None = None, name: str = "", space: int = COMMO
 	"""
 	Crée un :class:`QGroupBox` avec un layout vertical configuré.
 
-	:param parent: Parent Qt du group box (peut être ``None`` si défini plus tard).
+	:param parent: Parent Qt du group box (peut-être ``None`` si définie plus tard).
 	:param name: Titre affiché dans l'entête du group box.
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
 	:param margin: Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``COMMON_SPACE``.
@@ -146,7 +146,7 @@ def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: 
 		- espacements horizontaux/verticaux adaptés à une UI de réglages ;
 		- politique de croissance des champs : les widgets de droite restent à leur *sizeHint* (évite qu'ils s'étirent jusqu'au bord droit).
 
-	:param parent: Parent Qt du layout (peut être ``None`` si défini plus tard).
+	:param parent: Parent Qt du layout (peut-être ``None`` si définie plus tard).
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
 	:param margin: Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``COMMON_SPACE``.
 
@@ -291,7 +291,7 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 	"""
 	Crée une :class:`QSpinBox` ou :class:`QDoubleSpinBox` configurée de manière compacte.
 
-	Le type de spinbox est choisi automatiquement : :class:`QSpinBox` si ``decimals <= 0``, :class:`QDoubleSpinBox` sinon.
+	Le type de spinbox est choisi automatiquement : :class:`QSpinBox` si ``decimals ≤ 0``, :class:`QDoubleSpinBox` sinon.
 
 	Configuration appliquée :
 		- suppression des marges et paddings inutiles ;
@@ -358,7 +358,7 @@ def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 ##################################################
 def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 	"""
-	Synchronise une spinbox avec la valeur envoyé (par signal).
+	Synchronise une spinbox avec la valeur envoyée (par signal).
 
 	On bloque les signaux le temps de la mise à jour pour éviter les appels en série.
 
@@ -403,7 +403,7 @@ def print_error(msg: str):
 	"""
 	Affiche un message avec une couleur rouge
 
-	:param msg: message à afficher
+	:param msg: Message à afficher
 	"""
 	print(Fore.RED + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
@@ -413,7 +413,7 @@ def print_warning(msg: str):
 	"""
 	Affiche un message avec une couleur jaune
 
-	:param msg: message à afficher
+	:param msg: Message à afficher
 	"""
 	print(Fore.YELLOW + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
@@ -423,7 +423,7 @@ def print_success(msg: str):
 	"""
 	Affiche un message avec une couleur verte
 
-	:param msg: message à afficher
+	:param msg: Message à afficher
 	"""
 	print(Fore.GREEN + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
@@ -434,7 +434,7 @@ def format_time(seconds):
 	Fonction pour formater le temps en secondes en HH:MM:SS.
 
 	:param seconds: Temps en secondes
-	:return: chaine de caractère representant le temps au format HH:MM:SS.
+	:return: Chaine de caractère representant le temps au format HH:MM:SS.
 	"""
 	hours = int(seconds // 3600)
 	minutes = int((seconds % 3600) // 60)

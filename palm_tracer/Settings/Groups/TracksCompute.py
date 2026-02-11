@@ -16,17 +16,17 @@ class TracksCompute(BaseSettingGroup):
 	Classe contenant les paramètres de Calcul sur les trajectoires :
 
 	Attributs :
-		- **MSD** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) :
+		- **MSD** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Calcul du MSD par trajectoire et par plans successifs (par défaut : `False`).
-		- **Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) :
+		- **Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Calcul de la diffusion instantanée par trajectoire et par plans successifs (par défaut : `False`).
-		- **Fit Length** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt>`) :
+		- **Fit Length** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
 		  Longueur de la fenêtre de calcul initiale des métriques génériques (par défaut : `4`).
-		- **3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) :
+		- **3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Utilisaiton ou non de la coordonnée Z dans les calculs (par défaut : `False`).
-		- **Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox>`) :
+		- **Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Utilisation ou non d'une échelle logarithmique pour les résultats (par défaut : `False`).
-		- **Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) :
+		- **Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
 		  Méthode d'ajustement du mouvement de la trajectoire (par défaut : `None`).
 	"""
 

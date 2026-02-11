@@ -133,7 +133,7 @@ class PALMTracerWidget(QWidget):
 		self.btn_load_result.clicked.connect(lambda *_: self.pt.load())
 		self.btn_process.clicked.connect(lambda: self._thread_process(self.pt.process))
 
-		self.pt.settings.batch["Files"].connect(self._reset_layer)  # .					 Supprime les layers et charge le fichier tif dans un layer Raw
+		self.pt.settings.batch["Files"].connect(self._reset_layer)  # .					 Supprime les calques et charge le fichier tif dans un calque Raw
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)  # Calcul automatique du Seuil
 		self.pt.settings.connect(self._on_change_setting)  # .							 Connexion à chaque changement de paramètres
 		filter_loc = self.pt.settings.filtering["Localization"]
@@ -167,9 +167,9 @@ class PALMTracerWidget(QWidget):
 		# Important : permet au contenu de ne pas "collapser" et d'être en mode "colonne"
 		tab.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
-		# ScrollArea (permet d'avoir une barre de défilement si la fenêtre est trop petite.
+		# ScrollArea permet d'avoir une barre de défilement si la fenêtre est trop petite.
 		scroll = QScrollArea()
-		scroll.setWidgetResizable(True)  # le contenu suit la largeur dispo
+		scroll.setWidgetResizable(True)  # le contenu suit la largeur disponible.
 		scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 		scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 		scroll.setFrameShape(QScrollArea.Shape.NoFrame)
@@ -193,8 +193,8 @@ class PALMTracerWidget(QWidget):
 		Elle vérifie si un fichier est en cours de prévisualisation avant de lancer le traitement.
 		Le traitement est exécuté dans un thread séparé pour ne pas bloquer l'interface principale de l'application.
 
-		:param compute_func: La fonction à exécuter dans un thread séparé. Elle ne doit pas prendre de paramètres et ne retourne rien.
-		:param post_func: La fonction à exécuter après le thread. Elle ne doit pas prendre de paramètres et ne retourne rien.
+		:param compute_func: Fonction à exécuter dans un thread séparé. Elle ne doit pas prendre de paramètres et ne retourne rien.
+		:param post_func: Fonction à exécuter après le thread. Elle ne doit pas prendre de paramètres et ne retourne rien.
 		"""
 		if self._processing: return
 		if self.last_file == "": return
@@ -278,7 +278,7 @@ class PALMTracerWidget(QWidget):
 					cfg = open_json(str(filename))
 					show_info(f"Loading the setting file '{filename}'.")
 					self.pt.settings.update_from_dict(cfg)
-					self.pt.settings.localization["Preview"].set_value(False)
+					self.pt.settings.localization["Preview"].value = False
 					self.pt.settings.filtering.deactivate_filters()
 			except Exception as e:
 				show_warning(f"Error loading file '{filename}': {e}")
@@ -319,7 +319,7 @@ class PALMTracerWidget(QWidget):
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		if self._tearing_down or not getattr(self, "viewer", None): return
-		self.pt.settings.localization["Preview"].set_value(False)
+		self.pt.settings.localization["Preview"].value = False
 		self.pt.settings.filtering.deactivate_filters()
 		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
 		if not selected_file:
@@ -358,7 +358,7 @@ class PALMTracerWidget(QWidget):
 				"Future":  {"border": 0.2, "edge": 0.2, "color": "orange", "face": "transparent"}
 				}
 		for state, points in self._preview_locs.items():
-			if not self.pt.settings.localization["Preview"].get_value() or points is None or points.size == 0:
+			if not self.pt.settings.localization["Preview"].value or points is None or points.size == 0:
 				self._remove_layer(f"Points {state}")
 				self._remove_layer(f"ROI {state}")
 				continue
@@ -379,8 +379,8 @@ class PALMTracerWidget(QWidget):
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
-			roi_size = self.pt.settings.localization["ROI Size"].get_value()
-			roi_shape = self.pt.settings.localization["ROI Shape"].get_value()
+			roi_size = self.pt.settings.localization["ROI Size"].value
+			roi_shape = self.pt.settings.localization["ROI Shape"].value
 			half_size = roi_size / 2
 			if roi_shape == 0:  # Ellipses : [[y_center, x_center], [y_radius, x_radius]]
 				rois = np.array([[[float(y), float(x)], [float(half_size), float(half_size)]] for y, x in points], dtype=np.float32)
@@ -390,7 +390,7 @@ class PALMTracerWidget(QWidget):
 				s_type = "rectangle"
 
 			l_name = f"ROI {state}"
-			# Si le calque existe mais n'est pas du bon type, on le supprime
+			# Si le calque existe, mais n'est pas du bon type, on le supprime
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
 				# Cas particulier en cas de changement de formes, il a du mal à mettre à jour.
@@ -400,7 +400,7 @@ class PALMTracerWidget(QWidget):
 					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 				else:
 					layer.data = rois  # .		 Remplace toutes les formes
-					layer.shape_type = s_type  # Remets les différents arguments en cas de nombre de ROI différents
+					layer.shape_type = s_type  # Remets les différents arguments en cas de nombre de ROIs différents
 					layer.edge_color = args["color"]
 					layer.edge_width = args["edge"]
 					layer.face_color = "transparent"
@@ -427,14 +427,14 @@ class PALMTracerWidget(QWidget):
 		y0, y1 = 0, raw_data.shape[-2] - 1  # .		 Shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
 
 		if is_xf:
-			xf = filter_loc["X"].get_value()
+			xf = filter_loc["X"].value
 			x0, x1 = max(x0, min(xf[0], x1)), max(x0, min(xf[1], x1))
 
 		if is_yf:
-			yf = filter_loc["Y"].get_value()
+			yf = filter_loc["Y"].value
 			y0, y1 = max(y0, min(yf[0], y1)), max(y0, min(yf[1], y1))
 
-		# Si range dégénéré (ligne/colonne), on peut soit l'accepter soit ne rien afficher. Ici: si rectangle vide, on ne crée pas de layer.
+		# Si range dégénéré (ligne/colonne), on peut soit l'accepter, soit ne rien afficher. Ici : si rectangle vide, on ne crée pas de layer.
 		if x1 <= x0 or y1 <= y0:
 			self._remove_layer(l_name)
 			return
@@ -453,8 +453,8 @@ class PALMTracerWidget(QWidget):
 		"""
 		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres
 
-		:param time: différence de temps entre l'image actuellement affichée et celle désirée.
-		:return: l'image désirée (actuellement affichée si time = 0).
+		:param time: Différence de temps entre l'image actuellement affichée et celle désirée.
+		:return: L'image désirée (image actuellement affichée si time = 0).
 		"""
 		if self.last_file == "": return None
 		layer = self.viewer.layers["Raw"]  # .				   Récupération du layer Raw
@@ -466,12 +466,12 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		if self._tearing_down or not getattr(self, "viewer", None) or not self.pt.settings.localization["Preview"].get_value(): return
+		if self._tearing_down or not getattr(self, "viewer", None) or not self.pt.settings.localization["Preview"].value: return
 
 		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
 		if present is None: return
 
-		s = self.pt.settings.localization.get_settings()
+		s = self.pt.settings.localization.settings
 		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
 		except Exception: raise
 		self._preview_locs = {
@@ -494,8 +494,8 @@ class PALMTracerWidget(QWidget):
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
 		print(f"Auto Threshold: {threshold:.2f}")
-		# show_info(f"Auto Threshold: {threshold:.2f}") Durant les thread externe, dangereux de faire appel à l'interface
-		self.pt.settings.localization["Threshold"].set_value(threshold)  # .							  Changement du seuil dans les settings
+		# show_info(f"Auto Threshold: {threshold:.2f}") Durant les threads externes, dangereux de faire appel à l'interface
+		self.pt.settings.localization["Threshold"].value = threshold  # .								  Changement du seuil dans les settings
 
 	# ==================================================
 	# endregion Layers Callback
@@ -524,7 +524,7 @@ class PALMTracerWidget(QWidget):
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
 			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
-			# Quand le widget est détruit, remettre la réf à None
+			# Quand le widget est détruit, remettre la réf à None.
 			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
 			w.resize(1280, 720)
 			self.viewer_graph = w

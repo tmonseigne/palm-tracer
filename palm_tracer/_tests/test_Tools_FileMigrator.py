@@ -38,9 +38,9 @@ def test_update_meta(capsys):
 	m.update_meta("Height", 1)  # Mise à Jour
 	ref[0] = 1
 	assert np.allclose(m.meta, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {m.meta}"
-	m.update_meta("Height", 1)  # Données identique
+	m.update_meta("Height", 1)  # Données identiques
 	assert np.allclose(m.meta, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {m.meta}"
-	m.update_meta("Height", 2)  # DOnnées différentes
+	m.update_meta("Height", 2)  # Données différentes
 	out, err = capsys.readouterr()
 	assert "Warning that the 'Height' metadata differs between several files to be migrated (1 VS 2)." in out
 	assert np.allclose(m.meta, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {m.meta}"
@@ -128,7 +128,7 @@ def test_migrate():
 	assert exception_info.type == RuntimeError, "L'erreur relevé n'est pas correcte."
 
 	m.open(INPUT_FOLDER)
-	m.migrate()  # Sans analyse avant, il va créé le dossier puis ne rien faire à chaque élément
+	m.migrate()  # Sans analyse avant, il va créer le dossier puis ne rien faire à chaque élément
 	assert OUTPUT_FOLDER.exists(), "Le dossier de sortie aurait du être créé."
 	assert OUTPUT_FOLDER.is_dir(), "Le chemin de sortie n'est pas un dossier."
 	assert not any(OUTPUT_FOLDER.iterdir()), "Le dossier de sortie devrait être vide."

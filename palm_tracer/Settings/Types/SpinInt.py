@@ -17,19 +17,15 @@ class SpinInt(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type nombre entier.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **default** (:class:`int`) : Valeur par défaut du paramètre.
-		- **limits** (:class:`int`) : Valeurs limites du paramètre.
-		- **step** (:class:`int`) : Pas à chaque appuie sur une des flèches du paramètre.
-		- **value** (:class:`int`) : Valeur actuelle du paramètre.
-		- **box** (:class:`QSpinBox`) : Objet QT permettant de manipuler le paramètre.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
+	:param default: Valeur par défaut du paramètre.
+	:param limits: Valeurs limites du paramètre.
+	:param step: Pas à chaque appuie sur une des flèches du paramètre.
 	"""
 
 	default: int = 0
-	value: int = field(init=False, default=0)
+	_value: int = field(init=False, default=0)
 
 	limits: list[int] = field(default_factory=lambda: [0, 100])
 	"""Valeurs limites du paramètre."""
@@ -57,13 +53,17 @@ class SpinInt(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_value(self) -> int:
-		self.value = self._box.value()
-		return self.value
+	@property
+	def value(self) -> int:
+		"""Valeur actuelle du paramètre (:class:`int`)."""
+		self._value = self._box.value()
+		return self._value
 
 	##################################################
-	def set_value(self, value: int):
-		self.value = value
+	@value.setter
+	def value(self, value: int):
+		"""Valeur actuelle du paramètre (:class:`int`)."""
+		self._value = value
 		self._box.setValue(value)
 
 	# ==================================================
@@ -75,8 +75,8 @@ class SpinInt(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type":   type(self).__name__, "label": self.label, "default": self.default,
-				"limits": self.limits, "step": self.step, "value": self.value}
+		return {"type": type(self).__name__, "label": self.label, "default": self.default, "limits": self.limits,
+				"step": self.step, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
@@ -88,4 +88,4 @@ class SpinInt(BaseSettingType):
 		# Mise à jour de la boite QT
 		self._box.setRange(self.limits[0], self.limits[1])
 		self._box.setSingleStep(self.step)
-		self.set_value(data.get("value", self.default))
+		self.value = data.get("value", self.default)

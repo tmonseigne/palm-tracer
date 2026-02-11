@@ -29,18 +29,7 @@ from palm_tracer.Settings.Groups.VisualizationHR import VisualizationHR
 ##################################################
 @dataclass
 class Settings:
-	"""
-	Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer.
-
-	Attributs :
-			- :class:`palm_tracer.Settings.Groups.Batch` : Groupe de paramètres liés au batch.
-			- :class:`palm_tracer.Settings.Groups.Calibration` : Groupe de paramètres liés à la calibration.
-			- :class:`palm_tracer.Settings.Groups.Localization` : Groupe de paramètres liés à la localisation.
-			- :class:`palm_tracer.Settings.Groups.Tracking` : Groupe de paramètres liés au tracking.
-			- :class:`palm_tracer.Settings.Groups.VisualizationHR` : Groupe de paramètres liés à la visualisation haute résolution.
-			- :class:`palm_tracer.Settings.Groups.VisualizationGraph` : Groupe de paramètres liés à la visualisation de graphiques.
-			- :class:`palm_tracer.Settings.Groups.Filtering` : Groupe de paramètres liés au filtrage lors des processus.
-	"""
+	"""Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer."""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 	"""Dictionnaire de groupes de paramètres."""
@@ -76,10 +65,10 @@ class Settings:
 	##################################################
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
 		"""
-		Déconnecte une fonction ou un slot à tout les éléments du groupe.
+		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: nombre de slots déconnectés
+		:return: Nombre de slots déconnectés
 		"""
 		for _, setting in self._settings.items(): setting.disconnect(f)
 
@@ -87,7 +76,8 @@ class Settings:
 	def signal_blocked(self) -> AbstractContextManager[Any]:
 		"""
 		Blocage des signaux pour l'intégralité des paramètres.
-		Retourne un context manager utilisable avec `with ...:`.
+
+		:return: Retourne un context manager utilisable avec `with ...:`.
 		"""
 		# if not self._settings: return nullcontext() # On n'a pas de settings vide
 		stack = ExitStack()
@@ -103,39 +93,59 @@ class Settings:
 	# ==================================================
 	##################################################
 	@property
-	def batch(self) -> Batch: return cast(Batch, self._settings["Batch"])
+	def batch(self) -> Batch:
+		"""Groupe de paramètres liés au batch (:class:`Batch <palm_tracer.Settings.Groups.Batch.Batch>`)."""
+		return cast(Batch, self._settings["Batch"])
 
 	##################################################
 	@property
-	def calibration(self) -> Calibration: return cast(Calibration, self._settings["Calibration"])
+	def calibration(self) -> Calibration:
+		"""Groupe de paramètres liés à la calibration (:class:`Calibration <palm_tracer.Settings.Groups.Calibration.Calibration>`)."""
+		return cast(Calibration, self._settings["Calibration"])
 
 	##################################################
 	@property
-	def localization(self) -> Localization: return cast(Localization, self._settings["Localization"])
+	def localization(self) -> Localization:
+		"""Groupe de paramètres liés à la localisation (:class:`Localization <palm_tracer.Settings.Groups.Localization.Localization>`)."""
+		return cast(Localization, self._settings["Localization"])
 
 	##################################################
 	@property
-	def tracking(self) -> Tracking: return cast(Tracking, self._settings["Tracking"])
+	def tracking(self) -> Tracking:
+		"""Groupe de paramètres liés au suivi (:class:`Tracking <palm_tracer.Settings.Groups.Tracking.Tracking>`)."""
+		return cast(Tracking, self._settings["Tracking"])
 
 	##################################################
 	@property
-	def tracks_compute(self) -> TracksCompute: return cast(TracksCompute, self._settings["TracksCompute"])
+	def tracks_compute(self) -> TracksCompute:
+		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`.)"""
+		return cast(TracksCompute, self._settings["TracksCompute"])
 
 	##################################################
 	@property
-	def gallery(self) -> Gallery: return cast(Gallery, self._settings["Gallery"])
+	def gallery(self) -> Gallery:
+		"""Groupe de paramètres liés à la génération de galerie (:class:`Gallery <palm_tracer.Settings.Groups.Gallery.Gallery>`)."""
+		return cast(Gallery, self._settings["Gallery"])
 
 	##################################################
 	@property
-	def visualization_hr(self) -> VisualizationHR: return cast(VisualizationHR, self._settings["VisualizationHR"])
+	def visualization_hr(self) -> VisualizationHR:
+		"""Groupe de paramètres liés à la Visualisation haute-résolution
+		(:class:`VisualizationHR <palm_tracer.Settings.Groups.VisualizationHR.VisualizationHR>`)."""
+		return cast(VisualizationHR, self._settings["VisualizationHR"])
 
 	##################################################
 	@property
-	def visualization_graph(self) -> VisualizationGraph: return cast(VisualizationGraph, self._settings["VisualizationGraph"])
+	def visualization_graph(self) -> VisualizationGraph:
+		"""Groupe de paramètres liés à la Visualisation graphique
+		(:class:`VisualizationGraph <palm_tracer.Settings.Groups.VisualizationGraph.VisualizationGraph>`)."""
+		return cast(VisualizationGraph, self._settings["VisualizationGraph"])
 
 	##################################################
 	@property
-	def filtering(self) -> Filtering: return cast(Filtering, self._settings["Filtering"])
+	def filtering(self) -> Filtering:
+		"""Groupe de paramètres liés au filtrage (:class:`Filtering <palm_tracer.Settings.Groups.Filtering.Filtering>`)."""
+		return cast(Filtering, self._settings["Filtering"])
 
 	# ==================================================
 	# endregion Getter/Setter

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 
+##################################################
 def generate_toctree_rst(dst: str = "tests.rst"):
 	"""Génère un fichier toctree Sphinx listant les rapports de tests CI."""
 
@@ -29,5 +30,5 @@ def generate_toctree_rst(dst: str = "tests.rst"):
 	print(f"{dst} generated successfully.")
 
 
-if __name__ == "__main__":
-	generate_toctree_rst()
+##################################################
+if __name__ == "__main__": generate_toctree_rst()

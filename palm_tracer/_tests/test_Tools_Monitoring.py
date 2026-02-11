@@ -41,7 +41,7 @@ def simulate_gpu_usage(monitoring: Monitoring, tensor_size: int = 4096, duration
 
 	:param monitoring: Moniteur à manipuler
 	:param tensor_size: Taille des matrices carrées utilisées pour les calculs.
-	:param duration: Durée en secondes pendant laquelle les opérations GPU sont répétées.
+	:param duration: Durée en secondes pendant lesquelles les opérations GPU sont répétées.
 	"""
 	monitoring.add_test_info("_tests/test_simulation_gpu.py::test_gpu_computation")
 	# Installation de pytorch via le generatuer de lien de leur site en fonction de votre CUDA

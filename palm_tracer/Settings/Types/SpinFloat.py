@@ -17,20 +17,15 @@ class SpinFloat(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type nombre réel.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
-		- **default** (:class:`float`) : Valeur par défaut du paramètre.
-		- **min** (:class:`float`) : Valeur minimale du paramètre.
-		- **max** (:class:`float`) : Valeur maximale du paramètre.
-		- **step** (:class:`float`) : Pas à chaque appuie sur une des flèches du paramètre.
-		- **precision** (:class:`int`) : Précision du paramètre.
-		- **value** (:class:`float`) : Valeur actuelle du paramètre.
-		- **box** (:class:`QDoubleSpinBox`) : Objet QT permettant de manipuler le paramètre.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
+	:param default: Valeur par défaut du paramètre.
+	:param limits: Valeurs limites du paramètre.
+	:param step: Pas à chaque appuie sur une des flèches du paramètre.
+	:param precision: Precision du paramètre.
 	"""
 	default: float = 0.0
-	value: float = field(init=False, default=0.0)
+	_value: float = field(init=False, default=0.0)
 
 	limits: list[float] = field(default_factory=lambda: [0.0, 100.0])
 	"""Valeurs limites du paramètre."""
@@ -60,13 +55,17 @@ class SpinFloat(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_value(self) -> float:
-		self.value = self._box.value()
-		return self.value
+	@property
+	def value(self) -> float:
+		"""Valeur actuelle du paramètre (:class:`float`)."""
+		self._value = self._box.value()
+		return self._value
 
 	##################################################
-	def set_value(self, value: float):
-		self.value = value
+	@value.setter
+	def value(self, value: float):
+		"""Valeur actuelle du paramètre (:class:`float`)."""
+		self._value = value
 		self._box.setValue(value)
 
 	# ==================================================
@@ -78,9 +77,8 @@ class SpinFloat(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type":   type(self).__name__, "label": self.label, "default": self.default,
-				"limits": self.limits, "step": self.step, "precision": self.precision,
-				"value":  self.value}
+		return {"type": type(self).__name__, "label": self.label, "default": self.default, "limits": self.limits,
+				"step": self.step, "precision": self.precision, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
@@ -94,4 +92,4 @@ class SpinFloat(BaseSettingType):
 		self._box.setRange(self.limits[0], self.limits[1])
 		self._box.setSingleStep(self.step)
 		self._box.setDecimals(self.precision)
-		self.set_value(data.get("value", self.default))
+		self.value = data.get("value", self.default)

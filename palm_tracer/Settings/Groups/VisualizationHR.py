@@ -19,10 +19,10 @@ class VisualizationHR(BaseSettingGroup):
 	Classe contenant les paramètres de Visualisation haute résolution :
 
 	Attributs :
-		- **Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt>`) : Facteur d'agrandissement (par défaut : `2`).
-		- **Type** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) :
+		- **Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Facteur d'agrandissement (par défaut : `2`).
+		- **Type** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
 		  Choix du type de visualisation (Localisation ou trajectoires (par défaut : `Localizations`).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) :
+		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
 		  Element de la localisation (trajectoire) permettant de définir l'intensité (par défaut : `All`).
 	"""
 

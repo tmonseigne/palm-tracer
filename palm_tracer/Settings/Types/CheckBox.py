@@ -17,17 +17,13 @@ class CheckBox(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type case à cocher.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
-		- **default** (:class:`bool`) : Valeur par défaut du paramètre.
-		- **value** (:class:`bool`) : Valeur actuelle du paramètre.
-		- **box** (:class:`QSpinBox`) : Objet QT permettant de manipuler le paramètre.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
+	:param default: Valeur par défaut du paramètre.
 	"""
 
 	default: bool = False
-	value: bool = field(init=False, default=False)
+	_value: bool = field(init=False, default=False)
 	_box: QCheckBox = field(init=False, default_factory=lambda: QCheckBox())
 
 	# ==================================================
@@ -36,7 +32,7 @@ class CheckBox(BaseSettingType):
 	##################################################
 	def initialize(self):
 		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
-		self.set_value(self.default)  # .			 Définition de la valeur.
+		self.value = self.default  # .				 Définition de la valeur.
 		self._box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
 		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte
 		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite
@@ -49,14 +45,18 @@ class CheckBox(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_value(self) -> bool:
-		if self._box.checkState() == Qt.CheckState.Unchecked: self.value = False
-		else: self.value = True
-		return self.value
+	@property
+	def value(self) -> bool:
+		"""Valeur actuelle du paramètre (:class:`bool`)."""
+		if self._box.checkState() == Qt.CheckState.Unchecked: self._value = False
+		else: self._value = True
+		return self._value
 
 	##################################################
-	def set_value(self, value: bool):
-		self.value = value
+	@value.setter
+	def value(self, value: bool):
+		"""Valeur actuelle du paramètre (:class:`bool`)."""
+		self._value = value
 		if value: self._box.setCheckState(Qt.CheckState.Checked)
 		else:     self._box.setCheckState(Qt.CheckState.Unchecked)
 
@@ -69,10 +69,10 @@ class CheckBox(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "value": self.value}
+		return {"type": type(self).__name__, "label": self.label, "default": self.default, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
-		self.set_value(data.get("value", False))
+		self.value = data.get("value", False)

@@ -54,7 +54,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	Ce widget expose une UI compacte pour :
 		- afficher des graphes à partir de la pile TIFF (Stack) ou des CSV (Localization/Tracking),
 		- choisir la *famille* de données (Stack / Localization / Tracking) via 3 boutons exclusifs,
-		- sélectionner la *source* dans une combo (ex. Intensité, Localizations Count, etc.),
+		- sélectionner la *source* dans une ComboBox (ex. Intensité, Localizations Count, etc.),
 		- exporter la figure (HTML/PNG/PDF).
 
 	Attributs :
@@ -94,7 +94,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		"""
 		Initialise le widget (UI, connexions, état initial) et lie PALMTracer.
 
-		:param palmtracer: Instance principale :class:`PALMTracer <palm_tracer.PALMTracer>`. sans copie (référence partagée).
+		:param palmtracer: Instance principale :class:`PALMTracer <palm_tracer.PALMTracer>` sans copie (référence partagée).
 		"""
 		super().__init__()
 		self.setWindowTitle("Graph Viewer")
@@ -121,10 +121,10 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		"""
 		Construit l'interface utilisateur :
 			- Colonne gauche :
-				- Informations : nom du fichier, présence Localizations/Tracking.
+				- Informations : Nom du fichier, présence Localizations/Tracking.
 				- Domaine : 3 boutons exclusifs (Stack/Localization/Tracking).
-				- Source : combo dépendante du domaine sélectionné.
-				- Filtres : section réservée (non implémentée).
+				- Source : ComboBox dépendante du domaine sélectionné.
+				- Filtres : Section réservée (non implémentée).
 				- Actions : Actualize files / Export…
 			- Zone droite :
 				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
@@ -356,7 +356,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	def _update_filters_ui(self):
 		"""
 		Mets à jour les filtres à afficher.
-		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles.
+		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles).
 		"""
 		src_id = self._btg_src.checkedId()
 
@@ -375,7 +375,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		"""
 		Génère la liste des variables d'intérêt pour les Trajectoires en fonction des fichiers disponibles.
 
-		:return: La liste des sources disponible pour les trajectoires.
+		:return: La liste des sources disponibles pour les trajectoires.
 		"""
 		res = list(self.DATA_SRC["trc"])
 		if not self._df["MSD"].empty: res += self.DATA_SRC["MSD"]
@@ -435,7 +435,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 	##################################################
 	def _update_df(self):
-		"""Récupère les dataframes et met à jour les status."""
+		"""Récupère les dataframes dans l'objet PALMTracer et met à jour les status."""
 		# Récupération des clés
 		loc_key = self._pt.get_localization_key()
 		trc_key = self._pt.get_tracks_key()
@@ -535,7 +535,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 			tmp = self._stack
 			# Filtrage par PLan, si sélectionné
 			if self._filters["Plane"].active:
-				limits = self._filters["Plane"].get_value()
+				limits = self._filters["Plane"].value
 				tmp = tmp[max(limits[0] - 1, 0):min(limits[1], int(tmp.shape[0])), ...]
 			return self._log_data(tmp, log_scale), f"Stack {src_type}"
 
@@ -545,7 +545,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 				s = self._df["loc"]["Plane"].astype(np.int64)
 				if s.empty:  return np.empty(0), src_type
 				else:
-					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vide, ils seront compris)
+					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
 					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
 					return np.column_stack((planes, counts)), src_type
 			else:
@@ -563,9 +563,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 			elif src_type == "MSD":
 				res = self._df["MSD"]
-				step = self._display_settings["MSD"].get_value()  # .										  Récupération du numéro du Step.
+				step = self._display_settings["MSD"].value  # .												  Récupération du numéro du Step.
 				col = f"Step {step}"  # .																	  Récupération du nom de la colonne.
-				if not {"Track", col}.issubset(res.columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification  de présence des colonnes
+				if not {"Track", col}.issubset(res.columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence des colonnes
 				track, values = res["Track"].astype(int).to_numpy(), res[col].astype(float).to_numpy()  # .	  Séparation track et valeur
 				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
 				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"  # .					  Retour avec filtrage des Lignes NaN
@@ -586,7 +586,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	@staticmethod
 	def _log_data(data: np.ndarray, log: bool) -> np.ndarray:
 		"""
-		Application du log avec suppression du warning pour les valeurs <= 0 et remplacement par Nan de ces valeurs.
+		Application du log avec suppression du warning pour les valeurs ≤ 0 et remplacement par Nan de ces valeurs.
 
 		:param data: Données à transformer
 		:param log: Application du log ou non
@@ -597,7 +597,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	##################################################
 	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
 		"""
-		Exporte en PNG via capture du widget QWebEngineView (fallback sans Kaleido).
+		Exporte le graphique en PNG via capture du widget QWebEngineView (fallback sans Kaleido).
 
 		Limitations :
 			- Capture la zone visible (viewport) : pour une image plus grande, redimensionner temporairement le widget avant capture.
@@ -665,9 +665,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 					QMessageBox.warning(self, "Export PDF", "QtWebEngine is required for PDF export.")
 					return
 			else:
-				# Pas d'extension reconnue -> HTML par défaut
+				# Pas d'extension reconnue ⇾ HTML par défaut
 				with open(path + ".html", "w", encoding="utf-8") as f: f.write(self._html or "")
-				path = path + ".html"
+				path += ".html"
 			QMessageBox.information(self, "Export", f"Export successful : {path}")
 		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 

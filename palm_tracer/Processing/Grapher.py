@@ -1,4 +1,4 @@
-"""Fichier contenant une classe pour Créé des graphiques."""
+"""Fichier contenant une classe pour créer des graphiques."""
 
 from dataclasses import dataclass
 from typing import Optional
@@ -35,16 +35,16 @@ class Grapher:
 
 		:param graph_type: Type de Graphique.
 		:param data: Données sous forme de tableau numpy 2D/1D/ND.
-		:param title: titre du graphe.
+		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:param kde: Si True, superpose la KDE gaussienne.
 		:param gaussian: Si True, superpose la gaussienne.
-		:param density: affiche l'histogramme en densité (True) ou en comptes (False).
-		:param bins: nbins explicite (sinon Sturges).
-		:return: ``go.Figure``
+		:param density: Affiche l'histogramme en densité (True) ou en comptes (False).
+		:param bins: Nombre de bins explicite (sinon Sturges).
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
 		"""
 		if data is None: return self.blank(title)
 		if graph_type == "histogram": return self.histogram(data, title, xlabel, ylabel, limit, show_sigma, kde, gaussian, density, bins)
@@ -58,7 +58,7 @@ class Grapher:
 		Créé une figure vide avec une annotation standard au centre ``_BLANK_ANNOTATIONS``.
 
 		:param title: Titre de la figure
-		:return: ``go.Figure`` Figure avec l'annotation
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>` Figure avec l'annotation
 		"""
 		fig = go.Figure()
 		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS, margin=_MARGIN)
@@ -72,16 +72,16 @@ class Grapher:
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
 		:param data: Données sous forme de tableau numpy 1D/ND (aplati).
-		:param title: titre du graphe.
+		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:param kde: Si True, superpose la KDE gaussienne.
 		:param gaussian: Si True, superpose la gaussienne.
-		:param density: affiche l'histogramme en densité (True) ou en comptes (False).
-		:param bins: nbins explicite (sinon Sturges).
-		:return: ``go.Figure``
+		:param density: Affiche l'histogramme en densité (True) ou en comptes (False).
+		:param bins: Nombre de bins explicite (sinon Sturges).
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
 			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
@@ -151,13 +151,13 @@ class Grapher:
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
 		:param data: Données sous forme de tableau numpy 1D ou 2D.
-		:param title: titre du graphe.
+		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
-		:return: ``go.Figure``
-		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendu (1D, 2D mais avec uniquement 2 lignes ou 2 colonnes)
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
 
 		# Déterminer x,y
@@ -207,16 +207,17 @@ class Grapher:
 	# ==================================================
 
 	##################################################
-	def astigmatism3d_curve(self, model: np.ndarray, title: str = "", pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
+	@staticmethod
+	def astigmatism3d_curve(model: np.ndarray, title: str = "", pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
 		"""
 
 		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
-		:param title: titre du graphe.
+		:param title: Titre du graphe.
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 		:param z_max: Valeur absolue maximale sur Z.
 		:param n_points: Nombre de points sur la courbe (résolution)
-		:return: ``go.Figure``
-		:raises ValueError: Si les dimensions du modèle ne correspondent pas à ceux attendu (2x5)
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:raises ValueError: Si les dimensions du modèle ne correspondent pas à celles attendues (2x5)
 		"""
 		if model.shape != SHAPE_MODEL: raise ValueError(f"Le modèle doit être de dimension {SHAPE_MODEL}.")
 
@@ -245,9 +246,9 @@ class Grapher:
 		"""
 		Calcule un nombre de bin adaptatif pour un histogramme.
 
-		:param data: données à analyser.
-		:param limits: bornes pour le nombre de bins.
-		:return: nombre de bins.
+		:param data: Données à analyser.
+		:param limits: Bornes pour le nombre de bins.
+		:return: Nombre de bins.
 		"""
 		n_values = len(data)
 		# bins = int(np.sqrt(n_values))				 # Règle de racine carrée
@@ -260,9 +261,9 @@ class Grapher:
 		"""
 		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si necessaire.
 
-		:param data: données à analyser.
-		:param limit: limite ou non les données.
-		:return: le tableau (en cas de modification) et les limites du graphiques.
+		:param data: Données à analyser.
+		:param limit: Limite ou non les données.
+		:return: Le tableau (en cas de modification) et les limites du graphique.
 		"""
 		mu, sigma = float(np.mean(data)), float(np.std(data))
 		if limit and sigma > 0:

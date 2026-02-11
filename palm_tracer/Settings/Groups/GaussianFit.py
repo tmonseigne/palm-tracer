@@ -17,15 +17,15 @@ class GaussianFit(BaseSettingGroup):
 
 	Attributs :
 
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) : Méthode d'ajustement Gaussien (par défaut : `Mode X, Y`).
+		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement Gaussien (par défaut : `Mode X, Y`).
 
 			- `0` : `Mode X, Y` (theta et sigma sont fixes)
 			- `1` : `Mode X, Y, Sigma` (theta est fixe, Sigma Non)
 			- `2` : `Mode X, Y, SigmaX, SigmaY` (theta n'est pas fixe, Sigma Si)
 			- `3` : `Mode X, Y, SigmaX, SigmaY, Theta` (theta et sigma ne sont pas fixes)
 
-		- **Sigma** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) : Paramètre σ pour l'ajustement gaussien (par défaut : `1.0`).
-		- **Theta** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat>`) : Paramètre θ pour l'ajustement gaussien (par défaut : `1.0`).
+		- **Sigma** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre σ pour l'ajustement gaussien (par défaut : `1.0`).
+		- **Theta** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre θ pour l'ajustement gaussien (par défaut : `1.0`).
 	"""
 
 	label: str = "Gaussian Fit"

@@ -17,20 +17,15 @@ class CheckRangeInt(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type interval de nombre entier.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
-		- **default** (:class:`[int, int]`) : Valeurs par défaut du paramètre.
-		- **limit** (:class:`[int, int]`) : Valeurs minimale et maximale du paramètre.
-		- **value** (:class:`[int, int]`) : Valeurs minimale et maximale actuelles du paramètre.
-		- **_active** (:class:`bool`) : Indicateur d'activation du paramètre.
-		- **_checkbox** (:class:`QCheckBox`) : CheckBox pour activer le paramètre.
-		- **box** (:class:`[QSpinBox, QSpinBox]`) : Objet QT permettant de manipuler le paramètre.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
+	:param default: Valeurs par défaut du paramètre.
+	:param limits: Valeurs limites du paramètre.
 	"""
 
 	default: list[int] = field(default_factory=lambda: [0, 100])
-	value: list[int] = field(init=False, default_factory=lambda: [0, 100])
+	_value: list[int] = field(init=False, default_factory=lambda: [0, 100])
+
 	limits: list[int] = field(default_factory=lambda: [0, 100])
 	"""Valeur limite du paramètre."""
 
@@ -79,7 +74,7 @@ class CheckRangeInt(BaseSettingType):
 	##################################################
 	@property
 	def active(self) -> bool:
-		"""Permet la lecture de l'état actif."""
+		"""Indicateur d'activation du paramètre (:class:`bool`)."""
 		return self._active
 
 	##################################################
@@ -92,21 +87,21 @@ class CheckRangeInt(BaseSettingType):
 	##################################################
 	@property
 	def box(self) -> list[QSpinBox]:
-		"""
-		Retourne l'objet QT principal associé à ce paramètre.
-
-		:return: Le :class:`QWidget` associé à ce paramètre.
-		"""
+		"""Objets QT permettant de manipuler le paramètre (liste de :class:`QSpinBox`)."""
 		return self._box
 
 	##################################################
-	def get_value(self) -> list[int]:
-		for i in range(2): self.value[i] = self._box[i].value()
-		return self.value
+	@property
+	def value(self) -> list[int]:
+		"""Valeurs actuelles du paramètre (:class:`list[int]`)."""
+		for i in range(2): self._value[i] = self._box[i].value()
+		return self._value
 
 	##################################################
-	def set_value(self, value: list[int]):
-		self.value = value
+	@value.setter
+	def value(self, value: list[int]):
+		"""Valeurs actuelles du paramètre (:class:`list[int]`)."""
+		self._value = value
 		for i in range(2): self._box[i].setValue(value[i])
 
 	# ==================================================
@@ -118,13 +113,19 @@ class CheckRangeInt(BaseSettingType):
 	# ==================================================
 	##################################################
 	def hide(self):
-		"""Cache les widgets."""
-		for b in self._box: b.hide()
+		"""Cache le paramètre."""
+		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, False)
+		else:  # fallback si pas attaché
+			self._label_widget.hide()
+			for b in self._box: b.hide()
 
 	##################################################
 	def show(self):
-		"""Affiche les widgets."""
-		for b in self._box: b.show()
+		"""Affiche le paramètre."""
+		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, True)
+		else:  # fallback si pas attaché
+			self._label_widget.show()
+			for b in self._box: b.show()
 
 	# ==================================================
 	# endregion  Hide and Seek
@@ -136,7 +137,7 @@ class CheckRangeInt(BaseSettingType):
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type":    type(self).__name__, "active": self._active, "label": self.label,
-				"default": self.default, "limit": self.limits, "value": self.value}
+				"default": self.default, "limit": self.limits, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
@@ -149,7 +150,7 @@ class CheckRangeInt(BaseSettingType):
 		# Mise à jour des boites QT
 		for i in range(2):
 			self._box[i].setRange(self.limits[0], self.limits[1])
-			self.set_value(data.get("value", self.default))
+			self.value = data.get("value", self.default)
 
 	# ==================================================
 	# endregion Parsing
@@ -166,16 +167,16 @@ class CheckRangeInt(BaseSettingType):
 	##################################################
 	def check_min(self, value: int):
 		"""S'assure que min ≤ max."""
-		self.value[0] = value
-		if self.value[0] > self.value[1]:
-			self._box[1].setValue(self.value[0])  # Ajuste max si min dépasse max
+		self._value[0] = value
+		if self._value[0] > self._value[1]:
+			self._box[1].setValue(self._value[0])  # Ajuste max si min dépasse max
 
 	##################################################
 	def check_max(self, value: int):
 		"""S'assure que min ≤ max."""
-		self.value[1] = value
-		if self.value[1] < self.value[0]:
-			self._box[0].setValue(self.value[1])  # Ajuste min si max est trop bas
+		self._value[1] = value
+		if self._value[1] < self._value[0]:
+			self._box[0].setValue(self._value[1])  # Ajuste min si max est trop bas
 
 	##################################################
 	def update_limits(self, minimum: int | None = None, maximum: int | None = None):

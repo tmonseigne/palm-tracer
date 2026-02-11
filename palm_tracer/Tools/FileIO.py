@@ -34,6 +34,7 @@ def add_extension(filename: str, extension: str) -> str:
 
 	:param filename: Nom du fichier
 	:param extension: Extension finale du fichier
+	:return: Nom de fichier avec l'extension ajoutée.
 	"""
 	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
 	if not filename.endswith(extension): filename += extension  # .	 Si le fichier n'a pas déjà l'extension, on l'ajoute
@@ -76,7 +77,7 @@ def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha
 	:param path: Chemin du dossier où chercher les fichiers.
 	:param name: Chaîne à rechercher dans les noms de fichiers.
 	:param sort_mode: Mode de tri : "time" : date de modification (par défaut), "alpha" : ordre alphabétique.
-	:return: Chemin complet du dernier fichier trouvé ou une chaîne vide si aucun fichier ne correspond.
+	:return: Chemin complet du dernier fichier trouvé (ou une chaîne vide si aucun fichier ne correspond).
 	"""
 	try:
 		folder = Path(path)
@@ -107,7 +108,12 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 
 ##################################################
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
-	"""Charge une DLL, si elle existe."""
+	"""
+	Charge une DLL, si elle existe.
+
+	:param name: Type de DLL (CPU, GPU)
+	:return: Objet Python stockant la DLL chargée.
+	"""
 	ext = "dll" if sys.platform.startswith("win") else "dylib" if sys.platform == "darwin" else "so"
 	path = DLL_PATH / f"PALMTracer_{name}.{ext}"
 
@@ -228,9 +234,9 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 	Une color Map Napari serait bien en cas de superposition entre un affichage napari et en fond l'image généré.
 
 	:param data: Image 2D (H, W) uint16.
-	:param color_map: nom de colormap Matplotlib.
+	:param color_map: Nom de colormap Matplotlib.
 		Privilégier des cartes **perceptuellement uniformes** ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo').
-		(liste des colormaps : https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+		(`liste des colormaps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_).
 	:return: Image RGB de forme (H, W, 3) en dtype uint8, compatible Pillow et Napari.
 	"""
 	# Récupération de la table de correspondance (LUT)
@@ -244,7 +250,7 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 	rgba = cmap(t, bytes=False)  # float32 en [0,1], shape (65535,4)
 	rgb = rgba[:, :3]
 
-	# Mise à l'échelle -> uint8
+	# Mise à l'échelle ⇾ uint8
 	rgb_u8 = np.rint(rgb * MAX_UI_8).astype(np.uint8)  # (65535, 3)
 
 	# Place les couleurs aux indices 1..65535, laisse 0 à (0,0,0)

@@ -87,7 +87,7 @@ def test_sigma_model():
 ##################################################
 def test_model_validity():
 	"""Test basique pour model_validity."""
-	# Vérification des métriques pour le bon modèle
+	# Vérification des métriques pour le bon modèle.
 	# J'ai un bruit de 0.02 donc rmse environ 0.02 et mae légèrement inférieur, R² très proche de 1 (supérieur à 99% de variance expliquée).
 	res = model_validity(DATASET, REF_MODEL, PIXEL_SIZE, SAMPLING)
 	ref = {'rmse_x': 0.02, 'rmse_y': 0.02, 'rmse_xy': 0.02, 'mae_x': 0.02, 'mae_y': 0.02, 'r2_x': 1, 'r2_y': 1}
@@ -98,7 +98,7 @@ def test_model_validity():
 	ref = {'rmse_x': 1.21, 'rmse_y': 1.21, 'rmse_xy': 1.21, 'mae_x': 1.06, 'mae_y': 1.06, 'r2_x': -2.87, 'r2_y': -2.21}
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Vérification des métriques pour un modèle différent (mais un minimum cohérent avec l'astigmatisme), attendu erreurs encore plus importantes.
+	# Vérification des métriques pour un modèle différent (mais un minimum cohérent avec l'astigmatisme). Attendu : Erreurs encore plus importantes.
 	res = model_validity(DATASET, REF_MODEL2, PIXEL_SIZE, SAMPLING)
 	ref = {'rmse_x': 1.73, 'rmse_y': 1.73, 'rmse_xy': 1.73, 'mae_x': 1.48, 'mae_y': 1.47, 'r2_x': -6.92, 'r2_y': -5.62}
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"

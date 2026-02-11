@@ -39,11 +39,11 @@ def fake_qfiledialog(monkeypatch):
 		import palm_tracer.GUI.AlignmentWidget as alignment_mod
 
 		fake_qfiledialog(alignment_mod, "/chemin/vers/stack.tif")
-		# -> le prochain appel à alignment_mod.QFileDialog.getOpenFileName(...)
+		# ⇾ le prochain appel à alignment_mod.QFileDialog.getOpenFileName(...)
 		#    renverra ("/chemin/vers/stack.tif", "TIFF images (*.tif *.tiff)")
 
 		fake_qfiledialog(alignment_mod, None)
-		# -> simule un "Cancel" (aucun fichier choisi)
+		# ⇾ simule un "Cancel" (aucun fichier choisi)
 	"""
 
 	def _factory(target, filename: str | None, filter_str: str = "TIFF images (*.tif *.tiff)"):
@@ -87,7 +87,7 @@ def cpu_infos() -> str:
 	info = cpuinfo.get_cpu_info()
 	res = info.get("brand_raw") or info.get("processor", "Unknown Processor")
 
-	try:  # Coeurs / threads (tolérant aux erreurs) En cas de problème notamment sur mac
+	try:  # Cœurs / threads (tolérant aux erreurs) En cas de problème notamment sur mac
 		cores = psutil.cpu_count(logical=False) or os.cpu_count()
 		threads = psutil.cpu_count(logical=True) or os.cpu_count()
 	except Exception: cores = threads = os.cpu_count()

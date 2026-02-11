@@ -1,12 +1,15 @@
+"""Fichier de fonctions et constantes utiles pour les tests."""
 import os
 import platform
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, cast, Optional
 
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
+from palm_tracer import PALMTracer
+from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
 
 INPUT_DIR = Path(__file__).parent / "input"
@@ -16,14 +19,23 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Créer le dossier de sorties (l
 IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
 
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
-default_threshold, default_watershed, sigma, theta, roi = 103.6, True, 1.0, 0.0, 7
+default_threshold, default_watershed, default_sigma, default_theta, default_roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4
 save_output = True
 
 
 ##################################################
-def is_headless(): return platform.system() in ("Linux", "Darwin") and IS_CI
+def is_headless():
+	"""Fixture pour éviter les crash sur le Ci Unix et macOS."""
+	return platform.system() in ("Linux", "Darwin") and IS_CI
+
+
+##################################################
+def add_basic_file(pt: PALMTracer, files: Optional[list[str]] = None):
+	"""Mise à jour basique de la liste des fichiers."""
+	file_list = cast(FileList, pt.settings.batch["Files"])
+	file_list.update_box([f"{INPUT_DIR}/stack.tif"] if files is None else files)
 
 
 ##################################################
@@ -34,24 +46,30 @@ def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_waters
 	:param gaussian: Mode du filtre gaussien.
 	:param watershed: Mode du watershed.
 	:param threshold: Seuil.
-	:return: suffixe
+	:return: Suffixe
 	"""
-	return f"{threshold}_{watershed}_{gaussian}_{sigma}_{theta}_{roi}"
+	return f"{threshold}_{watershed}_{gaussian}_{default_sigma}_{default_theta}_{default_roi}"
 
 
 ##################################################
 def get_fit_params(fit: int) -> np.ndarray:
+	"""
+	Basique fit_param pour la localisation.
+
+	:param fit: Type d'ajustement
+	:return: tableau complet
+	"""
 	# np.random.seed(42)
 	# shape = [roi, 16, 16, 297, 0, 10]  # les premiers éléments
 	# nb_random = 16 * 16 * 297 * 64
 	# coeff = np.random.uniform(low=1e-8, high=1e-4, size=nb_random)
 	# coeff = np.asfortranarray(np.load("input/coefficients.npy")) # en colonne major comme matlab
 	# return np.concatenate([np.array(shape, dtype=np.float64), coeff.flatten()])
-	if fit == 0: return np.array([roi], dtype=np.float64)
-	if fit != 5: return np.array([roi, sigma, 2 * sigma, theta], dtype=np.float64)
+	if fit == 0: return np.array([default_roi], dtype=np.float64)
+	if fit != 5: return np.array([default_roi, default_sigma, 2 * default_sigma, default_theta], dtype=np.float64)
 	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
 	sx, sy, sz = calib["coeff"].shape[:3]
-	return np.concatenate([np.array([roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+	return np.concatenate([np.array([default_roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
 
 
 ##################################################
@@ -59,7 +77,7 @@ def get_trc_suffix() -> str:
 	"""
 	Génère un suffixe pour les fichiers de tracking.
 
-	:return: suffixe
+	:return: Suffixe
 	"""
 	return f"{max_distance}_{min_life}_{decrease}_{cost_birth}"
 
@@ -67,11 +85,11 @@ def get_trc_suffix() -> str:
 ##################################################
 def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
 	"""
-	Vérifie que deux valeurs flottantes sont proche avec une tolérance.
+	Vérifie que deux valeurs flottantes sont proches avec une tolérance.
 
 	:param a: Première valeur.
 	:param b: Seconde valeur.
-	:param tol: tolérance (par défaut 0.00001)
+	:param tol: Tolérance (par défaut 0.00001)
 	:return: Vrai si les deux valeurs sont proches
 	"""
 
@@ -86,7 +104,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 
 	Laisser par défaut les colonnes pour des fichiers de localisation issues de plan-tracer python.
 
-	Changer les colonnes à comparer si la localisation viens de Metamorph.
+	Changer les colonnes à comparer si la localisation vient de Metamorph.
 		["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance"]
 
 	Changer les colonnes pour le Tracking
@@ -97,7 +115,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	:param a: Premier DataFrame.
 	:param b: Second DataFrame.
 	:param tol: Tolérance pour la comparaison des valeurs numériques. Defaults to 1e-5.
-	:param group_cols: Colonne de regroupement (pour séparer les plan et les canaux par exemple).
+	:param group_cols: Colonne de regroupement (pour séparer les plans et les canaux par exemple).
 	:param compare_cols: Colonnes à comparer. Defaults toutes les colonnes de localisations
 	:return: True si les fichiers sont similaires selon les critères définis, False sinon.
 	"""
@@ -126,7 +144,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		group_values = (group_values,) if isinstance(group_values, (int, float, str)) else group_values
 		# Construire un masque dynamique pour filtrer `b`
 		mask = (b[col] == val for col, val in zip(group_cols, group_values))
-		group_b = b.loc[pd.concat(mask, axis=1).all(axis=1)]  # Conserver les lignes où toutes les conditions sont vraies
+		group_b = b.loc[pd.concat(mask, axis=1).all(axis=1)]  # Conserver les lignes où toutes les conditions sont vraies.
 		group_a = group_a.reset_index(drop=True)
 		group_b = group_b.reset_index(drop=True)
 		if len(group_a) != len(group_b):
@@ -154,7 +172,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		matched_a = group_a.iloc[matched_a_indices].reset_index(drop=True)
 		matched_b = group_b.iloc[matched_b_indices].reset_index(drop=True)
 
-		# Parcours des lignes dans a
+		# Parcours des lignes dans le premier dataframe.
 		for i, row_a in matched_a.iterrows():
 			row_b = matched_b.iloc[i]  # Récupération du point le plus proche
 
@@ -251,16 +269,6 @@ def get_light_json(data: dict) -> dict:
 
 	data = _prune_json(data)
 	return data
-
-
-##################################################
-def compare_json(a: dict, b: dict) -> bool:
-	"""
-	Version encore plus agressive : retire quelques champs UI souvent non pertinents pour les tests.
-
-	À utiliser si tu veux des snapshots très stables malgré de petites fioritures graphiques.
-	"""
-	return True
 
 
 ##################################################

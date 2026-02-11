@@ -62,9 +62,9 @@ SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["colum
 ##################################################
 def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
-	:param data: liste des informations en entrée
-	:return: Dataframe contennant les metadonnées
-	:raises ValueError: Si le nombre d'éléments ne corresponds au nombre attendu pour le fichier meta.
+	:param data: Liste des informations en entrée
+	:return: :class:`DataFrame <pandas.DataFrame>` contennant les metadonnées
+	:raises ValueError: Si le nombre d'éléments ne correspond au nombre attendu pour le fichier meta.
 	"""
 	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
 
@@ -108,7 +108,7 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
-		columns = columns + remaining_columns  # .								   Ajout des colonnes restantes aux colonnes de départ
+		columns += remaining_columns  # .										   Ajout des colonnes restantes aux colonnes de départ
 
 	if list(data.columns[:len(columns)]) == columns: return data  # .			   Optimisation : évite la copie si déjà bon ordre
 	return data.loc[:, columns]  # .											   Réorganisation du DataFrame
@@ -118,9 +118,9 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
 	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égale à 0).
-	:param data: dataframe à modifier
+	:param data: Dataframe à modifier
 	:param columns: Colonnes à modifier
-	:return: dataframe avec les colonnes ayant été modifié.
+	:return: Dataframe avec les colonnes ayant été modifié.
 	"""
 	with np.errstate(divide='ignore', invalid='ignore'):
 		logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
@@ -134,18 +134,18 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	Parsing du résultat de la DLL PALM.
 
 	Entrée : un tableau 1D où chaque bloc est encodé comme : [L, x0, x1, ..., x{L-1}, L2, y0, y1, ..., ...]
-	Le parsing s'arrête dès qu'un L <= 0 est rencontré.
+	Le parsing s'arrête dès qu'un L ≤ 0 est rencontré.
 
 	Règles :
 		- Le premier élément d'un bloc (L) donne le nombre d'éléments qui suivent pour ce bloc.
-		- Les longueurs négatives ou nulle (L <= 0) signalent la fin du flux.
+		- Les longueurs négatives ou nulle (L ≤ 0) signalent la fin du flux.
 		- Les blocs tronqués (pas assez d'éléments après L) lèvent une ``ValueError``.
 		- Les valeurs des blocs (sans L) sont retournées dans le DataFrame.
 		- Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN.
 
 	:param data: Données 1D récupérées depuis la DLL PALM. Doit être indexable et de dimension 1.
-	:return: DataFrame où chaque ligne correspond à un bloc et les colonnes contiennent les valeurs du bloc, complétées par NaN si nécessaire.
-	:raise ValueError: entrée invalide (nombre de dimensions ou taille finale incorrecte)
+	:return: :class:`DataFrame <pandas.DataFrame>` où chaque ligne correspond à un bloc et les colonnes contiennent les valeurs du bloc, complétées par NaN.
+	:raise ValueError: Entrée invalide (nombre de dimensions ou taille finale incorrecte)
 	"""
 	if data.ndim != 1:
 		raise ValueError("`data` doit être un tableau 1D.")
@@ -194,13 +194,13 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	Pour les calculs sur trajectoire, on a un tableau 1D representant un talbeau 2D irrégulier
-	(avec un nombre de colonnes non constant (:func:`parse_irregular_array`)
+	(avec un nombre de colonnes non constant (:func:`parse_irregular_array`).
 
 	:param data: Donnée en entrée récupérées depuis la DLL PALM.
 	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit)
 	:param is_log: Applique un logarithme sur le résultat (si necessaire, pour les calculs sur trajectoires).
 	:param fit_mode: Mode d'ajustement (si necessaire, pour les calculs sur trajectoires).
-	:return: Dataframe parsé
+	:return: :class:`DataFrame <pandas.DataFrame>` parsé
 	"""
 	# Récupération des éléments
 	if not file_type in FILES_COLUMNS: raise ValueError(f"file_type incorrect.")
@@ -224,7 +224,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 			log_col = [f"{columns[1]} {i}" for i in range(1, ncols)]
 			res.columns = [columns[0]] + log_col
 		else:
-			# les colonnes dépendent du fit
+			# les colonnes dépendent de l'ajustement.
 			log_col = columns[2:]
 			if not 1 <= fit_mode <= 3: raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
 			log_col += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
@@ -240,10 +240,10 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 ##################################################
 def parse_localization_for_tracking(data: pd.DataFrame) -> np.ndarray:
 	"""
-	Parsing du résultat de la localisation pour la DLL de Tracking.
+	Parsing du résultat de la localisation pour le suivi au sein de la DLL.
 
 	:param data: Donnée en entrée récupérées depuis la localisation.
-	:return: ``np.ndarray``
+	:return: :class:`ndarray <numpy.ndarray>` transformé pour le suivi.
 	"""
 	# Ajoute une ligne de -1 à chaque changement de Plan dans la localisation
 	res = []

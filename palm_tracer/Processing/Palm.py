@@ -22,7 +22,7 @@ C_UINT, C_BOOL, C_DBL = ctypes.c_uint32, ctypes.c_bool, ctypes.c_double
 @dataclass
 class Palm:
 	"""Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés."""
-	_type: str = field(init=True, default="CPU")
+	_type: str = field(init=False, default="CPU")
 	"""Type de DLL, par défaut CPU, GPU également possible."""
 	_dll: ctypes.CDLL = field(init=False)
 	"""DLL chargée."""
@@ -111,7 +111,7 @@ class Palm:
 		Retourne un tableau C-contigu du dtype demandé, sans copie si possible.
 
 		:param a: Tableau d'entrée.
-		:param dtype: dtype souhaité.
+		:param dtype: Dtype souhaité.
 		:param writeable: Garantit un buffer modifiable si True.
 		:return: Tableau C-contigu compatible DLL.
 		"""
@@ -143,13 +143,13 @@ class Palm:
 		:param fit: Mode d'ajustement (défini par `get_fit`).
 		:param fit_params: Paramètres du mode d'ajustement.
 		:param planes: Liste des plans à analyser (None pour tous les plans, les plans sont contigus par rincipe).
-		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		"""
 		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguité
 		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
 		height, width = stk.shape[-2:]  # .												 Récupère les deux dernières dimensions
-		n_planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							 Récupère le nombre de plan si 3D sinon 1
-		if planes is None: planes = list(range(n_planes))  # .							 Si aucune sélection, liste de tout les plans
+		n_planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							 Récupère le nombre de plans si 3D sinon 1
+		if planes is None: planes = list(range(n_planes))  # .							 Si aucune sélection, liste de tous les plans
 		else: planes = [p for p in planes if 0 <= p < n_planes]  # .					 Sinon, sélection des plans valides
 		n_planes = len(planes)  # .														 Nouveau nombre de plans
 		n_max = get_max_points(height, width, n_planes)  # .							 Récupération d'un nombre de points maximum théorique
@@ -162,7 +162,7 @@ class Palm:
 									   C_UINT(n_planes), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB))
 
 		res = parse_result(locs[:count], "Localization")
-		if planes[0] != 0: res["Plane"] += planes[0]  # En cas de filtre de plans on incrémente leur numéro
+		if planes[0] != 0: res["Plane"] += planes[0]  # En cas de filtre des plans, on incrémente leur numéro
 		return res
 
 	##################################################
@@ -187,12 +187,12 @@ class Palm:
 		Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies,
 		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
 
-		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux frames successives.
 		:param min_life: Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final.
 		:param decrease: Facteur de pénalisation appliqué au coût d'association entre frames éloignées.
 		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
-		:return: DataFrame contenant les trajectoires détectées.
+		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
 		required = FILES_COLUMNS["Localization"]["columns"]
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
@@ -213,11 +213,11 @@ class Palm:
 		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
 
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
+		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillemnt.
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
-		:return: DataFrame contenant les trajectoires détectées.
+		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
 		required = FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return pd.DataFrame()
@@ -240,16 +240,16 @@ class Palm:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
 
-		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçu de la DLL.
-		:param is_msd: Calcul MSD à effectuer si vrai.
-		:param is_ind: Calcul Instant Diffusion à effectuer si vrai.
+		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param is_msd: Calcul MSD.
+		:param is_ind: Calcul de la diffusion instantannée.
 		:param is_3d: Calcul sur la 3D.
 		:param is_log: Applique un logarithme sur le résultat.
 		:param pixel_size: Taille des pixels en micromètre.
 		:param exposure_time: Calibration temporelle utile pour les calculs.
 		:param fit_mode: Mode d'ajustement.
 		:param fit_params: Paramètres de l'ajustement (pour le moment uniquement fit length).
-		:return: DataFrame contenant les trajectoires détectées.
+		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 
 		.. note::
 			Pour obtenir des valeurs de diffusion en **µm²**, le paramètre ``pixel_size``
@@ -259,7 +259,7 @@ class Palm:
 		required = FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return res
 		in_tracks = tracks[required].copy()
-		if not is_3d: in_tracks["Z"] = 0  # On simplifie, la suite les calculs se font toujours en 3D mais la dernière dimension sera nulle
+		if not is_3d: in_tracks["Z"] = 0  # On simplifie, la suite les calculs se font toujours en 3D, mais la dernière dimension sera nulle
 
 		in_tracks = in_tracks.to_numpy(dtype=np.float64, copy=False)  # .				   Passage en tableau numpy
 		in_tracks = self._as_c_contig(in_tracks, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
@@ -304,7 +304,7 @@ class Palm:
 		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .	  Assurance de contiguité
 		params = self._as_c_contig(factors, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
 		height, width = stk.shape[-2:]  # .											  Récupère les deux dernières dimensions
-		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							  Récupère le nombre de plan si 3D sinon 1
+		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							  Récupère le nombre de plans si 3D sinon 1
 
 		out = np.empty((planes, height * upsampling, width * upsampling), dtype=np.uint16, order="C")
 		self._dll.Alignment(stk.ctypes.data_as(C_IMG), out.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), C_UINT(planes),
@@ -322,7 +322,7 @@ class Palm:
 		"""
 		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # Assurance de contiguité
 		height, width = stk.shape[-2:]  # .										Récupère les deux dernières dimensions
-		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .						Récupère le nombre de plan si 3D sinon 1
+		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .						Récupère le nombre de plans si 3D sinon 1
 
 		out = np.empty((planes, height, width), dtype=np.float64, order="C")
 

@@ -17,29 +17,23 @@ class CheckRangeFloat(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type interval de nombre flottant.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
-		- **default** (:class:`[float, float]`) : Valeurs par défaut du paramètre.
-		- **limit** (:class:`[float, float]`) : Valeurs minimale et maximale du paramètre.
-		- **value** (:class:`[float, float]`) : Valeurs minimale et maximale actuelles du paramètre.
-		- **precision** (:class:`int`) : Précision du paramètre.
-		- **_active** (:class:`bool`) : Indicateur d'activation du paramètre.
-		- **_checkbox** (:class:`QCheckBox`) : CheckBox pour activer le paramètre.
-		- **box** (:class:`[QDoubleSpinBox, QDoubleSpinBox]`) : Objet QT permettant de manipuler le paramètre.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
+	:param default: Valeurs par défaut du paramètre.
+	:param limits: Valeurs limites du paramètre.
+	:param precision: Precision du paramètre.
 	"""
 
 	default: list[float] = field(default_factory=lambda: [-1, 1])
-	value: list[float] = field(init=False, default_factory=lambda: [-1, 1])
+	_value: list[float] = field(init=False, default_factory=lambda: [-1, 1])
 
 	limits: list[float] = field(default_factory=lambda: [-1, 1])
 	"""Valeurs limites du paramètre."""
 	precision: int = 2
 	"""Precision du paramètre."""
+
 	_active: bool = field(init=False, default=False)
 	"""Indicateur d'activation du paramètre."""
-
 	_checkbox: QCheckBox = field(init=False)
 	"""CheckBox pour activer le paramètre."""
 	_box: list[QDoubleSpinBox] = field(init=False, default_factory=lambda: [QDoubleSpinBox(), QDoubleSpinBox()])
@@ -83,7 +77,7 @@ class CheckRangeFloat(BaseSettingType):
 	##################################################
 	@property
 	def active(self) -> bool:
-		"""Permet la lecture de l'état actif."""
+		"""Indicateur d'activation du paramètre (:class:`bool`)."""
 		return self._active
 
 	##################################################
@@ -96,21 +90,21 @@ class CheckRangeFloat(BaseSettingType):
 	##################################################
 	@property
 	def box(self) -> list[QDoubleSpinBox]:
-		"""
-		Retourne l'objet QT principal associé à ce paramètre.
-
-		:return: Le :class:`QWidget` associé à ce paramètre.
-		"""
+		"""Objets QT permettant de manipuler le paramètre (liste de :class:`QDoubleSpinBox`)."""
 		return self._box
 
 	##################################################
-	def get_value(self) -> list[float]:
-		for i in range(2): self.value[i] = self._box[i].value()
-		return self.value
+	@property
+	def value(self) -> list[float]:
+		"""Valeurs actuelles du paramètre (:class:`list[float]`)."""
+		for i in range(2): self._value[i] = self._box[i].value()
+		return self._value
 
 	##################################################
-	def set_value(self, value: list[float]):
-		self.value = value
+	@value.setter
+	def value(self, value: list[float]):
+		"""Valeurs actuelles du paramètre (:class:`list[float]`)."""
+		self._value = value
 		for i in range(2): self._box[i].setValue(value[i])
 
 	# ==================================================
@@ -146,7 +140,7 @@ class CheckRangeFloat(BaseSettingType):
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type":    type(self).__name__, "active": self._active, "label": self.label,
-				"default": self.default, "limit": self.limits, "value": self.value, "precision": self.precision}
+				"default": self.default, "limit": self.limits, "value": self._value, "precision": self.precision}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
@@ -161,7 +155,7 @@ class CheckRangeFloat(BaseSettingType):
 		for i in range(2):
 			self._box[i].setRange(self.limits[0], self.limits[1])
 			self._box[i].setDecimals(self.precision)
-			self.set_value(data.get("value", self.default))
+			self.value = data.get("value", self.default)
 
 	# ==================================================
 	# endregion  Parsing
@@ -178,14 +172,14 @@ class CheckRangeFloat(BaseSettingType):
 	##################################################
 	def check_min(self, value: float):
 		"""S'assure que min ≤ max."""
-		self.value[0] = value
-		if self.value[0] > self.value[1]: self._box[1].setValue(self.value[0])  # Ajuste max si min dépasse max
+		self._value[0] = value
+		if self._value[0] > self._value[1]: self._box[1].setValue(self._value[0])  # Ajuste max si min dépasse max
 
 	##################################################
 	def check_max(self, value: float):
 		"""S'assure que min ≤ max."""
-		self.value[1] = value
-		if self.value[1] < self.value[0]: self._box[0].setValue(self.value[1])  # Ajuste min si max est trop bas
+		self._value[1] = value
+		if self._value[1] < self._value[0]: self._box[0].setValue(self._value[1])  # Ajuste min si max est trop bas
 
 	##################################################
 	def update_limits(self, minimum: float | None = None, maximum: float | None = None):

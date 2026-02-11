@@ -183,7 +183,7 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	out, err = capsys.readouterr()
 	assert "No Plane Column in file. We can't use it to intialize Z." in out
 
-	# Ajout d'une colonne Plane de 1 à N
+	# Ajout d'une colonne Plane de 1 à N.
 	w._loc["Plane"] = range(1, len(w._loc) + 1)
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
 	out, err = capsys.readouterr()
@@ -320,7 +320,7 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de vérification de lien entre les spin pixel size."""
+	"""Test basique de vérification de lien entre les spins pixel size."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)

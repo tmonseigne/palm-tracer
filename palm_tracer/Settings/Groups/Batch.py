@@ -1,5 +1,6 @@
 """
-Fichier contenant la classe :class:`Batch` dérivée de :class:`.BaseSettingGroup`, qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
+Fichier contenant la classe :class:`Batch` dérivée de :class:`.BaseSettingGroup`,
+qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
 """
 
 from dataclasses import dataclass
@@ -20,14 +21,14 @@ class Batch(BaseSettingGroup):
 	Classe contenant les informations de batch de fichiers :
 
 	Attributs :
-		- **Files** (:class:`FileList <palm_tracer.Settings.Types.FileList>`) : Liste des fichiers au Batch.
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo>`) : Méthode d'utilisation du Batch
+		- **Files** (:class:`FileList <palm_tracer.Settings.Types.FileList.FileList>`) : Liste des fichiers au Batch.
+		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'utilisation du Batch
 		  (Un seul fichier est traité ou chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition).
 	"""
 
 	label: str = "Batch"
 	setting_list = {
-			"Files": [FileList, ["Files", "", 0, []]],
+			"Files": [FileList, ["Files", ""]],
 			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]],
 			}
 
@@ -40,7 +41,7 @@ class Batch(BaseSettingGroup):
 		:return: Chemin complet du dossier généré.
         """
 		file_list = cast(FileList, self._settings["Files"])
-		mode = self._settings["Mode"].get_value()
+		mode = self._settings["Mode"].value
 
 		files = file_list.get_list().copy()
 		results: list[str] = []
@@ -57,13 +58,14 @@ class Batch(BaseSettingGroup):
 	##################################################
 	def get_stacks(self) -> list[np.ndarray]:
 		"""
-		Récupère la liste de piles en fonction des paramètres
-		:return: Une liste de pile en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de pile)
+		Récupère la liste de piles en fonction des paramètres.
+
+		:return: Une liste de pile en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de pile).
 		"""
 		res = list[np.ndarray]()
 		file_list = cast(FileList, self._settings["Files"])
 		files = file_list.get_list()
-		mode = self._settings["Mode"].get_value()
+		mode = self._settings["Mode"].value
 		if not files: return res  # .					   Aucun fichier dans le Batch
 		if mode == 0:  # .								   Mode Only One
 			res.append(FileIO.open_tif(file_list.get_selected()))

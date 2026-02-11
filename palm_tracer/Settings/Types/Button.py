@@ -16,11 +16,8 @@ class Button(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type bouton à cliquer.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
-		- **box** (:class:`QSpinBox`) : Objet QT permettant de manipuler le paramètre.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
 	"""
 
 	_box: QPushButton = field(init=False)
@@ -39,19 +36,6 @@ class Button(BaseSettingType):
 
 	# ==================================================
 	# endregion Initialization
-	# ==================================================
-
-	# ==================================================
-	# region Getter/Setter
-	# ==================================================
-	##################################################
-	def get_value(self) -> bool: return True
-
-	##################################################
-	def set_value(self, value: str): pass
-
-	# ==================================================
-	# endregion Getter/Setter
 	# ==================================================
 
 	# ==================================================

@@ -38,13 +38,13 @@ def test_disconnect(sw: SignalWrapper):
 	assert received2 == ["X"]
 	sw.disconnect(slot)
 	sw.emit("Y")
-	assert received == ["X"]  # .	  On n'est pas sensé avoir reçu la suite.
-	assert received2 == ["X", "Y"]  # On n'a pas déconnecté celui là.
+	assert received == ["X"]  # .	  On n'est pas censé avoir reçu la suite.
+	assert received2 == ["X", "Y"]  # On n'a pas déconnecté celui-là.
 	sw.disconnect()
 	sw.emit("Z")
 
-	assert received == ["X"]  # .	  On n'est pas sensé avoir reçu la suite.
-	assert received2 == ["X", "Y"]  # On n'est pas sensé avoir reçu la suite.
+	assert received == ["X"]  # .	  On n'est pas censé avoir reçu la suite.
+	assert received2 == ["X", "Y"]  # On n'est pas censé avoir reçu la suite.
 
 
 ##################################################
@@ -114,15 +114,14 @@ def test_block_flags_reset_after_flush(sw: SignalWrapper):
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
-	# On déclenche une coalescence
+	# On déclenche une coalescence.
 	with sw.blocked(): sw.emit("Z")
 
-	# Après la sortie, les champs doivent être remis à zéro côté instance
-	# (un nouvel emit doit re-partir à propre)
+	# Après la sortie, les champs doivent être remis à zéro côté instance (un nouvel emit doit re-partir à propre).
 	assert received == ["Z"]
-	# Forcer un autre cycle de blocage pour vérifier que rien n'est 'retenu'
+	# Forcer un autre cycle de blocage pour vérifier que rien n'est 'retenu'.
 	with sw.blocked(): pass
-	# Pas d'émission supplémentaire
+	# Pas d'émission supplémentaire.
 	assert received == ["Z"]
 
 

@@ -16,20 +16,16 @@ class Combo(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type liste déroulante.
 
-	Attributs :
-		- **label** (:class:`str`) : Nom du paramètre à afficher.
-		- **_layout** (:class:`QFormLayout`) : Le calque associé à ce paramètre, initialisé par défaut à un :class:`QFormLayout`.
-		- **_signal** (:class:`SignalWrapper`) : Signal permettant de communiquer avec l'interface.
-		- **default** (:class:`int`) : Valeur par défaut du paramètre.
-		- **items** (:class:`list[str]`) : Choix de la liste déroulante.
-		- **value** (:class:`int`) : Valeur actuelle du paramètre.
-		- **box** (:class:`QComboBox`) : Objet QT permettant de manipuler le paramètre.
+	:param label: Nom du paramètre à afficher
+	:param tooltip: Description détaillée en overlay.
+	:param default: Valeurs par défaut du paramètre.
+	:param items: Choix de la liste déroulante.
 	"""
 
 	default: int = 0
-	value: int = field(init=False, default=0)
+	_value: int = field(init=False, default=0)
 	items: list[str] = field(default_factory=lambda: [""])
-	"""Choix de la liste déroulante."""
+	"""Choix de la liste déroulante (:class:`list[str]`)."""
 
 	_box: QComboBox = field(init=False, default_factory=lambda: QComboBox())
 
@@ -41,7 +37,7 @@ class Combo(BaseSettingType):
 		super().initialize()  # .							Appelle l'initialisation de la classe mère.
 		self._box.addItems(self.items)  # .					Ajout des choix possibles.
 		self._box.currentIndexChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-		self.set_value(self.default)  # .					Définition de la valeur.
+		self.value = self.default  # .						Définition de la valeur.
 		self._layout.addWidget(self._box)  # .				Ajout du champ de texte
 		self._layout.addStretch(1)  # .						Pousse tout à gauche, espace vide à droite
 
@@ -53,13 +49,17 @@ class Combo(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_value(self) -> int:
-		self.value = self._box.currentIndex()
-		return self.value
+	@property
+	def value(self) -> int:
+		"""Valeur actuelle du paramètre (:class:`int`)."""
+		self._value = self._box.currentIndex()
+		return self._value
 
 	##################################################
-	def set_value(self, value: int):
-		self.value = value
+	@value.setter
+	def value(self, value: int):
+		"""Valeur actuelle du paramètre (:class:`int`)."""
+		self._value = value
 		self._box.setCurrentIndex(value)
 
 	# ==================================================
@@ -71,7 +71,7 @@ class Combo(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self.value}
+		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self.items, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
@@ -79,7 +79,7 @@ class Combo(BaseSettingType):
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
 		self.update_box(data.get("items", [""]))
-		self.set_value(data.get("value", self.default))
+		self.value = data.get("value", self.default)
 
 	# ==================================================
 	# endregion  Parsing

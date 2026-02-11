@@ -14,12 +14,13 @@ POINTS = np.stack([rng.uniform(1, SIZE_X - 1, size=SIZE), rng.uniform(1, SIZE_Y 
 
 ##################################################
 def get_tracks_test() -> pd.DataFrame:
+	"""Dataset de trajectoires de test."""
 	t0 = pd.DataFrame({"Track": [0], "Plane": [0], "X": [SIZE_X * 0.25], "Y": [SIZE_Y * 0.25], "Color": [65000]})
 
 	n = 50
 	cx, cy = SIZE_X / 2.0, SIZE_Y / 2.0
 	t = np.linspace(0.0, 7.0 * np.pi, n)  # 3.5 tours environ
-	k = 1.0  # r_max ≈ 22 < 25 → on reste dans l'image en Y
+	k = 1.0  # r_max ≈ 22 < 25 → on reste dans l'image en Y.
 	r = k * t
 	x_sp = cx + r * np.cos(t)
 	y_sp = cy + r * np.sin(t)
@@ -41,6 +42,7 @@ def test_normalize_data():
 	"""Test de la normalisation de données."""
 	data = np.array([])  # Cas 0 liste vide
 	res = normalize_data(data, scale=1)
+	assert np.array_equal(res, data), "Normalisation incorrecte"
 
 	data = np.array([-1, -1, -1])  # Cas 1 colonne uniforme
 	res = normalize_data(data, scale=1)
@@ -50,15 +52,15 @@ def test_normalize_data():
 	res = normalize_data(data, scale=1)
 	assert np.array_equal(res, np.array([0.1, 0.5, 1.0])), "Normalisation incorrecte"
 
-	data = np.array([-2, 0, 2])  # Cas 3 [négatif:positif] -> [0:4]
+	data = np.array([-2, 0, 2])  # Cas 3 [négatif:positif] ⇾ [0:4]
 	res = normalize_data(data, scale=4)
 	assert np.array_equal(res, np.array([0, 2, 4])), "Normalisation incorrecte"
 
-	data = np.array([-3, 0, 3])  # Cas 3 [négatif:positif] -> [0:8]
+	data = np.array([-3, 0, 3])  # Cas 3 [négatif:positif] ⇾ [0:8]
 	res = normalize_data(data, scale=8)
 	assert np.array_equal(res, np.array([1, 4, 7])), "Normalisation incorrecte"
 
-	data = np.array([500, 750, 1000])  # Cas 4 [x:y] -> [0:1024]
+	data = np.array([500, 750, 1000])  # Cas 4 [x:y] ⇾ [0:1024]
 	res = normalize_data(data, scale=1024)
 	assert np.array_equal(res, np.array([500, 750, 1000])), "Normalisation incorrecte"
 
@@ -122,7 +124,7 @@ def test_render_tracks_image_bad_input():
 
 ##################################################
 def test_render_roi():
-	"""Test de la visualisation de des ROI sur une image."""
+	"""Test de la visualisation des ROIs sur une image."""
 	visualization = render_hr_image(SIZE_X, SIZE_Y, RATIO, POINTS)
 	roi = render_roi(visualization, POINTS[:, :2] * RATIO, 7, [0, 255, 0])
 	save_png(roi, f"{OUTPUT_DIR}/test_render_roi.png")
@@ -139,7 +141,7 @@ def test_render_roi_bad_input():
 
 ##################################################
 def test_plot_histogram():
-	"""Test de la visualisation du histogramme."""
+	"""Test de la visualisation de l'histogramme."""
 	datas = rng.normal(loc=10, scale=5, size=(int(SIZE * np.sqrt(SIZE)), 1))
 	# Ajouter des aberrations (bruit) aux points
 	aberration = rng.uniform(-5, 5, datas.shape)
@@ -163,7 +165,7 @@ def test_plot_histogram():
 
 ##################################################
 def test_plot_histogram_bad_input():
-	"""Test de la visualisation du histogramme avec une mauvaise entrée."""
+	"""Test de la visualisation de l'histogramme avec une mauvaise entrée."""
 	fig, ax = plt.subplots()
 	plot_histogram(ax, np.zeros((2, 2)), "Histogram")
 	fig.savefig(f"{OUTPUT_DIR}/test_plot_histogram_bad_input_constant_datas.png", bbox_inches="tight")

@@ -1,10 +1,8 @@
 """Fichier des tests pour le widget."""
-from typing import cast
 
 import pytest
 from qtpy.QtCore import Qt
 
-from palm_tracer import PALMTracer
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.UI import GraphViewerWidget
@@ -17,10 +15,10 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 
 ##################################################
 def get_pt():
+	"""Instance basique de PALMTracer pour chaque test."""
 	pt = PALMTracer()
 	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.items = [f"{INPUT_DIR / 'stack.tif'}"]
-	file_list.update_box()
+	file_list.update_box([f"{INPUT_DIR / 'stack.tif'}"])
 	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
 	pt.df["f_loc"] = pt.df["loc"].copy()
 	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
@@ -64,12 +62,12 @@ def test_actualize(w: GraphViewerWidget, qtbot):
 
 	w._actualize()  # Actualize
 
-	ref = w._filters["Plane"].get_value()
+	ref = w._filters["Plane"].value
 	new_f = [2, 50]
-	w._filters["Plane"].set_value(new_f)
-	assert w._filters["Plane"].get_value() == new_f, "Filtre incorrect."
+	w._filters["Plane"].value = new_f
+	assert w._filters["Plane"].value == new_f, "Filtre incorrect."
 	w._actualize()
-	assert w._filters["Plane"].get_value() == ref, "Filtre incorrect."
+	assert w._filters["Plane"].value == ref, "Filtre incorrect."
 
 	w.close()
 
@@ -99,13 +97,13 @@ def test_update_filtered(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	ref = w._filters["Plane"].get_value()
+	ref = w._filters["Plane"].value
 	new_f = [2, 50]
-	w._filters["Plane"].set_value(new_f)
-	assert w._filters["Plane"].get_value() == new_f, "Filtre incorrect."
-	assert w._pt.settings.filtering["Plane"].get_value() == ref, "Filtre incorrect."
+	w._filters["Plane"].value = new_f
+	assert w._filters["Plane"].value == new_f, "Filtre incorrect."
+	assert w._pt.settings.filtering["Plane"].value == ref, "Filtre incorrect."
 	w._update_filtered()
-	assert w._pt.settings.filtering["Plane"].get_value() == new_f, "Filtre incorrect."
+	assert w._pt.settings.filtering["Plane"].value == new_f, "Filtre incorrect."
 
 	w.close()
 
@@ -170,7 +168,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	# Plot pour la pile filtrée
 	w._filters["Plane"].active = True
-	w._filters["Plane"].set_value([2, 50])
+	w._filters["Plane"].value = [2, 50]
 
 	data, title = w.get_plot_data()
 	ref_title, ref_shape = "Stack Intensity", (9, 128, 256)
@@ -236,7 +234,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 	# Changement de Step.
-	w._display_settings["MSD"].set_value(3)
+	w._display_settings["MSD"].value = 3
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks MSD Step 3", (6, 2), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
@@ -244,7 +242,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	# np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
-	w._display_settings["MSD"].set_value(8)
+	w._display_settings["MSD"].value = 8
 	data, title = w.get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks MSD Step 8", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
@@ -288,7 +286,7 @@ def test_status(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	# Clés vides (il vérifie juste que les dataframe ne sont pas vide dans ce cas il indique que c'est bon)
+	# Clés vides (il vérifie juste que les dataframe ne sont pas vide dans ce cas, il indique que c'est bon)
 	ref = {"loc": w.FILE_STATUS[1], "trc": w.FILE_STATUS[1], "MSD": w.FILE_STATUS[1], "InD": w.FILE_STATUS[1], "Fit": w.FILE_STATUS[1]}
 	res = w._get_status("", "", ["", "", ""])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
@@ -302,12 +300,12 @@ def test_status(w: GraphViewerWidget, qtbot, capsys):
 	res = w._get_status("f_loc", "f_trc", ["f_MSD", "f_InD", "f_Fit"])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Clés pour dataframes simples mais trajectoires reconnecté
+	# Clés pour dataframes simples, mais trajectoires reconnectées.
 	ref = {"loc": w.FILE_STATUS[1], "trc": w.FILE_STATUS[3], "MSD": w.FILE_STATUS[1], "InD": w.FILE_STATUS[1], "Fit": w.FILE_STATUS[1]}
 	res = w._get_status("loc", "blk", ["MSD", "InD", "Fit"])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Clés pour dataframes filtrés mais trajectoires reconnecté
+	# Clés pour dataframes filtrés, mais trajectoires reconnectées.
 	ref = {"loc": w.FILE_STATUS[2], "trc": w.FILE_STATUS[4], "MSD": w.FILE_STATUS[2], "InD": w.FILE_STATUS[2], "Fit": w.FILE_STATUS[2]}
 	res = w._get_status("f_loc", "f_blk", ["f_MSD", "f_InD", "f_Fit"])
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
@@ -329,7 +327,7 @@ def test_tracks_source(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	# Récupération des sources classique
+	# Récupération des sources classiques.
 	ref = ["Length", "MSD", "Instant Diffusion", "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE"]
 	res = w._get_tracks_src()
 	assert ref == res, f"Liste des sources incorrecte.\nAttendu : {ref}\nObtenu : {res}"

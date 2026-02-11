@@ -88,9 +88,9 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
-	- Clic sur 'Compute coefficients' sans stack -> message d'erreur.
+	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
 	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée -> message 'not implemented'.
+	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
 	"""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
@@ -111,9 +111,9 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
-	- Clic sur 'Compute coefficients' sans stack -> message d'erreur.
+	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
 	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée -> message 'not implemented'.
+	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
 	"""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
@@ -142,9 +142,9 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
-	- Clic sur 'Compute coefficients' sans stack -> message d'erreur.
+	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
 	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée -> message 'not implemented'.
+	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
 	"""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
@@ -178,9 +178,9 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
 
-	- Clic sur 'Compute coefficients' sans stack -> message d'erreur.
+	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
 	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée -> message 'not implemented'.
+	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
 	"""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
