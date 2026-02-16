@@ -15,8 +15,7 @@ Ce sous-package gère les paramètres de configuration et l'interface utilisateu
 """
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
-from . import Groups, Types
 from .Settings import Settings
 
 # Définir la liste des symboles exportés
-__all__ = ["Settings", "Groups", "Types"]
+__all__ = ["Groups", "Types", "Settings"]

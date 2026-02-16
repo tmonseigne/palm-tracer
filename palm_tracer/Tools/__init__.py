@@ -14,10 +14,9 @@ Ce sous-package contient des outils utilitaires pour le projet SampleMaker.
 """
 
 # Exemple d'importation des modules pour un accès direct
-from . import FileIO, Ui
 from .FileMigrator import FileMigrator
 from .Logger import Logger
 from .Monitoring import Monitoring
 
 # Définir la liste des symboles exportés
-__all__ = ["FileIO", "FileMigrator", "Logger", "Monitoring", "Ui"]
+__all__ = ["FileIO", "Ui", "FileMigrator", "Logger", "Monitoring"]

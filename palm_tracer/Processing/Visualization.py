@@ -133,7 +133,7 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 	df["X"] = np.rint(df["X"].to_numpy(dtype=float) * ratio)
 	df["Y"] = np.rint(df["Y"].to_numpy(dtype=float) * ratio)
 
-	df["Color"] = np.clip(df["Color"], 0, MAX_UI_16).astype(np.uint16, copy=False)
+	df["Color"] = np.clip(df["Color"], 0, MAX_UI_16).astype(np.uint16)
 
 	# Tri stable : par Track puis Plane puis index (ordre d'origine)
 	df = df.sort_values(["Track", "Plane"], kind="mergesort")

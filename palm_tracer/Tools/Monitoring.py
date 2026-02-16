@@ -120,17 +120,27 @@ class Monitoring:
 	def _update(self):
 		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
-		if not self._thread.is_alive(): return  # .		   pragma: no cover	(n'arrive qu'en cas de crash)
-		pytest_pid = os.getpid()  # .					   PID de pytest
-		pytest_proc = psutil.Process(pytest_pid)  # .	   Récupère le processus parent
-		children = pytest_proc.children(recursive=True)  # Cible les processus enfants
-		processes = [pytest_proc] + children  # .		   Inclut le processus principal et ses enfants
+		try:
+			pytest_pid = os.getpid()  # .					   PID de pytest
+			pytest_proc = psutil.Process(pytest_pid)  # .	   Récupère le processus parent
+			children = pytest_proc.children(recursive=True)  # Cible les processus enfants
+			processes = [pytest_proc] + children  # .		   Inclut le processus principal et ses enfants
+		except (psutil.NoSuchProcess, psutil.AccessDenied): return
 
-		self._cpu.append(sum(proc.cpu_percent(interval=self.interval) for proc in processes))
-		self._memory.append(sum(proc.memory_info().rss for proc in processes))
-		# "Darwin" est le nom de macOS dans platform.system()
-		if platform.system() != "Darwin": self._disk.append(sum(proc.io_counters().write_bytes for proc in processes))
-		else: self._disk.append(0)  # pragma: no cover
+		cpu, mem, disk = 0.0, 0, 0
+
+		for proc in processes:
+			try:
+				# Non bloquant : psutil calcule le delta depuis l’appel précédent.
+				cpu += proc.cpu_percent(interval=None)
+				mem += proc.memory_info().rss
+				# "Darwin" est le nom de macOS dans platform.system()
+				if platform.system() != "Darwin": disk += proc.io_counters().write_bytes
+			except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess): continue
+
+		self._cpu.append(cpu)
+		self._memory.append(mem)
+		self._disk.append(disk)
 
 		if self._gpu_handle:
 			try:
@@ -151,13 +161,13 @@ class Monitoring:
 		self._reset()
 		self.interval = interval
 		self._monitoring = True
-		self._thread = threading.Thread(target=self.monitor)
+		self._thread = threading.Thread(target=self.monitor, daemon=True)
 		self._thread.start()
 
 	##################################################
 	def monitor(self):
 		"""Surveille les ressources en continu dans un thread séparé."""
-		while self._monitoring and self._thread.is_alive():
+		while self._monitoring:
 			self._update()
 			time.sleep(self.interval)
 
@@ -166,7 +176,7 @@ class Monitoring:
 		"""Arrête la surveillance et effectue une dernière mise à jour des valeurs."""
 		self._monitoring = False
 		self._update()  # Dernière entrée
-		if self._thread.is_alive(): self._thread.join()
+		if self._thread.is_alive(): self._thread.join(timeout=self.interval * 2.0)
 		self._update_array_for_readability()
 		if HAVE_GPU: nvmlShutdown()
 		self._draw()
