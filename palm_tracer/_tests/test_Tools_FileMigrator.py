@@ -41,8 +41,8 @@ def test_update_meta(capsys):
 	m.update_meta("Height", 1)  # Données identiques
 	assert np.allclose(m.meta, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {m.meta}"
 	m.update_meta("Height", 2)  # Données différentes
-	out, err = capsys.readouterr()
-	assert "Warning that the 'Height' metadata differs between several files to be migrated (1 VS 2)." in out
+	lines = get_lines_output(capsys)
+	assert "Warning that the 'Height' metadata differs between several files to be migrated (1 VS 2)." in lines[0]
 	assert np.allclose(m.meta, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {m.meta}"
 
 
@@ -119,7 +119,7 @@ def test_analyze():
 
 
 ##################################################
-def test_migrate():
+def test_migrate(capsys):
 	"""Test de la classe FileMigrator."""
 	m = FileMigrator()
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
@@ -129,6 +129,8 @@ def test_migrate():
 
 	m.open(INPUT_FOLDER)
 	m.migrate()  # Sans analyse avant, il va créer le dossier puis ne rien faire à chaque élément
+	lines = get_lines_output(capsys)
+	assert len(lines) == 6  # Pour les 6 fichiers
 	assert OUTPUT_FOLDER.exists(), "Le dossier de sortie aurait du être créé."
 	assert OUTPUT_FOLDER.is_dir(), "Le chemin de sortie n'est pas un dossier."
 	assert not any(OUTPUT_FOLDER.iterdir()), "Le dossier de sortie devrait être vide."
@@ -136,6 +138,8 @@ def test_migrate():
 
 	m.analyze()
 	m.migrate()
+	lines = get_lines_output(capsys)
+	assert len(lines) == 7  # Pour les 6 fichiers et le warning de taille
 	for ref_file in sorted((REF_DIR / "stack_PALM_Tracer").glob("*.csv")):
 		res_file = sorted(OUTPUT_FOLDER.glob(f"{ref_file.stem}-*.csv"))[0]
 		ref, res = pd.read_csv(ref_file), pd.read_csv(res_file)

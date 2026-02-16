@@ -16,10 +16,10 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_creation(make_napari_viewer, capsys):
 	"""Test basique de création du widget."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)  # On supprime le fichier setting
-	viewer = make_napari_viewer()  # .							  Créer un viewer à l'aide de la fixture.
-	my_widget = PALMTracerWidget(viewer)  # .					  Créer notre widget, en passant par le viewer.
-	my_widget.prepare_teardown()  # .							  Préparation de la fermeture.
+	SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
+	viewer = make_napari_viewer()  # .		 Créer un viewer à l'aide de la fixture.
+	my_widget = PALMTracerWidget(viewer)  # .Créer notre widget, en passant par le viewer.
+	my_widget.prepare_teardown()  # .		 Préparation de la fermeture.
 	viewer.close()
 
 
@@ -27,14 +27,14 @@ def test_widget_creation(make_napari_viewer, capsys):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_on_load_setting(make_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
 	"""Test remise à zéro des calques."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
 	fake_qfiledialog(PALMTracerWidget, None)  # Simuler un "Cancel" sur le QFileDialog
 	my_widget._on_load_setting_btn()
-	out, err = capsys.readouterr()
-	assert "WARNING: Error loading file '" in out
+	lines = get_lines_output(capsys)
+	assert "WARNING: Error loading file '" in lines[0]
 
 	my_widget.prepare_teardown()
 	viewer.close()
@@ -44,7 +44,7 @@ def test_widget_on_load_setting(make_napari_viewer, capsys, monkeypatch, fake_qf
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_reset_setting(make_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
 	"""Test remise à zéro des calques."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -58,15 +58,15 @@ def test_widget_reset_setting(make_napari_viewer, capsys, monkeypatch, fake_qfil
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 	"""Test remise à zéro des calques."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
 	my_widget._reset_layer()  # .											   Remise à 0 des calques sans fichier dans le batch.
 	add_basic_file(my_widget.pt)  # .										   Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
-	out, err = capsys.readouterr()
-	assert "INFO: Loaded" in out
+	lines = get_lines_output(capsys)
+	assert "INFO: Loaded" in lines[0]
 	my_widget._reset_layer()  # .											   Remise à 0 des calques sans changement.
 
 	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
@@ -79,7 +79,7 @@ def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 	"""Test de récupération d'image."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -99,7 +99,7 @@ def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	"""Test Ajout des calques de détection."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 	layers = my_widget.viewer.layers
@@ -143,7 +143,7 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_preview(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton preview."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -163,8 +163,8 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 		setting["Preview"].value = True  # .							Le flag se remet à False à chaque changement de fichiers
 		qtbot.waitUntil(lambda: setting["Preview"].value, timeout=5000)
 		my_widget._preview()  # .										Preview simple
-		out, err = capsys.readouterr()
-		assert "Preview of 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in out
+		lines = get_lines_output(capsys)
+		assert "Preview of 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in lines[-1]
 
 	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
@@ -176,7 +176,7 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_roi_filter_layer(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton preview."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -215,7 +215,7 @@ def test_widget_roi_filter_layer(make_napari_viewer, capsys, qtbot):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton auto_threshold."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -226,8 +226,8 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 	qtbot.waitUntil(lambda: "Raw" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 	my_widget._auto_threshold()  # .										   Appel de la méthode auto_threshold.
 
-	out, err = capsys.readouterr()
-	assert "Auto Threshold: 63.95" in out
+	lines = get_lines_output(capsys)
+	assert "Auto Threshold: 63.95" in lines[-1]
 
 	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
@@ -239,7 +239,7 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton process."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -286,7 +286,7 @@ def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_viewer3d(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de création du widget."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = Viewer3DWidget(viewer)
 
@@ -325,39 +325,41 @@ def test_viewer3d(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledial
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_viewerhr_load(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de création du widget."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	pt = PALMTracer()  # .												  Créer l'objet PALMTracer necessaire.
 	my_widget = ViewerHRWidget(viewer, pt)
 
-	out, err = capsys.readouterr()
-	assert "No valid settings file to load." in out
+	lines = get_lines_output(capsys)
+	assert "No valid settings file to load." in lines[0]
 
 	my_widget.save()  # .												  Sauvegarde sans aucun élément de chargé
 
 	fake_qfiledialog(ViewerHRWidget, None)  # .							  Simuler un "Cancel" sur le QFileDialog
 	my_widget.load_folder()
-	out, err = capsys.readouterr()
-	assert "No valid settings file to load." in out
+	lines = get_lines_output(capsys)
+	assert "No valid settings file to load." in lines[0]
 
 	fake_qfiledialog(ViewerHRWidget, "folder")  # .						  Simuler un dossier inexistant
 	my_widget.load_folder()
-	out, err = capsys.readouterr()
-	assert "The destination path 'folder' is invalid." in out
+	lines = get_lines_output(capsys)
+	assert "No valid settings file to load." in lines[0]
+	assert "The destination path 'folder' is invalid." in lines[1]
 
 	fake_qfiledialog(ViewerHRWidget, INPUT_DIR)  # .					  Simuler un dossier existant, mais sans fichier settings compatible.
 	my_widget.load_folder()
-	out, err = capsys.readouterr()
-	assert "No stack loaded." in out
+	lines = get_lines_output(capsys)
+	assert "No valid settings file to load." in lines[0]
+	assert "No stack loaded." in lines[1]
 
 	fake_qfiledialog(ViewerHRWidget, f"{INPUT_DIR}/stack_PALM_Tracer")  # Dossier valide
 	my_widget.load_folder()
-	out, err = capsys.readouterr()
-	assert "Stack loaded successfully (size: (10, 128, 256))." in out
+	lines = get_lines_output(capsys)
+	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[14]
 
 	my_widget.load_folder()  # .										  Pour recommencer sur un dossier existant
-	out, err = capsys.readouterr()
-	assert "Stack loaded successfully (size: (10, 128, 256))." in out
+	lines = get_lines_output(capsys)
+	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[14]
 
 	try: viewer.close()
 	except Exception: pass
@@ -367,7 +369,7 @@ def test_viewerhr_load(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfil
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de création du widget."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer necessaire.
 	add_basic_file(pt)  # .												Ajout d'une entrée
@@ -400,16 +402,16 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	# Recalcul mais sans trajectoires
 	my_widget.generate()
 	qtbot.waitUntil(lambda: len(layers) == 0, timeout=5000)  # .		 Attente : qu'il n'ai aucune image
-	out, err = capsys.readouterr()
-	assert "No tracking file available." in out
+	lines = get_lines_output(capsys)
+	assert "No tracking file available." in lines[-1]
 
 	# Retour aux localizations (avec changement automatique de la color map sur grayscale)
 	my_widget.type_cmb.value = 0
 	assert my_widget.color_cmb.value == 0, "La color map devrait être à 0 (grayscale) au lieu de 1 (viridis)."
 	my_widget.generate()
 	qtbot.waitUntil(lambda: len(layers) == 0, timeout=5000)  # .		 Attente : qu'il n'ai aucune image
-	out, err = capsys.readouterr()
-	assert "No localization file available." in out
+	lines = get_lines_output(capsys)
+	assert "No localization file available." in lines[-1]
 
 	try: viewer.close()
 	except Exception: pass
@@ -419,7 +421,7 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de création du widget."""
-	if os.path.exists(SETTINGS_FILE): os.remove(SETTINGS_FILE)
+	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer necessaire.
 	add_basic_file(pt)  # .																 Ajout d'une entrée
@@ -432,16 +434,24 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	res = my_widget.visualization.shape
 	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 
-	out, err = capsys.readouterr()
-	assert "File 'localizations' loaded successfully." in out
-	for file in ["localizations_filtered", "tracking", "tracking_filtered",
-				 "tracking-reconnected", "tracking_filtered_reconnected",
-				 "tracking_MSD", "tracking_MSD_filtered", "tracking_InstantD", "tracking_InstantD_filtered",
-				 "tracking_Fit", "tracking_Fit_filtered"]:
-		assert f"Error loading file '{file}'" in out
-
 	my_widget.save()
 	assert Path(my_widget._filename).is_file()
+
+	lines = get_lines_output(capsys)
+	assert "File 'localizations' loaded successfully." in lines[-14]
+	assert "Error loading file 'localizations_filtered':" in lines[-13]
+	assert "Error loading file 'tracking':" in lines[-12]
+	assert "Error loading file 'tracking_filtered':" in lines[-11]
+	assert "Error loading file 'tracking-reconnected':" in lines[-10]
+	assert "Error loading file 'tracking_filtered_reconnected':" in lines[-9]
+	assert "Error loading file 'tracking_MSD':" in lines[-8]
+	assert "Error loading file 'tracking_MSD_filtered':" in lines[-7]
+	assert "Error loading file 'tracking_InstantD':" in lines[-6]
+	assert "Error loading file 'tracking_InstantD_filtered':" in lines[-5]
+	assert "Error loading file 'tracking_Fit':" in lines[-4]
+	assert "Error loading file 'tracking_Fit_filtered':" in lines[-3]
+	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[-2]
+	assert "Saving the image file." in lines[-1]
 
 	try: viewer.close()
 	except Exception: pass

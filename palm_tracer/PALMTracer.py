@@ -304,10 +304,10 @@ class PALMTracer:
 
 			# Lancement de la génération de Galleries
 			if self.settings.gallery.active:
-				self._logger.add("Gallery generationenabled.")
+				self._logger.add("Gallery generation enabled.")
 				self._gallery()
 			else:
-				self._logger.add("Gallery generationdisabled.")
+				self._logger.add("Gallery generation disabled.")
 
 			# Fermeture du Log
 			self._logger.add("Processing complete.")

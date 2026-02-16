@@ -1,6 +1,7 @@
 """Fichier de fonctions et constantes utiles pour les tests."""
 import os
 import platform
+import re
 from pathlib import Path
 from typing import Any, cast, Optional
 
@@ -17,6 +18,8 @@ REF_DIR = INPUT_DIR / "ref"
 OUTPUT_DIR = Path(__file__).parent / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
+ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+TS_PATTERN = r"\[\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}\]"  # Regex timestamp : [16-02-2026 10:06:08]
 
 rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
 default_threshold, default_watershed, default_sigma, default_theta, default_roi = 103.6, True, 1.0, 0.0, 7
@@ -29,6 +32,24 @@ save_output = True
 def is_headless():
 	"""Fixture pour éviter les crash sur le Ci Unix et macOS."""
 	return platform.system() in ("Linux", "Darwin") and IS_CI
+
+
+##################################################
+def strip_ansi(text: str) -> str:
+	"""Supprime les séquences ANSI (couleurs console)."""
+	return ANSI_ESCAPE.sub("", text)
+
+
+##################################################
+def get_lines_output(capsys) -> list[str]:
+	"""
+	Récupère la sortie lignes par lignes.
+	:param capsys:
+	:return:
+	"""
+	out, err = capsys.readouterr()
+	out = strip_ansi(out)
+	return [l for l in out.splitlines()]
 
 
 ##################################################

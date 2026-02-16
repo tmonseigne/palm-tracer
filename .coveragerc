@@ -1,6 +1,7 @@
 [coverage:run]
 branch = True
 source = palm_tracer  # Analyse seulement ce module
+disable_warnings = couldnt-parse
 
 [coverage:report]
 # Exclure toutes les lignes de code dans les fichiers de test, exemples, le main et les init
@@ -17,7 +18,6 @@ omit =
 
 # Évite les messages "couldn't parse" restants lors du report (à cause de shiboken)
 ignore_errors = True
-disable_warnings = couldnt-parse
 
 exclude_lines =
     # Ces commentaires excluent des lignes spécifiques si elles sont détectées

@@ -36,14 +36,14 @@ def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	# Simuler un "Cancel" sur le QFileDialog
 	fake_qfiledialog(FileMigratorWidget, None)
 	qtbot.mouseClick(w._btn_load_folder, Qt.MouseButton.LeftButton)
-	out, err = capsys.readouterr()
-	assert "No folder selected." in out  # On vérifie juste que le warning attendu est bien passé par print_warning
+	lines = get_lines_output(capsys)
+	assert "No folder selected." in lines[-1]
 
 	# Bad file Input
 	fake_qfiledialog(FileMigratorWidget, "bad folder")
 	qtbot.mouseClick(w._btn_load_folder, Qt.MouseButton.LeftButton)
-	out, err = capsys.readouterr()
-	assert "Unable to read the folder" in out
+	lines = get_lines_output(capsys)
+	assert "Unable to read the folder" in lines[-1]
 
 	w.close()
 
@@ -62,13 +62,13 @@ def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	# Chargement du fichier de localisation
 	fake_qfiledialog(FileMigratorWidget, str(INPUT_FOLDER))
 	qtbot.mouseClick(w._btn_load_folder, Qt.MouseButton.LeftButton)
-	out, err = capsys.readouterr()
-	assert "Folder loaded successfully." in out
+	lines = get_lines_output(capsys)
+	assert "Folder loaded successfully." in lines[-1]
 
 	# Lancement du calcul
 	qtbot.mouseClick(w._btn_migrate, Qt.MouseButton.LeftButton)
-	out, err = capsys.readouterr()
-	assert "Migration successfull." in out
+	lines = get_lines_output(capsys)
+	assert "Migration successfull." in lines[-1]
 
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 

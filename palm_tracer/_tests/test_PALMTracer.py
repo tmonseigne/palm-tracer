@@ -1,4 +1,8 @@
-"""Fichier des tests pour la classe PALMTracer"""
+"""
+Fichier des tests pour la classe PALMTracer
+
+.. note:: Il est fréquent que la vérificaiton du log ne se fasse qu'au nombre de lignes, car au moins 15 lignes à chaque process.
+"""
 import shutil
 
 import pytest
@@ -8,6 +12,15 @@ from palm_tracer.Tools import FileIO
 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
+
+
+@pytest.fixture
+def pt():
+	"""fixture interne"""
+	obj = PALMTracer()
+	yield obj
+	try: obj._logger.close()
+	except Exception: pass
 
 
 ##################################################
@@ -36,9 +49,8 @@ def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[li
 
 
 ##################################################
-def test_getter_localization(qtbot):
+def test_getter_localization(qtbot, capsys, pt):
 	"""Test pour le getter de la localisation."""
-	pt = PALMTracer()
 	df = pt.localizations
 	assert df.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
@@ -51,9 +63,8 @@ def test_getter_localization(qtbot):
 
 
 ##################################################
-def test_getter_tracks(qtbot):
+def test_getter_tracks(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
-	pt = PALMTracer()
 	df = pt.tracks
 	assert df.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
@@ -74,9 +85,8 @@ def test_getter_tracks(qtbot):
 
 
 ##################################################
-def test_getter_tracks_compute(qtbot):
+def test_getter_tracks_compute(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
-	pt = PALMTracer()
 	df = pt.tracks_compute
 	assert df["MSD"].empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
@@ -86,9 +96,8 @@ def test_getter_tracks_compute(qtbot):
 
 
 ##################################################
-def test_reset_result(qtbot):
+def test_reset_result(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
-	pt = PALMTracer()
 
 	pt.df["loc"] = pd.DataFrame([1, 1])
 	pt.df["blk"] = pd.DataFrame([1, 2])
@@ -109,9 +118,8 @@ def test_reset_result(qtbot):
 
 
 ##################################################
-def test_reset_filtered(qtbot):
+def test_reset_filtered(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
-	pt = PALMTracer()
 
 	pt.df["loc"] = pd.DataFrame([1, 1])
 	pt.df["blk"] = pd.DataFrame([1, 2])
@@ -133,10 +141,9 @@ def test_reset_filtered(qtbot):
 
 
 ##################################################
-def test_update_filtered(qtbot):
+def test_update_filtered(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
 	clean_output()
-	pt = PALMTracer()
 	pt.update_filtered()  # Tout est vide
 	pt.settings.filtering["Save"].value = True
 	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
@@ -152,30 +159,50 @@ def test_update_filtered(qtbot):
 	# (1 à 3) * 3 fichiers de tableaux filtrés = entre 7 et 13 csv
 	check_output(OUTPUT_FOLDER, csv=[7, 13], log=[1], json=[1])
 
+	lines = get_lines_output(capsys)
+	assert len(lines) == 23
+	assert re.fullmatch(TS_PATTERN + r"\sLocalization enabled\.", lines[5])
+	assert re.fullmatch(TS_PATTERN + r"\sTracking enabled\.", lines[9])
+	assert re.fullmatch(TS_PATTERN + r"\sTracks computes disabled\.", lines[17])
+	assert re.fullmatch(TS_PATTERN + r"\sHigh-resolution visualization disabled\.", lines[18])
+	assert re.fullmatch(TS_PATTERN + r"\sGraphical visualization disabled\.", lines[19])
+	assert re.fullmatch(TS_PATTERN + r"\sGallery generation disabled\.", lines[20])
+
 
 ##################################################
-def test_load_bad_dll(qtbot):
+def test_load_bad_dll(qtbot, capsys, pt):
 	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
-	pt = PALMTracer()
 	pt.palm._dll = None
 	pt.load("")
+	lines = get_lines_output(capsys)
+	assert "Process not completed due to missing DLLs." in lines[0]
 
 
 ##################################################
-def test_load_nothing(qtbot):
+def test_load_nothing(qtbot, capsys, pt):
 	"""Test pour le chargement avec fichier, mais sans settings."""
-	pt = PALMTracer()
 	pt.load("bad path")
+	lines = get_lines_output(capsys)
+	assert "No valid settings file to load." in lines[0]
 
 
 ##################################################
-def test_load(qtbot):
+def test_load(qtbot, capsys, pt):
 	"""Test pour le chargement avec fichier, mais sans settings."""
 	clean_output()
-	pt = PALMTracer()
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.process()
+
+	lines = get_lines_output(capsys)
+	assert len(lines) == 16
+	assert re.fullmatch(TS_PATTERN + r"\sLocalization enabled\.", lines[5])
+	assert re.fullmatch(TS_PATTERN + r"\sTracking disabled\.", lines[8])
+	assert re.fullmatch(TS_PATTERN + r"\sTracks computes disabled\.", lines[10])
+	assert re.fullmatch(TS_PATTERN + r"\sHigh-resolution visualization disabled\.", lines[11])
+	assert re.fullmatch(TS_PATTERN + r"\sGraphical visualization disabled\.", lines[12])
+	assert re.fullmatch(TS_PATTERN + r"\sGallery generation disabled\.", lines[13])
+
 	pt.load()
 
 	assert not pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
@@ -184,40 +211,75 @@ def test_load(qtbot):
 	# Un fichier meta + un localization
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 
+	lines = get_lines_output(capsys)
+	assert len(lines) == 15
+	assert "File 'localizations' loaded successfully." in lines[2]
+	assert "Error loading file 'localizations_filtered':" in lines[3]
+	assert "Error loading file 'tracking':" in lines[4]
+	assert "Error loading file 'tracking_filtered':" in lines[5]
+	assert "Error loading file 'tracking-reconnected':" in lines[6]
+	assert "Error loading file 'tracking_filtered_reconnected':" in lines[7]
+	assert "Error loading file 'tracking_MSD':" in lines[8]
+	assert "Error loading file 'tracking_MSD_filtered':" in lines[9]
+	assert "Error loading file 'tracking_InstantD':" in lines[10]
+	assert "Error loading file 'tracking_InstantD_filtered':" in lines[11]
+	assert "Error loading file 'tracking_Fit':" in lines[12]
+	assert "Error loading file 'tracking_Fit_filtered':" in lines[13]
+	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[14]
+
 
 ##################################################
-def test_process_no_input(qtbot):
+def test_process_no_input(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
 	clean_output()
-	pt = PALMTracer()
 	pt.process()
+	lines = get_lines_output(capsys)
+	assert "No files." in lines[0]
 
 
 ##################################################
-def test_process_nothing(qtbot):
+def test_process_nothing(qtbot, capsys, pt):
 	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
 	clean_output()
-	pt = PALMTracer()
 
 	add_basic_file(pt)
 	pt.process()
+
+	lines = get_lines_output(capsys)
+	assert len(lines) == 15
+
 	# Test d'une visualisation sans données.
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
 	pt.settings.visualization_graph.active = True
 	pt.process()  # Test d'une visualisation sans données.
+
+	lines = get_lines_output(capsys)
+	assert len(lines) == 18
+
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.process()
+
+	lines = get_lines_output(capsys)
+	assert len(lines) == 18
+
 	# Test d'un calcul sur trajectoires sans données.
 	pt.settings.gallery.active = False
 	pt.settings.visualization_hr.active = False
 	pt.settings.visualization_graph.active = False
 	pt.settings.tracks_compute.active = True
 	pt.process()
+
+	lines = get_lines_output(capsys)
+	assert len(lines) == 16
+
 	# Test d'un calcul de trajectoires sans données.
 	pt.settings.tracks_compute.active = False
 	pt.settings.tracking.active = True
 	pt.process()
+
+	lines = get_lines_output(capsys)
+	assert len(lines) == 15
 
 	n_process = 5  # Nombre de fois où process a été lancé.
 	# suivant le timestamp, il est fort problable que seul le dernier process conserve ses data, mais le hasard du lancement fait que
@@ -226,74 +288,83 @@ def test_process_nothing(qtbot):
 
 
 ##################################################
-def test_process_bad_dll(qtbot):
+def test_process_bad_dll(qtbot, capsys, pt):
 	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
-	pt = PALMTracer()
 	pt.palm._dll = None
 	pt.process()
 
+	lines = get_lines_output(capsys)
+	assert "Process not completed due to missing DLLs." in lines[0]
+
 
 ##################################################
-def test_process_multiple_stack(qtbot):
+def test_process_multiple_stack(qtbot, capsys, pt):
 	"""Test pour le process avec plusieurs piles."""
 	clean_output()
-	pt = PALMTracer()
 
 	add_basic_file(pt, [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack_quadrant.tif"])
 	pt.settings.batch["Mode"].value = 1
 	pt.process()
+
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 	check_output(OUTPUT_FOLDER_2, csv=[1], log=[1], json=[1])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 30  # (2*15 lignes dans le cas d'aucun process)
 
 
 ##################################################
-def test_process_only_localization(qtbot):
+def test_process_only_localization(qtbot, capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
-	pt = PALMTracer()
 
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.process()
+
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 16
 
 
 ##################################################
-def test_process_only_localization_spline_bad(qtbot):
+def test_process_only_localization_spline_bad(qtbot, capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
-	pt = PALMTracer()
 
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 2
 	with pytest.raises(OSError) as exception_info: pt.process()
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])  # Il va créer le meta mais pas le fichier de localization
+	lines = get_lines_output(capsys)
+	assert len(lines) == 6  # Arrêt après l'erreur
 
 
 ##################################################
-def test_process_only_localization_spline(qtbot):
+def test_process_only_localization_spline(qtbot, capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
-	pt = PALMTracer()
 
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 2
 	pt.settings.localization["Spline Fit"]["File"].value = f"{INPUT_DIR}/calibration.mat"
 	pt.process()
+
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 16
 
 
 ##################################################
-def test_process_only_tracking(qtbot):
+def test_process_only_tracking(qtbot, capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout d'un fichier de localisations
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -301,18 +372,20 @@ def test_process_only_tracking(qtbot):
 	pt.settings.tracking.active = True
 	add_basic_file(pt)
 	pt.process()
+
 	assert len(pt.localizations) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking."
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 18  # 15 + 1 ligne lors du process suivi + 2 lignes lors du chargement de la localisation.
 
 
 ##################################################
-def test_process_only_tracking_blinking(qtbot):
+def test_process_only_tracking_blinking(qtbot, capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout d'un fichier de localisations
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -321,18 +394,20 @@ def test_process_only_tracking_blinking(qtbot):
 	pt.settings.tracking["Blinking Reconnection"].active = True
 	add_basic_file(pt)
 	pt.process()
+
 	assert len(pt.localizations) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking (reconnecté)."
 	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 21  # 18 + 3 de reconnexion
 
 
 ##################################################
-def test_process_only_tracks_compute(qtbot):
+def test_process_only_tracks_compute(qtbot, capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout d'un fichier de tracking
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
 	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -344,11 +419,15 @@ def test_process_only_tracks_compute(qtbot):
 	pt.process()
 	# Aucun fichier Ajouté juste meta et le tracking copié
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
+	lines = get_lines_output(capsys)
+	assert len(lines) == 18  # 15 + 2 de chargement de suivi + 1 de warning
 
 	tc["MSD"].value = True
 	pt.process()
 	# Ajout de fichier MSD (et peut être un meta, json et log)
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2], clean=False)
+	lines = get_lines_output(capsys)
+	assert len(lines) == 20  # 18 + 2 warning
 
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
@@ -356,16 +435,17 @@ def test_process_only_tracks_compute(qtbot):
 	pt.process()
 	# Ajout de fichier 2 ou 3 fichiers csv et 0 ou 1 fichiers meta, json et log
 	check_output(OUTPUT_FOLDER, csv=[5, 7], log=[1, 3], json=[1, 3])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 22  # 20 + 1 warning + 1 ligne saving...
 
 
 ##################################################
-def test_process_only_visualization_hr(qtbot):
+def test_process_only_visualization_hr(qtbot, capsys, pt):
 	"""Test pour le process de visualization HR."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout des fichiers de localisations et trajectoires
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -377,7 +457,10 @@ def test_process_only_visualization_hr(qtbot):
 	pt.settings.visualization_hr["Source L"].value = 0
 	add_basic_file(pt)
 	pt.process()
+
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[8], clean=False)
+	lines = get_lines_output(capsys)
+	assert len(lines) == 27
 
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.settings.visualization_hr["Source T"].value = 0
@@ -385,16 +468,17 @@ def test_process_only_visualization_hr(qtbot):
 
 	# Il a Ajouté un fichier tracking_Fit qu'il a dû calculer et un tracking_hr_color, pour les images 8 Sources pour les loc, 5 pour les trajectoires.
 	check_output(OUTPUT_FOLDER, csv=[5, 6], log=[1, 2], json=[1, 2], png=[13])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 29
 
 
 ##################################################
-def test_process_only_visualization_graph(qtbot):
+def test_process_only_visualization_graph(qtbot, capsys, pt):
 	"""Test pour le process de visualization de graph."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout des fichiers de localisation et tracking
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -405,17 +489,19 @@ def test_process_only_visualization_graph(qtbot):
 	pt.settings.visualization_graph.active = True
 	add_basic_file(pt)
 	pt.process()
+
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[18])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 39
 
 
 ##################################################
-def test_process_only_gallery(qtbot):
+def test_process_only_gallery(qtbot, capsys, pt):
 	"""Test pour le process de visualization HR."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout du fichier de localisation
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -428,13 +514,14 @@ def test_process_only_gallery(qtbot):
 	res, ref = FileIO.open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], tif=[1])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 18  # 15 + 2 lignes chargement de localisations + 1 ligne Gallery
 
 
 ##################################################
-def test_process_all(qtbot):
+def test_process_all(qtbot, capsys, pt):
 	"""Test Basique pour le process complet."""
 	clean_output()
-	pt = PALMTracer()
 
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 1
@@ -452,16 +539,17 @@ def test_process_all(qtbot):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[19])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 49
 
 
 ##################################################
-def test_process_filter_plan(qtbot):
+def test_process_filter_plan(qtbot, capsys, pt):
 	"""Test pour le filtrage des plans lors de l'exécution."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout du fichier de localisation
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -476,16 +564,17 @@ def test_process_filter_plan(qtbot):
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	# création des 3 fichiers normaux (meta, settings, log) aucun changement pour le fichier loc pas d'enregistrement des données filtrées
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 18
 
 
 ##################################################
-def test_process_filter_all_localization(qtbot):
+def test_process_filter_all_localization(qtbot, capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout du fichier de localisation
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -532,16 +621,17 @@ def test_process_filter_all_localization(qtbot):
 	res = pt.filter_localizations(pd.DataFrame())
 	assert res.empty, "Un dataframe vide doit être retourné."
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2])
+	lines = get_lines_output(capsys)
+	assert len(lines) == 37  # 2 process
 
 
 ##################################################
-def test_process_filter_all_tracking(qtbot):
+def test_process_filter_all_tracking(qtbot, capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
-	pt = PALMTracer()
 
 	# Ajout du fichier de trajectoires
-	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
 	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
@@ -562,13 +652,13 @@ def test_process_filter_all_tracking(qtbot):
 	res, ref = len(pt.tracks), 52
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2])
-
+	lines = get_lines_output(capsys)
+	assert len(lines) == 36  # 2 process à 18 lignes.
 
 ##################################################
-def test_process_filter_all_tracks_compute(qtbot):
+def test_process_filter_all_tracks_compute(qtbot, capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
-	pt = PALMTracer()
 
 	pt.settings.localization.active = True
 	pt.settings.localization["Gaussian Fit"]["Mode"].value = 1
@@ -606,13 +696,14 @@ def test_process_filter_all_tracks_compute(qtbot):
 	pt.process()
 	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
+	lines = get_lines_output(capsys)
+	assert len(lines) == 90  # 3 process
 
 
 ##################################################
-def test_process_filter_outside(qtbot):
+def test_process_filter_outside(qtbot, capsys, pt):
 	"""Test pour le filtrage hors exécution."""
 	clean_output()
-	pt = PALMTracer()
 	pt.settings.filtering["Tracks"]["Instant D"].active = True
 	assert pt.filter_localizations(pt.localizations).empty
 	assert pt.filter_tracks(pt.tracks).empty
@@ -629,8 +720,7 @@ def test_process_filter_outside(qtbot):
 
 
 ##################################################
-def test_add_color(qtbot):
-	pt = PALMTracer()
+def test_add_color(qtbot, capsys, pt):
 	file = "tracking2"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
 	df = pd.read_csv(path)
@@ -659,3 +749,6 @@ def test_add_color(qtbot):
 
 	res = pt.add_color_to_tracks(df, "Total Intensity")  # fit Compute already compute
 	assert (res["Color"].tolist() == ref)
+
+	lines = get_lines_output(capsys)
+	assert len(lines) == 16  # Beaucoup de warnings dû à l'ajout dans un logger non ouvert
