@@ -2,6 +2,7 @@
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
+from palm_tracer.Processing.Drift import extract_beads
 from palm_tracer.Tools import FileIO, Ui
 
 #TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
@@ -94,3 +95,11 @@ def test_tracking(qtbot):
 	else:
 		Ui.print_warning(f"Test non effectué car fichier '{LOC_PATH}' manquant.")
 	assert True
+
+
+##################################################
+def test_beads():
+	"""Test Extraction des billes sur des données importantes."""
+	localizations = pd.read_csv(LOC_PATH)
+	beads = extract_beads(localizations, max_distance, is_3d=False)
+	print(beads)
