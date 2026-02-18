@@ -8,6 +8,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+import psutil
 
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, get_max_points, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL
 from palm_tracer.Tools import FileIO, Ui
@@ -123,6 +124,22 @@ class Palm:
 			if writeable: a.setflags(write=True)  # .	Rend modifiable ou non
 		return a
 
+	##################################################
+	@staticmethod
+	def max_allocation_bytes(fraction_available: float = 0.5, safety_gb: int = 1) -> int:
+		"""
+		Permet de calculer la quantité de mémoire disponible au maximum pour une allocation.
+
+		:param fraction_available: Pourcentage de la ram disponible à utiliser au maximum.
+		:param safety_gb: Marge de sécurité à garder disponible.
+		:return: Valeur en byte de l'allocation maximum tolérée.
+		"""
+		giga = 1024 * 1024 * 1024
+		avail = psutil.virtual_memory().available
+		safety = safety_gb * giga
+		budget = int(max(0, avail - safety) * fraction_available)
+		return max(budget, giga)
+
 	# ==================================================
 	# endregion Argument Parser
 	# ==================================================
@@ -145,6 +162,7 @@ class Palm:
 		:param planes: Liste des plans à analyser (None pour tous les plans, les plans sont contigus par rincipe).
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		"""
+		# --- Initialisation ---
 		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguité
 		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
 		height, width = stk.shape[-2:]  # .												 Récupère les deux dernières dimensions
@@ -152,17 +170,37 @@ class Palm:
 		if planes is None: planes = list(range(n_planes))  # .							 Si aucune sélection, liste de tous les plans
 		else: planes = [p for p in planes if 0 <= p < n_planes]  # .					 Sinon, sélection des plans valides
 		n_planes = len(planes)  # .														 Nouveau nombre de plans
-		n_max = get_max_points(height, width, n_planes)  # .							 Récupération d'un nombre de points maximum théorique
-		locs = np.empty((n_max,), dtype=np.float64, order="C")  # .						 Création de la sortie
-
 		# Ajoute une dimension plan artificielle pour une Image 2D ou une vue mémoire (slice) pour une pile 3D
-		stk = stk[np.newaxis, :, :] if stk.ndim == 2 else stk[planes[0]:planes[-1] + 1]
+		stk = stk[np.newaxis, :, :] if stk.ndim == 2 else stk[planes[0]:planes[0] + n_planes]
 
-		count = self._dll.Localization(stk.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB), C_UINT(n_max), C_UINT(height), C_UINT(width),
-									   C_UINT(n_planes), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB))
+		# --- Calcul du budget RAM Disponible ---
+		max_points = int(self.max_allocation_bytes() // 8)  # .			Nombre de points maximum allouable en une fois
+		plane_points = get_max_points(height, width, 1)  # .			Taille pour un seul plan
+		if max_points < plane_points: return pd.DataFrame()  # . 		pragma: no cover — Cas extrême un seul plan est gargantuesque.
+		n_plane_max = int(min(max_points // plane_points, n_planes))  # Nombre de plans qui tiennent dans max_allocation
 
-		res = parse_result(locs[:count], "Localization")
-		if planes[0] != 0: res["Plane"] += planes[0]  # En cas de filtre des plans, on incrémente leur numéro
+		dfs: list[pd.DataFrame] = []
+		i = 0
+		while i < len(planes):
+			k = min(n_plane_max, n_planes - i)  # .						Taille réelle du bloc, soit le max, soit "ce qui reste".
+			stk_block = stk[i:i + k]  # .								Indices relatifs (0..n_planes-1)
+			n_block = plane_points * k  # . 							Nombre de points pour ce bloc
+			locs = np.empty((n_block,), dtype=np.float64, order="C")  # Création de la sortie
+
+			count = self._dll.Localization(stk_block.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB), C_UINT(n_block), C_UINT(height), C_UINT(width),
+										   C_UINT(k), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB))
+
+			res = parse_result(locs[:count], "Localization")
+			if "Plane" in res.columns: res["Plane"] += planes[0] + i  # . En cas de filtre des plans, on incrémente par i + premier plan.
+			dfs.append(res)
+			i += k
+
+		res = pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
+
+		if not res.empty:
+			res.reset_index(drop=True, inplace=True)
+			res["Id"] = res.index + 1  # 1-based comme attendu
+
 		return res
 
 	##################################################

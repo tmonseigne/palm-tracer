@@ -132,7 +132,7 @@ class Monitoring:
 		for proc in processes:
 			try:
 				# Non bloquant : psutil calcule le delta depuis l’appel précédent.
-				cpu += proc.cpu_percent(interval=None)
+				cpu += proc.cpu_percent(interval=self.interval)
 				mem += proc.memory_info().rss
 				# "Darwin" est le nom de macOS dans platform.system()
 				if platform.system() != "Darwin": disk += proc.io_counters().write_bytes

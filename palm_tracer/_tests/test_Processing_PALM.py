@@ -1,4 +1,5 @@
 """Fichier des tests pour l'utilisation de la DLL CPU."""
+
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Parsing import MODEL_ROWS
@@ -10,6 +11,15 @@ def test_palm_dll_valid():
 	"""Test sur la présence d ela DLL PALM."""
 	palm = Palm()
 	assert palm.is_valid(), "Erreur lors du chargement de la DLL"
+
+
+##################################################
+def test_palm_cpu_empty_result():
+	"""Test sur le lancement de PALM sur une noire."""
+	palm = Palm()
+	stack = np.zeros((10, 10, 10), dtype=np.uint16)
+	res = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
+	assert res.empty
 
 
 ##################################################

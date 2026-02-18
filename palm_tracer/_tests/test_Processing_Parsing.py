@@ -73,9 +73,15 @@ def test_parse_result():
 	ref = np.arange(18)
 	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
+	res = parse_result(np.array([]), "Localization")
+	assert res.empty, "Le dataframe devrait être vide."
+
 	res = parse_result(data, "Tracking")
 	ref = np.arange(16).reshape(2, 8)
 	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	res = parse_result(np.array([]), "Tracking")
+	assert res.empty, "Le dataframe devrait être vide."
 
 	data = np.arange(10).reshape((2, 5))
 	res = parse_result(data, "Astigmatism 3D Model")

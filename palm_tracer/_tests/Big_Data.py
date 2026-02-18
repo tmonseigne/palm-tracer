@@ -4,9 +4,11 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import FileIO, Ui
 
-thresh = 340.6
-file = "Tubulin-A647-3D-stacks_1"
-path = Path(f"{INPUT_DIR}/big input/{file}.tif")
+#TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
+TRESH, FILE = 450, "uTub_Cy3"
+FILE_PATH = INPUT_DIR / "big input" / f"{FILE}.tif"
+LOC_PATH = INPUT_DIR / "big input" / f"{FILE}-localizations-{get_loc_suffix(threshold=TRESH)}.csv"
+TRC_PATH = INPUT_DIR / "big input" / f"{FILE}-tracking-{get_trc_suffix()}.csv"
 
 
 ##################################################
@@ -47,13 +49,16 @@ def test_palm_cpu(qtbot):
   	- DLL Recompilé stade 22 : ~20s Passage à l'appel de la stack au lieu de plan par plan gain Total ~96% + 15s d'analyse du csv dans python
 	  jusqu'à 100% d'utilisation CPU Ram à 8Giga en process + quantité importante lors du passage à pandas (30s et 40Giga à vérifier sur pc moins performant).
 
+	  avec uTub_Cy3
+	- 1m33 avec 20Giga en entrée (1.8 Giga en sortie)
+
 	"""
 	palm = Palm()
-	if path.exists() and path.is_file():
-		stack = FileIO.open_tif(str(path))
-		suffix = get_loc_suffix(threshold=thresh)
-		localizations = palm.localization(stack, thresh, default_watershed, default_fit, get_fit_params(default_fit))
-		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{file}-localizations-{suffix}.csv", index=False)
+	if FILE_PATH.exists() and FILE_PATH.is_file():
+		stack = FileIO.open_tif(FILE_PATH)
+		suffix = get_loc_suffix(threshold=TRESH)
+		localizations = palm.localization(stack, TRESH, default_watershed, default_fit, get_fit_params(default_fit))
+		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{FILE}-localizations-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
 		Ui.print_warning("Test non effectué car fichier manquant.")
@@ -71,17 +76,21 @@ def test_tracking(qtbot):
 	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. Precalcul et suppression du code inutile
 	- DLL Recompilé stade 1 : ~4min15 (-2min pour le chargement du fichier ~2min15),
 	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. suppression du code inutilisé
+	- DLL Recompilé stade 1 : ~4min15 (-2min pour le chargement du fichier ~2min15),
+	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. suppression du code inutilisé
+
+	avec uTub_Cy3
+	BOUCLE INFINI
 
 	"""
 	palm = Palm()
-	suffix = get_loc_suffix(threshold=thresh)
-	path_tracking = Path(f"{INPUT_DIR}/big input/{file}-localizations-{suffix}.csv")
 
-	if path_tracking.exists() and path_tracking.is_file():
-		localizations = pd.read_csv(path_tracking)
+	if LOC_PATH.exists() and LOC_PATH.is_file():
+		localizations = pd.read_csv(LOC_PATH)
+		suffix = get_trc_suffix()
 		tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
-		if save_output: tracks.to_csv(f"{OUTPUT_DIR}/{file}-tracking-{suffix}.csv", index=False)
+		if save_output: tracks.to_csv(f"{OUTPUT_DIR}/{FILE}-tracking-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
-		Ui.print_warning(f"Test non effectué car fichier '{path_tracking}' manquant.")
+		Ui.print_warning(f"Test non effectué car fichier '{LOC_PATH}' manquant.")
 	assert True
