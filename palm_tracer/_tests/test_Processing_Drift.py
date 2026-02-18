@@ -34,7 +34,7 @@ def test_extract_bead_bad_input():
 ##################################################
 def test_extract_beads_no_match_returns_empty():
 	""" Aucun match directement."""
-	df = pd.DataFrame([[1, 0, 0, 0], [2, 10, 10, 0], ], columns=["Plane", "X", "Y", "Z"], dtype=int)
+	df = pd.DataFrame([[1, 0, 0, 0], [2, 10, 10, 0], ], columns=["Plane", "X", "Y", "Z"], dtype="int32")
 	res = extract_beads(df, max_distance=1, is_3d=False, strict=True)
 	assert res.empty
 
@@ -66,7 +66,7 @@ def test_extract_beads():
 					   [2, 1, 1, 0], [2, 11, 10, 10], [2, 20, 21, 20], [2, 31, 30, 30],  # .			 P2
 					   [3, 1, 1, 0], [3, 12, 10, 10], [3, 20, 22, 20], [3, 31, 31, 30],  # .			 P3
 					   [4, 1, 1, 0], [4, 13, 10, 10], [4, 20, 23, 20], [4, 30, 30, 00]],  # .			 P4
-					  columns=['Plane', 'X', 'Y', 'Z'], dtype=int)
+					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
 
 	# Cas 2D 3 trajectoires sur les 4 possibles sont restantes (premiere et dernière colonne de points confondue).
 	res = extract_beads(df, max_distance=2, is_3d=False)
@@ -74,7 +74,7 @@ def test_extract_beads():
 						[2, 1, 10, 10, 10], [2, 2, 11, 10, 10], [2, 3, 12, 10, 10], [2, 4, 13, 10, 10],  # .Bead 2
 						[3, 1, 20, 20, 20], [3, 2, 20, 21, 20], [3, 3, 20, 22, 20], [3, 4, 20, 23, 20],  # .Bead 3
 						[4, 1, 30, 30, 30], [4, 2, 31, 30, 30], [4, 3, 31, 31, 30], [4, 4, 30, 30, 00]],  # Bead 4
-					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype=int)
+					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	assert res.equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	# Cas 3D 2 trajectoires sur les 4 possibles sont restantes (Bille 4 éliminée à cause du Z)
@@ -82,12 +82,12 @@ def test_extract_beads():
 	ref = pd.DataFrame([[1, 1, 1, 1, 0], [1, 2, 1, 1, 0], [1, 3, 1, 1, 0], [1, 4, 1, 1, 0],  # .			Bead 1
 						[2, 1, 10, 10, 10], [2, 2, 11, 10, 10], [2, 3, 12, 10, 10], [2, 4, 13, 10, 10],  # .Bead 2
 						[3, 1, 20, 20, 20], [3, 2, 20, 21, 20], [3, 3, 20, 22, 20], [3, 4, 20, 23, 20]],  # Bead 3
-					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype=int)
+					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	assert res.equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	# Cas où la distance maximum n'est pas respectée (strictement inférieure donc toutes les billes avec un rayon d'au moins 1 sont rejetées)
 	res = extract_beads(df, max_distance=1, is_3d=False, strict=True)
-	ref = pd.DataFrame([[1, 1, 1, 1, 0], [1, 2, 1, 1, 0], [1, 3, 1, 1, 0], [1, 4, 1, 1, 0]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype=int)
+	ref = pd.DataFrame([[1, 1, 1, 1, 0], [1, 2, 1, 1, 0], [1, 3, 1, 1, 0], [1, 4, 1, 1, 0]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	assert res.equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	# Cas où la distance maximum n'est pas respectée (non strictement inférieure donc toutes les billes avec un rayon de 1 sont conservées)
@@ -95,22 +95,44 @@ def test_extract_beads():
 	ref = pd.DataFrame([[1, 1, 1, 1, 0], [1, 2, 1, 1, 0], [1, 3, 1, 1, 0], [1, 4, 1, 1, 0],  # .			Bead 1
 						[2, 1, 10, 10, 10], [2, 2, 11, 10, 10], [2, 3, 12, 10, 10], [2, 4, 13, 10, 10],  # .Bead 2
 						[3, 1, 20, 20, 20], [3, 2, 20, 21, 20], [3, 3, 20, 22, 20], [3, 4, 20, 23, 20]],  # Bead 3
-					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype=int)
+					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	assert res.equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	# Cas où on commence au plan 2
 	df = pd.DataFrame([[2, 1, 1, 0], [2, 11, 10, 10], [2, 20, 21, 20], [2, 31, 30, 30],  # .P2
 					   [3, 1, 1, 0], [3, 12, 10, 10], [3, 20, 22, 20], [3, 31, 31, 30],  # .P3
 					   [4, 1, 1, 0], [4, 13, 10, 10], [4, 20, 23, 20], [4, 30, 30, 00]],  # P4
-					  columns=['Plane', 'X', 'Y', 'Z'], dtype=int)
+					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
 
 	res = extract_beads(df, max_distance=2, is_3d=False)
 	ref = pd.DataFrame([[1, 2, 1, 1, 0], [1, 3, 1, 1, 0], [1, 4, 1, 1, 0],  # .			Bead 1
 						[2, 2, 11, 10, 10], [2, 3, 12, 10, 10], [2, 4, 13, 10, 10],  # .Bead 2
 						[3, 2, 20, 21, 20], [3, 3, 20, 22, 20], [3, 4, 20, 23, 20],  # .Bead 3
 						[4, 2, 31, 30, 30], [4, 3, 31, 31, 30], [4, 4, 30, 30, 00]],  # Bead 4
-					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype=int)
+					   columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	assert res.equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
+def test_remove_beads():
+	"""Test de la suppression des billes."""
+	df = pd.DataFrame([[1, 1, 1, 1], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],  # P1 : drift 0
+					   [2, 0, 1, 0], [2, 1, 0, 0], [2, 1, 1, 0], [2, 1, 0, 0],  # .				P2 : drift [1, 2, 3]]
+					   [3, 3, 1, 0], [3, 2, 0, 0], [3, 0, 2, 0], [3, 1, 1, 0],  # .				P3 : drift [2, 1, 0]]
+					   [4, 1, 1, 2], [4, 3, 0, 0], [4, 0, 3, 0], [4, 0, 0, 0]],  # .			P4 : drift [-3, -2, -1]]
+					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
+	bead = pd.DataFrame([[1, 1, 1, 1, 1], [1, 2, 0, 1, 0], [1, 3, 3, 1, 0], [1, 4, 1, 1, 2]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
+
+	res = remove_beads(df, bead)
+	ref = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],  # P1 : drift 0
+						[2, 1, 0, 0], [2, 1, 1, 0], [2, 1, 0, 0],  # .				P2 : drift [1, 2, 3]]
+						[3, 2, 0, 0], [3, 0, 2, 0], [3, 1, 1, 0],  # .				P3 : drift [2, 1, 0]]
+						[4, 3, 0, 0], [4, 0, 3, 0], [4, 0, 0, 0]],  # .			P4 : drift [-3, -2, -1]]
+					   columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
+	assert res.equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+	res = remove_beads(pd.DataFrame(), pd.DataFrame())
+	assert res.empty
 
 
 ##################################################
@@ -142,7 +164,7 @@ def test_get_drift():
 					   [2, 1, 10, 10, 10], [2, 2, 11, 10, 10], [2, 3, 12, 10, 10], [2, 4, 13, 10, 10],  # .Bead 2
 					   [3, 1, 20, 20, 20], [3, 2, 20, 21, 20], [3, 3, 20, 22, 20], [3, 4, 20, 23, 20],  # .Bead 3
 					   [4, 1, 30, 30, 30], [4, 2, 31, 30, 30], [4, 3, 31, 31, 30], [4, 4, 30, 30, 00]],  # Bead 4
-					  columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype=int)
+					  columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 
 	res = get_drift(df, False)
 	ref = pd.DataFrame([[2, 0.50, 0.25, 0], [3, 0.25, 0.50, 0], [4, 0, 0, 0]], columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
@@ -157,10 +179,11 @@ def test_get_drift():
 					   [2, 2, 11, 10, 10], [2, 3, 12, 10, 10], [2, 4, 13, 10, 10],  # .Bead 2
 					   [3, 2, 20, 21, 20], [3, 3, 20, 22, 20], [3, 4, 20, 23, 20],  # .Bead 3
 					   [4, 2, 31, 30, 30], [4, 3, 31, 31, 30], [4, 4, 30, 30, 00]],  # Bead 4
-					  columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype=int)
+					  columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	res = get_drift(df, False)
 	ref = pd.DataFrame([[3, 0.25, 0.50, 0], [4, 0, 0, 0]], columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
 	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
 
 ##################################################
 def test_apply_drift_bad_input():
@@ -185,21 +208,51 @@ def test_apply_drift():
 					   [2, 1, 1, 0], [2, 1, 0, 0], [2, 0, 1, 0], [2, 1, 0, 0],  # .				P2 : drift [1, 2, 3]]
 					   [3, 1, 1, 0], [3, 2, 0, 0], [3, 0, 2, 0], [3, 1, 1, 0],  # .				P3 : drift [2, 1, 0]]
 					   [4, 1, 1, 0], [4, 3, 0, 0], [4, 0, 3, 0], [4, 0, 0, 0]],  # .			P4 : drift [-3, -2, -1]]
-					  columns=['Plane', 'X', 'Y', 'Z'], dtype=int)
-	drift = pd.DataFrame([[2, 1, 2, 3], [3, 2, 1, 0], [4, -3, -2, -1]], columns=['Plane', 'X', 'Y', 'Z'], dtype=int)
+					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
+	drift = pd.DataFrame([[2, 1, 2, 3], [3, 2, 1, 0], [4, -3, -2, -1]], columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
 
 	res = apply_drift(df, drift, True)
 	ref = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],
 						[2, 0, -1, -3], [2, 0, -2, -3], [2, -1, -1, -3], [2, 0, -2, -3],
-						[3, -1, 0, 0], [3, 0, -1, 0], [3, -2, 1, 0], [3, -1, 0, 0],
-						[4, 4, 3, 1], [4, 6, 2, 1], [4, 3, 5, 1], [4, 3, 2, 1]],
+						[3, -2, -2, -3], [3, -1, -3, -3], [3, -3, -1, -3], [3, -2, -2, -3],
+						[4, 1, 0, -2], [4, 3, -1, -2], [4, 0, 2, -2], [4, 0, -1, -2]],
 					   columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
 	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	res = apply_drift(df, drift, False)
 	ref = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],
 						[2, 0, -1, 0], [2, 0, -2, 0], [2, -1, -1, 0], [2, 0, -2, 0],
-						[3, -1, 0, 0], [3, 0, -1, 0], [3, -2, 1, 0], [3, -1, 0, 0],
-						[4, 4, 3, 0], [4, 6, 2, 0], [4, 3, 5, 0], [4, 3, 2, 0]],
+						[3, -2, -2, 0], [3, -1, -3, 0], [3, -3, -1, 0], [3, -2, -2, 0],
+						[4, 1, 0, 0], [4, 3, -1, 0], [4, 0, 2, 0], [4, 0, -1, 0]],
+					   columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
+	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
+def test_chain_drift():
+	"""Test d'enchainement de la correction de Drift."""
+	bead = pd.DataFrame([[1, 1, 1, 1, 1], [1, 2, 0, 1, 0], [1, 3, 1, 0, 0], [1, 4, 1, 1, 2]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
+	drift = get_drift(bead, True)
+
+	new_bead = apply_drift(bead, drift, True)
+	assert np.allclose(new_bead[["X", "Y", "Z"]].to_numpy(), 1)
+
+	new_drift = get_drift(new_bead, True)
+	assert np.allclose(new_drift[["X", "Y", "Z"]].to_numpy(), 0)
+
+
+##################################################
+def test_drift_correction():
+	"""Test du pipeline de la correction de Drift."""
+	df = pd.DataFrame([[1, 0, 0, 0], [1, 10, 10, 10], [1, 20, 20, 20], [1, 30, 30, 30], [1, 1, 1, 0],  # P1
+					   [2, 1, 1, 0], [2, 11, 10, 10], [2, 20, 21, 20], [2, 31, 30, 30],  # .			 P2
+					   [3, 1, 1, 0], [3, 12, 10, 10], [3, 20, 22, 20], [3, 31, 31, 30],  # .			 P3
+					   [4, 1, 1, 0], [4, 13, 10, 10], [4, 20, 23, 20], [4, 30, 30, 30]],  # .			 P4
+					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
+	res = drift_correction(df, max_distance=2)
+	ref = pd.DataFrame([[1, 0, 0, 0], [1, 10, 10, 10], [1, 20, 20, 20], [1, 30, 30, 30], [1, 1, 1, 0],  # .			P1
+						[2, 0.5, 0.75, 0], [2, 10.5, 9.75, 10], [2, 19.5, 20.75, 20], [2, 30.5, 29.75, 30],  # .	P2
+						[3, 0.25, 0.25, 0], [3, 11.25, 9.25, 10], [3, 19.25, 21.25, 20], [3, 30.25, 30.25, 30],  # .P3
+						[4, 0.25, 0.25, 0], [4, 12.25, 9.25, 10], [4, 19.25, 22.25, 20], [4, 29.25, 29.25, 30]],  # P4
 					   columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
 	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"

@@ -19,6 +19,10 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 				"columns": ["Track", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Surface"],
 				"types":   ["Track", "Plane", "Id", "Surface"]
 				},
+		"Beads":                {
+				"columns": ["Bead", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Surface"],
+				"types":   ["Bead", "Plane", "Id", "Surface"]
+				},
 		"MSD":                  {
 				"columns": ["Track", "Step"],
 				"types":   ["Track"]
@@ -59,36 +63,22 @@ N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # .							  Nombre de
 SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["columns"]))  # Dimensions pour le model d'astigmatisme 3D (2,5).
 
 
+# ==================================================
+# region Manipulation de DataFrame
+# ==================================================
 ##################################################
-def get_meta(data: list | np.ndarray) -> pd.DataFrame:
-	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
-	:param data: Liste des informations en entrée
-	:return: :class:`DataFrame <pandas.DataFrame>` contennant les metadonnées
-	:raises ValueError: Si le nombre d'éléments ne correspond au nombre attendu pour le fichier meta.
+def apply_dataframe_type(data: pd.DataFrame, columns: list[str], numeric_type: str = "int32"):
 	"""
-	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
+	Force les colonnes en paramètres à adopter un type numérique.
+	Vérfie la présence des colonnes avant la transformation pour éviter les problèmes et préserve les NaN s'ils sont présents.
 
-	arr = np.asarray(data).reshape(1, -1)  # .												 Aplatit vers (N,) puis force (1, N)
-	if arr.shape[1] != len(columns): raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
-
-	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # .							 Transformation en Dataframe
-	for key in types: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")  # Conversion en entier nullable (préserve les NaN si présents)
-	return res
-
-
-##################################################
-def get_max_points(height: int = 256, width: int = 256, n_planes: int = 1, density: float = 0.2) -> int:
+	:param data: DataFrame à modifier.
+	:param columns: Colonnes à modifier.
+	:param numeric_type: Type à adopter.
 	"""
-	Calcule le nombre maximal théorique de points détectables basé sur les dimensions et la densité de l'image.
-
-	:param height: Hauteur de l'image (nombre de lignes). Par défaut 256.
-	:param width: Largeur de l'image (nombre de colonnes). Par défaut 256.
-	:param n_planes: Nombre de plans de l'image. Par défaut 1.
-	:param density: Densité de points par pixel. Par défaut 0.2.
-
-	:return: Nombre maximal théorique de points détectables.
-	"""
-	return int(height * width * density * n_planes) * N_COL_LOC
+	for key in columns:
+		# Vérification en cas de Dataframe Vide et conversion en entier nullable (préserve les NaN si présents)
+		if key in data.columns: data[key] = pd.to_numeric(data[key], errors="coerce").astype(numeric_type)
 
 
 ##################################################
@@ -126,6 +116,30 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 		logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
 	data[columns] = pd.DataFrame(logged, index=data.index, columns=columns)
 	return data
+
+
+# ==================================================
+# endregion Manipulation de DataFrame
+# ==================================================
+
+# ==================================================
+# region Parsing
+# ==================================================
+##################################################
+def get_meta(data: list | np.ndarray) -> pd.DataFrame:
+	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
+	:param data: Liste des informations en entrée
+	:return: :class:`DataFrame <pandas.DataFrame>` contennant les metadonnées
+	:raises ValueError: Si le nombre d'éléments ne correspond au nombre attendu pour le fichier meta.
+	"""
+	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
+
+	arr = np.asarray(data).reshape(1, -1)  # Aplatit vers (N,) puis force (1, N)
+	if arr.shape[1] != len(columns): raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
+
+	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en Dataframe
+	apply_dataframe_type(res, types)  # Conversion en entier nullable (préserve les NaN si présents)
+	return res
 
 
 ##################################################
@@ -231,9 +245,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 			res.columns = columns[:2] + log_col
 
 	if is_log and log_col: res = log10_dataframe(res, log_col)  # Mise à jour en fonction de la mise à l'échelle du Log.
-	for key in types:
-		# Vérification en cas de Dataframe Vide et conversion en entier nullable (préserve les NaN si présents)
-		if key in res.columns: res[key] = pd.to_numeric(res[key], errors="coerce").astype("int32")
+	apply_dataframe_type(res, types)
 	return res
 
 
@@ -257,3 +269,6 @@ def parse_localization_for_tracking(data: pd.DataFrame) -> np.ndarray:
 
 	res += blank  # Ajout d'une dernière ligne -1 à la fin
 	return np.asarray(res, dtype=np.float64)
+# ==================================================
+# endregion Parsing
+# ==================================================

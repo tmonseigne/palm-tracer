@@ -2,10 +2,10 @@
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
-from palm_tracer.Processing.Drift import extract_beads
+from palm_tracer.Processing.Drift import apply_drift, extract_beads, get_drift
 from palm_tracer.Tools import FileIO, Ui
 
-#TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
+# TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
 TRESH, FILE = 450, "uTub_Cy3"
 FILE_PATH = INPUT_DIR / "big input" / f"{FILE}.tif"
 LOC_PATH = INPUT_DIR / "big input" / f"{FILE}-localizations-{get_loc_suffix(threshold=TRESH)}.csv"
@@ -98,8 +98,22 @@ def test_tracking(qtbot):
 
 
 ##################################################
-def test_beads():
-	"""Test Extraction des billes sur des données importantes."""
+def test_drift():
+	"""
+	Test Extraction des billes sur des données importantes.
+
+	2 billes temps : 49s
+	"""
 	localizations = pd.read_csv(LOC_PATH)
-	beads = extract_beads(localizations, max_distance, is_3d=False)
-	print(beads)
+	beads = extract_beads(localizations, 1, is_3d=False)
+	assert len(beads) > 0, "Aucune bille trouvé"
+	if save_output: beads.to_csv(f"{OUTPUT_DIR}/{FILE}-beads.csv", index=False)
+
+	# on ne va prendre qu'une bille pour éviter la moyenne et avoir à la fin un drift de 0 sur la bille selectionné une fois corrigé.
+	beads = beads[beads["Bead"] == 1]
+	drift = get_drift(beads, False)
+	if save_output: drift.to_csv(f"{OUTPUT_DIR}/{FILE}-drift.csv", index=False)
+	corrected_beads = apply_drift(beads, drift, False)
+	if save_output: corrected_beads.to_csv(f"{OUTPUT_DIR}/{FILE}-corrected_beads.csv", index=False)
+	drift = get_drift(corrected_beads, False)
+	assert np.allclose(drift[["X", "Y", "Z"]].to_numpy(), 0)

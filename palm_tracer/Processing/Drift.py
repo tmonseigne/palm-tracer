@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
+from palm_tracer.Processing.Parsing import apply_dataframe_type, FILES_COLUMNS
+
 
 ##################################################
 @dataclass
@@ -118,11 +120,12 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	if max_distance <= 0: raise ValueError("max_distance must be strictly positive.")
 	if data.empty: return pd.DataFrame()
 
-	required = {"Plane", "X", "Y", "Z"}
-	_check_cols(data, required)
+	columns, types = FILES_COLUMNS["Beads"]["columns"], FILES_COLUMNS["Beads"]["types"]
+	common_columns = [c for c in columns if c in data.columns]  # Permissif sur les colonnes pour le fichier.
+	_check_cols(data, {"Plane", "X", "Y", "Z"})  # Vérification des colonnes minimales
 
 	# Création d'une copie légère et on conserve l'index original pour le slicing final.
-	work = data.loc[:, list(required)]
+	work = data.loc[:, list(common_columns)]
 	work["_index"] = data.index
 	planes = _check_planes(work)
 
@@ -173,15 +176,43 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 		active_tracks = new_active_tracks  # Switch
 
 	# ----- Préparation des données à renvoyer -----
+	work.drop(columns=["_index"], inplace=True)
 	rows: list[pd.DataFrame] = []  # Les tracks restants sont des billes valides. On rassemble leurs points dans une liste de dataframe.
 	for p in range(len(active_tracks)):
-		df_bead = data.loc[active_tracks[p].ids].copy()
+		df_bead = work.loc[active_tracks[p].ids]
 		df_bead.insert(0, "Bead", int(p + 1))  # Ajout d'une colonne Bead avec le numéro de la bille de 1 à N.
 		rows.append(df_bead)
 
 	# if not rows: return pd.DataFrame()  # Aucune bille complète ⇒ terminé. Impossible dans ce flux
-	out = pd.concat(rows, axis=0, ignore_index=False)  # Concatenation en un seul dataframe
-	return out.sort_values(by=["Bead", "Plane"], kind="stable").reset_index(drop=True)  # Tri stable pour lisibilité.
+	beads = pd.concat(rows, axis=0, ignore_index=False)  # Concatenation en un seul dataframe
+	apply_dataframe_type(beads, types)
+	return beads.sort_values(by=["Bead", "Plane"], kind="stable").reset_index(drop=True)  # Tri stable pour lisibilité.
+
+
+##################################################
+def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> pd.DataFrame:
+	"""
+	Mets à jour data en lui enlevant les billes identifiées (matching exact sur Plane/X/Y/Z).
+
+	:param data: Données de localisation (doit contenir Plane, X, Y, Z).
+	:param beads: Billes à retirer (doit contenir Plane, X, Y, Z).
+	:param decimals: Nombre de décimales conservées pour la comparaison (évite les problèmes d'arrondi float).
+	:returns: Copie de data sans les lignes correspondant aux billes.
+	"""
+	if data.empty or beads.empty: return data
+
+	required = {"X", "Y", "Z"}
+	_check_cols(data, required)
+	_check_cols(beads, required)
+
+	keys = ["Plane", "X", "Y", "Z"]
+
+	# --- Création de copies arrondies pour comparaison ---
+	data_cmp = data.assign(X=data["X"].round(decimals), Y=data["Y"].round(decimals), Z=data["Z"].round(decimals))
+	beads_cmp = beads.assign(X=beads["X"].round(decimals), Y=beads["Y"].round(decimals), Z=beads["Z"].round(decimals)).drop_duplicates()
+	# --- Anti-join ---
+	mask = ~pd.MultiIndex.from_frame(data_cmp[keys]).isin(pd.MultiIndex.from_frame(beads_cmp[keys]))
+	return data.loc[mask].copy().reset_index(drop=True)
 
 
 ##################################################
@@ -254,11 +285,15 @@ def apply_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> 
 	_check_cols(data, required)
 	_check_cols(drift, required)
 
+	# --- drift incrémental -> drift cumulatif ---
+	drift_work = drift.loc[:, list(required)].copy()
+	drift_work = drift_work.sort_values("Plane", kind="stable").reset_index(drop=True)
+	drift_work[["X", "Y", "Z"]] = drift_work[["X", "Y", "Z"]].cumsum()
+	drift_work = drift_work.set_index("Plane")
+
 	# --- Application : join + soustraction ---
 	out = data.copy()
-	drift_work = drift.copy().set_index("Plane")
-	# On fait un merge aligné sur Plane pour vectoriser (évite une boucle Python par plan).
-	out = out.join(drift_work, on="Plane", rsuffix="_drift")
+	out = out.join(drift_work, on="Plane", rsuffix="_drift")  # On fait un merge aligné sur Plane pour vectoriser (évite une boucle Python par plan).
 	out = out.fillna(0.0)
 
 	# Soustraction (correction).
@@ -267,3 +302,26 @@ def apply_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> 
 	if is_3d: out["Z"] -= out["Z_drift"]
 	out.drop(columns=[c for c in out.columns if c.endswith("_drift")], inplace=True)  # Nettoyage
 	return out
+
+
+##################################################
+def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> pd.DataFrame:
+	"""
+	Trouve des billes au sein d'un jeu de donnée, calcule le drift et le corrige.
+
+	:param data: DataFrame contenant au minimum les colonnes ``Plane``, ``X``, ``Y`` et ``Z``.
+				 Chaque ligne représente une détection (un point) dans un plan donné.
+	:param max_distance: Distance maximale autorisée entre deux plans (en unités des coordonnées) selon la norme L∞.
+	:param is_3d: Si ``True``, utilise (X,Y,Z). Sinon, utilise uniquement (X,Y).
+	:param strict: Si ``True``, la distance doit être strictement inférieure à la distance maximale (comportement par défaut).
+	:param k: Nombre de matchs maximum pour chaques points, permet de gérer les collisions de suivis (par défaut 4 maximum).
+	          Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul match ou aucun pour chaques points.
+
+	:returns: Un nouveau DataFrame ne contenant les données corrigées.
+	"""
+
+	beads = extract_beads(data, max_distance=max_distance, is_3d=is_3d, strict=strict, k=k)
+	print(beads)
+	drift = get_drift(beads, is_3d=is_3d)
+	print(drift)
+	return apply_drift(data, drift, is_3d=is_3d)
