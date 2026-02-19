@@ -10,10 +10,11 @@ import numpy as np
 import pandas as pd
 import psutil
 
-from palm_tracer.Processing.Parsing import FILES_COLUMNS, get_max_points, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, N_COL_LOC, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL
 from palm_tracer.Tools import FileIO, Ui
 
 N_TRC_CP_FIT = 12
+DENSITY = 0.2
 
 C_IMG, C_TAB = ctypes.POINTER(ctypes.c_uint16), ctypes.POINTER(ctypes.c_double)
 C_UINT, C_BOOL, C_DBL = ctypes.c_uint32, ctypes.c_bool, ctypes.c_double
@@ -175,7 +176,7 @@ class Palm:
 
 		# --- Calcul du budget RAM Disponible ---
 		max_points = int(self.max_allocation_bytes() // 8)  # .			Nombre de points maximum allouable en une fois
-		plane_points = get_max_points(height, width, 1)  # .			Taille pour un seul plan
+		plane_points = int(height * width * DENSITY) * N_COL_LOC  # .	Taille théorique max pour un seul plan (N points max * N Col localisation)
 		if max_points < plane_points: return pd.DataFrame()  # . 		pragma: no cover — Cas extrême un seul plan est gargantuesque.
 		n_plane_max = int(min(max_points // plane_points, n_planes))  # Nombre de plans qui tiennent dans max_allocation
 

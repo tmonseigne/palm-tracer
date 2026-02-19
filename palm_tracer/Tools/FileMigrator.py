@@ -350,7 +350,8 @@ class FileMigrator:
 		with file.open("r", encoding="utf-8", errors="replace") as f:
 			for _ in range(skiprows):
 				line = f.readline()
-				if not line: raise ValueError(f"File does not contain {skiprows} header lines: {file}")
+				if not line:
+					raise ValueError(f"File does not contain {skiprows} header lines: {file}")
 				header_lines.append(line.rstrip("\n"))
 
 		df = pd.read_csv(file, sep=sep, header=0 if header else None, skiprows=skiprows, engine="python")  # On récupère le tableau

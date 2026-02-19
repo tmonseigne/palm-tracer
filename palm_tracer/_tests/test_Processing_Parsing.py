@@ -14,14 +14,6 @@ def test_get_meta():
 
 
 ##################################################
-def test_get_max_point():
-	"""Test basique de get_max_points."""
-	res = get_max_points(100, 100, 1, 0.01)
-	ref = 1800  # Résultat attendu 1% de 100x100 pixel x 18 (le nombre de colonnes d'un fichier de localisation) = 1800
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref},\tObtenu : {res}"
-
-
-##################################################
 def test_rearrange_dataframe_columns():
 	"""test de la fonction rearrange_dataframe_columns."""
 	df = pd.DataFrame({"X": [1, 2, 3], "Y": [4, 5, 6], "Z": [7, 8, 9]})

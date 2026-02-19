@@ -17,4 +17,4 @@ from .Grapher import Grapher
 from .Palm import Palm
 
 # Définir la liste des symboles exportés
-__all__ = ["Gallery", "Parsing", "Visualization", "Grapher", "Palm"]
+__all__ = ["Drift", "Gallery", "Parsing", "Visualization", "Grapher", "Palm"]
