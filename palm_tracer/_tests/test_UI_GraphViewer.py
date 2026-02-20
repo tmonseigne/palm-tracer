@@ -125,11 +125,11 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	# Plot pour les localisations
 	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
-	assert w._cmb_src.currentIndex() == 0, "Index de la donnée incorrecte."
+	assert w._cmb_src_a.currentIndex() == 0, "Index de la donnée incorrecte."
 	w._update_plot()
 
-	w._cmb_src.setCurrentIndex(1)
-	assert w._cmb_src.currentIndex() == 1, "Index de la donnée incorrecte."
+	w._cmb_src_a.setCurrentIndex(1)
+	assert w._cmb_src_a.currentIndex() == 1, "Index de la donnée incorrecte."
 	w._update_plot()
 
 	# Plot pour les trajectoires
@@ -138,8 +138,8 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	w._update_plot()
 
 	# Affichage de Instant D
-	w._cmb_src.setCurrentIndex(2)
-	assert w._cmb_src.currentIndex() == 2, "Index de la donnée incorrecte."
+	w._cmb_src_a.setCurrentIndex(2)
+	assert w._cmb_src_a.currentIndex() == 2, "Index de la donnée incorrecte."
 	w._update_plot()
 
 	w.close()
@@ -161,7 +161,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.mouseClick(w._btn_stack, Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
 
-	data, title = w.get_plot_data()
+	data, title = w._get_plot_data()
 	ref_title, ref_shape = "Stack Intensity", (10, 128, 256)
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
@@ -170,7 +170,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	w._filters["Plane"].active = True
 	w._filters["Plane"].value = [2, 50]
 
-	data, title = w.get_plot_data()
+	data, title = w._get_plot_data()
 	ref_title, ref_shape = "Stack Intensity", (9, 128, 256)
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
@@ -178,25 +178,25 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	# Plot pour les localisations
 	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
-	assert w._cmb_src.currentIndex() == 0, "Index de la donnée incorrecte."
+	assert w._cmb_src_a.currentIndex() == 0, "Index de la donnée incorrecte."
 
-	data, title = w.get_plot_data()
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
-	w._cmb_src.setCurrentIndex(1)
-	assert w._cmb_src.currentIndex() == 1, "Index de la donnée incorrecte."
-	data, title = w.get_plot_data()
+	w._cmb_src_a.setCurrentIndex(1)
+	assert w._cmb_src_a.currentIndex() == 1, "Index de la donnée incorrecte."
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Intensity", (6,), [1, 1, 0, 1, 1, 1]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
-	w._df["loc"].drop(columns=[w._cmb_src.currentText()], inplace=True)
-	data, title = w.get_plot_data()
+	w._df["loc"].drop(columns=[w._cmb_src_a.currentText()], inplace=True)
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Intensity", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
@@ -207,7 +207,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	# En cas de Dataframe vide.
 	w._df["loc"] = w._df["loc"].iloc[0:0]
-	data, title = w.get_plot_data()
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Count", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
@@ -219,23 +219,23 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
 
 	# Affichage de Longeur
-	data, title = w.get_plot_data()
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Length", (9, 2), [[1, 98], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Affichage de MSD
-	w._cmb_src.setCurrentIndex(1)
-	assert w._cmb_src.currentIndex() == 1, "Index de la donnée incorrecte."
-	data, title = w.get_plot_data()
+	w._cmb_src_a.setCurrentIndex(1)
+	assert w._cmb_src_a.currentIndex() == 1, "Index de la donnée incorrecte."
+	data, title = w._get_plot_data()
 	ref_title, ref_shape = "Tracks MSD Step 1", (14, 2)
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 	# Changement de Step.
 	w._display_settings["MSD"].value = 3
-	data, title = w.get_plot_data()
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks MSD Step 3", (6, 2), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
@@ -243,33 +243,33 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	# En cas de colonne inexistante.
 	w._display_settings["MSD"].value = 8
-	data, title = w.get_plot_data()
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks MSD Step 8", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Affichage de Instant D
-	w._cmb_src.setCurrentIndex(2)
-	assert w._cmb_src.currentIndex() == 2, "Index de la donnée incorrecte."
-	data, title = w.get_plot_data()
+	w._cmb_src_a.setCurrentIndex(2)
+	assert w._cmb_src_a.currentIndex() == 2, "Index de la donnée incorrecte."
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Instant Diffusion", (27,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	# np.testing.assert_array_equal(data, ref_data)
 
 	# Une colonne de Fit
-	w._cmb_src.setCurrentIndex(3)
-	assert w._cmb_src.currentIndex() == 3, "Index de la donnée incorrecte."
-	data, title = w.get_plot_data()
+	w._cmb_src_a.setCurrentIndex(3)
+	assert w._cmb_src_a.currentIndex() == 3, "Index de la donnée incorrecte."
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Total Intensity", (14, 2), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\tObtenu : {title}"
 	# np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
-	w._df["Fit"].drop(columns=[w._cmb_src.currentText()], inplace=True)
-	data, title = w.get_plot_data()
+	w._df["Fit"].drop(columns=[w._cmb_src_a.currentText()], inplace=True)
+	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Tracks Total Intensity", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"

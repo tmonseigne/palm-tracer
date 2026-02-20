@@ -46,6 +46,24 @@ except Exception:
 	QWebEngineView = None  # type: ignore
 	_HAS_WEBENGINE = False
 
+# ==================================================
+# region Constantes
+# ==================================================
+FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
+
+DATA_SRC: dict[str, list] = {
+		"Stack":        ["Intensity"],
+		"Localization": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
+		"Tracking":     ["Length"],
+		"MSD":          ["MSD"],
+		"Instant D":    ["Instant Diffusion"],
+		"Fit":          [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # .	Pour Tous Fit
+						 ["A (μm²/s)", "B (μm²)", "MSE"],  # .									Fit Linéaire
+						 ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # .	Fit Puissance
+						 ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]],  # Fit Exponentiel
+		"No Dual":      ["Localizations Count", "Length", "MSD"],
+		}
+
 TIPS = {"File":         "Current stack.",
 		"Localization": "Localizations on the current stack.",
 		"Tracking":     "Tracking on the current stack.",
@@ -53,7 +71,7 @@ TIPS = {"File":         "Current stack.",
 		"Instant D":    "Instant Diffusion of tracks on the current stack.",
 		"Fit":          "Fit of tracks on the current stack.",
 
-		"Multi-Source": "Allow second source for Graph in scatter plot source A by source B.",
+		"Dual Source":  "Allow second source for Graph in scatter plot source A by source B.",
 		"Source":       "Data selected for Graph.",
 
 		"MSD Step":     "Step selected for display.",
@@ -74,6 +92,10 @@ TIPS = {"File":         "Current stack.",
 		"Export":       "Opens a dialog box and exports the figure according to the selected extension.",
 		}
 
+
+# ==================================================
+# edregion Constantes
+# ==================================================
 
 ##################################################
 class GraphViewerWidget(BaseStandAloneWidget):
@@ -99,20 +121,6 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		  aucune donnée correspondante n'est trouvée (cf. :meth:`_refresh_source_buttons`).
 		- L'export PNG utilise un fallback par capture du widget Qt si Kaleido n'est pas utilisé.
 	"""
-
-	FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
-
-	DATA_SRC: dict[str, list] = {
-			"Stack":        ["Intensity"],
-			"Localization": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
-			"Tracking":     ["Length"],
-			"MSD":          ["MSD"],
-			"Instant D":    ["Instant Diffusion"],
-			"Fit":          [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # .	  Pour Tous Fit
-							 ["A (μm²/s)", "B (μm²)", "MSE"],  # .								  Fit Linéaire
-							 ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # . Fit Puissance
-							 ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
-			}
 
 	# ==================================================
 	# region Initialisation
@@ -168,11 +176,12 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		vbox = QVBoxLayout(left)
 		Ui.init_layout(vbox)
 
+		# Boutton pour charger une stack
+		self._btn_add_stack = QPushButton("Add Stack")
+		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
+
 		# Bloc Infos (lecture seule)
 		grp_infos = QGroupBox("Informations")
-
-		# Nom de fichier courant
-		self._lbl_filename = QLabel(self._file if self._file != "" else "No file")
 
 		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
 		self._status = {"File":         QLabel(self._file if self._file != "" else "No file"),
@@ -203,11 +212,27 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		# État initial
 		self._btn_stack.setChecked(True)
 
-		# Combo box
 		form = Ui.make_form(grp_source)
-		self._cmb_src = QComboBox()
 		form.addRow(h)
-		form.addRow("Source :", self._cmb_src)
+
+		# Combo box
+		self._cmb_src_a = Combo("Source: ", TIPS["Source"])
+		self._cmb_src_a.box.setMinimumWidth(200)
+		self._cmb_src_a.attach_to_form(form)
+		self._msd_step = SpinInt("MSD Step", TIPS["MSD Step"], 1, [1, 10000], 1)
+		self._msd_step.attach_to_form(form)
+		self._msd_step.hide()
+
+		self._dual_source = CheckBox("Dual Source", TIPS["Dual Source"])
+		self._dual_source.attach_to_form(form)
+
+		self._cmb_src_b = Combo("Source: ", TIPS["Source"])
+		self._cmb_src_b.attach_to_form(form)
+		self._cmb_src_b.box.setMinimumWidth(200)
+		self._cmb_src_b.hide()
+		self._msd_step_b = SpinInt("MSD Step", TIPS["MSD Step"], 1, [1, 10000], 1)
+		self._msd_step_b.attach_to_form(form)
+		self._msd_step_b.hide()
 
 		# Bloc Affichage (2 colonnes)
 		grp_display = QGroupBox("Display")
@@ -225,8 +250,6 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 		# Autres options
 		self._display_settings["Log"].setChecked(False)
-		self._display_settings["MSD"].hide()  # Masquage initial
-
 		self._display_settings["Limits"].setChecked(True)
 		self._display_settings["Sigma"].setChecked(False)
 		self._display_settings["Gauss"].setChecked(False)
@@ -282,6 +305,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		actions_row.addWidget(self._btn_actualize)
 		actions_row.addWidget(self._btn_export)
 
+		vbox.addWidget(self._btn_add_stack)
 		vbox.addWidget(grp_infos)
 		vbox.addWidget(grp_source)
 		vbox.addWidget(grp_display)
@@ -298,10 +322,13 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		self._connect_web_widget(self._web)
+		self._btn_add_stack.clicked.connect(self._add_stack)
 
 		# Sources
 		self._btg_src.idClicked.connect(self._on_source_changed)
-		self._cmb_src.currentIndexChanged.connect(self._on_source_cmb_changed)
+		self._cmb_src_a.connect(self._on_source_cmb_changed)
+		self._cmb_src_b.connect(self._on_source_cmb_changed)
+		self._dual_source.connect(self._on_dual_source_changed)
 
 		# Display Options Connexion
 		for _, setting in self._display_settings.items():
@@ -332,11 +359,11 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		Si le bouton actif devient indisponible (ex. pas de localisation), bascule automatiquement sur "Stack".
 		"""
 		self._update_df()
-		self._btn_loc.setEnabled(not self._df["loc"].empty)
-		self._btn_trc.setEnabled(not self._df["trc"].empty)
+		self._btn_loc.setEnabled(not self._df["Localization"].empty)
+		self._btn_trc.setEnabled(not self._df["Tracking"].empty)
 		# si un bouton désactivé était sélectionné, repasse sur Stack
-		if self._btn_loc.isChecked() and self._df["loc"].empty: self._btn_stack.setChecked(True)
-		if self._btn_trc.isChecked() and self._df["trc"].empty: self._btn_stack.setChecked(True)
+		if self._btn_loc.isChecked() and self._df["Localization"].empty: self._btn_stack.setChecked(True)
+		if self._btn_trc.isChecked() and self._df["Tracking"].empty: self._btn_stack.setChecked(True)
 
 	##################################################
 	def _on_source_changed(self, btn_id: int) -> None:
@@ -346,29 +373,29 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
-		self._cmb_src.blockSignals(True)
-		self._cmb_src.clear()
-		if btn_id == 0: self._cmb_src.addItems(self.DATA_SRC["stk"])  # .	Stack
-		elif btn_id == 1: self._cmb_src.addItems(self.DATA_SRC["loc"])  # .	Localization
-		elif btn_id == 2: self._cmb_src.addItems(self._get_tracks_src())  # Tracking
-		self._cmb_src.setCurrentIndex(0)
-		self._cmb_src.blockSignals(False)
-
-		self._update_filters_ui()  # .										Mise à jour des filtres à afficher
-		self._update_plot()  # .											Puis redessiner le graphe si besoin
+		if btn_id == 0: src = DATA_SRC["Stack"]  # .		 Stack
+		elif btn_id == 1: src = DATA_SRC["Localization"]  # Localization
+		elif btn_id == 2: src = self._get_tracks_src()  # .		 Tracking
+		else: src = []  # .										 Invalide
+		if self._dual_source.value: src = [s for s in src if s not in DATA_SRC["No Dual"]]
+		self._cmb_src_a.update_box(src)
+		self._cmb_src_b.update_box(src)
+		self._update_filters_ui()  # .												   Mise à jour des filtres à afficher
+		self._update_plot()  # .													   Puis redessiner le graphe si besoin
 
 	##################################################
-	def _on_source_cmb_changed(self, btn_id: int) -> None:
-		"""
-		Mets à jour les filtres et l'affichage lors du changement de la variable d'intérêt.
-
-		:param btn_id: Identifiant de la variable d'intérêt sélectionnée.
-		"""
+	def _on_source_cmb_changed(self) -> None:
+		"""Mets à jour les filtres et l'affichage lors du changement de la variable d'intérêt."""
 		# Affichage de l'option lors de la selection MSD pour choisir le Step et faire Histogram par ce Step
-		if self._btg_src.checkedId() == 2 and btn_id == 1: self._display_settings["MSD"].show()
-		else: self._display_settings["MSD"].hide()
-		self._update_filters_ui()  # Mise à jour des filtres à afficher
+		if self._btg_src.checkedId() == 2: self._msd_step.show() if self._cmb_src_a.current_text == "MSD" else self._msd_step.hide()
+		else: self._msd_step.hide()
 		self._update_plot()  # .	 Puis redessiner le graphe si besoin
+
+	##################################################
+	def _on_dual_source_changed(self, status: bool) -> None:
+		"""Affiche/Masque la seconde source."""
+		self._cmb_src_b.show() if status else self._cmb_src_b.hide()
+		self._on_source_changed(self._btg_src.checkedId())
 
 	##################################################
 	def _update_filters_ui(self):
@@ -395,9 +422,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 		:return: La liste des sources disponibles pour les trajectoires.
 		"""
-		res = list(self.DATA_SRC["Tracking"])
-		if not self._df["MSD"].empty: res += self.DATA_SRC["MSD"]
-		if not self._df["Instant D"].empty: res += self.DATA_SRC["Instant D"]
+		res = list(DATA_SRC["Tracking"])
+		if not self._df["MSD"].empty: res += DATA_SRC["MSD"]
+		if not self._df["Instant D"].empty: res += DATA_SRC["Instant D"]
 		if not self._df["Fit"].empty: res += self._df["Fit"].columns[2:].tolist()
 
 		return res
@@ -410,6 +437,13 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	# region PALMTracer Link
 	# ==================================================
 	##################################################
+	def _add_stack(self):
+		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
+		cast(FileList, self._pt.settings.batch["Files"]).add_file()
+		self._pt.load()  # Chargement des derniers résultats
+		self._actualize()  # Actualisation des statuts et dataframes internes.
+
+	##################################################
 	def _get_status(self, loc_key: str, trc_key: str, tc_key: list[str]) -> dict[str, str]:
 		"""
 		Retourne un dictionnaire décrivant le statut des tableaux actuellement chargés dans ``self._df``
@@ -421,7 +455,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 			- à un tableau reconnecté (pour les trajectoires),
 			- ou à une absence de données.
 
-		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`self.FILE_STATUS`.
+		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`.
 
 		Le dictionnaire retourné contient systématiquement les clés suivantes : ``"Localization"``, ``"Tracking"``, ``"MSD"``, ``"Instant D"``, ``"Fit"``
 
@@ -430,26 +464,25 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		:param tc_key: Liste de trois clés correspondant respectivement aux tableaux MSD, diffusion instantanée et Fit.
 		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
 		"""
-		res = {"Localization": self.FILE_STATUS[0], "Tracking": self.FILE_STATUS[0], "MSD": self.FILE_STATUS[0], "Instant D": self.FILE_STATUS[0],
-			   "Fit":          self.FILE_STATUS[0]}
+		res = {"Localization": FILE_STATUS[0], "Tracking": FILE_STATUS[0], "MSD": FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
 
-		if self._df["Localization"].empty: res["Localization"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
-		elif "f_" in loc_key: res["Localization"] = self.FILE_STATUS[2]  # .			Tableau filtré
-		else: res["Localization"] = self.FILE_STATUS[1]  # .							Tableau standard
+		if self._df["Localization"].empty: res["Localization"] = FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
+		elif "f_" in loc_key: res["Localization"] = FILE_STATUS[2]  # .			Tableau filtré
+		else: res["Localization"] = FILE_STATUS[1]  # .							Tableau standard
 
-		if self._df["Tracking"].empty: res["Tracking"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
+		if self._df["Tracking"].empty: res["Tracking"] = FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
 		elif "f_" in trc_key:
-			if "blk" in trc_key: res["Tracking"] = self.FILE_STATUS[4]  # .		Tableau reconnecté filtré
-			else: res["Tracking"] = self.FILE_STATUS[2]  # .						Tableau filtré
+			if "blk" in trc_key: res["Tracking"] = FILE_STATUS[4]  # .		Tableau reconnecté filtré
+			else: res["Tracking"] = FILE_STATUS[2]  # .						Tableau filtré
 		else:
-			if "blk" in trc_key: res["Tracking"] = self.FILE_STATUS[3]  # .		Tableau reconnecté non filtré
-			else: res["Tracking"] = self.FILE_STATUS[1]  # .						Tableau standard
+			if "blk" in trc_key: res["Tracking"] = FILE_STATUS[3]  # .		Tableau reconnecté non filtré
+			else: res["Tracking"] = FILE_STATUS[1]  # .						Tableau standard
 
 		tcs = ["MSD", "Instant D", "Fit"]
 		for i in range(3):
-			if self._df[tcs[i]].empty: res[tcs[i]] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
-			elif "f_" in tc_key[i]: res[tcs[i]] = self.FILE_STATUS[2]  # .	Tableau filtré
-			else: res[tcs[i]] = self.FILE_STATUS[1]  # .					Tableau standard
+			if self._df[tcs[i]].empty: res[tcs[i]] = FILE_STATUS[0]  # Aucun tableau ou tableau vide
+			elif "f_" in tc_key[i]: res[tcs[i]] = FILE_STATUS[2]  # .	Tableau filtré
+			else: res[tcs[i]] = FILE_STATUS[1]  # .					Tableau standard
 		return res
 
 	##################################################
@@ -521,7 +554,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		src_id = self._btg_src.checkedId()
-		src_type = self._cmb_src.currentText()
+		src_a = self._cmb_src_a.current_text
+		src_b = self._cmb_src_b.current_text
+		dual = self._dual_source.value
 		limit = self._display_settings["Limits"].checkState() == Qt.CheckState.Checked
 		sigma = self._display_settings["Sigma"].checkState() == Qt.CheckState.Checked
 		kde = self._display_settings["KDE"].checkState() == Qt.CheckState.Checked
@@ -529,26 +564,44 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		density = self._display_settings["Density"].isChecked()
 
 		# Préparation des Données
-		data, title = self.get_plot_data()
+		data, title = self._get_plot_data()
 
 		# Selection du graphique à afficher
 		fig: go.Figure
-		if src_id == 1 and src_type == "Localizations Count":
+		if src_id == 1 and src_a == "Localizations Count":
 			fig = self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
-		elif src_id == 2 and src_type == "Length":
+		elif src_id == 2 and src_a == "Length":
 			fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
+		elif dual:
+			fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma)
 		else:
 			fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 
 		self._update_web_widget(self._web, fig)
 
 	##################################################
-	def get_plot_data(self) -> tuple[np.ndarray, str]:
+	def _get_plot_data(self) -> tuple[np.ndarray, str]:
 		"""Récupère et prépare les données pour l'affichage."""
 		src_id = self._btg_src.checkedId()
-		src_type = self._cmb_src.currentText()
+		src_a = self._cmb_src_a.current_text
+		src_b = self._cmb_src_b.current_text
+		dual = self._dual_source.value
 		log_scale = self._display_settings["Log"].isChecked()
 
+		d, t = self._get_plot_data_from_source(src_id, src_a, log_scale)
+		if dual:
+			t += f" / {src_b}"
+			d_b, _ = self._get_plot_data_from_source(src_id, src_b, log_scale)
+			if d.ndim == 2: d = d[:, 1]
+			if d_b.ndim == 2: d_b = d_b[:, 1]
+			if d_b.size != d.size: return np.empty(0), t
+			d = np.column_stack((d, d_b))
+
+		return d, t
+
+	##################################################
+	def _get_plot_data_from_source(self, src_id, src, log_scale) -> tuple[np.ndarray, str]:
+		"""Récupère et prépare les données pour l'affichage."""
 		# Stack
 		if src_id == 0:
 			tmp = self._stack
@@ -556,50 +609,50 @@ class GraphViewerWidget(BaseStandAloneWidget):
 			if self._filters["Plane"].active:
 				limits = self._filters["Plane"].value
 				tmp = tmp[max(limits[0] - 1, 0):min(limits[1], int(tmp.shape[0])), ...]
-			return self._log_data(tmp, log_scale), f"Stack {src_type}"
+			return self._log_data(tmp, log_scale), f"Stack {src}"
 
 		# Localizations
 		elif src_id == 1:
-			if src_type == "Localizations Count":
+			if src == "Localizations Count":
 				s = self._df["Localization"]["Plane"].astype(np.int64)
-				if s.empty:  return np.empty(0), src_type
+				if s.empty:  return np.empty(0), src
 				else:
 					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
 					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-					return np.column_stack((planes, counts)), src_type
+					return np.column_stack((planes, counts)), src
 			else:
-				s = self._df["Localization"].get(src_type)  # None si la colonne n'existe pas
-				if s is None: return np.empty(0), f"Localizations {src_type}"
-				return self._log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src_type}"
+				s = self._df["Localization"].get(src)  # None si la colonne n'existe pas
+				if s is None: return np.empty(0), f"Localizations {src}"
+				return self._log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src}"
 
 		# Tracks
 		else:
-			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["Tracking"].groupby("Track")["Plane"].agg(["min", "max"])  # .	  Groupement par track + calcul min et max
+			if src == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
+				group = self._df["Tracking"].groupby("Track")["Plane"].agg(["min", "max"])  # Groupement par track + calcul min et max
 				group["delta"] = group["max"] - group["min"]  # .							  Calcul du delta
 				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
-				return res, f"Tracks {src_type}"
+				return res, f"Tracks {src}"
 
-			elif src_type == "MSD":
+			elif src == "MSD":
 				res = self._df["MSD"]
-				step = self._display_settings["MSD"].value  # .												  Récupération du numéro du Step.
+				step = self._msd_step.value  # .															  Récupération du numéro du Step.
 				col = f"Step {step}"  # .																	  Récupération du nom de la colonne.
 				if not {"Track", col}.issubset(res.columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence des colonnes
 				track, values = res["Track"].astype(int).to_numpy(), res[col].astype(float).to_numpy()  # .	  Séparation track et valeur
 				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
 				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"  # .					  Retour avec filtrage des Lignes NaN
 
-			elif src_type == "Instant Diffusion":
-				res = self._df["Instant D"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .		  Récupération des colonnes
+			elif src == "Instant Diffusion":
+				res = self._df["Instant D"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .  Récupération des colonnes
 				res = self._log_data(res, log_scale)  # .													  Application du log sur les valeurs
-				return res[np.isfinite(res)], f"Tracks {src_type}"  # .										  Retour avec filtrage des Lignes NaN
+				return res[np.isfinite(res)], f"Tracks {src}"  # .											  Retour avec filtrage des Lignes NaN
 
 			else:
 				res = self._df["Fit"]
-				if not {"Track", src_type}.issubset(res.columns): return np.empty(0), f"Tracks {src_type}"  # Vérification de présence des colonnes
-				track, values = res["Track"].astype(int).to_numpy(), res[src_type].astype(float).to_numpy()  # Séparation track et valeur
+				if not {"Track", src}.issubset(res.columns): return np.empty(0), f"Tracks {src}"  # .		  Vérification de présence des colonnes
+				track, values = res["Track"].astype(int).to_numpy(), res[src].astype(float).to_numpy()  # .	  Séparation track et valeur
 				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
-				return res[np.isfinite(res).all(axis=1)], f"Tracks {src_type}"  # .							  Retour avec filtrage des Lignes NaN
+				return res[np.isfinite(res).all(axis=1)], f"Tracks {src}"  # .								  Retour avec filtrage des Lignes NaN
 
 	##################################################
 	@staticmethod

@@ -96,8 +96,7 @@ class Grapher:
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
-		mu, sigma = float(np.mean(x)), float(np.std(x))
-		x, limits = self._get_range(x, limit)
+		x, limits, mu, sigma = self._get_range(x, limit)
 
 		# Récupération du nombre de bin
 		if bins is None: bins = self._get_bins_number(x)
@@ -127,14 +126,7 @@ class Grapher:
 									 name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
 		# Mu et Sigmas
-		if show_sigma and x.size > 1 and sigma > 0:
-			fig.add_vline(x=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_vline(x=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
-			fig.add_vline(x=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
-			fig.add_vline(x=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
-			fig.add_vline(x=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
-			fig.add_vline(x=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
-			fig.add_vline(x=mu + 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ + 3σ")  # +3σ
+		if show_sigma and x.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, True)
 
 		# Style "seaborn-like" + Espacement entre barres
 		xlabel = "Values" if xlabel == "" else xlabel
@@ -178,27 +170,68 @@ class Grapher:
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
-		_, limits = self._get_range(y, limit)
-		mu, sigma = float(np.mean(y)), float(np.std(y))
+		_, limits, mu, sigma = self._get_range(y, limit)
 
 		# faire une courbe style "seaborn-like"
 		fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas
-		if show_sigma and x.size > 1 and sigma > 0:
-			fig.add_hline(y=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_hline(y=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
-			fig.add_hline(y=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
-			fig.add_hline(y=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
-			fig.add_hline(y=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
-			fig.add_hline(y=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
-			fig.add_hline(y=mu + 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ + 3σ")  # +3σ
+		if show_sigma and x.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)
 
 		# Style "seaborn-like" + Espacement entre barres
 		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
 						  xaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=xlabel)),
 						  yaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=ylabel)),
-						  hovermode="x", showlegend=False)
+						  hovermode="closest", showlegend=False)
+
+		return fig
+
+	##################################################
+	def cloud(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False) -> go.Figure:
+		"""
+		Trace une courbe des données "façon" Seaborn avec Plotly.
+
+		:param data: Données sous forme de tableau numpy 1D ou 2D.
+		:param title: Titre du graphe.
+		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
+		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
+		"""
+
+		if data.size == 0: return self.blank(title)
+		if data.ndim == 2:
+			if data.shape[0] != 2 and data.shape[1] == 2:  data = data.T  # (N, 2) => passage en mode ligne
+			else: raise ValueError("data doit avoir 2 lignes ou 2 colonnes (x,y).")
+			mask = np.isfinite(data[0, :]) & np.isfinite(data[1, :])
+			data = data[:, mask]
+			x, y = data[0, :], data[1, :]
+		else: raise ValueError("data doit être 2D.")
+
+		# Aucunes données valides
+		if data.size == 0: return self.blank(title)
+
+		fig = go.Figure()
+
+		# faire une courbe style "seaborn-like"
+		fig.add_trace(go.Scattergl(x=x, y=y, mode="markers", marker=dict(size=4, opacity=0.5, color=_SEABORN_DEEP[0]),
+								   hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
+
+		# Limite des données avec la règle des 3 Sigmas
+		_, limits_x, mu_x, sigma_x = self._get_range(x, limit)
+		_, limits_y, mu_y, sigma_y = self._get_range(y, limit)
+
+		# Mu et Sigmas sur X
+		if show_sigma and x.size > 1 and sigma_x > 0: self._draw_sigma(fig, mu_x, sigma_x, False)
+		if show_sigma and y.size > 1 and sigma_y > 0: self._draw_sigma(fig, mu_y, sigma_y, True)
+
+		# Style "seaborn-like" + Espacement entre barres
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
+						  xaxis=dict(range=limits_x, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=xlabel)),
+						  yaxis=dict(range=limits_y, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=ylabel)),
+						  hovermode="closest", showlegend=False)
 
 		return fig
 
@@ -257,7 +290,7 @@ class Grapher:
 
 	##################################################
 	@staticmethod
-	def _get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float]]:
+	def _get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float], float, float]:
 		"""
 		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si necessaire.
 
@@ -272,4 +305,24 @@ class Grapher:
 			limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
 		else:
 			limits = [min(data), max(data)]
-		return data, limits
+		return data, limits, mu, sigma
+
+	##################################################
+	@staticmethod
+	def _draw_sigma(fig, mu, sigma, x_axis: bool = True):
+		"""
+		Ajoute les séparations entre chaque sigma.
+
+		:param fig: Figure à modifier
+		:param mu: Moyenne
+		:param sigma: Écart-type
+		:param x_axis: ``True`` pour des séparations verticales sur l'axe X, ``False`` sinon.
+		"""
+		params = [[mu, _SEABORN_DEEP[3], "μ"],
+				  [mu - sigma, _SEABORN_DEEP[4], "μ - 1σ"], [mu + sigma, _SEABORN_DEEP[4], "μ + 1σ"],
+				  [mu - 2 * sigma, _SEABORN_DEEP[5], "μ - 2σ"], [mu + 2 * sigma, _SEABORN_DEEP[5], "μ + 2σ"],
+				  [mu - 3 * sigma, _SEABORN_DEEP[6], "μ - 3σ"], [mu + 3 * sigma, _SEABORN_DEEP[6], "μ + 3σ"]]
+		if x_axis:
+			for p in params: fig.add_vline(x=p[0], line_color=p[1], line_dash="dot", line_width=1.5, name=p[2])
+		else:
+			for p in params: fig.add_hline(y=p[0], line_color=p[1], line_dash="dot", line_width=1.5, name=p[2])
