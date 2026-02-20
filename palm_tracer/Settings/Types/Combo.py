@@ -62,6 +62,12 @@ class Combo(BaseSettingType):
 		self._value = value
 		self._box.setCurrentIndex(value)
 
+	##################################################
+	@property
+	def current_text(self) -> str:
+		"""Valeur actuelle du paramètre (:class:`str`)."""
+		return self._box.currentText()
+
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================

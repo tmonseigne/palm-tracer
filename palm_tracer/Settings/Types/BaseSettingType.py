@@ -66,7 +66,7 @@ class BaseSettingType:
 	def initialize(self):
 		"""Initialise le paramètre."""
 		self._label_widget = QLabel(self.label)
-		if self.tooltip: self._label_widget.setToolTip(self.tooltip)
+		self._label_widget.setToolTip(self.tooltip)
 		self._layout = QHBoxLayout()
 		Ui.init_layout(self._layout, 0, 0)
 

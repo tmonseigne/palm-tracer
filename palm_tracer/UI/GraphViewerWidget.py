@@ -27,13 +27,13 @@ import pandas as pd
 import plotly.graph_objects as go
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QPixmap
-from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QFileDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
-							QLabel, QMessageBox, QPushButton, QRadioButton, QToolButton, QVBoxLayout, QWidget)
+from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QFileDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
+							QLabel, QMessageBox, QPushButton, QRadioButton, QVBoxLayout)
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Grapher
 from palm_tracer.Settings.Groups import Filtering
-from palm_tracer.Settings.Types import FileList, SpinInt
+from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
@@ -45,6 +45,34 @@ try:
 except Exception:
 	QWebEngineView = None  # type: ignore
 	_HAS_WEBENGINE = False
+
+TIPS = {"File":         "Current stack.",
+		"Localization": "Localizations on the current stack.",
+		"Tracking":     "Tracking on the current stack.",
+		"MSD":          "Mean Square Displacement of tracks on the current stack.",
+		"Instant D":    "Instant Diffusion of tracks on the current stack.",
+		"Fit":          "Fit of tracks on the current stack.",
+
+		"Multi-Source": "Allow second source for Graph in scatter plot source A by source B.",
+		"Source":       "Data selected for Graph.",
+
+		"MSD Step":     "Step selected for display.",
+		"Log":          "Apply a logarithmic scale to the data.",
+		"Limits":       "Limits data to ±3σ around the mean (3-sigma rule).",
+		"Sigma":        "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean.",
+		"Gauss":        "Displays the Gaussian curve associated with the mean and standard deviation of the data.",
+		"KDE":          "Displays the kernel density estimation (the curve closest to the histogram) associated with the data.",
+		"Density":      "The data on Y is expressed in terms of density.",
+		"Count":        "The data on Y is expressed in terms of count.",
+
+		"Add Stack":    "Add a stack to the batch and load the latest results for it.\n"
+						"Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
+		"Reset":        "Removes filtered data.",
+		"Update":       "Applies filters to the data.",
+
+		"Actualize":    "Updates files/data from PALMTracer status.",
+		"Export":       "Opens a dialog box and exports the figure according to the selected extension.",
+		}
 
 
 ##################################################
@@ -75,15 +103,15 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Yes (Reconnected and Filtered)"]
 
 	DATA_SRC: dict[str, list] = {
-			"stk": ["Intensity"],
-			"loc": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
-			"trc": ["Length"],
-			"MSD": ["MSD"],
-			"InD": ["Instant Diffusion"],
-			"Fit": [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # .	  Pour Tous Fit
-					["A (μm²/s)", "B (μm²)", "MSE"],  # .								  Fit Linéaire
-					["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # . Fit Puissance
-					["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
+			"Stack":        ["Intensity"],
+			"Localization": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
+			"Tracking":     ["Length"],
+			"MSD":          ["MSD"],
+			"Instant D":    ["Instant Diffusion"],
+			"Fit":          [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # .	  Pour Tous Fit
+							 ["A (μm²/s)", "B (μm²)", "MSE"],  # .								  Fit Linéaire
+							 ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # . Fit Puissance
+							 ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]]  # Fit Exponentiel
 			}
 
 	# ==================================================
@@ -107,7 +135,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self._density: bool = False
 
 		self._stack: np.ndarray = np.empty(0)
-		self._df = {"loc": pd.DataFrame(), "trc": pd.DataFrame(), "MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
+		self._df = {"Localization": pd.DataFrame(), "Tracking": pd.DataFrame(), "MSD": pd.DataFrame(), "Instant D": pd.DataFrame(), "Fit": pd.DataFrame()}
 
 		# Construction UI
 		self._init_ui()
@@ -147,15 +175,12 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self._lbl_filename = QLabel(self._file if self._file != "" else "No file")
 
 		# Statut des différentes tables (localisation / tracking / MSD / D / fit)
-		self._status = {"loc": QLabel("No"), "trc": QLabel("No"), "MSD": QLabel("No"), "InD": QLabel("No"), "Fit": QLabel("No")}
+		self._status = {"File":         QLabel(self._file if self._file != "" else "No file"),
+						"Localization": QLabel("No"), "Tracking": QLabel("No"), "MSD": QLabel("No"), "Instant D": QLabel("No"), "Fit": QLabel("No")}
 
 		form = Ui.make_form(grp_infos)
-		Ui.add_setting_row(form, "File :", self._lbl_filename)
-		Ui.add_setting_row(form, "Localization :", self._status["loc"])
-		Ui.add_setting_row(form, "Tracking :", self._status["trc"])
-		Ui.add_setting_row(form, "MSD :", self._status["MSD"])
-		Ui.add_setting_row(form, "Instant D :", self._status["InD"])
-		Ui.add_setting_row(form, "Fit :", self._status["Fit"])
+		for key, value in self._status.items():
+			Ui.add_setting_row(form, f"{key}: ", value, tooltip=TIPS[key])
 
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
@@ -188,50 +213,39 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
 		self._display_settings: dict[str, Any] = {
-				"MSD":     SpinInt("MSD Step", "", 1, [1, 10000], 1),
 				"Log":     QCheckBox("Use Log Scale"),
 				"Limits":  QCheckBox("Apply Limits"),
 				"Sigma":   QCheckBox("Show σ"),
 				"Gauss":   QCheckBox("Show Gaussian"),
 				"KDE":     QCheckBox("Show KDE"),
-				"Y Scale": QButtonGroup(None)
+				"Density": QRadioButton("Density"),
+				"Count":   QRadioButton("Count"),
+				"Y Scale": QButtonGroup(),
 				}
 
-		# Sélection du Step pour MSD (dans la partie source)
-		cast(SpinInt, self._display_settings["MSD"]).attach_to_form(form)
+		# Autres options
+		self._display_settings["Log"].setChecked(False)
 		self._display_settings["MSD"].hide()  # Masquage initial
 
-		# Appliquer limites + bouton info
 		self._display_settings["Limits"].setChecked(True)
-		info_btn = QToolButton()
-		info_btn.setText("?")
-		info_btn.setAutoRaise(True)
-		info_btn.setToolTip("Limits data to ±3σ around the mean (3-sigma rule).")
-		row_limits = QWidget()
-		row_l = QHBoxLayout(row_limits)
-		Ui.init_layout(row_l, 0, 0)
-		row_l.addWidget(self._display_settings["Limits"])
-		row_l.addWidget(info_btn)
-
-		# Autres options
 		self._display_settings["Sigma"].setChecked(False)
 		self._display_settings["Gauss"].setChecked(False)
 		self._display_settings["KDE"].setChecked(False)
+		self._display_settings["Density"].setChecked(True)
 
 		# Sélecteur d'échelle Y : Densité / Comptes
-		self._rb_density = QRadioButton("Density")
-		self._rb_count = QRadioButton("Count")
-		self._rb_density.setChecked(True)
-		self._display_settings["Y Scale"].addButton(self._rb_density)
-		self._display_settings["Y Scale"].addButton(self._rb_count)
+		self._display_settings["Y Scale"].addButton(self._display_settings["Density"])
+		self._display_settings["Y Scale"].addButton(self._display_settings["Count"])
+
+		for key in list(self._display_settings)[:-1]: self._display_settings[key].setToolTip(TIPS[key])
 
 		# Placement 2 colonnes
-		grid.addWidget(row_limits, 0, 0)
+		grid.addWidget(self._display_settings["Limits"], 0, 0)
 		grid.addWidget(self._display_settings["Sigma"], 0, 1)
 		grid.addWidget(self._display_settings["Gauss"], 1, 0)
 		grid.addWidget(self._display_settings["KDE"], 1, 1)
-		grid.addWidget(self._rb_density, 2, 0)
-		grid.addWidget(self._rb_count, 2, 1)
+		grid.addWidget(self._display_settings["Density"], 2, 0)
+		grid.addWidget(self._display_settings["Count"], 2, 1)
 		grid.addWidget(self._display_settings["Log"], 3, 0)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
@@ -249,7 +263,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 		# Boutons de gestion des filtres
 		self._btn_reset_f = QPushButton("Reset")
+		self._btn_reset_f.setToolTip(TIPS["Reset"])
 		self._btn_update_f = QPushButton("Update")
+		self._btn_update_f.setToolTip(TIPS["Update"])
 		actions_row = QHBoxLayout()
 		actions_row.addStretch(1)
 		actions_row.addWidget(self._btn_reset_f)
@@ -259,7 +275,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		# Actions
 		actions_row = QHBoxLayout()
 		self._btn_actualize = QPushButton("Actualize files")
+		self._btn_actualize.setToolTip(TIPS["Actualize"])
 		self._btn_export = QPushButton("Export…")
+		self._btn_export.setToolTip(TIPS["Export"])
 		actions_row.addStretch(1)
 		actions_row.addWidget(self._btn_actualize)
 		actions_row.addWidget(self._btn_export)
@@ -377,9 +395,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 		:return: La liste des sources disponibles pour les trajectoires.
 		"""
-		res = list(self.DATA_SRC["trc"])
+		res = list(self.DATA_SRC["Tracking"])
 		if not self._df["MSD"].empty: res += self.DATA_SRC["MSD"]
-		if not self._df["InD"].empty: res += self.DATA_SRC["InD"]
+		if not self._df["Instant D"].empty: res += self.DATA_SRC["Instant D"]
 		if not self._df["Fit"].empty: res += self._df["Fit"].columns[2:].tolist()
 
 		return res
@@ -405,28 +423,29 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`self.FILE_STATUS`.
 
-		Le dictionnaire retourné contient systématiquement les clés suivantes : ``"loc"``, ``"trc"``, ``"MSD"``, ``"InD"``, ``"Fit"``
+		Le dictionnaire retourné contient systématiquement les clés suivantes : ``"Localization"``, ``"Tracking"``, ``"MSD"``, ``"Instant D"``, ``"Fit"``
 
 		:param loc_key: Nom de la clé du tableau de localisation.
 		:param trc_key: Nom de la clé du tableau de trajectoires.
 		:param tc_key: Liste de trois clés correspondant respectivement aux tableaux MSD, diffusion instantanée et Fit.
 		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
 		"""
-		res = {"loc": self.FILE_STATUS[0], "trc": self.FILE_STATUS[0], "MSD": self.FILE_STATUS[0], "InD": self.FILE_STATUS[0], "Fit": self.FILE_STATUS[0]}
+		res = {"Localization": self.FILE_STATUS[0], "Tracking": self.FILE_STATUS[0], "MSD": self.FILE_STATUS[0], "Instant D": self.FILE_STATUS[0],
+			   "Fit":          self.FILE_STATUS[0]}
 
-		if self._df["loc"].empty: res["loc"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
-		elif "f_" in loc_key: res["loc"] = self.FILE_STATUS[2]  # .			Tableau filtré
-		else: res["loc"] = self.FILE_STATUS[1]  # .							Tableau standard
+		if self._df["Localization"].empty: res["Localization"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
+		elif "f_" in loc_key: res["Localization"] = self.FILE_STATUS[2]  # .			Tableau filtré
+		else: res["Localization"] = self.FILE_STATUS[1]  # .							Tableau standard
 
-		if self._df["trc"].empty: res["trc"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
+		if self._df["Tracking"].empty: res["Tracking"] = self.FILE_STATUS[0]  # .		Aucun tableau ou tableau vide
 		elif "f_" in trc_key:
-			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[4]  # .		Tableau reconnecté filtré
-			else: res["trc"] = self.FILE_STATUS[2]  # .						Tableau filtré
+			if "blk" in trc_key: res["Tracking"] = self.FILE_STATUS[4]  # .		Tableau reconnecté filtré
+			else: res["Tracking"] = self.FILE_STATUS[2]  # .						Tableau filtré
 		else:
-			if "blk" in trc_key: res["trc"] = self.FILE_STATUS[3]  # .		Tableau reconnecté non filtré
-			else: res["trc"] = self.FILE_STATUS[1]  # .						Tableau standard
+			if "blk" in trc_key: res["Tracking"] = self.FILE_STATUS[3]  # .		Tableau reconnecté non filtré
+			else: res["Tracking"] = self.FILE_STATUS[1]  # .						Tableau standard
 
-		tcs = ["MSD", "InD", "Fit"]
+		tcs = ["MSD", "Instant D", "Fit"]
 		for i in range(3):
 			if self._df[tcs[i]].empty: res[tcs[i]] = self.FILE_STATUS[0]  # Aucun tableau ou tableau vide
 			elif "f_" in tc_key[i]: res[tcs[i]] = self.FILE_STATUS[2]  # .	Tableau filtré
@@ -442,10 +461,10 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		tc_key = self._pt.get_tracks_compute_key()
 
 		# Mise à jour des Dataframe
-		self._df["loc"] = self._pt.df[loc_key]
-		self._df["trc"] = self._pt.df[trc_key]
+		self._df["Localization"] = self._pt.df[loc_key]
+		self._df["Tracking"] = self._pt.df[trc_key]
 		self._df["MSD"] = self._pt.df[tc_key[0]]
-		self._df["InD"] = self._pt.df[tc_key[1]]
+		self._df["Instant D"] = self._pt.df[tc_key[1]]
 		self._df["Fit"] = self._pt.df[tc_key[2]]
 
 		# Mise à jour des Status
@@ -470,7 +489,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 			try: self._stack = FileIO.open_tif(self._file)
 			except Exception as e: Ui.print_error(f"Error loading {self._file} in GraphViewer : {e}")
 
-		self._lbl_filename.setText(Path(self._file).name if self._file else "No File")
+		self._status["File"].setText(Path(self._file).name if self._file else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
 		self._on_source_changed(0)  # .	  Change la source pour Stack
 
@@ -507,7 +526,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		sigma = self._display_settings["Sigma"].checkState() == Qt.CheckState.Checked
 		kde = self._display_settings["KDE"].checkState() == Qt.CheckState.Checked
 		gauss = self._display_settings["Gauss"].checkState() == Qt.CheckState.Checked
-		density = self._rb_density.isChecked()
+		density = self._display_settings["Density"].isChecked()
 
 		# Préparation des Données
 		data, title = self.get_plot_data()
@@ -542,21 +561,21 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		# Localizations
 		elif src_id == 1:
 			if src_type == "Localizations Count":
-				s = self._df["loc"]["Plane"].astype(np.int64)
+				s = self._df["Localization"]["Plane"].astype(np.int64)
 				if s.empty:  return np.empty(0), src_type
 				else:
 					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
 					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
 					return np.column_stack((planes, counts)), src_type
 			else:
-				s = self._df["loc"].get(src_type)  # None si la colonne n'existe pas
+				s = self._df["Localization"].get(src_type)  # None si la colonne n'existe pas
 				if s is None: return np.empty(0), f"Localizations {src_type}"
 				return self._log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src_type}"
 
 		# Tracks
 		else:
 			if src_type == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["trc"].groupby("Track")["Plane"].agg(["min", "max"])  # .	  Groupement par track + calcul min et max
+				group = self._df["Tracking"].groupby("Track")["Plane"].agg(["min", "max"])  # .	  Groupement par track + calcul min et max
 				group["delta"] = group["max"] - group["min"]  # .							  Calcul du delta
 				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
 				return res, f"Tracks {src_type}"
@@ -571,7 +590,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"  # .					  Retour avec filtrage des Lignes NaN
 
 			elif src_type == "Instant Diffusion":
-				res = self._df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .		  Récupération des colonnes
+				res = self._df["Instant D"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .		  Récupération des colonnes
 				res = self._log_data(res, log_scale)  # .													  Application du log sur les valeurs
 				return res[np.isfinite(res)], f"Tracks {src_type}"  # .										  Retour avec filtrage des Lignes NaN
 
