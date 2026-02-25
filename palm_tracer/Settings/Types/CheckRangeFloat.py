@@ -21,7 +21,7 @@ class CheckRangeFloat(BaseSettingType):
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeurs par défaut du paramètre.
 	:param limits: Valeurs limites du paramètre.
-	:param precision: Precision du paramètre.
+	:param precision: Précision du paramètre.
 	"""
 
 	default: list[float] = field(default_factory=lambda: [-1, 1])
@@ -30,7 +30,7 @@ class CheckRangeFloat(BaseSettingType):
 	limits: list[float] = field(default_factory=lambda: [-1, 1])
 	"""Valeurs limites du paramètre."""
 	precision: int = 2
-	"""Precision du paramètre."""
+	"""Précision du paramètre."""
 
 	_active: bool = field(init=False, default=False)
 	"""Indicateur d'activation du paramètre."""
@@ -166,7 +166,7 @@ class CheckRangeFloat(BaseSettingType):
 	# ==================================================
 	##################################################
 	def toggle_active(self, state: int):
-		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self._active = bool(state)
 
 	##################################################

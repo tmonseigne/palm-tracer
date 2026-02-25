@@ -7,7 +7,7 @@ Manuel d'utilisation
 .. role:: console(code)
    :language: console
 
-Ce guide décrit l'utilisation de PALMTracer, un plugin Napari dédié à l'analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats.
+Ce guide décrit l'utilisation de PALMTracer, un plugin Napari, dédié à l'analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats.
 
 PALMTracer fonctionne comme un widget intégré dans l'interface de Napari, offrant un ensemble d'outils organisés en onglets : Processing, Visualization et Filtering.
 
@@ -212,7 +212,7 @@ Les paramètres les plus courants incluent :
    - **Preview** : si activé, lance la détection en temps réel sur l'image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`).
    - **Threshold** : seuil d'intensité utilisé pour isoler les candidats moléculaires.
      Un bouton :guilabel:`Auto` peut estimer automatiquement un seuil optimal à partir de l'image courante (plus d'informations :ref:`ici <auto_threshold_page>`).
-   - **ROI Shape** : forme de la zone d'intérêt lors de la preview (cercle ou carré), les calculs se font toujours sur une ROI carré en revanche.
+   - **ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une ROI carré en revanche.
    - **ROI Size** : taille de la fenêtre extraite autour de chaque détection.
    - **Watershed** : active/désactive un prétraitement de séparation des détections proches.
    - **Fit** : méthode d'ajustement utilisée pour localiser précisément les molécules (Aucune, Gaussienne, Spline) (plus d'informations :ref:`ici <fit_page>`).
@@ -259,7 +259,7 @@ Il comprend :
   - **High Resolution** : Une ou plusieurs images haute résolution sont générées selon le facteur d'agrandissement choisi et la source pour définir l'intensité.
   - **Graph Viewer** : Ouvre une fenêtre dédiée aux représentations statistiques. (plus d'informations :ref:`ici <viewer_graph_page>`)
   - **HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes résolutions. (plus d'informations :ref:`ici <viewer_hr_page>`)
-  - **3D Viewer** : uvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)
+  - **3D Viewer** : Ouvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)
 
 .. figure:: ../_static/img/manual/Vizu_Tab.png
    :figclass: centered-caption
@@ -298,7 +298,7 @@ Une fois appliqués, les filtres affectent :
    Ils sont appliqués dynamiquement lors de la visualisation ou de l'exportation.
 
 .. note::
-   Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtré.
+   Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtrée.
 
 FAQ
 ---

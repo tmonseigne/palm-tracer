@@ -87,7 +87,7 @@ msgid "Attention, l'extraction avec l'outil intégré à Windows créé des sous
 msgstr "Warning: extracting with the built-in Windows tool creates subfolders."
 
 #: ../../user/install.rst
-msgid "Si vous avez extrait dans :console:`C:\\\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :console:`palm_tracer, docs, README.md...`. Ils ont peut être été mis dans un sous-dossier :console:`palm-tracer-master` et doivent être remonté d'un cran."
+msgid "Si vous avez extrait dans :console:`C:\\\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :console:`palm_tracer, docs, README.md...`. Ils ont peut-être été mis dans un sous-dossier :console:`palm-tracer-master` et doivent être remonté d'un cran."
 msgstr "If you extracted into :console:`C:\\\\palm-tracer`, you should then see several folders and files such as :console:`palm_tracer`, :console:`docs`, :console:`README.md`, etc. They may have been placed into a subfolder named :console:`palm-tracer-master` and must be moved up one level."
 
 #: ../../user/install.rst:64
@@ -127,7 +127,7 @@ msgid "Vous devriez voir une version de Python (par exemple, :console:`Python 3.
 msgstr "You should see a Python version (for example, :console:`Python 3.x.x`)."
 
 #: ../../user/install.rst:90
-msgid "**Attention** : Si Python à changé de version récemment, certaines bibliothèques peuvent ne plus être compatible. Ex : au moment d'écrire ces lignes Python 3.14 est disponible mais Napari n'est pas encore compatible, il faut utiliser Python 3.13."
+msgid "**Attention** : Si Python a changé de version récemment, certaines bibliothèques peuvent ne plus être compatibles. Ex : au moment d'écrire ces lignes Python 3.14 est disponible, mais Napari n'est pas encore compatible, il faut utiliser Python 3.13."
 msgstr "**Warning**: If Python has recently changed versions, some libraries may no longer be compatible. For example, at the time of writing, Python 3.14 is available but Napari is not yet compatible; you must use Python 3.13."
 
 #: ../../user/install.rst:93
@@ -252,7 +252,7 @@ msgid "Erreur d'extraction"
 msgstr "Extraction error"
 
 #: ../../user/install.rst:176
-msgid "Cela signifie que votre Windows n'arrive pas à lire le fichier compressé. Vous avez très certainement 7-zip d'installé par défaut par votre administrateur. Suivez les instrucitons décrites pour l'extraction."
+msgid "Cela signifie que votre Windows n'arrive pas à lire le fichier compressé. Vous avez très certainement 7-zip d'installé par défaut par votre administrateur. Suivez les instructions décrites pour l'extraction."
 msgstr "This means Windows cannot read the compressed file. You most likely have 7-Zip installed by default by your administrator. Follow the extraction instructions described above."
 
 #: ../../user/install.rst:180

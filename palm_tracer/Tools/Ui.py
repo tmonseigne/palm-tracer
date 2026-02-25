@@ -244,7 +244,7 @@ def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 ##################################################
 def update_path_label(lbl: QLabel, path: str | Path):
 	"""
-	Met à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
+	Mets à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
 
 	Le texte visible correspond uniquement au ``name`` du fichier/dossier, le chemin complet est placé dans le tooltip.
 
@@ -378,7 +378,7 @@ def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 
 def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | None = None, maximum: float | int | None = None, ):
 	"""
-	Met à jour dynamiquement les bornes d'une spinbox.
+	Mets à jour dynamiquement les bornes d'une spinbox.
 
 	Les bornes non spécifiées conservent leur valeur actuelle.
 
@@ -435,7 +435,7 @@ def format_time(seconds):
 	Fonction pour formater le temps en secondes en HH:MM:SS.
 
 	:param seconds: Temps en secondes
-	:return: Chaine de caractère representant le temps au format HH:MM:SS.
+	:return: Chaine de caractère représentant le temps au format HH:MM:SS.
 	"""
 	hours = int(seconds // 3600)
 	minutes = int((seconds % 3600) // 60)

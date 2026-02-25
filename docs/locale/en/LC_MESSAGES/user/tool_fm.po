@@ -83,5 +83,5 @@ msgid "Fichiers de calculs sur les trajectoires : ``trcPALMTracer-Full-D.txt``, 
 msgstr "Trajectory computation files: ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
 
 #: ../../user/tool_fm.rst:72
-msgid "Fichier de modèle d'astigmatism 3D : ``3DFit.txt``"
+msgid "Fichier de modèle d'astigmatisme 3D : ``3DFit.txt``"
 msgstr "3D astigmatism model file: ``3DFit.txt``"

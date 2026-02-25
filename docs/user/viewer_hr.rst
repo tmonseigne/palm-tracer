@@ -51,9 +51,9 @@ Organisation de l'interface
 
 L'interface Napari avec la visionneuse haute résolution est organisée en trois volets principaux :
 
-- À gauche : le panneau des calques (Layers)
-- Au centre : la fenêtre de visualisation
-- À droite : le widget de la visionneuse
+- À gauche : le panneau des calques (Layers).
+- Au centre : la fenêtre de visualisation.
+- À droite : le widget de la visionneuse.
 
 
 Volet Calque
@@ -75,10 +75,10 @@ Le volet des calques est la zone où apparaissent tous les éléments visuels g�
 
 Fonctionnalités principales :
 
-- Afficher / masquer un calque
-- Modifier la transparence
-- Changer la colormap
-- Réorganiser l'ordre des calques
+- Afficher / masquer un calque.
+- Modifier la transparence.
+- Changer la colormap.
+- Réorganiser l'ordre des calques.
 
 
 Volet de visualisation
@@ -95,10 +95,10 @@ Volet de visualisation
 
 La zone centrale de Napari affiche les données. Vous pouvez :
 
-- Zoomer (molette de la souris)
-- Vous déplacer (clic gauche maintenu)
-- Changer de plan Z via la barre de dimension (pour le cas des trajectoires)
-- Régler le contraste
+- Zoomer (molette de la souris).
+- Vous déplacer (clic gauche maintenu).
+- Changer de plan Z via la barre de dimension (pour le cas des trajectoires).
+- Régler le contraste.
 
 Cette zone se met automatiquement à jour cette zone à chaque appui sur le bouton :guilabel:`Generate`.
 
@@ -118,8 +118,8 @@ Le volet de droite contient le widget principal de la visionneuse.
 
 Le widget est structuré comme suit :
 
-- Bouton :guilabel:`Select Folder`
-- Les options de visualisation
+- Bouton :guilabel:`Select Folder`.
+- Les options de visualisation.
 - Boutons :guilabel:`Generate` et :guilabel:`Save`.
 
 Ouverture des fichiers

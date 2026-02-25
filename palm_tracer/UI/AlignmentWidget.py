@@ -242,8 +242,8 @@ def open_alignment():  # pragma: no cover
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
 
-	Cette fonction est utilisée par le plugin napari comme point d'entrée :
-	elle crée simplement un :class:`AlignmentWidget`, l'affiche et le renvoie. Le widget ne dépend pas de napari et s'ouvre dans sa propre fenêtre.
+	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
+	elle crée simplement un :class:`AlignmentWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
 	"""
 	widget = AlignmentWidget()
 	widget.resize(500, 250)

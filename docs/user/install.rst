@@ -57,7 +57,7 @@ Méthode 2 : téléchargement manuel (ZIP)
 .. note::
    | Attention, l'extraction avec l'outil intégré à Windows créé des sous-dossiers.
    | Si vous avez extrait dans :console:`C:\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :console:`palm_tracer, docs, README.md...`.
-	Ils ont peut être été mis dans un sous-dossier :console:`palm-tracer-master` et doivent être remonté d'un cran.
+	Ils ont peut-être été mis dans un sous-dossier :console:`palm-tracer-master` et doivent être remonté d'un cran.
 
 
 Étape 2 : Installation de Python et des éléments additionnels
@@ -87,8 +87,8 @@ Sinon, vous pouvez tout faire manuellement :
 .. note::
    Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
 
-   **Attention** : Si Python à changé de version récemment, certaines bibliothèques peuvent ne plus être compatible.
-   Ex : au moment d'écrire ces lignes Python 3.14 est disponible mais Napari n'est pas encore compatible, il faut utiliser Python 3.13.
+   **Attention** : Si Python a changé de version récemment, certaines bibliothèques peuvent ne plus être compatibles.
+   Ex : au moment d'écrire ces lignes Python 3.14 est disponible, mais Napari n'est pas encore compatible, il faut utiliser Python 3.13.
 
 4. Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :
 
@@ -174,7 +174,7 @@ Il est possible de voir apparaitre un message d'erreur lors de l'extraction.
    Erreur d'extraction
 
 Cela signifie que votre Windows n'arrive pas à lire le fichier compressé. Vous avez très certainement 7-zip d'installé par défaut par votre administrateur.
-Suivez les instrucitons décrites pour l'extraction.
+Suivez les instructions décrites pour l'extraction.
 
 2. Pourquoi utiliser un environnement virtuel ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

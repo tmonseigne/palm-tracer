@@ -89,7 +89,7 @@ class PALMTracer:
 
 	##################################################
 	def get_tracks_key(self) -> str:
-		"""Clé des trajectoires (filtrée si elle est non vide) et reconnecté si elle est non vide également."""
+		"""Clé des trajectoires (filtrée si elle est non vide) et reconnectée si elle est non vide également."""
 		if self.df["f_blk"].empty:
 			if self.df["blk"].empty:
 				if self.df["f_trc"].empty:
@@ -156,7 +156,7 @@ class PALMTracer:
 			Ui.print_warning("Process not completed due to missing DLLs.")
 			return
 
-		# Chargement des settings
+		# Chargement des paramètres
 		self._path = self.settings.batch.get_paths()[0] if path == "" else path  # Parsing du batch
 		settings_filename = FileIO.get_last_file(self._path, "settings")
 		self._suffix = FileIO.extract_suffix(settings_filename)
@@ -315,7 +315,7 @@ class PALMTracer:
 
 	##################################################
 	def _localization(self):
-		"""Lance la localisation à partir des settings passés en paramètres."""
+		"""Lance la localisation à partir des paramètres passés en paramètres."""
 		# Parse settings
 		s = self.settings.localization.settings
 		filters = self.settings.filtering
@@ -335,7 +335,7 @@ class PALMTracer:
 
 	##################################################
 	def _tracking(self):
-		"""Lance le tracking à partir des settings passés en paramètres."""
+		"""Lance le tracking à partir des paramètres passés en paramètres."""
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
 		if df.empty:
 			self._logger.add("\tNo location data calculated, no additional calculations can be performed.")
@@ -366,7 +366,7 @@ class PALMTracer:
 
 	##################################################
 	def _tracks_compute(self):
-		"""Lance le tracking à partir des settings passés en paramètres."""
+		"""Lance le tracking à partir des paramètres passés en paramètres."""
 		df = self.tracks  # Récupère automatiquement le "bon" dataframe (blinking et filtré ou non)
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
@@ -467,7 +467,7 @@ class PALMTracer:
 
 	##################################################
 	def _visualization_hr(self):
-		"""Lance la creation d'une visualisation haute résolution à partir des settings passés en paramètres."""
+		"""Lance la creation d'une visualisation haute résolution à partir des paramètres passés en paramètres."""
 		# Parse settings
 		s = self.settings.visualization_hr.settings
 
@@ -497,7 +497,7 @@ class PALMTracer:
 
 	##################################################
 	def _visualization_graph(self):
-		"""Lance la creation d'une visualisation graphique à partir des settings passés en paramètres."""
+		"""Lance la creation d'une visualisation graphique à partir des paramètres passés en paramètres."""
 		if self.localizations.empty:
 			self._logger.add(f"\tNo localization data for graphical visualization.")
 			return
@@ -527,7 +527,7 @@ class PALMTracer:
 
 	##################################################
 	def _gallery(self):
-		"""Lance la génération d'une galerie à partir des settings passés en paramètres."""
+		"""Lance la génération d'une galerie à partir des paramètres passés en paramètres."""
 		s = self.settings.gallery.settings
 		if self.localizations.empty:
 			self._logger.add(f"\tNo localization data for gallery generation.")
@@ -640,7 +640,7 @@ class PALMTracer:
 
 		:param tracks: DataFrame de trajectoires
 		:param msd: DataFrame de calcul des MSD
-		:param instant_d: DataFrame de calcul de la diffusion instantannée
+		:param instant_d: DataFrame de calcul de la diffusion instantanée
 		:param fit: DataFrame de calcul de l'ajustement
 		:return: DataFrames filtrés.
 		"""

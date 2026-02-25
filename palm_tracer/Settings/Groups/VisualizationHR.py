@@ -23,7 +23,7 @@ class VisualizationHR(BaseSettingGroup):
 		- **Type** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
 		  Choix du type de visualisation (Localisation ou trajectoires (par défaut : `Localizations`).
 		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Element de la localisation (trajectoire) permettant de définir l'intensité (par défaut : `All`).
+		  Élément de la localisation (trajectoire) permettant de définir l'intensité (par défaut : `All`).
 	"""
 
 	label: str = "High Resolution"

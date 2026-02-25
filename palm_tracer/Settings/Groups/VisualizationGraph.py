@@ -20,8 +20,8 @@ class VisualizationGraph(BaseSettingGroup):
 
 	Attributs :
 		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Type de graphiques à générer (histogramme, heat map, violon) (par défaut : `All`).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Element de la localisation à analyser (par défaut : `All`).
+		  Type de graphiques à générer (histogram, heat map, violon) (par défaut : `All`).
+		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Élément de la localisation à analyser (par défaut : `All`).
 	"""
 
 	label: str = "Graph"

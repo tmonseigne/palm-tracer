@@ -131,7 +131,7 @@ class Palm:
 		"""
 		Permet de calculer la quantité de mémoire disponible au maximum pour une allocation.
 
-		:param fraction_available: Pourcentage de la ram disponible à utiliser au maximum.
+		:param fraction_available: Pourcentage de la RAM disponible à utiliser au maximum.
 		:param safety_gb: Marge de sécurité à garder disponible.
 		:return: Valeur en byte de l'allocation maximum tolérée.
 		"""
@@ -160,7 +160,7 @@ class Palm:
 		:param watershed: Active ou désactive le mode watershed.
 		:param fit: Mode d'ajustement (défini par `get_fit`).
 		:param fit_params: Paramètres du mode d'ajustement.
-		:param planes: Liste des plans à analyser (None pour tous les plans, les plans sont contigus par rincipe).
+		:param planes: Liste des plans à analyser (None pour tous les plans, les plans sont contigus par principe).
 		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		"""
 		# --- Initialisation ---
@@ -227,9 +227,9 @@ class Palm:
 		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
 
 		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
-		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux frames successives.
+		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux plans successifs.
 		:param min_life: Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final.
-		:param decrease: Facteur de pénalisation appliqué au coût d'association entre frames éloignées.
+		:param decrease: Facteur de pénalisation appliqué au coût d'association entre des plans éloignés.
 		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
@@ -254,7 +254,7 @@ class Palm:
 		:param pixel_size: Taille des pixels en nanomètres.
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
-		:param max_duration: Durée maximale d'un scintillemnt.
+		:param max_duration: Durée maximale d'un scintillement.
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
@@ -281,7 +281,7 @@ class Palm:
 
 		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		:param is_msd: Calcul MSD.
-		:param is_ind: Calcul de la diffusion instantannée.
+		:param is_ind: Calcul de la diffusion instantanée.
 		:param is_3d: Calcul sur la 3D.
 		:param is_log: Applique un logarithme sur le résultat.
 		:param pixel_size: Taille des pixels en micromètre.
@@ -373,7 +373,7 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
-		:param points: Ensemble des points necessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
+		:param points: Ensemble des points nécessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
 		:param pixel_size: Taille des pixels en nanomètres.
 		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		"""

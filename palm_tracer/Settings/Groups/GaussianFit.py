@@ -17,7 +17,7 @@ class GaussianFit(BaseSettingGroup):
 
 	Attributs :
 
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement Gaussien (par défaut : `Mode X, Y`).
+		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement gaussien (par défaut : `Mode X, Y`).
 
 			- `0` : `Mode X, Y` (theta et sigma sont fixes)
 			- `1` : `Mode X, Y, Sigma` (theta est fixe, Sigma Non)

@@ -23,7 +23,7 @@ class TracksCompute(BaseSettingGroup):
 		- **Fit Length** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
 		  Longueur de la fenêtre de calcul initiale des métriques génériques (par défaut : `4`).
 		- **3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Utilisaiton ou non de la coordonnée Z dans les calculs (par défaut : `False`).
+		  Utilisation ou non de la coordonnée Z dans les calculs (par défaut : `False`).
 		- **Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Utilisation ou non d'une échelle logarithmique pour les résultats (par défaut : `False`).
 		- **Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :

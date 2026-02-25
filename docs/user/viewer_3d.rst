@@ -51,9 +51,9 @@ Organisation de l'interface
 
 L'interface Napari avec la visionneuse 3D est organisée en trois volets principaux :
 
-- À gauche : le panneau des calques (Layers)
-- Au centre : la fenêtre de visualisation
-- À droite : le widget de la visionneuse
+- À gauche : le panneau des calques (Layers).
+- Au centre : la fenêtre de visualisation.
+- À droite : le widget de la visionneuse.
 
 Volet Calque
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

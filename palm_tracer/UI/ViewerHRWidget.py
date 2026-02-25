@@ -1,10 +1,10 @@
 """
-Widget d'affichage Haute Résolution pour napari permettant de charger un dossier de résultats et de visualiser les points.
+Widget d'affichage Haute Résolution pour Napari permettant de charger un dossier de résultats et de visualiser les points.
 
-Ce widget ajoute dans le dock de napari :
+Ce widget ajoute dans le dock de Napari :
 	- un bouton de chargement du dossier,
 	- trois champs pour contrôler les paramètres de visualisation Haute Résolution,
-	- un calque napari Points/trajectoires mis à jour dynamiquement.
+	- un calque Napari Points/trajectoires mis à jour dynamiquement.
 	- Un boutotn pour sauvegarder une image PNG résultat
 """
 from pathlib import Path
@@ -24,7 +24,7 @@ from palm_tracer.Tools.FileIO import grayscale_to_color, save_png
 
 class ViewerHRWidget(QWidget):
 	"""
-	Widget d'affichage HR pour un viewer napari.
+	Widget d'affichage HR pour un viewer Napari.
 
 	Ce widget permet :
 		- de charger un dossier,
@@ -36,7 +36,7 @@ class ViewerHRWidget(QWidget):
 
 	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer HR"``
 
-	:param viewer: Instance du viewer napari où sera ajouté le calque HR.
+	:param viewer: Instance du viewer Napari où sera ajouté le calque HR.
 	:param palmtracer: Instance PALMTracer à lier.
 	"""
 
@@ -45,9 +45,9 @@ class ViewerHRWidget(QWidget):
 		"""
 		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
 
-		La création du calque napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
+		La création du calque Napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
 
-		:param viewer: Viewer napari cible.
+		:param viewer: Viewer Napari cible.
 		"""
 		super().__init__()
 		self.viewer = viewer
@@ -117,7 +117,7 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def update_source(self):
-		"""Met à jour les sources disponibles pour définir l'intensité des points."""
+		"""Mets à jour les sources disponibles pour définir l'intensité des points."""
 		with self.source_cmb.signal_blocked():
 			data_type = self.type_cmb.value
 			src = HR_LOC_SOURCE[1:] if data_type == 0 else HR_TRC_SOURCE[1:]
@@ -126,7 +126,7 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def generate(self):
-		"""Crée ou met à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer napari."""
+		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
 		path, stack, suffix = self._pt.path, self._pt.stack, self._pt.suffix
 		if not path or not Path(path).is_dir():
 			show_warning(f"The destination path '{path}' is invalid.")
@@ -190,7 +190,7 @@ class ViewerHRWidget(QWidget):
 ##################################################
 def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cover
 	"""
-	Crée une nouvelle fenêtre napari HR, sans menu,
+	Crée une nouvelle fenêtre Napari HR, sans menu,
 	et y ajoute le ViewerHRWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite
@@ -207,18 +207,18 @@ def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cove
 ##################################################
 def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover
 	"""
-	Callable utilisé par napari pour le menu Plugins > PALM Tracer > Viewer HR.
+	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR.
 
 	- Ignore le viewer courant.
-	- Crée une nouvelle fenêtre napari HR dédiée.
+	- Crée une nouvelle fenêtre Napari HR dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire
-	  l'API "widget plugin" de napari.
+	  l'API "widget plugin" de Napari.
 	"""
 	# Crée la nouvelle fenêtre HR
 	pt = PALMTracer()
 	create_viewerhr(pt)
 
-	# Stub minimal pour napari (sera docké, mais caché)
+	# Stub minimal pour Napari (sera docké, mais caché)
 	stub = QWidget()
 	stub.hide()
 	return stub
@@ -231,4 +231,4 @@ if __name__ == "__main__":  # pragma: no cover
 	app = QApplication.instance() or QApplication([])
 	_pt = PALMTracer()
 	_v = create_viewerhr(_pt)
-	napari.run()  # Lance la boucle Qt gérée par napari
+	napari.run()  # Lance la boucle Qt gérée par Napari

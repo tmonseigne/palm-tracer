@@ -51,7 +51,7 @@ msgid "Estimate Z : estimation de la position axiale à partir d'un modèle exis
 msgstr "Estimate Z: estimation of the axial position from an existing model."
 
 #: ../../user/tool_astig.rst:34
-msgid "La partie droite de la fenêtre affiche en permanence une visualisation du modèle astigmatique courant (courbes Sigma X et Sigma Y en fonction de Z). Vous pouvez appuyer sur l'icone camera (📷) au dessus du graphique pour enregistrer une image png directement."
+msgid "La partie droite de la fenêtre affiche en permanence une visualisation du modèle astigmatique courant (courbes Sigma X et Sigma Y en fonction de Z). Vous pouvez appuyer sur l'icône caméra (📷) au-dessus du graphique pour enregistrer une image PNG directement."
 msgstr "The right part of the window continuously displays a visualization of the current astigmatic model (Sigma X and Sigma Y curves as a function of Z). You can click the camera icon (📷) above the graph to directly save a PNG image."
 
 #: ../../user/tool_astig.rst:43 ../../user/tool_astig.rst:49
@@ -99,7 +99,7 @@ msgid "Affichage du chemin complet du fichier."
 msgstr "Display of the full file path."
 
 #: ../../user/tool_astig.rst:82
-msgid "Si Z n'est pas calibré, les plans sont utilisés (donc une colonne ``PLane`` est nécessaire) pour remplir la colonne Z, il faut activer l'option *Get Z from plane* et indiquer la valeur maximale absolue de Z (Z Max) en nanomètres pour reconstruire Z sur l'intervalle [-Z Max ; +Z Max]."
+msgid "Si Z n'est pas calibré, les plans sont utilisés (donc une colonne ``Plane`` est nécessaire) pour remplir la colonne Z, il faut activer l'option *Get Z from plane* et indiquer la valeur maximale absolue de Z (Z Max) en nanomètres pour reconstruire Z sur l'intervalle [-Z Max ; +Z Max]."
 msgstr "If Z is not calibrated, planes are used (therefore a ``Plane`` column is required) to fill the Z column. You must enable the *Get Z from plane* option and specify the absolute maximum Z value (Z Max) in nanometers to reconstruct Z over the interval [-Z Max; +Z Max]."
 
 #: ../../user/tool_astig.rst:84 ../../user/tool_astig.rst:106

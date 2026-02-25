@@ -26,12 +26,12 @@ else:  # .							pragma: no cover — dépend de l'environnement
 ##################################################
 @dataclass
 class BaseSettingGroup:
-	"""Classe mère pour un groupe de setting."""
+	"""Classe mère pour un groupe de paramètres."""
 
 	label: str = field(init=False, default="Base Setting Group")
 	"""Nom du Groupe."""
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
-	"""Liste des settings du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."""
+	"""Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."""
 
 	_active: bool = field(init=False, default=False)
 	"""État du groupe (activé ou non)"""
@@ -131,13 +131,13 @@ class BaseSettingGroup:
 	##################################################
 	@property
 	def value(self):
-		"""Fonction vide necessaire aux parcours automatiques."""
+		"""Fonction vide nécessaire aux parcours automatiques."""
 		return
 
 	##################################################
 	@value.setter
 	def value(self, value: Any):
-		"""Fonction vide necessaire aux parcours automatiques."""
+		"""Fonction vide nécessaire aux parcours automatiques."""
 		return
 
 	##################################################
@@ -149,7 +149,7 @@ class BaseSettingGroup:
 	##################################################
 	@property
 	def settings(self) -> dict[str, Any]:
-		"""Récupère les valeurs des Settings."""
+		"""Récupère les valeurs des paramètres."""
 		res = {key: setting.value for key, setting in self._settings.items()}
 		for group in self._inner_groups:
 			setting_group = cast(BaseSettingGroup, self._settings[group])
@@ -214,7 +214,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def toggle_active(self, state: int):
-		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self._active = bool(state)
 		self._body.show() if self._active else self._body.hide()
 
@@ -286,7 +286,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
-		"""Met à jour la classe à partir d'un dictionnaire."""
+		"""Mets à jour la classe à partir d'un dictionnaire."""
 		self.label = data.get("label", self.label)
 		self.active = data.get("active", False)
 		settings = data["settings"]
@@ -296,7 +296,7 @@ class BaseSettingGroup:
 	##################################################
 	def tostring(self, line_prefix: str = "") -> str:
 		"""
-		Retourne une chaîne de caractères correspondant à la liste des settings.
+		Retourne une chaîne de caractères correspondant à la liste des paramètres.
 
 		:param line_prefix: Préfixe de chaque ligne (par exemple pour ajouter une indentation)
 		:return: Une description textuelle des paramètres.

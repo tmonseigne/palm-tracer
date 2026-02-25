@@ -48,7 +48,7 @@ class PALMTracerWidget(QWidget):
 
 		Cette méthode configure l'interface en ajoutant différentes sections de paramètres dans la mise en page.
 
-		:param viewer: Viewer napari.
+		:param viewer: Viewer Napari.
 		"""
 		super().__init__()
 		# ----- Viewers -----
@@ -58,7 +58,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph: Optional[GraphViewerWidget] = None
 		# ----- Threading -----
 		self._processing = False  # .					 Pour éviter les clics multiples
-		self._worker: Optional[FunctionWorker] = None  # Worker napari en cours
+		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
 		self._tearing_down = False  # .					 Vrai pendant le teardown pour ignorer les callbacks
 		# ----- Objets -----
 		self.pt = PALMTracer()
@@ -187,7 +187,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _thread_process(self, compute_func: Callable[[], None], post_func: Optional[Callable[[], None]] = None):
 		"""
-		Démarre un traitement long dans un thread séparé et met à jour l'interface.
+		Démarre un traitement long dans un thread séparé et mets à jour l'interface.
 
 		Cette méthode désactive l'interface utilisateur (UI) et change le curseur en "attente" pendant l'exécution de la fonction passée en paramètre.
 		Elle vérifie si un fichier est en cours de prévisualisation avant de lancer le traitement.
@@ -221,7 +221,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _process_done(self):
 		"""
-		Finalise un traitement en réactivant l'interface et met à jour l'affichage.
+		Finalise un traitement en réactivant l'interface et mets à jour l'affichage.
 
 		Cette méthode est appelée lorsque le traitement est terminé.
 		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
@@ -394,7 +394,7 @@ class PALMTracerWidget(QWidget):
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
 				# Cas particulier en cas de changement de formes, il a du mal à mettre à jour.
-				# Une suppression complete est necessaire bien que couteuse en temps
+				# Une suppression complete est nécessaire bien que couteuse en temps
 				if layer.shape_type[0] != s_type:
 					self._remove_layer(l_name)
 					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
@@ -444,7 +444,7 @@ class PALMTracerWidget(QWidget):
 		if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rect  # Remplace le rectangle
 		else:  # .																   Création du Calque s'il n'existe pas
 			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.25, face_color="transparent")
-			layer.editable = False  # .											   Rendre non éditable (napari)
+			layer.editable = False  # .											   Rendre non éditable (Napari)
 			layer.selectable = False  # .										   Évite la sélection à la souris si supporté
 			layer.visible = True  # .											   L'affiche
 
@@ -506,14 +506,14 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _open_hr_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre une instance napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
+		"""Ouvre une instance Napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
 		if self.viewer_hr is None:
 			self.viewer_hr = create_viewerhr(self.pt)
 			self._bind_viewer_lifecycle("viewer_hr")
 
 	##################################################
 	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""Ouvre une instance napari avec le Viewer 3D, si elle n'existe pas déjà."""
+		"""Ouvre une instance Napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d = create_viewer3d()
 			self._bind_viewer_lifecycle("viewer_3d")
@@ -524,7 +524,7 @@ class PALMTracerWidget(QWidget):
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
 			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
-			# Quand le widget est détruit, remettre la réf à None.
+			# Quand le widget est détruit, rémettre la réf à None.
 			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
 			w.resize(1280, 720)
 			self.viewer_graph = w
@@ -548,8 +548,8 @@ class PALMTracerWidget(QWidget):
 if __name__ == "__main__":  # pragma: no cover
 	import napari
 
-	_viewer = napari.Viewer()  # .										  Crée le viewer napari
+	_viewer = napari.Viewer()  # .										  Crée le viewer Napari
 	_viewer.title = "PALMTracer"  # .									  Modifier le titre de la fenêtre
 	_w = PALMTracerWidget(_viewer)  # .									  Crée ton widget en lui passant le viewer
-	_viewer.window.add_dock_widget(_w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
-	napari.run()  # .													  Lance la boucle Qt gérée par napari
+	_viewer.window.add_dock_widget(_w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre Napari
+	napari.run()  # .													  Lance la boucle Qt gérée par Napari

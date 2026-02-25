@@ -17,13 +17,11 @@ Lancement
 2. Assurez-vous que l'environnement virtuel est activé si vous l'utilisez.
 3. Lancez Napari avec la commande : :console:`napari`
 
-.. note::
-   Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où.
+.. note:: Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où.
 
 4. Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`
 
-.. note::
-   Il est possible de lancer Napari directement avec le plugin avec la commande : :console:`napari -w palm-tracer`
+.. note:: Il est possible de lancer Napari directement avec le plugin avec la commande : :console:`napari -w palm-tracer`
 
 5. Dans l'onglet :guilabel:`Visualization` de PALM Tracer, vous avez un bouton pour lancer la visionneuse de graphiques :guilabel:`Open graph Viewer`
 
@@ -90,6 +88,23 @@ Volet de visualisation
 Le volet de droite affiche les graphiques générés. Vous pouvez survoler le graphique pour avoir les valeurs associées au graphique.
 
 
+Ajout d'une pile
+----------------------------------
+
+.. figure:: ../_static/img/viewer_graph/add_stack.png
+   :figclass: centered-caption
+   :alt: Ajout d'une pile
+   :align: center
+   :width: 25%
+   :target: ../_static/img/viewer_graph/info.png
+
+La visionneuse est initialement faite pour être lancée et utilisée à partir de l'interface principale de PALMTracer sur Napari.
+Il est possible d'ajouter un fichier tif à partir de la visionneuse.
+Celle-ci sera automatiquement ajoutée au Batch de l'interface principale et les derniers éléments calculés pour ce nouveau fichier seront chargés.
+
+.. note:: La visionneuse peut également être lancée indépendamment de l'interface principale, l'ajout d'une pile et le chargement des résultats ne se feront que par ce bouton.
+
+
 Onglet informations
 ----------------------------------
 
@@ -108,7 +123,6 @@ Le statut est défini comme suit:
 
 - **No** : Une absence de données.
 - **Yes** : Un tableau standard.
-- **Yes (Filtered)** : Un tableau standard.
 - **Yes (Filtered)** : Un tableau filtré.
 - **Yes (Reconnected)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement.
 - **Yes (Reconnected and Filtered)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement et filtré.
@@ -159,7 +173,6 @@ Il existe 3 types de données à visualiser qui sont les informations relatives 
           :target: ../_static/img/viewer_graph/trc_src2.png
 
           Sources pour les trajectoires sans les ajustements
-
 
 
 Onglet affichage
@@ -280,6 +293,33 @@ Cet onglet permet de définir quelques options d'affichage sans modifier les don
           Échelle logarithmique
 
 
+Le Dual Source
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Le Dual Source permet de faire un graphique avec deux sources différentes. L'affichage des courbes associées aux distributions (gaussiennes ou noyau de densité) sera alors une Heatmap. Le noyau de densité (KDE) est alors une estimation de la densité en fonction des deux sources, ce qui, visuellement, peut-être plus explicite.
+
+.. list-table::
+   :align: center
+   :widths: 50 50
+   :class: image-grid
+
+   * - .. figure:: ../_static/img/viewer_graph/dual.png
+          :figclass: centered-caption
+          :alt: Affichage du Sigma en X et en Y.
+          :width: 95%
+          :target: ../_static/img/viewer_graph/dual.png
+
+          Affichage du Sigma en X et en Y.
+
+     - .. figure:: ../_static/img/viewer_graph/dual_kde.png
+          :figclass: centered-caption
+          :alt: Affichage du compteur
+          :width: 95%
+          :target: ../_static/img/viewer_graph/dual_kde.png
+
+          Affichage de la Heatmap du noyau de densité.
+
+
 Onglet filtres
 ----------------------------------
 
@@ -364,7 +404,7 @@ Les éléments suivants sont utilisés :
 
 Plusieurs éléments permettent une communication bidirectionnelle entre les deux interfaces :
 
-- :guilabel:`Actualize files` situé au plus bas vous permet de mettre à jour les différents tableaux si un nouveau calcul a été effectué dans l'interface principale.
+- :guilabel:`Actualize files`, situé au plus bas, vous permet de mettre à jour les différents tableaux si un nouveau calcul a été effectué dans l'interface principale.
 - :guilabel:`Reset` permets de supprimer les tableaux filtrés pour repartir sur une base saine.
 - :guilabel:`Update` permets d'appliquer votre nouvelle sélection de filtres sur les tableaux (filtrés s'ils existent sinon sur les tableaux initiaux).
 
@@ -377,4 +417,4 @@ Lors d'un appui sur :guilabel:`Export…`, vous aurez le choix entre plusieurs f
 - **PNG** exporte une image du rendu du graphique.
 - **PDF** exporte l'image dans un fichier PDF
 
-Vous pouvez également appuyer sur l'icone camera (📷) au dessus du graphique pour enregistrer une image png directement.
+Vous pouvez également appuyer sur l'icône caméra (📷) au-dessus du graphique pour enregistrer une image PNG directement.

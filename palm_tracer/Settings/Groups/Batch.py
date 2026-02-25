@@ -60,7 +60,7 @@ class Batch(BaseSettingGroup):
 		"""
 		Récupère la liste de piles en fonction des paramètres.
 
-		:return: Une liste de pile en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de pile).
+		:return: Une liste de piles en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de piles).
 		"""
 		res = list[np.ndarray]()
 		file_list = cast(FileList, self._settings["Files"])

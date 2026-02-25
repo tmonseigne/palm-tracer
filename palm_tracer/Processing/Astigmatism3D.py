@@ -1,4 +1,4 @@
-"""Fichier contenant des fonctions lié à l'astigmatisme 3D (estimation de la position axiale en fonction des écart-types sur X et Y)."""
+"""Fichier contenant des fonctions lié à l'astigmatisme 3D (estimation de la position axiale en fonction des écarts-types sur X et Y)."""
 import numpy as np
 from scipy.spatial import cKDTree
 
@@ -16,7 +16,7 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 	:param z_min: Valeur minimale de Z correspondant au premier plan.
 	:param z_max: Valeur maximale de Z correspondant au dernier plan.
 
-	:return: Tableau NumPy de même forme que ``planes`` contenant les valeurs de Z estimées.
+	:return: Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées.
 	"""
 	planes = np.asarray(planes, dtype=np.float64)  # passage en flottant
 	p_min, p_max = planes.min(), planes.max()  # Récupération des min/max
@@ -48,8 +48,8 @@ def sigma_model(model: np.ndarray, z: np.ndarray, pixel_size: float, sampling: f
 	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z: Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle.
 	:param pixel_size: Taille des pixels en nanomètres.
-	:param sampling: Facteur d'agrandissement (les fichiers de localisation sauvegardés, le sont avant agrandissement donc laisser à 1).
-	:return:
+	:param sampling: Facteur d'agrandissement (les fichiers de localisation sauvegardés le sont avant agrandissement donc à laisser à 1).
+	:return: Tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle.
 	"""
 	z0, w, c3, c4, a = model
 
@@ -133,28 +133,13 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	- P95_dist_px : 95e percentile de la distance à la courbe. Utile pour définir un seuil de rejet des estimations peu fiables.
 
-	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z]
-	                (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
+	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
 	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
-	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z.
-	                Doit être suffisamment grand pour éviter une quantification de Z.
+	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z. Doit être suffisamment grand pour éviter une quantification de Z.
 	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
-	:param sampling: Facteur d'échantillonnage (adimensionnel) utilisé dans le modèle
-	                 de sigma (généralement égal à 1).
-	:return: Dictionnaire de métriques décrivant la précision axiale (en unités de Z)
-	         et la cohérence des données avec le modèle (distances en pixels).
-	"""
-	"""
-	Estime Z par projection sur la courbe (sigmaX(Z), sigmaY(Z)) du modèle, puis calcule RMSE/MAE sur Z + score de confiance (distance à la courbe).
-
-	:param dataset: Tableau (N, 3) contenant les colonnes [Sx, Sy, Z] (sigmas en pixels, Z en unités cohérentes avec le modèle).
-	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
-	:param pixel_size: Taille pixel dans les mêmes unités que Z (par ex. nm), utilisée dans le calcul de sigma.
-	:param sampling: Facteur d'échantillonnage (adimensionnel) appliqué dans le calcul de sigma (laisser à 1).
-	:param z_max:
-	:param n_curve:
-	:return: Dictionnaire de métriques : RMSE/MAE (en pixels) et R² (adimensionnel) pour Z.
+	:param sampling: Facteur d'échantillonnage (adimensionnel) utilisé dans le modèle de sigma (généralement égal à 1).
+	:return: Dictionnaire de métriques décrivant la précision axiale (en unités de Z) et la cohérence des données avec le modèle (distances en pixels).
 	"""
 	sx_obs, sy_obs, z_true = dataset[:, 0], dataset[:, 1], dataset[:, 2]
 

@@ -118,13 +118,13 @@ High Resolution Processing
 
 - Localisation
 - Indiquer si des fichiers de localisations sont trouvés ou rendre l'onglet inactif tant que pas de dossiers
-- Option de Drift si pré-process effectué
+- Option de Drift si préprocess effectué
 - Options de filtrage
 - Niveau de zoom (limité à des puissances de 2 ? ça l'air d'être le cas, mais caché)
 - Channel utilisé (intensité lumineuse ou autre)
 - Tracking
 - Indiquer si des fichiers de tracking sont trouvés ou rendre l'onglet inactif tant que pas de dossiers
-- Option de Drift si pré-process effectué
+- Option de Drift si préprocess effectué
 - Option de filtrage
 - Niveau de zoom
 - Channel utilisé (trace, vitesse ou autre)
@@ -150,8 +150,8 @@ Au cours des prétraitements et générations d'images HR. Un sous-dossier sera 
 - **Meta** : Fichier contenant les entêtes des fichiers précédents
   (Width, Height, nb_Planes, Pixel_Size(um), Frame_Duration(s)) avec d'autres éléments comme la date, la configuration matérielle, les éléments d'acquisitions (pixel size, exposition…), la version de PALM Tracer.
 - **Localization**, Tracking, Drift tableaux de coordonnées
-- **Fichiers Images** : Format différent possible si c'est plus conventionnel, l'enregistrement se fait automatiquement à la fin de chaque processing.
-- **Pipeline** : Fichier mis à jour continuellement en fonction des process effectués, il contient 4 parties (Général, Processing, Localisation, Tracking, Filtering)
+- **Fichiers Images** : Format différent possible si c'est plus conventionnel, l'enregistrement se fait automatiquement à la fin de chaque traitement.
+- **Pipeline** : Fichier mis à jour continuellement en fonction des process effectués, il contient 4 parties (Général, Processing, Localization, Tracking, Filtering)
   avec les dernières options utilisées pour cela et la date du dernier lancement. Il permettra de garder une trace et d'être chargé comme pipeline de Batch.
 - **Log** : Log (temps, ressources, n molécules...)
 

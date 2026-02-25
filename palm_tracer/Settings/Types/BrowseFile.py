@@ -89,10 +89,10 @@ class BrowseFile(BaseSettingType):
 	# ==================================================
 	##################################################
 	def browse_file(self):
-		"""Ouvre un dialogue de sélection de fichier et met à jour la boîte avec le chemin sélectionné."""
+		"""Ouvre un dialogue de sélection de fichiers et mets à jour la boîte avec le chemin sélectionné."""
 		current = Path(self.value)
 		# Si le chemin par défaut n'est pas valide, on utilise le chemin principal du projet
 		if not current.exists() or current == Path.cwd(): current = Path.cwd()
 		path, _ = QFileDialog.getOpenFileName(self._box, "Sélectionner un fichier", str(current))
 		if not path: return
-		if Path(path).is_file(): self._box.setText(path)  # Met à jour le chemin dans la boîte de texte
+		if Path(path).is_file(): self._box.setText(path)  # Mets à jour le chemin dans la boîte de texte

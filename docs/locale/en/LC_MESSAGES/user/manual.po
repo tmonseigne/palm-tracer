@@ -3,8 +3,8 @@ msgid "Manuel d'utilisation"
 msgstr "User manual"
 
 #: ../../user/manual.rst:10
-msgid "Ce guide décrit l'utilisation de PALMTracer, un plugin Napari dédié à l'analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats."
-msgstr "This guide describes the use of PALMTracer, a Napari plugin dedicated to PALM/STORM data analysis and localization processing, including preview, detection, tracking, 2D/3D visualization, and result filtering."
+msgid "Ce guide décrit l'utilisation de PALMTracer, un plugin Napari, dédié à l'analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats."
+msgstr "This guide describes the use of PALMTracer, a Napari plugin, dedicated to PALM/STORM data analysis and localization processing, including preview, detection, tracking, 2D/3D visualization, and result filtering."
 
 #: ../../user/manual.rst:12
 msgid "PALMTracer fonctionne comme un widget intégré dans l'interface de Napari, offrant un ensemble d'outils organisés en onglets : Processing, Visualization et Filtering."
@@ -399,7 +399,7 @@ msgid "**Threshold** : seuil d'intensité utilisé pour isoler les candidats mol
 msgstr "**Threshold**: intensity threshold used to isolate molecular candidates. A :guilabel:`Auto` button can automatically estimate an optimal threshold from the current image (more information :ref:`here <auto_threshold_page>`)."
 
 #: ../../user/manual.rst:215
-msgid "**ROI Shape** : forme de la zone d'intérêt lors de la preview (cercle ou carré), les calculs se font toujours sur une ROI carré en revanche."
+msgid "**ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une ROI carré en revanche."
 msgstr "**ROI Shape**: shape of the region of interest during preview (circle or square); however, calculations are always performed on a square ROI."
 
 #: ../../user/manual.rst:216
@@ -515,7 +515,7 @@ msgid "**HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes r
 msgstr "**HR Viewer**: opens a window dedicated to high-resolution representations. (more information :ref:`here <viewer_hr_page>`)"
 
 #: ../../user/manual.rst:262
-msgid "**3D Viewer** : uvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)"
+msgid "**3D Viewer** : Ouvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)"
 msgstr "**3D Viewer**: opens a window dedicated to 3D representations. (more information :ref:`here <viewer_3d_page>`)"
 
 #: ../../user/manual.rst:264
@@ -571,7 +571,7 @@ msgid "**Remarques** : Les filtres ne modifient pas les données brutes ou les r
 msgstr "**Notes**: filters do not modify raw data or internal processing results. They are applied dynamically during visualization or export."
 
 #: ../../user/manual.rst:301
-msgid "Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtré."
+msgid "Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtrée."
 msgstr "The filter on X or Y displays a red rectangle in the Napari visualization to dynamically identify the filtered area."
 
 #: ../../user/manual.rst:304

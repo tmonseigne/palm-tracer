@@ -118,7 +118,7 @@ class Monitoring:
 
 	##################################################
 	def _update(self):
-		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
+		"""Mets à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
 		try:
 			pytest_pid = os.getpid()  # .					   PID de pytest
@@ -197,7 +197,7 @@ class Monitoring:
 	##################################################
 	def _update_array_for_readability(self, round_time: int = 2):
 		"""
-		Met à jour les tableaux pour faciliter la lecture (ajustement des timestamps et normalisation).
+		Mets à jour les tableaux pour faciliter la lecture (ajustement des timestamps et normalisation).
 
 		:param round_time: Le nombre de décimales pour arrondir les timestamps.
 		"""
@@ -229,7 +229,7 @@ class Monitoring:
 		Si le nombre de fichiers dépasse le nombre de couleurs disponibles dans la palette, elle réutilise les couleurs de manière cyclique.
 
 		:param names: Liste des noms des fichiers pour lesquels une couleur doit être attribuée.
-		:param palette: Liste des couleurs à utiliser pour les fichiers. Si non spécifié, la palette `Plotly` est utilisée par défaut.
+		:param palette: Liste des couleurs à utiliser pour les fichiers. Si non spécifiée, la palette `Plotly` est utilisée par défaut.
 		:return: Dictionnaire où les clés sont les noms de fichiers et les valeurs sont les couleurs attribuées.
 		"""
 		unique_names = set(names)  # Récupérer les noms uniques
@@ -360,7 +360,7 @@ class Monitoring:
 
 		:param filename: Le chemin et nom du fichier dans lequel les données de monitoring seront enregistrées.
 						 Le format de sauvegarde sera déterminé en fonction de l'extension du fichier (ex. `.png`, `.html`, `.json`).
-		:param full_html: Option pour l'enregistrement html permettant de ne sauver que le div
+		:param full_html: Option pour l'enregistrement HTML permettant de ne sauver que le div
 		"""
 		try:
 			path = Path(filename)

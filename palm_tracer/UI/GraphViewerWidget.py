@@ -483,7 +483,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 	##################################################
 	def _update_df(self):
-		"""Récupère les dataframes dans l'objet PALMTracer et met à jour les status."""
+		"""Récupère les dataframes dans l'objet PALMTracer et mets à jour les status."""
 		# Récupération des clés
 		loc_key = self._pt.get_localization_key()
 		trc_key = self._pt.get_tracks_key()
@@ -505,7 +505,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		"""
 		Actualise les fichiers/données depuis l'état PALMTracer :
 			- Lit le TIF sélectionné (pile `_stack`) pour l'affichage Stack.
-			- Met à jour les libellés d'information et l'état d'activation des boutons de domaine.
+			- Mets à jour les libellés d'information et l'état d'activation des boutons de domaine.
 			- Sélectionne par défaut le domaine "Stack" et redessine.
 
 		En cas d'erreur de lecture, logue l'erreur via :func:`palm_tracer.Tools.Ui.print_error`.
@@ -747,6 +747,6 @@ if __name__ == "__main__":  # pragma: no cover
 	app = QApplication(sys.argv)
 	pt = PALMTracer()
 	w = GraphViewerWidget(pt)
-	w.resize(1000, 600)
+	w.resize(1280, 720)
 	w.show()
 	sys.exit(app.exec_())

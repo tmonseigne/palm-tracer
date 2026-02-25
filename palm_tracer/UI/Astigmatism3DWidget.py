@@ -461,8 +461,8 @@ def open_astigmatism3d():  # pragma: no cover
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
 
-	Cette fonction est utilisée par le plugin napari comme point d'entrée :
-	elle crée simplement un :class:`Astigmatism3DWidget`, l'affiche et le renvoie. Le widget ne dépend pas de napari et s'ouvre dans sa propre fenêtre.
+	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
+	elle crée simplement un :class:`Astigmatism3DWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
 	"""
 	widget = Astigmatism3DWidget()
 	widget.resize(500, 250)

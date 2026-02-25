@@ -171,7 +171,7 @@ class FileMigrator:
 		Cette méthode :
 			- lit le fichier ``locPALMTracer.txt`` s'il est présent
 			- extrait les métadonnées globales (dimensions, calibration temporelle et spatiale)
-			- met à jour :attr:`meta` via :meth:`update_meta`
+			- mets à jour :attr:`meta` via :meth:`update_meta`
 			- renomme et complète les colonnes selon ``FILES_COLUMNS["Localization"]``
 			- écrit le fichier CSV converti dans :attr:`output_folder`.
 
