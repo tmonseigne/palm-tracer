@@ -1,0 +1,56 @@
+{
+  "data": [
+	{
+	  "hovertemplate": "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>",
+	  "marker": {
+		"color": "#4C72B0",
+		"size": 4
+	  },
+	  "mode": "markers",
+	  "name": "Data",
+	  "opacity": 0.75,
+	  "type": "scattergl",
+	  "x": {
+		"bdata": "AAAAAAAA8D8AAAAAAADwPw==",
+		"dtype": "f8"
+	  },
+	  "y": {
+		"bdata": "AAAAAAAA8D8AAAAAAADwPw==",
+		"dtype": "f8"
+	  }
+	}
+  ],
+  "layout": {
+	"hovermode": "closest",
+	"showlegend": false,
+	"title": {
+	  "text": "cloud"
+	},
+	"xaxis": {
+	  "gridcolor": "#e6e6e6",
+	  "gridwidth": 0.75,
+	  "range": [
+		1.0,
+		1.0
+	  ],
+	  "showgrid": true,
+	  "title": {
+		"text": ""
+	  },
+	  "zeroline": false
+	},
+	"yaxis": {
+	  "gridcolor": "#e6e6e6",
+	  "gridwidth": 0.75,
+	  "range": [
+		1.0,
+		1.0
+	  ],
+	  "showgrid": true,
+	  "title": {
+		"text": ""
+	  },
+	  "zeroline": false
+	}
+  }
+}

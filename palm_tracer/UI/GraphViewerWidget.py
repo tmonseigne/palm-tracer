@@ -94,7 +94,7 @@ TIPS = {"File":         "Current stack.",
 
 
 # ==================================================
-# edregion Constantes
+# endregion Constantes
 # ==================================================
 
 ##################################################
@@ -230,9 +230,6 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self._cmb_src_b.attach_to_form(form)
 		self._cmb_src_b.box.setMinimumWidth(200)
 		self._cmb_src_b.hide()
-		self._msd_step_b = SpinInt("MSD Step", TIPS["MSD Step"], 1, [1, 10000], 1)
-		self._msd_step_b.attach_to_form(form)
-		self._msd_step_b.hide()
 
 		# Bloc Affichage (2 colonnes)
 		grp_display = QGroupBox("Display")
@@ -373,23 +370,22 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
 		## Exemple: remplir ta combo 'Source' en fonction du domaine
-		if btn_id == 0: src = DATA_SRC["Stack"]  # .		 Stack
+		if btn_id == 0: src = DATA_SRC["Stack"]  # .		Stack
 		elif btn_id == 1: src = DATA_SRC["Localization"]  # Localization
-		elif btn_id == 2: src = self._get_tracks_src()  # .		 Tracking
-		else: src = []  # .										 Invalide
+		else: src = self._get_tracks_src()  # .				Tracking
 		if self._dual_source.value: src = [s for s in src if s not in DATA_SRC["No Dual"]]
 		self._cmb_src_a.update_box(src)
 		self._cmb_src_b.update_box(src)
-		self._update_filters_ui()  # .												   Mise à jour des filtres à afficher
-		self._update_plot()  # .													   Puis redessiner le graphe si besoin
+		self._update_filters_ui()  # .						Mise à jour des filtres à afficher
+		self._update_plot()  # .							Puis redessiner le graphe si besoin
 
 	##################################################
 	def _on_source_cmb_changed(self) -> None:
 		"""Mets à jour les filtres et l'affichage lors du changement de la variable d'intérêt."""
 		# Affichage de l'option lors de la selection MSD pour choisir le Step et faire Histogram par ce Step
-		if self._btg_src.checkedId() == 2: self._msd_step.show() if self._cmb_src_a.current_text == "MSD" else self._msd_step.hide()
+		if self._btg_src.checkedId() == 2 and self._cmb_src_a.current_text == "MSD": self._msd_step.show()
 		else: self._msd_step.hide()
-		self._update_plot()  # .	 Puis redessiner le graphe si besoin
+		self._update_plot()  # Puis redessiner le graphe si besoin
 
 	##################################################
 	def _on_dual_source_changed(self, status: bool) -> None:
@@ -440,7 +436,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
-		self._pt.load()  # Chargement des derniers résultats
+		self._pt.load()  # . Chargement des derniers résultats
 		self._actualize()  # Actualisation des statuts et dataframes internes.
 
 	##################################################
@@ -573,7 +569,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		elif src_id == 2 and src_a == "Length":
 			fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
 		elif dual:
-			fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma)
+			fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
 		else:
 			fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 

@@ -18,7 +18,7 @@
 	}
   ],
   "layout": {
-	"hovermode": "x",
+	"hovermode": "closest",
 	"showlegend": false,
 	"title": {
 	  "text": "scatter"
