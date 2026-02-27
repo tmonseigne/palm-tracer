@@ -21,8 +21,8 @@ class SpinFloat(BaseSettingType):
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeur par défaut du paramètre.
 	:param limits: Valeurs limites du paramètre.
-	:param step: Pas à chaque appuie sur une des flèches du paramètre.
-	:param precision: Precision du paramètre.
+	:param step: Pas à chaque appui sur une des flèches du paramètre.
+	:param precision: Précision du paramètre.
 	"""
 	default: float = 0.0
 	_value: float = field(init=False, default=0.0)
@@ -30,9 +30,9 @@ class SpinFloat(BaseSettingType):
 	limits: list[float] = field(default_factory=lambda: [0.0, 100.0])
 	"""Valeurs limites du paramètre."""
 	step: float = 1.0
-	"""Pas à chaque appuie sur une des flèches du paramètre."""
+	"""Pas à chaque appui sur une des flèches du paramètre."""
 	precision: int = 2
-	"""Precision du paramètre."""
+	"""Précision du paramètre."""
 
 	_box: QDoubleSpinBox = field(init=False)
 

@@ -62,6 +62,12 @@ class Combo(BaseSettingType):
 		self._value = value
 		self._box.setCurrentIndex(value)
 
+	##################################################
+	@property
+	def current_text(self) -> str:
+		"""Valeur actuelle du paramètre (:class:`str`)."""
+		return self._box.currentText()
+
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================
@@ -90,7 +96,7 @@ class Combo(BaseSettingType):
 	# ==================================================
 	##################################################
 	def update_box(self, items: Optional[list[str]] = None):
-		"""Met à jour la ComboBox pour refléter la liste actuelle des options."""
+		"""Mets à jour la ComboBox pour refléter la liste actuelle des options."""
 		with self.signal_blocked():
 			self._box.clear()
 			if items is not None: self.items = items

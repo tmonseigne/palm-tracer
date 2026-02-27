@@ -46,7 +46,7 @@ class SignalWrapper(QObject):
 
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
 		"""
-		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nb déconnectés.
+		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés

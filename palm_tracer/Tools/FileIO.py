@@ -95,7 +95,7 @@ def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha
 ##################################################
 def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 	"""
-	Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurence en cas de présence multiple).
+	Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurrence en cas de présence multiple).
 
 	:param filename: Nom du fichier.
 	:param separator: Séparateur avant le suffixe
@@ -214,7 +214,7 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 
 	:param image: Tableau contenant l'image 2D
 	:param filename: Nom du fichier TIF de sortie.
-	:param normalization: Normalize l'image avant enregistrement.
+	:param normalization: Normalise l'image avant enregistrement.
 	"""
 	if not (2 <= image.ndim <= 3): raise ValueError("L'image doit être en 2D (niveaux de gris) ou 3D (RGB).")
 	if normalization:
@@ -231,7 +231,7 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarray:
 	"""
 	Convertie une image 2D Niveau de gris en tableau 3D (pour la couleur RGB) selon la color map. Le format est compatible avec Pillow et Napari.
-	Une color Map Napari serait bien en cas de superposition entre un affichage napari et en fond l'image généré.
+	Une color Map Napari serait bien en cas de superposition entre un affichage Napari et en fond l'image généré.
 
 	:param data: Image 2D (H, W) uint16.
 	:param color_map: Nom de colormap Matplotlib.
@@ -268,10 +268,10 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 ##################################################
 def open_calibration_mat(filename: str | Path) -> dict[str, Any]:
 	"""
-	Charge un fichier de calibration matlab.
+	Charge un fichier de calibration Matlab.
 
 	:param filename: Nom du fichier mat en entrée.
-	:return: Dictionnaire contennant les éléments utiles
+	:return: Dictionnaire contenant les éléments utiles
 	"""
 	path = Path(filename)
 	if not path.is_file(): raise OSError(f'Le fichier de calibration "{path}" est introuvable.')

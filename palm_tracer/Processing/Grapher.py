@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 import plotly.graph_objects as go
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, multivariate_normal
 
 from palm_tracer.Processing.Astigmatism3D import sigma_model
 from palm_tracer.Processing.Parsing import SHAPE_MODEL
@@ -16,7 +16,8 @@ _TEMPLATE = "plotly_white"
 _BLANK_ANNOTATIONS = [dict(text="No valid data.", x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)]
 _GRID_COLOR = "#e6e6e6"
 _GRID_WIDTH = 0.75
-_MARGIN = dict(l=60, r=20, t=60, b=50)
+_MARGIN = dict(l=60, r=30, t=60, b=50)
+MESH_SIZE = 128
 
 
 ##################################################
@@ -36,13 +37,13 @@ class Grapher:
 		:param graph_type: Type de Graphique.
 		:param data: Données sous forme de tableau numpy 2D/1D/ND.
 		:param title: Titre du graphe.
-		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
-		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
+		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:param kde: Si True, superpose la KDE gaussienne.
 		:param gaussian: Si True, superpose la gaussienne.
-		:param density: Affiche l'histogramme en densité (True) ou en comptes (False).
+		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
 		:param bins: Nombre de bins explicite (sinon Sturges).
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
 		"""
@@ -73,8 +74,8 @@ class Grapher:
 
 		:param data: Données sous forme de tableau numpy 1D/ND (aplati).
 		:param title: Titre du graphe.
-		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
-		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
+		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:param kde: Si True, superpose la KDE gaussienne.
@@ -96,8 +97,7 @@ class Grapher:
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
-		mu, sigma = float(np.mean(x)), float(np.std(x))
-		x, limits = self._get_range(x, limit)
+		x, limits, mu, sigma = self._get_range(x, limit)
 
 		# Récupération du nombre de bin
 		if bins is None: bins = self._get_bins_number(x)
@@ -108,40 +108,33 @@ class Grapher:
 						  name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
 		# KDE
-		if kde and x.size > 1 and sigma > 0:
-			# grille régulière sur l'intervalle affiché
-			xk = np.linspace(limits[0], limits[1], 512)
-			k = gaussian_kde(x)  # choisit sa propre bandwidth
-			y = k(xk)
-			if not density: y = y * x.size * ((limits[1] - limits[0]) / max(int(bins), 1))  # convertir la densité en comptes ~ dens * N * bin_width
-			fig.add_trace(go.Scatter(x=xk, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
-									 name="KDE", hoverinfo="skip", hovertemplate=None))
+		if x.size > 1 and sigma > 0:
+			if kde:
+				# grille régulière sur l'intervalle affiché
+				xk = np.linspace(limits[0], limits[1], MESH_SIZE)
+				k = gaussian_kde(x)  # choisit sa propre bandwidth
+				y = k(xk)
+				if not density: y = y * x.size * ((limits[1] - limits[0]) / max(int(bins), 1))  # convertir la densité en comptes ~ dens * N * bin_width
+				fig.add_trace(go.Scatter(x=xk, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
+										 name="KDE", hoverinfo="skip", hovertemplate=None))
 
-		# Gaussian
-		if gaussian and x.size > 1 and sigma > 0:
-			# grille régulière sur l'intervalle affiché
-			xg = np.linspace(limits[0], limits[1], 512)
-			y = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((xg - mu) / sigma) ** 2)
-			if not density: y = y * x.size * ((limits[1] - limits[0]) / max(int(bins), 1))  # convertir la densité en comptes ~ dens * N * bin_width
-			fig.add_trace(go.Scatter(x=xg, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
-									 name="Gaussian", hoverinfo="skip", hovertemplate=None))
+			# Gaussian
+			if gaussian and x.size > 1 and sigma > 0:
+				# grille régulière sur l'intervalle affiché
+				xg = np.linspace(limits[0], limits[1], MESH_SIZE)
+				y = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((xg - mu) / sigma) ** 2)
+				if not density: y = y * x.size * ((limits[1] - limits[0]) / max(int(bins), 1))  # convertir la densité en comptes ~ dens * N * bin_width
+				fig.add_trace(go.Scatter(x=xg, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
+										 name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
 		# Mu et Sigmas
-		if show_sigma and x.size > 1 and sigma > 0:
-			fig.add_vline(x=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_vline(x=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
-			fig.add_vline(x=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
-			fig.add_vline(x=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
-			fig.add_vline(x=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
-			fig.add_vline(x=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
-			fig.add_vline(x=mu + 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ + 3σ")  # +3σ
+		if show_sigma and x.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, True)
 
 		# Style "seaborn-like" + Espacement entre barres
 		xlabel = "Values" if xlabel == "" else xlabel
 		ylabel = ("Density" if density else "Count") if ylabel == "" else ylabel
 		fig.update_layout(title=f"{title} (μ = {mu:.2f}, σ = {sigma:.2f})", template=_TEMPLATE, margin=_MARGIN,
-						  xaxis=dict(title=xlabel, range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
-						  yaxis=dict(title=ylabel, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH),
+						  xaxis=self._axis_dict(xlabel, limits), yaxis=self._axis_dict(ylabel),
 						  hovermode="x", showlegend=True, bargap=0.15, bargroupgap=0.05)
 		return fig
 
@@ -152,8 +145,8 @@ class Grapher:
 
 		:param data: Données sous forme de tableau numpy 1D ou 2D.
 		:param title: Titre du graphe.
-		:param xlabel: Label optionnel pour l'axe X. Si chaine vide, ne change rien.
-		:param ylabel: Label optionnel pour l'axe Y. Si chaine vide, ne change rien.
+		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
@@ -178,27 +171,91 @@ class Grapher:
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
-		_, limits = self._get_range(y, limit)
-		mu, sigma = float(np.mean(y)), float(np.std(y))
+		_, limits, mu, sigma = self._get_range(y, limit)
 
 		# faire une courbe style "seaborn-like"
 		fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas
-		if show_sigma and x.size > 1 and sigma > 0:
-			fig.add_hline(y=mu, line_color=_SEABORN_DEEP[3], name="μ")  # μ
-			fig.add_hline(y=mu - sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ - 1σ")  # .	-1σ
-			fig.add_hline(y=mu + sigma, line_color=_SEABORN_DEEP[4], line_dash="dot", name="μ + 1σ")  # .	+1σ
-			fig.add_hline(y=mu - 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ - 2σ")  # -2σ
-			fig.add_hline(y=mu + 2 * sigma, line_color=_SEABORN_DEEP[5], line_dash="dot", name="μ + 2σ")  # +2σ
-			fig.add_hline(y=mu - 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ - 3σ")  # -3σ
-			fig.add_hline(y=mu + 3 * sigma, line_color=_SEABORN_DEEP[6], line_dash="dot", name="μ + 3σ")  # +3σ
+		if show_sigma and x.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)
 
 		# Style "seaborn-like" + Espacement entre barres
-		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
-						  xaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=xlabel)),
-						  yaxis=dict(range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text=ylabel)),
-						  hovermode="x", showlegend=False)
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, xaxis=self._axis_dict(xlabel), yaxis=self._axis_dict(ylabel, limits),
+						  hovermode="closest", showlegend=False)
+
+		return fig
+
+	##################################################
+	def cloud(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False,
+			  kde: bool = False, gaussian: bool = False) -> go.Figure:
+		"""
+		Trace une courbe des données "façon" Seaborn avec Plotly.
+
+		:param data: Données sous forme de tableau numpy 1D ou 2D.
+		:param title: Titre du graphe.
+		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
+		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
+		:param kde: Si True, superpose la KDE gaussienne 2D.
+		:param gaussian: Si True, superpose la gaussienne 2D.
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
+		"""
+
+		if data.size == 0: return self.blank(title)
+		if data.ndim == 2:
+			if data.shape[0] != 2:
+				if data.shape[1] == 2:  data = data.T  # (N, 2) => passage en mode ligne
+				else: raise ValueError("data doit avoir 2 lignes ou 2 colonnes (x,y).")
+			mask = np.isfinite(data[0, :]) & np.isfinite(data[1, :])
+			data = data[:, mask]
+			x, y = data[0, :], data[1, :]
+		else: raise ValueError("data doit être 2D.")
+
+		# Aucunes données valides
+		if data.size == 0: return self.blank(title)
+
+		fig = go.Figure()
+
+		# Test d'histogramme en heatmap de fond
+		# fig.add_trace(go.Histogram2d(x=x, y=y, nbinsx=self._get_bins_number(x), nbinsy=self._get_bins_number(y), colorscale="Viridis", showscale=True,
+		# 							 opacity=0.5, name="Histogramm", hoverinfo="skip", hovertemplate=None))
+
+		# Limite des données avec la règle des 3 Sigmas
+		_, limits_x, mu_x, sigma_x = self._get_range(x, limit)
+		_, limits_y, mu_y, sigma_y = self._get_range(y, limit)
+
+		if x.size > 1 and sigma_x > 0 and sigma_y > 0:
+			if kde:
+				xg, yg = np.linspace(limits_x[0], limits_x[1], MESH_SIZE), np.linspace(limits_y[0], limits_y[1], MESH_SIZE)
+				xm, ym = np.meshgrid(xg, yg)
+
+				k = gaussian_kde(np.vstack([x, y]))  # 2D KDE
+				z = k(np.vstack([xm.ravel(), ym.ravel()])).reshape(MESH_SIZE, MESH_SIZE)
+
+				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="KDE", hoverinfo="skip", hovertemplate=None))
+
+			if gaussian:
+				mu, cov = np.array([mu_x, mu_y]), np.cov(np.vstack([x, y]))
+				xg, yg = np.linspace(limits_x[0], limits_x[1], MESH_SIZE), np.linspace(limits_y[0], limits_y[1], MESH_SIZE)
+				xm, ym = np.meshgrid(xg, yg)
+
+				rv = multivariate_normal(mean=mu, cov=cov, allow_singular=True)
+				z = rv.pdf(np.dstack([xm, ym]))
+
+				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Gaussian", hoverinfo="skip", hovertemplate=None))
+
+		fig.add_trace(go.Scattergl(x=x, y=y, mode="markers", marker=dict(size=4, color=_SEABORN_DEEP[0]), opacity=0.75, name="Data",
+								   hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
+
+		# Mu et Sigmas sur X
+		if show_sigma and x.size > 1 and sigma_x > 0: self._draw_sigma(fig, mu_x, sigma_x, False)
+		if show_sigma and y.size > 1 and sigma_y > 0: self._draw_sigma(fig, mu_y, sigma_y, True)
+
+		# Style "seaborn-like" + Espacement entre barres
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, xaxis=self._axis_dict(xlabel, limits_x), yaxis=self._axis_dict(ylabel, limits_y),
+						  hovermode="closest", showlegend=False)
 
 		return fig
 
@@ -207,8 +264,7 @@ class Grapher:
 	# ==================================================
 
 	##################################################
-	@staticmethod
-	def astigmatism3d_curve(model: np.ndarray, title: str = "", pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
+	def astigmatism3d_curve(self, model: np.ndarray, title: str = "", pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
 		"""
 
 		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
@@ -231,9 +287,7 @@ class Grapher:
 								 mode="markers", marker=dict(size=6, color=z, colorscale="Viridis", colorbar=dict(title="Z (nm)"), showscale=True),
 								 hovertemplate="σ(x:%{x:.3f}, y:%{y:.3f}) = %{customdata:.0f} nm<extra></extra>"))
 
-		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN,
-						  xaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text="Sigma X")),
-						  yaxis=dict(zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH, title=dict(text="Sigma Y")),
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, xaxis=self._axis_dict("Sigma X"), yaxis=self._axis_dict("Sigma Y"),
 						  hovermode="closest", showlegend=False)
 
 		# fig.update_xaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
@@ -257,9 +311,9 @@ class Grapher:
 
 	##################################################
 	@staticmethod
-	def _get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float]]:
+	def _get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float], float, float]:
 		"""
-		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si necessaire.
+		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si nécessaire.
 
 		:param data: Données à analyser.
 		:param limit: Limite ou non les données.
@@ -272,4 +326,29 @@ class Grapher:
 			limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
 		else:
 			limits = [min(data), max(data)]
-		return data, limits
+		return data, limits, mu, sigma
+
+	##################################################
+	@staticmethod
+	def _draw_sigma(fig, mu, sigma, x_axis: bool = True):
+		"""
+		Ajoute les séparations entre chaque sigma.
+
+		:param fig: Figure à modifier
+		:param mu: Moyenne
+		:param sigma: Écart-type
+		:param x_axis: ``True`` pour des séparations verticales sur l'axe X, ``False`` sinon.
+		"""
+		params = [[mu, _SEABORN_DEEP[3], "μ"],
+				  [mu - sigma, _SEABORN_DEEP[4], "μ - 1σ"], [mu + sigma, _SEABORN_DEEP[4], "μ + 1σ"],
+				  [mu - 2 * sigma, _SEABORN_DEEP[5], "μ - 2σ"], [mu + 2 * sigma, _SEABORN_DEEP[5], "μ + 2σ"],
+				  [mu - 3 * sigma, _SEABORN_DEEP[6], "μ - 3σ"], [mu + 3 * sigma, _SEABORN_DEEP[6], "μ + 3σ"]]
+		if x_axis:
+			for p in params: fig.add_vline(x=p[0], line_color=p[1], line_dash="dot", line_width=1.5, name=p[2])
+		else:
+			for p in params: fig.add_hline(y=p[0], line_color=p[1], line_dash="dot", line_width=1.5, name=p[2])
+
+	##################################################
+	@staticmethod
+	def _axis_dict(title: str, limits: Optional[list] = None) -> dict:
+		return dict(title=title, range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH)

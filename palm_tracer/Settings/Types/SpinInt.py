@@ -21,7 +21,7 @@ class SpinInt(BaseSettingType):
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeur par défaut du paramètre.
 	:param limits: Valeurs limites du paramètre.
-	:param step: Pas à chaque appuie sur une des flèches du paramètre.
+	:param step: Pas à chaque appui sur une des flèches du paramètre.
 	"""
 
 	default: int = 0
@@ -30,7 +30,7 @@ class SpinInt(BaseSettingType):
 	limits: list[int] = field(default_factory=lambda: [0, 100])
 	"""Valeurs limites du paramètre."""
 	step: int = 1
-	"""Pas à chaque appuie sur une des flèches du paramètre."""
+	"""Pas à chaque appui sur une des flèches du paramètre."""
 
 	_box: QSpinBox = field(init=False)
 

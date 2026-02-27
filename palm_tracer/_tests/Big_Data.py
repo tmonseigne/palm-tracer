@@ -18,7 +18,7 @@ def test_palm_cpu(qtbot):
 	Test pour le process sur des données importantes.
 
 	- DLL Recompilé stade 0 : ~10min, utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 4-5Giga. Passage à VS 2022
-	  l'augmentation de durée peut être du aux nombreux old method dnas la DLL non optimisé dans les compilateurs recents (malloc/free...)
+	  l'augmentation de durée peut être du aux nombreux old method dans la DLL non optimisé dans les compilateurs recents (malloc/free...)
 	- DLL Recompilé stade 1 : même temps Passage à C++20
 	- DLL Recompilé stade 2 : même temps suppression de commentaires e code (normal aucune influence) et arrangement des fichiers
 	- DLL Recompilé stade 3 : même temps passage a une suele fonction pour lancer le process.
@@ -109,7 +109,7 @@ def test_drift():
 	assert len(beads) > 0, "Aucune bille trouvé"
 	if save_output: beads.to_csv(f"{OUTPUT_DIR}/{FILE}-beads.csv", index=False)
 
-	# on ne va prendre qu'une bille pour éviter la moyenne et avoir à la fin un drift de 0 sur la bille selectionné une fois corrigé.
+	# on ne va prendre qu'une bille pour éviter la moyenne et avoir à la fin un drift de 0 sur la bille sélectionné une fois corrigé.
 	beads = beads[beads["Bead"] == 1]
 	drift = get_drift(beads, False)
 	if save_output: drift.to_csv(f"{OUTPUT_DIR}/{FILE}-drift.csv", index=False)

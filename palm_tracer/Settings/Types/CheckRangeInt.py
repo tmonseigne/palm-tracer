@@ -161,7 +161,7 @@ class CheckRangeInt(BaseSettingType):
 	# ==================================================
 	##################################################
 	def toggle_active(self, state: int):
-		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self._active = bool(state)
 
 	##################################################

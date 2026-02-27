@@ -1,12 +1,12 @@
 """
-Widget d'affichage 3D pour napari permettant de charger un fichier CSV et de visualiser les points en 3D
+Widget d'affichage 3D pour Napari permettant de charger un fichier CSV et de visualiser les points en 3D
 avec ajustements interactifs des échelles et de la taille des points.
 
-Ce widget ajoute dans le dock de napari :
+Ce widget ajoute dans le dock de Napari :
 	- un bouton de chargement de fichier CSV,
 	- trois champs pour contrôler les échelles en XY et Z et la taille des points,
 	- une option permettant d'exclure les points avec intensité nulle,
-	- un calque napari Points mis à jour dynamiquement.
+	- un calque Napari Points mis à jour dynamiquement.
 
 Le CSV doit contenir les colonnes ``"X"``, ``"Y"``, ``"Z"`` et ``"Integrated Intensity"``.
 """
@@ -24,7 +24,7 @@ from palm_tracer.Settings.Types import CheckBox, SpinFloat
 
 class Viewer3DWidget(QWidget):
 	"""
-	Widget d'affichage 3D pour un viewer napari.
+	Widget d'affichage 3D pour un viewer Napari.
 
 	Ce widget permet :
 		- de charger un fichier CSV contenant des coordonnées 3D
@@ -35,7 +35,7 @@ class Viewer3DWidget(QWidget):
 
 	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer 3D"``
 
-	:param viewer: Instance du viewer napari où sera ajouté le calque 3D.
+	:param viewer: Instance du viewer Napari où sera ajouté le calque 3D.
 	:type viewer: :class:`napari.Viewer`
 	"""
 
@@ -44,9 +44,9 @@ class Viewer3DWidget(QWidget):
 		"""
 		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
 
-		La création du calque napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
+		La création du calque Napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
 
-		:param viewer: Viewer napari cible.
+		:param viewer: Viewer Napari cible.
 		:type viewer: :class:`napari.Viewer`
 		"""
 		super().__init__()
@@ -113,7 +113,7 @@ class Viewer3DWidget(QWidget):
 	##################################################
 	def update_layer(self):
 		"""
-		Crée ou met à jour le calque de points 3D dans le viewer napari.
+		Crée ou mets à jour le calque de points 3D dans le viewer Napari.
 
 		Transformations appliquées :
 			- réorganisation des coordonnées sous la forme ``(Z, Y, X)``
@@ -143,7 +143,7 @@ class Viewer3DWidget(QWidget):
 ##################################################
 def create_viewer3d() -> napari.Viewer:  # pragma: no cover
 	"""
-	Crée une nouvelle fenêtre napari 3D, sans menu,
+	Crée une nouvelle fenêtre Napari 3D, sans menu,
 	et y ajoute le Viewer3DWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite
@@ -160,17 +160,17 @@ def create_viewer3d() -> napari.Viewer:  # pragma: no cover
 ##################################################
 def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover
 	"""
-	Callable utilisé par napari pour le menu Plugins > PALM Tracer > Viewer 3D.
+	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer 3D.
 
 	- Ignore le viewer courant.
-	- Crée une nouvelle fenêtre napari 3D dédiée.
+	- Crée une nouvelle fenêtre Napari 3D dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire
-	  l'API "widget plugin" de napari.
+	  l'API "widget plugin" de Napari.
 	"""
 	# Crée la nouvelle fenêtre 3D
 	create_viewer3d()
 
-	# Stub minimal pour napari (sera docké, mais caché)
+	# Stub minimal pour Napari (sera docké, mais caché)
 	stub = QWidget()
 	stub.hide()
 	return stub
@@ -181,4 +181,4 @@ if __name__ == "__main__":  # pragma: no cover
 	import napari
 
 	_v = create_viewer3d()
-	napari.run()  # Lance la boucle Qt gérée par napari
+	napari.run()  # Lance la boucle Qt gérée par Napari

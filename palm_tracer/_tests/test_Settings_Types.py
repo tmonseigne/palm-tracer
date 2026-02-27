@@ -125,6 +125,7 @@ def test_combo(qtbot):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = Combo("Test", "", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
+	assert setting.current_text == "Choix 1"
 
 
 ###################################################

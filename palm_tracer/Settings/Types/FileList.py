@@ -88,7 +88,7 @@ class FileList(BaseSettingType):
 
 	##################################################
 	def get_selected(self) -> str:
-		"""Récupère l'élément selectionné."""
+		"""Récupère l'élément sélectionné."""
 		value = self._value
 		if 0 <= value < len(self.items):
 			return self.items[value]
@@ -126,7 +126,7 @@ class FileList(BaseSettingType):
 	# ==================================================
 	##################################################
 	def update_box(self, items: Optional[list[str]] = None):
-		"""Met à jour la ComboBox pour refléter la liste actuelle des fichiers."""
+		"""Mets à jour la ComboBox pour refléter la liste actuelle des fichiers."""
 		with self.signal_blocked():
 			self._box.clear()
 			if items is not None: self.items = items

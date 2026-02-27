@@ -22,7 +22,7 @@ except Exception:
 
 ##################################################
 class BaseStandAloneWidget(QWidget):
-	"""Classe mère avec les fonctions internes aux widgets Stand Alone (Hors Napari)."""
+	"""Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."""
 
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):

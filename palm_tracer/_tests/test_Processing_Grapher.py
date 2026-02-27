@@ -143,6 +143,56 @@ def test_scatter():
 
 
 ##################################################
+def test_cloud():
+	g = Grapher()
+	# Entrée Vide
+	res = g.cloud(np.empty(0), "blank")
+	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_0.json")
+	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
+
+	res = g.cloud(np.zeros((2, 2)) + np.inf, "blank")
+	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_1.json")
+	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
+
+	# Entrée 2D
+	res = g.cloud(np.stack((IDX, POINTS), axis=0), "cloud")
+	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_2.json")
+	ref = json.loads((REF_DIR / "grapher_cloud_2.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	# Entrée 2D (transposé) avec limitation
+	res = g.cloud(np.stack((IDX, POINTS), axis=1), "cloud", limit=True)
+	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_3.json")
+	ref = json.loads((REF_DIR / "grapher_cloud_3.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	# Entrée 2D (transposé) avec affichage des mu et sigma
+	res = g.cloud(np.stack((IDX, POINTS), axis=1), "cloud", show_sigma=True, kde=True, gaussian=True)
+	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_4.json")
+	#Map complexe et suivant la version de python et l'OS les résultats peuvent légèrement différer
+	# ref = json.loads((REF_DIR / "grapher_cloud_4.json").read_text(encoding="utf-8"))
+	# assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	# Entrée 2D avec des données constantes
+	res = g.cloud(np.ones((2, 2)), "cloud", show_sigma=True, kde=True, gaussian=True)
+	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_5.json")
+	ref = json.loads((REF_DIR / "grapher_cloud_5.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	# Entrée 1D
+	with pytest.raises(ValueError) as exception_info: g.cloud(np.zeros(3), "cloud fail")
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+
+	# Entrée 2D, mais avec plus de 2 lignes ou colonnes
+	with pytest.raises(ValueError) as exception_info: g.cloud(np.zeros((3, 3)), "cloud fail")
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+
+	# Entrée 3D
+	with pytest.raises(ValueError) as exception_info: g.cloud(np.zeros((3, 3, 3)), "cloud fail")
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+
+
+##################################################
 def test_astigmatism3d_curve():
 	g = Grapher()
 	# Entrée invalide

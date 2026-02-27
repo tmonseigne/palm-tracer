@@ -55,15 +55,15 @@ msgid "L'interface Napari avec la visionneuse haute résolution est organisée e
 msgstr "The Napari interface with the high-resolution viewer is organized into three main panels:"
 
 #: ../../user/viewer_hr.rst:54
-msgid "À gauche : le panneau des calques (Layers)"
+msgid "À gauche : le panneau des calques (Layers)."
 msgstr "On the left: the Layers panel"
 
 #: ../../user/viewer_hr.rst:55
-msgid "Au centre : la fenêtre de visualisation"
+msgid "Au centre : la fenêtre de visualisation."
 msgstr "In the center: the viewer window"
 
 #: ../../user/viewer_hr.rst:56
-msgid "À droite : le widget de la visionneuse"
+msgid "À droite : le widget de la visionneuse."
 msgstr "On the right: the viewer widget"
 
 #: ../../user/viewer_hr.rst:60
@@ -95,19 +95,19 @@ msgid "Fonctionnalités principales :"
 msgstr "Main features:"
 
 #: ../../user/viewer_hr.rst:78
-msgid "Afficher / masquer un calque"
+msgid "Afficher / masquer un calque."
 msgstr "Show / hide a layer"
 
 #: ../../user/viewer_hr.rst:79
-msgid "Modifier la transparence"
+msgid "Modifier la transparence."
 msgstr "Change the transparency"
 
 #: ../../user/viewer_hr.rst:80
-msgid "Changer la colormap"
+msgid "Changer la colormap."
 msgstr "Change the colormap"
 
 #: ../../user/viewer_hr.rst:81
-msgid "Réorganiser l'ordre des calques"
+msgid "Réorganiser l'ordre des calques."
 msgstr "Reorder layers"
 
 #: ../../user/viewer_hr.rst:85
@@ -127,19 +127,19 @@ msgid "La zone centrale de Napari affiche les données. Vous pouvez :"
 msgstr "The central area of Napari displays the data. You can:"
 
 #: ../../user/viewer_hr.rst:98
-msgid "Zoomer (molette de la souris)"
+msgid "Zoomer (molette de la souris)."
 msgstr "Zoom (mouse wheel)"
 
 #: ../../user/viewer_hr.rst:99
-msgid "Vous déplacer (clic gauche maintenu)"
+msgid "Vous déplacer (clic gauche maintenu)."
 msgstr "Move around (hold left click)"
 
 #: ../../user/viewer_hr.rst:100
-msgid "Changer de plan Z via la barre de dimension (pour le cas des trajectoires)"
+msgid "Changer de plan Z via la barre de dimension (pour le cas des trajectoires)."
 msgstr "Change the Z plane using the dimension slider (for trajectories)"
 
 #: ../../user/viewer_hr.rst:101
-msgid "Régler le contraste"
+msgid "Régler le contraste."
 msgstr "Adjust the contrast"
 
 #: ../../user/viewer_hr.rst:103
@@ -167,11 +167,11 @@ msgid "Le widget est structuré comme suit :"
 msgstr "The widget is structured as follows:"
 
 #: ../../user/viewer_hr.rst:121
-msgid "Bouton :guilabel:`Select Folder`"
+msgid "Bouton :guilabel:`Select Folder`."
 msgstr ":guilabel:`Select Folder` button"
 
 #: ../../user/viewer_hr.rst:122
-msgid "Les options de visualisation"
+msgid "Les options de visualisation."
 msgstr "Visualization options"
 
 #: ../../user/viewer_hr.rst:123

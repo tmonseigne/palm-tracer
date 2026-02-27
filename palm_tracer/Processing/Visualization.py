@@ -65,7 +65,7 @@ def render_hr_image(width: int, height: int, ratio: int, points: np.ndarray, nor
 
 	:param width: Largeur de l'image.
 	:param height: Hauteur de l'image.
-	:param ratio: Ratio d'aggrandissement de l'image.
+	:param ratio: Ratio d'agrandissement de l'image.
 	:param points: Localisations des points.
 	:param normalization: Normalisation des valeurs (pour les mettre entre `0` et `SCALE`).
 	:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
@@ -106,7 +106,7 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 
 	:param width: Largeur de l'image de base.
 	:param height: Hauteur de l'image de base.
-	:param ratio: Ratio d'aggrandissement de l'image (>=1). Les coordonnées sont multipliées par ce facteur.
+	:param ratio: Ratio d'agrandissement de l'image (>=1). Les coordonnées sont multipliées par ce facteur.
 	:param tracks: Tableau des points de trajectoires.
 	:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 	"""
@@ -295,7 +295,7 @@ def plot_plane_heatmap(ax: plt.Axes, data: np.ndarray, title: str, cmap="magma")
 	Trace une heatmap montrant la densité des valeurs par plan.
 
 	:param ax: Axe sur lequel tracer la heatmap.
-	:param data: Données sous forme de tableau numpy. La première colonne représente les plans, la deuxième les valeurs.
+	:param data: Données sous forme de tableau numpy. La première colonne représente les plans, la deuxième, les valeurs.
 	:param title: Titre du graphique.
 	:param cmap: Color Map utilisé pour tracer la heatmap (`liste des colormaps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_).
 	"""

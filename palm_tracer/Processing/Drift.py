@@ -28,7 +28,7 @@ def _check_cols(data: pd.DataFrame, required: set[str]):
 ##################################################
 def _check_planes(data: pd.DataFrame) -> np.ndarray:
 	"""
-	Vérifie les plans disponibles dnas le dataframe et leur continuité.
+	Vérifie les plans disponibles dans le dataframe et leur continuité.
 	:param data: Dataframe à analyser.
 	:return: Liste des plans triés.
 	"""
@@ -218,7 +218,7 @@ def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> 
 ##################################################
 def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
-	Calcule le drift moyen inter-plans à partir d'un DataFrame de billes suivies.
+	Calcule le drift moyen interplans à partir d'un DataFrame de billes suivies.
 
 	Le drift est calculé pour chaque bille comme la différence entre deux plans consécutifs :
 
@@ -235,7 +235,7 @@ def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	:param is_3d: Si ``True``, calcule aussi le drift en Z. Sinon, la colonne Z est renvoyée à 0.
 
 	:returns: DataFrame avec colonnes ``Plane``, ``X``, ``Y``, ``Z`` contenant le drift moyen, pour les plans de 2 à N.
-	:raises ValueError: Si colonnes manquantes, ou incohérence de plans au sein des billes.
+	:raises ValueError: Si des colonnes sont manquantes, ou incohérence de plans au sein des billes.
 	"""
 	# ----- Vérifications initiales -----
 	if beads.empty: return pd.DataFrame()

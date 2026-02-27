@@ -55,15 +55,15 @@ msgid "L'interface Napari avec la visionneuse 3D est organisée en trois volets 
 msgstr "The Napari interface with the 3D viewer is organized into three main panels:"
 
 #: ../../user/viewer_3d.rst:54
-msgid "À gauche : le panneau des calques (Layers)"
+msgid "À gauche : le panneau des calques (Layers)."
 msgstr "On the left: the layers panel (Layers)"
 
 #: ../../user/viewer_3d.rst:55
-msgid "Au centre : la fenêtre de visualisation"
+msgid "Au centre : la fenêtre de visualisation."
 msgstr "In the center: the visualization window"
 
 #: ../../user/viewer_3d.rst:56
-msgid "À droite : le widget de la visionneuse"
+msgid "À droite : le widget de la visionneuse."
 msgstr "On the right: the viewer widget"
 
 #: ../../user/viewer_3d.rst:59

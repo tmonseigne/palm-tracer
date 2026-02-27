@@ -21,7 +21,7 @@ class Localization(BaseSettingGroup):
 	Classe contenant les paramètres de Localisation :
 
 	Attributs :
-		- **Preview** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Activation de la preview ou non (par défaut : `False`).
+		- **Preview** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Activation de l'aperçu ou non (par défaut : `False`).
 		- **Threshold** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
 		  Seuil de détection de la localisation en intensité (par défaut : `90`).
 		- **Auto Threshold** (:class:`Button <palm_tracer.Settings.Types.Button.Button>`) : Bouton pour calculer le seuil automatiquement.

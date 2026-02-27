@@ -327,7 +327,7 @@ def test_viewerhr_load(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfil
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
-	pt = PALMTracer()  # .												  Créer l'objet PALMTracer necessaire.
+	pt = PALMTracer()  # .												  Créer l'objet PALMTracer nécessaire.
 	my_widget = ViewerHRWidget(viewer, pt)
 
 	lines = get_lines_output(capsys)
@@ -371,7 +371,7 @@ def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
-	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer necessaire.
+	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer nécessaire.
 	add_basic_file(pt)  # .												Ajout d'une entrée
 	pt.settings.localization.active = True
 	pt.settings.tracking.active = True
@@ -423,7 +423,7 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
-	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer necessaire.
+	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer nécessaire.
 	add_basic_file(pt)  # .																 Ajout d'une entrée
 	pt.settings.localization.active = True
 	pt.process()

@@ -18,11 +18,13 @@
 	}
   ],
   "layout": {
-	"hovermode": "x",
+	"hovermode": "closest",
 	"shapes": [
 	  {
 		"line": {
-		  "color": "#8172B2"
+		  "color": "#8172B2",
+		  "dash": "dot",
+		  "width": 1.5
 		},
 		"name": "μ",
 		"type": "line",
@@ -36,7 +38,8 @@
 	  {
 		"line": {
 		  "color": "#CCB974",
-		  "dash": "dot"
+		  "dash": "dot",
+		  "width": 1.5
 		},
 		"name": "μ - 1σ",
 		"type": "line",
@@ -50,7 +53,8 @@
 	  {
 		"line": {
 		  "color": "#CCB974",
-		  "dash": "dot"
+		  "dash": "dot",
+		  "width": 1.5
 		},
 		"name": "μ + 1σ",
 		"type": "line",
@@ -64,7 +68,8 @@
 	  {
 		"line": {
 		  "color": "#64B5CD",
-		  "dash": "dot"
+		  "dash": "dot",
+		  "width": 1.5
 		},
 		"name": "μ - 2σ",
 		"type": "line",
@@ -78,7 +83,8 @@
 	  {
 		"line": {
 		  "color": "#64B5CD",
-		  "dash": "dot"
+		  "dash": "dot",
+		  "width": 1.5
 		},
 		"name": "μ + 2σ",
 		"type": "line",
@@ -92,7 +98,8 @@
 	  {
 		"line": {
 		  "color": "#FFD92F",
-		  "dash": "dot"
+		  "dash": "dot",
+		  "width": 1.5
 		},
 		"name": "μ - 3σ",
 		"type": "line",
@@ -106,7 +113,8 @@
 	  {
 		"line": {
 		  "color": "#FFD92F",
-		  "dash": "dot"
+		  "dash": "dot",
+		  "width": 1.5
 		},
 		"name": "μ + 3σ",
 		"type": "line",

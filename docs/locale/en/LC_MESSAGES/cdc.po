@@ -11,8 +11,8 @@ msgid "Le but du projet est de transposer `PALM Tracer <https://www.iins.u-borde
 msgstr "The goal of the project is to port `PALM Tracer <https://www.iins.u-bordeaux.fr/projectSIBARITA70>`_, currently available as a `Metamorph <https://fr.moleculardevices.com/products/cellular-imaging-systems/high-content-analysis/metamorph-microscopy>`_ plugin."
 
 #: ../../cdc.rst:16
-msgid "Il a été développé en C++ et sera transposé vers un environnement Python. La transposition sera "intelligente", c'est-à-dire qu'elle ne se limitera pas à un simple copié collé du plugin existant."
-msgstr "It was developed in C++ and will be ported to a Python environment. The porting process will be "intelligent", meaning it will not be limited to a simple copy-paste of the existing plugin."
+msgid "Il a été développé en C++ et sera transposé vers un environnement Python. La transposition sera \"intelligente\", c'est-à-dire qu'elle ne se limitera pas à un simple copié collé du plugin existant."
+msgstr "It was developed in C++ and will be ported to a Python environment. The porting process will be \"intelligent\", meaning it will not be limited to a simple copy-paste of the existing plugin."
 
 #: ../../cdc.rst:19
 msgid "Une étude devra être effectuée afin de définir les éléments nécessaires à cette nouvelle version ainsi que les modifications nécessaires aux anciennes fonctionnalités."
@@ -188,8 +188,8 @@ msgstr "Display of a shrinkable histogram."
 
 #: ../../cdc.rst:88
 #, python-format
-msgid "Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme « blanc » à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)"
-msgstr "Proposal to include a checkbox for automatic image shrinking (default value: 0.5% of the "white" histogram, which appears consistent with the provided example images, but remains configurable)."
+msgid "Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme \"blanc\" à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)"
+msgstr "Proposal to include a checkbox for automatic image shrinking (default value: 0.5% of the \"white\" histogram, which appears consistent with the provided example images, but remains configurable)."
 
 #: ../../cdc.rst:89
 msgid "Affichage d'un choix de Look-Up Table Monochrome, Pseudo Color, Gold, Personnalisable (les autres sont-elles nécessaires ou surcharge ?)"
@@ -288,7 +288,7 @@ msgid "Indiquer si des fichiers de localisations sont trouvés ou rendre l'ongle
 msgstr "Indicate whether localization files are detected, or disable the tab until directories are available."
 
 #: ../../cdc.rst:121 ../../cdc.rst:127
-msgid "Option de Drift si pré-process effectué"
+msgid "Option de Drift si préprocess effectué"
 msgstr "Drift option if pre-processing has been performed."
 
 #: ../../cdc.rst:122
@@ -336,11 +336,11 @@ msgid "**Localization**, Tracking, Drift tableaux de coordonnées"
 msgstr "**Localization**, Tracking, Drift: coordinate tables."
 
 #: ../../cdc.rst:153
-msgid "**Fichiers Images** : Format différent possible si c'est plus conventionnel, l'enregistrement se fait automatiquement à la fin de chaque processing."
+msgid "**Fichiers Images** : Format différent possible si c'est plus conventionnel, l'enregistrement se fait automatiquement à la fin de chaque traitement."
 msgstr "**Image files**: Different formats may be used if more conventional; files are saved automatically at the end of each processing step."
 
 #: ../../cdc.rst:154
-msgid "**Pipeline** : Fichier mis à jour continuellement en fonction des process effectués, il contient 4 parties (Général, Processing, Localisation, Tracking, Filtering) avec les dernières options utilisées pour cela et la date du dernier lancement. Il permettra de garder une trace et d'être chargé comme pipeline de Batch."
+msgid "**Pipeline** : Fichier mis à jour continuellement en fonction des process effectués, il contient 4 parties (Général, Processing, Localization, Tracking, Filtering) avec les dernières options utilisées pour cela et la date du dernier lancement. Il permettra de garder une trace et d'être chargé comme pipeline de Batch."
 msgstr "**Pipeline**: File continuously updated according to the executed processes. It contains four sections (General, Processing, Localization, Tracking, Filtering) with the latest options used and the date of the last run. It allows traceability and can be loaded as a batch pipeline."
 
 #: ../../cdc.rst:156

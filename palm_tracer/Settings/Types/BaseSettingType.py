@@ -66,14 +66,14 @@ class BaseSettingType:
 	def initialize(self):
 		"""Initialise le paramètre."""
 		self._label_widget = QLabel(self.label)
-		if self.tooltip: self._label_widget.setToolTip(self.tooltip)
+		self._label_widget.setToolTip(self.tooltip)
 		self._layout = QHBoxLayout()
 		Ui.init_layout(self._layout, 0, 0)
 
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
 		"""
-		Enregistre le QFormLayout et la position dnas le formulaire pour permettre un show/hide propre.
+		Enregistre le QFormLayout et la position dans le formulaire pour permettre un show/hide propre.
 
 		:param form: :class:`QFormLayout` dans lequel va être inséré le paramètre.
 		"""
@@ -168,7 +168,7 @@ class BaseSettingType:
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
-		"""Met à jour la classe à partir d'un dictionnaire."""
+		"""Mets à jour la classe à partir d'un dictionnaire."""
 		raise NotImplementedError("La méthode 'update_from_dict' doit être implémentée dans la sous-classe.")
 
 	# ==================================================
@@ -190,7 +190,7 @@ class BaseSettingType:
 	##################################################
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
 		"""
-		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nb déconnectés.
+		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés
@@ -204,7 +204,7 @@ class BaseSettingType:
 
 		Utilisé pour notifier les parties de l'application abonnées au signal.
 
-		:param value: Valeur à emettre
+		:param value: Valeur à émettre
 		"""
 		self._signal.emit(value)  # Émission du signal.
 

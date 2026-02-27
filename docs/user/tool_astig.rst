@@ -32,7 +32,7 @@ L'interface est organisée en deux onglets, correspondant aux deux étapes class
    - Estimate Z : estimation de la position axiale à partir d'un modèle existant.
 
 La partie droite de la fenêtre affiche en permanence une visualisation du modèle astigmatique courant (courbes Sigma X et Sigma Y en fonction de Z).
-Vous pouvez appuyer sur l'icone camera (📷) au dessus du graphique pour enregistrer une image png directement.
+Vous pouvez appuyer sur l'icône caméra (📷) au-dessus du graphique pour enregistrer une image PNG directement.
 
 
 .. list-table::
@@ -79,7 +79,7 @@ Après chargement, le nom du fichier apparaît sous le bouton correspondant. Un 
 
    Affichage du chemin complet du fichier.
 
-Si Z n'est pas calibré, les plans sont utilisés (donc une colonne ``PLane`` est nécessaire) pour remplir la colonne Z, il faut activer l'option *Get Z from plane* et indiquer la valeur maximale absolue de Z (Z Max) en nanomètres pour reconstruire Z sur l'intervalle [-Z Max ; +Z Max].
+Si Z n'est pas calibré, les plans sont utilisés (donc une colonne ``Plane`` est nécessaire) pour remplir la colonne Z, il faut activer l'option *Get Z from plane* et indiquer la valeur maximale absolue de Z (Z Max) en nanomètres pour reconstruire Z sur l'intervalle [-Z Max ; +Z Max].
 
 .. important:: L'ordre croissant ou décroissant des plans ne peut être détecté automatiquement. Une inversion de Z peut être nécessaire selon la convention expérimentale.
 

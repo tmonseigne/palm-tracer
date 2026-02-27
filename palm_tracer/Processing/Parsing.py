@@ -57,7 +57,7 @@ COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
 MODEL_ROWS = ["X", "Y"]
 
 # Dimensions utiles fréquement
-N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])  # .									  Nombre de paramètres pour les metadonnées (6).
+N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])  # .									  Nombre de paramètres pour les métadonnées (6).
 N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # .								  Nombre de paramètres pour le tracking (8).
 N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # .							  Nombre de paramètres pour le tracking (18).
 SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["columns"]))  # Dimensions pour le model d'astigmatisme 3D (2,5).
@@ -107,10 +107,10 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 ##################################################
 def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
-	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égale à 0).
+	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égales à 0).
 	:param data: Dataframe à modifier
 	:param columns: Colonnes à modifier
-	:return: Dataframe avec les colonnes ayant été modifié.
+	:return: Dataframe avec les colonnes ayant été modifiées.
 	"""
 	with np.errstate(divide='ignore', invalid='ignore'):
 		logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
@@ -129,7 +129,7 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
 	:param data: Liste des informations en entrée
-	:return: :class:`DataFrame <pandas.DataFrame>` contennant les metadonnées
+	:return: :class:`DataFrame <pandas.DataFrame>` contenant les métadonnées
 	:raises ValueError: Si le nombre d'éléments ne correspond au nombre attendu pour le fichier meta.
 	"""
 	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
@@ -152,7 +152,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 
 	Règles :
 		- Le premier élément d'un bloc (L) donne le nombre d'éléments qui suivent pour ce bloc.
-		- Les longueurs négatives ou nulle (L ≤ 0) signalent la fin du flux.
+		- Les longueurs négatives ou nulles (L ≤ 0) signalent la fin du flux.
 		- Les blocs tronqués (pas assez d'éléments après L) lèvent une ``ValueError``.
 		- Les valeurs des blocs (sans L) sont retournées dans le DataFrame.
 		- Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN.
@@ -202,18 +202,18 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 	"""
 	Parsing du résultat de la DLL PALM.
 
-	Pour les localisations et les trajectoires, On a un tableau 1D de grande taille en entrée :
-		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``).	La taille du tableau est vérifié et tronqué si nécessaire.
+	Pour les localisations et les trajectoires, on a un tableau 1D de grande taille en entrée :
+		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``). La taille du tableau est vérifiée et tronquée si nécessaire.
 		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
-	Pour les calculs sur trajectoire, on a un tableau 1D representant un talbeau 2D irrégulier
+	Pour les calculs sur trajectoire, on a un tableau 1D représentant un tableau 2D irrégulier
 	(avec un nombre de colonnes non constant (:func:`parse_irregular_array`).
 
-	:param data: Donnée en entrée récupérées depuis la DLL PALM.
+	:param data: Données en entrée récupérées depuis la DLL PALM.
 	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit)
-	:param is_log: Applique un logarithme sur le résultat (si necessaire, pour les calculs sur trajectoires).
-	:param fit_mode: Mode d'ajustement (si necessaire, pour les calculs sur trajectoires).
+	:param is_log: Applique un logarithme sur le résultat (si nécessaire, pour les calculs sur trajectoires).
+	:param fit_mode: Mode d'ajustement (si nécessaire, pour les calculs sur trajectoires).
 	:return: :class:`DataFrame <pandas.DataFrame>` parsé
 	"""
 	# Récupération des éléments

@@ -25,7 +25,7 @@ class Filtering(BaseSettingGroup):
 		- **Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Sauvegarde les éléments une fois filtrés (dans un fichier séparé du fichier non filtré)  (par défaut : `False`).
 		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Interval de plans sélectionnés (par défaut : `[1,10000]`).
+		  Interval de plans sélectionné (par défaut : `[1,10000]`).
 		- **Localization** (:class:`FilteringL <palm_tracer.Settings.Groups.FilteringL.FilteringL>`) : Paramètres de filtrage de la Localisation.
 		- **Tracks** (:class:`FilteringT <palm_tracer.Settings.Groups.FilteringT.FilteringT>`) : Paramètres de filtrage du Tracking.
 	"""

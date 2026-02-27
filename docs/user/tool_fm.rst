@@ -69,4 +69,4 @@ Fichiers actuellement pris en charge :
    - Fichier de localisations : ``locPALMTracer.txt``
    - Fichier de trajectoires : ``trcPALMTracer.txt``
    - Fichiers de calculs sur les trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``
-   - Fichier de modèle d'astigmatism 3D : ``3DFit.txt``
+   - Fichier de modèle d'astigmatisme 3D : ``3DFit.txt``

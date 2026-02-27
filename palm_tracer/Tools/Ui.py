@@ -59,7 +59,7 @@ COMMON_SPACE: int = 5
 # region UI Build
 # ==================================================
 ##################################################
-def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int = 0, margin: int = 0):
+def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int = 0, margin: int = 0, *, tooltip: str = ""):
 	"""
 	Ajoute une ligne de paramètre dans un :class:`QFormLayout`.
 
@@ -72,12 +72,15 @@ def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int =
 	:param widget: Widget à placer dans la colonne de droite (spinbox, checkbox, combobox, ...).
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``0``.
 	:param margin: Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``0``.
+	:param tooltip: Tooltip à ajouter (si non vide).
 	"""
 	layout = QHBoxLayout()
 	init_layout(layout, space, margin)
 	layout.addWidget(widget)
 	layout.addStretch(1)  # pousse tout à gauche, espace vide à droite
-	form.addRow(label, layout)
+	label_widget = QLabel(label)
+	label_widget.setToolTip(tooltip)
+	form.addRow(label_widget, layout)
 
 
 ##################################################
@@ -204,9 +207,7 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	for key, item in elements.items():
 		lbl: QLabel = item["label"]
 		val: QLabel = item["value"]
-		tips: str = item.get("tips", "")
-
-		if tips: lbl.setToolTip(tips)  # .							Tooltips collé au label
+		lbl.setToolTip(item.get("tips", ""))  # .					Tooltips collé au label
 
 		# Alignements : gauche | droite | gauche (si une unité)
 		val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -243,7 +244,7 @@ def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 ##################################################
 def update_path_label(lbl: QLabel, path: str | Path):
 	"""
-	Met à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
+	Mets à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
 
 	Le texte visible correspond uniquement au ``name`` du fichier/dossier, le chemin complet est placé dans le tooltip.
 
@@ -377,7 +378,7 @@ def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 
 def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | None = None, maximum: float | int | None = None, ):
 	"""
-	Met à jour dynamiquement les bornes d'une spinbox.
+	Mets à jour dynamiquement les bornes d'une spinbox.
 
 	Les bornes non spécifiées conservent leur valeur actuelle.
 
@@ -434,7 +435,7 @@ def format_time(seconds):
 	Fonction pour formater le temps en secondes en HH:MM:SS.
 
 	:param seconds: Temps en secondes
-	:return: Chaine de caractère representant le temps au format HH:MM:SS.
+	:return: Chaine de caractère représentant le temps au format HH:MM:SS.
 	"""
 	hours = int(seconds // 3600)
 	minutes = int((seconds % 3600) // 60)

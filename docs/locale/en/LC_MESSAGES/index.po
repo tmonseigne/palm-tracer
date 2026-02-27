@@ -2,6 +2,34 @@
 msgid "PALM Tracer pour Napari"
 msgstr "PALM Tracer for Napari"
 
+#: ../../index.rst:6
+msgid "License"
+msgstr ""
+
+#: ../../index.rst:10
+msgid "Main Language"
+msgstr ""
+
+#: ../../index.rst:14
+msgid "GitHub"
+msgstr ""
+
+#: ../../index.rst:18
+msgid "Workflow"
+msgstr ""
+
+#: ../../index.rst:22
+msgid "Documentation"
+msgstr ""
+
+#: ../../index.rst:26
+msgid "codecov"
+msgstr ""
+
+#: ../../index.rst:30
+msgid "Lines of Code"
+msgstr ""
+
 #: ../../index.rst:35
 msgid "PALM Tracer est un logiciel tout-en-un pour l'analyse des données de microscopie et de localisation de molécules uniques (SMLM)."
 msgstr "PALM Tracer is an all-in-one software package for analyzing single-molecule localization microscopy (SMLM) data."

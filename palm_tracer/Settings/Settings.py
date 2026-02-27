@@ -29,7 +29,7 @@ from palm_tracer.Settings.Groups.VisualizationHR import VisualizationHR
 ##################################################
 @dataclass
 class Settings:
-	"""Classe nécessaire au parsing et enregistrement des différents settings de PALM Tracer."""
+	"""Classe nécessaire au parsing et enregistrement des différents paramètres de PALM Tracer."""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 	"""Dictionnaire de groupes de paramètres."""
@@ -169,7 +169,7 @@ class Settings:
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
-		"""Met à jour la classe à partir d'un dictionnaire."""
+		"""Mets à jour la classe à partir d'un dictionnaire."""
 		groups = data["PALM Tracer Settings"]
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_dict(groups[name])
@@ -184,7 +184,7 @@ class Settings:
 	##################################################
 	def tostring(self) -> str:
 		"""
-		Retourne une chaîne de caractères correspondant à la liste des settings.
+		Retourne une chaîne de caractères correspondant à la liste des paramètres.
 
 		:return: Une description textuelle des paramètres de PALM Tracer.
 		"""
