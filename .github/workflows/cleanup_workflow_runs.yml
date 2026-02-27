@@ -1,0 +1,20 @@
+name: Cleanup workflow runs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge old workflow runs
+        uses: iamludal/action-purge-workflow-runs@v2
+        with:
+          days-old: 365
+          ignore-open-pull-requests: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
