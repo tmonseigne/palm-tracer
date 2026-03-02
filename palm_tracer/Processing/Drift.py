@@ -321,7 +321,5 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 	"""
 
 	beads = extract_beads(data, max_distance=max_distance, is_3d=is_3d, strict=strict, k=k)
-	print(beads)
 	drift = get_drift(beads, is_3d=is_3d)
-	print(drift)
 	return apply_drift(data, drift, is_3d=is_3d)

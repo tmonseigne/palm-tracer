@@ -26,9 +26,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from qtpy.QtCore import Qt
-from qtpy.QtGui import QPixmap
-from qtpy.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QFileDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout,
-							QLabel, QMessageBox, QPushButton, QRadioButton, QVBoxLayout)
+from qtpy.QtWidgets import QApplication, QButtonGroup, QCheckBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QPushButton, QRadioButton, QVBoxLayout
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Grapher
@@ -136,8 +134,6 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self.setWindowTitle("Graph Viewer")
 		# Initialisation des membres
 		self._pt = palmtracer
-		self._fig: Optional[go.Figure] = None
-		self._html: Optional[str] = None
 		self._grapher = Grapher()
 		self._file: str = ""
 		self._density: bool = False
@@ -310,15 +306,12 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		vbox.addLayout(actions_row)
 		vbox.addStretch(1)
 
-		self._web = self._make_web_widget()
-
 		main_layout.addWidget(left)
 		main_layout.addWidget(self._web, stretch=1)
 
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
-		self._connect_web_widget(self._web)
 		self._btn_add_stack.clicked.connect(self._add_stack)
 
 		# Sources
@@ -573,7 +566,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		else:
 			fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 
-		self._update_web_widget(self._web, fig)
+		self._update_web_widget(fig)
 
 	##################################################
 	def _get_plot_data(self) -> tuple[np.ndarray, str]:
@@ -661,83 +654,6 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		:return: Données transformées
 		"""
 		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
-
-	##################################################
-	def _export_png_via_qt(self, path: str, scale: float = 1.0) -> bool:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""
-		Exporte le graphique en PNG via capture du widget QWebEngineView (fallback sans Kaleido).
-
-		Limitations :
-			- Capture la zone visible (viewport) : pour une image plus grande, redimensionner temporairement le widget avant capture.
-			- Nécessite QtWebEngine pour capturer le rendu.
-
-		:param path: Chemin de sortie du PNG.
-		:param scale: Facteur d'échelle appliqué à la capture.
-		:return: True si le fichier a été écrit, False sinon.
-		"""
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
-			QApplication.processEvents()
-			pix: QPixmap = self._web.grab()
-			if not pix.isNull():
-				if scale != 1.0:
-					size = pix.size() * scale
-					pix = pix.scaled(size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-				return pix.save(path, "PNG")
-		return False
-
-	##################################################
-	def _on_export(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
-		"""
-		Ouvre un dialogue et exporte la figure selon l'extension choisie.
-
-		Formats supportés :
-			- .html : enregistre l'HTML interactif (incluant PlotlyJS).
-			- .png  : exporte une image du rendu (fallback par capture Qt).
-			- .pdf  : imprime via QWebEngineView.printToPdf (si QtWebEngine présent).
-
-		Comportement :
-			- En l'absence de figure/HTML, avertit l'utilisateur.
-			- Sur échec d'écriture, affiche un message d'erreur.
-		"""
-		if self._fig is None and self._html is None:
-			QMessageBox.warning(self, "Export", "No figures to export.")
-			return
-		suggested = (self._file or "graph").rsplit("/", 1)[-1]
-		path, selected_filter = QFileDialog.getSaveFileName(self, "Export the graph", suggested, "HTML (*.html);;PNG (*.png);;PDF (*.pdf)")
-		if not path: return
-		try:
-			if path.lower().endswith(".png"):
-				# ok = False
-				# Kaleido tourne à l'infini donc capture de widget QT...
-				# try:  				# 1) Essai Kaleido (si dispo)
-				#	import kaleido
-				#	assert self._fig is not None
-				#	self._fig.write_image(path, scale=2.0)
-				#	ok = True
-				# except Exception:  # 2) Fallback: capture Qt du QWebEngineView
-				#	ok = self._export_png_via_qt(path, scale=2)
-				ok = self._export_png_via_qt(path, scale=2)
-				if not ok: raise RuntimeError("PNG export failure (Kaleido & Qt fallback).")
-
-			elif path.lower().endswith(".html"):
-				assert self._html is not None
-				with open(path, "w", encoding="utf-8") as f: f.write(self._html)
-
-			elif path.lower().endswith(".pdf"):
-				if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
-					try: self._web.page().printToPdf(path)
-					except Exception as e:
-						QMessageBox.warning(self, "Export PDF", f"PDF printing failure : {e}")
-						return
-				else:
-					QMessageBox.warning(self, "Export PDF", "QtWebEngine is required for PDF export.")
-					return
-			else:
-				# Pas d'extension reconnue ⇾ HTML par défaut
-				with open(path + ".html", "w", encoding="utf-8") as f: f.write(self._html or "")
-				path += ".html"
-			QMessageBox.information(self, "Export", f"Export successful : {path}")
-		except Exception as e: QMessageBox.critical(self, "Export", f"Export failed : {e}")
 
 
 ##################################################

@@ -5,7 +5,7 @@ from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.UI import GraphViewerWidget
+from palm_tracer.UI import BaseStandAloneWidget, GraphViewerWidget
 from palm_tracer.UI.GraphViewerWidget import FILE_STATUS
 
 OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"
@@ -61,7 +61,7 @@ def test_add_stack(w: GraphViewerWidget, qtbot, capsys, monkeypatch, fake_qfiled
 	w.show()
 	qtbot.waitExposed(w)
 
-	fake_qfiledialog(GraphViewerWidget, f"{INPUT_DIR / 'stack.tif'}")
+	fake_qfiledialog(BaseStandAloneWidget, f"{INPUT_DIR / 'stack.tif'}")
 	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
 
 	w.close()

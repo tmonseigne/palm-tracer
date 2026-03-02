@@ -202,8 +202,6 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		self._tabs.addTab(tab_compute, "Compute Model")
 		self._tabs.addTab(tab_estimate, "Estimate Z")
 
-		self._web = self._make_web_widget()
-
 		main_layout.addWidget(self._tabs)
 		main_layout.addWidget(self._web, stretch=1)
 
@@ -252,8 +250,6 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		self._spin_px_estimate.valueChanged.connect(self._update_plot)
 		self._spin_z_estimate.valueChanged.connect(self._update_plot)
 
-		self._connect_web_widget(self._web)
-
 	# ==================================================
 	# endregion Initialisation
 	# ==================================================
@@ -290,7 +286,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 			fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title="Astigmatism model", pixel_size=pixel_size, z_max=z_max)
 		except ValueError:
 			fig = self._grapher.blank("Astigmatism model")
-		self._update_web_widget(self._web, fig)
+		self._update_web_widget(fig)
 
 	# ==================================================
 	# endregion UI
@@ -299,12 +295,6 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 	# ==================================================
 	# region Callbacks
 	# ==================================================
-	##################################################
-	def _download_initial_path(self) -> Path:
-		"""Renvoie un chemin initial pour le téléchargement par plotly."""
-		parent: Path = self._mod_filename.parent if self._mod_filename != Path() else self._loc_filename.parent if self._loc_filename != Path() else Path.cwd()
-		return parent / "astigmatism_3d_model"
-
 	##################################################
 	def _on_load_loc(self):
 		"""Callback du bouton 'Load Localization file (CSV)'."""
@@ -319,6 +309,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		try:
 			print(f"Selected file: {filename}.")
 			self._loc_filename = Path(filename)
+			self._graph_folder = self._loc_filename.parent / "astigmatism_3d_model"
 			self._loc = pd.read_csv(filename)
 		except Exception as e:
 			self._loc = pd.DataFrame()
@@ -361,6 +352,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		try:
 			print(f"Selected file: {filename}.")
 			self._mod_filename = Path(filename)
+			self._graph_folder = self._mod_filename.parent / "astigmatism_3d_model"
 			self._model = pd.read_csv(filename, index_col=0)
 		except Exception as e:
 			self._model = pd.DataFrame()
