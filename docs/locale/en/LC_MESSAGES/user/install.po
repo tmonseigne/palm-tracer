@@ -284,17 +284,17 @@ msgid "5. Je dois tout recommencer à chaque mise à jour ?"
 msgstr "5. Do I need to redo everything after each update?"
 
 #: ../../user/install.rst:193
-msgid "Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers mettra automatiquement à jour votre Napari."
-msgstr "If you used :console:`python -m pip install -e .[testing,documentation]`, replacing the files will automatically update your Napari installation."
+msgid "Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers devrait mettre automatiquement à jour votre Napari. Mais il est possible d'observer des blocages, dans ce cas, il est nécessaire de réinstaller le plugin avec la même commande de l'étape 4."
+msgstr "If you used :console:`python -m pip install -e .[testing,documentation]`, replacing the files will automatically update your Napari installation. However, you may encounter some issues. In this case, you will need to reinstall the plugin using the same command from step 4."
 
-#: ../../user/install.rst:195
+#: ../../user/install.rst:196
 msgid "Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :console:`DLL.7z` avec le mot de passe."
 msgstr "Warning: if the DLL has been updated, you will need to extract the :console:`DLL.7z` file again using the password."
 
-#: ../../user/install.rst:198
+#: ../../user/install.rst:199
 msgid "6. Où puis-je trouver plus d'aide ?"
 msgstr "6. Where can I find more help?"
 
-#: ../../user/install.rst:199
+#: ../../user/install.rst:200
 msgid "Consultez la documentation officielle de Python ou contactez le support du projet."
 msgstr "Check the official Python documentation or contact the project support."

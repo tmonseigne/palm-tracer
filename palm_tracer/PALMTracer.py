@@ -20,6 +20,7 @@ from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOU
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 from palm_tracer.Tools import FileIO, Logger, Ui
+from palm_tracer.Tools.Ui import print_warning
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 
@@ -184,11 +185,15 @@ class PALMTracer:
 		for p in params:
 			f = f"{self._path}/{p[0]}-{self._suffix}.csv"
 			try:
-				self.df[p[1]] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
-				print(f"\tFile '{p[0]}' loaded successfully.")
+				if Path(f).is_file():
+					self.df[p[1]] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
+					print(f"\tFile '{p[0]}' loaded successfully.")
+				else:
+					self.df[p[1]] = pd.DataFrame()
+					print(f"\tFile '{p[0]}' not found.")
 			except Exception as e:
 				self.df[p[1]] = pd.DataFrame()
-				print(f"\tError loading file '{p[0]}': {e}")
+				print_warning(f"\tError loading file '{p[0]}': {e}")
 
 		# Chargement de la pile
 		try:

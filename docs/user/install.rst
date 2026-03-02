@@ -190,7 +190,8 @@ Certaines commandes nécessitent des droits administrateur. Il faut lancer le te
 
 5. Je dois tout recommencer à chaque mise à jour ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers mettra automatiquement à jour votre Napari.
+Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers devrait mettre automatiquement à jour votre Napari.
+Mais il est possible d'observer des blocages, dans ce cas, il est nécessaire de réinstaller le plugin avec la même commande de l'étape 4.
 
 .. warning:: Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :console:`DLL.7z` avec le mot de passe.
 
