@@ -60,10 +60,10 @@ Base
 ^^^^^
 
 - Lecture/écriture de fichiers datas :
-- Streaming Metaseries Format (:console:`.smf`) (In/Out)
-- MetaMorph Stack File (:console:`.stk`) (In/Out)
-- MetaSeries Single/Multi-plane TIFF (:console:`.tif`) (In/Out)
-- Portable Network Graphics (:console:`.png`) (Out)
+- Streaming Metaseries Format (:file:`.smf`) (In/Out)
+- MetaMorph Stack File (:file:`.stk`) (In/Out)
+- MetaSeries Single/Multi-plane TIFF (:file:`.tif`) (In/Out)
+- Portable Network Graphics (:file:`.png`) (Out)
 - Lecture/écriture de fichiers pipeline : *(à moins d'un format spécifique largement répandu, JSON)*
 - Prévoir un outil de conversion pipeline PALM Tracer metamorph -> PALM Tracer Python
 - Lecture écriture de fichiers de pre-processing : *(CSV plus simple pour des analyses futures. l'entête actuel pourra être enregistré à part)*
@@ -85,7 +85,7 @@ Visualization (dépendant des limitations de Napari)
 - Drag and Drop d'une image *(basique, mais pas si évident suivent les GUIS)*
 - Affichage de l'image avec le pourcentage de zoom
 - Affichage d'un histogramme shrinkable
-- Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme « blanc » à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)
+- Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme "blanc" à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)
 - Affichage d'un choix de Look-Up Table Monochrome, Pseudo Color, Gold, Personnalisable (les autres sont-elles nécessaires ou surcharge ?)
 - Option de Seuillage
 - Option de changement d'échantillonnage.

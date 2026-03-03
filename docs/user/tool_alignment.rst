@@ -12,7 +12,7 @@ Lancement
 ---------
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Assurez-vous que l'environnement virtuel est activé si vous l'utilisez.
 3. Lancez Napari avec la commande : :console:`napari`
 
@@ -75,7 +75,7 @@ Après chargement, le nom du fichier apparaît sous le bouton correspondant. Un 
 
    Affichage du chemin complet du fichier.
 
-L'appui sur le bouton :guilabel:`Compute coefficients` permet de lancer le calcul. Celui-ci génère un fichier :console:`alignment_coeffs.csv` dans le dossier du fichier de référence.
+L'appui sur le bouton :guilabel:`Compute coefficients` permet de lancer le calcul. Celui-ci génère un fichier :file:`alignment_coeffs.csv` dans le dossier du fichier de référence.
 
 Alignement d'une pile
 ----------------------------------------------------------------
@@ -104,6 +104,6 @@ Il est possible d'indiquer un facteur d'agrandissement pour augmenter la précis
 
 
 L'appui sur le bouton :guilabel:`Start Alignment` lance le calcul d'alignement.
-Un nouveau fichier TIFF est généré dans le même dossier que le fichier d'origine, avec le suffixe :console:`_aligned`. Exemple : :console:`stack.tif` → :console:`stack_aligned.tif`.
+Un nouveau fichier TIFF est généré dans le même dossier que le fichier d'origine, avec le suffixe :file:`_aligned`. Exemple : :file:`stack.tif` → :file:`stack_aligned.tif`.
 
 Le fichier original n'est **pas modifié**.

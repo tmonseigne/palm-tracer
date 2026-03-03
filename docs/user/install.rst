@@ -35,12 +35,12 @@ Si Git (ou GitKraken pour une utilisation avec une interface graphique) est inst
    cd C:\ (pour installer à la racine, mais vous pouvez le mettre où vous voulez)
    git clone https://github.com/tmonseigne/palm-tracer.git
 
-Le dossier :console:`palm-tracer` sera alors créé dans le répertoire courant.
+Le dossier :file:`palm-tracer` sera alors créé dans le répertoire courant.
 
-Vous devez maintenant dézipper le fichier :console:`DLL.7z`.
+Vous devez maintenant dézipper le fichier :file:`DLL.7z`.
 Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`
 Le mot de passe vous est demandé lors de l'extraction.
-Le fichier extrait est automatiquement placé dans le dossier approprié (:console:`palm-tracer\\palm_tracer\\DLL`).
+Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
 
 Méthode 2 : téléchargement manuel (ZIP)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -48,16 +48,16 @@ Méthode 2 : téléchargement manuel (ZIP)
 1. Rendez-vous sur `la page GitHub du projet <https://github.com/tmonseigne/palm-tracer>`_.
 2. Cliquez sur **Code** (le bouton vert).
 3. Choisissez **Download ZIP** pour télécharger les fichiers du projet sur votre ordinateur.
-4. Extrayez les fichiers dans un dossier accessible (par exemple, :console:`C:\\palm-tracer`).
-5. Dezippez le fichier :console:`DLL.7z` :
+4. Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\\palm-tracer`).
+5. Dezippez le fichier :file:`DLL.7z` :
     - Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`
     - Le mot de passe vous est demandé lors de l'extraction.
-    - Le fichier extrait est automatiquement placé dans le dossier approprié (:console:`palm-tracer\\palm_tracer\\DLL`).
+    - Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
 
 .. note::
    | Attention, l'extraction avec l'outil intégré à Windows créé des sous-dossiers.
-   | Si vous avez extrait dans :console:`C:\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :console:`palm_tracer, docs, README.md...`.
-	Ils ont peut-être été mis dans un sous-dossier :console:`palm-tracer-master` et doivent être remonté d'un cran.
+   | Si vous avez extrait dans :file:`C:\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`.
+	Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran.
 
 
 Étape 2 : Installation de Python et des éléments additionnels
@@ -102,7 +102,7 @@ Sinon, vous pouvez tout faire manuellement :
 Un environnement virtuel permet de gérer les dépendances du projet de manière isolée.
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Créez un environnement virtuel avec la commande suivante :console:`python -m venv venv`
 3. Activez l'environnement virtuel :
 
@@ -116,7 +116,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 ------------------------------------------------------------------------
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Assurez-vous que l'environnement virtuel est activé si vous le souhaitez (voir Étape 3).
 3. Installez les dépendances nécessaires avec la commande :
 
@@ -134,7 +134,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 ------------------------------------------------------------------------
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Assurez-vous que l'environnement virtuel est activé si vous le souhaitez (voir Étape 3).
 3. Lancez Napari avec la commande : :console:`napari`
 
@@ -193,7 +193,7 @@ Certaines commandes nécessitent des droits administrateur. Il faut lancer le te
 Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers devrait mettre automatiquement à jour votre Napari.
 Mais il est possible d'observer des blocages, dans ce cas, il est nécessaire de réinstaller le plugin avec la même commande de l'étape 4.
 
-.. warning:: Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :console:`DLL.7z` avec le mot de passe.
+.. warning:: Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :file:`DLL.7z` avec le mot de passe.
 
 6. Où puis-je trouver plus d'aide ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

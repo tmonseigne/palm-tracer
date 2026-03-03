@@ -18,13 +18,13 @@
 
 <div class="rst-versions" role="note" aria-label="versions">
   <div class="rst-current-version">
-    {{ _('Language') }}: {{ current_language_code }}
+    {{ _('Langue') }}: {{ current_language_code }}
   </div>
 
   <div class="rst-other-versions" style="display:block;">
     {% if languages|length >= 1 %}
     <dl>
-      <dt>{{ _('Languages') }}</dt>
+      <dt>{{ _('Langues') }}</dt>
       {% for label, code in languages %}
       {# Préfixe de langue : défaut -> "" ; sinon -> "en/" #}
       {% if code == default_language_code %}

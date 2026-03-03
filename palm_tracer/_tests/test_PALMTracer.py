@@ -697,7 +697,7 @@ def test_process_filter_all_tracks_compute(qtbot, capsys, pt):
 	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
 	lines = get_lines_output(capsys)
-	assert len(lines) == 90  # 3 process
+	assert len(lines) == 91  # 3 process
 
 
 ##################################################

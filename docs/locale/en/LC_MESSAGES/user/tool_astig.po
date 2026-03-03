@@ -11,8 +11,8 @@ msgid "Lancement"
 msgstr "Launch"
 
 #: ../../user/tool_astig.rst:14
-msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :console:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :console:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
 
 #: ../../user/tool_astig.rst:16
 msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."
@@ -107,8 +107,8 @@ msgid "L'ordre croissant ou décroissant des plans ne peut être détecté autom
 msgstr "The increasing or decreasing order of planes cannot be detected automatically. A Z inversion may be required depending on the experimental convention."
 
 #: ../../user/tool_astig.rst:86
-msgid "L'appui sur le bouton :guilabel:`Compute model` permet de lancer le calcul. Celui-ci génère un fichier :console:`astigmatism_3d_model.csv` dans le dossier du fichier de calibration."
-msgstr "Clicking the :guilabel:`Compute model` button starts the computation. This generates a file named :console:`astigmatism_3d_model.csv` in the calibration file directory."
+msgid "L'appui sur le bouton :guilabel:`Compute model` permet de lancer le calcul. Celui-ci génère un fichier :file:`astigmatism_3d_model.csv` dans le dossier du fichier de calibration."
+msgstr "Clicking the :guilabel:`Compute model` button starts the computation. This generates a file named :file:`astigmatism_3d_model.csv` in the calibration file directory."
 
 #: ../../user/tool_astig.rst:88
 msgid "Les indicateurs de cohérence (Sanity Check) sont mis à jour automatiquement et le modèle est affiché dans la zone de visualisation."

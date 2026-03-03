@@ -20,7 +20,7 @@ msgstr "If you are using a non-administrator session, run :console:`Set-Executio
 
 #: ../../user/install.rst:19
 msgid "Les calculs sont effectués à partir d'une DLL, celle-ci est dans le fichier :console:`7z` à décompresser, vous devez connaitre le mot de passe pour le faire."
-msgstr "Computations are performed using a DLL. It is provided in a :console:`7z` archive that must be extracted; you must know the password to do so."
+msgstr "Computations are performed using a DLL. It is provided in a :file:`7z` archive that must be extracted; you must know the password to do so."
 
 #: ../../user/install.rst:22
 msgid "Étape 1 : Téléchargement de PalmTracer"
@@ -39,12 +39,12 @@ msgid "Si Git (ou GitKraken pour une utilisation avec une interface graphique) e
 msgstr "If Git (or GitKraken for a graphical interface) is installed on your machine, simply clone the repository:"
 
 #: ../../user/install.rst:38
-msgid "Le dossier :console:`palm-tracer` sera alors créé dans le répertoire courant."
-msgstr "The :console:`palm-tracer` folder will then be created in the current directory."
+msgid "Le dossier :file:`palm-tracer` sera alors créé dans le répertoire courant."
+msgstr "The :file:`palm-tracer` folder will then be created in the current directory."
 
 #: ../../user/install.rst:40
-msgid "Vous devez maintenant dézipper le fichier :console:`DLL.7z`. Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici` Le mot de passe vous est demandé lors de l'extraction. Le fichier extrait est automatiquement placé dans le dossier approprié (:console:`palm-tracer\\\\palm_tracer\\\\DLL`)."
-msgstr "You must now extract the :console:`DLL.7z` file. Right-click the file, then :menuselection:`Show more options --> 7-Zip --> Extract Here`. You will be asked for the password during extraction. The extracted content is automatically placed in the appropriate folder (:console:`palm-tracer\\\\palm_tracer\\\\DLL`)."
+msgid "Vous devez maintenant dézipper le fichier :file:`DLL.7z`. Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici` Le mot de passe vous est demandé lors de l'extraction. Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\\\palm_tracer\\\\DLL`)."
+msgstr "You must now extract the :file:`DLL.7z` file. Right-click the file, then :menuselection:`Show more options --> 7-Zip --> Extract Here`. You will be asked for the password during extraction. The extracted content is automatically placed in the appropriate folder (:file:`palm-tracer\\\\palm_tracer\\\\DLL`)."
 
 #: ../../user/install.rst:46
 msgid "Méthode 2 : téléchargement manuel (ZIP)"
@@ -63,12 +63,12 @@ msgid "Choisissez **Download ZIP** pour télécharger les fichiers du projet sur
 msgstr "Choose **Download ZIP** to download the project files to your computer."
 
 #: ../../user/install.rst:51
-msgid "Extrayez les fichiers dans un dossier accessible (par exemple, :console:`C:\\\\palm-tracer`)."
-msgstr "Extract the files into an accessible folder (for example, :console:`C:\\\\palm-tracer`)."
+msgid "Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\\\\palm-tracer`)."
+msgstr "Extract the files into an accessible folder (for example, :file:`C:\\\\palm-tracer`)."
 
 #: ../../user/install.rst:52
-msgid "Dezippez le fichier :console:`DLL.7z` :"
-msgstr "Extract the :console:`DLL.7z` file:"
+msgid "Dezippez le fichier :file:`DLL.7z` :"
+msgstr "Extract the :file:`DLL.7z` file:"
 
 #: ../../user/install.rst:53
 msgid "Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`"
@@ -79,16 +79,16 @@ msgid "Le mot de passe vous est demandé lors de l'extraction."
 msgstr "You will be asked for the password during extraction."
 
 #: ../../user/install.rst:55
-msgid "Le fichier extrait est automatiquement placé dans le dossier approprié (:console:`palm-tracer\\\\palm_tracer\\\\DLL`)."
-msgstr "The extracted content is automatically placed in the appropriate folder (:console:`palm-tracer\\\\palm_tracer\\\\DLL`)."
+msgid "Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\\\palm_tracer\\\\DLL`)."
+msgstr "The extracted content is automatically placed in the appropriate folder (:file:`palm-tracer\\\\palm_tracer\\\\DLL`)."
 
 #: ../../user/install.rst
 msgid "Attention, l'extraction avec l'outil intégré à Windows créé des sous-dossiers."
 msgstr "Warning: extracting with the built-in Windows tool creates subfolders."
 
 #: ../../user/install.rst
-msgid "Si vous avez extrait dans :console:`C:\\\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :console:`palm_tracer, docs, README.md...`. Ils ont peut-être été mis dans un sous-dossier :console:`palm-tracer-master` et doivent être remonté d'un cran."
-msgstr "If you extracted into :console:`C:\\\\palm-tracer`, you should then see several folders and files such as :console:`palm_tracer`, :console:`docs`, :console:`README.md`, etc. They may have been placed into a subfolder named :console:`palm-tracer-master` and must be moved up one level."
+msgid "Si vous avez extrait dans :file:`C:\\\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`. Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran."
+msgstr "If you extracted into :file:`C:\\\\palm-tracer`, you should then see several folders and files such as :file:`palm_tracer`, :file:`docs`, :file:`README.md`, etc. They may have been placed into a subfolder named :file:`palm-tracer-master` and must be moved up one level."
 
 #: ../../user/install.rst:64
 msgid "Étape 2 : Installation de Python et des éléments additionnels"
@@ -152,8 +152,8 @@ msgstr "A virtual environment lets you manage the project's dependencies in an i
 
 #: ../../user/install.rst:104 ../../user/install.rst:118
 #: ../../user/install.rst:136
-msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :console:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :console:`C:\\\\palm-tracer`. Open the terminal and type :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type :console:`cd C:\\\\palm_tracer`, then press **Enter**."
 
 #: ../../user/install.rst:106
 msgid "Créez un environnement virtuel avec la commande suivante :console:`python -m venv venv`"
@@ -288,8 +288,8 @@ msgid "Si vous avez utilisé la commande :console:`python -m pip install -e .[te
 msgstr "If you used :console:`python -m pip install -e .[testing,documentation]`, replacing the files will automatically update your Napari installation. However, you may encounter some issues. In this case, you will need to reinstall the plugin using the same command from step 4."
 
 #: ../../user/install.rst:196
-msgid "Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :console:`DLL.7z` avec le mot de passe."
-msgstr "Warning: if the DLL has been updated, you will need to extract the :console:`DLL.7z` file again using the password."
+msgid "Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :file:`DLL.7z` avec le mot de passe."
+msgstr "Warning: if the DLL has been updated, you will need to extract the :file:`DLL.7z` file again using the password."
 
 #: ../../user/install.rst:199
 msgid "6. Où puis-je trouver plus d'aide ?"

@@ -1,3 +1,12 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr "Project-Id-Version: PROJECT VERSION\nReport-Msgid-Bugs-To: EMAIL@ADDRESS\nPOT-Creation-Date: 2026-03-03 14:27+0100\nPO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\nLast-Translator: FULL NAME <EMAIL@ADDRESS>\nLanguage-Team: LANGUAGE <LL@li.org>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\nGenerated-By: Babel 2.17.0\n"
+
 #: ../../cdc.rst:2
 msgid "Cahier des charges PALM Tracer Python"
 msgstr "PALM Tracer Python specifications"
@@ -107,20 +116,20 @@ msgid "Lecture/écriture de fichiers datas :"
 msgstr "Data file input/output:"
 
 #: ../../cdc.rst:63
-msgid "Streaming Metaseries Format (:console:`.smf`) (In/Out)"
-msgstr "Streaming MetaSeries Format (:console:`.smf`) (input/output)"
+msgid "Streaming Metaseries Format (:file:`.smf`) (In/Out)"
+msgstr "Streaming MetaSeries Format (:file:`.smf`) (input/output)"
 
 #: ../../cdc.rst:64
-msgid "MetaMorph Stack File (:console:`.stk`) (In/Out)"
-msgstr "MetaMorph Stack File (:console:`.stk`) (input/output)"
+msgid "MetaMorph Stack File (:file:`.stk`) (In/Out)"
+msgstr "MetaMorph Stack File (:file:`.stk`) (input/output)"
 
 #: ../../cdc.rst:65
-msgid "MetaSeries Single/Multi-plane TIFF (:console:`.tif`) (In/Out)"
-msgstr "MetaSeries single/multi-plane TIFF (:console:`.tif`) (input/output)"
+msgid "MetaSeries Single/Multi-plane TIFF (:file:`.tif`) (In/Out)"
+msgstr "MetaSeries single/multi-plane TIFF (:file:`.tif`) (input/output)"
 
 #: ../../cdc.rst:66
-msgid "Portable Network Graphics (:console:`.png`) (Out)"
-msgstr "Portable Network Graphics (:console:`.png`) (output)"
+msgid "Portable Network Graphics (:file:`.png`) (Out)"
+msgstr "Portable Network Graphics (:file:`.png`) (output)"
 
 #: ../../cdc.rst:67
 msgid "Lecture/écriture de fichiers pipeline : *(à moins d'un format spécifique largement répandu, JSON)*"
@@ -187,7 +196,6 @@ msgid "Affichage d'un histogramme shrinkable"
 msgstr "Display of a shrinkable histogram."
 
 #: ../../cdc.rst:88
-#, python-format
 msgid "Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme \"blanc\" à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)"
 msgstr "Proposal to include a checkbox for automatic image shrinking (default value: 0.5% of the \"white\" histogram, which appears consistent with the provided example images, but remains configurable)."
 

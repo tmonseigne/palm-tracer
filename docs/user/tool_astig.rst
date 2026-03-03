@@ -12,7 +12,7 @@ Lancement
 ---------
 
 1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :console:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
+   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
 2. Assurez-vous que l'environnement virtuel est activé si vous l'utilisez.
 3. Lancez Napari avec la commande : :console:`napari`
 
@@ -83,7 +83,7 @@ Si Z n'est pas calibré, les plans sont utilisés (donc une colonne ``Plane`` es
 
 .. important:: L'ordre croissant ou décroissant des plans ne peut être détecté automatiquement. Une inversion de Z peut être nécessaire selon la convention expérimentale.
 
-L'appui sur le bouton :guilabel:`Compute model` permet de lancer le calcul. Celui-ci génère un fichier :console:`astigmatism_3d_model.csv` dans le dossier du fichier de calibration.
+L'appui sur le bouton :guilabel:`Compute model` permet de lancer le calcul. Celui-ci génère un fichier :file:`astigmatism_3d_model.csv` dans le dossier du fichier de calibration.
 
 Les indicateurs de cohérence (Sanity Check) sont mis à jour automatiquement et le modèle est affiché dans la zone de visualisation.
 

@@ -26,7 +26,7 @@ class Localization(BaseSettingGroup):
 		  Seuil de détection de la localisation en intensité (par défaut : `90`).
 		- **Auto Threshold** (:class:`Button <palm_tracer.Settings.Types.Button.Button>`) : Bouton pour calculer le seuil automatiquement.
 		- **ROI Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Forme de la zone autour de la localisation (par défaut : `Circle`).
-		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la zone autour de la localisation (par défaut : `7`).
+		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la zone autour des localisations (par défaut : `7`).
 		- **Watershed** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Activation ou désactivation du mode Watershed (par défaut : `True`).
 		- **Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Mode de calcul d'ajustement pour la localisation (par défaut : `Nothing`).

@@ -1,7 +1,143 @@
 #: ../../algorithm/pipeline.rst:2
 msgid "Pipeline des traitements"
-msgstr ""
+msgstr "Processing pipeline"
 
-#: ../../algorithm/pipeline.rst:13
-msgid "Page en cours d'écriture."
-msgstr "Page currently being written."
+#: ../../algorithm/pipeline.rst:12
+msgid "Récupération des données, localisation, suivi, calculs sur les trajectoires, visualisation haute résolution, visualisation de graphiques et génération de galeries sont les étapes principales du pipeline de traitement de PALM. Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface."
+msgstr "Data loading, localization, tracking, tracks compute, high-resolution visualization, graph visualization, and gallery generation are the main steps of the PALM processing pipeline. These steps are executed in the :py:meth:`~PALMTracer.process` method according to the interface settings."
+
+#: ../../algorithm/pipeline.rst:16
+msgid "Étape 1 : Récupération des piles"
+msgstr "Step 1: Stack loading"
+
+#: ../../algorithm/pipeline.rst:18
+msgid "Selon le batch défini dans les paramètres de l'interface. Les piles sont chargées en mémoire pour être traitées."
+msgstr "According to the batch defined in the interface settings, stacks are loaded into memory for processing."
+
+#: ../../algorithm/pipeline.rst:20
+msgid "Il y a plusieurs possibilités :"
+msgstr "Several options are available:"
+
+#: ../../algorithm/pipeline.rst:22
+msgid "Une seule pile est chargée, dans ce cas là le mode importe peu."
+msgstr "A single stack is loaded; in this case, the selected mode has no impact."
+
+#: ../../algorithm/pipeline.rst:23
+msgid "Plusieurs piles sont chargées, dans ce cas-là le mode influe :"
+msgstr "Multiple stacks are loaded; in this case, the selected mode affects the behavior:"
+
+#: ../../algorithm/pipeline.rst:24
+msgid "**Only one** : seule la pile sélectionnée est utilisée."
+msgstr "**Only one**: only the selected stack is used."
+
+#: ../../algorithm/pipeline.rst:25
+msgid "**Each File separately** : les piles sont utilisées les unes après les autres."
+msgstr "**Each File separately**: stacks are processed one after another."
+
+#: ../../algorithm/pipeline.rst:26
+msgid "**All in One** : les piles sont concaténées en une seule."
+msgstr "**All in One**: stacks are concatenated into a single one."
+
+#: ../../algorithm/pipeline.rst:29
+msgid "Étape 2 : Sauvegarde des fichiers de paramètres et de métadonnées"
+msgstr "Step 2: Saving setting and metadata files"
+
+#: ../../algorithm/pipeline.rst:31
+msgid "Dans le dossier de sortie - défini par le nom de la pile avec le suffixe :file:`_PALM_Tracer` (exemple: :file:`stack.tif` → :file:`stack_PALM_Tracer`) - sont sauvegardés :"
+msgstr "In the output folder — defined by the stack name with the suffix :file:`_PALM_Tracer` (example: :file:`stack.tif` → :file:`stack_PALM_Tracer`) — the following files are saved:"
+
+#: ../../algorithm/pipeline.rst:33
+msgid "Un fichier de paramètres :file:`settings-<timestamp>.json` contenant les paramètres utilisés pour le traitement."
+msgstr "A setting file :file:`settings-<timestamp>.json` containing the settings used for processing."
+
+#: ../../algorithm/pipeline.rst:34
+msgid "Un fichier de métadonnées :file:`meta-<timestamp>.csv` contenant les métadonnées de la pile (dimensions, calibration, etc.)."
+msgstr "A metadata file :file:`meta-<timestamp>.csv` containing the stack metadata (dimensions, calibration, etc.)."
+
+#: ../../algorithm/pipeline.rst:35
+msgid "Un fichier de log :file:`log-<timestamp>.log` contenant les logs du traitement."
+msgstr "A log file :file:`log-<timestamp>.log` containing the processing logs."
+
+#: ../../algorithm/pipeline.rst:39
+msgid "Étape 3 : Localisation"
+msgstr "Step 3: Localization"
+
+#: ../../algorithm/pipeline.rst:41
+msgid "La localisation est lancée selon les paramètres de l'interface. Si elle est désactivée, des localisations précalculées et non filtrées peuvent être chargées à condition qu'elle soit présente dans le dossier de sortie."
+msgstr "Localization is executed according to the interface settings. If disabled, precomputed and unfiltered localizations can be loaded, provided they are present in the output folder."
+
+#: ../../algorithm/pipeline.rst:43
+msgid "Si des filtres sont sélectionnés, ils sont appliqués aux localisations pour ne garder que les localisations répondant aux critères définis. Si l'option :console:`save filtered` est sélectionné, la localisation filtrée est sauvegardée dans un fichier :file:`localizations_filtered-<timestamp>.csv`."
+msgstr "If filters are selected, they are applied to the localizations to retain only those matching the defined criteria. If the :console:`save filtered` option is selected, the filtered localizations are saved in a file :file:`localizations_filtered-<timestamp>.csv`."
+
+#: ../../algorithm/pipeline.rst:46
+msgid "Si la localisation est désactivée et qu'aucune localisation précalculée n'est présente dans le dossier de sortie, la localisation est considérée comme vide et les étapes suivantes sont lancées avec des localisations vides."
+msgstr "If localization is disabled and no precomputed localization is present in the output folder, localization is considered empty and the following steps are executed with empty localizations."
+
+#: ../../algorithm/pipeline.rst:47
+msgid "Le chargement d'une localisation précalculée s'effectue toujours sur la version non filtrée la plus récente."
+msgstr "Loading a precomputed localization is always performed using the most recent unfiltered version."
+
+#: ../../algorithm/pipeline.rst:50
+msgid "Étape 4 : Suivi des molécules (tracking)"
+msgstr "Step 4: Molecule tracking"
+
+#: ../../algorithm/pipeline.rst:52
+msgid "Le suivi est lancé selon les paramètres de l'interface. S'il est désactivé, un suivi précalculé et non filtré peut être chargé à condition qu'il soit présent dans le dossier de sortie. Le suivi utilise en entrée la version filtrée des localisations précédentes (calculées ou chargées). S'il n'y a pas de version filtrée ou si les filtres ont éliminé l'intégralité des localisations, la version non filtrée est utilisée."
+msgstr "Tracking is executed according to the interface settings. If disabled, precomputed and unfiltered tracking data can be loaded, provided it is present in the output folder. Tracking uses as input the filtered version of the previous localizations (computed or loaded). If no filtered version exists or if filtering removed all localizations, the unfiltered version is used."
+
+#: ../../algorithm/pipeline.rst:56
+msgid "Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis. Si l'option :console:`save filtered` est sélectionné, le suivi filtré est sauvegardé dans un fichier :file:`tracking_filtered-<timestamp>.csv`."
+msgstr "If filters are selected, they are applied to the tracking results to retain only tracks matching the defined criteria. If the :console:`save filtered` option is selected, the filtered tracking is saved in a file :file:`tracking_filtered-<timestamp>.csv`."
+
+#: ../../algorithm/pipeline.rst:60
+msgid "Reconnexion des trajectoires"
+msgstr "Tracks reconnection"
+
+#: ../../algorithm/pipeline.rst:62
+msgid "Si l'option de reconnexion est activée, les trajectoires sont reconnectées pour tenter de reconstruire des trajectoires plus longues. Les trajectoires reconnectées sont sauvegardées dans un fichier :file:`tracking-reconnected-<timestamp>.csv`. Il utilise en entrée la version non filtrée du suivi."
+msgstr "If the reconnection option is enabled, tracks are reconnected to attempt reconstruction of longer tracks. Reconnected tracks are saved in a file :file:`tracking-reconnected-<timestamp>.csv`. It uses the unfiltered tracking version as input."
+
+#: ../../algorithm/pipeline.rst:65
+msgid "Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis. Si l'option :console:`save filtered` est sélectionné, le suivi reconnecté et filtré est sauvegardé dans un fichier :file:`tracking_filtered_reconnected-<timestamp>.csv`."
+msgstr "If filters are selected, they are applied to the tracking results to retain only tracks matching the defined criteria. If the :console:`save filtered` option is selected, the filtered and reconnected tracking is saved in a file :file:`tracking_filtered_reconnected-<timestamp>.csv`."
+
+#: ../../algorithm/pipeline.rst:68
+msgid "Si le suivi est désactivé et qu'aucun suivi précalculé n'est présent dans le dossier de sortie, le suivi est considéré comme vide et les étapes suivantes sont lancées avec un suivi vide."
+msgstr "If tracking is disabled and no precomputed tracking is present in the output folder, tracking is considered empty and the following steps are executed with empty tracking data."
+
+#: ../../algorithm/pipeline.rst:69
+msgid "Le chargement d'un suivi précalculé s'effectue toujours sur la version non filtrée la plus récente et reconnectée si elle existe."
+msgstr "Loading precomputed tracking is always performed using the most recent unfiltered version, and the reconnected one if it exists."
+
+#: ../../algorithm/pipeline.rst:73
+msgid "Étape 5 : Calculs sur les trajectoires"
+msgstr "Step 5: Tracks compute"
+
+#: ../../algorithm/pipeline.rst:75
+msgid "Des calculs peuvent être effectués sur les trajectoires pour en extraire des informations (MSD, diffusion instantanée, ajustement vers un modèle). Ces calculs sont lancés selon les paramètres de l'interface."
+msgstr "Calculations can be performed on tracks to extract information (MSD, instantaneous diffusion, model fitting). These computations are executed according to the interface settings."
+
+#: ../../algorithm/pipeline.rst:78
+msgid "Les calculs utilisent en entrée la version filtrée et reconnectée du suivi précédent (calculée ou chargée). S'il n'y a pas de version filtrée ou reconnectée ou si les filtres ont éliminé l'intégralité des trajectoires, la version non filtrée est utilisée."
+msgstr "Calculations use as input the filtered and reconnected version of the previous tracking (computed or loaded). If no filtered or reconnected version exists or if filtering removed all tracks, the unfiltered version is used."
+
+#: ../../algorithm/pipeline.rst:81
+msgid "Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis. Si l'option :console:`save filtered` est sélectionné, les calculs reconnectés et filtrés sont sauvegardés dans trois fichiers : :file:`tracking_MSD_filtered-<timestamp>.csv`, :file:`tracking_InstantD_filtered-<timestamp>.csv`, :file:`tracking_Fit_filtered-<timestamp>.csv`."
+msgstr "If filters are selected, they are applied to the tracking results to retain only tracks matching the defined criteria. If the :console:`save filtered` option is selected, the filtered and reconnected calculations are saved in three files: :file:`tracking_MSD_filtered-<timestamp>.csv`, :file:`tracking_InstantD_filtered-<timestamp>.csv`, and :file:`tracking_Fit_filtered-<timestamp>.csv`."
+
+#: ../../algorithm/pipeline.rst:85
+msgid "Si les calculs sont désactivés, les étapes suivantes seront capable de calculer les éléments nécessaires rapidement."
+msgstr "If calculations are disabled, the following steps will be able to compute the required elements quickly."
+
+#: ../../algorithm/pipeline.rst:87
+msgid "Les trajectoires éliminées sont également éliminées dans le tableau de suivi original et le fichier :file:`tracking_filtered-<timestamp>.csv` est réécrit."
+msgstr "Removed tracks are also deleted from the original tracking table, and the file :file:`tracking_filtered-<timestamp>.csv` is rewritten."
+
+#: ../../algorithm/pipeline.rst:90
+msgid "Étape 6 : Visualisations"
+msgstr "Step 6: Visualizations"
+
+#: ../../algorithm/pipeline.rst:92
+msgid "La partie visualisation comprend la génération d'une galerie de ROI de localisations ainsi que les visualisations de haute résolution et de graphiques. Ce sont des générations automatiques avec de simples paramètres de base (exemple : nombre de ROI, taille des ROI, etc.) pour une première exploration rapide des données notamment lors de Batch important. L'utilisation des visionneuses dédiées est recommandée pour une exploration plus approfondie et personnalisée des données."
+msgstr "The visualization step includes the generation of a localization ROI gallery as well as high-resolution renderings and graph visualizations. These are automatically generated using simple default settings (e.g., number of ROIs, ROI size, etc.) for a first rapid data exploration, especially during large batch processing. The use of dedicated viewers is recommended for more in-depth and customized data exploration."

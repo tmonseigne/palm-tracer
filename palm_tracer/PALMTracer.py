@@ -585,6 +585,9 @@ class PALMTracer:
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltering of tracks compute files {n_end} tracks instead of {n_init}: {n_init - n_end} deletion(s)")
 		if self.settings.filtering["Save"].value:
+			if not self.df[o_name].empty:
+				self._logger.add("\tSaving the re-filtered tracks file.")
+				self.df[o_name].to_csv(f"{self._path}/tracking_filtered-{self._suffix}.csv", index=False)
 			if not self.df["f_MSD"].empty:
 				self._logger.add("\tSaving the filtered MSD file.")
 				self.df["f_MSD"].to_csv(f"{self._path}/tracking_MSD_filtered-{self._suffix}.csv", index=False)

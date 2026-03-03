@@ -11,8 +11,8 @@ msgid "Lancement"
 msgstr "Launch"
 
 #: ../../user/tool_alignment.rst:14
-msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :console:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :console:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
 
 #: ../../user/tool_alignment.rst:16
 msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."
@@ -71,8 +71,8 @@ msgid "Affichage du chemin complet du fichier."
 msgstr "Display of the full file path."
 
 #: ../../user/tool_alignment.rst:78
-msgid "L'appui sur le bouton :guilabel:`Compute coefficients` permet de lancer le calcul. Celui-ci génère un fichier :console:`alignment_coeffs.csv` dans le dossier du fichier de référence."
-msgstr "Clicking the :guilabel:`Compute coefficients` button starts the computation. This generates a file named :console:`alignment_coeffs.csv` in the directory of the reference file."
+msgid "L'appui sur le bouton :guilabel:`Compute coefficients` permet de lancer le calcul. Celui-ci génère un fichier :file:`alignment_coeffs.csv` dans le dossier du fichier de référence."
+msgstr "Clicking the :guilabel:`Compute coefficients` button starts the computation. This generates a file named :file:`alignment_coeffs.csv` in the directory of the reference file."
 
 #: ../../user/tool_alignment.rst:81
 msgid "Alignement d'une pile"
@@ -111,8 +111,8 @@ msgid "Pensez à mettre à jour vos paramètres de calibration pour les traiteme
 msgstr "Remember to update your calibration parameters for subsequent processing steps."
 
 #: ../../user/tool_alignment.rst:106
-msgid "L'appui sur le bouton :guilabel:`Start Alignment` lance le calcul d'alignement. Un nouveau fichier TIFF est généré dans le même dossier que le fichier d'origine, avec le suffixe :console:`_aligned`. Exemple : :console:`stack.tif` → :console:`stack_aligned.tif`."
-msgstr "Clicking the :guilabel:`Start Alignment` button starts the alignment computation. A new TIFF file is generated in the same directory as the original file, with the suffix :console:`_aligned`. Example: :console:`stack.tif` → :console:`stack_aligned.tif`."
+msgid "L'appui sur le bouton :guilabel:`Start Alignment` lance le calcul d'alignement. Un nouveau fichier TIFF est généré dans le même dossier que le fichier d'origine, avec le suffixe :file:`_aligned`. Exemple : :file:`stack.tif` → :file:`stack_aligned.tif`."
+msgstr "Clicking the :guilabel:`Start Alignment` button starts the alignment computation. A new TIFF file is generated in the same directory as the original file, with the suffix :file:`_aligned`. Example: :file:`stack.tif` → :file:`stack_aligned.tif`."
 
 #: ../../user/tool_alignment.rst:109
 msgid "Le fichier original n'est **pas modifié**."
