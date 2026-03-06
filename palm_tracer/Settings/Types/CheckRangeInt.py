@@ -52,6 +52,7 @@ class CheckRangeInt(BaseSettingType):
 		for i in range(2):
 			# Création de la boite.
 			self._box[i] = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], value=self.default[i], buttons=False)
+			self._box[i].setKeyboardTracking(False)  # .	Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
 			self._box[i].valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
 
 		self._box[0].valueChanged.connect(self.check_min)  # Définition du comportement lors de la modification des valeurs

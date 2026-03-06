@@ -43,6 +43,7 @@ class SpinFloat(BaseSettingType):
 	def initialize(self):
 		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
 		self._box = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
+		self._box.setKeyboardTracking(False)  # .	 Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
 		self._box.valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
 		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte
 		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite
