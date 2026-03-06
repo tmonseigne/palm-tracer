@@ -15,6 +15,7 @@ from typing import Callable, cast, Optional
 import napari
 import numpy as np
 from napari import Viewer
+from napari.layers import Points, Shapes
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
@@ -24,6 +25,7 @@ from palm_tracer.Settings.Types import CheckRangeInt, FileList
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_json, open_tif, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
+from palm_tracer.UI.KeyBlocker import KeyBlocker
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
@@ -57,7 +59,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_3d: Optional[Viewer] = None
 		self.viewer_graph: Optional[GraphViewerWidget] = None
 		# ----- Threading -----
-		self._processing = False  # .					 Pour éviter les clics multiples
+		self._processing = False  # .					 Permets d'éviter les clics multiples.
 		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
 		self._tearing_down = False  # .					 Vrai pendant le teardown pour ignorer les callbacks
 		# ----- Objets -----
@@ -65,6 +67,7 @@ class PALMTracerWidget(QWidget):
 		self.last_file = ""
 		self._preview_locs: dict[str, None | np.ndarray] = {"Past": None, "Present": None, "Future": None}
 		# ----- UI -----
+		self.key_blocker = KeyBlocker()
 		self._init_ui()
 		self._connect_signal()
 		self._on_startup()
@@ -142,6 +145,8 @@ class PALMTracerWidget(QWidget):
 
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
+		self.viewer.layers.selection.events.active.connect(self._on_select_layer)
+		self.viewer.window.qt_viewer.installEventFilter(self.key_blocker)
 
 	##################################################
 	def _on_startup(self):
@@ -353,9 +358,9 @@ class PALMTracerWidget(QWidget):
 		"""Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant."""
 		if self._tearing_down or not getattr(self, "viewer", None): return
 		state_args = {
-				"Past":    {"border": 0.2, "edge": 0.2, "color": "cyan", "face": "transparent"},
-				"Present": {"border": 0.4, "edge": 0.4, "color": "lime", "face": "lime"},
-				"Future":  {"border": 0.2, "edge": 0.2, "color": "orange", "face": "transparent"}
+				"Past":    {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
+				"Present": {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
+				"Future":  {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"}
 				}
 		for state, points in self._preview_locs.items():
 			if not self.pt.settings.localization["Preview"].value or points is None or points.size == 0:
@@ -443,9 +448,8 @@ class PALMTracerWidget(QWidget):
 		rect = [[[y0, x0], [y0, x1], [y1, x1], [y1, x0]]]  # .					   Haut-gauche, haut-droite, bas-droite, bas-gauche
 		if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rect  # Remplace le rectangle
 		else:  # .																   Création du Calque s'il n'existe pas
-			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.25, face_color="transparent")
+			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.5, face_color="transparent")
 			layer.editable = False  # .											   Rendre non éditable (Napari)
-			layer.selectable = False  # .										   Évite la sélection à la souris si supporté
 			layer.visible = True  # .											   L'affiche
 
 	##################################################
@@ -496,6 +500,15 @@ class PALMTracerWidget(QWidget):
 		print(f"Auto Threshold: {threshold:.2f}")
 		# show_info(f"Auto Threshold: {threshold:.2f}") Durant les threads externes, dangereux de faire appel à l'interface
 		self.pt.settings.localization["Threshold"].value = threshold  # .								  Changement du seuil dans les settings
+
+	##################################################
+	@staticmethod
+	def _on_select_layer(event):
+		"""Sélectionne tous les éléments d'un calque Points ou Shapes actif."""
+		layer = event.value
+		if layer is None: return
+		if isinstance(layer, (Shapes, Points)) and layer.data is not None and len(layer.data) > 0:
+			layer.selected_data = set(range(len(layer.data)))
 
 	# ==================================================
 	# endregion Layers Callback

@@ -2,6 +2,12 @@
 
 import pytest
 
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QVBoxLayout, QWidget, QSpinBox
+from qtpy.QtCore import QEvent, QObject
+from qtpy.QtGui import QKeyEvent
+from qtpy.QtWidgets import QAbstractSpinBox, QLineEdit
+
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import CheckRangeInt
 from palm_tracer.UI import PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
@@ -275,6 +281,28 @@ def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 	my_widget._add_preview_layers()
 	my_widget._preview()
 	my_widget._auto_threshold()
+
+	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
+		my_widget.prepare_teardown()
+		viewer.close()
+	except Exception: pass
+
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_widget_keyblocker(make_napari_viewer, capsys, qtbot):
+	viewer = make_napari_viewer()
+	my_widget = PALMTracerWidget(viewer)
+
+	qtbot.addWidget(my_widget)
+	my_widget.show()
+
+	spin = QSpinBox(my_widget)
+	qtbot.addWidget(spin)
+	spin.show()
+	spin.setFocus()
+	event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Backspace, Qt.KeyboardModifier.NoModifier)
+	my_widget.key_blocker.eventFilter(viewer.window.qt_viewer, event)
 
 	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
 		my_widget.prepare_teardown()
