@@ -34,9 +34,9 @@ class TracksCompute(BaseSettingGroup):
 	setting_list = {"MSD":               [CheckBox, ["MSD", "", False]],
 					"Instant Diffusion": [CheckBox, ["Instant Diffusion", "", False]],
 					"Fit Length":        [SpinInt, ["Fit Length", "", 4, [2, 1000], 1]],
-					"3D":                [CheckBox, ["3D", "", False]],
-					"Log Scale":         [CheckBox, ["Log Scale", "", False]],
-					"Fit":               [Combo, ["Fit", "", 0, ["None", "Linear", "Power", "Exponential"]]]}
+					"3D":                [CheckBox, ["3D", "Use the Z-axis during computes.", False]],
+					"Log Scale":         [CheckBox, ["Log Scale", "Use log scale before saving results.", False]],
+					"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]]}
 
 #	##################################################
 #	def initialize_ui(self):
