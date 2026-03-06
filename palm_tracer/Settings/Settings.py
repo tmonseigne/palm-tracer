@@ -16,7 +16,9 @@ from typing import Any, Callable, cast, Optional
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.Batch import Batch
+from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnection
 from palm_tracer.Settings.Groups.Calibration import Calibration
+from palm_tracer.Settings.Groups.DriftCorrection import DriftCorrection
 from palm_tracer.Settings.Groups.Filtering import Filtering
 from palm_tracer.Settings.Groups.Gallery import Gallery
 from palm_tracer.Settings.Groups.Localization import Localization
@@ -41,7 +43,8 @@ class Settings:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
-		list_settings = [Batch, Calibration, Localization, Tracking, TracksCompute, Gallery, VisualizationHR, VisualizationGraph, Filtering]
+		list_settings = [Batch, Calibration, Localization, DriftCorrection, Tracking, BlinkingReconnection, TracksCompute,
+						 Gallery, VisualizationHR, VisualizationGraph, Filtering]
 		for setting in list_settings:
 			self._settings[setting.__name__] = setting()
 
@@ -111,9 +114,22 @@ class Settings:
 
 	##################################################
 	@property
+	def drift(self) -> DriftCorrection:
+		"""Groupe de paramètres liés à la correction du drift (:class:`Localization <palm_tracer.Settings.Groups.DriftCorrection.DriftCorrection>`)."""
+		return cast(DriftCorrection, self._settings["DriftCorrection"])
+
+	##################################################
+	@property
 	def tracking(self) -> Tracking:
 		"""Groupe de paramètres liés au suivi (:class:`Tracking <palm_tracer.Settings.Groups.Tracking.Tracking>`)."""
 		return cast(Tracking, self._settings["Tracking"])
+
+	##################################################
+	@property
+	def blinking(self) -> BlinkingReconnection:
+		"""Groupe de paramètres liés à la correction du scintillement
+		(:class:`Tracking <palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection>`)."""
+		return cast(BlinkingReconnection, self._settings["BlinkingReconnection"])
 
 	##################################################
 	@property
