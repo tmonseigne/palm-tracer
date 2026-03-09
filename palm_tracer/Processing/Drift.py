@@ -305,7 +305,7 @@ def apply_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> 
 
 
 ##################################################
-def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> pd.DataFrame:
+def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> tuple[pd.DataFrame, pd.DataFrame]:
 	"""
 	Trouve des billes au sein d'un jeu de donnée, calcule le drift et le corrige.
 
@@ -317,9 +317,9 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 	:param k: Nombre de matchs maximum pour chaques points, permet de gérer les collisions de suivis (par défaut 4 maximum).
 	          Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul match ou aucun pour chaques points.
 
-	:returns: Un nouveau DataFrame ne contenant les données corrigées.
+	:returns: Les billes identifiées et un nouveau DataFrame ne contenant les données corrigées.
 	"""
 
 	beads = extract_beads(data, max_distance=max_distance, is_3d=is_3d, strict=strict, k=k)
 	drift = get_drift(beads, is_3d=is_3d)
-	return apply_drift(data, drift, is_3d=is_3d)
+	return beads, apply_drift(data, drift, is_3d=is_3d)
