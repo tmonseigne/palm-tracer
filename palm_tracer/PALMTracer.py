@@ -349,12 +349,12 @@ class PALMTracer:
 			return
 
 		s = self.settings.drift.settings
-		beads, self.df["dft"] = drift_correction(df, s["Max Distance"], s["3D"], strict=False, k=2)
-		if beads.empty:
+		self.df["bds"], self.df["dft"] = drift_correction(df, s["Max Distance"], s["3D"], strict=False, k=2)
+		if self.df["bds"].empty:
 			self._logger.add("\tNo beads found, drift can't be corrected.")
 		else:
-			self._logger.add(f"\tSaving the beads file ({beads.iloc[-1, 0]} beads(s) found).")
-			beads.to_csv(self._output_name(self.KEYS_TO_FILE["bds"]), index=False)
+			self._logger.add(f"\tSaving the beads file ({self.df['bds'].iloc[-1, 0]} beads(s) found).")
+			self.df["bds"].to_csv(self._output_name(self.KEYS_TO_FILE["bds"]), index=False)
 			self._logger.add("\tSaving the drift file.")
 			self.df["dft"].to_csv(self._output_name(self.KEYS_TO_FILE["dft"]), index=False)
 

@@ -18,7 +18,7 @@ def test_settings(qtbot, capsys):
 	assert settings.calibration["Pixel Size"].value == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
 	print(settings)
 	lines = get_lines_output(capsys)
-	assert len(lines) == 84
+	assert len(lines) == 88
 
 
 ###################################################
@@ -31,8 +31,12 @@ def test_settings_group_getter(qtbot):
 	assert isinstance(s, Calibration), "Récupération du groupe incorrecte."
 	s = settings.localization
 	assert isinstance(s, Localization), "Récupération du groupe incorrecte."
+	s = settings.drift
+	assert isinstance(s, DriftCorrection), "Récupération du groupe incorrecte."
 	s = settings.tracking
 	assert isinstance(s, Tracking), "Récupération du groupe incorrecte."
+	s = settings.blinking
+	assert isinstance(s, BlinkingReconnection), "Récupération du groupe incorrecte."
 	s = settings.tracks_compute
 	assert isinstance(s, TracksCompute), "Récupération du groupe incorrecte."
 	s = settings.gallery

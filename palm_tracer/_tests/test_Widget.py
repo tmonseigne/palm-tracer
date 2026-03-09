@@ -383,11 +383,11 @@ def test_viewerhr_load(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfil
 	fake_qfiledialog(ViewerHRWidget, f"{INPUT_DIR}/stack_PALM_Tracer")  # Dossier valide
 	my_widget.load_folder()
 	lines = get_lines_output(capsys)
-	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[14]
+	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
 
 	my_widget.load_folder()  # .										  Pour recommencer sur un dossier existant
 	lines = get_lines_output(capsys)
-	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[14]
+	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
 
 	try: viewer.close()
 	except Exception: pass
@@ -466,12 +466,15 @@ def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypa
 	assert Path(my_widget._filename).is_file()
 
 	lines = get_lines_output(capsys)
-	assert "File 'localizations' loaded successfully." in lines[-14]
-	assert "File 'localizations_filtered' not found." in lines[-13]
+	assert "File 'localizations' loaded successfully." in lines[-17]
+	assert "File 'localizations_filtered' not found." in lines[-16]
+	assert "File 'localizations_corrected' not found." in lines[-15]
+	assert "File 'localizations_corrected_filtered' not found." in lines[-14]
+	assert "File 'beads' not found." in lines[-13]
 	assert "File 'tracking' not found." in lines[-12]
 	assert "File 'tracking_filtered' not found." in lines[-11]
-	assert "File 'tracking-reconnected' not found." in lines[-10]
-	assert "File 'tracking_filtered_reconnected' not found." in lines[-9]
+	assert "File 'tracking_reconnected' not found." in lines[-10]
+	assert "File 'tracking_reconnected_filtered' not found." in lines[-9]
 	assert "File 'tracking_MSD' not found." in lines[-8]
 	assert "File 'tracking_MSD_filtered' not found." in lines[-7]
 	assert "File 'tracking_InstantD' not found." in lines[-6]
