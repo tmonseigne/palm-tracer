@@ -141,7 +141,7 @@ class Viewer3DWidget(QWidget):
 
 
 ##################################################
-def create_viewer3d() -> napari.Viewer:  # pragma: no cover
+def create_viewer3d() -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
 	Crée une nouvelle fenêtre Napari 3D, sans menu,
 	et y ajoute le Viewer3DWidget docké à droite.
@@ -158,7 +158,7 @@ def create_viewer3d() -> napari.Viewer:  # pragma: no cover
 
 
 ##################################################
-def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover
+def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer 3D.
 
@@ -177,7 +177,7 @@ def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragm
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
 	import napari
 
 	_v = create_viewer3d()

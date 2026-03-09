@@ -2,7 +2,7 @@
 import pytest
 
 from palm_tracer.Processing.Drift import *
-from palm_tracer.Processing.Drift import _assign_tracks_to_points_greedy  # Certains cas bizarres sont vérifiés directmeent et non en intégration.
+from palm_tracer.Processing.Drift import _assign_tracks_to_points_greedy  # Certains cas bizarres sont vérifiés directement et non en intégration.
 
 
 ##################################################
@@ -249,7 +249,7 @@ def test_drift_correction():
 					   [3, 1, 1, 0], [3, 12, 10, 10], [3, 20, 22, 20], [3, 31, 31, 30],  # .			 P3
 					   [4, 1, 1, 0], [4, 13, 10, 10], [4, 20, 23, 20], [4, 30, 30, 30]],  # .			 P4
 					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
-	res = drift_correction(df, max_distance=2)
+	_, res = drift_correction(df, max_distance=2)
 	ref = pd.DataFrame([[1, 0, 0, 0], [1, 10, 10, 10], [1, 20, 20, 20], [1, 30, 30, 30], [1, 1, 1, 0],  # .			P1
 						[2, 0.5, 0.75, 0], [2, 10.5, 9.75, 10], [2, 19.5, 20.75, 20], [2, 30.5, 29.75, 30],  # .	P2
 						[3, 0.25, 0.25, 0], [3, 11.25, 9.25, 10], [3, 19.25, 21.25, 20], [3, 30.25, 30.25, 30],  # .P3

@@ -238,7 +238,7 @@ class AlignmentWidget(BaseStandAloneWidget):
 
 
 ##################################################
-def open_alignment():  # pragma: no cover
+def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
 
@@ -252,7 +252,7 @@ def open_alignment():  # pragma: no cover
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
 	import sys
 
 	app = QApplication(sys.argv)

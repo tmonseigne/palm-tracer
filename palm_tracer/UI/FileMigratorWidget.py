@@ -120,7 +120,7 @@ class FileMigratorWidget(BaseStandAloneWidget):
 
 
 ##################################################
-def open_migrator():  # pragma: no cover
+def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
 	Ouvre la fenêtre de l'outil de migration en mode autonome.
 
@@ -134,7 +134,7 @@ def open_migrator():  # pragma: no cover
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
 	import sys
 
 	app = QApplication(sys.argv)

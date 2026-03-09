@@ -188,7 +188,7 @@ class ViewerHRWidget(QWidget):
 
 
 ##################################################
-def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cover
+def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
 	Crée une nouvelle fenêtre Napari HR, sans menu,
 	et y ajoute le ViewerHRWidget docké à droite.
@@ -205,7 +205,7 @@ def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cove
 
 
 ##################################################
-def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover
+def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR.
 
@@ -225,7 +225,7 @@ def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragm
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
 	import napari
 
 	app = QApplication.instance() or QApplication([])

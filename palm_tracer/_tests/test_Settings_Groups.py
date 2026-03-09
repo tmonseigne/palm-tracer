@@ -22,9 +22,9 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	"""
 
 	group.toggle_active(0)
-	assert group.active == False, "Les paramètres doivent être désactivés."
+	assert not group.active, "Les paramètres doivent être désactivés."
 	group.active = True
-	assert group.active == True, "Les paramètres doivent être activés."
+	assert group.active, "Les paramètres doivent être activés."
 	assert names[0] in group, "La clé n'existe pas"
 	assert group.settings_names == names, "Les paramètres ne correspondent pas"
 	setting = group[names[0]]
@@ -179,9 +179,27 @@ def test_spline_fit(qtbot):
 
 
 ###################################################
+def test_drift(qtbot):
+	"""Test basique de la classe DriftCorrection (constructeur, getter, setter)"""
+	group_base_test(DriftCorrection(), ["Max Distance", "3D"], SpinFloat, 2, 1)
+
+
+###################################################
 def test_tracking(qtbot):
 	"""Test basique de la classe Tracking (constructeur, getter, setter)"""
-	group_base_test(Tracking(), ["Max Distance", "Blinking Reconnection"], SpinFloat, 2, 1)
+	group_base_test(Tracking(), ["Max Distance"], SpinFloat, 2, 1)
+
+
+###################################################
+def test_tracks_blinking_reconnection(qtbot):
+	"""Test basique de la classe BlinkingReconnection (constructeur, getter, setter)"""
+	group_base_test(BlinkingReconnection(), ["Mode", "Max Duration", "Max Speed"], Combo, 1, 0)
+
+
+###################################################
+def test_tracks_computes(qtbot):
+	"""Test basique de la classe TracksCompute (constructeur, getter, setter)"""
+	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Log Scale", "Fit"], CheckBox, True, False)
 
 
 ###################################################
@@ -228,15 +246,3 @@ def test_filtering_t(qtbot):
 	g = FilteringT()
 	group_base_test(g, ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
 	g.deactivate_filters()
-
-
-###################################################
-def test_tracks_blinking_reconnection(qtbot):
-	"""Test basique de la classe TracksBlinkingReconnection (constructeur, getter, setter)"""
-	group_base_test(TracksBlinkingReconnection(), ["Mode", "Max Duration", "Max Speed"], Combo, 1, 0)
-
-
-###################################################
-def test_tracks_computes(qtbot):
-	"""Test basique de la classe TracksCompute (constructeur, getter, setter)"""
-	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Log Scale", "Fit"], CheckBox, True, False)

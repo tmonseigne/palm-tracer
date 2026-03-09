@@ -41,7 +41,7 @@ class Localization(BaseSettingGroup):
 			"Auto Threshold": [Button, ["Auto Threshold", ""]],
 			"ROI Shape":      [Combo, ["ROI Shape", "", 0, ["Circle", "Square"]]],
 			"ROI Size":       [SpinInt, ["ROI Size", "", 7, [3, 50], 1]],
-			"Watershed":      [CheckBox, ["Watershed", "", True]],
+			"Watershed":      [CheckBox, ["Watershed", "Use Watershed algorithm to separate nearby points.", True]],
 			"Fit":            [Combo, ["Fit", "", 0, ["Nothing", "Gaussian Fit", "Spline"]]],
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]

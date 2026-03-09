@@ -49,43 +49,97 @@ def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[li
 
 
 ##################################################
-def test_getter_localization(qtbot, capsys, pt):
-	"""Test pour le getter de la localisation."""
-	df = pt.localizations
-	assert df.empty, "Le Dataframe devrait être vide."
-	ref1 = pd.DataFrame([1, 2])
-	pt.df["f_loc"] = ref1
-	df = pt.localizations
-	assert df.equals(ref1), "Le Dataframe devrait non vide."
-	pt.reset_filtered()
-	df = pt.localizations
-	assert df.empty, "Le Dataframe devrait être vide."
+def check_capsys(capsys, n_lines: int, steps: list[tuple[bool, int]]):
+	"""
+	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes
+	:param capsys:
+	:param n_lines:
+	:param steps:
+	"""
+	lines = get_lines_output(capsys)
+	# for i in range(len(lines)): print(f"{i}: {lines[i]}")
+	assert len(lines) == n_lines
+	step_name = ["Localization", "Drift Correction", "Tracking", "Blinking Reconnection", "Tracks Computes",
+				 "High-resolution visualization", "Graphical visualization", "Gallery generation"]
+	for i in range(8):
+		status, line = steps[i]
+		status_str = "enabled" if status else "disabled"
+		assert re.fullmatch(TS_PATTERN + rf"\s{step_name[i]} {status_str}\.", lines[line])
 
 
 ##################################################
-def test_getter_tracks(qtbot, capsys, pt):
+def test_reset_result(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
-	df = pt.tracks
-	assert df.empty, "Le Dataframe devrait être vide."
+
+	pt.df["loc"] = pd.DataFrame([1, 1])
+	pt.df["dft"] = pd.DataFrame([1, 2])
+	pt.df["bds"] = pd.DataFrame([1, 3])
+	pt.df["blk"] = pd.DataFrame([1, 4])
+	pt.df["trc"] = pd.DataFrame([1, 5])
+	pt.df["MSD"] = pd.DataFrame([1, 6])
+	pt.df["InD"] = pd.DataFrame([1, 7])
+	pt.df["Fit"] = pd.DataFrame([1, 8])
+	pt.df["f_loc"] = pd.DataFrame([1, 9])
+	pt.df["f_blk"] = pd.DataFrame([1, 10])
+	pt.df["f_trc"] = pd.DataFrame([1, 11])
+	pt.df["f_MSD"] = pd.DataFrame([1, 12])
+	pt.df["f_InD"] = pd.DataFrame([1, 13])
+	pt.df["f_Fit"] = pd.DataFrame([1, 14])
+
+	pt.reset_result()
+	for key in pt.df:
+		assert pt.df[key].empty, "Le Dataframe devrait être vide."
+
+
+# ==================================================
+# region Getter / Setter
+# ==================================================
+##################################################
+def test_getter_localization(qtbot, pt):
+	"""Test pour le getter de la localisation."""
+	res = pt.localizations
+	assert res.empty, "Le Dataframe devrait être vide."
+	ref1 = pd.DataFrame([1, 2])
+	ref2 = pd.DataFrame([3, 4])
+	ref3 = pd.DataFrame([5, 6])
+	pt.df["f_loc"] = ref1
+	res = pt.localizations
+	assert res.equals(ref1), f"Résultat incorrect.\nAttendu : {ref1}\tObtenu : {res}"
+	pt.df["dft"] = ref2
+	res = pt.localizations
+	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
+	pt.df["f_dft"] = ref3
+	res = pt.localizations
+	assert res.equals(ref3), f"Résultat incorrect.\nAttendu : {ref3}\tObtenu : {res}"
+	pt.reset_filtered()
+	res = pt.localizations
+	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
+
+
+##################################################
+def test_getter_tracks(qtbot, pt):
+	"""Test pour le process sans fichiers en entrée."""
+	res = pt.tracks
+	assert res.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
 	ref2 = pd.DataFrame([3, 4])
 	ref3 = pd.DataFrame([5, 6])
 	pt.df["f_trc"] = ref1
-	df = pt.tracks
-	assert df.equals(ref1), "Le Dataframe devrait non vide."
+	res = pt.tracks
+	assert res.equals(ref1), f"Résultat incorrect.\nAttendu : {ref1}\tObtenu : {res}"
 	pt.df["blk"] = ref2
-	df = pt.tracks
-	assert df.equals(ref2), "Le Dataframe devrait non vide."
+	res = pt.tracks
+	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
 	pt.df["f_blk"] = ref3
-	df = pt.tracks
-	assert df.equals(ref3), "Le Dataframe devrait non vide."
+	res = pt.tracks
+	assert res.equals(ref3), f"Résultat incorrect.\nAttendu : {ref3}\tObtenu : {res}"
 	pt.reset_filtered()
-	df = pt.tracks
-	assert df.equals(ref2), "Le Dataframe devrait non vide."
+	res = pt.tracks
+	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
 
 
 ##################################################
-def test_getter_tracks_compute(qtbot, capsys, pt):
+def test_getter_tracks_compute(qtbot, pt):
 	"""Test pour le process sans fichiers en entrée."""
 	df = pt.tracks_compute
 	assert df["MSD"].empty, "Le Dataframe devrait être vide."
@@ -96,79 +150,33 @@ def test_getter_tracks_compute(qtbot, capsys, pt):
 
 
 ##################################################
-def test_reset_result(qtbot, capsys, pt):
+def test_getter_path(qtbot, pt):
 	"""Test pour le process sans fichiers en entrée."""
-
-	pt.df["loc"] = pd.DataFrame([1, 1])
-	pt.df["blk"] = pd.DataFrame([1, 2])
-	pt.df["trc"] = pd.DataFrame([1, 3])
-	pt.df["MSD"] = pd.DataFrame([1, 4])
-	pt.df["InD"] = pd.DataFrame([1, 5])
-	pt.df["Fit"] = pd.DataFrame([1, 6])
-	pt.df["f_loc"] = pd.DataFrame([1, 7])
-	pt.df["f_blk"] = pd.DataFrame([1, 8])
-	pt.df["f_trc"] = pd.DataFrame([1, 9])
-	pt.df["f_MSD"] = pd.DataFrame([1, 10])
-	pt.df["f_InD"] = pd.DataFrame([1, 11])
-	pt.df["f_Fit"] = pd.DataFrame([1, 12])
-
-	pt.reset_result()
-	for key in pt.df:
-		assert pt.df[key].empty, "Le Dataframe devrait être vide."
+	res = pt.path
+	assert res == ""
 
 
 ##################################################
-def test_reset_filtered(qtbot, capsys, pt):
+def test_getter_stack(qtbot, pt):
 	"""Test pour le process sans fichiers en entrée."""
-
-	pt.df["loc"] = pd.DataFrame([1, 1])
-	pt.df["blk"] = pd.DataFrame([1, 2])
-	pt.df["trc"] = pd.DataFrame([1, 3])
-	pt.df["MSD"] = pd.DataFrame([1, 4])
-	pt.df["InD"] = pd.DataFrame([1, 5])
-	pt.df["Fit"] = pd.DataFrame([1, 6])
-	pt.df["f_loc"] = pd.DataFrame([1, 7])
-	pt.df["f_blk"] = pd.DataFrame([1, 8])
-	pt.df["f_trc"] = pd.DataFrame([1, 9])
-	pt.df["f_MSD"] = pd.DataFrame([1, 10])
-	pt.df["f_InD"] = pd.DataFrame([1, 11])
-	pt.df["f_Fit"] = pd.DataFrame([1, 12])
-
-	pt.reset_filtered()
-	for key in pt.df:
-		if key.startswith("f_"): assert pt.df[key].empty, "Le Dataframe devrait être vide."
-		else: assert not pt.df[key].empty, "Le Dataframe doit subsiter."
+	res = pt.stack
+	assert res is None
 
 
 ##################################################
-def test_update_filtered(qtbot, capsys, pt):
+def test_getter_suffix(qtbot, pt):
 	"""Test pour le process sans fichiers en entrée."""
-	clean_output()
-	pt.update_filtered()  # Tout est vide
-	pt.settings.filtering["Save"].value = True
-	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
-
-	pt.settings.localization.active = True
-	pt.settings.tracking.active = True
-	pt.settings.tracking["Blinking Reconnection"].active = True
-	add_basic_file(pt)
-	pt.process()
-	pt.update_filtered()  # Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
-
-	# Un fichier meta + un localization + un tracking + un reconnecté = 4
-	# (1 à 3) * 3 fichiers de tableaux filtrés = entre 7 et 13 csv
-	check_output(OUTPUT_FOLDER, csv=[7, 13], log=[1], json=[1])
-
-	lines = get_lines_output(capsys)
-	assert len(lines) == 23
-	assert re.fullmatch(TS_PATTERN + r"\sLocalization enabled\.", lines[5])
-	assert re.fullmatch(TS_PATTERN + r"\sTracking enabled\.", lines[9])
-	assert re.fullmatch(TS_PATTERN + r"\sTracks computes disabled\.", lines[17])
-	assert re.fullmatch(TS_PATTERN + r"\sHigh-resolution visualization disabled\.", lines[18])
-	assert re.fullmatch(TS_PATTERN + r"\sGraphical visualization disabled\.", lines[19])
-	assert re.fullmatch(TS_PATTERN + r"\sGallery generation disabled\.", lines[20])
+	res = pt.suffix
+	assert res == ""
 
 
+# ==================================================
+# endregion Getter / Setter
+# ==================================================
+
+# ==================================================
+# region Process
+# ==================================================
 ##################################################
 def test_load_bad_dll(qtbot, capsys, pt):
 	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
@@ -190,19 +198,14 @@ def test_load_nothing(qtbot, capsys, pt):
 def test_load(qtbot, capsys, pt):
 	"""Test pour le chargement avec fichier, mais sans settings."""
 	clean_output()
+
+	# Process initial
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.process()
+	check_capsys(capsys, 20, [(True, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
 
-	lines = get_lines_output(capsys)
-	assert len(lines) == 16
-	assert re.fullmatch(TS_PATTERN + r"\sLocalization enabled\.", lines[5])
-	assert re.fullmatch(TS_PATTERN + r"\sTracking disabled\.", lines[8])
-	assert re.fullmatch(TS_PATTERN + r"\sTracks computes disabled\.", lines[10])
-	assert re.fullmatch(TS_PATTERN + r"\sHigh-resolution visualization disabled\.", lines[11])
-	assert re.fullmatch(TS_PATTERN + r"\sGraphical visualization disabled\.", lines[12])
-	assert re.fullmatch(TS_PATTERN + r"\sGallery generation disabled\.", lines[13])
-
+	# Chargement
 	pt.load()
 
 	assert not pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
@@ -212,20 +215,23 @@ def test_load(qtbot, capsys, pt):
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 
 	lines = get_lines_output(capsys)
-	assert len(lines) == 15
+	assert len(lines) == 18
 	assert "File 'localizations' loaded successfully." in lines[2]
 	assert "File 'localizations_filtered' not found." in lines[3]
-	assert "File 'tracking' not found." in lines[4]
-	assert "File 'tracking_filtered' not found." in lines[5]
-	assert "File 'tracking-reconnected' not found." in lines[6]
-	assert "File 'tracking_filtered_reconnected' not found." in lines[7]
-	assert "File 'tracking_MSD' not found." in lines[8]
-	assert "File 'tracking_MSD_filtered' not found." in lines[9]
-	assert "File 'tracking_InstantD' not found." in lines[10]
-	assert "File 'tracking_InstantD_filtered' not found." in lines[11]
-	assert "File 'tracking_Fit' not found." in lines[12]
-	assert "File 'tracking_Fit_filtered' not found." in lines[13]
-	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[14]
+	assert "File 'localizations_corrected' not found." in lines[4]
+	assert "File 'localizations_corrected_filtered' not found." in lines[5]
+	assert "File 'beads' not found." in lines[6]
+	assert "File 'tracking' not found." in lines[7]
+	assert "File 'tracking_filtered' not found." in lines[8]
+	assert "File 'tracking_reconnected' not found." in lines[9]
+	assert "File 'tracking_reconnected_filtered' not found." in lines[10]
+	assert "File 'tracking_MSD' not found." in lines[11]
+	assert "File 'tracking_MSD_filtered' not found." in lines[12]
+	assert "File 'tracking_InstantD' not found." in lines[13]
+	assert "File 'tracking_InstantD_filtered' not found." in lines[14]
+	assert "File 'tracking_Fit' not found." in lines[15]
+	assert "File 'tracking_Fit_filtered' not found." in lines[16]
+	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
 
 
 ##################################################
@@ -244,24 +250,18 @@ def test_process_nothing(qtbot, capsys, pt):
 
 	add_basic_file(pt)
 	pt.process()
-
-	lines = get_lines_output(capsys)
-	assert len(lines) == 15
+	check_capsys(capsys, 20, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
 
 	# Test d'une visualisation sans données.
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
 	pt.settings.visualization_graph.active = True
 	pt.process()  # Test d'une visualisation sans données.
-
-	lines = get_lines_output(capsys)
-	assert len(lines) == 18
+	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (True, 15), (True, 17), (True, 19)])
 
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.process()
-
-	lines = get_lines_output(capsys)
-	assert len(lines) == 18
+	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (True, 15), (True, 17), (True, 19)])
 
 	# Test d'un calcul sur trajectoires sans données.
 	pt.settings.gallery.active = False
@@ -269,19 +269,27 @@ def test_process_nothing(qtbot, capsys, pt):
 	pt.settings.visualization_graph.active = False
 	pt.settings.tracks_compute.active = True
 	pt.process()
+	check_capsys(capsys, 18, [(False, 5), (False, 7), (False, 8), (False, 10), (True, 11), (False, 13), (False, 14), (False, 15)])
 
-	lines = get_lines_output(capsys)
-	assert len(lines) == 16
+	# Test d'un calcul de reconnexion de trajectoires sans données.
+	pt.settings.tracks_compute.active = False
+	pt.settings.blinking.active = True
+	pt.process()
+	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 8), (True, 10), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 	# Test d'un calcul de trajectoires sans données.
-	pt.settings.tracks_compute.active = False
+	pt.settings.blinking.active = False
 	pt.settings.tracking.active = True
 	pt.process()
+	check_capsys(capsys, 20, [(False, 5), (False, 7), (True, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
 
-	lines = get_lines_output(capsys)
-	assert len(lines) == 15
+	# Test d'un calcul de correction de drift sans données.
+	pt.settings.tracking.active = False
+	pt.settings.drift.active = True
+	pt.process()
+	check_capsys(capsys, 21, [(False, 5), (True, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
-	n_process = 5  # Nombre de fois où process a été lancé.
+	n_process = 7  # Nombre de fois où process a été lancé.
 	# suivant le timestamp, il est fort problable que seul le dernier process conserve ses data, mais le hasard du lancement fait que
 	# chaque process peut démarrer avec une seconde de décallage et donc un timestamp différent.
 	check_output(OUTPUT_FOLDER, csv=[1, n_process], log=[1, n_process], json=[1, n_process])
@@ -308,8 +316,8 @@ def test_process_multiple_stack(qtbot, capsys, pt):
 
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 	check_output(OUTPUT_FOLDER_2, csv=[1], log=[1], json=[1])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 30  # (2*15 lignes dans le cas d'aucun process)
+	# (2*20 lignes dans le cas d'aucun process)
+	check_capsys(capsys, 40, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
 
 
 ##################################################
@@ -322,8 +330,7 @@ def test_process_only_localization(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 16
+	check_capsys(capsys, 20, [(True, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
 
 
 ##################################################
@@ -354,8 +361,44 @@ def test_process_only_localization_spline(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 16
+	check_capsys(capsys, 20, [(True, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
+
+
+##################################################
+def test_process_only_drift_correction_no_beads(qtbot, capsys, pt):
+	"""Test pour le process de localisation."""
+	clean_output()
+
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
+	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
+	shutil.copy2(src, dst)
+
+	add_basic_file(pt)
+	pt.settings.drift.active = True
+	pt.process()
+
+	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 22, [(False, 5), (True, 8), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
+
+
+##################################################
+def test_process_only_drift_correction(qtbot, capsys, pt):
+	"""Test pour le process de localisation."""
+	clean_output()
+
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
+	src = INPUT_DIR / "localizations.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
+	shutil.copy2(src, dst)
+
+	add_basic_file(pt)
+	pt.settings.drift.active = True
+	pt.process()
+
+	assert len(pt.df["bds"]) == 4  # 2 Billes sur 2 plans
+	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1])
+	check_capsys(capsys, 23, [(False, 5), (True, 8), (False, 11), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
 
 
 ##################################################
@@ -375,8 +418,7 @@ def test_process_only_tracking(qtbot, capsys, pt):
 
 	assert len(pt.localizations) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking."
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 18  # 15 + 1 ligne lors du process suivi + 2 lignes lors du chargement de la localisation.
+	check_capsys(capsys, 21, [(False, 5), (False, 8), (True, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 
 ##################################################
@@ -386,19 +428,16 @@ def test_process_only_tracking_blinking(qtbot, capsys, pt):
 
 	# Ajout d'un fichier de localisations
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
-	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
+	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
+	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
 	shutil.copy2(src, dst)
 
-	pt.settings.tracking.active = True
-	pt.settings.tracking["Blinking Reconnection"].active = True
+	pt.settings.blinking.active = True
 	add_basic_file(pt)
 	pt.process()
 
-	assert len(pt.localizations) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking (reconnecté)."
-	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 21  # 18 + 3 de reconnexion
+	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
+	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 8), (True, 11), (False, 13), (False, 17), (False, 18), (False, 19)])
 
 
 ##################################################
@@ -419,15 +458,13 @@ def test_process_only_tracks_compute(qtbot, capsys, pt):
 	pt.process()
 	# Aucun fichier Ajouté juste meta et le tracking copié
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 18  # 15 + 2 de chargement de suivi + 1 de warning
+	check_capsys(capsys, 19, [(False, 5), (False, 7), (False, 8), (False, 11), (True, 12), (False, 14), (False, 15), (False, 16)])
 
 	tc["MSD"].value = True
 	pt.process()
 	# Ajout de fichier MSD (et peut être un meta, json et log)
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2], clean=False)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 20  # 18 + 2 warning
+	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 8), (False, 11), (True, 12), (False, 16), (False, 17), (False, 18)])
 
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
@@ -435,8 +472,7 @@ def test_process_only_tracks_compute(qtbot, capsys, pt):
 	pt.process()
 	# Ajout de fichier 2 ou 3 fichiers csv et 0 ou 1 fichiers meta, json et log
 	check_output(OUTPUT_FOLDER, csv=[5, 7], log=[1, 3], json=[1, 3])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 22  # 20 + 1 warning + 1 ligne saving...
+	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 11), (True, 12), (False, 18), (False, 19), (False, 20)])
 
 
 ##################################################
@@ -459,8 +495,7 @@ def test_process_only_visualization_hr(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[8], clean=False)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 27
+	check_capsys(capsys, 30, [(False, 5), (False, 8), (False, 9), (False, 12), (False, 13), (True, 17), (False, 26), (False, 27)])
 
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.settings.visualization_hr["Source T"].value = 0
@@ -468,8 +503,7 @@ def test_process_only_visualization_hr(qtbot, capsys, pt):
 
 	# Il a Ajouté un fichier tracking_Fit qu'il a dû calculer et un tracking_hr_color, pour les images 8 Sources pour les loc, 5 pour les trajectoires.
 	check_output(OUTPUT_FOLDER, csv=[5, 6], log=[1, 2], json=[1, 2], png=[13])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 29
+	check_capsys(capsys, 32, [(False, 5), (False, 8), (False, 9), (False, 12), (False, 13), (True, 17), (False, 28), (False, 29)])
 
 
 ##################################################
@@ -491,8 +525,7 @@ def test_process_only_visualization_graph(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[18])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 39
+	check_capsys(capsys, 42, [(False, 5), (False, 8), (False, 9), (False, 12), (False, 13), (False, 17), (True, 18), (False, 39)])
 
 
 ##################################################
@@ -514,8 +547,7 @@ def test_process_only_gallery(qtbot, capsys, pt):
 	res, ref = FileIO.open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], tif=[1])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 18  # 15 + 2 lignes chargement de localisations + 1 ligne Gallery
+	check_capsys(capsys, 22, [(False, 5), (False, 8), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (True, 18)])
 
 
 ##################################################
@@ -526,8 +558,9 @@ def test_process_all(qtbot, capsys, pt):
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 1
 	pt.settings.localization["Gaussian Fit"]["Mode"].value = 3
+	pt.settings.drift.active = True
 	pt.settings.tracking.active = True
-	pt.settings.tracking["Blinking Reconnection"].active = True
+	pt.settings.blinking.active = True
 	pt.settings.tracks_compute.active = True
 	pt.settings.tracks_compute["MSD"].value = True
 	pt.settings.tracks_compute["Instant Diffusion"].value = True
@@ -539,12 +572,65 @@ def test_process_all(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[19])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 49
+	check_capsys(capsys, 48, [(True, 5), (True, 7), (True, 9), (True, 11), (True, 13), (True, 21), (True, 23), (True, 44)])
+
+
+# ==================================================
+# endregion Process
+# ==================================================
+
+# ==================================================
+# region Filtering
+# ==================================================
+##################################################
+def test_reset_filtered(qtbot, capsys, pt):
+	"""Test pour le process sans fichiers en entrée."""
+
+	pt.df["loc"] = pd.DataFrame([1, 1])
+	pt.df["dft"] = pd.DataFrame([1, 2])
+	pt.df["bds"] = pd.DataFrame([1, 3])
+	pt.df["blk"] = pd.DataFrame([1, 4])
+	pt.df["trc"] = pd.DataFrame([1, 5])
+	pt.df["MSD"] = pd.DataFrame([1, 6])
+	pt.df["InD"] = pd.DataFrame([1, 7])
+	pt.df["Fit"] = pd.DataFrame([1, 8])
+	pt.df["f_loc"] = pd.DataFrame([1, 9])
+	pt.df["f_blk"] = pd.DataFrame([1, 10])
+	pt.df["f_trc"] = pd.DataFrame([1, 11])
+	pt.df["f_MSD"] = pd.DataFrame([1, 12])
+	pt.df["f_InD"] = pd.DataFrame([1, 13])
+	pt.df["f_Fit"] = pd.DataFrame([1, 14])
+
+	pt.reset_filtered()
+	for key in pt.df:
+		if key.startswith("f_"): assert pt.df[key].empty, "Le Dataframe devrait être vide."
+		else: assert not pt.df[key].empty, "Le Dataframe doit subsiter."
 
 
 ##################################################
-def test_process_filter_plan(qtbot, capsys, pt):
+def test_update_filtered(qtbot, capsys, pt):
+	"""Test pour le process sans fichiers en entrée."""
+	clean_output()
+	pt.update_filtered()  # Tout est vide
+	pt.settings.filtering["Save"].value = True
+	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
+
+	pt.settings.localization.active = True
+	pt.settings.drift.active = True
+	pt.settings.tracking.active = True
+	pt.settings.blinking.active = True
+	add_basic_file(pt)
+	pt.process()
+	pt.update_filtered()  # Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
+
+	# Un fichier meta + un localization + un tracking + un reconnecté = 4
+	# (1 à 3) * 3 fichiers de tableaux filtrés = entre 7 et 13 csv (chaque appel à update_filtered créé un nouveau timestamp)
+	check_output(OUTPUT_FOLDER, csv=[7, 13], log=[1], json=[1])
+	check_capsys(capsys, 26, [(True, 5), (True, 8), (True, 10), (True, 13), (False, 16), (False, 21), (False, 22), (False, 23)])
+
+
+##################################################
+def test_filter_plan(qtbot, capsys, pt):
 	"""Test pour le filtrage des plans lors de l'exécution."""
 	clean_output()
 
@@ -564,12 +650,11 @@ def test_process_filter_plan(qtbot, capsys, pt):
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	# création des 3 fichiers normaux (meta, settings, log) aucun changement pour le fichier loc pas d'enregistrement des données filtrées
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 18
+	check_capsys(capsys, 22, [(False, 5), (False, 9), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
 
 
 ##################################################
-def test_process_filter_all_localization(qtbot, capsys, pt):
+def test_filter_all_localization(qtbot, capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 
@@ -599,8 +684,11 @@ def test_process_filter_all_localization(qtbot, capsys, pt):
 	# pt.settings.filtering["Localization"]["MSE Z"].active = True # La colonne est à -1 le filtre est forcément sur un nombre positif
 	# pt.settings.filtering["Localization"]["MSE Z"].value = [0, 10]
 	pt.process()
+	check_capsys(capsys, 22, [(False, 5), (False, 9), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
+
 	pt.settings.filtering["Save"].value = True
 	pt.process()  # Second passage avec enregistrement
+	check_capsys(capsys, 23, [(False, 5), (False, 10), (False, 11), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
 
 	# Le filtrage ne modifie plus le dataframe original qui garde constamment son statut "complet".
 	loc = pt.localizations
@@ -621,12 +709,10 @@ def test_process_filter_all_localization(qtbot, capsys, pt):
 	res = pt.filter_localizations(pd.DataFrame())
 	assert res.empty, "Un dataframe vide doit être retourné."
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 37  # 2 process
 
 
 ##################################################
-def test_process_filter_all_tracking(qtbot, capsys, pt):
+def test_filter_all_tracking(qtbot, capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 
@@ -643,6 +729,7 @@ def test_process_filter_all_tracking(qtbot, capsys, pt):
 	res, ref = len(pt.tracks), 222
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
+	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 8), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 	pt.settings.filtering["Tracks"]["Length"].active = True
 	pt.settings.filtering["Tracks"]["Length"].value = [3, 10000]  # 52/222 : 170 suppression(s)
@@ -652,18 +739,19 @@ def test_process_filter_all_tracking(qtbot, capsys, pt):
 	res, ref = len(pt.tracks), 52
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2])
-	lines = get_lines_output(capsys)
-	assert len(lines) == 36  # 2 process à 18 lignes.
+	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 8), (False, 13), (False, 14), (False, 19), (False, 20), (False, 21)])
+
 
 ##################################################
-def test_process_filter_all_tracks_compute(qtbot, capsys, pt):
+def test_filter_all_tracks_compute(qtbot, capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 
-	pt.settings.localization.active = True
-	pt.settings.localization["Gaussian Fit"]["Mode"].value = 1
-	pt.settings.tracking.active = True
-	pt.settings.tracking["Blinking Reconnection"].active = True
+	# Ajout du fichier de trajectoires
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
+	src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
+	dst = OUTPUT_FOLDER / f"tracking-{FileIO.get_timestamp_for_files()}.csv"
+	shutil.copy2(src, dst)
 
 	# Ajout du fichier
 	add_basic_file(pt)
@@ -685,23 +773,26 @@ def test_process_filter_all_tracks_compute(qtbot, capsys, pt):
 	pt.settings.filtering["Tracks"]["Alpha"].active = True
 	pt.settings.filtering["Tracks"]["Confinement"].value = [-10, 10]
 	pt.process()
+
+	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 12), (True, 13), (False, 18), (False, 19), (False, 20)])
+
 	pt.settings.filtering["Save"].value = True
 	pt.process()
+	check_capsys(capsys, 28, [(False, 5), (False, 7), (False, 8), (False, 13), (True, 14), (False, 23), (False, 24), (False, 25)])
 
 	# Vérification manuelle à l'heure actuelle
-	assert len(pt.tracks) == 55, f"Il reste {len(pt.tracks)} points au lieu de 55 sur les trajectoires."
-	assert len(pt.tracks_compute["MSD"]) == 14, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 14."
+	assert len(pt.tracks) == 26, f"Il reste {len(pt.tracks)} points au lieu de 26 sur les trajectoires."
+	assert len(pt.tracks_compute["MSD"]) == 6, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 14."
 	# Filtre massif plus rien à la sortie
 	pt.settings.filtering["Tracks"]["Length"].value = [42, 10000]
 	pt.process()
 	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
-	lines = get_lines_output(capsys)
-	assert len(lines) == 91  # 3 process
+	check_capsys(capsys, 25, [(False, 5), (False, 7), (False, 8), (False, 12), (True, 13), (False, 20), (False, 21), (False, 22)])
 
 
 ##################################################
-def test_process_filter_outside(qtbot, capsys, pt):
+def test_filter_outside(qtbot, capsys, pt):
 	"""Test pour le filtrage hors exécution."""
 	clean_output()
 	pt.settings.filtering["Tracks"]["Instant D"].active = True
@@ -718,6 +809,10 @@ def test_process_filter_outside(qtbot, capsys, pt):
 	assert o_ind.empty
 	assert o_fit.empty
 
+
+# ==================================================
+# endregion Filtering
+# ==================================================
 
 ##################################################
 def test_add_color(qtbot, capsys, pt):
