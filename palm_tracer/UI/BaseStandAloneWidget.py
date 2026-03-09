@@ -81,7 +81,7 @@ class BaseStandAloneWidget(QWidget):
 	##################################################
 	def _connect_web_widget(self):
 		"""Connecte les signaux des boutons aux callbacks."""
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):  # pragma: no cover Vérification en cas d'UI defectueuse
+		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):  # pragma: no cover — Vérification en cas d'UI defectueuse
 			profile = self._web.page().profile()
 			profile.downloadRequested.connect(self._on_download_requested)
 
@@ -118,7 +118,7 @@ class BaseStandAloneWidget(QWidget):
 		Export via Plotly.downloadImage (même mécanisme que le bouton caméra).
 		Requiert QtWebEngine + QWebEngineView.
 		"""
-		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):  # pragma: no cover Vérification en cas d'UI defectueuse
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):  # pragma: no cover — Vérification en cas d'UI defectueuse
 			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		# Plotly va initier un téléchargement -> on capte le prochain downloadRequested
@@ -153,7 +153,7 @@ class BaseStandAloneWidget(QWidget):
 			- En l'absence de figure/HTML, avertit l'utilisateur.
 			- Sur échec d'écriture, affiche un message d'erreur.
 		"""
-		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):  # pragma: no cover Vérification en cas d'UI defectueuse
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):  # pragma: no cover — Vérification en cas d'UI defectueuse
 			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		if self._fig is None or self._html is None:

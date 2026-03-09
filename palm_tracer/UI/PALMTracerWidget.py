@@ -206,7 +206,7 @@ class PALMTracerWidget(QWidget):
 		self._freeze_ui(True)
 
 		@thread_worker(start_thread=False)
-		def _run_background() -> None: compute_func()  # STRICTEMENT aucun accès au viewer/layers ici
+		def _run_background() -> None: compute_func()  # STRICTEMENT aucun accès au viewer/layers ici, pragma: no cover —  lancement sur thread.
 
 		w: FunctionWorker = cast(FunctionWorker, _run_background())
 		self._worker = w
@@ -517,21 +517,21 @@ class PALMTracerWidget(QWidget):
 	# region Extern Viewer
 	# ==================================================
 	##################################################
-	def _open_hr_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+	def _open_hr_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 		"""Ouvre une instance Napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
 		if self.viewer_hr is None:
 			self.viewer_hr = create_viewerhr(self.pt)
 			self._bind_viewer_lifecycle("viewer_hr")
 
 	##################################################
-	def _open_3d_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+	def _open_3d_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 		"""Ouvre une instance Napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d = create_viewer3d()
 			self._bind_viewer_lifecycle("viewer_3d")
 
 	##################################################
-	def _open_graph_viewer(self):  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+	def _open_graph_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 		"""Ouvre la visionneuse de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
@@ -547,7 +547,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.activateWindow()
 
 	##################################################
-	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover pytest à du mal avec les ouvertures en série de fenêtres
+	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
 		viewer = getattr(self, viewer_attr)
 		if viewer is None: return
@@ -557,7 +557,7 @@ class PALMTracerWidget(QWidget):
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
 	import napari
 
 	_viewer = napari.Viewer()  # .										  Crée le viewer Napari

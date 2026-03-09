@@ -657,7 +657,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
 	import sys
 
 	app = QApplication(sys.argv)
