@@ -457,13 +457,13 @@ def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sa
 	elle crée simplement un :class:`Astigmatism3DWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
 	"""
 	widget = Astigmatism3DWidget()
-	widget.resize(500, 250)
+	widget.resize(1000, 600)
 	widget.show()
 	_windows.append(widget)  # éviter que Python le détruise en le stockant
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
+if __name__ == "__main__":
 	import sys
 
 	app = QApplication(sys.argv)

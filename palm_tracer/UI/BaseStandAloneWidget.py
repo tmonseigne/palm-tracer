@@ -144,10 +144,11 @@ class BaseStandAloneWidget(QWidget):
 		Ouvre un dialogue et exporte la figure selon l'extension choisie.
 
 		Formats supportés :
-			- .html : enregistre l'HTML interactif (incluant PlotlyJS).
-			- .png  : exporte une image du rendu (fallback par capture Qt).
-			- .svg  : exporte une image du rendu (fallback par capture Qt).
-			- .pdf  : imprime via QWebEngineView.printToPdf (si QtWebEngine présent).
+			- .html : enregistre l'HTML interactif.
+			- .png  : exporte une image du rendu Plotly.
+			- .svg  : exporte une image vectorielle du rendu Plotly.
+			- .webp : exporte une image WebP du rendu Plotly.
+			- .pdf  : imprime via QWebEngineView.printToPdf.
 
 		Comportement :
 			- En l'absence de figure/HTML, avertit l'utilisateur.

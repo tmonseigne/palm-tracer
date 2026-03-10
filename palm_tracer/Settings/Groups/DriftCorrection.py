@@ -25,3 +25,18 @@ class DriftCorrection(BaseSettingGroup):
 	label: str = "Drift Correction"
 	setting_list = {"Max Distance": [SpinFloat, ["Max Distance (pixel)", "Maximum distance between two planes for a bead.", 1.0, [0.0, 20.0], 0.1, 2]],
 					"3D":           [CheckBox, ["3D", "Use the Z-axis during computes.", False]]}
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = DriftCorrection()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

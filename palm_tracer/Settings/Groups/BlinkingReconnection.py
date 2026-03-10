@@ -29,3 +29,18 @@ class BlinkingReconnection(BaseSettingGroup):
 	setting_list = {"Mode":         [Combo, ["Mode", "Expected type of movement of points.", 0, ["Immobile", "Diffuse", "Linear"]]],
 					"Max Duration": [SpinInt, ["Max Duration (plane)", "Maximum blinking duration in number of planes", 1, [1, 1000], 1]],
 					"Max Speed":    [SpinFloat, ["Max Speed (μm/plane)", "Maximum velocity of the point in μm/plane", 1.0, [0.0, 1000.0], 1.0, 2]]}
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = BlinkingReconnection()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

@@ -177,7 +177,7 @@ def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragm
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
+if __name__ == "__main__":
 	import napari
 
 	_v = create_viewer3d()

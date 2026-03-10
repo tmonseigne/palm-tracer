@@ -28,3 +28,18 @@ class SplineFit(BaseSettingGroup):
 			"Variance Map": [BrowseFile, ["sCMOS Variance Map", "", ""]],
 			"File":         [BrowseFile, ["Calibration File", "", ""]],
 			}
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = SplineFit()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

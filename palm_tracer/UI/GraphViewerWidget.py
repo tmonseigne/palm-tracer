@@ -20,7 +20,7 @@ Notes
 """
 
 from pathlib import Path
-from typing import Any, cast, Optional
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -62,7 +62,8 @@ DATA_SRC: dict[str, list] = {
 		"No Dual":      ["Localizations Count", "Length", "MSD"],
 		}
 
-TIPS = {"File":         "Current stack.",
+TIPS = {
+		"File":         "Current stack.",
 		"Localization": "Localizations on the current stack.",
 		"Tracking":     "Tracking on the current stack.",
 		"MSD":          "Mean Square Displacement of tracks on the current stack.",
@@ -277,22 +278,11 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self._filters["Localization"].hide()
 		self._filters["Tracks"].hide()
 
-		# Boutons de gestion des filtres
-		self._btn_reset_f = QPushButton("Reset")
-		self._btn_reset_f.setToolTip(TIPS["Reset"])
-		self._btn_update_f = QPushButton("Update")
-		self._btn_update_f.setToolTip(TIPS["Update"])
-		actions_row = QHBoxLayout()
-		actions_row.addStretch(1)
-		actions_row.addWidget(self._btn_reset_f)
-		actions_row.addWidget(self._btn_update_f)
-		vbox_filters.addLayout(actions_row)
-
 		# Actions
 		actions_row = QHBoxLayout()
 		self._btn_actualize = QPushButton("Actualize files")
 		self._btn_actualize.setToolTip(TIPS["Actualize"])
-		self._btn_export = QPushButton("Export…")
+		self._btn_export = QPushButton("Export figure")
 		self._btn_export.setToolTip(TIPS["Export"])
 		actions_row.addStretch(1)
 		actions_row.addWidget(self._btn_actualize)
@@ -331,8 +321,9 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self._btn_export.clicked.connect(self._on_export)
 
 		# Filters
-		self._btn_reset_f.clicked.connect(self._reset_filtered)
-		self._btn_update_f.clicked.connect(self._update_filtered)
+		self._filters.buttons["reset"].clicked.connect(self._reset_filtered)
+		self._filters.buttons["update"].clicked.connect(self._update_filtered)
+		self._filters.buttons["save"].clicked.connect(self._pt.save_filtered)
 		self._filters.connect(self._update_plot)
 
 	# ==================================================
@@ -362,7 +353,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
-		## Exemple: remplir ta combo 'Source' en fonction du domaine
+		# Remplir la ComboBox 'Source' en fonction du domaine
 		if btn_id == 0: src = DATA_SRC["Stack"]  # .		Stack
 		elif btn_id == 1: src = DATA_SRC["Localization"]  # Localization
 		else: src = self._get_tracks_src()  # .				Tracking
@@ -657,7 +648,7 @@ class GraphViewerWidget(BaseStandAloneWidget):
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
+if __name__ == "__main__":
 	import sys
 
 	app = QApplication(sys.argv)

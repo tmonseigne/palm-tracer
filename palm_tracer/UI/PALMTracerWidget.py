@@ -29,8 +29,8 @@ from palm_tracer.UI.KeyBlocker import KeyBlocker
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
-try: from napari.qt.threading import thread_worker, FunctionWorker  # .			  Chemin public, à préférer
-except ImportError:    from superqt.utils import thread_worker, FunctionWorker  # Très rare fallback
+try: from napari.qt.threading import thread_worker, FunctionWorker  # .		   Chemin public, à préférer
+except ImportError: from superqt.utils import thread_worker, FunctionWorker  # Très rare fallback
 
 CONFIG_DIR = Path.home() / ".palm_tracer"
 SETTINGS_FILE = CONFIG_DIR / "settings.json"
@@ -139,7 +139,12 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.batch["Files"].connect(self._reset_layer)  # .					 Supprime les calques et charge le fichier tif dans un calque Raw
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)  # Calcul automatique du Seuil
 		self.pt.settings.connect(self._on_change_setting)  # .							 Connexion à chaque changement de paramètres
-		filter_loc = self.pt.settings.filtering["Localization"]
+
+		filters = self.pt.settings.filtering
+		filters.buttons["reset"].clicked.connect(self.pt.reset_filtered)
+		filters.buttons["update"].clicked.connect(self.pt.update_filtered)
+		filters.buttons["save"].clicked.connect(self.pt.save_filtered)
+		filter_loc = filters["Localization"]
 		filter_loc["X"].connect(self._add_roi_filter_layer)  # .						 Mise à jour de la ROI dans l'affichage.
 		filter_loc["Y"].connect(self._add_roi_filter_layer)  # .						 Mise à jour de la ROI dans l'affichage.
 
@@ -557,7 +562,7 @@ class PALMTracerWidget(QWidget):
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
+if __name__ == "__main__":
 	import napari
 
 	_viewer = napari.Viewer()  # .										  Crée le viewer Napari

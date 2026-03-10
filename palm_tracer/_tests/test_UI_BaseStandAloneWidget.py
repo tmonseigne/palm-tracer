@@ -87,7 +87,7 @@ def test_export_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	# Simuler un "Cancel" sur le QFileDialog
 	fake_qfiledialog(BaseStandAloneWidget, None)
 	w._on_export()
-#
+
 	# Test d'enregistrement de l'image (avec le callback)
 	target = Path(OUTPUT_DIR / "graph.png")
 	fake_qfiledialog(BaseStandAloneWidget, str(target))

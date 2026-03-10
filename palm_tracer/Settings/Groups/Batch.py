@@ -79,3 +79,18 @@ class Batch(BaseSettingGroup):
 					Ui.print_warning(f"Error when concatenating stacks (they will be processed independently):\nValueError: {e}")
 
 		return res
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = Batch()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

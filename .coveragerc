@@ -29,3 +29,5 @@ exclude_also =
 	except
 	finally
 	GPU
+	# Aucun appel de fichier lors des tests pour le code coverage
+	if __name__ == "__main__":
