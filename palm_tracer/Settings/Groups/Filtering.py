@@ -6,8 +6,10 @@ qui regroupe les paramètres de filtrage nécessaires à la configuration de PAL
 	      intensité c'est intensité intégré de la localisation donc potentiellement beaucouppppppp
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import cast
+
+from qtpy.QtWidgets import QFormLayout, QHBoxLayout, QPushButton
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.FilteringL import FilteringL
@@ -39,12 +41,26 @@ class Filtering(BaseSettingGroup):
 			}
 	_inner_groups = ["Localization", "Tracks"]
 
+	buttons: dict[str, QPushButton] = field(init=False)
+	"""Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`)."""
+
 	##################################################
 	def initialize_ui(self):
 		super().initialize_ui()
 		self.remove_header()
 		self._settings["Localization"].always_active()
 		self._settings["Tracks"].always_active()
+
+		# Créer les boutons d'action
+		self.buttons = {"reset": QPushButton("Reset"), "update": QPushButton("Update"), "save": QPushButton("Save")}
+		# Créer un layout horizontal pour les boutons
+		actions = QHBoxLayout()
+		actions.addWidget(self.buttons["reset"])
+		actions.addWidget(self.buttons["update"])
+		actions.addWidget(self.buttons["save"])
+
+		layout = cast(QFormLayout, self._widget.layout())
+		layout.addRow(actions)
 
 	##################################################
 	def deactivate_filters(self):
