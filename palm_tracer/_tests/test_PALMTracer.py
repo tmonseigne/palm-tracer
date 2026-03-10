@@ -584,7 +584,7 @@ def test_process_all(qtbot, capsys, pt):
 # ==================================================
 ##################################################
 def test_reset_filtered(qtbot, capsys, pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Test pour la suppréssion des tableaux filtrés."""
 
 	pt.df["loc"] = pd.DataFrame([1, 1])
 	pt.df["dft"] = pd.DataFrame([1, 2])
@@ -609,24 +609,43 @@ def test_reset_filtered(qtbot, capsys, pt):
 
 ##################################################
 def test_update_filtered(qtbot, capsys, pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Test pour la mise à jour des tableaux filtrés."""
 	clean_output()
 	pt.update_filtered()  # Tout est vide
 	pt.settings.filtering["Save"].value = True
 	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
 
-	pt.settings.localization.active = True
-	pt.settings.drift.active = True
-	pt.settings.tracking.active = True
-	pt.settings.blinking.active = True
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
+	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
+	shutil.copy2(src, dst)
+
 	add_basic_file(pt)
 	pt.process()
 	pt.update_filtered()  # Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
+	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])  # Il n'a rien enregistré, car les filtres n'ont pas fait de changement.
 
-	# Un fichier meta + un localization + un tracking + un reconnecté = 4
-	# (1 à 3) * 3 fichiers de tableaux filtrés = entre 7 et 13 csv (chaque appel à update_filtered créé un nouveau timestamp)
-	check_output(OUTPUT_FOLDER, csv=[7, 13], log=[1], json=[1])
-	check_capsys(capsys, 26, [(True, 5), (True, 8), (True, 10), (True, 13), (False, 16), (False, 21), (False, 22), (False, 23)])
+
+##################################################
+def test_save_filtered(qtbot, capsys, pt):
+	"""Test pour la mise à jour des tableaux filtrés."""
+	clean_output()
+	pt._path = OUTPUT_DIR
+	pt.update_filtered()  # Tout est vide
+	pt.settings.filtering["Save"].value = True
+	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
+
+	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
+	src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
+	dst = OUTPUT_FOLDER / f"localizations-{FileIO.get_timestamp_for_files()}.csv"
+	shutil.copy2(src, dst)
+
+	add_basic_file(pt)
+	pt.df["loc"] = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
+	pt.settings.filtering["Plane"].active = True
+	pt.settings.filtering["Plane"].value = [2, 3]
+	pt.update_filtered()  # Il va recalculer les filtres.
+	check_output(OUTPUT_FOLDER, csv=[1])  # Il a enregistré la version filtrée.
 
 
 ##################################################
@@ -739,7 +758,7 @@ def test_filter_all_tracking(qtbot, capsys, pt):
 	res, ref = len(pt.tracks), 52
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2])
-	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 8), (False, 13), (False, 14), (False, 19), (False, 20), (False, 21)])
+	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
 
 
 ##################################################

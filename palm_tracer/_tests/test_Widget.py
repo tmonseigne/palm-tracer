@@ -1,12 +1,9 @@
 """Fichier des tests pour le widget."""
 
 import pytest
-
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QVBoxLayout, QWidget, QSpinBox
-from qtpy.QtCore import QEvent, QObject
+from qtpy.QtCore import QEvent, Qt
 from qtpy.QtGui import QKeyEvent
-from qtpy.QtWidgets import QAbstractSpinBox, QLineEdit
+from qtpy.QtWidgets import QSpinBox
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import CheckRangeInt
