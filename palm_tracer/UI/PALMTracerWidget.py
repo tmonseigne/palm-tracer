@@ -29,8 +29,8 @@ from palm_tracer.UI.KeyBlocker import KeyBlocker
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
-try: from napari.qt.threading import thread_worker, FunctionWorker  # .			  Chemin public, à préférer
-except ImportError:    from superqt.utils import thread_worker, FunctionWorker  # Très rare fallback
+try: from napari.qt.threading import thread_worker, FunctionWorker  # .		   Chemin public, à préférer
+except ImportError: from superqt.utils import thread_worker, FunctionWorker  # Très rare fallback
 
 CONFIG_DIR = Path.home() / ".palm_tracer"
 SETTINGS_FILE = CONFIG_DIR / "settings.json"
@@ -557,7 +557,7 @@ class PALMTracerWidget(QWidget):
 
 
 ##################################################
-if __name__ == "__main__":  # pragma: no cover — Aucun appel de fichier lors des tests pour le code coverage
+if __name__ == "__main__":
 	import napari
 
 	_viewer = napari.Viewer()  # .										  Crée le viewer Napari
