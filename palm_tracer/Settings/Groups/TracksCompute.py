@@ -38,6 +38,7 @@ class TracksCompute(BaseSettingGroup):
 					"Log Scale":         [CheckBox, ["Log Scale", "Use log scale before saving results.", False]],
 					"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]]}
 
+
 #	##################################################
 #	def initialize_ui(self):
 #		super().initialize_ui()
@@ -50,3 +51,18 @@ class TracksCompute(BaseSettingGroup):
 #			self._settings["Fit Length"].hide()
 #		else:
 #			self._settings["Fit Length"].show()
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = TracksCompute()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

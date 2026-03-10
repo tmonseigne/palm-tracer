@@ -50,3 +50,18 @@ class VisualizationHR(BaseSettingGroup):
 		else:  # Impossible mais prévu
 			self._settings["Source L"].hide()
 			self._settings["Source T"].hide()
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = VisualizationHR()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

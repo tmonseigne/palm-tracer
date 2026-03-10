@@ -25,3 +25,18 @@ class Gallery(BaseSettingGroup):
 			"ROI Size":      [SpinInt, ["ROI Size", "Size of the area around the points.", 9, [3, 31], 2]],
 			"ROIs Per Line": [SpinInt, ["ROIs Per Line", "Number of points per line and column.", 30, [1, 500], 1]],
 			}
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = Gallery()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

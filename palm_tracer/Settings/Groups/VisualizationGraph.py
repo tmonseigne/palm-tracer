@@ -28,3 +28,18 @@ class VisualizationGraph(BaseSettingGroup):
 	setting_list = {
 			"Mode":   [Combo, ["Mode", "", 0, GRAPH_MODE]],
 			"Source": [Combo, ["Source", "", 0, GRAPH_SOURCE]]}
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = VisualizationGraph()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

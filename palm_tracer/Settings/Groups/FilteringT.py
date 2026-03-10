@@ -46,3 +46,18 @@ class FilteringT(BaseSettingGroup):
 	def deactivate_filters(self):
 		""" Désactive tous les filtres."""
 		for key in self.setting_list: self._settings[key].active = False
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = FilteringT()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

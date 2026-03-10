@@ -92,3 +92,18 @@ class Localization(BaseSettingGroup):
 			sx, sy, sz = calib["coeff"].shape[:3]
 			return np.concatenate([np.array([s["ROI Size"], sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
 		except Exception: raise
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = Localization()
+	group.active = True
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())

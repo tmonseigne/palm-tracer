@@ -55,3 +55,17 @@ class Filtering(BaseSettingGroup):
 		fl.deactivate_filters()
 		ft = cast(FilteringT, self._settings["Tracks"])
 		ft.deactivate_filters()
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	group = Filtering()
+	w.layout().addWidget(group.widget)
+	w.show()
+	sys.exit(app.exec_())
