@@ -139,7 +139,12 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.batch["Files"].connect(self._reset_layer)  # .					 Supprime les calques et charge le fichier tif dans un calque Raw
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)  # Calcul automatique du Seuil
 		self.pt.settings.connect(self._on_change_setting)  # .							 Connexion à chaque changement de paramètres
-		filter_loc = self.pt.settings.filtering["Localization"]
+
+		filters = self.pt.settings.filtering
+		filters.buttons["reset"].clicked.connect(self.pt.reset_filtered)
+		filters.buttons["update"].clicked.connect(self.pt.update_filtered)
+		filters.buttons["save"].clicked.connect(self.pt.save_filtered)
+		filter_loc = filters["Localization"]
 		filter_loc["X"].connect(self._add_roi_filter_layer)  # .						 Mise à jour de la ROI dans l'affichage.
 		filter_loc["Y"].connect(self._add_roi_filter_layer)  # .						 Mise à jour de la ROI dans l'affichage.
 

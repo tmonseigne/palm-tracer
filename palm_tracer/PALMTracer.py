@@ -80,12 +80,6 @@ class PALMTracer:
 		"""Vide entièrement les DataFrame de résultat dans `df`."""
 		for key in self.df: self.df[key] = pd.DataFrame()
 
-	##################################################
-	def reset_filtered(self):
-		"""Vide entièrement les DataFrames filtrés dans `df`."""
-		for key in self.df:
-			if key.startswith("f_"): self.df[key] = pd.DataFrame()
-
 	# ==================================================
 	# endregion Initialization
 	# ==================================================
@@ -281,13 +275,13 @@ class PALMTracer:
 
 	##################################################
 	def _process_step(self, group: BaseSettingGroup, name: str, keys: list[str], process_func: Callable, filter_func: Callable):
-		"""
+		"""Etape du processus
 
-		:param group:
-		:param name:
-		:param keys:
-		:param process_func:
-		:param filter_func:
+		:param group: Groupe de paramètres lié
+		:param name: Nom de l'étape
+		:param keys: Clé du DataFrame dans le dictionnaire
+		:param process_func: Fonction de traitement de cette étape
+		:param filter_func: Fonction de filtre de cette étape
 		"""
 		if group.active:  # Process
 			self._logger.add(f"{name.title()} enabled.")
@@ -316,9 +310,11 @@ class PALMTracer:
 			n_init, n_end = len(self.df[keys[0]]), len(self.df[f_key])
 			if n_init != n_end:
 				self._logger.add(f"\t\tFiltering of {name} file {n_end} {name} instead of {n_init}: {n_init - n_end} deletion(s).")
-			if self.settings.filtering["Save"].value and n_end != 0:
-				self._logger.add(f"\tSaving the filtered {name} file.")
-				self.df[f_key].to_csv(self._output_name(self.KEYS_TO_FILE[f_key]), index=False)
+				if self.settings.filtering["Save"].value and n_end != 0:
+					self._logger.add(f"\tSaving the filtered {name} file.")
+					self.df[f_key].to_csv(self._output_name(self.KEYS_TO_FILE[f_key]), index=False)
+			else:
+				self.df[f_key] = pd.DataFrame()
 		else:
 			filter_func()  # Cas spécial des tracks_compute qui modifient beaucoup de chose en même temps
 
@@ -420,22 +416,67 @@ class PALMTracer:
 	# ==================================================
 	# region Filtering
 	# ==================================================
+
+	##################################################
+	def reset_filtered(self):
+		"""Vide entièrement les DataFrames filtrés dans `df`."""
+		for key in self.df:
+			if key.startswith("f_"): self.df[key] = pd.DataFrame()
+
+	##################################################
+	def update_filtered(self, last: bool = True):
+		"""
+		Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original.
+
+		:param last: Utilise les dernières version des dataframes si `True`, sinon les données brutes serotn utilisées.
+		"""
+		df = {}
+		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
+			df[key] = self.df[key] if self.df[f"f_{key}"].empty or not last else self.df[f"f_{key}"]
+
+		self.df["f_loc"] = self.filter_localizations(df["loc"])
+		self.df["f_dft"] = self.filter_localizations(df["dft"])
+		self.df["f_trc"] = self.filter_tracks(df["trc"])
+		self.df["f_blk"] = self.filter_tracks(df["blk"])
+
+		o_name = "f_trc" if self.df["f_blk"].empty else "f_blk"
+		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
+			= self.filter_tracks_compute(self.tracks, df["MSD"], df["InD"], df["Fit"])
+
+		for key in ["loc", "dft", "trc", "blk"]:
+			f_key = f"f_{key}"
+			if len(self.df[key]) == len(self.df[f_key]): self.df[f_key] = pd.DataFrame()
+
+		if self.settings.filtering["Save"].value: self.save_filtered()
+
+	##################################################
+	def save_filtered(self):
+		"""Enregistre tous les fichiers filtrés s'ils ne sont pas vide."""
+		self._suffix = FileIO.get_timestamp_for_files()
+		for key, fname in self.KEYS_TO_FILE.items():
+			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
+			if "f_" in key and not self.df[key].empty and len(self.df[key]) != len(self.df[key[2:]]):
+				self.df[key].to_csv(self._output_name(fname), index=False)
+
 	##################################################
 	def _filter_tracks_compute(self):
 		"""Filtre les fichiers de metrique."""
 		n_init = len(self.df["MSD"])
 		o_name = self.get_tracks_key()
+		if "f_" not in o_name: o_name = f"f_{o_name}"  # Si aucun filtre la clé sera sans le f_ devant
 		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
 			= self.filter_tracks_compute(self.tracks, self.df["MSD"], self.df["InD"], self.df["Fit"])
 
 		n_end = len(self.df["f_MSD"])
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltering of tracks compute files {n_end} tracks instead of {n_init}: {n_init - n_end} deletion(s)")
-		if self.settings.filtering["Save"].value:
-			for key, name in [(o_name, "tracking"), ("f_MSD", "MSD"), ("f_InD", "Instant Diffusion"), ("f_Fit", "Fit")]:
-				if not self.df[key].empty:
-					self._logger.add(f"\tSaving the filtered {name} file.")
-					self.df[key].to_csv(self._output_name(self.KEYS_TO_FILE[key]), index=False)
+			if self.settings.filtering["Save"].value:
+				for key, name in [(o_name, "tracking"), ("f_MSD", "MSD"), ("f_InD", "Instant Diffusion"), ("f_Fit", "Fit")]:
+					if not self.df[key].empty:
+						self._logger.add(f"\tSaving the filtered {name} file.")
+						self.df[key].to_csv(self._output_name(self.KEYS_TO_FILE[key]), index=False)
+		else:
+			for key in ["f_MSD", "f_InD", "f_Fit"]: self.df[key] = pd.DataFrame()
 
 	##################################################
 	def filter_localizations(self, datas: pd.DataFrame) -> pd.DataFrame:
@@ -558,31 +599,6 @@ class PALMTracer:
 		if not o_ind.empty: o_ind = o_ind[o_ind["Track"].isin(keep_ids)]
 		if not o_fit.empty: o_fit = o_fit[o_fit["Track"].isin(keep_ids)]
 		return o_trc, o_msd, o_ind, o_fit
-
-	##################################################
-	def update_filtered(self, last: bool = True):
-		"""
-		Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original.
-
-		:param last: Utilise les dernières version des dataframes si `True`, sinon les données brutes serotn utilisées.
-		"""
-		self._suffix = FileIO.get_timestamp_for_files()
-		df = {}
-		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
-			df[key] = self.df[key] if self.df[f"f_{key}"].empty or not last else self.df[f"f_{key}"]
-
-		self.df["f_loc"] = self.filter_localizations(df["loc"])
-		self.df["f_dft"] = self.filter_localizations(df["dft"])
-		self.df["f_trc"] = self.filter_tracks(df["trc"])
-		self.df["f_blk"] = self.filter_tracks(df["blk"])
-
-		o_name = "f_trc" if self.df["blk"].empty else "f_blk"
-		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
-			= self.filter_tracks_compute(self.tracks, df["MSD"], df["InD"], df["Fit"])
-
-		if self.settings.filtering["Save"].value:
-			for key, fname in self.KEYS_TO_FILE.items():
-				if "f_" in key and not self.df[key].empty: self.df[key].to_csv(self._output_name(fname), index=False)
 
 	# ==================================================
 	# endregion Filtering
