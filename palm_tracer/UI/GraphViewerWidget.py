@@ -35,15 +35,6 @@ from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
-# Tentative d'import QtWebEngine (via qtpy)
-try:
-	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
-
-	_HAS_WEBENGINE = True
-except Exception:
-	QWebEngineView = None  # type: ignore
-	_HAS_WEBENGINE = False
-
 # ==================================================
 # region Constantes
 # ==================================================

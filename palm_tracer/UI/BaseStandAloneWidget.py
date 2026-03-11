@@ -4,14 +4,14 @@ from pathlib import Path
 from typing import Any, Optional
 
 import plotly.graph_objects as go
-import plotly.io as pio
+from qtpy.QtCore import QUrl
 from qtpy.QtGui import QCloseEvent
 from qtpy.QtWidgets import QFileDialog, QTextBrowser, QWidget
 
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.Ui import print_warning
 
-# Tentative d'import QtWebEngine (via qtpy)
+# Tentative d'import QtWebEngine (via qtpy) —En cas d'UI defectueuse
 try:
 	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
 
@@ -26,6 +26,7 @@ class BaseStandAloneWidget(QWidget):
 	"""Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."""
 
 	PLOT_DIV_ID = "plotly_graph"
+	PLOTLY_CDN_URL = "https://cdn.plot.ly/plotly-3.4.0.min.js"
 
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -40,6 +41,7 @@ class BaseStandAloneWidget(QWidget):
 		self._graph_folder: Path = Path.cwd() / "image"
 		self._fig: Optional[go.Figure] = None
 		self._html: Optional[str] = None
+		self._plotly_page_loaded = False
 		self._web = self._make_web_widget()
 		self._connect_web_widget()
 
@@ -64,24 +66,135 @@ class BaseStandAloneWidget(QWidget):
 		return res
 
 	##################################################
+	def _build_plotly_shell_html(self) -> str:
+		"""
+		Construit la page HTML minimale contenant le conteneur Plotly.
+
+		La page est chargée une seule fois dans le :class:`QWebEngineView`,
+		puis les mises à jour utilisent :c:`Plotly.newPlot` ou :c:`Plotly.react` via du JavaScript injecté.
+
+		:return: HTML minimal servant de conteneur au graphe Plotly.
+		"""
+		config_json = json.dumps(Ui.CONFIG_PLOTLY)
+		plot_div_id_json = json.dumps(self.PLOT_DIV_ID)
+		plotly_cdn_url_json = json.dumps(self.PLOTLY_CDN_URL)
+
+		return f"""<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=\"utf-8\">
+	<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; script-src 'self'
+	'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:;\">
+	<style>
+		html, body {{ margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }}
+
+		#{self.PLOT_DIV_ID} {{ width: 100%; height: 100%; }}
+	</style>
+</head>
+<body>
+	<div id=\"{self.PLOT_DIV_ID}\"></div>
+	<script>
+		window._plotlyConfig = {config_json};
+		window._plotlyReady = false;
+		window._plotlyQueue = [];
+
+		window._flushPlotlyQueue = function() {{
+			if (!window._plotlyReady || typeof Plotly === "undefined") {{ return; }}
+			while (window._plotlyQueue.length > 0) {{
+				const callback = window._plotlyQueue.shift();
+				try {{ callback(); }} catch (error) {{ console.error("Plotly callback failed", error); }}
+			}}
+		}};
+
+		window._runWhenPlotlyReady = function(callback) {{
+			if (window._plotlyReady && typeof Plotly !== "undefined") {{ callback(); return; }}
+			window._plotlyQueue.push(callback);
+		}};
+
+		(function() {{
+			const script = document.createElement("script");
+			script.src = {plotly_cdn_url_json};
+			script.onload = function() {{ window._plotlyReady = true; window._flushPlotlyQueue(); }};
+			script.onerror = function() {{console.error("Unable to load Plotly from CDN.");}};
+			document.head.appendChild(script);
+		}})();
+
+		window._renderPlotlyFigure = function(data, layout, config) {{
+			window._runWhenPlotlyReady(function() {{
+				const gd = document.getElementById({plot_div_id_json});
+				if (!gd) {{ return; }}
+				if (!gd.data) {{ Plotly.newPlot(gd, data, layout, config); return; }}
+				Plotly.react(gd, data, layout, config);
+			}});
+		}};
+	</script>
+</body>
+</html>
+"""
+
+	##################################################
+	def _load_plotly_page_once(self):
+		"""
+		Charge la page HTML minimale contenant Plotly une seule fois.
+
+		Le graphe lui-même n'est pas injecté ici. Il est créé ensuite via :c:`Plotly.newPlot`, puis mis à jour via :c:`Plotly.react`.
+		"""
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):
+			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+			return
+
+		if self._plotly_page_loaded: return
+
+		html = self._build_plotly_shell_html()
+		self._web.setHtml(html, QUrl("https://plot.ly/"))
+		self._plotly_page_loaded = True
+
+	##################################################
 	def _update_web_widget(self, fig: go.Figure, config: dict[str, Any] | None = None):
 		"""
-		Créé un Widget pour integrer plotly
+		Met à jour le widget Web affichant la figure Plotly.
 
-		:return: :class:`QWebEngineView` ou :class:`QTextBrowser` si indisponible
+		La page HTML contenant le conteneur Plotly n'est chargée qu'une seule fois.
+		Les mises à jour successives de la figure évitent ainsi de reconstruire toute la page et utilisent :c:`Plotly.react`,
+		ce qui réduit fortement le coût des rafraîchissements fréquents.
+
+		:param fig: Figure Plotly à afficher.
+		:param config: Configuration Plotly optionnelle. Si :obj:`None`, la configuration par défaut :data:`Ui.CONFIG_PLOTLY` est utilisée.
 		"""
 		if config is None: config = Ui.CONFIG_PLOTLY
-		html = pio.to_html(fig, include_plotlyjs="cdn", full_html=False, config=config, div_id=self.PLOT_DIV_ID)
+
 		self._fig = fig
-		self._html = html
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView): self._web.setHtml(html)
-		else:  # pragma: no cover — Fallback affichant un message d'erreur explicite
+		self._html = fig.to_html(include_plotlyjs=False, full_html=True, config=config, div_id=self.PLOT_DIV_ID)
+
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
+			return
+
+		self._load_plotly_page_once()
+
+		figure_dict = fig.to_plotly_json()
+		data_json = json.dumps(figure_dict.get("data", []))
+		layout_json = json.dumps(figure_dict.get("layout", {}))
+		config_json = json.dumps(config)
+
+		js = f"""
+		(function() {{
+			const data = {data_json};
+			const layout = {layout_json};
+			const config = {config_json};
+
+			if (typeof window._renderPlotlyFigure !== "function") {{ return "Plotly renderer not ready"; }}
+
+			window._renderPlotlyFigure(data, layout, config);
+			return "queued";
+		}})();
+		"""
+		self._web.page().runJavaScript(js)
 
 	##################################################
 	def _connect_web_widget(self):
 		"""Connecte les signaux des boutons aux callbacks."""
-		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):  # pragma: no cover — Vérification en cas d'UI defectueuse
+		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
 			profile = self._web.page().profile()
 			profile.downloadRequested.connect(self._on_download_requested)
 
@@ -114,12 +227,8 @@ class BaseStandAloneWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _export_via_plotly_download(self, path: Path, fmt: str):
-		"""
-		Export via Plotly.downloadImage (même mécanisme que le bouton caméra).
-		Requiert QtWebEngine + QWebEngineView.
-		"""
-		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):  # pragma: no cover — Vérification en cas d'UI defectueuse
-			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
+		"""Export via Plotly.downloadImage (même mécanisme que le bouton caméra). Requiert QtWebEngine + QWebEngineView."""
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)): raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		# Plotly va initier un téléchargement -> on capte le prochain downloadRequested
 		self._pending_download_path = str(path)
@@ -154,15 +263,16 @@ class BaseStandAloneWidget(QWidget):
 			- En l'absence de figure/HTML, avertit l'utilisateur.
 			- Sur échec d'écriture, affiche un message d'erreur.
 		"""
-		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):  # pragma: no cover — Vérification en cas d'UI defectueuse
-			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)): raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		if self._fig is None or self._html is None:
 			print_warning("No figures to export.")
 			return
+
 		path, selected_filter = QFileDialog.getSaveFileName(self, "Export the graph", str(self._graph_folder),
 															"PNG (*.png);;SVG (*.svg);;WEBP (*.webp);;HTML (*.html);;PDF (*.pdf)")
 		if not path: return
+
 		try:
 			lower = path.lower()
 			path = Path(path)
