@@ -31,3 +31,5 @@ exclude_also =
 	GPU
 	# Aucun appel de fichier lors des tests pour le code coverage
 	if __name__ == "__main__":
+	# les if contenant _HAS_WEBENGINE sont la en cas de mauvaises installation donc non couvert à 100%
+	_HAS_WEBENGINE
