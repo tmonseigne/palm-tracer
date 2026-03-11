@@ -1,7 +1,7 @@
-"""Module contenant la classe mère :class:`BaseStandAloneWidget`, permettant de centraliser des fonctions communes aux widgets Stand Alone."""
+"""Module contenant la classe mère :class:`BasePlotlyWidget`, permettant de centraliser des fonctions communes aux widgets Stand Alone."""
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import plotly.graph_objects as go
 from qtpy.QtCore import QUrl
@@ -23,7 +23,7 @@ except Exception:
 
 
 ##################################################
-class BaseStandAloneWidget(QWidget):
+class BasePlotlyWidget(QWidget):
 	"""Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."""
 
 	PLOT_DIV_ID = "plotly_graph"
@@ -177,23 +177,18 @@ class BaseStandAloneWidget(QWidget):
 		self._plotly_page_loaded = True
 
 	##################################################
-	def _update_web_widget(self, fig: go.Figure, config: dict[str, Any] | None = None):
+	def _update_web_widget(self):
 		"""
 		Met à jour le widget Web affichant la figure Plotly.
 
 		La page HTML contenant le conteneur Plotly n'est chargée qu'une seule fois.
 		Les mises à jour successives de la figure évitent ainsi de reconstruire toute la page et utilisent :c:`Plotly.react`,
 		ce qui réduit fortement le coût des rafraîchissements fréquents.
-
-		:param fig: Figure Plotly à afficher.
-		:param config: Configuration Plotly optionnelle. Si :obj:`None`, la configuration par défaut :data:`Ui.CONFIG_PLOTLY` est utilisée.
 		"""
-		if config is None: config = Ui.CONFIG_PLOTLY
-
 		try: plotly_js_url = self._get_plotly_js_url().toString()
 		except FileNotFoundError: plotly_js_url = self.PLOTLY_JS_URL
 
-		self._html = self._fig.to_html(include_plotlyjs=plotly_js_url, full_html=True, config=config, div_id=self.PLOT_DIV_ID)
+		self._html = self._fig.to_html(include_plotlyjs=plotly_js_url, full_html=True, config=Ui.CONFIG_PLOTLY, div_id=self.PLOT_DIV_ID)
 
 		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
@@ -204,7 +199,7 @@ class BaseStandAloneWidget(QWidget):
 		figure_dict = self._fig.to_plotly_json()
 		data_json = json.dumps(figure_dict.get("data", []))
 		layout_json = json.dumps(figure_dict.get("layout", {}))
-		config_json = json.dumps(config)
+		config_json = json.dumps(Ui.CONFIG_PLOTLY)
 
 		js = f"""
 		(function() {{
@@ -222,11 +217,11 @@ class BaseStandAloneWidget(QWidget):
 
 	##################################################
 	def _connect_web_widget(self):
-		"""Connecte les signaux des boutons aux callbacks."""
+		"""Connecte les signaux aux callbacks."""
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
 			profile = self._web.page().profile()
 			profile.downloadRequested.connect(self._on_download_requested)
-			self._web.loadFinished.connect(lambda: self._update_web_widget(self._fig))
+			self._web.loadFinished.connect(self._update_web_widget)
 
 	##################################################
 	def _on_download_requested(self, download):
@@ -350,7 +345,7 @@ if __name__ == "__main__":
 	from qtpy.QtWidgets import QApplication
 
 	app = QApplication(sys.argv)
-	w = BaseStandAloneWidget()
+	w = BasePlotlyWidget()
 	w.resize(1280, 720)
 	w.show()
 	sys.exit(app.exec_())

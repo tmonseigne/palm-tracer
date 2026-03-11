@@ -20,14 +20,14 @@ from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, z_from_planes
 from palm_tracer.Processing.Parsing import SHAPE_MODEL
 from palm_tracer.Tools import Ui
-from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
+from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
 DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
 _windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class Astigmatism3DWidget(BaseStandAloneWidget):
+class Astigmatism3DWidget(BasePlotlyWidget):
 	"""
 	Widget minimaliste pour le calcul d'un modèle d'astigmatisme en lien avec la position axiale et l'estimation d'une position axiale en fonction d'un modèle.
 
@@ -48,7 +48,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 	 La partie de droite sert à visualiser le modèle calculé ou chargé.
 	"""
 
-	GRAPH_TITLE:str = "Astigmatism model"
+	GRAPH_TITLE: str = "Astigmatism model"
 
 	# ==================================================
 	# region Initialisation
@@ -232,7 +232,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 
 	##################################################
 	def _connect_signals(self):
-		"""Connecte les signaux des boutons aux callbacks."""
+		"""Connecte les signaux aux callbacks."""
 		self._btn_load_compute.clicked.connect(self._on_load_loc)
 		self._btn_compute.clicked.connect(self._on_compute)
 
@@ -284,10 +284,10 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		try:
 			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 			z_max = self._spin_z_estimate.value()
-			fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title=self.GRAPH_TITLE, pixel_size=pixel_size, z_max=z_max)
+			self._fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title=self.GRAPH_TITLE, pixel_size=pixel_size, z_max=z_max)
 		except ValueError:
-			fig = self._grapher.blank(self.GRAPH_TITLE)
-		self._update_web_widget(fig)
+			self._fig = self._grapher.blank(self.GRAPH_TITLE)
+		self._update_web_widget()
 
 	# ==================================================
 	# endregion UI

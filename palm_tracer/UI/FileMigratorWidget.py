@@ -8,12 +8,11 @@ from typing import Optional
 from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.Tools import FileMigrator, Ui
-from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
 _windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class FileMigratorWidget(BaseStandAloneWidget):
+class FileMigratorWidget(QWidget):
 	"""Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."""
 
 	# ==================================================
@@ -33,6 +32,7 @@ class FileMigratorWidget(BaseStandAloneWidget):
 
 		self._init_ui()
 		self._connect_signals()
+		self.setStyleSheet(Ui.STYLESHEET_GENERAL)  # On applique un style général
 
 	##################################################
 	def _init_ui(self):
@@ -65,7 +65,7 @@ class FileMigratorWidget(BaseStandAloneWidget):
 
 	##################################################
 	def _connect_signals(self):
-		"""Connecte les signaux des boutons aux callbacks."""
+		"""Connecte les signaux aux callbacks."""
 		self._btn_load_folder.clicked.connect(self._on_load_folder)
 		self._btn_migrate.clicked.connect(self._on_migrate)
 

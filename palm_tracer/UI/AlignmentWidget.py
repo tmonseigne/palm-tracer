@@ -28,12 +28,11 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSpinBox, QTa
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
-from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
 
 _windows = []  # pour garder une référence globale, éviter le Garbage Collector
 
 
-class AlignmentWidget(BaseStandAloneWidget):
+class AlignmentWidget(QWidget):
 	"""
 	Widget minimaliste pour la gestion de l'alignement entre acquisitions.
 
@@ -68,6 +67,7 @@ class AlignmentWidget(BaseStandAloneWidget):
 
 		self._init_ui()
 		self._connect_signals()
+		self.setStyleSheet(Ui.STYLESHEET_GENERAL)  # On applique un style général
 
 	##################################################
 	def _init_ui(self):
@@ -140,7 +140,7 @@ class AlignmentWidget(BaseStandAloneWidget):
 
 	##################################################
 	def _connect_signals(self):
-		"""Connecte les signaux des boutons aux callbacks."""
+		"""Connecte les signaux aux callbacks."""
 		self._btn_load_tif_compute.clicked.connect(self._on_load_tif)
 		self._btn_compute_coeffs.clicked.connect(self._on_compute_coeffs)
 

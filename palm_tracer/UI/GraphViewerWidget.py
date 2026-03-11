@@ -24,7 +24,6 @@ from typing import Any, cast
 
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QButtonGroup, QCheckBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QPushButton, QRadioButton, QVBoxLayout
 
@@ -32,7 +31,7 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Filtering
 from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
-from palm_tracer.UI.BaseStandAloneWidget import BaseStandAloneWidget
+from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
 # ==================================================
 # region Constantes
@@ -87,7 +86,7 @@ TIPS = {
 # ==================================================
 
 ##################################################
-class GraphViewerWidget(BaseStandAloneWidget):
+class GraphViewerWidget(BasePlotlyWidget):
 	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
 
 	Ce widget expose une UI compacte pour :
@@ -536,17 +535,16 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		data, title = self._get_plot_data()
 
 		# Selection du graphique à afficher
-		fig: go.Figure
 		if src_id == 1 and src_a == "Localizations Count":
-			fig = self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
+			self._fig = self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
 		elif src_id == 2 and src_a == "Length":
-			fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
+			self._fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
 		elif dual:
-			fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
+			self._fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
 		else:
-			fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+			self._fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
 
-		self._update_web_widget(fig)
+		self._update_web_widget()
 
 	##################################################
 	def _get_plot_data(self) -> tuple[np.ndarray, str]:
