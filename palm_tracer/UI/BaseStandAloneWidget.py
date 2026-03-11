@@ -8,6 +8,7 @@ from qtpy.QtCore import QUrl
 from qtpy.QtGui import QCloseEvent
 from qtpy.QtWidgets import QFileDialog, QTextBrowser, QWidget
 
+from palm_tracer.Processing import Grapher
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.Ui import print_warning
 
@@ -26,7 +27,9 @@ class BaseStandAloneWidget(QWidget):
 	"""Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."""
 
 	PLOT_DIV_ID = "plotly_graph"
-	PLOTLY_CDN_URL = "https://cdn.plot.ly/plotly-3.4.0.min.js"
+	RESOURCE_DIR = Path(__file__).resolve().parent / "res"
+	PLOTLY_JS_PATH = RESOURCE_DIR / "plotly.min.js"
+	PLOTLY_JS_URL = "https://cdn.plot.ly/plotly-3.4.0.min.js"
 
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -38,10 +41,12 @@ class BaseStandAloneWidget(QWidget):
 		super().__init__(parent)
 
 		self._pending_download_path: str = ""
+		self._grapher = Grapher()
 		self._graph_folder: Path = Path.cwd() / "image"
-		self._fig: Optional[go.Figure] = None
-		self._html: Optional[str] = None
+		self._fig: go.Figure = Grapher.blank()
+		self._html: str = ""
 		self._plotly_page_loaded = False
+		self._web_page_ready = False
 		self._web = self._make_web_widget()
 		self._connect_web_widget()
 
@@ -66,6 +71,21 @@ class BaseStandAloneWidget(QWidget):
 		return res
 
 	##################################################
+	def _get_plotly_js_url(self) -> QUrl:
+		"""
+		Construit l'URL locale vers le fichier JavaScript Plotly embarqué.
+
+		Le fichier est recherché relativement à ce module, dans le dossier <c>res</c>.
+		Une URL de type <c>file:///...</c> est renvoyée afin de pouvoir être injectée dans la page HTML du :class:`QWebEngineView`.
+
+		:return: URL locale absolue vers <c>plotly.min.js</c>.
+		:raises FileNotFoundError: Si le fichier JavaScript local est introuvable.
+		"""
+		if not self.PLOTLY_JS_PATH.is_file():
+			raise FileNotFoundError(f"Plotly JavaScript file not found: {self.PLOTLY_JS_PATH}")
+		return QUrl.fromLocalFile(str(self.PLOTLY_JS_PATH.resolve()))
+
+	##################################################
 	def _build_plotly_shell_html(self) -> str:
 		"""
 		Construit la page HTML minimale contenant le conteneur Plotly.
@@ -77,7 +97,9 @@ class BaseStandAloneWidget(QWidget):
 		"""
 		config_json = json.dumps(Ui.CONFIG_PLOTLY)
 		plot_div_id_json = json.dumps(self.PLOT_DIV_ID)
-		plotly_cdn_url_json = json.dumps(self.PLOTLY_CDN_URL)
+		try: url = self._get_plotly_js_url().toString()
+		except FileNotFoundError: url = self.PLOTLY_JS_URL
+		plotly_js_url_json = json.dumps(url)
 
 		return f"""<!DOCTYPE html>
 <html>
@@ -113,9 +135,9 @@ class BaseStandAloneWidget(QWidget):
 
 		(function() {{
 			const script = document.createElement("script");
-			script.src = {plotly_cdn_url_json};
+			script.src = {plotly_js_url_json};
 			script.onload = function() {{ window._plotlyReady = true; window._flushPlotlyQueue(); }};
-			script.onerror = function() {{console.error("Unable to load Plotly from CDN.");}};
+			script.onerror = function() {{ console.error("Unable to load local Plotly JavaScript file."); }};
 			document.head.appendChild(script);
 		}})();
 
@@ -145,8 +167,13 @@ class BaseStandAloneWidget(QWidget):
 
 		if self._plotly_page_loaded: return
 
-		html = self._build_plotly_shell_html()
-		self._web.setHtml(html, QUrl("https://plot.ly/"))
+		try: html = self._build_plotly_shell_html()
+		except FileNotFoundError as error:
+			print_warning(str(error))
+			self._web.setText(f"<b>Plotly unavailable</b><br>{error}")
+			return
+
+		self._web.setHtml(html, QUrl.fromLocalFile(str(Path(__file__).resolve().parent)))
 		self._plotly_page_loaded = True
 
 	##################################################
@@ -163,8 +190,10 @@ class BaseStandAloneWidget(QWidget):
 		"""
 		if config is None: config = Ui.CONFIG_PLOTLY
 
-		self._fig = fig
-		self._html = fig.to_html(include_plotlyjs=False, full_html=True, config=config, div_id=self.PLOT_DIV_ID)
+		try: plotly_js_url = self._get_plotly_js_url().toString()
+		except FileNotFoundError: plotly_js_url = self.PLOTLY_JS_URL
+
+		self._html = self._fig.to_html(include_plotlyjs=plotly_js_url, full_html=True, config=config, div_id=self.PLOT_DIV_ID)
 
 		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):
 			self._web.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
@@ -172,7 +201,7 @@ class BaseStandAloneWidget(QWidget):
 
 		self._load_plotly_page_once()
 
-		figure_dict = fig.to_plotly_json()
+		figure_dict = self._fig.to_plotly_json()
 		data_json = json.dumps(figure_dict.get("data", []))
 		layout_json = json.dumps(figure_dict.get("layout", {}))
 		config_json = json.dumps(config)
@@ -197,6 +226,7 @@ class BaseStandAloneWidget(QWidget):
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
 			profile = self._web.page().profile()
 			profile.downloadRequested.connect(self._on_download_requested)
+			self._web.loadFinished.connect(lambda: self._update_web_widget(self._fig))
 
 	##################################################
 	def _on_download_requested(self, download):
@@ -265,7 +295,7 @@ class BaseStandAloneWidget(QWidget):
 		"""
 		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)): raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
-		if self._fig is None or self._html is None:
+		if not self._html:
 			print_warning("No figures to export.")
 			return
 
@@ -312,3 +342,15 @@ class BaseStandAloneWidget(QWidget):
 		# On ne doit jamais crasher sur un closeEvent durant des tests.
 		except Exception: pass
 		super().closeEvent(event)
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication
+
+	app = QApplication(sys.argv)
+	w = BaseStandAloneWidget()
+	w.resize(1280, 720)
+	w.show()
+	sys.exit(app.exec_())

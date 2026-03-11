@@ -29,7 +29,6 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QButtonGroup, QCheckBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QPushButton, QRadioButton, QVBoxLayout
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import Grapher
 from palm_tracer.Settings.Groups import Filtering
 from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
@@ -126,7 +125,6 @@ class GraphViewerWidget(BaseStandAloneWidget):
 		self.setWindowTitle("Graph Viewer")
 		# Initialisation des membres
 		self._pt = palmtracer
-		self._grapher = Grapher()
 		self._file: str = ""
 		self._density: bool = False
 

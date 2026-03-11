@@ -39,6 +39,21 @@ def test_update_plotly(qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
+def test_update_plotly_no_js(qtbot):
+	"""Test basique de gestion de plotly."""
+	w = BaseStandAloneWidget()
+	qtbot.addWidget(w)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+	w.PLOTLY_JS_PATH = Path("no_file.js")
+	fig = go.Figure()
+	w._update_web_widget(fig)
+
+	w.close()
+
+##################################################
+@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de gestion de plotly."""
 	w = BaseStandAloneWidget()

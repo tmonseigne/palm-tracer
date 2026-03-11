@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
-from palm_tracer.Processing import Grapher, Palm
+from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, z_from_planes
 from palm_tracer.Processing.Parsing import SHAPE_MODEL
 from palm_tracer.Tools import Ui
@@ -48,6 +48,8 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 	 La partie de droite sert à visualiser le modèle calculé ou chargé.
 	"""
 
+	GRAPH_TITLE:str = "Astigmatism model"
+
 	# ==================================================
 	# region Initialisation
 	# ==================================================
@@ -67,8 +69,7 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		self._png_filename: Path = Path()
 		self._loc: pd.DataFrame = pd.DataFrame()
 		self._model: pd.DataFrame = pd.DataFrame()
-
-		self._grapher = Grapher()
+		self._fig = self._grapher.blank(self.GRAPH_TITLE)
 
 		self._init_ui()
 		self._connect_signals()
@@ -283,9 +284,9 @@ class Astigmatism3DWidget(BaseStandAloneWidget):
 		try:
 			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 			z_max = self._spin_z_estimate.value()
-			fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title="Astigmatism model", pixel_size=pixel_size, z_max=z_max)
+			fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title=self.GRAPH_TITLE, pixel_size=pixel_size, z_max=z_max)
 		except ValueError:
-			fig = self._grapher.blank("Astigmatism model")
+			fig = self._grapher.blank(self.GRAPH_TITLE)
 		self._update_web_widget(fig)
 
 	# ==================================================
