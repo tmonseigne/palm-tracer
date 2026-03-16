@@ -21,7 +21,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Settings.Types import CheckRangeInt, FileList
+from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_json, open_tif, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
@@ -344,12 +344,9 @@ class PALMTracerWidget(QWidget):
 			self.viewer.add_image(raw_data, name="Raw")
 			show_info(f"Loaded {selected_file} into Napari viewer.")
 			filters = self.pt.settings.filtering
-			with filters.signal_blocked():
-				# Update Max
-				z, y, x = raw_data.shape
-				cast(CheckRangeInt, filters["Plane"]).update_limits(None, z)
-				cast(CheckRangeInt, filters["Localization"]["Y"]).update_limits(None, y)
-				cast(CheckRangeInt, filters["Localization"]["X"]).update_limits(None, x)
+			# Update Max
+			z, y, x = raw_data.shape
+			filters.update_limits(x, y, z)
 
 		except Exception as e:
 			show_error(f"Error loading {selected_file}: {e}")

@@ -489,11 +489,13 @@ class GraphViewerWidget(BasePlotlyWidget):
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
 			self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
 
-		# Métadonnées d'information
-		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
-		if self._file != "":
-			try: self._stack = FileIO.open_tif(self._file)
-			except Exception as e: Ui.print_error(f"Error loading {self._file} in GraphViewer : {e}")
+			# Métadonnées d'information
+			self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
+			if self._file != "":
+				try: self._stack = FileIO.open_tif(self._file)
+				except Exception as e: Ui.print_error(f"Error loading {self._file} in GraphViewer : {e}")
+				z, y, x = self._stack.shape
+				self._filters.update_limits(x, y, z)
 
 		self._status["File"].setText(Path(self._file).name if self._file else "No File")
 		self._refresh_source_buttons()  # Applique has_loc/has_track
