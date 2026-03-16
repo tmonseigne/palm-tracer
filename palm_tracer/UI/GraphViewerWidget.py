@@ -40,7 +40,8 @@ FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)", "Yes (Reconnected)", "Y
 
 DATA_SRC: dict[str, list] = {
 		"Stack":        ["Intensity"],
-		"Localization": ["Localizations Count", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"],
+		"Localization": ["Localizations Count", "X", "Y", "Z", "Integrated Intensity",
+						 "Sigma X", "Sigma Y", "Circularity", "Theta", "Surface", "MSE XY", "MSE Z"],
 		"Tracking":     ["Length"],
 		"MSD":          ["MSD"],
 		"Instant D":    ["Instant Diffusion"],
