@@ -171,9 +171,23 @@ def test_dual_source(w: GraphViewerWidget, qtbot, capsys):
 	w.resize(1000, 600)
 	w.show()
 	qtbot.waitExposed(w)
+	ref_title: str
+	ref_shape: tuple
+	ref_data: list[int] | list[list[int]]
 
 	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)
 	w._dual_source.value = True
+
+	# Colonnes incompatibles pour le dual source
+	qtbot.mouseClick(w._btn_trc, Qt.MouseButton.LeftButton)  # Passage au tracking
+	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
+	w._cmb_src_a.value = 0
+	w._cmb_src_b.value = 1
+	data, title = w._get_plot_data()
+	ref_title, ref_shape, ref_data = "Tracks Instant Diffusion / Total Intensity", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
 
 	w.close()
 
@@ -222,7 +236,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	w._cmb_src_a.value = 1
 	assert w._cmb_src_a.value == 1, "Index de la donnée incorrecte."
 	data, title = w._get_plot_data()
-	ref_title, ref_shape, ref_data = "Localizations Intensity", (6,), [1, 1, 0, 1, 1, 1]
+	ref_title, ref_shape, ref_data = "Localizations X", (6,), [1, 2, 3, 4, 1, 2]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
@@ -230,7 +244,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	# En cas de colonne inexistante.
 	w._df["Localization"].drop(columns=[w._cmb_src_a.current_text], inplace=True)
 	data, title = w._get_plot_data()
-	ref_title, ref_shape, ref_data = "Localizations Intensity", (0,), []
+	ref_title, ref_shape, ref_data = "Localizations X", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)

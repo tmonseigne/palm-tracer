@@ -28,30 +28,6 @@ class Grapher:
 	# ==================================================
 	# region Statistic Figure
 	# ==================================================
-	def get_fig(self, graph_type: str, data: Optional[np.ndarray] = None, title: str = "", xlabel: str = "", ylabel: str = "",
-				limit: bool = False, show_sigma: bool = False, kde: bool = False, gaussian: bool = False,
-				density: bool = True, bins: Optional[int] = None) -> go.Figure:
-		"""
-		Retourne le graphique selon le type choisi.
-
-		:param graph_type: Type de Graphique.
-		:param data: Données sous forme de tableau numpy 2D/1D/ND.
-		:param title: Titre du graphe.
-		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
-		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
-		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
-		:param kde: Si True, superpose la KDE gaussienne.
-		:param gaussian: Si True, superpose la gaussienne.
-		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
-		:param bins: Nombre de bins explicite (sinon Sturges).
-		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
-		"""
-		if data is None: return self.blank(title)
-		if graph_type == "histogram": return self.histogram(data, title, xlabel, ylabel, limit, show_sigma, kde, gaussian, density, bins)
-		elif graph_type == "scatter": return self.scatter(data, title, xlabel, ylabel, limit, show_sigma)
-		else: return self.blank(title)
-
 	##################################################
 	@staticmethod
 	def blank(title: str = "") -> go.Figure:
@@ -68,7 +44,7 @@ class Grapher:
 	##################################################
 	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "",
 				  limit: bool = False, show_sigma: bool = False, kde: bool = False,
-				  gaussian: bool = False, density: bool = True, bins: Optional[int] = None, cumulative: bool = False) -> go.Figure:
+				  gaussian: bool = False, density: bool = True, cumulative: bool = False, bins: Optional[int] = None) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
@@ -103,7 +79,6 @@ class Grapher:
 		# Récupération du nombre de bin
 		if bins is None: bins = self._get_bins_number(x)
 		bin_width = (limits[1] - limits[0]) / max(int(bins), 1)
-		print(bin_width)
 
 		# Histogramme
 		histnorm = "probability density" if density else None

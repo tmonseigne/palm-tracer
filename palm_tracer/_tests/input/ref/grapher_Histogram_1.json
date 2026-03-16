@@ -4,7 +4,6 @@
 	  "cumulative": {
 		"enabled": false
 	  },
-	  "histnorm": "probability density",
 	  "hovertemplate": "(%{x:.2f}, %{y:.2f})<extra></extra>",
 	  "marker": {
 		"color": "#4C72B0",
@@ -13,7 +12,7 @@
 		}
 	  },
 	  "name": "Histogram",
-	  "nbinsx": 30,
+	  "nbinsx": 20,
 	  "opacity": 0.75,
 	  "type": "histogram",
 	  "x": {
@@ -28,7 +27,7 @@
 	"hovermode": "x",
 	"showlegend": true,
 	"title": {
-	  "text": " (μ = -0.03, σ = 0.99)"
+	  "text": "Histogram (μ = -0.03, σ = 0.99)"
 	},
 	"xaxis": {
 	  "gridcolor": "#e6e6e6",
@@ -48,7 +47,7 @@
 	  "gridwidth": 0.75,
 	  "showgrid": true,
 	  "title": {
-		"text": "Density"
+		"text": "Count"
 	  },
 	  "zeroline": false
 	}
