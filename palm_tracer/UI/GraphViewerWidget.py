@@ -65,6 +65,7 @@ TIPS = {
 
 		"MSD Step":     "Step selected for display.",
 		"Log":          "Apply a logarithmic scale to the data.",
+		"Cumul":        "Show cumulative histogram instead of simple histogram.",
 		"Limits":       "Limits data to ±3σ around the mean (3-sigma rule).",
 		"Sigma":        "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean.",
 		"Gauss":        "Displays the Gaussian curve associated with the mean and standard deviation of the data.",
@@ -222,6 +223,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
 		self._display_settings: dict[str, Any] = {
+				"Cumul":   QCheckBox("Cumulative Histogram"),
 				"Log":     QCheckBox("Use Log Scale"),
 				"Limits":  QCheckBox("Apply Limits"),
 				"Sigma":   QCheckBox("Show σ"),
@@ -234,6 +236,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		# Autres options
 		self._display_settings["Log"].setChecked(False)
+		self._display_settings["Cumul"].setChecked(False)
 		self._display_settings["Limits"].setChecked(True)
 		self._display_settings["Sigma"].setChecked(False)
 		self._display_settings["Gauss"].setChecked(False)
@@ -253,7 +256,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 		grid.addWidget(self._display_settings["KDE"], 1, 1)
 		grid.addWidget(self._display_settings["Density"], 2, 0)
 		grid.addWidget(self._display_settings["Count"], 2, 1)
-		grid.addWidget(self._display_settings["Log"], 3, 0)
+		grid.addWidget(self._display_settings["Cumul"], 3, 0)
+		grid.addWidget(self._display_settings["Log"], 3, 1)
 
 		# Bloc Filtres (placeholder vide pour l'instant)
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
@@ -545,6 +549,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		kde = self._display_settings["KDE"].checkState() == Qt.CheckState.Checked
 		gauss = self._display_settings["Gauss"].checkState() == Qt.CheckState.Checked
 		density = self._display_settings["Density"].isChecked()
+		cumul = self._display_settings["Cumul"].isChecked()
 
 		# Préparation des Données
 		data, title = self._get_plot_data()
@@ -558,7 +563,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		elif dual:
 			self._fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
 		else:
-			self._fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density)
+			self._fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density, cumulative=cumul)
 
 		self._update_web_widget()
 

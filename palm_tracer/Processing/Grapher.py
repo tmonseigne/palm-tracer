@@ -68,7 +68,7 @@ class Grapher:
 	##################################################
 	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "",
 				  limit: bool = False, show_sigma: bool = False, kde: bool = False,
-				  gaussian: bool = False, density: bool = True, bins: Optional[int] = None) -> go.Figure:
+				  gaussian: bool = False, density: bool = True, bins: Optional[int] = None, cumulative: bool = False) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
@@ -82,6 +82,7 @@ class Grapher:
 		:param gaussian: Si True, superpose la gaussienne.
 		:param density: Affiche l'histogramme en densité (True) ou en comptes (False).
 		:param bins: Nombre de bins explicite (sinon Sturges).
+		:param cumulative: Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
@@ -101,30 +102,30 @@ class Grapher:
 
 		# Récupération du nombre de bin
 		if bins is None: bins = self._get_bins_number(x)
+		bin_width = (limits[1] - limits[0]) / max(int(bins), 1)
+		print(bin_width)
 
 		# Histogramme
 		histnorm = "probability density" if density else None
-		fig.add_histogram(x=x, nbinsx=bins, histnorm=histnorm, marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)), opacity=0.75,
-						  name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
+		fig.add_histogram(x=x, nbinsx=bins, histnorm=histnorm, cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
+						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
 		# KDE
 		if x.size > 1 and sigma > 0:
+			x_grid = np.linspace(limits[0], limits[1], MESH_SIZE)  # grille régulière sur l'intervalle affiché
+
 			if kde:
-				# grille régulière sur l'intervalle affiché
-				xk = np.linspace(limits[0], limits[1], MESH_SIZE)
-				k = gaussian_kde(x)  # choisit sa propre bandwidth
-				y = k(xk)
-				if not density: y = y * x.size * ((limits[1] - limits[0]) / max(int(bins), 1))  # convertir la densité en comptes ~ dens * N * bin_width
-				fig.add_trace(go.Scatter(x=xk, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
+				kde_model = gaussian_kde(x)  # choisit sa propre bandwidth
+				y_pdf = kde_model(x_grid)
+				y = self._scale_curve(x_grid, y_pdf, x.size, bin_width, density, cumulative)
+				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
 										 name="KDE", hoverinfo="skip", hovertemplate=None))
 
 			# Gaussian
-			if gaussian and x.size > 1 and sigma > 0:
-				# grille régulière sur l'intervalle affiché
-				xg = np.linspace(limits[0], limits[1], MESH_SIZE)
-				y = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((xg - mu) / sigma) ** 2)
-				if not density: y = y * x.size * ((limits[1] - limits[0]) / max(int(bins), 1))  # convertir la densité en comptes ~ dens * N * bin_width
-				fig.add_trace(go.Scatter(x=xg, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
+			if gaussian:
+				y_pdf = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x_grid - mu) / sigma) ** 2)
+				y = self._scale_curve(x_grid, y_pdf, x.size, bin_width, density, cumulative)
+				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
 										 name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
 		# Mu et Sigmas
@@ -327,6 +328,29 @@ class Grapher:
 		else:
 			limits = [min(data), max(data)]
 		return data, limits, mu, sigma
+
+	##################################################
+	@staticmethod
+	def _scale_curve(x_grid: np.ndarray, y_pdf: np.ndarray, n: int, bin_width: float, density: bool = False, cumulative: bool = False):
+		"""
+		Adapte une courbe PDF pour l'affichage selon les modes densité / comptes et normal / cumulé.
+
+		:param x_grid: Abscisses régulières.
+		:param y_pdf: Densité (PDF) à convertir.
+		:param n: nombre de bins.
+		:param bin_width: Largeur d'une bin.
+		:param density: Affiche l'histogramme en densité (True) ou en comptes (False).
+		:param cumulative: Si True, calcule la version cumulée de la courbe.
+		:return: Courbe prête à être affichée.
+		"""
+		if cumulative:
+			dx = float(x_grid[1] - x_grid[0])
+			y_cdf = np.cumsum(y_pdf) * dx
+			# Protection numérique pour rester dans [0, 1] si possible.
+			if y_cdf.size > 0 and y_cdf[-1] > 0: y_cdf = y_cdf / y_cdf[-1]
+			y = np.clip(y_cdf, 0.0, 1.0)
+			return y if density else y * n  # Conversion densité -> comptes approximatifs.
+		return y_pdf if density else y_pdf * n * bin_width  # convertir la densité en comptes ~ dens * N * bin_width
 
 	##################################################
 	@staticmethod
