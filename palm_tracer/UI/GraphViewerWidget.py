@@ -130,10 +130,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._stack: np.ndarray = np.empty(0)
 		self._df = {"Localization": pd.DataFrame(), "Tracking": pd.DataFrame(), "MSD": pd.DataFrame(), "Instant D": pd.DataFrame(), "Fit": pd.DataFrame()}
 
+		self._is_updating = True
+
 		# Construction UI
 		self._init_ui()
 		self._connect_signals()
-
 		# Tracé initial
 		self._actualize()
 
@@ -341,14 +342,16 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
+		self._is_updating = True
 		# Remplir la ComboBox 'Source' en fonction du domaine
 		if btn_id == 0: src = DATA_SRC["Stack"]  # .		Stack
 		elif btn_id == 1: src = DATA_SRC["Localization"]  # Localization
 		else: src = self._get_tracks_src()  # .				Tracking
 		if self._dual_source.value: src = [s for s in src if s not in DATA_SRC["No Dual"]]
-		self._cmb_src_a.update_box(src)
-		self._cmb_src_b.update_box(src)
+		with self._cmb_src_a.signal_blocked(): self._cmb_src_a.update_box(src)
+		with self._cmb_src_b.signal_blocked(): self._cmb_src_b.update_box(src)
 		self._update_filters_ui()  # .						Mise à jour des filtres à afficher
+		self._is_updating = False
 		self._update_plot()  # .							Puis redessiner le graphe si besoin
 
 	##################################################
@@ -374,7 +377,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		src_id = self._btg_src.checkedId()
 
 		if src_id == 0:  # Stack
-			self._filters["Save"].hide()
+			self._filters["Localization"].hide()
 			self._filters["Tracks"].hide()
 		elif src_id == 1:  # Localisation
 			self._filters["Localization"].show()
@@ -482,7 +485,9 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		En cas d'erreur de lecture, logue l'erreur via :func:`palm_tracer.Tools.Ui.print_error`.
 		"""
-		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+		self._is_updating = True
+		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
+			self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
 
 		# Métadonnées d'information
 		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
@@ -497,18 +502,24 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _reset_filtered(self):
 		"""Supprime les dataframes de filtre."""
-		self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
+		self._is_updating = True
+		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
+			self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
+			self._filters.reset()
 		self._update_df()  # .		 Récupération des bons dataframe
+		self._is_updating = False
 		self._update_plot()  # .	 Puis redessiner le graphe si besoin
 
 	##################################################
 	def _update_filtered(self):
 		"""Applique les filtres sur les dataframes."""
-		with self._pt.settings.signal_blocked():
+		self._is_updating = True
+		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
 			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
 			self._pt.update_filtered()  # Mise à jour des filtres
 
 		self._update_df()  # .			  Récupération des bons dataframe
+		self._is_updating = False
 		self._update_plot()  # .		  Puis redessiner le graphe si besoin
 
 	# ==================================================
@@ -521,6 +532,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
+		if self._is_updating: return
 		src_id = self._btg_src.checkedId()
 		src_a = self._cmb_src_a.current_text
 		src_b = self._cmb_src_b.current_text
@@ -533,6 +545,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		# Préparation des Données
 		data, title = self._get_plot_data()
+		# print(f"{data.shape}, {data.size}, {title}") with data.size over 10M make a warning box
 
 		# Selection du graphique à afficher
 		if src_id == 1 and src_a == "Localizations Count":
