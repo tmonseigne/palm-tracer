@@ -65,6 +65,12 @@ class CheckRangeInt(BaseSettingType):
 		self._layout.addWidget(self._box[1])
 		self._layout.addStretch(1)  # pousse tout à gauche, espace vide à droite
 
+	##################################################
+	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
+		super().reset()
+		self.active = False
+
 	# ==================================================
 	# endregion Initialization
 	# ==================================================

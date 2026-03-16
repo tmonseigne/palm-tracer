@@ -124,6 +124,7 @@ class PALMTracerWidget(QWidget):
 		action_widget.setLayout(btn_action_row)
 		self.layout().addWidget(action_widget)
 
+	##################################################
 	def _connect_signal(self):
 		"""Connecte les signaux UI aux callbacks."""
 		# Boutons QT classiques
@@ -140,13 +141,9 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)  # Calcul automatique du Seuil
 		self.pt.settings.connect(self._on_change_setting)  # .							 Connexion à chaque changement de paramètres
 
-		filters = self.pt.settings.filtering
-		filters.buttons["reset"].clicked.connect(self.pt.reset_filtered)
-		filters.buttons["update"].clicked.connect(self.pt.update_filtered)
-		filters.buttons["save"].clicked.connect(self.pt.save_filtered)
-		filter_loc = filters["Localization"]
-		filter_loc["X"].connect(self._add_roi_filter_layer)  # .						 Mise à jour de la ROI dans l'affichage.
-		filter_loc["Y"].connect(self._add_roi_filter_layer)  # .						 Mise à jour de la ROI dans l'affichage.
+		filters = self.pt.settings.filtering["Localization"]
+		filters["X"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
+		filters["Y"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
 
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))

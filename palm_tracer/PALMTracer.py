@@ -67,6 +67,14 @@ class PALMTracer:
 	# region Initialization
 	# ==================================================
 	##################################################
+	def __post_init__(self):
+		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
+		filters = self.settings.filtering
+		filters.buttons["reset"].clicked.connect(self.reset_filtered)
+		filters.buttons["update"].clicked.connect(self.update_filtered)
+		filters.buttons["save"].clicked.connect(self.save_filtered)
+
+	##################################################
 	def is_dll_valid(self) -> bool:
 		"""
 		Vérifie la validité de la DLL utilisée par le plugin.
@@ -420,6 +428,7 @@ class PALMTracer:
 	##################################################
 	def reset_filtered(self):
 		"""Vide entièrement les DataFrames filtrés dans `df`."""
+		with self.settings.signal_blocked(): self.settings.filtering.reset()
 		for key in self.df:
 			if key.startswith("f_"): self.df[key] = pd.DataFrame()
 
