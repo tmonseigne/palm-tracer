@@ -399,17 +399,10 @@ class PALMTracerWidget(QWidget):
 			# Si le calque existe, mais n'est pas du bon type, on le supprime
 			if l_name in self.viewer.layers:
 				layer = self.viewer.layers[l_name]
-				# Cas particulier en cas de changement de formes, il a du mal à mettre à jour.
-				# Une suppression complete est nécessaire bien que couteuse en temps
-				if layer.shape_type[0] != s_type:
-					self._remove_layer(l_name)
-					self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
-				else:
-					layer.data = rois  # .		 Remplace toutes les formes
-					layer.shape_type = s_type  # Remets les différents arguments en cas de nombre de ROIs différents
-					layer.edge_color = args["color"]
-					layer.edge_width = args["edge"]
-					layer.face_color = "transparent"
+				layer.data = (rois, len(rois) * [s_type])  # Remplace toutes les formes
+				layer.edge_color = args["color"]  # .		 Remets les différents arguments en cas de nombre de ROIs différents
+				layer.edge_width = args["edge"]
+				layer.face_color = "transparent"
 			else:
 				self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
 			self.viewer.layers[l_name].editable = False
