@@ -187,5 +187,5 @@ class CheckRangeInt(BaseSettingType):
 
 	##################################################
 	def update_limits(self, minimum: int | None = None, maximum: int | None = None):
-		"""Mets à jour le max ."""
+		"""Mets à jour le min et le max."""
 		for b in self._box: Ui.update_spin_limits(b, minimum, maximum)

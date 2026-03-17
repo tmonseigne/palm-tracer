@@ -1,6 +1,9 @@
 {
   "data": [
 	{
+	  "cumulative": {
+		"enabled": false
+	  },
 	  "histnorm": "probability density",
 	  "hovertemplate": "(%{x:.2f}, %{y:.2f})<extra></extra>",
 	  "marker": {

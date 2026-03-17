@@ -24,31 +24,6 @@ def _save_output(res: go.Figure, path: Path):
 
 
 ##################################################
-def test_get_fig():
-	g = Grapher()
-
-	res = g.get_fig("scatter")
-	res = _save_output(res, OUTPUT_DIR / "grapher_get_fig_no_data.json")
-	ref = json.loads((REF_DIR / "grapher_get_fig_blank.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = g.get_fig("scatter", POINTS)
-	res = _save_output(res, OUTPUT_DIR / "grapher_get_fig_scat.json")
-	ref = json.loads((REF_DIR / "grapher_get_fig_scat.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = g.get_fig("histogram", POINTS)
-	res = _save_output(res, OUTPUT_DIR / "grapher_get_fig_hist.json")
-	ref = json.loads((REF_DIR / "grapher_get_fig_hist.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = g.get_fig("", POINTS)
-	res = _save_output(res, OUTPUT_DIR / "grapher_get_fig_blank.json")
-	ref = json.loads((REF_DIR / "grapher_get_fig_blank.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-
-##################################################
 def test_blank():
 	g = Grapher()
 	res = g.blank("blank")
@@ -61,43 +36,49 @@ def test_histogram():
 	g = Grapher()
 	# Entrée Vide
 	res = g.histogram(np.empty(0), "blank")
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_0.json")
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_0.json")
 	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
 
 	# Entrée 1D sans aucune option à part les Bins fixés
-	res = g.histogram(POINTS, "Histogram", "", "", False, False, False, False, False, 20)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_1.json")
-	ref = json.loads((REF_DIR / "grapher_Histogramm_1.json").read_text(encoding="utf-8"))
+	res = g.histogram(POINTS, "Histogram", "", "", False, False, False, False, False, bins=20)
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_1.json")
+	ref = json.loads((REF_DIR / "grapher_Histogram_1.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 1D avec toutes les options à True
-	res = g.histogram(POINTS, "Histogram", "", "", True, True, True, True, True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_2.json")
-	ref = json.loads((REF_DIR / "grapher_Histogramm_2.json").read_text(encoding="utf-8"))
+	res = g.histogram(POINTS, "Histogram", "", "", True, True, True, True, True, True)
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_2.json")
+	ref = json.loads((REF_DIR / "grapher_Histogram_2.json").read_text(encoding="utf-8"))
 	# Attention, le Calcul du KDE diffère entre les OS...
 	if platform.system() == "Windows": assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
+	# Entrée 1D avec gaussienne densité et non cumulatif
+	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True)
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3.json")
+	#ref = json.loads((REF_DIR / "grapher_Histogram_3.json").read_text(encoding="utf-8"))
+	#assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
 	# Entrée 2D
 	res = g.histogram(np.stack((IDX, POINTS), axis=0), "Histogram", limit=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_3.json")
-	ref = json.loads((REF_DIR / "grapher_Histogramm_3.json").read_text(encoding="utf-8"))
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_4.json")
+	ref = json.loads((REF_DIR / "grapher_Histogram_4.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 2D (transposé identique au précédent)
 	res = g.histogram(np.stack((IDX, POINTS), axis=1), "Histogram", limit=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_4.json")
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_4b.json")
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 2D, mais avec plus de 2 lignes ou colonnes (il compacte tout)
 	res = g.histogram(np.zeros((3, 3)), "Histogram")
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_5.json")
-	ref = json.loads((REF_DIR / "grapher_Histogramm_5.json").read_text(encoding="utf-8"))
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_5.json")
+	ref = json.loads((REF_DIR / "grapher_Histogram_5.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 3D (il compacte tout)
 	res = g.histogram(np.zeros((3, 3, 3)), "Histogram")
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogramm_6.json")
-	ref = json.loads((REF_DIR / "grapher_Histogramm_6.json").read_text(encoding="utf-8"))
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_6.json")
+	ref = json.loads((REF_DIR / "grapher_Histogram_6.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 

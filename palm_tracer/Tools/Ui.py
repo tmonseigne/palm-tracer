@@ -388,8 +388,7 @@ def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | N
 	:param minimum: Nouvelle borne minimale (optionnelle).
 	:param maximum: Nouvelle borne maximale (optionnelle).
 	"""
-	r0, r1 = spin.minimum() if minimum is None else minimum, spin.maximum() if maximum is None else maximum
-	spin.setRange(r0, r1)
+	spin.setRange(spin.minimum() if minimum is None else minimum, spin.maximum() if maximum is None else maximum)
 
 
 # ==================================================

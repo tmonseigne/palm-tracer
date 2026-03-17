@@ -424,7 +424,6 @@ class PALMTracer:
 	# ==================================================
 	# region Filtering
 	# ==================================================
-
 	##################################################
 	def reset_filtered(self):
 		"""Vide entièrement les DataFrames filtrés dans `df`."""
