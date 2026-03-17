@@ -42,10 +42,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -116,7 +116,7 @@ jobs:
         continue-on-error: true  # Permet de continuer même si cette étape échoue
 
       - name: Upload Test Reports as Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: reports-${{ matrix.platform }}_${{ matrix.python-version }}
           path: |
@@ -138,10 +138,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.13'
 
@@ -215,10 +215,10 @@ jobs:
   #  if: contains(github.ref, 'tags')
   #  steps:
   #    - name: Checkout code
-  #      uses: actions/checkout@v4
+  #      uses: actions/checkout@v6
 
   #    - name: Set up Python
-  #      uses: actions/setup-python@v5
+  #      uses: actions/setup-python@v6
   #      with:
   #        python-version: "3.x"
 
