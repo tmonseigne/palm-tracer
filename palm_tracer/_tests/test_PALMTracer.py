@@ -415,8 +415,10 @@ def test_process_only_tracking(qtbot, capsys, pt):
 	pt.settings.tracking.active = True
 	add_basic_file(pt)
 	pt.process()
+	ref = pt.localizations
+	ref = ref[ref["Integrated Intensity"] > 0]  # Suppression des éléments où la colonne "Integrated Intensity" est inférieure à 0 (l'ajustement a échoué).
 
-	assert len(pt.localizations) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking."
+	assert len(ref) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking."
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 21, [(False, 5), (False, 8), (True, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 

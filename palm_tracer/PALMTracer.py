@@ -348,6 +348,7 @@ class PALMTracer:
 	def _drift_correction(self):
 		"""Lance la correction du drift à partir des paramètres de l'interface."""
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
+		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
 			return
@@ -366,6 +367,7 @@ class PALMTracer:
 	def _tracking(self):
 		"""Lance le suivi à partir des paramètres de l'interface."""
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
+		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
 			return

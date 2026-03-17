@@ -6,11 +6,13 @@ from palm_tracer.Processing.Drift import apply_drift, extract_beads, get_drift
 from palm_tracer.Tools import FileIO, Ui
 
 # TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
-TRESH, FILE = 450, "uTub_Cy3"
-FILE_PATH = INPUT_DIR / "big input" / f"{FILE}.tif"
+# TRESH, FILE = 450, "uTub_Cy3"
+# FILE_PATH = INPUT_DIR / "big input" / f"{FILE}.tif"
+
+TRESH, FILE = 60, "EOS2-20ms-4000f002"
+FILE_PATH = INPUT_DIR / "big input" / "sptPALM" / f"{FILE}.stk"
 LOC_PATH = INPUT_DIR / "big input" / f"{FILE}-localizations-{get_loc_suffix(threshold=TRESH)}.csv"
 TRC_PATH = INPUT_DIR / "big input" / f"{FILE}-tracking-{get_trc_suffix()}.csv"
-
 
 ##################################################
 def test_palm_cpu(qtbot):
@@ -58,7 +60,7 @@ def test_palm_cpu(qtbot):
 	if FILE_PATH.exists() and FILE_PATH.is_file():
 		stack = FileIO.open_tif(FILE_PATH)
 		suffix = get_loc_suffix(threshold=TRESH)
-		localizations = palm.localization(stack, TRESH, default_watershed, default_fit, get_fit_params(default_fit))
+		localizations = palm.localization(stack, TRESH, default_watershed, 2, get_fit_params(2))
 		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{FILE}-localizations-{suffix}.csv", index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
