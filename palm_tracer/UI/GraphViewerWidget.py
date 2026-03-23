@@ -166,23 +166,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
 
-		h = QHBoxLayout()
-		h.setSpacing(0)
-		self._btn_stack, self._btn_loc, self._btn_trc = QPushButton("Stack"), QPushButton("Localization"), QPushButton("Tracks")
-		for b in (self._btn_stack, self._btn_loc, self._btn_trc):
-			b.setCheckable(True)
-			b.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
-			h.addWidget(b)
-
-		# Groupe exclusif
-		self._btg_src = QButtonGroup(self)
-		self._btg_src.setExclusive(True)
-		self._btg_src.addButton(self._btn_stack, 0)
-		self._btg_src.addButton(self._btn_loc, 1)
-		self._btg_src.addButton(self._btn_trc, 2)
-
-		# État initial
-		self._btn_stack.setChecked(True)
+		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Stack", "Localization", "Tracks"])
 
 		form = Ui.make_form(grp_source)
 		form.addRow(h)
@@ -318,11 +302,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		Si le bouton actif devient indisponible (ex. pas de localisation), bascule automatiquement sur "Stack".
 		"""
 		self._update_df()
-		self._btn_loc.setEnabled(not self._df["Localization"].empty)
-		self._btn_trc.setEnabled(not self._df["Tracking"].empty)
+		self._btn_src["Localization"].setEnabled(not self._df["Localization"].empty)
+		self._btn_src["Tracks"].setEnabled(not self._df["Tracking"].empty)
 		# si un bouton désactivé était sélectionné, repasse sur Stack
-		if self._btn_loc.isChecked() and self._df["Localization"].empty: self._btn_stack.setChecked(True)
-		if self._btn_trc.isChecked() and self._df["Tracking"].empty: self._btn_stack.setChecked(True)
+		if self._btn_src["Localization"].isChecked() and self._df["Localization"].empty: self._btn_src["Stack"].setChecked(True)
+		if self._btn_src["Tracks"].isChecked() and self._df["Tracking"].empty: self._btn_src["Stack"].setChecked(True)
 
 	##################################################
 	def _on_source_changed(self, btn_id: int) -> None:

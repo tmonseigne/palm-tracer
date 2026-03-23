@@ -19,7 +19,8 @@ from typing import Any
 from colorama import Fore, Style
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFontMetrics
-from qtpy.QtWidgets import QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QSpinBox, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton, QSpinBox,
+							QVBoxLayout, QWidget)
 
 # ==================================================
 # region Constants
@@ -136,6 +137,35 @@ def make_group(parent: QWidget | None = None, name: str = "", space: int = COMMO
 	layout = QVBoxLayout(group)
 	init_layout(layout, space, margin)
 	return group, layout
+
+
+##################################################
+def make_exclusive_btn_group(labels: list[str], space: int = COMMON_SPACE) -> tuple[QHBoxLayout, QButtonGroup, dict[str, QPushButton]]:
+	"""
+	Crée un :class:`QGroupBox` avec un layout vertical configuré.
+
+	:param labels: Titres affiché dans les boutons.
+	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
+
+	:return: Un tuple ``(group, layout)`` où : ``group`` est le :class:`QGroupBox` créé et ``layout`` son calque.
+	"""
+	layout = QHBoxLayout()
+	layout.setSpacing(space)
+	group = QButtonGroup()
+	group.setExclusive(True)
+	buttons: dict[str, QPushButton] = {label: QPushButton(label) for label in labels}
+
+	i = 0
+	for _, button in buttons.items():
+		button.setCheckable(True)
+		button.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
+		layout.addWidget(button)
+		group.addButton(button, i)  # Insertion dans le groupe exclusif
+		i += 1
+
+	buttons[labels[0]].setChecked(True)
+
+	return layout, group, buttons
 
 
 ##################################################
