@@ -24,6 +24,9 @@ from palm_tracer.Tools import FileIO, Logger, Ui
 from palm_tracer.Tools.Ui import print_warning
 
 MAX_UI_16 = np.iinfo(np.uint16).max
+FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)",
+						  "Yes (Reconnected)", "Yes (Reconnected and Filtered)",
+						  "Yes (Corrected)", "Yes (Corrected and Filtered)"]
 
 
 ##################################################
@@ -123,6 +126,61 @@ class PALMTracer:
 		if self.df["f_MSD"].empty and self.df["f_InD"].empty and self.df["f_Fit"].empty:
 			return ["MSD", "InD", "Fit"]
 		return ["f_MSD", "f_InD", "f_Fit"]
+
+	##################################################
+	def get_status(self) -> dict[str, str]:
+		"""
+		Retourne un dictionnaire décrivant le statut des tableaux actuellement chargés dans ``self._df``
+		pour les différentes catégories de données (Localisation, Trajectoires, MSD, Diffusion instantanée, Fit).
+
+		Cette méthode analyse chaque tableau pour savoir s'il correspond :
+			- à un tableau standard,
+			- à un tableau filtré,
+			- à un tableau reconnecté (pour les trajectoires),
+			- à un tableau corrigé (pour les localisations),
+			- ou à une absence de données.
+
+		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`.
+
+		Le dictionnaire retourné contient systématiquement les clés suivantes :
+		``"Localization"``, ``"Beads"``,``"Tracking"``, ``"MSD"``, ``"Instant D"``, ``"Fit"``
+
+		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
+		"""
+		res = {"Localization": FILE_STATUS[0], "Tracking": FILE_STATUS[0], "MSD": FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
+
+		# --- Localisation ---
+		if self.df["f_dft"].empty:
+			if self.df["dft"].empty:
+				if self.df["f_loc"].empty:
+					if self.df["loc"].empty: res["Localization"] = FILE_STATUS[0]
+					else: res["Localization"] = FILE_STATUS[1]
+				else: res["Localization"] = FILE_STATUS[2]
+			else: res["Localization"] = FILE_STATUS[5]
+		else: res["Localization"] = FILE_STATUS[6]
+
+		# --- Billes ---
+		if self.df["bds"].empty: res["Beads"] = FILE_STATUS[0]
+		else: res["Beads"] = FILE_STATUS[1]
+
+		# --- Suivi ---
+		if self.df["f_blk"].empty:
+			if self.df["blk"].empty:
+				if self.df["f_trc"].empty:
+					if self.df["trc"].empty: res["Tracking"] = FILE_STATUS[0]
+					else: res["Tracking"] = FILE_STATUS[1]
+				else: res["Tracking"] = FILE_STATUS[2]
+			else: res["Tracking"] = FILE_STATUS[3]
+		else: res["Tracking"] = FILE_STATUS[4]
+
+		# --- Calcul sur trajectoires ---
+		tcs = [("MSD", "MSD"), ("InD", "Instant D"), ("Fit", "Fit")]
+		for k1, k2 in tcs:
+			if self.df[f"f_{k1}"].empty:
+				if self.df[k1].empty: res[k2] = FILE_STATUS[0]
+				else: res[k2] = FILE_STATUS[1]
+			else: res[k2] = FILE_STATUS[2]
+		return res
 
 	##################################################
 	@property

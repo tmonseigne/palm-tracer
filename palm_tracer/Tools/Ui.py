@@ -226,6 +226,33 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 
 
 ##################################################
+def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> tuple[QGroupBox, dict[str, QLabel]]:
+	"""
+	Construit un groupe d'information pour le listing des fichiers calculés.
+
+	Le groupe est composée de : un titre, la liste des fichiers et leurs status.
+	:return: Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de status des fichiers.
+	"""
+	grp = QGroupBox("Informations")
+	tips = {"File":         "Current stack.",
+			"Localization": "Localizations on the current stack.",
+			"Beads":        "Beads on the current stack.",
+			"Tracking":     "Tracking on the current stack.",
+			"MSD":          "Mean Square Displacement of tracks on the current stack.",
+			"Instant D":    "Instant Diffusion of tracks on the current stack.",
+			"Fit":          "Fit of tracks on the current stack."}
+
+	# Statut des différentes tables (localisation / tracking / MSD / D / fit)
+	status = {"File":         QLabel("No file"),
+			  "Localization": QLabel("No"), "Beads": QLabel("No"), "Tracking": QLabel("No"),
+			  "MSD":          QLabel("No"), "Instant D": QLabel("No"), "Fit": QLabel("No")}
+
+	form = make_form(grp, space, margin)
+	for key, value in status.items(): add_setting_row(form, f"{key}: ", value, tooltip=tips[key])
+	return grp, status
+
+
+##################################################
 def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 	"""
 	Crée un :class:`QLabel` stylisé pour afficher un chemin ou un nom de fichier.
