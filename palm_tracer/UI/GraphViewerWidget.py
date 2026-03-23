@@ -67,9 +67,6 @@ TIPS = {
 		"Density":     "The data on Y is expressed in terms of density.",
 		"Count":       "The data on Y is expressed in terms of count.",
 
-		"Reset":       "Removes filtered data.",
-		"Update":      "Applies filters to the data.",
-
 		"Actualize":   "Updates files/data from PALMTracer status.",
 		"Export":      "Opens a dialog box and exports the figure according to the selected extension.",
 		}
@@ -166,13 +163,13 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
 
-		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Stack", "Localization", "Tracks"])
+		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Stack", "Localization", "Tracks"], 0)
 
 		form = Ui.make_form(grp_source)
 		form.addRow(h)
 
 		# Combo box
-		self._cmb_src_a = Combo("Source: ", TIPS["Source"])
+		self._cmb_src_a = Combo("Source", TIPS["Source"])
 		self._cmb_src_a.box.setMinimumWidth(200)
 		self._cmb_src_a.attach_to_form(form)
 		self._msd_step = SpinInt("MSD Step", TIPS["MSD Step"], 1, [1, 10000], 1)
@@ -182,7 +179,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._dual_source = CheckBox("Dual Source", TIPS["Dual Source"])
 		self._dual_source.attach_to_form(form)
 
-		self._cmb_src_b = Combo("Source: ", TIPS["Source"])
+		self._cmb_src_b = Combo("Source", TIPS["Source"])
 		self._cmb_src_b.attach_to_form(form)
 		self._cmb_src_b.box.setMinimumWidth(200)
 		self._cmb_src_b.hide()

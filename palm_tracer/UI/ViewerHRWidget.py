@@ -8,18 +8,46 @@ Ce widget ajoute dans le dock de Napari :
 	- Un boutotn pour sauvegarder une image PNG résultat
 """
 from pathlib import Path
+from typing import cast
 
 import napari
 import numpy as np
 from napari.utils.notifications import show_info, show_warning
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QFileDialog, QFormLayout, QHBoxLayout, QPushButton, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing.Visualization import render_hr_image, render_tracks_image
+from palm_tracer.Settings.Groups import Filtering
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
-from palm_tracer.Settings.Types import Combo, SpinFloat, SpinInt
-from palm_tracer.Tools.FileIO import grayscale_to_color, save_png
+from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
+from palm_tracer.Tools import FileIO, Ui
+
+# ==================================================
+# region Constantes
+# ==================================================
+DATA_SRC: dict[str, list] = {
+		"Localization": ["Localizations Count", "X", "Y", "Z", "Integrated Intensity",
+						 "Sigma X", "Sigma Y", "Circularity", "Theta", "Surface", "MSE XY", "MSE Z"],
+		"Tracking":     ["Length"],
+		}
+
+TIPS = {
+		"Add Stack":       "Add a stack to the batch and load the latest results for it.\n"
+						   "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
+
+		"Source":          "Data selected for Graph.",
+		"Gaussian":        "",
+		"Fixed Intensity": "",
+
+		"Actualize":       "Updates files/data from PALMTracer status.",
+		"Generate":        "Generate HR Visualization.",
+		"Save":            "Opens a dialog box and save the visualization generated.",
+		}
+
+
+# ==================================================
+# endregion Constantes
+# ==================================================
 
 
 class ViewerHRWidget(QWidget):
@@ -40,6 +68,9 @@ class ViewerHRWidget(QWidget):
 	:param palmtracer: Instance PALMTracer à lier.
 	"""
 
+	# ==================================================
+	# region Initialisation
+	# ==================================================
 	##################################################
 	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer):
 		"""
@@ -51,58 +82,141 @@ class ViewerHRWidget(QWidget):
 		"""
 		super().__init__()
 		self.viewer = viewer
+		self._pt = palmtracer
+		self._file: str = ""
 		self._stack: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
-		self._filename: str = ""
-		self._pt = palmtracer
-		self._widget = QWidget()
-		layout = QFormLayout(self._widget)
-		layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Définir l'alignement du calque en haut.
 
+		# Construction UI
+		self._init_ui()
+		self._connect_signals()
+
+	# Chargement et génération par défaut (si l'objet palmtracer est déjà configuré avec une pile, il lancera une première génération)
+	# self._generate()
+
+	##################################################
+	def _init_ui(self):
+		"""
+		Construit l'interface utilisateur :
+				- Informations : Nom du fichier, présence Localizations/Tracking.
+				- Domaine : 3 boutons exclusifs (Stack/Localization/Tracking).
+				- Source : ComboBox dépendante du domaine sélectionné.
+				- Filtres : Section réservée (non implémentée).
+				- Actions : Actualize files / Export…
+		"""
+		self._widget = QWidget()
+		layout = QVBoxLayout(self._widget)
+		Ui.init_layout(layout, space=10)
 		self.setLayout(layout)
 
-		# Bouton de chargement du dossier
-		btn = QPushButton("Select Folder")
-		btn.clicked.connect(self.load_folder)
-		layout.addWidget(btn)
+		# --- Boutton pour charger une stack ---
+		self._btn_add_stack = QPushButton("Add Stack")
+		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
 
-		# Spinbox taille des points
-		self.size_spin = SpinFloat("Point Size", "", 1, [0.1, 10], 0.1, 1)
-		self.size_spin.attach_to_form(layout)
+		# --- Bloc Infos (lecture seule) ---
+		grp_infos, self._status = Ui.make_file_info_group(margin=10)
 
-		# Spinbox facteur d'agrandissement
+		# --- Bloc Sources ---
+		grp_source = QGroupBox("Source")
+
+		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Localization", "Tracks"])
+
+		form = Ui.make_form(grp_source)
+		Ui.init_layout(form, margin=10)
+		form.addRow(h)
+		# Combo box
+		self._cmb_src = Combo("Source", TIPS["Source"])
+		self._cmb_src.box.setMinimumWidth(200)
+		self._cmb_src.attach_to_form(form)
+
+		self._gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
+		self._gaussian.attach_to_form(form)
+
+		self._fix = CheckBox("Fixed Intensity", TIPS["Fixed Intensity"])
+		self._fix.attach_to_form(form)
+
 		self.upscale_spin = SpinInt("Upscale Ratio", "", 4, [1, 100], 2)
-		self.upscale_spin.attach_to_form(layout)
+		self.upscale_spin.attach_to_form(form)
 
-		# Combo box pour la source
-		self.type_cmb = Combo("Visualization Type", "", 0, ["Localization", "Tracks"])
-		self.type_cmb.attach_to_form(layout)
-		self.type_cmb.connect(self.update_source)
+		# --- Bloc Filtres ---
+		grp_filters, vbox_filters = Ui.make_group(self, "Filters", margin=10)
+		# Integration des Filtres
+		self._filters = Filtering()
+		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+		vbox_filters.addWidget(self._filters.widget)
+		# Masquage initial
+		self._filters["Save"].hide()
+		self._filters["Localization"].remove_header()
+		self._filters["Tracks"].remove_header()
+		self._filters["Tracks"].hide()
 
-		self.source_cmb = Combo("Color Source")
-		self.source_cmb.attach_to_form(layout)
+		# --- Actions ---
+		actions_row = QHBoxLayout()
+		Ui.init_layout(actions_row)
+		self._btn_actualize = QPushButton("Actualize files")
+		self._btn_actualize.setToolTip(TIPS["Actualize"])
+		self._btn_generate = QPushButton("Generate")
+		self._btn_generate.setToolTip(TIPS["Generate"])
+		self._btn_save = QPushButton("Save")
+		self._btn_save.setToolTip(TIPS["Save"])
+		actions_row.addStretch(1)  # permet d'aligner à droite
+		actions_row.addWidget(self._btn_actualize)
+		actions_row.addWidget(self._btn_generate)
+		actions_row.addWidget(self._btn_save)
 
-		self.color_cmb = Combo("PNG Color Map", "", 0, ["grayscale", "viridis", "magma", "plasma", "inferno", "cividis", "turbo"])
-		self.color_cmb.attach_to_form(layout)
+		layout.addWidget(self._btn_add_stack)
+		layout.addWidget(grp_infos)
+		layout.addWidget(grp_source)
+		layout.addWidget(grp_filters)
+		layout.addLayout(actions_row)
 
-		btn_generate = QPushButton("Generate")
-		btn_generate.clicked.connect(self.generate)
-		btn_save = QPushButton("Save")
-		btn_save.clicked.connect(self.save)
-		# Ligne de boutons
-		action_row = QHBoxLayout()
-		action_row.addWidget(btn_generate)
-		action_row.addWidget(btn_save)
-		# Encapsulation dans un QWidget
-		action_widget = QWidget()
-		action_widget.setLayout(action_row)
-		# Ajout au layout
-		layout.addRow(action_widget)
-		self.update_source()
+	##################################################
+	def _connect_signals(self):
+		"""Connecte les signaux UI aux callbacks."""
+		self._btn_add_stack.clicked.connect(self._add_stack)
 
-		# Chargement et génération par défaut (si l'objet palmtracer est déjà configuré avec une pile, il lancera une première génération)
-		self._pt.load()
-		self.generate()
+	# ==================================================
+	# endregion Initialisation
+	# ==================================================
+
+	# ==================================================
+	# region UI Callback
+	# ==================================================
+
+	# ==================================================
+	# endregion UI Callback
+	# ==================================================
+
+	# ==================================================
+	# region PALMTracer Link
+	# ==================================================
+	##################################################
+	def _add_stack(self):
+		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
+		cast(FileList, self._pt.settings.batch["Files"]).add_file()
+		self._pt.load()  # . Chargement des derniers résultats
+		status = self._pt.get_status()
+		for key in status: self._status[key].setText(status[key])
+
+	# ==================================================
+	# endregion PALMTracer Link
+	# ==================================================
+
+	# ==================================================
+	# region Drawing
+	# ==================================================
+
+	# ==================================================
+	# endregion Drawing
+	# ==================================================
+
+	# ==================================================
+	# region Export
+	# ==================================================
+
+	# ==================================================
+	# endregion Export
+	# ==================================================
 
 	##################################################
 	def load_folder(self):
@@ -113,7 +227,7 @@ class ViewerHRWidget(QWidget):
 		"""
 		path = QFileDialog.getExistingDirectory(self, "Load Folder", ".")
 		self._pt.load(path)
-		self.generate()
+		self._generate()
 
 	##################################################
 	def update_source(self):
@@ -125,7 +239,7 @@ class ViewerHRWidget(QWidget):
 			self.color_cmb.value = data_type  # Place la color map sur grayscale par défaut pour les localisations et sur viridis pour les trajectoires.
 
 	##################################################
-	def generate(self):
+	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
 		path, stack, suffix = self._pt.path, self._pt.stack, self._pt.suffix
 		if not path or not Path(path).is_dir():
@@ -174,7 +288,7 @@ class ViewerHRWidget(QWidget):
 			self.visualization = render_tracks_image(width, height, upscale, trc)
 
 		layer.editable = False
-		if color != "grayscale": self.visualization = grayscale_to_color(self.visualization, color)
+		if color != "grayscale": self.visualization = FileIO.grayscale_to_color(self.visualization, color)
 		self._filename = f"{path}/visualization_{data_type}_x{upscale}_{src}-{suffix}.png"
 		layer = self.viewer.add_image(self.visualization, name="Visualization", visible=False)
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
@@ -183,7 +297,7 @@ class ViewerHRWidget(QWidget):
 	def save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
-			save_png(self.visualization, self._filename)
+			FileIO.save_png(self.visualization, self._filename)
 			show_info("Saving the image file.")
 
 
