@@ -1,0 +1,536 @@
+#: ../../user/examples/02_Astig_3D.rst:2
+msgid "Cas 2 : Astigmatism 3D"
+msgstr "Case 2: Astigmatism 3D"
+
+#: ../../user/examples/02_Astig_3D.rst:4
+msgid "Work In Progress"
+msgstr ""
+
+#: ../../user/examples/02_Astig_3D.rst:11
+msgid "Contexte : L’astigmatisme 3D est une technique de microscopie de super-résolution permettant d’estimer la position axiale (Z) des molécules individuelles à partir de la déformation de leur PSF. En introduisant une aberration astigmatique dans le système optique, la PSF devient elliptique : sa largeur selon X et Y varie en fonction de la profondeur. Cette dépendance entre la forme de la PSF et la position axiale permet de reconstruire des localisations 3D à partir d’images 2D. Dans ce cas d’utilisation, nous allons explorer comment utiliser Napari et PALMTracer pour calibrer un modèle astigmatique et analyser des données de localisation 3D."
+msgstr "Context: 3D astigmatism is a super-resolution microscopy technique that allows the axial (Z) position of individual molecules to be estimated based on the distortion of their PSF. By introducing an astigmatic aberration into the optical system, the PSF becomes elliptical: its width along the X and Y axes varies with depth. This relationship between the shape of the PSF and the axial position allows for the reconstruction of 3D localizations from 2D images. In this use case, we will explore how to use Napari and PALMTracer to calibrate an astigmatic model and analyze 3D localization data."
+
+#: ../../user/examples/02_Astig_3D.rst:18
+msgid "Ouvrir Napari et PALMTracer"
+msgstr "Open Napari and PALMTracer"
+
+#: ../../user/examples/02_Astig_3D.rst:20
+msgid "Suivez les instructions d'installation pour PALMTracer, puis lancez-le (plus d'informations :ref:`ici <install_page>`). Assurez-vous que vous avez les données de calibrations et d'analyses prêtes à être analysées."
+msgstr "Follow the installation instructions for PALMTracer, then launch it (more information:ref:`here <install_page>`). Make sure you have the SPT data ready for analysis."
+
+#: ../../user/examples/02_Astig_3D.rst:23
+msgid "La méthode d'accès aux données peut être une source de ralentissement. Si vous accédez à vos données via un réseau, il est recommandé de les copier localement pour accélérer le traitement. De plus, si vous avez des données volumineuses, assurez-vous d'avoir suffisamment de mémoire RAM pour les traiter efficacement. Un fichier de 20Go nécessite au moins 32Go de RAM. En dessous de cette limite, d'importants ralentissements pourront être présents."
+msgstr "The method of accessing the data can cause slowdowns. If you are accessing your data over a network, it is recommended that you copy it locally to speed up processing. Additionally, if you have large datasets, ensure you have sufficient RAM to process them efficiently. A 20GB file requires at least 32GB of RAM. Below this limit, significant slowdowns may occur."
+
+#: ../../user/examples/02_Astig_3D.rst:29
+msgid "Récupérer les données de calibration"
+msgstr "Retrieving the calibration data"
+
+#: ../../user/examples/02_Astig_3D.rst:32
+msgid "Ouvrir le fichier de données"
+msgstr "Open the data file"
+
+#: ../../user/examples/02_Astig_3D.rst:34
+msgid "<!-- C:\\Git\\palm-tracer\\palm_tracer\\_tests\\input\\big input\\DNA_PAINT_Eva\\3D_callib\\560nm_3D-stack.stk -->"
+msgstr ""
+
+#: ../../user/examples/02_Astig_3D.rst:36
+msgid "Dans notre exemple, nous avons des données de calibration sous forme d'un fichier :file:`STK` (:file:`calib3D.stk`) de Metamorph (il s'agit simplement d'un fichier :file:`TIFF` mais Metamorph insère sa propre extension). Nous avons 1 fichier de 201 Frames de taille 512x512."
+msgstr "In our example, we have calibration data in the form of a :file:`STK` file (:file:`calib3D.stk`) from Metamorph (this is simply a :file:`TIFF` file, but Metamorph adds its own extension). We have 1 file containing 201 frames, each 512x512 pixels in size."
+
+#: ../../user/examples/02_Astig_3D.rst:40
+msgid "Pour commencer le traitement, nous allons charger le fichier. Vous pouvez cliquer sur le bouton :guilabel:`+` dans la section Batch du plugin PALMTracer, allez chercher votre fichier pour l'ajouter."
+msgstr "To begin processing, we will load the file. You can click the :guilabel:`+` button in the Batch section of the PALMTracer plugin, then browse for your file to add it."
+
+#: ../../user/examples/02_Astig_3D.rst:43
+#: ../../user/examples/02_Astig_3D.rst:54
+msgid "Paramètres de Batch."
+msgstr "Batch settings."
+
+#: ../../user/examples/02_Astig_3D.rst:50
+msgid "Une fois le fichier chargé, vous avez une prévisualisation de votre pile (par défaut positionné au plan central de la pile). Vous pouvez modifier le contraste et la colormap pour bien visualiser les données. Vous pouvez parcourir les plans avec les flèches gauche et droite du clavier ou directement sur le bas de la partie visualisation de Napari."
+msgstr "Once the file is loaded, you’ll see a preview of your stack (positioned by default at the center of the stack). You can adjust the contrast and color map to better visualize the data. You can navigate through the slices using the left and right arrow keys on your keyboard or directly at the bottom of the Napari visualization part."
+
+#: ../../user/examples/02_Astig_3D.rst:62
+msgid "L'initialisation des paramètres de localisation"
+msgstr "Initializing the localization settings"
+
+#: ../../user/examples/02_Astig_3D.rst:64
+msgid "La première étape consiste à trouver les paramètres de localisation optimaux pour vos données. Il suffit de cliquer sur localisation pour activer cette étape de traitement, puis de cliquer sur le bouton :guilabel:`Preview` pour voir les points détectés en temps réel sur votre image."
+msgstr "The first step is to find the optimal localization settings for your data. Simply click on “Localization” to activate this processing step, then click the :guilabel:`Preview` button to see the detected points in real time on your image."
+
+#: ../../user/examples/02_Astig_3D.rst:68
+msgid "Le bouton :guilabel:`Auto Threshold` permet de trouver un seuil de détection automatique, mais il est souvent nécessaire de le modifier."
+msgstr "The :guilabel:`Auto Threshold` button allows you to find an automatic detection threshold, but it is often necessary to modify it."
+
+#: ../../user/examples/02_Astig_3D.rst:70
+msgid "On active le fit gaussien avec l'option :guilabel:`X, Y, SigmaX, SigmaY`"
+msgstr "Activate the Gaussian fit using the :guilabel:`X, Y, SigmaX, SigmaY` option"
+
+#: ../../user/examples/02_Astig_3D.rst:72
+msgid "En naviguant dans les plans, on peut voir que les PSF des points détectés changent de forme selon le plan, c'est l'effet de l'astigmatisme qui va permettre de faire la calibration ensuite. Vous pouvez, ainsi, estimer si vos réglages sont bons ou pas : vous devez avoir des PSF qui vont du premier au dernier plan sans interruption. Dans notre cas, nous remarquons un dédoublement des points à partir du plan 190. La raison est simple, avec un décalage trop important par rapport au centre l'ajustement gaussien ne permet plus de correctement distinguer les points."
+msgstr "As you navigate through the planes, you can see that the PSFs of the detected points change shape depending on the plane; this is the effect of astigmatism, which will allow for calibration later. You can thus assess whether your settings are correct or not: you should have PSFs that extend from the first to the last plane without interruption. In our case, we notice a doubling of the points starting from plane 190. The reason is simple: with too large an offset from the center, the Gaussian fit can no longer correctly distinguish the points."
+
+#: ../../user/examples/02_Astig_3D.rst:82
+#: ../../user/examples/02_Astig_3D.rst:88
+msgid "Détection sur un plan central"
+msgstr "Detection on a central plane"
+
+#: ../../user/examples/02_Astig_3D.rst:90
+#: ../../user/examples/02_Astig_3D.rst:96
+msgid "Détection sur un plan extrême"
+msgstr "Detection on an extreme plane"
+
+#: ../../user/examples/02_Astig_3D.rst:98
+msgid "Plusieurs options sont à votre disposition pour régler ce problème :"
+msgstr "There are several options available to address this issue:"
+
+#: ../../user/examples/02_Astig_3D.rst:100
+msgid "Couper les plans extrêmes, en effet ces localisations sont faussées par leur distance au plan d'acquisition et donc difficiles à traiter."
+msgstr "Crop the extreme planes, as these locations are distorted by their distance from the acquisition plane and are therefore difficult to process."
+
+#: ../../user/examples/02_Astig_3D.rst:101
+msgid "Ajuster le seuil, mais il est possible que ça ne suffise pas et devienne compliqué à gérer. L'option auto threshold peut être lancée sur plusieurs plans afin de vérifier que le seuil est adapté à tous les plans."
+msgstr "Adjust the threshold, but this may not be sufficient and could become difficult to manage. The auto threshold option can be applied to multiple images to verify that the threshold is appropriate for all images."
+
+#: ../../user/examples/02_Astig_3D.rst:102
+msgid "Sélectionner une zone avec une ou plusieurs PSF qui sont propres du début à la fin."
+msgstr "Select an area with one or more PSFs that are clean from start to finish."
+
+#: ../../user/examples/02_Astig_3D.rst:104
+msgid "Comme souvent, il va falloir jouer un peu sur les 3 tableaux et trouver un compromis satisfaisant. De plus, le Watershed est activé, ce qui permet de séparer les points proches. Nous ne souhaitons pas ce comportement pour la calibration, il est donc préférable de le désactiver."
+msgstr "As is often the case, you’ll need to experiment a bit with all three settings to find a satisfactory compromise. Additionally, Watershed is enabled, which separates closely spaced points. We don’t want this behavior for calibration, so it’s best to disable it."
+
+#: ../../user/examples/02_Astig_3D.rst:107
+msgid "Pour sélectionner une zone et un sous-ensemble de plans, vous pouvez utiliser la partie :guilabel:`Filtering` avec des limitations sur les plans, l'axe X et l'axe Y. Un Carré rouge apparaitra lors de la sélection de filtres sur X ou Y."
+msgstr "To select an area and a subset of planes, you can use the :guilabel:`Filtering` section with restrictions on the planes, the X-axis, and the Y-axis. A red square will appear when selecting filters on X or Y."
+
+#: ../../user/examples/02_Astig_3D.rst:110
+msgid "Pour que les éléments filtrés soient enregistrés dans un fichier, il faut que le bouton :guilabel:`Save Filtered` soit actif. Sinon, seul le fichier de localisation brute sera enregistré."
+msgstr "For the filtered elements to be saved to a file, the :guilabel:`Save Filtered` button must be active. Otherwise, only the raw location file will be saved."
+
+#: ../../user/examples/02_Astig_3D.rst:112
+msgid "Il est recommandé d'utiliser des outils comme ImageJ pour faire une sélection plus précise, la garder en mémoire et l'importer dans Napari pour faire la calibration uniquement sur cette zone. Cela peut vous éviter d'avoir à gérer les filtres pour le moment. De plus, ImageJ possède de nombreux outils vous permettant de vérifier la taille et la forme des PSF plus précisément que la prévisualisation de Napari."
+msgstr "We recommend using tools like ImageJ to make a more precise selection, save it, and import it into Napari so that calibration is performed only on that area. This can save you from having to manage filters for now. Additionally, ImageJ offers many tools that allow you to check the size and shape of the PSFs more accurately than Napari’s preview."
+
+#: ../../user/examples/02_Astig_3D.rst:117
+msgid "L'angle des échantillons"
+msgstr "The angle of the samples"
+
+#: ../../user/examples/02_Astig_3D.rst:119
+msgid "Maintenant, nous allons régler l'angle thêta de l'ajustement gaussien. Il est possible d'utiliser l'option :guilabel:`X, Y, SigmaX, SigmaY, Theta` pour l'ajustement gaussien. Durant la prévisualisation, vous avez dans le terminal des informations sur les angles des points détectés dans le plan précédent, actuel et suivant. Il s'agit d'un indicateur vous permettant de trouver une orientation globale pour votre échantillon. En effet, si vous avez une orientation globale de votre échantillon, il est préférable de faire la calibration avec un thêta fixe pour éviter les erreurs de thêta qui peuvent arriver sur certains points et fausser la calibration."
+msgstr "Now, we will adjust the theta angle of the Gaussian fit. You can use the option :guilabel:`X, Y, SigmaX, SigmaY, Theta` for the Gaussian fit. During the preview, the terminal displays information about the angles of the detected points in the previous, current, and next planes. This is an indicator that helps you determine the overall orientation of your sample. Indeed, if you know the overall orientation of your sample, it is best to perform the calibration with a fixed theta to avoid theta errors that can occur at certain points and skew the calibration."
+
+#: ../../user/examples/02_Astig_3D.rst:124
+msgid "Si vous utilisez les filtres, au lieu d'avoir créé un fichier minimal, ces informations ne sont que des indicateurs partiels. Leurs pertinences peuvent dépendre de vos données et elles sont calculées avant le filtrage. Donc si vous avez filtré des éléments sur une zone, l'ensemble des localisations seront utilisées."
+msgstr "If you use filters, rather than having created a minimal file, this information is only a partial guide. Its relevance may depend on your data, and it is calculated before filtering. Therefore, if you have filtered elements in an area, all locations will be used."
+
+#: ../../user/examples/02_Astig_3D.rst:128
+msgid "Vous pouvez utiliser le Graphviewer pour faire une visualisation plus précise de la distribution des angles et trouver une valeur globale qui vous semble cohérente. Vous pouvez également analyser le fichier de localisation brute pour trouver une valeur de thêta qui correspond à l'orientation de votre échantillon."
+msgstr "You can use the Graphviewer to visualize the angle distribution more accurately and find an overall value that seems reasonable to you. You can also analyze the raw location file to find a theta value that corresponds to the orientation of your sample."
+
+#: ../../user/examples/02_Astig_3D.rst:131
+msgid "Les angles sont toujours exprimés en degrés. Si vous analysez vos données dans d'autres logiciels, il est possible qu'ils n'acceptent que les radians. Assurez-vous de faire la conversion en radians si nécessaire."
+msgstr "Angles are always expressed in degrees. If you analyze your data in other software, it may only accept radians. Be sure to convert to radians if necessary."
+
+#: ../../user/examples/02_Astig_3D.rst:135
+msgid "Extraction des billes"
+msgstr "Bead Extraction"
+
+#: ../../user/examples/02_Astig_3D.rst:137
+msgid "Maintenant que nous avons trouvé des paramètres de localisation qui nous semblent corrects, nous pouvons lancer la localisation sur l'ensemble de la pile. Il suffit de cliquer sur le bouton :guilabel:`Start Processing` pour lancer la localisation avec un fit gaussien permettant le calcul des sigmas anisotropes (option :guilabel:`X, Y, SigmaX, SigmaY` et un théta (:math:`\\theta`) fixe préalablement calculé)."
+msgstr "Now that we have found localization settings that seem correct, we can run the localization on the entire stack. Simply click the :guilabel:`Start Processing` button to run the localization using a Gaussian fit that allows for the calculation of anisotropic sigmas (options: :guilabel:`X, Y, SigmaX, SigmaY` and a fixed theta (:math:`\\theta`) calculated beforehand)."
+
+#: ../../user/examples/02_Astig_3D.rst:141
+msgid "À partir de ce moment, vous aurez un fichier de localisation brute qui sera enregistré dans le dossier dédié (:file:`calib3D_PALM_Tracer`), ainsi qu'un fichier de localisation filtrée si vous avez activé des filtres et l'option :guilabel:`Save Filtered`."
+msgstr "From this point on, you will have a raw localization file that will be saved in the dedicated folder (:file:`calib3D_PALM_Tracer`), as well as a filtered localization file if you have enabled filters and the :guilabel:`Save Filtered` option."
+
+#: ../../user/examples/02_Astig_3D.rst:144
+msgid "Vous avez maintenant un fichier avec, du plan 1 à N, des localisations, mais possiblement plusieurs billes par plan. Ce choix implique que les billes doivent être identifiées. En effet, à différents endroits du plan, rien n'indique que nos billes sont exactement à la même position axiale Z."
+msgstr "You now have a file containing, from plane 1 to N, localizations, but possibly multiple balls per plane. This choice implies that the balls must be identified. Indeed, at different locations within the plane, there is no indication that our balls are exactly at the same position along the axis Z."
+
+#: ../../user/examples/02_Astig_3D.rst:147
+msgid "Sous la localisation vous avez l'étape d'extraction de billes. Il va chercher dans vos localisations celles qui sont proches (dans un rayon défini par le paramètre :guilabel:`Max Distance`) et qui sont présentes dans l'ensemble des plans, donc sans interruption, avec une tolérance si vous n'avez aucune localisation sur les premiers ou derniers plans, mais vous avez sans doute filtré les plans extrêmes ou fait un fichier contenant uniquement la zone et les plans utiles."
+msgstr "Below the location, you'll find the log extraction step. It searches your locations for those that are close (within a radius defined by the :guilabel:`Max Distance` setting) and that are present in all the frames—meaning without interruption—with some leeway if you have no locations on the first or last frames, though you have likely filtered out the extreme frames or created a file containing only the relevant area and frames."
+
+#: ../../user/examples/02_Astig_3D.rst:152
+msgid "Vous pouvez voir un fichier :file:`calib3D_PALM_Tracer/Beads_TIMESTAMP.csv` qui contient les localisations des billes extraites et identifiées. De plus, le log affiché dans le terminal, qui est enregistré dans un fichier :file:`calib3D_PALM_Tracer/log_TIMESTAMP.log`, vous indique le nom du fichier utilisé, le nombre de localisations traitées, le nombre de billes déduites."
+msgstr "You can view a file:file:`calib3D_PALM_Tracer/Beads_TIMESTAMP.csv` that contains the locations of the extracted and identified beads. Additionally, the log displayed in the terminal, which is saved in a file: `calib3D_PALM_Tracer/log_TIMESTAMP.log`, shows you the name of the file used, the number of locations processed, and the number of beads detected."
+
+#: ../../user/examples/02_Astig_3D.rst:155
+msgid "Il est possible que vos données ne puissent être suffisamment propres pour extraire des billes."
+msgstr "It is possible that your data may not be clean enough to extract beads."
+
+#: ../../user/examples/02_Astig_3D.rst:157
+msgid "Dans ce cas, il faudra utiliser le fichier de localisation, lors de l'étape suivante, et le forcer à ne prendre qu'une bille par plan avec l'option :guilabel:`Only one Bead`, mais cela peut rendre la calibration plus difficile et moins précise. Il est donc préférable d'avoir des données de calibration de bonne qualité pour cette étape. Au moins un plan ne doit contenir qu'une seule localisation pour qu'il la considère comme position standard de la bille et puisse faire sa sélection sur les plans contenant plusieurs localisations."
+msgstr "In this case, you will need to use the location file during the next step and force it to take only one bead per frame using the :guilabel:`Only one Bead` option, but this may make calibration more difficult and less accurate. It is therefore preferable to have high-quality calibration data for this step. At least one image must contain only a single location so that it can be considered the standard position of the bead and the selection can be made on images containing multiple locations."
+
+#: ../../user/examples/02_Astig_3D.rst:162
+msgid "Calculer le modèle d'astigmatisme 3D"
+msgstr "Computes the 3D Astigmatism Model"
+
+#: ../../user/examples/02_Astig_3D.rst:164
+msgid "Maintenant que nous avons les localisations des billes extraites, nous pouvons calculer le modèle d'astigmatisme 3D. Ce modèle reflète la position axiale en Z en fonction de la différence de forme des PSF. Il est calculé à partir des localisations des billes extraites et de leurs positions axiales Z connues."
+msgstr "Now that we have the locations of the extracted speckles, we can calculate the 3D astigmatism model. This model reflects the axial Z position as a function of the difference in PSF shape. It is calculated based on the locations of the extracted speckles and their known axial Z positions."
+
+#: ../../user/examples/02_Astig_3D.rst:168
+msgid "Astigmatism 3D Tool"
+msgstr ""
+
+#: ../../user/examples/02_Astig_3D.rst:170
+msgid "Astigmatism 3D Tool."
+msgstr ""
+
+#: ../../user/examples/02_Astig_3D.rst:177
+msgid "L'outil est indépendant de Napari, il peut être lancé depuis le menu :menuselection:`Plugins --> PALM Tracer --> Astigmatism 3D Tool` (plus d'informations :ref:`ici <tool_astig_page>`)."
+msgstr "The tool is independent of Napari; it can be launched from the menu:menuselection:`Plugins --> PALM Tracer --> Astigmatism 3D Tool` (more information:ref:`here <tool_astig_page>`)."
+
+#: ../../user/examples/02_Astig_3D.rst:179
+msgid "Il suffit de sélectionner le fichier :file:`Beads_TIMESTAMP.csv` et de définir les paramètres de calibration."
+msgstr "Simply select the file :file:`Beads_TIMESTAMP.csv` and define the calibration settings."
+
+#: ../../user/examples/02_Astig_3D.rst:181
+msgid ":guilabel:`Only one Bead` doit être activée, si vous ne voulez pas moyenner les billes entre elles, et n'en conserver qu'une seule. Sinon, le modèle sera calculé à partir de l'ensemble des billes extraites. Il doit obligatoirement être activé si vous n'avez pas effectué l'étape d'extraction des billes et que vous possédez un fichier de localisation brute."
+msgstr ":guilabel:`Only one Bead` must be enabled if you do not want to average the beads against each other and wish to keep only one. Otherwise, the model will be calculated based on all the extracted beads. It must be enabled if you have not performed the bead extraction step and are working with a raw localization file."
+
+#: ../../user/examples/02_Astig_3D.rst:183
+msgid ":guilabel:`Pixel Size`, la résolution spatiale doit être indiquée pour que les unités soient cohérentes, elle doit être la même que celle utilisée lors de la localisation."
+msgstr ":guilabel:`Pixel Size`: The spatial resolution must be specified to ensure consistent units; it must be the same as the one used during localization."
+
+#: ../../user/examples/02_Astig_3D.rst:184
+msgid ":guilabel:`Z max` permet de borner les calculs et éviter que le modèle ne soit perturbé par des aberrations."
+msgstr ":guilabel:`Z max` allows you to limit the calculations and prevent the model from being distorted by aberrations."
+
+#: ../../user/examples/02_Astig_3D.rst:185
+msgid ":guilabel:`Get Z from plane` permet d'activer le calcul de Z à partir du numéro du plan, car notre localisation initiale ne contient pas d'informations sur cet axe. Cette option devra toujours être activée dans notre exemple de traitement, mais si vous avez un fichier de localisation avec une colonne Z déjà remplie, vous pouvez la désactiver et utiliser cette colonne pour faire la calibration."
+msgstr ":guilabel:`Get Z from plane` enables Z calculation based on the plane number, since our initial localization does not contain information on this axis. This option must always be enabled in our processing example, but if you have a localization file with a Z column already filled in, you can disable it and use that column for calibration."
+
+#: ../../user/examples/02_Astig_3D.rst:187
+msgid ":guilabel:`Plane Interval` sert justement à préremplir la colonne Z à partir du numéro des plans (on suppose que les plans sont régulièrement espacés par cette valeur)."
+msgstr ":guilabel:`Plane Interval` is used precisely to pre-fill the Z column based on the plane numbers (assuming the planes are evenly spaced by this value)."
+
+#: ../../user/examples/02_Astig_3D.rst:188
+msgid ":guilabel:`Center Z` permet de définir Z à 0 sur la position où Sigma X et Sigma Y sont égaux. (Par défaut, il faut toujours conserver cette option activée)."
+msgstr ":guilabel:`Center Z` sets Z to 0 at the position where Sigma X and Sigma Y are equal. (By default, this option should always remain enabled)."
+
+#: ../../user/examples/02_Astig_3D.rst:189
+msgid ":guilabel:`Flip Z` permet de pallier à une inversion de convention expérimentale (l'acquisition est effectuée du plan le plus bas vers le plus haut ou inversement). L’affichage des courbes du modèle vous permettra de définir si une inversion est nécessaire ou pas."
+msgstr ":guilabel:`Flip Z` allows you to account for a reversal in experimental convention (data is acquired from the lowest plane to the highest, or vice versa). The display of the model curves will help you determine whether a reversal is necessary or not."
+
+#: ../../user/examples/02_Astig_3D.rst:192
+msgid "Une fois les paramètres réglés, vous pouvez lancer le calcul du modèle d'astigmatisme 3D en cliquant sur le bouton :guilabel:`Compute model`. Celui-ci génère un fichier :file:`astigmatism_3d_model.csv` dans le dossier du fichier de calibration."
+msgstr "Once the settings are set, you can run the 3D astigmatism model calculation by clicking the :guilabel:`Compute model` button. This generates a :file:`astigmatism_3d_model.csv` file in the calibration file folder."
+
+#: ../../user/examples/02_Astig_3D.rst:194
+msgid "Résultat du modèle d'astigmatisme 3D."
+msgstr "Result of the 3D astigmatism model."
+
+#: ../../user/examples/02_Astig_3D.rst:203
+msgid "Vérification de la cohérence"
+msgstr "Sanity Check"
+
+#: ../../user/examples/02_Astig_3D.rst:205
+msgid "Vous avez en dessous du bouton de calcul un tableau de valeurs permettant de vérifier la cohérence du modèle. Ces métriques sont divisées en deux colonnes, la partie gauche concerne les métriques d'erreur sur les observations (SigmaX, SigmaY) par rapport au modèle, tandis que la partie droite concerne les métriques d'erreur sur l'estimation de Z à partir du modèle."
+msgstr "Below the calculation button, you will find a table of values that allows you to verify the consistency of the model. These metrics are divided into two columns: the left side shows error metrics for the observations (SigmaX, SigmaY) relative to the model, while the right side shows error metrics for the estimation of Z based on the model."
+
+#: ../../user/examples/02_Astig_3D.rst:208
+msgid "**RMSE** (*Root Mean Square Error*) : racine de la moyenne des erreurs quadratiques. Mesure l'erreur typique en pénalisant davantage les grandes erreurs. Modèle parfait : RMSE = 0 (en pratique, proche de l'écart-type du bruit si les données sont bruitées)."
+msgstr "**RMSE** (*Root Mean Square Error*): the square root of the mean of the squared errors. Measures the typical error by penalizing large errors more heavily. Perfect model: RMSE = 0 (in practice, close to the standard deviation of the noise if the data is noisy)."
+
+#: ../../user/examples/02_Astig_3D.rst:211
+msgid "**MAE** (*Mean Absolute Error*) : moyenne des erreurs absolues. Mesure l'erreur moyenne en valeur absolue, moins sensible aux aberrations que le RMSE. Modèle parfait : MAE = 0 (en pratique, proche de l'amplitude moyenne du bruit)."
+msgstr "**MAE** (*Mean Absolute Error*): mean of the absolute errors. Measures the average error in absolute terms; less sensitive to outliers than RMSE. Perfect model: MAE = 0 (in practice, close to the mean amplitude of the noise)."
+
+#: ../../user/examples/02_Astig_3D.rst:214
+msgid "**R²** (*coefficient de détermination*) : fraction de la variance des observations expliquée par le modèle. Modèle parfait : R² = 1.0. Un R² proche de 0 indique que le modèle n'explique pas mieux que la moyenne. Note : R² peut être négatif si le modèle est très mauvais."
+msgstr "**R²** (*coefficient of determination*): the proportion of the variance in the observations explained by the model. Perfect model: R² = 1.0. An R² close to 0 indicates that the model does not explain the data any better than random chance. Note: R² can be negative if the model is very poor."
+
+#: ../../user/examples/02_Astig_3D.rst:218
+msgid "**P95 z** : 95e percentile de :math:`\\Delta Z`. Indique une borne haute réaliste de l'erreur axiale pour la majorité des localisations."
+msgstr "**P95 z**: 95th percentile of :math:`\\Delta Z`. Indicates a realistic upper bound of the axial error for the majority of locations."
+
+#: ../../user/examples/02_Astig_3D.rst:219
+msgid "**Bias z** : Moyenne de :math:`\\Delta Z`. Reflète un biais systématique du modèle. Modèle parfait : Bias = 0."
+msgstr "**Bias z**: Mean of :math:`\\Delta Z`. Reflects a systematic bias in the model. Perfect model: Bias = 0."
+
+#: ../../user/examples/02_Astig_3D.rst:221
+msgid "**Std z** : Écart-type de :math:`\\Delta Z`. Mesure la dispersion de l'erreur axiale autour du biais."
+msgstr "**Std z**: Standard deviation of :math:`\\Delta Z`. Measures the dispersion of the axial error around the bias."
+
+#: ../../user/examples/02_Astig_3D.rst:222
+msgid "**Curve mean distance** : Distance moyenne (en pixels) des points observés à la courbe modèle dans l'espace (:math:`\\sigma_x, \\sigma_y`). Sert de score de cohérence / confiance."
+msgstr "**Curve mean distance**: Average distance (in pixels) of the observed points from the model curve in space (:math:`\\sigma_x, \\sigma_y`). Serves as a consistency/confidence score."
+
+#: ../../user/examples/02_Astig_3D.rst:223
+msgid "**Curve p95 distance** : 95e percentile de la distance à la courbe. Utile pour définir un seuil de rejet des estimations peu fiables."
+msgstr "**Curve p95 distance**: 95th percentile of the distance to the curve. Useful for defining a threshold for rejecting unreliable estimates."
+
+#: ../../user/examples/02_Astig_3D.rst:224
+msgid "**Slope mean** : Pente moyenne de la courbe :math:`\\sigma_x(z)-\\sigma_y(z)` en pixel par nanomètres."
+msgstr "**Slope mean**: Average slope of the curve :math:`\\sigma_x(z)-\\sigma_y(z)` in pixel per nanometers."
+
+#: ../../user/examples/02_Astig_3D.rst:227
+msgid "Métriques de cohérence du modèle d'astigmatisme 3D."
+msgstr "Sanity metrics for the 3D astigmatism model."
+
+#: ../../user/examples/02_Astig_3D.rst:236
+msgid "Courbes"
+msgstr "Curves"
+
+#: ../../user/examples/02_Astig_3D.rst:238
+msgid "Trois types de courbes sont affichables pour visualiser le modèle d'astigmatisme 3D calculé :"
+msgstr "Three types of curves can be displayed to visualize the calculated 3D astigmatism model:"
+
+#: ../../user/examples/02_Astig_3D.rst:240
+msgid "**Courbe Standard** : :math:`\\sigma_x` et :math:`\\sigma_y` en fonction de Z. Permet de visualiser la forme de la PSF en fonction de la profondeur."
+msgstr "**Standard curve**: :math:`\\sigma_x` and :math:`\\sigma_y` as a function of Z. Allows you to visualize the shape of the PSF as a function of depth."
+
+#: ../../user/examples/02_Astig_3D.rst:241
+msgid "**Courbe de croisement** : Sépare chaque axe du modèle pour montrer deux courbes de Z en fonction d'un :math:`\\sigma`. Le croisement des deux courbes s'effectue lorsque les sigmas sont égaux et Z vaut 0 si le modèle est correctement centré. Les points ayant servi au calcul du modèle sont affichés sur ces courbes, ce qui permet de visualiser la qualité de l'ajustement du modèle aux données."
+msgstr "**Crossing curve**: Separates each axis of the model to show two curves of Z as a function of a :math:`\\sigma`. The two curves intersect when the sigmas are equal and Z is 0 if the model is correctly centered. The points used to calculate the model are displayed on these curves, allowing you to visualize the quality of the model’s fit to the data."
+
+#: ../../user/examples/02_Astig_3D.rst:244
+msgid "**Courbe de pente** : :math:`\\sigma_x - \\sigma_y` en fonction de Z. Permet de visualiser la \"pente\" du modèle, une valeur en pixel / nanomètre pour une différence de sigma. Les points ayant servi au calcul du modèle sont affichés sur la courbe, ce qui permet de visualiser la qualité de l'ajustement du modèle aux données."
+msgstr "**Slope Curve**: :math:`\\sigma_x - \\sigma_y` as a function of Z. Allows you to visualize the “slope” of the model, a value in pixels/nanometers for a difference in sigma. The points used to calculate the model are displayed on the curve, allowing you to visualize the quality of the model’s fit to the data."
+
+#: ../../user/examples/02_Astig_3D.rst:252
+#: ../../user/examples/02_Astig_3D.rst:258
+msgid "Courbe Standard du modèle d'astigmatisme 3D."
+msgstr "Standard Curve of the 3D Astigmatism Model."
+
+#: ../../user/examples/02_Astig_3D.rst:260
+#: ../../user/examples/02_Astig_3D.rst:266
+#: ../../user/examples/02_Astig_3D.rst:305
+msgid "Courbe de Croisement du modèle d'astigmatisme 3D."
+msgstr "Cross-Section Curve of the 3D Astigmatism Model."
+
+#: ../../user/examples/02_Astig_3D.rst:268
+#: ../../user/examples/02_Astig_3D.rst:274
+msgid "Courbe de Pente du modèle d'astigmatisme 3D."
+msgstr "Slope Curve of the 3D Astigmatism Model."
+
+#: ../../user/examples/02_Astig_3D.rst:276
+msgid "Voir avec JB pour expliquer certaines chelouittude classiques possibles des courbes et ce que cela signifie (mauvaise acquisition, identification de billes, etc.)"
+msgstr "Check with JB to explain some common anomalies in the curves and what they mean (poor data acquisition, ball identification, etc.)"
+
+#: ../../user/examples/02_Astig_3D.rst:280
+msgid "Exemple de réglages et conséquences"
+msgstr "Example of settings and consequences"
+
+#: ../../user/examples/02_Astig_3D.rst:282
+msgid "Lors d'un test préliminaire, nous avons calculé nos localisations avec une zone d'ajustement de 7x7 pixels et un thêta à 0°, ce qui n'a pas permis de récupérer la taille et la forme des PSF de manière cohérente. Voici le résultat des métriques calculées sur ce modèle, ainsi que les courbes du modèle d'astigmatisme 3D."
+msgstr "During a preliminary test, we calculated our locations using a 7x7-pixel adjustment zone and a theta of 0°, which did not allow us to consistently recover the size and shape of the PSFs. Here are the results of the metrics calculated on this model, along with the curves from the 3D astigmatism model."
+
+#: ../../user/examples/02_Astig_3D.rst:285
+msgid "Résultat du modèle d'astigmatisme 3D d'une mauvaise calibration."
+msgstr "Result of the 3D astigmatism model with poor calibration."
+
+#: ../../user/examples/02_Astig_3D.rst:292
+msgid "On peut voir que la courbe sur Y se décale fortement des données de calibrations. De plus, dans le terminal, vous pouvez voir le résultat présenté comme ceci :"
+msgstr "We can see that the curve on the Y-axis deviates significantly from the calibration data. Additionally, in the terminal, you can see the result presented as follows:"
+
+#: ../../user/examples/02_Astig_3D.rst:303
+msgid "Pour que l'ensemble de la PSF soit dans la zone d'ajustement, nous avons augmenté la taille à 11x11 pixels, et nous avons trouvé un thêta à 2° qui correspondait à l'orientation de notre échantillon."
+msgstr "To ensure the entire PSF is within the fitting area, we increased the size to 11x11 pixels and found a theta of 2° that matched the orientation of our sample."
+
+#: ../../user/examples/02_Astig_3D.rst:320
+msgid "En augmentant la limite Z (avec :guilabel:`Z max`), on voit (sur les courbes ci-dessous) que les points de références s'éloignent de la courbe à distance élevée par rapport au centre, ce qui montre les limites de la localisation en Z du modèle d'astigmatisme 3D par localisation gaussienne. En effet, si vous vous rappelez au début, des PSF trop étirées sont vues comme deux points proches. A contrario, si vous avez une limite Z trop basse, vous risquez d'avoir de nombreux points à la limite de cette zone. La vérification de la cohérence cherchant à comparer les trios de valeur :math:`(\\sigma_x, \\sigma_y, z)`, il va prendre en compte ce maximum défini lors d'estimations et les résultats de la cohérence seront moins bons."
+msgstr "By increasing the Z limit (using :guilabel:`Z max`), we can see (in the curves below) that the reference points move away from the curve at a significant distance from the center, which demonstrates the limitations of the Z-axis localization in the 3D astigmatism model using Gaussian localization. In fact, as you may recall from the beginning, PSFs that are too stretched are seen as two close points. Conversely, if you set the Z limit too low, you risk having many points at the edge of this zone. Since the coherence check seeks to compare the triplets of values :math:`(\\sigma_x, \\sigma_y, z)`, it will take into account this maximum defined during the estimates, and the coherence results will be less accurate."
+
+#: ../../user/examples/02_Astig_3D.rst:331
+#: ../../user/examples/02_Astig_3D.rst:337
+#: ../../user/examples/02_Astig_3D.rst:456
+msgid "Courbe de Croisement du modèle d'astigmatisme 3D avec une limite Z basse."
+msgstr "Cross-curve of the 3D astigmatism model with a low Z-limit."
+
+#: ../../user/examples/02_Astig_3D.rst:339
+#: ../../user/examples/02_Astig_3D.rst:345
+#: ../../user/examples/02_Astig_3D.rst:464
+msgid "Courbe de Croisement du modèle d'astigmatisme 3D avec une limite Z élevée."
+msgstr "Cross-curve of the 3D astigmatism model with a high Z-limit."
+
+#: ../../user/examples/02_Astig_3D.rst:347
+#: ../../user/examples/02_Astig_3D.rst:353
+msgid "Courbe de Pente du modèle d'astigmatisme 3D avec une limite Z basse."
+msgstr "Slope-curve of the 3D astigmatism model with a low Z-limit."
+
+#: ../../user/examples/02_Astig_3D.rst:355
+#: ../../user/examples/02_Astig_3D.rst:361
+msgid "Courbe de Pente du modèle d'astigmatisme 3D avec une limite Z élevée."
+msgstr "Slope-curve of the 3D astigmatism model with a high Z-limit."
+
+#: ../../user/examples/02_Astig_3D.rst:363
+#: ../../user/examples/02_Astig_3D.rst:369
+msgid "Métriques du modèle d'astigmatisme 3D avec une limite Z basse."
+msgstr "Metrics of the 3D astigmatism model with a low Z limit."
+
+#: ../../user/examples/02_Astig_3D.rst:371
+#: ../../user/examples/02_Astig_3D.rst:377
+msgid "Métriques du modèle d'astigmatisme 3D avec une limite Z élevée."
+msgstr "Metrics of the 3D astigmatism model with a high Z limit."
+
+#: ../../user/examples/02_Astig_3D.rst:380
+msgid "Appliquer le modèle"
+msgstr "Apply the model"
+
+#: ../../user/examples/02_Astig_3D.rst:382
+msgid "Maintenant, nous allons utiliser le modèle, on ouvre notre fichier d'acquisition :file:`GFP.stk`. Pour utiliser le modèle, on a le choix entre copier le fichier :file:`astigmatism_3d_model.csv` dans le dossier de notre fichier d'analyse ou de lui indiquer le chemin du modèle à utiliser. Nous allons le copier, car plusieurs fichiers sont présents dans ce dossier et tous utiliseront le même modèle et je préfère éviter d'avoir à indiquer le chemin du modèle à chaque fois, mais vous pouvez faire comme bon vous semble."
+msgstr "Now, we’re going to use the model. Open the acquisition file: `GFP.stk`. To use the model, you can either copy the file: `astigmatism_3d_model.csv` into the analysis file folder or specify the path to the model you want to use. We’ll copy it, since there are several files in this folder and they’ll all use the same model, and I’d rather not have to specify the model path every time—but you can do as you see fit."
+
+#: ../../user/examples/02_Astig_3D.rst:386
+msgid "Pour commencer, nous allons lancer le calcul d'auto threshold sur plusieurs plans afin d'estimer un seuil moyen pour l'ensemble de la pile. Cela permet d'éviter de lancer l'auto seuil sur l'unique plan plus lumineux/sombre par rapport aux autres sans s'en rendre compte. Nous trouvons pour notre exemple un seuil de 650 qui semble cohérent pour l'ensemble de la pile."
+msgstr "To begin, we’ll run the auto-threshold calculation on multiple frames to estimate an average threshold for the entire stack. This prevents us from inadvertently running the auto-threshold on the single brightest or darkest frame relative to the others. For our example, we find a threshold of 650, which seems consistent across the entire stack."
+
+#: ../../user/examples/02_Astig_3D.rst:390
+msgid "On fixe les paramètres qui ont été utilisés pour le modèle de calibration, une zone d'ajustement de 11x11 pixels, un thêta fixé à 2° et on active l'ajustement gaussien avec l'option :guilabel:`X, Y, SigmaX, SigmaY`. On coche l'option :guilabel:`Estimate Z` et on indique une limite  :guilabel:`Z max` de 550nm pour éviter les aberrations sur les points trop éloignés du plan d'acquisition et une limite trop proche qui va créé un pôle de points à cette limite."
+msgstr "We set the settings used for the calibration model: an adjustment area of 11x11 pixels, a theta set to 2°, and we enable Gaussian adjustment with the option :guilabel:`X, Y, SigmaX, SigmaY`. We check the :guilabel:`Estimate Z` option and specify a :guilabel:`Z max` limit of 550 nm to avoid aberrations on points too far from the acquisition plane and a limit that is too close, which would create a cluster of points at that limit."
+
+#: ../../user/examples/02_Astig_3D.rst:393
+msgid "Il est également possible de volontairement choisir un seuil plus bas et un Z plus élevé et ensuite filtrer les résultats."
+msgstr "It is also possible to intentionally choose a lower threshold and a higher Z value and then filter the results."
+
+#: ../../user/examples/02_Astig_3D.rst:395
+msgid "On coche également l'étape de traitement :guilabel:`Beads Extraction`. Cela permettra de voir si durant la localisation, des billes sont clairement identifiables. Ces billes serviront plus tard à corriger les dérives éventuelles de l'acquisition."
+msgstr "Also check the processing step :guilabel:`Beads Extraction`. This will allow you to see if any beads are clearly identifiable during localization. These beads will later be used to correct any drift in the acquisition."
+
+#: ../../user/examples/02_Astig_3D.rst:400
+msgid "Premier lancement du traitement sur un fichier d'acquisition avec le modèle d'astigmatisme 3D."
+msgstr "First run of the processing on an acquisition file using the 3D astigmatism model."
+
+#: ../../user/examples/02_Astig_3D.rst:423
+msgid "Première reconstruction"
+msgstr "First reconstruction"
+
+#: ../../user/examples/02_Astig_3D.rst:425
+msgid "Pour lancer le module de reconstruction, il suffit de cliquer sur le bouton :guilabel:`Viewer HR` dans l'onglet :guilabel:`Visualization` (plus d'informations :ref:`ici <viewer_hr_page>`)."
+msgstr "To launch the reconstruction module, simply click the :guilabel:`Viewer HR` button in the :guilabel:`Visualization` tab (more information :ref:`here <viewer_hr_page>`)."
+
+#: ../../user/examples/02_Astig_3D.rst:427
+msgid "Pour une première reconstruction, nous n'avons pas appliqué de filtres, nous voulons avoir un premier aperçu de la qualité de la reconstruction avant de faire des choix de filtrage. Comme nous avons pu identifier des billes précédemment, nous allons les utiliser pour faire une correction de dérive avant de faire la reconstruction."
+msgstr "For this initial reconstruction, we have not applied any filters; we want to get an initial idea of the reconstruction quality before making any filtering choices. Since we were able to identify the balls previously, we will use them to perform a drift correction before performing the reconstruction."
+
+#: ../../user/examples/02_Astig_3D.rst:430
+msgid "L'extraction des billes doit se faire sans filtres de position ou de plan, si elles sont en dehors de la zone que vous souhaitez analyser à postériori, vous n'aurez qu'à conserver le fichier de bille initial et ne pas les recalculer durant un processus."
+msgstr "The balls must be extracted without any position or plane filters; if they are outside the area you wish to analyze later, you will simply need to keep the initial ball file and not recalculate them during the process."
+
+#: ../../user/examples/02_Astig_3D.rst:432
+#: ../../user/examples/02_Astig_3D.rst:483
+#: ../../user/examples/02_Astig_3D.rst:489
+msgid "Premier lancement de la reconstruction."
+msgstr "First run of the reconstruction"
+
+#: ../../user/examples/02_Astig_3D.rst:441
+msgid "Filtrer les résultats"
+msgstr "Filter the results"
+
+#: ../../user/examples/02_Astig_3D.rst:443
+msgid "Je n'arrive pas à avoir une belle reconstruction avec une NUP. Comme je ne fais jamais d'analyses, j'y vais au pifomètre, il faudrait que quelqu'un arrive à le faire et me passe les différents réglages et screenshots pour que je puisse les modifier. Il y a aussi peut-être une erreur dans mon pipeline ou la reconstruction peut-être mal implémentée. Malgré tous les tests, une chose a pu m'échapper."
+msgstr "I can't seem to get a good reconstruction with a NUP. Since I never run analyses, I'm just winging it—I need someone who can get it to work to send me the settings and screenshots so I can tweak them. There might also be an error in my pipeline, or the reconstruction might be implemented incorrectly. Despite all the testing, I might have missed something."
+
+#: ../../user/examples/02_Astig_3D.rst:446
+msgid "Il faut maintenant filtrer un peu nos résultats pour faire une reconstruction de bonne qualité, mais il est important de ne pas faire un filtrage trop strict pour ne pas perdre trop d'informations et ne pas créer de trous dans la reconstruction. Pour ce faire, nous allons commencer par analyser nos résultats dans le Graph Viewer (plus d'informations :ref:`ici <viewer_graph_page>`)."
+msgstr "We now need to filter our results a bit to produce a high-quality reconstruction, but it’s important not to apply too strict a filter so we don’t lose too much information or create gaps in the reconstruction. To do this, we’ll start by analyzing our results in the Graph Viewer (more information:ref:`here <viewer_graph_page>`)."
+
+#: ../../user/examples/02_Astig_3D.rst:449
+msgid "On va commencer par réduire l'amplitude des intensités intégrées pour ne pas avoir des points trop lumineux/trop sombres qui ont été localisés et créer des artefacts dans la reconstruction."
+msgstr "We’ll begin by reducing the amplitude of the integrated intensities to avoid having points that are too bright or too dark, which could create artifacts in the reconstruction."
+
+#: ../../user/examples/02_Astig_3D.rst:462
+msgid "Courbe initiale"
+msgstr "Initial curve"
+
+#: ../../user/examples/02_Astig_3D.rst:470
+msgid "Courbe filtrée"
+msgstr "Filtered curve"
+
+#: ../../user/examples/02_Astig_3D.rst:472
+msgid "Pour cet exemple, on limite :"
+msgstr "For this example, we limit:"
+
+#: ../../user/examples/02_Astig_3D.rst:474
+msgid "L'intensité sur [80k, 300k]"
+msgstr "The intensity to [80k, 300k]"
+
+#: ../../user/examples/02_Astig_3D.rst:475
+msgid "Le MSE sur XY inférieur à 0.90 (car il s'agit d'un indice de confiance sur la localisation)."
+msgstr "The MSE on XY to less than 0.90 (since this is a confidence measure for localization)."
+
+#: ../../user/examples/02_Astig_3D.rst:476
+msgid "La position Z sur [-400, 400] nm pour éviter les points trop éloignés du plan d'acquisition."
+msgstr "The Z position to [-400, 400] nm to avoid points too far from the acquisition plane."
+
+#: ../../user/examples/02_Astig_3D.rst:491
+#: ../../user/examples/02_Astig_3D.rst:497
+msgid "Reconstruction sur des éléments filtrés."
+msgstr "Reconstruction using filtered elements."
+
+#: ../../user/examples/02_Astig_3D.rst:500
+msgid "Rendu gaussien"
+msgstr "Gaussian rendering"
+
+#: ../../user/examples/02_Astig_3D.rst:502
+msgid "Le rendu gaussien est un rendu plus réaliste que le rendu par points, il permet de visualiser la forme de la PSF en fonction des (:math:`\\sigma_x, \\sigma_y`). Parmi les options, on voit choisir de fixer une intensité et une taille commune à tous les points restants après filtrage. On peut faire varier la color map et le contraste pour faire ressortir les détails de la reconstruction."
+msgstr "Gaussian rendering is more realistic than point-based rendering; it allows you to visualize the shape of the PSF as a function of (:math:`\\sigma_x, \\sigma_y`). Among the options, you can choose to set a common intensity and size for all points remaining after filtering. You can adjust the color map and contrast to highlight details in the reconstruction."
+
+#: ../../user/examples/02_Astig_3D.rst:506
+msgid "Pour cet exemple, on définit l'intensité fixe pour tous les points à XXX (Intensité intégrée de la courbe gaussienne). La taille des PSF est fixe et définie par un écart-type de 1 pixel."
+msgstr "For this example, we set the intensity to XXX with a fixed intensity (integrated intensity of the Gaussian curve). The size of the PSF is fixed and defined by a standard deviation of 1 pixel"
+
+#: ../../user/examples/02_Astig_3D.rst:508
+msgid "Reconstruction gaussienne."
+msgstr "Gaussian reconstruction."
+
+#: ../../user/examples/02_Astig_3D.rst:517
+msgid "Second filtre sur une zone d'intérêt"
+msgstr "Second filter on a region of interest"
+
+#: ../../user/examples/02_Astig_3D.rst:519
+msgid "Nous allons ajouter un filtre sur X et Y afin d'avoir une zone d'intérêt plus précise, par exemple un pore nucléaire, pour faire une reconstruction de cette zone uniquement."
+msgstr "We will add a filter on X and Y to obtain a more precise region of interest, such as a nuclear pore, in order to reconstruct only that region."
+
+#: ../../user/examples/02_Astig_3D.rst:521
+msgid "Pour cet exemple, on limite X sur [XXX, XXX] pixels et Y sur [YYY, YYY] pixels."
+msgstr "For this example, we limit X to [XXX, XXX] pixels and Y to [YYY, YYY] pixels."
+
+#: ../../user/examples/02_Astig_3D.rst:523
+msgid "Lors de la sélection de ces filtres, un carré rouge apparaît sur la visualisation de Napari pour indiquer la zone sélectionnée. (Pour le moment, elle n'est visible que dans l'affichage principal, une mise à jour ultérieure permettra de la dessiner à la main dans n'importe quelle interface.)"
+msgstr "When these filters are selected, a red square appears on the Napari visualization to indicate the selected area. (Currently, it is only visible in the main view; a future update will allow it to be drawn manually in any interface.)"
+
+#: ../../user/examples/02_Astig_3D.rst:525
+#: ../../user/examples/02_Astig_3D.rst:532
+msgid "Reconstruction gaussienne filtrée sur une zone d'intérêt."
+msgstr "Gaussian reconstruction filtered over an area of interest."
+
+#: ../../user/examples/02_Astig_3D.rst:535
+msgid "Z Stack et 3D reconstruction"
+msgstr "Z-Stack and 3D Reconstruction"
+
+#: ../../user/examples/02_Astig_3D.rst:537
+msgid "Deux reconstructions 3D sont possibles dans le viewer HR, chacune permet de représenter les points sous forme de spots (un voxel par localisation) ou de gaussiennes 3D isotropes."
+msgstr "Two types of 3D reconstructions are available in the HR viewer; each allows points to be represented as spots (one voxel per location) or as isotropic 3D Gaussians."
+
+#: ../../user/examples/02_Astig_3D.rst:539
+msgid "Une reconstruction type Z-stack permet de faire une image tif 3D avec un intervalle en nanomètres par plan à définir au moment de la génération. L'affichage Napari utilise une échelle uniforme en X, Y et Z. Donc, si vous avez une résolution de 10nm par pixel, vous aurez 10nm par plans dans le visuel. Mais vous pouvez passer l'affichage de la 2D à la 3D et ainsi, vous pouvez tourner autour de votre reconstruction dans un espace orthonormé."
+msgstr "A Z-stack reconstruction creates a 3D TIFF image with an interval in nanometers per slice, which is defined at the time of generation. The Napari display uses a uniform scale in X, Y, and Z. Therefore, if you have a resolution of 10 nm per pixel, you will have 10 nm per slice in the visualization. However, you can switch the display from 2D to 3D, allowing you to rotate around your reconstruction in an orthonormal space."
+
+#: ../../user/examples/02_Astig_3D.rst:544
+#: ../../user/examples/02_Astig_3D.rst:551
+msgid "Bouton permettant de passer en mode 3D."
+msgstr "Button to switch to 3D mode."
+
+#: ../../user/examples/02_Astig_3D.rst:553
+msgid "La seconde, 3D rotation, permet de faire une reconstruction dans un espace orthonormé avec une rotation sur un des 3 axes (X, Y ou Z) avec un nombre de frames à indiquer pour effectuer un tour complet (ex : 36 correspond à une rotation de 10° par plans)."
+msgstr "The second, 3D rotation, allows you to perform a reconstruction in an orthonormal space by rotating around one of the three axes (X, Y, or Z), specifying the number of frames required to complete a full rotation (e.g., 36 corresponds to a 10° rotation per frame)."
+
+#: ../../user/examples/02_Astig_3D.rst:557
+msgid "Script Version"
+msgstr ""
+
+#: ../../user/examples/02_Astig_3D.rst:559
+#: ../../user/examples/02_Astig_3D.rst:564
+msgid "blabla"
+msgstr ""
+
+#: ../../user/examples/02_Astig_3D.rst:562
+msgid "FAQ"
+msgstr ""
