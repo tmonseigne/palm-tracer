@@ -28,7 +28,7 @@ class BlinkingReconnection(BaseSettingGroup):
 	label: str = "Blinking Reconnection"
 	setting_list = {"Mode":         [Combo, ["Mode", "Expected type of movement of points.", 0, ["Immobile", "Diffuse", "Linear"]]],
 					"Max Duration": [SpinInt, ["Max Duration (plane)", "Maximum blinking duration in number of planes", 1, [1, 1000], 1]],
-					"Max Speed":    [SpinFloat, ["Max Speed (μm/plane)", "Maximum velocity of the point in μm/plane", 1.0, [0.0, 1000.0], 1.0, 2]]}
+					"Max Distance": [SpinFloat, ["Max Distance (px)", "Maximum distance between two planes for a point.", 1.0, [0.0, 20.0], 1.0, 2]]}
 
 
 ##################################################

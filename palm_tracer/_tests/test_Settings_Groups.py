@@ -193,7 +193,7 @@ def test_tracking(qtbot):
 ###################################################
 def test_tracks_blinking_reconnection(qtbot):
 	"""Test basique de la classe BlinkingReconnection (constructeur, getter, setter)"""
-	group_base_test(BlinkingReconnection(), ["Mode", "Max Duration", "Max Speed"], Combo, 1, 0)
+	group_base_test(BlinkingReconnection(), ["Mode", "Max Duration", "Max Distance"], Combo, 1, 0)
 
 
 ###################################################

@@ -18,7 +18,7 @@ from napari import Viewer
 from napari.layers import Points, Shapes
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QDoubleSpinBox, QFileDialog, QHBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -144,6 +144,12 @@ class PALMTracerWidget(QWidget):
 		filters = self.pt.settings.filtering["Localization"]
 		filters["X"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
 		filters["Y"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
+
+		# Synchronisation des spin pour tracking et blinking reconnection
+		s1 = cast(QDoubleSpinBox, self.pt.settings.tracking["Max Distance"].box)
+		s2 = cast(QDoubleSpinBox, self.pt.settings.blinking["Max Distance"].box)
+		s1.valueChanged.connect(lambda v: Ui.sync_spin(s2, v))
+		s2.valueChanged.connect(lambda v: Ui.sync_spin(s1, v))
 
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))

@@ -80,6 +80,9 @@ class Filtering(BaseSettingGroup):
 			fl = cast(FilteringL, self._settings["Localization"])
 			cast(CheckRangeInt, fl["Y"]).update_limits(None, y_max)
 			cast(CheckRangeInt, fl["X"]).update_limits(None, x_max)
+			ft = cast(FilteringT, self._settings["Tracks"])
+			cast(CheckRangeInt, ft["Length"]).update_limits(None, plane_max)
+
 
 
 ##################################################
