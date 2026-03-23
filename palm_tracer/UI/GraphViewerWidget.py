@@ -41,12 +41,6 @@ DATA_SRC: dict[str, list] = {
 		"Localization": ["Localizations Count", "X", "Y", "Z", "Integrated Intensity",
 						 "Sigma X", "Sigma Y", "Circularity", "Theta", "Surface", "MSE XY", "MSE Z"],
 		"Tracking":     ["Length"],
-		"MSD":          ["MSD"],
-		"Instant D":    ["Instant Diffusion"],
-		"Fit":          [["Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)"],  # .	Pour Tous Fit
-						 ["A (μm²/s)", "B (μm²)", "MSE"],  # .									Fit Linéaire
-						 ["Alpha", "B (μm²)", "MSE", "Average Speed (Last-First)(μm/s)"],  # .	Fit Puissance
-						 ["A (μm²)", "B (s)", "C (μm²)", "MSE", "Confinement Radius (μm)"]],  # Fit Exponentiel
 		"No Dual":      ["Localizations Count", "Length", "MSD"],
 		}
 
@@ -275,15 +269,15 @@ class GraphViewerWidget(BasePlotlyWidget):
 			elif isinstance(setting, QButtonGroup): setting.idClicked.connect(self._update_plot)
 			elif isinstance(setting, SpinInt): setting.connect(self._update_plot)
 
-		# Updates
-		self._btn_actualize.clicked.connect(self._actualize)
-		self._btn_export.clicked.connect(self._on_export)
-
 		# Filters
 		self._filters.buttons["reset"].clicked.connect(self._reset_filtered)
 		self._filters.buttons["update"].clicked.connect(self._update_filtered)
 		self._filters.buttons["save"].clicked.connect(self._pt.save_filtered)
 		self._filters.connect(self._update_plot)
+
+		# Action Row
+		self._btn_actualize.clicked.connect(self._actualize)
+		self._btn_export.clicked.connect(self._on_export)
 
 	# ==================================================
 	# endregion Initialisation
@@ -364,8 +358,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 		:return: La liste des sources disponibles pour les trajectoires.
 		"""
 		res = list(DATA_SRC["Tracking"])
-		if not self._df["MSD"].empty: res += DATA_SRC["MSD"]
-		if not self._df["Instant D"].empty: res += DATA_SRC["Instant D"]
+		if not self._df["MSD"].empty: res += ["MSD"]
+		if not self._df["Instant D"].empty: res += ["Instant D"]
 		if not self._df["Fit"].empty: res += self._df["Fit"].columns[2:].tolist()
 
 		return res

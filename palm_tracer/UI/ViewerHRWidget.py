@@ -26,7 +26,7 @@ from palm_tracer.Tools import FileIO, Ui
 # region Constantes
 # ==================================================
 DATA_SRC: dict[str, list] = {
-		"Localization": ["Localizations Count", "X", "Y", "Z", "Integrated Intensity",
+		"Localization": ["Count", "X", "Y", "Z", "Integrated Intensity",
 						 "Sigma X", "Sigma Y", "Circularity", "Theta", "Surface", "MSE XY", "MSE Z"],
 		"Tracking":     ["Length"],
 		}
@@ -84,15 +84,12 @@ class ViewerHRWidget(QWidget):
 		self.viewer = viewer
 		self._pt = palmtracer
 		self._file: str = ""
-		self._stack: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
 		# Construction UI
 		self._init_ui()
 		self._connect_signals()
-
-	# Chargement et génération par défaut (si l'objet palmtracer est déjà configuré avec une pile, il lancera une première génération)
-	# self._generate()
+		self._on_source_changed(0)  # Change la source pour Localization à l'origine
 
 	##################################################
 	def _init_ui(self):
@@ -175,6 +172,19 @@ class ViewerHRWidget(QWidget):
 		"""Connecte les signaux UI aux callbacks."""
 		self._btn_add_stack.clicked.connect(self._add_stack)
 
+		# Sources
+		self._btg_src.idClicked.connect(self._on_source_changed)
+
+		# Filters
+		self._filters.buttons["reset"].clicked.connect(self._reset_filtered)
+		self._filters.buttons["update"].clicked.connect(self._update_filtered)
+		self._filters.buttons["save"].clicked.connect(self._pt.save_filtered)
+
+		# Action Row
+		self._btn_actualize.clicked.connect(self._actualize)
+		self._btn_generate.clicked.connect(self._generate)
+		self._btn_save.clicked.connect(self._save)
+
 	# ==================================================
 	# endregion Initialisation
 	# ==================================================
@@ -182,6 +192,54 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 	# region UI Callback
 	# ==================================================
+	##################################################
+	def _update_status(self):
+		"""Mets à jour les status des fichiers."""
+		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
+		self._status["File"].setText(Path(self._file).name if self._file else "No File")
+		status = self._pt.get_status()
+		for key in status: self._status[key].setText(status[key])
+
+	##################################################
+	def _on_source_changed(self, btn_id: int):
+		"""
+		Mets à jour la liste des sources selon le domaine choisi puis redessine.
+
+		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
+		"""
+		self._is_updating = True
+		# Remplir la ComboBox 'Source' en fonction du domaine
+		if btn_id == 0: src = DATA_SRC["Localization"]  # Stack
+		else: src = self._get_tracks_src()  # .			  Tracking
+		with self._cmb_src.signal_blocked(): self._cmb_src.update_box(src)
+		self._update_filters_ui()  # .					  Mise à jour des filtres à afficher
+		self._is_updating = False
+
+	##################################################
+	def _update_filters_ui(self):
+		"""
+		Mets à jour les filtres à afficher.
+		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles).
+		"""
+		if self._btg_src.checkedId() == 0:  # Localizations
+			self._filters["Localization"].show()
+			self._filters["Tracks"].hide()
+		else:  # .							  Tracking
+			self._filters["Localization"].hide()
+			self._filters["Tracks"].show()
+
+	##################################################
+	def _get_tracks_src(self) -> list[str]:
+		"""
+		Génère la liste des variables d'intérêt pour les Trajectoires en fonction des fichiers disponibles.
+
+		:return: La liste des sources disponibles pour les trajectoires.
+		"""
+		res = list(DATA_SRC["Tracking"])
+		if not self._pt.df["MSD"].empty: res += ["MSD"]
+		if not self._pt.df["InD"].empty: res += ["Instant D"]
+		if not self._pt.df["Fit"].empty: res += self._pt.df["Fit"].columns[2:].tolist()
+		return res
 
 	# ==================================================
 	# endregion UI Callback
@@ -195,8 +253,45 @@ class ViewerHRWidget(QWidget):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
 		self._pt.load()  # . Chargement des derniers résultats
-		status = self._pt.get_status()
-		for key in status: self._status[key].setText(status[key])
+		self._actualize()
+
+	##################################################
+	def _actualize(self):
+		"""
+		Actualise les fichiers/données depuis l'état PALMTracer :
+			- Mets à jour les libellés d'information et l'état d'activation des boutons de domaine.
+
+		En cas d'erreur de lecture, logue l'erreur via :func:`palm_tracer.Tools.Ui.print_error`.
+		"""
+		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
+			self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+			# Métadonnées d'information
+			self._update_status()
+			if self._file != "":
+				z, y, x = self._pt.stack.shape
+				self._filters.update_limits(x, y, z)
+
+	##################################################
+	def _reset_filtered(self):
+		"""Supprime les dataframes de filtre."""
+		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
+			self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
+			self._filters.reset()
+
+	##################################################
+	def _update_filtered(self):
+		"""Applique les filtres sur les dataframes."""
+		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
+			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
+			self._pt.update_filtered()  # Mise à jour des filtres
+
+	##################################################
+	def _save(self):
+		"""Créé une image PNG de la visualisation actuelle."""
+		return
+		if self._filename:
+			FileIO.save_png(self.visualization, self._filename)
+			show_info("Saving the image file.")
 
 	# ==================================================
 	# endregion PALMTracer Link
@@ -205,39 +300,6 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 	# region Drawing
 	# ==================================================
-
-	# ==================================================
-	# endregion Drawing
-	# ==================================================
-
-	# ==================================================
-	# region Export
-	# ==================================================
-
-	# ==================================================
-	# endregion Export
-	# ==================================================
-
-	##################################################
-	def load_folder(self):
-		"""
-		Ouvre une boîte de dialogue pour sélectionner un dossier contenant les résultats d'une analyse PALMTracer.
-
-		Cette méthode déclenche ensuite :meth:`generate` pour créer le calque HR.
-		"""
-		path = QFileDialog.getExistingDirectory(self, "Load Folder", ".")
-		self._pt.load(path)
-		self._generate()
-
-	##################################################
-	def update_source(self):
-		"""Mets à jour les sources disponibles pour définir l'intensité des points."""
-		with self.source_cmb.signal_blocked():
-			data_type = self.type_cmb.value
-			src = HR_LOC_SOURCE[1:] if data_type == 0 else HR_TRC_SOURCE[1:]
-			self.source_cmb.update_box(src)
-			self.color_cmb.value = data_type  # Place la color map sur grayscale par défaut pour les localisations et sur viridis pour les trajectoires.
-
 	##################################################
 	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
@@ -292,13 +354,6 @@ class ViewerHRWidget(QWidget):
 		self._filename = f"{path}/visualization_{data_type}_x{upscale}_{src}-{suffix}.png"
 		layer = self.viewer.add_image(self.visualization, name="Visualization", visible=False)
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
-
-	##################################################
-	def save(self):
-		"""Créé une image PNG de la visualisation actuelle."""
-		if self._filename:
-			FileIO.save_png(self.visualization, self._filename)
-			show_info("Saving the image file.")
 
 
 ##################################################
