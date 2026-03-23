@@ -116,7 +116,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	# region Initialisation
 	# ==================================================
 	##################################################
-	def __init__(self, palmtracer: PALMTracer):
+	def __init__(self, palmtracer: PALMTracer | None = None):
 		"""
 		Initialise le widget (UI, connexions, état initial) et lie PALMTracer.
 
@@ -125,7 +125,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		super().__init__()
 		self.setWindowTitle("Graph Viewer")
 		# Initialisation des membres
-		self._pt = palmtracer
+		self._pt = PALMTracer() if palmtracer is None else palmtracer
 		self._file: str = ""
 		self._density: bool = False
 
@@ -660,8 +660,7 @@ if __name__ == "__main__":
 	import sys
 
 	app = QApplication(sys.argv)
-	pt = PALMTracer()
-	w = GraphViewerWidget(pt)
+	w = GraphViewerWidget()
 	w.resize(1280, 720)
 	w.show()
 	sys.exit(app.exec_())

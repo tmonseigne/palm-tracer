@@ -188,7 +188,7 @@ class ViewerHRWidget(QWidget):
 
 
 ##################################################
-def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def create_viewerhr(palmtracer: PALMTracer | None = None) -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
 	Crée une nouvelle fenêtre Napari HR, sans menu,
 	et y ajoute le ViewerHRWidget docké à droite.
@@ -196,6 +196,7 @@ def create_viewerhr(palmtracer: PALMTracer) -> napari.Viewer:  # pragma: no cove
 	Cette fonction NE lance PAS napari.run() : elle est faite
 	pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 	"""
+	if palmtracer is None: palmtracer = PALMTracer()
 	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari
 	viewer.title = "HR Viewer"  # .											 Modifier le titre de la fenêtre
 	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
@@ -215,8 +216,7 @@ def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragm
 	  l'API "widget plugin" de Napari.
 	"""
 	# Crée la nouvelle fenêtre HR
-	pt = PALMTracer()
-	create_viewerhr(pt)
+	create_viewerhr()
 
 	# Stub minimal pour Napari (sera docké, mais caché)
 	stub = QWidget()
@@ -229,6 +229,5 @@ if __name__ == "__main__":
 	import napari
 
 	app = QApplication.instance() or QApplication([])
-	_pt = PALMTracer()
-	_v = create_viewerhr(_pt)
+	_v = create_viewerhr()
 	napari.run()  # Lance la boucle Qt gérée par Napari
