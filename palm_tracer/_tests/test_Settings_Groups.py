@@ -179,9 +179,9 @@ def test_spline_fit(qtbot):
 
 
 ###################################################
-def test_drift(qtbot):
-	"""Test basique de la classe DriftCorrection (constructeur, getter, setter)"""
-	group_base_test(DriftCorrection(), ["Max Distance", "3D"], SpinFloat, 2, 1)
+def test_beads(qtbot):
+	"""Test basique de la classe BeadsExtraction (constructeur, getter, setter)"""
+	group_base_test(BeadsExtraction(), ["Max Distance", "3D"], SpinFloat, 2, 1)
 
 
 ###################################################

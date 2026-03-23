@@ -14,7 +14,7 @@ from .BaseSettingGroup import BaseSettingGroup
 from .Batch import Batch
 from .BlinkingReconnection import BlinkingReconnection
 from .Calibration import Calibration
-from .DriftCorrection import DriftCorrection
+from .BeadsExtraction import BeadsExtraction
 from .Filtering import Filtering
 from .FilteringL import FilteringL
 from .FilteringT import FilteringT
@@ -35,7 +35,7 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	if data["type"] == "Batch": return Batch.from_dict(data)
 	elif data["type"] == "Calibration": return Calibration.from_dict(data)
 	elif data["type"] == "Localization": return Localization.from_dict(data)
-	elif data["type"] == "DriftCorrection": return DriftCorrection.from_dict(data)
+	elif data["type"] == "BeadsExtraction": return BeadsExtraction.from_dict(data)
 	elif data["type"] == "GaussianFit": return GaussianFit.from_dict(data)
 	elif data["type"] == "SplineFit": return SplineFit.from_dict(data)
 	elif data["type"] == "Tracking": return Tracking.from_dict(data)
@@ -55,6 +55,6 @@ __all__ = ["create_group_from_dict",
 		   "BaseSettingGroup",
 		   "Batch", "Calibration",
 		   "Filtering", "FilteringL", "FilteringT",
-		   "Localization", "GaussianFit", "SplineFit", "DriftCorrection",
+		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",
 		   "Tracking", "BlinkingReconnection", "TracksCompute",
 		   "Gallery", "VisualizationHR", "VisualizationGraph"]

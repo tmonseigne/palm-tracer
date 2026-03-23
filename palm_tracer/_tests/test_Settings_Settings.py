@@ -31,8 +31,8 @@ def test_settings_group_getter(qtbot):
 	assert isinstance(s, Calibration), "Récupération du groupe incorrecte."
 	s = settings.localization
 	assert isinstance(s, Localization), "Récupération du groupe incorrecte."
-	s = settings.drift
-	assert isinstance(s, DriftCorrection), "Récupération du groupe incorrecte."
+	s = settings.beads
+	assert isinstance(s, BeadsExtraction), "Récupération du groupe incorrecte."
 	s = settings.tracking
 	assert isinstance(s, Tracking), "Récupération du groupe incorrecte."
 	s = settings.blinking

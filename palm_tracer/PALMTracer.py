@@ -14,7 +14,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from palm_tracer.Processing import Gallery, Palm, Parsing, Visualization as Viz
-from palm_tracer.Processing.Drift import drift_correction
+from palm_tracer.Processing.Drift import extract_beads
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import BaseSettingGroup, FilteringL, FilteringT
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
@@ -254,7 +254,7 @@ class PALMTracer:
 
 			# Lancement des traitements
 			self._process_step(self.settings.localization, "localization", ["loc"], self._localization, self.filter_localizations)
-			self._process_step(self.settings.drift, "drift correction", ["dft"], self._drift_correction, self.filter_localizations)
+			self._process_step(self.settings.beads, "beads extraction", ["bds"], self._beads_extraction, self.filter_localizations)
 			self._process_step(self.settings.tracking, "tracking", ["trc"], self._tracking, self.filter_tracks)
 			self._process_step(self.settings.blinking, "blinking reconnection", ["blk"], self._blinking_reconnection, self.filter_tracks)
 			self._process_step(self.settings.tracks_compute, "tracks computes", ["MSD", "InD", "Fit"], self._tracks_compute, self._filter_tracks_compute)
@@ -345,7 +345,7 @@ class PALMTracer:
 		self.df["loc"].to_csv(self._output_name(self.KEYS_TO_FILE["loc"]), index=False)
 
 	##################################################
-	def _drift_correction(self):
+	def _beads_extraction(self):
 		"""Lance la correction du drift à partir des paramètres de l'interface."""
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
@@ -353,15 +353,13 @@ class PALMTracer:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
 			return
 
-		s = self.settings.drift.settings
-		self.df["bds"], self.df["dft"] = drift_correction(df, s["Max Distance"], s["3D"], strict=False, k=2)
+		s = self.settings.beads.settings
+		self.df["bds"] = extract_beads(df, s["Max Distance"], s["3D"], strict=False, k=2)
 		if self.df["bds"].empty:
-			self._logger.add("\tNo beads found, drift can't be corrected.")
-		else:
-			self._logger.add(f"\tSaving the beads file ({self.df['bds'].iloc[-1, 0]} beads(s) found).")
-			self.df["bds"].to_csv(self._output_name(self.KEYS_TO_FILE["bds"]), index=False)
-			self._logger.add("\tSaving the drift file.")
-			self.df["dft"].to_csv(self._output_name(self.KEYS_TO_FILE["dft"]), index=False)
+			self._logger.add("\tNo beads found.")
+			return
+		self._logger.add(f"\tSaving the beads file ({self.df['bds'].iloc[-1, 0]} beads(s) found).")
+		self.df["bds"].to_csv(self._output_name(self.KEYS_TO_FILE["bds"]), index=False)
 
 	##################################################
 	def _tracking(self):
@@ -497,6 +495,7 @@ class PALMTracer:
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
 		res = datas.copy()
+		if "Integrated Intensity" in res.columns: df = res[res["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if res.empty: return res
 		f = self.settings.filtering
 		fl = cast(FilteringL, f["Localization"])

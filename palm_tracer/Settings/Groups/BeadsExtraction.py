@@ -1,6 +1,6 @@
 """
-Fichier contenant la classe :class:`palm_tracer.Settings.Groups.DriftCorrection` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres permettant la correction du drift nécessaires à la configuration de PALM Tracer.
+Fichier contenant la classe :class:`palm_tracer.Settings.Groups.BeadsExtraction` dérivée de :class:`.BaseSettingGroup`,
+qui regroupe les paramètres permettant l'extraction des billes à partir des localisation nécessaires à la configuration de PALM Tracer.
 """
 
 from dataclasses import dataclass
@@ -11,7 +11,7 @@ from palm_tracer.Settings.Types import CheckBox, SpinFloat
 
 ##################################################
 @dataclass
-class DriftCorrection(BaseSettingGroup):
+class BeadsExtraction(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres de correction du drift.
 
@@ -22,7 +22,7 @@ class DriftCorrection(BaseSettingGroup):
 		  Utilisation ou non de la coordonnée Z dans les calculs (par défaut : `False`).
 	"""
 
-	label: str = "Drift Correction"
+	label: str = "Beads Extraction"
 	setting_list = {"Max Distance": [SpinFloat, ["Max Distance (pixel)", "Maximum distance between two planes for a bead.", 1.0, [0.0, 20.0], 0.1, 2]],
 					"3D":           [CheckBox, ["3D", "Use the Z-axis during computes.", False]]}
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
-	group = DriftCorrection()
+	group = BeadsExtraction()
 	group.active = True
 	w.layout().addWidget(group.widget)
 	w.show()

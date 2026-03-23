@@ -59,7 +59,7 @@ def check_capsys(capsys, n_lines: int, steps: list[tuple[bool, int]]):
 	lines = get_lines_output(capsys)
 	# for i in range(len(lines)): print(f"{i}: {lines[i]}")
 	assert len(lines) == n_lines
-	step_name = ["Localization", "Drift Correction", "Tracking", "Blinking Reconnection", "Tracks Computes",
+	step_name = ["Localization", "Beads Extraction", "Tracking", "Blinking Reconnection", "Tracks Computes",
 				 "High-resolution visualization", "Graphical visualization", "Gallery generation"]
 	for i in range(8):
 		status, line = steps[i]
@@ -203,7 +203,7 @@ def test_load(qtbot, capsys, pt):
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.process()
-	check_capsys(capsys, 20, [(True, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
+	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 	# Chargement
 	pt.load()
@@ -250,18 +250,18 @@ def test_process_nothing(qtbot, capsys, pt):
 
 	add_basic_file(pt)
 	pt.process()
-	check_capsys(capsys, 20, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
+	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 	# Test d'une visualisation sans données.
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
 	pt.settings.visualization_graph.active = True
 	pt.process()  # Test d'une visualisation sans données.
-	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (True, 15), (True, 17), (True, 19)])
+	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 11), (False, 12), (True, 16), (True, 18), (True, 20)])
 
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.process()
-	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (True, 15), (True, 17), (True, 19)])
+	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 11), (False, 12), (True, 16), (True, 18), (True, 20)])
 
 	# Test d'un calcul sur trajectoires sans données.
 	pt.settings.gallery.active = False
@@ -269,23 +269,23 @@ def test_process_nothing(qtbot, capsys, pt):
 	pt.settings.visualization_graph.active = False
 	pt.settings.tracks_compute.active = True
 	pt.process()
-	check_capsys(capsys, 18, [(False, 5), (False, 7), (False, 8), (False, 10), (True, 11), (False, 13), (False, 14), (False, 15)])
+	check_capsys(capsys, 19, [(False, 5), (False, 7), (False, 9), (False, 11), (True, 12), (False, 14), (False, 15), (False, 16)])
 
 	# Test d'un calcul de reconnexion de trajectoires sans données.
 	pt.settings.tracks_compute.active = False
 	pt.settings.blinking.active = True
 	pt.process()
-	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 8), (True, 10), (False, 12), (False, 16), (False, 17), (False, 18)])
+	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 9), (True, 11), (False, 13), (False, 17), (False, 18), (False, 19)])
 
 	# Test d'un calcul de trajectoires sans données.
 	pt.settings.blinking.active = False
 	pt.settings.tracking.active = True
 	pt.process()
-	check_capsys(capsys, 20, [(False, 5), (False, 7), (True, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
+	check_capsys(capsys, 21, [(False, 5), (False, 7), (True, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 	# Test d'un calcul de correction de drift sans données.
 	pt.settings.tracking.active = False
-	pt.settings.drift.active = True
+	pt.settings.beads.active = True
 	pt.process()
 	check_capsys(capsys, 21, [(False, 5), (True, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
@@ -316,8 +316,8 @@ def test_process_multiple_stack(qtbot, capsys, pt):
 
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 	check_output(OUTPUT_FOLDER_2, csv=[1], log=[1], json=[1])
-	# (2*20 lignes dans le cas d'aucun process)
-	check_capsys(capsys, 40, [(False, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
+	# (2*21 lignes dans le cas d'aucun process)
+	check_capsys(capsys, 42, [(False, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 
 ##################################################
@@ -330,7 +330,7 @@ def test_process_only_localization(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 20, [(True, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
+	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 
 ##################################################
@@ -361,12 +361,12 @@ def test_process_only_localization_spline(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 20, [(True, 5), (False, 7), (False, 8), (False, 10), (False, 11), (False, 15), (False, 16), (False, 17)])
+	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
 
 ##################################################
-def test_process_only_drift_correction_no_beads(qtbot, capsys, pt):
-	"""Test pour le process de localisation."""
+def test_process_only_beads_extraction_no_beads(qtbot, capsys, pt):
+	"""Test pour le process de l'extraction des billes."""
 	clean_output()
 
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
@@ -375,7 +375,7 @@ def test_process_only_drift_correction_no_beads(qtbot, capsys, pt):
 	shutil.copy2(src, dst)
 
 	add_basic_file(pt)
-	pt.settings.drift.active = True
+	pt.settings.beads.active = True
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
@@ -383,8 +383,8 @@ def test_process_only_drift_correction_no_beads(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_drift_correction(qtbot, capsys, pt):
-	"""Test pour le process de localisation."""
+def test_process_only_beads_extraction(qtbot, capsys, pt):
+	"""Test pour le process de l'extraction des billes."""
 	clean_output()
 
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
@@ -393,12 +393,12 @@ def test_process_only_drift_correction(qtbot, capsys, pt):
 	shutil.copy2(src, dst)
 
 	add_basic_file(pt)
-	pt.settings.drift.active = True
+	pt.settings.beads.active = True
 	pt.process()
 
 	assert len(pt.df["bds"]) == 4  # 2 Billes sur 2 plans
-	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1])
-	check_capsys(capsys, 23, [(False, 5), (True, 8), (False, 11), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
+	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
+	check_capsys(capsys, 22, [(False, 5), (True, 8), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
 
 
 ##################################################
@@ -420,7 +420,7 @@ def test_process_only_tracking(qtbot, capsys, pt):
 
 	assert len(ref) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking."
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
-	check_capsys(capsys, 21, [(False, 5), (False, 8), (True, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
+	check_capsys(capsys, 22, [(False, 5), (False, 8), (True, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
 
 
 ##################################################
@@ -439,7 +439,7 @@ def test_process_only_tracking_blinking(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
-	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 8), (True, 11), (False, 13), (False, 17), (False, 18), (False, 19)])
+	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 9), (True, 12), (False, 14), (False, 18), (False, 19), (False, 20)])
 
 
 ##################################################
@@ -460,13 +460,13 @@ def test_process_only_tracks_compute(qtbot, capsys, pt):
 	pt.process()
 	# Aucun fichier Ajouté juste meta et le tracking copié
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
-	check_capsys(capsys, 19, [(False, 5), (False, 7), (False, 8), (False, 11), (True, 12), (False, 14), (False, 15), (False, 16)])
+	check_capsys(capsys, 20, [(False, 5), (False, 7), (False, 9), (False, 12), (True, 13), (False, 15), (False, 16), (False, 17)])
 
 	tc["MSD"].value = True
 	pt.process()
 	# Ajout de fichier MSD (et peut être un meta, json et log)
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2], clean=False)
-	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 8), (False, 11), (True, 12), (False, 16), (False, 17), (False, 18)])
+	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 9), (False, 12), (True, 13), (False, 17), (False, 18), (False, 19)])
 
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
@@ -474,7 +474,7 @@ def test_process_only_tracks_compute(qtbot, capsys, pt):
 	pt.process()
 	# Ajout de fichier 2 ou 3 fichiers csv et 0 ou 1 fichiers meta, json et log
 	check_output(OUTPUT_FOLDER, csv=[5, 7], log=[1, 3], json=[1, 3])
-	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 11), (True, 12), (False, 18), (False, 19), (False, 20)])
+	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 12), (True, 13), (False, 19), (False, 20), (False, 21)])
 
 
 ##################################################
@@ -497,7 +497,7 @@ def test_process_only_visualization_hr(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[8], clean=False)
-	check_capsys(capsys, 30, [(False, 5), (False, 8), (False, 9), (False, 12), (False, 13), (True, 17), (False, 26), (False, 27)])
+	check_capsys(capsys, 31, [(False, 5), (False, 8), (False, 10), (False, 13), (False, 14), (True, 18), (False, 27), (False, 28)])
 
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.settings.visualization_hr["Source T"].value = 0
@@ -505,7 +505,7 @@ def test_process_only_visualization_hr(qtbot, capsys, pt):
 
 	# Il a Ajouté un fichier tracking_Fit qu'il a dû calculer et un tracking_hr_color, pour les images 8 Sources pour les loc, 5 pour les trajectoires.
 	check_output(OUTPUT_FOLDER, csv=[5, 6], log=[1, 2], json=[1, 2], png=[13])
-	check_capsys(capsys, 32, [(False, 5), (False, 8), (False, 9), (False, 12), (False, 13), (True, 17), (False, 28), (False, 29)])
+	check_capsys(capsys, 33, [(False, 5), (False, 8), (False, 10), (False, 13), (False, 14), (True, 18), (False, 29), (False, 30)])
 
 
 ##################################################
@@ -527,7 +527,7 @@ def test_process_only_visualization_graph(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[18])
-	check_capsys(capsys, 42, [(False, 5), (False, 8), (False, 9), (False, 12), (False, 13), (False, 17), (True, 18), (False, 39)])
+	check_capsys(capsys, 43, [(False, 5), (False, 8), (False, 10), (False, 13), (False, 14), (False, 18), (True, 19), (False, 40)])
 
 
 ##################################################
@@ -549,7 +549,7 @@ def test_process_only_gallery(qtbot, capsys, pt):
 	res, ref = FileIO.open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], tif=[1])
-	check_capsys(capsys, 22, [(False, 5), (False, 8), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (True, 18)])
+	check_capsys(capsys, 23, [(False, 5), (False, 8), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (True, 19)])
 
 
 ##################################################
@@ -560,7 +560,7 @@ def test_process_all(qtbot, capsys, pt):
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 1
 	pt.settings.localization["Gaussian Fit"]["Mode"].value = 3
-	pt.settings.drift.active = True
+	pt.settings.beads.active = True
 	pt.settings.tracking.active = True
 	pt.settings.blinking.active = True
 	pt.settings.tracks_compute.active = True
@@ -671,7 +671,7 @@ def test_filter_plan(qtbot, capsys, pt):
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	# création des 3 fichiers normaux (meta, settings, log) aucun changement pour le fichier loc pas d'enregistrement des données filtrées
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 22, [(False, 5), (False, 9), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
+	check_capsys(capsys, 23, [(False, 5), (False, 9), (False, 11), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
 
 
 ##################################################
@@ -705,11 +705,11 @@ def test_filter_all_localization(qtbot, capsys, pt):
 	# pt.settings.filtering["Localization"]["MSE Z"].active = True # La colonne est à -1 le filtre est forcément sur un nombre positif
 	# pt.settings.filtering["Localization"]["MSE Z"].value = [0, 10]
 	pt.process()
-	check_capsys(capsys, 22, [(False, 5), (False, 9), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
+	check_capsys(capsys, 23, [(False, 5), (False, 9), (False, 11), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
 
 	pt.settings.filtering["Save"].value = True
 	pt.process()  # Second passage avec enregistrement
-	check_capsys(capsys, 23, [(False, 5), (False, 10), (False, 11), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
+	check_capsys(capsys, 24, [(False, 5), (False, 10), (False, 12), (False, 14), (False, 15), (False, 19), (False, 20), (False, 21)])
 
 	# Le filtrage ne modifie plus le dataframe original qui garde constamment son statut "complet".
 	loc = pt.localizations
@@ -750,7 +750,7 @@ def test_filter_all_tracking(qtbot, capsys, pt):
 	res, ref = len(pt.tracks), 222
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
-	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 8), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
+	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 9), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
 
 	pt.settings.filtering["Tracks"]["Length"].active = True
 	pt.settings.filtering["Tracks"]["Length"].value = [3, 10000]  # 52/222 : 170 suppression(s)
@@ -760,7 +760,7 @@ def test_filter_all_tracking(qtbot, capsys, pt):
 	res, ref = len(pt.tracks), 52
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2])
-	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
+	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 14), (False, 15), (False, 19), (False, 20), (False, 21)])
 
 
 ##################################################
@@ -795,11 +795,11 @@ def test_filter_all_tracks_compute(qtbot, capsys, pt):
 	pt.settings.filtering["Tracks"]["Confinement"].value = [-10, 10]
 	pt.process()
 
-	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 8), (False, 12), (True, 13), (False, 18), (False, 19), (False, 20)])
+	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 13), (True, 14), (False, 19), (False, 20), (False, 21)])
 
 	pt.settings.filtering["Save"].value = True
 	pt.process()
-	check_capsys(capsys, 28, [(False, 5), (False, 7), (False, 8), (False, 13), (True, 14), (False, 23), (False, 24), (False, 25)])
+	check_capsys(capsys, 29, [(False, 5), (False, 7), (False, 9), (False, 14), (True, 15), (False, 24), (False, 25), (False, 26)])
 
 	# Vérification manuelle à l'heure actuelle
 	assert len(pt.tracks) == 26, f"Il reste {len(pt.tracks)} points au lieu de 26 sur les trajectoires."
@@ -809,7 +809,7 @@ def test_filter_all_tracks_compute(qtbot, capsys, pt):
 	pt.process()
 	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
-	check_capsys(capsys, 25, [(False, 5), (False, 7), (False, 8), (False, 12), (True, 13), (False, 20), (False, 21), (False, 22)])
+	check_capsys(capsys, 26, [(False, 5), (False, 7), (False, 9), (False, 13), (True, 14), (False, 21), (False, 22), (False, 23)])
 
 
 ##################################################
