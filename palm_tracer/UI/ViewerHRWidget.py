@@ -29,7 +29,7 @@ from palm_tracer.Tools import FileIO, Ui
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Count", "X", "Y", "Z", "Integrated Intensity",
 						 "Sigma X", "Sigma Y", "Circularity", "Theta", "Surface", "MSE XY", "MSE Z"],
-		"Tracking":     ["Length"],
+		"Tracking":     ["Track Number", "Plane", "Intensity", "Duration", "Length"]
 		}
 
 TIPS = {
@@ -210,13 +210,11 @@ class ViewerHRWidget(QWidget):
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
-		self._is_updating = True
 		# Remplir la ComboBox 'Source' en fonction du domaine
 		if btn_id == 0: src = DATA_SRC["Localization"]  # Stack
-		else: src = self._get_tracks_src()  # .			  Tracking
+		else: src = DATA_SRC["Tracking"]  # .			  Tracking
 		with self._cmb_src.signal_blocked(): self._cmb_src.update_box(src)
 		self._update_filters_ui()  # .					  Mise à jour des filtres à afficher
-		self._is_updating = False
 
 	##################################################
 	def _update_filters_ui(self):
@@ -230,19 +228,6 @@ class ViewerHRWidget(QWidget):
 		else:  # .							  Tracking
 			self._filters["Localization"].hide()
 			self._filters["Tracks"].show()
-
-	##################################################
-	def _get_tracks_src(self) -> list[str]:
-		"""
-		Génère la liste des variables d'intérêt pour les Trajectoires en fonction des fichiers disponibles.
-
-		:return: La liste des sources disponibles pour les trajectoires.
-		"""
-		res = list(DATA_SRC["Tracking"])
-		if not self._pt.df["MSD"].empty: res += ["MSD"]
-		if not self._pt.df["InD"].empty: res += ["Instant D"]
-		if not self._pt.df["Fit"].empty: res += self._pt.df["Fit"].columns[2:].tolist()
-		return res
 
 	# ==================================================
 	# endregion UI Callback
@@ -280,6 +265,7 @@ class ViewerHRWidget(QWidget):
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
 			self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
 			self._filters.reset()
+			self._update_status()
 
 	##################################################
 	def _update_filtered(self):
@@ -287,6 +273,7 @@ class ViewerHRWidget(QWidget):
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
 			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
 			self._pt.update_filtered()  # Mise à jour des filtres
+			self._update_status()
 
 	##################################################
 	def _save(self):
@@ -302,39 +289,6 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 	# region Drawing
 	# ==================================================
-	##################################################
-	def _get_plot_data(self) -> tuple[np.ndarray, np.ndarray]:
-		"""
-		Récupère et prépare les données pour l'affichage.
-		Pour les localisations, nous avons besoin des colonnes "X", "Y" et "Color".
-		Pour les trajectoires, nous avons besoin des colonnes "Track", "Plane", "X", "Y" et "Color".
-		:return:
-		"""
-		src_id = self._btg_src.checkedId()
-		src = self._cmb_src.current_text
-		upscale = self.upscale_spin.value
-
-		if src_id == 0:  # Localisations
-			viz = self._pt.localizations
-			# Récupération des données intactes pour l'affichage vectoriel
-			plot = viz[["Y", "X"]].to_numpy() * upscale
-
-			# Préparation des données pour la visualisation
-			viz["Color"] = 1  # Ajout d'une colonne couleur à 1.
-			if src in viz.columns: viz["Color"] = viz[src]  # Remplacement de la colonne couleur par celle qui doit être la source
-			viz = viz[["X", "Y", "Color"]].to_numpy(dtype=float)
-
-		else:  # Trajectoires
-			viz = self._pt.tracks
-			viz = viz.sort_values(["Track", "Plane"], kind="mergesort")  # Tri stable : par Track puis Plane puis index (ordre d'origine)
-			# Récupération des données intactes pour l'affichage vectoriel
-			plot = viz[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
-			plot[:, 2:4] *= upscale
-			viz = self._pt.add_color_to_tracks(viz, src)  # Préparation des données pour la visualisation
-			viz = viz[["Track", "X", "Y", "Color"]].to_numpy(dtype=float)
-
-		return plot, viz
-
 	##################################################
 	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
@@ -359,29 +313,32 @@ class ViewerHRWidget(QWidget):
 		upscale = self.upscale_spin.value
 		color = "grayscale"
 		# color = self.color_cmb.items[self.color_cmb.value]
-
-		plot_data, viz_data = self._get_plot_data()
 		self._renderer.set_size(width, height, upscale)
 
 		if src_id == 0:  # Localisations
 			loc = self._pt.localizations
-			if loc.empty:
+			loc = self._renderer.get_localization_colors(loc, src)
+			if loc.size == 0:
 				show_warning("No localization file available.")
 				return
-			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations")
-
-			self.visualization = self._renderer.localizations(viz_data)
+			# Calque de points (attention n'envoyer que X et Y (la couleur n'est pas à mettre ici) et dans le sens Y, X
+			plot_data = loc[:, [1, 0]] * upscale
+			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)
+			# Visualisation
+			self.visualization = self._renderer.localizations(loc)
 
 		else:  # Trajectoires
 			trc = self._pt.tracks
-			if trc.empty:
+			trc = self._renderer.get_tracks_colors(trc, src)
+			if trc.size == 0:
 				show_warning("No tracking file available.")
 				return
-			layer = self.viewer.add_tracks(plot_data, name="Tracks", blending="translucent")
-
-			trc = self._pt.add_color_to_tracks(trc, src)
-			trc.to_csv(f"{path}/tracking_hr_color-{suffix}.csv", index=False)
-			self.visualization = self._renderer.tracks(viz_data)
+			# Calque de points (attention n'envoyer que Tracks, Plane, Y et X (la couleur n'est pas à mettre ici).
+			plot_data = trc[:, [0, 1, 3, 2]]
+			plot_data[:, [2, 3]] *= upscale
+			layer = self.viewer.add_tracks(plot_data, name="Tracks", blending="translucent", visible=False)
+			# Visualisation (attention n'envoyer que Tracks, X, Y, Couleur (le plan ne sert plus).
+			self.visualization = self._renderer.tracks(trc[:, [0, 2, 3, 4]])
 
 		layer.editable = False
 		if color != "grayscale": self.visualization = FileIO.grayscale_to_color(self.visualization, color)

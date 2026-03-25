@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 
 import numpy as np
+import pandas as pd
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 MAX_UI_8 = np.iinfo(np.uint8).max
@@ -107,6 +108,124 @@ class Renderer:
 	# ==================================================
 	# region Tools
 	# ==================================================
+	##################################################
+	@staticmethod
+	def get_localization_colors(loc: pd.DataFrame, col: str, max_value: float = 0) -> np.ndarray:
+		"""
+		Construit un tableau numpy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur.
+
+		Le tableau retourné est de forme ``(N, 3)`` et contient, dans l'ordre : ``X``, ``Y`` et ``Color``.
+
+		- Les colonnes ``X`` et ``Y`` sont toujours extraites du DataFrame.
+		- La colonne ``Color`` provient de ``col`` si elle existe.
+		- Si ``col`` est absente, la colonne ``Color`` est remplie avec la valeur 1.
+		- Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul.
+		  :math:`C_{Shifted} = C - C_{min}`
+		- Si ``max_value > 0``, les valeurs de ``Color`` sont normalisées linéairement dans l'intervalle ``[0, max_value]``.
+		  :math:`C_{Norm} = C_{Shifted} \\times \\frac{C}{C_{max}}`
+
+		La fonction ne modifie pas le DataFrame d'origine.
+
+		:param loc: DataFrame contenant au minimum les colonnes ``X`` et ``Y``.
+		:param col: Nom de la colonne à utiliser pour calculer la composante ``Color``.
+		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value <= 0``, aucune normalisation n'est appliquée.
+		:return: Tableau numpy de forme ``(N, 3)`` de type ``float64`` contenant ``X``, ``Y`` et ``Color``.
+		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
+
+		.. note::
+			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
+			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
+		"""
+		if loc.empty: return np.empty((0, 3), dtype=np.float64)
+
+		# Extraction directe en numpy pour éviter les copies/alignements pandas inutiles.
+		xy = loc.loc[:, ["X", "Y"]].to_numpy(dtype=np.float64, copy=True)
+
+		if col in loc.columns: colors = loc[col].to_numpy(dtype=np.float64, copy=True)
+		else: colors = np.ones(len(loc), dtype=np.float64)
+
+		# Post-traitement des couleurs.
+		color_min = np.min(colors)
+		if color_min < 0.0: colors -= color_min  # .						 Décalage pour garantir un minimum nul.
+		color_max = np.max(colors)
+		if color_max <= 0.0: colors = np.ones(len(loc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
+		elif max_value > 0.0: colors *= max_value / color_max  # .			  Normalisation éventuelle.
+
+		return np.column_stack((xy, colors))
+
+	##################################################
+	@staticmethod
+	def get_tracks_colors(tracks: pd.DataFrame, source: str, max_value: float = 0) -> np.ndarray:
+		"""
+		Construit un tableau numpy contenant les numéros, plans et coordonnées des trajectoires
+		ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur.
+
+		Le tableau retourné est de forme ``(N, 5)`` et contient, dans l'ordre : ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
+
+		- Les colonnes ``Track``, ``Plane``, ``X`, ``Y`` et ``Integrated Intensity``sont toujours extraites du DataFrame.
+		- La colonne ``Color`` est défini selon la source, si la source n'est pas précu, la colonne ``Color`` est remplie avec la valeur 1.
+		- Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul.
+		  :math:`C_{Shifted} = C - C_{min}`
+		- Si ``max_value > 0``, les valeurs de ``Color`` sont normalisées linéairement dans l'intervalle ``[0, max_value]``.
+		  :math:`C_{Norm} = C_{Shifted} \\times \\frac{C}{C_{max}}`
+
+		:param tracks: DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``.
+		:param source: Type de données à utiliser pour calculer la composante ``Color``.
+		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value <= 0``, aucune normalisation n'est appliquée.
+		:return: Tableau numpy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
+		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
+
+		.. note::
+			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
+			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
+		"""
+		if tracks.empty: return np.empty((0, 5), dtype=np.float64)
+
+		# --- Extraction des données utiles. ---
+		data = tracks[["Track", "Plane", "X", "Y", "Integrated Intensity"]].copy()
+		data = data.sort_values(["Track", "Plane"], kind="mergesort")  # Tri stable : Track puis Plane puis ordre d'origine.
+
+		# --- Définition de la couleur selon la source ---
+		# Numéro de la trajectoire.
+		if source == "Track Number": data["Color"] = data["Track"].to_numpy(dtype=np.float64)
+		# Plan de chaque point.
+		elif source == "Plane": data["Color"] = data["Plane"].to_numpy(dtype=np.float64)
+
+		# Somme des intensités intégrées par trajectoire, recopiée sur tous les points de la trajectoire.
+		elif source == "Intensity": data["Color"] = data.groupby("Track")["Integrated Intensity"].transform("sum").to_numpy(dtype=np.float64)
+
+		# Longueur totale de la trajectoire
+		elif source == "Length":
+			# somme des distances euclidiennes entre points successifs d'une même trajectoire.
+			dx = data.groupby("Track")["X"].diff().to_numpy(dtype=np.float64)
+			dy = data.groupby("Track")["Y"].diff().to_numpy(dtype=np.float64)
+			# Les premières valeurs de chaque trajectoire valent NaN : elles ne contribuent pas à la longueur.
+			segment_lengths = np.sqrt(np.square(dx) + np.square(dy))
+			segment_lengths = np.nan_to_num(segment_lengths, nan=0.0)
+			data["SegmentLength"] = segment_lengths
+			data["Color"] = data.groupby("Track")["SegmentLength"].transform("sum").to_numpy(dtype=np.float64)
+			data.drop(columns="SegmentLength", inplace=True)
+
+		# Durée en nombre de plans couverts par la trajectoire.
+		elif source == "Duration":
+			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
+			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=np.float64)
+			data["Color"] = last_plane - first_plane
+		# Autre source.
+		else:
+			data["Color"] = np.ones(len(tracks), dtype=np.float64)
+
+		# --- Post-traitement des couleurs. ---
+		colors = data["Color"].to_numpy(dtype=np.float64)
+		color_min = np.min(colors)
+		if color_min < 0.0: colors -= color_min  # .						  Décalage pour garantir un minimum nul.
+		color_max = np.max(colors)
+		if color_max <= 0.0: colors = np.ones(len(tracks), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
+		elif max_value > 0.0: colors *= max_value / color_max  # .			  Normalisation éventuelle.
+		data["Color"] = colors
+
+		return data[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
+
 	##################################################
 	@staticmethod
 	def normalize_data(data: np.ndarray, scale: int = SCALE) -> np.ndarray:
