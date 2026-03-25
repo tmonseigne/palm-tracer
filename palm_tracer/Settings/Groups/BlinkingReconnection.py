@@ -22,7 +22,8 @@ class BlinkingReconnection(BaseSettingGroup):
 		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode de déplacement du point (par défaut : `Immobile`).
 		- **Max Duration** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
 		  Durée maximale du scintillement en nombre de plans (par défaut : `1`).
-		- **Max Speed** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Vitesse maximale du point en μm/plan (par défaut : `1.0`).
+		- **Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
+		  Distance maximale en pixel entre deux plans (par défaut : `1.0`) synchronisé avec le paramètre Max Distance du Tracking.
 	"""
 
 	label: str = "Blinking Reconnection"
