@@ -6,9 +6,6 @@ import numpy as np
 import pandas as pd
 
 MAX_UI_16 = np.iinfo(np.uint16).max
-MAX_UI_8 = np.iinfo(np.uint8).max
-# SCALE = MAX_UI_16 // 8  # Échelle cible de normalization (permet une résolution de superposition de points de 8 fois)
-SCALE = 1  # Échelle cible de normalization à 1 chaque supperposition incrémente de 1.
 
 
 ##################################################
@@ -32,27 +29,27 @@ class Renderer:
 		self._width, self._height, self._ratio = width, height, ratio
 
 	##################################################
-	def localizations(self, points: np.ndarray) -> np.ndarray:
+	def localizations(self, loc: np.ndarray) -> np.ndarray:
 		"""
 		Construit une image Haute résolution (uint16) en fonction des éléments localisés.
 
-		:param points: Position des points à représenter sous forme de tableau 2D de N lignes et 3 colonnes (X, Y, Couleur).
+		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et 3 colonnes (X, Y, Couleur).
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
 		# Vérification des dimensions
 		new_h, new_w = int(self._height * self._ratio), int(self._width * self._ratio)
 		if new_h < 1 or new_w < 1: return np.zeros((max(new_h, 1), max(new_w, 1)), dtype=np.uint16)
 		res = np.zeros((new_h, new_w), dtype=float)
-		if points.ndim != 2 or points.shape[1] != 3: return res.astype(np.uint16)
+		if loc.ndim != 2 or loc.shape[1] != 3: return res.astype(np.uint16)
 
 		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
-		mask = (points[:, 0] < self._width) & (points[:, 1] < self._height)
-		points = points[mask]
-		if points.size == 0: return res.astype(np.uint16)
+		mask = ((loc[:, 0] >= 0) & (loc[:, 0] < self._width) & (loc[:, 1] >= 0) & (loc[:, 1] < self._height))
+		loc = loc[mask]
+		if loc.size == 0: return res.astype(np.uint16)
 
 		# Calcul des nouvelles coordonnées entières (vectorisé)
-		coords = np.round(points[:, :2] * self._ratio).astype(int)
-		x, y, colors = coords[:, 0], coords[:, 1], points[:, 2]
+		coords = np.round(loc[:, :2] * self._ratio).astype(int)
+		x, y, colors = coords[:, 0], coords[:, 1], loc[:, 2]
 
 		# Calcul de l'image finale
 		np.add.at(res, (y, x), colors)  # Accumulation des valeurs (plus efficace qu'une boucle)
@@ -60,7 +57,7 @@ class Renderer:
 		return res.astype(np.uint16)  # . Forcer le type de l'image en np.uint16
 
 	##################################################
-	def tracks(self, tracks: np.ndarray) -> np.ndarray:
+	def tracks(self, trc: np.ndarray) -> np.ndarray:
 		"""
 		Construit une image haute résolution (uint16) à partir de trajectoires localisées.
 		Chaque trajectoire est tracée par segments (P0→P1, P1→P2, …).
@@ -70,29 +67,29 @@ class Renderer:
 			- "X", "Y" : coordonnées (:class:`float`, en pixels dans l'image de base)
 			- "Color" : intensité à tracer ``(0..65535)``. Toute valeur hors bornes est tronquée.
 
-		:param tracks: Tableau des points de trajectoires sous forme de tableau 2D de N lignes et 4 colonnes (Track, X, Y, Couleur).
+		:param trc: Tableau des points de trajectoires sous forme de tableau 2D de N lignes et 4 colonnes (Track, X, Y, Couleur).
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
 		# Vérification des dimensions
 		new_h, new_w = int(self._height * self._ratio), int(self._width * self._ratio)
 		if new_h < 1 or new_w < 1: return np.zeros((max(new_h, 1), max(new_w, 1)), dtype=np.uint16)
 		res = np.zeros((new_h, new_w), dtype=np.uint16)
-		if tracks.ndim != 2 or tracks.shape[1] != 4: return res
+		if trc.ndim != 2 or trc.shape[1] != 4: return res
 
 		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
-		mask = (tracks[:, 1] < self._width) & (tracks[:, 2] < self._height)
-		tracks = tracks[mask]
-		if tracks.size == 0: return res
+		mask = ((trc[:, 1] >= 0) & (trc[:, 1] < self._width) & (trc[:, 2] >= 0) & (trc[:, 2] < self._height))
+		trc = trc[mask]
+		if trc.size == 0: return res
 
 		# Calcul des nouvelles coordonnées entières (vectorisé)
-		coords = np.round(tracks[:, 1:3] * self._ratio).astype(int)
-		tracks, x, y, colors = tracks[:, 0].astype(int), coords[:, 0], coords[:, 1], tracks[:, 3].astype(np.uint16)
+		coords = np.round(trc[:, 1:3] * self._ratio).astype(int)
+		trc, x, y, colors = trc[:, 0].astype(int), coords[:, 0], coords[:, 1], trc[:, 3].astype(np.uint16)
 
 		# Indices de début/fin de chaque groupe Track
 		# tracks[1:] != tracks[:-1] Compare chaque élément au précédent
 		# np.flatnonzero pour avoir les indices des True donc indique le dernier élément de chaque trajectoire
 		# np.r_ concatène des séquences. On ajoute 0 et tracks.size.
-		split_idx = np.r_[0, 1 + np.flatnonzero(tracks[1:] != tracks[:-1]), tracks.size]
+		split_idx = np.r_[0, 1 + np.flatnonzero(trc[1:] != trc[:-1]), trc.size]
 
 		# Pour chaque trajectoire, couleur unique
 		for g in range(len(split_idx) - 1):
@@ -110,7 +107,7 @@ class Renderer:
 	# ==================================================
 	##################################################
 	@staticmethod
-	def get_localization_colors(loc: pd.DataFrame, col: str, max_value: float = 0) -> np.ndarray:
+	def get_localization_colors(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> np.ndarray:
 		"""
 		Construit un tableau numpy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur.
 
@@ -155,7 +152,7 @@ class Renderer:
 
 	##################################################
 	@staticmethod
-	def get_tracks_colors(tracks: pd.DataFrame, source: str, max_value: float = 0) -> np.ndarray:
+	def get_tracks_colors(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> np.ndarray:
 		"""
 		Construit un tableau numpy contenant les numéros, plans et coordonnées des trajectoires
 		ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur.
@@ -163,13 +160,13 @@ class Renderer:
 		Le tableau retourné est de forme ``(N, 5)`` et contient, dans l'ordre : ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
 
 		- Les colonnes ``Track``, ``Plane``, ``X`, ``Y`` et ``Integrated Intensity``sont toujours extraites du DataFrame.
-		- La colonne ``Color`` est défini selon la source, si la source n'est pas précu, la colonne ``Color`` est remplie avec la valeur 1.
+		- La colonne ``Color`` est défini selon la source, si la source n'est pas prévu, la colonne ``Color`` est remplie avec la valeur 1.
 		- Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul.
 		  :math:`C_{Shifted} = C - C_{min}`
 		- Si ``max_value > 0``, les valeurs de ``Color`` sont normalisées linéairement dans l'intervalle ``[0, max_value]``.
 		  :math:`C_{Norm} = C_{Shifted} \\times \\frac{C}{C_{max}}`
 
-		:param tracks: DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``.
+		:param trc: DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``.
 		:param source: Type de données à utiliser pour calculer la composante ``Color``.
 		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value <= 0``, aucune normalisation n'est appliquée.
 		:return: Tableau numpy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
@@ -179,10 +176,10 @@ class Renderer:
 			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
 		"""
-		if tracks.empty: return np.empty((0, 5), dtype=np.float64)
+		if trc.empty: return np.empty((0, 5), dtype=np.float64)
 
 		# --- Extraction des données utiles. ---
-		data = tracks[["Track", "Plane", "X", "Y", "Integrated Intensity"]].copy()
+		data = trc[["Track", "Plane", "X", "Y", "Integrated Intensity"]].copy()
 		data = data.sort_values(["Track", "Plane"], kind="mergesort")  # Tri stable : Track puis Plane puis ordre d'origine.
 
 		# --- Définition de la couleur selon la source ---
@@ -210,55 +207,19 @@ class Renderer:
 		elif source == "Duration":
 			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
 			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=np.float64)
-			data["Color"] = last_plane - first_plane
+			data["Color"] = last_plane - first_plane + 1  # +1 pour etre inclusif
 		# Autre source.
 		else:
-			data["Color"] = np.ones(len(tracks), dtype=np.float64)
+			data["Color"] = np.ones(len(trc), dtype=np.float64)
 
 		# --- Post-traitement des couleurs. ---
-		colors = data["Color"].to_numpy(dtype=np.float64)
-		color_min = np.min(colors)
-		if color_min < 0.0: colors -= color_min  # .						  Décalage pour garantir un minimum nul.
-		color_max = np.max(colors)
-		if color_max <= 0.0: colors = np.ones(len(tracks), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
-		elif max_value > 0.0: colors *= max_value / color_max  # .			  Normalisation éventuelle.
-		data["Color"] = colors
+		color_min = data["Color"].min()
+		if color_min < 0.0:  data["Color"] -= color_min  # .						Décalage pour garantir un minimum nul.
+		color_max = data["Color"].max()
+		if color_max <= 0.0: data["Color"] = np.ones(len(trc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
+		elif max_value > 0.0: data["Color"] *= max_value / color_max  # .			Normalisation éventuelle.
 
 		return data[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
-
-	##################################################
-	@staticmethod
-	def normalize_data(data: np.ndarray, scale: int = SCALE) -> np.ndarray:
-		"""
-		Normalisation des données avec prise en compte de l'ordre de grandeur et adaptation des plages.
-
-		Règles :
-			- Si toutes les valeurs sont dans `[0,1]`, normalisation vers `[0, SCALE]`.
-			- Si valeurs négatives et positives, on prend la puissance de 2 la plus proche de ``max(abs(min), abs(max))`` et on transpose vers `[0, SCALE]`.
-			- Colonne uniforme : on force une valeur constante de ``SCALE``.
-			- Si toutes les valeurs sont positives, on considère 0 comme min et on normalise avec la puissance de 2 la plus proche du max.
-
-		:param data: Données à normaliser.
-		:param scale: Échelle de normalisation
-		:return: Données normalisées.
-		"""
-		if data is None or data.size == 0: return np.zeros_like(data)
-		min_val, max_val = data.min(), data.max()
-
-		# Cas 1 : Colonne uniforme (toutes les valeurs identiques)
-		if min_val == max_val: return np.full_like(data, scale)
-
-		# Cas 2 : Valeurs entre 0 et 1.
-		if min_val >= 0 and max_val <= 1: return scale * data
-
-		# Cas 3 : Valeurs négatives et positives ⇾ on centre autour de 0.
-		if min_val < 0 < max_val:
-			bound = 2 ** np.ceil(np.log2(max(abs(min_val), abs(max_val))))
-			return (scale / (2 * bound)) * (data + bound)
-
-		# Cas 4 : Valeurs positives ⇾ on prend 0 comme min et on ajuste avec la puissance de 2 la plus proche du max
-		bound = 2 ** np.ceil(np.log2(max_val))
-		return (scale / bound) * data
 
 	##################################################
 	@staticmethod

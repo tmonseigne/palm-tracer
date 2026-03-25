@@ -135,12 +135,12 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.waitExposed(w)
 
 	# Plot pour la pile
-	qtbot.mouseClick(w._btn_stack, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_src["Stack"], Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
 	w._update_plot()
 
 	# Plot pour les localisations
-	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_src["Localization"], Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
 	assert w._cmb_src_a.value == 0, "Index de la donnée incorrecte."
 	w._update_plot()
@@ -150,7 +150,7 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	w._update_plot()
 
 	# Plot pour les trajectoires
-	qtbot.mouseClick(w._btn_trc, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
 	w._update_plot()
 
@@ -174,16 +174,16 @@ def test_dual_source(w: GraphViewerWidget, qtbot, capsys):
 	ref_shape: tuple
 	ref_data: list[int] | list[list[int]]
 
-	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_src["Localization"], Qt.MouseButton.LeftButton)
 	w._dual_source.value = True
 
 	# Colonnes incompatibles pour le dual source
-	qtbot.mouseClick(w._btn_trc, Qt.MouseButton.LeftButton)  # Passage au tracking
+	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)  # Passage au tracking
 	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
 	w._cmb_src_a.value = 0
 	w._cmb_src_b.value = 1
 	data, title = w._get_plot_data()
-	ref_title, ref_shape, ref_data = "Tracks Instant Diffusion / Total Intensity", (0,), []
+	ref_title, ref_shape, ref_data = "Tracks Instant D / Total Intensity", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
@@ -201,10 +201,10 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	ref_title: str
 	ref_shape: tuple
-	ref_data: list[int] | list[list[int]]
+	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
 
 	# Plot pour la pile
-	qtbot.mouseClick(w._btn_stack, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_src["Stack"], Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
 
 	data, title = w._get_plot_data()
@@ -222,7 +222,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 	# Plot pour les localisations
-	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_src["Localization"], Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
 	assert w._cmb_src_a.value == 0, "Index de la donnée incorrecte."
 
@@ -249,7 +249,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	np.testing.assert_array_equal(data, ref_data)
 
 	w._actualize()  # Restaurer le csv
-	qtbot.mouseClick(w._btn_loc, Qt.MouseButton.LeftButton)  # Retour sur la localisation
+	qtbot.mouseClick(w._btn_src["Localization"], Qt.MouseButton.LeftButton)  # Retour sur la localisation
 
 	# En cas de Dataframe vide.
 	w._df["Localization"] = w._df["Localization"].iloc[0:0]
@@ -261,7 +261,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	# Plot pour les trajectoires
 	w._actualize()  # Restaurer le csv
-	qtbot.mouseClick(w._btn_trc, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)
 	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
 
 	# Affichage de Longeur
@@ -276,16 +276,19 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	assert w._cmb_src_a.value == 1, "Index de la donnée incorrecte."
 	data, title = w._get_plot_data()
 	ref_title, ref_shape = "Tracks MSD Step 1", (14, 2)
+	ref_data = [[35, 0.39], [37, 0.26], [66, 0.37], [75, 0.47], [81, 0.49], [83, 0.24], [102, 0.14],
+				[114, 0.43], [131, 0.35], [152, 0.37], [158, 0.42], [165, 0.50], [176, 0.34], [220, 0.46]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
 
 	# Changement de Step.
 	w._msd_step.value = 3
 	data, title = w._get_plot_data()
-	ref_title, ref_shape, ref_data = "Tracks MSD Step 3", (6, 2), []
+	ref_title, ref_shape, ref_data = "Tracks MSD Step 3", (6, 2), [[81, 0.40], [83, 1.60], [114, 1.07], [152, 0.73], [158, 1.12], [165, 0.30]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	# np.testing.assert_array_equal(data, ref_data)
+	np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
 	w._msd_step.value = 8
@@ -299,19 +302,23 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	w._cmb_src_a.value = 2
 	assert w._cmb_src_a.value == 2, "Index de la donnée incorrecte."
 	data, title = w._get_plot_data()
-	ref_title, ref_shape, ref_data = "Tracks Instant Diffusion", (27,), []
+	ref_title, ref_shape = "Tracks Instant D", (27,)
+	ref_data = [4.51, 1.37, 3.04, 1.13, 1e-06, 1.99, 1e-06, 2.34, 0.81, 4.02, 4.26, 1.31, 6.37,
+				0.60, 2.22, 4.83, 0.27, 0.96, 5.41, 9.19, 0.60, 1.24, 0.54, 2.43, 2.23, 1.61, 3.05]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	# np.testing.assert_array_equal(data, ref_data)
+	np.testing.assert_array_equal(data, ref_data)
 
 	# Une colonne de Fit
 	w._cmb_src_a.value = 3
 	assert w._cmb_src_a.value == 3, "Index de la donnée incorrecte."
 	data, title = w._get_plot_data()
-	ref_title, ref_shape, ref_data = "Tracks Total Intensity", (14, 2), []
+	ref_title, ref_shape = "Tracks Total Intensity", (14, 2)
+	ref_data = [[35, 6300.36], [37, 9467.97], [66, 5307.80], [75, 5218.86], [81, 14337.08], [83, 13517.40], [102, 4276.15],
+				[114, 9437.99], [131, 4724.48], [152, 11162.22], [158, 9454.11], [165, 9683.89], [176, 5313.26], [220, 6232.91]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\nAttendu : {ref_title}\tObtenu : {title}"
-	# np.testing.assert_array_equal(data, ref_data)
+	np.testing.assert_array_equal(data, ref_data)
 
 	# En cas de colonne inexistante.
 	w._df["Fit"].drop(columns=[w._cmb_src_a.current_text], inplace=True)
@@ -333,7 +340,7 @@ def test_tracks_source(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.waitExposed(w)
 
 	# Récupération des sources classiques.
-	ref = ["Length", "MSD", "Instant Diffusion", "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE"]
+	ref = ["Length", "MSD", "Instant D", "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE"]
 	res = w._get_tracks_src()
 	assert ref == res, f"Liste des sources incorrecte.\nAttendu : {ref}\nObtenu : {res}"
 

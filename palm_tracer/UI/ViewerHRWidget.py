@@ -93,6 +93,7 @@ class ViewerHRWidget(QWidget):
 		self._init_ui()
 		self._connect_signals()
 		self._on_source_changed(0)  # Change la source pour Localization à l'origine
+		self._actualize()
 
 	##################################################
 	def _init_ui(self):
@@ -255,7 +256,7 @@ class ViewerHRWidget(QWidget):
 			self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
 			# Métadonnées d'information
 			self._update_status()
-			if self._file != "":
+			if self._pt.stack is not None:
 				z, y, x = self._pt.stack.shape
 				self._filters.update_limits(x, y, z)
 
@@ -294,12 +295,9 @@ class ViewerHRWidget(QWidget):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
 		self._filename = ""
 		path, stack, suffix = self._pt.path, self._pt.stack, self._pt.suffix
-		if not path or not Path(path).is_dir():
-			show_warning(f"The destination path '{path}' is invalid.")
-			return
 
-		if stack is None:
-			show_warning(f"No stack loaded.")
+		if stack is None or not path or not Path(path).is_dir():
+			show_warning(f"No stack processed loaded.")
 			return
 
 		depth, height, width = stack.shape
@@ -307,12 +305,11 @@ class ViewerHRWidget(QWidget):
 		# On supprime les calques (la mise à jour n'est pas optimale sous Napari).
 		try: self.viewer.layers.clear()
 		except Exception as e: show_warning(f"Error when deleting old layers: {e}")
+		self.visualization = np.zeros((1, 1), dtype=np.uint16)  # Remise à 0 du calque de visualisation
 
 		src_id = self._btg_src.checkedId()
 		src = self._cmb_src.current_text
 		upscale = self.upscale_spin.value
-		color = "grayscale"
-		# color = self.color_cmb.items[self.color_cmb.value]
 		self._renderer.set_size(width, height, upscale)
 
 		if src_id == 0:  # Localisations
@@ -341,7 +338,6 @@ class ViewerHRWidget(QWidget):
 			self.visualization = self._renderer.tracks(trc[:, [0, 2, 3, 4]])
 
 		layer.editable = False
-		if color != "grayscale": self.visualization = FileIO.grayscale_to_color(self.visualization, color)
 		self._filename = f"{path}/visualization_{src}_x{upscale}_{src}-{suffix}.png"
 		layer = self.viewer.add_image(self.visualization, name="Visualization")
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)

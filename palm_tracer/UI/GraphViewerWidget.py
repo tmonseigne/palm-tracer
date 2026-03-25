@@ -549,7 +549,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
 				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"  # .					  Retour avec filtrage des Lignes NaN
 
-			elif src == "Instant Diffusion":
+			elif src == "Instant D":
 				res = self._df["Instant D"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .  Récupération des colonnes
 				res = self._log_data(res, log_scale)  # .													  Application du log sur les valeurs
 				return res[np.isfinite(res)], f"Tracks {src}"  # .											  Retour avec filtrage des Lignes NaN
