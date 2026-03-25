@@ -6,6 +6,8 @@ Ce widget ajoute dans le dock de Napari :
 	- trois champs pour contrôler les paramètres de visualisation Haute Résolution,
 	- un calque Napari Points/trajectoires mis à jour dynamiquement.
 	- Un boutotn pour sauvegarder une image PNG résultat
+
+.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option se souvenir du choix).
 """
 from pathlib import Path
 from typing import cast
@@ -13,12 +15,11 @@ from typing import cast
 import napari
 import numpy as np
 from napari.utils.notifications import show_info, show_warning
-from qtpy.QtWidgets import QApplication, QFileDialog, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing.Visualization import render_hr_image, render_tracks_image
+from palm_tracer.Processing import Renderer
 from palm_tracer.Settings.Groups import Filtering
-from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
 
@@ -83,7 +84,9 @@ class ViewerHRWidget(QWidget):
 		super().__init__()
 		self.viewer = viewer
 		self._pt = palmtracer
+		self._renderer = Renderer()
 		self._file: str = ""
+		self._filename: str = ""
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
 		# Construction UI
@@ -288,10 +291,9 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
-		return
 		if self._filename:
 			FileIO.save_png(self.visualization, self._filename)
-			show_info("Saving the image file.")
+			show_info("Image file saved successfully.")
 
 	# ==================================================
 	# endregion PALMTracer Link
@@ -301,8 +303,42 @@ class ViewerHRWidget(QWidget):
 	# region Drawing
 	# ==================================================
 	##################################################
+	def _get_plot_data(self) -> tuple[np.ndarray, np.ndarray]:
+		"""
+		Récupère et prépare les données pour l'affichage.
+		Pour les localisations, nous avons besoin des colonnes "X", "Y" et "Color".
+		Pour les trajectoires, nous avons besoin des colonnes "Track", "Plane", "X", "Y" et "Color".
+		:return:
+		"""
+		src_id = self._btg_src.checkedId()
+		src = self._cmb_src.current_text
+		upscale = self.upscale_spin.value
+
+		if src_id == 0:  # Localisations
+			viz = self._pt.localizations
+			# Récupération des données intactes pour l'affichage vectoriel
+			plot = viz[["Y", "X"]].to_numpy() * upscale
+
+			# Préparation des données pour la visualisation
+			viz["Color"] = 1  # Ajout d'une colonne couleur à 1.
+			if src in viz.columns: viz["Color"] = viz[src]  # Remplacement de la colonne couleur par celle qui doit être la source
+			viz = viz[["X", "Y", "Color"]].to_numpy(dtype=float)
+
+		else:  # Trajectoires
+			viz = self._pt.tracks
+			viz = viz.sort_values(["Track", "Plane"], kind="mergesort")  # Tri stable : par Track puis Plane puis index (ordre d'origine)
+			# Récupération des données intactes pour l'affichage vectoriel
+			plot = viz[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
+			plot[:, 2:4] *= upscale
+			viz = self._pt.add_color_to_tracks(viz, src)  # Préparation des données pour la visualisation
+			viz = viz[["Track", "X", "Y", "Color"]].to_numpy(dtype=float)
+
+		return plot, viz
+
+	##################################################
 	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
+		self._filename = ""
 		path, stack, suffix = self._pt.path, self._pt.stack, self._pt.suffix
 		if not path or not Path(path).is_dir():
 			show_warning(f"The destination path '{path}' is invalid.")
@@ -318,41 +354,39 @@ class ViewerHRWidget(QWidget):
 		try: self.viewer.layers.clear()
 		except Exception as e: show_warning(f"Error when deleting old layers: {e}")
 
-		data_type = self.type_cmb.value
-		data_source = self.source_cmb.value
+		src_id = self._btg_src.checkedId()
+		src = self._cmb_src.current_text
 		upscale = self.upscale_spin.value
-		point_size = self.size_spin.value
-		color = self.color_cmb.items[self.color_cmb.value]
+		color = "grayscale"
+		# color = self.color_cmb.items[self.color_cmb.value]
 
-		if data_type == 0:  # Localisations
+		plot_data, viz_data = self._get_plot_data()
+		self._renderer.set_size(width, height, upscale)
+
+		if src_id == 0:  # Localisations
 			loc = self._pt.localizations
 			if loc.empty:
 				show_warning("No localization file available.")
 				return
-			points = loc[["Y", "X"]].to_numpy() * upscale
-			layer = self.viewer.add_points(points, size=point_size, face_color="lime", name="Points")
+			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations")
 
-			src = HR_LOC_SOURCE[data_source + 1]
-			self.visualization = render_hr_image(width, height, upscale, loc[["X", "Y", src]].to_numpy())
+			self.visualization = self._renderer.localizations(viz_data)
 
 		else:  # Trajectoires
 			trc = self._pt.tracks
 			if trc.empty:
 				show_warning("No tracking file available.")
 				return
-			tracks_data = trc[["Track", "Plane", "Y", "X"]].to_numpy(dtype=float)
-			tracks_data[:, 2:4] *= upscale
-			layer = self.viewer.add_tracks(tracks_data, name="Tracks", blending="translucent")
+			layer = self.viewer.add_tracks(plot_data, name="Tracks", blending="translucent")
 
-			src = HR_TRC_SOURCE[data_source + 1]
 			trc = self._pt.add_color_to_tracks(trc, src)
 			trc.to_csv(f"{path}/tracking_hr_color-{suffix}.csv", index=False)
-			self.visualization = render_tracks_image(width, height, upscale, trc)
+			self.visualization = self._renderer.tracks(viz_data)
 
 		layer.editable = False
 		if color != "grayscale": self.visualization = FileIO.grayscale_to_color(self.visualization, color)
-		self._filename = f"{path}/visualization_{data_type}_x{upscale}_{src}-{suffix}.png"
-		layer = self.viewer.add_image(self.visualization, name="Visualization", visible=False)
+		self._filename = f"{path}/visualization_{src}_x{upscale}_{src}-{suffix}.png"
+		layer = self.viewer.add_image(self.visualization, name="Visualization")
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
 
 

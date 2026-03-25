@@ -239,6 +239,9 @@ class Grapher:
 	# endregion Statistic Figure
 	# ==================================================
 
+	# ==================================================
+	# region Misc Figure
+	# ==================================================
 	##################################################
 	def astigmatism3d_curve(self, model: np.ndarray, title: str = "", pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
 		"""
@@ -270,6 +273,13 @@ class Grapher:
 		# fig.update_yaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
 		return fig
 
+	# ==================================================
+	# endregion Misc Figure
+	# ==================================================
+
+	# ==================================================
+	# region Tools
+	# ==================================================
 	##################################################
 	@staticmethod
 	def _get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:

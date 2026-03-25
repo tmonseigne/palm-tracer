@@ -17,6 +17,8 @@ Notes
   Si QtWebEngine n'est pas disponible, un fallback texte explicite est affiché.
 - Le widget ne copie pas l'objet :class:`PALMTracer` ; il garde une **référence** passée au constructeur.
 - Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
+
+.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option se souvenir du choix).
 """
 
 from pathlib import Path
