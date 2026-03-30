@@ -8,7 +8,6 @@ from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # classe
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_creation(qtbot):
 	"""Test basique de création du widget."""
 	w = BasePlotlyWidget()
@@ -20,7 +19,6 @@ def test_creation(qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_update_plotly(qtbot):
 	"""Test basique de gestion de plotly."""
 	w = BasePlotlyWidget()
@@ -35,7 +33,6 @@ def test_update_plotly(qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_update_plotly_no_js(qtbot):
 	"""Test basique de gestion de plotly."""
 	w = BasePlotlyWidget()
@@ -50,7 +47,6 @@ def test_update_plotly_no_js(qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de gestion de plotly."""
 	w = BasePlotlyWidget()
@@ -81,7 +77,6 @@ def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_export_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de gestion de plotly."""
 	w = BasePlotlyWidget()

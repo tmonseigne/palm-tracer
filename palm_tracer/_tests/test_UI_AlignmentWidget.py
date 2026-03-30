@@ -12,7 +12,6 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_creation(qtbot):
 	"""Test basique de création du widget."""
 	w = AlignmentWidget()
@@ -24,7 +23,6 @@ def test_widget_creation(qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
@@ -51,7 +49,6 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
@@ -86,7 +83,6 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
@@ -109,7 +105,6 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
@@ -141,7 +136,6 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.
@@ -177,7 +171,6 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""
 	Test basique de création du widget.

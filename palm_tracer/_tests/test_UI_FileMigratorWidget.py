@@ -12,7 +12,6 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_creation(qtbot):
 	"""Test basique de création du widget."""
 	w = FileMigratorWidget()
@@ -24,7 +23,6 @@ def test_widget_creation(qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
 	w = FileMigratorWidget()
@@ -49,7 +47,6 @@ def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de la calibration"""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)

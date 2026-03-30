@@ -19,7 +19,8 @@ from typing import Any
 from colorama import Fore, Style
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFontMetrics
-from qtpy.QtWidgets import QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QSpinBox, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton, QSpinBox,
+							QVBoxLayout, QWidget)
 
 # ==================================================
 # region Constants
@@ -139,6 +140,35 @@ def make_group(parent: QWidget | None = None, name: str = "", space: int = COMMO
 
 
 ##################################################
+def make_exclusive_btn_group(labels: list[str], space: int = COMMON_SPACE) -> tuple[QHBoxLayout, QButtonGroup, dict[str, QPushButton]]:
+	"""
+	Crée un :class:`QGroupBox` avec un layout vertical configuré.
+
+	:param labels: Titres affiché dans les boutons.
+	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
+
+	:return: Un tuple ``(group, layout)`` où : ``group`` est le :class:`QGroupBox` créé et ``layout`` son calque.
+	"""
+	layout = QHBoxLayout()
+	layout.setSpacing(space)
+	group = QButtonGroup()
+	group.setExclusive(True)
+	buttons: dict[str, QPushButton] = {label: QPushButton(label) for label in labels}
+
+	i = 0
+	for _, button in buttons.items():
+		button.setCheckable(True)
+		button.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
+		layout.addWidget(button)
+		group.addButton(button, i)  # Insertion dans le groupe exclusif
+		i += 1
+
+	buttons[labels[0]].setChecked(True)
+
+	return layout, group, buttons
+
+
+##################################################
 def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> QFormLayout:
 	"""
 	Crée et configure un :class:`QFormLayout` pour des paramètres.
@@ -223,6 +253,33 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 		row += 1
 
 	return layout
+
+
+##################################################
+def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> tuple[QGroupBox, dict[str, QLabel]]:
+	"""
+	Construit un groupe d'information pour le listing des fichiers calculés.
+
+	Le groupe est composée de : un titre, la liste des fichiers et leurs status.
+	:return: Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de status des fichiers.
+	"""
+	grp = QGroupBox("Informations")
+	tips = {"File":         "Current stack.",
+			"Localization": "Localizations on the current stack.",
+			"Beads":        "Beads on the current stack.",
+			"Tracking":     "Tracking on the current stack.",
+			"MSD":          "Mean Square Displacement of tracks on the current stack.",
+			"Instant D":    "Instant Diffusion of tracks on the current stack.",
+			"Fit":          "Fit of tracks on the current stack."}
+
+	# Statut des différentes tables (localisation / tracking / MSD / D / fit)
+	status = {"File":         QLabel("No file"),
+			  "Localization": QLabel("No"), "Beads": QLabel("No"), "Tracking": QLabel("No"),
+			  "MSD":          QLabel("No"), "Instant D": QLabel("No"), "Fit": QLabel("No")}
+
+	form = make_form(grp, space, margin)
+	for key, value in status.items(): add_setting_row(form, f"{key}: ", value, tooltip=tips[key])
+	return grp, status
 
 
 ##################################################

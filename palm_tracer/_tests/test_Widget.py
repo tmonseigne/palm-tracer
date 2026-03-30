@@ -7,7 +7,7 @@ from qtpy.QtWidgets import QSpinBox
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import CheckRangeInt
-from palm_tracer.UI import PALMTracerWidget, Viewer3DWidget, ViewerHRWidget
+from palm_tracer.UI import PALMTracerWidget, Viewer3DWidget
 from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
@@ -16,19 +16,15 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_creation(make_napari_viewer, capsys):
+def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
 	viewer = make_napari_viewer()  # .		 Créer un viewer à l'aide de la fixture.
 	my_widget = PALMTracerWidget(viewer)  # .Créer notre widget, en passant par le viewer.
-	my_widget.prepare_teardown()  # .		 Préparation de la fermeture.
-	viewer.close()
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_on_load_setting(make_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
+def test_widget_on_load_setting(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -39,13 +35,9 @@ def test_widget_on_load_setting(make_napari_viewer, capsys, monkeypatch, fake_qf
 	lines = get_lines_output(capsys)
 	assert "WARNING: Error loading file '" in lines[0]
 
-	my_widget.prepare_teardown()
-	viewer.close()
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_reset_setting(make_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
+def test_widget_reset_setting(make_napari_viewer, patched_napari_viewer):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -53,13 +45,9 @@ def test_widget_reset_setting(make_napari_viewer, capsys, monkeypatch, fake_qfil
 
 	my_widget._on_reset_setting_btn()
 
-	my_widget.prepare_teardown()  # Préparation de la fermeture.
-	viewer.close()
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
+def test_widget_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -72,15 +60,9 @@ def test_widget_reset_layer(make_napari_viewer, capsys, qtbot):
 	assert "INFO: Loaded" in lines[0]
 	my_widget._reset_layer()  # .											   Remise à 0 des calques sans changement.
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
+def test_widget_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test de récupération d'image."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -92,15 +74,9 @@ def test_widget_get_actual_image(make_napari_viewer, capsys, qtbot):
 	assert my_widget._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
 	assert my_widget._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # .Récupération d'une image hors limite
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
+def test_widget_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test Ajout des calques de détection."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -122,12 +98,12 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	# Ajout avec des calques existants et un futur vide.
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": None}
 	my_widget._add_preview_layers()
-	qtbot.waitUntil(lambda: not "Points Future" in layers, timeout=5000)
+	qtbot.waitUntil(lambda: "Points Future" not in layers, timeout=5000)
 
 	# Ajout avec un tableau vide et rien en passé et future.
 	my_widget._preview_locs = {"Past": np.zeros((2, 0)), "Present": POINTS, "Future": None}
 	my_widget._add_preview_layers()
-	qtbot.waitUntil(lambda: not "Points Past" in layers, timeout=5000)
+	qtbot.waitUntil(lambda: "Points Past" not in layers, timeout=5000)
 
 	my_widget.pt.settings.localization["ROI Shape"].value = 1
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].value == 1, timeout=5000)
@@ -136,15 +112,9 @@ def test_widget_add_detection_layers(make_napari_viewer, capsys, qtbot):
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Future" in layers, timeout=5000)
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_preview(make_napari_viewer, capsys, qtbot):
+def test_widget_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton preview."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -169,15 +139,9 @@ def test_widget_preview(make_napari_viewer, capsys, qtbot):
 		lines = get_lines_output(capsys)
 		assert "Preview of 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in lines[-1]
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_roi_filter_layer(make_napari_viewer, capsys, qtbot):
+def test_widget_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test click sur le bouton preview."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -208,15 +172,9 @@ def test_widget_roi_filter_layer(make_napari_viewer, capsys, qtbot):
 	filter_y.active = False  # .									On désactive le filtre sur Y (l'image est à nouveau supprimé).
 	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .Attente : Il supprime le calque.
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
+def test_widget_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton auto_threshold."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -232,15 +190,9 @@ def test_widget_auto_threshold(make_napari_viewer, capsys, qtbot):
 	lines = get_lines_output(capsys)
 	assert "Auto Threshold: 63.95" in lines[-1]
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
+def test_widget_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test click sur le bouton process."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -262,15 +214,9 @@ def test_widget_thread_process(make_napari_viewer, capsys, qtbot):
 	my_widget._thread_process(my_widget._auto_threshold)  # .			Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_after_close(make_napari_viewer, capsys, qtbot):
+def test_widget_after_close(make_napari_viewer, patched_napari_viewer):
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 	my_widget._tearing_down = True  # Simuler le tearing_down actif
@@ -279,15 +225,9 @@ def test_widget_after_close(make_napari_viewer, capsys, qtbot):
 	my_widget._preview()
 	my_widget._auto_threshold()
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_keyblocker(make_napari_viewer, capsys, qtbot):
+def test_widget_keyblocker(make_napari_viewer, patched_napari_viewer, qtbot):
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -301,15 +241,9 @@ def test_widget_keyblocker(make_napari_viewer, capsys, qtbot):
 	event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Backspace, Qt.KeyboardModifier.NoModifier)
 	my_widget.key_blocker.eventFilter(viewer.window.qt_viewer, event)
 
-	try:  # Avec Napari sur les CI ça peut faire n'importe quoi à la fermeture si les layers ont été touché.
-		my_widget.prepare_teardown()
-		viewer.close()
-	except Exception: pass
-
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_viewer3d(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
+def test_viewer3d(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -341,145 +275,3 @@ def test_viewer3d(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledial
 
 	my_widget.data = pd.DataFrame()
 	my_widget.update_layer()  # .													 Mise à jour avec un dataframe vide
-
-	try: viewer.close()
-	except Exception: pass
-
-
-##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_viewerhr_load(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de création du widget."""
-	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
-	pt = PALMTracer()  # .												  Créer l'objet PALMTracer nécessaire.
-	my_widget = ViewerHRWidget(viewer, pt)
-
-	lines = get_lines_output(capsys)
-	assert "No valid settings file to load." in lines[0]
-
-	my_widget.save()  # .												  Sauvegarde sans aucun élément de chargé
-
-	fake_qfiledialog(ViewerHRWidget, None)  # .							  Simuler un "Cancel" sur le QFileDialog
-	my_widget.load_folder()
-	lines = get_lines_output(capsys)
-	assert "No valid settings file to load." in lines[0]
-
-	fake_qfiledialog(ViewerHRWidget, "folder")  # .						  Simuler un dossier inexistant
-	my_widget.load_folder()
-	lines = get_lines_output(capsys)
-	assert "No valid settings file to load." in lines[0]
-	assert "The destination path 'folder' is invalid." in lines[1]
-
-	fake_qfiledialog(ViewerHRWidget, INPUT_DIR)  # .					  Simuler un dossier existant, mais sans fichier settings compatible.
-	my_widget.load_folder()
-	lines = get_lines_output(capsys)
-	assert "No valid settings file to load." in lines[0]
-	assert "No stack loaded." in lines[1]
-
-	fake_qfiledialog(ViewerHRWidget, f"{INPUT_DIR}/stack_PALM_Tracer")  # Dossier valide
-	my_widget.load_folder()
-	lines = get_lines_output(capsys)
-	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
-
-	my_widget.load_folder()  # .										  Pour recommencer sur un dossier existant
-	lines = get_lines_output(capsys)
-	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
-
-	try: viewer.close()
-	except Exception: pass
-
-
-##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_viewerhr_generate(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de création du widget."""
-	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
-	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer nécessaire.
-	add_basic_file(pt)  # .												Ajout d'une entrée
-	pt.settings.localization.active = True
-	pt.settings.tracking.active = True
-	tc = pt.settings.tracks_compute
-	tc.active = True
-	tc["MSD"].value = True
-	tc["Instant Diffusion"].value = True
-	tc["Fit"].value = 1
-	pt.process()
-	my_widget = ViewerHRWidget(viewer, pt)
-	layers = my_widget.viewer.layers
-	qtbot.waitUntil(lambda: "Points" in layers, timeout=5000)  # .		Attente : qu'il ait une image
-	qtbot.waitUntil(lambda: "Visualization" in layers, timeout=5000)  # Attente : qu'il ait une image
-	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
-	ref = (512, 1024)
-	res = my_widget.visualization.shape
-	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Passage aux tracks (avec changement automatique de la color map sur viridis)
-	my_widget.type_cmb.value = 1
-	assert my_widget.color_cmb.value == 1, "La color map devrait être à 1 (viridis) au lieu de 0 (grayscale)."
-	my_widget.generate()
-	qtbot.waitUntil(lambda: "Tracks" in layers, timeout=5000)  # .		Attente : qu'il ait une image
-	qtbot.waitUntil(lambda: "Visualization" in layers, timeout=5000)  # Attente : qu'il ait une image
-
-	# Suppression des données
-	my_widget._pt.reset_result()
-	# Recalcul mais sans trajectoires
-	my_widget.generate()
-	qtbot.waitUntil(lambda: len(layers) == 0, timeout=5000)  # .		 Attente : qu'il n'ai aucune image
-	lines = get_lines_output(capsys)
-	assert "No tracking file available." in lines[-1]
-
-	# Retour aux localizations (avec changement automatique de la color map sur grayscale)
-	my_widget.type_cmb.value = 0
-	assert my_widget.color_cmb.value == 0, "La color map devrait être à 0 (grayscale) au lieu de 1 (viridis)."
-	my_widget.generate()
-	qtbot.waitUntil(lambda: len(layers) == 0, timeout=5000)  # .		 Attente : qu'il n'ai aucune image
-	lines = get_lines_output(capsys)
-	assert "No localization file available." in lines[-1]
-
-	try: viewer.close()
-	except Exception: pass
-
-
-##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_viewerhr_already_configured(make_napari_viewer, capsys, qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de création du widget."""
-	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
-	pt = PALMTracer()  # Créer et configurer l'objet PALMTracer nécessaire.
-	add_basic_file(pt)  # .																 Ajout d'une entrée
-	pt.settings.localization.active = True
-	pt.process()
-	my_widget = ViewerHRWidget(viewer, pt)
-	qtbot.waitUntil(lambda: "Visualization" in my_widget.viewer.layers, timeout=5000)  # Attente : qu'il ait une image
-	# Stack est de dimension (10, 128, 256) donc avec par défaut un upscale de 4 la dimnesion de la visualizaiton est de (512, 1024)
-	ref = (512, 1024)
-	res = my_widget.visualization.shape
-	assert res == ref, f"Dimensions de la sortie incorrecte.\nAttendu : {ref}\nObtenu : {res}"
-
-	my_widget.save()
-	assert Path(my_widget._filename).is_file()
-
-	lines = get_lines_output(capsys)
-	assert "File 'localizations' loaded successfully." in lines[-17]
-	assert "File 'localizations_filtered' not found." in lines[-16]
-	assert "File 'localizations_corrected' not found." in lines[-15]
-	assert "File 'localizations_corrected_filtered' not found." in lines[-14]
-	assert "File 'beads' not found." in lines[-13]
-	assert "File 'tracking' not found." in lines[-12]
-	assert "File 'tracking_filtered' not found." in lines[-11]
-	assert "File 'tracking_reconnected' not found." in lines[-10]
-	assert "File 'tracking_reconnected_filtered' not found." in lines[-9]
-	assert "File 'tracking_MSD' not found." in lines[-8]
-	assert "File 'tracking_MSD_filtered' not found." in lines[-7]
-	assert "File 'tracking_InstantD' not found." in lines[-6]
-	assert "File 'tracking_InstantD_filtered' not found." in lines[-5]
-	assert "File 'tracking_Fit' not found." in lines[-4]
-	assert "File 'tracking_Fit_filtered' not found." in lines[-3]
-	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[-2]
-	assert "Saving the image file." in lines[-1]
-
-	try: viewer.close()
-	except Exception: pass
