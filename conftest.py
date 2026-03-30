@@ -137,22 +137,6 @@ def patched_napari_viewer(monkeypatch, qtbot):
 			# Selon les versions, _instances peut être un WeakSet ou assimilé.
 			instances = list(getattr(napari.viewer.Viewer, "_instances", []))
 			for viewer in instances:
-				try:
-					if hasattr(viewer, "prepare_teardown"): viewer.prepare_teardown()
-				except Exception: pass
-
-				try:
-					window = getattr(viewer, "window", None)
-					dock_widgets = getattr(window, "_dock_widgets", None)  # Cas des dock widgets (cas le plus fréquent)
-					if dock_widgets:
-						for dock in dock_widgets.values():
-							try:
-								widget = dock.widget()
-								if hasattr(widget, "prepare_teardown"): widget.prepare_teardown()
-							except Exception: pass
-				except Exception:
-					pass
-
 				try: viewer.close()
 				except Exception: pass
 		except Exception: pass

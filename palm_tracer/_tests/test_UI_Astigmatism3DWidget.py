@@ -15,7 +15,6 @@ BACKUP_DIR = INPUT_DIR / "backup"
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_widget_creation(qtbot):
 	"""Test basique de création du widget."""
 	w = Astigmatism3DWidget()
@@ -27,7 +26,6 @@ def test_widget_creation(qtbot):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
@@ -84,7 +82,6 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
@@ -119,7 +116,6 @@ def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de la calibration sans fichier chargé."""
 	w = Astigmatism3DWidget()
@@ -136,7 +132,6 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de la calibration"""
 	w = Astigmatism3DWidget()
@@ -164,7 +159,6 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de la calibration"""
 	w = Astigmatism3DWidget()
@@ -203,7 +197,6 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de l'estimation sans fichier chargé."""
 	w = Astigmatism3DWidget()
@@ -234,7 +227,6 @@ def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de l'estimation."""
 	w = Astigmatism3DWidget()
@@ -275,7 +267,6 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de l'estimation."""
 	w = Astigmatism3DWidget()
@@ -331,7 +322,6 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de vérification de lien entre les spins pixel size."""
 	w = Astigmatism3DWidget()
@@ -352,7 +342,6 @@ def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-@pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
 def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du callback de téléchargement du graphique."""
 	w = Astigmatism3DWidget()

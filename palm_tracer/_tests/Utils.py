@@ -29,12 +29,6 @@ save_output = True
 
 
 ##################################################
-def is_headless():
-	"""Fixture pour éviter les crash sur le Ci Unix et macOS."""
-	return platform.system() in ("Linux", "Darwin") and IS_CI
-
-
-##################################################
 def strip_ansi(text: str) -> str:
 	"""Supprime les séquences ANSI (couleurs console)."""
 	return ANSI_ESCAPE.sub("", text)

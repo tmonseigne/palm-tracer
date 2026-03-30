@@ -61,7 +61,6 @@ class PALMTracerWidget(QWidget):
 		# ----- Threading -----
 		self._processing = False  # .					 Permets d'éviter les clics multiples.
 		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
-		self._tearing_down = False  # .					 Vrai pendant le teardown pour ignorer les callbacks
 		# ----- Objets -----
 		self.pt = PALMTracer()
 		self.last_file = ""
@@ -221,7 +220,7 @@ class PALMTracerWidget(QWidget):
 		self._worker = w
 
 		# s'exécute dans le thread UI
-		if post_func is not None: w.returned.connect(lambda _ok: (not self._tearing_down) and post_func())
+		if post_func is not None: w.returned.connect(lambda _ok: post_func())
 
 		def _finish(*_args: object) -> None:  # UI thread : fin propre
 			self._worker = None
@@ -243,26 +242,6 @@ class PALMTracerWidget(QWidget):
 		self._processing = False
 		self._freeze_ui(False)
 		show_info("Thread Process done.")
-
-	##################################################
-	def prepare_teardown(self, timeout_ms: int = 30_000):
-		"""À appeler avant viewer.close() pour stopper les workers et neutraliser les callbacks UI."""
-		self._tearing_down = True
-
-		try:  # Déconnecter ce qui peut encore déclencher des callbacks durant la fermeture
-			self.viewer.dims.events.current_step.disconnect()
-			self.pt.settings.disconnect()
-		except (TypeError, RuntimeError): pass  # TypeError : aucune connexion existante, RuntimeError : déjà déconnecté / objet détruit
-
-		# Demander l'arrêt du worker en cours et attendre sa fin
-		if self._worker is not None:
-			try:
-				self._worker.quit()
-				FunctionWorker.await_workers(timeout_ms)  # Attend jusqu'à 30s que tous les workers quittent
-			except (RuntimeError, AttributeError): pass  # .Worker déjà terminé ou thread détruit
-			self._worker = None
-
-		self._freeze_ui(False)  # Réactive l'UI si gelée
 
 	##################################################
 	def _freeze_ui(self, on: bool) -> None:
@@ -324,7 +303,6 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _remove_layer(self, name: str):
 		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
-		if self._tearing_down or not getattr(self, "viewer", None): return
 		try:
 			if name in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[name])
 		except Exception as e: Ui.print_warning(F"Error when deleting the old layer '{name}' : {e}")
@@ -332,7 +310,6 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
-		if self._tearing_down or not getattr(self, "viewer", None): return
 		self.pt.settings.localization["Preview"].value = False
 		self.pt.settings.filtering.deactivate_filters()
 		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
@@ -362,7 +339,6 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _add_preview_layers(self):
 		"""Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant."""
-		if self._tearing_down or not getattr(self, "viewer", None): return
 		state_args = {
 				"Past":    {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
 				"Present": {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
@@ -415,7 +391,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _add_roi_filter_layer(self):
 		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
-		if self._tearing_down or not getattr(self, "viewer", None) or "Raw" not in self.viewer.layers: return
+		if "Raw" not in self.viewer.layers: return
 		# Suppression du calque "ROI Filter" s'il existe
 		l_name = "ROI Filter"
 
@@ -459,7 +435,7 @@ class PALMTracerWidget(QWidget):
 		:param time: Différence de temps entre l'image actuellement affichée et celle désirée.
 		:return: L'image désirée (image actuellement affichée si time = 0).
 		"""
-		if self._tearing_down or not getattr(self, "viewer", None) or "Raw" not in self.viewer.layers: return None
+		if "Raw" not in self.viewer.layers: return None
 		layer = self.viewer.layers["Raw"]  # .				   Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
 		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
@@ -469,7 +445,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		if self._tearing_down or not getattr(self, "viewer", None) or not self.pt.settings.localization["Preview"].value: return
+		if not self.pt.settings.localization["Preview"].value: return
 
 		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
 		if present is None: return
@@ -492,7 +468,6 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
-		if self._tearing_down or not getattr(self, "viewer", None): return
 		image = self._get_actual_image()
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
