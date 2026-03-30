@@ -31,18 +31,15 @@ def get_pt():
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_creation(make_napari_viewer, capsys):
+def test_widget_creation(make_napari_viewer, clean_napari, capsys):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
 
-	try: viewer.close()
-	except Exception: pass
-
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_add_stack(make_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
+def test_add_stack(make_napari_viewer, clean_napari, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du widget."""
 	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
@@ -54,13 +51,10 @@ def test_add_stack(make_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledia
 	lines = get_lines_output(capsys)
 	assert "No valid settings file to load." in lines[0]
 
-	try: viewer.close()
-	except Exception: pass
-
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_change_source(make_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
+def test_change_source(make_napari_viewer, clean_napari, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du widget."""
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
@@ -73,13 +67,10 @@ def test_change_source(make_napari_viewer, qtbot, capsys, monkeypatch, fake_qfil
 	qtbot.mouseClick(w._btn_src["Localization"], Qt.MouseButton.LeftButton)
 	assert w._cmb_src.items[0] == "Count"
 
-	try: viewer.close()
-	except Exception: pass
-
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_actualize(make_napari_viewer, qtbot, capsys):
+def test_actualize(make_napari_viewer, clean_napari, qtbot, capsys):
 	"""Test basique du widget."""
 	viewer = make_napari_viewer()  # .					Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, PALMTracer())  # Créer notre widget, en passant par le viewer.
@@ -89,13 +80,10 @@ def test_actualize(make_napari_viewer, qtbot, capsys):
 	w._pt._stack = np.zeros((1, 1, 1), dtype=np.uint16)
 	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
 
-	try: viewer.close()
-	except Exception: pass
-
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_reset_filtered(make_napari_viewer, qtbot, capsys):
+def test_reset_filtered(make_napari_viewer, clean_napari, qtbot, capsys):
 	"""Test basique de création du widget."""
 
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
@@ -105,13 +93,10 @@ def test_reset_filtered(make_napari_viewer, qtbot, capsys):
 	qtbot.mouseClick(w._filters.buttons["reset"], Qt.MouseButton.LeftButton)
 	assert w._status["Localization"].text() == "Yes", "Status Incorrect."
 
-	try: viewer.close()
-	except Exception: pass
-
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_update_filtered(make_napari_viewer, qtbot, capsys):
+def test_update_filtered(make_napari_viewer, clean_napari, qtbot, capsys):
 	"""Test basique de création du widget."""
 
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
@@ -133,13 +118,10 @@ def test_update_filtered(make_napari_viewer, qtbot, capsys):
 	assert w._pt.settings.filtering["Plane"].value == new_f  # .						Il a été mis à jour
 	assert w._status["Localization"].text() == "Yes (Filtered)", "Status Incorrect."  # On a à nouveau un tableau filtré.
 
-	try: viewer.close()
-	except Exception: pass
-
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_save(make_napari_viewer, qtbot, capsys):
+def test_save(make_napari_viewer, clean_napari, qtbot, capsys):
 	"""Test basique de création du widget."""
 	res = OUTPUT_DIR / "HR.png"
 	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
@@ -153,13 +135,10 @@ def test_save(make_napari_viewer, qtbot, capsys):
 	qtbot.mouseClick(w._btn_save, Qt.MouseButton.LeftButton)
 	assert res.exists(), "File not saved."
 
-	try: viewer.close()
-	except Exception: pass
-
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_generate(make_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+def test_generate(make_napari_viewer, clean_napari, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
@@ -204,6 +183,3 @@ def test_generate(make_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledial
 	# Ajout d'un tableau de Suivi
 	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
-
-	try: viewer.close()
-	except Exception: pass

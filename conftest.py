@@ -1,3 +1,4 @@
+import gc
 import json
 import os
 import platform
@@ -5,9 +6,11 @@ import sys
 import types
 
 import cpuinfo
+import napari
 import psutil
 import pytest
 from pytest_metadata.plugin import metadata_key
+from qtpy.QtWidgets import QApplication
 
 from palm_tracer.Tools import Monitoring, Ui
 
@@ -80,6 +83,60 @@ def fake_qfiledialog(monkeypatch):
 		monkeypatch.setattr(module.QFileDialog, "getExistingDirectory", _fake_get_existing_directory)
 
 	return _factory
+
+
+##################################################
+@pytest.fixture
+def clean_napari(qtbot):
+	"""
+	Nettoie agressivement les viewers/fenêtres Napari avant et après un test.
+
+	Cette fixture limite les effets de bord lorsqu'un test précédent a échoué
+	pour de mauvaises raisons pendant son teardown.
+	"""
+
+	def _cleanup():
+		# 1) Fermer les viewers Napari connus
+		try:
+			# Selon les versions, _instances peut être un WeakSet ou assimilé.
+			instances = list(getattr(napari.viewer.Viewer, "_instances", []))
+			for viewer in instances:
+				try:
+					if hasattr(viewer, "prepare_teardown"): viewer.prepare_teardown()
+					# 2) dock widgets (cas le plus fréquent)
+					if hasattr(viewer.window, "_dock_widgets"):
+						for dock in viewer.window._dock_widgets.values():
+							widget = dock.widget()
+							if hasattr(widget, "prepare_teardown"):
+								try: widget.prepare_teardown()
+								except Exception: pass
+				except Exception: pass
+
+				try: viewer.close()
+				except Exception: pass
+		except Exception: pass
+
+		# 2) Fermer toutes les fenêtres/top-level widgets Qt restantes
+		try:
+			app = QApplication.instance()
+			if app is not None:
+				for widget in list(app.topLevelWidgets()):
+					try: widget.close()
+					except Exception: pass
+				app.processEvents()
+		except Exception: pass
+
+		# 3) GC pour aider les weakrefs / destructions tardives
+		try: gc.collect()
+		except Exception: pass
+
+	# Nettoyage avant
+	_cleanup()
+
+	yield
+
+	# Nettoyage après
+	_cleanup()
 
 
 ##################################################
