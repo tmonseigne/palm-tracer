@@ -17,7 +17,7 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_creation(make_napari_viewer, clean_napari):
+def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
 	viewer = make_napari_viewer()  # .		 Créer un viewer à l'aide de la fixture.
@@ -26,7 +26,7 @@ def test_widget_creation(make_napari_viewer, clean_napari):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_on_load_setting(make_napari_viewer, clean_napari, capsys, monkeypatch, fake_qfiledialog):
+def test_widget_on_load_setting(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -40,7 +40,7 @@ def test_widget_on_load_setting(make_napari_viewer, clean_napari, capsys, monkey
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_reset_setting(make_napari_viewer, clean_napari):
+def test_widget_reset_setting(make_napari_viewer, patched_napari_viewer):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -51,7 +51,7 @@ def test_widget_reset_setting(make_napari_viewer, clean_napari):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_reset_layer(make_napari_viewer, clean_napari, capsys, qtbot):
+def test_widget_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -67,7 +67,7 @@ def test_widget_reset_layer(make_napari_viewer, clean_napari, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_get_actual_image(make_napari_viewer, clean_napari, qtbot):
+def test_widget_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test de récupération d'image."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -82,7 +82,7 @@ def test_widget_get_actual_image(make_napari_viewer, clean_napari, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_add_detection_layers(make_napari_viewer, clean_napari, qtbot):
+def test_widget_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test Ajout des calques de détection."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -104,12 +104,12 @@ def test_widget_add_detection_layers(make_napari_viewer, clean_napari, qtbot):
 	# Ajout avec des calques existants et un futur vide.
 	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": None}
 	my_widget._add_preview_layers()
-	qtbot.waitUntil(lambda: not "Points Future" in layers, timeout=5000)
+	qtbot.waitUntil(lambda: "Points Future" not in layers, timeout=5000)
 
 	# Ajout avec un tableau vide et rien en passé et future.
 	my_widget._preview_locs = {"Past": np.zeros((2, 0)), "Present": POINTS, "Future": None}
 	my_widget._add_preview_layers()
-	qtbot.waitUntil(lambda: not "Points Past" in layers, timeout=5000)
+	qtbot.waitUntil(lambda: "Points Past" not in layers, timeout=5000)
 
 	my_widget.pt.settings.localization["ROI Shape"].value = 1
 	qtbot.waitUntil(lambda: my_widget.pt.settings.localization["ROI Shape"].value == 1, timeout=5000)
@@ -121,7 +121,7 @@ def test_widget_add_detection_layers(make_napari_viewer, clean_napari, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_preview(make_napari_viewer, clean_napari, capsys, qtbot):
+def test_widget_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton preview."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -149,7 +149,7 @@ def test_widget_preview(make_napari_viewer, clean_napari, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_roi_filter_layer(make_napari_viewer, clean_napari, qtbot):
+def test_widget_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test click sur le bouton preview."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -183,7 +183,7 @@ def test_widget_roi_filter_layer(make_napari_viewer, clean_napari, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_auto_threshold(make_napari_viewer, clean_napari, capsys, qtbot):
+def test_widget_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton auto_threshold."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -202,7 +202,7 @@ def test_widget_auto_threshold(make_napari_viewer, clean_napari, capsys, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_thread_process(make_napari_viewer, clean_napari, qtbot):
+def test_widget_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test click sur le bouton process."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -227,7 +227,7 @@ def test_widget_thread_process(make_napari_viewer, clean_napari, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_after_close(make_napari_viewer, clean_napari):
+def test_widget_after_close(make_napari_viewer, patched_napari_viewer):
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 	my_widget._tearing_down = True  # Simuler le tearing_down actif
@@ -239,7 +239,7 @@ def test_widget_after_close(make_napari_viewer, clean_napari):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_keyblocker(make_napari_viewer, clean_napari, qtbot):
+def test_widget_keyblocker(make_napari_viewer, patched_napari_viewer, qtbot):
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
@@ -256,7 +256,7 @@ def test_widget_keyblocker(make_napari_viewer, clean_napari, qtbot):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_viewer3d(make_napari_viewer, clean_napari, qtbot, monkeypatch, fake_qfiledialog):
+def test_viewer3d(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch, fake_qfiledialog):
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()

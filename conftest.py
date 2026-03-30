@@ -9,28 +9,24 @@ import cpuinfo
 import napari
 import psutil
 import pytest
+from napari._qt.qt_viewer import QtViewer
+from napari._vispy.canvas import VispyCanvas
 from pytest_metadata.plugin import metadata_key
 from qtpy.QtWidgets import QApplication
 
 from palm_tracer.Tools import Monitoring, Ui
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
+os.environ["QT_OPENGL"] = "software"
 os.environ["NAPARI_GUI_BACKEND"] = "none"
 os.environ["VISPY_USE_APP"] = "mock"
 
 all_tests_monitoring = Monitoring()
 
 
-##################################################
-@pytest.fixture
-def qt_app():
-	"""Fixture pour gérer une QApplication proprement"""
-	from qtpy.QtWidgets import QApplication
-
-	app = QApplication([])  # Initialisation de QApplication
-	yield app
-	# atexit.register(lambda: app.quit())  # Ajoutez un hook pour bien fermer QApplication
-
+# ==================================================
+# region Fixture
+# ==================================================
 ##################################################
 @pytest.fixture
 def fake_qfiledialog(monkeypatch):
@@ -87,60 +83,6 @@ def fake_qfiledialog(monkeypatch):
 
 ##################################################
 @pytest.fixture
-def clean_napari(qtbot):
-	"""
-	Nettoie agressivement les viewers/fenêtres Napari avant et après un test.
-
-	Cette fixture limite les effets de bord lorsqu'un test précédent a échoué
-	pour de mauvaises raisons pendant son teardown.
-	"""
-
-	def _cleanup():
-		# 1) Fermer les viewers Napari connus
-		try:
-			# Selon les versions, _instances peut être un WeakSet ou assimilé.
-			instances = list(getattr(napari.viewer.Viewer, "_instances", []))
-			for viewer in instances:
-				try:
-					if hasattr(viewer, "prepare_teardown"): viewer.prepare_teardown()
-					# 2) dock widgets (cas le plus fréquent)
-					if hasattr(viewer.window, "_dock_widgets"):
-						for dock in viewer.window._dock_widgets.values():
-							widget = dock.widget()
-							if hasattr(widget, "prepare_teardown"):
-								try: widget.prepare_teardown()
-								except Exception: pass
-				except Exception: pass
-
-				try: viewer.close()
-				except Exception: pass
-		except Exception: pass
-
-		# 2) Fermer toutes les fenêtres/top-level widgets Qt restantes
-		try:
-			app = QApplication.instance()
-			if app is not None:
-				for widget in list(app.topLevelWidgets()):
-					try: widget.close()
-					except Exception: pass
-				app.processEvents()
-		except Exception: pass
-
-		# 3) GC pour aider les weakrefs / destructions tardives
-		try: gc.collect()
-		except Exception: pass
-
-	# Nettoyage avant
-	_cleanup()
-
-	yield
-
-	# Nettoyage après
-	_cleanup()
-
-
-##################################################
-@pytest.fixture
 def fake_napari_layers(monkeypatch):
 	"""Bypass des méthodes d'ajout de layers Napari qui déclenchent VisPy/OpenGL."""
 
@@ -172,6 +114,97 @@ def fake_napari_layers(monkeypatch):
 	return _factory
 
 
+##################################################
+@pytest.fixture
+def patched_napari_viewer(monkeypatch, qtbot):
+	"""
+	Sécurise la création d'un viewer Napari en environnement de test/CI.
+
+	Cette fixture :
+	- neutralise les accès OpenGL problématiques lors de l'initialisation du canvas ;
+	- désactive la création réelle des layers VisPy ;
+	- effectue un nettoyage agressif avant et après le test pour limiter les
+	  effets de bord entre tests.
+
+	Attention :
+	- le patch OpenGL doit être appliqué avant l'appel à ``make_napari_viewer()`` ;
+	- cette fixture vise des tests unitaires/Qt, pas des tests de rendu réel.
+	"""
+
+	def _cleanup() -> None:
+		"""Ferme les viewers/fenêtres Napari et les top-level widgets Qt restants."""
+		try:
+			# Selon les versions, _instances peut être un WeakSet ou assimilé.
+			instances = list(getattr(napari.viewer.Viewer, "_instances", []))
+			for viewer in instances:
+				try:
+					if hasattr(viewer, "prepare_teardown"): viewer.prepare_teardown()
+				except Exception: pass
+
+				try:
+					window = getattr(viewer, "window", None)
+					dock_widgets = getattr(window, "_dock_widgets", None)  # Cas des dock widgets (cas le plus fréquent)
+					if dock_widgets:
+						for dock in dock_widgets.values():
+							try:
+								widget = dock.widget()
+								if hasattr(widget, "prepare_teardown"): widget.prepare_teardown()
+							except Exception: pass
+				except Exception:
+					pass
+
+				try: viewer.close()
+				except Exception: pass
+		except Exception: pass
+
+		# 2) Fermer toutes les fenêtres/top-level widgets Qt restantes
+		try:
+			app = QApplication.instance()
+			if app is not None:
+				for widget in list(app.topLevelWidgets()):
+					try: widget.close()
+					except Exception: pass
+				app.processEvents()
+		except Exception: pass
+
+		# 3) GC pour aider les weakrefs / destructions tardives
+		try: gc.collect()
+		except Exception: pass
+
+	# --- nettoyage avant test
+	_cleanup()
+
+	# --- patch OpenGL et VisPy
+	monkeypatch.setattr("napari._vispy.utils.gl.get_max_texture_sizes", lambda: (4096, 4096), raising=True)
+	monkeypatch.setattr("napari._vispy.canvas.get_max_texture_sizes", lambda: (4096, 4096), raising=True)
+	monkeypatch.setattr("napari._vispy.canvas.VispyCanvas._clean_and_update_scenegraph", lambda self: None, raising=True)
+	monkeypatch.setattr("napari._vispy.canvas.VispyCanvas._resume_scene_graph_update", lambda self: None, raising=True)
+	try: monkeypatch.setattr("vispy.app.backends._qt.get_physical_dpi", lambda *args, **kwargs: 96, raising=True)
+	except Exception: pass
+
+	def _fake_add_layer(self, layer) -> None: return None  # Ignore la création réelle du visuel VisPy associé à un layer.
+
+	def _fake_remove_layer(self, event) -> None: return None  # Ignore la suppression réelle du visuel VisPy associé à un layer.
+
+	def _fake_reorder_layers(self) -> None: return None  # Ignore le réordonnancement réel des visuels VisPy.
+
+	monkeypatch.setattr(QtViewer, "_add_layer", _fake_add_layer, raising=True)
+	monkeypatch.setattr(VispyCanvas, "_remove_layer", _fake_remove_layer, raising=True)
+	monkeypatch.setattr(VispyCanvas, "_reorder_layers", _fake_reorder_layers, raising=True)
+
+	yield
+
+	# --- nettoyage après test
+	_cleanup()
+
+
+# ==================================================
+# endregion Fixture
+# ==================================================
+
+# ==================================================
+# region Hook
+# ==================================================
 ##################################################
 def cpu_infos() -> str:
 	info = cpuinfo.get_cpu_info()
@@ -254,3 +287,7 @@ def pytest_runtest_protocol(item, nextitem):
 	global all_tests_monitoring
 	all_tests_monitoring.add_test_info(item.nodeid)
 	return None
+
+# ==================================================
+# endregion Hook
+# ==================================================

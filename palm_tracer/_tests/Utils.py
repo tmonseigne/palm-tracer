@@ -13,9 +13,9 @@ from palm_tracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
 
-INPUT_DIR = Path(__file__).parent / "input"
+INPUT_DIR = Path(__file__).parent.resolve() / "input"
 REF_DIR = INPUT_DIR / "ref"
-OUTPUT_DIR = Path(__file__).parent / "output"
+OUTPUT_DIR = Path(__file__).parent.resolve() / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
 IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
@@ -56,7 +56,7 @@ def get_lines_output(capsys) -> list[str]:
 def add_basic_file(pt: PALMTracer, files: Optional[list[str]] = None):
 	"""Mise à jour basique de la liste des fichiers."""
 	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.update_box([f"{INPUT_DIR}/stack.tif"] if files is None else files)
+	file_list.update_box([str(INPUT_DIR / "stack.tif")] if files is None else files)
 
 
 ##################################################
@@ -88,7 +88,7 @@ def get_fit_params(fit: int) -> np.ndarray:
 	# return np.concatenate([np.array(shape, dtype=np.float64), coeff.flatten()])
 	if fit == 0: return np.array([default_roi], dtype=np.float64)
 	if fit != 5: return np.array([default_roi, default_sigma, 2 * default_sigma, default_theta], dtype=np.float64)
-	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
+	calib = FileIO.open_calibration_mat(str(INPUT_DIR / "calibration.mat"))
 	sx, sy, sz = calib["coeff"].shape[:3]
 	return np.concatenate([np.array([default_roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
 

@@ -31,7 +31,7 @@ def get_pt():
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_widget_creation(make_napari_viewer, clean_napari, capsys):
+def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
@@ -39,7 +39,7 @@ def test_widget_creation(make_napari_viewer, clean_napari, capsys):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_add_stack(make_napari_viewer, clean_napari, qtbot, capsys, monkeypatch, fake_qfiledialog):
+def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du widget."""
 	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
@@ -54,7 +54,7 @@ def test_add_stack(make_napari_viewer, clean_napari, qtbot, capsys, monkeypatch,
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_change_source(make_napari_viewer, clean_napari, qtbot, capsys, monkeypatch, fake_qfiledialog):
+def test_change_source(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du widget."""
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
@@ -70,7 +70,7 @@ def test_change_source(make_napari_viewer, clean_napari, qtbot, capsys, monkeypa
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_actualize(make_napari_viewer, clean_napari, qtbot, capsys):
+def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique du widget."""
 	viewer = make_napari_viewer()  # .					Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, PALMTracer())  # Créer notre widget, en passant par le viewer.
@@ -83,7 +83,7 @@ def test_actualize(make_napari_viewer, clean_napari, qtbot, capsys):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_reset_filtered(make_napari_viewer, clean_napari, qtbot, capsys):
+def test_reset_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique de création du widget."""
 
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
@@ -96,7 +96,7 @@ def test_reset_filtered(make_napari_viewer, clean_napari, qtbot, capsys):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_update_filtered(make_napari_viewer, clean_napari, qtbot, capsys):
+def test_update_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique de création du widget."""
 
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
@@ -121,7 +121,7 @@ def test_update_filtered(make_napari_viewer, clean_napari, qtbot, capsys):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_save(make_napari_viewer, clean_napari, qtbot, capsys):
+def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique de création du widget."""
 	res = OUTPUT_DIR / "HR.png"
 	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
@@ -138,7 +138,7 @@ def test_save(make_napari_viewer, clean_napari, qtbot, capsys):
 
 ##################################################
 @pytest.mark.skipif(is_headless(), reason="Napari/VisPy/QT causes segfault in headless macOS and Unix.")
-def test_generate(make_napari_viewer, clean_napari, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
