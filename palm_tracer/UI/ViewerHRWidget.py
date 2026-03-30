@@ -249,8 +249,6 @@ class ViewerHRWidget(QWidget):
 		"""
 		Actualise les fichiers/données depuis l'état PALMTracer :
 			- Mets à jour les libellés d'information et l'état d'activation des boutons de domaine.
-
-		En cas d'erreur de lecture, logue l'erreur via :func:`palm_tracer.Tools.Ui.print_error`.
 		"""
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
 			self._filters.update_from_dict(self._pt.settings.filtering.to_dict())

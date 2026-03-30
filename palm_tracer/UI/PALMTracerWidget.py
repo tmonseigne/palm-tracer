@@ -324,9 +324,10 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _remove_layer(self, name: str):
 		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
-		if name in self.viewer.layers:
-			try: self.viewer.layers.remove(self.viewer.layers[name])
-			except Exception as e: Ui.print_warning(F"Error when deleting the old layer '{name}' : {e}")
+		if self._tearing_down or not getattr(self, "viewer", None): return
+		try:
+			if name in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[name])
+		except Exception as e: Ui.print_warning(F"Error when deleting the old layer '{name}' : {e}")
 
 	##################################################
 	def _reset_layer(self):
@@ -414,7 +415,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _add_roi_filter_layer(self):
 		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
-		if self._tearing_down or not getattr(self, "viewer", None) or self.last_file == "": return
+		if self._tearing_down or not getattr(self, "viewer", None) or "Raw" not in self.viewer.layers: return
 		# Suppression du calque "ROI Filter" s'il existe
 		l_name = "ROI Filter"
 
@@ -458,7 +459,7 @@ class PALMTracerWidget(QWidget):
 		:param time: Différence de temps entre l'image actuellement affichée et celle désirée.
 		:return: L'image désirée (image actuellement affichée si time = 0).
 		"""
-		if self.last_file == "": return None
+		if self._tearing_down or not getattr(self, "viewer", None) or "Raw" not in self.viewer.layers: return None
 		layer = self.viewer.layers["Raw"]  # .				   Récupération du layer Raw
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
 		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None

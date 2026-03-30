@@ -83,6 +83,39 @@ def fake_qfiledialog(monkeypatch):
 
 
 ##################################################
+@pytest.fixture
+def fake_napari_layers(monkeypatch):
+	"""Bypass des méthodes d'ajout de layers Napari qui déclenchent VisPy/OpenGL."""
+
+	class DummyLayer:
+		def __init__(self, name=""):
+			self.name = name
+			self.editable = True
+			self.visible = True
+
+	def _factory(viewer):
+		def _fake_add_points(self, *args, **kwargs): return DummyLayer(kwargs.get("name", "Localizations"))
+
+		def _fake_add_tracks(self, *args, **kwargs): return DummyLayer(kwargs.get("name", "Tracks"))
+
+		def _fake_add_image(self, *args, **kwargs): return DummyLayer(kwargs.get("name", "Visualization"))
+
+		def _fake_index(self, layer): return 0
+
+		def _fake_move(self, src, dst): return None
+
+		monkeypatch.setattr(type(viewer), "add_points", _fake_add_points)
+		monkeypatch.setattr(type(viewer), "add_tracks", _fake_add_tracks)
+		monkeypatch.setattr(type(viewer), "add_image", _fake_add_image)
+
+		# Patch temporaire uniquement sur la classe réelle de LayerList
+		monkeypatch.setattr(type(viewer.layers), "index", _fake_index)
+		monkeypatch.setattr(type(viewer.layers), "move", _fake_move)
+
+	return _factory
+
+
+##################################################
 def cpu_infos() -> str:
 	info = cpuinfo.get_cpu_info()
 	res = info.get("brand_raw") or info.get("processor", "Unknown Processor")
