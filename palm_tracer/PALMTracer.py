@@ -247,7 +247,7 @@ class PALMTracer:
 		print(f"Loading setting file '{settings_filename}'.")
 		with self.settings.signal_blocked():
 			cfg = FileIO.open_json(str(settings_filename))
-			self.settings.update_from_dict(cfg)
+			self.settings.update_from_compact_dict(cfg)  # self.settings.update_from_dict(cfg) si l'on veut un setting complet
 			self.settings.localization["Preview"].value = False
 
 		# --- Chargement des fichiers associés à ces paramètres. ---
@@ -300,7 +300,7 @@ class PALMTracer:
 			self._logger.add(f"Output folder: {self._path}")
 
 			# Save settings
-			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_dict())
+			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())  # self.settings.to_dict() si l'on veut un setting complet
 			self._logger.add("Settings saved.")
 
 			# Save meta file (Création du DataFrame et sauvegarde en CSV)

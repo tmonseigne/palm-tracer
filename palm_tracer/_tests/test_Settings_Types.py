@@ -24,10 +24,14 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	assert setting.value == change, "Valeur défini non valide."
 
 	dictionary = setting.to_dict()
+	min_dictionary = setting.to_compact_dict()
 	setting.reset()
 	assert setting.value == default, "Valeur par défaut après reset non valide."
 
 	setting = create_setting_from_dict(dictionary)
+	assert setting.value == change, "Valeur récupérée du dictionnaire non valide."
+	setting.reset()
+	setting.update_from_compact_dict(min_dictionary)
 	assert setting.value == change, "Valeur récupérée du dictionnaire non valide."
 
 	# Hide and seek

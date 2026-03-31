@@ -6,11 +6,13 @@ import pytest
 from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import FileIO
 
-REF_DICT = {"First param": [0, 1, 2],
-			"2nd param":   True,
-			"3rd param":   "True",
-			"élément":     0,
-			"Inception":   {"intern": 0}}
+REF_DICT = {"First param":  [0, 1, 2],
+			"2nd param":    True,
+			"3rd param":    "True",
+			"élément":      0,
+			"Inception":    {"intern": 0},
+			"setting":      {"value": 0},
+			"setting list": {"value": [0, 1]}}
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 MAX_UI_8 = np.iinfo(np.uint8).max

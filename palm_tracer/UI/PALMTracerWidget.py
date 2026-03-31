@@ -269,7 +269,7 @@ class PALMTracerWidget(QWidget):
 				with self.pt.settings.signal_blocked():
 					cfg = open_json(str(filename))
 					show_info(f"Loading the setting file '{filename}'.")
-					self.pt.settings.update_from_dict(cfg)
+					self.pt.settings.update_from_compact_dict(cfg)  # self.pt.settings.update_from_dict(cfg) si l'on veut un setting complet
 					self.pt.settings.localization["Preview"].value = False
 					self.pt.settings.filtering.deactivate_filters()
 			except Exception as e:
@@ -288,9 +288,9 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _on_change_setting(self):
-		"""Mets à jour le fichier de setting et la preview à chaque changement de setting."""
+		"""Mets à jour le fichier de setting général et la preview à chaque changement de setting."""
 		# Save settings
-		save_json(str(SETTINGS_FILE), self.pt.settings.to_dict())
+		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())  # self.settings.to_dict() si l'on veut un setting complet
 		self._thread_process(self._preview, self._add_preview_layers)
 
 	# ==================================================

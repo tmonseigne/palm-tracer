@@ -16,6 +16,13 @@ def test_settings(qtbot, capsys):
 	assert settings.calibration["Pixel Size"].value == 0.16, "Le paramètre n'a pas été remis à sa valeur par défaut."
 	settings = Settings.from_dict(dictionary)
 	assert settings.calibration["Pixel Size"].value == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
+
+	dictionary = settings.to_compact_dict()
+	settings.reset()
+	assert settings.calibration["Pixel Size"].value == 0.16, "Le paramètre n'a pas été remis à sa valeur par défaut."
+	settings.update_from_compact_dict(dictionary)
+	assert settings.calibration["Pixel Size"].value == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
+
 	print(settings)
 	lines = get_lines_output(capsys)
 	assert len(lines) == 88

@@ -171,6 +171,16 @@ class BaseSettingType:
 		"""Mets à jour la classe à partir d'un dictionnaire."""
 		raise NotImplementedError("La méthode 'update_from_dict' doit être implémentée dans la sous-classe.")
 
+	##################################################
+	def to_compact_dict(self) -> dict[str, Any]:
+		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
+		return {"value": self.value}
+
+	##################################################
+	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
+		self.value = data["value"]
+
 	# ==================================================
 	# endregion Parsing
 	# ==================================================

@@ -190,6 +190,18 @@ class Settings:
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_dict(groups[name])
 
+	##################################################
+	def to_compact_dict(self) -> dict[str, Any]:
+		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
+		return {"PALM Tracer Settings": {name: obj.to_compact_dict() for name, obj in self._settings.items()}}
+
+	##################################################
+	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
+		groups = data["PALM Tracer Settings"]
+		for name, obj in self._settings.items():
+			if name in groups: obj.update_from_compact_dict(groups[name])
+
 	# ==================================================
 	# endregion Parsing
 	# ==================================================

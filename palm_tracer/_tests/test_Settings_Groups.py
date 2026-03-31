@@ -35,11 +35,16 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	assert group[names[0]].value == change, "Valeur défini non valide."
 
 	dictionary = group.to_dict()
+	min_dictionary = group.to_compact_dict()
 	group.reset()
 	assert group[names[0]].value == default, "Valeur par défaut non valide."
 
 	group = create_group_from_dict(dictionary)
 	assert group[names[0]].value == change, "Valeur récupérée du dictionnaire non valide."
+	group.reset()
+	group.update_from_compact_dict(min_dictionary)
+	assert group[names[0]].value == change, "Valeur récupérée du dictionnaire non valide."
+
 	print(group)
 	print(group.settings)
 
@@ -228,14 +233,21 @@ def test_visualization_graph(qtbot):
 def test_filtering(qtbot):
 	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
 	g = Filtering()
+	print("FilteringL id:", id(g["Localization"]))
+	print("X id:", id(g["Localization"]["X"]))
+	print("limits id", id(g["Localization"]["X"].limits))
 	group_base_test(g, ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
 	g.deactivate_filters()
+	g.update_limits(10, 10, 10)
 
 
 ###################################################
 def test_filtering_l(qtbot):
 	"""Test basique de la classe FilteringL (constructeur, getter, setter)"""
 	g = FilteringL()
+	print("FilteringL id:", id(g))
+	print("X id:", id(g["X"]))
+	print("limits id", id(g["X"].limits))
 	group_base_test(g, ["X", "Y", "Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [0, 100000])
 	g.deactivate_filters()
 

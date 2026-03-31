@@ -3,6 +3,7 @@ Fichier contenant la classe :class:`BaseSettingGroup` et ses sous-classes pour l
 
 Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 """
+import copy
 from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional, Union
@@ -63,7 +64,9 @@ class BaseSettingGroup:
 	def initialize(self):
 		"""Initialise le dictionnaire de paramètres."""
 		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
-		for key, value in self.setting_list.items(): self._settings[key] = value[0](*value[1])
+		for key, value in self.setting_list.items():
+			args = copy.deepcopy(value[1])
+			self._settings[key] = value[0](*args)
 
 	##################################################
 	def initialize_ui(self):
@@ -292,6 +295,19 @@ class BaseSettingGroup:
 		settings = data["settings"]
 		for key, value in self.setting_list.items():  # Appelle `update_from_dict` pour chaque élément de setting_list
 			if key in settings: self._settings[key].update_from_dict(settings[key])
+
+	##################################################
+	def to_compact_dict(self) -> dict[str, Any]:
+		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
+		return {"active": self.active, "settings": {name: setting.to_compact_dict() for name, setting in self._settings.items()}}
+
+	##################################################
+	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
+		self.active = data.get("active", False)
+		settings = data["settings"]
+		for key, value in self.setting_list.items():  # Appelle `update_from_compact_dict` pour chaque élément de setting_list
+			if key in settings: self._settings[key].update_from_compact_dict(settings[key])
 
 	##################################################
 	def tostring(self, line_prefix: str = "") -> str:

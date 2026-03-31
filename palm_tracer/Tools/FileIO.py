@@ -6,6 +6,7 @@ Ce module regroupe diverses fonctions pour la gestion et la manipulation de fich
 
 import ctypes
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -132,6 +133,31 @@ def load_dll(name: str) -> Optional[ctypes.CDLL]:
 # region JSON IO
 # ==================================================
 ##################################################
+def _compact_value_arrays(text: str) -> str:
+	"""Compacte les dictionnaires du type {"value": [...]} sur une seule ligne."""
+	pattern = re.compile(r'\{\s*"value"\s*:\s*\[\s*([^\]]*?)\s*\]\s*\}', flags=re.MULTILINE | re.DOTALL)
+
+	def replacer(match: re.Match[str]) -> str:
+		content = match.group(1)
+		items = [item.strip() for item in content.split(",") if item.strip()]
+		return f'{{ "value": [{", ".join(items)}] }}'
+
+	return pattern.sub(replacer, text)
+
+
+##################################################
+def _compact_value_scalars(text: str) -> str:
+	""" Compacte les dictionnaires du type {"value": x} sur une seule ligne, pour les valeurs scalaires JSON : nombre, booléen, null, chaîne """
+	pattern = re.compile(r'\{\s*"value"\s*:\s*(true|false|null|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:\\.|[^"\\])*")\s*\}', flags=re.MULTILINE)
+
+	def replacer(match: re.Match[str]) -> str:
+		value = match.group(1)
+		return f'{{ "value": {value} }}'
+
+	return pattern.sub(replacer, text)
+
+
+##################################################
 def save_json(filename: str | Path, data: dict[str, Any]):
 	"""
 	Enregistre un dictionnaire au format JSON.
@@ -141,7 +167,10 @@ def save_json(filename: str | Path, data: dict[str, Any]):
 	"""
 	path = Path(filename)
 	path.parent.mkdir(parents=True, exist_ok=True)  # Au cas où, création des dossiers et sous-dossiers
-	path.write_text(json.dumps(data, indent=4, ensure_ascii=False), encoding="utf-8")
+	text = json.dumps(data, indent=4, ensure_ascii=False)
+	text = _compact_value_arrays(text)
+	text = _compact_value_scalars(text)
+	path.write_text(text, encoding="utf-8")
 
 
 ##################################################

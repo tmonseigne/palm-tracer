@@ -117,6 +117,17 @@ class FileList(BaseSettingType):
 		self.update_box(data.get("items", [""]))
 		self.value = data.get("value", self._value)
 
+	##################################################
+	def to_compact_dict(self) -> dict[str, Any]:
+		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
+		return {"items": self.items, "value": self._value}
+
+	##################################################
+	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
+		self.update_box(data["items"])
+		self.value = data["value"]
+
 	# ==================================================
 	# endregion  Parsing
 	# ==================================================
