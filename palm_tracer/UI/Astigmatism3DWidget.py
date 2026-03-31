@@ -99,13 +99,20 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._spin_z_compute.setToolTip("Maximum absolute value of Z.")
 		self._check_z_from_plane = QCheckBox(grp)
 		self._check_z_from_plane.setToolTip("Use the plane column to define the Z column.")
+		self._spin_z_interval = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=20)
+		self._spin_z_interval.setToolTip("Interval in nanometers between two planes.")
+		self._check_z_center = QCheckBox(grp)
+		self._check_z_center.setChecked(True)
+		self._check_z_center.setToolTip("Center the image so that σx(0) ≈ σy(0).\nUncheck this box only if you understand and want this specific behavior.")
 		self._check_z_flip = QCheckBox(grp)
-		self._check_z_flip.setToolTip("Flip Sign of Z .")
+		self._check_z_flip.setToolTip("Flip Sign of Z.")
 
 		form = Ui.make_form(None)
 		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
 		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
 		Ui.add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
+		Ui.add_setting_row(form, "Plane Interval (nm):", self._spin_z_interval)
+		Ui.add_setting_row(form, "Center Z:", self._check_z_center)
 		Ui.add_setting_row(form, "Flip Z:", self._check_z_flip)
 
 		grp_layout.addWidget(self._btn_load_compute)
@@ -390,14 +397,13 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			if "Plane" not in self._loc.columns:
 				Ui.print_warning("No Plane Column in file. We can't use it to intialize Z.")
 				return
-			z_max = self._spin_z_compute.value()
-			z = z_from_planes(self._loc["Plane"].to_numpy(), -z_max, z_max)  # Attention, savoir si on va de -Zmax à + Zmax ou de +Zmax à -Zmax
-			points[:, 2] = z
+			points[:, 2] = self._loc["Plane"].to_numpy() * self._spin_z_interval.value()
 
 		if self._check_z_flip.isChecked(): points[:, 2] *= -1
 
 		# --- Calcul ---
-		self._model = self._palm.astigmatism_3d_calibration(points, pixel_size)
+		self._model = self._palm.astigmatism_3d_calibration(points, pixel_size, self._check_z_center.isChecked())
+		self._update_plot()
 
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
@@ -458,7 +464,7 @@ def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sa
 	elle crée simplement un :class:`Astigmatism3DWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
 	"""
 	widget = Astigmatism3DWidget()
-	widget.resize(1000, 600)
+	widget.resize(1280, 720)
 	widget.show()
 	_windows.append(widget)  # éviter que Python le détruise en le stockant
 
@@ -469,6 +475,6 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = Astigmatism3DWidget()
-	w.resize(1000, 600)
+	w.resize(1280, 720)
 	w.show()
 	sys.exit(app.exec_())

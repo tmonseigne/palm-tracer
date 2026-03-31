@@ -1,7 +1,6 @@
 """Fichier des tests pour le widget."""
 import shutil
 
-import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
@@ -149,9 +148,13 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert not w._loc.empty
 
 	# Lancement du calcul
+	w._spin_px_compute.setValue(0.2)
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Model saved successfully." in lines[0]
+
+	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
+	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
 
 	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
 
@@ -176,6 +179,7 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert not w._loc.empty
 
 	# passage de Zmax à 460, coche de get Z from plane et Z flip
+	w._spin_px_compute.setValue(0.2)
 	w._spin_z_compute.setValue(460)
 	w._check_z_from_plane.setChecked(True)
 	w._check_z_flip.setChecked(True)
@@ -190,6 +194,41 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Model saved successfully." in lines[0]
+
+	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
+	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
+
+	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
+
+	w.close()
+
+
+##################################################
+def test_compute_center_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de lancement de la calibration"""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Chargement du fichier de localisation
+	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert "Selected file: " in lines[0]
+	assert "CSV loaded successfully." in lines[1]
+	assert not w._loc.empty
+
+	# Lancement du calcul
+	w._spin_px_compute.setValue(0.2)
+	qtbot.mouseClick(w._check_z_center, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert "Model saved successfully." in lines[0]
+
+	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model.csv", index_col=0)
+	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
 
 	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
 

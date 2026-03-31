@@ -286,11 +286,16 @@ def test_astigmatism_3d_calibration():
 
 	# --- Lecture d'un fichier de localisation ---
 	localizations = pd.read_csv(INPUT_DIR / "astigmatism_3d_calibration.csv")
-	res = palm.astigmatism_3d_calibration(localizations.to_numpy(dtype=float, copy=True), 200)
+	res = palm.astigmatism_3d_calibration(localizations.to_numpy(dtype=float, copy=True), 200, False)
 	if save_output: res.round(6).to_csv(OUTPUT_DIR / "astigmatism_3d_model.csv", index=MODEL_ROWS)
 	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model.csv", index_col=0)
 	assert np.allclose(res, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{res}"
 
+	# Version centrée du modèlle (quasiment aucune différence pour Z0 et aucune pour le reste)
+	res = palm.astigmatism_3d_calibration(localizations.to_numpy(dtype=float, copy=True), 200, True)
+	if save_output: res.round(6).to_csv(OUTPUT_DIR / "astigmatism_3d_model_centered.csv", index=MODEL_ROWS)
+	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
+	assert np.allclose(res, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{res}"
 
 ##################################################
 def test_astigmatism_3d_estimation():

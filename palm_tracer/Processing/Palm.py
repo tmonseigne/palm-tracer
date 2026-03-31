@@ -92,7 +92,7 @@ class Palm:
 		# void Astigmatism3DCalibration(const double* input, double* output, uint32_t size, double pixelSize)
 		fn = self._dll.Astigmatism3DCalibration
 		fn.restype = None
-		fn.argtypes = [C_TAB, C_TAB, C_UINT, C_DBL]
+		fn.argtypes = [C_TAB, C_TAB, C_UINT, C_DBL, C_BOOL]
 
 		# void Astigmatism3DEstimation(const double* input, double* output, uint32_t size, double pixelSize, double* model, double zMax)
 		fn = self._dll.Astigmatism3DEstimation
@@ -369,19 +369,20 @@ class Palm:
 		return out
 
 	##################################################
-	def astigmatism_3d_calibration(self, points: np.ndarray, pixel_size: float) -> pd.DataFrame:
+	def astigmatism_3d_calibration(self, points: np.ndarray, pixel_size: float, center: bool = True) -> pd.DataFrame:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
 		:param points: Ensemble des points nécessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
 		:param pixel_size: Taille des pixels en nanomètres.
+		:param center: Permet de centrer le modèle pour que si :math:`\\sigma_x(0) \\approx \\sigma_y(0)`.
 		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
 		pts = self._as_c_contig(points, np.dtype(np.float64), writeable=False)
 		out = np.empty(SHAPE_MODEL, dtype=np.float64, order="C")
 		n = pts.shape[0]
 
-		self._dll.Astigmatism3DCalibration(pts.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size))
+		self._dll.Astigmatism3DCalibration(pts.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size), C_BOOL(center))
 		return parse_result(out, "Astigmatism 3D Model")
 
 	##################################################

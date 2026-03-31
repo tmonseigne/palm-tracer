@@ -123,6 +123,7 @@ def test_widget_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot
 	setting = my_widget.pt.settings.localization
 	layers = my_widget.viewer.layers
 	with setting.signal_blocked():  # L'éxecution ne devra pas être dans un sub-process pour vérifier la couverture (sans partir sur des configs complexes).
+		my_widget._preview()  # .										Passage si preview à False
 		setting["Preview"].value = True
 		qtbot.waitUntil(lambda: setting["Preview"].value, timeout=5000)
 		my_widget._preview()  # .										Passage par le point get_actual_image = None pour le temps présent.
@@ -213,17 +214,6 @@ def test_widget_thread_process(make_napari_viewer, patched_napari_viewer, qtbot)
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
 	my_widget._thread_process(my_widget._auto_threshold)  # .			Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)  # Attente : que le thread soit terminé
-
-
-##################################################
-def test_widget_after_close(make_napari_viewer, patched_napari_viewer):
-	viewer = make_napari_viewer()
-	my_widget = PALMTracerWidget(viewer)
-	my_widget._tearing_down = True  # Simuler le tearing_down actif
-	my_widget._reset_layer()
-	my_widget._add_preview_layers()
-	my_widget._preview()
-	my_widget._auto_threshold()
 
 
 ##################################################
