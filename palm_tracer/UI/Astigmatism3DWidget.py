@@ -17,7 +17,7 @@ import pandas as pd
 from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
 from palm_tracer.Processing import Palm
-from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, z_from_planes
+from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, remove_multi_loc, z_from_planes
 from palm_tracer.Processing.Parsing import SHAPE_MODEL
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
@@ -106,8 +106,11 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._check_z_center.setToolTip("Center the image so that σx(0) ≈ σy(0).\nUncheck this box only if you understand and want this specific behavior.")
 		self._check_z_flip = QCheckBox(grp)
 		self._check_z_flip.setToolTip("Flip Sign of Z.")
+		self._check_only_one = QCheckBox(grp)
+		self._check_only_one.setToolTip("If more than one localization appears on a plane, the one closest to the other localization is retained.")
 
 		form = Ui.make_form(None)
+		Ui.add_setting_row(form, "Only one bead:", self._check_only_one)
 		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
 		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
 		Ui.add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
@@ -339,7 +342,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- mise à jour du Z Max ---
 		self._spin_z_estimate.setValue(self._loc["Z"].abs().max())
 
-		Ui.print_success(f"CSV loaded successfully. {len(self._loc)} points, {len(self._loc.columns)} columns")
+		Ui.print_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
 
 	##################################################
 	def _on_load_model(self):
@@ -390,7 +393,13 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			return
 
 		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
-		points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
+
+		# --- Suppression des artefacts ---
+		if self._check_only_one.isChecked():
+			points = remove_multi_loc(self._loc)
+			points = points.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float)
+		else:
+			points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
 
 		# --- Mise à jour de Z (si sélectionné) ---
 		if self._check_z_from_plane.isChecked():
@@ -408,7 +417,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
 		self._model.to_csv(str(self._mod_filename))
-		Ui.print_success("Model saved successfully.")
+		Ui.print_success(f"Model saved successfully with {len(points)} points.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
 		self._update_sanity_values(points, self._model.to_numpy(), pixel_size)

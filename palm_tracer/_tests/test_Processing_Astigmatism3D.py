@@ -75,6 +75,36 @@ def test_get_z_from_step():
 
 
 ##################################################
+def test_remove_multi_loc():
+	"""Test basique pour remove_multi_loc."""
+	columns = ["Plane", "X", "Y", "Sigma X", "Sigma Y", "Z"]
+	# Dataframe vide
+	data = pd.DataFrame([], columns=columns)
+	res = remove_multi_loc(data)
+	assert res.empty
+
+	# Dataframe sans la colonne "Plane".
+	data = pd.DataFrame([[0, 0, 0, 0, 0]], columns=columns[1:])
+	res = remove_multi_loc(data)
+	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
+
+	# Dataframe avec déjà un seul point par plan.
+	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0], [3, 5, 5, 1, 1, 0]], columns=columns)
+	res = remove_multi_loc(data)
+	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
+
+	# Dataframe avec aucun plan ne contenant qu'une localisation.
+	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0]], columns=columns)
+	res = remove_multi_loc(data)
+	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
+
+	# Dataframe Cohérent.
+	data = pd.DataFrame([[1, 3, 3, 1, 1, 0], [1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
+	res = remove_multi_loc(data)
+	ref = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+##################################################
 def test_sigma_model():
 	"""Test basique pour sigma_model."""
 	model = np.array([200., 100., 0., 0., 32.], dtype=np.float64)

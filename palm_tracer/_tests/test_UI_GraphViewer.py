@@ -92,10 +92,10 @@ def test_reset_filtered(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	for key, value in w._status.items(): print(f"{key}:{value.text()}")
+	# for key, value in w._status.items(): print(f"{key}:{value.text()}")
 	assert w._status["Localization"].text() == "Yes (Filtered)", "Status Incorrect."
 	w._reset_filtered()
-	for key, value in w._status.items(): print(f"{key}:{value.text()}")
+	# for key, value in w._status.items(): print(f"{key}:{value.text()}")
 	assert w._status["Localization"].text() == "Yes", "Status Incorrect."
 
 	w.close()

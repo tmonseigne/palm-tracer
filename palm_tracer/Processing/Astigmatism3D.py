@@ -1,6 +1,9 @@
 """Fichier contenant des fonctions lié à l'astigmatisme 3D (estimation de la position axiale en fonction des écarts-types sur X et Y)."""
 import numpy as np
+import pandas as pd
 from scipy.spatial import cKDTree
+
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -39,6 +42,53 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 	# Indices classiques : plan 0 à 0, puis positifs.
 	else: indices = np.arange(n_planes, dtype=np.float64)
 	return indices * float(z_step)
+
+
+##################################################
+def remove_multi_loc(loc: pd.DataFrame) -> pd.DataFrame:
+	"""
+	Supprime les localisations multiples par plan en conservant, pour chaque plan ambigu,
+	la localisation la plus proche de la position moyenne estimée à partir des plans ne	contenant qu'une seule localisation.
+
+	Le principe est le suivant :
+		- si un plan ne contient qu'une seule localisation, celle-ci est conservée ;
+		- si un plan contient plusieurs localisations, seule la localisation la plus proche de la moyenne ``(X, Y)``;
+		- si aucun plan ne contient une unique localisation, la désambiguïsation n'est pas possible de manière fiable et le DataFrame d'origine est renvoyé.
+
+	:param loc: DataFrame contenant au minimum les colonnes ``"X"``, ``"Y"`` et ``"Plane"``.
+	:return: DataFrame filtré avec au plus une localisation par plan.
+	"""
+	if loc.empty: return loc
+	required_columns = {"X", "Y", "Plane"}
+	if not required_columns.issubset(loc.columns):
+		Ui.print_warning("Not all valid columns in localizations. Unable to remove ambiguous localizations reliably.")
+		return loc
+
+	counts_per_plane = loc.groupby("Plane").size()  # .				 Nombre de localisations par plan.
+	single_planes = counts_per_plane[counts_per_plane == 1].index  # Plans non ambigus : une seule localisation.
+	multi_planes = counts_per_plane[counts_per_plane > 1].index  # . Plans ambigus : plusieurs localisations.
+	if len(multi_planes) == 0: return loc  # .						 Rien à faire si tous les plans ont déjà une unique localisation.
+
+	# Si aucun plan n'est non ambigu, on ne peut pas estimer une position de référence fiable.
+	if len(single_planes) == 0:
+		Ui.print_warning("All planes contain multiple localizations. Unable to remove ambiguous localizations reliably.")
+		return loc
+
+	# Moyenne de référence calculée sur les plans non ambigus.
+	single_loc = loc[loc["Plane"].isin(single_planes)]
+	x_mean, y_mean = float(single_loc["X"].mean()), float(single_loc["Y"].mean())
+
+	selected_rows = [single_loc]  # On conserve directement les plans avec une seule localisation.
+
+	# Pour chaque plan ambigu, on garde la localisation la plus proche de la moyenne.
+	for plane in multi_planes:
+		plane_loc = loc[loc["Plane"] == plane]
+		dist2 = (plane_loc["X"] - x_mean) ** 2 + (plane_loc["Y"] - y_mean) ** 2
+		best_index = dist2.idxmin()
+		selected_rows.append(loc.loc[[best_index]])
+
+	res = pd.concat(selected_rows, axis=0)
+	return res.sort_values("Plane").reset_index(drop=True)
 
 
 ##################################################
