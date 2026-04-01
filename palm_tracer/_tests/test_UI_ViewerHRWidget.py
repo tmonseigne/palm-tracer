@@ -1,7 +1,6 @@
 """Fichier des tests pour le widget."""
 import shutil
 
-import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
@@ -175,3 +174,53 @@ def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monk
 	# Ajout d'un tableau de Suivi
 	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+
+
+##################################################
+def test_generate_drift(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+	"""Test basique de création du widget."""
+	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
+	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+	pt = PALMTracer()
+	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
+
+	fake_napari_layers(viewer)
+
+	# Chargement d'une pile
+	fake_qfiledialog(FileList, f"{INPUT_DIR / 'stack.tif'}")
+	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
+	w._drift.value = True
+	w._pt.process()  # Process Vide pour créer le dossier et un setting de base
+
+	# Sans localization la sortie sera entièrement noire.
+	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+	upscale = w.upscale_spin.value
+	shape = (128 * upscale, 256 * upscale)
+	ref = np.zeros(shape)
+	np.allclose(ref, w.visualization)
+
+	# Sortie avec le fichier de localisation, mais pas de billes.
+	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
+	_ = get_lines_output(capsys)  # Nettoyage de la sortie
+	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert "WARNING: No beads file available to correct drift." in lines[0]  # dernière ligne, car il peut y avoir un warning lors de la suppression des calques
+
+	ref = np.zeros(shape)
+	ref[4, 2] = 2
+	ref[6, 4] = 2
+	ref[8, 6] = 1
+	ref[10, 8] = 1
+	np.allclose(ref, w.visualization)
+
+	# Sortie avec le fichier de localisation et un fichier de billes.
+	pt.df["bds"] = pd.read_csv(INPUT_DIR / "beads.csv")
+	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+
+	ref = np.zeros(shape)
+	ref[2, 1] = 1
+	ref[4, 2] = 1
+	ref[6, 4] = 2
+	ref[8, 6] = 1
+	ref[10, 8] = 1
+	np.allclose(ref, w.visualization)

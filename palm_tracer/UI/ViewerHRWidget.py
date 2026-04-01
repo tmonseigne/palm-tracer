@@ -14,11 +14,12 @@ from typing import cast
 
 import napari
 import numpy as np
+import pandas as pd
 from napari.utils.notifications import show_info, show_warning
 from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import Renderer
+from palm_tracer.Processing import Drift, Renderer
 from palm_tracer.Settings.Groups import Filtering
 from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
@@ -33,16 +34,17 @@ DATA_SRC: dict[str, list] = {
 		}
 
 TIPS = {
-		"Add Stack":       "Add a stack to the batch and load the latest results for it.\n"
-						   "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
+		"Add Stack":        "Add a stack to the batch and load the latest results for it.\n"
+							"Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
 
-		"Source":          "Data selected for Graph.",
-		"Gaussian":        "",
-		"Fixed Intensity": "",
+		"Source":           "Data selected for Graph.",
+		"Gaussian":         "",
+		"Fixed Intensity":  "",
+		"Drift Correction": "",
 
-		"Actualize":       "Updates files/data from PALMTracer status.",
-		"Generate":        "Generate HR Visualization.",
-		"Save":            "Opens a dialog box and save the visualization generated.",
+		"Actualize":        "Updates files/data from PALMTracer status.",
+		"Generate":         "Generate HR Visualization.",
+		"Save":             "Opens a dialog box and save the visualization generated.",
 		}
 
 
@@ -138,6 +140,9 @@ class ViewerHRWidget(QWidget):
 
 		self.upscale_spin = SpinInt("Upscale Ratio", "", 4, [1, 100], 2)
 		self.upscale_spin.attach_to_form(form)
+
+		self._drift = CheckBox("Drift Correction", TIPS["Drift Correction"])
+		self._drift.attach_to_form(form)
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters", margin=10)
@@ -289,6 +294,24 @@ class ViewerHRWidget(QWidget):
 	# region Drawing
 	# ==================================================
 	##################################################
+	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:
+		"""
+		Vérifie si la correciton de drift est activé, faisable et l'applique.
+
+		:param data:
+		:return:
+		"""
+		if self._drift.value:  # Drift activé
+			beads = self._pt.beads
+			if beads.empty:  # Billes non calculées / trouvées
+				show_warning("No beads file available to correct drift.")
+				return data
+			# Application de la correction de drift
+			drift = Drift.get_drift(beads, is_3d=False)
+			return Drift.apply_drift(data, drift, is_3d=False)
+		return data
+
+	##################################################
 	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
 		self._filename = ""
@@ -311,7 +334,7 @@ class ViewerHRWidget(QWidget):
 		self._renderer.set_size(width, height, upscale)
 
 		if src_id == 0:  # Localisations
-			loc = self._pt.localizations
+			loc = self._correct_drift(self._pt.localizations)
 			loc = self._renderer.get_localization_colors(loc, src)
 			if loc.size == 0:
 				show_warning("No localization file available.")
@@ -323,7 +346,7 @@ class ViewerHRWidget(QWidget):
 			self.visualization = self._renderer.localizations(loc)
 
 		else:  # Trajectoires
-			trc = self._pt.tracks
+			trc = self._correct_drift(self._pt.tracks)
 			trc = self._renderer.get_tracks_colors(trc, src)
 			if trc.size == 0:
 				show_warning("No tracking file available.")
@@ -336,7 +359,8 @@ class ViewerHRWidget(QWidget):
 			self.visualization = self._renderer.tracks(trc[:, [0, 2, 3, 4]])
 
 		layer.editable = False
-		self._filename = f"{path}/visualization_{src}_x{upscale}_{src}-{suffix}.png"
+		filename_drift = '_corrected' if self._drift.value else ''
+		self._filename = f"{path}/visualization_{src}{filename_drift}_x{upscale}_{src}-{suffix}.png"
 		layer = self.viewer.add_image(self.visualization, name="Visualization")
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
 

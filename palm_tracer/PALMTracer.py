@@ -190,6 +190,12 @@ class PALMTracer:
 
 	##################################################
 	@property
+	def beads(self) -> pd.DataFrame:
+		"""Getter du :class:`DataFrame <pandas.DataFrame>` des billes détectées."""
+		return self.df["bds"]
+
+	##################################################
+	@property
 	def tracks(self) -> pd.DataFrame:
 		"""Getter du :class:`DataFrame <pandas.DataFrame>` du suivi (filtré s'il est non vide) et reconnecté s'il est non vide également."""
 		return self.df[self.get_tracks_key()]

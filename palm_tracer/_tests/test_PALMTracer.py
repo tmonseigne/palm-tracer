@@ -118,6 +118,17 @@ def test_getter_localization(qtbot, pt):
 
 
 ##################################################
+def test_getter_beads(qtbot, pt):
+	"""Test pour le getter de la localisation."""
+	res = pt.beads
+	assert res.empty, "Le Dataframe devrait être vide."
+	ref1 = pd.DataFrame([1, 2])
+	pt.df["bds"] = ref1
+	res = pt.beads
+	assert res.equals(ref1), f"Résultat incorrect.\nAttendu : {ref1}\tObtenu : {res}"
+
+
+##################################################
 def test_getter_tracks(qtbot, pt):
 	"""Test pour le process sans fichiers en entrée."""
 	res = pt.tracks
