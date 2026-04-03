@@ -452,6 +452,20 @@ def test_process_only_beads_extraction_no_beads(qtbot, capsys, pt):
 
 
 ##################################################
+def test_process_plane_discontinuous(qtbot, capsys, pt):
+	"""Test pour le process de l'extraction des billes."""
+	clean_output()
+
+	src = INPUT_DIR / "localizations.csv"
+	pt.df["loc"] = pd.read_csv(src)
+	pt.df["loc"].loc[1, "Plane"] = 5
+	pt._beads_extraction()
+	assert pt.df["bds"].empty
+	lines = get_lines_output(capsys)
+	assert "No beads found." in lines[0]
+
+
+##################################################
 def test_process_only_beads_extraction(qtbot, capsys, pt):
 	"""Test pour le process de l'extraction des billes."""
 	clean_output()
