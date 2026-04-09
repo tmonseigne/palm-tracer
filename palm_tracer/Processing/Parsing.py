@@ -20,7 +20,7 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 				"types":   ["Track", "Plane", "Id", "Surface"]
 				},
 		"Beads":                {
-				"columns": ["Bead", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Surface"],
+				"columns": ["Bead", "Plane", "Id", "X", "Y", "Z", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "Surface"],
 				"types":   ["Bead", "Plane", "Id", "Surface"]
 				},
 		"MSD":                  {

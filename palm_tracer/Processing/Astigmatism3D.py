@@ -45,7 +45,7 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 
 
 ##################################################
-def remove_multi_loc(loc: pd.DataFrame) -> pd.DataFrame:
+def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 	"""
 	Supprime les localisations multiples par plan en conservant, pour chaque plan ambigu,
 	la localisation la plus proche de la position moyenne estimée à partir des plans ne	contenant qu'une seule localisation.
@@ -63,6 +63,9 @@ def remove_multi_loc(loc: pd.DataFrame) -> pd.DataFrame:
 	if not required_columns.issubset(loc.columns):
 		Ui.print_warning("Not all valid columns in localizations. Unable to remove ambiguous localizations reliably.")
 		return loc
+
+	# Cas d'un fichier avec des billes identifiées, on prend la première, c'est plus simple.
+	if "Bead" in loc.columns: return loc[loc["Bead"] == loc.loc[0, "Bead"]]
 
 	counts_per_plane = loc.groupby("Plane").size()  # .				 Nombre de localisations par plan.
 	single_planes = counts_per_plane[counts_per_plane == 1].index  # Plans non ambigus : une seule localisation.

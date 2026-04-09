@@ -17,8 +17,8 @@ import pandas as pd
 from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
 from palm_tracer.Processing import Palm
-from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, remove_multi_loc, z_from_planes
-from palm_tracer.Processing.Parsing import SHAPE_MODEL
+from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, remove_multi_beads
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, SHAPE_MODEL
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
@@ -244,6 +244,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux aux callbacks."""
 		self._btn_load_compute.clicked.connect(self._on_load_loc)
+		self._btn_load_compute.clicked.connect(self._check_loc)
 		self._btn_compute.clicked.connect(self._on_compute)
 
 		self._btn_load_loc_estimate.clicked.connect(self._on_load_loc)
@@ -306,6 +307,40 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Callbacks
 	# ==================================================
+	##################################################
+	def _check_loc(self):
+		"""Vérifie la validité du fichier de localisation et modifie les options sélectionnables en conséquence."""
+		if "Plane" not in self._loc.columns:
+			Ui.print_warning("No 'Plane' Column in file. 'Get Z from plane' and 'Only one bead' options can't be used.")
+			self._check_only_one.setChecked(False)
+			self._check_only_one.setEnabled(False)
+			self._check_z_from_plane.setChecked(False)
+			self._check_z_from_plane.setEnabled(False)
+			self._spin_z_interval.setEnabled(False)
+		else:
+			planes = self._loc["Plane"]
+			n_planes = planes.max() - planes.min() + 1  # Nombre de plans
+			s_p = f"There are {n_planes} planes"
+			self._check_z_from_plane.setEnabled(True)
+			self._spin_z_interval.setEnabled(True)
+			self._check_only_one.setEnabled(True)
+			if "Bead" in self._loc.columns:
+				n_beads = self._loc["Bead"].nunique()  # Nombre de billes
+				Ui.print_success(f"{s_p} and {n_beads} beads in file.")
+			else:
+				counts_per_plane = self._loc.groupby("Plane").size()  # .		 Nombre de localisations par plan.
+				single_planes = counts_per_plane[counts_per_plane == 1].index  # Plans non ambigus : une seule localisation.
+				multi_planes = counts_per_plane[counts_per_plane > 1].index  # . Plans ambigus : plusieurs localisations.
+				if len(multi_planes) == 0:
+					Ui.print_success(f"{s_p} and only one bead.")
+				elif len(single_planes) == 0:
+					Ui.print_warning(f"{s_p} and at least two localizations per plane. The 'Only one bead' option can't be used.")
+					self._check_only_one.setChecked(False)
+					self._check_only_one.setEnabled(False)
+				else:
+					Ui.print_warning(f"{s_p} and some planes contain multiple localizations. It is recommended to use the 'Only one bead' option.")
+					self._check_only_one.setChecked(True)
+
 	##################################################
 	def _on_load_loc(self):
 		"""Callback du bouton 'Load Localization file (CSV)'."""
@@ -394,33 +429,48 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 
-		# --- Suppression des artefacts ---
-		if self._check_only_one.isChecked():
-			points = remove_multi_loc(self._loc)
-			points = points.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float)
-		else:
-			points = self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True)
+		work = self._loc.copy()
 
 		# --- Mise à jour de Z (si sélectionné) ---
 		if self._check_z_from_plane.isChecked():
 			if "Plane" not in self._loc.columns:
 				Ui.print_warning("No Plane Column in file. We can't use it to intialize Z.")
 				return
-			points[:, 2] = self._loc["Plane"].to_numpy() * self._spin_z_interval.value()
+			work["Z"] = work["Plane"] * self._spin_z_interval.value()
 
-		if self._check_z_flip.isChecked(): points[:, 2] *= -1
+		if self._check_z_flip.isChecked(): work["Z"] *= -1
+
+		# --- Suppression des artefacts ou autres billes ---
+		if self._check_only_one.isChecked(): work = remove_multi_beads(work)
+
+		# --- Préparation des data ---
+		beads: list[np.ndarray] = []
+		if "Bead" in work.columns:  # Une ou plusieurs billes identifiées
+			for _, df in work.groupby("Bead", sort=True): beads.append(df.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True))
+		else:  beads.append(work.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True))
 
 		# --- Calcul ---
-		self._model = self._palm.astigmatism_3d_calibration(points, pixel_size, self._check_z_center.isChecked())
+		models: list[pd.DataFrame] = []
+		for i in range(len(beads)):
+			models.append(self._palm.astigmatism_3d_calibration(beads[i], pixel_size, self._check_z_center.isChecked()))
+			print(f"Model for bead {i + 1}:\n{models[-1]}")
+
+		if len(models) == 1: self._model = models[0].copy()
+		else:
+			mean_model = np.stack([model.to_numpy(dtype=float, copy=True) for model in models], axis=0).mean(axis=0)
+			self._model = pd.DataFrame(mean_model, columns=FILES_COLUMNS["Astigmatism 3D Model"]["columns"], index=MODEL_ROWS)
+			print(f"Average model:\n{self._model}")
+
+		# --- Mise à jour de l'affichage ---
 		self._update_plot()
 
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
 		self._model.to_csv(str(self._mod_filename))
-		Ui.print_success(f"Model saved successfully with {len(points)} points.")
+		Ui.print_success(f"Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
-		self._update_sanity_values(points, self._model.to_numpy(), pixel_size)
+		self._update_sanity_values(beads[0], self._model.to_numpy(), pixel_size)
 		self._update_plot()
 		Ui.update_path_label(self._lbl_model_estimate, self._mod_filename)
 
