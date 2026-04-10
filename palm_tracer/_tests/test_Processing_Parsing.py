@@ -36,6 +36,27 @@ def test_log10_dataframe():
 
 
 ##################################################
+def test_degrees_to_radians():
+	"""Test basique de log10_dataframe."""
+
+	data = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360]
+	ref = [0, np.pi / 6, np.pi / 4, np.pi / 3, np.pi / 2, 2 * np.pi / 3, 3 * np.pi / 4, 5 * np.pi / 6, np.pi,
+		   7 * np.pi / 6, 5 * np.pi / 4, 4 * np.pi / 3, 3 * np.pi / 2, 5 * np.pi / 3, 7 * np.pi / 4, 11 * np.pi / 6, 2 * np.pi]
+	res = degrees_to_radians(data)
+	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
+def test_radians_to_degrees():
+	"""Test basique de log10_dataframe."""
+	data = [0, np.pi / 6, np.pi / 4, np.pi / 3, np.pi / 2, 2 * np.pi / 3, 3 * np.pi / 4, 5 * np.pi / 6, np.pi,
+			7 * np.pi / 6, 5 * np.pi / 4, 4 * np.pi / 3, 3 * np.pi / 2, 5 * np.pi / 3, 7 * np.pi / 4, 11 * np.pi / 6, 2 * np.pi]
+	ref = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360]
+	res = radians_to_degrees(data)
+	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
 def test_parse_irregular_array():
 	"""Test de la fonction parse_irregular_array."""
 	data = np.array([2, 1, 2, 2, 3, 4])

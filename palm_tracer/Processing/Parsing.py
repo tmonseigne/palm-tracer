@@ -118,6 +118,34 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	return data
 
 
+##################################################
+def degrees_to_radians(angle_deg: np.ndarray | pd.Series | float | list) -> np.ndarray:
+	"""
+	Convertit des angles en degrés vers des radians.
+
+	.. math::
+		\\theta_{rad} = \\theta_{deg} \\times \\frac{\\pi}{180}
+
+	:param angle_deg: Angle(s) en degrés (scalaire, array NumPy ou Series pandas).
+	:return: Angle(s) en radians.
+	"""
+	return np.asarray(angle_deg) * (np.pi / 180.0)
+
+
+##################################################
+def radians_to_degrees(angle_rad: np.ndarray | pd.Series | float | list) -> np.ndarray:
+	"""
+	Convertit des angles en radians vers des degrés.
+
+	.. math::
+		\\theta_{deg} = \\theta_{rad} \\times \\frac{180}{\\pi}
+
+	:param angle_rad: Angle(s) en radians (scalaire, array NumPy ou Series pandas).
+	:return: Angle(s) en degrés.
+	"""
+	return np.asarray(angle_rad) * (180.0 / np.pi)
+
+
 # ==================================================
 # endregion Manipulation de DataFrame
 # ==================================================
