@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import psutil
 
-from palm_tracer.Processing.Parsing import FILES_COLUMNS, N_COL_LOC, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL, wrap_angle_radian
+from palm_tracer.Processing import Parsing
 from palm_tracer.Tools import FileIO, Ui
 
 N_TRC_CP_FIT = 12
@@ -175,10 +175,10 @@ class Palm:
 		stk = stk[np.newaxis, :, :] if stk.ndim == 2 else stk[planes[0]:planes[0] + n_planes]
 
 		# --- Calcul du budget RAM Disponible ---
-		max_points = int(self.max_allocation_bytes() // 8)  # .			Nombre de points maximum allouable en une fois
-		plane_points = int(height * width * DENSITY) * N_COL_LOC  # .	Taille théorique max pour un seul plan (N points max * N Col localisation)
-		if max_points < plane_points: return pd.DataFrame()  # . 		pragma: no cover — Cas extrême un seul plan est gargantuesque.
-		n_plane_max = int(min(max_points // plane_points, n_planes))  # Nombre de plans qui tiennent dans max_allocation
+		max_points = int(self.max_allocation_bytes() // 8)  # .				Nombre de points maximum allouable en une fois
+		plane_points = int(height * width * DENSITY) * Parsing.N_COL_LOC  # Taille théorique max pour un seul plan (N points max * N Col localisation)
+		if max_points < plane_points: return pd.DataFrame()  # . 			pragma: no cover — Cas extrême un seul plan est gargantuesque.
+		n_plane_max = int(min(max_points // plane_points, n_planes))  # .	Nombre de plans qui tiennent dans max_allocation
 
 		dfs: list[pd.DataFrame] = []
 		i = 0
@@ -191,7 +191,7 @@ class Palm:
 			count = self._dll.Localization(stk_block.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB), C_UINT(n_block), C_UINT(height), C_UINT(width),
 										   C_UINT(k), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB))
 
-			res = parse_result(locs[:count], "Localization")
+			res = Parsing.parse_result(locs[:count], "Localization")
 			if "Plane" in res.columns: res["Plane"] += planes[0] + i  # . En cas de filtre des plans, on incrémente par i + premier plan.
 			dfs.append(res)
 			i += k
@@ -201,7 +201,9 @@ class Palm:
 		if not res.empty:
 			res.reset_index(drop=True, inplace=True)
 			res["Id"] = res.index + 1  # .					  1-based comme attendu
-			res["Theta"] = wrap_angle_radian(res["Theta"])  # Clean Theta
+			if fit == 4:  # Fit Gaussien avec Theta
+				mask = res["Integrated Intensity"] > 0
+				res.loc[mask, "Theta"] = Parsing.manage_theta(res.loc[mask, "Theta"])  # Clean Theta and show stats
 
 		return res
 
@@ -234,18 +236,18 @@ class Palm:
 		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
-		required = FILES_COLUMNS["Localization"]["columns"]
+		required = Parsing.FILES_COLUMNS["Localization"]["columns"]
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
 
-		points = parse_localization_for_tracking(localizations[required])  # .		 Tracking a besoin d'un format particulier de localisations
+		points = Parsing.parse_localization_for_tracking(localizations[required])  # Tracking a besoin d'un format particulier de localisations
 		points = self._as_c_contig(points, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
-		track_size = len(localizations) * N_COL_TRC  # .							 Taille du tableau final
+		track_size = len(localizations) * Parsing.N_COL_TRC  # .					 Taille du tableau final
 		tracks = np.empty((track_size,), dtype=np.float64, order="C")  # .			 Tableau final
 
 		count = self._dll.Tracking(points.ctypes.data_as(C_TAB), tracks.ctypes.data_as(C_TAB), C_DBL(max_distance), C_UINT(min_life),
 								   C_DBL(decrease), C_DBL(cost_birth), C_UINT(localizations["Plane"].max()))
 
-		return parse_result(tracks[:count], "Tracking")
+		return Parsing.parse_result(tracks[:count], "Tracking")
 
 	##################################################
 	def blinking_reconnection(self, tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
@@ -259,20 +261,20 @@ class Palm:
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
-		required = FILES_COLUMNS["Tracking"]["columns"]
+		required = Parsing.FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return pd.DataFrame()
 
 		in_tracks = tracks[required].to_numpy(dtype=np.float64, copy=False)
 		in_tracks = self._as_c_contig(in_tracks, np.dtype(np.float64), writeable=False)
 
 		n = len(tracks)
-		track_size = n * N_COL_TRC
+		track_size = n * Parsing.N_COL_TRC
 		out = np.empty((track_size,), dtype=np.float64, order="C")
 
 		count = self._dll.BlinkingReconnection(in_tracks.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size),
 											   C_UINT(mode), C_UINT(max_duration), C_DBL(max_speed))
 
-		return parse_result(out[:count], "Tracking")
+		return Parsing.parse_result(out[:count], "Tracking")
 
 	##################################################
 	def tracks_compute(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool, is_log: bool,
@@ -296,7 +298,7 @@ class Palm:
 			doit être exprimé en micromètres par pixel (µm/px)
 		"""
 		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
-		required = FILES_COLUMNS["Tracking"]["columns"]
+		required = Parsing.FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return res
 		in_tracks = tracks[required].copy()
 		if not is_3d: in_tracks["Z"] = 0  # On simplifie, la suite les calculs se font toujours en 3D, mais la dernière dimension sera nulle
@@ -316,9 +318,9 @@ class Palm:
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
 								C_UINT(fit_mode), params.ctypes.data_as(C_TAB))
 
-		if is_msd: res["MSD"] = parse_result(o_msd[:n], "MSD", is_log)
-		if is_ind: res["InD"] = parse_result(o_ind[:n], "Instant Diffusion", is_log)
-		if fit_mode != 0: res["Fit"] = parse_result(o_fit[:n], "Fit", is_log, fit_mode)
+		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD", is_log)
+		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion", is_log)
+		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", is_log, fit_mode)
 
 		# Restauration des identifiants de trajectoire
 		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
@@ -380,11 +382,11 @@ class Palm:
 		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
 		pts = self._as_c_contig(points, np.dtype(np.float64), writeable=False)
-		out = np.empty(SHAPE_MODEL, dtype=np.float64, order="C")
+		out = np.empty(Parsing.SHAPE_MODEL, dtype=np.float64, order="C")
 		n = pts.shape[0]
 
 		self._dll.Astigmatism3DCalibration(pts.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size), C_BOOL(center))
-		return parse_result(out, "Astigmatism 3D Model")
+		return Parsing.parse_result(out, "Astigmatism 3D Model")
 
 	##################################################
 	def astigmatism_3d_estimation(self, sigmas: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float = 800) -> np.ndarray:
