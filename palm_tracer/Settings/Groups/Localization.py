@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from palm_tracer.Processing.Parsing import degrees_to_radians
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
 from palm_tracer.Settings.Groups.SplineFit import SplineFit
@@ -84,8 +85,13 @@ class Localization(BaseSettingGroup):
 	def get_fit_params(self) -> np.ndarray:
 		"""Récupère les paramètres pour l'ajustement."""
 		s = self.settings
+		# No fit
 		if s["Fit"] == 0: return np.array([s["ROI Size"]], dtype=np.float64)
-		if s["Fit"] != 2: return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], 2 * s["Gaussian Fit Sigma"], s["Gaussian Fit Theta"]], dtype=np.float64)
+		# Gaussian Fit
+		if s["Fit"] == 1:
+			return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], 2 * s["Gaussian Fit Sigma"],
+							 degrees_to_radians(s["Gaussian Fit Theta"])], dtype=np.float64)
+		# Spline Fit
 		# Load Mat File
 		try:
 			calib = open_calibration_mat(s["Spline Fit File"])

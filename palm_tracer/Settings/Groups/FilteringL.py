@@ -25,7 +25,7 @@ class FilteringL(BaseSettingGroup):
 		- **Circularity** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
 		  Interval de Circularités sélectionné (par défaut : `[0.0, 1.0]`).
 		- **Theta** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de Theta sélectionné (par défaut : `[-180, 180]`).
+		  Interval de Theta sélectionné (par défaut : `[-90, 90]`).
 		- **Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
 		  Interval de Z sélectionné (par défaut : `[-5, 5]`).
 		- **MSE XY** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
@@ -43,7 +43,7 @@ class FilteringL(BaseSettingGroup):
 			"Sigma X":     [CheckRangeFloat, ["Sigma X", "", [0, 10], [0, 10]]],
 			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", "", [0, 10], [0, 10]]],
 			"Circularity": [CheckRangeFloat, ["Circularity", "", [0, 1], [0, 1]]],
-			"Theta":       [CheckRangeFloat, ["Theta", "", [-180, 180], [-180, 180]]],
+			"Theta":       [CheckRangeFloat, ["Theta", "", [-90, 90], [-90, 90]]],
 			"MSE XY":      [CheckRangeFloat, ["MSE XY", "", [0, 1], [0, 1]]],
 			"MSE Z":       [CheckRangeFloat, ["MSE Z", "", [0, 1], [0, 1]]]
 			}

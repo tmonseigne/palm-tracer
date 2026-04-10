@@ -32,7 +32,7 @@ class GaussianFit(BaseSettingGroup):
 	setting_list = {
 			"Mode":  [Combo, ["Mode", "Selects the elements to fit.", 0, ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
 			"Sigma": [SpinFloat, ["σ", "Initial value of sigma.", 1.0, [0.0, 10.0], 0.1]],
-			"Theta": [SpinFloat, ["θ", "Initial value of theta.", 0.0, [0.0, 10.0], 0.1]]
+			"Theta": [SpinFloat, ["θ", "Initial value of theta in degree.", 0.0, [-90, 90], 0.01]]
 			}
 
 
