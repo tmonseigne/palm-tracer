@@ -45,6 +45,11 @@ def test_degrees_to_radians():
 	res = degrees_to_radians(data)
 	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
+	data = [-90, -60, -45, -30, 0, 30, 45, 60, 90]
+	ref = [-np.pi / 2, -np.pi / 3, - np.pi / 4, -np.pi / 6, 0, np.pi / 6, np.pi / 4, np.pi / 3, np.pi / 2]
+	res = degrees_to_radians(data)
+	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
 
 ##################################################
 def test_radians_to_degrees():
@@ -52,6 +57,11 @@ def test_radians_to_degrees():
 	data = [0, np.pi / 6, np.pi / 4, np.pi / 3, np.pi / 2, 2 * np.pi / 3, 3 * np.pi / 4, 5 * np.pi / 6, np.pi,
 			7 * np.pi / 6, 5 * np.pi / 4, 4 * np.pi / 3, 3 * np.pi / 2, 5 * np.pi / 3, 7 * np.pi / 4, 11 * np.pi / 6, 2 * np.pi]
 	ref = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360]
+	res = radians_to_degrees(data)
+	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+	data = [-np.pi / 2, -np.pi / 3, - np.pi / 4, -np.pi / 6, 0, np.pi / 6, np.pi / 4, np.pi / 3, np.pi / 2]
+	ref = [-90, -60, -45, -30, 0, 30, 45, 60, 90]
 	res = radians_to_degrees(data)
 	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 

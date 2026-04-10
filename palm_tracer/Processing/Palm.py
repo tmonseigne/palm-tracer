@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import psutil
 
-from palm_tracer.Processing.Parsing import FILES_COLUMNS, N_COL_LOC, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, N_COL_LOC, N_COL_TRC, parse_localization_for_tracking, parse_result, SHAPE_MODEL, wrap_angle_radian
 from palm_tracer.Tools import FileIO, Ui
 
 N_TRC_CP_FIT = 12
@@ -200,7 +200,8 @@ class Palm:
 
 		if not res.empty:
 			res.reset_index(drop=True, inplace=True)
-			res["Id"] = res.index + 1  # 1-based comme attendu
+			res["Id"] = res.index + 1  # .					  1-based comme attendu
+			res["Theta"] = wrap_angle_radian(res["Theta"])  # Clean Theta
 
 		return res
 
