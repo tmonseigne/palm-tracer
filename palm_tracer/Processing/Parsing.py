@@ -123,6 +123,91 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 # ==================================================
 
 # ==================================================
+# region Gestion des angles
+# ==================================================
+##################################################
+def degrees_to_radians(angle_deg: np.ndarray | pd.Series | float | list) -> np.ndarray:
+	"""
+	Convertit des angles en degrés vers des radians.
+
+	.. math::
+		\\theta_{rad} = \\theta_{deg} \\times \\frac{\\pi}{180}
+
+	:param angle_deg: Angle(s) en degrés (scalaire, array NumPy ou Series pandas).
+	:return: Angle(s) en radians.
+	"""
+	return np.asarray(angle_deg) * (np.pi / 180.0)
+
+
+##################################################
+def radians_to_degrees(angle_rad: np.ndarray | pd.Series | float | list) -> np.ndarray:
+	"""
+	Convertit des angles en radians vers des degrés.
+
+	.. math::
+		\\theta_{deg} = \\theta_{rad} \\times \\frac{180}{\\pi}
+
+	:param angle_rad: Angle(s) en radians (scalaire, array NumPy ou Series pandas).
+	:return: Angle(s) en degrés.
+	"""
+	return np.asarray(angle_rad) * (180.0 / np.pi)
+
+
+##################################################
+def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.pi, center: bool = True) -> np.ndarray:
+	"""
+	Contraint des angles dans l'intervalle sélectionné, exemple avec :math:`length = \\pi` et un interval centré.
+
+	.. math::
+		\\theta' \\in [-\\frac{\\pi}{2}, \\frac{\\pi}{2}[ \\quad\\quad \\text{and} \\quad\\quad
+		\\theta' = (\\theta + \\frac{\\pi}{2}) \\bmod (\\pi) - \\frac{\\pi}{2}
+
+	:param theta: Angles en radians.
+	:param length: Longueur de l'intervalle.
+	:param center: Définit l'interval à  :math:`[-\\frac{limit}{2}, \\frac{limit}{2}[` si true, sinon :math:`[0, length[`.
+	:return: Angles normalisés dans :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
+	"""
+	low = length / 2 if center else 0
+	return (np.asarray(theta) + low) % length - low
+
+
+##################################################
+def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
+	"""
+	Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`).
+	Puis passe des radians aux degrées pour faciliter la lisibilitée.
+
+	Définit un theta commun possible en degré de deux méthodes différentes (moyenne et médiane circulaire) ainsi qu'une mesure de la dispersion.
+	Une dispersion R > 0.8 indique une bonne fiabilité de l'orientation, R < 0.5 indique une orientation mal définit.
+
+
+	:param theta: Angles en radians.
+	:return: Theta dnas l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
+	"""
+	theta = wrap_angle(theta)  # Clean Theta interval
+
+	cos_theta, sin_theta = np.cos(theta), np.sin(theta)
+
+	# --- Moyenne circulaire ---
+	cos_mean, sin_mean = np.mean(cos_theta), np.mean(sin_theta)
+	theta_mean = radians_to_degrees(np.arctan2(sin_mean, cos_mean))
+
+	# --- Médiane robuste ---
+	cos_median, sin_median = np.median(cos_theta), np.median(sin_theta)
+	theta_median = radians_to_degrees(np.arctan2(sin_median, cos_median))
+
+	# --- Dispersion ---
+	r = np.sqrt(sin_mean ** 2 + cos_mean ** 2)
+
+	print(f"Theta mean: {theta_mean:.2f}°, Theta median (robust) : {theta_median:.2f}°, Concentration R: {r:.3f}")
+	return radians_to_degrees(theta)
+
+
+# ==================================================
+# endregion Gestion des angles
+# ==================================================
+
+# ==================================================
 # region Parsing
 # ==================================================
 ##################################################

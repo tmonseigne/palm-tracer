@@ -130,7 +130,7 @@ class Viewer3DWidget(QWidget):
 		coords = self.data[["Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
 		coords *= np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)
 
-		if self.outliers.value: coords = coords[self.data["Integrated Intensity"] != 0]
+		if self.outliers.value: coords = coords[self.data["Integrated Intensity"] > 0]
 
 		# Ajout ou mise à jour du calque
 		if self.points_layer is None:

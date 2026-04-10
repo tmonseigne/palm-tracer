@@ -657,7 +657,7 @@ def test_process_all(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[19])
-	check_capsys(capsys, 48, [(True, 5), (True, 7), (True, 9), (True, 11), (True, 13), (True, 21), (True, 23), (True, 44)])
+	check_capsys(capsys, 49, [(True, 5), (True, 8), (True, 10), (True, 12), (True, 14), (True, 22), (True, 24), (True, 45)])
 
 
 # ==================================================
@@ -781,10 +781,10 @@ def test_filter_all_localization(qtbot, capsys, pt):
 	pt.settings.filtering["Localization"]["Sigma Y"].value = [0, 10]  # Aucune suppression
 	pt.settings.filtering["Localization"]["Circularity"].active = True  # Aucune suppression
 	pt.settings.filtering["Localization"]["Theta"].active = True
-	pt.settings.filtering["Localization"]["Theta"].value = [-5, 5]  # 366/391 : 25 suppression(s)
+	pt.settings.filtering["Localization"]["Theta"].value = [-60, 60]  # 346/391 : 45 suppression(s)
 	pt.settings.filtering["Localization"]["Z"].active = True  # Aucune suppression
 	pt.settings.filtering["Localization"]["MSE XY"].active = True
-	pt.settings.filtering["Localization"]["MSE XY"].value = [0.01, 10]  # 365/366 : 1 suppression(s)
+	pt.settings.filtering["Localization"]["MSE XY"].value = [0.05, 10]  # 345/366 : 1 suppression(s)
 	# pt.settings.filtering["Localization"]["MSE Z"].active = True # La colonne est à -1 le filtre est forcément sur un nombre positif
 	# pt.settings.filtering["Localization"]["MSE Z"].value = [0, 10]
 	pt.process()
@@ -797,12 +797,12 @@ def test_filter_all_localization(qtbot, capsys, pt):
 	# Le filtrage ne modifie plus le dataframe original qui garde constamment son statut "complet".
 	loc = pt.localizations
 	ref = [["Plane", 1, 9], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.01, 10],
-		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -5, 5],
+		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -60, 60],
 		   ["Circularity", 0, 1], ["Z", -1, 1]]
 	for r in ref:
 		assert loc[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."
 
-	res, ref = len(loc), 365
+	res, ref = len(loc), 345
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	# La colonne est à -1 le filtre est forcément sur un nombre positif donc il va vider le dataframe
