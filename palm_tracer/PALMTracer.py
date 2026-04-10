@@ -571,7 +571,6 @@ class PALMTracer:
 		for filt, col in filters:
 			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
 				limits = filt.value
-				if col == "Theta": limits = Parsing.degrees_to_radians(limits)
 				res = res[res[col].between(limits[0], limits[1])]  # Bornes incluses
 		return res
 

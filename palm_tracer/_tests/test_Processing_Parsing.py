@@ -83,7 +83,7 @@ def test_wrap_angle():
 def test_manage_theta():
 	"""Test basique de manage_theta."""
 	data = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4, np.pi]
-	ref = [0, np.pi / 4, - np.pi / 2, - np.pi / 4, 0]
+	ref = [0, 45, -90, -45, 0]
 	res = manage_theta(data)
 	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 

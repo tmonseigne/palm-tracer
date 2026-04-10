@@ -797,7 +797,7 @@ def test_filter_all_localization(qtbot, capsys, pt):
 	# Le filtrage ne modifie plus le dataframe original qui garde constamment son statut "complet".
 	loc = pt.localizations
 	ref = [["Plane", 1, 9], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.01, 10],
-		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -5, 5],
+		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -60, 60],
 		   ["Circularity", 0, 1], ["Z", -1, 1]]
 	for r in ref:
 		assert loc[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."

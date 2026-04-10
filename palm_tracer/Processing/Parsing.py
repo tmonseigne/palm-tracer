@@ -174,9 +174,12 @@ def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.
 ##################################################
 def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	"""
-	Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle_radian`).
-	et définit un theta commun possible en degré de deux méthodes différentes ainsi qu'une mesure de la dispersion.
+	Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`).
+	Puis passe des radians aux degrées pour faciliter la lisibilitée.
+
+	Définit un theta commun possible en degré de deux méthodes différentes (moyenne et médiane circulaire) ainsi qu'une mesure de la dispersion.
 	Une dispersion R > 0.8 indique une bonne fiabilité de l'orientation, R < 0.5 indique une orientation mal définit.
+
 
 	:param theta: Angles en radians.
 	:return: Theta dnas l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
@@ -197,7 +200,7 @@ def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	r = np.sqrt(sin_mean ** 2 + cos_mean ** 2)
 
 	print(f"Theta mean: {theta_mean:.2f}°, Theta median (robust) : {theta_median:.2f}°, Concentration R: {r:.3f}")
-	return theta
+	return radians_to_degrees(theta)
 
 
 # ==================================================
