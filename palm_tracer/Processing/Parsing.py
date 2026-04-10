@@ -154,33 +154,24 @@ def radians_to_degrees(angle_rad: np.ndarray | pd.Series | float | list) -> np.n
 
 
 ##################################################
-def wrap_angle_radian(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
+def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.pi, center: bool = True) -> np.ndarray:
 	"""
-	Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
+	Contraint des angles dans l'intervalle sélectionné, exemple avec :math:`length = \\pi` et un interval centré.
 
 	.. math::
+		\\theta' \\in [-\\frac{\\pi}{2}, \\frac{\\pi}{2}[ \\quad\\quad \\text{and} \\quad\\quad
 		\\theta' = (\\theta + \\frac{\\pi}{2}) \\bmod (\\pi) - \\frac{\\pi}{2}
 
 	:param theta: Angles en radians.
+	:param length: Longueur de l'intervalle.
+	:param center: Définit l'interval à  :math:`[-\\frac{limit}{2}, \\frac{limit}{2}[` si true, sinon :math:`[0, length[`.
 	:return: Angles normalisés dans :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
 	"""
-	return (np.asarray(theta) + np.pi / 2) % np.pi - np.pi / 2
+	low = length / 2 if center else 0
+	return (np.asarray(theta) + low) % length - low
 
 
 ##################################################
-def wrap_angle_degree(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
-	"""
-	Contraint des angles en degrés dans l'intervalle :math:`[-90, 90[`.
-
-	.. math::
-		\\theta' = (\\theta + 90) \\bmod 180 - 90
-
-	:param theta: Angles en degrés.
-	:return: Angles normalisés dans :math:`[-90, 90[`.
-	"""
-	return (np.asarray(theta) + 90.0) % 180.0 - 90.0
-
-
 def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	"""
 	Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle_radian`).
@@ -190,7 +181,7 @@ def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	:param theta: Angles en radians.
 	:return: Theta dnas l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
 	"""
-	theta = wrap_angle_radian(theta)  # Clean Theta interval
+	theta = wrap_angle(theta)  # Clean Theta interval
 
 	cos_theta, sin_theta = np.cos(theta), np.sin(theta)
 

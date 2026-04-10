@@ -13,15 +13,13 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from palm_tracer.Processing import Gallery, Palm, Parsing, Visualization as Viz
-from palm_tracer.Processing.Drift import extract_beads
+from palm_tracer.Processing import Drift, Gallery, Palm, Parsing, Visualization as Viz
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import BaseSettingGroup, FilteringL, FilteringT
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 from palm_tracer.Tools import FileIO, Logger, Ui
-from palm_tracer.Tools.Ui import print_warning
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)",
@@ -270,7 +268,7 @@ class PALMTracer:
 					print(f"\tFile '{fname}' not found.")
 			except Exception as e:
 				self.df[key] = pd.DataFrame()
-				print_warning(f"\tError loading file '{fname}': {e}")
+				Ui.print_warning(f"\tError loading file '{fname}': {e}")
 
 		# --- Chargement de la pile ---
 		try:
@@ -418,7 +416,7 @@ class PALMTracer:
 			return
 
 		s = self.settings.beads.settings
-		try: self.df["bds"] = extract_beads(df, s["Max Distance"], s["3D"], strict=False, k=2)
+		try: self.df["bds"] = Drift.extract_beads(df, s["Max Distance"], s["3D"], strict=False, k=2)
 		except ValueError: self.df["bds"] = pd.DataFrame()
 		if self.df["bds"].empty:
 			self._logger.add("\tNo beads found.")
@@ -573,6 +571,7 @@ class PALMTracer:
 		for filt, col in filters:
 			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
 				limits = filt.value
+				if col == "Theta": limits = Parsing.degrees_to_radians(limits)
 				res = res[res[col].between(limits[0], limits[1])]  # Bornes incluses
 		return res
 
