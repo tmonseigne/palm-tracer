@@ -462,7 +462,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		# --- Mise à jour de Z (si sélectionné) ---
 		if self._check_z_from_plane.isChecked():
-			if "Plane" not in self._loc.columns:
+			if "Plane" not in work.columns:
 				Ui.print_warning("No Plane Column in file. We can't use it to intialize Z.")
 				return
 			work["Z"] = work["Plane"] * self._spin_z_interval.value()
@@ -490,6 +490,12 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			self._model = pd.DataFrame(mean_model, columns=FILES_COLUMNS["Astigmatism 3D Model"]["columns"], index=MODEL_ROWS)
 			print(f"Average model:\n{self._model}")
 
+		# --- Mise à jour du Z dans loc ---
+		z_max = self._spin_z_estimate.value()
+		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
+		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
+		self._loc[DLL_REQUIRED_COLS[-1]] = estimated_z
+
 		# --- Mise à jour de l'affichage ---
 		self._update_plot()
 
@@ -499,7 +505,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.print_success(f"Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
-		self._update_sanity_values(beads[0], self._model.to_numpy(), pixel_size)
+		self._update_sanity_values(self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True), self._model.to_numpy(), pixel_size)
 		self._update_plot()
 		Ui.update_path_label(self._lbl_model_estimate, self._mod_filename)
 
