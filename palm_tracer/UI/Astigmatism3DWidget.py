@@ -96,7 +96,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		self._spin_px_compute = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_compute.setToolTip("Pixel size in micrometers.")
-		self._spin_z_compute = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=500)
+		self._spin_z_compute = QSpinBox(grp, minimum=10, maximum=2000, singleStep=10, value=500)
 		self._spin_z_compute.setToolTip("Maximum absolute value of Z.")
 		self._check_z_from_plane = QCheckBox(grp)
 		self._check_z_from_plane.setToolTip("Use the plane column to define the Z column.")
@@ -196,7 +196,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._spin_px_estimate = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
 		self._spin_px_estimate.setToolTip("Pixel size in micrometers.")
 
-		self._spin_z_estimate = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=500)
+		self._spin_z_estimate = QSpinBox(grp, minimum=10, maximum=2000, singleStep=10, value=500)
 		self._spin_z_estimate.setToolTip("Maximum absolute value of Z.")
 
 		self._check_b_estimate = QCheckBox(grp)
@@ -403,7 +403,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.update_path_label(self._lbl_loc_estimate, self._loc_filename)
 
 		# --- mise à jour du Z Max ---
-		self._spin_z_estimate.setValue(self._loc["Z"].abs().max())
+		z_max = self._loc["Z"].abs().max()
+		if z_max > 10: self._spin_z_estimate.setValue(z_max)
 
 		Ui.print_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
 
