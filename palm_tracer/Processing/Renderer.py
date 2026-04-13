@@ -159,7 +159,7 @@ class Renderer:
 
 		Le tableau retourné est de forme ``(N, 5)`` et contient, dans l'ordre : ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
 
-		- Les colonnes ``Track``, ``Plane``, ``X`, ``Y`` et ``Integrated Intensity``sont toujours extraites du DataFrame.
+		- Les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity`` sont toujours extraites du DataFrame.
 		- La colonne ``Color`` est défini selon la source, si la source n'est pas prévu, la colonne ``Color`` est remplie avec la valeur 1.
 		- Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul.
 		  :math:`C_{Shifted} = C - C_{min}`

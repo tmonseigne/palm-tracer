@@ -1,7 +1,8 @@
 """Fichier des tests pour les fonctions en lien avec l'affichage."""
 from pathlib import Path
 
-from qtpy.QtWidgets import QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QLabel, QSpinBox, QVBoxLayout, QWidget
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QLabel, QSpinBox, QVBoxLayout, QWidget
 
 from palm_tracer.Tools import Ui
 
@@ -47,6 +48,9 @@ def test_builders(qtbot):
 	grid = Ui.make_info_grid(elements, "title", 3)  # Création d'un groupe
 	assert isinstance(grid, QGridLayout)
 
+	grp, status = Ui.make_file_info_group()
+	assert isinstance(grp, QGroupBox)
+
 
 ##################################################
 def test_builders_spin(qtbot):
@@ -68,6 +72,17 @@ def test_builders_spin(qtbot):
 	spin_2 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
 	assert isinstance(spin_2, QSpinBox)
 
+
+##################################################
+def test_sync_spin(qtbot):
+	"""Test des fonctions de synchronisation."""
+	main_widget = QWidget()
+
+	spin_1 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
+	assert isinstance(spin_1, QSpinBox)
+	spin_2 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
+	assert isinstance(spin_2, QSpinBox)
+
 	# Synchronisation
 	spin_1.valueChanged.connect(lambda v: Ui.sync_spin(spin_2, v))
 	spin_2.valueChanged.connect(lambda v: Ui.sync_spin(spin_1, v))
@@ -77,6 +92,27 @@ def test_builders_spin(qtbot):
 
 	spin_2.setValue(5)  # Mise à jour du second
 	assert spin_1.value() == 5  # Vérificaiton sur le premier
+
+
+##################################################
+def test_sync_button_group(qtbot):
+	"""Test des fonctions de synchronisation."""
+	main_widget = QWidget()
+
+	_, grp_1, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
+	assert isinstance(grp_1, QButtonGroup)
+	_, grp_2, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
+	assert isinstance(grp_2, QButtonGroup)
+
+	# Synchronisation
+	grp_1.idClicked.connect(lambda v: Ui.sync_button_group(grp_2, v))
+	grp_2.idClicked.connect(lambda v: Ui.sync_button_group(grp_1, v))
+
+	qtbot.mouseClick(grp_1.button(2), Qt.MouseButton.LeftButton)
+	assert grp_2.checkedId() == 2
+
+	qtbot.mouseClick(grp_2.button(0), Qt.MouseButton.LeftButton)
+	assert grp_1.checkedId() == 0
 
 
 ##################################################

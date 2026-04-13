@@ -414,6 +414,26 @@ def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 # region Callbacks
 # ==================================================
 ##################################################
+def sync_button_group(target: QButtonGroup, value: int):
+	"""
+	Synchronise un groupe de boutons exclusif avec un autre via son id.
+
+	On bloque les signaux le temps de la mise à jour pour éviter les appels en série.
+
+	Exemple d'utilisation ::
+
+	    group_1.idClicked.connect(lambda v: sync_button_group(group_2, v))
+	    group_2.idClicked.connect(lambda v: sync_button_group(group_1, v))
+
+	:param target: QButtonGroup à mettre à jour.
+	:param value: Identifiant du boutton à sélectionner.
+	"""
+	target.blockSignals(True)
+	button = target.button(value)
+	if button is not None: button.setChecked(True)
+	target.blockSignals(False)
+
+##################################################
 def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 	"""
 	Synchronise une spinbox avec la valeur envoyée (par signal).
@@ -433,6 +453,7 @@ def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 	target.blockSignals(False)
 
 
+##################################################
 def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | None = None, maximum: float | int | None = None, ):
 	"""
 	Mets à jour dynamiquement les bornes d'une spinbox.
