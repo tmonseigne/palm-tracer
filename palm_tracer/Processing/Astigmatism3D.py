@@ -161,7 +161,7 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 
 
 ##################################################
-def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: float, n_curve: int, pixel_size: float, sampling: float = 1) -> dict:
+def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: float, pixel_size: float, n_curve: int = 5000, sampling: float = 1) -> dict:
 	"""
 	Évalue la validité d'un modèle astigmatique pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle.
 
@@ -186,11 +186,13 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	- P95_dist_px : 95e percentile de la distance à la courbe. Utile pour définir un seuil de rejet des estimations peu fiables.
 
+	- P95_dist_px : Pente moyenne de la courbe σx(z) - σy(z) en pixel par nanomètres.
+
 	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
 	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
-	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z. Doit être suffisamment grand pour éviter une quantification de Z.
 	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
+	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z. Doit être suffisamment grand pour éviter une quantification de Z.
 	:param sampling: Facteur d'échantillonnage (adimensionnel) utilisé dans le modèle de sigma (généralement égal à 1).
 	:return: Dictionnaire de métriques décrivant la précision axiale (en unités de Z) et la cohérence des données avec le modèle (distances en pixels).
 	"""
@@ -200,6 +202,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	sx_curve = sigma_model(model[0], z_curve, pixel_size, sampling)
 	sy_curve = sigma_model(model[1], z_curve, pixel_size, sampling)
 	curve = np.column_stack((sx_curve, sy_curve))
+	ds = np.gradient(sx_curve - sy_curve, z_curve)
 
 	tree = cKDTree(curve)
 	dist, idx = tree.query(np.column_stack((sx_obs, sy_obs)), k=1)
@@ -209,12 +212,14 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	return {
 			# Métriques en nanomètres
-			"rmse_z":    float(np.sqrt(np.mean(dz * dz))),
-			"mae_z":     float(np.mean(np.abs(dz))),
-			"p95_abs_z": float(np.percentile(np.abs(dz), 95)),
-			"bias_z":    float(np.mean(dz)),
-			"std_z":     float(np.std(dz)),
+			"rmse_z":     float(np.sqrt(np.mean(dz * dz))),
+			"mae_z":      float(np.mean(np.abs(dz))),
+			"p95_abs_z":  float(np.percentile(np.abs(dz), 95)),
+			"bias_z":     float(np.mean(dz)),
+			"std_z":      float(np.std(dz)),
 			# Distance en pixel
-			"mean_dist": float(np.mean(dist)),
-			"p95_dist":  float(np.percentile(dist, 95)),
+			"mean_dist":  float(np.mean(dist)),
+			"p95_dist":   float(np.percentile(dist, 95)),
+			# Pente
+			"slope_mean": float(np.mean(np.abs(ds)))
 			}

@@ -153,23 +153,26 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 				"r2_x":    {"label": QLabel("R² x:"), "value": QLabel("     --"), "unit": QLabel("%"),
 							"tips":  "Percent of variance explained on x (100 % for a perfect model)."},
 				"r2_y":    {"label": QLabel("R² y:"), "value": QLabel("     --"), "unit": QLabel("%"),
-							"tips":  "Percent of variance explained on y (100 % for a perfect model)."}}, {
+							"tips":  "Percent of variance explained on y (100 % for a perfect model)."},
+				"blank":   {"label": QLabel(""), "value": QLabel(""), "unit": QLabel(""), "tips": ""}}, {
 
 				# Columns 2 title "Z Sanity Check"
-				"rmse_z":    {"label": QLabel("RMSE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							  "tips":  "Root Mean Square Error on z (0 for a perfect model)."},
-				"mae_z":     {"label": QLabel("MAE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							  "tips":  "Mean Absolute Error on z (0 for a perfect model)."},
-				"p95_abs_z": {"label": QLabel("P95 z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							  "tips":  "95e percentile of error distance on z."},
-				"bias_z":    {"label": QLabel("Bias z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							  "tips":  "Mean of error distance on z."},
-				"std_z":     {"label": QLabel("STD z"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							  "tips":  "Standard deviation of error distance on z."},
-				"mean_dist": {"label": QLabel("Curve Mean dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							  "tips":  "Mean of error distance with the curve."},
-				"p95_dist":  {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							  "tips":  "95e percentile of error distance with the curve."}}]
+				"rmse_z":     {"label": QLabel("RMSE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+							   "tips":  "Root Mean Square Error on z (0 for a perfect model)."},
+				"mae_z":      {"label": QLabel("MAE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+							   "tips":  "Mean Absolute Error on z (0 for a perfect model)."},
+				"p95_abs_z":  {"label": QLabel("P95 z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+							   "tips":  "95e percentile of error distance on z."},
+				"bias_z":     {"label": QLabel("Bias z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+							   "tips":  "Mean of error distance on z."},
+				"std_z":      {"label": QLabel("STD z"), "value": QLabel("     --"), "unit": QLabel("nm"),
+							   "tips":  "Standard deviation of error distance on z."},
+				"mean_dist":  {"label": QLabel("Curve Mean dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
+							   "tips":  "Mean of error distance with the curve."},
+				"p95_dist":   {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
+							   "tips":  "95e percentile of error distance with the curve."},
+				"slope_mean": {"label": QLabel("Slope:"), "value": QLabel("     --"), "unit": QLabel("px/nm"),
+							   "tips":  "Slope of curve σx(z) - σy(z)."}}]
 
 		grp, grp_layout = Ui.make_group(tab_compute, "Sanity Check")
 		grp_layout.addLayout(self._init_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
@@ -304,7 +307,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			else: val.setText(f"{metrics[key]:0.4f}")
 
 		z_max = np.max(np.abs(points[:, 2]))
-		metrics = model_projection_validity(points, model, z_max, 5000, pixel_size, 1)
+		metrics = model_projection_validity(points, model, z_max, pixel_size)
 		for key in metrics:
 			val = self._sanity[1][key]["value"]
 			val.setText(f"{metrics[key]:0.4f}")
