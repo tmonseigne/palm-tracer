@@ -14,7 +14,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
+from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, remove_multi_beads
@@ -49,6 +49,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	"""
 
 	GRAPH_TITLE: str = "Astigmatism model"
+	GRAPH_TYPE: list["str"] = ["Curve", "Cross", "Slope"]
 
 	# ==================================================
 	# region Initialisation
@@ -122,10 +123,18 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		grp_layout.addWidget(self._lbl_compute)
 		grp_layout.addLayout(form)
 
+		# Bloc Type de graphe
+		grp_type = QGroupBox("Graph Type")
+		h, self._btg_type_compute, self._btn_type_compute = Ui.make_exclusive_btn_group(self.GRAPH_TYPE, 0)
+		form = Ui.make_form(grp_type)
+		form.addRow(h)
+
+		# Bouton compute
 		self._btn_compute = QPushButton("Compute model", tab_compute)
 		self._btn_compute.setToolTip("Start calculating model coefficients from the localization file.")
 
 		tab_layout.addWidget(grp)
+		tab_layout.addWidget(grp_type)
 		tab_layout.addWidget(self._btn_compute)
 
 		# --- Groupe Vérification de cohérence ---
@@ -202,10 +211,17 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		grp_layout.addWidget(self._lbl_model_estimate)
 		grp_layout.addLayout(form)
 
+		# Bloc Type de graphe
+		grp_type = QGroupBox("Graph Type")
+		h, self._btg_type_estimate, self._btn_type_estimate = Ui.make_exclusive_btn_group(self.GRAPH_TYPE, 0)
+		form = Ui.make_form(grp_type)
+		form.addRow(h)
+
 		self._btn_estimate = QPushButton("Estimate Z", tab_estimate)
 		self._btn_estimate.setToolTip("Estimate Z for all points in localizaation file with the loaded model.")
 
 		tab_layout.addWidget(grp)
+		tab_layout.addWidget(grp_type)
 		tab_layout.addWidget(self._btn_estimate)
 		tab_layout.addStretch(1)
 
@@ -251,16 +267,20 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
 		self._btn_estimate.clicked.connect(self._on_estimate)
 
-		# --- Lien entre les deux spin ---
+		# --- Lien entre les spins et les groueps de bouttons ---
 		self._spin_px_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_estimate, v))
 		self._spin_px_estimate.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_compute, v))
 		self._spin_z_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_z_estimate, v))
 		self._spin_z_estimate.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_z_compute, v))
+		self._btg_type_compute.idClicked.connect(lambda i: Ui.sync_button_group(self._btg_type_estimate, i))
+		self._btg_type_estimate.idClicked.connect(lambda i: Ui.sync_button_group(self._btg_type_compute, i))
 
 		# --- Mise à jour de l'affichage de la courbe ---
 		self._spin_px_compute.valueChanged.connect(self._update_plot)
 		self._spin_px_estimate.valueChanged.connect(self._update_plot)
 		self._spin_z_estimate.valueChanged.connect(self._update_plot)
+		self._btg_type_compute.idClicked.connect(self._update_plot)
+		self._btg_type_estimate.idClicked.connect(self._update_plot)
 
 	# ==================================================
 	# endregion Initialisation
@@ -295,7 +315,12 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		try:
 			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 			z_max = self._spin_z_estimate.value()
-			self._fig = self._grapher.astigmatism3d_curve(self._model.to_numpy(), title=self.GRAPH_TITLE, pixel_size=pixel_size, z_max=z_max)
+			data = None if self._loc.empty or self._loc["Z"].nunique() <= 1 else self._loc[DLL_REQUIRED_COLS].to_numpy()
+			mode = self._btg_type_compute.checkedId()
+			if mode == 1: mode = "cross"
+			elif mode == 2: mode = "slope"
+			else: mode = "curve"
+			self._fig = self._grapher.astigmatism3d(self._model.to_numpy(), data, title=self.GRAPH_TITLE, pixel_size=pixel_size, z_max=z_max, mode=mode)
 		except ValueError:
 			self._fig = self._grapher.blank(self.GRAPH_TITLE)
 		self._update_web_widget()
