@@ -1,0 +1,45 @@
+{
+  "data": [
+	{
+	  "hovertemplate": "σx-σy(%{x:.3f})=%{y:.3f}<extra></extra>",
+	  "line": {
+		"color": "#4C72B0"
+	  },
+	  "mode": "lines",
+	  "type": "scatter",
+	  "x": {
+		"bdata": "AAAAAAAAWcDU+pUCtX5YwKj1KwVq/VfAfPDBBx98V8BQ61cK1PpWwCTm7QyJeVbA+OCDDz74VcDM2xkS83ZVwKDWrxSo9VTAdNFFF110VMBIzNsZEvNTwBzHcRzHcVPA8MEHH3zwUsDEvJ0hMW9SwJi3MyTm7VHAbLLJJptsUcBArV8pUOtQwBSo9SsFalDA0UUXXXTRT8B5O0Ni3s5OwCExb2dIzE3AySabbLLJTMBxHMdxHMdLwBkS83aGxErAwgcffPDBScBq/UqBWr9IwBLzdobEvEfAuuiiiy66RsBi3s6QmLdFwArU+pUCtUTAsskmm2yyQ8Bav1Kg1q9CwAK1fqVArUHAqqqqqqqqQMCkQK1fKVA/wPQrBWr9Sj3ARBdddNFFO8CUArV+pUA5wOTtDIl5OzfANNlkk002NcCExLydITEzwNSvFKj1KzHASDbZZJNNLsDoDIl5O0MqwIjjOI7jOCbAKLrooosuIsCQITFvZ0gcwNDOkJi3MxTAQPjggw8+CMCApUCtXynwv4ClQK1fKfA/QPjggw8+CEDgzpCYtzMUQKAhMW9nSBxAMLrooosuIkCQ4ziO4zgmQPAMiXk7QypAUDbZZJNNLkDYrxSo9SsxQIjEvJ0hMTNAONlkk002NUDo7QyJeTs3QJgCtX6lQDlASBdddNFFO0D4KwVq/Uo9QKhArV8pUD9ArKqqqqqqQEAEtX6lQK1BQFy/UqDWr0JAtMkmm2yyQ0AM1PqVArVEQGTezpCYt0VAvOiiiy66RkAU83aGxLxHQGz9SoFav0hAxAcffPDBSUAcEvN2hsRKQHQcx3Ecx0tAzCabbLLJTEAkMW9nSMxNQHw7Q2Lezk5A1EUXXXTRT0AWqPUrBWpQQEKtXylQ61BAbrLJJptsUUCatzMk5u1RQMa8nSExb1JA8sEHH3zwUkAex3Ecx3FTQErM2xkS81NAdtFFF110VECi1q8UqPVUQM7bGRLzdlVA+uCDDz74VUAm5u0MiXlWQFLrVwrU+lZAfPDBBx98V0Co9SsFav1XQNT6lQK1flhAAAAAAAAAWUA=",
+		"dtype": "f8"
+	  },
+	  "y": {
+		"bdata": "k7FsdYW717+znFSCy2HXv4EvpXQ/Bte/Q4x5Z+Oo1r9mvwgeuknWv2VajwHH6NW/LcRQHg6G1b+SPrwflCHVv6SBxEteu9S/E1R7fXJT1L/gpAQf1+nTv0hW9iKTftO/2R07/a0R078Jmo+bL6PSv4kDsV0gM9K/5LZUDYnB0b/rQf/Vck7Rvx2z0Dzn2dC/iqxaGPBj0L9ieyYRL9nPv8ys693P586/Up3Dzdfzzb9iJIh8XP3Mv6gNL91zBMy/mp2LLDQJy78YOuDkswvKv5L1S7IJDMm/kkIcaEwKyL+63Qf3kgbHv0oKVWT0AMa/HJnqwYf5xL8+2kgnZPDDvw6QZaug5cK/3jxkX1TZwb8kryJKlsvAvwT6IMn6eL+/0FmOLUFYvb/0F7BrLTW7v1hQiATtD7m/vAclTq3otr/wuvBym7+0vySPDnLklLK/7JOpILVosL/IQz1YdHasv2gv0TlAGai/QARutCa6o79gNF64ALOev7DOayhL75W/ALjzYrpTir8ABTNOnI1xvwAFM06cjXE/ALjzYrpTij+wzmsoS++VP5A0XrgAs54/SARutCa6oz9oL9E5QBmoP9BDPVh0dqw/9JOpILVosD8kjw5y5JSyP/i68HKbv7Q/xAclTq3otj9kUIgE7Q+5P/wXsGstNbs/0FmOLUFYvT8M+iDJ+ni/PyavIkqWy8A/5DxkX1TZwT8OkGWroOXCP0LaSCdk8MM/IJnqwYf5xD9OClVk9ADGP7zdB/eSBsc/kkIcaEwKyD+U9UuyCQzJPxw64OSzC8o/mp2LLDQJyz+qDS/dcwTMP2YkiHxc/cw/Vp3DzdfzzT/MrOvdz+fOP2Z7JhEv2c8/jKxaGPBj0D8fs9A859nQP+1B/9VyTtE/5rZUDYnB0T+MA7FdIDPSPwuaj5svo9I/2x07/a0R0z9IVvYik37TP+KkBB/X6dM/FVR7fXJT1D+pgcRLXrvUP5M+vB+UIdU/L8RQHg6G1T9lWo8Bx+jVP2q/CB66SdY/Q4x5Z+Oo1j+BL6V0PwbXP7OcVILLYdc/k7FsdYW71z8=",
+		"dtype": "f8"
+	  }
+	}
+  ],
+  "layout": {
+	"hovermode": "closest",
+	"showlegend": false,
+	"title": {
+	  "text": "Astigmatism 3D"
+	},
+	"xaxis": {
+	  "gridcolor": "#e6e6e6",
+	  "gridwidth": 0.75,
+	  "showgrid": true,
+	  "title": {
+		"text": "Z (nm)"
+	  },
+	  "zeroline": false
+	},
+	"yaxis": {
+	  "gridcolor": "#e6e6e6",
+	  "gridwidth": 0.75,
+	  "showgrid": true,
+	  "title": {
+		"text": "σX - σY"
+	  },
+	  "zeroline": false
+	}
+  }
+}

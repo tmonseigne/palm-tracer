@@ -104,6 +104,13 @@ def test_remove_multi_loc():
 	ref = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
 	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
+	# Dataframe avec une colonne Bead.
+	data = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0], [2, 1, 5, 5, 1, 1, 0], [2, 2, 5, 5, 1, 1, 0]], columns=["Bead"] + columns)
+	res = remove_multi_beads(data)
+	ref = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0]], columns=["Bead"] + columns)
+	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+
 ##################################################
 def test_sigma_model():
 	"""Test basique pour sigma_model."""
@@ -138,18 +145,21 @@ def test_model_validity():
 def test_model_projection_validity():
 	"""Test basique pour model_projection_validity."""
 	# Vérification des métriques pour le bon modèle. Le bruit de 0.02 (et son carré) est retrouvé dans les deux derniers éléments du dictionnaire
-	res = model_projection_validity(DATASET, REF_MODEL, Z_MAX, N_POINTS, PIXEL_SIZE, SAMPLING)
-	ref = {'rmse_z': 5.78, 'mae_z': 4.58, 'p95_abs_z': 11.40, 'bias_z': 0.03, 'std_z': 5.78, 'mean_dist': 0.02, 'p95_dist': 0.04}
+	res = model_projection_validity(DATASET, REF_MODEL, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
+	print(res)
+	ref = {'rmse_z': 5.78, 'mae_z': 4.58, 'p95_abs_z': 11.40, 'bias_z': 0.03, 'std_z': 5.78, 'mean_dist': 0.02, 'p95_dist': 0.04, "slope_mean": 0.004}
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Vérification des métriques pour un modèle avec axe inversé,
 	# attendu rmse et mae élevé (du même ordre de grnadeur que Z_MAX), mais distances en pixel faible : signature d'une inversion du Z.
 	# Le biais faible en est une conséquence (les erreurs s'annulent presque du fait que la courbe est PRESQUE symétrique).
-	res = model_projection_validity(DATASET, REF_MODEL[::-1], Z_MAX, N_POINTS, PIXEL_SIZE, SAMPLING)
-	ref = {'rmse_z': 577.31, 'mae_z': 499.94, 'p95_abs_z': 950, 'bias_z': 7.4, 'std_z': 577.27, 'mean_dist': 0.03, 'p95_dist': 0.1}
+	res = model_projection_validity(DATASET, REF_MODEL[::-1], Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
+	ref = {'rmse_z': 577.31, 'mae_z': 499.94, 'p95_abs_z': 950, 'bias_z': 7.4, 'std_z': 577.27, 'mean_dist': 0.03, 'p95_dist': 0.1, "slope_mean": 0.004}
+	print(res)
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Vérification des métriques pour un modèle différent (mais un minimum cohérent avec l'astigmatisme), attendu erreurs importantes partout.
-	res = model_projection_validity(DATASET, REF_MODEL2, Z_MAX, N_POINTS, PIXEL_SIZE, SAMPLING)
-	ref = {'rmse_z': 763.52, 'mae_z': 749.6, 'p95_abs_z': 975.01, 'bias_z': 20.6, 'std_z': 763.24, 'mean_dist': 1.59, 'p95_dist': 2.27}
+	res = model_projection_validity(DATASET, REF_MODEL2, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
+	ref = {'rmse_z': 763.52, 'mae_z': 749.6, 'p95_abs_z': 975.01, 'bias_z': 20.6, 'std_z': 763.24, 'mean_dist': 1.59, 'p95_dist': 2.27, "slope_mean": 0.0015}
+	print(res)
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"

@@ -422,8 +422,8 @@ def sync_button_group(target: QButtonGroup, value: int):
 
 	Exemple d'utilisation ::
 
-	    group_1.valueChanged.connect(lambda v: sync_button_group(group_2, v))
-	    group_2.valueChanged.connect(lambda v: sync_button_group(group_1, v))
+	    group_1.idClicked.connect(lambda v: sync_button_group(group_2, v))
+	    group_2.idClicked.connect(lambda v: sync_button_group(group_1, v))
 
 	:param target: QButtonGroup à mettre à jour.
 	:param value: Identifiant du boutton à sélectionner.

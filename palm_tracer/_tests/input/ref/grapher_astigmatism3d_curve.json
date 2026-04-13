@@ -84,7 +84,7 @@
 	  "gridwidth": 0.75,
 	  "showgrid": true,
 	  "title": {
-		"text": "Sigma X"
+		"text": "σX"
 	  },
 	  "zeroline": false
 	},
@@ -93,7 +93,7 @@
 	  "gridwidth": 0.75,
 	  "showgrid": true,
 	  "title": {
-		"text": "Sigma Y"
+		"text": "σY"
 	  },
 	  "zeroline": false
 	}
