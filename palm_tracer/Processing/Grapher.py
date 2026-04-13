@@ -1,7 +1,7 @@
 """Fichier contenant une classe pour créer des graphiques."""
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 import plotly.graph_objects as go
@@ -240,18 +240,31 @@ class Grapher:
 	# ==================================================
 
 	# ==================================================
-	# region Misc Figure
+	# region Astigmtism Figure
 	# ==================================================
 	##################################################
-	def astigmatism3d_curve(self, model: np.ndarray, title: str = "", pixel_size: float = 160, z_max: float = 500, n_points: int = 5000) -> go.Figure:
+	def astigmatism3d(self, model: np.ndarray, data: np.ndarray | None = None, title: str = "", pixel_size: float = 160, z_max: float = 500,
+					  mode: Literal["curve", "cross", "slope"] = "curve", n_points: int = 5000) -> go.Figure:
 		"""
+		Affiche la courbe d’astigmatisme 3D (σx, σy) issue d’un modèle analytique.
+
+		Trois modes de visualisation sont disponibles :
+
+		- ``"curve"`` : Représentation paramétrique (σx(z), σy(z)) dans le plan (σX, σY), colorée par la profondeur Z.
+		- ``"cross"`` : Courbes σx(z) et σy(z) en fonction de Z.
+		- ``"slope"`` : Courbe de la différence σx(z) - σy(z), utile pour estimer la monotonie et la sensibilité du modèle autour de Z = 0.
+
+		Si des données expérimentales sont fournies, elles sont superposées sous forme de points (sans interaction hover)
+		dans les modes ``"cross"`` et ``"slope"``.
 
 		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+		:param data: Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``
 		:param title: Titre du graphe.
-		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
-		:param z_max: Valeur absolue maximale sur Z.
-		:param n_points: Nombre de points sur la courbe (résolution)
-		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm). Utilisé pour l’évaluation du modèle.
+		:param z_max: Valeur maximale (en valeur absolue) de l’intervalle Z : :math:`Z \\in [-z_{max}, z_{max}]`
+		:param mode:  Mode de visualisation : ``"curve"`` : σX vs σY (paramétré par Z), ``"cross"`` : σX(Z) et σY(Z), ``"slope"`` : σX(Z) - σY(Z)
+		:param n_points: Nombre de points utilisés pour échantillonner la courbe. Plus la valeur est élevée, plus la courbe est lisse (coût négligeable).
+		:return: Objet Plotly :class:`go.Figure <plotly.graph_objects.Figure>` prêt à être affiché.
 		:raises ValueError: Si les dimensions du modèle ne correspondent pas à celles attendues (2x5)
 		"""
 		if model.shape != SHAPE_MODEL: raise ValueError(f"Le modèle doit être de dimension {SHAPE_MODEL}.")
@@ -262,19 +275,36 @@ class Grapher:
 		sx = sigma_model(model[0], z, pixel_size, 1)
 		sy = sigma_model(model[1], z, pixel_size, 1)
 
-		fig.add_trace(go.Scatter(x=sx, y=sy, customdata=z,
-								 mode="markers", marker=dict(size=6, color=z, colorscale="Viridis", colorbar=dict(title="Z (nm)"), showscale=True),
-								 hovertemplate="σ(x:%{x:.3f}, y:%{y:.3f}) = %{customdata:.0f} nm<extra></extra>"))
+		if mode == "curve":
+			fig.add_trace(go.Scatter(x=sx, y=sy, customdata=z,
+									 mode="markers", marker=dict(size=6, color=z, colorscale="Viridis", colorbar=dict(title="Z (nm)"), showscale=True),
+									 hovertemplate="σ(x:%{x:.3f}, y:%{y:.3f}) = %{customdata:.0f} nm<extra></extra>"))
 
-		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, xaxis=self._axis_dict("Sigma X"), yaxis=self._axis_dict("Sigma Y"),
-						  hovermode="closest", showlegend=False)
+			fig.update_layout(xaxis=self._axis_dict("σX"), yaxis=self._axis_dict("σY"))
+		elif mode == "cross":
+			fig.add_trace(go.Scatter(x=z, y=sx, mode="lines", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="σx(%{x:.3f})=%{y:.3f}<extra></extra>"))
+			fig.add_trace(go.Scatter(x=z, y=sy, mode="lines", line=dict(color=_SEABORN_DEEP[1]), hovertemplate="σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
 
-		# fig.update_xaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
-		# fig.update_yaxes(showspikes=True, spikemode="across", spikesnap="cursor", spikecolor="gray", spikethickness=1)
+			if data is not None:
+				x, y, z = data.T
+				fig.add_trace(go.Scatter(x=z, y=x, mode="markers", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"), hoverinfo="skip"))
+				fig.add_trace(go.Scatter(x=z, y=y, mode="markers", marker=dict(color=_SEABORN_DEEP[1], size=6, symbol="circle"), hoverinfo="skip"))
+
+			fig.update_layout(xaxis=self._axis_dict("Z (nm)"), yaxis=self._axis_dict("σX/Y"))
+		elif mode == "slope":
+			fig.add_trace(go.Scatter(x=z, y=sx - sy, mode="lines", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="σx-σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
+
+			if data is not None:
+				x, y, z = data.T
+				fig.add_trace(go.Scatter(x=z, y=x - y, mode="markers", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"), hoverinfo="skip"))
+
+			fig.update_layout(xaxis=self._axis_dict("Z (nm)"), yaxis=self._axis_dict("σX - σY"))
+
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, hovermode="closest", showlegend=False)
 		return fig
 
 	# ==================================================
-	# endregion Misc Figure
+	# endregion Astigmtism Figure
 	# ==================================================
 
 	# ==================================================
