@@ -462,8 +462,8 @@ class PALMTracerWidget(QWidget):
 		# Affichage console (les notifications posent problème en thread externe)
 		l_past, l_present, l_future = map(lambda x: len(x) if x is not None else 0,
 										  (self._preview_locs.get("Past"), self._preview_locs.get("Present"), self._preview_locs.get("Future")))
-		print(f"Preview of {l_past + l_present + l_future} detected points ({l_present} on the current frame, "
-			  f"{l_past} on the previous frame, {l_future} on the next frame).")
+		print(f"Preview of plane {self.viewer.dims.current_step[0]} : {l_past + l_present + l_future} detected points "
+			  f"({l_present} on the current frame, {l_past} on the previous frame, {l_future} on the next frame).")
 
 	##################################################
 	def _auto_threshold(self):

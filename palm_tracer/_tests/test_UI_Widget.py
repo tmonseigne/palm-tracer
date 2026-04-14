@@ -138,7 +138,7 @@ def test_widget_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot
 		qtbot.waitUntil(lambda: setting["Preview"].value, timeout=5000)
 		my_widget._preview()  # .										Preview simple
 		lines = get_lines_output(capsys)
-		assert "Preview of 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in lines[-1]
+		assert "Preview of plane 4 : 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in lines[-1]
 
 
 ##################################################
