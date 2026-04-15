@@ -239,9 +239,9 @@ class PALMTracerWidget(QWidget):
 		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
 		Elle doit être appelée depuis le thread principal (GUI).
 		"""
+		# show_info("Thread Process done.")
 		self._processing = False
 		self._freeze_ui(False)
-		show_info("Thread Process done.")
 
 	##################################################
 	def _freeze_ui(self, on: bool) -> None:

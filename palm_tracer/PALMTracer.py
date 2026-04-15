@@ -403,8 +403,63 @@ class PALMTracer:
 		# Run command
 		self.df["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
+		# Estimation du Z.
+		if not self.df["loc"].empty and fit in (3, 4) and s["Gaussian Fit Z"]:
+			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]))
+
+			if model.empty:
+				self._logger.add("\tNo valid astigmatism model file for Z Estimation "
+								 "(by default, file must be in output folder or in same folder as the stack).")
+			else:
+				z_max = s["Gaussian Fit Z max"]
+				pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en nanomètres
+				points = self.df["loc"].loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
+				estimated_z = self.palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
+				self.df["loc"][["Z", "MSE Z"]] = estimated_z
+
 		self._logger.add(f"\tSaving the localization file ({len(self.df['loc'])} localization(s) found).")
 		self.df["loc"].to_csv(self._output_name(self.KEYS_TO_FILE["loc"]), index=False)
+
+	##################################################
+	def _get_astigmatism_model(self, path: Path) -> pd.DataFrame:
+		"""
+		Charge un modèle d'astigmatisme 3D depuis un fichier CSV.
+
+		La fonction tente de lire le fichier spécifié par ``path``.
+		Si ce chemin n'est pas valide, elle cherche automatiquement un fichier nommé ``astigmatism_3d_model.csv`` dans :
+		le dossier ``self._path``, puis dans le dossier parent de ``self._path``.
+
+		Si aucun fichier valide n'est trouvé, ou si le fichier est invalide, une DataFrame vide est retournée.
+
+		:param path: Chemin vers un fichier CSV contenant le modèle d'astigmatisme.
+		:return: DataFrame contenant le modèle si valide, sinon une DataFrame vide.
+		:raises Exception: Aucune exception n'est propagée. En cas d'erreur de lecture, un message est affiché via ``Ui.print_error``.
+
+		.. note::
+			Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
+			Si ce n'est pas le cas, le modèle est considéré comme invalide.
+
+		.. tip::
+			Permet de rendre l'appel robuste en cas de chemin utilisateur invalide,
+			en utilisant automatiquement des emplacements par défaut du projet.
+		"""
+		res = pd.DataFrame()
+		final_path = Path(path)
+
+		if not final_path.is_file():
+			model_name = "astigmatism_3d_model.csv"
+			_path = Path(self._path)
+			final_path = _path / model_name
+			if not final_path.is_file():
+				final_path = _path.parent / model_name
+				if not final_path.is_file(): return pd.DataFrame()
+
+		try:
+			res = pd.read_csv(final_path, index_col=0)
+			if res.shape != Parsing.SHAPE_MODEL: return pd.DataFrame()
+		except Exception as e: Ui.print_error(f"Unable to read the model file: {e}.")
+
+		return res
 
 	##################################################
 	def _beads_extraction(self):

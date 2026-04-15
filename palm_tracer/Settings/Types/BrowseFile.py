@@ -7,8 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFileDialog, QLineEdit, QPushButton
-
+from qtpy.QtWidgets import QFileDialog, QLineEdit, QPushButton, QApplication, QStyle
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 
 
@@ -35,13 +34,13 @@ class BrowseFile(BaseSettingType):
 		super().initialize()  # .							  Appelle l'initialisation de la classe mère
 		self._box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
 
-		browse_button = QPushButton("Choisir un fichier")  # .Ajout d'un bouton pour permettre de choisir le fichier
+		browse_button = QPushButton()  # .					  Ajout d'un bouton pour permettre de choisir le fichier
+		browse_button.setIcon(QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon))
 		browse_button.clicked.connect(self.browse_file)  # .  Connexion du bouton à la méthode de sélection
 
 		# Disposer le QLineEdit et le bouton dans un calque horizontal
 		self._layout.addWidget(self._box)  # .				  Ajout du champ de texte
 		self._layout.addWidget(browse_button)  # .			  Ajout du bouton de sélection
-		self._layout.addStretch(1)  # .						  Pousse tout à gauche, espace vide à droite
 
 	# ==================================================
 	# endregion Initialization

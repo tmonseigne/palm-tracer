@@ -54,8 +54,8 @@ class Localization(BaseSettingGroup):
 		super().initialize_ui()
 		self._settings["Gaussian Fit"].remove_header()
 		self._settings["Spline Fit"].remove_header()
-		self._settings["Spline Fit"].hide()
 		self._settings["Fit"].connect(self.toggle_fit_mode)
+		self.toggle_fit_mode(self._settings["Fit"].value)
 
 	##################################################
 	def toggle_fit_mode(self, mode):

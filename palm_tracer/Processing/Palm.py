@@ -403,7 +403,7 @@ class Palm:
 		n = len(sigmas)
 		s = self._as_c_contig(sigmas, np.dtype(np.float64), writeable=False)
 		m = self._as_c_contig(model, np.dtype(np.float64), writeable=False)
-		out = np.empty((n,), dtype=np.float64, order="C")
+		out = np.empty((n, 2), dtype=np.float64, order="C")
 		self._dll.Astigmatism3DEstimation(s.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size),
 										  m.ctypes.data_as(C_TAB), C_DBL(z_max))
 
