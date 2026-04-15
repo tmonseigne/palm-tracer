@@ -404,7 +404,7 @@ class PALMTracer:
 		self.df["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
 		# Estimation du Z.
-		if fit in (3, 4) and s["Gaussian Fit Z"]:
+		if not self.df["loc"].empty and fit in (3, 4) and s["Gaussian Fit Z"]:
 			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]))
 
 			if model.empty:
@@ -415,7 +415,7 @@ class PALMTracer:
 				pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en nanomètres
 				points = self.df["loc"].loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
 				estimated_z = self.palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
-				self.df["loc"]["Z"] = estimated_z
+				self.df["loc"][["Z", "MSE Z"]] = estimated_z
 
 		self._logger.add(f"\tSaving the localization file ({len(self.df['loc'])} localization(s) found).")
 		self.df["loc"].to_csv(self._output_name(self.KEYS_TO_FILE["loc"]), index=False)

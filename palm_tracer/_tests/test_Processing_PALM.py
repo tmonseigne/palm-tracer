@@ -311,7 +311,12 @@ def test_astigmatism_3d_estimation():
 	model = pd.read_csv(REF_DIR / "astigmatism_3d_model.csv", index_col=0)
 	res = palm.astigmatism_3d_estimation(points[:, :-1], 200, model.to_numpy(), 460)
 	ref = localizations["Z"].to_numpy()
+
 	# Vérification que Z est trié en ordre décroissant
-	assert np.all(ref[:-1] >= ref[1:]), "Le fichier contient les éléments Z en ordre décroissant, le résultat doit donc être dans le même ordre."
+	assert np.all(res[:-1, 0] >= res[1:, 0]), "Le fichier contient les éléments Z en ordre décroissant, le résultat doit donc être dans le même ordre."
+
 	# Vérification très permissive (arrondi et estimateurs sont les fautifs)
-	assert np.allclose(res, ref, atol=40, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+	assert np.allclose(res[:, 0], ref, atol=40, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res[:, 0]}"
+
+	# Vérification de l'erreur maximale en pixel²
+	assert np.max(res[:, 1]) < 0.15, f"Résultat incorrect.\tAttendu : 0.15\tObtenu : {np.max(res[:, 1])}"
