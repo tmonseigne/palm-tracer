@@ -163,3 +163,25 @@ def test_model_projection_validity():
 	ref = {'rmse_z': 763.52, 'mae_z': 749.6, 'p95_abs_z': 975.01, 'bias_z': 20.6, 'std_z': 763.24, 'mean_dist': 1.59, 'p95_dist': 2.27, "slope_mean": 0.0015}
 	print(res)
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
+
+
+##################################################
+def test_find_model_center():
+	"""Test basique pour find_model_center."""
+	res = find_model_center(REF_MODEL, Z_MAX, PIXEL_SIZE)
+	ref = 21.3895675
+	assert np.isclose(res, ref, 1e-6)
+	model = REF_MODEL.copy()
+	model[0, 0] -= res
+	model[1, 0] -= res
+	res = find_model_center(model, Z_MAX, PIXEL_SIZE)
+	assert np.isclose(res, 0, 1e-6)
+
+	model_no_sign_change = np.array([[0.0, 300.0, 0.0, 0.0, 200.0], [0.0, 300.0, 0.0, 0.0, 250.0]], dtype=np.float64)
+	res = find_model_center(model_no_sign_change, Z_MAX, PIXEL_SIZE)
+
+	model_easy_0 = np.array([[0.0, 300.0, 0.0, 0.0, 240.0], [0.0, 300.0, 0.0, 0.0, 240.0]], dtype=np.float64)
+	res = find_model_center(model_easy_0, 1024, 1)
+
+	model_bisection_no_exact_zero = np.array([[-123.41678443, 350.5466747, 0.687, 0.439, 240.456], [210, 350, 0, 0, 240], ], dtype=np.float64)
+	res = find_model_center(model_bisection_no_exact_zero, 100, 1)

@@ -387,6 +387,38 @@ def test_compute_center_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
+def test_compute_bad_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Test basique de lancement de la calibration"""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Chargement du fichier de localisation
+	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert "Selected file: " in lines[0]
+	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
+	assert not w._loc.empty
+
+	w._loc["Sigma X"] = rng.normal(loc=1.0, scale=1.0, size=len(w._loc))
+	w._loc["Sigma Y"] = rng.normal(loc=1.0, scale=1.0, size=len(w._loc))
+
+	# Lancement du calcul
+	w._spin_px_compute.setValue(0.2)
+	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert len(lines) == 17  # 4 par modèle affiché + 4 lignes Fail Calibration + ligne finale
+	assert "Model saved successfully." in lines[-1]
+
+	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
+
+	w.close()
+
+
+##################################################
 def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique de lancement de l'estimation sans fichier chargé."""
 	w = Astigmatism3DWidget()

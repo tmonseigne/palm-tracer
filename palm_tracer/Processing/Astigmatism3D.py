@@ -95,7 +95,7 @@ def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 
 
 ##################################################
-def sigma_model(model: np.ndarray, z: np.ndarray, pixel_size: float, sampling: float = 1) -> np.ndarray:
+def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sampling: float = 1) -> np.ndarray | float:
 	"""Modèle astigmatique sigma(z).
 
 	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
@@ -223,3 +223,56 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 			# Pente
 			"slope_mean": float(np.mean(np.abs(ds)))
 			}
+
+
+##################################################
+def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> float:
+	"""
+	Recherche la position axiale pour laquelle les deux sigmas astigmatiques sont les plus proches.
+
+	La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter :
+	- soit un zéro exact de la différence entre les deux courbes de sigma ;
+	- soit un changement de signe, auquel cas une bissection locale est appliquée ;
+	- soit, à défaut, la position minimisant la valeur absolue de cette différence.
+
+	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
+	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
+	:return: Position axiale estimée du centre astigmatique.
+	"""
+	z_min = -z_max
+	n_samples, n_bisect = 2048, 64
+
+	z_values: np.ndarray = np.linspace(z_min, z_max, n_samples, dtype=float)
+	delta_values: np.ndarray = sigma_model(model[0], z_values, pixel_size, 1.0) - sigma_model(model[1], z_values, pixel_size, 1.0)
+
+	# Meilleure solution brute au sens |delta|.
+	abs_delta = np.abs(delta_values)
+	best_index = int(np.argmin(abs_delta))
+	best_z, best_d = z_values[best_index], abs_delta[best_index]
+
+	# Recherche d'un zéro exact.
+	zero_indices = np.flatnonzero(delta_values == 0.0)
+	if zero_indices.size > 0: return z_values[int(zero_indices[0])]
+
+	# Recherche d'un changement de signe entre deux échantillons successifs.
+	sign_change_indices = np.flatnonzero((delta_values[:-1] < 0.0) != (delta_values[1:] < 0.0))
+	if sign_change_indices.size == 0: return best_z
+
+	# On affine le premier intervalle contenant un changement de signe.
+	idx = int(sign_change_indices[0])
+	left_z, right_z, left_d = z_values[idx], z_values[idx + 1], delta_values[idx]
+
+	def delta(z: float) -> float: return sigma_model(model[0], z, pixel_size, 1.0) - sigma_model(model[1], z, pixel_size, 1.0)
+
+	for i in range(n_bisect):
+		mid_z = 0.5 * (left_z + right_z)
+		mid_d = delta(mid_z)
+
+		abs_mid_d = abs(mid_d)
+		if abs_mid_d < best_d: best_d, best_z = abs_mid_d, mid_z
+		if mid_d == 0.0: return mid_z
+		if (left_d < 0.0) != (mid_d < 0.0): right_z = mid_z
+		else: left_z, left_d = mid_z, mid_d
+
+	return best_z

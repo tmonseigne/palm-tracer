@@ -17,7 +17,7 @@ import pandas as pd
 from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
 from palm_tracer.Processing import Palm
-from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, remove_multi_beads
+from palm_tracer.Processing.Astigmatism3D import find_model_center, model_projection_validity, model_validity, remove_multi_beads
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, SHAPE_MODEL
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
@@ -456,6 +456,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			Ui.print_warning("Can't Compute model without correct file loaded.")
 			return
 
+		z_max = self._spin_z_compute.value()
 		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 
 		work = self._loc.copy()
@@ -468,6 +469,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			work["Z"] = work["Plane"] * self._spin_z_interval.value()
 
 		if self._check_z_flip.isChecked(): work["Z"] *= -1
+
+		default_w = (work["Z"].max() - work["Z"].min()) / 4
 
 		# --- Suppression des artefacts ou autres billes ---
 		if self._check_only_one.isChecked(): work = remove_multi_beads(work)
@@ -483,15 +486,23 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		for i in range(len(beads)):
 			models.append(self._palm.astigmatism_3d_calibration(beads[i], pixel_size, self._check_z_center.isChecked()))
 			print(f"Model for bead {i + 1}:\n{models[-1]}")
+			for axis in range(2):
+				if np.allclose(models[-1].iloc[axis, 1:4], (default_w, 0, 0), atol=1e-6):
+					Ui.print_warning(f"\tModel Calibration keep initial state on axis {MODEL_ROWS[axis]}.")
 
 		if len(models) == 1: self._model = models[0].copy()
 		else:
+			# Moyenne des modèles
 			mean_model = np.stack([model.to_numpy(dtype=float, copy=True) for model in models], axis=0).mean(axis=0)
+			# Recentrage du modèle
+			if self._check_z_center.isChecked():
+				model_center = find_model_center(mean_model, z_max, pixel_size)
+				mean_model[0][0] -= model_center
+				mean_model[1][0] -= model_center
 			self._model = pd.DataFrame(mean_model, columns=FILES_COLUMNS["Astigmatism 3D Model"]["columns"], index=MODEL_ROWS)
 			print(f"Average model:\n{self._model}")
 
 		# --- Mise à jour du Z dans loc ---
-		z_max = self._spin_z_estimate.value()
 		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
 		self._loc[["Z", "MSE Z"]] = estimated_z
