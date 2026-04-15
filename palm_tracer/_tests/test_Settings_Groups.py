@@ -174,7 +174,20 @@ def test_localization(qtbot):
 ###################################################
 def test_gaussian_fit(qtbot):
 	"""Test basique de la classe GaussianFit (constructeur, getter, setter)"""
-	group_base_test(GaussianFit(), ["Mode", "Sigma", "Theta"], Combo, 2, 0)
+	grp = GaussianFit()
+	group_base_test(grp, ["Mode", "Sigma", "Theta", 'Z', 'Z max', 'Model'], Combo, 2, 0)
+	assert grp["Z"].box.isHidden()
+	grp["Mode"].value = 2
+	assert not grp["Z"].box.isHidden()  # Ne pas utiliser isVisible, car cela demande visible à l'écran et dans les tests unitaires, c'est particulier.
+	grp["Z"].value = True
+	assert not grp["Z max"].box.isHidden()
+	grp["Z"].value = False
+	assert grp["Z max"].box.isHidden()
+	grp["Z"].value = True
+	assert not grp["Z max"].box.isHidden()
+	grp["Mode"].value = 0
+	assert grp["Z"].box.isHidden()
+	assert grp["Z max"].box.isHidden()
 
 
 ###################################################
