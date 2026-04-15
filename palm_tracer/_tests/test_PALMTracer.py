@@ -390,7 +390,7 @@ def test_process_multiple_stack(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_localization(qtbot, capsys, pt):
+def test_process_localization(qtbot, capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
 
@@ -403,7 +403,30 @@ def test_process_only_localization(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_localization_spline_bad(qtbot, capsys, pt):
+def test_process_localization_z(qtbot, capsys, pt):
+	"""Test pour le process de localisation."""
+	clean_output()
+
+	add_basic_file(pt)
+	pt.settings.localization.active = True
+	pt.settings.localization["Fit"].value = 1
+	s = pt.settings.localization["Gaussian Fit"]
+	s["Mode"].value = 2
+	s["Z"].value = True
+	pt.process()  # Lancement, mais aucun fichier de model.
+
+	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 22, [(True, 5), (False, 8), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
+
+	s["Model"].value = str(REF_DIR / "astigmatism_3d_model.csv")
+	pt.process()  # Lancement
+
+	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
+
+
+##################################################
+def test_process_localization_spline_bad(qtbot, capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
 
@@ -419,7 +442,7 @@ def test_process_only_localization_spline_bad(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_localization_spline(qtbot, capsys, pt):
+def test_process_localization_spline(qtbot, capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
 
@@ -434,7 +457,7 @@ def test_process_only_localization_spline(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_beads_extraction_no_beads(qtbot, capsys, pt):
+def test_process_beads_extraction_no_beads(qtbot, capsys, pt):
 	"""Test pour le process de l'extraction des billes."""
 	clean_output()
 
@@ -466,7 +489,7 @@ def test_process_plane_discontinuous(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_beads_extraction(qtbot, capsys, pt):
+def test_process_beads_extraction(qtbot, capsys, pt):
 	"""Test pour le process de l'extraction des billes."""
 	clean_output()
 
@@ -485,7 +508,7 @@ def test_process_only_beads_extraction(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_tracking(qtbot, capsys, pt):
+def test_process_tracking(qtbot, capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
 
@@ -507,7 +530,7 @@ def test_process_only_tracking(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_tracking_blinking(qtbot, capsys, pt):
+def test_process_tracking_blinking(qtbot, capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
 
@@ -526,7 +549,7 @@ def test_process_only_tracking_blinking(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_tracks_compute(qtbot, capsys, pt):
+def test_process_tracks_compute(qtbot, capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
 
@@ -561,7 +584,7 @@ def test_process_only_tracks_compute(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_visualization_hr(qtbot, capsys, pt):
+def test_process_visualization_hr(qtbot, capsys, pt):
 	"""Test pour le process de visualization HR."""
 	clean_output()
 
@@ -592,7 +615,7 @@ def test_process_only_visualization_hr(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_visualization_graph(qtbot, capsys, pt):
+def test_process_visualization_graph(qtbot, capsys, pt):
 	"""Test pour le process de visualization de graph."""
 	clean_output()
 
@@ -614,7 +637,7 @@ def test_process_only_visualization_graph(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_only_gallery(qtbot, capsys, pt):
+def test_process_gallery(qtbot, capsys, pt):
 	"""Test pour le process de visualization HR."""
 	clean_output()
 
@@ -951,3 +974,30 @@ def test_add_color(qtbot, capsys, pt):
 
 	lines = get_lines_output(capsys)
 	assert len(lines) == 16  # Beaucoup de warnings dû à l'ajout dans un logger non ouvert
+
+
+##################################################
+def test_get_astigmatism_model(qtbot, capsys, pt):
+	tmp_output = OUTPUT_DIR / "Model"
+	shutil.rmtree(tmp_output, ignore_errors=True)
+	tmp_output.mkdir(parents=True, exist_ok=True)
+	model_file = "astigmatism_3d_model.csv"
+	ref = pd.read_csv(REF_DIR / model_file, index_col=0)
+	(tmp_output / model_file).unlink(missing_ok=True)
+	(tmp_output.parent / model_file).unlink(missing_ok=True)
+
+	pt._path = tmp_output
+
+	model = pt._get_astigmatism_model(Path(""))  # Il ne va pas reussir, il n'a aucun fichier
+	assert model.empty
+
+	shutil.copy2(REF_DIR / model_file, tmp_output.parent / model_file)
+	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dnas le dernier dossier par défaut
+	assert np.allclose(model.to_numpy(), ref.to_numpy(), atol=1e-6)
+
+	shutil.copy2(REF_DIR / model_file, tmp_output / model_file)
+	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dnas le premier dossier par défaut
+	assert np.allclose(model.to_numpy(), ref.to_numpy(), atol=1e-6)
+
+	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va reussir, dans le chemin donné
+	assert np.allclose(model.to_numpy(), ref.to_numpy(), atol=1e-6)
