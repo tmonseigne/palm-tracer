@@ -1,6 +1,5 @@
 """Fichier des tests pour le widget."""
 
-import pytest
 from qtpy.QtCore import QEvent, Qt
 from qtpy.QtGui import QKeyEvent
 from qtpy.QtWidgets import QSpinBox
@@ -91,17 +90,17 @@ def test_widget_add_detection_layers(make_napari_viewer, patched_napari_viewer, 
 	qtbot.waitUntil(lambda: not my_widget._processing, timeout=5000)
 
 	# Ajout avec des tableaux normaux.
-	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
+	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS, "Filtered": POINTS}
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Present" in layers, timeout=5000)
 
 	# Ajout avec des calques existants et un futur vide.
-	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": None}
+	my_widget._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": np.empty(0), "Filtered": np.empty(0)}
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Future" not in layers, timeout=5000)
 
 	# Ajout avec un tableau vide et rien en passé et future.
-	my_widget._preview_locs = {"Past": np.zeros((2, 0)), "Present": POINTS, "Future": None}
+	my_widget._preview_locs = {"Past": np.zeros((2, 0)), "Present": POINTS, "Future": np.empty(0), "Filtered": np.empty(0)}
 	my_widget._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Past" not in layers, timeout=5000)
 

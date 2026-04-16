@@ -38,7 +38,7 @@ class FilteringL(BaseSettingGroup):
 	setting_list = {
 			"X":           [CheckRangeInt, ["X", "", [0, 100000], [0, 100000]]],
 			"Y":           [CheckRangeInt, ["Y", "", [0, 100000], [0, 100000]]],
-			"Z":           [CheckRangeInt, ["Z", "", [-1000, 1000], [-1000, 1000]]],
+			"Z":           [CheckRangeInt, ["Z", "", [-2000, 2000], [-2000, 2000]]],
 			"Intensity":   [CheckRangeInt, ["Intensity", "", [0, 10000000], [0, 10000000]]],
 			"Sigma X":     [CheckRangeFloat, ["Sigma X", "", [0, 10], [0, 10]]],
 			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", "", [0, 10], [0, 10]]],
