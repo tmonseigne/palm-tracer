@@ -257,3 +257,38 @@ def test_drift_correction():
 						[4, 0.25, 0.25, 0], [4, 12.25, 9.25, 10], [4, 19.25, 22.25, 20], [4, 29.25, 29.25, 30]],  # P4
 					   columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
 	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
+def test_median_filter_centered():
+	"""Test du lissage d'un drift."""
+	# 1D
+	df = np.array([10.0, 11.0, 50.0, 12.0, 13.0, 14.0])
+	res = median_filter_centered(df, size=5)
+	ref = np.array([11.0, 11.5, 12.0, 13.0, 13.5, 13.0])
+	assert np.allclose(res, ref, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
+
+	# 2D
+	df = np.array([[10.0, 100.0, 1000.0], [11.0, 101.0, 1001.0], [50.0, 102.0, 2000.0], [12.0, 103.0, 1003.0], [13.0, 104.0, 1004.0]])
+	res = median_filter_centered(df, size=5)
+	ref = np.array([[11, 101, 1001], [11.5, 101.5, 1002], [12, 102, 1003], [12.5, 102.5, 1003.5], [13, 103, 1004]])
+	assert np.allclose(res, ref, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
+
+	# Dataframe
+	df = pd.DataFrame([[10, 100, 1000], [11, 101, 1001], [50, 102, 2000], [12, 103, 1003], [13, 104, 1004]], columns=['X', 'Y', 'Z'], dtype=float)
+	res = median_filter_centered(df, size=5)
+	ref = pd.DataFrame([[11, 101, 1001], [11.5, 101.5, 1002], [12, 102, 1003], [12.5, 102.5, 1003.5], [13, 103, 1004]], columns=['X', 'Y', 'Z'], dtype=float)
+	assert res.equals(ref), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
+
+	# Bonnes dimensions, mais aucune ligne
+	df = np.ones((0, 2))
+	res = median_filter_centered(df)
+	assert np.allclose(res, df, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
+
+	# Mauvaise taille de médiane
+	df = np.ones((2, 2))
+	with pytest.raises(ValueError) as exception_info: median_filter_centered(df, 4)
+
+	# tableau 3D
+	df = np.ones((2, 2, 2))
+	with pytest.raises(ValueError) as exception_info: median_filter_centered(df)
