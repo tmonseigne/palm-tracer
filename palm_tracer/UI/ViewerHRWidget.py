@@ -308,7 +308,9 @@ class ViewerHRWidget(QWidget):
 				return data
 			# Application de la correction de drift
 			drift = Drift.get_drift(beads, is_3d=False)
-			return Drift.apply_drift(data, drift, is_3d=False)
+			smooth = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
+			drift[["X", "Y", "Z"]] = smooth
+			return Drift.remove_drift(data, drift, is_3d=False)
 		return data
 
 	##################################################

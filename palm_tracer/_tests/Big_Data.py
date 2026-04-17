@@ -2,7 +2,7 @@
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
-from palm_tracer.Processing.Drift import apply_drift, extract_beads, get_drift
+from palm_tracer.Processing.Drift import remove_drift, extract_beads, get_drift
 from palm_tracer.Tools import FileIO, Ui
 
 # TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
@@ -115,7 +115,7 @@ def test_drift():
 	beads = beads[beads["Bead"] == 1]
 	drift = get_drift(beads, False)
 	if save_output: drift.to_csv(f"{OUTPUT_DIR}/{FILE}-drift.csv", index=False)
-	corrected_beads = apply_drift(beads, drift, False)
+	corrected_beads = remove_drift(beads, drift, False)
 	if save_output: corrected_beads.to_csv(f"{OUTPUT_DIR}/{FILE}-corrected_beads.csv", index=False)
 	drift = get_drift(corrected_beads, False)
 	assert np.allclose(drift[["X", "Y", "Z"]].to_numpy(), 0)

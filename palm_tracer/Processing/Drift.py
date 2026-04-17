@@ -258,7 +258,7 @@ def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 
 
 ##################################################
-def apply_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
+def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
 	Applique une correction de drift à un DataFrame de points.
 
@@ -322,4 +322,47 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 
 	beads = extract_beads(data, max_distance=max_distance, is_3d=is_3d, strict=strict, k=k)
 	drift = get_drift(beads, is_3d=is_3d)
-	return beads, apply_drift(data, drift, is_3d=is_3d)
+	return beads, remove_drift(data, drift, is_3d=is_3d)
+
+
+##################################################
+def median_filter_centered(data: np.ndarray, size: int = 5) -> np.ndarray:
+	"""
+	Applique un filtre médian centré sur un signal 1D ou sur un tableau 2D ``(nb_points, nb_axes)``.
+
+	Le filtrage est effectué indépendamment sur chaque axe. Aux bords, la fenêtre est tronquée aux échantillons disponibles.
+
+	Exemples pour ``size = 5`` :
+
+	- indice 0  ⇾ médiane sur les 3 premiers (indices [0:3])
+	- indice 1  ⇾ médiane sur les 4 premiers (indices [0:4])
+	- indice 2  ⇾ médiane sur les 5 premiers (indices [0:5])
+	- ...
+	- avant-dernier ⇾ médiane sur les 4 derniers
+	- dernier       ⇾ médiane sur les 3 derniers
+
+	:param data: Signal à filtrer. Si ``data`` est 1D, la forme attendue est ``(nb_points,)``.
+				 Si ``data`` est 2D, la forme attendue est ``(nb_points, nb_axes)``.
+	:param size: Taille de la fenêtre médiane. Doit être un entier impair strictement positif.
+	:return: Tableau filtré de type ``float64`` et de même forme que l'entrée.
+	:raises ValueError: Levée si ``size`` n'est pas un entier impair strictement positif.
+	"""
+	if size <= 0 or size % 2 == 0: raise ValueError(f"'size' doit être un entier impair strictement positif, mais vaut {size}.")
+
+	is_1d = data.ndim == 1
+
+	if data.ndim == 1: work = data[:, np.newaxis]
+	elif data.ndim == 2: work = data
+	else: raise ValueError(f"'data' doit être un tableau 1D ou 2D, mais a {data.ndim} dimensions.")
+
+	nb_points = work.shape[0]
+	if nb_points == 0: return data.copy()
+
+	half_window = size // 2
+	result = np.empty_like(work)
+
+	for idx in range(nb_points):
+		start, end = max(0, idx - half_window), min(nb_points, idx + half_window + 1)
+		result[idx] = np.nanmedian(work[start:end], axis=0)
+
+	return result[:, 0] if is_1d else result

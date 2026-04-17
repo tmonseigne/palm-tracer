@@ -188,22 +188,23 @@ def test_get_drift():
 ##################################################
 def test_apply_drift_bad_input():
 	"""Test de la récupération du déplacement avec des entrées incorrectes."""
-	res = apply_drift(pd.DataFrame(), pd.DataFrame())
+	res = remove_drift(pd.DataFrame(), pd.DataFrame())
 	assert res.empty
 
 	df = pd.DataFrame([[1, 2], [3, 4]])
-	with pytest.raises(ValueError) as exception_info: apply_drift(df, df)
+	with pytest.raises(ValueError) as exception_info: remove_drift(df, df)
 	assert exception_info.type == ValueError
 	assert str(exception_info.value) == "Missing columns in data: ['Plane', 'X', 'Y', 'Z']."
 
 	df2 = pd.DataFrame([[1, 2, 3, 4], [5, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z'])
-	with pytest.raises(ValueError) as exception_info: apply_drift(df2, df)
+	with pytest.raises(ValueError) as exception_info: remove_drift(df2, df)
 	assert exception_info.type == ValueError
 	assert str(exception_info.value) == "Missing columns in data: ['Plane', 'X', 'Y', 'Z']."
 
 
 ##################################################
-def test_apply_drift():
+def test_remove_drift():
+	"""Test de la suppression du drift."""
 	df = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],  # P1 : drift 0
 					   [2, 1, 1, 0], [2, 1, 0, 0], [2, 0, 1, 0], [2, 1, 0, 0],  # .				P2 : drift [1, 2, 3]]
 					   [3, 1, 1, 0], [3, 2, 0, 0], [3, 0, 2, 0], [3, 1, 1, 0],  # .				P3 : drift [2, 1, 0]]
@@ -211,7 +212,7 @@ def test_apply_drift():
 					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
 	drift = pd.DataFrame([[2, 1, 2, 3], [3, 2, 1, 0], [4, -3, -2, -1]], columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
 
-	res = apply_drift(df, drift, True)
+	res = remove_drift(df, drift, True)
 	ref = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],
 						[2, 0, -1, -3], [2, 0, -2, -3], [2, -1, -1, -3], [2, 0, -2, -3],
 						[3, -2, -2, -3], [3, -1, -3, -3], [3, -3, -1, -3], [3, -2, -2, -3],
@@ -219,7 +220,7 @@ def test_apply_drift():
 					   columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
 	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
-	res = apply_drift(df, drift, False)
+	res = remove_drift(df, drift, False)
 	ref = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],
 						[2, 0, -1, 0], [2, 0, -2, 0], [2, -1, -1, 0], [2, 0, -2, 0],
 						[3, -2, -2, 0], [3, -1, -3, 0], [3, -3, -1, 0], [3, -2, -2, 0],
@@ -234,7 +235,7 @@ def test_chain_drift():
 	bead = pd.DataFrame([[1, 1, 1, 1, 1], [1, 2, 0, 1, 0], [1, 3, 1, 0, 0], [1, 4, 1, 1, 2]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	drift = get_drift(bead, True)
 
-	new_bead = apply_drift(bead, drift, True)
+	new_bead = remove_drift(bead, drift, True)
 	assert np.allclose(new_bead[["X", "Y", "Z"]].to_numpy(), 1)
 
 	new_drift = get_drift(new_bead, True)
@@ -256,3 +257,32 @@ def test_drift_correction():
 						[4, 0.25, 0.25, 0], [4, 12.25, 9.25, 10], [4, 19.25, 22.25, 20], [4, 29.25, 29.25, 30]],  # P4
 					   columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
 	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
+def test_median_filter_centered():
+	"""Test du lissage d'un drift."""
+	# 1D
+	df = np.array([10.0, 11.0, 50.0, 12.0, 13.0, 14.0])
+	res = median_filter_centered(df, size=5)
+	ref = np.array([11.0, 11.5, 12.0, 13.0, 13.5, 13.0])
+	assert np.allclose(res, ref, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
+
+	# 2D
+	df = np.array([[10.0, 100.0, 1000.0], [11.0, 101.0, 1001.0], [50.0, 102.0, 2000.0], [12.0, 103.0, 1003.0], [13.0, 104.0, 1004.0]])
+	res = median_filter_centered(df, size=5)
+	ref = np.array([[11, 101, 1001], [11.5, 101.5, 1002], [12, 102, 1003], [12.5, 102.5, 1003.5], [13, 103, 1004]])
+	assert np.allclose(res, ref, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
+
+	# Bonnes dimensions, mais aucune ligne
+	df = np.ones((0, 2))
+	res = median_filter_centered(df)
+	assert np.allclose(res, df, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
+
+	# Mauvaise taille de médiane
+	df = np.ones((2, 2))
+	with pytest.raises(ValueError) as exception_info: median_filter_centered(df, 4)
+
+	# tableau 3D
+	df = np.ones((2, 2, 2))
+	with pytest.raises(ValueError) as exception_info: median_filter_centered(df)

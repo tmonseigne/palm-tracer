@@ -4,6 +4,7 @@ import shutil
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
+from palm_tracer.Processing import Parsing
 from palm_tracer.UI import ViewerHRWidget
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
@@ -194,33 +195,44 @@ def test_generate_drift(make_napari_viewer, patched_napari_viewer, qtbot, capsys
 
 	# Sans localization la sortie sera entièrement noire.
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+	w.upscale_spin.value = 2
 	upscale = w.upscale_spin.value
 	shape = (128 * upscale, 256 * upscale)
 	ref = np.zeros(shape)
-	np.allclose(ref, w.visualization)
+	assert np.allclose(ref, w.visualization)
 
 	# Sortie avec le fichier de localisation, mais pas de billes.
 	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
 	_ = get_lines_output(capsys)  # Nettoyage de la sortie
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
-	assert "WARNING: No beads file available to correct drift." in lines[0]  # dernière ligne, car il peut y avoir un warning lors de la suppression des calques
+	assert "WARNING: No beads file available to correct drift." in lines[0]  # dernière ligne, car possible warning lors de la suppression des calques
 
 	ref = np.zeros(shape)
 	ref[4, 2] = 2
 	ref[6, 4] = 2
 	ref[8, 6] = 1
 	ref[10, 8] = 1
-	np.allclose(ref, w.visualization)
+	assert np.allclose(ref, w.visualization)
 
-	# Sortie avec le fichier de localisation et un fichier de billes.
-	pt.df["bds"] = pd.read_csv(INPUT_DIR / "beads.csv")
+	# Sortie avec le fichier de localisation et un fichier de billes contenant une valeur abhérrante
+	pt.df["bds"] = pd.DataFrame(
+			[[1, 1, 1, 1, 2, 3, 1, 1, 1, 0, 1],
+			 [1, 2, 2, 2, 3, 4, 1, 1, 1, 0, 1],
+			 [1, 3, 3, 50, 3, 4, 1, 1, 1, 0, 1],
+			 [1, 4, 4, 4, 3, 4, 1, 1, 1, 0, 1],
+			 [1, 5, 5, 5, 3, 4, 1, 1, 1, 0, 1]],
+			columns=Parsing.FILES_COLUMNS["Beads"]["columns"])
+	pt.df["loc"] = pd.DataFrame(
+			[[1, 1, 1, -1, 0, 0, 0, 1, 0, 0, 0, -1, -1, 0, 0, 1, 1, 1],
+			 [2, 2, 2, -1, 1, 0, 0, 1, 0, 0, 0, -1, -1, 0, 0, 1, 1, 1],
+			 [3, 3, 3, -1, 2, 0, 0, 1, 0, 0, 0, -1, -1, 0, 0, 1, 1, 1],
+			 [4, 4, 4, -1, 3, 0, 0, 1, 0, 0, 0, -1, -1, 0, 0, 1, 1, 1],
+			 [5, 5, 5, -1, 4, 0, 0, 1, 0, 0, 0, -1, -1, 0, 0, 1, 1, 1]],
+			columns=Parsing.FILES_COLUMNS["Localization"]["columns"])
+
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
 
 	ref = np.zeros(shape)
-	ref[2, 1] = 1
-	ref[4, 2] = 1
-	ref[6, 4] = 2
-	ref[8, 6] = 1
-	ref[10, 8] = 1
-	np.allclose(ref, w.visualization)
+	ref[0, 0] = 5
+	assert np.allclose(ref, w.visualization, atol=0)
