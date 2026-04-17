@@ -21,7 +21,7 @@ from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QV
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Drift, Renderer
 from palm_tracer.Settings.Groups import Filtering
-from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
+from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinFloat, SpinInt
 from palm_tracer.Tools import FileIO, Ui
 
 # ==================================================
@@ -34,17 +34,22 @@ DATA_SRC: dict[str, list] = {
 		}
 
 TIPS = {
-		"Add Stack":        "Add a stack to the batch and load the latest results for it.\n"
-							"Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
+		"Add Stack":         "Add a stack to the batch and load the latest results for it.\n"
+							 "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
 
-		"Source":           "Data selected for Graph.",
-		"Gaussian":         "",
-		"Fixed Intensity":  "",
-		"Drift Correction": "",
+		"Source":            "Data selected for Graph.",
+		"Color Mode":        "",
+		"Gaussian":          "",
+		"G Intensity":       "",
+		"G Fixed Intensity": "",
+		"G Shape":           "",
+		"G Size":            "",
+		"Upscale Ratio":     "",
+		"Drift Correction":  "",
 
-		"Actualize":        "Updates files/data from PALMTracer status.",
-		"Generate":         "Generate HR Visualization.",
-		"Save":             "Opens a dialog box and save the visualization generated.",
+		"Actualize":         "Updates files/data from PALMTracer status.",
+		"Generate":          "Generate HR Visualization.",
+		"Save":              "Opens a dialog box and save the visualization generated.",
 		}
 
 
@@ -121,27 +126,31 @@ class ViewerHRWidget(QWidget):
 
 		# --- Bloc Sources ---
 		grp_source = QGroupBox("Source")
+		form = Ui.make_form(grp_source)
+		Ui.init_layout(form, margin=10)
 
 		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Localization", "Tracks"])
 
-		form = Ui.make_form(grp_source)
-		Ui.init_layout(form, margin=10)
-		form.addRow(h)
-		# Combo box
 		self._cmb_src = Combo("Source", TIPS["Source"])
 		self._cmb_src.box.setMinimumWidth(200)
-		self._cmb_src.attach_to_form(form)
-
-		self._gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
-		self._gaussian.attach_to_form(form)
-
-		self._fix = CheckBox("Fixed Intensity", TIPS["Fixed Intensity"])
-		self._fix.attach_to_form(form)
-
-		self.upscale_spin = SpinInt("Upscale Ratio", "", 4, [1, 100], 2)
-		self.upscale_spin.attach_to_form(form)
-
+		self._color_mode = Combo("Color mode", TIPS["Color Mode"], 0, ["Addition", "Max"])
+		self._upscale = SpinInt("Upscale Ratio", TIPS["Upscale Ratio"], 4, [1, 100], 2)
 		self._drift = CheckBox("Drift Correction", TIPS["Drift Correction"])
+		self._gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
+		self._gauss_intensity = SpinInt("Intensity", TIPS["G Intensity"], 100, [1, 10000], 10)
+		self._gauss_fixed_intensity = CheckBox("Fixed Intensity", TIPS["G Fixed Intensity"])
+		self._gauss_shape = Combo("Shape", TIPS["G Shape"], 0, ["Fixed Size", "Isotrope", "Anisotrope"])
+		self._gauss_shape_size = SpinFloat("Size", TIPS["G Size"], 1, [0, 10], 0.01, 3)
+
+		form.addRow(h)
+		self._cmb_src.attach_to_form(form)
+		self._color_mode.attach_to_form(form)
+		self._gaussian.attach_to_form(form)
+		self._gauss_intensity.attach_to_form(form)
+		self._gauss_fixed_intensity.attach_to_form(form)
+		self._gauss_shape.attach_to_form(form)
+		self._gauss_shape_size.attach_to_form(form)
+		self._upscale.attach_to_form(form)
 		self._drift.attach_to_form(form)
 
 		# --- Bloc Filtres ---
@@ -176,6 +185,8 @@ class ViewerHRWidget(QWidget):
 		layout.addWidget(grp_filters)
 		layout.addLayout(actions_row)
 
+		self._toggle_gaussian()
+
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
@@ -183,6 +194,7 @@ class ViewerHRWidget(QWidget):
 
 		# Sources
 		self._btg_src.idClicked.connect(self._on_source_changed)
+		self._gaussian.connect(self._toggle_gaussian)
 
 		# Filters
 		self._filters.buttons["reset"].clicked.connect(self._reset_filtered)
@@ -217,10 +229,17 @@ class ViewerHRWidget(QWidget):
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
 		# Remplir la ComboBox 'Source' en fonction du domaine
-		if btn_id == 0: src = DATA_SRC["Localization"]  # Stack
-		else: src = DATA_SRC["Tracking"]  # .			  Tracking
+		if btn_id == 0:  # .		Stack
+			src = DATA_SRC["Localization"]
+			self._color_mode.show()
+			self._gaussian.show()
+		else:  # .					Tracking
+			src = DATA_SRC["Tracking"]
+			self._color_mode.hide()
+			self._gaussian.value = False
+			self._gaussian.hide()
 		with self._cmb_src.signal_blocked(): self._cmb_src.update_box(src)
-		self._update_filters_ui()  # .					  Mise à jour des filtres à afficher
+		self._update_filters_ui()  # Mise à jour des filtres à afficher
 
 	##################################################
 	def _update_filters_ui(self):
@@ -234,6 +253,20 @@ class ViewerHRWidget(QWidget):
 		else:  # .							  Tracking
 			self._filters["Localization"].hide()
 			self._filters["Tracks"].show()
+
+	##################################################
+	def _toggle_gaussian(self):
+		"""Montre ou cache les options réservées à la visualisation gaussienne."""
+		if self._gaussian.value:
+			self._gauss_intensity.show()
+			self._gauss_fixed_intensity.show()
+			self._gauss_shape.show()
+			self._gauss_shape_size.show()
+		else:
+			self._gauss_intensity.hide()
+			self._gauss_fixed_intensity.hide()
+			self._gauss_shape.hide()
+			self._gauss_shape_size.hide()
 
 	# ==================================================
 	# endregion UI Callback
@@ -332,20 +365,25 @@ class ViewerHRWidget(QWidget):
 
 		src_id = self._btg_src.checkedId()
 		src = self._cmb_src.current_text
-		upscale = self.upscale_spin.value
+		upscale = self._upscale.value
 		self._renderer.set_size(width, height, upscale)
 
 		if src_id == 0:  # Localisations
 			loc = self._correct_drift(self._pt.localizations)
-			loc = self._renderer.get_localization_colors(loc, src)
-			if loc.size == 0:
+			if loc.empty:
 				show_warning("No localization file available.")
 				return
+
 			# Calque de points (attention n'envoyer que X et Y (la couleur n'est pas à mettre ici) et dans le sens Y, X
-			plot_data = loc[:, [1, 0]] * upscale
+			plot_data = loc[["Y", "X"]].to_numpy() * upscale
 			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)
+
 			# Visualisation
-			self.visualization = self._renderer.localizations(loc)
+			if self._gaussian.value:
+				print("Not Implemented yet.")
+			else:
+				loc = self._renderer.get_localization_colors(loc, src)
+				self.visualization = self._renderer.localizations(loc)
 
 		else:  # Trajectoires
 			trc = self._correct_drift(self._pt.tracks)
