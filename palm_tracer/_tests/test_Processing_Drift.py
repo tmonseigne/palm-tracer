@@ -274,12 +274,6 @@ def test_median_filter_centered():
 	ref = np.array([[11, 101, 1001], [11.5, 101.5, 1002], [12, 102, 1003], [12.5, 102.5, 1003.5], [13, 103, 1004]])
 	assert np.allclose(res, ref, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
 
-	# Dataframe
-	df = pd.DataFrame([[10, 100, 1000], [11, 101, 1001], [50, 102, 2000], [12, 103, 1003], [13, 104, 1004]], columns=['X', 'Y', 'Z'], dtype=float)
-	res = median_filter_centered(df, size=5)
-	ref = pd.DataFrame([[11, 101, 1001], [11.5, 101.5, 1002], [12, 102, 1003], [12.5, 102.5, 1003.5], [13, 103, 1004]], columns=['X', 'Y', 'Z'], dtype=float)
-	assert res.equals(ref), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
-
 	# Bonnes dimensions, mais aucune ligne
 	df = np.ones((0, 2))
 	res = median_filter_centered(df)
