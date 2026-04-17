@@ -258,7 +258,7 @@ def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 
 
 ##################################################
-def apply_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
+def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
 	Applique une correction de drift à un DataFrame de points.
 
@@ -322,4 +322,4 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 
 	beads = extract_beads(data, max_distance=max_distance, is_3d=is_3d, strict=strict, k=k)
 	drift = get_drift(beads, is_3d=is_3d)
-	return beads, apply_drift(data, drift, is_3d=is_3d)
+	return beads, remove_drift(data, drift, is_3d=is_3d)

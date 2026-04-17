@@ -188,22 +188,23 @@ def test_get_drift():
 ##################################################
 def test_apply_drift_bad_input():
 	"""Test de la récupération du déplacement avec des entrées incorrectes."""
-	res = apply_drift(pd.DataFrame(), pd.DataFrame())
+	res = remove_drift(pd.DataFrame(), pd.DataFrame())
 	assert res.empty
 
 	df = pd.DataFrame([[1, 2], [3, 4]])
-	with pytest.raises(ValueError) as exception_info: apply_drift(df, df)
+	with pytest.raises(ValueError) as exception_info: remove_drift(df, df)
 	assert exception_info.type == ValueError
 	assert str(exception_info.value) == "Missing columns in data: ['Plane', 'X', 'Y', 'Z']."
 
 	df2 = pd.DataFrame([[1, 2, 3, 4], [5, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z'])
-	with pytest.raises(ValueError) as exception_info: apply_drift(df2, df)
+	with pytest.raises(ValueError) as exception_info: remove_drift(df2, df)
 	assert exception_info.type == ValueError
 	assert str(exception_info.value) == "Missing columns in data: ['Plane', 'X', 'Y', 'Z']."
 
 
 ##################################################
-def test_apply_drift():
+def test_remove_drift():
+	"""Test de la suppression du drift."""
 	df = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],  # P1 : drift 0
 					   [2, 1, 1, 0], [2, 1, 0, 0], [2, 0, 1, 0], [2, 1, 0, 0],  # .				P2 : drift [1, 2, 3]]
 					   [3, 1, 1, 0], [3, 2, 0, 0], [3, 0, 2, 0], [3, 1, 1, 0],  # .				P3 : drift [2, 1, 0]]
@@ -211,7 +212,7 @@ def test_apply_drift():
 					  columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
 	drift = pd.DataFrame([[2, 1, 2, 3], [3, 2, 1, 0], [4, -3, -2, -1]], columns=['Plane', 'X', 'Y', 'Z'], dtype="int32")
 
-	res = apply_drift(df, drift, True)
+	res = remove_drift(df, drift, True)
 	ref = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],
 						[2, 0, -1, -3], [2, 0, -2, -3], [2, -1, -1, -3], [2, 0, -2, -3],
 						[3, -2, -2, -3], [3, -1, -3, -3], [3, -3, -1, -3], [3, -2, -2, -3],
@@ -219,7 +220,7 @@ def test_apply_drift():
 					   columns=['Plane', 'X', 'Y', 'Z'], dtype=np.float64)
 	assert res.astype(np.float64).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
-	res = apply_drift(df, drift, False)
+	res = remove_drift(df, drift, False)
 	ref = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],
 						[2, 0, -1, 0], [2, 0, -2, 0], [2, -1, -1, 0], [2, 0, -2, 0],
 						[3, -2, -2, 0], [3, -1, -3, 0], [3, -3, -1, 0], [3, -2, -2, 0],
@@ -234,7 +235,7 @@ def test_chain_drift():
 	bead = pd.DataFrame([[1, 1, 1, 1, 1], [1, 2, 0, 1, 0], [1, 3, 1, 0, 0], [1, 4, 1, 1, 2]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	drift = get_drift(bead, True)
 
-	new_bead = apply_drift(bead, drift, True)
+	new_bead = remove_drift(bead, drift, True)
 	assert np.allclose(new_bead[["X", "Y", "Z"]].to_numpy(), 1)
 
 	new_drift = get_drift(new_bead, True)
