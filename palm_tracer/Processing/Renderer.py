@@ -255,3 +255,58 @@ class Renderer:
 			if e2 <= dx:  # .								   On avance en Y si nécessaire
 				err += dx
 				y0 += sy
+
+	##################################################
+	@staticmethod
+	def draw_gaussians_2d(img: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, colors: np.ndarray | float,
+						  sx: np.ndarray | float, sy: np.ndarray | float, theta: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
+		"""
+		Dessine des gaussiennes 2D anisotropes dans une image.
+
+		:param img: Image de sortie 2D, modifiée sur place.
+		:param x: Coordonnées X des centres.
+		:param y: Coordonnées Y des centres.
+		:param colors: Intensité totale de chaque gaussienne.
+		:param sx: Sigma selon l'axe principal X.
+		:param sy: Sigma selon l'axe principal Y.
+		:param theta: Angle de rotation en radians.
+		:param color_mode: 0 : addition des intensités, autre : conservation du maximum pixel à pixel
+		:return: Image résultat.
+		"""
+		h, w = img.shape
+		# On force tout en tableau 1D pour que .shape[0] fonctionne toujours
+		x, y, colors = np.atleast_1d(x), np.atleast_1d(y), np.atleast_1d(colors)
+		sx, sy, theta = np.atleast_1d(sx), np.atleast_1d(sy), np.atleast_1d(theta)
+
+		for idx in range(x.shape[0]):
+			xc, yc = float(x[idx]), float(y[idx])
+			sigma_x, sigma_y, angle = float(sx[idx]), float(sy[idx]), float(theta[idx])
+			amp = float(colors[idx])
+
+			if sigma_x <= 0.0 or sigma_y <= 0.0: continue
+
+			sigma_max = 3.0 * max(sigma_x, sigma_y)
+			x_min, x_max = max(0, int(np.floor(xc - sigma_max))), min(w - 1, int(np.ceil(xc + sigma_max)))
+			y_min, y_max = max(0, int(np.floor(yc - sigma_max))), min(h - 1, int(np.ceil(yc + sigma_max)))
+
+			if x_min > x_max or y_min > y_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
+
+			x_grid, y_grid = np.arange(x_min, x_max + 1, dtype=np.float64), np.arange(y_min, y_max + 1, dtype=np.float64)
+			xx, yy = np.meshgrid(x_grid, y_grid)
+
+			dx, dy = xx - xc, yy - yc
+			cos_t, sin_t, sin_2t = np.cos(angle), np.sin(angle), np.sin(2.0 * angle)
+			cos_t2, sin_t2 = cos_t * cos_t, sin_t * sin_t
+			sx2, sy2 = (2.0 * sigma_x * sigma_x), (2.0 * sigma_y * sigma_y)
+
+			a = sin_t2 / sx2 + cos_t2 / sy2
+			b = sin_2t / sx2 - sin_2t / sy2
+			c = cos_t2 / sx2 + sin_t2 / sy2
+
+			patch = (amp / (2.0 * np.pi * sigma_x * sigma_y)) * np.exp(-(a * dx * dx + b * dx * dy + c * dy * dy))
+
+			view = img[y_min:y_max + 1, x_min:x_max + 1]
+			if color_mode == 0: view += patch
+			else: np.maximum(view, patch, out=view)
+
+		return img
