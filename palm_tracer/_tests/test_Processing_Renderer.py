@@ -214,10 +214,86 @@ def test_localizations():
 	ref[2, 8] = 7
 	np.testing.assert_array_equal(res, ref)
 
+	# Max
+	loc = np.array([[2, 3, 10], [2, 3, 5], [4, 1, 7]], dtype=np.float64)
+	res = r.localizations(loc, 1)
+	ref = np.zeros((20, 10), dtype=np.uint16)
+	ref[6, 4] = 10
+	ref[2, 8] = 7
+	np.testing.assert_array_equal(res, ref)
+
 	# Clip
 	loc = np.array([[1, 1, 70000], [1, 1, 1000]], dtype=np.float64)
 	res = r.localizations(loc)
 	assert res[2, 2] == np.iinfo(np.uint16).max
+
+
+##################################################
+def test_localizations_gaussian():
+	r = Renderer()
+	r.set_size(5, 5, 1)
+
+	# Bad size
+	loc = np.array([[2, 2, 100]], dtype=np.float64)
+	gaussian = {
+			"Intensity":       100,
+			"Fixed Intensity": True,
+			"Shape":           0,
+			"Size":            1
+			}
+	res = r.localizations(loc, 0, gaussian)
+	assert res.shape == (5, 5) and np.count_nonzero(res) == 0
+
+	# Fixed Size and intensity
+	loc = np.array([[2, 2, 10000, 1, 2, 0]], dtype=np.float64)
+	res = r.localizations(loc, 0, gaussian)
+	ref = np.array([[0, 1, 2, 1, 0],
+					[1, 5, 9, 5, 1],
+					[2, 9, 15, 9, 2],
+					[1, 5, 9, 5, 1],
+					[0, 1, 2, 1, 0]], dtype=np.uint16)
+	np.allclose(res, ref)
+
+	# Fixed Size and not intensity
+	gaussian["Fixed Intensity"] = False
+	res = r.localizations(loc, 0, gaussian)
+	np.allclose(res, ref)
+
+	# Isotrope (Sigma = 1.5 car moyenne des deux)
+	gaussian["Fixed Intensity"] = True
+	gaussian["Shape"] = 1
+	res = r.localizations(loc, 0, gaussian)
+	ref = np.array([[1, 2, 2, 2, 1],
+					[2, 4, 5, 4, 2],
+					[2, 5, 7, 5, 2],
+					[2, 4, 5, 4, 2],
+					[1, 2, 2, 2, 1]], dtype=np.uint16)
+	np.allclose(res, ref)
+
+	# Anisotrope
+	gaussian["Shape"] = 2
+	res = r.localizations(loc, 0, gaussian)
+	ref = np.array([[0, 0, 1, 0, 0],
+					[2, 4, 4, 4, 2],
+					[4, 7, 7, 7, 4],
+					[2, 4, 4, 4, 2],
+					[0, 0, 1, 0, 0]], dtype=np.uint16)
+	np.allclose(res, ref)
+
+	# Max, résultat identique car 2 points confondus.
+	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
+	res = r.localizations(loc, 1, gaussian)
+	np.allclose(res, ref)
+
+	# Accumulate (on vérifie que les flottants on bien été pris en compte durant le calcul, ce n'est pas un simple * 2 de la valeur entière finale)
+	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
+	res = r.localizations(loc, 0, gaussian)
+	ref = np.array([[1, 1, 2, 1, 1],
+					[5, 8, 9, 8, 5],
+					[9, 14, 15, 14, 9],
+					[5, 8, 9, 8, 5],
+					[1, 1, 2, 1, 1]], dtype=np.uint16)
+	np.allclose(res, ref)
 
 
 ##################################################

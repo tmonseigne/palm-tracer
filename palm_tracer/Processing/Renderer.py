@@ -1,9 +1,12 @@
 """Fichier contenant une classe pour créer des rendus."""
 
 from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 import pandas as pd
+
+from palm_tracer.Processing import Parsing
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 
@@ -29,32 +32,51 @@ class Renderer:
 		self._width, self._height, self._ratio = width, height, ratio
 
 	##################################################
-	def localizations(self, loc: np.ndarray) -> np.ndarray:
+	def localizations(self, loc: np.ndarray, color_mode: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
 		Construit une image Haute résolution (uint16) en fonction des éléments localisés.
 
-		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et 3 colonnes (X, Y, Couleur).
+		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et au moins 3 colonnes (X, Y, Couleur).
+		:param color_mode: Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée.
+		:param gaussian: Paramètres pour le rendu gaussien loc doit avoir au moins 6 colonnes  (X, Y, Couleur, Sigma X, Sigma Y, Theta).
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
 		# Vérification des dimensions
 		new_h, new_w = int(self._height * self._ratio), int(self._width * self._ratio)
 		if new_h < 1 or new_w < 1: return np.zeros((max(new_h, 1), max(new_w, 1)), dtype=np.uint16)
 		res = np.zeros((new_h, new_w), dtype=float)
-		if loc.ndim != 2 or loc.shape[1] != 3: return res.astype(np.uint16)
+		if loc.ndim != 2 or loc.shape[1] < 3: return res.astype(np.uint16)
 
 		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
 		mask = ((loc[:, 0] >= 0) & (loc[:, 0] < self._width) & (loc[:, 1] >= 0) & (loc[:, 1] < self._height))
 		loc = loc[mask]
 		if loc.size == 0: return res.astype(np.uint16)
 
-		# Calcul des nouvelles coordonnées entières (vectorisé)
 		coords = np.round(loc[:, :2] * self._ratio).astype(int)
+		# Calcul des nouvelles coordonnées entières (vectorisé)
 		x, y, colors = coords[:, 0], coords[:, 1], loc[:, 2]
+		if gaussian is None:
+			# Calcul de l'image finale
+			if color_mode == 0: np.add.at(res, (y, x), colors)  # Accumulation des valeurs (plus efficace qu'une boucle)
+			else: np.maximum.at(res, (y, x), colors)  # Max par pixel
+		else:
+			if loc.shape[1] < 6: return res.astype(np.uint16)
+			sx, sy, theta = loc[:, 3] * self._ratio, loc[:, 4] * self._ratio, Parsing.degrees_to_radians(loc[:, 5])
+			if gaussian["Shape"] == 0:  # Taille fixe isotrope
+				theta.fill(0)
+				sx = sy = gaussian["Size"] * self._ratio
+			elif gaussian["Shape"] == 1:  # Isotrope (theta = 0, sigma = moyenne des deux axes)
+				theta.fill(0)
+				s = (sx + sy) / 2
+				sx = sy = s
+			# else: Anisotrope aucun changement.
+			# Modification de colors
+			if gaussian["Fixed Intensity"]: colors.fill(gaussian["Intensity"])
+			else: colors /= gaussian["Intensity"]
+			self.draw_gaussians_2d(res, x, y, colors, sx, sy, theta, color_mode)
 
-		# Calcul de l'image finale
-		np.add.at(res, (y, x), colors)  # Accumulation des valeurs (plus efficace qu'une boucle)
-		res = res.clip(0, MAX_UI_16)  # . Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
-		return res.astype(np.uint16)  # . Forcer le type de l'image en np.uint16
+		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
+		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
 
 	##################################################
 	def tracks(self, trc: np.ndarray) -> np.ndarray:
