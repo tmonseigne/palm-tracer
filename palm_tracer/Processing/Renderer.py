@@ -107,7 +107,7 @@ class Renderer:
 	# ==================================================
 	##################################################
 	@staticmethod
-	def get_localization_colors(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> np.ndarray:
+	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
 		Construit un tableau numpy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur.
 
@@ -123,21 +123,19 @@ class Renderer:
 
 		La fonction ne modifie pas le DataFrame d'origine.
 
-		:param loc: DataFrame contenant au minimum les colonnes ``X`` et ``Y``.
+		:param loc: DataFrame à modifier.
 		:param col: Nom de la colonne à utiliser pour calculer la composante ``Color``.
-		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value <= 0``, aucune normalisation n'est appliquée.
-		:return: Tableau numpy de forme ``(N, 3)`` de type ``float64`` contenant ``X``, ``Y`` et ``Color``.
+		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
+		:return: Dataframe avec la colonne Color ajouté.
 		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
 
 		.. note::
 			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
 		"""
-		if loc.empty: return np.empty((0, 3), dtype=np.float64)
+		if loc.empty: return loc
 
 		# Extraction directe en numpy pour éviter les copies/alignements pandas inutiles.
-		xy = loc.loc[:, ["X", "Y"]].to_numpy(dtype=np.float64, copy=True)
-
 		if col in loc.columns: colors = loc[col].to_numpy(dtype=np.float64, copy=True)
 		else: colors = np.ones(len(loc), dtype=np.float64)
 
@@ -146,13 +144,15 @@ class Renderer:
 		if color_min < 0.0: colors -= color_min  # .						 Décalage pour garantir un minimum nul.
 		color_max = np.max(colors)
 		if color_max <= 0.0: colors = np.ones(len(loc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
-		elif max_value > 0.0: colors *= max_value / color_max  # .			  Normalisation éventuelle.
+		elif max_value > 0.0: colors *= max_value / color_max  # .			 Normalisation éventuelle.
 
-		return np.column_stack((xy, colors))
+		loc["Color"] = colors
+
+		return loc
 
 	##################################################
 	@staticmethod
-	def get_tracks_colors(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> np.ndarray:
+	def add_colors_to_tracks(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
 		Construit un tableau numpy contenant les numéros, plans et coordonnées des trajectoires
 		ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur.
@@ -168,7 +168,7 @@ class Renderer:
 
 		:param trc: DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``.
 		:param source: Type de données à utiliser pour calculer la composante ``Color``.
-		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value <= 0``, aucune normalisation n'est appliquée.
+		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
 		:return: Tableau numpy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
 		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
 
@@ -176,7 +176,7 @@ class Renderer:
 			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
 		"""
-		if trc.empty: return np.empty((0, 5), dtype=np.float64)
+		if trc.empty: return trc
 
 		# --- Extraction des données utiles. ---
 		data = trc[["Track", "Plane", "X", "Y", "Integrated Intensity"]].copy()
@@ -219,7 +219,7 @@ class Renderer:
 		if color_max <= 0.0: data["Color"] = np.ones(len(trc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
 		elif max_value > 0.0: data["Color"] *= max_value / color_max  # .			Normalisation éventuelle.
 
-		return data[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
+		return data[["Track", "Plane", "X", "Y", "Color"]]
 
 	##################################################
 	@staticmethod

@@ -17,36 +17,36 @@ def test_set_size():
 def test_get_localization_colors():
 	# Empty Dataframe
 	loc = pd.DataFrame(columns=["X", "Y", "Intensity"])
-	res = Renderer.get_localization_colors(loc, "Intensity")
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
 	assert res.shape == (0, 3)
 
 	# No Column selected
 	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [10, 20]})
-	res = Renderer.get_localization_colors(loc)
-	ref = np.array([[1, 3, 1], [2, 4, 1]], dtype=np.float64)
+	res = Renderer.add_colors_to_localizations(loc)
+	ref = np.array([[1, 3, 10, 1], [2, 4, 20, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Selected columns
-	res = Renderer.get_localization_colors(loc, "Intensity")
-	ref = np.array([[1, 3, 10], [2, 4, 20]], dtype=np.float64)
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
+	ref = np.array([[1, 3, 10, 10], [2, 4, 20, 20]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# With negatives values
 	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [-2, 3]})
-	res = Renderer.get_localization_colors(loc, "Intensity")
-	ref = np.array([[1, 3, 0], [2, 4, 5]], dtype=np.float64)
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
+	ref = np.array([[1, 3, -2, 0], [2, 4, 3, 5]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# With normalization
 	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [2, 4]})
-	res = Renderer.get_localization_colors(loc, "Intensity", max_value=100)
-	ref = np.array([[1, 3, 50], [2, 4, 100], ], dtype=np.float64)
+	res = Renderer.add_colors_to_localizations(loc, "Intensity", max_value=100)
+	ref = np.array([[1, 3, 2, 50], [2, 4, 4, 100], ], dtype=np.float64)
 	np.testing.assert_allclose(res, ref)
 
 	# With 0 in colors
 	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [0, 0]})
-	res = Renderer.get_localization_colors(loc, "Intensity")
-	ref = np.array([[1, 3, 1], [2, 4, 1]], dtype=np.float64)
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
+	ref = np.array([[1, 3, 0, 1], [2, 4, 0, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 
@@ -56,49 +56,49 @@ def test_get_tracks_colors():
 
 	# Empty Dataframe
 	trc = pd.DataFrame(columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
-	res = Renderer.get_tracks_colors(trc, "Track Number")
+	res = Renderer.add_colors_to_tracks(trc, "Track Number")
 	assert res.shape == (0, 5)
 
 	# No Column selected (and sorting)
 	trc = pd.DataFrame({"Track": [2, 1, 1], "Plane": [5, 6, 3], "X": [2, 0, 0], "Y": [2, 1, 0], "Integrated Intensity": [7, 6, 5]})
-	res = Renderer.get_tracks_colors(trc)
+	res = Renderer.add_colors_to_tracks(trc)
 	ref = np.array([[1, 3, 0, 0, 1], [1, 6, 0, 1, 1], [2, 5, 2, 2, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Track number
 	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [7, 3, 5]})
-	res = Renderer.get_tracks_colors(trc, "Track Number")
+	res = Renderer.add_colors_to_tracks(trc, "Track Number")
 	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 2]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Plane
-	res = Renderer.get_tracks_colors(trc, "Plane")
+	res = Renderer.add_colors_to_tracks(trc, "Plane")
 	ref = np.array([[1, 5, 0, 0, 5], [1, 6, 0, 1, 6], [2, 3, 2, 2, 3]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Intensity
-	res = Renderer.get_tracks_colors(trc, "Intensity")
+	res = Renderer.add_colors_to_tracks(trc, "Intensity")
 	ref = np.array([[1, 5, 0, 0, 10], [1, 6, 0, 1, 10], [2, 3, 2, 2, 5]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Length
-	res = Renderer.get_tracks_colors(trc, "Length")
+	res = Renderer.add_colors_to_tracks(trc, "Length")
 	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 0]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Duration
-	res = Renderer.get_tracks_colors(trc, "Duration")
+	res = Renderer.add_colors_to_tracks(trc, "Duration")
 	ref = np.array([[1, 5, 0, 0, 2], [1, 6, 0, 1, 2], [2, 3, 2, 2, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Normalization
-	res = Renderer.get_tracks_colors(trc, "Intensity", max_value=100)
+	res = Renderer.add_colors_to_tracks(trc, "Intensity", max_value=100)
 	ref = np.array([[1, 5, 0, 0, 100], [1, 6, 0, 1, 100], [2, 3, 2, 2, 50]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Negative and 0
 	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [-1, 0, -1]})
-	res = Renderer.get_tracks_colors(trc, "Intensity")
+	res = Renderer.add_colors_to_tracks(trc, "Intensity")
 	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
