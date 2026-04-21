@@ -38,14 +38,16 @@ TIPS = {
 							 "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
 
 		"Source":            "Data selected for Graph.",
-		"Color Mode":        "",
-		"Gaussian":          "",
-		"G Intensity":       "",
-		"G Fixed Intensity": "",
-		"G Shape":           "",
-		"G Size":            "",
-		"Upscale Ratio":     "",
-		"Drift Correction":  "",
+		"Color Mode":        "When overlapping, select whether the pixel values are added together or whether only the maximum value is retained.",
+		"Gaussian":          "Displays a Gaussian distribution for each location.",
+		"G Intensity":       "Integrated intensity of the Gaussian curve if 'Fixed Intensity' is selected; otherwise, "
+							 "the ratio by which the value selected in the source will be divided",
+		"G Fixed Intensity": "Ensures that each point has the same intensity.",
+		"G Shape":           "Defines the shape of the Gaussian distribution (Isotropic, Anisotropic, or Fixed Size, "
+							 "so that each point has the same isotropic shape)",
+		"G Size":            "The standard deviation of the Gaussian distribution if “Fixed Size” is selected.",
+		"Upscale Ratio":     "Image upscale ratio",
+		"Drift Correction":  "Apply a drift correction (Note: The beads must have been extracted before.)",
 
 		"Actualize":         "Updates files/data from PALMTracer status.",
 		"Generate":          "Generate HR Visualization.",
