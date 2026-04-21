@@ -130,7 +130,7 @@ def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 
 
 ##################################################
-def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+def test_generate_bad(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
@@ -162,18 +162,60 @@ def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monk
 	lines = get_lines_output(capsys)
 	assert "WARNING: No localization file available." in lines[0]
 
-	# Ajout d'un tableau de localisation
-	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
-	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
-
 	# Passage au suivi sans tableau
 	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "WARNING: No tracking file available." in lines[-1]  # dernière ligne, car il peut y avoir un warning lors de la suppression des calques
 
-	# Ajout d'un tableau de Suivi
-	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
+
+##################################################
+def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+	"""Test basique de création du widget."""
+	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
+	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+	pt = PALMTracer()
+	add_basic_file(pt)
+	pt.process()  # Process Vide pour créer le dossier et un setting de base
+	shutil.copy2(INPUT_DIR / "localizations.csv", INPUT_DIR / "stack_PALM_Tracer" / f"localizations-{pt._suffix}.csv")
+	shutil.copy2(INPUT_DIR / "tracking.csv", INPUT_DIR / "stack_PALM_Tracer" / f"tracking-{pt._suffix}.csv")
+	pt.load()
+	pt.df["loc"]["Integrated Intensity"] *= 100
+	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
+	fake_napari_layers(viewer)
+
+	w._upscale.value = 1
+	w._cmb_src.value = 4
+	w._gauss_intensity.value = 1
+	upscale = w._upscale.value
+	shape = (128 * upscale, 256 * upscale)
+	ref = np.zeros(shape)
+
+	# Génération de la localisation
+	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+	ref[2, 1] = 200
+	ref[3, 2] = 200
+	ref[5, 4] = 100
+	assert np.allclose(ref, w.visualization)
+
+	# Génération de la localisation en mode gaussien
+	w._gaussian.value = True
+	w._color_mode.value = 1
+	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+	ref = np.zeros(shape)
+	patch = [[1, 2, 1, 0, 0, 0, 0],
+			 [5, 9, 5, 1, 0, 0, 0],
+			 [9, 15, 9, 5, 1, 0, 0],
+			 [5, 9, 15, 9, 2, 1, 0],
+			 [1, 5, 9, 5, 9, 5, 1],
+			 [0, 1, 2, 9, 15, 9, 2],
+			 [0, 0, 1, 5, 9, 5, 1],
+			 [0, 0, 0, 1, 2, 1, 0]]
+	ref[0:8, 0:7] += patch
+	assert np.allclose(ref, w.visualization)
+
+	# Génération du suivi
+	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
 
 
@@ -195,8 +237,8 @@ def test_generate_drift(make_napari_viewer, patched_napari_viewer, qtbot, capsys
 
 	# Sans localization la sortie sera entièrement noire.
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
-	w.upscale_spin.value = 2
-	upscale = w.upscale_spin.value
+	w._upscale.value = 2
+	upscale = w._upscale.value
 	shape = (128 * upscale, 256 * upscale)
 	ref = np.zeros(shape)
 	assert np.allclose(ref, w.visualization)

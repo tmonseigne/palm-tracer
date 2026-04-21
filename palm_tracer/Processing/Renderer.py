@@ -1,9 +1,12 @@
 """Fichier contenant une classe pour créer des rendus."""
 
 from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 import pandas as pd
+
+from palm_tracer.Processing import Parsing
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 
@@ -29,32 +32,53 @@ class Renderer:
 		self._width, self._height, self._ratio = width, height, ratio
 
 	##################################################
-	def localizations(self, loc: np.ndarray) -> np.ndarray:
+	def localizations(self, loc: np.ndarray, color_mode: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
 		Construit une image Haute résolution (uint16) en fonction des éléments localisés.
 
-		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et 3 colonnes (X, Y, Couleur).
+		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et au moins 3 colonnes (X, Y, Couleur).
+		:param color_mode: Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée.
+		:param gaussian: Paramètres pour le rendu gaussien loc doit avoir au moins 6 colonnes  (X, Y, Couleur, Sigma X, Sigma Y, Theta).
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
 		# Vérification des dimensions
 		new_h, new_w = int(self._height * self._ratio), int(self._width * self._ratio)
 		if new_h < 1 or new_w < 1: return np.zeros((max(new_h, 1), max(new_w, 1)), dtype=np.uint16)
 		res = np.zeros((new_h, new_w), dtype=float)
-		if loc.ndim != 2 or loc.shape[1] != 3: return res.astype(np.uint16)
+		if loc.ndim != 2 or loc.shape[1] < 3: return res.astype(np.uint16)
 
 		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
 		mask = ((loc[:, 0] >= 0) & (loc[:, 0] < self._width) & (loc[:, 1] >= 0) & (loc[:, 1] < self._height))
 		loc = loc[mask]
 		if loc.size == 0: return res.astype(np.uint16)
 
-		# Calcul des nouvelles coordonnées entières (vectorisé)
 		coords = np.round(loc[:, :2] * self._ratio).astype(int)
+		# Calcul des nouvelles coordonnées entières (vectorisé)
 		x, y, colors = coords[:, 0], coords[:, 1], loc[:, 2]
+		if gaussian is None:
+			# Calcul de l'image finale
+			if color_mode == 0: np.add.at(res, (y, x), colors)  # Accumulation des valeurs (plus efficace qu'une boucle)
+			else: np.maximum.at(res, (y, x), colors)  # Max par pixel
+		else:
+			if loc.shape[1] < 6: return res.astype(np.uint16)
+			sx, sy, theta = loc[:, 3] * self._ratio, loc[:, 4] * self._ratio, Parsing.degrees_to_radians(loc[:, 5])
+			if gaussian["Shape"] == 0:  # Taille fixe isotrope
+				theta.fill(0)
+				s = gaussian["Size"] * self._ratio
+				sx.fill(s)
+				sy.fill(s)
+			elif gaussian["Shape"] == 1:  # Isotrope (theta = 0, sigma = moyenne des deux axes)
+				theta.fill(0)
+				s = (sx + sy) / 2
+				sx = sy = s
+			# else: Anisotrope aucun changement.
+			# Modification de colors
+			if gaussian["Fixed Intensity"]: colors.fill(gaussian["Intensity"])
+			else: colors /= gaussian["Intensity"]
+			self.draw_gaussians_2d(res, x, y, colors, sx, sy, theta, color_mode)
 
-		# Calcul de l'image finale
-		np.add.at(res, (y, x), colors)  # Accumulation des valeurs (plus efficace qu'une boucle)
-		res = res.clip(0, MAX_UI_16)  # . Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
-		return res.astype(np.uint16)  # . Forcer le type de l'image en np.uint16
+		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
+		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
 
 	##################################################
 	def tracks(self, trc: np.ndarray) -> np.ndarray:
@@ -107,7 +131,7 @@ class Renderer:
 	# ==================================================
 	##################################################
 	@staticmethod
-	def get_localization_colors(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> np.ndarray:
+	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
 		Construit un tableau numpy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur.
 
@@ -123,21 +147,19 @@ class Renderer:
 
 		La fonction ne modifie pas le DataFrame d'origine.
 
-		:param loc: DataFrame contenant au minimum les colonnes ``X`` et ``Y``.
+		:param loc: DataFrame à modifier.
 		:param col: Nom de la colonne à utiliser pour calculer la composante ``Color``.
-		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value <= 0``, aucune normalisation n'est appliquée.
-		:return: Tableau numpy de forme ``(N, 3)`` de type ``float64`` contenant ``X``, ``Y`` et ``Color``.
+		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
+		:return: Dataframe avec la colonne Color ajouté.
 		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
 
 		.. note::
 			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
 		"""
-		if loc.empty: return np.empty((0, 3), dtype=np.float64)
+		if loc.empty: return loc
 
 		# Extraction directe en numpy pour éviter les copies/alignements pandas inutiles.
-		xy = loc.loc[:, ["X", "Y"]].to_numpy(dtype=np.float64, copy=True)
-
 		if col in loc.columns: colors = loc[col].to_numpy(dtype=np.float64, copy=True)
 		else: colors = np.ones(len(loc), dtype=np.float64)
 
@@ -146,13 +168,15 @@ class Renderer:
 		if color_min < 0.0: colors -= color_min  # .						 Décalage pour garantir un minimum nul.
 		color_max = np.max(colors)
 		if color_max <= 0.0: colors = np.ones(len(loc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
-		elif max_value > 0.0: colors *= max_value / color_max  # .			  Normalisation éventuelle.
+		elif max_value > 0.0: colors *= max_value / color_max  # .			 Normalisation éventuelle.
 
-		return np.column_stack((xy, colors))
+		loc["Color"] = colors
+
+		return loc
 
 	##################################################
 	@staticmethod
-	def get_tracks_colors(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> np.ndarray:
+	def add_colors_to_tracks(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
 		Construit un tableau numpy contenant les numéros, plans et coordonnées des trajectoires
 		ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur.
@@ -168,7 +192,7 @@ class Renderer:
 
 		:param trc: DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``.
 		:param source: Type de données à utiliser pour calculer la composante ``Color``.
-		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value <= 0``, aucune normalisation n'est appliquée.
+		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
 		:return: Tableau numpy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
 		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
 
@@ -176,7 +200,7 @@ class Renderer:
 			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
 		"""
-		if trc.empty: return np.empty((0, 5), dtype=np.float64)
+		if trc.empty: return trc
 
 		# --- Extraction des données utiles. ---
 		data = trc[["Track", "Plane", "X", "Y", "Integrated Intensity"]].copy()
@@ -219,7 +243,7 @@ class Renderer:
 		if color_max <= 0.0: data["Color"] = np.ones(len(trc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
 		elif max_value > 0.0: data["Color"] *= max_value / color_max  # .			Normalisation éventuelle.
 
-		return data[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
+		return data[["Track", "Plane", "X", "Y", "Color"]]
 
 	##################################################
 	@staticmethod
@@ -255,3 +279,58 @@ class Renderer:
 			if e2 <= dx:  # .								   On avance en Y si nécessaire
 				err += dx
 				y0 += sy
+
+	##################################################
+	@staticmethod
+	def draw_gaussians_2d(img: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, colors: np.ndarray | float,
+						  sx: np.ndarray | float, sy: np.ndarray | float, theta: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
+		"""
+		Dessine des gaussiennes 2D anisotropes dans une image.
+
+		:param img: Image de sortie 2D, modifiée sur place.
+		:param x: Coordonnées X des centres.
+		:param y: Coordonnées Y des centres.
+		:param colors: Intensité totale de chaque gaussienne.
+		:param sx: Sigma selon l'axe principal X.
+		:param sy: Sigma selon l'axe principal Y.
+		:param theta: Angle de rotation en radians.
+		:param color_mode: 0 : addition des intensités, autre : conservation du maximum pixel à pixel
+		:return: Image résultat.
+		"""
+		h, w = img.shape
+		# On force tout en tableau 1D pour que .shape[0] fonctionne toujours
+		x, y, colors = np.atleast_1d(x), np.atleast_1d(y), np.atleast_1d(colors)
+		sx, sy, theta = np.atleast_1d(sx), np.atleast_1d(sy), np.atleast_1d(theta)
+
+		for idx in range(x.shape[0]):
+			xc, yc = float(x[idx]), float(y[idx])
+			sigma_x, sigma_y, angle = float(sx[idx]), float(sy[idx]), float(theta[idx])
+			amp = float(colors[idx])
+
+			if sigma_x <= 0.0 or sigma_y <= 0.0: continue
+
+			sigma_max = 3.0 * max(sigma_x, sigma_y)
+			x_min, x_max = max(0, int(np.floor(xc - sigma_max))), min(w - 1, int(np.ceil(xc + sigma_max)))
+			y_min, y_max = max(0, int(np.floor(yc - sigma_max))), min(h - 1, int(np.ceil(yc + sigma_max)))
+
+			if x_min > x_max or y_min > y_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
+
+			x_grid, y_grid = np.arange(x_min, x_max + 1, dtype=np.float64), np.arange(y_min, y_max + 1, dtype=np.float64)
+			xx, yy = np.meshgrid(x_grid, y_grid)
+
+			dx, dy = xx - xc, yy - yc
+			cos_t, sin_t, sin_2t = np.cos(angle), np.sin(angle), np.sin(2.0 * angle)
+			cos_t2, sin_t2 = cos_t * cos_t, sin_t * sin_t
+			sx2, sy2 = (2.0 * sigma_x * sigma_x), (2.0 * sigma_y * sigma_y)
+
+			a = sin_t2 / sx2 + cos_t2 / sy2
+			b = sin_2t / sx2 - sin_2t / sy2
+			c = cos_t2 / sx2 + sin_t2 / sy2
+
+			patch = (amp / (2.0 * np.pi * sigma_x * sigma_y)) * np.exp(-(a * dx * dx + b * dx * dy + c * dy * dy))
+
+			view = img[y_min:y_max + 1, x_min:x_max + 1]
+			if color_mode == 0: view += patch
+			else: np.maximum(view, patch, out=view)
+
+		return img
