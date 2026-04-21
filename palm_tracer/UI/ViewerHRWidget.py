@@ -373,24 +373,33 @@ class ViewerHRWidget(QWidget):
 			if loc.empty:
 				show_warning("No localization file available.")
 				return
+			loc = self._renderer.add_colors_to_localizations(loc, src)
 
 			# Calque de points (attention n'envoyer que X et Y (la couleur n'est pas à mettre ici) et dans le sens Y, X
 			plot_data = loc[["Y", "X"]].to_numpy() * upscale
 			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)
 
 			# Visualisation
+			plot_data = loc[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
 			if self._gaussian.value:
-				print("Not Implemented yet.")
-			else:
-				loc = self._renderer.get_localization_colors(loc, src)
-				self.visualization = self._renderer.localizations(loc)
+				gaussian = {
+						"Intensity":       self._gauss_intensity.value,
+						"Fixed Intensity": self._gauss_fixed_intensity.value,
+						"Shape":           self._gauss_shape.value,
+						"Size":            self._gauss_shape_size.value
+						}
+			else: gaussian = None
+			color_mode = 0 if src == "Count" else self._color_mode.value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			self.visualization = self._renderer.localizations(plot_data, color_mode, gaussian)
 
 		else:  # Trajectoires
 			trc = self._correct_drift(self._pt.tracks)
-			trc = self._renderer.get_tracks_colors(trc, src)
-			if trc.size == 0:
+			if trc.empty:
 				show_warning("No tracking file available.")
 				return
+
+			trc = self._renderer.add_colors_to_tracks(trc, src)
+			trc = trc[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
 			# Calque de points (attention n'envoyer que Tracks, Plane, Y et X (la couleur n'est pas à mettre ici).
 			plot_data = trc[:, [0, 1, 3, 2]]
 			plot_data[:, [2, 3]] *= upscale

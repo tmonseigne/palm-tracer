@@ -64,7 +64,9 @@ class Renderer:
 			sx, sy, theta = loc[:, 3] * self._ratio, loc[:, 4] * self._ratio, Parsing.degrees_to_radians(loc[:, 5])
 			if gaussian["Shape"] == 0:  # Taille fixe isotrope
 				theta.fill(0)
-				sx = sy = gaussian["Size"] * self._ratio
+				s = gaussian["Size"] * self._ratio
+				sx.fill(s)
+				sy.fill(s)
 			elif gaussian["Shape"] == 1:  # Isotrope (theta = 0, sigma = moyenne des deux axes)
 				theta.fill(0)
 				s = (sx + sy) / 2
