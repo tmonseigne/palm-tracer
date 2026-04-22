@@ -186,7 +186,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	- P95_dist_px : 95e percentile de la distance à la courbe. Utile pour définir un seuil de rejet des estimations peu fiables.
 
-	- P95_dist_px : Pente moyenne de la courbe σx(z) - σy(z) en pixel par nanomètres.
+	- slope_mean : Pente moyenne de la courbe σx(z) - σy(z) en pixel par nanomètres.
 
 	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
 	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
