@@ -405,6 +405,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- mise à jour du Z Max ---
 		z_max = self._loc["Z"].abs().max()
 		if z_max > 10: self._spin_z_estimate.setValue(z_max)
+		else: self._check_z_from_plane.setChecked(True)
 
 		Ui.print_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
 

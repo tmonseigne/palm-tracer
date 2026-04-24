@@ -47,35 +47,37 @@ class Renderer:
 		res = np.zeros((new_h, new_w), dtype=float)
 		if loc.ndim != 2 or loc.shape[1] < 3: return res.astype(np.uint16)
 
-		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
-		mask = ((loc[:, 0] >= 0) & (loc[:, 0] < self._width) & (loc[:, 1] >= 0) & (loc[:, 1] < self._height))
-		loc = loc[mask]
-		if loc.size == 0: return res.astype(np.uint16)
-
-		coords = np.round(loc[:, :2] * self._ratio).astype(int)
 		# Calcul des nouvelles coordonnées entières (vectorisé)
+		coords = np.round(loc[:, :2] * self._ratio).astype(int)
 		x, y, colors = coords[:, 0], coords[:, 1], loc[:, 2]
-		if gaussian is None:
-			# Calcul de l'image finale
+
+		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
+		valid = (x >= 0) & (x < new_w) & (y >= 0) & (y < new_h)
+		x, y, colors = x[valid], y[valid], colors[valid]
+		if x.size == 0: return res.astype(np.uint16)
+
+		# Rendu
+		if gaussian is None:  # .								  Calcul de l'image en mode spot
 			if color_mode == 0: np.add.at(res, (y, x), colors)  # Accumulation des valeurs (plus efficace qu'une boucle)
-			else: np.maximum.at(res, (y, x), colors)  # Max par pixel
-		else:
+			else: np.maximum.at(res, (y, x), colors)  # .		  Max par pixel
+		else:  # .												  Calcul de l'image en mode Gaussien
 			if loc.shape[1] < 6: return res.astype(np.uint16)
 			sx, sy, theta = loc[:, 3] * self._ratio, loc[:, 4] * self._ratio, Parsing.degrees_to_radians(loc[:, 5])
-			if gaussian["Shape"] == 0:  # Taille fixe isotrope
+			if gaussian["Shape"] == 0:  # .						  Taille fixe isotrope
 				theta.fill(0)
 				s = gaussian["Size"] * self._ratio
 				sx.fill(s)
 				sy.fill(s)
-			elif gaussian["Shape"] == 1:  # Isotrope (theta = 0, sigma = moyenne des deux axes)
+			elif gaussian["Shape"] == 1:  # .					  Isotrope (theta = 0, sigma = moyenne des deux axes)
 				theta.fill(0)
 				s = (sx + sy) / 2
 				sx = sy = s
-			# else: Anisotrope aucun changement.
-			# Modification de colors
+			# else: .											  Anisotrope aucun changement.
+
+			# Modification des couleurs
 			if gaussian["Fixed Intensity"]: colors.fill(gaussian["Intensity"])
 			else: colors /= gaussian["Intensity"]
-			self.draw_gaussians_2d(res, x, y, colors, sx, sy, theta, color_mode)
+			self.draw_gaussian_2d(res, x, y, colors, sx, sy, theta, color_mode)
 
 		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
 		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
@@ -282,8 +284,8 @@ class Renderer:
 
 	##################################################
 	@staticmethod
-	def draw_gaussians_2d(img: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, colors: np.ndarray | float,
-						  sx: np.ndarray | float, sy: np.ndarray | float, theta: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
+	def draw_gaussian_2d(img: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, colors: np.ndarray | float,
+						 sx: np.ndarray | float, sy: np.ndarray | float, theta: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
 		"""
 		Dessine des gaussiennes 2D anisotropes dans une image.
 

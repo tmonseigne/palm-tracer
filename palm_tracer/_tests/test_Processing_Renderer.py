@@ -160,25 +160,25 @@ def test_draw_gaussian():
 					[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166]])
 
 	# Simple anisotrope
-	res = r.draw_gaussians_2d(img, x, y, color, sx, sy, theta, 1)
+	res = r.draw_gaussian_2d(img, x, y, color, sx, sy, theta, 1)
 	assert np.allclose(res, ref, atol=1e-6)
 
 	# Simple anisotrope avec cumul
-	res = r.draw_gaussians_2d(res, x, y, color, sx, sy, theta, 0)
+	res = r.draw_gaussian_2d(res, x, y, color, sx, sy, theta, 0)
 	assert np.allclose(res, 2 * ref, atol=1e-6)
 
 	# Simple anisotrope avec angle de 90° (transposé du premier test
 	img = np.zeros((5, 5), dtype=float)
-	res = r.draw_gaussians_2d(img, x, y, color, sx, sy, np.pi / 2, 1)
+	res = r.draw_gaussian_2d(img, x, y, color, sx, sy, np.pi / 2, 1)
 	assert np.allclose(res, ref.transpose(), atol=1e-6)
 
 	# Hors dimensions
 	img = np.zeros((5, 5), dtype=float)
-	res = r.draw_gaussians_2d(img, -10, -10, color, sx, sy, theta, 0)
+	res = r.draw_gaussian_2d(img, -10, -10, color, sx, sy, theta, 0)
 	assert np.allclose(res, 0.0)
 
 	# Sigma négatif
-	res = r.draw_gaussians_2d(img, x, y, color, -1, sy, theta, 0)
+	res = r.draw_gaussian_2d(img, x, y, color, -1, sy, theta, 0)
 	assert np.allclose(res, 0.0)
 
 

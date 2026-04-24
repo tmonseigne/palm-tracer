@@ -64,7 +64,7 @@ class PALMTracerWidget(QWidget):
 		# ----- Objets -----
 		self.pt = PALMTracer()
 		self.last_file = ""
-		self._preview_locs: dict[str, np.ndarray] = {"Past": np.empty(0), "Present": np.empty(0), "Future": np.empty(0), "Filtered": np.empty(0)}
+		self._preview_locs: dict[str, np.ndarray] = {"Present": np.empty(0), "Filtered": np.empty(0), "Past": np.empty(0), "Future": np.empty(0)}
 		# ----- UI -----
 		self.key_blocker = KeyBlocker()
 		self._init_ui()
@@ -340,10 +340,10 @@ class PALMTracerWidget(QWidget):
 	def _add_preview_layers(self):
 		"""Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant."""
 		state_args = {
-				"Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
 				"Present":  {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
+				"Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red"},
+				"Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
 				"Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"},
-				"Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red"}
 				}
 		for state, points in self._preview_locs.items():
 			if not self.pt.settings.localization["Preview"].value or points.size == 0:
@@ -461,10 +461,10 @@ class PALMTracerWidget(QWidget):
 		remo_loc = pres_loc.loc[~pres_loc.index.isin(filt_loc.index)].copy()
 
 		self._preview_locs = {
-				"Past":     np.empty(0) if past is None else self.pt.filter_localizations(self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
 				"Present":  filt_loc[["Y", "X"]].to_numpy(),
+				"Filtered": remo_loc[["Y", "X"]].to_numpy(),
+				"Past":     np.empty(0) if past is None else self.pt.filter_localizations(self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
 				"Future":   np.empty(0) if fut is None else self.pt.filter_localizations(self.pt.palm.localization(fut, t, w, f, fp))[["Y", "X"]].to_numpy(),
-				"Filtered": remo_loc[["Y", "X"]].to_numpy()
 				}
 
 		# Affichage console (les notifications posent problème en thread externe)
