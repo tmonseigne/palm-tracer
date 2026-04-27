@@ -165,6 +165,16 @@ def test_check_loc(qtbot, capsys):
 	lines = get_lines_output(capsys)
 	assert "No 'Plane' Column in file. 'Get Z from plane' and 'Only one bead' options can't be used." in lines[0]
 
+	w._loc = pd.read_csv(LOC_FILE)
+	w._loc["Z"] = 0
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and 2 beads in file." in lines[0]
+
+	w._loc.drop(columns=["Z"], inplace=True)
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and 2 beads in file." in lines[0]
 	w.close()
 
 

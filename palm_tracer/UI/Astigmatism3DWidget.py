@@ -369,6 +369,11 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 					Ui.print_warning(f"{s_p} and some planes contain multiple localizations. It is recommended to use the 'Only one bead' option.")
 					self._check_only_one.setChecked(True)
 
+			# --- mise à jour du Z Max ---
+			if "Z" in self._loc.columns:
+				z_max = self._loc["Z"].abs().max()
+				if z_max > 10: self._spin_z_estimate.setValue(z_max)
+
 	##################################################
 	def _on_load_loc(self):
 		"""Callback du bouton 'Load Localization file (CSV)'."""
@@ -401,11 +406,6 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- mise à jour du label associé au bouton ---
 		Ui.update_path_label(self._lbl_compute, self._loc_filename)
 		Ui.update_path_label(self._lbl_loc_estimate, self._loc_filename)
-
-		# --- mise à jour du Z Max ---
-		z_max = self._loc["Z"].abs().max()
-		if z_max > 10: self._spin_z_estimate.setValue(z_max)
-		else: self._check_z_from_plane.setChecked(True)
 
 		Ui.print_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
 

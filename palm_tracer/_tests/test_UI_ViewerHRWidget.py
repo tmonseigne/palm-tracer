@@ -127,6 +127,34 @@ def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	w._filename = str(res.resolve())
 	qtbot.mouseClick(w._btn_save, Qt.MouseButton.LeftButton)
 	assert res.exists(), "File not saved."
+	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
+
+
+##################################################
+def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+	"""Test basique de création du widget."""
+	res = OUTPUT_DIR / "HR.png"
+	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
+	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	fake_napari_layers(viewer)
+
+	# --- Mock screenshot ---
+	def _fake_screenshot(self, path, canvas_only=True):
+		"""Fake screenshot : écrit un faux PNG."""
+		Path(path).write_bytes(b"fake png")
+
+	monkeypatch.setattr(type(viewer), "screenshot", _fake_screenshot, raising=True)
+
+	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+
+	w._screenshot_filename = ""
+	qtbot.mouseClick(w._btn_screenshot, Qt.MouseButton.LeftButton)  # Il ne fait rien si pas de nom de fichier.
+	assert not res.exists()
+
+	w._screenshot_filename = str(res.resolve())
+	qtbot.mouseClick(w._btn_screenshot, Qt.MouseButton.LeftButton)
+	assert res.exists(), "File not saved."
+	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
 
 
 ##################################################

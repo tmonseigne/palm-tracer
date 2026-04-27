@@ -51,7 +51,8 @@ TIPS = {
 
 		"Actualize":         "Updates files/data from PALMTracer status.",
 		"Generate":          "Generate HR Visualization.",
-		"Save":              "Opens a dialog box and save the visualization generated.",
+		"Save":              "Save the visualization generated.",
+		"Screenshot":        "Save the actual view of layers.",
 		}
 
 
@@ -96,6 +97,7 @@ class ViewerHRWidget(QWidget):
 		self._renderer = Renderer()
 		self._file: str = ""
 		self._filename: str = ""
+		self._screenshot_filename: str = ""
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
 		# Construction UI
@@ -170,16 +172,19 @@ class ViewerHRWidget(QWidget):
 		# --- Actions ---
 		actions_row = QHBoxLayout()
 		Ui.init_layout(actions_row)
-		self._btn_actualize = QPushButton("Actualize files")
+		self._btn_actualize = QPushButton("Actualize")
 		self._btn_actualize.setToolTip(TIPS["Actualize"])
 		self._btn_generate = QPushButton("Generate")
 		self._btn_generate.setToolTip(TIPS["Generate"])
 		self._btn_save = QPushButton("Save")
 		self._btn_save.setToolTip(TIPS["Save"])
-		actions_row.addStretch(1)  # permet d'aligner à droite
+		self._btn_screenshot = QPushButton("Screenshot")
+		self._btn_screenshot.setToolTip(TIPS["Screenshot"])
+		# actions_row.addStretch(1)  # permet d'aligner à droite
 		actions_row.addWidget(self._btn_actualize)
 		actions_row.addWidget(self._btn_generate)
 		actions_row.addWidget(self._btn_save)
+		actions_row.addWidget(self._btn_screenshot)
 
 		layout.addWidget(self._btn_add_stack)
 		layout.addWidget(grp_infos)
@@ -207,6 +212,7 @@ class ViewerHRWidget(QWidget):
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_generate.clicked.connect(self._generate)
 		self._btn_save.clicked.connect(self._save)
+		self._btn_screenshot.clicked.connect(self._screenshot)
 
 	# ==================================================
 	# endregion Initialisation
@@ -321,6 +327,13 @@ class ViewerHRWidget(QWidget):
 			FileIO.save_png(self.visualization, self._filename)
 			show_info("Image file saved successfully.")
 
+	##################################################
+	def _screenshot(self):  # pragma: no cover — Accès au canvas
+		"""Créé une image PNG de la visualisation actuelle."""
+		if self._screenshot_filename:
+			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
+			show_info("Screenshot saved successfully.")
+
 	# ==================================================
 	# endregion PALMTracer Link
 	# ==================================================
@@ -411,7 +424,9 @@ class ViewerHRWidget(QWidget):
 
 		layer.editable = False
 		filename_drift = '_corrected' if self._drift.value else ''
-		self._filename = f"{path}/visualization_{src}{filename_drift}_x{upscale}_{src}-{suffix}.png"
+		suffix = f"{filename_drift}_x{upscale}_{src}-{suffix}.png"
+		self._filename = f"{path}/visualization{suffix}"
+		self._screenshot_filename = f"{path}/screenshot{suffix}"
 		layer = self.viewer.add_image(self.visualization, name="Visualization")
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
 
