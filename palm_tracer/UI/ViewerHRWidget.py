@@ -48,6 +48,7 @@ TIPS = {
 		"G Size":            "The standard deviation of the Gaussian distribution if “Fixed Size” is selected.",
 		"Upscale Ratio":     "Image upscale ratio",
 		"Drift Correction":  "Apply a drift correction (Note: The beads must have been extracted before.)",
+		"Auto Crop":         "Remove all black Frame around reconstruction (Usefull when you make reconstruciton on a part of field). Keep 5 pixel of margin",
 
 		"Actualize":         "Updates files/data from PALMTracer status.",
 		"Generate":          "Generate HR Visualization.",
@@ -140,6 +141,7 @@ class ViewerHRWidget(QWidget):
 		self._color_mode = Combo("Color mode", TIPS["Color Mode"], 0, ["Addition", "Max"])
 		self._upscale = SpinInt("Upscale Ratio", TIPS["Upscale Ratio"], 4, [1, 100], 2)
 		self._drift = CheckBox("Drift Correction", TIPS["Drift Correction"])
+		self._auto_crop = CheckBox("Auto Crop", TIPS["Auto Crop"], True)
 		self._gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
 		self._gauss_intensity = SpinInt("Intensity", TIPS["G Intensity"], 100, [1, 10000], 10)
 		self._gauss_fixed_intensity = CheckBox("Fixed Intensity", TIPS["G Fixed Intensity"])
@@ -156,6 +158,7 @@ class ViewerHRWidget(QWidget):
 		self._gauss_shape_size.attach_to_form(form)
 		self._upscale.attach_to_form(form)
 		self._drift.attach_to_form(form)
+		self._auto_crop.attach_to_form(form)
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters", margin=10)
@@ -324,7 +327,7 @@ class ViewerHRWidget(QWidget):
 	def _save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
-			FileIO.save_png(self.visualization, self._filename)
+			FileIO.save_png(self._crop(), self._filename)
 			show_info("Image file saved successfully.")
 
 	##################################################
@@ -360,6 +363,33 @@ class ViewerHRWidget(QWidget):
 			drift[["X", "Y", "Z"]] = smooth
 			return Drift.remove_drift(data, drift, is_3d=False)
 		return data
+
+	##################################################
+	def _crop(self, margin: int = 5) -> np.ndarray:
+		"""
+		Recadre automatiquement l'image en supprimant les zones nulles autour,
+		avec une marge configurable.
+
+		:param margin: Nombre de pixels à conserver autour de la zone utile.
+		:return: Image recadrée.
+		"""
+		if not self._auto_crop.value: return self.visualization
+		img = self.visualization
+
+		# --- Masque des pixels non nuls ---
+		mask = img != 0
+		if not np.any(mask): return np.zeros((1, 1), dtype=img.dtype)  # Si tout est noir
+
+		# --- Indices min/max ---
+		rows, cols = np.any(mask, axis=1), np.any(mask, axis=0)  # Projection sur les axes
+		y_min, y_max = np.where(rows)[0][[0, -1]]
+		x_min, x_max = np.where(cols)[0][[0, -1]]
+
+		# --- Ajout marge (avec clamp) ---
+		y_min, y_max = max(0, y_min - margin), min(img.shape[0] - 1, y_max + margin)
+		x_min, x_max = max(0, x_min - margin), min(img.shape[1] - 1, x_max + margin)
+
+		return img[y_min:y_max + 1, x_min:x_max + 1]  # Crop
 
 	##################################################
 	def _generate(self):

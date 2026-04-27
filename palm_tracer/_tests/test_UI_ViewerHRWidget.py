@@ -32,14 +32,14 @@ def get_pt():
 ##################################################
 def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
 	"""Test basique de création du widget."""
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
 
 
 ##################################################
 def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du widget."""
-	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
@@ -53,7 +53,7 @@ def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mon
 ##################################################
 def test_change_source(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du widget."""
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
 
 	assert w._cmb_src.items[0] == "Count"
@@ -68,7 +68,7 @@ def test_change_source(make_napari_viewer, patched_napari_viewer, qtbot, capsys,
 ##################################################
 def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique du widget."""
-	viewer = make_napari_viewer()  # .					Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .			Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, PALMTracer())  # Créer notre widget, en passant par le viewer.
 
 	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
@@ -81,7 +81,7 @@ def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 def test_reset_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique de création du widget."""
 
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
 
 	assert w._status["Localization"].text() == "Yes (Filtered)", "Status Incorrect."
@@ -93,7 +93,7 @@ def test_reset_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsys
 def test_update_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique de création du widget."""
 
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
 
 	qtbot.mouseClick(w._filters.buttons["reset"], Qt.MouseButton.LeftButton)
@@ -117,9 +117,9 @@ def test_update_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsy
 def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique de création du widget."""
 	res = OUTPUT_DIR / "HR.png"
-	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
+	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
 
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
 
 	w._filename = ""
@@ -127,7 +127,7 @@ def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	w._filename = str(res.resolve())
 	qtbot.mouseClick(w._btn_save, Qt.MouseButton.LeftButton)
 	assert res.exists(), "File not saved."
-	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
+	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
 
 
 ##################################################
@@ -158,9 +158,31 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mo
 
 
 ##################################################
+def test_crop(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+	"""Test basique de création du widget."""
+	res = OUTPUT_DIR / "HR.png"
+	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
+
+	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
+	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+
+	res = w._crop()  # .					Crop à True, image noire
+	assert res == np.zeros((1, 1), dtype=np.uint16)
+
+	w.visualization = np.zeros((10, 10), dtype=np.uint16)
+	w.visualization[2:4, 6:] = 1
+	ref = w.visualization[:-1, 1:].copy()  # Le crop avec une marge de 5 va très peu recadrer
+	assert np.allclose(w._crop(), ref)  # .	Crop à True, avec un carré à 1 et une marge (par défaut) de 5
+	assert np.allclose(w._crop(0), 1)  # .	Crop à True, avec aucune marge
+
+	w._auto_crop.value = False
+	w._crop()  # .							Crop à False
+
+
+##################################################
 def test_generate_bad(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
 	"""Test basique de création du widget."""
-	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
@@ -200,7 +222,7 @@ def test_generate_bad(make_napari_viewer, patched_napari_viewer, qtbot, capsys, 
 ##################################################
 def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
 	"""Test basique de création du widget."""
-	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	add_basic_file(pt)
@@ -250,7 +272,7 @@ def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monk
 ##################################################
 def test_generate_drift(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
 	"""Test basique de création du widget."""
-	viewer = make_napari_viewer()  # .		  Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
