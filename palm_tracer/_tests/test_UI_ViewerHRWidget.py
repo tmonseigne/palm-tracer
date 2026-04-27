@@ -158,7 +158,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mo
 
 
 ##################################################
-def test_crop(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+def test_crop(make_napari_viewer, patched_napari_viewer):
 	"""Test basique de création du widget."""
 	res = OUTPUT_DIR / "HR.png"
 	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
@@ -175,7 +175,7 @@ def test_crop(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypa
 	assert np.allclose(w._crop(), ref)  # .	Crop à True, avec un carré à 1 et une marge (par défaut) de 5
 	assert np.allclose(w._crop(0), 1)  # .	Crop à True, avec aucune marge
 
-	w._auto_crop.value = False
+	w._chk_crop.value = False
 	w._crop()  # .							Crop à False
 
 
@@ -229,28 +229,37 @@ def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monk
 	pt.process()  # Process Vide pour créer le dossier et un setting de base
 	shutil.copy2(INPUT_DIR / "localizations.csv", INPUT_DIR / "stack_PALM_Tracer" / f"localizations-{pt._suffix}.csv")
 	shutil.copy2(INPUT_DIR / "tracking.csv", INPUT_DIR / "stack_PALM_Tracer" / f"tracking-{pt._suffix}.csv")
+	shutil.copy2(INPUT_DIR / "beads.csv", INPUT_DIR / "stack_PALM_Tracer" / f"beads-{pt._suffix}.csv")
 	pt.load()
 	pt.df["loc"]["Integrated Intensity"] *= 100
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
 	fake_napari_layers(viewer)
 
-	w._upscale.value = 1
+	w._spn_upscale.value = 1
 	w._cmb_src.value = 4
-	w._gauss_intensity.value = 1
-	upscale = w._upscale.value
+	w._spn_gauss_intensity.value = 1
+	upscale = w._spn_upscale.value
 	shape = (128 * upscale, 256 * upscale)
 	ref = np.zeros(shape)
 
 	# Génération de la localisation
+	w._chk_beads_remove.value = False
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
 	ref[2, 1] = 200
 	ref[3, 2] = 200
 	ref[5, 4] = 100
 	assert np.allclose(ref, w.visualization)
 
+	# Suppression de billes
+	w._chk_beads_remove.value = True
+	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
+	ref = np.zeros(shape)
+	ref[2, 1] = ref[3, 2] = ref[5, 4] = 100  # Il supprime 2 localisations donc plus qu'une sur les supperpositions
+	assert np.allclose(ref, w.visualization)
+
 	# Génération de la localisation en mode gaussien
-	w._gaussian.value = True
-	w._color_mode.value = 1
+	w._chk_gaussian.value = True
+	w._cmb_color_mode.value = 1
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
 	ref = np.zeros(shape)
 	patch = [[1, 2, 1, 0, 0, 0, 0],
@@ -282,13 +291,13 @@ def test_generate_drift(make_napari_viewer, patched_napari_viewer, qtbot, capsys
 	# Chargement d'une pile
 	fake_qfiledialog(FileList, f"{INPUT_DIR / 'stack.tif'}")
 	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
-	w._drift.value = True
+	w._chk_drift.value = True
 	w._pt.process()  # Process Vide pour créer le dossier et un setting de base
 
 	# Sans localization la sortie sera entièrement noire.
 	qtbot.mouseClick(w._btn_generate, Qt.MouseButton.LeftButton)
-	w._upscale.value = 2
-	upscale = w._upscale.value
+	w._spn_upscale.value = 2
+	upscale = w._spn_upscale.value
 	shape = (128 * upscale, 256 * upscale)
 	ref = np.zeros(shape)
 	assert np.allclose(ref, w.visualization)

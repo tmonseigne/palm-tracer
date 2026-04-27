@@ -463,7 +463,7 @@ class PALMTracer:
 
 	##################################################
 	def _beads_extraction(self):
-		"""Lance la correction du drift à partir des paramètres de l'interface."""
+		"""Extrait les billes des localisations."""
 		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:

@@ -41,12 +41,13 @@ TIPS = {
 		"Color Mode":        "When overlapping, select whether the pixel values are added together or whether only the maximum value is retained.",
 		"Gaussian":          "Displays a Gaussian distribution for each location.",
 		"G Intensity":       "Integrated intensity of the Gaussian curve if 'Fixed Intensity' is selected; otherwise, "
-							 "the ratio by which the value selected in the source will be divided",
+							 "the ratio by which the value selected in the source will be divided.",
 		"G Fixed Intensity": "Ensures that each point has the same intensity.",
 		"G Shape":           "Defines the shape of the Gaussian distribution (Isotropic, Anisotropic, or Fixed Size, "
-							 "so that each point has the same isotropic shape)",
+							 "so that each point has the same isotropic shape).",
 		"G Size":            "The standard deviation of the Gaussian distribution if “Fixed Size” is selected.",
-		"Upscale Ratio":     "Image upscale ratio",
+		"Upscale Ratio":     "Image upscale ratio.",
+		"Remove Beads":      "Remove beads during reconstruction.",
 		"Drift Correction":  "Apply a drift correction (Note: The beads must have been extracted before.)",
 		"Auto Crop":         "Remove all black Frame around reconstruction (Usefull when you make reconstruciton on a part of field). Keep 5 pixel of margin",
 
@@ -138,27 +139,29 @@ class ViewerHRWidget(QWidget):
 
 		self._cmb_src = Combo("Source", TIPS["Source"])
 		self._cmb_src.box.setMinimumWidth(200)
-		self._color_mode = Combo("Color mode", TIPS["Color Mode"], 0, ["Addition", "Max"])
-		self._upscale = SpinInt("Upscale Ratio", TIPS["Upscale Ratio"], 4, [1, 100], 2)
-		self._drift = CheckBox("Drift Correction", TIPS["Drift Correction"])
-		self._auto_crop = CheckBox("Auto Crop", TIPS["Auto Crop"], True)
-		self._gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
-		self._gauss_intensity = SpinInt("Intensity", TIPS["G Intensity"], 100, [1, 10000], 10)
-		self._gauss_fixed_intensity = CheckBox("Fixed Intensity", TIPS["G Fixed Intensity"])
-		self._gauss_shape = Combo("Shape", TIPS["G Shape"], 0, ["Fixed Size", "Isotrope", "Anisotrope"])
-		self._gauss_shape_size = SpinFloat("Size", TIPS["G Size"], 1, [0, 10], 0.01, 3)
+		self._cmb_color_mode = Combo("Color mode", TIPS["Color Mode"], 0, ["Addition", "Max"])
+		self._spn_upscale = SpinInt("Upscale Ratio", TIPS["Upscale Ratio"], 4, [1, 100], 2)
+		self._chk_beads_remove = CheckBox("Remove Beads", TIPS["Remove Beads"], True)
+		self._chk_drift = CheckBox("Drift Correction", TIPS["Drift Correction"])
+		self._chk_crop = CheckBox("Auto Crop", TIPS["Auto Crop"], True)
+		self._chk_gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
+		self._spn_gauss_intensity = SpinInt("Intensity", TIPS["G Intensity"], 100, [1, 10000], 10)
+		self._chk_gauss_fixed_intensity = CheckBox("Fixed Intensity", TIPS["G Fixed Intensity"])
+		self._cmb_gauss_shape = Combo("Shape", TIPS["G Shape"], 0, ["Fixed Size", "Isotrope", "Anisotrope"])
+		self._spn_gauss_shape_size = SpinFloat("Size", TIPS["G Size"], 1, [0, 10], 0.01, 3)
 
 		form.addRow(h)
 		self._cmb_src.attach_to_form(form)
-		self._color_mode.attach_to_form(form)
-		self._gaussian.attach_to_form(form)
-		self._gauss_intensity.attach_to_form(form)
-		self._gauss_fixed_intensity.attach_to_form(form)
-		self._gauss_shape.attach_to_form(form)
-		self._gauss_shape_size.attach_to_form(form)
-		self._upscale.attach_to_form(form)
-		self._drift.attach_to_form(form)
-		self._auto_crop.attach_to_form(form)
+		self._cmb_color_mode.attach_to_form(form)
+		self._chk_gaussian.attach_to_form(form)
+		self._spn_gauss_intensity.attach_to_form(form)
+		self._chk_gauss_fixed_intensity.attach_to_form(form)
+		self._cmb_gauss_shape.attach_to_form(form)
+		self._spn_gauss_shape_size.attach_to_form(form)
+		self._spn_upscale.attach_to_form(form)
+		self._chk_beads_remove.attach_to_form(form)
+		self._chk_drift.attach_to_form(form)
+		self._chk_crop.attach_to_form(form)
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters", margin=10)
@@ -204,7 +207,7 @@ class ViewerHRWidget(QWidget):
 
 		# Sources
 		self._btg_src.idClicked.connect(self._on_source_changed)
-		self._gaussian.connect(self._toggle_gaussian)
+		self._chk_gaussian.connect(self._toggle_gaussian)
 
 		# Filters
 		self._filters.buttons["reset"].clicked.connect(self._reset_filtered)
@@ -242,13 +245,13 @@ class ViewerHRWidget(QWidget):
 		# Remplir la ComboBox 'Source' en fonction du domaine
 		if btn_id == 0:  # .		Stack
 			src = DATA_SRC["Localization"]
-			self._color_mode.show()
-			self._gaussian.show()
+			self._cmb_color_mode.show()
+			self._chk_gaussian.show()
 		else:  # .					Tracking
 			src = DATA_SRC["Tracking"]
-			self._color_mode.hide()
-			self._gaussian.value = False
-			self._gaussian.hide()
+			self._cmb_color_mode.hide()
+			self._chk_gaussian.value = False
+			self._chk_gaussian.hide()
 		with self._cmb_src.signal_blocked(): self._cmb_src.update_box(src)
 		self._update_filters_ui()  # Mise à jour des filtres à afficher
 
@@ -268,16 +271,16 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _toggle_gaussian(self):
 		"""Montre ou cache les options réservées à la visualisation gaussienne."""
-		if self._gaussian.value:
-			self._gauss_intensity.show()
-			self._gauss_fixed_intensity.show()
-			self._gauss_shape.show()
-			self._gauss_shape_size.show()
+		if self._chk_gaussian.value:
+			self._spn_gauss_intensity.show()
+			self._chk_gauss_fixed_intensity.show()
+			self._cmb_gauss_shape.show()
+			self._spn_gauss_shape_size.show()
 		else:
-			self._gauss_intensity.hide()
-			self._gauss_fixed_intensity.hide()
-			self._gauss_shape.hide()
-			self._gauss_shape_size.hide()
+			self._spn_gauss_intensity.hide()
+			self._chk_gauss_fixed_intensity.hide()
+			self._cmb_gauss_shape.hide()
+			self._spn_gauss_shape_size.hide()
 
 	# ==================================================
 	# endregion UI Callback
@@ -352,7 +355,7 @@ class ViewerHRWidget(QWidget):
 		:param data:
 		:return:
 		"""
-		if self._drift.value:  # Drift activé
+		if self._chk_drift.value:  # Drift activé
 			beads = self._pt.beads
 			if beads.empty:  # Billes non calculées / trouvées
 				show_warning("No beads file available to correct drift.")
@@ -373,7 +376,7 @@ class ViewerHRWidget(QWidget):
 		:param margin: Nombre de pixels à conserver autour de la zone utile.
 		:return: Image recadrée.
 		"""
-		if not self._auto_crop.value: return self.visualization
+		if not self._chk_crop.value: return self.visualization
 		img = self.visualization
 
 		# --- Masque des pixels non nuls ---
@@ -410,11 +413,13 @@ class ViewerHRWidget(QWidget):
 
 		src_id = self._btg_src.checkedId()
 		src = self._cmb_src.current_text
-		upscale = self._upscale.value
+		upscale = self._spn_upscale.value
 		self._renderer.set_size(width, height, upscale)
 
 		if src_id == 0:  # Localisations
-			loc = self._correct_drift(self._pt.localizations)
+			loc = self._pt.localizations
+			if self._chk_beads_remove.value: loc = Drift.remove_beads(loc, self._pt.beads)
+			loc = self._correct_drift(loc)
 			if loc.empty:
 				show_warning("No localization file available.")
 				return
@@ -426,15 +431,15 @@ class ViewerHRWidget(QWidget):
 
 			# Visualisation
 			plot_data = loc[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
-			if self._gaussian.value:
+			if self._chk_gaussian.value:
 				gaussian = {
-						"Intensity":       self._gauss_intensity.value,
-						"Fixed Intensity": self._gauss_fixed_intensity.value,
-						"Shape":           self._gauss_shape.value,
-						"Size":            self._gauss_shape_size.value
+						"Intensity":       self._spn_gauss_intensity.value,
+						"Fixed Intensity": self._chk_gauss_fixed_intensity.value,
+						"Shape":           self._cmb_gauss_shape.value,
+						"Size":            self._spn_gauss_shape_size.value
 						}
 			else: gaussian = None
-			color_mode = 0 if src == "Count" else self._color_mode.value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			color_mode = 0 if src == "Count" else self._cmb_color_mode.value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
 			self.visualization = self._renderer.localizations(plot_data, color_mode, gaussian)
 
 		else:  # Trajectoires
@@ -453,10 +458,10 @@ class ViewerHRWidget(QWidget):
 			self.visualization = self._renderer.tracks(trc[:, [0, 2, 3, 4]])
 
 		layer.editable = False
-		filename_drift = '_corrected' if self._drift.value else ''
-		suffix = f"{filename_drift}_x{upscale}_{src}-{suffix}.png"
-		self._filename = f"{path}/visualization{suffix}"
-		self._screenshot_filename = f"{path}/screenshot{suffix}"
+		suffix_drift = '_corrected' if self._chk_drift.value else ''
+		suffix_file = f"{suffix_drift}_x{upscale}_{src}-{suffix}.png"
+		self._filename = f"{path}/visualization{suffix_file}"
+		self._screenshot_filename = f"{path}/screenshot{suffix_file}"
 		layer = self.viewer.add_image(self.visualization, name="Visualization")
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
 
