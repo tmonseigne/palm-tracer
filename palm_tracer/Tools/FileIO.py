@@ -6,7 +6,9 @@ Ce module regroupe diverses fonctions pour la gestion et la manipulation de fich
 
 import ctypes
 import json
+import os
 import re
+import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -108,6 +110,17 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 
 
 ##################################################
+def reuse_file(src: str | Path, dst: str | Path):
+	"""
+	Crée un lien dur ou copie si impossible.
+	:param src: Fichier à dupliquer
+	:param dst: Fichier de sortie
+	"""
+	try: os.link(src, dst)  # .				  Ultra rapide
+	except OSError: shutil.copy2(src, dst)  # Fallback safe
+
+
+##################################################
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	"""
 	Charge une DLL, si elle existe.
@@ -194,7 +207,7 @@ def open_json(filename: str | Path) -> dict[str, Any]:
 # region TIF IO
 # ==================================================
 ##################################################
-def save_tif(stack: np.ndarray, filename: str):
+def save_tif(stack: np.ndarray, filename: str | Path):
 	"""
 	Sauvegarde un tableau 3D (ou 2D converti en 3D) dans un fichier TIF multi-frame avec tifffile.
 
