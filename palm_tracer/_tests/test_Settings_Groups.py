@@ -244,9 +244,9 @@ def test_visualization_graph(qtbot):
 
 ###################################################
 def test_filtering(qtbot):
-	"""Test basique de la classe Filtering (constructeur, getter, setter)"""
-	g = Filtering()
-	print("FilteringL id:", id(g["Localization"]))
+	"""Test basique de la classe Filters (constructeur, getter, setter)"""
+	g = Filters()
+	print("FiltersL id:", id(g["Localization"]))
 	print("X id:", id(g["Localization"]["X"]))
 	print("limits id", id(g["Localization"]["X"].limits))
 	group_base_test(g, ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
@@ -256,9 +256,9 @@ def test_filtering(qtbot):
 
 ###################################################
 def test_filtering_l(qtbot):
-	"""Test basique de la classe FilteringL (constructeur, getter, setter)"""
-	g = FilteringL()
-	print("FilteringL id:", id(g))
+	"""Test basique de la classe FiltersL (constructeur, getter, setter)"""
+	g = FiltersL()
+	print("FiltersL id:", id(g))
 	print("X id:", id(g["X"]))
 	print("limits id", id(g["X"].limits))
 	group_base_test(g, ["X", "Y", "Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [0, 100000])
@@ -267,7 +267,7 @@ def test_filtering_l(qtbot):
 
 ###################################################
 def test_filtering_t(qtbot):
-	"""Test basique de la classe FilteringT (constructeur, getter, setter)"""
-	g = FilteringT()
+	"""Test basique de la classe FiltersT (constructeur, getter, setter)"""
+	g = FiltersT()
 	group_base_test(g, ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
 	g.deactivate_filters()

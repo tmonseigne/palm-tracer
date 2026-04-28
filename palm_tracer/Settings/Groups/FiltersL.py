@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`FilteringL` dérivée de :class:`.BaseSettingGroup`,
+Fichier contenant la classe :class:`FiltersL` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de filtrage de l'ajustement gaussien nécessaires à la configuration de PALM Tracer.
 """
 
@@ -11,7 +11,7 @@ from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 
 ##################################################
 @dataclass
-class FilteringL(BaseSettingGroup):
+class FiltersL(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres du filtrage pour la localisation :
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
-	group = FilteringL()
+	group = FiltersL()
 	group.active = True
 	w.layout().addWidget(group.widget)
 	w.show()

@@ -15,9 +15,9 @@ from .Batch import Batch
 from .BlinkingReconnection import BlinkingReconnection
 from .Calibration import Calibration
 from .BeadsExtraction import BeadsExtraction
-from .Filtering import Filtering
-from .FilteringL import FilteringL
-from .FilteringT import FilteringT
+from .Filters import Filters
+from .FiltersL import FiltersL
+from .FiltersT import FiltersT
 from .Gallery import Gallery
 from .GaussianFit import GaussianFit
 from .Localization import Localization
@@ -44,9 +44,9 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 	elif data["type"] == "Gallery": return Gallery.from_dict(data)
 	elif data["type"] == "VisualizationHR": return VisualizationHR.from_dict(data)
 	elif data["type"] == "VisualizationGraph": return VisualizationGraph.from_dict(data)
-	elif data["type"] == "Filtering": return Filtering.from_dict(data)
-	elif data["type"] == "FilteringL": return FilteringL.from_dict(data)
-	elif data["type"] == "FilteringT": return FilteringT.from_dict(data)
+	elif data["type"] == "Filters": return Filters.from_dict(data)
+	elif data["type"] == "FiltersL": return FiltersL.from_dict(data)
+	elif data["type"] == "FiltersT": return FiltersT.from_dict(data)
 	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
 
 
@@ -54,7 +54,7 @@ def create_group_from_dict(data: dict[str, Any]) -> "BaseSettingGroup":
 __all__ = ["create_group_from_dict",
 		   "BaseSettingGroup",
 		   "Batch", "Calibration",
-		   "Filtering", "FilteringL", "FilteringT",
+		   "Filters", "FiltersL", "FiltersT",
 		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",
 		   "Tracking", "BlinkingReconnection", "TracksCompute",
 		   "Gallery", "VisualizationHR", "VisualizationGraph"]

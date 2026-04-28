@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`Filtering` dérivée de :class:`.BaseSettingGroup`,
+Fichier contenant la classe :class:`Filters` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de filtrage du tracking nécessaires à la configuration de PALM Tracer.
 
 .. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres. Dynamiquement, changer le max de la longueur
@@ -13,7 +13,7 @@ from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 
 ##################################################
 @dataclass
-class FilteringT(BaseSettingGroup):
+class FiltersT(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres du filtrage pour le tracking :
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
-	group = FilteringT()
+	group = FiltersT()
 	group.active = True
 	w.layout().addWidget(group.widget)
 	w.show()

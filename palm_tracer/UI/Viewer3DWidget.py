@@ -143,11 +143,9 @@ class Viewer3DWidget(QWidget):
 ##################################################
 def create_viewer3d() -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
-	Crée une nouvelle fenêtre Napari 3D, sans menu,
-	et y ajoute le Viewer3DWidget docké à droite.
+	Crée une nouvelle fenêtre Napari 3D, sans menu, et y ajoute le Viewer3DWidget docké à droite.
 
-	Cette fonction NE lance PAS napari.run() : elle est faite
-	pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
+	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 	"""
 	viewer = napari.Viewer(ndisplay=3)  # .									 Crée le viewer 3D napari
 	viewer.title = "3D Viewer"  # .											 Modifier le titre de la fenêtre

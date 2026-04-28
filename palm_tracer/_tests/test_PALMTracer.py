@@ -720,7 +720,7 @@ def test_update_filtered(qtbot, capsys, pt):
 	"""Test pour la mise à jour des tableaux filtrés."""
 	clean_output()
 	pt.update_filtered()  # Tout est vide
-	pt.settings.filtering["Save"].value = True
+	pt.settings.filters["Save"].value = True
 	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
 
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
@@ -740,7 +740,7 @@ def test_save_filtered(qtbot, capsys, pt):
 	clean_output()
 	pt._path = OUTPUT_DIR
 	pt.update_filtered()  # Tout est vide
-	pt.settings.filtering["Save"].value = True
+	pt.settings.filters["Save"].value = True
 	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
 
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
@@ -750,8 +750,8 @@ def test_save_filtered(qtbot, capsys, pt):
 
 	add_basic_file(pt)
 	pt.df["loc"] = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
-	pt.settings.filtering["Plane"].active = True
-	pt.settings.filtering["Plane"].value = [2, 3]
+	pt.settings.filters["Plane"].active = True
+	pt.settings.filters["Plane"].value = [2, 3]
 	pt.update_filtered()  # Il va recalculer les filtres.
 	check_output(OUTPUT_FOLDER, csv=[1])  # Il a enregistré la version filtrée.
 
@@ -768,8 +768,8 @@ def test_filter_plan(qtbot, capsys, pt):
 	shutil.copy2(src, dst)
 
 	add_basic_file(pt)
-	pt.settings.filtering["Plane"].active = True
-	pt.settings.filtering["Plane"].value = [2, 3]
+	pt.settings.filters["Plane"].active = True
+	pt.settings.filters["Plane"].value = [2, 3]
 	pt.process()
 
 	assert pt.localizations["Plane"].isin([2, 3]).all(), "Le DataFrame contient des valeurs hors [2, 3] dans la colonne Plane."
@@ -794,26 +794,26 @@ def test_filter_all_localization(qtbot, capsys, pt):
 	# Ajout du fichier
 	add_basic_file(pt)
 
-	pt.settings.filtering["Plane"].active = True
-	pt.settings.filtering["Plane"].value = [1, 9]  # Suppression du dernier plan uniquement 411/451 : 40 suppression(s)
-	pt.settings.filtering["Localization"]["Intensity"].active = True
-	pt.settings.filtering["Localization"]["Intensity"].value = [100, 20000]  # 391/411 : 20 suppression(s)
-	pt.settings.filtering["Localization"]["Sigma X"].active = True
-	pt.settings.filtering["Localization"]["Sigma X"].value = [0, 10]  # Aucune suppression
-	pt.settings.filtering["Localization"]["Sigma Y"].active = True
-	pt.settings.filtering["Localization"]["Sigma Y"].value = [0, 10]  # Aucune suppression
-	pt.settings.filtering["Localization"]["Circularity"].active = True  # Aucune suppression
-	pt.settings.filtering["Localization"]["Theta"].active = True
-	pt.settings.filtering["Localization"]["Theta"].value = [-60, 60]  # 346/391 : 45 suppression(s)
-	pt.settings.filtering["Localization"]["Z"].active = True  # Aucune suppression
-	pt.settings.filtering["Localization"]["MSE XY"].active = True
-	pt.settings.filtering["Localization"]["MSE XY"].value = [0.05, 10]  # 345/366 : 1 suppression(s)
-	# pt.settings.filtering["Localization"]["MSE Z"].active = True # La colonne est à -1 le filtre est forcément sur un nombre positif
-	# pt.settings.filtering["Localization"]["MSE Z"].value = [0, 10]
+	pt.settings.filters["Plane"].active = True
+	pt.settings.filters["Plane"].value = [1, 9]  # Suppression du dernier plan uniquement 411/451 : 40 suppression(s)
+	pt.settings.filters["Localization"]["Intensity"].active = True
+	pt.settings.filters["Localization"]["Intensity"].value = [100, 20000]  # 391/411 : 20 suppression(s)
+	pt.settings.filters["Localization"]["Sigma X"].active = True
+	pt.settings.filters["Localization"]["Sigma X"].value = [0, 10]  # Aucune suppression
+	pt.settings.filters["Localization"]["Sigma Y"].active = True
+	pt.settings.filters["Localization"]["Sigma Y"].value = [0, 10]  # Aucune suppression
+	pt.settings.filters["Localization"]["Circularity"].active = True  # Aucune suppression
+	pt.settings.filters["Localization"]["Theta"].active = True
+	pt.settings.filters["Localization"]["Theta"].value = [-60, 60]  # 346/391 : 45 suppression(s)
+	pt.settings.filters["Localization"]["Z"].active = True  # Aucune suppression
+	pt.settings.filters["Localization"]["MSE XY"].active = True
+	pt.settings.filters["Localization"]["MSE XY"].value = [0.05, 10]  # 345/366 : 1 suppression(s)
+	# pt.settings.filters["Localization"]["MSE Z"].active = True # La colonne est à -1 le filtre est forcément sur un nombre positif
+	# pt.settings.filters["Localization"]["MSE Z"].value = [0, 10]
 	pt.process()
 	check_capsys(capsys, 23, [(False, 5), (False, 9), (False, 11), (False, 13), (False, 14), (False, 18), (False, 19), (False, 20)])
 
-	pt.settings.filtering["Save"].value = True
+	pt.settings.filters["Save"].value = True
 	pt.process()  # Second passage avec enregistrement
 	check_capsys(capsys, 24, [(False, 5), (False, 10), (False, 12), (False, 14), (False, 15), (False, 19), (False, 20), (False, 21)])
 
@@ -829,7 +829,7 @@ def test_filter_all_localization(qtbot, capsys, pt):
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	# La colonne est à -1 le filtre est forcément sur un nombre positif donc il va vider le dataframe
-	pt.settings.filtering["Localization"]["MSE Z"].active = True
+	pt.settings.filters["Localization"]["MSE Z"].active = True
 
 	res = pt.filter_localizations(pt.localizations)
 	assert res.empty, "Un dataframe vide doit être retourné."
@@ -858,9 +858,9 @@ def test_filter_all_tracking(qtbot, capsys, pt):
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
 	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 9), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
 
-	pt.settings.filtering["Tracks"]["Length"].active = True
-	pt.settings.filtering["Tracks"]["Length"].value = [3, 10000]  # 52/222 : 170 suppression(s)
-	pt.settings.filtering["Save"].value = True
+	pt.settings.filters["Tracks"]["Length"].active = True
+	pt.settings.filters["Tracks"]["Length"].value = [3, 10000]  # 52/222 : 170 suppression(s)
+	pt.settings.filters["Save"].value = True
 	pt.process()
 
 	res, ref = len(pt.tracks), 52
@@ -889,21 +889,21 @@ def test_filter_all_tracks_compute(qtbot, capsys, pt):
 	pt.settings.tracks_compute["Fit"].value = 1
 	pt.settings.tracks_compute["Fit Length"].value = 2
 
-	pt.settings.filtering["Tracks"]["Length"].active = True
-	pt.settings.filtering["Tracks"]["Length"].value = [3, 10000]
-	pt.settings.filtering["Tracks"]["Instant D"].active = True
-	pt.settings.filtering["Tracks"]["Instant D"].value = [0.01, 5]
-	pt.settings.filtering["Tracks"]["D Coeff"].active = True
-	pt.settings.filtering["Tracks"]["D Coeff"].value = [1, 5]
-	pt.settings.filtering["Tracks"]["Speed"].active = True
-	pt.settings.filtering["Tracks"]["Speed"].value = [-10, 10]
-	pt.settings.filtering["Tracks"]["Alpha"].active = True
-	pt.settings.filtering["Tracks"]["Confinement"].value = [-10, 10]
+	pt.settings.filters["Tracks"]["Length"].active = True
+	pt.settings.filters["Tracks"]["Length"].value = [3, 10000]
+	pt.settings.filters["Tracks"]["Instant D"].active = True
+	pt.settings.filters["Tracks"]["Instant D"].value = [0.01, 5]
+	pt.settings.filters["Tracks"]["D Coeff"].active = True
+	pt.settings.filters["Tracks"]["D Coeff"].value = [1, 5]
+	pt.settings.filters["Tracks"]["Speed"].active = True
+	pt.settings.filters["Tracks"]["Speed"].value = [-10, 10]
+	pt.settings.filters["Tracks"]["Alpha"].active = True
+	pt.settings.filters["Tracks"]["Confinement"].value = [-10, 10]
 	pt.process()
 
 	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 13), (True, 14), (False, 19), (False, 20), (False, 21)])
 
-	pt.settings.filtering["Save"].value = True
+	pt.settings.filters["Save"].value = True
 	pt.process()
 	check_capsys(capsys, 29, [(False, 5), (False, 7), (False, 9), (False, 14), (True, 15), (False, 24), (False, 25), (False, 26)])
 
@@ -911,7 +911,7 @@ def test_filter_all_tracks_compute(qtbot, capsys, pt):
 	assert len(pt.tracks) == 26, f"Il reste {len(pt.tracks)} points au lieu de 26 sur les trajectoires."
 	assert len(pt.tracks_compute["MSD"]) == 6, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 14."
 	# Filtre massif plus rien à la sortie
-	pt.settings.filtering["Tracks"]["Length"].value = [42, 10000]
+	pt.settings.filters["Tracks"]["Length"].value = [42, 10000]
 	pt.process()
 	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
@@ -922,7 +922,7 @@ def test_filter_all_tracks_compute(qtbot, capsys, pt):
 def test_filter_outside(qtbot, capsys, pt):
 	"""Test pour le filtrage hors exécution."""
 	clean_output()
-	pt.settings.filtering["Tracks"]["Instant D"].active = True
+	pt.settings.filters["Tracks"]["Instant D"].active = True
 	assert pt.filter_localizations(pt.localizations).empty
 	assert pt.filter_tracks(pt.tracks).empty
 	res = pt.filter_tracks_compute(pt.tracks, pt.df["MSD"], pt.df["InD"], pt.df["Fit"])

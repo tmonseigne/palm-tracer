@@ -20,7 +20,7 @@ from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QV
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Drift, Renderer
-from palm_tracer.Settings.Groups import Filtering
+from palm_tracer.Settings.Groups import Filters
 from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinFloat, SpinInt
 from palm_tracer.Tools import FileIO, Ui
 
@@ -166,8 +166,8 @@ class ViewerHRWidget(QWidget):
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters", margin=10)
 		# Integration des Filtres
-		self._filters = Filtering()
-		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+		self._filters = Filters()
+		self._filters.update_from_dict(self._pt.settings.filters.to_dict())
 		vbox_filters.addWidget(self._filters.widget)
 		# Masquage initial
 		self._filters["Save"].hide()
@@ -303,7 +303,7 @@ class ViewerHRWidget(QWidget):
 			- Mets à jour les libellés d'information et l'état d'activation des boutons de domaine.
 		"""
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+			self._filters.update_from_dict(self._pt.settings.filters.to_dict())
 			# Métadonnées d'information
 			self._update_status()
 			if self._pt.stack is not None:
@@ -322,7 +322,7 @@ class ViewerHRWidget(QWidget):
 	def _update_filtered(self):
 		"""Applique les filtres sur les dataframes."""
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
+			self._pt.settings.filters.update_from_dict(self._filters.to_dict())
 			self._pt.update_filtered()  # Mise à jour des filtres
 			self._update_status()
 
@@ -469,11 +469,9 @@ class ViewerHRWidget(QWidget):
 ##################################################
 def create_viewerhr(palmtracer: PALMTracer | None = None) -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 	"""
-	Crée une nouvelle fenêtre Napari HR, sans menu,
-	et y ajoute le ViewerHRWidget docké à droite.
+	Crée une nouvelle fenêtre Napari HR, sans menu,	et y ajoute le ViewerHRWidget docké à droite.
 
-	Cette fonction NE lance PAS napari.run() : elle est faite
-	pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
+	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 	"""
 	if palmtracer is None: palmtracer = PALMTracer()
 	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari

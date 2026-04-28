@@ -105,11 +105,11 @@ def test_update_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsy
 	w._filters["Plane"].value = new_f
 	w._filters["Plane"].active = True
 	assert w._filters["Plane"].value == new_f, "Filtre incorrect."
-	assert w._pt.settings.filtering["Plane"].value == ref, "Filtre incorrect."  # .		Il n'est pas encore à jour.
+	assert w._pt.settings.filters["Plane"].value == ref, "Filtre incorrect."  # .		Il n'est pas encore à jour.
 
 	qtbot.mouseClick(w._filters.buttons["update"], Qt.MouseButton.LeftButton)
 
-	assert w._pt.settings.filtering["Plane"].value == new_f  # .						Il a été mis à jour
+	assert w._pt.settings.filters["Plane"].value == new_f  # .						Il a été mis à jour
 	assert w._status["Localization"].text() == "Yes (Filtered)", "Status Incorrect."  # On a à nouveau un tableau filtré.
 
 

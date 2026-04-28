@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 
 from palm_tracer.Processing import Drift, Gallery, Palm, Parsing, Visualization as Viz
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups import BaseSettingGroup, FilteringL, FilteringT
+from palm_tracer.Settings.Groups import BaseSettingGroup, FiltersL, FiltersT
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
@@ -70,7 +70,7 @@ class PALMTracer:
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		filters = self.settings.filtering
+		filters = self.settings.filters
 		filters.buttons["reset"].clicked.connect(self.reset_filtered)
 		filters.buttons["update"].clicked.connect(self.update_filtered)
 		filters.buttons["save"].clicked.connect(self.save_filtered)
@@ -380,7 +380,7 @@ class PALMTracer:
 			n_init, n_end = len(self.df[keys[0]]), len(self.df[f_key])
 			if n_init != n_end:
 				self._logger.add(f"\t\tFiltering of {name} file {n_end} {name} instead of {n_init}: {n_init - n_end} deletion(s).")
-				if self.settings.filtering["Save"].value and n_end != 0:
+				if self.settings.filters["Save"].value and n_end != 0:
 					self._logger.add(f"\tSaving the filtered {name} file.")
 					self.df[f_key].to_csv(self._output_name(self.KEYS_TO_FILE[f_key]), index=False)
 			else:
@@ -393,7 +393,7 @@ class PALMTracer:
 		"""Lance la localisation à partir des paramètres de l'interface."""
 		# Parse settings
 		s = self.settings.localization.settings
-		filters = self.settings.filtering
+		filters = self.settings.filters
 		# Filtre sur les plans
 		planes = filters["Plane"].value
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
@@ -545,7 +545,7 @@ class PALMTracer:
 	##################################################
 	def reset_filtered(self):
 		"""Vide entièrement les DataFrames filtrés dans `df`."""
-		with self.settings.signal_blocked(): self.settings.filtering.reset()
+		with self.settings.signal_blocked(): self.settings.filters.reset()
 		for key in self.df:
 			if key.startswith("f_"): self.df[key] = pd.DataFrame()
 
@@ -573,7 +573,7 @@ class PALMTracer:
 			f_key = f"f_{key}"
 			if len(self.df[key]) == len(self.df[f_key]): self.df[f_key] = pd.DataFrame()
 
-		if self.settings.filtering["Save"].value: self.save_filtered()
+		if self.settings.filters["Save"].value: self.save_filtered()
 
 	##################################################
 	def save_filtered(self):
@@ -596,7 +596,7 @@ class PALMTracer:
 		n_end = len(self.df["f_MSD"])
 		if n_init != n_end:
 			self._logger.add(f"\t\tFiltering of tracks compute files {n_end} tracks instead of {n_init}: {n_init - n_end} deletion(s)")
-			if self.settings.filtering["Save"].value:
+			if self.settings.filters["Save"].value:
 				for key, name in [(o_name, "tracking"), ("f_MSD", "MSD"), ("f_InD", "Instant Diffusion"), ("f_Fit", "Fit")]:
 					if not self.df[key].empty:
 						self._logger.add(f"\tSaving the filtered {name} file.")
@@ -615,8 +615,8 @@ class PALMTracer:
 		res = datas.copy()
 		if "Integrated Intensity" in res.columns: df = res[res["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if res.empty: return res
-		f = self.settings.filtering
-		fl = cast(FilteringL, f["Localization"])
+		f = self.settings.filters
+		fl = cast(FiltersL, f["Localization"])
 		filters = [[f["Plane"], "Plane"],
 				   [fl["X"], "X"], [fl["Y"], "Y"], [fl["Z"], "Z"],
 				   [fl["Intensity"], "Integrated Intensity"],
@@ -639,7 +639,7 @@ class PALMTracer:
 		"""
 		res = datas.copy()
 		if res.empty: return res
-		f = cast(CheckRangeInt, cast(FilteringT, self.settings.filtering["Tracks"])["Length"])  # Linter passage
+		f = cast(CheckRangeInt, cast(FiltersT, self.settings.filters["Tracks"])["Length"])  # Linter passage
 		if f.active:
 			limits = f.value
 			counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
@@ -665,7 +665,7 @@ class PALMTracer:
 		o_fit = fit.copy()
 		if o_trc.empty: return o_trc, o_msd, o_ind, o_fit
 
-		f = cast(FilteringT, self.settings.filtering["Tracks"])
+		f = cast(FiltersT, self.settings.filters["Tracks"])
 
 		# ----- Base : tous les IDs présents dans la référence -----
 		keep_ids: set = set(o_trc["Track"].unique().tolist())
