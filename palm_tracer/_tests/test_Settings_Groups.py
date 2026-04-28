@@ -243,30 +243,26 @@ def test_visualization_graph(qtbot):
 
 
 ###################################################
-def test_filtering(qtbot):
+def test_filters(qtbot):
 	"""Test basique de la classe Filters (constructeur, getter, setter)"""
 	g = Filters()
-	print("FiltersL id:", id(g["Localization"]))
-	print("X id:", id(g["Localization"]["X"]))
-	print("limits id", id(g["Localization"]["X"].limits))
 	group_base_test(g, ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
 	g.deactivate_filters()
 	g.update_limits(10, 10, 10)
+	assert isinstance(g.localization, FiltersL)
+	assert isinstance(g.tracking, FiltersT)
 
 
 ###################################################
-def test_filtering_l(qtbot):
+def test_filters_l(qtbot):
 	"""Test basique de la classe FiltersL (constructeur, getter, setter)"""
 	g = FiltersL()
-	print("FiltersL id:", id(g))
-	print("X id:", id(g["X"]))
-	print("limits id", id(g["X"].limits))
 	group_base_test(g, ["X", "Y", "Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [0, 100000])
 	g.deactivate_filters()
 
 
 ###################################################
-def test_filtering_t(qtbot):
+def test_filters_t(qtbot):
 	"""Test basique de la classe FiltersT (constructeur, getter, setter)"""
 	g = FiltersT()
 	group_base_test(g, ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])

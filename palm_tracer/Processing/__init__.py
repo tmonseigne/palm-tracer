@@ -13,9 +13,10 @@ Ce sous-package contient les fonctions de traitement pour le projet.
 """
 
 # Exemple d'importation des modules pour un accès direct
+from .Filtering import Filtering
 from .Grapher import Grapher
 from .Palm import Palm
 from .Renderer import Renderer
 
 # Définir la liste des symboles exportés
-__all__ = ["Drift", "Gallery", "Parsing", "Visualization", "Grapher", "Palm", "Renderer"]
+__all__ = ["Drift", "Gallery", "Parsing", "Visualization", "Filtering", "Grapher", "Palm", "Renderer"]

@@ -45,6 +45,18 @@ class Filters(BaseSettingGroup):
 	"""Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`)."""
 
 	##################################################
+	@property
+	def localization(self) -> FiltersL:
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		return cast(FiltersL, self._settings["Localization"])
+
+	##################################################
+	@property
+	def tracking(self) -> FiltersT:
+		"""Groupe de paramètres liés aux filtres sur le suivi (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`)."""
+		return cast(FiltersT, self._settings["Tracks"])
+
+	##################################################
 	def initialize_ui(self):
 		super().initialize_ui()
 		self.remove_header()
@@ -82,7 +94,6 @@ class Filters(BaseSettingGroup):
 			cast(CheckRangeInt, fl["X"]).update_limits(None, x_max)
 			ft = cast(FiltersT, self._settings["Tracks"])
 			cast(CheckRangeInt, ft["Length"]).update_limits(None, plane_max)
-
 
 
 ##################################################
