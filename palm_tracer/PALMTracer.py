@@ -37,7 +37,7 @@ class PALMTracer:
 	"""Interface vers la DLL C++ Palm."""
 	_logger: Logger = field(init=False, default_factory=Logger)
 	"""Journal d'activité."""
-	_filtering: Filtering = field(init=False)
+	filtering: Filtering = field(init=False)
 	"""Outil de filtrage."""
 	df: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
 			"loc":   pd.DataFrame(), "dft": pd.DataFrame(), "bds": pd.DataFrame(), "trc": pd.DataFrame(), "blk": pd.DataFrame(),
@@ -77,17 +77,17 @@ class PALMTracer:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		filters = self.settings.filters
-		self._filtering = Filtering(filters)
+		self.filtering = Filtering(filters)
 		filters.buttons["reset"].clicked.connect(self.reset_filtered)
 		filters.buttons["update"].clicked.connect(self.update_filtered)
 		filters.buttons["save"].clicked.connect(self.save_filtered)
 
 		self._STEPS: list[Step] = [
-				Step("localization", ["loc"], self._localization, self._filtering.localization),
-				Step("beads", ["bds"], self._beads_extraction, self._filtering.localization, allow_dirty=True),
-				Step("tracking", ["trc"], self._tracking, self._filtering.tracking),
-				Step("blinking", ["blk"], self._blinking_reconnection, self._filtering.tracking),
-				Step("tracks_compute", ["MSD", "InD", "Fit"], self._tracks_compute, self._filtering.tracks_compute),
+				Step("localization", ["loc"], self._localization, self.filtering.localization),
+				Step("beads", ["bds"], self._beads_extraction, self.filtering.localization, allow_dirty=True),
+				Step("tracking", ["trc"], self._tracking, self.filtering.tracking),
+				Step("blinking", ["blk"], self._blinking_reconnection, self.filtering.tracking),
+				Step("tracks_compute", ["MSD", "InD", "Fit"], self._tracks_compute, self.filtering.tracks_compute),
 				# Step("gallery", "gallery", ["gallery"], self._gallery),
 				# Step("graphical visualization", "visualization_graph", ["graph"], self._visualization_graph),
 				# Step("high-resolution visualization", "visualization_hr", ["hr"], self._visualization_hr),
@@ -639,14 +639,14 @@ class PALMTracer:
 		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
 			df[key] = self.df[key] if self.df[f"f_{key}"].empty or not last else self.df[f"f_{key}"]
 
-		self.df["f_loc"] = self._filtering.localization(df["loc"])
-		self.df["f_dft"] = self._filtering.localization(df["dft"])
-		self.df["f_trc"] = self._filtering.tracking(df["trc"])
-		self.df["f_blk"] = self._filtering.tracking(df["blk"])
+		self.df["f_loc"] = self.filtering.localization(df["loc"])
+		self.df["f_dft"] = self.filtering.localization(df["dft"])
+		self.df["f_trc"] = self.filtering.tracking(df["trc"])
+		self.df["f_blk"] = self.filtering.tracking(df["blk"])
 
 		o_name = "f_trc" if self.df["f_blk"].empty else "f_blk"
 		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
-			= self._filtering.tracks_compute(self.tracks, df["MSD"], df["InD"], df["Fit"])
+			= self.filtering.tracks_compute(self.tracks, df["MSD"], df["InD"], df["Fit"])
 
 		for key in ["loc", "dft", "trc", "blk"]:
 			f_key = f"f_{key}"

@@ -457,14 +457,15 @@ class PALMTracerWidget(QWidget):
 		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
 		except Exception: raise
 		pres_loc = self.pt.palm.localization(pres, t, w, f, fp)
-		filt_loc = self.pt.filter_localizations(pres_loc)
+		filt_loc = self.pt.filtering.localization(pres_loc)
 		remo_loc = pres_loc.loc[~pres_loc.index.isin(filt_loc.index)].copy()
 
 		self._preview_locs = {
 				"Present":  filt_loc[["Y", "X"]].to_numpy(),
 				"Filtered": remo_loc[["Y", "X"]].to_numpy(),
-				"Past":     np.empty(0) if past is None else self.pt.filter_localizations(self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
-				"Future":   np.empty(0) if fut is None else self.pt.filter_localizations(self.pt.palm.localization(fut, t, w, f, fp))[["Y", "X"]].to_numpy(),
+				"Past":     np.empty(0) if past is None else self.pt.filtering.localization(
+						self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
+				"Future":   np.empty(0) if fut is None else self.pt.filtering.localization(self.pt.palm.localization(fut, t, w, f, fp))[["Y", "X"]].to_numpy(),
 				}
 
 		# Affichage console (les notifications posent problème en thread externe)
