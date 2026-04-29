@@ -7,15 +7,15 @@ Module contenant les fonctions de traitement de PALM.
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
 from palm_tracer.Processing import Drift, Filtering, Gallery, Palm, Parsing, Visualization as Viz
+from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups import BaseSettingGroup
 from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
 from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
 from palm_tracer.Tools import FileIO, Logger, Ui
@@ -52,8 +52,10 @@ class PALMTracer:
 	"""Dossier de sortie pour le fichier en cours de traitement."""
 	_stack: Optional[np.ndarray] = field(init=False, default=None)
 	"""Pile en cours de traitement."""
-	_suffix: str = field(init=False, default="")
+	_timestamp: str = field(init=False, default="")
 	"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
+	_timestamp_previous: str = field(init=False, default="")
+	"""Suffixe des fichiers pour le traitement précédent (timestamp au format `YYYYMMDD_HHMMSS`)."""
 
 	KEYS_TO_FILE: dict[str, str] = field(init=False, default_factory=lambda: {
 			"loc": "localizations", "f_loc": "localizations_filtered",
@@ -64,6 +66,9 @@ class PALMTracer:
 			"InD": "tracking_InstantD", "f_InD": "tracking_InstantD_filtered",
 			"Fit": "tracking_Fit", "f_Fit": "tracking_Fit_filtered"})
 	"""Alias entre les noms de fichiers et les clé dans le dictionnaire de dataframes."""
+
+	_STEPS: list[Step] = field(init=False)
+	"""Listes des étapes du pipeline de traitement."""
 
 	# ==================================================
 	# region Initialization
@@ -76,6 +81,17 @@ class PALMTracer:
 		filters.buttons["reset"].clicked.connect(self.reset_filtered)
 		filters.buttons["update"].clicked.connect(self.update_filtered)
 		filters.buttons["save"].clicked.connect(self.save_filtered)
+
+		self._STEPS: list[Step] = [
+				Step("localization", ["loc"], self._localization, self._filtering.localization),
+				Step("beads", ["bds"], self._beads_extraction, self._filtering.localization, allow_dirty=True),
+				Step("tracking", ["trc"], self._tracking, self._filtering.tracking),
+				Step("blinking", ["blk"], self._blinking_reconnection, self._filtering.tracking),
+				Step("tracks_compute", ["MSD", "InD", "Fit"], self._tracks_compute, self._filtering.tracks_compute),
+				# Step("gallery", "gallery", ["gallery"], self._gallery),
+				# Step("graphical visualization", "visualization_graph", ["graph"], self._visualization_graph),
+				# Step("high-resolution visualization", "visualization_hr", ["hr"], self._visualization_hr),
+				]
 
 	##################################################
 	def is_dll_valid(self) -> bool:
@@ -223,10 +239,18 @@ class PALMTracer:
 	@property
 	def suffix(self) -> str:
 		"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
-		return self._suffix
+		return self._timestamp
 
 	##################################################
-	def _output_name(self, name: str, ext: str = "csv") -> str: return f"{self._path}/{name}-{self._suffix}.{ext}"
+	def _output_name(self, name: str, ext: str = "csv", previous: bool = False) -> Path:
+		"""
+		Indique le nom du fichier à enregistrer CHEMIN / name-Timestamp.extension
+		:param name: Nomp du fichier
+		:param ext: Extension du fichier (par défaut csv, exception pour le log, les paramètres et les visualizations)
+		:param previous: Si True, application du précédent timestamp. Sinon Timestamp Actuel.
+		:return: Nom du fichier
+		"""
+		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
 
 	# ==================================================
 	# endregion Getter / Setter
@@ -245,20 +269,20 @@ class PALMTracer:
 		# --- Chargement des paramètres ---
 		self._path = self.settings.batch.get_paths()[0] if path == "" else path  # Parsing du batch
 		settings_filename = FileIO.get_last_file(self._path, "settings")
-		self._suffix = FileIO.extract_suffix(settings_filename)
-		if not settings_filename or not self._suffix:
+		self._timestamp = FileIO.extract_suffix(settings_filename)
+		if not settings_filename or not self._timestamp:
 			Ui.print_warning("No valid settings file to load.")
 			return
 
 		print(f"Loading setting file '{settings_filename}'.")
 		with self.settings.signal_blocked():
-			cfg = FileIO.open_json(str(settings_filename))
+			cfg = FileIO.open_json(settings_filename)
 			self.settings.update_from_compact_dict(cfg)  # self.settings.update_from_dict(cfg) si l'on veut un setting complet
 			self.settings.localization["Preview"].value = False
 
 		# --- Chargement des fichiers associés à ces paramètres. ---
 		self.reset_result()  # Reset result Dataframes
-		print(f"\tLoading files from the '{self._path}' folder with the timestamp {self._suffix}.")
+		print(f"\tLoading files from the '{self._path}' folder with the timestamp {self._timestamp}.")
 		for key, fname in self.KEYS_TO_FILE.items():
 			f = self._output_name(fname)
 			try:
@@ -298,30 +322,33 @@ class PALMTracer:
 		for self._path, self._stack in zip(paths, stacks):
 			# Reset result Dataframes
 			self.reset_result()
+
 			# Logger
 			Path(self._path).mkdir(parents=True, exist_ok=True)
-			self._suffix = FileIO.get_timestamp_for_files()
+			self._timestamp = FileIO.get_timestamp_for_files()
 			self._logger.open(self._output_name("log", "log"))
 			self._logger.add("Start Processing.")
 			self._logger.add(f"Output folder: {self._path}")
 
-			# Save settings
+			# Chargement du dernier Setting
+			previous_settings_filename = FileIO.get_last_file(self._path, "settings")
+			self._timestamp_previous = FileIO.extract_suffix(previous_settings_filename)
+			if Path(previous_settings_filename).is_file():
+				previous_settings = Settings()
+				previous_settings.update_from_compact_dict(FileIO.open_json(previous_settings_filename))
+			else:
+				previous_settings = None
+
+			# Save meta file (Création du DataFrame et sauvegarde en CSV)
+			self.save_meta()
+
+			# Enregistrement des paramètres une première fois pour avoir une trace
 			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())  # self.settings.to_dict() si l'on veut un setting complet
 			self._logger.add("Settings saved.")
 
-			# Save meta file (Création du DataFrame et sauvegarde en CSV)
-			depth, height, width = self._stack.shape
-			df = Parsing.get_meta([height, width, depth, self.settings.calibration["Pixel Size"].value,
-								   self.settings.calibration["Exposure"].value, self.settings.calibration["Intensity"].value])
-			df.to_csv(self._output_name("meta"), index=False)
-			self._logger.add("Meta file saved.")
-
 			# Lancement des traitements
-			self._process_step(self.settings.localization, "localization", ["loc"], self._localization, self._filtering.localization)
-			self._process_step(self.settings.beads, "beads extraction", ["bds"], self._beads_extraction, self._filtering.localization)
-			self._process_step(self.settings.tracking, "tracking", ["trc"], self._tracking, self._filtering.tracking)
-			self._process_step(self.settings.blinking, "blinking reconnection", ["blk"], self._blinking_reconnection, self._filtering.tracking)
-			self._process_step(self.settings.tracks_compute, "tracks computes", ["MSD", "InD", "Fit"], self._tracks_compute, self._filtering.tracks_compute)
+			pipeline_dirty = False
+			for step in self._STEPS: pipeline_dirty = self._process_step(step, previous_settings, pipeline_dirty)
 
 			# Lancement de la génération de Galleries
 			if self.settings.gallery.active:
@@ -341,69 +368,104 @@ class PALMTracer:
 				self._visualization_hr()
 			else: self._logger.add("High-resolution visualization disabled.")
 
+			# Enregistrement des paramètres (qui ont pu être modifié durant le process)
+			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())
 			# Fermeture du Log
 			self._logger.add("Processing complete.")
 			self._logger.close()
+			FileIO.cleanup_process(self._path, self._timestamp_previous)
 
 	##################################################
-	def _process_step(self, group: BaseSettingGroup, name: str, keys: list[str], process_func: Callable, filter_func: Callable):
-		"""Etape du processus
+	def save_meta(self):
+		""" Sauvegarde le fichier meta (Création du DataFrame et sauvegarde en CSV si différent du précédent)"""
+		prev_name = Path(self._output_name("meta", previous=True))
+		prev_meta = pd.read_csv(prev_name) if prev_name.is_file() else None
 
-		:param group: Groupe de paramètres lié
-		:param name: Nom de l'étape
-		:param keys: Clé du DataFrame dans le dictionnaire
-		:param process_func: Fonction de traitement de cette étape
-		:param filter_func: Fonction de filtre de cette étape
+		depth, height, width = self._stack.shape
+		sc = self.settings.calibration
+		meta = Parsing.get_meta([height, width, depth, sc["Pixel Size"].value, sc["Exposure"].value, sc["Intensity"].value])
+		name = self._output_name("meta")
+
+		if isinstance(prev_meta, pd.DataFrame) and np.allclose(prev_meta.to_numpy(), meta.to_numpy()): prev_name.rename(name)
+		else: meta.to_csv(name, index=False)
+		self._logger.add("Meta file saved.")
+
+	##################################################
+	def _process_step(self, step: Step, previous_settings: Settings | None, pipeline_dirty: bool) -> bool:
 		"""
-		if group.active:  # Process
-			self._logger.add(f"{name.title()} enabled.")
-			try: process_func()
-			except Exception: raise
-		else:  # Load last file possible
-			self._logger.add(f"{name.title()} disabled.")
-			for key in keys:
-				if key in ["dft", "blk"]: continue  # On ne charge pas ceux-là
-				f = FileIO.get_last_file(self._path, f"{self.KEYS_TO_FILE[key]}-")
-				if f.endswith("csv"):
-					try:
-						self._logger.add(f"\tLoading a pre-computed {name} file.")
-						self.df[key] = pd.read_csv(f)
-						self._logger.add(f"\tFile '{f}' loaded successfully, {len(self.df[key])} {name}(s) found.")
-					except Exception as e:
-						self.df[key] = pd.DataFrame()
-						self._logger.add(f"\tError loading file '{f}': {e}")
-				else:  # Sinon
-					self.df[key] = pd.DataFrame()
-					self._logger.add(f"\tNo pre-computed {name} data.")
 
-		if len(keys) == 1:
-			f_key = f"f_{keys[0]}"
-			self.df[f_key] = filter_func(self.df[keys[0]])
-			n_init, n_end = len(self.df[keys[0]]), len(self.df[f_key])
+		:param step: Etape du pipeline.
+		:param previous_settings: Paramètres du précédent pipeline.
+		:param pipeline_dirty: Etat du pipeline (si True, Reuse est devenu impossible)
+		"""
+		group = getattr(self.settings, step.group_name)
+		previous_group = getattr(previous_settings, step.group_name) if isinstance(previous_settings, Settings) else None
+
+		action = prepare_step_action(group, previous_group, pipeline_dirty, step.allow_dirty)
+
+		# --- Etape désactivée ---
+		if action == StepAction.Skip:
+			self._logger.add(f"{group.label} disabled.")
+			return pipeline_dirty
+
+		# --- Etape à récupérer du précédent pipeline ---
+		if action == StepAction.Reuse:
+			self._logger.add(f"{group.label} load previous result (Timestamp : {self._timestamp_previous}).")
+			success = True
+			for key in step.keys:
+				old_file = self._output_name(self.KEYS_TO_FILE[key], previous=True)
+				new_file = self._output_name(self.KEYS_TO_FILE[key])
+				try:
+					self.df[key] = pd.read_csv(old_file)
+					self._logger.add(f"\tFile '{old_file.name}' loaded successfully, {len(self.df[key])} row(s) found.")
+					old_file.rename(new_file)  # On renomme le fichier pour qu'à la prochaine étape, ce process soit celui du csv.
+				except Exception as e:
+					self._logger.add(f"\tError loading file '{old_file.name}': {e}")
+					self.df[key] = pd.DataFrame()
+					success = False
+
+			if not success and group.active: action = StepAction.Compute
+
+		# --- Etape à calculer ---
+		if action == StepAction.Compute:
+			self._logger.add(f"{group.label} enabled.")
+			try: step.process_func()
+			except Exception: raise
+			pipeline_dirty = True  # Pipeline incohérent pour la suite, on évitera de réutiliser des éléments précédents, car un calcul a été fait
+
+		# --- Filtrage ---
+		# Cas Standard Un seul dataframe
+		if len(step.keys) == 1:
+			f_key = f"f_{step.keys[0]}"
+			self.df[f_key] = step.filter_func(self.df[step.keys[0]])
+			n_init, n_end = len(self.df[step.keys[0]]), len(self.df[f_key])
 			if n_init != n_end:
-				self._logger.add(f"\t\tFiltering of {name} file {n_end} {name} instead of {n_init}: {n_init - n_end} deletion(s).")
+				self._logger.add(f"\t\tFiltering of file {n_end} row(s) instead of {n_init}: {n_init - n_end} deletion(s).")
 				if self.settings.filters["Save"].value and n_end != 0:
-					self._logger.add(f"\tSaving the filtered {name} file.")
+					self._logger.add(f"\t\tSaving the filtered file.")
 					self.df[f_key].to_csv(self._output_name(self.KEYS_TO_FILE[f_key]), index=False)
 			else:
 				self.df[f_key] = pd.DataFrame()
-		else:  # Cas spécial des tracks_compute qui modifient beaucoup de chose en même temps
+		# Cas spécial des tracks_compute qui modifient beaucoup de choses en même temps
+		else:
 			n_init = len(self.df["MSD"])
 			o_name = self.get_tracks_key()
 			if "f_" not in o_name: o_name = f"f_{o_name}"  # Si aucun filtre la clé sera sans le f_ devant
 			self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
-				= filter_func(self.tracks, self.df["MSD"], self.df["InD"], self.df["Fit"])
+				= step.filter_func(self.tracks, self.df["MSD"], self.df["InD"], self.df["Fit"])
 
 			n_end = len(self.df["f_MSD"])
 			if n_init != n_end:
-				self._logger.add(f"\t\tFiltering of tracks compute files {n_end} tracks instead of {n_init}: {n_init - n_end} deletion(s)")
+				self._logger.add(f"\t\tFiltering of files {n_end} row(s) instead of {n_init}: {n_init - n_end} deletion(s)")
 				if self.settings.filters["Save"].value:
 					for key, name in [(o_name, "tracking"), ("f_MSD", "MSD"), ("f_InD", "Instant Diffusion"), ("f_Fit", "Fit")]:
 						if not self.df[key].empty:
-							self._logger.add(f"\tSaving the filtered {name} file.")
+							self._logger.add(f"\t\tSaving the filtered {name} file.")
 							self.df[key].to_csv(self._output_name(self.KEYS_TO_FILE[key]), index=False)
 			else:
 				for key in ["f_MSD", "f_InD", "f_Fit"]: self.df[key] = pd.DataFrame()
+
+		return pipeline_dirty
 
 	##################################################
 	def _localization(self):
@@ -595,7 +657,7 @@ class PALMTracer:
 	##################################################
 	def save_filtered(self):
 		"""Enregistre tous les fichiers filtrés s'ils ne sont pas vide."""
-		self._suffix = FileIO.get_timestamp_for_files()
+		self._timestamp = FileIO.get_timestamp_for_files()
 		for key, fname in self.KEYS_TO_FILE.items():
 			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
 			if "f_" in key and not self.df[key].empty and len(self.df[key]) != len(self.df[key[2:]]):

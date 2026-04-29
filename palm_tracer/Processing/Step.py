@@ -8,10 +8,9 @@ import pandas as pd
 from palm_tracer.Settings.Groups import BaseSettingGroup
 
 ##################################################
-FuncNone: TypeAlias = Callable[[], None]  # Fonction sans argument qui ne retourne rien
-FuncSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un dataframe et qui en retourne un.
-FuncTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks compute
-	[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame], tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame],]
+FilterSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un dataframe et qui en retourne un.
+FilterTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks compute
+	[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame], tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]]
 
 
 ##################################################
@@ -19,19 +18,28 @@ FuncTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks compu
 class Step:
 	"""Classe immuable permettant de définir une étape du traitement."""
 	group_name: str
+	"""Nom du groupe de paramètres lié"""
 	keys: list[str]
-	process_func: FuncNone  # Fonction sans argument qui ne retourne rien
-	filter_func: FuncNone | FuncSingle | FuncTracksCompute
+	"""Liste des clés du/des DataFrame(s) dans le dictionnaire"""
+	process_func: Callable[[], None]  # Fonction sans argument qui ne retourne rien
+	"""Fonction de traitement de cette étape"""
+	filter_func: Callable
+	"""Fonction de filtre de cette étape"""
 	allow_dirty: bool = False
+	"""Autorise la réutilisation d'ancien traitement malgré un pipeline contenant un calcul (cas des billes)"""
 	apply_filter: bool = True
+	"""Choix de filtre à appliquer ou non (cas des visualisations)"""
 
 
 ##################################################
 class StepAction(Enum):
 	"""Actions possibles pour une étape du pipeline."""
-	Compute = auto()  # Calcul réel
-	Reuse = auto()  # .	Réutilisation d'un résultat existant
-	Skip = auto()  # .	Ignoré (pas actif ou impossible)
+	Compute = auto()
+	"""Calcul réel"""
+	Reuse = auto()
+	"""Réutilisation d'un résultat existant"""
+	Skip = auto()
+	"""Ignoré (pas actif ou impossible)"""
 
 
 ##################################################

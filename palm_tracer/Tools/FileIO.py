@@ -6,9 +6,7 @@ Ce module regroupe diverses fonctions pour la gestion et la manipulation de fich
 
 import ctypes
 import json
-import os
 import re
-import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -110,14 +108,32 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 
 
 ##################################################
-def reuse_file(src: str | Path, dst: str | Path):
+def cleanup_process(path: str | Path, timestamp: str):
 	"""
-	Crée un lien dur ou copie si impossible.
-	:param src: Fichier à dupliquer
-	:param dst: Fichier de sortie
+	Supprime les derniers fichiers résiduels d'un ancien process si toutes ses sorties ont été consommées/renommées.
+
+	Le nettoyage n'est effectué que s'il ne reste, pour l'ancien timestamp, que les fichiers administratifs suivants :
+	- meta-<timestamp>.csv
+	- settings-<timestamp>.json
+	- log-<timestamp>.log
+
+	Si au moins un autre fichier avec ce timestamp existe encore, aucun fichier n'est supprimé.
+	:param path: Chemin vers le process
+	:param timestamp: Timestamp du process
 	"""
-	try: os.link(src, dst)  # .				  Ultra rapide
-	except OSError: shutil.copy2(src, dst)  # Fallback safe
+	folder = Path(path).resolve()
+	if not folder.is_dir(): return
+
+	files = [p for p in folder.iterdir() if p.is_file() and timestamp in p.stem]
+	if not files: return
+
+	allowed_names = {f"meta-{timestamp}.csv", f"settings-{timestamp}.json", f"log-{timestamp}.log"}
+	remaining_outputs = [p for p in files if p.name not in allowed_names]
+	if remaining_outputs: return
+
+	for file in files:
+		try: file.unlink(missing_ok=True)
+		except OSError as e: Ui.print_error(f"Unable to delete previous process file '{file.name}': {e}")
 
 
 ##################################################
