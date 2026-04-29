@@ -227,9 +227,9 @@ def test_generate(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monk
 	pt = PALMTracer()
 	add_basic_file(pt)
 	pt.process()  # Process Vide pour créer le dossier et un setting de base
-	shutil.copy2(INPUT_DIR / "localizations.csv", INPUT_DIR / "stack_PALM_Tracer" / f"localizations-{pt._suffix}.csv")
-	shutil.copy2(INPUT_DIR / "tracking.csv", INPUT_DIR / "stack_PALM_Tracer" / f"tracking-{pt._suffix}.csv")
-	shutil.copy2(INPUT_DIR / "beads.csv", INPUT_DIR / "stack_PALM_Tracer" / f"beads-{pt._suffix}.csv")
+	shutil.copy2(INPUT_DIR / "localizations.csv", INPUT_DIR / "stack_PALM_Tracer" / f"localizations-{pt._timestamp}.csv")
+	shutil.copy2(INPUT_DIR / "tracking.csv", INPUT_DIR / "stack_PALM_Tracer" / f"tracking-{pt._timestamp}.csv")
+	shutil.copy2(INPUT_DIR / "beads.csv", INPUT_DIR / "stack_PALM_Tracer" / f"beads-{pt._timestamp}.csv")
 	pt.load()
 	pt.df["loc"]["Integrated Intensity"] *= 100
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.

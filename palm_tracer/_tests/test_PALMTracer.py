@@ -4,6 +4,7 @@ Fichier des tests pour la classe PALMTracer
 .. note:: Il est fréquent que la vérificaiton du log ne se fasse qu'au nombre de lignes, car au moins 15 lignes à chaque process.
 """
 import shutil
+from time import sleep
 
 import pytest
 
@@ -272,16 +273,13 @@ def test_load(qtbot, capsys, pt):
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.process()
+	assert len(pt.df["loc"]) == 455
 	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
-
 	# Chargement
 	pt.load()
 
 	assert not pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
 	assert pt.df["f_loc"].empty, "Le Dataframe de localizations filtré devrait être vide."
-
-	# Un fichier meta + un localization
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 
 	lines = get_lines_output(capsys)
 	assert len(lines) == 18
@@ -302,12 +300,16 @@ def test_load(qtbot, capsys, pt):
 	assert "File 'tracking_Fit_filtered' not found." in lines[16]
 	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
 
+	# Un fichier meta + un localization
+	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+
 
 ##################################################
 def test_process_no_input(qtbot, capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
 	clean_output()
 	pt.process()
+	assert pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
 	lines = get_lines_output(capsys)
 	assert "No files." in lines[0]
 
@@ -319,18 +321,24 @@ def test_process_nothing(qtbot, capsys, pt):
 
 	add_basic_file(pt)
 	pt.process()
+	assert pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
 	check_capsys(capsys, 21, [(False, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
+	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'une visualisation sans données.
 	pt.settings.gallery.active = True
 	pt.settings.visualization_hr.active = True
 	pt.settings.visualization_graph.active = True
 	pt.process()  # Test d'une visualisation sans données.
+	assert pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
 	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 11), (False, 12), (True, 16), (True, 18), (True, 20)])
+	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.process()
+	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 11), (False, 12), (True, 16), (True, 18), (True, 20)])
+	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul sur trajectoires sans données.
 	pt.settings.gallery.active = False
@@ -338,30 +346,33 @@ def test_process_nothing(qtbot, capsys, pt):
 	pt.settings.visualization_graph.active = False
 	pt.settings.tracks_compute.active = True
 	pt.process()
+	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 19, [(False, 5), (False, 7), (False, 9), (False, 11), (True, 12), (False, 14), (False, 15), (False, 16)])
+	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul de reconnexion de trajectoires sans données.
 	pt.settings.tracks_compute.active = False
 	pt.settings.blinking.active = True
 	pt.process()
+	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 9), (True, 11), (False, 13), (False, 17), (False, 18), (False, 19)])
+	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul de trajectoires sans données.
 	pt.settings.blinking.active = False
 	pt.settings.tracking.active = True
 	pt.process()
+	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 21, [(False, 5), (False, 7), (True, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
+	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul de correction de drift sans données.
 	pt.settings.tracking.active = False
 	pt.settings.beads.active = True
 	pt.process()
+	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 21, [(False, 5), (True, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
-
-	n_process = 7  # Nombre de fois où process a été lancé.
-	# suivant le timestamp, il est fort problable que seul le dernier process conserve ses data, mais le hasard du lancement fait que
-	# chaque process peut démarrer avec une seconde de décallage et donc un timestamp différent.
-	check_output(OUTPUT_FOLDER, csv=[1, n_process], log=[1, n_process], json=[1, n_process])
+	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 
 ##################################################
@@ -398,8 +409,14 @@ def test_process_localization(qtbot, capsys, pt):
 	pt.settings.localization.active = True
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	assert len(pt.df["loc"]) == 455
+	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
 	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
+	sleep(1)  # Force un timestamp différent pour le Reuse
+	pt.process()
+	assert len(pt.df["loc"]) == 455
+	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
+	check_output(OUTPUT_FOLDER, csv=[4], log=[2], json=[2])
 
 
 ##################################################
@@ -415,12 +432,16 @@ def test_process_localization_z(qtbot, capsys, pt):
 	s["Z"].value = True
 	pt.process()  # Lancement, mais aucun fichier de model.
 
+	assert len(pt.df["loc"]) == 455
+	assert np.allclose(pt.df["loc"]["Z"].to_numpy(), 0)
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 22, [(True, 5), (False, 8), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
 
 	s["Model"].value = str(REF_DIR / "astigmatism_3d_model.csv")
 	pt.process()  # Lancement
 
+	assert len(pt.df["loc"]) == 455
+	assert not np.allclose(pt.df["loc"]["Z"].to_numpy(), 0)
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
@@ -452,6 +473,7 @@ def test_process_localization_spline(qtbot, capsys, pt):
 	pt.settings.localization["Spline Fit"]["File"].value = f"{INPUT_DIR}/calibration.mat"
 	pt.process()
 
+	assert len(pt.df["loc"]) == 455
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 21, [(True, 5), (False, 7), (False, 9), (False, 11), (False, 12), (False, 16), (False, 17), (False, 18)])
 
@@ -470,6 +492,7 @@ def test_process_beads_extraction_no_beads(qtbot, capsys, pt):
 	pt.settings.beads.active = True
 	pt.process()
 
+	assert pt.df["bds"].empty
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 22, [(False, 5), (True, 8), (False, 10), (False, 12), (False, 13), (False, 17), (False, 18), (False, 19)])
 
@@ -544,6 +567,7 @@ def test_process_tracking_blinking(qtbot, capsys, pt):
 	add_basic_file(pt)
 	pt.process()
 
+	assert len(pt.df["trc"]) == len(pt.df["blk"]), "Nombre de points différents entre la reconnexion et le tracking."
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 23, [(False, 5), (False, 7), (False, 9), (True, 12), (False, 14), (False, 18), (False, 19), (False, 20)])
 
@@ -569,17 +593,22 @@ def test_process_tracks_compute(qtbot, capsys, pt):
 	check_capsys(capsys, 20, [(False, 5), (False, 7), (False, 9), (False, 12), (True, 13), (False, 15), (False, 16), (False, 17)])
 
 	tc["MSD"].value = True
+	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
-	# Ajout de fichier MSD (et peut être un meta, json et log)
-	check_output(OUTPUT_FOLDER, csv=[3, 4], log=[1, 2], json=[1, 2], clean=False)
+	assert len(pt.df["MSD"]) == 99  # Toutes les trajectoiers sont éligibles au MSD
+	# Ajout de fichier MSD (ainsi qu'un meta, json et log)
+	check_output(OUTPUT_FOLDER, csv=[4], log=[2], json=[2], clean=False)
 	check_capsys(capsys, 22, [(False, 5), (False, 7), (False, 9), (False, 12), (True, 13), (False, 17), (False, 18), (False, 19)])
 
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
 	tc["Fit"].value = 1
+	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
-	# Ajout de fichier 2 ou 3 fichiers csv et 0 ou 1 fichiers meta, json et log
-	check_output(OUTPUT_FOLDER, csv=[5, 7], log=[1, 3], json=[1, 3])
+	assert len(pt.df["MSD"]) == 0  # MSD désactivé
+	assert len(pt.df["InD"]) == 3  # Seules 3 trajectoires sont éligibles
+	assert len(pt.df["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
+	check_output(OUTPUT_FOLDER, csv=[7], log=[3], json=[3])
 	check_capsys(capsys, 24, [(False, 5), (False, 7), (False, 9), (False, 12), (True, 13), (False, 19), (False, 20), (False, 21)])
 
 
@@ -651,10 +680,11 @@ def test_process_visualization_hr(qtbot, capsys, pt):
 
 	pt.settings.visualization_hr["Type"].value = 1
 	pt.settings.visualization_hr["Source T"].value = 0
+	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 
 	# Il a Ajouté un fichier tracking_Fit qu'il a dû calculer et un tracking_hr_color, pour les images 8 Sources pour les loc, 5 pour les trajectoires.
-	check_output(OUTPUT_FOLDER, csv=[5, 6], log=[1, 2], json=[1, 2], png=[13])
+	check_output(OUTPUT_FOLDER, csv=[6], log=[2], json=[2], png=[13])
 	check_capsys(capsys, 33, [(False, 5), (False, 8), (False, 10), (False, 13), (False, 14), (False, 18), (False, 19), (True, 20)])
 
 
@@ -842,6 +872,7 @@ def test_filter_all_tracks_compute(qtbot, capsys, pt):
 	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
 	check_capsys(capsys, 26, [(False, 5), (False, 7), (False, 9), (False, 13), (True, 14), (False, 21), (False, 22), (False, 23)])
+
 
 # ==================================================
 # endregion Filtering
