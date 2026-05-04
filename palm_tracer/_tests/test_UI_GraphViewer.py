@@ -113,9 +113,9 @@ def test_update_filtered(w: GraphViewerWidget, qtbot, capsys):
 	new_f = [2, 50]
 	w._filters["Plane"].value = new_f
 	assert w._filters["Plane"].value == new_f, "Filtre incorrect."
-	assert w._pt.settings.filtering["Plane"].value == ref, "Filtre incorrect."
+	assert w._pt.settings.filters["Plane"].value == ref, "Filtre incorrect."
 	w._update_filtered()
-	assert w._pt.settings.filtering["Plane"].value == new_f, "Filtre incorrect."
+	assert w._pt.settings.filters["Plane"].value == new_f, "Filtre incorrect."
 
 	w.close()
 

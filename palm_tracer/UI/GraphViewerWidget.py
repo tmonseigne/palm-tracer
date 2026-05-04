@@ -30,7 +30,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QButtonGroup, QCheckBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QRadioButton, QVBoxLayout
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Settings.Groups import Filtering
+from palm_tracer.Settings.Groups import Filters
 from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
@@ -223,8 +223,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# Bloc Filtres
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
-		self._filters = Filtering()
-		self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+		self._filters = Filters()
+		self._filters.update_from_dict(self._pt.settings.filters.to_dict())
 		vbox_filters.addWidget(self._filters.widget)
 		# Masquage initial
 		self._filters["Save"].hide()
@@ -411,7 +411,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""
 		self._is_updating = True
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._filters.update_from_dict(self._pt.settings.filtering.to_dict())
+			self._filters.update_from_dict(self._pt.settings.filters.to_dict())
 
 			# Métadonnées d'information
 			self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
@@ -441,7 +441,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""Applique les filtres sur les dataframes."""
 		self._is_updating = True
 		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._pt.settings.filtering.update_from_dict(self._filters.to_dict())
+			self._pt.settings.filters.update_from_dict(self._filters.to_dict())
 			self._pt.update_filtered()  # Mise à jour des filtres
 
 		self._update_df()  # .			  Récupération des bons dataframe

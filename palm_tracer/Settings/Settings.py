@@ -19,7 +19,7 @@ from palm_tracer.Settings.Groups.Batch import Batch
 from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnection
 from palm_tracer.Settings.Groups.Calibration import Calibration
 from palm_tracer.Settings.Groups.BeadsExtraction import BeadsExtraction
-from palm_tracer.Settings.Groups.Filtering import Filtering
+from palm_tracer.Settings.Groups.Filters import Filters
 from palm_tracer.Settings.Groups.Gallery import Gallery
 from palm_tracer.Settings.Groups.Localization import Localization
 from palm_tracer.Settings.Groups.Tracking import Tracking
@@ -44,7 +44,7 @@ class Settings:
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
 		list_settings = [Batch, Calibration, Localization, BeadsExtraction, Tracking, BlinkingReconnection, TracksCompute,
-						 Gallery, VisualizationHR, VisualizationGraph, Filtering]
+						 Gallery, VisualizationHR, VisualizationGraph, Filters]
 		for setting in list_settings:
 			self._settings[setting.__name__] = setting()
 
@@ -159,9 +159,9 @@ class Settings:
 
 	##################################################
 	@property
-	def filtering(self) -> Filtering:
-		"""Groupe de paramètres liés au filtrage (:class:`Filtering <palm_tracer.Settings.Groups.Filtering.Filtering>`)."""
-		return cast(Filtering, self._settings["Filtering"])
+	def filters(self) -> Filters:
+		"""Groupe de paramètres liés au filtrage (:class:`Filters <palm_tracer.Settings.Groups.Filters.Filters>`)."""
+		return cast(Filters, self._settings["Filters"])
 
 	# ==================================================
 	# endregion Getter/Setter

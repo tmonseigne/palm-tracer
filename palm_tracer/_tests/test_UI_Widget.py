@@ -147,8 +147,8 @@ def test_widget_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbo
 	viewer = make_napari_viewer()
 	my_widget = PALMTracerWidget(viewer)
 
-	filter_x = cast(CheckRangeInt, my_widget.pt.settings.filtering["Localization"]["X"])
-	filter_y = cast(CheckRangeInt, my_widget.pt.settings.filtering["Localization"]["Y"])
+	filter_x = cast(CheckRangeInt, my_widget.pt.settings.filters["Localization"]["X"])
+	filter_y = cast(CheckRangeInt, my_widget.pt.settings.filters["Localization"]["Y"])
 	layers = my_widget.viewer.layers
 	l_name = "ROI Filter"
 

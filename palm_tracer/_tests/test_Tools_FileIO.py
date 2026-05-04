@@ -1,5 +1,6 @@
 """Fichier des tests pour la lecture/écriture des fichiers."""
 import ctypes
+import shutil
 
 import pytest
 
@@ -96,6 +97,27 @@ def test_extract_suffix():
 
 	res = FileIO.extract_suffix("filename-01-02-03.json")
 	assert res == "03", f"Suffixe incorrect.\nAttendu : \"\"\tObtenu : {res}"
+
+
+##################################################
+def test_cleanup_process():
+	"""Test de la fonction cleanup."""
+	folder = OUTPUT_DIR / "process"
+	FileIO.cleanup_process(folder, "0")  # Dossier inexistant
+	folder.mkdir(parents=True, exist_ok=True)
+	FileIO.cleanup_process(folder, "0")  # Dossier Existant mais vide
+
+	# Creation d'un fichier qui sera à conserver
+	keep = folder / "log-0.log"
+	keep.touch()
+	FileIO.cleanup_process(folder, "0")  # Dossier Existant mais vide
+
+	# Creation de fichier qui sera à supprimer
+	waste = folder / "file-0.csv"
+	waste.touch()
+	FileIO.cleanup_process(folder, "0")  # Dossier Existant mais vide
+
+	shutil.rmtree(folder)
 
 
 ##################################################

@@ -109,7 +109,7 @@ class PALMTracerWidget(QWidget):
 									  # self.pt.settings.visualization_hr.widget,
 									  # self.pt.settings.visualization_graph.widget,
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
-		tabs.addTab(self._create_tab([self.pt.settings.filtering.widget]), "Filtering")
+		tabs.addTab(self._create_tab([self.pt.settings.filters.widget]), "Filtering")
 
 		# Layout principal
 		self.layout().addWidget(tabs)
@@ -141,7 +141,7 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)  # Calcul automatique du Seuil
 		self.pt.settings.connect(self._on_change_setting)  # .							 Connexion à chaque changement de paramètres
 
-		filters = self.pt.settings.filtering["Localization"]
+		filters = self.pt.settings.filters["Localization"]
 		filters["X"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
 		filters["Y"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
 
@@ -271,7 +271,7 @@ class PALMTracerWidget(QWidget):
 					show_info(f"Loading the setting file '{filename}'.")
 					self.pt.settings.update_from_compact_dict(cfg)  # self.pt.settings.update_from_dict(cfg) si l'on veut un setting complet
 					self.pt.settings.localization["Preview"].value = False
-					self.pt.settings.filtering.deactivate_filters()
+					self.pt.settings.filters.deactivate_filters()
 			except Exception as e:
 				show_warning(f"Error loading file '{filename}': {e}")
 
@@ -311,7 +311,7 @@ class PALMTracerWidget(QWidget):
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		self.pt.settings.localization["Preview"].value = False
-		self.pt.settings.filtering.deactivate_filters()
+		self.pt.settings.filters.deactivate_filters()
 		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
 		if not selected_file:
 			self.last_file = ""
@@ -328,7 +328,7 @@ class PALMTracerWidget(QWidget):
 			raw_data = open_tif(selected_file)
 			self.viewer.add_image(raw_data, name="Raw")
 			show_info(f"Loaded {selected_file} into Napari viewer.")
-			filters = self.pt.settings.filtering
+			filters = self.pt.settings.filters
 			# Update Max
 			z, y, x = raw_data.shape
 			filters.update_limits(x, y, z)
@@ -398,7 +398,7 @@ class PALMTracerWidget(QWidget):
 		# Suppression du calque "ROI Filter" s'il existe
 		l_name = "ROI Filter"
 
-		filter_loc = self.pt.settings.filtering["Localization"]
+		filter_loc = self.pt.settings.filters["Localization"]
 		is_xf, is_yf = filter_loc["X"].active, filter_loc["Y"].active
 
 		if not is_xf and not is_yf:  # .			 Aucun filtre -> rien à afficher
@@ -457,14 +457,15 @@ class PALMTracerWidget(QWidget):
 		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
 		except Exception: raise
 		pres_loc = self.pt.palm.localization(pres, t, w, f, fp)
-		filt_loc = self.pt.filter_localizations(pres_loc)
+		filt_loc = self.pt.filtering.localization(pres_loc)
 		remo_loc = pres_loc.loc[~pres_loc.index.isin(filt_loc.index)].copy()
 
 		self._preview_locs = {
 				"Present":  filt_loc[["Y", "X"]].to_numpy(),
 				"Filtered": remo_loc[["Y", "X"]].to_numpy(),
-				"Past":     np.empty(0) if past is None else self.pt.filter_localizations(self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
-				"Future":   np.empty(0) if fut is None else self.pt.filter_localizations(self.pt.palm.localization(fut, t, w, f, fp))[["Y", "X"]].to_numpy(),
+				"Past":     np.empty(0) if past is None else self.pt.filtering.localization(
+						self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
+				"Future":   np.empty(0) if fut is None else self.pt.filtering.localization(self.pt.palm.localization(fut, t, w, f, fp))[["Y", "X"]].to_numpy(),
 				}
 
 		# Affichage console (les notifications posent problème en thread externe)

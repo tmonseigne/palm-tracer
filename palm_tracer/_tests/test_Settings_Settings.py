@@ -52,8 +52,8 @@ def test_settings_group_getter(qtbot):
 	assert isinstance(s, VisualizationHR), "Récupération du groupe incorrecte."
 	s = settings.visualization_graph
 	assert isinstance(s, VisualizationGraph), "Récupération du groupe incorrecte."
-	s = settings.filtering
-	assert isinstance(s, Filtering), "Récupération du groupe incorrecte."
+	s = settings.filters
+	assert isinstance(s, Filters), "Récupération du groupe incorrecte."
 
 
 ###################################################

@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`Filtering` dérivée de :class:`.BaseSettingGroup`,
+Fichier contenant la classe :class:`Filters` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de filtrage nécessaires à la configuration de PALM Tracer.
 
 .. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres
@@ -12,14 +12,14 @@ from typing import cast
 from qtpy.QtWidgets import QFormLayout, QHBoxLayout, QPushButton
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.FilteringL import FilteringL
-from palm_tracer.Settings.Groups.FilteringT import FilteringT
+from palm_tracer.Settings.Groups.FiltersL import FiltersL
+from palm_tracer.Settings.Groups.FiltersT import FiltersT
 from palm_tracer.Settings.Types import CheckBox, CheckRangeInt
 
 
 ##################################################
 @dataclass
-class Filtering(BaseSettingGroup):
+class Filters(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres de filtrage :
 
@@ -28,21 +28,33 @@ class Filtering(BaseSettingGroup):
 		  Sauvegarde les éléments une fois filtrés (dans un fichier séparé du fichier non filtré)  (par défaut : `False`).
 		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
 		  Interval de plans sélectionné (par défaut : `[1,10000]`).
-		- **Localization** (:class:`FilteringL <palm_tracer.Settings.Groups.FilteringL.FilteringL>`) : Paramètres de filtrage de la Localisation.
-		- **Tracks** (:class:`FilteringT <palm_tracer.Settings.Groups.FilteringT.FilteringT>`) : Paramètres de filtrage du Tracking.
+		- **Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Paramètres de filtrage de la Localisation.
+		- **Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Paramètres de filtrage du Tracking.
 	"""
 
-	label: str = "Filtering"
+	label: str = "Filters"
 	setting_list = {
 			"Save":         [CheckBox, ["Save filtered", "Save filtered datas in _filtered.csv file.", False]],
 			"Plane":        [CheckRangeInt, ["Plane", "", [1, 100000], [1, 100000]]],
-			"Localization": [FilteringL, []],
-			"Tracks":       [FilteringT, []]
+			"Localization": [FiltersL, []],
+			"Tracks":       [FiltersT, []]
 			}
 	_inner_groups = ["Localization", "Tracks"]
 
 	buttons: dict[str, QPushButton] = field(init=False)
 	"""Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`)."""
+
+	##################################################
+	@property
+	def localization(self) -> FiltersL:
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		return cast(FiltersL, self._settings["Localization"])
+
+	##################################################
+	@property
+	def tracking(self) -> FiltersT:
+		"""Groupe de paramètres liés aux filtres sur le suivi (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`)."""
+		return cast(FiltersT, self._settings["Tracks"])
 
 	##################################################
 	def initialize_ui(self):
@@ -67,9 +79,9 @@ class Filtering(BaseSettingGroup):
 		""" Désactive tous les filtres."""
 		self._settings["Save"].value = False
 		self._settings["Plane"].active = False
-		fl = cast(FilteringL, self._settings["Localization"])
+		fl = cast(FiltersL, self._settings["Localization"])
 		fl.deactivate_filters()
-		ft = cast(FilteringT, self._settings["Tracks"])
+		ft = cast(FiltersT, self._settings["Tracks"])
 		ft.deactivate_filters()
 
 	##################################################
@@ -77,12 +89,11 @@ class Filtering(BaseSettingGroup):
 		"""Mets à jour le min et le max de certains filtres."""
 		with self.signal_blocked():
 			cast(CheckRangeInt, self._settings["Plane"]).update_limits(None, plane_max)
-			fl = cast(FilteringL, self._settings["Localization"])
+			fl = cast(FiltersL, self._settings["Localization"])
 			cast(CheckRangeInt, fl["Y"]).update_limits(None, y_max)
 			cast(CheckRangeInt, fl["X"]).update_limits(None, x_max)
-			ft = cast(FilteringT, self._settings["Tracks"])
+			ft = cast(FiltersT, self._settings["Tracks"])
 			cast(CheckRangeInt, ft["Length"]).update_limits(None, plane_max)
-
 
 
 ##################################################
@@ -93,7 +104,7 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
-	group = Filtering()
+	group = Filters()
 	w.layout().addWidget(group.widget)
 	w.show()
 	sys.exit(app.exec_())

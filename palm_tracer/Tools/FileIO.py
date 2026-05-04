@@ -108,6 +108,35 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 
 
 ##################################################
+def cleanup_process(path: str | Path, timestamp: str):
+	"""
+	Supprime les derniers fichiers résiduels d'un ancien process si toutes ses sorties ont été consommées/renommées.
+
+	Le nettoyage n'est effectué que s'il ne reste, pour l'ancien timestamp, que les fichiers administratifs suivants :
+	- meta-<timestamp>.csv
+	- settings-<timestamp>.json
+	- log-<timestamp>.log
+
+	Si au moins un autre fichier avec ce timestamp existe encore, aucun fichier n'est supprimé.
+	:param path: Chemin vers le process
+	:param timestamp: Timestamp du process
+	"""
+	folder = Path(path).resolve()
+	if not folder.is_dir(): return
+
+	files = [p for p in folder.iterdir() if p.is_file() and timestamp in p.stem]
+	if not files: return
+
+	allowed_names = {f"meta-{timestamp}.csv", f"settings-{timestamp}.json", f"log-{timestamp}.log"}
+	remaining_outputs = [p for p in files if p.name not in allowed_names]
+	if remaining_outputs: return
+
+	for file in files:
+		try: file.unlink(missing_ok=True)
+		except OSError as e: Ui.print_error(f"Unable to delete previous process file '{file.name}': {e}")
+
+
+##################################################
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	"""
 	Charge une DLL, si elle existe.
@@ -194,7 +223,7 @@ def open_json(filename: str | Path) -> dict[str, Any]:
 # region TIF IO
 # ==================================================
 ##################################################
-def save_tif(stack: np.ndarray, filename: str):
+def save_tif(stack: np.ndarray, filename: str | Path):
 	"""
 	Sauvegarde un tableau 3D (ou 2D converti en 3D) dans un fichier TIF multi-frame avec tifffile.
 
