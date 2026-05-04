@@ -128,14 +128,9 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	# Plot pour la pile
-	qtbot.mouseClick(w._btn_src["Stack"], Qt.MouseButton.LeftButton)
-	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
-	w._update_plot()
-
 	# Plot pour les localisations
 	qtbot.mouseClick(w._btn_src["Localization"], Qt.MouseButton.LeftButton)
-	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
+	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
 	assert w._cmb_src_a.value == 0, "Index de la donnée incorrecte."
 	w._update_plot()
 
@@ -145,7 +140,7 @@ def test_update_plot(w: GraphViewerWidget, qtbot, capsys):
 
 	# Plot pour les trajectoires
 	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)
-	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
+	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
 	w._update_plot()
 
 	# Affichage de Instant D
@@ -172,7 +167,7 @@ def test_dual_source(w: GraphViewerWidget, qtbot, capsys):
 
 	# Colonnes incompatibles pour le dual source
 	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)  # Passage au tracking
-	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
+	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
 	w._cmb_src_a.value = 0
 	w._cmb_src_b.value = 1
 	data, title = w._get_plot_data()
@@ -195,37 +190,20 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	ref_shape: tuple
 	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
 
-	# Plot pour la pile
-	qtbot.mouseClick(w._btn_src["Stack"], Qt.MouseButton.LeftButton)
-	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
-
-	data, title = w._get_plot_data()
-	ref_title, ref_shape = "Stack Intensity", (10, 128, 256)
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-
-	# Plot pour la pile filtrée
-	w._filters["Plane"].active = True
-	w._filters["Plane"].value = [2, 50]
-
-	data, title = w._get_plot_data()
-	ref_title, ref_shape = "Stack Intensity", (9, 128, 256)
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-
 	# Plot pour les localisations
 	qtbot.mouseClick(w._btn_src["Localization"], Qt.MouseButton.LeftButton)
-	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
+	assert w._btg_src.checkedId() == 0, "Index de la source incorrecte."
 	assert w._cmb_src_a.value == 0, "Index de la donnée incorrecte."
 
+	w._cmb_src_a.value = 11
 	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
-	w._cmb_src_a.value = 1
-	assert w._cmb_src_a.value == 1, "Index de la donnée incorrecte."
+	w._cmb_src_a.value = 5
+	assert w._cmb_src_a.value == 5, "Index de la donnée incorrecte."
 	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations X", (6,), [1, 2, 3, 4, 1, 2]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
@@ -245,6 +223,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 
 	# En cas de Dataframe vide.
 	w._df["Localization"] = w._df["Localization"].iloc[0:0]
+	w._cmb_src_a.value = 11
 	data, title = w._get_plot_data()
 	ref_title, ref_shape, ref_data = "Localizations Count", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
@@ -254,7 +233,7 @@ def test_get_plot_data(w: GraphViewerWidget, qtbot, capsys):
 	# Plot pour les trajectoires
 	w._actualize()  # Restaurer le csv
 	qtbot.mouseClick(w._btn_src["Tracks"], Qt.MouseButton.LeftButton)
-	assert w._btg_src.checkedId() == 2, "Index de la source incorrecte."
+	assert w._btg_src.checkedId() == 1, "Index de la source incorrecte."
 
 	# Affichage de Longeur
 	data, title = w._get_plot_data()

@@ -39,9 +39,8 @@ from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 # region Constantes
 # ==================================================
 DATA_SRC: dict[str, list] = {
-		"Stack":        ["Intensity"],
-		"Localization": ["Localizations Count", "X", "Y", "Z", "Integrated Intensity",
-						 "Sigma X", "Sigma Y", "Circularity", "Theta", "Surface", "MSE XY", "MSE Z"],
+		"Localization": ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
+						 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Localizations Count"],
 		"Tracking":     ["Length"],
 		"No Dual":      ["Localizations Count", "Length", "MSD"],
 		}
@@ -131,7 +130,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		Construit l'interface utilisateur :
 			- Colonne gauche :
 				- Informations : Nom du fichier, présence Localizations/Tracking.
-				- Domaine : 3 boutons exclusifs (Stack/Localization/Tracking).
+				- Domaine : 2 boutons exclusifs (Localization/Tracking).
 				- Source : ComboBox dépendante du domaine sélectionné.
 				- Filtres : Section réservée (non implémentée).
 				- Actions : Actualize files / Export…
@@ -159,7 +158,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# Bloc Source (donnée) + Type de graphe
 		grp_source = QGroupBox("Source")
 
-		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Stack", "Localization", "Tracks"], 0)
+		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Localization", "Tracks"], 0)
 
 		form = Ui.make_form(grp_source)
 		form.addRow(h)
@@ -297,9 +296,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._update_df()
 		self._btn_src["Localization"].setEnabled(not self._df["Localization"].empty)
 		self._btn_src["Tracks"].setEnabled(not self._df["Tracking"].empty)
-		# si un bouton désactivé était sélectionné, repasse sur Stack
-		if self._btn_src["Localization"].isChecked() and self._df["Localization"].empty: self._btn_src["Stack"].setChecked(True)
-		if self._btn_src["Tracks"].isChecked() and self._df["Tracking"].empty: self._btn_src["Stack"].setChecked(True)
+		# si un bouton tracking désactivé était sélectionné, repasse sur Localization
+		if self._btn_src["Tracks"].isChecked() and self._df["Tracking"].empty: self._btn_src["Localization"].setChecked(True)
 
 	##################################################
 	def _on_source_changed(self, btn_id: int) -> None:
@@ -310,12 +308,13 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""
 		self._is_updating = True
 		# Remplir la ComboBox 'Source' en fonction du domaine
-		if btn_id == 0: src = DATA_SRC["Stack"]  # .		Stack
-		elif btn_id == 1: src = DATA_SRC["Localization"]  # Localization
-		else: src = self._get_tracks_src()  # .				Tracking
+		if btn_id == 0: src = DATA_SRC["Localization"]  # Localization
+		else: src = self._get_tracks_src()  # .			  Tracking
+
 		if self._dual_source.value: src = [s for s in src if s not in DATA_SRC["No Dual"]]
 		with self._cmb_src_a.signal_blocked(): self._cmb_src_a.update_box(src)
 		with self._cmb_src_b.signal_blocked(): self._cmb_src_b.update_box(src)
+
 		self._update_filters_ui()  # .						Mise à jour des filtres à afficher
 		self._is_updating = False
 		self._update_plot()  # .							Puis redessiner le graphe si besoin
@@ -324,7 +323,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	def _on_source_cmb_changed(self) -> None:
 		"""Mets à jour les filtres et l'affichage lors du changement de la variable d'intérêt."""
 		# Affichage de l'option lors de la selection MSD pour choisir le Step et faire Histogram par ce Step
-		if self._btg_src.checkedId() == 2 and self._cmb_src_a.current_text == "MSD": self._msd_step.show()
+		if self._btg_src.checkedId() == 1 and self._cmb_src_a.current_text == "MSD": self._msd_step.show()
 		else: self._msd_step.hide()
 		self._update_plot()  # Puis redessiner le graphe si besoin
 
@@ -342,10 +341,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""
 		src_id = self._btg_src.checkedId()
 
-		if src_id == 0:  # Stack
-			self._filters["Localization"].hide()
-			self._filters["Tracks"].hide()
-		elif src_id == 1:  # Localisation
+		if src_id == 0:  # Localisation
 			self._filters["Localization"].show()
 			self._filters["Tracks"].hide()
 		else:  # Tracking
@@ -475,9 +471,9 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# print(f"{data.shape}, {data.size}, {title}") with data.size over 10M make a warning box
 
 		# Selection du graphique à afficher
-		if src_id == 1 and src_a == "Localizations Count":
+		if src_id == 0 and src_a == "Localizations Count":
 			self._fig = self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
-		elif src_id == 2 and src_a == "Length":
+		elif src_id == 1 and src_a == "Length":
 			self._fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
 		elif dual:
 			self._fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
@@ -509,17 +505,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _get_plot_data_from_source(self, src_id, src, log_scale) -> tuple[np.ndarray, str]:
 		"""Récupère et prépare les données pour l'affichage."""
-		# Stack
-		if src_id == 0:
-			tmp = self._stack
-			# Filtrage par PLan, si sélectionné
-			if self._filters["Plane"].active:
-				limits = self._filters["Plane"].value
-				tmp = tmp[max(limits[0] - 1, 0):min(limits[1], int(tmp.shape[0])), ...]
-			return self._log_data(tmp, log_scale), f"Stack {src}"
-
 		# Localizations
-		elif src_id == 1:
+		if src_id == 0:
 			if src == "Localizations Count":
 				s = self._df["Localization"]["Plane"].astype(np.int64)
 				if s.empty:  return np.empty(0), src
