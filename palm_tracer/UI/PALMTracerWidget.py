@@ -151,6 +151,10 @@ class PALMTracerWidget(QWidget):
 		s1.valueChanged.connect(lambda v: Ui.sync_spin(s2, v))
 		s2.valueChanged.connect(lambda v: Ui.sync_spin(s1, v))
 
+		# Update de preview en changeant des filtres ou des paramètres de localisation
+		self.pt.settings.localization.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
+		self.pt.settings.filters.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
+
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
 		self.viewer.layers.selection.events.active.connect(self._on_select_layer)
@@ -284,7 +288,6 @@ class PALMTracerWidget(QWidget):
 		"""Mets à jour le fichier de setting général et la preview à chaque changement de setting."""
 		# Save settings
 		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())  # self.settings.to_dict() si l'on veut un setting complet
-		self._thread_process(self._preview, self._add_preview_layers)
 
 	# ==================================================
 	# endregion Settings Callback
