@@ -18,7 +18,7 @@ from napari import Viewer
 from napari.layers import Points, Shapes
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QDoubleSpinBox, QFileDialog, QHBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QDoubleSpinBox, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -84,9 +84,9 @@ class PALMTracerWidget(QWidget):
 		self.setMinimumHeight(220)
 
 		# Viewer Button
-		self.btn_viewer_gr = QPushButton("Open Graph Viewer")
-		self.btn_viewer_hr = QPushButton("Open HR Viewer")
-		self.btn_viewer_3d = QPushButton("Open 3D Viewer")
+		self.btn_viewer_gr = QPushButton("Graph Viewer")
+		self.btn_viewer_hr = QPushButton("HR Viewer")
+		self.btn_viewer_3d = QPushButton("3D Viewer")
 
 		# Load Setting Button
 		self.btn_load_setting = QPushButton("Load Setting")
@@ -180,14 +180,7 @@ class PALMTracerWidget(QWidget):
 		tab.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
 		# ScrollArea permet d'avoir une barre de défilement si la fenêtre est trop petite.
-		scroll = QScrollArea()
-		scroll.setWidgetResizable(True)  # le contenu suit la largeur disponible.
-		scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-		scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-		scroll.setFrameShape(QScrollArea.Shape.NoFrame)
-
-		scroll.setWidget(tab)
-		return scroll
+		return Ui.make_vertical_scroll(tab)
 
 	# ==================================================
 	# endregion Init

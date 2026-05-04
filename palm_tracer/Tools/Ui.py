@@ -19,8 +19,8 @@ from typing import Any
 from colorama import Fore, Style
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFontMetrics
-from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton, QSpinBox,
-							QVBoxLayout, QWidget)
+from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton, QScrollArea,
+							QSpinBox, QVBoxLayout, QWidget)
 
 # ==================================================
 # region Constants
@@ -314,6 +314,21 @@ def update_path_label(lbl: QLabel, path: str | Path):
 
 
 ##################################################
+def make_vertical_scroll(widget: QWidget) -> QScrollArea:
+	"""
+	Crééer une zone scrollable verticalement
+	:return: La :class:`QScrollArea` configuré.
+	"""
+	scroll = QScrollArea()
+	scroll.setWidgetResizable(True)  # le contenu suit la largeur disponible.
+	scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+	scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+	scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+	scroll.setWidget(widget)
+	return scroll
+
+
+##################################################
 def make_vertical_separator(color: str = "#B0B0B0") -> QFrame:
 	"""
 	Crée un séparateur vertical discret.
@@ -432,6 +447,7 @@ def sync_button_group(target: QButtonGroup, value: int):
 	button = target.button(value)
 	if button is not None: button.setChecked(True)
 	target.blockSignals(False)
+
 
 ##################################################
 def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):

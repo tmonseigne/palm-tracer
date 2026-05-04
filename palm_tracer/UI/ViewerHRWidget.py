@@ -123,6 +123,10 @@ class ViewerHRWidget(QWidget):
 		Ui.init_layout(layout, space=10)
 		self.setLayout(layout)
 
+		scroll_content = QWidget()
+		scroll_layout = QVBoxLayout(scroll_content)
+		Ui.init_layout(scroll_layout, space=10)
+
 		# --- Boutton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
 		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
@@ -193,9 +197,14 @@ class ViewerHRWidget(QWidget):
 		actions_row.addWidget(self._btn_screenshot)
 
 		layout.addWidget(self._btn_add_stack)
-		layout.addWidget(grp_infos)
-		layout.addWidget(grp_source)
-		layout.addWidget(grp_filters)
+
+		scroll_layout.addWidget(grp_infos)
+		scroll_layout.addWidget(grp_source)
+		scroll_layout.addWidget(grp_filters)
+		scroll_layout.addStretch()  # optionnel mais recommandé
+		scroll_area = Ui.make_vertical_scroll(scroll_content)
+		layout.addWidget(scroll_area)
+
 		layout.addLayout(actions_row)
 
 		self._toggle_gaussian()

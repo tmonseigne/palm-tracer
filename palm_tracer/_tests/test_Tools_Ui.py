@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QLabel, QSpinBox, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QLabel, QScrollArea, QSpinBox, QVBoxLayout, QWidget
 
 from palm_tracer.Tools import Ui
 
@@ -37,6 +37,9 @@ def test_builders(qtbot):
 	assert isinstance(separator, QFrame)
 	separator = Ui.make_vertical_separator("#000000")  # Création d'un séparateur vertival (noir)
 	assert isinstance(separator, QFrame)
+
+	scroll = Ui.make_vertical_scroll(QWidget())  # Création d'une zone scrollable vertivale
+	assert isinstance(scroll, QScrollArea)
 
 	elements = {"1": {"label": QLabel("1"), "value": QLabel("-")}, "2": {"label": QLabel("2"), "value": QLabel("-")}}
 
