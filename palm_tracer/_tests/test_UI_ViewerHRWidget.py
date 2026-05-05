@@ -291,7 +291,7 @@ def test_generate_drift(make_napari_viewer, patched_napari_viewer, qtbot, capsys
 	# Chargement d'une pile
 	fake_qfiledialog(FileList, f"{INPUT_DIR / 'stack.tif'}")
 	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
-	w._chk_drift.value = True
+	w._chk_drift_correction.value = True
 	w._pt.process()  # Process Vide pour créer le dossier et un setting de base
 
 	# Sans localization la sortie sera entièrement noire.
@@ -337,3 +337,142 @@ def test_generate_drift(make_napari_viewer, patched_napari_viewer, qtbot, capsys
 	ref = np.zeros(shape)
 	ref[0, 0] = 5
 	assert np.allclose(ref, w.visualization, atol=0)
+
+
+##################################################
+def test_generate_stress(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
+	"""Test basique de création du widget."""
+	viewer = make_napari_viewer()  # .Créer un viewer à l'aide de la fixture.
+	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+	pt = PALMTracer()
+	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
+
+	fake_napari_layers(viewer)
+	n_p, n_x, n_y = 8, 8, 4
+
+	# Chargement d'une pile
+	fake_qfiledialog(FileList, f"{INPUT_DIR / 'stack.tif'}")
+	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
+	w._pt.process()  # Process Vide pour créer le dossier et un setting de base
+	w._pt._stack = np.zeros((n_p, n_y, n_x))
+	w._spn_upscale.value = 2
+	upscale = w._spn_upscale.value
+	shape = (n_y * upscale, n_x * upscale)
+
+	# Bille qui part en diagonale du haut à droite vers le bas à gauche
+	bead_x, bead_y = np.linspace(n_x - 0.5, 0, n_p, dtype=np.float32), np.linspace(0, n_y - 0.5, n_p, dtype=np.float32)
+
+	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=np.int32),
+						  "Plane": np.arange(1, n_p + 1, dtype=np.int32),
+						  "X":     bead_x,
+						  "Y":     bead_y,
+						  "Z":     np.zeros(n_p, dtype=np.float32)})
+
+	loc = pd.DataFrame({"Plane":                np.arange(1, n_p + 1, dtype=np.int32),
+						"X":                    np.full(n_p, n_x / 2.0, dtype=np.float32),
+						"Y":                    np.full(n_p, n_y / 2.0, dtype=np.float32),
+						"Z":                    np.zeros(n_p, dtype=np.float32),
+						"Integrated Intensity": np.full(n_p, 1, dtype=np.float32),
+						"Sigma X":              np.ones(n_p, dtype=np.float32),
+						"Sigma Y":              np.ones(n_p, dtype=np.float32),
+						"Theta":                np.zeros(n_p, dtype=np.float32)})
+
+	w._pt.df["bds"], w._pt.df["loc"] = beads.copy(), loc.copy()
+
+	# Génération fixe (n_beads fois sur la position centrale)
+	w._generate()
+	ref = np.zeros(shape)
+	ref[n_y, n_x] = n_p
+	assert np.allclose(ref, w.visualization)
+
+	# Génération fixe de la bille (n_beads fois sur la position [1, 1] * upscale)
+	w._pt.df["loc"].loc[:, ["X", "Y"]] = w._pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+	w._chk_beads_remove.value = False
+	w._generate()
+	ref = np.zeros(shape)
+	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1
+	assert np.allclose(ref, w.visualization)
+
+	# Génération Drift corrigé des mêmes données que la bille, donc le premier point sera compté 8 fois.
+	w._chk_drift_correction.value = True
+	w._generate()
+	ref = np.zeros(shape)
+	ref[np.round(bead_y[0] * upscale).astype(int), np.round(bead_x[0] * upscale).astype(int)] = n_p
+	assert np.allclose(ref, w.visualization)
+
+	# Génération Drift corrigé, mais la localisation était fixe
+	# (donc elle va bouger vers le haut à droite, elle remonte la diagonale et une partie sera hors champs (départ au centre)
+	w._pt.df["bds"], w._pt.df["loc"] = beads.copy(), loc.copy()
+	w._generate()
+	ref = np.zeros(shape)
+	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # les autres points hors champs continues (0,16) (-1, 18)...
+	assert np.allclose(ref, w.visualization)
+
+	# Seconde bille qui descend comme la précédente, mais ne va pas vers la gauche donc la pente initiale sera divisé par 2.
+	beads2 = pd.DataFrame({"Bead":  np.full(n_p, 2, dtype=np.int32),
+						   "Plane": np.arange(1, n_p + 1, dtype=np.int32),
+						   "X":     np.zeros_like(bead_x, dtype=np.float32),
+						   "Y":     bead_y,
+						   "Z":     np.zeros(n_p, dtype=np.float32)})
+
+	w._pt.df["bds"] = pd.concat([beads, beads2], ignore_index=True)
+	w._generate()
+	ref = np.zeros(shape)
+	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # les autres points hors champs continues (-1,13) (-2, 14)...
+	assert np.allclose(ref, w.visualization)
+
+	# On ajoute nos 2 billes à la localisation et on enlève le drift, tout doit être affiché
+	w._chk_drift_correction.value = False
+	size = 3 * n_p
+	loc2 = pd.DataFrame({"Plane":                np.tile(np.arange(1, n_p + 1, dtype=np.int32), 3),
+						 "X":                    np.full(size, n_x / 2.0, dtype=np.float32),
+						 "Y":                    np.full(size, n_y / 2.0, dtype=np.float32),
+						 "Z":                    np.zeros(size, dtype=np.float32),
+						 "Integrated Intensity": np.full(size, 1, dtype=np.float32),
+						 "Sigma X":              np.ones(size, dtype=np.float32),
+						 "Sigma Y":              np.ones(size, dtype=np.float32),
+						 "Theta":                np.zeros(size, dtype=np.float32)})
+	loc2.loc[n_p:, ["X", "Y"]] = w._pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+
+	w._pt.df["loc"] = loc2.copy()
+	w._generate()
+	ref = np.zeros(shape)
+	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1  # Bille originale
+	ref[n_y, n_x] += n_p  # Localization statique
+	ref[:, 0] += 1  # Bille Verticale
+	assert np.allclose(ref, w.visualization)
+
+	# On supprime nos 2 billes (mais on va conserver notre localisation
+	w._chk_beads_remove.value = True
+	w._generate()
+	ref = np.zeros(shape)
+	ref[n_y, n_x] += n_p  # Localization statique
+	assert np.allclose(ref, w.visualization)
+
+	# Bille Random....
+	w._chk_beads_remove.value = False
+	w._chk_drift_correction.value = True
+	w._pt.df["bds"], w._pt.df["loc"] = beads.copy(), loc.copy()
+	w._pt.df["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Random autour du centre
+	w._pt.df["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Random autour du centre
+	w._generate()
+	ref = np.zeros(shape)
+	# Position au centre puis résultat du random dans tous les sens ATTENTION LE DRIFT EST LISSÉ.
+	ref[4, 8] = ref[3, 9] = ref[2, 11] = ref[2, 13] = ref[2, 14] = ref[3, 15] = 1
+	assert np.allclose(ref, w.visualization)
+
+	# Correction sur la position de la bille avec lissage...
+	w._pt.df["loc"].loc[:, ["X", "Y"]] = w._pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+	w._generate()
+	ref = np.zeros(shape)
+	# Position de la bille random corrigé ATTENTION LE DRIFT EST LISSÉ, ce n'est donc pas un point unique.
+	ref[3, 9] = ref[3, 10] = ref[2, 11] = ref[2, 14] = ref[3, 14] = 1
+	assert np.allclose(ref, w.visualization)
+
+	# Correction sur la position de la bille sans lissage...
+	w._chk_drift_smooth.value = False
+	w._generate()
+	ref = np.zeros(shape)
+	# Position de la bille random corrigé et non lissé.
+	ref[3, 10] = n_p
+	assert np.allclose(ref, w.visualization)

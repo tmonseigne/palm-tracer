@@ -49,6 +49,7 @@ TIPS = {
 		"Upscale Ratio":     "Image upscale ratio.",
 		"Remove Beads":      "Remove beads during reconstruction.",
 		"Drift Correction":  "Apply a drift correction (Note: The beads must have been extracted before.)",
+		"Smooth Drift":      "Apply a smooth on drift correction",
 		"Auto Crop":         "Remove all black Frame around reconstruction (Usefull when you make reconstruciton on a part of field). Keep 5 pixel of margin",
 
 		"Actualize":         "Updates files/data from PALMTracer status.",
@@ -146,7 +147,8 @@ class ViewerHRWidget(QWidget):
 		self._cmb_color_mode = Combo("Color mode", TIPS["Color Mode"], 0, ["Addition", "Max"])
 		self._spn_upscale = SpinInt("Upscale Ratio", TIPS["Upscale Ratio"], 4, [1, 100], 2)
 		self._chk_beads_remove = CheckBox("Remove Beads", TIPS["Remove Beads"], True)
-		self._chk_drift = CheckBox("Drift Correction", TIPS["Drift Correction"])
+		self._chk_drift_correction = CheckBox("Drift Correction", TIPS["Drift Correction"])
+		self._chk_drift_smooth = CheckBox("Smooth Drift", TIPS["Smooth Drift"], True)
 		self._chk_crop = CheckBox("Auto Crop", TIPS["Auto Crop"], True)
 		self._chk_gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
 		self._spn_gauss_intensity = SpinInt("Intensity", TIPS["G Intensity"], 100, [1, 10000], 10)
@@ -164,7 +166,8 @@ class ViewerHRWidget(QWidget):
 		self._spn_gauss_shape_size.attach_to_form(form)
 		self._spn_upscale.attach_to_form(form)
 		self._chk_beads_remove.attach_to_form(form)
-		self._chk_drift.attach_to_form(form)
+		self._chk_drift_correction.attach_to_form(form)
+		self._chk_drift_smooth.attach_to_form(form)
 		self._chk_crop.attach_to_form(form)
 
 		# --- Bloc Filtres ---
@@ -361,18 +364,17 @@ class ViewerHRWidget(QWidget):
 		"""
 		Vérifie si la correciton de drift est activé, faisable et l'applique.
 
-		:param data:
-		:return:
+		:param data: Données à corriger.
+		:return: Données corrigées.
 		"""
-		if self._chk_drift.value:  # Drift activé
+		if self._chk_drift_correction.value:  # Drift activé
 			beads = self._pt.beads
 			if beads.empty:  # Billes non calculées / trouvées
 				show_warning("No beads file available to correct drift.")
 				return data
 			# Application de la correction de drift
 			drift = Drift.get_drift(beads, is_3d=False)
-			smooth = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
-			drift[["X", "Y", "Z"]] = smooth
+			if self._chk_drift_smooth.value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
 			return Drift.remove_drift(data, drift, is_3d=False)
 		return data
 
@@ -467,7 +469,7 @@ class ViewerHRWidget(QWidget):
 			self.visualization = self._renderer.tracks(trc[:, [0, 2, 3, 4]])
 
 		layer.editable = False
-		suffix_drift = '_corrected' if self._chk_drift.value else ''
+		suffix_drift = '_corrected' if self._chk_drift_correction.value else ''
 		suffix_file = f"{suffix_drift}_x{upscale}_{src}-{suffix}.png"
 		self._filename = f"{path}/visualization{suffix_file}"
 		self._screenshot_filename = f"{path}/screenshot{suffix_file}"
