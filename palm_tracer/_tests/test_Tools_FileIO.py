@@ -176,13 +176,17 @@ def test_open_tif():
 	stack = FileIO.open_tif(f"{OUTPUT_DIR}/test_save_stack.tif")
 	assert np.allclose(REF_STACK, stack, atol=1), "L'échantillon devrait correspondre à la référence avec une tolérance d'erreur (passage en entier)."
 
+	stack = FileIO.open_tif(f"{INPUT_DIR}/stack2D.tif")
+	assert stack.shape == (1, 128, 128)
 
 ##################################################
 def test_open_tif_bad_file():
 	"""Test de la fonction open_tif avec un fichier inexistant."""
-	with pytest.raises(OSError) as exception_info:
-		_ = FileIO.open_tif("bad_filename.png")
+	with pytest.raises(OSError) as exception_info: _ = FileIO.open_tif("bad_filename.png")
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+
+	with pytest.raises(ValueError) as exception_info: _ = FileIO.open_tif(f"{INPUT_DIR}/stack4D.tif")
+	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 
 
 ##################################################

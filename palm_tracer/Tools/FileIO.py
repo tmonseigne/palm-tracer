@@ -253,7 +253,11 @@ def open_tif(filename: str | Path) -> np.ndarray:
 	"""
 	path = Path(filename)
 	if not path.is_file(): raise OSError(f'Le fichier "{path}" est introuvable.')
-	res = tiff.imread(str(path))  # .									 Conserve dtype
+	res = tiff.imread(str(path))  # .									 Lecture sans modification du dtype
+	# --- Normalisation des dimensions ---
+	if res.ndim == 2: res = res[np.newaxis, :, :]  # .					 Cas image unique ⇾ ajout axe frame
+	elif res.ndim == 3: pass  # .										 OK : déjà (frames, H, W)
+	else: raise ValueError(f"Dimension inattendue pour un TIF : {res.ndim}D (attendu 2D ou 3D).")
 	if not res.flags["C_CONTIGUOUS"]: res = np.ascontiguousarray(res)  # Garantit contiguïté sans copie si déjà C-contiguous
 	return res
 
