@@ -89,7 +89,7 @@ class FileList(BaseSettingType):
 	##################################################
 	def get_selected(self) -> str:
 		"""Récupère l'élément sélectionné."""
-		value = self._value
+		value = self.value
 		if 0 <= value < len(self.items):
 			return self.items[value]
 		return ""
