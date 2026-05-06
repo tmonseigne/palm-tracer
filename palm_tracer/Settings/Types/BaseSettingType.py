@@ -189,7 +189,7 @@ class BaseSettingType:
 	# region Signals
 	# ==================================================
 	##################################################
-	def connect(self, f: Any):
+	def connect(self, f: Callable[[Any], None]):
 		"""
 		Connecte une fonction ou un slot au signal encapsulé.
 
@@ -218,6 +218,11 @@ class BaseSettingType:
 		"""
 		self._signal.emit(value)  # Émission du signal.
 
-	def signal_blocked(self) -> SignalWrapper.BlockCtx:
-		"""Contexte de blocage des signaux de ce paramètre."""
-		return self._signal.blocked()
+	def signal_blocked(self, emit_last: bool = True) -> SignalWrapper.BlockCtx:
+		"""
+		Contexte de blocage des signaux de ce paramètre.
+
+		:param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage.
+		                  Si ``False``, ignore toutes les émissions reçues pendant le blocage.
+		"""
+		return self._signal.blocked(emit_last)
