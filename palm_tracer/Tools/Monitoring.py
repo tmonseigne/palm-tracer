@@ -29,6 +29,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, List
 
+import numpy as np
 import plotly.express as px  # Pour accéder aux couleurs qualitatives
 import plotly.graph_objects as go
 import psutil
@@ -85,6 +86,10 @@ class Monitoring:
 	"""Indique si la surveillance est en cours ou non."""
 	_thread: threading.Thread = field(init=False, default_factory=threading.Thread)
 	"""Le thread qui exécute le monitoring."""
+	_stop_event: threading.Event = field(init=False, default_factory=threading.Event)
+	"""Événement utilisé pour demander l'arrêt propre du thread de monitoring."""
+	_data_lock: threading.Lock = field(init=False, default_factory=threading.Lock)
+	"""Verrou protégeant les tableaux de mesures contre les accès concurrents."""
 	_tests_info: List[dict] = field(init=False, default_factory=list)  # Liste des informations des tests
 	"""Liste des informations relatives aux tests exécutés."""
 	_figure: go.Figure = field(init=False, default_factory=go.Figure)
@@ -102,6 +107,20 @@ class Monitoring:
 		return len(self._times)
 
 	##################################################
+	@property
+	def is_running(self) -> bool:
+		"""Indique si le thread de monitoring est actuellement actif."""
+		return self._thread.is_alive() and not self._stop_event.is_set()
+
+	##################################################
+	def _start_thread(self):
+		"""Démarre le thread de monitoring sans réinitialiser les données."""
+		self._stop_event.clear()
+		self._monitoring = True
+		self._thread = threading.Thread(target=self.monitor, daemon=True)
+		self._thread.start()
+
+	##################################################
 	def _reset(self):
 		"""Réinitialise toutes les données de monitoring (CPU, mémoire, disque, etc.)."""
 		self._cpu.clear()
@@ -115,6 +134,8 @@ class Monitoring:
 		self._tests_info.clear()
 		self._monitoring = False
 		self._thread = threading.Thread()
+		self._stop_event = threading.Event()
+		self._data_lock = threading.Lock()
 
 	##################################################
 	def _update(self):
@@ -138,18 +159,19 @@ class Monitoring:
 				if platform.system() != "Darwin": disk += proc.io_counters().write_bytes
 			except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess): continue
 
-		self._cpu.append(cpu)
-		self._memory.append(mem)
-		self._disk.append(disk)
-
+		gpu = 0
 		if self._gpu_handle:
 			try:
 				util = nvmlDeviceGetUtilizationRates(self._gpu_handle)
-				self._gpu.append(util.gpu)
-			except Exception: self._gpu.append(0)  # Erreur lors de la lecture de l'utilisation GPU
-		else: self._gpu.append(0)  # .				 Aucun GPU détecté
+				gpu = util.gpu
+			except Exception: gpu = 0  # Erreur lors de la lecture de l'utilisation GPU.
 
-		self._times.append(time.time())
+		with self._data_lock:
+			self._cpu.append(cpu)
+			self._memory.append(mem)
+			self._disk.append(disk)
+			self._gpu.append(gpu)
+			self._times.append(time.time())
 
 	##################################################
 	def start(self, interval: float = 1.0):
@@ -160,26 +182,43 @@ class Monitoring:
 		"""
 		self._reset()
 		self.interval = interval
-		self._monitoring = True
-		self._thread = threading.Thread(target=self.monitor, daemon=True)
-		self._thread.start()
+		self._start_thread()
 
 	##################################################
 	def monitor(self):
 		"""Surveille les ressources en continu dans un thread séparé."""
 		while self._monitoring:
 			self._update()
-			time.sleep(self.interval)
+			self._stop_event.wait(self.interval)
 
 	##################################################
 	def stop(self):
 		"""Arrête la surveillance et effectue une dernière mise à jour des valeurs."""
 		self._monitoring = False
-		self._update()  # Dernière entrée
-		if self._thread.is_alive(): self._thread.join(timeout=self.interval * 2.0)
+		self._stop_event.set()
+		# self._update()  # Dernière entrée
+
+		if self._thread.is_alive(): self._thread.join(timeout=max(self.interval * 3.0, 1.0))
+		if HAVE_GPU:
+			try: nvmlShutdown()
+			except Exception: pass
+
+		# if not self._times: return
 		self._update_array_for_readability()
-		if HAVE_GPU: nvmlShutdown()
 		self._draw()
+
+	##################################################
+	def pause(self):
+		"""Arrête temporairement le thread de monitoring sans générer de graphique."""
+		self._monitoring = False
+		self._stop_event.set()
+		if self._thread.is_alive(): self._thread.join(timeout=max(self.interval * 3.0, 1.0))
+
+	##################################################
+	def resume(self):
+		"""Reprend la surveillance sans réinitialiser les données."""
+		if self.is_running: return
+		self._start_thread()
 
 	##################################################
 	def add_test_info(self, name: str):
@@ -308,23 +347,23 @@ class Monitoring:
 	##################################################
 	def _draw(self):
 		"""Génère un graphique interactif des ressources utilisées pendant les tests et l'enregistre."""
-		self._figure = make_subplots(rows=4, cols=1, shared_xaxes=True, vertical_spacing=0.05,
-									 subplot_titles=("CPU Usage (%)", "GPU Usage (%)", "Memory Usage (Mo)", "Disk Usage (IO Mo)"))
-		color_map = self.get_color_map_by_name([test["File"] for test in self._tests_info], px.colors.qualitative.Plotly)
 
 		params = [{"y": self._cpu, "name": "CPU Usage (%)", "line": dict(color="blue")},
-				  {"y": self._gpu, "name": "GPU Usage (%)", "line": dict(color="darkblue")},
 				  {"y": self._memory, "name": "Memory Usage (Mo)", "line": dict(color="green")},
 				  {"y": self._disk, "name": "Disk Usage (IO Mo)", "line": dict(color="red")}]
 
+		# Ajouter GPU seulement si pertinent
+		if not np.allclose(self._gpu, 0): params.insert(1, {"y": self._gpu, "name": "GPU Usage (%)", "line": dict(color="darkblue")})
+
+		self._figure = make_subplots(rows=len(params), cols=1, shared_xaxes=True, vertical_spacing=0.05, subplot_titles=tuple(p["name"] for p in params))
+		color_map = self.get_color_map_by_name([test["File"] for test in self._tests_info], px.colors.qualitative.Plotly)
+
 		for i in range(len(params)):
-			self._figure.add_trace(go.Scatter(x=self._times, y=params[i]["y"], mode="lines",
-											  name=params[i]["name"], line=params[i]["line"]), row=i + 1, col=1)
+			self._figure.add_trace(go.Scatter(x=self._times, y=params[i]["y"], mode="lines", name=params[i]["name"], line=params[i]["line"]), row=i + 1, col=1)
 			self.draw_test_section(self._figure, self.get_y_range(params[i]["y"]), self._tests_info, color_map, self._times[-1], i + 1)
 
 		# add_color_map_legend
-		self._figure.update_layout(width=1200, height=800,
-								   margin={"t": 50, "l": 5, "r": 5, "b": 5},
+		self._figure.update_layout(width=1200, height=len(params) * 200, margin={"t": 50, "l": 5, "r": 5, "b": 5},
 								   title_text="Resource Usage Over Time", showlegend=False)
 		for i in range(len(params)):
 			self._figure.update_yaxes(showgrid=False, row=i + 1, col=1)  # .		Supprimer la grille verticale

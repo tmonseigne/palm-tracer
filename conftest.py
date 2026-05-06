@@ -152,8 +152,8 @@ def patched_napari_viewer(monkeypatch, qtbot):
 		except Exception: pass
 
 		# 3) GC pour aider les weakrefs / destructions tardives
-		try: gc.collect()
-		except Exception: pass
+		# try: gc.collect()
+		# except Exception: pass
 
 	# --- nettoyage avant test
 	_cleanup()
@@ -189,6 +189,19 @@ def patched_napari_viewer(monkeypatch, qtbot):
 # ==================================================
 # region Hook
 # ==================================================
+##################################################
+def _is_qt_or_napari_test(item) -> bool:
+	"""Indique si le test utilise Qt ou Napari."""
+	if item is None: return False
+	fixture_names = set(getattr(item, "fixturenames", []))
+	keywords = set(item.keywords)
+	nodeid = str(getattr(item, "nodeid", "")).lower()
+
+	return bool({"qtbot", "patched_napari_viewer", "fake_napari_layers"} & fixture_names
+				or {"qt", "napari"} & keywords
+				or "napari" in nodeid or "qt" in nodeid or "gui" in nodeid)
+
+
 ##################################################
 def cpu_infos() -> str:
 	info = cpuinfo.get_cpu_info()
@@ -272,6 +285,21 @@ def pytest_runtest_protocol(item, nextitem):
 	all_tests_monitoring.add_test_info(item.nodeid)
 	return None
 
+
+##################################################
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_setup(item):
+	"""A l'initialisation de chaque test."""
+	global all_tests_monitoring
+	if _is_qt_or_napari_test(item) and all_tests_monitoring.is_running: all_tests_monitoring.pause()
+
+
+##################################################
+@pytest.hookimpl(trylast=True)
+def pytest_runtest_teardown(item, nextitem):
+	"""Au nettoyage de chaque test."""
+	global all_tests_monitoring
+	if _is_qt_or_napari_test(item) and not _is_qt_or_napari_test(nextitem): all_tests_monitoring.resume()
 # ==================================================
 # endregion Hook
 # ==================================================

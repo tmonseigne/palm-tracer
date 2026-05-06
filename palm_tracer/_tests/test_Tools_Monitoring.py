@@ -117,6 +117,11 @@ def test_monitoring():
 	monitoring = Monitoring()
 	monitoring.start(0.1)
 	time.sleep(1)
+	monitoring.pause()
+	time.sleep(1)
+	monitoring.resume()
+	monitoring.resume()
+	time.sleep(1)
 	monitoring.stop()
 	print(f"\n{monitoring}")
 
