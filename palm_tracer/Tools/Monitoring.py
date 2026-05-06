@@ -107,6 +107,20 @@ class Monitoring:
 		return len(self._times)
 
 	##################################################
+	@property
+	def is_running(self) -> bool:
+		"""Indique si le thread de monitoring est actuellement actif."""
+		return self._thread.is_alive() and not self._stop_event.is_set()
+
+	##################################################
+	def _start_thread(self):
+		"""Démarre le thread de monitoring sans réinitialiser les données."""
+		self._stop_event.clear()
+		self._monitoring = True
+		self._thread = threading.Thread(target=self.monitor, daemon=True)
+		self._thread.start()
+
+	##################################################
 	def _reset(self):
 		"""Réinitialise toutes les données de monitoring (CPU, mémoire, disque, etc.)."""
 		self._cpu.clear()
@@ -168,9 +182,7 @@ class Monitoring:
 		"""
 		self._reset()
 		self.interval = interval
-		self._monitoring = True
-		self._thread = threading.Thread(target=self.monitor, daemon=True)
-		self._thread.start()
+		self._start_thread()
 
 	##################################################
 	def monitor(self):
@@ -194,6 +206,19 @@ class Monitoring:
 		# if not self._times: return
 		self._update_array_for_readability()
 		self._draw()
+
+	##################################################
+	def pause(self):
+		"""Arrête temporairement le thread de monitoring sans générer de graphique."""
+		self._monitoring = False
+		self._stop_event.set()
+		if self._thread.is_alive(): self._thread.join(timeout=max(self.interval * 3.0, 1.0))
+
+	##################################################
+	def resume(self):
+		"""Reprend la surveillance sans réinitialiser les données."""
+		if self.is_running: return
+		self._start_thread()
 
 	##################################################
 	def add_test_info(self, name: str):
