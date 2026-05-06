@@ -2,7 +2,7 @@
 from typing import Any, List
 
 import pytest
-from qtpy.QtWidgets import QFormLayout, QWidget
+from qtpy.QtWidgets import QCheckBox, QFormLayout, QHBoxLayout, QLabel, QWidget
 
 from palm_tracer._tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
@@ -70,6 +70,19 @@ def test_base_setting(qtbot):
 	box = setting.box
 	assert isinstance(box, QWidget), "Le widget n'existe pas."
 
+
+###################################################
+def test_base_ui(qtbot):
+	ui = BaseUI(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])
+
+	ui.hide()
+	ui.show()
+
+	form = QFormLayout()
+	ui.attach_to_form(form)
+
+	ui.hide()
+	ui.show()
 
 ###################################################
 def test_create_setting_from_dict(qtbot):

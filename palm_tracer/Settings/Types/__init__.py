@@ -23,6 +23,7 @@ from typing import Any
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingType import BaseSettingType
+from .BaseUI import BaseUI
 from .BrowseFile import BrowseFile
 from .Button import Button
 from .CheckBox import CheckBox
@@ -37,7 +38,7 @@ from .SpinInt import SpinInt
 
 def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
 	"""Créé un setting en fonction d'un dictionnaire en entrée."""
-	if not "type" in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
+	if "type" not in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
 	if data["type"] == "BrowseFile": return BrowseFile.from_dict(data)
 	elif data["type"] == "Button": return Button.from_dict(data)
 	elif data["type"] == "CheckBox": return CheckBox.from_dict(data)
@@ -52,6 +53,6 @@ def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
 
 # Définir la liste des symboles exportés
 __all__ = ["create_setting_from_dict",
-		   "BaseSettingType", "SignalWrapper",
+		   "BaseSettingType", "BaseUI", "SignalWrapper",
 		   "BrowseFile", "Button", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
 		   "CheckRangeFloat", "CheckRangeInt"]
