@@ -16,7 +16,7 @@ Cette séparation permet :
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from qtpy.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
@@ -42,9 +42,9 @@ class BaseUI:
 	"""Objets QT permettant de manipuler le paramètre (:class:`QCheckBox`, :class:`QSpinBox`, :class:`QComboBox`...)."""
 	label: QLabel | None = None
 	""":class:`QLabel` contenant le nom du paramètre."""
-	form: QFormLayout | None = None
+	form: QFormLayout | None = field(init=False, default=None)
 	"""Formulaire parent dans lequel est le paramètre (utile lors d'un Hide & Seek)."""
-	row: int = -1
+	row: int = field(init=False, default=-1)
 	"""Position dans le formulaire parent (utile lors d'un Hide & Seek)."""
 
 	##################################################
@@ -91,7 +91,3 @@ class BaseUI:
 		:param tooltip: tooltip à ajouter
 		"""
 		if self.label is not None: self.label.setToolTip(tooltip)
-
-# ==================================================
-# region Layout management
-# ==================================================

@@ -66,23 +66,6 @@ class CheckBox(BaseSettingType):
 
 		self.emit(value)
 
-	# ==================================================
-	# endregion Getter/Setter
-	# ==================================================
-
-	# ==================================================
-	# region  Parsing
-	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "value": self._value}
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		self.label = data.get("label", "")
-		self.default = data.get("default", False)
-		self.value = data.get("value", False)
-
 
 ##################################################
 if __name__ == "__main__":
@@ -92,8 +75,8 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
-	check = CheckBox("Test", "tooltip")
-	check.get_ui("default").attach_to_form(form)
-	check.get_ui("second").attach_to_form(form)
+	setting = CheckBox("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
 	w.show()
 	sys.exit(app.exec_())

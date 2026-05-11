@@ -99,19 +99,15 @@ class Combo(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
-	# region  Parsing
+	# region Parsing
 	# ==================================================
 	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self._items, "value": self._value}
+	def to_compact_dict(self) -> dict[str, Any]: return {"value": self.value, "items": self.items}
 
 	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		# Mise à jour des membres
-		self.label = data.get("label", "")
-		self.default = data.get("default", False)
-		self.items = data.get("items", [""])
-		self.value = data.get("value", self.default)
+	def update_from_compact_dict(self, data: dict[str, Any]):
+		self.items = data["items"]  # Récupération de la liste des éléments avant de mettre à jour la valeur
+		self.value = data["value"]
 
 
 ##################################################
@@ -122,8 +118,8 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
-	combo = Combo("Test", "tooltip", 0, ["1", "2", "3"])
-	combo.get_ui("default").attach_to_form(form)
-	combo.get_ui("second").attach_to_form(form)
+	setting = Combo("Test", "tooltip", 0, ["1", "2", "3"])
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
 	w.show()
 	sys.exit(app.exec_())

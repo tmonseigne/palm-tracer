@@ -10,15 +10,17 @@ Ce fichier définit la classe :class:`.Settings`, utilisée pour gérer et enreg
 
 La classe :class:`.Settings` est conçue pour interagir directement avec l'interface utilisateur en facilitant le paramétrage de PALM Tracer.
 """
+from __future__ import annotations
+
 from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.Batch import Batch
+from palm_tracer.Settings.Groups.BeadsExtraction import BeadsExtraction
 from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnection
 from palm_tracer.Settings.Groups.Calibration import Calibration
-from palm_tracer.Settings.Groups.BeadsExtraction import BeadsExtraction
 from palm_tracer.Settings.Groups.Filters import Filters
 from palm_tracer.Settings.Groups.Gallery import Gallery
 from palm_tracer.Settings.Groups.Localization import Localization
@@ -170,26 +172,6 @@ class Settings:
 	# ==================================================
 	# region Parsing
 	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		return {"PALM Tracer Settings": {name: obj.to_dict() for name, obj in self._settings.items()}}
-
-	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "Settings":
-		"""Créé une instance de la classe à partir d'un dictionnaire."""
-		res = cls()  # Instancie la classe appelée
-		res.update_from_dict(data)
-		return res
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire."""
-		groups = data["PALM Tracer Settings"]
-		for name, obj in self._settings.items():
-			if name in groups: obj.update_from_dict(groups[name])
-
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""

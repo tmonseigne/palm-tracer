@@ -115,17 +115,6 @@ class FileList(BaseSettingType):
 	# region  Parsing
 	# ==================================================
 	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "items": self._items, "value": self._value}
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		self.label = data.get("label", "")
-		self.default = data.get("default", False)
-		self.items = data.get("items", [""])
-		self.value = data.get("value", self._value)
-
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
 		return {"value": self._value, "items": self._items}
@@ -141,7 +130,7 @@ class FileList(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
-	# region  Callbacks
+	# region Callbacks
 	# ==================================================
 
 	##################################################
@@ -180,8 +169,8 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
-	fl = FileList("Test", "tooltip")
-	fl.get_ui("default").attach_to_form(form)
-	fl.get_ui("second").attach_to_form(form)
+	setting = FileList("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
 	w.show()
 	sys.exit(app.exec_())

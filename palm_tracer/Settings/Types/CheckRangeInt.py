@@ -160,29 +160,22 @@ class CheckRangeInt(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
-	# region  Parsing
+	# region Parsing
 	# ==================================================
 	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type":  type(self).__name__, "label": self.label, "default": self.default, "active": self._active,
-				"limit": self.limits, "step": self.step, "value": self._value}
+	def to_compact_dict(self) -> dict[str, Any]: return {"value": self.value, "limits": self.limits}
 
 	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		# Mise à jour des membres
-		self.label = data.get("label", "")
-		self.default = data.get("default", False)
-		self.active = data.get("active", False)
-		self.limits = data.get("limits", [0, 100])
-		self.step = data.get("step", 1)
-		self.value = data.get("value", self.default)
+	def update_from_compact_dict(self, data: dict[str, Any]):
+		self.limits = data["limits"]  # Récupération des limites avant de mettre à jour la valeur
+		self.value = data["value"]
 
 	# ==================================================
 	# endregion Parsing
 	# ==================================================
 
 	# ==================================================
-	# region  Callbacks
+	# region Callbacks
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
@@ -210,8 +203,8 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
-	spin = CheckRangeInt("Test", "tooltip")
-	spin.get_ui("default").attach_to_form(form)
-	spin.get_ui("second").attach_to_form(form)
+	setting = CheckRangeInt("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
 	w.show()
 	sys.exit(app.exec_())

@@ -77,34 +77,6 @@ class SpinFloat(BaseSettingType):
 
 		self.emit(value)
 
-	# ==================================================
-	# endregion Getter/Setter
-	# ==================================================
-
-	# ==================================================
-	# region  Parsing
-	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "default": self.default, "limits": self.limits,
-				"step": self.step, "value": self._value}
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		# Mise à jour des membres
-		self.label = data.get("label", self.label)
-		self.default = data.get("default", self.default)
-		self.limits = data.get("limits", self.limits)
-		self.step = data.get("step", self.step)
-		self.precision = data.get("precision", self.precision)
-		# Mise à jour des objets QT
-		for ui in self._uis.values():
-			b = cast(QDoubleSpinBox, ui.boxes[0])
-			b.setRange(self.limits[0], self.limits[1])
-			b.setSingleStep(self.step)
-			b.setDecimals(self.precision)
-		self.value = data.get("value", self.default)
-
 
 ##################################################
 if __name__ == "__main__":
@@ -114,8 +86,8 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
-	spin = SpinFloat("Test", "tooltip")
-	spin.get_ui("default").attach_to_form(form)
-	spin.get_ui("second").attach_to_form(form)
+	setting = SpinFloat("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
 	w.show()
 	sys.exit(app.exec_())

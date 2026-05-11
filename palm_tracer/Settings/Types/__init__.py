@@ -35,23 +35,7 @@ from .SpinFloat import SpinFloat
 from .SpinInt import SpinInt
 
 
-def create_setting_from_dict(data: dict[str, Any]) -> "BaseSettingType":
-	"""Créé un setting en fonction d'un dictionnaire en entrée."""
-	if "type" not in data: raise ValueError("Le dictionnaire ne contient pas la clé 'type'.")
-	if data["type"] == "BrowseFile": return BrowseFile.from_dict(data)
-	elif data["type"] == "Button": return Button.from_dict(data)
-	elif data["type"] == "CheckBox": return CheckBox.from_dict(data)
-	elif data["type"] == "CheckRangeFloat": return CheckRangeFloat.from_dict(data)
-	elif data["type"] == "CheckRangeInt": return CheckRangeInt.from_dict(data)
-	elif data["type"] == "Combo": return Combo.from_dict(data)
-	elif data["type"] == "FileList": return FileList.from_dict(data)
-	elif data["type"] == "SpinFloat": return SpinFloat.from_dict(data)
-	elif data["type"] == "SpinInt": return SpinInt.from_dict(data)
-	raise ValueError("Le dictionnaire ne contient pas un type de paramètre valide.")
-
-
 # Définir la liste des symboles exportés
-__all__ = ["create_setting_from_dict",
-		   "BaseSettingType", "BaseUI", "SignalWrapper",
+__all__ = ["BaseSettingType", "BaseUI", "SignalWrapper",
 		   "BrowseFile", "Button", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
 		   "CheckRangeFloat", "CheckRangeInt"]

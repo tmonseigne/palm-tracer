@@ -37,20 +37,6 @@ class Button(BaseSettingType):
 		self._uis[name] = ui  # .					  Ajoute l'ui au dictionnaire
 		return ui
 
-	# ==================================================
-	# region  Parsing
-	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label}
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		self.label = data.get("label", "")
-		for ui in self._uis.values():
-			b = cast(QPushButton, ui.boxes[0])
-			b.setText(self.label)
-
 
 ##################################################
 if __name__ == "__main__":
@@ -60,13 +46,11 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
-	button = Button("Test", "tooltip")
-
-	button.get_ui("default").attach_to_form(form)
-	button.get_ui("second").attach_to_form(form)
-
-	button.connect_button(lambda: print("Hello"), "default", 0)
-	button.connect_button(lambda: print("Bonjour"), "second", 0)
+	setting = Button("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
+	setting.connect_button(lambda: print("Hello"), "default", 0)
+	setting.connect_button(lambda: print("Bonjour"), "second", 0)
 
 	w.show()
 	sys.exit(app.exec_())

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle
+from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle,QApplication
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUI import BaseUI
@@ -77,16 +77,7 @@ class BrowseFile(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
-	# region  Parsing
-	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]: return {"type": type(self).__name__, "label": self.label, "value": self._value}
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]): self.label, self.value = data.get("label", ""), data.get("value", "")
-
-	# ==================================================
-	# region  Callbacks
+	# region Callbacks
 	# ==================================================
 	##################################################
 	def browse_file(self):
@@ -102,13 +93,13 @@ class BrowseFile(BaseSettingType):
 ##################################################
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+	from qtpy.QtWidgets import QWidget, QFormLayout
 
 	app = QApplication(sys.argv)
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
-	browse = BrowseFile("Test", "tooltip")
-	browse.get_ui("default").attach_to_form(form)
-	browse.get_ui("second").attach_to_form(form)
+	setting = BrowseFile("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
 	w.show()
 	sys.exit(app.exec_())

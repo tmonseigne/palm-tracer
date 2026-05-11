@@ -109,24 +109,6 @@ class BaseSettingType:
 	# region Parsing
 	# ==================================================
 	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingType":
-		"""Créé une instance de la classe à partir d'un dictionnaire."""
-		res = cls(data.get("label", ""))
-		res.update_from_dict(data)
-		return res
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire."""
-		raise NotImplementedError("La méthode 'update_from_dict' doit être implémentée dans la sous-classe.")
-
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		raise NotImplementedError("La méthode 'to_dict' doit être implémentée dans la sous-classe.")
-
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
 		return {"value": self.value}

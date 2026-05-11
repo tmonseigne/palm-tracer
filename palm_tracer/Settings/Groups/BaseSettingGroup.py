@@ -3,10 +3,12 @@ Fichier contenant la classe :class:`BaseSettingGroup` et ses sous-classes pour l
 
 Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
 """
+from __future__ import annotations
+
 import copy
 from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
-from typing import Any, Callable, cast, Optional, Union
+from typing import Any, cast, Optional, Union
 
 from qtpy import QT_API
 from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
@@ -133,15 +135,11 @@ class BaseSettingGroup:
 
 	##################################################
 	@property
-	def value(self):
-		"""Fonction vide nécessaire aux parcours automatiques."""
-		return
+	def value(self): return
 
 	##################################################
 	@value.setter
-	def value(self, value: Any):
-		"""Fonction vide nécessaire aux parcours automatiques."""
-		return
+	def value(self, value: Any): return
 
 	##################################################
 	@property
@@ -273,29 +271,6 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Parsing
 	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		return {"type":     type(self).__name__, "active": self._active, "label": self.label,
-				"settings": {name: setting.to_dict() for name, setting in self._settings.items()}, }
-
-	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "BaseSettingGroup":
-		"""Créé une instance de la classe à partir d'un dictionnaire."""
-		res = cls()  # Instancie la classe appelée
-		res.update_from_dict(data)
-		return res
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire."""
-		self.label = data.get("label", self.label)
-		self.active = data.get("active", False)
-		settings = data["settings"]
-		for key, value in self.setting_list.items():  # Appelle `update_from_dict` pour chaque élément de setting_list
-			if key in settings: self._settings[key].update_from_dict(settings[key])
-
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
