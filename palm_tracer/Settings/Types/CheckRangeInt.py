@@ -1,13 +1,16 @@
 """
 Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type interval de nombre entier.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
-from qtpy.QtWidgets import QCheckBox, QLabel, QSpinBox
+from qtpy.QtCore import QSignalBlocker, Qt
+from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseUI import BaseUI
 from palm_tracer.Tools import Ui
 
 
@@ -20,50 +23,20 @@ class CheckRangeInt(BaseSettingType):
 	:param label: Nom du paramètre à afficher
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeurs par défaut du paramètre.
-	:param limits: Valeurs limites du paramètre.
+	:param _limits: Valeurs limites du paramètre.
 	"""
 
 	default: list[int] = field(default_factory=lambda: [0, 100])
+	"""Valeur par défaut du paramètre (:class:`list[int]`)."""
 	_value: list[int] = field(init=False, default_factory=lambda: [0, 100])
-
-	limits: list[int] = field(default_factory=lambda: [0, 100])
-	"""Valeur limite du paramètre."""
+	"""Valeur actuelle du paramètre (:class:`list[int]`)."""
 
 	_active: bool = field(init=False, default=False)
 	"""Indicateur d'activation du paramètre."""
-	_checkbox: QCheckBox = field(init=False)
-	"""CheckBox pour activer le paramètre."""
-	_box: list[QSpinBox] = field(init=False, default_factory=lambda: [QSpinBox(), QSpinBox()])
-
-	# ==================================================
-	# region Initialization
-	# ==================================================
-	##################################################
-	def initialize(self):
-		super().initialize()  # Appelle l'initialisation de la classe mère.
-
-		# Check box
-		self._checkbox = QCheckBox()
-		self._checkbox.setChecked(self._active)
-		self._checkbox.stateChanged.connect(self.toggle_active)
-		self._checkbox.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-
-		# Spin box
-		for i in range(2):
-			# Création de la boite.
-			self._box[i] = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], value=self.default[i], buttons=False)
-			self._box[i].setKeyboardTracking(False)  # .	Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
-			self._box[i].valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
-
-		self._box[0].valueChanged.connect(self.check_min)  # Définition du comportement lors de la modification des valeurs
-		self._box[1].valueChanged.connect(self.check_max)  # Définition du comportement lors de la modification des valeurs
-
-		# Ligne du paramètre
-		self._layout.addWidget(self._checkbox)
-		self._layout.addWidget(self._box[0])
-		self._layout.addWidget(QLabel("→"))
-		self._layout.addWidget(self._box[1])
-		self._layout.addStretch(1)  # pousse tout à gauche, espace vide à droite
+	_limits: list[int] = field(default_factory=lambda: [0, 100])
+	"""Valeurs limites du paramètre."""
+	step: int = 1
+	"""Pas à chaque appui sur une des flèches du paramètre."""
 
 	##################################################
 	def reset(self):
@@ -72,12 +45,34 @@ class CheckRangeInt(BaseSettingType):
 		self.active = False
 
 	# ==================================================
-	# endregion Initialization
-	# ==================================================
-
-	# ==================================================
 	# region Getter/Setter
 	# ==================================================
+	##################################################
+	def get_ui(self, name: str = "default") -> BaseUI:
+		if name in self._uis: return self._uis[name]
+
+		checkbox: QCheckBox = QCheckBox()
+		spin_min: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default[0], buttons=False)
+		spin_max: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default[1], buttons=False)
+
+		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max])
+		ui.set_tooltip(self.tooltip)  # .				  Ajout du Tooltip
+
+		checkbox.stateChanged.connect(self.set_active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
+		spin_min.setKeyboardTracking(False)  # .		  Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		spin_min.valueChanged.connect(self.set_min)  # .  Connecte le changement de valeur pour que les autres UI se mettent à jour
+		spin_max.setKeyboardTracking(False)  # .		  Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		spin_max.valueChanged.connect(self.set_max)  # .  Connecte le changement de valeur pour que les autres UI se mettent à jour
+
+		ui.layout.addWidget(checkbox)
+		ui.layout.addWidget(spin_min)
+		ui.layout.addWidget(QLabel("→"))
+		ui.layout.addWidget(spin_max)
+		ui.layout.addStretch(1)  # .					  Pousse tout à gauche, espace vide à droite.
+
+		self._uis[name] = ui  # .						  Ajoute l'ui au dictionnaire
+		return ui
+
 	##################################################
 	@property
 	def active(self) -> bool:
@@ -88,76 +83,99 @@ class CheckRangeInt(BaseSettingType):
 	@active.setter
 	def active(self, value: bool):
 		"""Contrôle la modification de l'état actif."""
-		self._checkbox.setChecked(value)
-		self.toggle_active(1 if value else 0)
+		if self._active == value: return
+		self._active = value
+		for ui in self._uis.values():
+			b = cast(QCheckBox, ui.boxes[0])
+			with QSignalBlocker(b): b.setCheckState(Qt.CheckState.Checked if value else Qt.CheckState.Unchecked)
 
 	##################################################
 	@property
-	def box(self) -> list[QSpinBox]:
-		"""Objets QT permettant de manipuler le paramètre (liste de :class:`QSpinBox`)."""
-		return self._box
+	def min(self) -> int:
+		"""Indicateur de la valeur minimale du paramètre (:class:`int`)."""
+		return self._value[0]
+
+	##################################################
+	@min.setter
+	def min(self, value: int):
+		"""Contrôle la modification de la valeur minimale."""
+		if self._value[0] == value: return
+		self._value[0] = value
+		for ui in self._uis.values():
+			b = cast(QSpinBox, ui.boxes[1])
+			with QSignalBlocker(b): b.setValue(value)
+		self.emit(value)
+
+	##################################################
+	@property
+	def max(self) -> int:
+		"""Indicateur de la valeur maximale du paramètre (:class:`int`)."""
+		return self._value[1]
+
+	##################################################
+	@max.setter
+	def max(self, value: int):
+		"""Contrôle la modification de la valeur maximale."""
+		if self._value[1] == value: return
+		self._value[1] = value
+		for ui in self._uis.values():
+			b = cast(QSpinBox, ui.boxes[2])
+			with QSignalBlocker(b): b.setValue(value)
+		self.emit(value)
 
 	##################################################
 	@property
 	def value(self) -> list[int]:
-		"""Valeurs actuelles du paramètre (:class:`list[int]`)."""
-		for i in range(2): self._value[i] = self._box[i].value()
+		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
 		return self._value
 
 	##################################################
 	@value.setter
 	def value(self, value: list[int]):
-		"""Valeurs actuelles du paramètre (:class:`list[int]`)."""
+		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
+		if self._value == value: return
 		self._value = value
-		for i in range(2): self._box[i].setValue(value[i])
+		self.min = value[0]
+		self.max = value[1]
+
+	##################################################
+	@property
+	def limits(self) -> list[int]:
+		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
+		return self._limits
+
+	##################################################
+	@limits.setter
+	def limits(self, value: list[int]):
+		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
+		if self._limits == value: return
+		self._limits = value
+		for ui in self._uis.values():
+			for i in range(2):
+				b = cast(QSpinBox, ui.boxes[i + 1])
+				with QSignalBlocker(b): Ui.update_spin_limits(b, self._limits[0], self._limits[1])
 
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================
 
 	# ==================================================
-	# region  Hide and Seek
-	# ==================================================
-	##################################################
-	def hide(self):
-		"""Cache le paramètre."""
-		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, False)
-		else:  # fallback si pas attaché
-			self._label_widget.hide()
-			for b in self._box: b.hide()
-
-	##################################################
-	def show(self):
-		"""Affiche le paramètre."""
-		if self._form_layout is not None and self._row_index >= 0: self._form_layout.setRowVisible(self._row_index, True)
-		else:  # fallback si pas attaché
-			self._label_widget.show()
-			for b in self._box: b.show()
-
-	# ==================================================
-	# endregion  Hide and Seek
-	# ==================================================
-
-	# ==================================================
-	# region Parsing
+	# region  Parsing
 	# ==================================================
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
-		return {"type":    type(self).__name__, "active": self._active, "label": self.label,
-				"default": self.default, "limit": self.limits, "value": self._value}
+		return {"type":  type(self).__name__, "label": self.label, "default": self.default, "active": self._active,
+				"limit": self.limits, "step": self.step, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		# Mise à jour des membres
 		self.label = data.get("label", "")
-		self.default = data.get("default", [0, 0])
-		self.limits = data.get("limit", [0, 100])
+		self.default = data.get("default", False)
 		self.active = data.get("active", False)
-
-		# Mise à jour des boites QT
-		for i in range(2):
-			self._box[i].setRange(self.limits[0], self.limits[1])
-			self.value = data.get("value", self.default)
+		self.limits = data.get("limits", [0, 100])
+		self.step = data.get("step", 1)
+		self.value = data.get("value", self.default)
 
 	# ==================================================
 	# endregion Parsing
@@ -167,25 +185,33 @@ class CheckRangeInt(BaseSettingType):
 	# region  Callbacks
 	# ==================================================
 	##################################################
-	def toggle_active(self, state: int):
+	def set_active(self, state: int):
 		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
-		self._active = bool(state)
+		self.active = bool(state)
 
 	##################################################
-	def check_min(self, value: int):
+	def set_min(self, value: int):
 		"""S'assure que min ≤ max."""
-		self._value[0] = value
-		if self._value[0] > self._value[1]:
-			self._box[1].setValue(self._value[0])  # Ajuste max si min dépasse max
+		self.min = value
+		if self.min > self.max: self.max = value
 
 	##################################################
-	def check_max(self, value: int):
+	def set_max(self, value: int):
 		"""S'assure que min ≤ max."""
-		self._value[1] = value
-		if self._value[1] < self._value[0]:
-			self._box[0].setValue(self._value[1])  # Ajuste min si max est trop bas
+		self.max = value
+		if self.max < self.min: self.min = value
 
-	##################################################
-	def update_limits(self, minimum: int | None = None, maximum: int | None = None):
-		"""Mets à jour le min et le max."""
-		for b in self._box: Ui.update_spin_limits(b, minimum, maximum)
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	spin = CheckRangeInt("Test", "tooltip")
+	spin.get_ui("default").attach_to_form(form)
+	spin.get_ui("second").attach_to_form(form)
+	w.show()
+	sys.exit(app.exec_())

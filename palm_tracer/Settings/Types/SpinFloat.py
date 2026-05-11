@@ -1,13 +1,16 @@
 """
 Fichier contenant la classe :class:`SpinFloat` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type nombre réel.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
-from qtpy.QtWidgets import QDoubleSpinBox
+from qtpy.QtCore import QSignalBlocker
+from qtpy.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseUI import BaseUI
 from palm_tracer.Tools import Ui
 
 
@@ -25,7 +28,9 @@ class SpinFloat(BaseSettingType):
 	:param precision: Précision du paramètre.
 	"""
 	default: float = 0.0
+	"""Valeur par défaut du paramètre (:class:`float`)."""
 	_value: float = field(init=False, default=0.0)
+	"""Valeur actuelle du paramètre (:class:`float`)."""
 
 	limits: list[float] = field(default_factory=lambda: [0.0, 100.0])
 	"""Valeurs limites du paramètre."""
@@ -34,40 +39,43 @@ class SpinFloat(BaseSettingType):
 	precision: int = 2
 	"""Précision du paramètre."""
 
-	_box: QDoubleSpinBox = field(init=False)
-
-	# ==================================================
-	# region Initialization
-	# ==================================================
-	##################################################
-	def initialize(self):
-		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
-		self._box = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
-		self._box.setKeyboardTracking(False)  # .	 Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
-		self._box.valueChanged.connect(self.emit)  # Définition du comportement lors de la modification des valeurs
-		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte
-		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite
-
-	# ==================================================
-	# endregion Initialization
-	# ==================================================
-
 	# ==================================================
 	# region Getter/Setter
 	# ==================================================
 	##################################################
+	def get_ui(self, name: str = "default") -> BaseUI:
+		if name in self._uis: return self._uis[name]
+
+		box: QDoubleSpinBox = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
+		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
+		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
+
+		box.setKeyboardTracking(False)  # .					Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		box.valueChanged.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
+
+		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
+		ui.layout.addStretch(1)  # .						Pousse tout à gauche, espace vide à droite.
+
+		self._uis[name] = ui  # .							Ajoute l'ui au dictionnaire
+		return ui
+
+	##################################################
 	@property
 	def value(self) -> float:
 		"""Valeur actuelle du paramètre (:class:`float`)."""
-		self._value = self._box.value()
 		return self._value
 
 	##################################################
 	@value.setter
 	def value(self, value: float):
 		"""Valeur actuelle du paramètre (:class:`float`)."""
+		if self._value == value: return
 		self._value = value
-		self._box.setValue(value)
+		for ui in self._uis.values():
+			b = cast(QDoubleSpinBox, ui.boxes[0])
+			with QSignalBlocker(b): b.setValue(value)
+
+		self.emit(value)
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -79,18 +87,35 @@ class SpinFloat(BaseSettingType):
 	##################################################
 	def to_dict(self) -> dict[str, Any]:
 		return {"type": type(self).__name__, "label": self.label, "default": self.default, "limits": self.limits,
-				"step": self.step, "precision": self.precision, "value": self._value}
+				"step": self.step, "value": self._value}
 
 	##################################################
 	def update_from_dict(self, data: dict[str, Any]):
 		# Mise à jour des membres
-		self.label = data.get("label", "")
-		self.default = data.get("default", False)
-		self.limits = data.get("limits", [0.0, 100.0])
-		self.step = data.get("step", 1.0)
-		self.precision = data.get("precision", 2)
-		# Mise à jour de la boite QT
-		self._box.setRange(self.limits[0], self.limits[1])
-		self._box.setSingleStep(self.step)
-		self._box.setDecimals(self.precision)
+		self.label = data.get("label", self.label)
+		self.default = data.get("default", self.default)
+		self.limits = data.get("limits", self.limits)
+		self.step = data.get("step", self.step)
+		self.precision = data.get("precision", self.precision)
+		# Mise à jour des objets QT
+		for ui in self._uis.values():
+			b = cast(QDoubleSpinBox, ui.boxes[0])
+			b.setRange(self.limits[0], self.limits[1])
+			b.setSingleStep(self.step)
+			b.setDecimals(self.precision)
 		self.value = data.get("value", self.default)
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	spin = SpinFloat("Test", "tooltip")
+	spin.get_ui("default").attach_to_form(form)
+	spin.get_ui("second").attach_to_form(form)
+	w.show()
+	sys.exit(app.exec_())

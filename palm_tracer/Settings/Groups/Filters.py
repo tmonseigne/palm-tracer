@@ -88,12 +88,19 @@ class Filters(BaseSettingGroup):
 	def update_limits(self, x_max: int | None = None, y_max: int | None = None, plane_max: int | None = None):
 		"""Mets à jour le min et le max de certains filtres."""
 		with self.signal_blocked():
-			cast(CheckRangeInt, self._settings["Plane"]).update_limits(None, plane_max)
+			if plane_max is not None:
+				s = cast(CheckRangeInt, self._settings["Plane"])
+				s.limits = [s.limits[0], plane_max]
+				ft = cast(FiltersT, self._settings["Tracks"])
+				s = cast(CheckRangeInt, ft["Length"])
+				s.limits = [s.limits[0], plane_max]
 			fl = cast(FiltersL, self._settings["Localization"])
-			cast(CheckRangeInt, fl["Y"]).update_limits(None, y_max)
-			cast(CheckRangeInt, fl["X"]).update_limits(None, x_max)
-			ft = cast(FiltersT, self._settings["Tracks"])
-			cast(CheckRangeInt, ft["Length"]).update_limits(None, plane_max)
+			if x_max is not None:
+				s = cast(CheckRangeInt, fl["X"])
+				s.limits = [s.limits[0], x_max]
+			if y_max is not None:
+				s = cast(CheckRangeInt, fl["Y"])
+				s.limits = [s.limits[0], y_max]
 
 
 ##################################################

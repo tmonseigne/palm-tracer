@@ -343,7 +343,7 @@ class BaseSettingGroup:
 		for _, setting in self._settings.items(): setting.connect(f)
 
 	##################################################
-	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
+	def disconnect(self, f: Optional[Any] = None):
 		"""
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 

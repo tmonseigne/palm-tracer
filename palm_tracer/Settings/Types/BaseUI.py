@@ -14,10 +14,13 @@ Cette séparation permet :
     - de synchroniser automatiquement toutes les vues,
     - de simplifier la gestion du cycle de vie des widgets Qt.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
 from qtpy.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -34,15 +37,20 @@ class BaseUI:
 	"""
 
 	layout: QHBoxLayout | QVBoxLayout
-	"""Calque principal."""
-	label: QLabel
-	"""Widget associé au label."""
+	"""Calque principal (:class:`QVBoxLayout` dans la plupart des cas, :class:`QHBoxLayout` pour des cas particuliers)."""
 	boxes: list[QWidget]
-	"""Objet QT permettant de manipuler le paramètre."""
+	"""Objets QT permettant de manipuler le paramètre (:class:`QCheckBox`, :class:`QSpinBox`, :class:`QComboBox`...)."""
+	label: QLabel | None = None
+	""":class:`QLabel` contenant le nom du paramètre."""
 	form: QFormLayout | None = None
 	"""Formulaire parent dans lequel est le paramètre (utile lors d'un Hide & Seek)."""
 	row: int = -1
 	"""Position dans le formulaire parent (utile lors d'un Hide & Seek)."""
+
+	##################################################
+	def __post_init__(self):
+		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
+		Ui.init_layout(self.layout, 0, 0)  # .				Initialise le layout
 
 	# ==================================================
 	# region Layout management
@@ -50,13 +58,14 @@ class BaseUI:
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
 		"""
-		Enregistre le QFormLayout et la position dans le formulaire pour permettre un show/hide propre.
+		Enregistre le :class:`QFormLayout` et la position dans le formulaire pour permettre un show/hide propre.
 
 		:param form: :class:`QFormLayout` dans lequel va être inséré le paramètre.
 		"""
 		self.form = form
 		self.row = form.rowCount()  # rowCount() avant addRow = index de la nouvelle ligne
-		form.addRow(self.label, self.layout)
+		if self.label is not None: form.addRow(self.label, self.layout)
+		else: form.addRow(self.layout)
 
 	##################################################
 	def hide(self):
@@ -73,6 +82,15 @@ class BaseUI:
 		else:  # fallback si pas attaché
 			self.label.show()
 			for b in self.boxes: b.show()
+
+	##################################################
+	def set_tooltip(self, tooltip: str):
+		"""
+		Ajoute un tooltip au Label.
+
+		:param tooltip: tooltip à ajouter
+		"""
+		if self.label is not None: self.label.setToolTip(tooltip)
 
 # ==================================================
 # region Layout management

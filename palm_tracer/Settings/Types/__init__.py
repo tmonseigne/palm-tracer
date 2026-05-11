@@ -18,7 +18,6 @@ Ce sous-package gère les différents types de paramètres.
 - Permet un accès direct aux classes principales via `from palm_tracer.Settings.Types import <classe>`.
 
 """
-
 from typing import Any
 
 # Importation explicite des classes pour qu'elles soient accessibles directement

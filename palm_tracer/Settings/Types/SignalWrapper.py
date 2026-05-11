@@ -4,6 +4,8 @@ Fichier contenant la classe :class:`SignalWrapper`.
 Cette classe fournit une abstraction légère pour gérer des signaux dans une application basée sur Qt.
 Elle encapsule un objet `Signal` de PyQt/PySide et facilite la gestion des connexions et des émissions de signaux.
 """
+from __future__ import annotations
+
 from typing import Any, Callable, Optional
 
 from qtpy.QtCore import QObject, Signal

@@ -1,14 +1,16 @@
 """
 Fichier contenant la classe :class:`CheckBox` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type case à cocher.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QCheckBox
+from qtpy.QtCore import QSignalBlocker, Qt
+from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseUI import BaseUI
 
 
 ##################################################
@@ -23,42 +25,46 @@ class CheckBox(BaseSettingType):
 	"""
 
 	default: bool = False
+	"""Valeur par défaut du paramètre (:class:`bool`)."""
 	_value: bool = field(init=False, default=False)
-	_box: QCheckBox = field(init=False, default_factory=lambda: QCheckBox())
-
-	# ==================================================
-	# region Initialization
-	# ==================================================
-	##################################################
-	def initialize(self):
-		super().initialize()  # .					 Appelle l'initialisation de la classe mère.
-		self.value = self.default  # .				 Définition de la valeur.
-		self._box.stateChanged.connect(self.emit)  # Ajout de la connexion lors d'un changement
-		self._layout.addWidget(self._box)  # .		 Ajout du champ de texte
-		self._layout.addStretch(1)  # .				 Pousse tout à gauche, espace vide à droite
-
-	# ==================================================
-	# endregion Initialization
-	# ==================================================
+	"""Valeur actuelle du paramètre (:class:`bool`)."""
 
 	# ==================================================
 	# region Getter/Setter
 	# ==================================================
 	##################################################
+	def get_ui(self, name: str = "default") -> BaseUI:
+		if name in self._uis: return self._uis[name]
+
+		box: QCheckBox = QCheckBox()
+		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
+		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
+
+		box.stateChanged.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
+
+		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
+		ui.layout.addStretch(1)  # .						Pousse tout à gauche, espace vide à droite.
+
+		self._uis[name] = ui  # .							Ajoute l'ui au dictionnaire
+		return ui
+
+	##################################################
 	@property
 	def value(self) -> bool:
 		"""Valeur actuelle du paramètre (:class:`bool`)."""
-		if self._box.checkState() == Qt.CheckState.Unchecked: self._value = False
-		else: self._value = True
 		return self._value
 
 	##################################################
 	@value.setter
 	def value(self, value: bool):
 		"""Valeur actuelle du paramètre (:class:`bool`)."""
+		if self._value == value: return
 		self._value = value
-		if value: self._box.setCheckState(Qt.CheckState.Checked)
-		else:     self._box.setCheckState(Qt.CheckState.Unchecked)
+		for ui in self._uis.values():
+			b = cast(QCheckBox, ui.boxes[0])
+			with QSignalBlocker(b): b.setCheckState(Qt.CheckState.Checked if value else Qt.CheckState.Unchecked)
+
+		self.emit(value)
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -76,3 +82,18 @@ class CheckBox(BaseSettingType):
 		self.label = data.get("label", "")
 		self.default = data.get("default", False)
 		self.value = data.get("value", False)
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	check = CheckBox("Test", "tooltip")
+	check.get_ui("default").attach_to_form(form)
+	check.get_ui("second").attach_to_form(form)
+	w.show()
+	sys.exit(app.exec_())

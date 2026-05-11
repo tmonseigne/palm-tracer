@@ -43,10 +43,10 @@ class Batch(BaseSettingGroup):
 		file_list = cast(FileList, self._settings["Files"])
 		mode = self._settings["Mode"].value
 
-		files = file_list.get_list().copy()
+		files = file_list.items.copy()
 		results: list[str] = []
-		if files:  # Si aucun fichier n'est présent
-			if mode == 0: files = [file_list.get_selected()]
+		if files:  # Si au moins un fichier est présent
+			if mode == 0: files = [file_list.current_text]
 			elif mode == 2: files = [files[0]]
 			for file in files:
 				path = Path(file)
@@ -64,11 +64,11 @@ class Batch(BaseSettingGroup):
 		"""
 		res = list[np.ndarray]()
 		file_list = cast(FileList, self._settings["Files"])
-		files = file_list.get_list()
+		files = file_list.items
 		mode = self._settings["Mode"].value
 		if not files: return res  # .					   Aucun fichier dans le Batch
 		if mode == 0:  # .								   Mode Only One
-			res.append(FileIO.open_tif(file_list.get_selected()))
+			res.append(FileIO.open_tif(file_list.current_text))
 		else:  # .										   Mode fichiers séparés ou concaténés
 			for file in files:
 				res.append(FileIO.open_tif(file))
