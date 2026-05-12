@@ -37,7 +37,7 @@ class BrowseFile(BaseSettingType):
 	def get_ui(self, name: str = "default") -> BaseUI:
 		if name in self._uis: return self._uis[name]
 
-		box: QLineEdit = QLineEdit()
+		box: QLineEdit = QLineEdit(self.value)
 		browse_button: QPushButton = QPushButton()
 		browse_button.setIcon(QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon))
 		browse_button.clicked.connect(self.browse_file)  # Connexion du bouton à la méthode de sélection
@@ -101,5 +101,18 @@ if __name__ == "__main__":
 	setting = BrowseFile("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
+	counter = 0
+
+
+	def add_setting_ui():
+		global counter
+		counter += 1
+		name = f"dynamic_{counter}"
+		setting.get_ui(name).attach_to_form(form)
+
+
+	button = QPushButton("Ajouter une UI")
+	button.clicked.connect(add_setting_ui)
+	form.addRow(button)
 	w.show()
 	sys.exit(app.exec_())

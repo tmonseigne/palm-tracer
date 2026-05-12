@@ -72,7 +72,7 @@ class BaseUI:
 		"""Cache le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, False)
 		else:  # fallback si pas attaché
-			self.label.hide()
+			if self.label is not None: self.label.hide()
 			for b in self.boxes: b.hide()
 
 	##################################################
@@ -80,7 +80,7 @@ class BaseUI:
 		"""Affiche le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, True)
 		else:  # fallback si pas attaché
-			self.label.show()
+			if self.label is not None: self.label.show()
 			for b in self.boxes: b.show()
 
 	##################################################

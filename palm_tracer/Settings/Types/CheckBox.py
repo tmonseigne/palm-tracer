@@ -4,9 +4,9 @@ Fichier contenant la classe :class:`CheckBox` dérivée de :class:`.BaseSettingT
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import cast
 
-from qtpy.QtCore import QSignalBlocker, Qt
+from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
@@ -40,6 +40,7 @@ class CheckBox(BaseSettingType):
 		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
 		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
 
+		box.setChecked(self._value)
 		box.stateChanged.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
@@ -62,7 +63,7 @@ class CheckBox(BaseSettingType):
 		self._value = value
 		for ui in self._uis.values():
 			b = cast(QCheckBox, ui.boxes[0])
-			with QSignalBlocker(b): b.setCheckState(Qt.CheckState.Checked if value else Qt.CheckState.Unchecked)
+			with QSignalBlocker(b): b.setChecked(self._value)
 
 		self.emit(value)
 
@@ -70,7 +71,7 @@ class CheckBox(BaseSettingType):
 ##################################################
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -78,5 +79,18 @@ if __name__ == "__main__":
 	setting = CheckBox("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
+	counter = 0
+
+
+	def add_setting_ui():
+		global counter
+		counter += 1
+		name = f"dynamic_{counter}"
+		setting.get_ui(name).attach_to_form(form)
+
+
+	button = QPushButton("Ajouter une UI")
+	button.clicked.connect(add_setting_ui)
+	form.addRow(button)
 	w.show()
 	sys.exit(app.exec_())

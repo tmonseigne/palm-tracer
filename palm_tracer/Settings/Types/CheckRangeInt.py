@@ -52,12 +52,13 @@ class CheckRangeInt(BaseSettingType):
 		if name in self._uis: return self._uis[name]
 
 		checkbox: QCheckBox = QCheckBox()
-		spin_min: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default[0], buttons=False)
-		spin_max: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default[1], buttons=False)
+		spin_min: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.value[0], buttons=False)
+		spin_max: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.value[1], buttons=False)
 
 		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max])
 		ui.set_tooltip(self.tooltip)  # .				  Ajout du Tooltip
 
+		checkbox.setChecked(self.active)
 		checkbox.stateChanged.connect(self.set_active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 		spin_min.setKeyboardTracking(False)  # .		  Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
 		spin_min.valueChanged.connect(self.set_min)  # .  Connecte le changement de valeur pour que les autres UI se mettent à jour
@@ -87,7 +88,7 @@ class CheckRangeInt(BaseSettingType):
 		self._active = value
 		for ui in self._uis.values():
 			b = cast(QCheckBox, ui.boxes[0])
-			with QSignalBlocker(b): b.setCheckState(Qt.CheckState.Checked if value else Qt.CheckState.Unchecked)
+			with QSignalBlocker(b): b.setChecked(value)
 
 	##################################################
 	@property
@@ -198,7 +199,7 @@ class CheckRangeInt(BaseSettingType):
 ##################################################
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -206,5 +207,18 @@ if __name__ == "__main__":
 	setting = CheckRangeInt("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
+	counter = 0
+
+
+	def add_setting_ui():
+		global counter
+		counter += 1
+		name = f"dynamic_{counter}"
+		setting.get_ui(name).attach_to_form(form)
+
+
+	button = QPushButton("Ajouter une UI")
+	button.clicked.connect(add_setting_ui)
+	form.addRow(button)
 	w.show()
 	sys.exit(app.exec_())

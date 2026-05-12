@@ -46,7 +46,7 @@ class SpinFloat(BaseSettingType):
 	def get_ui(self, name: str = "default") -> BaseUI:
 		if name in self._uis: return self._uis[name]
 
-		box: QDoubleSpinBox = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.default)
+		box: QDoubleSpinBox = Ui.make_spin(None, decimals=self.precision, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.value)
 		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
 		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
 
@@ -81,7 +81,7 @@ class SpinFloat(BaseSettingType):
 ##################################################
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -89,5 +89,18 @@ if __name__ == "__main__":
 	setting = SpinFloat("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
+	counter = 0
+
+
+	def add_setting_ui():
+		global counter
+		counter += 1
+		name = f"dynamic_{counter}"
+		setting.get_ui(name).attach_to_form(form)
+
+
+	button = QPushButton("Ajouter une UI")
+	button.clicked.connect(add_setting_ui)
+	form.addRow(button)
 	w.show()
 	sys.exit(app.exec_())

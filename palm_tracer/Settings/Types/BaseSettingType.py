@@ -48,6 +48,11 @@ class BaseSettingType:
 	# region Initialization
 	# ==================================================
 	##################################################
+	def __post_init__(self):
+		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
+		self.value = self.default
+
+	##################################################
 	def reset(self):
 		"""Réinitialise le paramètre à sa valeur par défaut."""
 		self.value = self.default

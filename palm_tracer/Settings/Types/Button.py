@@ -41,7 +41,7 @@ class Button(BaseSettingType):
 ##################################################
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -51,6 +51,5 @@ if __name__ == "__main__":
 	setting.get_ui("second").attach_to_form(form)
 	setting.connect_button(lambda: print("Hello"), "default", 0)
 	setting.connect_button(lambda: print("Bonjour"), "second", 0)
-
 	w.show()
 	sys.exit(app.exec_())
