@@ -52,11 +52,11 @@ class Localization(BaseSettingGroup):
 	_inner_groups = ["Gaussian Fit", "Spline Fit"]
 
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
-		ui = super().get_ui(name, mode)
+	def initialize(self):
+		"""Initialise le dictionnaire de paramètres."""
+		super().initialize()
 		self._settings["Fit"].connect(self.toggle_fit_mode)
 		self.toggle_fit_mode(self._settings["Fit"].value)
-		return ui
 
 	##################################################
 	def toggle_fit_mode(self, mode):

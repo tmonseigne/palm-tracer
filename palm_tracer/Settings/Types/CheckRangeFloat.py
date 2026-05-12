@@ -109,7 +109,9 @@ class CheckRangeFloat(BaseSettingType):
 		for ui in self._uis.values():
 			b = cast(QDoubleSpinBox, ui.boxes[1])
 			with QSignalBlocker(b): b.setValue(value)
-		self.emit(value)
+
+		if self.min > self.max: self.max = value
+		else: self.emit(value)
 
 	##################################################
 	@property
@@ -126,7 +128,9 @@ class CheckRangeFloat(BaseSettingType):
 		for ui in self._uis.values():
 			b = cast(QDoubleSpinBox, ui.boxes[2])
 			with QSignalBlocker(b): b.setValue(value)
-		self.emit(value)
+
+		if self.max < self.min: self.min = value
+		else: self.emit(value)
 
 	##################################################
 	@property
@@ -138,8 +142,6 @@ class CheckRangeFloat(BaseSettingType):
 	@value.setter
 	def value(self, value: list[float]):
 		"""Valeur actuelle du paramètre (:class:`list[float]`)."""
-		if self._value == value: return
-		self._value = value
 		self.min = value[0]
 		self.max = value[1]
 
@@ -155,6 +157,8 @@ class CheckRangeFloat(BaseSettingType):
 		"""Valeur actuelle du paramètre (:class:`list[float]`)."""
 		if self._limits == value: return
 		self._limits = value
+		if self.min < self._limits[0]: self.min = self._limits[0]
+		if self.max > self._limits[1]: self.max = self._limits[1]
 		for ui in self._uis.values():
 			for i in range(2):
 				b = cast(QDoubleSpinBox, ui.boxes[i + 1])
@@ -168,12 +172,13 @@ class CheckRangeFloat(BaseSettingType):
 	# region Parsing
 	# ==================================================
 	##################################################
-	def to_compact_dict(self) -> dict[str, Any]: return {"value": self.value, "limits": self.limits}
+	def to_compact_dict(self) -> dict[str, Any]: return {"value": self.value, "limits": self.limits, "active": self.active}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		self.limits = data["limits"]  # Récupération des limites avant de mettre à jour la valeur
 		self.value = data["value"]
+		self.active = data["active"]
 
 	# ==================================================
 	# endregion Parsing
@@ -191,13 +196,11 @@ class CheckRangeFloat(BaseSettingType):
 	def set_min(self, value: float):
 		"""S'assure que min ≤ max."""
 		self.min = value
-		if self.min > self.max: self.max = value
 
 	##################################################
 	def set_max(self, value: float):
 		"""S'assure que min ≤ max."""
 		self.max = value
-		if self.max < self.min: self.min = value
 
 
 ##################################################

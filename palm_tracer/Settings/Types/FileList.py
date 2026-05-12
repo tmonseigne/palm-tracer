@@ -24,9 +24,9 @@ class FileList(BaseSettingType):
 	:param tooltip: Description détaillée en overlay.
 	"""
 
-	default: int = field(init=False, default=0)
+	default: int = field(init=False, default=-1)
 	"""Valeur (position dans la liste) par défaut du paramètre (:class:`int`)."""
-	_value: int = field(init=False, default=0)
+	_value: int = field(init=False, default=-1)
 	"""Valeur (position dans la liste) actuelle du paramètre (:class:`int`)."""
 
 	_items: list[str] = field(init=False, default_factory=lambda: [])
@@ -106,6 +106,7 @@ class FileList(BaseSettingType):
 			with QSignalBlocker(b):
 				b.clear()
 				b.addItems(self._items)
+		self.value = 0
 
 	# ==================================================
 	# endregion Getter/Setter
@@ -158,13 +159,14 @@ class FileList(BaseSettingType):
 		"""Vide la liste des fichiers."""
 		self._items.clear()
 		self.items = None
+		self.value = -1
 		self.emit()
 
 
 ##################################################
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
 
 	app = QApplication(sys.argv)
 	w = QWidget()

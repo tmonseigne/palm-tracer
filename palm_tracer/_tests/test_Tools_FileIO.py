@@ -179,6 +179,7 @@ def test_open_tif():
 	stack = FileIO.open_tif(f"{INPUT_DIR}/stack2D.tif")
 	assert stack.shape == (1, 128, 128)
 
+
 ##################################################
 def test_open_tif_bad_file():
 	"""Test de la fonction open_tif avec un fichier inexistant."""

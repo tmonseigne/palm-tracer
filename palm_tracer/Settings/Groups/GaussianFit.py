@@ -7,7 +7,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, SpinInt
 
 
@@ -43,13 +42,13 @@ class GaussianFit(BaseSettingGroup):
 	mode: int = 2
 
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
-		ui = super().get_ui(name, mode)
+	def initialize(self):
+		"""Initialise le dictionnaire de paramètres."""
+		super().initialize()
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)
 		self.toggle_fit_mode(self._settings["Mode"].value)
 		self.toggle_z_estimate(False)
-		return ui
 
 	##################################################
 	def toggle_fit_mode(self, mode):

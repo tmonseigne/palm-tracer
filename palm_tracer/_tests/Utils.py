@@ -1,6 +1,7 @@
 """Fichier de fonctions et constantes utiles pour les tests."""
+from __future__ import annotations
+
 import os
-import platform
 import re
 from pathlib import Path
 from typing import Any, cast, Optional
@@ -50,7 +51,7 @@ def get_lines_output(capsys) -> list[str]:
 def add_basic_file(pt: PALMTracer, files: Optional[list[str]] = None):
 	"""Mise à jour basique de la liste des fichiers."""
 	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.update_box([str(INPUT_DIR / "stack.tif")] if files is None else files)
+	file_list.items = [str(INPUT_DIR / "stack.tif")] if files is None else files
 
 
 ##################################################

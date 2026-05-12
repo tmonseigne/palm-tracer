@@ -90,7 +90,7 @@ class Combo(BaseSettingType):
 		"""Mets à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
 		if items is not None: self._items = items
 		for ui in self._uis.values():
-			b = cast(QComboBox, ui.boxes[3])
+			b = cast(QComboBox, ui.boxes[0])
 			with QSignalBlocker(b):
 				b.clear()
 				b.addItems(self._items)

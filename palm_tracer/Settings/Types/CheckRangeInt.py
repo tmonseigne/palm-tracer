@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, cast
 
-from qtpy.QtCore import QSignalBlocker, Qt
+from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
@@ -105,7 +105,9 @@ class CheckRangeInt(BaseSettingType):
 		for ui in self._uis.values():
 			b = cast(QSpinBox, ui.boxes[1])
 			with QSignalBlocker(b): b.setValue(value)
-		self.emit(value)
+
+		if self.min > self.max: self.max = value
+		else: self.emit(value)
 
 	##################################################
 	@property
@@ -122,7 +124,9 @@ class CheckRangeInt(BaseSettingType):
 		for ui in self._uis.values():
 			b = cast(QSpinBox, ui.boxes[2])
 			with QSignalBlocker(b): b.setValue(value)
-		self.emit(value)
+
+		if self.max < self.min: self.min = value
+		else: self.emit(value)
 
 	##################################################
 	@property
@@ -134,8 +138,6 @@ class CheckRangeInt(BaseSettingType):
 	@value.setter
 	def value(self, value: list[int]):
 		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
-		if self._value == value: return
-		self._value = value
 		self.min = value[0]
 		self.max = value[1]
 
@@ -151,6 +153,8 @@ class CheckRangeInt(BaseSettingType):
 		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
 		if self._limits == value: return
 		self._limits = value
+		if self.min < self._limits[0]: self.min = self._limits[0]
+		if self.max > self._limits[1]: self.max = self._limits[1]
 		for ui in self._uis.values():
 			for i in range(2):
 				b = cast(QSpinBox, ui.boxes[i + 1])
@@ -164,12 +168,13 @@ class CheckRangeInt(BaseSettingType):
 	# region Parsing
 	# ==================================================
 	##################################################
-	def to_compact_dict(self) -> dict[str, Any]: return {"value": self.value, "limits": self.limits}
+	def to_compact_dict(self) -> dict[str, Any]: return {"value": self.value, "limits": self.limits, "active": self.active}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		self.limits = data["limits"]  # Récupération des limites avant de mettre à jour la valeur
 		self.value = data["value"]
+		self.active = data["active"]
 
 	# ==================================================
 	# endregion Parsing
@@ -187,13 +192,11 @@ class CheckRangeInt(BaseSettingType):
 	def set_min(self, value: int):
 		"""S'assure que min ≤ max."""
 		self.min = value
-		if self.min > self.max: self.max = value
 
 	##################################################
 	def set_max(self, value: int):
 		"""S'assure que min ≤ max."""
 		self.max = value
-		if self.max < self.min: self.min = value
 
 
 ##################################################

@@ -1,11 +1,13 @@
 """Fichier des tests pour les groupes de paramètres."""
+import copy
 from typing import List, Type
 
 import pytest
+from qtpy.QtWidgets import QFormLayout, QWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import *
-from palm_tracer.Settings.Types import *
+from palm_tracer.Settings.Types import BaseSettingType, CheckBox, CheckRangeInt, Combo, SpinFloat, SpinInt
 
 
 ###################################################
@@ -20,34 +22,46 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	:param change: Changement du premier paramètre
 	:param default: Valeur par défaut du premier paramètre
 	"""
-
-	group.toggle_active(0)
-	assert not group.active, "Les paramètres doivent être désactivés."
-	group.active = True
-	assert group.active, "Les paramètres doivent être activés."
+	# Nom des éléments
 	assert names[0] in group, "La clé n'existe pas"
 	assert group.settings_names == names, "Les paramètres ne correspondent pas"
 	setting = group[names[0]]
 	assert isinstance(setting, first_type), "Le paramètre ne correspond pas"
 	for key in group: assert key != "", "Une clé est vide"
 
+	# Utilisation du dictionnaire
 	group[names[0]].value = change
 	assert group[names[0]].value == change, "Valeur défini non valide."
-
-	dictionary = group.to_dict()
-	min_dictionary = group.to_compact_dict()
+	min_dictionary = copy.deepcopy(group.to_compact_dict())
 	group.reset()
 	assert group[names[0]].value == default, "Valeur par défaut non valide."
-
-	group = create_group_from_dict(dictionary)
-	assert group[names[0]].value == change, "Valeur récupérée du dictionnaire non valide."
-	group.reset()
 	group.update_from_compact_dict(min_dictionary)
 	assert group[names[0]].value == change, "Valeur récupérée du dictionnaire non valide."
 
+	# Interface
+	_ = group.get_ui()
+	ui = group.get_ui()  # Second appel l'ui existe déjà
+
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	ui.attach_to_form(form)
+
+	# Hide and seek
+	group.hide()
+	group.show()
+
+	# Activation
+	group.active = False
+	assert not group.active, "Les paramètres doivent être désactivés."
+	group.active = True
+	assert group.active, "Les paramètres doivent être activés."
+	group.set_active(1)  # Second appel qui ne fait rien
+
+	# Print
 	print(group)
 	print(group.settings)
 
+	# Signaux
 	received: List[Any] = []
 	group.connect(lambda v: received.append(v))
 	with group.signal_blocked(): pass
@@ -60,9 +74,6 @@ def test_base_group(qtbot):
 	group = BaseSettingGroup()
 	group.value = None
 	assert group.value is None, "Get Value ne doit rien retourné pour la classe mère."
-	group.remove_header()
-	group.remove_header()  # Seconde fois pour vérifier les erreurs de pointeurs QT
-	group.active = False  # On change le statut malgré la suppression du Header
 
 	received: List[Any] = []
 	group.connect(lambda v: received.append(v))
@@ -87,7 +98,7 @@ def test_batch_get_path(qtbot):
 	assert path[0].endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas."
 
 	file_list = cast(FileList, batch["Files"])
-	file_list.update_box(["output/File 1.tif", "output/File 2.tif"])
+	file_list.items = ["output/File 1.tif", "output/File 2.tif"]
 
 	path = batch.get_paths()
 	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
@@ -118,7 +129,7 @@ def test_batch_get_stacks(qtbot):
 	assert len(stacks) == 0, "Nombre de pile invalide"
 
 	file_list = cast(FileList, batch["Files"])
-	file_list.update_box([f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"]
 
 	batch["Mode"].value = 0
 	stacks = batch.get_stacks()
@@ -135,7 +146,7 @@ def test_batch_get_stacks(qtbot):
 	assert len(stacks) == 1, "Nombre de pile invalide"
 	assert stacks[0].shape == (30, 128, 256), "Taille de la pile non valide"
 
-	file_list.update_box([f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack_quadrant.tif", f"{INPUT_DIR}/stack.tif"])
+	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack_quadrant.tif", f"{INPUT_DIR}/stack.tif"]
 	batch["Mode"].value = 2
 	stacks = batch.get_stacks()
 	assert len(stacks) == 3, "Nombre de pile invalide"
@@ -152,22 +163,35 @@ def test_calibration(qtbot):
 def test_localization(qtbot):
 	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
 	loc = Localization()
-
 	group_base_test(loc, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
 					CheckBox, True, False)
 
 	loc["Fit"].value = 0
 	assert loc.get_fit() == 0, "Numéro du Fit incorrect"
 	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7], dtype=np.float64))
-
 	loc["Fit"].value = 1
 	assert loc.get_fit() == 1, "Numéro du Fit incorrect"
 	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7, 1, 2, 0], dtype=np.float64))
-
 	loc["Fit"].value = 2
 	assert loc.get_fit() == 5, "Numéro du Fit incorrect"
-	with pytest.raises(OSError) as exception_info:
-		loc.get_fit_params()
+	with pytest.raises(OSError) as exception_info: loc.get_fit_params()
+	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+
+
+###################################################
+def test_localization_fit(qtbot):
+	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
+	loc = Localization()
+
+	loc["Fit"].value = 0
+	assert loc.get_fit() == 0, "Numéro du Fit incorrect"
+	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7], dtype=np.float64))
+	loc["Fit"].value = 1
+	assert loc.get_fit() == 1, "Numéro du Fit incorrect"
+	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7, 1, 2, 0], dtype=np.float64))
+	loc["Fit"].value = 2
+	assert loc.get_fit() == 5, "Numéro du Fit incorrect"
+	with pytest.raises(OSError) as exception_info: loc.get_fit_params()
 	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
 
 
@@ -176,18 +200,26 @@ def test_gaussian_fit(qtbot):
 	"""Test basique de la classe GaussianFit (constructeur, getter, setter)"""
 	grp = GaussianFit()
 	group_base_test(grp, ["Mode", "Sigma", "Theta", 'Z', 'Z max', 'Model'], Combo, 2, 0)
-	assert grp["Z"].box.isHidden()
+
+
+###################################################
+def test_gaussian_fit_z(qtbot):
+	"""Test basique de la classe GaussianFit (constructeur, getter, setter)"""
+	grp = GaussianFit()
+	ui_z = grp["Z"].get_ui()
+	ui_z_max = grp["Z max"].get_ui()
+	assert ui_z.boxes[0].isHidden()
 	grp["Mode"].value = 2
-	assert not grp["Z"].box.isHidden()  # Ne pas utiliser isVisible, car cela demande visible à l'écran et dans les tests unitaires, c'est particulier.
+	assert not ui_z.boxes[0].isHidden()  # Ne pas utiliser isVisible, car cela demande visible à l'écran et dans les tests unitaires, c'est particulier.
 	grp["Z"].value = True
-	assert not grp["Z max"].box.isHidden()
+	assert not ui_z_max.boxes[0].isHidden()
 	grp["Z"].value = False
-	assert grp["Z max"].box.isHidden()
+	assert ui_z_max.boxes[0].isHidden()
 	grp["Z"].value = True
-	assert not grp["Z max"].box.isHidden()
+	assert not ui_z_max.boxes[0].isHidden()
 	grp["Mode"].value = 0
-	assert grp["Z"].box.isHidden()
-	assert grp["Z max"].box.isHidden()
+	assert ui_z.boxes[0].isHidden()
+	assert ui_z_max.boxes[0].isHidden()
 
 
 ###################################################
@@ -248,6 +280,7 @@ def test_filters(qtbot):
 	g = Filters()
 	group_base_test(g, ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
 	g.deactivate_filters()
+	g.update_limits(None, None, None)
 	g.update_limits(10, 10, 10)
 	assert isinstance(g.localization, FiltersL)
 	assert isinstance(g.tracking, FiltersT)
