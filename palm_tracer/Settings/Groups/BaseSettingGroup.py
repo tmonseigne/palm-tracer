@@ -10,20 +10,10 @@ from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
 from typing import Any, cast, Optional, Union
 
-from qtpy import QT_API
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
+from qtpy.QtCore import QSignalBlocker, Qt
 
-from palm_tracer.Settings.Types import BaseSettingType
-from palm_tracer.Tools import Ui
-
-if QT_API.startswith("pyqt"):  # . 	pragma: no cover — dépend de l'environnement
-	from qtpy import sip  # .		dispo quand le binding est PyQt
-
-	_IS_PYQT = True
-else:  # .							pragma: no cover — dépend de l'environnement
-	import shiboken6  # .			dispo quand le binding est PySide6
-
-	_IS_PYQT = False
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 
 
 ##################################################
@@ -35,23 +25,16 @@ class BaseSettingGroup:
 	"""Nom du Groupe."""
 	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
 	"""Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."""
-
+	mode: int = 0
+	"""Méthode d'affichage du groupe par défaut."""
 	_active: bool = field(init=False, default=False)
 	"""État du groupe (activé ou non)"""
 	_inner_groups = list[str]()
 	"""Liste des sous-groupes de settings du groupe."""
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	"""Liste des visualisations de settings (inputs) du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
-	_widget: QWidget = field(init=False)
-	"""Widget principal du groupe."""
-	_title: Optional[QLabel] = field(init=False)
-	"""QLabel du titre du Groupe (:class:`QLabel`)."""
-	_checkbox: Optional[QCheckBox] = field(init=False)
-	"""Case à cocher pour activer ou non le groupe (:class:`QCheckBox`)."""
-	_header: Optional[QFormLayout] = field(init=False)
-	"""Titre du groupe (:class:`QFormLayout`)."""
-	_body: QWidget = field(init=False)
-	"""Corps du groupe encapsulé dans un QWidget pour avoir un Hide/Show disponible (:class:`QWidget`)."""
+	_uis: dict[str, BaseUI] = field(init=False, default_factory=lambda: dict[str, BaseUI]())
+	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
 
 	# ==================================================
 	# region Initialization
@@ -60,7 +43,6 @@ class BaseSettingGroup:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
-		self.initialize_ui()
 
 	##################################################
 	def initialize(self):
@@ -69,38 +51,6 @@ class BaseSettingGroup:
 		for key, value in self.setting_list.items():
 			args = copy.deepcopy(value[1])
 			self._settings[key] = value[0](*args)
-
-	##################################################
-	def initialize_ui(self):
-		"""Initialise l'interface utilisateur."""
-		# Base
-		self._widget = QWidget()
-		layout = Ui.make_form(self._widget)
-
-		# Title Row
-		self._title = QLabel(f"{self.label}")
-		self._title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
-		self._checkbox = QCheckBox()
-		self._checkbox.stateChanged.connect(self.toggle_active)
-
-		self._header = QFormLayout(None)
-		self._header.addRow(self._checkbox, self._title)
-		layout.addRow(self._header)
-
-		# Settings part (must be managed by the derived class.)
-		self._body = QWidget()
-		body = QFormLayout(self._body)
-		body.setContentsMargins(5, 0, 0, 0)  # Léger décalage.
-		for key, setting in self._settings.items():
-			if isinstance(setting, BaseSettingGroup): body.addRow(setting.widget)
-			else: setting.attach_to_form(body)
-
-		layout.addRow(self._body)
-
-		self._widget.setLayout(layout)
-
-		# Active ou non le groupe
-		self.active = self._active
 
 	##################################################
 	def reset(self):
@@ -115,10 +65,31 @@ class BaseSettingGroup:
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	@property
-	def widget(self) -> QWidget:
-		"""Retourne le calque associé à ce groupe de paramètres (:class:`QWidget`)."""
-		return self._widget
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		"""
+		Retourne un objet :class:`.BaseUI`, existant ou le créé si necessaire.
+
+		:param name: Nom de l'interface dans le dictionnaire
+		:param mode: Méthode de création du groupe.
+			- -1 : Valeur par défaut du groupe
+			- 0 : Avec un titre et une checkbox pour activer/desactiver le groupe
+			- 1 : Etat lorsque l'on utilise la méthode always actif (la check box n'est pas créé)
+			- 2 : Etat remove header (aucune création de l'espace titre)
+			- 3 : A l'intérieur d'une QGroupBox (prochainement)
+		"""
+		if name in self._uis: return self._uis[name]
+		if mode < 0: mode = self.mode
+		ui = BaseUI(name=self.label, mode=mode)
+		if ui.checkbox is not None:  ui.checkbox.stateChanged.connect(self.set_active)  # Connecte le changement de la checkbox
+		ui.active(self.active if mode == 0 else True)
+		body = ui.body_layout
+
+		for setting in self._settings.values():
+			if isinstance(setting, BaseSettingGroup): body.addRow(setting.get_ui(name).widget)
+			else: setting.get_ui(name).attach_to_form(body)
+
+		self._uis[name] = ui  # Ajoute l'ui au dictionnaire
+		return ui
 
 	##################################################
 	@property
@@ -130,16 +101,21 @@ class BaseSettingGroup:
 	@active.setter
 	def active(self, value: bool):
 		"""Contrôle la modification de l'état actif."""
-		if self._checkbox is not None and self.is_valid(self._checkbox): self._checkbox.setChecked(value)
-		self.toggle_active(1 if value else 0)
+		if self._active == value: return
+		self._active = value
+		for ui in self._uis.values():
+			if ui.checkbox is None: continue
+			with QSignalBlocker(ui.checkbox): ui.checkbox.setCheckState(Qt.CheckState.Checked if value else Qt.CheckState.Unchecked)
 
 	##################################################
 	@property
-	def value(self): return
+	def value(self) -> dict[str, Any]:
+		"""Dictionnaire des valeurs (binding necessaire au parcours automatique)."""
+		return self.to_compact_dict()
 
 	##################################################
 	@value.setter
-	def value(self, value: Any): return
+	def value(self, value: dict[str, Any]): self.update_from_compact_dict(value)
 
 	##################################################
 	@property
@@ -165,11 +141,6 @@ class BaseSettingGroup:
 		return self._settings[key]
 
 	##################################################
-	# def __setitem__(self, key: str, value: Union["BaseSettingGroup", BaseSettingType]):
-	# 	"""Surcharge pour assigner une valeur avec []"""
-	# 	self._settings[key] = value
-
-	##################################################
 	def __contains__(self, key: str) -> bool:
 		"""Surcharge pour vérifier si une clé existe"""
 		return key in self._settings
@@ -187,82 +158,14 @@ class BaseSettingGroup:
 	# region Hide and Seek
 	# ==================================================
 	##################################################
-	@staticmethod
-	def is_valid(obj: object):
-		"""Vérifie qu'un objet est toujours valide et non supprimé."""
-		return obj is not None and ((_IS_PYQT and not sip.isdeleted(obj)) or (not _IS_PYQT and shiboken6.isValid(obj)))
-
-	##################################################
-	@staticmethod
-	def _find_form_row_of_widget(form: QFormLayout, w: QWidget) -> int:  # pragma: no cover —  lié aux étrangetés de QT Python
-		"""Retourne l'index de ligne contenant le widget `w`, ou -1 si absent."""
-		for r in range(form.rowCount()):
-			for role in (QFormLayout.ItemRole.LabelRole, QFormLayout.ItemRole.FieldRole, QFormLayout.ItemRole.SpanningRole):
-				item = form.itemAt(r, role)
-				if item is not None and item.widget() is w:
-					return r
-		return -1
-
-	##################################################
 	def hide(self):
-		"""Cache le widget."""
-		self._widget.hide()
+		"""Cache le paramètre."""
+		for ui in self._uis.values(): ui.hide()
 
 	##################################################
 	def show(self):
-		"""Affiche le widget."""
-		self._widget.show()
-
-	##################################################
-	def toggle_active(self, state: int):
-		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
-		self._active = bool(state)
-		self._body.show() if self._active else self._body.hide()
-
-	##################################################
-	def always_active(self):
-		"""Active toujours le groupe et supprime la checkbox de l'interface."""
-		# Appeler la méthode active pour forcer l'état actif
-		self.active = True
-		# Supprimer la checkbox et réorganiser le layout
-		cb = getattr(self, "_checkbox", None)
-		if self.is_valid(cb):
-			try:
-				self._header.layout().removeWidget(cb)  # Retirer la checkbox du layout
-				cb.setParent(None)
-				cb.deleteLater()
-			except RuntimeError: pass
-			self._checkbox = None
-
-	##################################################
-	def remove_header(self):
-		"""Active toujours le groupe et supprime la partie header de l'interface."""
-		self.always_active()
-		# Suppression du titre
-		tit = getattr(self, "_title", None)
-		hdr = getattr(self, "_header", None)
-		if self.is_valid(hdr) and self.is_valid(tit):
-			try:
-				if hdr.layout() is not None: hdr.layout().removeWidget(tit)  # Retirer le titre du layout
-				tit.setParent(None)  # .									   Supprime la parenté
-				tit.deleteLater()  # .										   Détruire le titre
-			except RuntimeError: pass  # .									   Si déjà retirée
-			self._title = None
-
-		# Suppression du header
-		if self.is_valid(hdr) and self.is_valid(self._widget):
-			try:
-				layout = cast(QFormLayout, self._widget.layout())  # .		   Récupérer le layout principal (QFormLayout)
-				row = self._find_form_row_of_widget(layout, hdr)  # .		   Récupération de la ligne
-				if row >= 0: layout.removeRow(row)  # .						   Suppression sûre
-				hdr.setParent(None)  # .									   Supprime la parenté
-				hdr.deleteLater()  # .										   Détruire le titre
-			except RuntimeError: pass  # .									   Si déjà retirée
-			self._header = None
-
-		# Suppression de la marge
-		body_layout = cast(QFormLayout, self._body.layout())  # .			   Récupérer le layout du widget _body
-		body_layout.setContentsMargins(0, 0, 0, 0)
+		"""Affiche le paramètre."""
+		for ui in self._uis.values(): ui.show()
 
 	# ==================================================
 	# endregion Hide and Seek
@@ -303,6 +206,18 @@ class BaseSettingGroup:
 
 	# ==================================================
 	# endregion Parsing
+	# ==================================================
+
+	# ==================================================
+	# region Callbacks
+	# ==================================================
+	##################################################
+	def set_active(self, state: int):
+		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		self.active = bool(state)
+
+	# ==================================================
+	# endregion Callbacks
 	# ==================================================
 
 	# ==================================================

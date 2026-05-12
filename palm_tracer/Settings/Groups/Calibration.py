@@ -2,6 +2,7 @@
 Fichier contenant la classe :class:`Calibration` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de calibration nécessaires à la configuration de PALM Tracer.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -28,6 +29,7 @@ class Calibration(BaseSettingGroup):
 			"Exposure":   [SpinFloat, ["Exposure Time (s/frame)", "", 0.050, [0.001, 1.0], 0.01, 3]],
 			"Intensity":  [SpinFloat, ["Intensity (photon/ADU)", "", 0.0120, [0.0, 1.0], 0.001, 4]]
 			}
+	mode: int = 1
 
 
 ##################################################
@@ -39,7 +41,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = Calibration()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

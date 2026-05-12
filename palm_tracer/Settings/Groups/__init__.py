@@ -11,6 +11,7 @@ from typing import Any
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingGroup import BaseSettingGroup
+from .BaseUI import BaseUI
 from .Batch import Batch
 from .BeadsExtraction import BeadsExtraction
 from .BlinkingReconnection import BlinkingReconnection
@@ -29,7 +30,7 @@ from .VisualizationHR import VisualizationHR
 
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingGroup",
+__all__ = ["BaseSettingGroup", "BaseUI",
 		   "Batch", "Calibration",
 		   "Filters", "FiltersL", "FiltersT",
 		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",

@@ -2,6 +2,7 @@
 Fichier contenant la classe :class:`Batch` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,6 +32,7 @@ class Batch(BaseSettingGroup):
 			"Files": [FileList, ["Files", ""]],
 			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]],
 			}
+	mode: int = 1
 
 	##################################################
 	def get_paths(self, suffix: str = "_PALM_Tracer") -> list[str]:
@@ -90,7 +92,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = Batch()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

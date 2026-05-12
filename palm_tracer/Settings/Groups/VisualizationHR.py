@@ -2,9 +2,11 @@
 Fichier contenant la classe :class:`VisualizationHR` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de visualisation haute résolution nécessaires à la configuration de PALM Tracer.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import Combo, SpinInt
 
@@ -33,10 +35,11 @@ class VisualizationHR(BaseSettingGroup):
 					"Source T": [Combo, ["Source", "", 1, HR_TRC_SOURCE]]}
 
 	##################################################
-	def initialize_ui(self):
-		super().initialize_ui()
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		ui = super().get_ui(name, mode)
 		self._settings["Source T"].hide()
 		self._settings["Type"].connect(self.toggle_type)
+		return ui
 
 	##################################################
 	def toggle_type(self, mode):
@@ -61,7 +64,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = VisualizationHR()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

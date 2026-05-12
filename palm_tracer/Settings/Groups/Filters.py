@@ -5,13 +5,15 @@ qui regroupe les paramètres de filtrage nécessaires à la configuration de PAL
 .. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres
 	      intensité c'est intensité intégré de la localisation donc potentiellement beaucouppppppp
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import cast
 
-from qtpy.QtWidgets import QFormLayout, QHBoxLayout, QPushButton
+from qtpy.QtWidgets import QHBoxLayout, QPushButton
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.FiltersL import FiltersL
 from palm_tracer.Settings.Groups.FiltersT import FiltersT
 from palm_tracer.Settings.Types import CheckBox, CheckRangeInt
@@ -39,10 +41,10 @@ class Filters(BaseSettingGroup):
 			"Localization": [FiltersL, []],
 			"Tracks":       [FiltersT, []]
 			}
+	mode: int = 2
 	_inner_groups = ["Localization", "Tracks"]
-
-	buttons: dict[str, QPushButton] = field(init=False)
-	"""Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`)."""
+	buttons: dict[str, dict[str, QPushButton]] = field(init=False, default_factory=lambda: dict[str, dict[str, QPushButton]]())
+	"""Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`) pour chaque UI."""
 
 	##################################################
 	@property
@@ -57,22 +59,16 @@ class Filters(BaseSettingGroup):
 		return cast(FiltersT, self._settings["Tracks"])
 
 	##################################################
-	def initialize_ui(self):
-		super().initialize_ui()
-		self.remove_header()
-		self._settings["Localization"].always_active()
-		self._settings["Tracks"].always_active()
-
-		# Créer les boutons d'action
-		self.buttons = {"reset": QPushButton("Reset"), "update": QPushButton("Update"), "save": QPushButton("Save")}
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		ui = super().get_ui(name, mode)
+		self.buttons[name] = {"reset": QPushButton("Reset"), "update": QPushButton("Update"), "save": QPushButton("Save")}
 		# Créer un layout horizontal pour les boutons
 		actions = QHBoxLayout()
-		actions.addWidget(self.buttons["reset"])
-		actions.addWidget(self.buttons["update"])
-		actions.addWidget(self.buttons["save"])
-
-		layout = cast(QFormLayout, self._widget.layout())
-		layout.addRow(actions)
+		actions.addWidget(self.buttons[name]["reset"])
+		actions.addWidget(self.buttons[name]["update"])
+		actions.addWidget(self.buttons[name]["save"])
+		ui.layout.addRow(actions)
+		return ui
 
 	##################################################
 	def deactivate_filters(self):
@@ -112,6 +108,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = Filters()
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

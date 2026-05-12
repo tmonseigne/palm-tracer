@@ -4,6 +4,7 @@ qui regroupe les paramètres de filtrage du tracking nécessaires à la configur
 
 .. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres. Dynamiquement, changer le max de la longueur
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -41,6 +42,7 @@ class FiltersT(BaseSettingGroup):
 			"Speed":       [CheckRangeFloat, ["Speed (µm/s)", "", [0, 1], [0, 100]]],
 			"Confinement": [CheckRangeFloat, ["Confinement (µm)", "", [-10, 10], [-100, 100]]]
 			}
+	mode: int = 1
 
 	##################################################
 	def deactivate_filters(self):
@@ -57,7 +59,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = FiltersT()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

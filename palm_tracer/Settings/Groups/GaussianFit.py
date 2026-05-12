@@ -2,10 +2,12 @@
 Fichier contenant la classe :class:`GaussianFit` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres d'ajustement gaussien nécessaires à la configuration de PALM Tracer.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, SpinInt
 
 
@@ -38,14 +40,16 @@ class GaussianFit(BaseSettingGroup):
 			"Z max": [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator.", 500, [10, 2000], 10]],
 			"Model": [BrowseFile, ["Specific Model", "Use only if your model isn't in File output folder"], ""],
 			}
+	mode: int = 2
 
 	##################################################
-	def initialize_ui(self):
-		super().initialize_ui()
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		ui = super().get_ui(name, mode)
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)
 		self.toggle_fit_mode(self._settings["Mode"].value)
 		self.toggle_z_estimate(False)
+		return ui
 
 	##################################################
 	def toggle_fit_mode(self, mode):
@@ -76,7 +80,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = GaussianFit()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())
