@@ -10,10 +10,10 @@ from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
 from typing import Any, cast, Optional, Union
 
-from qtpy.QtCore import QSignalBlocker, Qt
+from qtpy.QtCore import QSignalBlocker
 
 from palm_tracer.Settings.Groups.BaseUI import BaseUI
-from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRangeInt
 
 
 ##################################################
@@ -105,17 +105,17 @@ class BaseSettingGroup:
 		self._active = value
 		for ui in self._uis.values():
 			if ui.checkbox is None: continue
-			with QSignalBlocker(ui.checkbox): ui.checkbox.setCheckState(Qt.CheckState.Checked if value else Qt.CheckState.Unchecked)
+			with QSignalBlocker(ui.checkbox): ui.checkbox.setChecked(value)
 
 	##################################################
 	@property
-	def value(self) -> dict[str, Any]:
-		"""Dictionnaire des valeurs (binding necessaire au parcours automatique)."""
-		return self.to_compact_dict()
+	def value(self) -> Any:
+		"""Fonction vide nécessaire aux parcours automatiques."""
+		return
 
 	##################################################
 	@value.setter
-	def value(self, value: dict[str, Any]): self.update_from_compact_dict(value)
+	def value(self, value: Any): return
 
 	##################################################
 	@property
@@ -198,6 +198,8 @@ class BaseSettingGroup:
 		msg = f"{line_prefix}- Activate : {self.active}\n"
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup): msg += f"{line_prefix}- {key} :\n{setting.tostring(f'{line_prefix}  ')}"
+			elif isinstance(setting, CheckRangeFloat | CheckRangeInt):
+				msg += f"{line_prefix}- {key} : {'Activate' if setting.active else 'Deactivate'} {setting.value}\n"
 			else: msg += f"{line_prefix}- {key} : {setting.value}\n"
 		return msg
 

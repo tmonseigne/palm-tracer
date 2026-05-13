@@ -56,7 +56,12 @@ class Localization(BaseSettingGroup):
 		"""Initialise le dictionnaire de paramètres."""
 		super().initialize()
 		self._settings["Fit"].connect(self.toggle_fit_mode)
+
+	##################################################
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		ui = super().get_ui(name, mode)
 		self.toggle_fit_mode(self._settings["Fit"].value)
+		return ui
 
 	##################################################
 	def toggle_fit_mode(self, mode):

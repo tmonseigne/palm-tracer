@@ -8,7 +8,7 @@ qui regroupe les paramètres de filtrage nécessaires à la configuration de PAL
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import cast
+from typing import Any, cast
 
 from qtpy.QtWidgets import QHBoxLayout, QPushButton
 
@@ -97,6 +97,18 @@ class Filters(BaseSettingGroup):
 			if y_max is not None:
 				s = cast(CheckRangeInt, fl["Y"])
 				s.limits = [s.limits[0], y_max]
+
+	##################################################
+	def connect_button(self, f: Any, ui_name: str = "default", name: str = "reset"):
+		"""
+		Connecte un boutton directement et non le setting en lui-même.
+
+		:param f: Fonction ou slot à connecter.
+		:param ui_name: Nom de l'interface à connecter
+		:param name: Nom du boutton dnas l'interface
+		"""
+		if ui_name in self.buttons and name in self.buttons[ui_name]:
+			self.buttons[ui_name][name].clicked.connect(f)
 
 
 ##################################################

@@ -4,7 +4,6 @@ Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingTyp
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, cast
 
 from qtpy.QtWidgets import QHBoxLayout, QPushButton
 
@@ -32,6 +31,7 @@ class Button(BaseSettingType):
 		box: QPushButton = QPushButton(self.label)  # Création de la boite.
 		ui = BaseUI(layout=QHBoxLayout(), boxes=[box])
 		box.setToolTip(self.tooltip)  # .			  Ajout du Tooltip
+		box.clicked.connect(self.emit)  # .			  L'emission du signal se fera lors du clic sur le boutton
 		ui.layout.addWidget(box)  # .				  Ajout du champ de texte.
 
 		self._uis[name] = ui  # .					  Ajoute l'ui au dictionnaire
@@ -41,7 +41,7 @@ class Button(BaseSettingType):
 ##################################################
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
 
 	app = QApplication(sys.argv)
 	w = QWidget()

@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, cast, Optional
 
-from qtpy.QtWidgets import QPushButton
+from qtpy.QtWidgets import QFormLayout, QPushButton
 
 from palm_tracer.Settings.Types.BaseUI import BaseUI
 from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
@@ -131,6 +131,16 @@ class BaseSettingType:
 	# region Signals
 	# ==================================================
 	##################################################
+	def attach_to_form(self, ui_name: str, form: QFormLayout):
+		"""
+		Connecte un boutton directement et non le setting en lui-même.
+
+		:param ui_name: Nom de l'interface à connecter
+		:param form: Formulaire qui va recevoir le widget
+		"""
+		self.get_ui(ui_name).attach_to_form(form)
+
+	##################################################
 	def connect_button(self, f: Any, ui_name: str = "default", n: int = 0):
 		"""
 		Connecte un boutton directement et non le setting en lui-même.
@@ -139,9 +149,8 @@ class BaseSettingType:
 		:param ui_name: Nom de l'interface à connecter
 		:param n: Numéro de la boite contenant le Boutton
 		"""
-		if ui_name in self._uis:
-			b = cast(QPushButton, self._uis[ui_name].boxes[n])
-			b.clicked.connect(f)
+		b = cast(QPushButton, self.get_ui(ui_name).boxes[n])
+		b.clicked.connect(f)
 
 	##################################################
 	def connect(self, f: Any):
@@ -173,6 +182,7 @@ class BaseSettingType:
 		"""
 		self._signal.emit(value)  # Émission du signal.
 
+	##################################################
 	def signal_blocked(self, emit_last: bool = True) -> SignalWrapper.BlockCtx:
 		"""
 		Contexte de blocage des signaux de ce paramètre.
@@ -181,3 +191,19 @@ class BaseSettingType:
 		                  Si ``False``, ignore toutes les émissions reçues pendant le blocage.
 		"""
 		return self._signal.blocked(emit_last)
+
+	##################################################
+	def sync(self, other: "BaseSettingType"):
+		"""
+		Synchronise ce paramètre avec un autre paramètre.
+
+		Quand ce paramètre change, la valeur est propagée vers ``other``.
+
+		:param other: Autre paramètre à synchroniser.
+		"""
+
+		def sync(setting: "BaseSettingType", value: Any):
+			with setting.signal_blocked(emit_last=False): setting.value = value
+
+		self.connect(lambda v: sync(other, v))
+		other.connect(lambda v: sync(self, v))
