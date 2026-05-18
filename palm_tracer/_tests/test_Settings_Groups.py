@@ -253,28 +253,6 @@ def test_tracks_computes(qtbot):
 
 
 ###################################################
-def test_gallery(qtbot):
-	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
-
-
-###################################################
-def test_visualization_hr(qtbot):
-	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	g = VisualizationHR()
-	group_base_test(g, ["Ratio", "Type", "Source L", "Source T"], SpinInt, 1, 2)
-	g["Type"].value = 1  # Afficher/masquer les sources
-	g["Type"].value = 0  # Afficher/masquer les sources
-	g["Type"].value = 2  # Impossible mais prévu
-
-
-###################################################
-def test_visualization_graph(qtbot):
-	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(VisualizationGraph(), ["Mode", "Source"], Combo, 1, 0)
-
-
-###################################################
 def test_filters(qtbot):
 	"""Test basique de la classe Filters (constructeur, getter, setter)"""
 	g = Filters()
@@ -300,3 +278,31 @@ def test_filters_t(qtbot):
 	g = FiltersT()
 	group_base_test(g, ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
 	g.deactivate_filters()
+
+
+###################################################
+def test_gallery(qtbot):
+	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
+	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
+
+
+###################################################
+def test_visualization_3d(qtbot):
+	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
+	group_base_test(Visualization3D(), ["Point Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 1, 0.5)
+
+
+###################################################
+def test_visualization_graph(qtbot):
+	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
+	group_base_test(VisualizationGraph(), ["Mode", "Source"], Combo, 1, 0)
+
+
+###################################################
+def test_visualization_hr(qtbot):
+	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
+	g = VisualizationHR()
+	group_base_test(g, ["Ratio", "Type", "Source L", "Source T"], SpinInt, 1, 2)
+	g["Type"].value = 1  # Afficher/masquer les sources
+	g["Type"].value = 0  # Afficher/masquer les sources
+	g["Type"].value = 2  # Impossible mais prévu

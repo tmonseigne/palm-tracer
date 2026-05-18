@@ -25,6 +25,7 @@ from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
 from .TracksCompute import TracksCompute
+from .Visualization3D import Visualization3D
 from .VisualizationGraph import VisualizationGraph
 from .VisualizationHR import VisualizationHR
 
@@ -35,4 +36,4 @@ __all__ = ["BaseSettingGroup", "BaseUI",
 		   "Filters", "FiltersL", "FiltersT",
 		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",
 		   "Tracking", "BlinkingReconnection", "TracksCompute",
-		   "Gallery", "VisualizationHR", "VisualizationGraph"]
+		   "Gallery", "Visualization3D", "VisualizationHR", "VisualizationGraph"]

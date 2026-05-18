@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.Batch import Batch
 from palm_tracer.Settings.Groups.BeadsExtraction import BeadsExtraction
 from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnection
@@ -37,6 +38,8 @@ class Settings:
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 	"""Dictionnaire de groupes de paramètres."""
+	_uis: dict[str, dict[str, BaseUI]] = field(init=False, default_factory=lambda: dict[str, dict[str, BaseUI]]())
+	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
 
 	# ==================================================
 	# region Initialization
@@ -47,11 +50,8 @@ class Settings:
 		self._settings = dict[str, BaseSettingGroup]()
 		list_settings = [Batch, Calibration, Localization, BeadsExtraction, Tracking, BlinkingReconnection, TracksCompute,
 						 Gallery, VisualizationHR, VisualizationGraph, Filters]
-		for setting in list_settings:
-			self._settings[setting.__name__] = setting()
-
-		self._settings["Batch"].always_active()
-		self._settings["Calibration"].always_active()
+		for setting in list_settings: self._settings[setting.__name__] = setting()
+		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
 
 	##################################################
 	def reset(self):
@@ -96,6 +96,19 @@ class Settings:
 	# ==================================================
 	# region Getter/Setter
 	# ==================================================
+	##################################################
+	def get_ui(self, name: str = "default") -> dict[str, BaseUI]:
+		"""
+		Retourne un objet :class:`.BaseUI`, existant ou le créé si necessaire.
+
+		:param name: Nom de l'interface dans le dictionnaire
+		"""
+		if name in self._uis: return self._uis[name]
+		ui = dict[str, BaseUI]()
+		for key, setting in self._settings.items(): ui[key] = setting.get_ui(name)
+		self._uis[name] = ui  # Ajoute l'ui au dictionnaire
+		return ui
+
 	##################################################
 	@property
 	def batch(self) -> Batch:
@@ -205,3 +218,22 @@ class Settings:
 
 	##################################################
 	def __str__(self) -> str: return self.tostring()
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	settings = Settings()
+	ui = settings.get_ui()
+
+	lay.addWidget(ui["Batch"].widget)
+	lay.addWidget(ui["Calibration"].widget)
+	lay.addWidget(ui["Localization"].widget)
+	lay.addStretch(1)
+	w.show()
+	sys.exit(app.exec_())

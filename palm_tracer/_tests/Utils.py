@@ -55,16 +55,20 @@ def add_basic_file(pt: PALMTracer, files: Optional[list[str]] = None):
 
 
 ##################################################
-def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
-	"""
-	Génère un suffixe pour les fichiers de localisation.
-
-	:param gaussian: Mode du filtre gaussien.
-	:param watershed: Mode du watershed.
-	:param threshold: Seuil.
-	:return: Suffixe
-	"""
-	return f"{threshold}_{watershed}_{gaussian}_{default_sigma}_{default_theta}_{default_roi}"
+def get_fake_pt():
+	"""Instance basique de PALMTracer pour chaque test."""
+	pt = PALMTracer()
+	add_basic_file(pt)
+	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
+	pt.df["f_loc"] = pt.df["loc"].copy()
+	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
+	pt.df["f_trc"] = pt.df["trc"].copy()
+	pt.df["blk"] = pt.df["trc"].copy()
+	pt.df["f_blk"] = pt.df["trc"].copy()
+	pt.df["MSD"] = pd.read_csv(INPUT_DIR / "tracking_MSD.csv")
+	pt.df["InD"] = pd.read_csv(INPUT_DIR / "tracking_InstantD.csv")
+	pt.df["Fit"] = pd.read_csv(INPUT_DIR / "tracking_Fit.csv")
+	return pt
 
 
 ##################################################
@@ -86,6 +90,19 @@ def get_fit_params(fit: int) -> np.ndarray:
 	calib = FileIO.open_calibration_mat(str(INPUT_DIR / "calibration.mat"))
 	sx, sy, sz = calib["coeff"].shape[:3]
 	return np.concatenate([np.array([default_roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+
+
+##################################################
+def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
+	"""
+	Génère un suffixe pour les fichiers de localisation.
+
+	:param gaussian: Mode du filtre gaussien.
+	:param watershed: Mode du watershed.
+	:param threshold: Seuil.
+	:return: Suffixe
+	"""
+	return f"{threshold}_{watershed}_{gaussian}_{default_sigma}_{default_theta}_{default_roi}"
 
 
 ##################################################

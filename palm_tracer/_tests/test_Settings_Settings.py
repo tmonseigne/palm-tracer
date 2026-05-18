@@ -1,4 +1,5 @@
 """Fichier des tests pour l'ensemble des paramètres."""
+import copy
 from typing import List
 
 from palm_tracer._tests.Utils import *
@@ -11,17 +12,15 @@ def test_settings(qtbot, capsys):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	settings = Settings()
 	settings.calibration["Pixel Size"].value = 0.32
-	dictionary = settings.to_dict()
-	settings.reset()
-	assert settings.calibration["Pixel Size"].value == 0.16, "Le paramètre n'a pas été remis à sa valeur par défaut."
-	settings = Settings.from_dict(dictionary)
-	assert settings.calibration["Pixel Size"].value == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
 
-	dictionary = settings.to_compact_dict()
+	dictionary = copy.deepcopy(settings.to_compact_dict())
 	settings.reset()
 	assert settings.calibration["Pixel Size"].value == 0.16, "Le paramètre n'a pas été remis à sa valeur par défaut."
 	settings.update_from_compact_dict(dictionary)
-	assert settings.calibration["Pixel Size"].value == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dicrtionnaire."
+	assert settings.calibration["Pixel Size"].value == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dictionnaire."
+
+	_ = settings.get_ui()
+	_ = settings.get_ui()  # Second appel
 
 	print(settings)
 	lines = get_lines_output(capsys)

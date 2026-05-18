@@ -42,7 +42,6 @@ class Filters(BaseSettingGroup):
 			"Tracks":       [FiltersT, []]
 			}
 	mode: int = 2
-	_inner_groups = ["Localization", "Tracks"]
 	buttons: dict[str, dict[str, QPushButton]] = field(init=False, default_factory=lambda: dict[str, dict[str, QPushButton]]())
 	"""Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`) pour chaque UI."""
 

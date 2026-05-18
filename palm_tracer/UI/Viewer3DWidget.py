@@ -10,6 +10,8 @@ Ce widget ajoute dans le dock de Napari :
 
 Le CSV doit contenir les colonnes ``"X"``, ``"Y"``, ``"Z"`` et ``"Integrated Intensity"``.
 """
+from __future__ import annotations
+
 from pathlib import Path
 
 import napari
@@ -19,7 +21,7 @@ from napari.utils.notifications import show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
-from palm_tracer.Settings.Types import CheckBox, SpinFloat
+from palm_tracer.Settings.Groups import Visualization3D
 
 
 class Viewer3DWidget(QWidget):
@@ -65,24 +67,11 @@ class Viewer3DWidget(QWidget):
 		btn.clicked.connect(self.load_csv)
 		layout.addWidget(btn)
 
-		# Spinbox taille des points
-		self.size_spin = SpinFloat("Point Size", "", 0.5, [0.1, 10], 0.1, 1)
-		self.size_spin.attach_to_form(layout)
-		self.size_spin.connect(self.update_layer)
+		self.settings = Visualization3D()
+		ui = self.settings.get_ui()
+		layout.addWidget(ui.widget)
 
-		# Spinbox échelle Z
-		self.xy_scale_spin = SpinFloat("XY Scale", "", 1.0, [0.0, 1000], 1.0, 1)
-		self.xy_scale_spin.attach_to_form(layout)
-		self.xy_scale_spin.connect(self.update_layer)
-
-		# Spinbox échelle Z
-		self.z_scale_spin = SpinFloat("Z Scale", "", 1.0, [0.0, 1000], 1.0, 1)
-		self.z_scale_spin.attach_to_form(layout)
-		self.z_scale_spin.connect(self.update_layer)
-
-		self.outliers = CheckBox("Remove Outliers", "", False)
-		self.outliers.attach_to_form(layout)
-		self.outliers.connect(self.update_layer)
+		self.settings.connect(self.update_layer)
 
 	##################################################
 	def load_csv(self):
@@ -124,20 +113,19 @@ class Viewer3DWidget(QWidget):
 		Si aucune donnée n'est encore chargée, la méthode ne fait rien.
 		"""
 		if self.data.empty: return
-
-		scale_xy = self.xy_scale_spin.value
-		scale_z = self.z_scale_spin.value
+		s = self.settings.settings
+		size, scale_xy, scale_z, outliers = s["Point Size"], s["XY Scale"], s["Z Scale"], s["Remove Outliers"]
 		coords = self.data[["Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
 		coords *= np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)
 
-		if self.outliers.value: coords = coords[self.data["Integrated Intensity"] > 0]
+		if outliers: coords = coords[self.data["Integrated Intensity"] > 0]
 
 		# Ajout ou mise à jour du calque
 		if self.points_layer is None:
-			self.points_layer = self.viewer.add_points(coords, size=self.size_spin.value, name="Points 3D", ndim=3)
+			self.points_layer = self.viewer.add_points(coords, size=size, name="Points 3D", ndim=3)
 		else:
 			self.points_layer.data = coords
-			self.points_layer.size = self.size_spin.value
+			self.points_layer.size = size
 
 
 ##################################################

@@ -39,6 +39,7 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 ##################################################
 class PALMTracerWidget(QWidget):
 	"""Widget principal gérant toute l'interface"""
+	UI_NAME: str = "PALMTracer"
 
 	# ==================================================
 	# region Init
@@ -98,18 +99,19 @@ class PALMTracerWidget(QWidget):
 		action_widget.setLayout(setting_action_row)
 		self.layout().addWidget(action_widget)
 
-		self.layout().addWidget(self.pt.settings.batch.widget)
-		self.layout().addWidget(self.pt.settings.calibration.widget)
+		setting_ui = self.pt.settings.get_ui(self.UI_NAME)
+		self.layout().addWidget(setting_ui["Batch"].widget)
+		self.layout().addWidget(setting_ui["Calibration"].widget)
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(self._create_tab([self.pt.settings.localization.widget, self.pt.settings.beads.widget, self.pt.settings.tracking.widget,
-									  self.pt.settings.blinking.widget, self.pt.settings.tracks_compute.widget]), "Processing")
-		tabs.addTab(self._create_tab([self.pt.settings.gallery.widget,
+		tabs.addTab(self._create_tab([setting_ui["Localization"].widget, setting_ui["BeadsExtraction"].widget, setting_ui["Tracking"].widget,
+									  setting_ui["BlinkingReconnection"].widget, setting_ui["TracksCompute"].widget]), "Processing")
+		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget,
 									  # self.pt.settings.visualization_hr.widget,
 									  # self.pt.settings.visualization_graph.widget,
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
-		tabs.addTab(self._create_tab([self.pt.settings.filters.widget]), "Filtering")
+		tabs.addTab(self._create_tab([setting_ui["Filters"].widget]), "Filtering")
 
 		# Layout principal
 		self.layout().addWidget(tabs)
@@ -144,12 +146,7 @@ class PALMTracerWidget(QWidget):
 		filters = self.pt.settings.filters["Localization"]
 		filters["X"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
 		filters["Y"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
-
-		# Synchronisation des spin pour tracking et blinking reconnection
-		s1 = cast(QDoubleSpinBox, self.pt.settings.tracking["Max Distance"].box)
-		s2 = cast(QDoubleSpinBox, self.pt.settings.blinking["Max Distance"].box)
-		s1.valueChanged.connect(lambda v: Ui.sync_spin(s2, v))
-		s2.valueChanged.connect(lambda v: Ui.sync_spin(s1, v))
+		self.pt.connect_filters_button(self.UI_NAME)
 
 		# Update de preview en changeant des filtres ou des paramètres de localisation
 		self.pt.settings.localization.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
@@ -308,7 +305,7 @@ class PALMTracerWidget(QWidget):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		self.pt.settings.localization["Preview"].value = False
 		self.pt.settings.filters.deactivate_filters()
-		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
+		selected_file = cast(FileList, self.pt.settings.batch["Files"]).current_text
 		if not selected_file:
 			self.last_file = ""
 			self.viewer.layers.clear()

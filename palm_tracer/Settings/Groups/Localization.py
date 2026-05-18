@@ -49,7 +49,6 @@ class Localization(BaseSettingGroup):
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}
-	_inner_groups = ["Gaussian Fit", "Spline Fit"]
 
 	##################################################
 	def initialize(self):

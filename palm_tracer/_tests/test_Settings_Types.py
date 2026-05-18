@@ -37,8 +37,9 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	setting.show()
 
 	# Interface
-	_ = setting.get_ui()
-	_ = setting.get_ui()  # Second appel l'ui existe déjà
+	_ = setting.get_ui("default")
+	form = QFormLayout()
+	setting.attach_to_form("default", form)  # Second appel a get_ui à l'intérieur
 
 	setting.value = default
 	setting.value = default  # Second appel vers une valeur identique
@@ -116,7 +117,7 @@ def test_check_box(qtbot):
 	setting = CheckBox("Test")
 	setting_base_test(setting, True, False)
 
-	ui = setting.get_ui()
+	ui = setting.get_ui("new")
 
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
@@ -212,7 +213,7 @@ def test_check_range_int(qtbot):
 	setting.limits = [4, 6]
 	assert setting.value == [4, 6], "Valeur non valide."
 
-	ui = setting.get_ui()
+	ui = setting.get_ui("new")
 
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
@@ -254,7 +255,7 @@ def test_check_range_float(qtbot):
 	setting.limits = [4, 6]
 	assert setting.value == [4, 6], "Valeur non valide."
 
-	ui = setting.get_ui()
+	ui = setting.get_ui("new")
 
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
@@ -277,10 +278,10 @@ def test_button(qtbot, capsys):
 	"""Test basique de la classe (constructeur, getter, setter)"""
 	setting = Button("Test")
 	setting_base_test(setting, True, True)
-	setting.connect_button(lambda: print("Hi"), "not created", 0)
-	setting.connect_button(lambda: print("Hello"), "default", 0)
+	setting.connect_button(lambda: print("Hi"), "default", 0)  # Ui sur laquelle on ne va pas cliquer
+	setting.connect_button(lambda: print("Hello"), "new", 0)  # Ui sur laquelle on va cliquer
 
-	ui = setting.get_ui()
+	ui = setting.get_ui("new")
 
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
@@ -294,3 +295,16 @@ def test_button(qtbot, capsys):
 	assert "Hi" not in out
 
 	w.close()
+
+
+###################################################
+def test_sync(qtbot):
+	"""Test basique de la classe abstraite"""
+	spin_1 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
+	spin_2 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
+	spin_1.sync(spin_2)
+	spin_1.value = 5
+	assert spin_2.value == 5, "Valeur non valide."
+
+	spin_2.value = 3
+	assert spin_1.value == 3, "Valeur non valide."

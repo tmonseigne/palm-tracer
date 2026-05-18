@@ -4,6 +4,7 @@ Module contenant les fonctions de traitement de PALM.
 .. todo:: Ajouter clairement un point dans la doc sur le systeme de filtre, l'enregistrement, le calcul sur l'intégralité des éléments
 		  et filtre ensuite lors de la visualisation des graph et des sauvegarde si la case est coché...
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -78,9 +79,6 @@ class PALMTracer:
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		filters = self.settings.filters
 		self.filtering = Filtering(filters)
-		filters.buttons["reset"].clicked.connect(self.reset_filtered)
-		filters.buttons["update"].clicked.connect(self.update_filtered)
-		filters.buttons["save"].clicked.connect(self.save_filtered)
 
 		self._STEPS: list[Step] = [
 				Step("localization", ["loc"], self._localization, self.filtering.localization),
@@ -633,7 +631,7 @@ class PALMTracer:
 		"""
 		Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original.
 
-		:param last: Utilise les dernières version des dataframes si `True`, sinon les données brutes serotn utilisées.
+		:param last: Utilise les dernières version des dataframes si `True`, sinon les données brutes seront utilisées.
 		"""
 		df = {}
 		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
@@ -662,6 +660,14 @@ class PALMTracer:
 			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
 			if "f_" in key and not self.df[key].empty and len(self.df[key]) != len(self.df[key[2:]]):
 				self.df[key].to_csv(self._output_name(fname), index=False)
+
+	##################################################
+	def connect_filters_button(self, ui_name: str = "default"):
+		"""Connecte les bouttons d'une interface de filtre."""
+		filters = self.settings.filters
+		filters.connect_button(self.reset_filtered, ui_name, "reset")
+		filters.connect_button(self.update_filtered, ui_name, "update")
+		filters.connect_button(self.save_filtered, ui_name, "save")
 
 	# ==================================================
 	# endregion Filtering

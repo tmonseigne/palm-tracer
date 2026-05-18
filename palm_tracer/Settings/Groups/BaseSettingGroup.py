@@ -29,8 +29,6 @@ class BaseSettingGroup:
 	"""Méthode d'affichage du groupe par défaut."""
 	_active: bool = field(init=False, default=False)
 	"""État du groupe (activé ou non)"""
-	_inner_groups = list[str]()
-	"""Liste des sous-groupes de settings du groupe."""
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	"""Liste des visualisations de settings (inputs) du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
 	_uis: dict[str, BaseUI] = field(init=False, default_factory=lambda: dict[str, BaseUI]())
@@ -127,12 +125,10 @@ class BaseSettingGroup:
 	@property
 	def settings(self) -> dict[str, Any]:
 		"""Récupère les valeurs des paramètres."""
-		res = {key: setting.value for key, setting in self._settings.items()}
-		for group in self._inner_groups:
-			setting_group = cast(BaseSettingGroup, self._settings[group])
-			res.pop(group, None)  # Supprime la clé si elle existe
-			tmp = {f"{group} {key}": value for key, value in setting_group.settings.items()}
-			res = {**res, **tmp}  # Fusionne les dictionnaires
+		res: dict[str, Any] = {}
+		for key, setting in self._settings.items():
+			if isinstance(setting, BaseSettingType): res[key] = setting.value
+			else: res.update({f"{key} {sub_key}": value for sub_key, value in setting.settings.items()})
 		return res
 
 	##################################################

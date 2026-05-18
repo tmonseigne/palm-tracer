@@ -93,6 +93,7 @@ class CheckRangeFloat(BaseSettingType):
 		for ui in self._uis.values():
 			b = cast(QCheckBox, ui.boxes[0])
 			with QSignalBlocker(b): b.setChecked(value)
+		self.emit(value)
 
 	##################################################
 	@property
