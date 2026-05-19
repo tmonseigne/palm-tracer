@@ -8,7 +8,7 @@ from __future__ import annotations
 import copy
 from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
-from typing import Any, cast, Optional, Union
+from typing import Any, Optional, Union
 
 from qtpy.QtCore import QSignalBlocker
 
@@ -41,6 +41,7 @@ class BaseSettingGroup:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
+		if self.mode != 0: self.active = True
 
 	##################################################
 	def initialize(self):
@@ -78,7 +79,7 @@ class BaseSettingGroup:
 		if name in self._uis: return self._uis[name]
 		if mode < 0: mode = self.mode
 		ui = BaseUI(name=self.label, mode=mode)
-		if ui.checkbox is not None:  ui.checkbox.stateChanged.connect(self.set_active)  # Connecte le changement de la checkbox
+		if ui.checkbox is not None:  ui.checkbox.toggled.connect(self.set_active)  # Connecte le changement de la checkbox
 		ui.active(self.active if mode == 0 else True)
 		body = ui.body_layout
 
@@ -103,7 +104,9 @@ class BaseSettingGroup:
 		self._active = value
 		for ui in self._uis.values():
 			if ui.checkbox is None: continue
-			with QSignalBlocker(ui.checkbox): ui.checkbox.setChecked(value)
+			with QSignalBlocker(ui.checkbox):
+				ui.checkbox.setChecked(value)
+				ui.active(value)
 
 	##################################################
 	@property

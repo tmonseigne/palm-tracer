@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`VisualizationGraph` dérivée de :class:`.BaseSettingGroup`,
+Fichier contenant la classe :class:`Graph` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de visualisation de graphique nécessaires à la configuration de PALM Tracer.
 """
 from __future__ import annotations
@@ -7,15 +7,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import Combo
-
-GRAPH_MODE = ["All", "Histogram", "Plane Heat Map", "Plane Violin"]
-GRAPH_SOURCE = ["All", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"]
+from palm_tracer.Settings.Types import CheckBox
 
 
 ##################################################
 @dataclass
-class VisualizationGraph(BaseSettingGroup):
+class GraphDisplay(BaseSettingGroup):
 	"""
 	Classe contenant les paramètres de Visualization :
 
@@ -25,13 +22,22 @@ class VisualizationGraph(BaseSettingGroup):
 		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Élément de la localisation à analyser (par défaut : `All`).
 	"""
 
-	label: str = "Graph"
+	label: str = "Display"
 	setting_list = {
-			"Mode":   [Combo, ["Mode", "", 0, GRAPH_MODE]],
-			"Source": [Combo, ["Source", "", 0, GRAPH_SOURCE]]}
+			"Limits":    [CheckBox, ["Apply Limits", "Limits data to ±3σ around the mean (3-sigma rule).", True]],
+			"Sigma":     [CheckBox, ["Show σ", "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean."]],
+			"Gauss":     [CheckBox, ["Show Gaussian", "Displays the Gaussian curve associated with the mean and standard deviation of the data."]],
+			"KDE":       [CheckBox, ["Show KDE", "Displays the kernel density estimation (the curve closest to the histogram) associated with the data."]],
+			"Cumul":     [CheckBox, ["Cumulative Histogram", "Show cumulative histogram instead of simple histogram."]],
+			"Log Scale": [CheckBox, ["Log Scale", "Apply a logarithmic scale to the data."]],
+			# "Count":   [CheckBox, ["Count", "The data on Y is expressed in terms of count (instead of density."]]}
+			}
+	mode: int = 1
 
 
 ##################################################
+
+
 if __name__ == "__main__":
 	import sys
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
@@ -39,7 +45,7 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
-	group = VisualizationGraph()
+	group = GraphDisplay()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)
 	w.show()

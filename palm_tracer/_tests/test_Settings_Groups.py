@@ -7,7 +7,7 @@ from qtpy.QtWidgets import QFormLayout, QWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import *
-from palm_tracer.Settings.Types import BaseSettingType, CheckBox, CheckRangeInt, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckRangeInt, Combo, SpinFloat, SpinInt
 
 
 ###################################################
@@ -287,15 +287,15 @@ def test_gallery(qtbot):
 
 
 ###################################################
-def test_visualization_3d(qtbot):
+def test_graph(qtbot):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(Visualization3D(), ["Point Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 1, 0.5)
+	group_base_test(Graph(), ["Type", "Source", "Dual", "Source B", "MSD Step", "Display"], ButtonGroup, 1, 0)
 
 
 ###################################################
-def test_visualization_graph(qtbot):
+def test_visualization_3d(qtbot):
 	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(VisualizationGraph(), ["Mode", "Source"], Combo, 1, 0)
+	group_base_test(Visualization3D(), ["Point Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 1, 0.5)
 
 
 ###################################################

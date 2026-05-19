@@ -24,7 +24,7 @@ def test_settings(qtbot, capsys):
 
 	print(settings)
 	lines = get_lines_output(capsys)
-	assert len(lines) == 91
+	assert len(lines) == 102
 
 
 ###################################################
@@ -47,10 +47,10 @@ def test_settings_group_getter(qtbot):
 	assert isinstance(s, TracksCompute), "Récupération du groupe incorrecte."
 	s = settings.gallery
 	assert isinstance(s, Gallery), "Récupération du groupe incorrecte."
+	s = settings.graph
+	assert isinstance(s, Graph), "Récupération du groupe incorrecte."
 	s = settings.visualization_hr
 	assert isinstance(s, VisualizationHR), "Récupération du groupe incorrecte."
-	s = settings.visualization_graph
-	assert isinstance(s, VisualizationGraph), "Récupération du groupe incorrecte."
 	s = settings.filters
 	assert isinstance(s, Filters), "Récupération du groupe incorrecte."
 

@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, cast
 
-from qtpy.QtCore import QSignalBlocker, Qt
+from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel, QSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
@@ -60,22 +60,22 @@ class CheckRangeFloat(BaseSettingType):
 										  value=self.value[1], decimals=self.precision, buttons=False)
 
 		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max])
-		ui.set_tooltip(self.tooltip)  # .				  Ajout du Tooltip
+		ui.set_tooltip(self.tooltip)  # .			   Ajout du Tooltip
 
 		checkbox.setChecked(self.active)
-		checkbox.stateChanged.connect(self.set_active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
-		spin_min.setKeyboardTracking(False)  # .		  Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
-		spin_min.valueChanged.connect(self.set_min)  # .  Connecte le changement de valeur pour que les autres UI se mettent à jour
-		spin_max.setKeyboardTracking(False)  # .		  Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
-		spin_max.valueChanged.connect(self.set_max)  # .  Connecte le changement de valeur pour que les autres UI se mettent à jour
+		checkbox.toggled.connect(self.set_active)  # . Connecte le changement de valeur pour que les autres UI se mettent à jour
+		spin_min.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		spin_min.valueChanged.connect(self.set_min)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
+		spin_max.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		spin_max.valueChanged.connect(self.set_max)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		ui.layout.addWidget(checkbox)
 		ui.layout.addWidget(spin_min)
 		ui.layout.addWidget(QLabel("→"))
 		ui.layout.addWidget(spin_max)
-		ui.layout.addStretch(1)  # .					  Pousse tout à gauche, espace vide à droite.
+		ui.layout.addStretch(1)  # . 				   Pousse tout à gauche, espace vide à droite.
 
-		self._uis[name] = ui  # .						  Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .					   Ajoute l'ui au dictionnaire
 		return ui
 
 	##################################################

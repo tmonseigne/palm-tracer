@@ -27,7 +27,7 @@ from palm_tracer.Settings.Groups.Gallery import Gallery
 from palm_tracer.Settings.Groups.Localization import Localization
 from palm_tracer.Settings.Groups.Tracking import Tracking
 from palm_tracer.Settings.Groups.TracksCompute import TracksCompute
-from palm_tracer.Settings.Groups.VisualizationGraph import VisualizationGraph
+from palm_tracer.Settings.Groups.Graph import Graph
 from palm_tracer.Settings.Groups.VisualizationHR import VisualizationHR
 
 
@@ -49,7 +49,7 @@ class Settings:
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
 		list_settings = [Batch, Calibration, Localization, BeadsExtraction, Tracking, BlinkingReconnection, TracksCompute,
-						 Gallery, VisualizationHR, VisualizationGraph, Filters]
+						 Gallery, Graph, VisualizationHR, Filters]
 		for setting in list_settings: self._settings[setting.__name__] = setting()
 		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
 
@@ -167,10 +167,10 @@ class Settings:
 
 	##################################################
 	@property
-	def visualization_graph(self) -> VisualizationGraph:
+	def graph(self) -> Graph:
 		"""Groupe de paramètres liés à la Visualisation graphique
-		(:class:`VisualizationGraph <palm_tracer.Settings.Groups.VisualizationGraph.VisualizationGraph>`)."""
-		return cast(VisualizationGraph, self._settings["VisualizationGraph"])
+		(:class:`Graph <palm_tracer.Settings.Groups.Graph.Graph>`)."""
+		return cast(Graph, self._settings["Graph"])
 
 	##################################################
 	@property

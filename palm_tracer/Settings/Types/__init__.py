@@ -18,13 +18,12 @@ Ce sous-package gère les différents types de paramètres.
 - Permet un accès direct aux classes principales via `from palm_tracer.Settings.Types import <classe>`.
 
 """
-from typing import Any
-
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingType import BaseSettingType
 from .BaseUI import BaseUI
 from .BrowseFile import BrowseFile
 from .Button import Button
+from .ButtonGroup import ButtonGroup
 from .CheckBox import CheckBox
 from .CheckRangeFloat import CheckRangeFloat
 from .CheckRangeInt import CheckRangeInt
@@ -37,5 +36,5 @@ from .SpinInt import SpinInt
 
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingType", "BaseUI", "SignalWrapper",
-		   "BrowseFile", "Button", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
+		   "BrowseFile", "Button", "ButtonGroup", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
 		   "CheckRangeFloat", "CheckRangeInt"]

@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Types import Combo, SpinInt
 
 HR_LOC_SOURCE = ["All", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "Z", "MSE Z"]
@@ -35,10 +35,15 @@ class VisualizationHR(BaseSettingGroup):
 					"Source T": [Combo, ["Source", "", 1, HR_TRC_SOURCE]]}
 
 	##################################################
+	def initialize(self):
+		"""Initialise le dictionnaire de paramètres."""
+		super().initialize()
+		self._settings["Type"].connect(self.toggle_type)
+
+	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
 		ui = super().get_ui(name, mode)
-		self._settings["Source T"].hide()
-		self._settings["Type"].connect(self.toggle_type)
+		self.toggle_type(self._settings["Type"].value)
 		return ui
 
 	##################################################

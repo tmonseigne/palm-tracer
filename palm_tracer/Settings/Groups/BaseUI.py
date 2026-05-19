@@ -58,7 +58,7 @@ class BaseUI:
 		self.checkbox = None
 		if self.mode == 0:  # Classique avec un titre et une checkbox pour activer/desactiver le groupe
 			self.checkbox = QCheckBox()
-			self.checkbox.stateChanged.connect(self.active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
+			self.checkbox.toggled.connect(self.active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		if self.mode <= 1:  # La check box n'est pas présente et le groupe est toujours actif avec un titre
 			title = QLabel(self.name)

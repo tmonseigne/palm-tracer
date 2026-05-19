@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, SpinInt
 
 
@@ -47,11 +48,16 @@ class GaussianFit(BaseSettingGroup):
 		super().initialize()
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)
-		self.toggle_fit_mode(self._settings["Mode"].value)
-		self.toggle_z_estimate(False)
 
 	##################################################
-	def toggle_fit_mode(self, mode):
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		ui = super().get_ui(name, mode)
+		self.toggle_fit_mode(self._settings["Mode"].value)
+		self.toggle_z_estimate(self._settings["Z"].value)
+		return ui
+
+	##################################################
+	def toggle_fit_mode(self, mode: int):
 		"""Change le mode d'ajustement."""
 		if mode in (0, 1):  # On ne peut pas estimer Z Sigma X et Sigma Y.
 			self._settings["Z"].value = False
@@ -60,7 +66,7 @@ class GaussianFit(BaseSettingGroup):
 			self._settings["Z"].show()
 
 	##################################################
-	def toggle_z_estimate(self, mode):
+	def toggle_z_estimate(self, mode: bool):
 		"""Change le mode d'ajustement."""
 		if mode:
 			self._settings["Z max"].show()

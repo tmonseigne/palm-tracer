@@ -94,6 +94,7 @@ class Combo(BaseSettingType):
 			with QSignalBlocker(b):
 				b.clear()
 				b.addItems(self._items)
+		self.value = 0
 
 	# ==================================================
 	# endregion Getter/Setter
