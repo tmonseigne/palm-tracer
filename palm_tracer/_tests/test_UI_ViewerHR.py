@@ -12,28 +12,10 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 ##################################################
-def get_pt():
-	"""Instance basique de PALMTracer pour chaque test."""
-	pt = PALMTracer()
-	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.update_box([f"{INPUT_DIR / 'stack.tif'}"])
-	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
-	pt.df["f_loc"] = pt.df["loc"].copy()
-	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
-	pt.df["f_trc"] = pt.df["trc"].copy()
-	pt.df["blk"] = pt.df["trc"].copy()
-	pt.df["f_blk"] = pt.df["trc"].copy()
-	pt.df["MSD"] = pd.read_csv(INPUT_DIR / "tracking_MSD.csv")
-	pt.df["InD"] = pd.read_csv(INPUT_DIR / "tracking_InstantD.csv")
-	pt.df["Fit"] = pd.read_csv(INPUT_DIR / "tracking_Fit.csv")
-	return pt
-
-
-##################################################
 def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 
 ##################################################
@@ -54,7 +36,7 @@ def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mon
 def test_change_source(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Test basique du widget."""
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 	assert w._cmb_src.items[0] == "Count"
 
@@ -82,7 +64,7 @@ def test_reset_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsys
 	"""Test basique de création du widget."""
 
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 	assert w._status["Localization"].text() == "Yes (Filtered)", "Status Incorrect."
 	qtbot.mouseClick(w._filters.buttons["reset"], Qt.MouseButton.LeftButton)
@@ -94,7 +76,7 @@ def test_update_filtered(make_napari_viewer, patched_napari_viewer, qtbot, capsy
 	"""Test basique de création du widget."""
 
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 	qtbot.mouseClick(w._filters.buttons["reset"], Qt.MouseButton.LeftButton)
 	assert w._status["Localization"].text() == "Yes", "Status Incorrect."  # .			On n'a pas de tableaux filtrés
@@ -120,7 +102,7 @@ def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
 
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 	w._filename = ""
 	qtbot.mouseClick(w._btn_save, Qt.MouseButton.LeftButton)  # Il ne fait rien si pas de nom de fichier.
@@ -145,7 +127,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mo
 
 	monkeypatch.setattr(type(viewer), "screenshot", _fake_screenshot, raising=True)
 
-	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 	w._screenshot_filename = ""
 	qtbot.mouseClick(w._btn_screenshot, Qt.MouseButton.LeftButton)  # Il ne fait rien si pas de nom de fichier.
@@ -164,7 +146,7 @@ def test_crop(make_napari_viewer, patched_napari_viewer):
 	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
 
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_pt())  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 	res = w._crop()  # .					Crop à True, image noire
 	assert res == np.zeros((1, 1), dtype=np.uint16)

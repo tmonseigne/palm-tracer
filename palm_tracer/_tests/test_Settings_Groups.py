@@ -90,7 +90,7 @@ def test_batch(qtbot):
 
 ###################################################
 def test_batch_get_path(qtbot):
-	"""Test du get_path de la classe Batch"""
+	"""Test du get_paths de la classe Batch"""
 	batch = Batch()
 
 	path = batch.get_paths()
@@ -123,7 +123,7 @@ def test_batch_get_path(qtbot):
 
 ###################################################
 def test_batch_get_stacks(qtbot):
-	"""Test du get_path de la classe Batch"""
+	"""Test du get_stacks de la classe Batch"""
 	batch = Batch()
 	stacks = batch.get_stacks()
 	assert len(stacks) == 0, "Nombre de pile invalide"
@@ -180,7 +180,7 @@ def test_localization(qtbot):
 
 ###################################################
 def test_localization_fit(qtbot):
-	"""Test basique de la classe Localisation (constructeur, getter, setter)"""
+	"""Test de la classe Localisation pour la récupération des paramètres de Fit."""
 	loc = Localization()
 
 	loc["Fit"].value = 0
@@ -204,7 +204,7 @@ def test_gaussian_fit(qtbot):
 
 ###################################################
 def test_gaussian_fit_z(qtbot):
-	"""Test basique de la classe GaussianFit (constructeur, getter, setter)"""
+	"""Test de la classe GaussianFit avec affichage/masquage des éléments."""
 	grp = GaussianFit()
 	ui_z = grp["Z"].get_ui()
 	ui_z_max = grp["Z max"].get_ui()
@@ -282,27 +282,35 @@ def test_filters_t(qtbot):
 
 ###################################################
 def test_gallery(qtbot):
-	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
+	"""Test basique de la classe Gallery (constructeur, getter, setter)"""
 	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
 
 
 ###################################################
 def test_graph(qtbot):
-	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
+	"""Test basique de la classe Graph (constructeur, getter, setter)"""
 	group_base_test(Graph(), ["Type", "Source", "Dual", "Source B", "MSD Step", "Display"], ButtonGroup, 1, 0)
 
 
 ###################################################
-def test_visualization_3d(qtbot):
-	"""Test basique de la classe SplineFit (constructeur, getter, setter)"""
-	group_base_test(Visualization3D(), ["Point Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 1, 0.5)
+def test_graph_display(qtbot):
+	"""Test basique de la classe GraphDisplay (constructeur, getter, setter)"""
+	group_base_test(GraphDisplay(), ["Limits", "Sigma", "Gauss", "KDE", "Cumul", "Log Scale"], CheckBox, False, True)
 
 
 ###################################################
-def test_visualization_hr(qtbot):
-	"""Test basique de la classe VisualizationHR (constructeur, getter, setter)"""
-	g = VisualizationHR()
-	group_base_test(g, ["Ratio", "Type", "Source L", "Source T"], SpinInt, 1, 2)
-	g["Type"].value = 1  # Afficher/masquer les sources
-	g["Type"].value = 0  # Afficher/masquer les sources
-	g["Type"].value = 2  # Impossible mais prévu
+def test_hr(qtbot):
+	"""Test basique de la classe HR (constructeur, getter, setter)"""
+	group_base_test(HR(), ["Type", "Source", "Color mode", "Ratio", "Crop", "Remove Beads", "Drift Correction", "Smooth Drift", "Gaussian"], ButtonGroup, 1, 0)
+
+
+###################################################
+def test_hr_gaussian(qtbot):
+	"""Test basique de la classe HRGaussian (constructeur, getter, setter)"""
+	group_base_test(HRGaussian(), ["Intensity", "Fixed Intensity", "Shape", "Size"], SpinInt, 10, 100)
+
+
+###################################################
+def test_visualization_3d(qtbot):
+	"""Test basique de la classe Visualization3D (constructeur, getter, setter)"""
+	group_base_test(Visualization3D(), ["Point Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 1, 0.5)

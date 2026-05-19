@@ -9,6 +9,8 @@ Ce widget ajoute dans le dock de Napari :
 
 .. todo:: Warning si plus de 10 millions de points sur un affichage (avec option se souvenir du choix).
 """
+from __future__ import annotations
+
 from pathlib import Path
 from typing import cast
 
@@ -20,42 +22,21 @@ from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QV
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Drift, Renderer
-from palm_tracer.Settings.Groups import Filters
-from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinFloat, SpinInt
+from palm_tracer.Settings.Groups import HR
+from palm_tracer.Settings.Types import Combo, FileList
 from palm_tracer.Tools import FileIO, Ui
 
 # ==================================================
 # region Constantes
 # ==================================================
-DATA_SRC: dict[str, list] = {
-		"Localization": ["Count", "X", "Y", "Z", "Integrated Intensity",
-						 "Sigma X", "Sigma Y", "Circularity", "Theta", "Surface", "MSE XY", "MSE Z"],
-		"Tracking":     ["Track Number", "Plane", "Intensity", "Duration", "Length"]
-		}
-
 TIPS = {
-		"Add Stack":         "Add a stack to the batch and load the latest results for it.\n"
-							 "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
+		"Add Stack":  "Add a stack to the batch and load the latest results for it.\n"
+					  "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
 
-		"Source":            "Data selected for Graph.",
-		"Color Mode":        "When overlapping, select whether the pixel values are added together or whether only the maximum value is retained.",
-		"Gaussian":          "Displays a Gaussian distribution for each location.",
-		"G Intensity":       "Integrated intensity of the Gaussian curve if 'Fixed Intensity' is selected; otherwise, "
-							 "the ratio by which the value selected in the source will be divided.",
-		"G Fixed Intensity": "Ensures that each point has the same intensity.",
-		"G Shape":           "Defines the shape of the Gaussian distribution (Isotropic, Anisotropic, or Fixed Size, "
-							 "so that each point has the same isotropic shape).",
-		"G Size":            "The standard deviation of the Gaussian distribution if “Fixed Size” is selected.",
-		"Upscale Ratio":     "Image upscale ratio.",
-		"Remove Beads":      "Remove beads during reconstruction.",
-		"Drift Correction":  "Apply a drift correction (Note: The beads must have been extracted before.)",
-		"Smooth Drift":      "Apply a smooth on drift correction",
-		"Auto Crop":         "Remove all black Frame around reconstruction (Usefull when you make reconstruciton on a part of field). Keep 5 pixel of margin",
-
-		"Actualize":         "Updates files/data from PALMTracer status.",
-		"Generate":          "Generate HR Visualization.",
-		"Save":              "Save the visualization generated.",
-		"Screenshot":        "Save the actual view of layers.",
+		"Actualize":  "Updates files/data from PALMTracer status.",
+		"Generate":   "Generate HR Visualization.",
+		"Save":       "Save the visualization generated.",
+		"Screenshot": "Save the actual view of layers.",
 		}
 
 
@@ -81,12 +62,13 @@ class ViewerHRWidget(QWidget):
 	:param viewer: Instance du viewer Napari où sera ajouté le calque HR.
 	:param palmtracer: Instance PALMTracer à lier.
 	"""
+	UI_NAME: str = "HR"
 
 	# ==================================================
 	# region Initialisation
 	# ==================================================
 	##################################################
-	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer):
+	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
 		"""
 		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
 
@@ -96,9 +78,9 @@ class ViewerHRWidget(QWidget):
 		"""
 		super().__init__()
 		self.viewer = viewer
-		self._pt = palmtracer
+		self._pt = PALMTracer() if palmtracer is None else palmtracer
+		self._hr_settings: HR = self._pt.settings.hr
 		self._renderer = Renderer()
-		self._file: str = ""
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
@@ -106,7 +88,6 @@ class ViewerHRWidget(QWidget):
 		# Construction UI
 		self._init_ui()
 		self._connect_signals()
-		self._on_source_changed(0)  # Change la source pour Localization à l'origine
 		self._actualize()
 
 	##################################################
@@ -120,13 +101,16 @@ class ViewerHRWidget(QWidget):
 				- Actions : Actualize files / Export…
 		"""
 		self._widget = QWidget()
+
 		layout = QVBoxLayout(self._widget)
 		Ui.init_layout(layout, space=10)
 		self.setLayout(layout)
 
+		# --- Zone de scrolling ---
 		scroll_content = QWidget()
 		scroll_layout = QVBoxLayout(scroll_content)
 		Ui.init_layout(scroll_layout, space=10)
+		scroll_area = Ui.make_vertical_scroll(scroll_content)
 
 		# --- Boutton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
@@ -137,50 +121,19 @@ class ViewerHRWidget(QWidget):
 
 		# --- Bloc Sources ---
 		grp_source = QGroupBox("Source")
-		form = Ui.make_form(grp_source)
-		Ui.init_layout(form, margin=10)
-
-		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Localization", "Tracks"])
-
-		self._cmb_src = Combo("Source", TIPS["Source"])
-		self._cmb_src.box.setMinimumWidth(200)
-		self._cmb_color_mode = Combo("Color mode", TIPS["Color Mode"], 0, ["Addition", "Max"])
-		self._spn_upscale = SpinInt("Upscale Ratio", TIPS["Upscale Ratio"], 4, [1, 100], 2)
-		self._chk_beads_remove = CheckBox("Remove Beads", TIPS["Remove Beads"], True)
-		self._chk_drift_correction = CheckBox("Drift Correction", TIPS["Drift Correction"])
-		self._chk_drift_smooth = CheckBox("Smooth Drift", TIPS["Smooth Drift"], True)
-		self._chk_crop = CheckBox("Auto Crop", TIPS["Auto Crop"], True)
-		self._chk_gaussian = CheckBox("Gaussian", TIPS["Gaussian"])
-		self._spn_gauss_intensity = SpinInt("Intensity", TIPS["G Intensity"], 100, [1, 10000], 10)
-		self._chk_gauss_fixed_intensity = CheckBox("Fixed Intensity", TIPS["G Fixed Intensity"])
-		self._cmb_gauss_shape = Combo("Shape", TIPS["G Shape"], 0, ["Fixed Size", "Isotrope", "Anisotrope"])
-		self._spn_gauss_shape_size = SpinFloat("Size", TIPS["G Size"], 1, [0, 10], 0.01, 3)
-
-		form.addRow(h)
-		self._cmb_src.attach_to_form(form)
-		self._cmb_color_mode.attach_to_form(form)
-		self._chk_gaussian.attach_to_form(form)
-		self._spn_gauss_intensity.attach_to_form(form)
-		self._chk_gauss_fixed_intensity.attach_to_form(form)
-		self._cmb_gauss_shape.attach_to_form(form)
-		self._spn_gauss_shape_size.attach_to_form(form)
-		self._spn_upscale.attach_to_form(form)
-		self._chk_beads_remove.attach_to_form(form)
-		self._chk_drift_correction.attach_to_form(form)
-		self._chk_drift_smooth.attach_to_form(form)
-		self._chk_crop.attach_to_form(form)
+		ui = self._hr_settings.get_ui(self.UI_NAME)
+		ui.body_layout.setContentsMargins(5, 15, 5, 5)
+		grp_source.setLayout(ui.body_layout)
+		self._hr_settings["Source"].get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
 		# --- Bloc Filtres ---
-		grp_filters, vbox_filters = Ui.make_group(self, "Filters", margin=10)
+		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
-		self._filters = Filters()
-		self._filters.update_from_dict(self._pt.settings.filters.to_dict())
-		vbox_filters.addWidget(self._filters.widget)
+		self._filters = self._pt.settings.filters
+		self._filters_ui = self._filters.get_ui(self.UI_NAME)
+		vbox_filters.addWidget(self._filters_ui.widget)
 		# Masquage initial
-		self._filters["Save"].hide()
-		self._filters["Localization"].remove_header()
-		self._filters["Tracks"].remove_header()
-		self._filters["Tracks"].hide()
+		self._filters["Save"].get_ui(self.UI_NAME).hide()
 
 		# --- Actions ---
 		actions_row = QHBoxLayout()
@@ -199,32 +152,29 @@ class ViewerHRWidget(QWidget):
 		actions_row.addWidget(self._btn_save)
 		actions_row.addWidget(self._btn_screenshot)
 
-		layout.addWidget(self._btn_add_stack)
-
+		# --- Mise en page dans le scroll ---
 		scroll_layout.addWidget(grp_infos)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_filters)
 		scroll_layout.addStretch()  # optionnel mais recommandé
-		scroll_area = Ui.make_vertical_scroll(scroll_content)
-		layout.addWidget(scroll_area)
 
+		# --- Mise en page globbale ---
+		layout.addWidget(self._btn_add_stack)
+		layout.addWidget(scroll_area)
 		layout.addLayout(actions_row)
 
-		self._toggle_gaussian()
+		self._toggle_type(self._hr_settings["Type"].value)
 
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
+		# Connexion des bouttons Filters de cette UI
+		self._pt.connect_filters_button(self.UI_NAME)
+
 		self._btn_add_stack.clicked.connect(self._add_stack)
 
 		# Sources
-		self._btg_src.idClicked.connect(self._on_source_changed)
-		self._chk_gaussian.connect(self._toggle_gaussian)
-
-		# Filters
-		self._filters.buttons["reset"].clicked.connect(self._reset_filtered)
-		self._filters.buttons["update"].clicked.connect(self._update_filtered)
-		self._filters.buttons["save"].clicked.connect(self._pt.save_filtered)
+		self._hr_settings["Type"].connect(self._toggle_type)
 
 		# Action Row
 		self._btn_actualize.clicked.connect(self._actualize)
@@ -240,59 +190,19 @@ class ViewerHRWidget(QWidget):
 	# region UI Callback
 	# ==================================================
 	##################################################
-	def _update_status(self):
-		"""Mets à jour les status des fichiers."""
-		self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
-		self._status["File"].setText(Path(self._file).name if self._file else "No File")
-		status = self._pt.get_status()
-		for key in status: self._status[key].setText(status[key])
-
-	##################################################
-	def _on_source_changed(self, btn_id: int):
+	def _toggle_type(self, btn_id: int):
 		"""
 		Mets à jour la liste des sources selon le domaine choisi puis redessine.
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
-		# Remplir la ComboBox 'Source' en fonction du domaine
-		if btn_id == 0:  # .		Stack
-			src = DATA_SRC["Localization"]
-			self._cmb_color_mode.show()
-			self._chk_gaussian.show()
-		else:  # .					Tracking
-			src = DATA_SRC["Tracking"]
-			self._cmb_color_mode.hide()
-			self._chk_gaussian.value = False
-			self._chk_gaussian.hide()
-		with self._cmb_src.signal_blocked(): self._cmb_src.update_box(src)
-		self._update_filters_ui()  # Mise à jour des filtres à afficher
-
-	##################################################
-	def _update_filters_ui(self):
-		"""
-		Mets à jour les filtres à afficher.
-		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles).
-		"""
-		if self._btg_src.checkedId() == 0:  # Localizations
-			self._filters["Localization"].show()
-			self._filters["Tracks"].hide()
-		else:  # .							  Tracking
-			self._filters["Localization"].hide()
-			self._filters["Tracks"].show()
-
-	##################################################
-	def _toggle_gaussian(self):
-		"""Montre ou cache les options réservées à la visualisation gaussienne."""
-		if self._chk_gaussian.value:
-			self._spn_gauss_intensity.show()
-			self._chk_gauss_fixed_intensity.show()
-			self._cmb_gauss_shape.show()
-			self._spn_gauss_shape_size.show()
-		else:
-			self._spn_gauss_intensity.hide()
-			self._chk_gauss_fixed_intensity.hide()
-			self._cmb_gauss_shape.hide()
-			self._spn_gauss_shape_size.hide()
+		self._hr_settings.update_src()
+		if btn_id == 0:  # Localisation
+			self._filters["Localization"].get_ui(self.UI_NAME).show()
+			self._filters["Tracks"].get_ui(self.UI_NAME).hide()
+		else:  # Tracking
+			self._filters["Localization"].get_ui(self.UI_NAME).hide()
+			self._filters["Tracks"].get_ui(self.UI_NAME).show()
 
 	# ==================================================
 	# endregion UI Callback
@@ -306,37 +216,16 @@ class ViewerHRWidget(QWidget):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
 		self._pt.load()  # . Chargement des derniers résultats
-		self._actualize()
+		self._actualize()  # Actualisation des statuts
 
 	##################################################
 	def _actualize(self):
-		"""
-		Actualise les fichiers/données depuis l'état PALMTracer :
-			- Mets à jour les libellés d'information et l'état d'activation des boutons de domaine.
-		"""
-		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._filters.update_from_dict(self._pt.settings.filters.to_dict())
-			# Métadonnées d'information
-			self._update_status()
-			if self._pt.stack is not None:
-				z, y, x = self._pt.stack.shape
-				self._filters.update_limits(x, y, z)
-
-	##################################################
-	def _reset_filtered(self):
-		"""Supprime les dataframes de filtre."""
-		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
-			self._filters.reset()
-			self._update_status()
-
-	##################################################
-	def _update_filtered(self):
-		"""Applique les filtres sur les dataframes."""
-		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._pt.settings.filters.update_from_dict(self._filters.to_dict())
-			self._pt.update_filtered()  # Mise à jour des filtres
-			self._update_status()
+		"""Actualise les status des fichiers/données depuis l'état PALMTracer."""
+		file = cast(FileList, self._pt.settings.batch["Files"]).current_text
+		self._status["File"].setText(Path(file).name if file else "No File")
+		# Mise à jour des Status
+		status = self._pt.get_status()
+		for key in status: self._status[key].setText(status[key])
 
 	##################################################
 	def _save(self):
@@ -367,14 +256,14 @@ class ViewerHRWidget(QWidget):
 		:param data: Données à corriger.
 		:return: Données corrigées.
 		"""
-		if self._chk_drift_correction.value:  # Drift activé
+		if self._hr_settings["Drift Correction"].value:  # Drift activé
 			beads = self._pt.beads
 			if beads.empty:  # Billes non calculées / trouvées
 				show_warning("No beads file available to correct drift.")
 				return data
 			# Application de la correction de drift
 			drift = Drift.get_drift(beads, is_3d=False)
-			if self._chk_drift_smooth.value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
+			if self._hr_settings["Smooth Drift"].value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
 			return Drift.remove_drift(data, drift, is_3d=False)
 		return data
 
@@ -387,7 +276,7 @@ class ViewerHRWidget(QWidget):
 		:param margin: Nombre de pixels à conserver autour de la zone utile.
 		:return: Image recadrée.
 		"""
-		if not self._chk_crop.value: return self.visualization
+		if not self._hr_settings["Crop"].value: return self.visualization
 		img = self.visualization
 
 		# --- Masque des pixels non nuls ---
@@ -422,14 +311,13 @@ class ViewerHRWidget(QWidget):
 		except Exception as e: show_warning(f"Error when deleting old layers: {e}")
 		self.visualization = np.zeros((1, 1), dtype=np.uint16)  # Remise à 0 du calque de visualisation
 
-		src_id = self._btg_src.checkedId()
-		src = self._cmb_src.current_text
-		upscale = self._spn_upscale.value
+		src = cast(Combo, self._hr_settings["Source"]).current_text
+		upscale = self._hr_settings["Ratio"].value
 		self._renderer.set_size(width, height, upscale)
 
-		if src_id == 0:  # Localisations
+		if self._hr_settings["Type"].value == 0:  # Localisations
 			loc = self._pt.localizations
-			if self._chk_beads_remove.value: loc = Drift.remove_beads(loc, self._pt.beads)
+			if self._hr_settings["Remove Beads"].value: loc = Drift.remove_beads(loc, self._pt.beads)
 			loc = self._correct_drift(loc)
 			if loc.empty:
 				show_warning("No localization file available.")
@@ -442,15 +330,9 @@ class ViewerHRWidget(QWidget):
 
 			# Visualisation
 			plot_data = loc[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
-			if self._chk_gaussian.value:
-				gaussian = {
-						"Intensity":       self._spn_gauss_intensity.value,
-						"Fixed Intensity": self._chk_gauss_fixed_intensity.value,
-						"Shape":           self._cmb_gauss_shape.value,
-						"Size":            self._spn_gauss_shape_size.value
-						}
-			else: gaussian = None
-			color_mode = 0 if src == "Count" else self._cmb_color_mode.value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			gaussian = self._hr_settings["Gaussian"].settings if self._hr_settings["Gaussian"].active else None
+			color_mode = 0 if src == "Count" else self._hr_settings["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit
+			# l'option.
 			self.visualization = self._renderer.localizations(plot_data, color_mode, gaussian)
 
 		else:  # Trajectoires
@@ -469,7 +351,7 @@ class ViewerHRWidget(QWidget):
 			self.visualization = self._renderer.tracks(trc[:, [0, 2, 3, 4]])
 
 		layer.editable = False
-		suffix_drift = '_corrected' if self._chk_drift_correction.value else ''
+		suffix_drift = '_corrected' if self._hr_settings["Drift Correction"].value else ''
 		suffix_file = f"{suffix_drift}_x{upscale}_{src}-{suffix}.png"
 		self._filename = f"{path}/visualization{suffix_file}"
 		self._screenshot_filename = f"{path}/screenshot{suffix_file}"

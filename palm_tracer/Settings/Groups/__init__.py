@@ -21,12 +21,13 @@ from .Gallery import Gallery
 from .GaussianFit import GaussianFit
 from .Graph import Graph
 from .GraphDisplay import GraphDisplay
+from .HR import HR
+from .HRGaussian import HRGaussian
 from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
 from .TracksCompute import TracksCompute
 from .Visualization3D import Visualization3D
-from .VisualizationHR import VisualizationHR
 
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingGroup", "BaseUI",
@@ -34,4 +35,4 @@ __all__ = ["BaseSettingGroup", "BaseUI",
 		   "Filters", "FiltersL", "FiltersT",
 		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",
 		   "Tracking", "BlinkingReconnection", "TracksCompute",
-		   "Gallery", "Graph", "GraphDisplay", "Visualization3D", "VisualizationHR"]
+		   "Gallery", "Graph", "GraphDisplay", "HR", "HRGaussian", "Visualization3D"]

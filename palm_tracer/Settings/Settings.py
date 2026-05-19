@@ -24,11 +24,11 @@ from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnectio
 from palm_tracer.Settings.Groups.Calibration import Calibration
 from palm_tracer.Settings.Groups.Filters import Filters
 from palm_tracer.Settings.Groups.Gallery import Gallery
+from palm_tracer.Settings.Groups.Graph import Graph
+from palm_tracer.Settings.Groups.HR import HR
 from palm_tracer.Settings.Groups.Localization import Localization
 from palm_tracer.Settings.Groups.Tracking import Tracking
 from palm_tracer.Settings.Groups.TracksCompute import TracksCompute
-from palm_tracer.Settings.Groups.Graph import Graph
-from palm_tracer.Settings.Groups.VisualizationHR import VisualizationHR
 
 
 ##################################################
@@ -49,7 +49,7 @@ class Settings:
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
 		list_settings = [Batch, Calibration, Localization, BeadsExtraction, Tracking, BlinkingReconnection, TracksCompute,
-						 Gallery, Graph, VisualizationHR, Filters]
+						 Gallery, Graph, HR, Filters]
 		for setting in list_settings: self._settings[setting.__name__] = setting()
 		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
 
@@ -160,10 +160,10 @@ class Settings:
 
 	##################################################
 	@property
-	def visualization_hr(self) -> VisualizationHR:
+	def hr(self) -> HR:
 		"""Groupe de paramètres liés à la Visualisation haute-résolution
-		(:class:`VisualizationHR <palm_tracer.Settings.Groups.VisualizationHR.VisualizationHR>`)."""
-		return cast(VisualizationHR, self._settings["VisualizationHR"])
+		(:class:`HR <palm_tracer.Settings.Groups.HR.HR>`)."""
+		return cast(HR, self._settings["HR"])
 
 	##################################################
 	@property
