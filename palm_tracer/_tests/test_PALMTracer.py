@@ -10,6 +10,7 @@ import pytest
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.PALMTracer import FILE_STATUS
+from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
@@ -34,11 +35,11 @@ def clean_output():
 
 ##################################################
 def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[list[int]] = None, json: Optional[list[int]] = None,
-				 tif: Optional[list[int]] = None, png: Optional[list[int]] = None, clean: bool = True):
+				 tif: Optional[list[int]] = None, png: Optional[list[int]] = None, html: Optional[list[int]] = None, clean: bool = True):
 	"""Vérifie si la sortie correspond à ce qui est attendu."""
 	if not folder.is_dir(): pytest.fail("Dossier invalide.")
 
-	for ext, v in {"csv": csv, "log": log, "json": json, "tif": tif, "png": png}.items():
+	for ext, v in {"csv": csv, "log": log, "json": json, "tif": tif, "png": png, "html": html}.items():
 		if v is None: continue
 		r = f"*.{ext}"
 		files = list(folder.glob(r))
@@ -335,29 +336,23 @@ def test_process_nothing(qtbot, capsys, pt):
 
 	add_basic_file(pt)
 	pt.process()
-	assert pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
+	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 15, [5, 6, 7, 8, 9, 10, 11, 12])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'une visualisation sans données.
 	pt.settings.gallery.active = True
-	pt.settings.visualization_hr.active = True
-	pt.settings.visualization_graph.active = True
+	pt.settings.hr.active = True
+	pt.settings.graph.active = True
 	pt.process()  # Test d'une visualisation sans données.
-	assert pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
-	check_capsys(capsys, 18, [5, 6, 7, 8, 9, 10, 12, 14])
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
-
-	pt.settings.visualization_hr["Type"].value = 1
-	pt.process()
 	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 18, [5, 6, 7, 8, 9, 10, 12, 14])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul sur trajectoires sans données.
 	pt.settings.gallery.active = False
-	pt.settings.visualization_hr.active = False
-	pt.settings.visualization_graph.active = False
+	pt.settings.graph.active = False
+	pt.settings.hr.active = False
 	pt.settings.tracks_compute.active = True
 	pt.process()
 	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
@@ -635,14 +630,14 @@ def test_process_visualization_graph(qtbot, capsys, pt):
 	add_basic_file(pt)
 	add_fakeprocess(pt, True, True)  # Ajout d'un fichier de localisations et de tracking
 
-	pt.settings.visualization_graph.active = True
+	pt.settings.graph.active = True
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[18])
-	check_capsys(capsys, 37, [5, 7, 8, 10, 11, 12, 13, 34])
+	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], html=[1])
+	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 15])
 
 
-##################################################
+#################################################
 def test_process_visualization_hr(qtbot, capsys, pt):
 	"""Test pour le process de visualization HR."""
 	clean_output()
@@ -650,21 +645,12 @@ def test_process_visualization_hr(qtbot, capsys, pt):
 	add_basic_file(pt)
 	add_fakeprocess(pt, True, True)  # Ajout d'un fichier de localisations et de tracking
 
-	pt.settings.visualization_hr.active = True
-	pt.settings.visualization_hr["Source L"].value = 0
+	pt.settings.hr.active = True
+	pt.settings.hr["Crop"].value = False
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[8], clean=False)
-	check_capsys(capsys, 25, [5, 7, 8, 10, 11, 12, 13, 14])
-
-	pt.settings.visualization_hr["Type"].value = 1
-	pt.settings.visualization_hr["Source T"].value = 0
-	sleep(1)  # Force un timestamp différent pour le Reuse
-	pt.process()
-
-	# Il a ajouté un fichier tracking_Fit qu'il a dû calculer et un tracking_hr_color, pour les images 8 Sources pour les loc, 5 pour les trajectoires.
-	check_output(OUTPUT_FOLDER, csv=[5], log=[2], json=[2], png=[13])
-	check_capsys(capsys, 27, [5, 7, 8, 10, 11, 12, 13, 14])
+	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[1], clean=False)
+	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
 
 
 ##################################################
@@ -683,13 +669,13 @@ def test_process_all(qtbot, capsys, pt):
 	pt.settings.tracks_compute["Instant Diffusion"].value = True
 	pt.settings.tracks_compute["Fit"].value = 1
 	pt.settings.gallery.active = True
-	pt.settings.visualization_hr.active = True
-	pt.settings.visualization_graph.active = True
+	pt.settings.graph.active = True
+	pt.settings.hr.active = True
 	add_basic_file(pt)
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[19])
-	check_capsys(capsys, 49, [5, 8, 10, 12, 14, 22, 24, 45])
+	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[1], html=[1])
+	check_capsys(capsys, 30, [5, 8, 10, 12, 14, 22, 24, 26])
 
 
 # ==================================================
@@ -848,40 +834,169 @@ def test_filter_tracks_compute(qtbot, capsys, pt):
 # endregion Filtering
 # ==================================================
 
-##################################################
-def test_add_color(qtbot, capsys, pt):
-	file = "tracking2"
-	path = Path(f"{INPUT_DIR}/{file}.csv")
-	df = pd.read_csv(path)
-	pt._path = OUTPUT_DIR
+# ==================================================
+# region Visualization
+# ==================================================
+###################################################
+def test_get_graph_data():
+	"""Test de différentes récupérations de données."""
+	pt = get_fake_pt()
 
-	ref = [1, 1, 1, 1, 1, 1]
-	res = pt.add_color_to_tracks(df, "Track Number")  # Premier exemple basique
-	assert (res["Color"].tolist() == ref)
-	res = pt.add_color_to_tracks(df, "Length")  # Exemple basique avec erreur de calcul
-	assert (res["Color"].tolist() == ref)
+	ref_title: str
+	ref_shape: tuple
+	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
 
-	pt.df["trc"] = df
-	ref = [32767, 32767, 32767, 32767, 32767, 32767]
-	res = pt.add_color_to_tracks(df, "Length")  # fit Compute but equality
-	assert (res["Color"].tolist() == ref)
+	s = pt.settings.graph
+	s["Type"].value = 0
+	# Changement de source
+	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Localisation Count est un affichage Scatter Plot
 
-	# Changement des valeurs pour permettre le calcul
-	pt.reset_result()
-	df.loc[df.index[-3:], "Track"] = 2
-	pt.df["trc"] = df
-	pt.settings.tracks_compute["Fit Length"].value = 2
+	# Classique
+	data, title = pt._get_graph_data()
+	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
 
-	ref = [1, 1, 1, 65535, 65535, 65535]
-	res = pt.add_color_to_tracks(df, "Total Intensity")  # fit Compute
-	assert (res["Color"].tolist() == ref)
+	# Double vue
+	s["Dual"].value = True
+	s["Source"].value = 1
+	s["Source B"].value = 2
+	data, title = pt._get_graph_data()
+	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (6, 2), [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
-	res = pt.add_color_to_tracks(df, "Total Intensity")  # fit Compute already compute
-	assert (res["Color"].tolist() == ref)
+	# Colonne inexistante
+	pt.localizations.drop("Sigma X", inplace=True, axis=1)
+	data, title = pt._get_graph_data()
+	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
-	lines = get_lines_output(capsys)
-	assert len(lines) == 16  # Beaucoup de warnings dû à l'ajout dans un logger non ouvert
 
+###################################################
+def test_get_graph_data_from_src():
+	"""Test de différentes récupérations de données."""
+	pt = get_fake_pt()
+
+	ref_title: str
+	ref_shape: tuple
+	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
+
+	# Localizations
+	# Colonne inexistante
+	data, title = pt._get_graph_data_from_src(0, "no column")
+	ref_title, ref_shape, ref_data = "Localizations no column", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Classique
+	data, title = pt._get_graph_data_from_src(0, "X")
+	ref_title, ref_shape, ref_data = "Localizations X", (6,), [1, 2, 3, 4, 1, 2]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Count
+	data, title = pt._get_graph_data_from_src(0, "Localizations Count")
+	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Empty
+	for _ in range(4): pt.localizations.drop(pt.localizations.index, inplace=True)
+	data, title = pt._get_graph_data_from_src(0, "X")
+	ref_title, ref_shape, ref_data = "Localizations X", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+
+	# Tracks
+	# Colonne inexistante
+	data, title = pt._get_graph_data_from_src(1, "no column")
+	ref_title, ref_shape, ref_data = "Tracks no column", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Length
+	data, title = pt._get_graph_data_from_src(1, "Length")
+	ref_title, ref_shape, ref_data = "Tracks Length", (9, 2), [[1, 98], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1]]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# MSD
+	pt.settings.graph["MSD Step"].value = 5
+	data, title = pt._get_graph_data_from_src(1, "MSD")
+	ref_title, ref_shape, ref_data = "Tracks MSD Step 5", (1, 2), [[81, 0.14]]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	pt.settings.graph["MSD Step"].value = 9
+	data, title = pt._get_graph_data_from_src(1, "MSD")
+	ref_title, ref_shape, ref_data = "Tracks MSD Step 9", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Instant D
+	data, title = pt._get_graph_data_from_src(1, "Instant D")
+	ref_title, ref_shape, ref_data = "Tracks Instant D", (27,), [4.51, 1.37, 3.04, 1.13, 1e-06, 1.99, 1e-06, 2.34, 0.81, 4.02, 4.26, 1.31, 6.37, 0.60,
+																 2.22, 4.83, 0.27, 0.96, 5.41, 9.19, 0.60, 1.24, 0.54, 2.43, 2.23, 1.61, 3.05, ]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Fit
+	data, title = pt._get_graph_data_from_src(1, "MSE(0)")
+	ref_title, ref_shape, ref_data = "Tracks MSE(0)", (14, 2), [[35, 1], [37, 1], [66, 1], [75, 1], [81, 1], [83, 1], [102, 1], [114, 1],
+																[131, 1], [152, 1], [158, 1], [165, 1], [176, 1], [220, 1]]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# --- Empty ---
+	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
+	for _ in range(2):
+		df = pt.tracks_compute
+		for d in df.values(): d.drop(d.index, inplace=True)
+
+	data, title = pt._get_graph_data_from_src(1, "Length")
+	ref_title, ref_shape, ref_data = "Tracks Length", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	data, title = pt._get_graph_data_from_src(1, "MSD")
+	ref_title, ref_shape, ref_data = "Tracks MSD", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	data, title = pt._get_graph_data_from_src(1, "Instant D")
+	ref_title, ref_shape, ref_data = "Tracks Instant D", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	data, title = pt._get_graph_data_from_src(1, "MSE(0)")
+	ref_title, ref_shape, ref_data = "Tracks MSE(0)", (0,), []
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+# print(f"TEST \n{title} : {data.shape}\n{data}")
+
+
+# def test_get_graph_data(qtbot, capsys, pt): et totu les autres
+
+# ==================================================
+# endregion Visualization
+# ==================================================
 
 ##################################################
 def test_get_astigmatism_model(qtbot, capsys, pt):

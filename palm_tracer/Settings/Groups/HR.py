@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.HRGaussian import HRGaussian
 from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
 
@@ -48,6 +49,19 @@ class HR(BaseSettingGroup):
 					"Gaussian":         [HRGaussian, []]}
 
 	##################################################
+	def initialize(self):
+		"""Initialise le dictionnaire de paramètres."""
+		super().initialize()
+		self._settings["Type"].connect(self.toggle_type)
+		self.toggle_type()
+
+	##################################################
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		ui = super().get_ui(name, mode)
+		self.toggle_type()
+		return ui
+
+	##################################################
 	def check_beads(self, state: bool):
 		"""
 
@@ -63,7 +77,7 @@ class HR(BaseSettingGroup):
 			self._settings["Smooth Drift"].hide()
 
 	##################################################
-	def update_src(self):
+	def toggle_type(self):
 		"""Change la liste des sources pour les graphiques."""
 		src = cast(Combo, self._settings["Source"])
 

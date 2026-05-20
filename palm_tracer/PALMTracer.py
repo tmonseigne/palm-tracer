@@ -8,17 +8,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import cast, Optional
 
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
+import plotly.graph_objects as go
 
-from palm_tracer.Processing import Drift, Filtering, Gallery, Palm, Parsing, Visualization as Viz
+from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Parsing, Renderer
 from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups.VisualizationGraph import GRAPH_MODE, GRAPH_SOURCE
-from palm_tracer.Settings.Groups.VisualizationHR import HR_LOC_SOURCE, HR_TRC_SOURCE
+from palm_tracer.Settings.Groups import HRGaussian
+from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO, Logger, Ui
 
 MAX_UI_16 = np.iinfo(np.uint16).max
@@ -47,8 +47,6 @@ class PALMTracer:
 			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})
 	"""Résultats des différents calculs."""
 
-	visualization: Optional[np.ndarray] = field(init=False, default=None)
-	"""Résultat de la visualisation."""
 	_path: str = field(init=False, default="")
 	"""Dossier de sortie pour le fichier en cours de traitement."""
 	_stack: Optional[np.ndarray] = field(init=False, default=None)
@@ -57,6 +55,11 @@ class PALMTracer:
 	"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
 	_timestamp_previous: str = field(init=False, default="")
 	"""Suffixe des fichiers pour le traitement précédent (timestamp au format `YYYYMMDD_HHMMSS`)."""
+
+	_grapher: Grapher = field(init=False, default_factory=Grapher)
+	"""Générateur de graphique."""
+	_renderer: Renderer = field(init=False, default_factory=Renderer)
+	"""Générateur de rendu."""
 
 	KEYS_TO_FILE: dict[str, str] = field(init=False, default_factory=lambda: {
 			"loc": "localizations", "f_loc": "localizations_filtered",
@@ -355,13 +358,13 @@ class PALMTracer:
 			else: self._logger.add("Gallery generation disabled.")
 
 			# Lancement de la Visualisation graphique
-			if self.settings.visualization_graph.active:
+			if self.settings.graph.active:
 				self._logger.add("Graphical visualization enabled.")
 				self._visualization_graph()
 			else: self._logger.add("Graphical visualization disabled.")
 
 			# Lancement de la Visualisation Haute Résolution
-			if self.settings.visualization_hr.active:
+			if self.settings.hr.active:
 				self._logger.add("High-resolution visualization enabled.")
 				self._visualization_hr()
 			else: self._logger.add("High-resolution visualization disabled.")
@@ -687,124 +690,224 @@ class PALMTracer:
 		self._logger.add(f"\tSaving gallery ({s}).")
 		FileIO.save_tif(gallery, self._output_name(f"gallery_{s['ROI Size']}_{s['ROIs Per Line']}", "tif"))
 
+	# ==================== Graph ====================
 	##################################################
-	def add_color_to_tracks(self, datas: pd.DataFrame, source: str) -> pd.DataFrame:
+	def graph(self) -> go.Figure:
+		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
+		s = self.settings.graph.settings
+		src_id, dual = s["Type"], s["Dual"]
+		src_a = cast(Combo, self.settings.graph["Source"]).current_text
+		limit, sigma = s["Display Limits"], s["Display Sigma"]
+		kde, gauss = s["Display KDE"], s["Display Gauss"]
+		density, cumul = True, s["Display Cumul"]
+
+		# Préparation des Données
+		data, title = self._get_graph_data()
+		# print(f"{data.shape}, {data.size}, {title}") with data.size over 10M make a warning message
+
+		# Selection du graphique à afficher
+		if src_id == 0 and src_a == "Localizations Count":
+			return self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
+		if src_id == 1 and src_a == "Length":
+			return self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
+		if dual:
+			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
+			return self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
+		return self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density, cumulative=cumul)
+
+	##################################################
+	@staticmethod
+	def _log_data(data: np.ndarray, log: bool) -> np.ndarray:
 		"""
-		Ajoute une couleur pour chaque point des trajectoires en fonction d'un critère agrégé au niveau **Track**.
+		Application du log avec suppression du warning pour les valeurs ≤ 0 et remplacement par Nan de ces valeurs.
 
-		Règles :
-			- Si source == "Track Number" : couleur = (Track-1) % MAX_UI_16 + 1
-			- Si source ∈ {"Length", "Instant D", "MSD", "Total Intensity"} :
-				* on utilise la table ``self.tracks_compute["Fit"]`` (1 ligne par Track) pour récupérer la métrique.
-				* si `Fit` est vide, on déclenche le calcul puis on réessaie ; si toujours vide, fallback = "Track Number".
-				* si une seule piste valide ou si `min==max`, toutes les pistes prennent la couleur médiane `MAX_UI_16//2`.
-				* sinon, étalonnage linéaire `min→1`, `max→MAX_UI_16`.
-				* toute piste absente de `Fit` ou `NaN` sur la métrique retombe sur la couleur "Track Number".
-
-		:param datas: DataFrame des points de trajectoires, doit contenir au minimum la colonne 'Track'.
-		:param source: Critère de coloration ("Track Number", "Length", "Instant D", "MSD", "Total Intensity").
-		:return: Copie de `datas` avec une colonne 'Color' de type UInt16.
+		:param data: Données à transformer
+		:param log: Application du log ou non
+		:return: Données transformées
 		"""
-		res = datas.copy()
-		# HR_TRC_SOURCE = ["All", "Track Number", "Length", "Instant D", "MSD", "Total Intensity"]
-		# Chemin rapide : simple palette périodique par numéro de piste
-		if source == "Track Number":
-			res = res.assign(Color=((res["Track"] - 1) % MAX_UI_16 + 1).astype("UInt16"))
-			return res
+		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
 
-		# Récupération / calcul du Fit (1 ligne par Track) s'il manque
-		fit = self.tracks_compute["Fit"]
-		if fit.empty:  # .						Vide (non calculé)
-			self._logger.add("\t\tTracks compute to be performed to define a color during visualization.")
-			# On active le fit lineaire si aucun n'est sélectionné.
-			if self.settings.tracks_compute["Fit"].value == 0: self.settings.tracks_compute["Fit"].value = 1
-			self._tracks_compute()  # .			On lance le calcul
-			fit = self.tracks_compute["Fit"]  # On reaffecte le resultat
-		if fit.empty:  # .						Toujours vide (erreur de calcul ou autre, on prend le numéro des trajectoires par défaut).
-			res = res.assign(Color=((res["Track"] - 1) % MAX_UI_16 + 1).astype("UInt16"))
-			return res
+	##################################################
+	def _get_graph_data(self) -> tuple[np.ndarray, str]:
+		"""
+		Récupère et prépare les données pour l'affichage.
 
-		# Normalisation : mapping des noms de métriques
-		metric_by_source = {
-				"Length":          "Length",
-				"Total Intensity": "Total Intensity",
-				"Instant D":       "D(0) (μm²/s)",
-				"MSD":             "MSD(0) (μm²)",
-				}
-		metric = metric_by_source[source]
-		vmin, vmax = fit[metric].min(), fit[metric].max()
-		# vmin, vmax = fit[metric].quantile([0.05, 0.95]) A envisager au lieu du min et max en cas d'outlier.
-		if len(fit) == 1 or vmin >= vmax: res["Color"] = MAX_UI_16 // 2  # Cas Uniforme
-		else:
-			# Étalonnage linéaire : min→1, max→MAX_UI_16 (inclusif), arrondi au plus proche
-			scale = (MAX_UI_16 - 1) / (vmax - vmin)
-			vals = fit[metric].to_numpy(dtype=float)
-			colors = np.rint(1.0 + (vals - vmin) * scale).astype(np.int64)
-			np.clip(colors, 1, MAX_UI_16, out=colors)
-			color_map = dict(zip(fit["Track"].to_numpy(), colors.astype(np.uint16)))
-			# Application par map (vectorisé) : on remplit avec le fallback quand absent
-			mapped = res["Track"].map(color_map)
-			# 'mapped' est de type float si NaN possibles → on remplace NaN par fallback, puis cast en UInt16
-			res["Color"] = mapped.fillna(MAX_UI_16 // 2).astype("UInt16")
+		:return:
+		"""
+		s = self.settings.graph.settings
+		src_id, dual, log_scale = s["Type"], s["Dual"], s["Display Log Scale"]
+		src_a = cast(Combo, self.settings.graph["Source"]).current_text
 
-		return res
+		d, t = self._get_graph_data_from_src(src_id, src_a, log_scale)
+		if dual:
+			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
+			t += f" / {src_b}"
+			d_b, _ = self._get_graph_data_from_src(src_id, src_b, log_scale)
+			if d.ndim == 2: d = d[:, 1]
+			if d_b.ndim == 2: d_b = d_b[:, 1]
+			if d_b.size != d.size: return np.empty(0), t
+			d = np.column_stack((d, d_b))
+
+		return d, t
+
+	##################################################
+	def _get_graph_data_from_src(self, src_id, src: str, log_scale: bool = False) -> tuple[np.ndarray, str]:
+		"""Récupère et prépare les données pour l'affichage.
+
+		:param src_id:
+		:param src:
+		:param log_scale:
+		:return:
+		"""
+		# Localizations
+		if src_id == 0:
+			title = f"Localizations {src}"
+			df = self.localizations
+			if df.empty:  return np.empty(0), title
+			if src == "Localizations Count":
+				s = df["Plane"].astype(np.int64)
+				planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
+				counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
+				return np.column_stack((planes, counts)), src
+
+			s = df.get(src)  # None si la colonne n'existe pas
+			if s is None: return np.empty(0), title
+			return self._log_data(s.to_numpy(dtype=float), log_scale), title
+
+		# Tracks
+		title = f"Tracks {src}"
+		if src == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
+			df = self.tracks
+			if df.empty: return np.empty(0), title
+			group = df.groupby("Track")["Plane"].agg(["min", "max"])  # Groupement par track + calcul min et max
+			group["delta"] = group["max"] - group["min"]  # .							  Calcul du delta
+			res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
+			return res, title
+
+		df = self.tracks_compute
+		if src == "MSD":
+			df = df["MSD"]
+			if df.empty: return np.empty(0), title
+			step = self.settings.graph["MSD Step"].value  # .										Récupération du numéro du Step.
+			col = f"Step {step}"  # .																Récupération du nom de la colonne.
+			title += f" {col}"
+			if not {"Track", col}.issubset(df.columns): return np.empty(0), title  # .				Vérification de présence des colonnes
+			track, values = df["Track"].astype(int).to_numpy(), df[col].astype(float).to_numpy()  # Séparation track et valeur
+			df = np.column_stack((track, self._log_data(values, log_scale)))  # .					Application du log sur les valeurs
+			return df[np.isfinite(df).all(axis=1)], title  # .										Retour avec filtrage des Lignes NaN
+
+		if src == "Instant D":
+			df = df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .			Récupération des colonnes
+			if df.size == 0: return np.empty(0), title
+			df = self._log_data(df, log_scale)  # .													Application du log sur les valeurs
+			return df[np.isfinite(df)], title  # .													Retour avec filtrage des Lignes NaN
+
+		df = df["Fit"]
+		if df.empty: return np.empty(0), title
+		if not {"Track", src}.issubset(df.columns): return np.empty(0), title  # .					Vérification de présence des colonnes
+		track, values = df["Track"].astype(int).to_numpy(), df[src].astype(float).to_numpy()  # .	Séparation track et valeur
+		df = np.column_stack((track, self._log_data(values, log_scale)))  # .						Application du log sur les valeurs
+		return df[np.isfinite(df).all(axis=1)], title  # .											Retour avec filtrage des Lignes NaN
+
+	##################################################
+	def _visualization_graph(self):
+		"""Lance la creation d'une visualisation graphique à partir des paramètres."""
+		s = self.settings.graph.settings
+		name = f"graph_{self.settings.graph['Type'].value}_{cast(Combo, self.settings.graph['Source']).current_text}"
+		self.graph().write_html(self._output_name(name, ext=".html"))
+		self._logger.add(f"\tSaving Graph ({s}).")
+
+	# ==================== HR ====================
+	##################################################
+	def hr(self) -> tuple[np.ndarray, np.ndarray]:
+		"""Génère une représentation Haute Résolution des données."""
+		viz = np.zeros((1, 1), dtype=np.uint16)
+		plot_data = np.zeros((1, 1), dtype=np.uint16)
+		if self._stack is None or not self._path or not Path(self._path).is_dir(): return viz, plot_data
+		s = self.settings.hr
+
+		depth, height, width = self._stack.shape
+		src = cast(Combo, s["Source"]).current_text
+		upscale = s["Ratio"].value
+		self._renderer.set_size(width, height, upscale)
+
+		# --- Localisations ---
+		if s["Type"].value == 0:
+			df = self.localizations
+			if s["Remove Beads"].value: df = Drift.remove_beads(df, self.beads)
+			df = self._correct_drift(df)
+			if df.empty: return viz, plot_data
+			df = self._renderer.add_colors_to_localizations(df, src)
+			viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
+			plot_data = df[["Y", "X"]].to_numpy() * upscale
+
+			s_g = cast(HRGaussian, s["Gaussian"])
+			gaussian = s_g.settings if s_g.active else None
+			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			viz = self._renderer.localizations(viz_data, color_mode, gaussian)
+			return viz, plot_data
+
+		# --- Tracks ---
+		df = self._correct_drift(self.tracks)
+		df = self._renderer.add_colors_to_tracks(df, src)
+		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
+		viz_data = df[:, [0, 2, 3, 4]]
+		plot_data = df[:, [0, 1, 3, 2]]
+		plot_data[:, [2, 3]] *= upscale
+		viz = self._renderer.tracks(viz_data)
+		return viz, plot_data
+
+	##################################################
+	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:
+		"""
+		Vérifie si la correciton de drift est activé, faisable et l'applique.
+
+		:param data: Données à corriger.
+		:return: Données corrigées.
+		"""
+		s = self.settings.hr
+		if not s["Drift Correction"].value: return data
+		beads = self.beads
+		if beads.empty: return data
+		# Application de la correction de drift
+		drift = Drift.get_drift(beads, is_3d=False)
+		if s["Smooth Drift"].value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
+		return Drift.remove_drift(data, drift, is_3d=False)
+
+	##################################################
+	def crop(self, img: np.ndarray, margin: int = 5) -> np.ndarray:
+		"""
+		Recadre automatiquement l'image en supprimant les zones nulles autour, avec une marge configurable.
+
+		:param img: Image à recadrer
+		:param margin: Nombre de pixels à conserver autour de la zone utile.
+		:return: Image recadrée.
+		"""
+		if not self.settings.hr["Crop"].value: return img
+
+		# --- Masque des pixels non nuls ---
+		mask = img != 0
+		if not np.any(mask): return np.zeros((1, 1), dtype=img.dtype)  # Si tout est noir
+
+		# --- Indices min/max ---
+		rows, cols = np.any(mask, axis=1), np.any(mask, axis=0)  # Projection sur les axes
+		y_min, y_max = np.where(rows)[0][[0, -1]]
+		x_min, x_max = np.where(cols)[0][[0, -1]]
+
+		# --- Ajout marge (avec clamp) ---
+		y_min, y_max = max(0, y_min - margin), min(img.shape[0] - 1, y_max + margin)
+		x_min, x_max = max(0, x_min - margin), min(img.shape[1] - 1, x_max + margin)
+
+		return img[y_min:y_max + 1, x_min:x_max + 1]  # Crop
 
 	##################################################
 	def _visualization_hr(self):
 		"""Lance la creation d'une visualisation haute résolution à partir des paramètres passés en paramètres."""
-		# Parse settings
-		s = self.settings.visualization_hr.settings
-
-		# Création de l'image finale
-		depth, height, width = self._stack.shape
-		if s["Type"] == 0:
-			if self.localizations.empty:
-				self._logger.add(f"\tNo localization data for high-resolution visualization.")
-			else:
-				sources = HR_LOC_SOURCE[1:] if s["Source L"] == 0 else [HR_LOC_SOURCE[s["Source L"]]]
-				for source in sources:
-					visualization = Viz.render_hr_image(width, height, s["Ratio"], self.localizations[["X", "Y", source]].to_numpy())
-					self._logger.add(f"\tSaving high-resolution visualization (x{s['Ratio']}, {source}).")
-					FileIO.save_png(visualization, self._output_name(f"visualization_x{s['Ratio']}_{source}", "png"))
-		else:
-			if self.tracks.empty:
-				self._logger.add(f"\tNo tracking data for high-resolution visualization.")
-			else:
-				sources = HR_TRC_SOURCE[1:] if s["Source T"] == 0 else [HR_TRC_SOURCE[s["Source T"]]]
-				for source in sources:
-					tracks = self.add_color_to_tracks(self.tracks, source)
-					tracks.to_csv(self._output_name("tracking_hr_color"), index=False)
-					visualization = Viz.render_tracks_image(width, height, s["Ratio"], tracks)
-					visualization = FileIO.grayscale_to_color(visualization, "viridis")
-					self._logger.add(f"\tSaving tracking high-resolution visualization (x{s['Ratio']}, {source}).")
-					FileIO.save_png(visualization, self._output_name(f"visualization_tracks_x{s['Ratio']}_{source}", "png"))
-
-	##################################################
-	def _visualization_graph(self):
-		"""Lance la creation d'une visualisation graphique à partir des paramètres passés en paramètres."""
-		if self.localizations.empty:
-			self._logger.add(f"\tNo localization data for graphical visualization.")
-			return
-
-		# Parse settings
-		s = self.settings.visualization_graph.settings
-		sources = GRAPH_SOURCE[1:] if s["Source"] == 0 else [GRAPH_SOURCE[s["Source"]]]
-		modes = GRAPH_MODE[1:] if s["Mode"] == 0 else [GRAPH_MODE[s["Mode"]]]
-
-		for source in sources:
-			loc = self.localizations[["Plane", source]].to_numpy()
-			if np.all(loc[:, 1] == loc[0, 1]):
-				self._logger.add(f"\tCanceling the graphical visualization: {source} uniform.")
-				continue
-
-			for mode in modes:
-				fig, ax = plt.subplots()
-				if mode == "Histogram":
-					Viz.plot_histogram(ax, loc[:, 1], source + " Histogram", True, True, False)
-				elif mode == "Plane Heat Map":
-					Viz.plot_plane_heatmap(ax, loc, source + " Heatmap")
-				else:  # elif mode == "Plane Violin":
-					Viz.plot_plane_violin(ax, loc, source + " Violin")
-				self._logger.add(f"\tSaving graphical visualization ({mode}, {source}).")
-				fig.savefig(self._output_name(f"graph_{mode}_{source}", "png"), bbox_inches="tight")
-				plt.close(fig)
+		s = self.settings.hr.settings
+		suffix_drift = "_corrected" if s["Drift Correction"] else ""
+		suffix_type = "_localizations" if s["Type"] == 0 else "_tracks"
+		name = f"visualization{suffix_type}{suffix_drift}_x{s['Ratio']}_{s['Source']}"
+		viz, _ = self.hr()
+		self._logger.add(f"\tSaving high-resolution visualization (x{s['Ratio']}, {s['Source']}).")
+		FileIO.save_png(self.crop(viz), self._output_name(name, ext=".png"))
+		return

@@ -25,8 +25,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import cast
 
-import numpy as np
-import pandas as pd
 from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
@@ -196,10 +194,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 		vbox.addLayout(actions_row)
 
 		# --- Affiche / masque les éléments en fonction des paramètres initiaux ---
-		self._graph_settings.toggle_src(self._graph_settings["Source"].value)
 		self._toggle_type(self._graph_settings["Type"].value)
-		self._toggle_dual(self._graph_settings["Dual"].value)
 		self._graph_settings["Display"]["Limits"].value = True
+		self._graph_settings.toggle_dual(self._graph_settings["Dual"].value)
+		self._graph_settings.toggle_src(self._graph_settings["Source"].value)
 
 	##################################################
 	def _connect_signals(self):
@@ -211,7 +209,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		# Sources
 		self._graph_settings["Type"].connect(self._toggle_type)
-		self._graph_settings["Dual"].connect(self._toggle_dual)
 
 		# Settings Connexion
 		self._graph_settings.connect(self._update_plot)
@@ -227,18 +224,15 @@ class GraphViewerWidget(BasePlotlyWidget):
 	# ==================================================
 
 	# ==================================================
-	# region UI Callback
+	# region PALMTracer Link
 	# ==================================================
 	##################################################
-	def _toggle_type(self, btn_id: int) -> None:
+	def _toggle_type(self, btn_id: int):
 		"""
-		Mets à jour la liste des sources selon le domaine choisi puis redessine.
+		Mets à jour la liste des sources et l'affichage des filtres.
 
-		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
+		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
-		# Remplir la ComboBox 'Source' en fonction du domaine
-		self._graph_settings.update_src(self._get_optionnal())
-
 		if btn_id == 0:  # Localisation
 			self._filters["Localization"].get_ui(self.UI_NAME).show()
 			self._filters["Tracks"].get_ui(self.UI_NAME).hide()
@@ -246,34 +240,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 			self._filters["Localization"].get_ui(self.UI_NAME).hide()
 			self._filters["Tracks"].get_ui(self.UI_NAME).show()
 
-	##################################################
-	def _toggle_dual(self, value: bool) -> None:
-		"""Affiche/Masque la seconde source."""
-		self._graph_settings["Source B"].show() if value else self._graph_settings["Source B"].hide()
-		self._graph_settings.update_src(self._get_optionnal())
-
-	##################################################
-	def _get_optionnal(self) -> list[str]:
-		"""
-		Génère la liste des variables d'intérêt pour les Trajectoires en fonction des fichiers disponibles.
-
-		:return: La liste des sources disponibles pour les trajectoires.
-		"""
-		if self._graph_settings["Type"].value == 0: return []
-		res: list[str] = []
-		tc = self._pt.tracks_compute
-		if not tc["MSD"].empty: res += ["MSD"]
-		if not tc["InD"].empty: res += ["Instant D"]
-		if not tc["Fit"].empty: res += tc["Fit"].columns[2:].tolist()
-		return res
-
-	# ==================================================
-	# endregion UI Callback
-	# ==================================================
-
-	# ==================================================
-	# region PALMTracer Link
-	# ==================================================
 	##################################################
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
@@ -292,123 +258,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._graph_settings["Display"]["Limits"].value = True
 		self._update_plot()  # Puis redessiner le graphe.
 
-	# ==================================================
-	# endregion PALMTracer Link
-	# ==================================================
-
-	# ==================================================
-	# region Drawing
-	# ==================================================
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-		s = self._graph_settings.settings
-		src_id, dual = s["Type"], s["Dual"]
-		src_a = cast(Combo, self._graph_settings["Source"]).current_text
-		limit, sigma = s["Display Limits"], s["Display Sigma"]
-		kde, gauss = s["Display KDE"], s["Display Gauss"]
-		density, cumul = True, s["Display Cumul"]
-
-		# Préparation des Données
-		data, title = self._get_data()
-		# print(f"{data.shape}, {data.size}, {title}") with data.size over 10M make a warning box
-
-		# Selection du graphique à afficher
-		if src_id == 0 and src_a == "Localizations Count":
-			self._fig = self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
-		elif src_id == 1 and src_a == "Length":
-			self._fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
-		elif dual:
-			src_b = cast(Combo, self._graph_settings["Source B"]).current_text
-			self._fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
-		else:
-			self._fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density, cumulative=cumul)
-
+		self._fig = self._pt.graph()
 		self._update_web_widget()
-
-	##################################################
-	def _get_data(self) -> tuple[np.ndarray, str]:
-		"""Récupère et prépare les données pour l'affichage."""
-		s = self._graph_settings.settings
-		src_id, dual, log_scale = s["Type"], s["Dual"], s["Display Log Scale"]
-		src_a = cast(Combo, self._graph_settings["Source"]).current_text
-
-		d, t = self._get_data_from_src(src_id, src_a, log_scale)
-		if dual:
-			src_b = cast(Combo, self._graph_settings["Source B"]).current_text
-			t += f" / {src_b}"
-			d_b, _ = self._get_data_from_src(src_id, src_b, log_scale)
-			if d.ndim == 2: d = d[:, 1]
-			if d_b.ndim == 2: d_b = d_b[:, 1]
-			if d_b.size != d.size: return np.empty(0), t
-			d = np.column_stack((d, d_b))
-
-		return d, t
-
-	##################################################
-	def _get_data_from_src(self, src_id, src: str, log_scale: bool = False) -> tuple[np.ndarray, str]:
-		"""Récupère et prépare les données pour l'affichage."""
-		# Localizations
-		if src_id == 0:
-			title = f"Localizations {src}"
-			df = self._pt.localizations
-			if df.empty:  return np.empty(0), title
-			if src == "Localizations Count":
-				s = df["Plane"].astype(np.int64)
-				planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
-				counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-				return np.column_stack((planes, counts)), src
-
-			s = df.get(src)  # None si la colonne n'existe pas
-			if s is None: return np.empty(0), title
-			return self._log_data(s.to_numpy(dtype=float), log_scale), title
-
-		# Tracks
-		title = f"Tracks {src}"
-		if src == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-			df = self._pt.tracks
-			if df.empty: return np.empty(0), title
-			group = df.groupby("Track")["Plane"].agg(["min", "max"])  # Groupement par track + calcul min et max
-			group["delta"] = group["max"] - group["min"]  # .							  Calcul du delta
-			res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
-			return res, title
-
-		df = self._pt.tracks_compute
-		if src == "MSD":
-			df = df["MSD"]
-			if df.empty: return np.empty(0), title
-			step = self._graph_settings["MSD Step"].value  # .										Récupération du numéro du Step.
-			col = f"Step {step}"  # .																Récupération du nom de la colonne.
-			title += f" {col}"
-			if not {"Track", col}.issubset(df.columns): return np.empty(0), title  # .				Vérification de présence des colonnes
-			track, values = df["Track"].astype(int).to_numpy(), df[col].astype(float).to_numpy()  # Séparation track et valeur
-			df = np.column_stack((track, self._log_data(values, log_scale)))  # .					Application du log sur les valeurs
-			return df[np.isfinite(df).all(axis=1)], title  # .										Retour avec filtrage des Lignes NaN
-
-		if src == "Instant D":
-			df = df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .			Récupération des colonnes
-			if df.size == 0: return np.empty(0), title
-			df = self._log_data(df, log_scale)  # .													Application du log sur les valeurs
-			return df[np.isfinite(df)], title  # .													Retour avec filtrage des Lignes NaN
-
-		df = df["Fit"]
-		if df.empty: return np.empty(0), title
-		if not {"Track", src}.issubset(df.columns): return np.empty(0), title  # .					Vérification de présence des colonnes
-		track, values = df["Track"].astype(int).to_numpy(), df[src].astype(float).to_numpy()  # .	Séparation track et valeur
-		df = np.column_stack((track, self._log_data(values, log_scale)))  # .						Application du log sur les valeurs
-		return df[np.isfinite(df).all(axis=1)], title  # .											Retour avec filtrage des Lignes NaN
-
-	##################################################
-	@staticmethod
-	def _log_data(data: np.ndarray, log: bool) -> np.ndarray:
-		"""
-		Application du log avec suppression du warning pour les valeurs ≤ 0 et remplacement par Nan de ces valeurs.
-
-		:param data: Données à transformer
-		:param log: Application du log ou non
-		:return: Données transformées
-		"""
-		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
 
 
 ##################################################

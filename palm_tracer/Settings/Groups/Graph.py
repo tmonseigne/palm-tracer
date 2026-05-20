@@ -15,7 +15,9 @@ from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
 						 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Localizations Count"],
-		"Tracking":     ["Length"],
+		"Tracking":     ["Length", "MSD", "Instant D",
+						 "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE",
+						 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)"],
 		"No Dual":      ["Localizations Count", "Length", "MSD"],
 		}
 
@@ -45,13 +47,23 @@ class Graph(BaseSettingGroup):
 	def initialize(self):
 		"""Initialise le dictionnaire de paramètres."""
 		super().initialize()
+		self._settings["Type"].connect(self.toggle_type)
+		self._settings["Dual"].connect(self.toggle_dual)
 		self._settings["Source"].connect(self.toggle_src)
+		self.toggle_dual(self._settings["Dual"].value)
+		self.toggle_src(self._settings["Source"].value)
 
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
 		ui = super().get_ui(name, mode)
+		self.toggle_dual(self._settings["Dual"].value)
 		self.toggle_src(self._settings["Source"].value)
 		return ui
+
+	##################################################
+	def toggle_type(self, btn_id: int):
+		"""Change la liste des sources pour les graphiques."""
+		self._update_src()
 
 	##################################################
 	def toggle_src(self, value):
@@ -61,14 +73,17 @@ class Graph(BaseSettingGroup):
 		else: self._settings["MSD Step"].hide()
 
 	##################################################
-	def update_src(self, optionnal: list[str] | None = None):
+	def toggle_dual(self, value: bool):
+		"""Affiche/Masque la seconde source."""
+		self._settings["Source B"].show() if value else self._settings["Source B"].hide()
+		self._update_src()
+
+	##################################################
+	def _update_src(self):
 		"""Change la liste des sources pour les graphiques."""
 		# Liste de base
 		if self._settings["Type"].value == 0: src = DATA_SRC["Localization"]
 		else: src = DATA_SRC["Tracking"]
-
-		# Ajout optionnel (pour le Tracking suivant les éléments disponibles)
-		if optionnal is not None: src += optionnal
 
 		# En cas de Source multiple, suppression de certaines sources
 		if self._settings["Dual"].value: src = [s for s in src if s not in DATA_SRC["No Dual"]]

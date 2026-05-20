@@ -187,7 +187,7 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
-	# region UI Callback
+	# region PALMTracer Link
 	# ==================================================
 	##################################################
 	def _toggle_type(self, btn_id: int):
@@ -196,7 +196,6 @@ class ViewerHRWidget(QWidget):
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
 		"""
-		self._hr_settings.update_src()
 		if btn_id == 0:  # Localisation
 			self._filters["Localization"].get_ui(self.UI_NAME).show()
 			self._filters["Tracks"].get_ui(self.UI_NAME).hide()
@@ -204,13 +203,6 @@ class ViewerHRWidget(QWidget):
 			self._filters["Localization"].get_ui(self.UI_NAME).hide()
 			self._filters["Tracks"].get_ui(self.UI_NAME).show()
 
-	# ==================================================
-	# endregion UI Callback
-	# ==================================================
-
-	# ==================================================
-	# region PALMTracer Link
-	# ==================================================
 	##################################################
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
@@ -231,7 +223,7 @@ class ViewerHRWidget(QWidget):
 	def _save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
-			FileIO.save_png(self._crop(), self._filename)
+			FileIO.save_png(self._pt.crop(self.visualization), self._filename)
 			show_info("Image file saved successfully.")
 
 	##################################################
@@ -249,52 +241,6 @@ class ViewerHRWidget(QWidget):
 	# region Drawing
 	# ==================================================
 	##################################################
-	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:
-		"""
-		Vérifie si la correciton de drift est activé, faisable et l'applique.
-
-		:param data: Données à corriger.
-		:return: Données corrigées.
-		"""
-		if self._hr_settings["Drift Correction"].value:  # Drift activé
-			beads = self._pt.beads
-			if beads.empty:  # Billes non calculées / trouvées
-				show_warning("No beads file available to correct drift.")
-				return data
-			# Application de la correction de drift
-			drift = Drift.get_drift(beads, is_3d=False)
-			if self._hr_settings["Smooth Drift"].value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
-			return Drift.remove_drift(data, drift, is_3d=False)
-		return data
-
-	##################################################
-	def _crop(self, margin: int = 5) -> np.ndarray:
-		"""
-		Recadre automatiquement l'image en supprimant les zones nulles autour,
-		avec une marge configurable.
-
-		:param margin: Nombre de pixels à conserver autour de la zone utile.
-		:return: Image recadrée.
-		"""
-		if not self._hr_settings["Crop"].value: return self.visualization
-		img = self.visualization
-
-		# --- Masque des pixels non nuls ---
-		mask = img != 0
-		if not np.any(mask): return np.zeros((1, 1), dtype=img.dtype)  # Si tout est noir
-
-		# --- Indices min/max ---
-		rows, cols = np.any(mask, axis=1), np.any(mask, axis=0)  # Projection sur les axes
-		y_min, y_max = np.where(rows)[0][[0, -1]]
-		x_min, x_max = np.where(cols)[0][[0, -1]]
-
-		# --- Ajout marge (avec clamp) ---
-		y_min, y_max = max(0, y_min - margin), min(img.shape[0] - 1, y_max + margin)
-		x_min, x_max = max(0, x_min - margin), min(img.shape[1] - 1, x_max + margin)
-
-		return img[y_min:y_max + 1, x_min:x_max + 1]  # Crop
-
-	##################################################
 	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
 		self._filename = ""
@@ -304,52 +250,22 @@ class ViewerHRWidget(QWidget):
 			show_warning(f"No stack processed loaded.")
 			return
 
-		depth, height, width = stack.shape
-
 		# On supprime les calques (la mise à jour n'est pas optimale sous Napari).
 		try: self.viewer.layers.clear()
 		except Exception as e: show_warning(f"Error when deleting old layers: {e}")
-		self.visualization = np.zeros((1, 1), dtype=np.uint16)  # Remise à 0 du calque de visualisation
+
+		self.visualization, plot_data = self._pt.hr()
+		if self.visualization.size <= 1:
+			show_warning("No visualization available.")
+			return
+
+		if self._hr_settings["Type"].value == 0:  # Localisations
+			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)
+		else:  # Trajectoires
+			layer = self.viewer.add_tracks(plot_data, name="Tracks", blending="translucent", visible=False)
 
 		src = cast(Combo, self._hr_settings["Source"]).current_text
 		upscale = self._hr_settings["Ratio"].value
-		self._renderer.set_size(width, height, upscale)
-
-		if self._hr_settings["Type"].value == 0:  # Localisations
-			loc = self._pt.localizations
-			if self._hr_settings["Remove Beads"].value: loc = Drift.remove_beads(loc, self._pt.beads)
-			loc = self._correct_drift(loc)
-			if loc.empty:
-				show_warning("No localization file available.")
-				return
-			loc = self._renderer.add_colors_to_localizations(loc, src)
-
-			# Calque de points (attention n'envoyer que X et Y (la couleur n'est pas à mettre ici) et dans le sens Y, X
-			plot_data = loc[["Y", "X"]].to_numpy() * upscale
-			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)
-
-			# Visualisation
-			plot_data = loc[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
-			gaussian = self._hr_settings["Gaussian"].settings if self._hr_settings["Gaussian"].active else None
-			color_mode = 0 if src == "Count" else self._hr_settings["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit
-			# l'option.
-			self.visualization = self._renderer.localizations(plot_data, color_mode, gaussian)
-
-		else:  # Trajectoires
-			trc = self._correct_drift(self._pt.tracks)
-			if trc.empty:
-				show_warning("No tracking file available.")
-				return
-
-			trc = self._renderer.add_colors_to_tracks(trc, src)
-			trc = trc[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
-			# Calque de points (attention n'envoyer que Tracks, Plane, Y et X (la couleur n'est pas à mettre ici).
-			plot_data = trc[:, [0, 1, 3, 2]]
-			plot_data[:, [2, 3]] *= upscale
-			layer = self.viewer.add_tracks(plot_data, name="Tracks", blending="translucent", visible=False)
-			# Visualisation (attention n'envoyer que Tracks, X, Y, Couleur (le plan ne sert plus).
-			self.visualization = self._renderer.tracks(trc[:, [0, 2, 3, 4]])
-
 		layer.editable = False
 		suffix_drift = '_corrected' if self._hr_settings["Drift Correction"].value else ''
 		suffix_file = f"{suffix_drift}_x{upscale}_{src}-{suffix}.png"
