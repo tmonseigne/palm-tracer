@@ -263,6 +263,10 @@ def test_filters(qtbot):
 	assert isinstance(g.localization, FiltersL)
 	assert isinstance(g.tracking, FiltersT)
 
+	g.connect_button(lambda: print("Hi"), "default", "0")  # Boutton inexistant
+	g.connect_button(lambda: print("Hi"), "new", "0")  # UI inexistante
+	g.connect_button(lambda: print("Hi"), "default", "reset")
+
 
 ###################################################
 def test_filters_l(qtbot):
@@ -289,7 +293,10 @@ def test_gallery(qtbot):
 ###################################################
 def test_graph(qtbot):
 	"""Test basique de la classe Graph (constructeur, getter, setter)"""
+	g = Graph()
 	group_base_test(Graph(), ["Type", "Source", "Dual", "Source B", "MSD Step", "Display"], ButtonGroup, 1, 0)
+	g["Type"].value = 1  # Passage aux Tracks
+	g["Source"].value = 1  # Passage au MSD
 
 
 ###################################################

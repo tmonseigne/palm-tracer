@@ -298,6 +298,14 @@ def test_button(qtbot, capsys):
 
 
 ###################################################
+def test_button_group(qtbot):
+	"""Test basique de la classe (constructeur, getter, setter)"""
+	setting = ButtonGroup("Test", "", 0, ["Choix 1", "Choix 2"])
+	setting_base_test(setting, 1, 0)
+	assert setting.current_text == "Choix 1"
+
+
+###################################################
 def test_sync(qtbot):
 	"""Test basique de la classe abstraite"""
 	spin_1 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)

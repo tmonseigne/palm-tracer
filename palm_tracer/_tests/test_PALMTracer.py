@@ -10,6 +10,7 @@ import pytest
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.PALMTracer import FILE_STATUS
+from palm_tracer.Processing import Parsing
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
 
@@ -746,6 +747,12 @@ def test_save_filtered(qtbot, capsys, pt):
 
 
 ##################################################
+def test_connect_filters_button(qtbot, capsys, pt):
+	pt.settings.get_ui("test")
+	pt.connect_filters_button("test")
+
+
+##################################################
 def test_filter_localization(qtbot, capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
@@ -837,6 +844,37 @@ def test_filter_tracks_compute(qtbot, capsys, pt):
 # ==================================================
 # region Visualization
 # ==================================================
+###################################################
+def test_graph():
+	"""Test de différentes récupérations de données."""
+	pt = get_fake_pt()
+
+	ref_title: str
+	ref_shape: tuple
+	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
+
+	s = pt.settings.graph
+	# Localization Basique
+	s["Type"].value = 0
+	fig = pt.graph()
+	assert fig.data[0].type == "histogram"
+
+	# Localization Count
+	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Localisation Count est un affichage Scatter Plot
+	fig = pt.graph()
+	assert fig.data[0].type == "scatter"
+
+	# Tracking Length
+	s["Type"].value = 1
+	fig = pt.graph()
+	assert fig.data[0].type == "scatter"
+
+	# Dual
+	s["Dual"].value = True
+	fig = pt.graph()
+	assert fig.data[0].type == "scattergl"
+
+
 ###################################################
 def test_get_graph_data():
 	"""Test de différentes récupérations de données."""
@@ -989,17 +1027,231 @@ def test_get_graph_data_from_src():
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
-# print(f"TEST \n{title} : {data.shape}\n{data}")
+
+##################################################
+def test_crop():
+	"""Test basique de création du widget."""
+
+	pt = get_fake_pt()
+	img = np.zeros((1, 1), dtype=np.uint16)
+	res = pt.crop(img)  # .				   Crop à True, image noire
+	assert np.allclose(img, res)  # .		   Crop à True, avec un carré à 1 et une marge (par défaut) de 5
+
+	img = np.zeros((10, 10), dtype=np.uint16)
+	img[2:4, 6:] = 1
+	ref = img[:-1, 1:].copy()  # .			   Le crop avec une marge de 5 va très peu recadrer
+	assert np.allclose(pt.crop(img), ref)  # .Crop à True, avec un carré à 1 et une marge (par défaut) de 5
+	assert np.allclose(pt.crop(img, 0), 1)  # Crop à True, avec aucune marge donc un seul point
+
+	pt.settings.hr["Crop"].value = False
+	assert np.allclose(pt.crop(img), img)  # .Crop à False, aucun changement dans l'image
 
 
-# def test_get_graph_data(qtbot, capsys, pt): et totu les autres
+###################################################
+def test_hr():
+	"""Test de différentes récupérations de données."""
+	pt = get_fake_pt()
+	ref_empty = np.zeros((1, 1), dtype=np.uint16)
+	ref_viz0 = np.zeros((10, 10), dtype=np.uint16)
+	s = pt.settings.hr
+	s["Ratio"].value = 2
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+
+	# Aucune pile
+	viz, plot = pt.hr()
+	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
+
+	# HR Localisation
+	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
+	viz, plot = pt.hr()
+	ref_viz = ref_viz0.copy()
+	ref_viz[4, 2] = ref_viz[6, 4] = 2
+	ref_plot = [[4, 2], [6, 4], [8, 6], [10, 8], [4, 2], [6, 4]]
+	assert np.allclose(ref_viz, viz) and np.allclose(ref_plot, plot)
+
+	# HR Localisation remove beads
+	s["Remove Beads"].value = True
+	viz, plot = pt.hr()
+	assert np.allclose(ref_viz, viz) and np.allclose(ref_plot, plot)
+
+	# HR Localisation Drift Correction
+	s["Drift Correction"].value = True
+	pt.df["bds"] = pd.DataFrame([[1, 1, 1, 1, 2, 3, 1, 1, 1, 0, 1],
+								 [1, 2, 2, 2, 3, 4, 1, 1, 1, 0, 1],
+								 [1, 3, 3, 50, 3, 4, 1, 1, 1, 0, 1],  # Valeur abhérrante gommée par le smooth
+								 [1, 4, 4, 4, 3, 4, 1, 1, 1, 0, 1],
+								 [1, 5, 5, 5, 3, 4, 1, 1, 1, 0, 1]],
+								columns=Parsing.FILES_COLUMNS["Beads"]["columns"])
+	viz, plot = pt.hr()
+	ref_viz = ref_viz0.copy()
+	ref_viz[4, 0] = ref_viz[6, 4] = 1
+	ref_plot = [[6, 4], [8, 6], [10, 8], [4, 0]]
+	assert np.allclose(ref_viz, viz) and np.allclose(ref_plot, plot)
+	s["Drift Correction"].value = False
+
+	# HR Localisation Empty dataframe
+	for _ in range(4): pt.localizations.drop(pt.localizations.index, inplace=True)
+	viz, plot = pt.hr()
+	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
+
+	# HR Tracking
+	s["Type"].value = 1
+	viz, plot = pt.hr()
+	ref_viz = ref_viz0.copy()
+	ref_viz[2, 2] = 8
+	ref_viz[2, 8] = 5
+	ref_plot = [[1, 1, 2, 2], [1, 99, 2, 2], [2, 1, 2, 12], [2, 2, 2, 12], [3, 3, 2, 8], [3, 4, 2, 8], [4, 3, 2, 10], [4, 4, 2, 10], [5, 5, 2, 8],
+				[5, 6, 2, 8], [6, 11, 2, 2], [6, 12, 2, 2], [7, 16, 2, 10], [7, 17, 2, 10], [8, 31, 2, 2], [8, 32, 2, 2], [9, 36, 2, 18], [9, 37, 2, 18]]
+	assert np.allclose(ref_viz, viz) and np.allclose(ref_plot, plot)
+
+	# HR Tracking Empty dataframe
+	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
+	viz, plot = pt.hr()
+	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
+
+
+##################################################
+def test_hr_stress():
+	"""Test de génération HR plus complexe."""
+	pt = PALMTracer()
+	n_p, n_x, n_y = 8, 8, 4  # Dimensions de la pile
+	pt._stack = np.zeros((n_p, n_y, n_x), dtype=np.uint16)
+	ref_viz0 = np.zeros((n_y * 2, n_x * 2), dtype=np.uint16)
+
+	s = pt.settings.hr
+	s["Ratio"].value = 2
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+
+	# Bille qui part en diagonale du haut à droite vers le bas à gauche
+	bead_x, bead_y = np.linspace(n_x - 0.5, 0, n_p, dtype=np.float32), np.linspace(0, n_y - 0.5, n_p, dtype=np.float32)
+
+	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=np.int32),
+						  "Plane": np.arange(1, n_p + 1, dtype=np.int32),
+						  "X":     bead_x,
+						  "Y":     bead_y,
+						  "Z":     np.zeros(n_p, dtype=np.float32)})
+
+	# Loclaisation au centre
+	loc = pd.DataFrame({"Plane":                np.arange(1, n_p + 1, dtype=np.int32),
+						"X":                    np.full(n_p, n_x / 2.0, dtype=np.float32),
+						"Y":                    np.full(n_p, n_y / 2.0, dtype=np.float32),
+						"Z":                    np.zeros(n_p, dtype=np.float32),
+						"Integrated Intensity": np.full(n_p, 1, dtype=np.float32),
+						"Sigma X":              np.ones(n_p, dtype=np.float32),
+						"Sigma Y":              np.ones(n_p, dtype=np.float32),
+						"Theta":                np.zeros(n_p, dtype=np.float32)})
+
+	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
+
+	# Génération fixe (n_beads fois sur la position centrale)
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	ref[n_y, n_x] = n_p
+	assert np.allclose(ref, viz)
+
+	# Génération fixe de la bille (n_beads fois sur la position [1, 1] * upscale)
+	pt.df["loc"].loc[:, ["X", "Y"]] = pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+	viz, _ = pt.hr()
+	print(f"T1\n{viz}")
+	ref = ref_viz0.copy()
+	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1
+	assert np.allclose(ref, viz)
+
+	# Génération Drift corrigé des mêmes données que la bille, donc le premier point sera compté 8 fois.
+	s["Drift Correction"].value = True
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	ref[np.round(bead_y[0] * 2).astype(int), np.round(bead_x[0] * 2).astype(int)] = n_p
+	assert np.allclose(ref, viz)
+
+	# Génération Drift corrigé, mais la localisation était fixe
+	# (donc elle va bouger vers le haut à droite, elle remonte la diagonale et une partie sera hors champs (départ au centre)
+	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # les autres points hors champs continues (0,16) (-1, 18)...
+	assert np.allclose(ref, viz)
+
+	# Seconde bille qui descend comme la précédente, mais ne va pas vers la gauche donc la pente initiale sera divisé par 2.
+	beads2 = pd.DataFrame({"Bead":  np.full(n_p, 2, dtype=np.int32),
+						   "Plane": np.arange(1, n_p + 1, dtype=np.int32),
+						   "X":     np.zeros_like(bead_x, dtype=np.float32),
+						   "Y":     bead_y,
+						   "Z":     np.zeros(n_p, dtype=np.float32)})
+
+	pt.df["bds"] = pd.concat([beads, beads2], ignore_index=True)
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # les autres points hors champs continues (-1,13) (-2, 14)...
+	assert np.allclose(ref, viz)
+
+	# On ajoute nos 2 billes à la localisation et on enlève le drift, tout doit être affiché
+	s["Drift Correction"].value = False
+	size = 3 * n_p
+	loc2 = pd.DataFrame({"Plane":                np.tile(np.arange(1, n_p + 1, dtype=np.int32), 3),
+						 "X":                    np.full(size, n_x / 2.0, dtype=np.float32),
+						 "Y":                    np.full(size, n_y / 2.0, dtype=np.float32),
+						 "Z":                    np.zeros(size, dtype=np.float32),
+						 "Integrated Intensity": np.full(size, 1, dtype=np.float32),
+						 "Sigma X":              np.ones(size, dtype=np.float32),
+						 "Sigma Y":              np.ones(size, dtype=np.float32),
+						 "Theta":                np.zeros(size, dtype=np.float32)})
+	loc2.loc[n_p:, ["X", "Y"]] = pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+
+	pt.df["loc"] = loc2.copy()
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1  # Bille originale
+	ref[n_y, n_x] += n_p  # Localization statique
+	ref[:, 0] += 1  # Bille Verticale
+	assert np.allclose(ref, viz)
+
+	# On supprime nos 2 billes (mais on va conserver notre localisation
+	s["Remove Beads"].value = True
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	ref[n_y, n_x] += n_p  # Localization statique
+	assert np.allclose(ref, viz)
+
+	# Bille Random....
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = True
+	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
+	pt.df["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Random autour du centre
+	pt.df["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Random autour du centre
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	# Position au centre puis résultat du random dans tous les sens ATTENTION LE DRIFT EST LISSÉ.
+	ref[4, 8] = ref[3, 9] = ref[2, 11] = ref[2, 13] = ref[2, 14] = ref[3, 15] = 1
+	assert np.allclose(ref, viz)
+
+	# Correction sur la position de la bille avec lissage...
+	pt.df["loc"].loc[:, ["X", "Y"]] = pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	# Position de la bille random corrigé ATTENTION LE DRIFT EST LISSÉ, ce n'est donc pas un point unique.
+	ref[3, 9] = ref[3, 10] = ref[2, 11] = ref[2, 14] = ref[3, 14] = 1
+	assert np.allclose(ref, viz)
+
+	# Correction sur la position de la bille sans lissage...
+	s["Smooth Drift"].value = False
+	viz, _ = pt.hr()
+	ref = ref_viz0.copy()
+	# Position de la bille random corrigé et non lissé.
+	ref[3, 10] = n_p
+	assert np.allclose(ref, viz)
+
 
 # ==================================================
 # endregion Visualization
 # ==================================================
 
 ##################################################
-def test_get_astigmatism_model(qtbot, capsys, pt):
+def test_get_astigmatism_model():
+	"""Test pour la récupération du modèle d'astigmatisme."""
+	pt = PALMTracer()
 	tmp_output = OUTPUT_DIR / "Model"
 	shutil.rmtree(tmp_output, ignore_errors=True)
 	tmp_output.mkdir(parents=True, exist_ok=True)

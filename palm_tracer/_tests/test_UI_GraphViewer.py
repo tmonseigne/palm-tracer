@@ -3,8 +3,7 @@ import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Types import ButtonGroup, Combo
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types import BaseUI, ButtonGroup, Combo
 from palm_tracer.UI import BasePlotlyWidget, GraphViewerWidget
 
 OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"

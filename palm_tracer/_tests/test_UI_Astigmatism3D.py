@@ -237,7 +237,7 @@ def test_compute_mean_beads(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert "Model saved successfully." in lines[-1]
 
 	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
-	# Il n'y a que 2 colonnes ou l'amplitude sur Z à eu une influence Z0 et W.
+	# Il n'y a que 2 colonnes ou l'amplitude sur Z a eu une influence : Z0 et W.
 	ref["Z0"] *= 2
 	ref["W"] *= 2
 	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
@@ -302,7 +302,7 @@ def test_compute_remove_multi(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w._loc["Plane"] = range(1, len(w._loc) + 1)
 	w._loc["X"] = 5
 	w._loc["Y"] = 5
-	w._loc.loc[4:6, "Plane"] = 3  # même plan pour ceux là
+	w._loc.loc[4:6, "Plane"] = 3  # même plan pour ceux-là
 	w._loc.loc[4:6, "X"] = 3  # Mais x différent
 
 	# Lancement du calcul

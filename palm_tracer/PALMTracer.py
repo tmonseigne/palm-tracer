@@ -821,11 +821,11 @@ class PALMTracer:
 	##################################################
 	def hr(self) -> tuple[np.ndarray, np.ndarray]:
 		"""Génère une représentation Haute Résolution des données."""
-		viz = np.zeros((1, 1), dtype=np.uint16)
-		plot_data = np.zeros((1, 1), dtype=np.uint16)
-		if self._stack is None or not self._path or not Path(self._path).is_dir(): return viz, plot_data
-		s = self.settings.hr
+		viz, plot_data = np.zeros((1, 1), dtype=np.uint16), np.zeros((1, 1), dtype=np.float64)
+		if self._stack is None: return viz, plot_data
 
+		# --- Paramètres ---
+		s = self.settings.hr
 		depth, height, width = self._stack.shape
 		src = cast(Combo, s["Source"]).current_text
 		upscale = s["Ratio"].value
@@ -849,6 +849,7 @@ class PALMTracer:
 
 		# --- Tracks ---
 		df = self._correct_drift(self.tracks)
+		if df.empty: return viz, plot_data
 		df = self._renderer.add_colors_to_tracks(df, src)
 		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
 		viz_data = df[:, [0, 2, 3, 4]]

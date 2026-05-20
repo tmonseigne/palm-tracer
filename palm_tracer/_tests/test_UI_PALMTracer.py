@@ -21,7 +21,7 @@ def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
 	viewer = make_napari_viewer()  # .		 Créer un viewer à l'aide de la fixture.
-	w = PALMTracerWidget(viewer)  # .		 Créer notre widget, en passant par le viewer.
+	_ = PALMTracerWidget(viewer)  # .		 Créer notre widget, en passant par le viewer.
 
 
 ##################################################

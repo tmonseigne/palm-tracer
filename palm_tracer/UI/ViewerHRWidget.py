@@ -16,12 +16,10 @@ from typing import cast
 
 import napari
 import numpy as np
-import pandas as pd
 from napari.utils.notifications import show_info, show_warning
 from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Processing import Drift, Renderer
 from palm_tracer.Settings.Groups import HR
 from palm_tracer.Settings.Types import Combo, FileList
 from palm_tracer.Tools import FileIO, Ui
@@ -80,7 +78,6 @@ class ViewerHRWidget(QWidget):
 		self.viewer = viewer
 		self._pt = PALMTracer() if palmtracer is None else palmtracer
 		self._hr_settings: HR = self._pt.settings.hr
-		self._renderer = Renderer()
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
@@ -204,6 +201,14 @@ class ViewerHRWidget(QWidget):
 			self._filters["Tracks"].get_ui(self.UI_NAME).show()
 
 	##################################################
+	def _check_beads(self):
+		"""Affiche ou masque les élements liés aux billes si des données sont présentes ou non."""
+		if self._pt.beads.empty:
+			for s in ["Remove Beads", "Drift Correction", "Smooth Drift"]: self._hr_settings[s].get_ui(self.UI_NAME).hide()
+		else:
+			for s in ["Remove Beads", "Drift Correction", "Smooth Drift"]: self._hr_settings[s].get_ui(self.UI_NAME).show()
+
+	##################################################
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
@@ -218,6 +223,7 @@ class ViewerHRWidget(QWidget):
 		# Mise à jour des Status
 		status = self._pt.get_status()
 		for key in status: self._status[key].setText(status[key])
+		self._check_beads()
 
 	##################################################
 	def _save(self):

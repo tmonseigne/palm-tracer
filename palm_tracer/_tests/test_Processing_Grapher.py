@@ -1,5 +1,6 @@
 """Fichier des tests pour le grapher."""
 import json
+import platform
 
 import plotly.graph_objects as go
 import pytest

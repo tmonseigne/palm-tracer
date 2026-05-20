@@ -1,7 +1,6 @@
 """Fichier des tests pour le widget."""
 import shutil
 
-import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *

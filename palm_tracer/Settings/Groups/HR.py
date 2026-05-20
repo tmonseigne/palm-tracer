@@ -62,21 +62,6 @@ class HR(BaseSettingGroup):
 		return ui
 
 	##################################################
-	def check_beads(self, state: bool):
-		"""
-
-		:param state:
-		"""
-		if state:
-			self._settings["Remove Beads"].show()
-			self._settings["Drift Correction"].show()
-			self._settings["Smooth Drift"].show()
-		else:
-			self._settings["Remove Beads"].hide()
-			self._settings["Drift Correction"].hide()
-			self._settings["Smooth Drift"].hide()
-
-	##################################################
 	def toggle_type(self):
 		"""Change la liste des sources pour les graphiques."""
 		src = cast(Combo, self._settings["Source"])

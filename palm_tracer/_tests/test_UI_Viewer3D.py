@@ -12,7 +12,7 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	w = Viewer3DWidget(viewer)  # .	 Créer notre widget, en passant par le viewer.
+	_ = Viewer3DWidget(viewer)  # .	 Créer notre widget, en passant par le viewer.
 
 
 ##################################################
