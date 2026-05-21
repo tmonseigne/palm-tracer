@@ -107,9 +107,7 @@ class PALMTracerWidget(QWidget):
 		tabs = QTabWidget()  # Création du QTabWidget
 		tabs.addTab(self._create_tab([setting_ui["Localization"].widget, setting_ui["BeadsExtraction"].widget, setting_ui["Tracking"].widget,
 									  setting_ui["BlinkingReconnection"].widget, setting_ui["TracksCompute"].widget]), "Processing")
-		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget,
-									  # self.pt.settings.visualization_hr.widget,
-									  # self.pt.settings.visualization_graph.widget,
+		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget, setting_ui["Graph"].widget, setting_ui["HR"].widget,
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
 		tabs.addTab(self._create_tab([setting_ui["Filters"].widget]), "Filtering")
 
