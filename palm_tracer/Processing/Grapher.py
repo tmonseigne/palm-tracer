@@ -1,4 +1,5 @@
 """Fichier contenant une classe pour créer des graphiques."""
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Literal, Optional

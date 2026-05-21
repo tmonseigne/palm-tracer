@@ -1,4 +1,6 @@
 """Classes utiles à la gestion du Pipeline PALM Tracer."""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import auto, Enum
 from typing import Callable, TypeAlias

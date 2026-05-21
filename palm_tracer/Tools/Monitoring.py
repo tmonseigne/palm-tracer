@@ -19,6 +19,7 @@ de mise à jour des données et de visualisation graphique des résultats.
    - Gestion des intervalles de mise à jour via des threads.
 
 """
+from __future__ import annotations
 
 import os
 import platform

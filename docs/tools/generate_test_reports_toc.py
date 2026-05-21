@@ -1,4 +1,5 @@
 """Fichier permettant de mettre à jour le toctree du fichier de test"""
+from __future__ import annotations
 
 from pathlib import Path
 

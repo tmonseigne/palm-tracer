@@ -12,6 +12,7 @@ L'objectif est d'assurer :
 	- une réduction du boilerplate Qt ;
 	- une meilleure lisibilité et maintenabilité du code UI.
 """
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Any

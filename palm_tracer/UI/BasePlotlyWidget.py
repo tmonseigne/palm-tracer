@@ -1,4 +1,6 @@
 """Module contenant la classe mère :class:`BasePlotlyWidget`, permettant de centraliser des fonctions communes aux widgets Stand Alone."""
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Optional

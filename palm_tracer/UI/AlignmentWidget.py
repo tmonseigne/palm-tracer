@@ -18,6 +18,7 @@ Notes
 .. todo:: Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle).
 		  Prévoir une visualisation intermédiaire (overlay, difference map).
 """
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional

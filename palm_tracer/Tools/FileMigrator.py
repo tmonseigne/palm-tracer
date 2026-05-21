@@ -1,6 +1,8 @@
 """
 Ce fichier contient la classe :class:`FileMigrator` permettant de lire un dossier de résultat de PALMTracer depuis Metamorph vers le format actuel.
 """
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 from pathlib import Path

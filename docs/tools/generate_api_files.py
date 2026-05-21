@@ -6,6 +6,7 @@ Le but est de remplacer sphinx-apidoc par une génération maîtrisée :
 
 Aucun import des modules n'est nécessaire : on s'appuie sur l'arborescence Python.
 """
+from __future__ import annotations
 
 import ast
 import shutil

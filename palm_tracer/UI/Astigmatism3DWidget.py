@@ -7,6 +7,7 @@ Notes
 -----
 - Le widget est autonome : il peut être lancé directement (``python Astigmatism3DWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
 """
+from __future__ import annotations
 
 import shutil
 from pathlib import Path

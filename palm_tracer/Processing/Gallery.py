@@ -1,4 +1,6 @@
 """Fichier contenant des fonctions pour la création de galeries."""
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 

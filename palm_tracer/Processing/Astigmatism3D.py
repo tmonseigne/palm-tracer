@@ -1,4 +1,6 @@
 """Fichier contenant des fonctions lié à l'astigmatisme 3D (estimation de la position axiale en fonction des écarts-types sur X et Y)."""
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
