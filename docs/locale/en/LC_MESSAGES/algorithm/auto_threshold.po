@@ -51,8 +51,8 @@ msgid "**Initialisation :**"
 msgstr "**Initialization:**"
 
 #: ../../algorithm/auto_threshold.rst:31
-msgid "Création d'un masque vide (même taille que l'image, rempli de zéros)."
-msgstr "Create an empty mask (same size as the image, filled with zeros)."
+msgid "Création d'un masque vide, de la même taille que l'image, rempli de zéros."
+msgstr "Create an empty mask, the same size as the image, filled with zeros."
 
 #: ../../algorithm/auto_threshold.rst:32
 msgid "Calcul de l'écart type initial de l'image (:math:`\\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}`)."
@@ -87,11 +87,11 @@ msgid "Sigma vaut 1."
 msgstr "Sigma is set to 1."
 
 #: ../../algorithm/auto_threshold.rst:42
-msgid "Theta vaut :math:`\\pi / 4`."
+msgid "Théta vaut :math:`\\pi / 4`."
 msgstr "Theta is set to :math:`\\pi / 4`."
 
 #: ../../algorithm/auto_threshold.rst:43
-msgid "Mise à jour du masque en activant les pixels correspondant aux régions détectées (ROI autour de chaque points détectés)."
+msgid "Mise à jour du masque en activant les pixels correspondant aux régions détectées (zone autour de chaque point détecté)."
 msgstr "Update the mask by enabling the pixels corresponding to the detected regions (ROI around each detected point)."
 
 #: ../../algorithm/auto_threshold.rst:44

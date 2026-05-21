@@ -26,7 +26,7 @@ MODULE_PATH = ROOT_PATH / "palm_tracer"
 ##################################################
 @dataclass(frozen=True)
 class ModulePublicApi:
-	"""Représente un module Python"""
+	"""Représente un module Python."""
 	classes: tuple[str, ...]
 	functions: tuple[str, ...]
 	constants: tuple[str, ...]
@@ -43,7 +43,7 @@ class ClassMember:
 ##################################################
 @dataclass(frozen=True)
 class ClassPublicApi:
-	"""Représente une classe Python"""
+	"""Représente une classe Python."""
 	attributes: tuple[ClassMember, ...]
 	methods: tuple[ClassMember, ...]
 

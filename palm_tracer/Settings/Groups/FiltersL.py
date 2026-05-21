@@ -18,21 +18,21 @@ class FiltersL(BaseSettingGroup):
 
 	Attributs :
 		- **Intensity** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Interval d'intensités sélectionnées (par défaut : `[1,10000000]`).
+		  Intervalle d'intensités sélectionnées (par défaut : `[1,10000000]`).
 		- **Sigma X** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de Sigma X sélectionné (par défaut : `[0.0, 10.0]`).
+		  Intervalle de Sigma X sélectionné (par défaut : `[0.0, 10.0]`).
 		- **Sigma Y** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de Sigma Y sélectionné (par défaut : `[0.0, 10.0]`).
+		  Intervalle de Sigma Y sélectionné (par défaut : `[0.0, 10.0]`).
 		- **Circularity** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de Circularités sélectionné (par défaut : `[0.0, 1.0]`).
+		  Intervalle de Circularités sélectionné (par défaut : `[0.0, 1.0]`).
 		- **Theta** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de Theta sélectionné (par défaut : `[-90, 90]`).
+		  Intervalle de Theta sélectionné (par défaut : `[-90, 90]`).
 		- **Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de Z sélectionné (par défaut : `[-5, 5]`).
+		  Intervalle de Z sélectionné (par défaut : `[-5, 5]`).
 		- **MSE XY** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de MSE XY sélectionné (par défaut : `[0.0, 1.0]`).
+		  Intervalle de MSE XY sélectionné (par défaut : `[0.0, 1.0]`).
 		- **MSE Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de MSE Z sélectionné (par défaut : `[0.0, 1.0]`).
+		  Intervalle de MSE Z sélectionné (par défaut : `[0.0, 1.0]`).
 	"""
 
 	label: str = "Localization"

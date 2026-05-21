@@ -1,0 +1,43 @@
+#: ../../api/palm_tracer.Settings.Groups.SplineFit.rst:2
+msgid "SplineFit"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit:1
+msgid "Classe contenant les paramètres du Spline Fit :"
+msgstr "Class containing the Spline Fit settings:"
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit:4
+msgid "**Sensor** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Sélection du type de capteur (par défaut : `EMCCD`)."
+msgstr "**Sensor** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Sensor type selection (default: `EMCCD`)."
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit:5
+msgid "**sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) : Fichier de calibration du capteur sCMOS."
+msgstr "**sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types. BrowseFile.BrowseFile>`): sCMOS sensor calibration file."
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit:6
+msgid "**Calibration File** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) : Fichier de calibration de la PSF (calculé à partir de SMAP)."
+msgstr "**Calibration File** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`): PSF calibration file (calculated from SMAP)."
+
+#: ../../api/palm_tracer.Settings.Groups.SplineFit.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.SplineFit.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.SplineFit.SplineFit.mode:1
+msgid "Méthode d'affichage du groupe par défaut."
+msgstr "Default group display method."

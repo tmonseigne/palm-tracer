@@ -14,7 +14,7 @@ from palm_tracer.Settings.Types import SpinInt
 @dataclass
 class Gallery(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de la Gallerie :
+	Classe contenant les paramètres de la Galerie :
 
 	Attributs :
 		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la Zone autour des points (par défaut : `9`).

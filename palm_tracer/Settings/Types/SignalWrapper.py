@@ -48,7 +48,7 @@ class SignalWrapper(QObject):
 		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés
+		:return: Nombre de slots déconnectés.
 		"""
 		n = 0
 		if f is None:
@@ -74,12 +74,7 @@ class SignalWrapper(QObject):
 
 	##################################################
 	def emit(self, value: Any = None, **kwargs):
-		"""
-		Émet le signal encapsulé.
-
-		Utilisé pour notifier les parties de l'application abonnées au signal.
-		:param value:
-		"""
+		"""Émet le signal encapsulé."""
 		if self._block_count > 0:
 			self._pending = True
 			self._pending_value = value

@@ -49,7 +49,7 @@ class AlignmentWidget(QWidget):
 	"""
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -150,7 +150,7 @@ class AlignmentWidget(QWidget):
 		self._btn_start_alignment.clicked.connect(self._on_start_alignment)
 
 	# ==================================================
-	# endregion Initialisation
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================

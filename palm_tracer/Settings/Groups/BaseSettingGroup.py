@@ -28,9 +28,9 @@ class BaseSettingGroup:
 	mode: int = 0
 	"""Méthode d'affichage du groupe par défaut."""
 	_active: bool = field(init=False, default=False)
-	"""État du groupe (activé ou non)"""
+	"""État du groupe (activé ou non)."""
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
-	"""Liste des visualisations de settings (inputs) du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
+	"""Liste des paramètres du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
 	_uis: dict[str, BaseUI] = field(init=False, default_factory=lambda: dict[str, BaseUI]())
 	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
 
@@ -66,15 +66,17 @@ class BaseSettingGroup:
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
 		"""
-		Retourne un objet :class:`.BaseUI`, existant ou le créé si necessaire.
+		Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire.
 
-		:param name: Nom de l'interface dans le dictionnaire
+		:param name: Nom de l'interface dans le dictionnaire.
 		:param mode: Méthode de création du groupe.
+
 			- -1 : Valeur par défaut du groupe
-			- 0 : Avec un titre et une checkbox pour activer/desactiver le groupe
-			- 1 : Etat lorsque l'on utilise la méthode always actif (la check box n'est pas créé)
-			- 2 : Etat remove header (aucune création de l'espace titre)
-			- 3 : A l'intérieur d'une QGroupBox (prochainement)
+			- 0 : Avec un titre et une checkbox pour activer/désactiver le groupe
+			- 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)
+			- 2 : État remove header (aucune création de l'espace titre)
+
+		:return: Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUI.BaseUI`).
 		"""
 		if name in self._uis: return self._uis[name]
 		if mode < 0: mode = self.mode
@@ -95,7 +97,7 @@ class BaseSettingGroup:
 		"""
 		Supprime l'interface Qt associée au nom donné.
 
-		:param name: Nom de l'interface dans le dictionnaire
+		:param name: Nom de l'interface dans le dictionnaire.
 		"""
 		self._uis.pop(name, None)
 
@@ -153,12 +155,12 @@ class BaseSettingGroup:
 
 	##################################################
 	def __contains__(self, key: str) -> bool:
-		"""Surcharge pour vérifier si une clé existe"""
+		"""Surcharge pour vérifier si une clé existe."""
 		return key in self._settings
 
 	##################################################
 	def __iter__(self):
-		"""Surcharge pour obtenir l'itérable des clés"""
+		"""Surcharge pour obtenir l'itérable des clés."""
 		return iter(self._settings)
 
 	# ==================================================
@@ -203,7 +205,7 @@ class BaseSettingGroup:
 		"""
 		Retourne une chaîne de caractères correspondant à la liste des paramètres.
 
-		:param line_prefix: Préfixe de chaque ligne (par exemple pour ajouter une indentation)
+		:param line_prefix: Préfixe de chaque ligne (par exemple pour ajouter une indentation).
 		:return: Une description textuelle des paramètres.
 		"""
 		msg = f"{line_prefix}- Activate : {self.active}\n"
@@ -251,16 +253,13 @@ class BaseSettingGroup:
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés
+		:return: Nombre de slots déconnectés.
 		"""
 		for _, setting in self._settings.items(): setting.disconnect(f)
 
 	##################################################
 	def signal_blocked(self) -> AbstractContextManager[Any]:
-		"""
-		Blocage des signaux pour tout le groupe (récursif).
-		Retourne un context manager utilisable avec `with ...:`.
-		"""
+		"""Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec `with ...:`."""
 		if not self._settings: return nullcontext()
 
 		stack = ExitStack()

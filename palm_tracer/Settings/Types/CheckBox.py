@@ -19,7 +19,7 @@ class CheckBox(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type case à cocher.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeur par défaut du paramètre.
 	"""

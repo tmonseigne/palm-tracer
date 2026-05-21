@@ -61,9 +61,9 @@ class BasePlotlyWidget(QWidget):
 	##################################################
 	def _make_web_widget(self):
 		"""
-		Créé un Widget pour integrer plotly
+		Créé un Widget pour integrer plotly.
 
-		:return: QWebEngineView ou QTextBrowser si indisponible
+		:return: QWebEngineView ou QTextBrowser si indisponible.
 		"""
 		# Zone droite : QWebEngineView avec Plotly
 		if _HAS_WEBENGINE: res = QWebEngineView(self)

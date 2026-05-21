@@ -5,12 +5,13 @@ qui regroupe les paramètres de localisation nécessaires à la configuration de
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 
 from palm_tracer.Processing.Parsing import degrees_to_radians
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
 from palm_tracer.Settings.Groups.SplineFit import SplineFit
 from palm_tracer.Settings.Types import Button, CheckBox, Combo, SpinFloat, SpinInt
@@ -51,8 +52,19 @@ class Localization(BaseSettingGroup):
 			}
 
 	##################################################
+	@property
+	def gaussian(self) -> GaussianFit:
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		return cast(GaussianFit, self._settings["Gaussian Fit"])
+
+	##################################################
+	@property
+	def spline(self) -> SplineFit:
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		return cast(SplineFit, self._settings["Spline Fit"])
+
+	##################################################
 	def initialize(self):
-		"""Initialise le dictionnaire de paramètres."""
 		super().initialize()
 		self._settings["Fit"].connect(self.toggle_fit_mode)
 

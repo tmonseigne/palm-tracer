@@ -7,7 +7,7 @@ Cette classe est utilisée comme conteneur des éléments Qt associés à une vu
 
 Elle permet de gérer indépendamment plusieurs instances d'interface (multi-vues) pour un même modèle de données (pattern MVC simplifié).
 
-Chaque instance de :class:`BaseUI` correspond à une **vue unique** d'un setting, et contient tous les objets Qt nécessaires à son affichage et son interaction.
+Chaque instance de :class:`BaseUI` correspond à une **vue unique** d'un paramètre, et contient tous les objets Qt nécessaires à son affichage et son interaction.
 
 Cette séparation permet :
     - de dupliquer facilement l'interface sans dupliquer les données,
@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
 
 from palm_tracer.Tools import Ui
 
@@ -27,11 +27,11 @@ from palm_tracer.Tools import Ui
 @dataclass
 class BaseUI:
 	"""
-	Classe de base représentant une vue Qt associée à un setting.
+	Classe de base représentant une vue Qt associée à un paramètre.
 
 	Cette classe encapsule tous les objets Qt nécessaires à l'affichage d'un paramètre dans une interface utilisateur.
 
-	Elle est conçue pour être instanciée plusieurs fois pour un même setting, afin de permettre la duplication d'interface (multi-fenêtres, preview, etc.).
+	Elle est conçue pour être instanciée plusieurs fois pour un même paramètre, afin de permettre la duplication d'interface (multi-fenêtres, preview, etc.).
 
 	Chaque instance est indépendante en termes de widgets Qt, mais synchronisée avec le modèle de données auquel elle est associée.
 	"""
@@ -41,22 +41,22 @@ class BaseUI:
 	mode: int
 	"""Méthode de construction de l'interface."""
 	layout: QFormLayout = field(init=False)
-	"""Calque principal."""
+	"""Calque principal (:class:`QFormLayout`)."""
 	widget: QWidget = field(init=False)
-	"""Widget principal du groupe."""
+	"""Widget principal du groupe (:class:`QWidget`)."""
 	checkbox: QCheckBox | None = field(init=False, default=None)
 	"""Case à cocher pour activer ou non le groupe (:class:`QCheckBox`)."""
 	_body: QWidget = field(init=False)
 	"""Corps du groupe encapsulé dans un QWidget pour avoir un Hide/Show disponible (:class:`QWidget`)."""
 	body_layout: QFormLayout = field(init=False)
-	"""Calque du corps du groupe."""
+	"""Calque du corps du groupe (:class:`QFormLayout`)."""
 
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		header = None
 		self.checkbox = None
-		if self.mode == 0:  # Classique avec un titre et une checkbox pour activer/desactiver le groupe
+		if self.mode == 0:  # Classique avec un titre et une checkbox pour activer/désactiver le groupe
 			self.checkbox = QCheckBox()
 			self.checkbox.toggled.connect(self.active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
@@ -85,7 +85,7 @@ class BaseUI:
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
 		"""
-		Ajoute le groupe à un formulaire
+		Ajoute l'interface du groupe à un formulaire.
 
 		:param form: :class:`QFormLayout` dans lequel va être inséré le paramètre.
 		"""
@@ -104,9 +104,9 @@ class BaseUI:
 	##################################################
 	def active(self, state: bool):
 		"""
-		Affiche ou cache le corps du groupe
+		Affiche ou cache le corps du groupe.
 
-		:param state: Statut
+		:param state: Statut.
 		"""
 		self._body.show() if state else self._body.hide()
 

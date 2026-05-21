@@ -86,7 +86,7 @@ La zone centrale de Napari affiche les données. Vous pouvez :
 - Changer de plan Z via la barre de dimension
 - Régler le contraste
 
-PALMTracer met automatiquement à jour cette zone à chaque changement de fichier ou lors de la preview.
+PALMTracer met automatiquement à jour cette zone à chaque changement de fichier ou lors de l'aperçu.
 
 .. figure:: ../_static/img/manual/Napari_Vizu.png
    :figclass: centered-caption
@@ -148,7 +148,7 @@ Lorsqu'un fichier est sélectionné, PALMTracer :
 
 - Efface les anciens calques.
 - Charge automatiquement le fichier dans un calque Raw.
-- Mets à jour la preview si elle est activée.
+- Mets à jour l'aperçu s'il est activé.
 
 .. figure:: ../_static/img/manual/Batch.png
    :figclass: centered-caption
@@ -212,7 +212,7 @@ Les paramètres les plus courants incluent :
    - **Preview** : si activé, lance la détection en temps réel sur l'image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`).
    - **Threshold** : seuil d'intensité utilisé pour isoler les candidats moléculaires.
      Un bouton :guilabel:`Auto` peut estimer automatiquement un seuil optimal à partir de l'image courante (plus d'informations :ref:`ici <auto_threshold_page>`).
-   - **ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une ROI carré en revanche.
+   - **ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une zone carré en revanche.
    - **ROI Size** : taille de la fenêtre extraite autour de chaque détection.
    - **Watershed** : active/désactive un prétraitement de séparation des détections proches.
    - **Fit** : méthode d'ajustement utilisée pour localiser précisément les molécules (Aucune, Gaussienne, Spline) (plus d'informations :ref:`ici <fit_page>`).
@@ -231,7 +231,7 @@ Les paramètres peuvent inclure :
       - **Max Speed** : Vitesse maximale du point en μm/plan.
 
 .. note::
-	**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans la preview.
+	**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans l'aperçu.
 
 
 Calculs sur les trajectoires
@@ -256,7 +256,8 @@ Il comprend :
   - **Gallery** : Outils permettant de créer une image :file:`.tif` avec toutes les détections à la suite en définissant la taille de la zone d'intérêt et le nombre de détections par lignes/colonnes.
     Si le nombre de détections dépasse, le nombre définit de lignes x colonnes, un nouveau plan est ajouté au résultat.
     Exemple : pour une acquisition de 1000 détections, en définissant 10 lignes/colonnes et une taille de zone d'intérêt à 9, le résultat sera une image de 90x90 pixels par plan, avec 10 plans.
-  - **High Resolution** : Une ou plusieurs images haute résolution sont générées selon le facteur d'agrandissement choisi et la source pour définir l'intensité.
+  - **Graph** : Permet la génération d'un graphique automatiquement.
+  - **HR** : Permet de généré une image en haute résolution automatiquement.
   - **Graph Viewer** : Ouvre une fenêtre dédiée aux représentations statistiques. (plus d'informations :ref:`ici <viewer_graph_page>`)
   - **HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes résolutions. (plus d'informations :ref:`ici <viewer_hr_page>`)
   - **3D Viewer** : Ouvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)

@@ -73,7 +73,7 @@ class Settings:
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés
+		:return: Nombre de slots déconnectés.
 		"""
 		for _, setting in self._settings.items(): setting.disconnect(f)
 
@@ -99,9 +99,9 @@ class Settings:
 	##################################################
 	def get_ui(self, name: str = "default") -> dict[str, BaseUI]:
 		"""
-		Retourne un objet :class:`.BaseUI`, existant ou le créé si necessaire.
+		Retourne un dictionnaire d'objets :class:`.BaseUI` (un par groupe de paramètres), existants ou les créés si nécessaire.
 
-		:param name: Nom de l'interface dans le dictionnaire
+		:param name: Nom de l'interface dans le dictionnaire.
 		"""
 		if name in self._uis: return self._uis[name]
 		ui = dict[str, BaseUI]()
@@ -114,7 +114,7 @@ class Settings:
 		"""
 		Supprime récursivement les interfaces Qt associées au nom donné.
 
-		:param name: Nom de l'interface dans le dictionnaire
+		:param name: Nom de l'interface dans le dictionnaire.
 		"""
 		for setting in self._settings.values(): setting.clean_ui(name)
 
@@ -158,7 +158,7 @@ class Settings:
 	##################################################
 	@property
 	def tracks_compute(self) -> TracksCompute:
-		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`.)"""
+		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`)."""
 		return cast(TracksCompute, self._settings["TracksCompute"])
 
 	##################################################
@@ -238,11 +238,11 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	settings = Settings()
-	ui = settings.get_ui()
+	setting_ui = settings.get_ui()
 
-	lay.addWidget(ui["Batch"].widget)
-	lay.addWidget(ui["Calibration"].widget)
-	lay.addWidget(ui["Localization"].widget)
+	lay.addWidget(setting_ui["Batch"].widget)
+	lay.addWidget(setting_ui["Calibration"].widget)
+	lay.addWidget(setting_ui["Localization"].widget)
 	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

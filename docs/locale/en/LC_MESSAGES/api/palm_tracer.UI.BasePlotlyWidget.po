@@ -1,0 +1,32 @@
+#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:2
+msgid "BasePlotlyWidget"
+msgstr ""
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget:1
+msgid "Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."
+msgstr "Parent class containing internal functions for Stand Alone widgets (excluding Napari)."
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget
+#: palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.closeEvent
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:17
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:20
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.closeEvent:1
+msgid "Assure une destruction propre de QtWebEngine (évite warnings et crash à la sortie)."
+msgstr "Ensures that QtWebEngine is properly destroyed (prevents warnings and crashes upon exit)."
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.closeEvent
+msgid "Type renvoyé"
+msgstr "Return type"

@@ -1,5 +1,6 @@
 """
-Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type interval de nombre flottant.
+Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`,
+qui permet la gestion d'un paramètre type intervalle de nombre flottant.
 """
 from __future__ import annotations
 
@@ -18,9 +19,9 @@ from palm_tracer.Tools import Ui
 @dataclass
 class CheckRangeFloat(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type interval de nombre flottant.
+	Classe pour un paramètre spécifique de type intervalle de nombre flottant.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeurs par défaut du paramètre.
 	:param _limits: Valeurs limites du paramètre.

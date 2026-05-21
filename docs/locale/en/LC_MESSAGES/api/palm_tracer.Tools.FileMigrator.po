@@ -1,0 +1,478 @@
+#: ../../api/palm_tracer.Tools.FileMigrator.rst:2
+msgid "FileMigrator"
+msgstr ""
+
+#: of palm_tracer.Tools.FileMigrator:1
+msgid "Ce fichier contient la classe :class:`FileMigrator` permettant de lire un dossier de résultat de PALMTracer depuis Metamorph vers le format actuel."
+msgstr "This file contains the :class:`FileMigrator` class, which is used to read a PALMTracer results folder from Metamorph into the current format."
+
+#: of palm_tracer.Tools.FileMigrator.Link:1
+msgid "Structure permettant le lien entre nouvelle et ancienne nomenclature."
+msgstr "Structure that maps the old and new file naming conventions."
+
+#: ../../api/palm_tracer.Tools.FileMigrator.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Tools.FileMigrator.Link:3
+msgid "Ancien nom de fichier."
+msgstr "Old file name."
+
+#: of palm_tracer.Tools.FileMigrator.Link:4
+msgid "Nouveau nom de fichier."
+msgstr "New file name."
+
+#: of palm_tracer.Tools.FileMigrator.Link.old:1
+msgid "Alias for field number 0"
+msgstr ""
+
+#: of palm_tracer.Tools.FileMigrator.Link.new:1
+msgid "Alias for field number 1"
+msgstr ""
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:1
+msgid "Outil de migration d'un dossier de traitement PALMTracer (ancien format Metamorph) vers le format Python plus récent."
+msgstr "Tool for migrating a PALMTracer processing folder (old Metamorph format) to the newer Python format."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:3
+msgid "Le principe est :"
+msgstr "The process is as follows:"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:4
+msgid "l'utilisateur pointe un dossier d'entrée (un dossier se terminant par ``.PT``) ;"
+msgstr "the user specifies an input folder (a folder ending in ``.PT``);"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:5
+msgid ":meth:`analyze` inspecte les fichiers et les classes par type (loc/trc/MSD/...) ;"
+msgstr ":meth:`analyze` inspects the files and classes by type (loc/trc/MSD/...);"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:6
+msgid ":meth:`migrate` crée un dossier de sortie et exécute ensuite les conversions nécessaires."
+msgstr ":meth:`migrate` creates an output folder and then performs the necessary conversions."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:9
+msgid "Cette classe ne modifie **pas** le dossier d'entrée : elle lit depuis :attr:`input_folder` et écrit dans :attr:`output_folder`."
+msgstr "This class **does not** modify the input folder: it reads from :attr:`input_folder` and writes to :attr:`output_folder`."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:11
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:12
+msgid "input_folder: Dossier source sélectionné par l'utilisateur."
+msgstr "input_folder: Source folder selected by the user."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:13
+msgid "output_folder: Dossier cible où seront écrits les fichiers convertis."
+msgstr "output_folder: Target folder where the converted files will be written."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:14
+#, python-brace-format
+msgid "files: Dictionnaire ``{type: [paths...]}`` rempli par :meth:`analyze`."
+msgstr "files: Dictionary ``{type: [paths...]}`` populated by :meth:`analyze`."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:15
+msgid "suffix: Suffixe optionnel ajouté au nom du dossier de sortie."
+msgstr "suffix: Optional suffix added to the output folder name."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator:16
+msgid "meta: Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers."
+msgstr "meta: Global metadata for the dataset. A line initialized to -1 that will be updated during file migration."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.FILES_LINK:1
+msgid "Correspondances entre les anciens noms et les nouveaux."
+msgstr "Mappings between old and new names."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.input_folder:1
+msgid "Dossier source sélectionné par l'utilisateur."
+msgstr "Source folder selected by the user."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.output_folder:1
+msgid "Dossier cible où seront écrits les fichiers convertis."
+msgstr "Target folder where the converted files will be written."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.files:1
+#, python-brace-format
+msgid "Dictionnaire ``{type: [paths...]}`` rempli par :meth:`analyze`."
+msgstr "Dictionary ``{type: [paths...]}`` populated by :meth:`analyze`."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.suffix:1
+msgid "Suffixe optionnel ajouté au nom du dossier de sortie."
+msgstr "Optional suffix added to the output folder name."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.meta:1
+msgid "Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers."
+msgstr "Global metadata for the dataset. A line initially set to -1 that will be updated during file migration."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open:1
+msgid "Sélectionne le dossier d'entrée contenant les résultats PALMTracer."
+msgstr "Selects the input folder containing the PALMTracer results.
+Selects the input folder containing the PALMTracer results."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open:3
+msgid "Le dossier Metamorph / PALMTracer est généralement nommé ``<monfichier>.PT``. Si ce n'est pas le cas, un avertissement est affiché (sans empêcher l'analyse)."
+msgstr "The Metamorph / PALMTracer folder is typically named ``<myfile>.PT``. If this is not the case, a warning is displayed (without preventing the analysis)."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open:6
+msgid "Chemin du dossier à analyser."
+msgstr "Path to the folder to be analyzed."
+
+#: ../../api/palm_tracer.Tools.FileMigrator.rst
+msgid "Lève"
+msgstr "Raise"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open:7
+msgid "Si ``folder`` n'existe pas."
+msgstr "If ``folder`` does not exist."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open:8
+msgid "Si ``folder`` n'est pas un dossier."
+msgstr "If ``folder`` is not a directory."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open:9
+msgid "Si ``folder`` ne finit pas par .PT comme un dossier de sortie type de PALMTracer sur Metamorph."
+msgstr "If ``folder`` does not end with .PT, as is typical for PALMTracer output folders in Metamorph."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.analyze:1
+msgid "Analyse :attr:`input_folder` et classe les fichiers reconnus par catégorie."
+msgstr "Analyzes :attr:`input_folder` and sorts recognized files by category."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.analyze:3
+msgid "Effets de bord :"
+msgstr "Side effects:"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.analyze:4
+msgid "réinitialise :attr:`files` puis la remplit avec des chemins trouvés."
+msgstr "resets :attr:`files` and then fills it with the found paths."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.analyze:5
+msgid "ne lit pas le contenu des fichiers (uniquement leur présence)."
+msgstr "does not read the contents of the files (only checks for their presence)."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.analyze:7
+msgid "Si aucun dossier n'a été sélectionné via :meth:`open`."
+msgstr "If no folder was selected via :meth:`open`."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate:1
+msgid "Lance la migration vers le format récent."
+msgstr "Starts the migration to the latest format."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate:3
+msgid "Règle de nommage du dossier de sortie : - si l'entrée est ``monfichierdebase.PT`` alors sortie ``monfichierdebase_PALM_Tracer``"
+msgstr "Output folder naming rule: - if the input is ``mybasefile.PT``, then the output is ``mybasefile_PALM_Tracer``"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate:6
+msgid "Cette méthode suppose que :meth:`open` et :meth:`analyze` ont déjà été appelées."
+msgstr "This method assumes that :meth:`open` and :meth:`analyze` have already been called."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate:8
+msgid "Si :attr:`input_folder` n'est pas défini."
+msgstr "If :attr:`input_folder` is not defined."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.make_meta:1
+msgid "Écriture du fichier méta uniquement si au moins une valeur est différente de -1."
+msgstr "Writes the metadata file only if at least one value is different from -1."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.update_meta:1
+msgid "Mets à jour l'objet meta et vérifie si une valeur différente est présente."
+msgstr "Updates the metadata object and checks if a different value is present."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.update_meta:3
+msgid "Colonne à mettre à jour."
+msgstr "Column to update."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.update_meta:4
+msgid "Valeur à insérer."
+msgstr "Value to insert."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:1
+msgid "Migre le fichier de localisations PALMTracer vers le format courant."
+msgstr "Migrates the PALMTracer location file to the current format."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:3
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:3
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:3
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks:3
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:3
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:3
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:3
+msgid "Cette méthode :"
+msgstr "This method:"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:4
+msgid "lit le fichier ``locPALMTracer.txt`` s'il est présent"
+msgstr "reads the ``locPALMTracer.txt`` file if it exists"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:5
+msgid "extrait les métadonnées globales (dimensions, calibration temporelle et spatiale)"
+msgstr "extracts global metadata (dimensions, temporal and spatial calibration)"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:6
+msgid "mets à jour :attr:`meta` via :meth:`update_meta`"
+msgstr "updates :attr:`meta` via :meth:`update_meta`"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:7
+msgid "renomme et complète les colonnes selon ``FILES_COLUMNS[\"Localization\"]``"
+msgstr "renames and populates the columns according to ``FILES_COLUMNS[\"Localization\"]``"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:8
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks:7
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:9
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:7
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:7
+msgid "écrit le fichier CSV converti dans :attr:`output_folder`."
+msgstr "writes the converted CSV file to :attr:`output_folder`."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_localization:10
+msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"loc\"].new``."
+msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"loc\"].new``."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks:1
+msgid "Migre le fichier de tracking PALMTracer vers le format courant."
+msgstr "Migrates the PALMTracer tracking file to the current format."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks:4
+msgid "lit le fichier ``trcPALMTracer.txt`` s'il est présent"
+msgstr "reads the file ``trcPALMTracer.txt`` if it exists"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks:5
+msgid "extrait et harmonise les métadonnées globales (image, calibration)"
+msgstr "extracts and harmonizes global metadata (image, calibration)"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks:6
+msgid "renomme et complète les colonnes selon ``FILES_COLUMNS[\"Tracking\"]``"
+msgstr "renames and populates the columns according to ``FILES_COLUMNS[\"Tracking\"]``"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks:9
+msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"trc\"].new``."
+msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"trc\"].new``."
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:1
+msgid "Migre le fichier de modèle d'astigmatisme 3D PALMTracer."
+msgstr "Migrates the PALMTracer 3D astigmatism model file."
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:4
+msgid "lit le fichier ``3DFit.txt`` s'il est présent"
+msgstr "Reads the ``3DFit.txt`` file if present"
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:5
+msgid "assigne explicitement les noms de colonnes et les indices de lignes à partir de ``FILES_COLUMNS[\"Astigmatism 3D Model\"]`` et ``MODEL_ROWS``"
+msgstr "Explicitly assigns column names and row indices from ``FILES_COLUMNS[\"Astigmatism 3D Model\"]`` and ``MODEL_ROWS``"
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:7
+msgid "écrit le modèle sous forme de CSV dans :attr:`output_folder`."
+msgstr "Writes the model as a CSV file to:attr:`output_folder`."
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:9
+msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"A3D\"].new``."
+msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"A3D\"].new``."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:1
+msgid "Migre le fichier MSD (Mean Square Displacement) PALMTracer."
+msgstr "Migrates the PALMTracer MSD (Mean Square Displacement) file."
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:4
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:4
+msgid "lit un fichier à structure irrégulière (nombre de colonnes variable par ligne)"
+msgstr "Reads a file with an irregular structure (variable number of columns per row)"
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:5
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:5
+msgid "supprime la colonne ROI (première colonne)"
+msgstr "removes the ROI column (first column)"
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:6
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:6
+msgid "renomme les colonnes sous la forme : ``Track, <metric> 1, <metric> 2, ..., <metric> N`` ;"
+msgstr "renames the columns as: ``Track, <metric> 1, <metric> 2, ..., <metric> N``;"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:9
+msgid "Le nom de la métrique est issu de ``FILES_COLUMNS[\"MSD\"][\"columns\"]``."
+msgstr "The metric name is derived from ``FILES_COLUMNS[\"MSD\"][\"columns\"]``."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:11
+msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"MSD\"].new``."
+msgstr "The output file is named: ``<new_name>-<timestamp>.csv``, where ``new_name`` corresponds to ``FILES_LINK[\"MSD\"].new``."
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:1
+msgid "Migre le fichier de diffusion instantanée PALMTracer."
+msgstr "Migrates the PALMTracer instant broadcast file."
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:9
+msgid "Le nom de la métrique est issu de ``FILES_COLUMNS[\"InD\"][\"columns\"]``."
+msgstr "The metric name is taken from ``FILES_COLUMNS[\"InD\"][\"columns\"]``."
+
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:11
+msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"InD\"].new``."
+msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"InD\"].new``."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:1
+msgid "Migre le fichier d'ajustement de trajectoires PALMTracer."
+msgstr "Migrates the PALMTracer trajectory alignment file."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:4
+msgid "lit le fichier ``trcPALMTracer-Full-D.txt``"
+msgstr "reads the file ``trcPALMTracer-Full-D.txt``"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:5
+msgid "neutralise la colonne ROI (remplacée par une valeur constante)"
+msgstr "neutralizes the ROI column (replaced by a constant value)"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:6
+msgid "corrige l'ordre des colonnes (ROI / Track)"
+msgstr "corrects the column order (ROI / Track)"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:7
+msgid "détecte automatiquement le mode d'ajustement en fonction du nombre de colonnes"
+msgstr "automatically detects the fit mode based on the number of columns"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:8
+msgid "applique les noms de colonnes appropriés à partir de ``FILES_COLUMNS``"
+msgstr "applies the appropriate column names from ``FILES_COLUMNS``"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:11
+msgid "Le mode d'ajustement est déterminé comme suit :"
+msgstr "The fit mode is determined as follows:"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:12
+msgid "9 colonnes  → Fit mode 1."
+msgstr "9 columns  → Fit mode 1."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:13
+msgid "10 colonnes → Fit mode 2."
+msgstr "10 columns → Fit mode 2."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:14
+msgid "11 colonnes → Fit mode 3."
+msgstr "11 columns → Fit mode 3."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_fit:16
+msgid "Toute incohérence sur le nombre de colonnes peut conduire à un mauvais mode d'ajustement."
+msgstr "Any inconsistency in the number of columns may result in an incorrect fit."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:1
+msgid "Ouvre un fichier PALMTracer (MetaMorph) au format texte tabulé."
+msgstr "Opens a PALMTracer (MetaMorph) file in tab-delimited text format."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:3
+msgid "Le fichier est supposé structuré de la façon suivante :"
+msgstr "The file is expected to be structured as follows:"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:4
+msgid "``skiprows`` premières lignes : informations globales (dimensions, calibration, options…)"
+msgstr "``skiprows`` first lines: general information (dimensions, calibration, options, etc.)"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:5
+msgid "ligne suivante (optionnelle)   : titres des colonnes"
+msgstr "next line (optional): column headers"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:6
+msgid "reste du fichier               : données tabulaires"
+msgstr "rest of the file: tabular data"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:8
+#: palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:8
+msgid "Chemin vers le fichier PALMTracer à ouvrir."
+msgstr "Path to the PALMTracer file to open."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:9
+msgid "Indique si une ligne de titres de colonnes est présente après les lignes d'en-tête."
+msgstr "Indicates whether a row of column headers is present after the header lines."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:10
+#: palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:9
+msgid "Nombre de lignes d'informations à lire et à conserver avant les données."
+msgstr "Number of information lines to read and keep before the data."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:11
+#: palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:10
+msgid "Séparateur de colonnes utilisé dans le fichier."
+msgstr "Column separator used in the file."
+
+#: ../../api/palm_tracer.Tools.FileMigrator.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:12
+msgid "Tuple ``(dataframe, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``)."
+msgstr "Tuple ``(dataframe, header_lines)`` containing the numerical data and the list of raw information lines (without ``\\n``)."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:13
+#: palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:12
+msgid "Si le fichier n'existe pas."
+msgstr "If the file does not exist."
+
+#: ../../api/palm_tracer.Tools.FileMigrator.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:1
+msgid "Ouvre un fichier PALMTracer (MetaMorph) au format texte tabulé, en tolérant les lignes avec un nombre de colonnes variable."
+msgstr "Opens a PALMTracer (MetaMorph) file in tab-delimited text format, tolerating lines with a variable number of columns."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:3
+msgid "Si certaines lignes n'ont pas le même nombre de colonnes, la fonction : - détecte le nombre maximal de colonnes, - complète les lignes plus courtes avec des valeurs manquantes (NaN), - tronque les lignes plus longues à la largeur max (rare, mais protège)."
+msgstr "If some rows do not have the same number of columns, the function: - detects the maximum number of columns, - pads shorter rows with missing msgstr "values (NaN), - truncates longer rows to the maximum width (rare, but provides protection)."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:11
+msgid "Tuple ``(dataframe, header_lines)``."
+msgstr "Tuple ``(dataframe, header_lines)``."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:13
+msgid "Si le fichier ne contient pas assez de lignes d'en-tête."
+msgstr "If the file does not contain enough header lines."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.column_migrator:1
+msgid "Retourne une clé actuelle à partir d'un nom de colonne ancien."
+msgstr "Returns a current key from an old column name."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.column_migrator:3
+msgid "Nom de la colonne en entrée."
+msgstr "Input column name."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.column_migrator:4
+msgid "Nom de la nouvelle colonne."
+msgstr "New column name."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:1
+msgid "Normalise un DataFrame PALMTracer vers un schéma de colonnes cible."
+msgstr "Normalizes a PALMTracer DataFrame to a target column schema."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:4
+msgid "renomme les colonnes existantes à l'aide de :meth:`column_migrator`"
+msgstr "Renames existing columns using :meth:`column_migrator`"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:5
+msgid "ignore les colonnes non reconnues"
+msgstr "Ignores unrecognized columns"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:6
+msgid "ajoute les colonnes manquantes initialisées à 0"
+msgstr "Adds missing columns initialized to 0"
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:7
+msgid "retourne le DataFrame réordonné selon ``target_cols``."
+msgstr "Returns the DataFrame reordered according to ``target_cols``."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:9
+msgid "DataFrame d'entrée issue du format PALMTracer."
+msgstr "Input DataFrame from the PALMTracer format."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:10
+msgid "Liste ordonnée des colonnes attendues dans le format cible."
+msgstr "Ordered list of columns expected in the target format."
+
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.dataframe_migrator:11
+msgid ":class:`DataFrame <pandas.DataFrame>` conforme au schéma cible."
+msgstr ":class:`DataFrame <pandas.DataFrame>` conforming to the target schema."

@@ -180,7 +180,7 @@ def test_check_loc(qtbot, capsys):
 
 ##################################################
 def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -212,7 +212,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_mean_beads(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -249,7 +249,7 @@ def test_compute_mean_beads(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_remove_bead_col(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -283,7 +283,7 @@ def test_compute_remove_bead_col(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_remove_multi(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -320,7 +320,7 @@ def test_compute_remove_multi(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -365,7 +365,7 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_center_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -398,7 +398,7 @@ def test_compute_center_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_bad_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)

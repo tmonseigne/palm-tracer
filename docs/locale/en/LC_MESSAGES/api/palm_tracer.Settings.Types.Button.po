@@ -1,0 +1,51 @@
+#: ../../api/palm_tracer.Settings.Types.Button.rst:2
+msgid "Button"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.Button.Button:1
+msgid "Classe pour un paramètre spécifique de type bouton à cliquer."
+msgstr "Class for a specific setting of type clickable button."
+
+#: ../../api/palm_tracer.Settings.Types.Button.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.Button.Button:3
+msgid "Nom du paramètre à afficher."
+msgstr "Name of the setting to display."
+
+#: of palm_tracer.Settings.Types.Button.Button:4
+msgid "Description détaillée en overlay."
+msgstr "Detailed description in the overlay."
+
+#: ../../api/palm_tracer.Settings.Types.Button.rst:9
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.Button.rst:12
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Types.Button.Button.reset:1
+msgid "Réinitialise le paramètre à sa valeur par défaut."
+msgstr "Resets the setting to its default value."
+
+#: of palm_tracer.Settings.Types.Button.Button.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+
+#: of palm_tracer.Settings.Types.Button.Button.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.Button.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.Button.Button.get_ui:4
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Types.Button.rst
+msgid "Type renvoyé"
+msgstr "Return type"

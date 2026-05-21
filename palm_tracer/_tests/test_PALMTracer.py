@@ -20,7 +20,7 @@ OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
 
 @pytest.fixture
 def pt():
-	"""fixture interne"""
+	"""fixture interne."""
 	obj = PALMTracer()
 	yield obj
 	try: obj._logger.close()
@@ -55,7 +55,8 @@ def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[li
 ##################################################
 def check_capsys(capsys, n_lines: int, steps: list[int]):
 	"""
-	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes
+	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes.
+
 	:param capsys:
 	:param n_lines:
 	:param steps:
@@ -70,6 +71,13 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 
 ##################################################
 def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
+	"""
+	Simule l'exécution d'un process.
+
+	:param pt: Objet de base.
+	:param localisation: Défini si une localisation est simulé.
+	:param tracking: Défini si un suivi est simulé.
+	"""
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	timestamp = "20260101_000000"
 	if localisation:
@@ -110,7 +118,7 @@ def test_reset_result(qtbot, capsys, pt):
 
 
 # ==================================================
-# region Getter / Setter
+# region Getter/Setter
 # ==================================================
 ##################################################
 def test_getter_localization(qtbot, pt):
@@ -180,7 +188,7 @@ def test_getter_tracks_compute(qtbot, pt):
 
 ##################################################
 def test_get_status(qtbot, pt):
-	# Etat initial
+	# État initial
 	ref = {"Localization": FILE_STATUS[0], "Beads": FILE_STATUS[0], "Tracking": FILE_STATUS[0],
 		   "MSD":          FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
 	res = pt.get_status()
@@ -257,7 +265,7 @@ def test_getter_suffix(qtbot, pt):
 
 
 # ==================================================
-# endregion Getter / Setter
+# endregion Getter/Setter
 # ==================================================
 
 # ==================================================
@@ -316,7 +324,7 @@ def test_load(qtbot, capsys, pt):
 	assert "File 'tracking_Fit_filtered' not found." in lines[16]
 	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
 
-	# Un fichier meta + un localization
+	# Un fichier méta + un localization
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 
 
@@ -1266,11 +1274,11 @@ def test_get_astigmatism_model():
 	assert model.empty
 
 	shutil.copy2(REF_DIR / model_file, tmp_output.parent / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dnas le dernier dossier par défaut
+	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le dernier dossier par défaut
 	assert np.allclose(model.to_numpy(), ref.to_numpy(), atol=1e-6)
 
 	shutil.copy2(REF_DIR / model_file, tmp_output / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dnas le premier dossier par défaut
+	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le premier dossier par défaut
 	assert np.allclose(model.to_numpy(), ref.to_numpy(), atol=1e-6)
 
 	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va reussir, dans le chemin donné

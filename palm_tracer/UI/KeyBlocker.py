@@ -11,9 +11,10 @@ class KeyBlocker(QObject):
 
 	def eventFilter(self, obj, event):
 		"""
-		Permet de filtrer la gestion du clavier si l'on est sur un objet QT éditable
-		:param obj: Objet QT en cours
-		:param event: Evenement clavier
+		Permet de filtrer la gestion du clavier si l'on est sur un objet QT éditable.
+
+		:param obj: Objet QT en cours.
+		:param event: Evenement clavier.
 		:return:
 		"""
 		# laisser le widget traiter la touche

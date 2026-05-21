@@ -1,5 +1,5 @@
 """
-Fichier de fonctions de manipulation de fichiers
+Fichier de fonctions de manipulation de fichiers.
 
 Ce module regroupe diverses fonctions pour la gestion et la manipulation de fichiers.
 """
@@ -32,10 +32,10 @@ DLL_PATH = Path(__file__).parent.parent / "DLL"
 ##################################################
 def add_extension(filename: str, extension: str) -> str:
 	"""
-	Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle
+	Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle.
 
-	:param filename: Nom du fichier
-	:param extension: Extension finale du fichier
+	:param filename: Nom du fichier.
+	:param extension: Extension finale du fichier.
 	:return: Nom de fichier avec l'extension ajoutée.
 	"""
 	if not extension.startswith("."): extension = "." + extension  # S'assurer que l'extension commence par un point
@@ -64,7 +64,7 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 	"""
 	Créé un horodatage au format -AAAAMMJJ_HHMMSS pour un nom de fichier.
 
-	:param with_hour: Ajoute ou non l'heure au timestamp
+	:param with_hour: Ajoute ou non l'heure au timestamp.
 	:return: Horodatage.
 	"""
 	if with_hour: return datetime.now().strftime("%Y%m%d_%H%M%S")  # Formater la date et l'heure
@@ -100,8 +100,8 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 	Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurrence en cas de présence multiple).
 
 	:param filename: Nom du fichier.
-	:param separator: Séparateur avant le suffixe
-	:return: Suffixe si le séparateur est présent sinon une chaine vide
+	:param separator: Séparateur avant le suffixe.
+	:return: Suffixe si le séparateur est présent sinon une chaine vide.
 	"""
 	stem = Path(filename).stem
 	parts = stem.rsplit(separator, 1)
@@ -119,8 +119,8 @@ def cleanup_process(path: str | Path, timestamp: str):
 	- log-<timestamp>.log
 
 	Si au moins un autre fichier avec ce timestamp existe encore, aucun fichier n'est supprimé.
-	:param path: Chemin vers le process
-	:param timestamp: Timestamp du process
+	:param path: Chemin vers le process.
+	:param timestamp: Timestamp du process.
 	"""
 	folder = Path(path).resolve()
 	if not folder.is_dir(): return
@@ -142,7 +142,7 @@ def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	"""
 	Charge une DLL, si elle existe.
 
-	:param name: Type de DLL (CPU, GPU)
+	:param name: Type de DLL (CPU, GPU).
 	:return: Objet Python stockant la DLL chargée.
 	"""
 	ext = "dll" if sys.platform.startswith("win") else "dylib" if sys.platform == "darwin" else "so"
@@ -177,7 +177,7 @@ def _compact_value_arrays(text: str) -> str:
 
 ##################################################
 def _compact_value_scalars(text: str) -> str:
-	""" Compacte les dictionnaires du type {"value": x} sur une seule ligne, pour les valeurs scalaires JSON : nombre, booléen, null, chaîne """
+	""" Compacte les dictionnaires du type {"value": x} sur une seule ligne, pour les valeurs scalaires JSON : nombre, booléen, null, chaîne. """
 	pattern = re.compile(r'\{\s*"value"\s*:\s*(true|false|null|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:\\.|[^"\\])*")\s*\}', flags=re.MULTILINE)
 
 	def replacer(match: re.Match[str]) -> str:
@@ -228,7 +228,7 @@ def save_tif(stack: np.ndarray, filename: str | Path):
 	"""
 	Sauvegarde un tableau 3D (ou 2D converti en 3D) dans un fichier TIF multi-frame avec tifffile.
 
-	:param stack: Tableau contenant l'image ou les frames
+	:param stack: Tableau contenant l'image ou les frames.
 				  - Si 2D (hauteur x largeur), convertit en pile 3D avec une seule frame.
 				  - Si 3D (frames x hauteur x largeur), sauvegarde les frames en multi-frame.
 	:param filename: Nom du fichier TIF de sortie.
@@ -275,7 +275,7 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 	"""
 	Sauvegarde un tableau 2D dans un fichier PNG avec Pillow.
 
-	:param image: Tableau contenant l'image 2D
+	:param image: Tableau contenant l'image 2D.
 	:param filename: Nom du fichier TIF de sortie.
 	:param normalization: Normalise l'image avant enregistrement.
 	"""
@@ -334,7 +334,7 @@ def open_calibration_mat(filename: str | Path) -> dict[str, Any]:
 	Charge un fichier de calibration Matlab.
 
 	:param filename: Nom du fichier mat en entrée.
-	:return: Dictionnaire contenant les éléments utiles
+	:return: Dictionnaire contenant les éléments utiles.
 	"""
 	path = Path(filename)
 	if not path.is_file(): raise OSError(f'Le fichier de calibration "{path}" est introuvable.')

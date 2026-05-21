@@ -1,0 +1,43 @@
+#: ../../api/palm_tracer.Settings.Groups.Calibration.rst:2
+msgid "Calibration"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration:1
+msgid "Classe contenant les informations de calibration :"
+msgstr "Class containing calibration information:"
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration:4
+msgid "**Pixel Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Taille d'un pixel en micromètre (par défaut : `0.160`)."
+msgstr "**Pixel Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Pixel size in micrometers (default: `0.160`)."
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration:5
+msgid "**Exposure** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Temps d'exposition en secondes par image (par défaut : `0.050`)."
+msgstr "**Exposure** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Exposure time in seconds per frame (default: `0.050`)."
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration:6
+msgid "**Intensity** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Intensité lumineuse en photons par Unités analogique-numérique (ADU) (par défaut : `0.0120`)."
+msgstr "**Intensity** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Light intensity in photons per Analog-to-Digital Unit (ADU) (default: `0.0120`)."
+
+#: ../../api/palm_tracer.Settings.Groups.Calibration.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.Calibration.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration.mode:1
+msgid "Méthode d'affichage du groupe par défaut."
+msgstr "Default group display method."

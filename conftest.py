@@ -279,7 +279,7 @@ def pytest_sessionfinish(session, exitstatus):
 ##################################################
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_protocol(item, nextitem):
-	"""Capture les informations sur chaque test"""
+	"""Capture les informations sur chaque test."""
 	global all_tests_monitoring
 	all_tests_monitoring.add_test_info(item.nodeid)
 	return None

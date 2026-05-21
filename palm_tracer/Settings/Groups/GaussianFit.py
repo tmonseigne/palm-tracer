@@ -44,7 +44,6 @@ class GaussianFit(BaseSettingGroup):
 
 	##################################################
 	def initialize(self):
-		"""Initialise le dictionnaire de paramètres."""
 		super().initialize()
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)

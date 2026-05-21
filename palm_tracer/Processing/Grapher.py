@@ -35,8 +35,8 @@ class Grapher:
 		"""
 		Créé une figure vide avec une annotation standard au centre ``_BLANK_ANNOTATIONS``.
 
-		:param title: Titre de la figure
-		:return: :class:`go.Figure <plotly.graph_objects.Figure>` Figure avec l'annotation
+		:param title: Titre de la figure.
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>` Figure avec l'annotation.
 		"""
 		fig = go.Figure()
 		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS, margin=_MARGIN)
@@ -57,10 +57,10 @@ class Grapher:
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:param kde: Si True, superpose la KDE gaussienne.
 		:param gaussian: Si True, superpose la gaussienne.
-		:param density: Affiche l'histogramme en densité (True) ou en comptes (False).
+		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
 		:param bins: Nombre de bins explicite (sinon Sturges).
 		:param cumulative: Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
-		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
 			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
@@ -126,7 +126,7 @@ class Grapher:
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
-		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
 
@@ -176,7 +176,7 @@ class Grapher:
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
 		:param kde: Si True, superpose la KDE gaussienne 2D.
 		:param gaussian: Si True, superpose la gaussienne 2D.
-		:return: :class:`go.Figure <plotly.graph_objects.Figure>`
+		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
 
@@ -259,14 +259,14 @@ class Grapher:
 		dans les modes ``"cross"`` et ``"slope"``.
 
 		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
-		:param data: Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``
+		:param data: Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``.
 		:param title: Titre du graphe.
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm). Utilisé pour l’évaluation du modèle.
-		:param z_max: Valeur maximale (en valeur absolue) de l’intervalle Z : :math:`Z \\in [-z_{max}, z_{max}]`
-		:param mode:  Mode de visualisation : ``"curve"`` : σX vs σY (paramétré par Z), ``"cross"`` : σX(Z) et σY(Z), ``"slope"`` : σX(Z) - σY(Z)
+		:param z_max: Valeur maximale (en valeur absolue) de l’intervalle Z : :math:`Z \\in [-z_{max}, z_{max}]`.
+		:param mode:  Mode de visualisation : ``"curve"`` : σX vs σY (paramétré par Z), ``"cross"`` : σX(Z) et σY(Z), ``"slope"`` : σX(Z) - σY(Z).
 		:param n_points: Nombre de points utilisés pour échantillonner la courbe. Plus la valeur est élevée, plus la courbe est lisse (coût négligeable).
 		:return: Objet Plotly :class:`go.Figure <plotly.graph_objects.Figure>` prêt à être affiché.
-		:raises ValueError: Si les dimensions du modèle ne correspondent pas à celles attendues (2x5)
+		:raises ValueError: Si les dimensions du modèle ne correspondent pas à celles attendues (2x5).
 		"""
 		if model.shape != SHAPE_MODEL: raise ValueError(f"Le modèle doit être de dimension {SHAPE_MODEL}.")
 
@@ -353,9 +353,9 @@ class Grapher:
 
 		:param x_grid: Abscisses régulières.
 		:param y_pdf: Densité (PDF) à convertir.
-		:param n: nombre de bins.
+		:param n: Nombre de bins.
 		:param bin_width: Largeur d'une bin.
-		:param density: Affiche l'histogramme en densité (True) ou en comptes (False).
+		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
 		:param cumulative: Si True, calcule la version cumulée de la courbe.
 		:return: Courbe prête à être affichée.
 		"""
@@ -365,7 +365,7 @@ class Grapher:
 			# Protection numérique pour rester dans [0, 1] si possible.
 			if y_cdf.size > 0 and y_cdf[-1] > 0: y_cdf = y_cdf / y_cdf[-1]
 			y = np.clip(y_cdf, 0.0, 1.0)
-			return y if density else y * n  # Conversion densité -> comptes approximatifs.
+			return y if density else y * n  # Conversion densité ⇾ comptes approximatifs.
 		return y_pdf if density else y_pdf * n * bin_width  # convertir la densité en comptes ~ dens * N * bin_width
 
 	##################################################
@@ -374,9 +374,9 @@ class Grapher:
 		"""
 		Ajoute les séparations entre chaque sigma.
 
-		:param fig: Figure à modifier
-		:param mu: Moyenne
-		:param sigma: Écart-type
+		:param fig: Figure à modifier.
+		:param mu: Moyenne.
+		:param sigma: Écart-type.
 		:param x_axis: ``True`` pour des séparations verticales sur l'axe X, ``False`` sinon.
 		"""
 		params = [[mu, _SEABORN_DEEP[3], "μ"],

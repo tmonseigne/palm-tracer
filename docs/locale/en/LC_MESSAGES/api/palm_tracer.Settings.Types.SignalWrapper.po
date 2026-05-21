@@ -1,0 +1,72 @@
+#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst:2
+msgid "SignalWrapper"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:1
+msgid "Encapsulation d'un signal Qt avec connexion, déconnexion, émission, blocage temporaire et coalescence."
+msgstr "Encapsulation of a Qt signal with connection, disconnection, emission, temporary blocking, and coalescing."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:2
+msgid ":func:`blocked()` : contexte pour bloquer temporairement les signaux."
+msgstr ":func:`blocked()`: context for temporarily blocking signals."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:3
+msgid "Pendant le blocage, les appels à :func:`emit()` ne propagent rien ; seule la **dernière** valeur est mémorisée."
+msgstr "During blocking, calls to :func:`emit()` do not propagate anything; only the **last** value is stored."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:4
+msgid "À la fin du blocage externe (compteur à 0), une **seule** émission est effectuée avec la dernière valeur mémorisée (ou `None` si aucune)."
+msgstr "At the end of the external block (counter at 0), a **single** emission is performed with the last stored value (or `None` if none)."
+
+#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst:9
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst:12
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.connect:1
+msgid "Connecte une fonction ou un slot au signal encapsulé."
+msgstr "Connects a function or slot to the encapsulated signal."
+
+#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst of
+#: palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.emit
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.connect:3
+msgid "Fonction ou slot à connecter."
+msgstr "Function or slot to connect."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:1
+msgid "Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
+msgstr "Disconnects `f` if provided, otherwise **all** slots. Returns the number of disconnected slots."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:3
+msgid "Fonction ou slot à déconnecter."
+msgstr "Function or slot to disconnect."
+
+#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:4
+msgid "Nombre de slots déconnectés."
+msgstr "Number of disconnected slots."
+
+#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.emit:1
+msgid "Émet le signal encapsulé."
+msgstr "Emits the encapsulated signal."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:1
+msgid "Retourne un contexte de blocage des signaux."
+msgstr "Returns a signal blocking context."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:3
+msgid "Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage."
+msgstr "If ``True``, emits the last value at the end of the block. If ``False``, ignores all emissions received during the block."

@@ -17,7 +17,7 @@ class FileMigratorWidget(QWidget):
 	"""Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."""
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -71,7 +71,7 @@ class FileMigratorWidget(QWidget):
 		self._btn_migrate.clicked.connect(self._on_migrate)
 
 	# ==================================================
-	# endregion Initialisation
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================

@@ -1,0 +1,67 @@
+#: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst:2
+msgid "ButtonGroup"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:1
+msgid "Classe pour un paramètre spécifique de type groupe de boutons."
+msgstr "Class for a specific setting of type button group."
+
+#: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:3
+msgid "Nom du paramètre à afficher."
+msgstr "Name of the setting to display."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:4
+msgid "Description détaillée en overlay."
+msgstr "Detailed description in the overlay."
+
+#: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.default:1
+msgid "Valeur (position dans la liste) par défaut du paramètre (:class:`int`)."
+msgstr "Default value (position in the list) of the setting (:class:`int`)."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.group:1
+msgid "Dictionnaire des Groupes de boutons."
+msgstr "Dictionary of Button Groups."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.value:1
+msgid "Valeur actuelle du paramètre (position dans la liste en :class:`int`)."
+msgstr "Current value of the setting (position in the list as :class:`int`)"
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.current_text:1
+msgid "Valeur actuelle du paramètre (élément dans la liste en :class:`str`)."
+msgstr "Current value of the setting (element in the list as :class:`str`)"
+
+#: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst:17
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst:20
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.get_ui:4
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst
+msgid "Type renvoyé"
+msgstr "Return type"

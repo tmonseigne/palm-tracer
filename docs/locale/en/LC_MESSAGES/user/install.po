@@ -43,7 +43,7 @@ msgid "Le dossier :file:`palm-tracer` sera alors créé dans le répertoire cour
 msgstr "The :file:`palm-tracer` folder will then be created in the current directory."
 
 #: ../../user/install.rst:40
-msgid "Vous devez maintenant dézipper le fichier :file:`DLL.7z`. Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici` Le mot de passe vous est demandé lors de l'extraction. Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\\\palm_tracer\\\\DLL`)."
+msgid "Vous devez maintenant dézipper le fichier :file:`DLL.7z`. Faites un clic droit sur le fichier, puis :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`. Le mot de passe vous est demandé lors de l'extraction. Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\\\palm_tracer\\\\DLL`)."
 msgstr "You must now extract the :file:`DLL.7z` file. Right-click the file, then :menuselection:`Show more options --> 7-Zip --> Extract Here`. You will be asked for the password during extraction. The extracted content is automatically placed in the appropriate folder (:file:`palm-tracer\\\\palm_tracer\\\\DLL`)."
 
 #: ../../user/install.rst:46
@@ -67,7 +67,7 @@ msgid "Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\
 msgstr "Extract the files into an accessible folder (for example, :file:`C:\\\\palm-tracer`)."
 
 #: ../../user/install.rst:52
-msgid "Dezippez le fichier :file:`DLL.7z` :"
+msgid "Dézippez le fichier :file:`DLL.7z` :"
 msgstr "Extract the :file:`DLL.7z` file:"
 
 #: ../../user/install.rst:53
@@ -95,7 +95,7 @@ msgid "Étape 2 : Installation de Python et des éléments additionnels"
 msgstr "Step 2: Installing Python and additional components"
 
 #: ../../user/install.rst:66
-msgid "Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installation à partir de :console:`PowerShell` (nécessite des droits administrateur)"
+msgid "Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installations à partir de :console:`PowerShell` (nécessite des droits administrateur)"
 msgstr "You can use `Chocolatey <https://chocolatey.org/install>`_ to manage your programs and installations from :console:`PowerShell` (requires administrator rights)."
 
 #: ../../user/install.rst:78

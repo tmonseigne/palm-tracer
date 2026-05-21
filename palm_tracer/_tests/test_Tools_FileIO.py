@@ -76,7 +76,7 @@ def test_get_last_file():
 	assert res.endswith("File-03.txt"), "Fichier trouvé incorrect"
 	res = FileIO.get_last_file(INPUT_DIR, "File", "time")
 	# L'ordre de création des fichiers de test lors de la copie peut changer, on ne peut faire un vrai assert.
-	# assert res.endswith("File-03.txt"), "Fichier trouvé incorrect."
+	# Assert res.endswith("File-03.txt"), "Fichier trouvé incorrect."
 	print(res)
 
 

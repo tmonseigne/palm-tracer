@@ -139,7 +139,7 @@ msgid "Ouverture des fichiers"
 msgstr "File opening"
 
 #: ../../user/viewer_3d.rst:113
-msgid "Pour mettre à jour ou modifier le fichier utilisé par la visionneuse, il faut cliquer sur le bouton :guilabel:`Load CSV`. Pour être valide le fichier doit contenir au moins les colonnes X, Y, Z et Integrated Intensity"
+msgid "Pour mettre à jour ou modifier le fichier utilisé par la visionneuse, il faut cliquer sur le bouton :guilabel:`Load CSV`. Pour être valide, le fichier doit contenir au moins les colonnes X, Y, Z et Integrated Intensity"
 msgstr "To update or change the file used by the viewer, click the :guilabel:`Load CSV` button. To be valid, the file must contain at least the X, Y, Z, and Integrated Intensity columns."
 
 #: ../../user/viewer_3d.rst:118 ../../user/viewer_3d.rst:127

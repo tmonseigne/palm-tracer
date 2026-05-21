@@ -27,7 +27,7 @@ class BaseSettingType:
 	Elle est utilisée comme	base pour des paramètres plus spécifiques.
 	Chaque paramètre pourra hériter de cette classe pour définir son comportement et ses options spécifiques.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	"""
 
@@ -67,9 +67,10 @@ class BaseSettingType:
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUI:
 		"""
-		Retourne un objet :class:`.BaseUI`, existant ou le créé si necessaire.
+		Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire.
 
-		:param name: Nom de l'interface dans le dictionnaire
+		:param name: Nom de l'interface dans le dictionnaire.
+		:return: Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`).
 		"""
 		raise NotImplementedError("La méthode 'get_ui' doit être implémentée dans la sous-classe.")
 
@@ -78,7 +79,7 @@ class BaseSettingType:
 		"""
 		Supprime l'interface Qt associée au nom donné.
 
-		:param name: Nom de l'interface dans le dictionnaire
+		:param name: Nom de l'interface dans le dictionnaire.
 		"""
 		self._uis.pop(name, None)
 
@@ -143,21 +144,21 @@ class BaseSettingType:
 	##################################################
 	def attach_to_form(self, ui_name: str, form: QFormLayout):
 		"""
-		Connecte un boutton directement et non le setting en lui-même.
+		Connecte un bouton directement et non le paramètre en lui-même.
 
-		:param ui_name: Nom de l'interface à connecter
-		:param form: Formulaire qui va recevoir le widget
+		:param ui_name: Nom de l'interface à connecter.
+		:param form: Formulaire qui va recevoir le widget.
 		"""
 		self.get_ui(ui_name).attach_to_form(form)
 
 	##################################################
 	def connect_button(self, f: Any, ui_name: str = "default", n: int = 0):
 		"""
-		Connecte un boutton directement et non le setting en lui-même.
+		Connecte un bouton directement et non le paramètre en lui-même.
 
 		:param f: Fonction ou slot à connecter.
-		:param ui_name: Nom de l'interface à connecter
-		:param n: Numéro de la boite contenant le Boutton
+		:param ui_name: Nom de l'interface à connecter.
+		:param n: Numéro de la boite contenant le bouton.
 		"""
 		b = cast(QPushButton, self.get_ui(ui_name).boxes[n])
 		b.clicked.connect(f)
@@ -177,7 +178,7 @@ class BaseSettingType:
 		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés
+		:return: Nombre de slots déconnectés.
 		"""
 		return self._signal.disconnect(f)
 
@@ -188,7 +189,7 @@ class BaseSettingType:
 
 		Utilisé pour notifier les parties de l'application abonnées au signal.
 
-		:param value: Valeur à émettre
+		:param value: Valeur à émettre.
 		"""
 		self._signal.emit(value)  # Émission du signal.
 

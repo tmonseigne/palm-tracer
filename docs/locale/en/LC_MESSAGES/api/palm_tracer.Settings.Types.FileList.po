@@ -1,0 +1,105 @@
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:2
+msgid "FileList"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.FileList.FileList:1
+msgid "Classe pour un paramètre spécifique de type recherche de fichier."
+msgstr "Class for a specific setting of type file search."
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst of
+#: palm_tracer.Settings.Types.FileList.FileList.update_from_compact_dict
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.FileList.FileList:3
+msgid "Nom du paramètre à afficher."
+msgstr "Name of the setting to display."
+
+#: of palm_tracer.Settings.Types.FileList.FileList:4
+msgid "Description détaillée en overlay."
+msgstr "Detailed description in the overlay."
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.FileList.FileList.default:1
+msgid "Valeur (position dans la liste) par défaut du paramètre (:class:`int`)."
+msgstr "Default value (position in the list) of the setting (:class:`int`)."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.value:1
+msgid "Valeur actuelle du paramètre (position dans la liste en :class:`int`)."
+msgstr "Current value of the setting (position in the list as :class:`int`)"
+
+#: of palm_tracer.Settings.Types.FileList.FileList.current_text:1
+msgid "Valeur actuelle du paramètre (élément dans la liste en :class:`str`)."
+msgstr "Current value of the setting (element in the list as :class:`str`)"
+
+#: of palm_tracer.Settings.Types.FileList.FileList.items:1
+msgid "Récupère la liste des éléments."
+msgstr "Retrieves the list of elements."
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:17
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:20
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Types.FileList.FileList.reset:1
+msgid "Réinitialise le paramètre à sa valeur par défaut."
+msgstr "Resets the setting to its default value."
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:25
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.FileList.FileList.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.FileList.FileList.get_ui:4
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst of
+#: palm_tracer.Settings.Types.FileList.FileList.to_compact_dict
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:30
+msgid "Parsing"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.FileList.FileList.to_compact_dict:1
+msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
+msgstr "Returns a minimal dictionary containing the setting’s value."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.update_from_compact_dict:1
+msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+msgstr "Updates the class from a minimal dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:36
+msgid "Callbacks"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.FileList.FileList.add_file:1
+msgid "Ajoute un fichier à la liste via un :class:`QFileDialog`."
+msgstr "Adds a file to the list using a :class:`QFileDialog`."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.remove_file:1
+msgid "Supprime le fichier actuellement sélectionné dans la :class:`QComboBox`."
+msgstr "Removes the file currently selected in the :class:`QComboBox`."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.clear_files:1
+msgid "Vide la liste des fichiers."
+msgstr "Clears the list of files."

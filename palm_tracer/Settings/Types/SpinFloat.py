@@ -4,7 +4,7 @@ Fichier contenant la classe :class:`SpinFloat` dérivée de :class:`.BaseSetting
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import cast
 
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel
@@ -20,7 +20,7 @@ class SpinFloat(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type nombre réel.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeur par défaut du paramètre.
 	:param limits: Valeurs limites du paramètre.

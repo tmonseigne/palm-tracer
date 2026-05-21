@@ -17,7 +17,6 @@ import plotly.graph_objects as go
 from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Parsing, Renderer
 from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups import HRGaussian
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO, Logger, Ui
 
@@ -113,11 +112,11 @@ class PALMTracer:
 	# ==================================================
 
 	# ==================================================
-	# region Getter / Setter
+	# region Getter/Setter
 	# ==================================================
 	##################################################
 	def get_localization_key(self) -> str:
-		"""Clé des localisations (filtrée si elle est non vide) et corrigé si elle est non vide également"""
+		"""Clé des localisations (filtrées si le tableau est non vide) et corrigées si le tableau est non vide également."""
 		if self.df["f_dft"].empty:
 			if self.df["dft"].empty:
 				if self.df["f_loc"].empty:
@@ -128,7 +127,7 @@ class PALMTracer:
 
 	##################################################
 	def get_tracks_key(self) -> str:
-		"""Clé des trajectoires (filtrée si elle est non vide) et reconnectée si elle est non vide également."""
+		"""Clé des trajectoires (filtrées si le tableau est non vide) et reconnectées si le tableau est non vide également."""
 		if self.df["f_blk"].empty:
 			if self.df["blk"].empty:
 				if self.df["f_trc"].empty:
@@ -139,7 +138,7 @@ class PALMTracer:
 
 	##################################################
 	def get_tracks_compute_key(self) -> list[str]:
-		"""Clé des calculs sur trajectoires (filtrés si non vide)."""
+		"""Clé des calculs sur trajectoires (filtrées si le tableau est non vide)."""
 		if self.df["f_MSD"].empty and self.df["f_InD"].empty and self.df["f_Fit"].empty:
 			return ["MSD", "InD", "Fit"]
 		return ["f_MSD", "f_InD", "f_Fit"]
@@ -148,7 +147,7 @@ class PALMTracer:
 	def get_status(self) -> dict[str, str]:
 		"""
 		Retourne un dictionnaire décrivant le statut des tableaux actuellement chargés dans ``self._df``
-		pour les différentes catégories de données (Localisation, Trajectoires, MSD, Diffusion instantanée, Fit).
+		pour les différentes catégories de données (Localisations, Trajectoires, MSD, Diffusion instantanée, Fit).
 
 		Cette méthode analyse chaque tableau pour savoir s'il correspond :
 			- à un tableau standard,
@@ -160,7 +159,7 @@ class PALMTracer:
 		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`.
 
 		Le dictionnaire retourné contient systématiquement les clés suivantes :
-		``"Localization"``, ``"Beads"``,``"Tracking"``, ``"MSD"``, ``"Instant D"``, ``"Fit"``
+		``Localization``, ``Beads``, ``Tracking``, ``MSD``, ``Instant D``, ``Fit``
 
 		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
 		"""
@@ -220,7 +219,7 @@ class PALMTracer:
 	##################################################
 	@property
 	def tracks_compute(self) -> dict[str, pd.DataFrame]:
-		"""Getter du trio de :class:`DataFrame <pandas.DataFrame>` des calculs sur trajectoires (filtrés si non vide)."""
+		"""Getter du trio de :class:`DataFrame <pandas.DataFrame>` des calculs sur trajectoires (filtrées si le tableau est non vide)."""
 		keys = self.get_tracks_compute_key()
 		return {"MSD": self.df[keys[0]], "InD": self.df[keys[1]], "Fit": self.df[keys[2]]}
 
@@ -245,16 +244,17 @@ class PALMTracer:
 	##################################################
 	def _output_name(self, name: str, ext: str = "csv", previous: bool = False) -> Path:
 		"""
-		Indique le nom du fichier à enregistrer CHEMIN / name-Timestamp.extension
-		:param name: Nomp du fichier
-		:param ext: Extension du fichier (par défaut csv, exception pour le log, les paramètres et les visualizations)
+		Indique le nom du fichier à enregistrer CHEMIN / name-Timestamp.extension.
+
+		:param name: Nomp du fichier.
+		:param ext: Extension du fichier (par défaut csv, exception pour le log, les paramètres et les visualizations).
 		:param previous: Si True, application du précédent timestamp. Sinon Timestamp Actuel.
-		:return: Nom du fichier
+		:return: Nom du fichier.
 		"""
 		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
 
 	# ==================================================
-	# endregion Getter / Setter
+	# endregion Getter/Setter
 	# ==================================================
 
 	# ==================================================
@@ -278,7 +278,7 @@ class PALMTracer:
 		print(f"Loading setting file '{settings_filename}'.")
 		with self.settings.signal_blocked():
 			cfg = FileIO.open_json(settings_filename)
-			self.settings.update_from_compact_dict(cfg)  # self.settings.update_from_dict(cfg) si l'on veut un setting complet
+			self.settings.update_from_compact_dict(cfg)
 			self.settings.localization["Preview"].value = False
 
 		# --- Chargement des fichiers associés à ces paramètres. ---
@@ -344,14 +344,14 @@ class PALMTracer:
 			self.save_meta()
 
 			# Enregistrement des paramètres une première fois pour avoir une trace
-			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())  # self.settings.to_dict() si l'on veut un setting complet
+			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())
 			self._logger.add("Settings saved.")
 
 			# Lancement des traitements
 			pipeline_dirty = False
 			for step in self._STEPS: pipeline_dirty = self._process_step(step, previous_settings, pipeline_dirty)
 
-			# Lancement de la génération de Galleries
+			# Lancement de la génération de Galeries
 			if self.settings.gallery.active:
 				self._logger.add("Gallery generation enabled.")
 				self._gallery()
@@ -378,7 +378,7 @@ class PALMTracer:
 
 	##################################################
 	def save_meta(self):
-		""" Sauvegarde le fichier meta (Création du DataFrame et sauvegarde en CSV si différent du précédent)"""
+		""" Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."""
 		prev_name = Path(self._output_name("meta", previous=True))
 		prev_meta = pd.read_csv(prev_name) if prev_name.is_file() else None
 
@@ -394,10 +394,11 @@ class PALMTracer:
 	##################################################
 	def _process_step(self, step: Step, previous_settings: Settings | None, pipeline_dirty: bool) -> bool:
 		"""
+		Éffectue une étape du pipeline.
 
 		:param step: Etape du pipeline.
 		:param previous_settings: Paramètres du précédent pipeline.
-		:param pipeline_dirty: Etat du pipeline (si True, Reuse est devenu impossible)
+		:param pipeline_dirty: État du pipeline (si True, Reuse est devenu impossible).
 		"""
 		group = getattr(self.settings, step.group_name)
 		previous_group = getattr(previous_settings, step.group_name) if isinstance(previous_settings, Settings) else None
@@ -519,9 +520,7 @@ class PALMTracer:
 			Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
 			Si ce n'est pas le cas, le modèle est considéré comme invalide.
 
-		.. tip::
-			Permet de rendre l'appel robuste en cas de chemin utilisateur invalide,
-			en utilisant automatiquement des emplacements par défaut du projet.
+		.. tip:: Permet de rendre l'appel robuste en cas de chemin utilisateur invalide, en utilisant automatiquement des emplacements par défaut du projet.
 		"""
 		res = pd.DataFrame()
 		final_path = Path(path)
@@ -634,7 +633,7 @@ class PALMTracer:
 		"""
 		Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original.
 
-		:param last: Utilise les dernières version des dataframes si `True`, sinon les données brutes seront utilisées.
+		:param last: Utilise les dernières versions des dataframes si `True`, sinon les données brutes seront utilisées.
 		"""
 		df = {}
 		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
@@ -657,7 +656,7 @@ class PALMTracer:
 
 	##################################################
 	def save_filtered(self):
-		"""Enregistre tous les fichiers filtrés s'ils ne sont pas vide."""
+		"""Enregistre tous les fichiers filtrés s'ils ne sont pas vides."""
 		self._timestamp = FileIO.get_timestamp_for_files()
 		for key, fname in self.KEYS_TO_FILE.items():
 			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
@@ -666,7 +665,7 @@ class PALMTracer:
 
 	##################################################
 	def connect_filters_button(self, ui_name: str = "default"):
-		"""Connecte les bouttons d'une interface de filtre."""
+		"""Connecte les boutons d'une interface de filtre."""
 		filters = self.settings.filters
 		filters.connect_button(self.reset_filtered, ui_name, "reset")
 		filters.connect_button(self.update_filtered, ui_name, "update")
@@ -721,9 +720,9 @@ class PALMTracer:
 		"""
 		Application du log avec suppression du warning pour les valeurs ≤ 0 et remplacement par Nan de ces valeurs.
 
-		:param data: Données à transformer
-		:param log: Application du log ou non
-		:return: Données transformées
+		:param data: Données à transformer.
+		:param log: Application du log ou non.
+		:return: Données transformées.
 		"""
 		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
 
@@ -820,7 +819,7 @@ class PALMTracer:
 	# ==================== HR ====================
 	##################################################
 	def hr(self) -> tuple[np.ndarray, np.ndarray]:
-		"""Génère une représentation Haute Résolution des données."""
+		"""Génère une représentation en Haute Résolution des données."""
 		viz, plot_data = np.zeros((1, 1), dtype=np.uint16), np.zeros((1, 1), dtype=np.float64)
 		if self._stack is None: return viz, plot_data
 
@@ -841,8 +840,7 @@ class PALMTracer:
 			viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
 			plot_data = df[["Y", "X"]].to_numpy() * upscale
 
-			s_g = cast(HRGaussian, s["Gaussian"])
-			gaussian = s_g.settings if s_g.active else None
+			gaussian = s.gaussian.settings if s.gaussian.active else None
 			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
 			viz = self._renderer.localizations(viz_data, color_mode, gaussian)
 			return viz, plot_data
@@ -880,7 +878,7 @@ class PALMTracer:
 		"""
 		Recadre automatiquement l'image en supprimant les zones nulles autour, avec une marge configurable.
 
-		:param img: Image à recadrer
+		:param img: Image à recadrer.
 		:param margin: Nombre de pixels à conserver autour de la zone utile.
 		:return: Image recadrée.
 		"""

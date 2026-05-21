@@ -19,7 +19,7 @@ class Combo(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type liste déroulante.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeurs par défaut du paramètre.
 	:param _items: Choix de la liste déroulante.

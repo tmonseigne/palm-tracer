@@ -1,0 +1,113 @@
+#: ../../api/palm_tracer.UI.ViewerHRWidget.rst:2
+msgid "ViewerHRWidget"
+msgstr ""
+
+#: of palm_tracer.UI.ViewerHRWidget:1
+msgid "Widget d'affichage Haute Résolution pour Napari permettant de charger un dossier de résultats et de visualiser les points."
+msgstr "High-Resolution display widget for Napari that allows you to load a results folder and visualize the points."
+
+#: of palm_tracer.UI.ViewerHRWidget:3
+msgid "Ce widget ajoute dans le dock de Napari :"
+msgstr "This widget adds the following to the Napari dock:"
+
+#: of palm_tracer.UI.ViewerHRWidget:4
+msgid "un bouton de chargement du dossier,"
+msgstr "a button to load the folder,"
+
+#: of palm_tracer.UI.ViewerHRWidget:5
+msgid "trois champs pour contrôler les paramètres de visualisation Haute Résolution,"
+msgstr "three fields to control the High-Resolution display settings,"
+
+#: of palm_tracer.UI.ViewerHRWidget:6
+msgid "un calque Napari Points/trajectoires mis à jour dynamiquement."
+msgstr "a Napari Points/Trajectories layer that updates dynamically."
+
+#: of palm_tracer.UI.ViewerHRWidget:7
+msgid "Un bouton pour sauvegarder une image PNG résultat"
+msgstr "A button to save a PNG image of the results"
+
+#: of palm_tracer.UI.ViewerHRWidget:9
+msgid "À faire"
+msgstr "To-do"
+
+#: of palm_tracer.UI.ViewerHRWidget:9
+msgid "Warning si plus de 10 millions de points sur un affichage (avec option \"se souvenir du choix\")."
+msgstr "Warning if there are more than 10 million points on a display (with the \"remember selection\" option)."
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:1
+msgid "Widget d'affichage HR pour un viewer Napari."
+msgstr "HR display widget for a Napari viewer."
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:3
+msgid "Ce widget permet :"
+msgstr "This widget allows you to:"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:4
+msgid "de charger un dossier,"
+msgstr "load a folder,"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:5
+msgid "de modifier la taille des points,"
+msgstr "change the size of the points,"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:6
+msgid "de modifier le facteur d'agrandissement,"
+msgstr "change the zoom factor,"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:7
+msgid "de sélectionner la source d'information permettant la coloration des points,"
+msgstr "select the data source for point coloring,"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:8
+msgid "de créer ou mettre à jour un calque de type :class:`napari.layers.Points` ou :class:`napari.layers.Tracks`,"
+msgstr "create or update a layer of type :class:`napari.layers.Points` or :class:`napari.layers.Tracks`,"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:9
+msgid "de sauvegarder une image PNG résultat de la visualisation."
+msgstr "save a PNG image of the visualization result."
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:11
+msgid "**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer \"Viewer HR\"``"
+msgstr "**Note**: can be launched directly with the command ``napari -w palm-tracer \"Viewer HR\"``"
+
+#: ../../api/palm_tracer.UI.ViewerHRWidget.rst of
+#: palm_tracer.UI.ViewerHRWidget.create_viewerhr
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:13
+msgid "Instance du viewer Napari où sera ajouté le calque HR."
+msgstr "Instance of the Napari viewer to which the HR layer will be added."
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:14
+msgid "Instance PALMTracer à lier."
+msgstr "PALMTracer instance to link."
+
+#: of palm_tracer.UI.ViewerHRWidget.create_viewerhr:1
+msgid "Crée une nouvelle fenêtre Napari HR, sans menu, et y ajoute le ViewerHRWidget docké à droite."
+msgstr "Creates a new Napari HR window, without a menu, and adds the ViewerHRWidget docked on the right."
+
+#: of palm_tracer.UI.ViewerHRWidget.create_viewerhr:3
+msgid "Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active."
+msgstr "This function does NOT launch napari.run(): it is designed to be called from a plugin, i.e., within an already active Qt application."
+
+#: ../../api/palm_tracer.UI.ViewerHRWidget.rst of
+#: palm_tracer.UI.ViewerHRWidget.create_viewerhr
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:1
+msgid "Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR."
+msgstr "Callable used by Napari for the Plugins > PALM Tracer > Viewer HR menu."
+
+#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:3
+msgid "Ignore le viewer courant."
+msgstr "Ignores the current viewer."
+
+#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:4
+msgid "Crée une nouvelle fenêtre Napari HR dédiée."
+msgstr "Creates a new dedicated Napari HR window."
+
+#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:5
+msgid "Retourne un QWidget stub (caché) juste pour satisfaire l'API \"widget plugin\" de Napari."
+msgstr "Returns a stub QWidget (hidden) just to satisfy Napari's \"widget plugin\" API."

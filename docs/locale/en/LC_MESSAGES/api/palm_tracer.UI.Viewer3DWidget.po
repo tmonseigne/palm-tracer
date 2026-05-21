@@ -1,0 +1,144 @@
+#: ../../api/palm_tracer.UI.Viewer3DWidget.rst:2
+msgid "Viewer3DWidget"
+msgstr ""
+
+#: of palm_tracer.UI.Viewer3DWidget:1
+msgid "Widget d'affichage 3D pour Napari permettant de charger un fichier CSV et de visualiser les points en 3D avec ajustements interactifs des échelles et de la taille des points."
+msgstr "A 3D display widget for Napari that allows you to load a CSV file and view points in 3D with interactive adjustments to the X, Y, and Z scales and point size."
+
+#: of palm_tracer.UI.Viewer3DWidget:4
+msgid "Ce widget ajoute dans le dock de Napari :"
+msgstr "This widget adds the following to the Napari dock:"
+
+#: of palm_tracer.UI.Viewer3DWidget:5
+msgid "un bouton de chargement de fichier CSV,"
+msgstr "a button to load a CSV file,"
+
+#: of palm_tracer.UI.Viewer3DWidget:6
+msgid "trois champs pour contrôler les échelles en XY et Z et la taille des points,"
+msgstr "three fields to control the XY and Z scales and the point size,"
+
+#: of palm_tracer.UI.Viewer3DWidget:7
+msgid "une option permettant d'exclure les points avec intensité nulle,"
+msgstr "an option to exclude points with zero intensity,"
+
+#: of palm_tracer.UI.Viewer3DWidget:8
+msgid "un calque Napari Points mis à jour dynamiquement."
+msgstr "a dynamically updated Napari Points layer."
+
+#: of palm_tracer.UI.Viewer3DWidget:10
+msgid "Le CSV doit contenir les colonnes ``X``, ``Y``, ``Z`` et ``Integrated Intensity``."
+msgstr "The CSV must contain the columns ``X``, ``Y``, ``Z``, and ``Integrated Intensity``."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:1
+msgid "Widget d'affichage 3D pour un viewer Napari."
+msgstr "3D display widget for a Napari viewer."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:3
+msgid "Ce widget permet :"
+msgstr "This widget allows you to:"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:4
+msgid "de charger un fichier CSV contenant des coordonnées 3D"
+msgstr "load a CSV file containing 3D coordinates"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:5
+msgid "d'ajuster l'échelle XY et Z"
+msgstr "adjust the XY and Z scales"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:6
+msgid "de modifier la taille des points"
+msgstr "change the size of the points"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:7
+msgid "d'activer ou non la suppression des points d'intensité nulle"
+msgstr "enable or disable the removal of points with zero intensity"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:8
+msgid "de créer ou mettre à jour un calque de type :class:`napari.layers.Points`."
+msgstr "create or update a layer of type :class:`napari.layers.Points`."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:10
+msgid "**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer \"Viewer 3D\"``"
+msgstr "**Note**: Can be launched directly with the command ``napari -w palm-tracer \"Viewer 3D\"``"
+
+#: ../../api/palm_tracer.UI.Viewer3DWidget.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:12
+msgid "Instance du viewer Napari où sera ajouté le calque 3D."
+msgstr "Instance of the Napari viewer to which the 3D layer will be added."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.load_csv:1
+msgid "Ouvre une boîte de dialogue pour sélectionner un fichier ``.csv`` et charge les données associées dans un :class:`pandas.DataFrame`."
+msgstr "Opens a dialog box to select a ``.csv`` file and loads the associated data into a :class:`pandas.DataFrame`."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.load_csv:3
+msgid "Le fichier doit contenir les colonnes : ``\"X\"``, ``\"Y\"``, ``\"Z\"``, ``\"Integrated Intensity\"``"
+msgstr "The file must contain the following columns: ``\"X\"``, ``\"Y\"``, ``\"Z\"``, ``\"Integrated Intensity\"``"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.load_csv:5
+msgid "Si un calque existe déjà, il est supprimé avant la création du nouveau."
+msgstr "If a layer already exists, it is deleted before the new one is created."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.load_csv:7
+msgid "Cette méthode déclenche ensuite :meth:`update_layer` pour créer le calque 3D."
+msgstr "This method then triggers :meth:`update_layer` to create the 3D layer."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.update_layer:1
+msgid "Crée ou mets à jour le calque de points 3D dans le viewer Napari."
+msgstr "Creates or updates the 3D point layer in the Napari viewer."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.update_layer:3
+msgid "Transformations appliquées :"
+msgstr "Applied transformations:"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.update_layer:4
+msgid "réorganisation des coordonnées sous la forme ``(Z, Y, X)``"
+msgstr "reorganization of coordinates into the form ``(Z, Y, X)``"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.update_layer:5
+msgid "mise à l'échelle par les valeurs choisies dans les widgets"
+msgstr "scaling based on the values selected in the widgets"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.update_layer:6
+msgid "suppression éventuelle des points dont ``Integrated Intensity == 0``"
+msgstr "possible removal of points where ``Integrated Intensity == 0``"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.update_layer:7
+msgid "mise à jour dynamique du calque existant ou création d'un nouveau"
+msgstr "dynamic update of the existing layer or creation of a new one"
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.update_layer:9
+msgid "Si aucune donnée n'est encore chargée, la méthode ne fait rien."
+msgstr "If no data has been loaded yet, the method does nothing."
+
+#: of palm_tracer.UI.Viewer3DWidget.create_viewer3d:1
+msgid "Crée une nouvelle fenêtre Napari 3D, sans menu, et y ajoute le Viewer3DWidget docké à droite."
+msgstr "Creates a new Napari 3D window, without a menu, and adds the Viewer3DWidget docked on the right."
+
+#: of palm_tracer.UI.Viewer3DWidget.create_viewer3d:3
+msgid "Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active."
+msgstr "This function does NOT call napari.run(): it is designed to be called from a plugin, i.e., within an already active Qt application."
+
+#: ../../api/palm_tracer.UI.Viewer3DWidget.rst of
+#: palm_tracer.UI.Viewer3DWidget.create_viewer3d
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:1
+msgid "Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer 3D."
+msgstr "Callable used by Napari for the Plugins > PALM Tracer > Viewer 3D menu."
+
+#: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:3
+msgid "Ignore le viewer courant."
+msgstr "Ignores the current viewer."
+
+#: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:4
+msgid "Crée une nouvelle fenêtre Napari 3D dédiée."
+msgstr "Creates a new dedicated Napari 3D window."
+
+#: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:5
+msgid "Retourne un QWidget stub (caché) juste pour satisfaire l'API \"widget plugin\" de Napari."
+msgstr "Returns a stub QWidget (hidden) solely to satisfy Napari's \"widget plugin\" API."

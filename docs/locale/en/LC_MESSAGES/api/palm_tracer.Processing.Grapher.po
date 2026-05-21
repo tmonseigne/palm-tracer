@@ -1,0 +1,192 @@
+#: ../../api/palm_tracer.Processing.Grapher.rst:2
+msgid "Grapher"
+msgstr ""
+
+#: of palm_tracer.Processing.Grapher.Grapher:1
+msgid "Créateur de graphiques avec Plotly."
+msgstr "Graph creator using Plotly."
+
+#: ../../api/palm_tracer.Processing.Grapher.rst:9
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Processing.Grapher.rst:12
+msgid "Statistic Figure"
+msgstr ""
+
+#: of palm_tracer.Processing.Grapher.Grapher.blank:1
+msgid "Créé une figure vide avec une annotation standard au centre ``_BLANK_ANNOTATIONS``."
+msgstr "Creates an empty figure with a standard annotation in the center ``_BLANK_ANNOTATIONS``."
+
+#: ../../api/palm_tracer.Processing.Grapher.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Processing.Grapher.Grapher.blank:3
+msgid "Titre de la figure."
+msgstr "Figure title."
+
+#: ../../api/palm_tracer.Processing.Grapher.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.Grapher.Grapher.blank:4
+msgid ":class:`go.Figure <plotly.graph_objects.Figure>` Figure avec l'annotation."
+msgstr ":class:`go.Figure <plotly.graph_objects.Figure>` Figure with annotation."
+
+#: ../../api/palm_tracer.Processing.Grapher.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:1
+msgid "Trace un histogramme des données \"façon\" Seaborn avec Plotly et optionnellement une courbe kernel density estimation."
+msgstr "Plots a Seaborn-style histogram of the data using Plotly and, optionally, a kernel density estimation curve."
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:3
+msgid "Données sous forme de tableau numpy 1D/ND (aplati)."
+msgstr "Data in the form of a 1D/ND (flattened) NumPy array."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:14
+#: palm_tracer.Processing.Grapher.Grapher.cloud:4
+#: palm_tracer.Processing.Grapher.Grapher.histogram:4
+#: palm_tracer.Processing.Grapher.Grapher.scatter:4
+msgid "Titre du graphe."
+msgstr "Graph title."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:5
+#: palm_tracer.Processing.Grapher.Grapher.histogram:5
+#: palm_tracer.Processing.Grapher.Grapher.scatter:5
+msgid "Label optionnel pour l'axe X. Si la chaine est vide, ne change rien."
+msgstr "Optional label for the X-axis. If the string is empty, no change is made."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:6
+#: palm_tracer.Processing.Grapher.Grapher.histogram:6
+#: palm_tracer.Processing.Grapher.Grapher.scatter:6
+msgid "Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien."
+msgstr "Optional label for the Y-axis. If the string is empty, no change is made."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:7
+#: palm_tracer.Processing.Grapher.Grapher.histogram:7
+#: palm_tracer.Processing.Grapher.Grapher.scatter:7
+msgid "Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers)."
+msgstr "If True, applies the 3-sigma rule to trim outliers."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:8
+#: palm_tracer.Processing.Grapher.Grapher.histogram:8
+#: palm_tracer.Processing.Grapher.Grapher.scatter:8
+msgid "Si True, superpose la moyenne, ±1,±2,±3 sigma."
+msgstr "If True, overlays the mean, ±1, ±2, ±3 sigma."
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:9
+msgid "Si True, superpose la KDE gaussienne."
+msgstr "If True, overlay the Gaussian KDE."
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:10
+msgid "Si True, superpose la gaussienne."
+msgstr "If True, overlay the Gaussian curve."
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:11
+msgid "Affiche l'histogramme en densité (True) ou en compte (False)."
+msgstr "Display the histogram as density (True) or count (False)."
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:12
+msgid "Nombre de bins explicite (sinon Sturges)."
+msgstr "Explicit number of bins (otherwise Sturges)."
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:13
+msgid "Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée."
+msgstr "If True, display the cumulative histogram along with the cumulative versions of the KDE and Gaussian curves."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:11
+#: palm_tracer.Processing.Grapher.Grapher.histogram:14
+#: palm_tracer.Processing.Grapher.Grapher.scatter:9
+msgid ":class:`go.Figure <plotly.graph_objects.Figure>`."
+msgstr ""
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:1
+#: palm_tracer.Processing.Grapher.Grapher.scatter:1
+msgid "Trace une courbe des données \"façon\" Seaborn avec Plotly."
+msgstr "Plots a Seaborn-style curve of the data using Plotly."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:3
+#: palm_tracer.Processing.Grapher.Grapher.scatter:3
+msgid "Données sous forme de tableau numpy 1D ou 2D."
+msgstr "Data in the form of a 1D or 2D NumPy array."
+
+#: ../../api/palm_tracer.Processing.Grapher.rst
+msgid "Lève"
+msgstr "Raise"
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:12
+#: palm_tracer.Processing.Grapher.Grapher.scatter:10
+msgid "Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)"
+msgstr "If the array dimensions do not match the expected ones (1D, 2D, but with only 2 rows or 2 columns)"
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:9
+msgid "Si True, superpose la KDE gaussienne 2D."
+msgstr "If True, overlays the 2D Gaussian KDE."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:10
+msgid "Si True, superpose la gaussienne 2D."
+msgstr "If True, overlays the 2D Gaussian."
+
+#: ../../api/palm_tracer.Processing.Grapher.rst:20
+msgid "Astigmtism Figure"
+msgstr ""
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:1
+msgid "Affiche la courbe d’astigmatisme 3D (σx, σy) issue d’un modèle analytique."
+msgstr "Displays the 3D astigmatism curve (σx, σy) derived from an analytical model."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:3
+msgid "Trois modes de visualisation sont disponibles :"
+msgstr "Three visualization modes are available:"
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:5
+msgid "``\"curve\"`` : Représentation paramétrique (σx(z), σy(z)) dans le plan (σX, σY), colorée par la profondeur Z."
+msgstr "``\"curve\"``: Parametric representation (σx(z), σy(z)) in the (σX, σY) plane, colored by the depth Z."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:6
+msgid "``\"cross\"`` : Courbes σx(z) et σy(z) en fonction de Z."
+msgstr "``\"cross\"``: Curves of σx(z) and σy(z) as a function of Z."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:7
+msgid "``\"slope\"`` : Courbe de la différence σx(z) - σy(z), utile pour estimer la monotonie et la sensibilité du modèle autour de Z = 0."
+msgstr "``\"slope\"``: Curve of the difference σx(z) - σy(z), useful for estimating the monotonicity and sensitivity of the model around Z = 0."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:9
+msgid "Si des données expérimentales sont fournies, elles sont superposées sous forme de points (sans interaction hover) dans les modes ``\"cross\"`` et ``\"slope\"``."
+msgstr "If experimental data are provided, they are overlaid as points (without hover interaction) in the ``\"cross\"`` and ``\"slope\"`` modes."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:12
+msgid "Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
+msgstr "Astigmatic model of form (2, 5): parameters X then Y, each row = [Z0, W, C3, C4, A]."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:13
+msgid "Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``."
+msgstr "Optional experimental data of form (N, 3): ``[σx, σy, Z]``."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:15
+msgid "Taille du pixel dans les mêmes unités que Z (ex. nm). Utilisé pour l’évaluation du modèle."
+msgstr "Pixel size in the same units as Z (e.g., nm). Used for model evaluation."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:16
+#, python-brace-format
+msgid "Valeur maximale (en valeur absolue) de l’intervalle Z : :math:`Z \\in [-z_{max}, z_{max}]`."
+msgstr "Maximum value (in absolute terms) of the Z interval: :math:`Z \\in [-z_{max}, z_{max}]`."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:17
+msgid "Mode de visualisation : ``\"curve\"`` : σX vs σY (paramétré par Z), ``\"cross\"`` : σX(Z) et σY(Z), ``\"slope\"`` : σX(Z) - σY(Z)."
+msgstr "Plot mode: ``\"curve\"``: σX vs σY (scaled by Z), ``\"cross\"``: σX(Z) and σY(Z), ``\"slope\"``: σX(Z) - σY(Z)."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:18
+msgid "Nombre de points utilisés pour échantillonner la courbe. Plus la valeur est élevée, plus la courbe est lisse (coût négligeable)."
+msgstr "Number of points used to sample the curve. The higher the value, the smoother the curve (negligible cost)."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:19
+msgid "Objet Plotly :class:`go.Figure <plotly.graph_objects.Figure>` prêt à être affiché."
+msgstr "Plotly object :class:`go.Figure <plotly.graph_objects.Figure>` ready to be displayed."
+
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:20
+msgid "Si les dimensions du modèle ne correspondent pas à celles attendues (2x5)."
+msgstr "If the model dimensions do not match the expected ones (2x5)."

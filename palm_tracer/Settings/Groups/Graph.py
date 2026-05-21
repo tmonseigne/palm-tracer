@@ -29,9 +29,12 @@ class Graph(BaseSettingGroup):
 	Classe contenant les paramètres de Visualization :
 
 	Attributs :
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Type de graphiques à générer (histogram, heat map, violon) (par défaut : `All`).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Élément de la localisation à analyser (par défaut : `All`).
+		- **Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi).
+		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter.
+		- **Dual** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Active la représentation de deux sources.
+		- **Source B** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source secondaire des données à représenter.
+		- **MSD Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Lors de la représentation du MSD, sélection de l'étape à représenter.
+		- **Display** (:class:`GraphDisplay <palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay>`) : Options d'affichage du graphique.
 	"""
 
 	label: str = "Graph"
@@ -44,29 +47,34 @@ class Graph(BaseSettingGroup):
 			"Display":  [GraphDisplay, []]}
 
 	##################################################
+	@property
+	def display(self) -> GraphDisplay:
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		return cast(GraphDisplay, self._settings["Display"])
+
+	##################################################
 	def initialize(self):
-		"""Initialise le dictionnaire de paramètres."""
 		super().initialize()
 		self._settings["Type"].connect(self.toggle_type)
 		self._settings["Dual"].connect(self.toggle_dual)
 		self._settings["Source"].connect(self.toggle_src)
 		self.toggle_dual(self._settings["Dual"].value)
-		self.toggle_src(self._settings["Source"].value)
+		self.toggle_src()
 
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
 		ui = super().get_ui(name, mode)
 		self.toggle_dual(self._settings["Dual"].value)
-		self.toggle_src(self._settings["Source"].value)
+		self.toggle_src()
 		return ui
 
 	##################################################
-	def toggle_type(self, btn_id: int):
+	def toggle_type(self):
 		"""Change la liste des sources pour les graphiques."""
 		self._update_src()
 
 	##################################################
-	def toggle_src(self, value):
+	def toggle_src(self):
 		"""Affiche ou masque l'option msd step à chaque changement de source."""
 		src = cast(Combo, self._settings["Source"])
 		if src.current_text == "MSD": self._settings["MSD Step"].show()

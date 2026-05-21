@@ -108,7 +108,7 @@ msgstr "the pixel size is divided by the magnification factor; for example, **10
 
 #: ../../user/tool_alignment.rst
 msgid "Pensez à mettre à jour vos paramètres de calibration pour les traitements ultérieurs."
-msgstr "Remember to update your calibration parameters for subsequent processing steps."
+msgstr "Remember to update your calibration settings for subsequent processing steps."
 
 #: ../../user/tool_alignment.rst:106
 msgid "L'appui sur le bouton :guilabel:`Start Alignment` lance le calcul d'alignement. Un nouveau fichier TIFF est généré dans le même dossier que le fichier d'origine, avec le suffixe :file:`_aligned`. Exemple : :file:`stack.tif` → :file:`stack_aligned.tif`."

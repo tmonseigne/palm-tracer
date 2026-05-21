@@ -2,9 +2,9 @@
 Fonctions utilitaires génériques pour la construction d'interfaces utilisateur Qt et l'affichage console coloré.
 
 Ce module regroupe :
-	- des helpers pour créer et configurer rapidement des layouts Qt cohérents (onglets, groupes, formulaires, séparateurs, spinbox, etc.) ;
+	- des helpers pour créer et configurer rapidement des calques Qt cohérents (onglets, groupes, formulaires, séparateurs, spinbox, etc.) ;
 	- des fonctions de synchronisation de widgets (callbacks) ;
-	- des fonctions d'affichage console coloré (erreurs, warnings, succès) ;
+	- des fonctions d'affichage, console, coloré (erreurs, warnings, succès) ;
 	- quelques utilitaires généraux liés à l'IHM.
 
 L'objectif est d'assurer :
@@ -29,7 +29,7 @@ from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, Q
 # Style pour une ligne d'information
 STYLESHEET_INFO: str = "color: #666666; font-style: italic; padding: 2px;"
 
-# Style général du layout (Pour le moment uniquement sur les QPushButton).
+# Style général du calque (Pour le moment uniquement sur les QPushButton).
 STYLESHEET_GENERAL: str = """
 			QPushButton { border: 1px solid #c7c7c7; padding: 5px; background: #f7f7f7; }
 			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
@@ -72,9 +72,9 @@ def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int =
 	:param form: Formulaire cible à modifier (modification in-place via :meth:`addRow`).
 	:param label: Texte du label (colonne de gauche).
 	:param widget: Widget à placer dans la colonne de droite (spinbox, checkbox, combobox, ...).
-	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``0``.
-	:param margin: Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``0``.
-	:param tooltip: Tooltip à ajouter (si non vide).
+	:param space: Valeur (en pixels) utilisée pour l'espacement du calque. Par défaut : ``0``.
+	:param margin: Valeur (en pixels) utilisée pour les marges du calque. Par défaut : ``0``.
+	:param tooltip: Tooltip à ajouter (Une chaine vide n'ajoute aucun tooltip).
 	"""
 	layout = QHBoxLayout()
 	init_layout(layout, space, margin)
@@ -90,7 +90,7 @@ def init_layout(layout: QLayout, space: int = COMMON_SPACE, margin: int = COMMON
 	"""
 	Configure un layout avec des marges et un espacement uniformes.
 
-	Cette fonction applique des marges identiques sur les 4 côtés et un espacement identique entre widgets / sous-layouts.
+	Cette fonction applique des marges identiques sur les 4 côtés et un espacement identique entre widgets / sous-calques.
 
 	:param layout: Layout à configurer (ex: :class:`QVBoxLayout`, :class:`QGridLayout`, etc.).
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
@@ -262,6 +262,7 @@ def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) 
 	Construit un groupe d'information pour le listing des fichiers calculés.
 
 	Le groupe est composée de : un titre, la liste des fichiers et leurs status.
+
 	:return: Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de status des fichiers.
 	"""
 	grp = QGroupBox("Informations")
@@ -317,7 +318,8 @@ def update_path_label(lbl: QLabel, path: str | Path):
 ##################################################
 def make_vertical_scroll(widget: QWidget) -> QScrollArea:
 	"""
-	Crééer une zone scrollable verticalement
+	Crééer une zone scrollable verticalement.
+
 	:return: La :class:`QScrollArea` configuré.
 	"""
 	scroll = QScrollArea()
@@ -442,7 +444,7 @@ def sync_button_group(target: QButtonGroup, value: int):
 	    group_2.idClicked.connect(lambda v: sync_button_group(group_1, v))
 
 	:param target: QButtonGroup à mettre à jour.
-	:param value: Identifiant du boutton à sélectionner.
+	:param value: Identifiant du bouton à sélectionner.
 	"""
 	target.blockSignals(True)
 	button = target.button(value)
@@ -496,9 +498,9 @@ def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | N
 ##################################################
 def print_error(msg: str):
 	"""
-	Affiche un message avec une couleur rouge
+	Affiche un message avec une couleur rouge.
 
-	:param msg: Message à afficher
+	:param msg: Message à afficher.
 	"""
 	print(Fore.RED + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
@@ -506,9 +508,9 @@ def print_error(msg: str):
 ##################################################
 def print_warning(msg: str):
 	"""
-	Affiche un message avec une couleur jaune
+	Affiche un message avec une couleur jaune.
 
-	:param msg: Message à afficher
+	:param msg: Message à afficher.
 	"""
 	print(Fore.YELLOW + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
@@ -516,9 +518,9 @@ def print_warning(msg: str):
 ##################################################
 def print_success(msg: str):
 	"""
-	Affiche un message avec une couleur verte
+	Affiche un message avec une couleur verte.
 
-	:param msg: Message à afficher
+	:param msg: Message à afficher.
 	"""
 	print(Fore.GREEN + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
@@ -528,7 +530,7 @@ def format_time(seconds):
 	"""
 	Fonction pour formater le temps en secondes en HH:MM:SS.
 
-	:param seconds: Temps en secondes
+	:param seconds: Temps en secondes.
 	:return: Chaine de caractère représentant le temps au format HH:MM:SS.
 	"""
 	hours = int(seconds // 3600)

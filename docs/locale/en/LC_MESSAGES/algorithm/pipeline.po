@@ -19,11 +19,11 @@ msgid "Il y a plusieurs possibilités :"
 msgstr "Several options are available:"
 
 #: ../../algorithm/pipeline.rst:22
-msgid "Une seule pile est chargée, dans ce cas là le mode importe peu."
+msgid "Une seule pile est chargée, dans ce cas-là, le mode importe peu."
 msgstr "A single stack is loaded; in this case, the selected mode has no impact."
 
 #: ../../algorithm/pipeline.rst:23
-msgid "Plusieurs piles sont chargées, dans ce cas-là le mode influe :"
+msgid "Plusieurs piles sont chargées, dans ce cas-là, le mode influe :"
 msgstr "Multiple stacks are loaded; in this case, the selected mode affects the behavior:"
 
 #: ../../algorithm/pipeline.rst:24
@@ -127,7 +127,7 @@ msgid "Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne 
 msgstr "If filters are selected, they are applied to the tracking results to retain only tracks matching the defined criteria. If the :console:`save filtered` option is selected, the filtered and reconnected calculations are saved in three files: :file:`tracking_MSD_filtered-<timestamp>.csv`, :file:`tracking_InstantD_filtered-<timestamp>.csv`, and :file:`tracking_Fit_filtered-<timestamp>.csv`."
 
 #: ../../algorithm/pipeline.rst:85
-msgid "Si les calculs sont désactivés, les étapes suivantes seront capable de calculer les éléments nécessaires rapidement."
+msgid "Si les calculs sont désactivés, les étapes suivantes seront capables de calculer les éléments nécessaires rapidement."
 msgstr "If calculations are disabled, the following steps will be able to compute the required elements quickly."
 
 #: ../../algorithm/pipeline.rst:87

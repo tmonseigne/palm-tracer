@@ -17,10 +17,10 @@ class Visualization3D(BaseSettingGroup):
 	Classe contenant les paramètres de Visualisation 3D :
 
 	Attributs :
-		- **Point Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		- **XY Scale** (:class:`Combo <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		- **Z Scale** (:class:`Combo <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		- **Remove Outliers** (:class:`Combo <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
+		- **Point Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Taille des points.
+		- **XY Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur les axes X et Y.
+		- **Z Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur l'axe Z.
+		- **Remove Outliers** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprimme les éléments avec une intensité nulle.
 	"""
 
 	label: str = "3D"

@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type interval de nombre entier.
+Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type intervalle de nombre entier.
 """
 from __future__ import annotations
 
@@ -18,9 +18,9 @@ from palm_tracer.Tools import Ui
 @dataclass
 class CheckRangeInt(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type interval de nombre entier.
+	Classe pour un paramètre spécifique de type intervalle de nombre entier.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeurs par défaut du paramètre.
 	:param _limits: Valeurs limites du paramètre.
@@ -40,7 +40,6 @@ class CheckRangeInt(BaseSettingType):
 
 	##################################################
 	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
 		super().reset()
 		self.active = False
 

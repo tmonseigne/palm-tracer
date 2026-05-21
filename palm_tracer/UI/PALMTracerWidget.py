@@ -2,7 +2,7 @@
 Module contenant la classe :class:`PALMTracerWidget` pour l'interface principale de l'application.
 
 Ce module définit la classe :class:`.PALMTracerWidget`, qui crée et gère l'interface utilisateur principale de l'application.
-Elle contient des sections de paramètres organisées sous forme de layout,
+Elle contient des sections de paramètres organisées sous forme de calque,
 permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
 
 .. todo::
@@ -18,7 +18,7 @@ from napari import Viewer
 from napari.layers import Points, Shapes
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QDoubleSpinBox, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -38,7 +38,7 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 ##################################################
 class PALMTracerWidget(QWidget):
-	"""Widget principal gérant toute l'interface"""
+	"""Widget principal gérant toute l'interface."""
 	UI_NAME: str = "PALMTracer"
 
 	# ==================================================
@@ -254,14 +254,14 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _load_setting(self, filename: Path):
-		"""Chargement d'un fichier de setting."""
+		"""Chargement d'un fichier de paramètres."""
 		if filename.exists():
 			try:
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
 				with self.pt.settings.signal_blocked():
 					cfg = open_json(str(filename))
 					show_info(f"Loading the setting file '{filename}'.")
-					self.pt.settings.update_from_compact_dict(cfg)  # self.pt.settings.update_from_dict(cfg) si l'on veut un setting complet
+					self.pt.settings.update_from_compact_dict(cfg)
 					self.pt.settings.localization["Preview"].value = False
 					self.pt.settings.filters.deactivate_filters()
 			except Exception as e:
@@ -280,9 +280,9 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _on_change_setting(self):
-		"""Mets à jour le fichier de setting général et la preview à chaque changement de setting."""
+		"""Mets à jour le fichier de paramètres général."""
 		# Save settings
-		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())  # self.settings.to_dict() si l'on veut un setting complet
+		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())
 
 	# ==================================================
 	# endregion Settings Callback
@@ -424,7 +424,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
 		"""
-		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres
+		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres.
 
 		:param time: Différence de temps entre l'image actuellement affichée et celle désirée.
 		:return: L'image désirée (image actuellement affichée si time = 0).

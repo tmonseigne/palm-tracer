@@ -1,0 +1,150 @@
+#: ../../api/palm_tracer.Settings.Settings.rst:2
+msgid "Settings"
+msgstr ""
+
+#: of palm_tracer.Settings.Settings.Settings:1
+msgid "Classe nécessaire au parsing et enregistrement des différents paramètres de PALM Tracer."
+msgstr "Class required for parsing and saving the various PALM Tracer settings."
+
+#: ../../api/palm_tracer.Settings.Settings.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Settings.Settings.batch:1
+msgid "Groupe de paramètres liés au batch (:class:`Batch <palm_tracer.Settings.Groups.Batch.Batch>`)."
+msgstr "Group of settings related to batch (:class:`Batch <palm_tracer.Settings.Groups.Batch.Batch>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.calibration:1
+msgid "Groupe de paramètres liés à la calibration (:class:`Calibration <palm_tracer.Settings.Groups.Calibration.Calibration>`)."
+msgstr "Group of settings related to calibration (:class:`Calibration <palm_tracer.Settings.Groups.Calibration.Calibration>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.localization:1
+msgid "Groupe de paramètres liés à la localisation (:class:`Localization <palm_tracer.Settings.Groups.Localization.Localization>`)."
+msgstr "Group of settings related to localization (:class:`Localization <palm_tracer.Settings.Groups.Localization.Localization>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.beads:1
+msgid "Groupe de paramètres liés à l'extraction des billes (:class:`BeadsExtraction <palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction>`)."
+msgstr "Group of settings related to bead extraction (:class:`BeadsExtraction <palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.tracking:1
+msgid "Groupe de paramètres liés au suivi (:class:`Tracking <palm_tracer.Settings.Groups.Tracking.Tracking>`)."
+msgstr "Group of settings related to tracking (:class:`Tracking <palm_tracer.Settings.Groups.Tracking.Tracking>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.blinking:1
+msgid "Groupe de paramètres liés à la correction du scintillement (:class:`BlinkingReconnection <palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection>`)."
+msgstr "Group of settings related to blinking correction (:class:`BlinkingReconnection <palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.tracks_compute:1
+msgid "Groupe de paramètres liés aux calculs sur trajectoires (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`)."
+msgstr "Group of settings related to tracks compute (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.gallery:1
+msgid "Groupe de paramètres liés à la génération de galerie (:class:`Gallery <palm_tracer.Settings.Groups.Gallery.Gallery>`)."
+msgstr "Group of settings related to gallery generation (:class:`Gallery <palm_tracer.Settings.Groups.Gallery.Gallery>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.hr:1
+msgid "Groupe de paramètres liés à la Visualisation haute-résolution (:class:`HR <palm_tracer.Settings.Groups.HR.HR>`)."
+msgstr "Group of settings related to high-resolution visualization (:class:`HR <palm_tracer.Settings.Groups.HR.HR>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.graph:1
+msgid "Groupe de paramètres liés à la Visualisation graphique (:class:`Graph <palm_tracer.Settings.Groups.Graph.Graph>`)."
+msgstr "Group of settings related to Graph Visualization (:class:`Graph <palm_tracer.Settings.Groups.Graph.Graph>`)."
+
+#: of palm_tracer.Settings.Settings.Settings.filters:1
+msgid "Groupe de paramètres liés au filtrage (:class:`Filters <palm_tracer.Settings.Groups.Filters.Filters>`)."
+msgstr "Group of settings related to filtering (:class:`Filters <palm_tracer.Settings.Groups.Filters.Filters>`)."
+
+#: ../../api/palm_tracer.Settings.Settings.rst:24
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Settings.rst:27
+msgid "Initialization"
+msgstr ""
+
+#: of palm_tracer.Settings.Settings.Settings.reset:1
+msgid "Remet les valeurs par défaut des paramètres."
+msgstr "Resets the settings to their default values."
+
+#: of palm_tracer.Settings.Settings.Settings.connect:1
+msgid "Connecte une fonction ou un slot à l'intégralité des paramètres."
+msgstr "Connects a function or slot to all settings."
+
+#: ../../api/palm_tracer.Settings.Settings.rst of
+#: palm_tracer.Settings.Settings.Settings.update_from_compact_dict
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Settings.Settings.connect:3
+msgid "Fonction ou slot à connecter."
+msgstr "Function or slot to connect."
+
+#: of palm_tracer.Settings.Settings.Settings.disconnect:1
+msgid "Déconnecte une fonction ou un slot à tous les éléments du groupe."
+msgstr "Disconnects a function or slot from all elements in the group."
+
+#: of palm_tracer.Settings.Settings.Settings.disconnect:3
+msgid "Fonction ou slot à déconnecter."
+msgstr "Function or slot to disconnect."
+
+#: ../../api/palm_tracer.Settings.Settings.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Settings.Settings.disconnect:4
+msgid "Nombre de slots déconnectés."
+msgstr "Number of slots to disconnect."
+
+#: of palm_tracer.Settings.Settings.Settings.signal_blocked:1
+msgid "Blocage des signaux pour l'intégralité des paramètres."
+msgstr "Signal blocking for all settings."
+
+#: of palm_tracer.Settings.Settings.Settings.signal_blocked:3
+msgid "Retourne un context manager utilisable avec `with ...:`."
+msgstr "Returns a context manager that can be used with `with ...:`."
+
+#: ../../api/palm_tracer.Settings.Settings.rst of
+#: palm_tracer.Settings.Settings.Settings.to_compact_dict
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: ../../api/palm_tracer.Settings.Settings.rst:35
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.Settings.Settings.get_ui:1
+msgid "Retourne un dictionnaire d'objets :class:`.BaseUI` (un par groupe de paramètres), existants ou les créés si nécessaire."
+msgstr "Returns a dictionary of `:class:`.BaseUI` objects (one per setting group), existing or created if necessary."
+
+#: of palm_tracer.Settings.Settings.Settings.clean_ui:3
+#: palm_tracer.Settings.Settings.Settings.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: of palm_tracer.Settings.Settings.Settings.clean_ui:1
+msgid "Supprime récursivement les interfaces Qt associées au nom donné."
+msgstr "Recursively removes the Qt interfaces associated with the given name."
+
+#: ../../api/palm_tracer.Settings.Settings.rst:41
+msgid "Parsing"
+msgstr ""
+
+#: of palm_tracer.Settings.Settings.Settings.to_compact_dict:1
+msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
+msgstr "Returns a minimal dictionary containing the setting’s value."
+
+#: of palm_tracer.Settings.Settings.Settings.update_from_compact_dict:1
+msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+msgstr "Updates the class from a minimal dictionary."
+
+#: ../../api/palm_tracer.Settings.Settings.rst:47
+msgid "IO"
+msgstr ""
+
+#: of palm_tracer.Settings.Settings.Settings.tostring:1
+msgid "Retourne une chaîne de caractères correspondant à la liste des paramètres."
+msgstr "Returns a string corresponding to the list of settings."
+
+#: of palm_tracer.Settings.Settings.Settings.tostring:3
+msgid "Une description textuelle des paramètres de PALM Tracer."
+msgstr "A textual description of the PALM Tracer settings."

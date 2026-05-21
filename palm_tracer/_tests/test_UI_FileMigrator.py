@@ -47,7 +47,7 @@ def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration"""
+	"""Test basique de lancement de la calibration."""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	w = FileMigratorWidget()
 	qtbot.addWidget(w)

@@ -76,11 +76,11 @@ msgstr "Localization file: ``locPALMTracer.txt``"
 
 #: ../../user/tool_fm.rst:70
 msgid "Fichier de trajectoires : ``trcPALMTracer.txt``"
-msgstr "Trajectory file: ``trcPALMTracer.txt``"
+msgstr "Tracks file: ``trcPALMTracer.txt``"
 
 #: ../../user/tool_fm.rst:71
 msgid "Fichiers de calculs sur les trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
-msgstr "Trajectory computation files: ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
+msgstr "Tracks computation files: ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
 
 #: ../../user/tool_fm.rst:72
 msgid "Fichier de modèle d'astigmatisme 3D : ``3DFit.txt``"

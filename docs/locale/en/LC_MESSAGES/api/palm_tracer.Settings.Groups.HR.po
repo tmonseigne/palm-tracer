@@ -1,0 +1,127 @@
+#: ../../api/palm_tracer.Settings.Groups.HR.rst:2
+msgid "HR"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.HR.HR:1
+msgid "Classe contenant les paramètres de Visualisation haute résolution :"
+msgstr "Class containing high-resolution visualization settings:"
+
+#: of palm_tracer.Settings.Groups.HR.HR:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.HR.HR:4
+msgid "**Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi)."
+msgstr "**Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type of data to display (locations or tracking)."
+
+#: of palm_tracer.Settings.Groups.HR.HR:5
+msgid "**Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter."
+msgstr "**Source** (:class:`Combo <palm_tracer. Settings.Types.Combo.Combo>`): Source of the data to display."
+
+#: of palm_tracer.Settings.Groups.HR.HR:6
+msgid "**Color mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : En cas de chevauchement, sélectionne si les valeurs des pixels sont additionnées ou si seule la valeur maximale est conservée."
+msgstr "**Color mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): In case of overlap, selects whether pixel values are added together or only the maximum value is retained."
+
+#: of palm_tracer.Settings.Groups.HR.HR:8
+msgid "**Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Facteur d'agrandissement (par défaut : `4`)."
+msgstr "**Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Magnification factor (default: `4`)."
+
+#: of palm_tracer.Settings.Groups.HR.HR:9
+msgid "**Crop** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprime tout le cadre noir autour de la reconstruction (utile lors d'une reconstruction sur une partie du champ, conserve une marge de 5 pixels)."
+msgstr "**Crop** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Removes the entire black border around the reconstruction (useful when reconstructing a portion of the field; retains a 5-pixel margin)."
+
+#: of palm_tracer.Settings.Groups.HR.HR:11
+msgid "**Remove Beads** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprime les billes lors de la reconstruction."
+msgstr "**Remove Beads** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Removes the beads during reconstruction."
+
+#: of palm_tracer.Settings.Groups.HR.HR:12
+msgid "**Drift Correction** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique une correction de la dérive (Remarque : les billes doivent avoir été extraites au préalable.)"
+msgstr "**Drift Correction** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applies drift correction (Note: the beads must have been extracted beforehand.)"
+
+#: of palm_tracer.Settings.Groups.HR.HR:14
+msgid "**Smooth Drift** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique un lissage à la correction de dérive."
+msgstr "**Smooth Drift** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Applies smoothing to the drift correction."
+
+#: of palm_tracer.Settings.Groups.HR.HR:15
+msgid "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`) : Paramètres spécifiques à la représentation gaussienne."
+msgstr "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`): Settings specific to the Gaussian representation."
+
+#: ../../api/palm_tracer.Settings.Groups.HR.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.HR.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.HR.HR.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.HR.HR.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.HR.HR.gaussian:1
+msgid "Groupe de paramètres liés à la représentation gaussienne (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
+msgstr "Group of settings related to the Gaussian representation (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
+
+#: ../../api/palm_tracer.Settings.Groups.HR.rst:16
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Groups.HR.rst:19
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Groups.HR.HR.initialize:1
+msgid "Initialise le dictionnaire de paramètres."
+msgstr "Initializes the settings dictionary."
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:4
+msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
+msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"Remove header\" state (no title area created)"
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:4
+msgid "Méthode de création du groupe."
+msgstr "Group creation method."
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:6
+msgid "-1 : Valeur par défaut du groupe"
+msgstr "-1: Group default value"
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:7
+msgid "0 : Avec un titre et une checkbox pour activer/désactiver le groupe"
+msgstr "0: With a title and a checkbox to enable/disable the group"
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:8
+msgid "1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)"
+msgstr "1: State when using the \"always active\" method (the checkbox is not created)"
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:9
+msgid "2 : État remove header (aucune création de l'espace titre)"
+msgstr "2: \"Remove header\" state (no title area created)"
+
+#: ../../api/palm_tracer.Settings.Groups.HR.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Groups.HR.HR.get_ui:11
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings. Groups.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Groups.HR.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Settings.Groups.HR.HR.toggle_type:1
+msgid "Change la liste des sources pour les graphiques."
+msgstr "Changes the list of sources for the graphs."

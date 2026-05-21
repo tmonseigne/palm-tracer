@@ -1,0 +1,48 @@
+#: ../../api/palm_tracer.Settings.Groups.Visualization3D.rst:2
+msgid "Visualization3D"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:1
+msgid "Classe contenant les paramètres de Visualisation 3D :"
+msgstr "Class containing 3D visualization settings:"
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:4
+msgid "**Point Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Taille des points."
+msgstr "**Point Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Point size."
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:5
+msgid "**XY Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur les axes X et Y."
+msgstr "**XY Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`): Scale along the X and Y axes."
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:6
+msgid "**Z Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur l'axe Z."
+msgstr "**Z Scale** (:class:`SpinFloat <palm_tracer. Settings.Types.SpinFloat.SpinFloat>`): Scale along the Z axis."
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:7
+msgid "**Remove Outliers** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprimme les éléments avec une intensité nulle."
+msgstr "**Remove Outliers** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Removes elements with zero intensity."
+
+#: ../../api/palm_tracer.Settings.Groups.Visualization3D.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.Visualization3D.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of
+#: palm_tracer.Settings.Groups.Visualization3D.Visualization3D.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D.mode:1
+msgid "Méthode d'affichage du groupe par défaut."
+msgstr "Default group display method."

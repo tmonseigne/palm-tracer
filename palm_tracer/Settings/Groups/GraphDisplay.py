@@ -17,9 +17,15 @@ class GraphDisplay(BaseSettingGroup):
 	Classe contenant les paramètres de Visualization :
 
 	Attributs :
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Type de graphiques à générer (histogram, heat map, violon) (par défaut : `All`).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Élément de la localisation à analyser (par défaut : `All`).
+		- **Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Limite les données à ±3σ autour de la moyenne (règle des 3 sigmas).
+		- **Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
+		  Trace des lignes pointillées à des distances de 1, 2 et 3 sigmas de la moyenne.
+		- **Gauss** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
+		  Affiche la courbe gaussienne associée à la moyenne et à l'écart-type des données. .
+		- **KDE** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
+		  Affiche l'estimation de densité par noyau (la courbe la plus proche de l'histogramme) associée aux données.
+		- **Cumul** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche un histogramme cumulatif à la place d'un histogramme simple.
+		- **Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique une échelle logarithmique aux données.
 	"""
 
 	label: str = "Display"

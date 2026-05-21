@@ -1,0 +1,99 @@
+#: ../../api/palm_tracer.UI.AlignmentWidget.rst:2
+msgid "AlignmentWidget"
+msgstr ""
+
+#: of palm_tracer.UI.AlignmentWidget:1
+msgid "Module contenant la classe :class:`AlignmentWidget`, un outil minimaliste pour la gestion de l'alignement géométrique entre acquisitions dans PALMTracer."
+msgstr "Module containing the :class:`AlignmentWidget` class, a minimalist tool for managing geometric alignment between acquisitions in PALMTracer."
+
+#: of palm_tracer.UI.AlignmentWidget:3
+msgid "Ce widget offre une interface simple organisée en deux onglets : ``Compute Alignment Coefficients``, ``Apply Alignment``"
+msgstr "This widget provides a simple interface organized into two tabs: ``Compute Alignment Coefficients``, ``Apply Alignment``"
+
+#: of palm_tracer.UI.AlignmentWidget:6
+msgid "Fonctionnalités principales"
+msgstr "Key Features"
+
+#: of palm_tracer.UI.AlignmentWidget:7
+msgid "Interface légère en PySide6/PyQt6 basée sur des :class:`QTabWidget`, :class:`QGroupBox` et :class:`QPushButton`."
+msgstr "Lightweight interface in PySide6/PyQt6 based on :class:`QTabWidget`, :class:`QGroupBox`, and :class:`QPushButton`."
+
+#: of palm_tracer.UI.AlignmentWidget:8
+msgid "Gestion simple des entrées (sélection de fichiers TIFF / TXT via :class:`QFileDialog`)."
+msgstr "Simple input handling (selection of TIFF/TXT files via :class:`QFileDialog`)."
+
+#: of palm_tracer.UI.AlignmentWidget:9
+msgid "Chargement des images via :func:`palm_tracer.Tools.open_tif` et sauvegarde via :func:`palm_tracer.Tools.save_tif`."
+msgstr "Image loading via :func:`palm_tracer. Tools.open_tif` and saving via :func:`palm_tracer.Tools.save_tif`."
+
+#: of palm_tracer.UI.AlignmentWidget:10
+msgid "Chargement des coefficients d'alignement sous forme d'un tableau NumPy de taille ``(2, 10)``."
+msgstr "Loading alignment coefficients as a NumPy array of size ``(2, 10)``."
+
+#: of palm_tracer.UI.AlignmentWidget:11
+msgid "Application de l'alignement via :meth:`Palm.align`, issue du module :mod:`palm_tracer.Processing`."
+msgstr "Applying alignment via :meth:`Palm.align`, from the :mod:`palm_tracer.Processing` module."
+
+#: of palm_tracer.UI.AlignmentWidget:14
+msgid "Notes"
+msgstr ""
+
+#: of palm_tracer.UI.AlignmentWidget:15
+msgid "Le widget est autonome : il peut être lancé directement (``python AlignmentWidget.py``), utilisé dans PALMTracer ou dans un plugin externe."
+msgstr "The widget is standalone: it can be run directly (``python AlignmentWidget.py``), used in PALMTracer, or in an external plugin."
+
+#: of palm_tracer.UI.AlignmentWidget:17
+msgid "À faire"
+msgstr "To do"
+
+#: of palm_tracer.UI.AlignmentWidget:17
+msgid "Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle). Prévoir une visualisation intermédiaire (overlay, difference map)."
+msgstr "Implement the method for automatically calculating coefficients (current internal PALMTracer method). Provide an intermediate visualization (overlay, difference map)."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:1
+msgid "Widget minimaliste pour la gestion de l'alignement entre acquisitions."
+msgstr "Minimalist widget for managing alignment between acquisitions."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:3
+msgid "Ce widget fournit deux onglets :"
+msgstr "This widget provides two tabs:"
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:4
+msgid "``Compute Alignment Coefficients`` :"
+msgstr "``Compute Alignment Coefficients``:"
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:5
+msgid "Bouton pour charger un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte (référence / déformation)."
+msgstr "Button to load a TIFF file containing a single image, composed of two side-by-side views (reference / deformation)."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:6
+msgid "Bouton pour lancer le calcul des coefficients."
+msgstr "Button to start calculating the coefficients."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:8
+msgid "``Apply Alignment`` :"
+msgstr "``Apply Alignment``:"
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:9
+msgid "Bouton pour charger un fichier TIFF à corriger."
+msgstr "Button to load a TIFF file to be corrected."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:10
+msgid "Bouton pour charger un fichier de coefficients."
+msgstr "Button to load a file of coefficients."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:11
+msgid "Bouton pour lancer l'alignement."
+msgstr "Button to start the alignment."
+
+#: ../../api/palm_tracer.UI.AlignmentWidget.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.AlignmentWidget.open_alignment:1
+msgid "Ouvre la fenêtre d'alignement en mode autonome."
+msgstr "Opens the alignment window in standalone mode."
+
+#: of palm_tracer.UI.AlignmentWidget.open_alignment:3
+msgid "Cette fonction est utilisée par le plugin Napari comme point d'entrée : elle crée simplement un :class:`AlignmentWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre."
+msgstr "This function is used by the Napari plugin as an entry point: it simply creates an :class:`AlignmentWidget`, displays it, and returns it. The widget is independent of Napari and opens in its own window."

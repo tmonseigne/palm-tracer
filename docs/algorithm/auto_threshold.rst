@@ -28,7 +28,7 @@ L'algorithme fonctionne en plusieurs étapes :
 
 1. **Initialisation :**
 
-	- Création d'un masque vide (même taille que l'image, rempli de zéros).
+	- Création d'un masque vide, de la même taille que l'image, rempli de zéros.
 	- Calcul de l'écart type initial de l'image (:math:`\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \bar{x})^2}`).
 	- Définition de la demi-taille de la région d'intérêt (`roi_size`).
 
@@ -39,8 +39,8 @@ L'algorithme fonctionne en plusieurs étapes :
 		- Le watershed est désactivé.
 		- Le fit Gaussien est désactivé.
 		- Sigma vaut 1.
-		- Theta vaut :math:`\pi / 4`.
-	- Mise à jour du masque en activant les pixels correspondant aux régions détectées (ROI autour de chaque points détectés).
+		- Théta vaut :math:`\pi / 4`.
+	- Mise à jour du masque en activant les pixels correspondant aux régions détectées (zone autour de chaque point détecté).
 	- Recalcule de l'écart type sur les pixels *hors* segmentation.
 	- Répétition jusqu'à `max_iterations` ou convergence.
 

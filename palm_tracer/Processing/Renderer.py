@@ -24,7 +24,7 @@ class Renderer:
 	##################################################
 	def set_size(self, width: int, height: int, ratio: int):
 		"""
-		Mets à jour les tailles pour le rendu
+		Mets à jour les tailles pour le rendu.
 
 		:param width: Largeur de l'image.
 		:param height: Hauteur de l'image.
@@ -254,7 +254,7 @@ class Renderer:
 		"""
 		Trace une ligne discrète entre deux points dans une image 2D en utilisant l'algorithme de Bresenham (version entière, sans flottants).
 
-		La ligne est rasterisée en parcourant les pixels entre les coordonnées (x0, y0) et (x1, y1),
+		La ligne est rastérisée en parcourant les pixels entre les coordonnées (x0, y0) et (x1, y1),
 		avec une gestion robuste de toutes les pentes (horizontales, verticales, diagonales, fortes et faibles).
 
 		Pour chaque pixel visité, la valeur est mise à jour uniquement si la nouvelle couleur est strictement supérieure à la valeur déjà présente.
@@ -297,7 +297,7 @@ class Renderer:
 		:param sx: Sigma selon l'axe principal X.
 		:param sy: Sigma selon l'axe principal Y.
 		:param theta: Angle de rotation en radians.
-		:param color_mode: 0 : addition des intensités, autre : conservation du maximum pixel à pixel
+		:param color_mode: 0 : addition des intensités, autre : conservation du maximum pixel à pixel.
 		:return: Image résultat.
 		"""
 		h, w = img.shape

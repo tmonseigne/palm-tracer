@@ -52,8 +52,6 @@ def test_get_localization_colors():
 
 ##################################################
 def test_get_tracks_colors():
-	r = Renderer()
-
 	# Empty Dataframe
 	trc = pd.DataFrame(columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
 	res = Renderer.add_colors_to_tracks(trc, "Track Number")
@@ -105,7 +103,6 @@ def test_get_tracks_colors():
 
 ##################################################
 def test_draw_line():
-	r = Renderer()
 	img = np.zeros((5, 5), dtype=np.uint16)
 
 	# Single Point
@@ -280,12 +277,12 @@ def test_localizations_gaussian():
 					[0, 0, 1, 0, 0]], dtype=np.uint16)
 	np.allclose(res, ref)
 
-	# Max, résultat identique car 2 points confondus.
+	# Max, résultat identique, car 2 points confondus.
 	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
 	res = r.localizations(loc, 1, gaussian)
 	np.allclose(res, ref)
 
-	# Accumulate (on vérifie que les flottants on bien été pris en compte durant le calcul, ce n'est pas un simple * 2 de la valeur entière finale)
+	# Accumulate (on vérifie que les flottants ont bien été pris en compte durant le calcul, ce n'est pas un simple * 2 de la valeur entière finale)
 	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
 	res = r.localizations(loc, 0, gaussian)
 	ref = np.array([[1, 1, 2, 1, 1],

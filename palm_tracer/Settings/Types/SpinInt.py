@@ -20,7 +20,7 @@ class SpinInt(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type nombre entier.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeur par défaut du paramètre.
 	:param limits: Valeurs limites du paramètre.

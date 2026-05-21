@@ -1,0 +1,23 @@
+#: ../../api/palm_tracer.UI.FileMigratorWidget.rst:2
+msgid "FileMigratorWidget"
+msgstr ""
+
+#: of palm_tracer.UI.FileMigratorWidget:1
+msgid "Module contenant la classe :class:`FileMigratorWidget`, un outil minimaliste pour la gestion de l'ancien format de fichier Metamoprh."
+msgstr "Module containing the :class:`FileMigratorWidget` class, a minimalist tool for managing the legacy Metamoprh file format."
+
+#: of palm_tracer.UI.FileMigratorWidget.FileMigratorWidget:1
+msgid "Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."
+msgstr "Minimalist widget for managing the old Metamoprh file format."
+
+#: of palm_tracer.UI.FileMigratorWidget.FileMigratorWidget
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.FileMigratorWidget.open_migrator:1
+msgid "Ouvre la fenêtre de l'outil de migration en mode autonome."
+msgstr "Opens the migration tool window in standalone mode."
+
+#: of palm_tracer.UI.FileMigratorWidget.open_migrator:3
+msgid "Cette fonction est utilisée par le plugin Napari comme point d'entrée : elle crée simplement un :class:`FileMigratorWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre."
+msgstr "This function is used by the Napari plugin as an entry point: it simply creates a :class:`FileMigratorWidget`, displays it, and returns it. The widget is independent of Napari and opens in its own window."

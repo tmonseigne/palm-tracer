@@ -269,7 +269,7 @@ class Monitoring:
 		Si le nombre de fichiers dépasse le nombre de couleurs disponibles dans la palette, elle réutilise les couleurs de manière cyclique.
 
 		:param names: Liste des noms des fichiers pour lesquels une couleur doit être attribuée.
-		:param palette: Liste des couleurs à utiliser pour les fichiers. Si non spécifiée, la palette `Plotly` est utilisée par défaut.
+		:param palette: Liste des couleurs à utiliser pour les fichiers. La palette `Plotly` est utilisée par défaut.
 		:return: Dictionnaire où les clés sont les noms de fichiers et les valeurs sont les couleurs attribuées.
 		"""
 		unique_names = set(names)  # Récupérer les noms uniques
@@ -315,8 +315,8 @@ class Monitoring:
 				- "File" (str) : Le nom du fichier associé au test.
 				- "Test" (str) : Le nom du test effectué.
 
-		:param color_map: Un dictionnaire associant chaque fichier de test à une couleur. Le fichier est utilisé comme clé et la couleur
-				(en format HTML) comme valeur.
+		:param color_map: Un dictionnaire associant chaque fichier de test à une couleur.
+				Le fichier est utilisé comme clé et la couleur (en format HTML) comme valeur.
 
 		:param last_time: Le dernier timestamp enregistré, utilisé pour déterminer la fin de la zone colorée pour le dernier test.
 
@@ -400,7 +400,7 @@ class Monitoring:
 
 		:param filename: Le chemin et nom du fichier dans lequel les données de monitoring seront enregistrées.
 						 Le format de sauvegarde sera déterminé en fonction de l'extension du fichier (ex. `.png`, `.html`, `.json`).
-		:param full_html: Option pour l'enregistrement HTML permettant de ne sauver que le div
+		:param full_html: Option pour l'enregistrement HTML permettant de ne sauver que le div.
 		"""
 		try:
 			path = Path(filename)

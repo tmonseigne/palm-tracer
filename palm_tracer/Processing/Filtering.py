@@ -1,4 +1,4 @@
-"""Fonction de filtrages"""
+"""Fonction de filtrages."""
 from __future__ import annotations
 
 from typing import cast
@@ -12,7 +12,7 @@ from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 
 ##################################################
 class Filtering:
-	"""Classe de filtrages"""
+	"""Classe de filtrages."""
 	filters: Filters
 
 	##################################################
@@ -23,19 +23,18 @@ class Filtering:
 		"""
 		Filtre un DataFrame de localisation.
 
-		:param datas: DataFrame à filtrer
+		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
+		if datas.empty: return datas
 		res = datas.copy()
-		if "Integrated Intensity" in res.columns: df = res[res["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
-		if res.empty: return res
-		fl = self.filters.localization
+		f = self.filters.localization
 		filters = [[self.filters["Plane"], "Plane"],
-				   [fl["X"], "X"], [fl["Y"], "Y"], [fl["Z"], "Z"],
-				   [fl["Intensity"], "Integrated Intensity"],
-				   [fl["Sigma X"], "Sigma X"], [fl["Sigma Y"], "Sigma Y"],
-				   [fl["Theta"], "Theta"], [fl["Circularity"], "Circularity"],
-				   [fl["MSE XY"], "MSE XY"], [fl["MSE Z"], "MSE Z"]]
+				   [f["X"], "X"], [f["Y"], "Y"], [f["Z"], "Z"],
+				   [f["Intensity"], "Integrated Intensity"],
+				   [f["Sigma X"], "Sigma X"], [f["Sigma Y"], "Sigma Y"],
+				   [f["Theta"], "Theta"], [f["Circularity"], "Circularity"],
+				   [f["MSE XY"], "MSE XY"], [f["MSE Z"], "MSE Z"]]
 
 		for filt, col in filters:
 			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
@@ -50,17 +49,16 @@ class Filtering:
 		Simpliste uniquement sur la longueur, car il faut le calcul des statistiques sur trajectoires pour le reste.
 		Cependant, il peut s'agir d'une première étape avant, justement, ces calculs de statistiques.
 
-		:param datas: DataFrame à filtrer
+		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
-		res = datas.copy()
-		if res.empty: return res
 		f = cast(CheckRangeInt, self.filters.tracking["Length"])
-		if f.active:
-			limits = f.value
-			counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
-			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
-			res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
+		if not f.active or datas.empty: return datas
+		res = datas.copy()
+		limits = f.value
+		counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
+		keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
+		res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
 		return res
 
 	##################################################
@@ -69,10 +67,10 @@ class Filtering:
 		"""
 		Filtre un DataFrame de calcul sur les trajectoires.
 
-		:param tracks: DataFrame de trajectoires
-		:param msd: DataFrame de calcul des MSD
-		:param instant_d: DataFrame de calcul de la diffusion instantanée
-		:param fit: DataFrame de calcul de l'ajustement
+		:param tracks: DataFrame de trajectoires.
+		:param msd: DataFrame de calcul des MSD.
+		:param instant_d: DataFrame de calcul de la diffusion instantanée.
+		:param fit: DataFrame de calcul de l'ajustement.
 		:return: DataFrames filtrés.
 		"""
 		o_trc = tracks.copy()

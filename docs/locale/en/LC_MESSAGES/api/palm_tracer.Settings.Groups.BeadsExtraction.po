@@ -1,0 +1,36 @@
+#: ../../api/palm_tracer.Settings.Groups.BeadsExtraction.rst:2
+msgid "BeadsExtraction"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction:1
+msgid "Classe contenant les paramètres de correction du drift."
+msgstr "Class containing drift correction settings."
+
+#: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction:4
+msgid "**Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Distance maximale entre deux plans pour une bille (par défaut : `1.0`)."
+msgstr "**Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Maximum distance between two planes for a bead (default: `1.0`)."
+
+#: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction:6
+msgid "**3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Utilisation ou non de la coordonnée Z dans les calculs (par défaut : `False`)."
+msgstr "**3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Whether or not to use the Z coordinate in calculations (default: `False`)."
+
+#: ../../api/palm_tracer.Settings.Groups.BeadsExtraction.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.BeadsExtraction.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of
+#: palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."

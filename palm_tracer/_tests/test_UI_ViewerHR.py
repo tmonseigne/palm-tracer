@@ -169,13 +169,13 @@ def test_generate_bad(make_napari_viewer, patched_napari_viewer, qtbot, capsys, 
 	lines = get_lines_output(capsys)
 	assert "No valid settings file to load." in lines[0]
 
-	# Idem aucune pile de chargée (car il n'a pas eu de process précédent)
+	# Idem aucune pile de chargée, car il n'a pas eu de process précédent.
 	w._generate()
 	lines = get_lines_output(capsys)
 	assert "WARNING: No stack processed loaded." in lines[0]
 
 	# Un process, mais aucun tableau d'exploitable.
-	w._pt.process()  # Process Vide pour créer le dossier et un setting de base
+	w._pt.process()  # Process Vide pour créer le dossier et un paramètre de base
 	_ = get_lines_output(capsys)
 	w._generate()
 	lines = get_lines_output(capsys)
@@ -189,7 +189,7 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	add_basic_file(pt)
-	pt.process()  # Process Vide pour créer le dossier et un setting de base
+	pt.process()  # Process Vide pour créer le dossier et un paramètre de base
 	shutil.copy2(INPUT_DIR / "localizations.csv", INPUT_DIR / "stack_PALM_Tracer" / f"localizations-{pt._timestamp}.csv")
 	shutil.copy2(INPUT_DIR / "tracking.csv", INPUT_DIR / "stack_PALM_Tracer" / f"tracking-{pt._timestamp}.csv")
 	shutil.copy2(INPUT_DIR / "beads.csv", INPUT_DIR / "stack_PALM_Tracer" / f"beads-{pt._timestamp}.csv")

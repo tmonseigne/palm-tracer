@@ -5,9 +5,9 @@ Ce widget ajoute dans le dock de Napari :
 	- un bouton de chargement du dossier,
 	- trois champs pour contrôler les paramètres de visualisation Haute Résolution,
 	- un calque Napari Points/trajectoires mis à jour dynamiquement.
-	- Un boutotn pour sauvegarder une image PNG résultat
+	- Un bouton pour sauvegarder une image PNG résultat
 
-.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option se souvenir du choix).
+.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option "se souvenir du choix").
 """
 from __future__ import annotations
 
@@ -49,10 +49,10 @@ class ViewerHRWidget(QWidget):
 
 	Ce widget permet :
 		- de charger un dossier,
-		- de modifier la taille des points
-		- de modifier le facteur d'agrandissement
-		- de sélectionner la source d'information permettant la coloration des points
-		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points` ou :class:`napari.layers.Tracks`.
+		- de modifier la taille des points,
+		- de modifier le facteur d'agrandissement,
+		- de sélectionner la source d'information permettant la coloration des points,
+		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points` ou :class:`napari.layers.Tracks`,
 		- de sauvegarder une image PNG résultat de la visualisation.
 
 	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer HR"``
@@ -63,7 +63,7 @@ class ViewerHRWidget(QWidget):
 	UI_NAME: str = "HR"
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
@@ -89,14 +89,7 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def _init_ui(self):
-		"""
-		Construit l'interface utilisateur :
-				- Informations : Nom du fichier, présence Localizations/Tracking.
-				- Domaine : 3 boutons exclusifs (Stack/Localization/Tracking).
-				- Source : ComboBox dépendante du domaine sélectionné.
-				- Filtres : Section réservée (non implémentée).
-				- Actions : Actualize files / Export…
-		"""
+		"""Construit l'interface utilisateur."""
 		self._widget = QWidget()
 
 		layout = QVBoxLayout(self._widget)
@@ -109,7 +102,7 @@ class ViewerHRWidget(QWidget):
 		Ui.init_layout(scroll_layout, space=10)
 		scroll_area = Ui.make_vertical_scroll(scroll_content)
 
-		# --- Boutton pour charger une stack ---
+		# --- Bouton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
 		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
 
@@ -165,7 +158,7 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
-		# Connexion des bouttons Filters de cette UI
+		# Connexion des boutons Filters de cette UI
 		self._pt.connect_filters_button(self.UI_NAME)
 
 		self._btn_add_stack.clicked.connect(self._add_stack)
@@ -185,7 +178,7 @@ class ViewerHRWidget(QWidget):
 		finally: super().closeEvent(event)
 
 	# ==================================================
-	# endregion Initialisation
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================
@@ -194,9 +187,9 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _toggle_type(self, btn_id: int):
 		"""
-		Mets à jour la liste des sources selon le domaine choisi puis redessine.
+		Affiche ou masque les éléments de filtres inutiles pour la représentation actuelle.
 
-		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
+		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
 		if btn_id == 0:  # Localisation
 			self._filters["Localization"].get_ui(self.UI_NAME).show()
@@ -239,7 +232,7 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def _screenshot(self):  # pragma: no cover — Accès au canvas
-		"""Créé une image PNG de la visualisation actuelle."""
+		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les régalges de color map, contraste."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
 			show_info("Screenshot saved successfully.")

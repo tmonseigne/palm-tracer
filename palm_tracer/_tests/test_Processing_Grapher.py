@@ -55,7 +55,7 @@ def test_histogram():
 
 	# Entrée 1D avec gaussienne densité et non cumulatif
 	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3.json")
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3.json")
 	# ref = json.loads((REF_DIR / "grapher_Histogram_3.json").read_text(encoding="utf-8"))
 	# assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
@@ -150,7 +150,7 @@ def test_cloud():
 
 	# Entrée 2D (transposé) avec affichage des mu et sigma
 	res = g.cloud(np.stack((IDX, POINTS), axis=1), "cloud", show_sigma=True, kde=True, gaussian=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_4.json")
+	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4.json")
 	# Map complexe et suivant la version de python et l'OS les résultats peuvent légèrement différer
 	# ref = json.loads((REF_DIR / "grapher_cloud_4.json").read_text(encoding="utf-8"))
 	# assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
@@ -178,7 +178,7 @@ def test_cloud():
 def test_astigmatism3d():
 	g = Grapher()
 	# Entrée invalide
-	with pytest.raises(ValueError) as exception_info: g.astigmatism3d(np.zeros((3, 3)), "blank")
+	with pytest.raises(ValueError) as exception_info: g.astigmatism3d(np.zeros((3, 3)), None, "blank")
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 
 	# Entrée valide
@@ -195,20 +195,28 @@ def test_astigmatism3d():
 	res = g.astigmatism3d(model, None, "Astigmatism 3D", pixel_size=100, z_max=100, mode="cross", n_points=100)
 	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_cross_1.json")
 	ref = json.loads((REF_DIR / "grapher_astigmatism3d_cross_1.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
 	# Courbe Cross avec data
 	res = g.astigmatism3d(model, data, "Astigmatism 3D", pixel_size=100, z_max=100, mode="cross", n_points=100)
 	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_cross_2.json")
 	ref = json.loads((REF_DIR / "grapher_astigmatism3d_cross_2.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
 	# Courbe Slope sans data
 	res = g.astigmatism3d(model, None, "Astigmatism 3D", pixel_size=100, z_max=100, mode="slope", n_points=100)
 	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_slope_1.json")
 	ref = json.loads((REF_DIR / "grapher_astigmatism3d_slope_1.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
 	# Courbe Slope avec data
 	res = g.astigmatism3d(model, data, "Astigmatism 3D", pixel_size=100, z_max=100, mode="slope", n_points=100)
 	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_slope_2.json")
 	ref = json.loads((REF_DIR / "grapher_astigmatism3d_slope_2.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Courbe un mauvais mode (mais l'IDE averti qu'il y a un problème)
 	res = g.astigmatism3d(model, data, "Astigmatism 3D", pixel_size=100, z_max=100, mode="any", n_points=100)
 	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_bad.json")
 	ref = json.loads((REF_DIR / "grapher_astigmatism3d_bad.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"

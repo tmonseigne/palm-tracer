@@ -17,11 +17,14 @@ class HRGaussian(BaseSettingGroup):
 	Classe contenant les paramètres de Visualisation haute résolution :
 
 	Attributs :
-		- **Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Facteur d'agrandissement (par défaut : `2`).
-		- **Type** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Choix du type de visualisation (Localisation ou trajectoires (par défaut : `Localizations`).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Élément de la localisation (trajectoire) permettant de définir l'intensité (par défaut : `All`).
+		- **Intensity** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
+		  Intensité intégrée de la courbe gaussienne si l'option `Intensité fixe` est sélectionnée ;
+		  sinon, le rapport par lequel la valeur sélectionnée dans la source sera divisée.
+		- **Fixed Intensity** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Garantit que chaque point a la même intensité.
+		- **Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
+		  Définit la forme de la distribution gaussienne (isotrope, anisotrope ou taille fixe, de sorte que chaque point ait la même forme isotrope).
+		- **Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
+		  L'écart-type de la distribution gaussienne si `Taille fixe` est sélectionné.
 	"""
 
 	label: str = "Gaussian Mode"
@@ -30,7 +33,7 @@ class HRGaussian(BaseSettingGroup):
 					"Fixed Intensity": [CheckBox, ["Fixed Intensity", "Ensures that each point has the same intensity."]],
 					"Shape":           [Combo, ["Source", "Defines the shape of the Gaussian distribution (Isotropic, Anisotropic, or Fixed Size, "
 														  "so that each point has the same isotropic shape).", 0, ["Fixed Size", "Isotrope", "Anisotrope"]]],
-					"Size":            [SpinFloat, ["Size", "The standard deviation of the Gaussian distribution if “Fixed Size” is selected.",
+					"Size":            [SpinFloat, ["Size", "The standard deviation of the Gaussian distribution if \"Fixed Size\" is selected.",
 													1, [0, 50], 0.01, 3]],
 					}
 

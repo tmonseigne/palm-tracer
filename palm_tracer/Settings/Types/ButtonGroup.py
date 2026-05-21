@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QButtonGroup, QLabel
+from qtpy.QtWidgets import QButtonGroup
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUI import BaseUI
@@ -17,9 +17,9 @@ from palm_tracer.Tools import Ui
 @dataclass
 class ButtonGroup(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type groupe de bouttons.
+	Classe pour un paramètre spécifique de type groupe de boutons.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	"""
 	default: int = 0
@@ -31,7 +31,7 @@ class ButtonGroup(BaseSettingType):
 	"""Choix de la liste déroulante (:class:`list[str]`)."""
 
 	group: dict[str, QButtonGroup] = field(init=False, default_factory=lambda: dict[str, QButtonGroup]())
-	"""Dictionnaire des Groupes de bouttons."""
+	"""Dictionnaire des Groupes de boutons."""
 
 	# ==================================================
 	# region Getter/Setter

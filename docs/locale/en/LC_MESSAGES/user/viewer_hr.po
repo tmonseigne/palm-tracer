@@ -88,7 +88,7 @@ msgstr "Generated high-resolution image"
 
 #: ../../user/viewer_hr.rst:74
 msgid "Points ou trajectoires détectées (en précision flottante et zoomable à l'infini)"
-msgstr "Detected points or trajectories (stored in floating-point precision and zoomable infinitely)"
+msgstr "Detected points or tracks (stored in floating-point precision and zoomable infinitely)"
 
 #: ../../user/viewer_hr.rst:76
 msgid "Fonctionnalités principales :"
@@ -136,7 +136,7 @@ msgstr "Move around (hold left click)"
 
 #: ../../user/viewer_hr.rst:100
 msgid "Changer de plan Z via la barre de dimension (pour le cas des trajectoires)."
-msgstr "Change the Z plane using the dimension slider (for trajectories)"
+msgstr "Change the Z plane using the dimension slider (for tracks)"
 
 #: ../../user/viewer_hr.rst:101
 msgid "Régler le contraste."
@@ -188,7 +188,7 @@ msgstr "To update or change the files used by the viewer, you must click the :gu
 
 #: ../../user/viewer_hr.rst:130
 msgid "Pour un dossier sélectionné, il va sélectionner le dernier fichier de paramètres de calcul disponible et les résultats associés. Cela signifie que si plusieurs calculs ont été lancés sur le même fichier, seul le dernier sera pris en compte. Donc, si des trajectoires ont été calculées précédemment, mais pas durant le dernier calcul, il ne prendra pas les résultats de l'essai précédent. Le but est d'éviter d'avoir un mélange de résultats avec des paramètres potentiellement différents."
-msgstr "For a selected folder, it will select the latest available computation parameter file and the associated results. This means that if several computations have been run on the same file, only the most recent one will be taken into account. Therefore, if trajectories were computed previously but not during the last computation, it will not use the results from the previous run. The goal is to avoid mixing results with potentially different parameters."
+msgstr "For a selected folder, it will select the latest available setting file and the associated results. This means that if several computations have been run on the same file, only the most recent one will be taken into account. Therefore, if tracks were computed previously but not during the last computation, it will not use the results from the previous run. The goal is to avoid mixing results with potentially different settings."
 
 #: ../../user/viewer_hr.rst:135
 msgid "Vous aurez dans la console un bloc de message comme ceci :"
@@ -196,7 +196,7 @@ msgstr "In the console, you will see a message block like this:"
 
 #: ../../user/viewer_hr.rst:154
 msgid "Il vous donne un état des lieux du chargement des fichiers et vous pouvez ainsi voir les éléments qui n'ont pas été calculés lors de cet horodatage. Ici à 16h 38min 43s le 16 décembre 2025, touts les éléments ont été calculés et filtrés excepté le fit sur les trajectoires (il indique qu'il n'a pas trouvé le fichier correspondant)."
-msgstr "It provides a status report of the file loading, and you can see which elements were not computed for this timestamp. Here, at 16:38:43 on December 16, 2025, all elements were computed and filtered except the fit on the trajectories (it indicates that it did not find the corresponding file)."
+msgstr "It provides a status report of the file loading, and you can see which elements were not computed for this timestamp. Here, at 16:38:43 on December 16, 2025, all elements were computed and filtered except the fit on the tracks (it indicates that it did not find the corresponding file)."
 
 #: ../../user/viewer_hr.rst:159 ../../user/viewer_hr.rst:168
 msgid "Options de visualisation"
@@ -224,15 +224,15 @@ msgstr "**Upscale Ratio** lets you define the scale-up factor of the final visua
 
 #: ../../user/viewer_hr.rst:185
 msgid "**Visualization Type** vous permet de définir si la visualisation représente des localisations ou des trajectoires."
-msgstr "**Visualization Type** lets you define whether the visualization represents localizations or trajectories."
+msgstr "**Visualization Type** lets you define whether the visualization represents localizations or tracks."
 
 #: ../../user/viewer_hr.rst:186
 msgid "**Color Source** vous permet de définir quel élément de la localisation/trajectoire servira à définir l'intensité lumineuse du point. Par exemple, l'intensité totale de la molécule détectée ou la valeur de l'incertitude quant à sa position précise (MSE)."
-msgstr "**Color Source** lets you define which localization/trajectory element will be used to set the brightness intensity of the point. For example, the total intensity of the detected molecule or the value of the uncertainty about its precise position (MSE)."
+msgstr "**Color Source** lets you define which localization/track element will be used to set the brightness intensity of the point. For example, the total intensity of the detected molecule or the value of the uncertainty about its precise position (MSE)."
 
 #: ../../user/viewer_hr.rst:188
 msgid "**PNG Color Map** vous permet de définir une color map pour l'image finale qui est générée. Par défaut sur Niveau de gris pour les localisations et la carte Viridis pour les trajectoires. Le choix est limité à des cartes **perceptuellement uniformes** ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo'). (plus de détail sur les Color Map `ici <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)"
-msgstr "**PNG Color Map** lets you define a colormap for the final generated image. By default, it is Grayscale for localizations and the Viridis map for trajectories. The choice is limited to **perceptually uniform** maps ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo'). (More details about colormaps `here <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)"
+msgstr "**PNG Color Map** lets you define a colormap for the final generated image. By default, it is Grayscale for localizations and the Viridis map for tracks. The choice is limited to **perceptually uniform** maps ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo'). (More details about colormaps `here <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)"
 
 #: ../../user/viewer_hr.rst:197 ../../user/viewer_hr.rst:203
 msgid "Affichage vectoriel des localisations"
@@ -244,11 +244,11 @@ msgstr "Display of localizations"
 
 #: ../../user/viewer_hr.rst:213 ../../user/viewer_hr.rst:219
 msgid "Affichage vectoriel des trajectoires"
-msgstr "Vector display of trajectories"
+msgstr "Vector display of tracks"
 
 #: ../../user/viewer_hr.rst:221 ../../user/viewer_hr.rst:227
 msgid "Affichage des trajectoires"
-msgstr "Display of trajectories"
+msgstr "Display of tracks"
 
 #: ../../user/viewer_hr.rst:231
 msgid "Génération et sauvegarde"
@@ -279,16 +279,16 @@ msgid "Ce message indique que le dossier sélectionné n'existe pas (une erreur 
 msgstr "This message indicates that the selected folder does not exist (a typing error is the most common reason). This message can appear when opening, because it tries to open the current path by default. When you launch the viewer from the PALMTracer plugin, by default it will select the folder of the current image and start a generation. It can also appear when you press :guilabel:`Generate`."
 
 #: ../../user/viewer_hr.rst:263
-msgid "Ce message indique que le dossier sélectionné contenant les résultats est bon, mais que la pile n'est pas à l'emplacement prévu par la nomenclature standard de PALMTracer. Cela arrive si vous avez uniquement récupéré le dossier de résultat ou déplacé celui-ci. Il a besoin de la pile initiale actuellement pour pouvoir retrouver les dimensions initiales du fichier. *Cet élément sera potentiellement modifié pour lire, le fichier meta contenant ces informations le cas échéant.*"
+msgid "Ce message indique que le dossier sélectionné contenant les résultats est bon, mais que la pile n'est pas à l'emplacement prévu par la nomenclature standard de PALMTracer. Cela arrive si vous avez uniquement récupéré le dossier de résultat ou déplacé celui-ci. Il a besoin de la pile initiale actuellement pour pouvoir retrouver les dimensions initiales du fichier. *Cet élément sera potentiellement modifié pour lire, le fichier méta contenant ces informations le cas échéant.*"
 msgstr "This message indicates that the selected folder containing the results is correct, but that the stack is not in the location expected by the standard PALMTracer naming convention. This happens if you only retrieved the results folder or moved it. It currently needs the original stack in order to retrieve the original file dimensions. *This may be modified later to read the meta file containing this information, if applicable.*"
 
 #: ../../user/viewer_hr.rst:272
 msgid "Ce message indique que dans le dossier sélectionné et pour le dernier fichier de paramètres, aucune localisation n'a été trouvée. Il peut apparaitre lors d'un appui sur :guilabel:`Generate`."
-msgstr "This message indicates that in the selected folder and for the latest parameter file, no localization was found. It can appear when you press :guilabel:`Generate`."
+msgstr "This message indicates that in the selected folder and for the latest setting file, no localization was found. It can appear when you press :guilabel:`Generate`."
 
 #: ../../user/viewer_hr.rst:279
 msgid "Ce message indique que dans le dossier sélectionné et pour le dernier fichier de paramètres, aucune trajectoire n'a été trouvée. Il peut apparaitre lors d'un appui sur :guilabel:`Generate`."
-msgstr "This message indicates that in the selected folder and for the latest parameter file, no trajectory was found. It can appear when you press :guilabel:`Generate`."
+msgstr "This message indicates that in the selected folder and for the latest setting file, no track was found. It can appear when you press :guilabel:`Generate`."
 
 #: ../../user/viewer_hr.rst:287
 msgid "Ce message indique que le fichier résultat de la visualisation a été enregistré. Il peut apparaitre lors d'un appui sur :guilabel:`Save` (si la génération d'une visualisation a été réussie précédemment)."

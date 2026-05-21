@@ -28,7 +28,7 @@ from typing import cast
 from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Settings.Groups import Graph, GraphDisplay
+from palm_tracer.Settings.Groups import Graph
 from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
@@ -70,18 +70,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		- _pt (:class:`PALMTracer <palm_tracer.PALMTracer>`) : Référence vers l'instance principale de PALMTracer (aucune copie).
 		- _fig  (:class:`Optional[go.Figure]`) : Dernière figure Plotly produite (pour export/maj).
 		- _html  (:class:`Optional[str]`)  : Dernier HTML généré pour la figure (export .html).
-		- _grapher  (:class:`Grapher <palm_tracer.Processing.Grapher>`) : Utilitaire de création de figures (histogrammes, scatter, etc.).
-		- _file  (:class:`str`) : Chemin du fichier image courant (TIF).
-
-	Remarques :
-		- Les boutons de domaine "Localization"/"Tracking" sont automatiquement désactivés si
-		  aucune donnée correspondante n'est trouvée (cf. :meth:`_refresh_source_buttons`).
-		- L'export PNG utilise un fallback par capture du widget Qt si Kaleido n'est pas utilisé.
 	"""
 	UI_NAME: str = "Graph Viewer"
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, palmtracer: PALMTracer | None = None):
@@ -131,7 +124,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		main_layout.addWidget(left)
 		main_layout.addWidget(self._web, stretch=1)
 
-		# --- Boutton pour charger une stack ---
+		# --- Bouton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
 		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
 
@@ -148,7 +141,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 					self._graph_settings[key].get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
 		# --- Bloc Affichage (2 colonnes) ---
-		display_settings = cast(GraphDisplay, self._graph_settings["Display"])
+		display_settings = self._graph_settings.display
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
 		Ui.init_layout(grid)
@@ -197,12 +190,12 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._toggle_type(self._graph_settings["Type"].value)
 		self._graph_settings["Display"]["Limits"].value = True
 		self._graph_settings.toggle_dual(self._graph_settings["Dual"].value)
-		self._graph_settings.toggle_src(self._graph_settings["Source"].value)
+		self._graph_settings.toggle_src()
 
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
-		# Connexion des bouttons Filters de cette UI
+		# Connexion des boutons Filters de cette UI
 		self._pt.connect_filters_button(self.UI_NAME)
 
 		self._btn_add_stack.clicked.connect(self._add_stack)
@@ -225,7 +218,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		finally: super().closeEvent(event)
 
 	# ==================================================
-	# endregion Initialisation
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================

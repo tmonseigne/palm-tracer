@@ -5,10 +5,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle,QApplication
+from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUI import BaseUI
@@ -20,7 +20,7 @@ class BrowseFile(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type recherche de fichier.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeur par défaut du paramètre.
 	"""
@@ -49,7 +49,7 @@ class BrowseFile(BaseSettingType):
 
 		# Disposer le QLineEdit et le bouton dans un calque horizontal
 		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
-		ui.layout.addWidget(browse_button)  # .				Ajout du boutton.
+		ui.layout.addWidget(browse_button)  # .				Ajout du Bouton.
 
 		self._uis[name] = ui  # .							Ajoute l'ui au dictionnaire
 		return ui

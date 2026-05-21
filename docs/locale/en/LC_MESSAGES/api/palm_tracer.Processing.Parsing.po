@@ -1,0 +1,266 @@
+#: ../../api/palm_tracer.Processing.Parsing.rst:2
+msgid "Parsing"
+msgstr ""
+
+#: of palm_tracer.Processing.Parsing:1
+msgid "Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes."
+msgstr "File containing functions to parse the input and output of external DLLs."
+
+#: of palm_tracer.Processing.Parsing.apply_dataframe_type:1
+msgid "Force les colonnes en paramètres à adopter un type numérique. Vérifie la présence des colonnes avant la transformation pour éviter les problèmes et préserve les NaN s'ils sont présents."
+msgstr "Forces columns passed as parameters to adopt a numeric type. Checks for the presence of columns before transformation to avoid issues and preserves NaNs if they are present."
+
+#: ../../api/palm_tracer.Processing.Parsing.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Processing.Parsing.apply_dataframe_type:4
+msgid "DataFrame à modifier."
+msgstr "DataFrame to be modified."
+
+#: of palm_tracer.Processing.Parsing.apply_dataframe_type:5
+#: palm_tracer.Processing.Parsing.log10_dataframe:4
+msgid "Colonnes à modifier."
+msgstr "Columns to be modified."
+
+#: of palm_tracer.Processing.Parsing.apply_dataframe_type:6
+msgid "Type à adopter."
+msgstr "Type to adopt."
+
+#: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:1
+msgid "Réorganise les colonnes d'un DataFrame en mettant certaines en premier, avec l'option d'ajouter les colonnes restantes dans leur ordre d'origine."
+msgstr "Reorders the columns of a DataFrame by placing certain columns first, with the option to add the remaining columns in their original order."
+
+#: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:3
+msgid "Le DataFrame à réorganiser."
+msgstr "The DataFrame to be reordered."
+
+#: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:4
+msgid "Liste des noms de colonnes à placer en premier."
+msgstr "List of column names to place first."
+
+#: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:5
+msgid "Si `True`, ajoute les colonnes non spécifiées après celles définies dans `columns`."
+msgstr "If `True`, adds the unspecified columns after those defined in `columns`."
+
+#: ../../api/palm_tracer.Processing.Parsing.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:6
+msgid "Un nouveau DataFrame avec les colonnes réorganisées."
+msgstr "A new DataFrame with the columns rearranged."
+
+#: ../../api/palm_tracer.Processing.Parsing.rst
+msgid "Lève"
+msgstr "Raise"
+
+#: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:7
+msgid "Si une colonne spécifiée dans `columns` n'existe pas dans `data`."
+msgstr "If a column specified in `columns` does not exist in `data`."
+
+#: ../../api/palm_tracer.Processing.Parsing.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Processing.Parsing.log10_dataframe:1
+msgid "Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égales à 0)."
+msgstr "Applies a base-10 logarithm to certain columns of the DataFrame (replaces values less than or equal to 0 with NaN)."
+
+#: of palm_tracer.Processing.Parsing.log10_dataframe:3
+msgid "Dataframe à modifier."
+msgstr "DataFrame to be modified."
+
+#: of palm_tracer.Processing.Parsing.log10_dataframe:5
+msgid "Dataframe avec les colonnes ayant été modifiées."
+msgstr "A new DataFrame with the columns rearranged."
+
+#: of palm_tracer.Processing.Parsing.degrees_to_radians:1
+msgid "Convertit des angles en degrés vers des radians."
+msgstr "Converts angles in degrees to radians."
+
+#: of palm_tracer.Processing.Parsing.degrees_to_radians:3
+#, python-brace-format
+msgid "\\theta_{rad} = \\theta_{deg} \\times \\frac{\\pi}{180}\n\n"
+msgstr ""
+
+#: of palm_tracer.Processing.Parsing.degrees_to_radians:6
+msgid "Angle(s) en degrés (scalaire, array NumPy ou Series pandas)."
+msgstr "Angle(s) in degrees (scalar, NumPy array, or pandas Series)."
+
+#: of palm_tracer.Processing.Parsing.degrees_to_radians:7
+msgid "Angle(s) en radians."
+msgstr "Angle(s) in radians."
+
+#: of palm_tracer.Processing.Parsing.radians_to_degrees:1
+msgid "Convertit des angles en radians vers des degrés."
+msgstr "Converts angles from radians to degrees."
+
+#: of palm_tracer.Processing.Parsing.radians_to_degrees:3
+#, python-brace-format
+msgid "\\theta_{deg} = \\theta_{rad} \\times \\frac{180}{\\pi}\n\n"
+msgstr ""
+
+#: of palm_tracer.Processing.Parsing.radians_to_degrees:6
+msgid "Angle(s) en radians (scalaire, array NumPy ou Series pandas)."
+msgstr "Angle(s) in radians (scalar, NumPy array, or pandas Series)."
+
+#: of palm_tracer.Processing.Parsing.radians_to_degrees:7
+msgid "Angle(s) en degrés."
+msgstr "Angle(s) in degrees."
+
+#: of palm_tracer.Processing.Parsing.wrap_angle:1
+msgid "Contraint des angles dans un intervalle sélectionné, exemple avec :math:`length = \\pi` et un intervalle centré."
+msgstr "Constrains angles within a selected interval, for example with :math:`length = \\pi` and a centered interval."
+
+#: of palm_tracer.Processing.Parsing.wrap_angle:3
+#, python-brace-format
+msgid "\\theta' \\in [-\\frac{\\pi}{2}, \\frac{\\pi}{2}[ \\quad\\quad \\text{and} \\quad\\quad\n\\theta' = (\\theta + \\frac{\\pi}{2}) \\bmod (\\pi) - \\frac{\\pi}{2}\n\n"
+msgstr ""
+
+#: of palm_tracer.Processing.Parsing.manage_theta:8
+#: palm_tracer.Processing.Parsing.wrap_angle:7
+msgid "Angles en radians."
+msgstr "Angles in radians."
+
+#: of palm_tracer.Processing.Parsing.wrap_angle:8
+msgid "Longueur de l'intervalle."
+msgstr "Length of the interval."
+
+#: of palm_tracer.Processing.Parsing.wrap_angle:9
+#, python-brace-format
+msgid "Définit l'intervalle à :math:`[-\\frac{limit}{2}, \\frac{limit}{2}[` si true, sinon :math:`[0, length[`."
+msgstr "Sets the interval to :math:`[-\\frac{limit}{2}, \\frac{limit}{2}[` if true, otherwise :math:`[0, length[`."
+
+#: of palm_tracer.Processing.Parsing.wrap_angle:10
+#, python-brace-format
+msgid "Angles normalisés dans :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`."
+msgstr "Normalized angles in :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2} [`."
+
+#: of palm_tracer.Processing.Parsing.manage_theta:1
+#, python-brace-format
+msgid "Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`). Puis passe des radians aux degrés pour faciliter la lisibilité."
+msgstr "Constrains angles in radians to the interval :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`). Then converts radians to degrees for readability."
+
+#: of palm_tracer.Processing.Parsing.manage_theta:4
+msgid "Définit un theta commun possible en degré de deux méthodes différentes (moyenne et médiane circulaire) ainsi qu'une mesure de la dispersion. Une dispersion R > 0.8 indique une bonne fiabilité de l'orientation, R < 0.5 indique une orientation mal définit."
+msgstr "Defines a possible common theta angle in degrees from two different methods (mean and circular median) as well as a measure of dispersion. A dispersion of R > 0.8 indicates good orientation reliability; R < 0.5 indicates a poorly defined orientation."
+
+#: of palm_tracer.Processing.Parsing.manage_theta:9
+#, python-brace-format
+msgid "Theta dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`."
+msgstr "Theta in the interval :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2} [`."
+
+#: of palm_tracer.Processing.Parsing.get_meta:1
+msgid "Créer le Dataframe pour les informations meta (dimensions du fichier et calibration)."
+msgstr "Créer le Dataframe pour les informations meta (dimensions du fichier et calibration)."
+
+#: of palm_tracer.Processing.Parsing.get_meta:3
+msgid "Liste des informations en entrée."
+msgstr "List of input information."
+
+#: of palm_tracer.Processing.Parsing.get_meta:4
+msgid ":class:`DataFrame <pandas.DataFrame>` contenant les métadonnées."
+msgstr ":class:`DataFrame <pandas.DataFrame>` containing the metadata."
+
+#: of palm_tracer.Processing.Parsing.get_meta:5
+msgid "Si le nombre d'éléments ne correspond au nombre attendu pour le fichier méta."
+msgstr "If the number of elements does not match the expected number for the meta file."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:1
+#: palm_tracer.Processing.Parsing.parse_result:1
+msgid "Parsing du résultat de la DLL PALM."
+msgstr "Parsing the result from the PALM DLL."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:3
+#, python-brace-format
+msgid "Entrée : un tableau 1D où chaque bloc est encodé comme : [L, x0, x1, ..., x{L-1}, L2, y0, y1, ..., ...] Le parsing s'arrête dès qu'un L ≤ 0 est rencontré."
+msgstr "Input: a 1D array where each block is encoded as: [L, x0, x1, ..., x{L-1}, L2, y0, y1, ..., ...] Parsing stops as soon as an L ≤ 0 is encountered."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:6
+msgid "Règles :"
+msgstr "Rules:"
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:7
+msgid "Le premier élément d'un bloc (L) donne le nombre d'éléments qui suivent pour ce bloc."
+msgstr "The first element of a block (L) specifies the number of elements that follow for that block."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:8
+msgid "Les longueurs négatives ou nulles (L ≤ 0) signalent la fin du flux."
+msgstr "Negative or zero lengths (L ≤ 0) indicate the end of the stream."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:9
+msgid "Les blocs tronqués (pas assez d'éléments après L) lèvent une ``ValueError``."
+msgstr "Truncated blocks (not enough elements after L) raise a ``ValueError``."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:10
+msgid "Les valeurs des blocs (sans L) sont retournées dans le DataFrame."
+msgstr "The values of the blocks (without L) are returned in the DataFrame."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:11
+msgid "Les lignes n'ayant pas le même nombre de colonnes sont complétées par NaN."
+msgstr "Rows that do not have the same number of columns are padded with NaN."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:13
+msgid "Données 1D récupérées depuis la DLL PALM. Doit être indexable et de dimension 1."
+msgstr "1D data retrieved from the PALM DLL. Must be indexable and of dimension 1."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:14
+msgid ":class:`DataFrame <pandas.DataFrame>` où chaque ligne correspond à un bloc et les colonnes contiennent les valeurs du bloc, complétées par NaN."
+msgstr ":class:`DataFrame <pandas.DataFrame>` where each row corresponds to a block and the columns contain the block's values, padded with NaN."
+
+#: of palm_tracer.Processing.Parsing.parse_irregular_array:15
+msgid "Entrée invalide (nombre de dimensions ou taille finale incorrecte)."
+msgstr "Invalid input (incorrect number of dimensions or final size)."
+
+#: of palm_tracer.Processing.Parsing.parse_result:3
+msgid "Pour les localisations et les trajectoires, on a un tableau 1D de grande taille en entrée :"
+msgstr "For localizations and tracks, we have a large 1D array as input:"
+
+#: of palm_tracer.Processing.Parsing.parse_result:4
+msgid "On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``). La taille du tableau est vérifiée et tronquée si nécessaire."
+msgstr "We slice it into a 2D array with 13 columns (``N_SEGMENTS``). The array size is checked and truncated if necessary."
+
+#: of palm_tracer.Processing.Parsing.parse_result:5
+msgid "On le transforme en dataframe avec les colonnes définies par `SEGMENTS`."
+msgstr "We convert it into a dataframe with columns defined by `SEGMENTS`."
+
+#: of palm_tracer.Processing.Parsing.parse_result:6
+msgid "On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0)."
+msgstr "Rows filled with 0s and -1s are removed. A strictly positive test on the X or Y columns is sufficient (SigmaX and SigmaY can be 0)."
+
+#: of palm_tracer.Processing.Parsing.parse_result:8
+msgid "Pour les calculs sur trajectoire, on a un tableau 1D représentant un tableau 2D irrégulier (avec un nombre de colonnes non constant (:func:`parse_irregular_array`)."
+msgstr "For tracks computes, we have a 1D array representing an irregular 2D array (with a non-constant number of columns (:func:`parse_irregular_array`)."
+
+#: of palm_tracer.Processing.Parsing.parse_result:11
+msgid "Données en entrée récupérées depuis la DLL PALM."
+msgstr "Input data retrieved from the PALM DLL."
+
+#: of palm_tracer.Processing.Parsing.parse_result:12
+msgid "Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit)."
+msgstr "File type to parse (Localization, Tracking, 3D Astigmatism Model, MSD, Instant Diffusion, Fit)."
+
+#: of palm_tracer.Processing.Parsing.parse_result:13
+msgid "Applique un logarithme sur le résultat (si nécessaire, pour les calculs sur trajectoires)."
+msgstr "Applies a logarithm to the result (if necessary, for tracks calculations)."
+
+#: of palm_tracer.Processing.Parsing.parse_result:14
+msgid "Mode d'ajustement (si nécessaire, pour les calculs sur trajectoires)."
+msgstr "Fitting mode (if necessary, for tracks calculations)."
+
+#: of palm_tracer.Processing.Parsing.parse_result:15
+msgid ":class:`DataFrame <pandas.DataFrame>` parsé."
+msgstr "Parsed :class:`DataFrame <pandas.DataFrame>`."
+
+#: of palm_tracer.Processing.Parsing.parse_localization_for_tracking:1
+msgid "Parsing du résultat de la localisation pour le suivi au sein de la DLL."
+msgstr "Parsing the localization result for tracking within the DLL."
+
+#: of palm_tracer.Processing.Parsing.parse_localization_for_tracking:3
+msgid "Donnée en entrée récupérées depuis la localisation."
+msgstr "Input data retrieved from the localization."
+
+#: of palm_tracer.Processing.Parsing.parse_localization_for_tracking:4
+msgid ":class:`ndarray <numpy.ndarray>` transformé pour le suivi."
+msgstr ":class:`ndarray <numpy.ndarray>` transformed for tracking."

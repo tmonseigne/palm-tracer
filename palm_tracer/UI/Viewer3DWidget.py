@@ -8,7 +8,7 @@ Ce widget ajoute dans le dock de Napari :
 	- une option permettant d'exclure les points avec intensité nulle,
 	- un calque Napari Points mis à jour dynamiquement.
 
-Le CSV doit contenir les colonnes ``"X"``, ``"Y"``, ``"Z"`` et ``"Integrated Intensity"``.
+Le CSV doit contenir les colonnes ``X``, ``Y``, ``Z`` et ``Integrated Intensity``.
 """
 from __future__ import annotations
 

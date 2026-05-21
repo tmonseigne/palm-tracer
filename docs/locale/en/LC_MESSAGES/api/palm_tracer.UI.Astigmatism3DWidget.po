@@ -1,0 +1,87 @@
+#: ../../api/palm_tracer.UI.Astigmatism3DWidget.rst:2
+msgid "Astigmatism3DWidget"
+msgstr ""
+
+#: of palm_tracer.UI.Astigmatism3DWidget:1
+msgid "Module contenant la classe :class:`Astigmatism3DWidget`, un outil minimaliste pour le calcul d'un modèle d'astigmatisme en lien avec la position axiale."
+msgstr "Module containing the class :class:`Astigmatism3DWidget`, a minimalist tool for calculating an astigmatism model based on axial position."
+
+#: of palm_tracer.UI.Astigmatism3DWidget:3
+msgid "Ce widget offre une interface simple organisée en deux onglets : ``Compute Astigmatism Model``, ``Estimate Z``"
+msgstr "This widget provides a simple interface organized into two tabs: ``Compute Astigmatism Model``, ``Estimate Z``"
+
+#: of palm_tracer.UI.Astigmatism3DWidget:6
+msgid "Notes"
+msgstr ""
+
+#: of palm_tracer.UI.Astigmatism3DWidget:7
+msgid "Le widget est autonome : il peut être lancé directement (``python Astigmatism3DWidget.py``), utilisé dans PALMTracer ou dans un plugin externe."
+msgstr "The widget is standalone: it can be launched directly (``python Astigmatism3DWidget.py``), used in PALMTracer, or in an external plugin."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:1
+msgid "Widget minimaliste pour le calcul d'un modèle d'astigmatisme en lien avec la position axiale et l'estimation d'une position axiale en fonction d'un modèle."
+msgstr "Minimalist widget for calculating an astigmatism model related to axial position and estimating an axial position based on a model."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:3
+msgid "Ce widget fournit deux onglets :"
+msgstr "This widget provides two tabs:"
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:4
+msgid "``Compute Astigmatism Model`` :"
+msgstr "``Compute Astigmatism Model``:"
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:5
+msgid "Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X, Sigma Y, Z."
+msgstr "Button to load a location file containing at least the Sigma X, Sigma Y, and Z columns."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:6
+msgid "Spin float pour la taille des pixels en micromètres (μm/px) avec 3 décimales."
+msgstr "Float spin for pixel size in micrometers (μm/px) with 3 decimal places."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:7
+msgid "Spin float pour la hauteur max sur Z (utilisé si le Z doit être calculé à partir des plans)."
+msgstr "Float spin for maximum height on Z (used if Z must be calculated from the planes)."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:8
+msgid "Bouton pour lancer le calcul du modèle."
+msgstr "Button to start the model calculation."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:10
+msgid "``Estimate Z`` :"
+msgid "``Estimate Z``:"
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:11
+msgid "Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X,Sigma Y."
+msgstr "Button to load a location file containing at least the Sigma X and Sigma Y columns."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:12
+msgid "Spin float pour la taille des pixels en micromètres (μm) avec 3 décimales."
+msgstr "Float spin box for pixel size in micrometers (μm) with 3 decimal places."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:13
+msgid "Spin float pour la hauteur max sur Z."
+msgstr "Float spin box for maximum height on the Z-axis."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:14
+msgid "Checkbox pour sauvegarder l'original dans un dossier backup."
+msgstr "Checkbox to save the original to a backup folder."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:15
+msgid "Bouton pour lancer l'estimation."
+msgstr "Button to start the estimation."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:17
+msgid "La partie de droite sert à visualiser le modèle calculé ou chargé."
+msgstr "The right-hand side is used to view the calculated or loaded model."
+
+#: ../../api/palm_tracer.UI.Astigmatism3DWidget.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.Astigmatism3DWidget.open_astigmatism3d:1
+msgid "Ouvre la fenêtre d'alignement en mode autonome."
+msgstr "Opens the alignment window in standalone mode."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.open_astigmatism3d:3
+msgid "Cette fonction est utilisée par le plugin Napari comme point d'entrée : elle crée simplement un :class:`Astigmatism3DWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre."
+msgstr "This function is used by the Napari plugin as an entry point: it simply creates an :class:`Astigmatism3DWidget`, displays it, and returns it. The widget is not dependent on Napari and opens in its own window."

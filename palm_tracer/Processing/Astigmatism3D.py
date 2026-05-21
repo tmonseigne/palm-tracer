@@ -50,14 +50,14 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 	"""
 	Supprime les localisations multiples par plan en conservant, pour chaque plan ambigu,
-	la localisation la plus proche de la position moyenne estimée à partir des plans ne	contenant qu'une seule localisation.
+	la localisation la plus proche de la position moyenne estimée à partir des plans ne contenant qu'une seule localisation.
 
 	Le principe est le suivant :
 		- si un plan ne contient qu'une seule localisation, celle-ci est conservée ;
 		- si un plan contient plusieurs localisations, seule la localisation la plus proche de la moyenne ``(X, Y)``;
 		- si aucun plan ne contient une unique localisation, la désambiguïsation n'est pas possible de manière fiable et le DataFrame d'origine est renvoyé.
 
-	:param loc: DataFrame contenant au minimum les colonnes ``"X"``, ``"Y"`` et ``"Plane"``.
+	:param loc: DataFrame contenant au minimum les colonnes ``X``, ``Y`` et ``Plane``.
 	:return: DataFrame filtré avec au plus une localisation par plan.
 	"""
 	if loc.empty: return loc
@@ -151,7 +151,7 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 
 	# R² (sur sigma) : utile pour un score "qualité de l'ajustement"
 	def r2(y, yhat):
-		"""Basic R2 Compute"""
+		"""Basic R2 Compute."""
 		ss_res, ss_tot = np.sum((y - yhat) ** 2), np.sum((y - np.mean(y)) ** 2)
 		return float(1.0 - ss_res / ss_tot) if ss_tot > 0 else float("nan")
 
@@ -168,9 +168,9 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	Évalue la validité d'un modèle astigmatique pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle.
 
 	Le Z estimé correspond au point de la courbe le plus proche dans le plan (SigmaX, SigmaY).
-	Les métriques retournées quantifient à la fois la précision	axiale et la cohérence des données avec le modèle.
+	Les métriques retournées quantifient à la fois la précision axiale et la cohérence des données avec le modèle.
 
-	- RMSE_Z (*Root Mean Square Error*) : Erreur quadratique moyenne sur Z. Mesure la précision axiale typique.
+	- RMSE_Z (*Root Mean Square Error*) : Erreur quadratique moyenne sur Z. Mesure de la précision axiale typique.
 	  Modèle parfait (sans bruit) : RMSE_Z = 0.
 
 	- MAE_Z (*Mean Absolute Error*) : Erreur moyenne absolue sur Z, plus robuste aux outliers que le RMSE.
@@ -181,7 +181,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	- Bias_Z : Moyenne de ΔZ. Reflète un biais systématique du modèle.
 	  Modèle parfait : Bias_Z = 0.
 
-	- Std_Z : Écart-type de ΔZ. Mesure la dispersion de l'erreur axiale autour du biais.
+	- Std_Z : Écart-type de ΔZ. Mesure de la dispersion de l'erreur axiale autour du biais.
 
 	- Mean_dist_px : Distance moyenne (en pixels) des points observés à la courbe modèle dans l'espace (SigmaX, SigmaY).
 	  Sert de score de cohérence / confiance.

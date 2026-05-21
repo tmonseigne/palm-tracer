@@ -17,7 +17,7 @@ class Button(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type bouton à cliquer.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	"""
 
@@ -31,7 +31,7 @@ class Button(BaseSettingType):
 		box: QPushButton = QPushButton(self.label)  # Création de la boite.
 		ui = BaseUI(layout=QHBoxLayout(), boxes=[box])
 		box.setToolTip(self.tooltip)  # .			  Ajout du Tooltip
-		box.clicked.connect(self.emit)  # .			  L'emission du signal se fera lors du clic sur le boutton
+		box.clicked.connect(self.emit)  # .			  L'emission du signal se fera lors du clic sur le bouton
 		ui.layout.addWidget(box)  # .				  Ajout du champ de texte.
 
 		self._uis[name] = ui  # .					  Ajoute l'ui au dictionnaire

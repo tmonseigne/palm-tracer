@@ -20,7 +20,7 @@ class FileList(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type recherche de fichier.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	"""
 

@@ -1,0 +1,259 @@
+#: ../../api/palm_tracer.Processing.Palm.rst:2
+msgid "Palm"
+msgstr ""
+
+#: of palm_tracer.Processing.Palm.Palm:1
+msgid "Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés."
+msgstr "Class that allows you to use the external PALM DLL, execute point detection algorithms, and manage related settings."
+
+#: ../../api/palm_tracer.Processing.Palm.rst:9
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Processing.Palm.rst:12
+msgid "Initialization"
+msgstr ""
+
+#: of palm_tracer.Processing.Palm.Palm.is_valid:1
+msgid "Vérifie la validité de la DLL utilisée pour PALM."
+msgstr "Checks the validity of the DLL used for PALM."
+
+#: ../../api/palm_tracer.Processing.Palm.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.Palm.Palm.is_valid:3
+msgid "True si la DLL est valide, False sinon."
+msgstr "True if the DLL is valid, False otherwise."
+
+#: ../../api/palm_tracer.Processing.Palm.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: ../../api/palm_tracer.Processing.Palm.rst:17
+msgid "Argument Parser"
+msgstr ""
+
+#: of palm_tracer.Processing.Palm.Palm.max_allocation_bytes:1
+msgid "Permet de calculer la quantité de mémoire disponible au maximum pour une allocation."
+msgstr "Allows you to calculate the maximum amount of memory available for allocation."
+
+#: ../../api/palm_tracer.Processing.Palm.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Processing.Palm.Palm.max_allocation_bytes:3
+msgid "Pourcentage de la RAM disponible à utiliser au maximum."
+msgstr "Percentage of available RAM to use at most."
+
+#: of palm_tracer.Processing.Palm.Palm.max_allocation_bytes:4
+msgid "Marge de sécurité à garder disponible."
+msgstr "Safety margin to keep available."
+
+#: of palm_tracer.Processing.Palm.Palm.max_allocation_bytes:5
+msgid "Valeur en byte de l'allocation maximum tolérée."
+msgstr "Value in bytes of the maximum allowed allocation."
+
+#: ../../api/palm_tracer.Processing.Palm.rst:22
+msgid "DLL Call"
+msgstr ""
+
+#: of palm_tracer.Processing.Palm.Palm.align:1
+#: palm_tracer.Processing.Palm.Palm.localization:1
+#: palm_tracer.Processing.Palm.Palm.wavelett:1
+msgid "Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image."
+msgstr "Performs image processing with an external PALM DLL to detect points in a stack or an image."
+
+#: of palm_tracer.Processing.Palm.Palm.align:3
+#: palm_tracer.Processing.Palm.Palm.localization:3
+#: palm_tracer.Processing.Palm.Palm.wavelett:3
+msgid "Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement)."
+msgstr "Input image stack in the form of a NumPy array (option to send a single image directly)."
+
+#: of palm_tracer.Processing.Palm.Palm.localization:4
+msgid "Seuil pour la détection."
+msgstr "Threshold for detection."
+
+#: of palm_tracer.Processing.Palm.Palm.localization:5
+msgid "Active ou désactive le mode watershed."
+msgstr "Enables or disables watershed mode."
+
+#: of palm_tracer.Processing.Palm.Palm.localization:6
+msgid "Mode d'ajustement (défini par `get_fit`)."
+msgstr "Fitting mode (defined by `get_fit`)."
+
+#: of palm_tracer.Processing.Palm.Palm.auto_threshold:4
+#: palm_tracer.Processing.Palm.Palm.localization:7
+msgid "Paramètres du mode d'ajustement."
+msgstr "Fitting mode settings."
+
+#: of palm_tracer.Processing.Palm.Palm.localization:8
+msgid "Liste des plans à analyser (None pour tous les plans, les plans sont contigus par principe)."
+msgstr "List of frames to analyze (None for all frames; frames are contiguous by default)."
+
+#: of palm_tracer.Processing.Palm.Palm.localization:9
+#: palm_tracer.Processing.Palm.Palm.tracking:6
+msgid "Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL."
+msgstr "List of detected points as a dataframe containing all information received from the DLL."
+
+#: of palm_tracer.Processing.Palm.Palm.auto_threshold:1
+msgid "Calcule un seuil automatique basé sur la segmentation de l'image."
+msgstr "Computes an automatic threshold based on image segmentation."
+
+#: of palm_tracer.Processing.Palm.Palm.auto_threshold:3
+msgid "Image 2D sous forme de tableau NumPy."
+msgstr "2D image as a NumPy array."
+
+#: of palm_tracer.Processing.Palm.Palm.auto_threshold:5
+msgid "Seuil calculé (écart type final)."
+msgstr "Computed threshold (final standard deviation)."
+
+#: of palm_tracer.Processing.Palm.Palm.tracking:1
+msgid "Exécute l'algorithme de tracking sur les points localisés."
+msgstr "Runs the tracking algorithm on the localized points."
+
+#: of palm_tracer.Processing.Palm.Palm.tracking:3
+msgid "Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies, en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires."
+msgstr "This method applies a tracking algorithm to the provided localization data, taking into account various parameters that influence the cost and lifetime of tracks."
+
+#: of palm_tracer.Processing.Palm.Palm.tracking:7
+msgid "Distance maximale autorisée entre deux points pour les relier entre deux plans successifs."
+msgstr "Maximum allowed distance between two points to connect them across two successive planes."
+
+#: of palm_tracer.Processing.Palm.Palm.tracking:8
+msgid "Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final."
+msgstr "Minimum length of a track for it to be retained in the final result."
+
+#: of palm_tracer.Processing.Palm.Palm.tracking:9
+msgid "Facteur de pénalisation appliqué au coût d'association entre des plans éloignés."
+msgstr "Penalty factor applied to the cost of associating distant frames."
+
+#: of palm_tracer.Processing.Palm.Palm.tracking:10
+msgid "Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante)."
+msgstr "Cost associated with creating a new track (point not associated with an existing track)."
+
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:8
+#: palm_tracer.Processing.Palm.Palm.tracking:11
+#: palm_tracer.Processing.Palm.Palm.tracks_compute:12
+msgid ":class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées."
+msgstr ":class:`DataFrame <pandas.DataFrame>` containing the detected tracks."
+
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:1
+msgid "Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées."
+msgstr "Runs the tracks reconnection algorithm on the already localized tracks."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:4
+#: palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:4
+#: palm_tracer.Processing.Palm.Palm.blinking_reconnection:3
+msgid "Taille des pixels en nanomètres."
+msgstr "Pixel size in nanometers."
+
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:4
+#: palm_tracer.Processing.Palm.Palm.tracks_compute:3
+msgid "Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL."
+msgstr "List of already tracked points in the form of a DataFrame containing all information received from the DLL."
+
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:5
+msgid "Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire)."
+msgstr "Point dispersion mode (0: stationary, 1: diffuse, 2: linear)."
+
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:6
+msgid "Durée maximale d'un scintillement."
+msgstr "Maximum duration of a flicker."
+
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:7
+msgid "Vitesse maximale d'un point entre deux plans (en pixel)."
+msgstr "Maximum speed of a point between two planes (in pixels)."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:1
+msgid "Exécute l'algorithme de calcul sur les trajectoires."
+msgstr "Runs the tracks compute algorithm."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:4
+msgid "Calcul MSD."
+msgstr "MSD computes."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:5
+msgid "Calcul de la diffusion instantanée."
+msgstr "Instantaneous diffusion computes."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:6
+msgid "Calcul sur la 3D."
+msgstr "3D computes."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:7
+msgid "Applique un logarithme sur le résultat."
+msgstr "Applies a logarithm to the result."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:8
+msgid "Taille des pixels en micromètre."
+msgstr "Pixel size in micrometers."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:9
+msgid "Calibration temporelle utile pour les calculs."
+msgstr "Time calibration useful for computes."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:10
+msgid "Mode d'ajustement."
+msgstr "Fitting mode."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:11
+msgid "Paramètres de l'ajustement (pour le moment uniquement fit length)."
+msgstr "Fitting settings (currently only fit length)."
+
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:15
+msgid "Pour obtenir des valeurs de diffusion en **µm²**, le paramètre ``pixel_size`` doit être exprimé en micromètres par pixel (µm/px)."
+msgstr "To obtain diffusion values in **µm²**, the ``pixel_size`` parameter must be expressed in micrometers per pixel (µm/px)."
+
+#: of palm_tracer.Processing.Palm.Palm.align:4
+msgid "Facteurs d'alignement."
+msgstr "Alignment factors."
+
+#: of palm_tracer.Processing.Palm.Palm.align:5
+msgid "Facteur d'agrandissement de l'image (par défaut : `1` aucun agrandissement)."
+msgstr "Image magnification factor (default: `1` no magnification)."
+
+#: of palm_tracer.Processing.Palm.Palm.align:6
+msgid "Image alignée."
+msgstr "Aligned image."
+
+#: of palm_tracer.Processing.Palm.Palm.wavelett:4
+msgid "Niveau d'ondelette en sortie."
+msgstr "Output wavelet level."
+
+#: of palm_tracer.Processing.Palm.Palm.wavelett:5
+msgid "Image décomposée."
+msgstr "Decomposed image."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:1
+msgid "Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale."
+msgstr "Performs processing using an external PALM DLL to calibrate an astigmatism model for estimating an axial position."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:3
+msgid "Ensemble des points nécessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z]."
+msgstr "Set of points required for calibration in the form of a 2D NumPy array with columns [Sigma X, Sigma Y, Z]."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:5
+msgid "Permet de centrer le modèle pour que si :math:`\\sigma_x(0) \\approx \\sigma_y(0)`."
+msgstr "Allows centering the model so that :math:`\\sigma_x(0) \\approx \\sigma_y(0)`."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:6
+#: palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:5
+msgid "Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne)."
+msgstr "Astigmatism model (a 2D NumPy array with 2 rows and 5 parameters per row)."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:1
+msgid "Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle."
+msgstr "Performs a calculation using an external PALM DLL to estimate an axial position based on a model."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:3
+msgid "Ensemble des points à estimer sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y]."
+msgstr "Set of points to be estimated in the form of a 2D NumPy array with columns [sigma_x, sigma_y]."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:6
+msgid "Distance absolue maximale sur Z par rapport à l'origine."
+msgstr "Maximum absolute distance along the Z-axis relative to the origin."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:7
+msgid "Ensemble des Z estimés pour chaque point."
+msgstr "Set of estimated Z values for each point."

@@ -29,7 +29,7 @@ class Filters(BaseSettingGroup):
 		- **Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
 		  Sauvegarde les éléments une fois filtrés (dans un fichier séparé du fichier non filtré)  (par défaut : `False`).
 		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Interval de plans sélectionné (par défaut : `[1,10000]`).
+		  Intervalle de plans sélectionné (par défaut : `[1,10000]`).
 		- **Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Paramètres de filtrage de la Localisation.
 		- **Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Paramètres de filtrage du Tracking.
 	"""
@@ -100,11 +100,11 @@ class Filters(BaseSettingGroup):
 	##################################################
 	def connect_button(self, f: Any, ui_name: str = "default", name: str = "reset"):
 		"""
-		Connecte un boutton directement et non le setting en lui-même.
+		Connecte un bouton directement et non le paramètre en lui-même.
 
 		:param f: Fonction ou slot à connecter.
-		:param ui_name: Nom de l'interface à connecter
-		:param name: Nom du boutton dnas l'interface
+		:param ui_name: Nom de l'interface à connecter.
+		:param name: Nom du bouton dans l'interface.
 		"""
 		if ui_name in self.buttons and name in self.buttons[ui_name]:
 			self.buttons[ui_name][name].clicked.connect(f)

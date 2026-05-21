@@ -147,7 +147,7 @@ msgid "Régler le contraste"
 msgstr "Adjust contrast"
 
 #: ../../user/manual.rst:89
-msgid "PALMTracer met automatiquement à jour cette zone à chaque changement de fichier ou lors de la preview."
+msgid "PALMTracer met automatiquement à jour cette zone à chaque changement de fichier ou lors de l'aperçu."
 msgstr "PALMTracer automatically updates this area each time a file is changed or during preview."
 
 #: ../../user/manual.rst:91
@@ -196,15 +196,15 @@ msgstr "Processing"
 
 #: ../../user/manual.rst:113
 msgid "Paramètres de localisation"
-msgstr "Localization parameters"
+msgstr "Localization settings"
 
 #: ../../user/manual.rst:114
 msgid "Paramètres de tracking"
-msgstr "Tracking parameters"
+msgstr "Tracking settings"
 
 #: ../../user/manual.rst:115
 msgid "Paramètres de calcul sur les trajectoires"
-msgstr "Trajectory computation parameters"
+msgstr "Tracks computation settings"
 
 #: ../../user/manual.rst:116
 msgid "Bouton Start Processing (traitement en thread séparé)"
@@ -232,7 +232,7 @@ msgstr "Filtering"
 
 #: ../../user/manual.rst:123
 msgid "paramètres de filtrage des localisations et pistes"
-msgstr "Localization and track filtering parameters"
+msgstr "Localization and track filtering settings"
 
 #: ../../user/manual.rst:124
 msgid "Boutons :guilabel:`Start Processing` / :guilabel:`Load Last Result`"
@@ -264,7 +264,7 @@ msgstr "You can open multiple files successively: they will appear in a drop-dow
 
 #: ../../user/manual.rst:141
 msgid "Le paramètre Mode permet de définir le comportement lors des traitements :"
-msgstr "The Mode parameter allows you to define the behavior during processing:"
+msgstr "The Mode setting allows you to define the behavior during processing:"
 
 #: ../../user/manual.rst:143
 msgid "\"Only one\" : un seul fichier est analysé."
@@ -291,16 +291,16 @@ msgid "Charge automatiquement le fichier dans un calque Raw."
 msgstr "Automatically loads the file into a Raw layer."
 
 #: ../../user/manual.rst:151
-msgid "Mets à jour la preview si elle est activée."
+msgid "Mets à jour l'aperçu s'il est activé."
 msgstr "Updates the preview if it is enabled."
 
 #: ../../user/manual.rst:153
 msgid "Paramètres de Batch."
-msgstr "Batch parameters."
+msgstr "Batch settings."
 
 #: ../../user/manual.rst:160
 msgid "Paramètres de Batch"
-msgstr "Batch parameters"
+msgstr "Batch settings"
 
 #: ../../user/manual.rst:163
 msgid "Calibration de l'acquisition"
@@ -324,7 +324,7 @@ msgstr "Light intensity in photons per analog-to-digital units (ADU)."
 
 #: ../../user/manual.rst:171
 msgid "Ces paramètres sont utilisés pour :"
-msgstr "These parameters are used to:"
+msgstr "These settings are used to:"
 
 #: ../../user/manual.rst:173
 msgid "Convertir les intensités brutes."
@@ -332,7 +332,7 @@ msgstr "Convert raw intensities."
 
 #: ../../user/manual.rst:174
 msgid "Calibrer les trajectoires en unités physiques."
-msgstr "Calibrate trajectories into physical units."
+msgstr "Calibrate tracks into physical units."
 
 #: ../../user/manual.rst:175
 msgid "Permettre des mesures physiques cohérentes, notamment pour le calcul des coefficients de diffusion."
@@ -340,11 +340,11 @@ msgstr "Enable consistent physical measurements, in particular for the computati
 
 #: ../../user/manual.rst:177
 msgid "Paramètres de Calibration."
-msgstr "Calibration parameters."
+msgstr "Calibration settings."
 
 #: ../../user/manual.rst:184
 msgid "Paramètres de Calibration"
-msgstr "Calibration parameters"
+msgstr "Calibration settings"
 
 #: ../../user/manual.rst:187
 msgid "Onglet Processing"
@@ -352,7 +352,7 @@ msgstr "Processing tab"
 
 #: ../../user/manual.rst:189
 msgid "L'onglet :guilabel:`Processing` regroupe l'ensemble des paramètres liés au traitement principal : la localisation et l'éventuel suivi des molécules (tracking), puis les calculs sur les trajectoires."
-msgstr "The :guilabel:`Processing` tab groups all parameters related to the main processing: localization and optional molecule tracking, followed by computations on trajectories."
+msgstr "The :guilabel:`Processing` tab groups all settings related to the main processing: localization and optional molecule tracking, followed by computations on tracks."
 
 #: ../../user/manual.rst:192
 msgid "Il est constitué de trois modules :"
@@ -368,7 +368,7 @@ msgstr "**Tracking**"
 
 #: ../../user/manual.rst:195
 msgid "**Calculs sur les trajectoires**"
-msgstr "**Trajectory computations**"
+msgstr "**Tracks compute**"
 
 #: ../../user/manual.rst:197
 msgid "Onglet Processing du Widget."
@@ -384,11 +384,11 @@ msgstr "Localization"
 
 #: ../../user/manual.rst:209
 msgid "La section *Localisation* permet de configurer les paramètres qui influencent directement la détection des molécules sur chaque image."
-msgstr "The *Localization* section allows configuration of parameters that directly influence molecule detection on each image."
+msgstr "The *Localization* section allows configuration of settings that directly influence molecule detection on each image."
 
 #: ../../user/manual.rst:211
 msgid "Les paramètres les plus courants incluent :"
-msgstr "The most common parameters include:"
+msgstr "The most common settings include:"
 
 #: ../../user/manual.rst:212
 msgid "**Preview** : si activé, lance la détection en temps réel sur l'image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`)."
@@ -399,7 +399,7 @@ msgid "**Threshold** : seuil d'intensité utilisé pour isoler les candidats mol
 msgstr "**Threshold**: intensity threshold used to isolate molecular candidates. A :guilabel:`Auto` button can automatically estimate an optimal threshold from the current image (more information :ref:`here <auto_threshold_page>`)."
 
 #: ../../user/manual.rst:215
-msgid "**ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une ROI carré en revanche."
+msgid "**ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une zone carré en revanche."
 msgstr "**ROI Shape**: shape of the region of interest during preview (circle or square); however, calculations are always performed on a square ROI."
 
 #: ../../user/manual.rst:216
@@ -420,11 +420,11 @@ msgstr "Tracking"
 
 #: ../../user/manual.rst:224
 msgid "La section *Tracking* est utilisée pour relier les détections entre plans afin de reconstruire des trajectoires (si votre acquisition est adaptée à cette analyse)."
-msgstr "The *Tracking* section is used to link detections between frames in order to reconstruct trajectories (if your acquisition is suitable for this analysis)."
+msgstr "The *Tracking* section is used to link detections between frames in order to reconstruct tracks (if your acquisition is suitable for this analysis)."
 
 #: ../../user/manual.rst:226
 msgid "Les paramètres peuvent inclure :"
-msgstr "Parameters may include:"
+msgstr "Settings may include:"
 
 #: ../../user/manual.rst:227
 msgid "**Max Distance** : Distance maximale en pixel entre deux plans."
@@ -436,7 +436,7 @@ msgstr "**Blinking Reconnection**"
 
 #: ../../user/manual.rst:-1
 msgid "Paramètres de reconnexion en cas de scintillement."
-msgstr "Reconnection parameters in case of blinking."
+msgstr "Reconnection settings in case of blinking."
 
 #: ../../user/manual.rst:229
 msgid "**Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire)."
@@ -451,24 +451,24 @@ msgid "**Max Speed** : Vitesse maximale du point en μm/plan."
 msgstr "**Max Speed**: maximum point speed in µm/frame."
 
 #: ../../user/manual.rst:234
-msgid "**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans la preview."
+msgid "**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans l'aperçu."
 msgstr "**Note**: tracking is performed during full processing, not during preview."
 
 #: ../../user/manual.rst:238
 msgid "Calculs sur les trajectoires"
-msgstr "Trajectory computations"
+msgstr "Tracks compute"
 
 #: ../../user/manual.rst:240
 msgid "Cette section permet d'appliquer différents calculs sur les trajectoires reconstruites :"
-msgstr "This section allows applying different computations to the reconstructed trajectories:"
+msgstr "This section allows applying different computations to the reconstructed tracks:"
 
 #: ../../user/manual.rst:241
 msgid "**MSD** : (Mean Squared Displacement) : Calcul du MSD par trajectoire et par plans successifs."
-msgstr "**MSD**: (Mean Squared Displacement): computation of the MSD per trajectory and over successive frames."
+msgstr "**MSD**: (Mean Squared Displacement): computation of the MSD per track and over successive frames."
 
 #: ../../user/manual.rst:242
 msgid "**Instant Diffusion** : Calcul de la diffusion instantanée par trajectoire et par plans successifs."
-msgstr "**Instant Diffusion**: computation of instantaneous diffusion per trajectory and over successive frames."
+msgstr "**Instant Diffusion**: computation of instantaneous diffusion per track and over successive frames."
 
 #: ../../user/manual.rst:243
 msgid "**Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée."
@@ -484,7 +484,7 @@ msgstr "**Log Scale**: whether or not to use a logarithmic scale for results."
 
 #: ../../user/manual.rst:246
 msgid "**Fit** : Méthode d'ajustement du mouvement de la trajectoire."
-msgstr "**Fit**: fitting method for the trajectory motion."
+msgstr "**Fit**: fitting method for the track motion."
 
 #: ../../user/manual.rst:250
 msgid "Onglet Visualization"
@@ -500,112 +500,116 @@ msgstr "It includes:"
 
 #: ../../user/manual.rst:256
 msgid "**Gallery** : Outils permettant de créer une image :file:`.tif` avec toutes les détections à la suite en définissant la taille de la zone d'intérêt et le nombre de détections par lignes/colonnes. Si le nombre de détections dépasse, le nombre définit de lignes x colonnes, un nouveau plan est ajouté au résultat. Exemple : pour une acquisition de 1000 détections, en définissant 10 lignes/colonnes et une taille de zone d'intérêt à 9, le résultat sera une image de 90x90 pixels par plan, avec 10 plans."
-msgstr "**Gallery**: tools that allow creating a :file:`.tif` image containing all detections in sequence by defining the region of interest size and the number of detections per rows/columns. If the number of detections exceeds the defined number of rows × columns, a new frame is added to the result. Example: for an acquisition of 1000 detections, by defining 10 rows/columns and a region of interest size of 9, the result will be a 90×90 pixel image per frame, with 10 frames."
+msgstr "**Gallery**: Tools that allow creating a :file:`.tif` image containing all detections in sequence by defining the region of interest size and the number of detections per rows/columns. If the number of detections exceeds the defined number of rows × columns, a new frame is added to the result. Example: for an acquisition of 1000 detections, by defining 10 rows/columns and a region of interest size of 9, the result will be a 90×90 pixel image per frame, with 10 frames."
 
 #: ../../user/manual.rst:259
-msgid "**High Resolution** : Une ou plusieurs images haute résolution sont générées selon le facteur d'agrandissement choisi et la source pour définir l'intensité."
-msgstr "**High Resolution**: one or more high-resolution images are generated according to the selected upscaling factor and the chosen source used to define intensity."
+msgid "**Graph** : Permet la génération d'un graphique automatiquement."
+msgstr "**Graph**: Generates a graph automatically."
 
 #: ../../user/manual.rst:260
-msgid "**Graph Viewer** : Ouvre une fenêtre dédiée aux représentations statistiques. (plus d'informations :ref:`ici <viewer_graph_page>`)"
-msgstr "**Graph Viewer**: opens a window dedicated to statistical representations. (more information :ref:`here <viewer_graph_page>`)"
+msgid "**HR** : Permet de généré une image en haute résolution automatiquement."
+msgstr "**HR**: Generates a high-resolution image automatically."
 
 #: ../../user/manual.rst:261
-msgid "**HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes résolutions. (plus d'informations :ref:`ici <viewer_hr_page>`)"
-msgstr "**HR Viewer**: opens a window dedicated to high-resolution representations. (more information :ref:`here <viewer_hr_page>`)"
+msgid "**Graph Viewer** : Ouvre une fenêtre dédiée aux représentations statistiques. (plus d'informations :ref:`ici <viewer_graph_page>`)"
+msgstr "**Graph Viewer**: Opens a window dedicated to statistical representations. (more information :ref:`here <viewer_graph_page>`)"
 
 #: ../../user/manual.rst:262
-msgid "**3D Viewer** : Ouvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)"
-msgstr "**3D Viewer**: opens a window dedicated to 3D representations. (more information :ref:`here <viewer_3d_page>`)"
+msgid "**HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes résolutions. (plus d'informations :ref:`ici <viewer_hr_page>`)"
+msgstr "**HR Viewer**: Opens a window dedicated to high-resolution representations. (more information :ref:`here <viewer_hr_page>`)"
 
-#: ../../user/manual.rst:264
+#: ../../user/manual.rst:263
+msgid "**3D Viewer** : Ouvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)"
+msgstr "**3D Viewer**: Opens a window dedicated to 3D representations. (more information :ref:`here <viewer_3d_page>`)"
+
+#: ../../user/manual.rst:265
 msgid "Onglet Visualization du Widget."
 msgstr "Visualization tab of the widget."
 
-#: ../../user/manual.rst:271
+#: ../../user/manual.rst:272
 msgid "Onglet Visualization du Widget"
 msgstr "Visualization tab of the widget"
 
-#: ../../user/manual.rst:274
+#: ../../user/manual.rst:275
 msgid "Onglet Filtering"
 msgstr "Filtering tab"
 
-#: ../../user/manual.rst:276
+#: ../../user/manual.rst:277
 msgid "L'onglet **Filtering** permet de sélectionner ou d'exclure des points ou des trajectoires selon divers critères statistiques ou géométriques."
-msgstr "The **Filtering** tab allows selecting or excluding points or trajectories according to various statistical or geometric criteria."
+msgstr "The **Filtering** tab allows selecting or excluding points or tracks according to various statistical or geometric criteria."
 
-#: ../../user/manual.rst:278
+#: ../../user/manual.rst:279
 msgid "Les filtres permettent de définir des seuils minimum et maximum pour divers paramètres comme une limitation des plans sur lesquels travailler, ou des critères basés sur les propriétés des points ou des trajectoires."
-msgstr "Filters allow defining minimum and maximum thresholds for various parameters, such as limiting the frames to work on, or using criteria based on properties of points or trajectories."
+msgstr "Filters allow defining minimum and maximum thresholds for various settings, such as limiting the frames to work on, or using criteria based on properties of points or tracks."
 
-#: ../../user/manual.rst:281
+#: ../../user/manual.rst:282
 msgid "Une fois appliqués, les filtres affectent :"
 msgstr "Once applied, filters affect:"
 
-#: ../../user/manual.rst:282
+#: ../../user/manual.rst:283
 msgid "la visualisation High Resolution"
 msgstr "High Resolution visualization"
 
-#: ../../user/manual.rst:283
+#: ../../user/manual.rst:284
 msgid "les pistes affichées"
 msgstr "the displayed tracks"
 
-#: ../../user/manual.rst:284
+#: ../../user/manual.rst:285
 msgid "les graphiques du Graph Viewer"
 msgstr "the plots in the Graph Viewer"
 
-#: ../../user/manual.rst:285
+#: ../../user/manual.rst:286
 msgid "les exports de données éventuels (si l'option :guilabel:`Save filtered` est activée)."
 msgstr "any data exports (if the :guilabel:`Save filtered` option is enabled)."
 
-#: ../../user/manual.rst:287
+#: ../../user/manual.rst:288
 msgid "Onglet Filtering du Widget."
 msgstr "Filtering tab of the widget."
 
-#: ../../user/manual.rst:294
+#: ../../user/manual.rst:295
 msgid "Onglet Filtering du Widget"
 msgstr "Filtering tab of the widget"
 
-#: ../../user/manual.rst:297
+#: ../../user/manual.rst:298
 msgid "**Remarques** : Les filtres ne modifient pas les données brutes ou les résultats de traitement internes. Ils sont appliqués dynamiquement lors de la visualisation ou de l'exportation."
 msgstr "**Notes**: filters do not modify raw data or internal processing results. They are applied dynamically during visualization or export."
 
-#: ../../user/manual.rst:301
+#: ../../user/manual.rst:302
 msgid "Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtrée."
 msgstr "The filter on X or Y displays a red rectangle in the Napari visualization to dynamically identify the filtered area."
 
-#: ../../user/manual.rst:304
+#: ../../user/manual.rst:305
 msgid "FAQ"
 msgstr "FAQ"
 
-#: ../../user/manual.rst:307
+#: ../../user/manual.rst:308
 msgid "1. Pourquoi Napari se ferme-t-il lors du lancement du Plugin ?"
 msgstr "1. Why does Napari close when launching the plugin?"
 
-#: ../../user/manual.rst:309
+#: ../../user/manual.rst:310
 msgid "Il arrive que Napari se ferme immédiatement après le lancement du plugin PALMTracer. Cela est généralement dû à une surcharge de Napari qui a du mal à gérer la mémoire nécessaire pour ouvrir le plugin. Vous devez réessayer d'ouvrir le plugin PALMTracer. Si le problème persiste, essayez de supprimer le fichier de configuration de PALMTracer situé dans le répertoire utilisateur (généralement :file:`C:\\\\Users\\\\YOUR_USER_NAME\\\\.palm_tracer`)."
 msgstr "Napari may close immediately after launching the PALMTracer plugin. This is usually due to Napari being overloaded and having difficulty handling the memory required to open the plugin. You should try opening the PALMTracer plugin again. If the problem persists, try deleting the PALMTracer configuration file located in the user directory (usually :file:`C:\\\\Users\\\\YOUR_USER_NAME\\\\.palm_tracer`)."
 
-#: ../../user/manual.rst:313
+#: ../../user/manual.rst:314
 msgid "2. L'interface est énorme."
 msgstr "2. The interface is huge."
 
-#: ../../user/manual.rst:315
+#: ../../user/manual.rst:316
 msgid "Cela est probablement dû aux paramètres de mise à l'échelle automatique de Windows pour les applications QT. Reportez-vous à l'Étape 6 de la section d'installation pour désactiver cette fonctionnalité."
 msgstr "This is probably due to Windows automatic scaling settings for Qt applications. Refer to Step 6 of the installation section to disable this feature."
 
-#: ../../user/manual.rst:318
+#: ../../user/manual.rst:319
 msgid "3. Dans quel ordre fait-il les calculs ?"
 msgstr "3. In what order does it perform the computations?"
 
-#: ../../user/manual.rst:320
+#: ../../user/manual.rst:321
 msgid "Lors de l'appui sur :guilabel:`Start Processing` un pipeline se lance, la description de ce pipeline est disponible :ref:`ici <pipeline_page>`)."
 msgstr "When pressing :guilabel:`Start Processing`, a pipeline starts; the description of this pipeline is available :ref:`here <pipeline_page>`)."
 
-#: ../../user/manual.rst:323
+#: ../../user/manual.rst:324
 msgid "3. Où puis-je trouver plus d'aide ?"
 msgstr "3. Where can I find more help?"
 
-#: ../../user/manual.rst:325
+#: ../../user/manual.rst:326
 msgid "Consultez la documentation officielle de Napari ou contactez le support du projet."
 msgstr "Check the official Napari documentation or contact the project support."
