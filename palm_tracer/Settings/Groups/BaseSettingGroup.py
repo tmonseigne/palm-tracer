@@ -91,6 +91,18 @@ class BaseSettingGroup:
 		return ui
 
 	##################################################
+	def clean_ui(self, name: str):
+		"""
+		Supprime l'interface Qt associée au nom donné.
+
+		:param name: Nom de l'interface dans le dictionnaire
+		"""
+		self._uis.pop(name, None)
+
+		for setting in self._settings.values():
+			setting.clean_ui(name)
+
+	##################################################
 	@property
 	def active(self) -> bool:
 		"""État du groupe, activé ou non (:class:`bool`)."""

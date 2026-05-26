@@ -219,6 +219,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_export.clicked.connect(self._on_export)
 
+	##################################################
+	def closeEvent(self, event):
+		try: self._pt.settings.clean_ui(self.UI_NAME)
+		finally: super().closeEvent(event)
+
 	# ==================================================
 	# endregion Initialisation
 	# ==================================================

@@ -110,6 +110,15 @@ class Settings:
 		return ui
 
 	##################################################
+	def clean_ui(self, name: str):
+		"""
+		Supprime récursivement les interfaces Qt associées au nom donné.
+
+		:param name: Nom de l'interface dans le dictionnaire
+		"""
+		for setting in self._settings.values(): setting.clean_ui(name)
+
+	##################################################
 	@property
 	def batch(self) -> Batch:
 		"""Groupe de paramètres liés au batch (:class:`Batch <palm_tracer.Settings.Groups.Batch.Batch>`)."""

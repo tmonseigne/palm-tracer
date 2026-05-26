@@ -1,7 +1,7 @@
 """Fichier des tests pour le widget."""
 import shutil
 
-from qtpy.QtCore import Qt
+from qtpy.QtCore import QCoreApplication, QEvent, Qt
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import BaseUI, ButtonGroup
@@ -12,10 +12,43 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 ##################################################
-def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
+def flush_qt_delete_events():
+	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+	QCoreApplication.processEvents()
+
+
+##################################################
+def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 	"""Test basique de création du widget."""
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	_ = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
+
+
+##################################################
+def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot):
+	"""Test Permettant de gérer la création en doublon de la même UI."""
+
+	"""Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++."""
+	pt = get_fake_pt()
+
+	w = ViewerHRWidget(pt)
+	w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+
+	w.close()
+	flush_qt_delete_events()
+
+	# Ici les BaseUI sont encore dans les settings,
+	# mais leurs objets Qt internes peuvent être supprimés côté C++.
+	w2 = ViewerHRWidget(pt)
+	w2.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+	w2.resize(1000, 600)
+	w2.show()
+	qtbot.waitExposed(w2)
+	w2.close()
+	flush_qt_delete_events()
 
 
 ##################################################

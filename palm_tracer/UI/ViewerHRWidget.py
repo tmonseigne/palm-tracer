@@ -179,6 +179,11 @@ class ViewerHRWidget(QWidget):
 		self._btn_save.clicked.connect(self._save)
 		self._btn_screenshot.clicked.connect(self._screenshot)
 
+	##################################################
+	def closeEvent(self, event):
+		try: self._pt.settings.clean_ui(self.UI_NAME)
+		finally: super().closeEvent(event)
+
 	# ==================================================
 	# endregion Initialisation
 	# ==================================================

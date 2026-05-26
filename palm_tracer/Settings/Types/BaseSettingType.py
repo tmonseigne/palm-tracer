@@ -64,6 +64,7 @@ class BaseSettingType:
 	# ==================================================
 	# region Getter/Setter
 	# ==================================================
+	##################################################
 	def get_ui(self, name: str = "default") -> BaseUI:
 		"""
 		Retourne un objet :class:`.BaseUI`, existant ou le créé si necessaire.
@@ -71,6 +72,15 @@ class BaseSettingType:
 		:param name: Nom de l'interface dans le dictionnaire
 		"""
 		raise NotImplementedError("La méthode 'get_ui' doit être implémentée dans la sous-classe.")
+
+	##################################################
+	def clean_ui(self, name: str):
+		"""
+		Supprime l'interface Qt associée au nom donné.
+
+		:param name: Nom de l'interface dans le dictionnaire
+		"""
+		self._uis.pop(name, None)
 
 	##################################################
 	@property
