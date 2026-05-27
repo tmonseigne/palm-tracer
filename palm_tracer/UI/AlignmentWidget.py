@@ -68,7 +68,6 @@ class AlignmentWidget(QWidget):
 
 		self._init_ui()
 		self._connect_signals()
-		self.setStyleSheet(Ui.STYLESHEET_GENERAL)  # On applique un style général
 
 	##################################################
 	def _init_ui(self):

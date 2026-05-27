@@ -52,9 +52,6 @@ class BasePlotlyWidget(QWidget):
 		self._web = self._make_web_widget()
 		self._connect_web_widget()
 
-		# On applique un style général aux QPushButton
-		self.setStyleSheet(Ui.STYLESHEET_GENERAL)
-
 	# ==================================================
 	# region Web Widget (for Plotly)
 	# ==================================================

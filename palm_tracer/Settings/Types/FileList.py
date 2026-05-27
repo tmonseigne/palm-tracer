@@ -12,6 +12,7 @@ from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushBut
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -47,6 +48,7 @@ class FileList(BaseSettingType):
 
 		ui = BaseUI(layout=QVBoxLayout(), label=QLabel(self.label), boxes=[btn_add, btn_rem, btn_clr, combo])
 		ui.set_tooltip(self.tooltip)  # .						   Ajout du Tooltip
+		Ui.init_layout(ui.layout, 5, 5)
 
 		combo.addItems(self._items)  # .							   Ajout des choix possibles.
 		combo.currentIndexChanged.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour

@@ -29,17 +29,6 @@ from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, Q
 # Style pour une ligne d'information
 STYLESHEET_INFO: str = "color: #666666; font-style: italic; padding: 2px;"
 
-# Style général du calque (Pour le moment uniquement sur les QPushButton).
-STYLESHEET_GENERAL: str = """
-			QPushButton { border: 1px solid #c7c7c7; padding: 5px; background: #f7f7f7; }
-			QPushButton + QPushButton { border-left: none; } /* fusion visuelle */
-			QPushButton:first-child { border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
-			QPushButton:last-child { border-top-right-radius: 5px; border-bottom-right-radius: 5px; }
-			QPushButton:pressed { background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:checked	{ background: #e9eff7; border-color: #6aa0e8; }
-			QPushButton:disabled { color: #999; background: #fafafa; }
-			"""
-
 # Configuration par défaut de l'interface Plotly opur les différents standalone.
 CONFIG_PLOTLY: dict[str, Any] = {
 		"responsive":             True,
