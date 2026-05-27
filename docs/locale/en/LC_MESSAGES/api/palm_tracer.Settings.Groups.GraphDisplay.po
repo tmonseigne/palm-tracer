@@ -1,0 +1,55 @@
+#: ../../api/palm_tracer.Settings.Groups.GraphDisplay.rst:2
+msgid "GraphDisplay"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:1
+msgid "Classe contenant les paramètres de Visualization :"
+msgstr "Class containing visualization settings:"
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:4
+msgid "**Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Limite les données à ±3σ autour de la moyenne (règle des 3 sigmas)."
+msgstr "**Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Limits the data to ±3σ around the mean (3-sigma rule)."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:5
+msgid "**Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Trace des lignes pointillées à des distances de 1, 2 et 3 sigmas de la moyenne."
+msgstr "**Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox. CheckBox>`): Plots dashed lines at distances of 1, 2, and 3 sigmas from the mean."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:7
+msgid "**Gauss** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche la courbe gaussienne associée à la moyenne et à l'écart-type des données. ."
+msgstr "**Gauss** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Displays the Gaussian curve associated with the mean and standard deviation of the data."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:9
+msgid "**KDE** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche l'estimation de densité par noyau (la courbe la plus proche de l'histogramme) associée aux données."
+msgstr "**KDE** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Displays the kernel density estimate (the curve closest to the histogram) associated with the data."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:11
+msgid "**Cumul** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche un histogramme cumulatif à la place d'un histogramme simple."
+msgstr "**Cumul** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Displays a cumulative histogram instead of a simple histogram."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:12
+msgid "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique une échelle logarithmique aux données."
+msgstr "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Applies a logarithmic scale to the data."
+
+#: ../../api/palm_tracer.Settings.Groups.GraphDisplay.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.GraphDisplay.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay.mode:1
+msgid "Méthode d'affichage du groupe par défaut."
+msgstr "Default group display method."

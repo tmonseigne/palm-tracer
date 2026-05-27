@@ -4,6 +4,7 @@ qui regroupe les paramètres de filtrage du tracking nécessaires à la configur
 
 .. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres. Dynamiquement, changer le max de la longueur
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -19,17 +20,17 @@ class FiltersT(BaseSettingGroup):
 
 	Attributs :
 		- **Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Interval de longueur sélectionné (par défaut : `[1, 10000]`).
+		  Intervalle de longueur sélectionné (par défaut : `[1, 10000]`).
 		- **Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de diffusion instantanée sélectionné (par défaut : `[-5, 5]`).
+		  Intervalle de diffusion instantanée sélectionné (par défaut : `[-5, 5]`).
 		- **D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de direction sélectionné (par défaut : `[-5, 5]`).
+		  Intervalle de direction sélectionné (par défaut : `[-5, 5]`).
 		- **Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de puissance sélectionné (par défaut : `[-10, 10]`).
+		  Intervalle de puissance sélectionné (par défaut : `[-10, 10]`).
 		- **Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de vitesse sélectionné (par défaut : `[0, 1]`).
+		  Intervalle de vitesse sélectionné (par défaut : `[0, 1]`).
 		- **Confinement** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Interval de confinement sélectionné (par défaut : `[-10, 10]`).
+		  Intervalle de confinement sélectionné (par défaut : `[-10, 10]`).
 	"""
 
 	label: str = "Tracks"
@@ -41,6 +42,7 @@ class FiltersT(BaseSettingGroup):
 			"Speed":       [CheckRangeFloat, ["Speed (µm/s)", "", [0, 1], [0, 100]]],
 			"Confinement": [CheckRangeFloat, ["Confinement (µm)", "", [-10, 10], [-100, 100]]]
 			}
+	mode: int = 1
 
 	##################################################
 	def deactivate_filters(self):
@@ -57,7 +59,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = FiltersT()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

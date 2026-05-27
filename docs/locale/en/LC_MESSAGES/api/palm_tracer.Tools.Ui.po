@@ -1,0 +1,468 @@
+#: ../../api/palm_tracer.Tools.Ui.rst:2
+msgid "Ui"
+msgstr ""
+
+#: of palm_tracer.Tools.Ui:1
+msgid "Fonctions utilitaires génériques pour la construction d'interfaces utilisateur Qt et l'affichage console coloré."
+msgstr "Generic utility functions for building Qt user interfaces and color-coded console output."
+
+#: of palm_tracer.Tools.Ui:3
+msgid "Ce module regroupe :"
+msgstr "This module includes:"
+
+#: of palm_tracer.Tools.Ui:4
+msgid "des helpers pour créer et configurer rapidement des calques Qt cohérents (onglets, groupes, formulaires, séparateurs, spinbox, etc.) ;"
+msgstr "helpers for quickly creating and configuring consistent Qt layouts (tabs, groups, forms, separators, spin boxes, etc.);"
+
+#: of palm_tracer.Tools.Ui:5
+msgid "des fonctions de synchronisation de widgets (callbacks) ;"
+msgstr "widget synchronization functions (callbacks);"
+
+#: of palm_tracer.Tools.Ui:6
+msgid "des fonctions d'affichage, console, coloré (erreurs, warnings, succès) ;"
+msgstr "functions for colored console output (errors, warnings, success);"
+
+#: of palm_tracer.Tools.Ui:7
+msgid "quelques utilitaires généraux liés à l'IHM."
+msgstr "a few general utilities related to the GUI."
+
+#: of palm_tracer.Tools.Ui:9
+msgid "L'objectif est d'assurer :"
+msgstr "The goal is to ensure:"
+
+#: of palm_tracer.Tools.Ui:10
+msgid "une ergonomie homogène sur l'ensemble des interfaces ;"
+msgstr "consistent usability across all interfaces;"
+
+#: of palm_tracer.Tools.Ui:11
+msgid "une réduction du boilerplate Qt ;"
+msgstr "a reduction in Qt boilerplate code;"
+
+#: of palm_tracer.Tools.Ui:12
+msgid "une meilleure lisibilité et maintenabilité du code UI."
+msgstr "better readability and maintainability of UI code."
+
+#: of palm_tracer.Tools.Ui.add_setting_row:1
+msgid "Ajoute une ligne de paramètre dans un :class:`QFormLayout`."
+msgstr "Adds a parameter row to a :class:`QFormLayout`."
+
+#: of palm_tracer.Tools.Ui.add_setting_row:3
+msgid "Le champ (colonne de droite) est encapsulé dans un :class:`QHBoxLayout` contenant le widget puis un ``stretch``. Cela évite que le widget s'étire horizontalement jusqu'au bord droit de l'onglet : il conserve sa taille naturelle (*sizeHint*) et l'espace     restant est laissé vide à droite."
+msgstr "The field (right column) is wrapped in a :class:`QHBoxLayout` containing the widget, followed by a ``stretch``. This prevents the widget from stretching horizontally to the right edge of the tab: it retains its natural size (*sizeHint*) and the remaining space is left empty on the right."
+
+#: ../../api/palm_tracer.Tools.Ui.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Tools.Ui.add_setting_row:7
+msgid "Formulaire cible à modifier (modification in-place via :meth:`addRow`)."
+msgstr "Target form to modify (in-place modification via :meth:`addRow`)."
+
+#: of palm_tracer.Tools.Ui.add_setting_row:8
+msgid "Texte du label (colonne de gauche)."
+msgstr "Label text (left column)."
+
+#: of palm_tracer.Tools.Ui.add_setting_row:9
+msgid "Widget à placer dans la colonne de droite (spinbox, checkbox, combobox, ...)."
+msgstr "Widget to place in the right column (spinbox, checkbox, combobox, ...)."
+
+#: of palm_tracer.Tools.Ui.add_setting_row:10
+msgid "Valeur (en pixels) utilisée pour l'espacement du calque. Par défaut : ``0``."
+msgstr "Value (in pixels) used for layer spacing. Default: ``0``."
+
+#: of palm_tracer.Tools.Ui.add_setting_row:11
+msgid "Valeur (en pixels) utilisée pour les marges du calque. Par défaut : ``0``."
+msgstr "Value (in pixels) used for layer margins. Default: ``0``."
+
+#: of palm_tracer.Tools.Ui.add_setting_row:12
+msgid "Tooltip à ajouter (Une chaine vide n'ajoute aucun tooltip)."
+msgstr "Tooltip to add (An empty string adds no tooltip)."
+
+#: of palm_tracer.Tools.Ui.init_layout:1
+msgid "Configure un layout avec des marges et un espacement uniformes."
+msgstr "Configures a layout with uniform margins and spacing."
+
+#: of palm_tracer.Tools.Ui.init_layout:3
+msgid "Cette fonction applique des marges identiques sur les 4 côtés et un espacement identique entre widgets / sous-calques."
+msgstr "This function applies identical margins on all 4 sides and identical spacing between widgets/sublayers."
+
+#: of palm_tracer.Tools.Ui.init_layout:5
+msgid "Layout à configurer (ex: :class:`QVBoxLayout`, :class:`QGridLayout`, etc.)."
+msgstr "Layout to configure (e.g., :class:`QVBoxLayout`, :class:`QGridLayout`, etc.)."
+
+#: of palm_tracer.Tools.Ui.init_layout:6
+#: palm_tracer.Tools.Ui.make_exclusive_btn_group:4
+#: palm_tracer.Tools.Ui.make_form:10 palm_tracer.Tools.Ui.make_group:5
+#: palm_tracer.Tools.Ui.make_tab:6
+msgid "Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``."
+msgstr "Value (in pixels) used for the layout spacing. Default: ``COMMON_SPACE``."
+
+#: of palm_tracer.Tools.Ui.init_layout:7 palm_tracer.Tools.Ui.make_form:11
+#: palm_tracer.Tools.Ui.make_group:6 palm_tracer.Tools.Ui.make_tab:7
+msgid "Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``COMMON_SPACE``."
+msgstr "Value (in pixels) used for the layout margins. Default: ``COMMON_SPACE``."
+
+#: of palm_tracer.Tools.Ui.make_tab:1
+msgid "Crée un onglet prêt à l'emploi (widget conteneur + layout vertical)."
+msgstr "Creates a ready-to-use tab (container widget + vertical layout)."
+
+#: of palm_tracer.Tools.Ui.make_tab:3
+msgid "L'onglet est représenté par un :class:`QWidget` et contient un :class:`QVBoxLayout` configuré avec des marges et un espacement uniformes."
+msgstr "The tab is represented by a :class:`QWidget` and contains a :class:`QVBoxLayout` configured with uniform margins and spacing."
+
+#: of palm_tracer.Tools.Ui.make_tab:5
+msgid "Parent Qt du widget onglet (peut-être ``None`` si définie plus tard)."
+msgstr "The Qt parent of the tab widget (may be ``None`` if defined later)."
+
+#: ../../api/palm_tracer.Tools.Ui.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Tools.Ui.make_tab:9
+msgid "Un tuple ``(tab, layout)`` où ``tab`` est le widget de l'onglet et ``layout`` son calque."
+msgstr "A tuple ``(tab, layout)`` where ``tab`` is the tab widget and ``layout`` is its layout."
+
+#: ../../api/palm_tracer.Tools.Ui.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Tools.Ui.make_exclusive_btn_group:1
+#: palm_tracer.Tools.Ui.make_group:1
+msgid "Crée un :class:`QGroupBox` avec un layout vertical configuré."
+msgstr "Creates a :class:`QGroupBox` with a configured vertical layout."
+
+#: of palm_tracer.Tools.Ui.make_group:3
+msgid "Parent Qt du group box (peut-être ``None`` si définie plus tard)."
+msgstr "Qt parent of the group box (may be ``None`` if defined later)."
+
+#: of palm_tracer.Tools.Ui.make_group:4
+msgid "Titre affiché dans l'entête du group box."
+msgstr "Title displayed in the group box header."
+
+#: of palm_tracer.Tools.Ui.make_exclusive_btn_group:6
+#: palm_tracer.Tools.Ui.make_group:8
+msgid "Un tuple ``(group, layout)`` où : ``group`` est le :class:`QGroupBox` créé et ``layout`` son calque."
+msgstr "A tuple ``(group, layout)`` where: ``group`` is the :class:`QGroupBox` created and ``layout`` is its layout."
+
+#: of palm_tracer.Tools.Ui.make_exclusive_btn_group:3
+msgid "Titres affiché dans les boutons."
+msgstr "Titles displayed in the buttons."
+
+#: of palm_tracer.Tools.Ui.make_form:1
+msgid "Crée et configure un :class:`QFormLayout` pour des paramètres."
+msgstr "Creates and configures a :class:`QFormLayout` for settings."
+
+#: of palm_tracer.Tools.Ui.make_form:3 palm_tracer.Tools.Ui.make_spin:5
+msgid "Configuration appliquée :"
+msgstr "Configuration applied:"
+
+#: of palm_tracer.Tools.Ui.make_form:4
+msgid "labels alignés à droite et centrés verticalement ;"
+msgstr "labels right-aligned and vertically centered;"
+
+#: of palm_tracer.Tools.Ui.make_form:5
+msgid "formulaire ancré en haut à gauche ;"
+msgstr "form anchored at the top left;"
+
+#: of palm_tracer.Tools.Ui.make_form:6
+msgid "espacements horizontaux/verticaux adaptés à une UI de réglages ;"
+msgstr "horizontal/vertical spacing adapted to a settings UI;"
+
+#: of palm_tracer.Tools.Ui.make_form:7
+msgid "politique de croissance des champs : les widgets de droite restent à leur *sizeHint* (évite qu'ils s'étirent jusqu'au bord droit)."
+msgstr "field growth policy: right-side widgets remain at their *sizeHint* (prevents them from stretching to the right edge)."
+
+#: of palm_tracer.Tools.Ui.make_form:9
+msgid "Parent Qt du layout (peut-être ``None`` si définie plus tard)."
+msgstr "Qt parent of the layout (may be ``None`` if defined later)."
+
+#: of palm_tracer.Tools.Ui.make_form:13
+msgid "Le :class:`QFormLayout` configuré."
+msgstr "The :class:`QFormLayout` is configured."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:1
+msgid "Construit une colonne d'informations structurée sous forme de :class:`QGridLayout`."
+msgstr "Builds a column of information structured as a :class:`QGridLayout`."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:3
+msgid "La grille est composée de : un titre de section (ligne 0), un séparateur horizontal, plusieurs lignes ``label / value`` (et éventuellement ``unit``)."
+msgstr "The grid consists of: a section title (row 0), a horizontal separator, and several ``label / value`` rows (and possibly ``unit``)."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:5
+msgid "La colonne ``value`` est extensible afin de conserver un alignement propre, tandis que les labels et unités gardent leur taille naturelle."
+msgstr "The ``value`` column is resizable to maintain proper alignment, while labels and units retain their natural size."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:7
+msgid "Dictionnaire décrivant les lignes à afficher. Chaque entrée doit contenir :          - ``\"label\"`` : :class:`QLabel` (libellé) ;         - ``\"value\"`` : :class:`QLabel` (valeur associée) ;         - optionnellement ``\"unit\"`` : :class:`QLabel` (unité) si ``size == 3`` ;         - optionnellement ``\"tips\"`` : ``str`` (tooltip appliqué au label)."
+msgstr "Dictionary describing the rows to display. Each entry must contain:          - ``\“label\”``: :class:`QLabel` (label);         - ``\“value\”``: :class:`QLabel` (associated value);         - optionally ``\“unit\”``: :class:`QLabel` (unit) if ``size == 3``;         - optionally ``\“tips\”``: ``str`` (tooltip applied to the label)."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:8
+msgid "Dictionnaire décrivant les lignes à afficher. Chaque entrée doit contenir :"
+msgstr "Dictionary describing the lines to display. Each entry must contain:"
+
+#: of palm_tracer.Tools.Ui.make_info_grid:11
+msgid "``\"label\"`` : :class:`QLabel` (libellé) ;"
+msgstr "``\"label\"``: :class:`QLabel` (label);"
+
+#: of palm_tracer.Tools.Ui.make_info_grid:12
+msgid "``\"value\"`` : :class:`QLabel` (valeur associée) ;"
+msgstr "``\"value\"``: :class:`QLabel` (associated value);"
+
+#: of palm_tracer.Tools.Ui.make_info_grid:13
+msgid "optionnellement ``\"unit\"`` : :class:`QLabel` (unité) si ``size == 3`` ;"
+msgstr "optionally ``\"unit\"``: :class:`QLabel` (unit) if ``size == 3``;"
+
+#: of palm_tracer.Tools.Ui.make_info_grid:14
+msgid "optionnellement ``\"tips\"`` : ``str`` (tooltip appliqué au label)."
+msgstr "optionally ``\"tips\"``: ``str`` (tooltip applied to the label)."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:15
+msgid "Titre de la colonne affichée en haut de la grille."
+msgstr "Column title displayed at the top of the grid."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:16
+msgid "Nombre de colonnes : ``2`` → ``label | value``, ``3`` → ``label | value | unit``."
+msgstr "Number of columns: ``2`` → ``label | value``, ``3`` → ``label | value | unit``."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:17
+msgid "Parent Qt du layout (optionnel)."
+msgstr "Qt parent of the layout (optional)."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:18
+msgid "Espacement interne entre les éléments (en pixels)."
+msgstr "Internal spacing between elements (in pixels)."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:19
+msgid "Marges du layout (en pixels)."
+msgstr "Layout margins (in pixels)."
+
+#: of palm_tracer.Tools.Ui.make_info_grid:20
+msgid "Le :class:`QGridLayout` configuré."
+msgstr "The configured :class:`QGridLayout`."
+
+#: of palm_tracer.Tools.Ui.make_file_info_group:1
+msgid "Construit un groupe d'information pour le listing des fichiers calculés."
+msgstr "Creates an information group for the list of calculated files."
+
+#: of palm_tracer.Tools.Ui.make_file_info_group:3
+msgid "Le groupe est composée de : un titre, la liste des fichiers et leurs status."
+msgstr "The group consists of: a title, the list of files, and their statuses."
+
+#: of palm_tracer.Tools.Ui.make_file_info_group:5
+msgid "Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de status des fichiers."
+msgstr "The :class:`QGroupBox` configured along with the link to the file status :class:`QLabel`s."
+
+#: of palm_tracer.Tools.Ui.make_path_label:1
+msgid "Crée un :class:`QLabel` stylisé pour afficher un chemin ou un nom de fichier."
+msgstr "Creates a styled :class:`QLabel` to display a path or a filename."
+
+#: of palm_tracer.Tools.Ui.make_path_label:3
+msgid "Le label utilise un style visuel discret (texte grisé et italique), adapté à l'affichage d'informations secondaires."
+msgstr "The label uses a subtle visual style (grayed-out and italicized text), suitable for displaying secondary information."
+
+#: of palm_tracer.Tools.Ui.make_path_label:5
+msgid "Texte initial affiché (généralement un nom de fichier)."
+msgstr "Initial text displayed (usually a filename)."
+
+#: of palm_tracer.Tools.Ui.make_path_label:6
+msgid "Parent Qt du label."
+msgstr "Qt parent of the label."
+
+#: of palm_tracer.Tools.Ui.make_path_label:7
+msgid "Le :class:`QLabel` configuré."
+msgstr "The configured :class:`QLabel`."
+
+#: of palm_tracer.Tools.Ui.update_path_label:1
+msgid "Mets à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`."
+msgstr "Updates a path label with a new :class:`pathlib.Path` object."
+
+#: of palm_tracer.Tools.Ui.update_path_label:3
+msgid "Le texte visible correspond uniquement au ``name`` du fichier/dossier, le chemin complet est placé dans le tooltip."
+msgstr "The visible text corresponds only to the ``name`` of the file/folder; the full path is placed in the tooltip."
+
+#: of palm_tracer.Tools.Ui.update_path_label:5
+msgid "Label à mettre à jour."
+msgstr "Label to be updated."
+
+#: of palm_tracer.Tools.Ui.update_path_label:6
+msgid "Chemin à afficher."
+msgstr "Path to display."
+
+#: of palm_tracer.Tools.Ui.make_vertical_scroll:1
+msgid "Crééer une zone scrollable verticalement."
+msgstr "Create a vertically scrollable area."
+
+#: of palm_tracer.Tools.Ui.make_vertical_scroll:3
+msgid "La :class:`QScrollArea` configuré."
+msgstr "The configured :class:`QScrollArea`."
+
+#: of palm_tracer.Tools.Ui.make_vertical_separator:1
+msgid "Crée un séparateur vertical discret."
+msgstr "Creates a discreet vertical separator."
+
+#: of palm_tracer.Tools.Ui.make_horizontal_separator:3
+#: palm_tracer.Tools.Ui.make_vertical_separator:3
+msgid "Couleur du séparateur (format CSS, ex: ``\"#B0B0B0\"``)."
+msgstr "Separator color (CSS format, e.g., ``\"#B0B0B0\"``)."
+
+#: of palm_tracer.Tools.Ui.make_horizontal_separator:4
+#: palm_tracer.Tools.Ui.make_vertical_separator:4
+msgid "Le :class:`QFrame` configuré."
+msgstr "The configured :class:`QFrame`."
+
+#: of palm_tracer.Tools.Ui.make_horizontal_separator:1
+msgid "Crée un séparateur horizontal discret."
+msgstr "Creates a discreet horizontal separator."
+
+#: of palm_tracer.Tools.Ui.make_spin:1
+msgid "Crée une :class:`QSpinBox` ou :class:`QDoubleSpinBox` configurée de manière compacte."
+msgstr "Creates a :class:`QSpinBox` or :class:`QDoubleSpinBox` configured in compact mode."
+
+#: of palm_tracer.Tools.Ui.make_spin:3
+msgid "Le type de spinbox est choisi automatiquement : :class:`QSpinBox` si ``decimals ≤ 0``, :class:`QDoubleSpinBox` sinon."
+msgstr "The spinbox type is chosen automatically: :class:`QSpinBox` if ``decimals ≤ 0``, :class:`QDoubleSpinBox` otherwise."
+
+#: of palm_tracer.Tools.Ui.make_spin:6
+msgid "suppression des marges et paddings inutiles ;"
+msgstr "removal of unnecessary margins and padding;"
+
+#: of palm_tracer.Tools.Ui.make_spin:7
+msgid "alignement centré du texte ;"
+msgstr "centered text alignment;"
+
+#: of palm_tracer.Tools.Ui.make_spin:8
+msgid "largeur ajustée dynamiquement en fonction du range et du nombre de décimales ;"
+msgstr "width dynamically adjusted based on the range and number of decimal places;"
+
+#: of palm_tracer.Tools.Ui.make_spin:9
+msgid "possibilité de masquer les boutons d'incrément."
+msgstr "option to hide the increment buttons."
+
+#: of palm_tracer.Tools.Ui.make_spin:11
+msgid "Parent Qt du widget."
+msgstr "Qt parent of the widget."
+
+#: of palm_tracer.Tools.Ui.make_spin:12
+msgid "Valeur minimale autorisée."
+msgstr "Minimum allowed value."
+
+#: of palm_tracer.Tools.Ui.make_spin:13
+msgid "Valeur maximale autorisée."
+msgstr "Maximum allowed value."
+
+#: of palm_tracer.Tools.Ui.make_spin:14
+msgid "Pas d'incrément."
+msgstr "Increment step."
+
+#: of palm_tracer.Tools.Ui.make_spin:15
+msgid "Valeur initiale."
+msgstr "Initial value."
+
+#: of palm_tracer.Tools.Ui.make_spin:16
+msgid "Nombre de décimales (si > 0 → spinbox flottante)."
+msgstr "Number of decimal places (if > 0 → floating spin box)."
+
+#: of palm_tracer.Tools.Ui.make_spin:17
+msgid "Affiche ou non les boutons up/down."
+msgstr "Whether or not to display the up/down buttons."
+
+#: of palm_tracer.Tools.Ui.make_spin:18
+msgid "La spinbox configurée (:class:`QSpinBox` ou :class:`QDoubleSpinBox`)."
+msgstr "The configured spin box (:class:`QSpinBox` or :class:`QDoubleSpinBox`)."
+
+#: of palm_tracer.Tools.Ui.set_spin_width:1
+msgid "Ajuste la largeur fixe d'une spinbox en fonction du contenu affichable."
+msgstr "Adjusts the fixed width of a spin box based on the displayable content."
+
+#: of palm_tracer.Tools.Ui.set_spin_width:3
+msgid "La largeur est estimée à partir du nombre maximal de caractères nécessaires (valeur max, signe, décimales) et de la métrique de police du widget. Cela permet d'éviter les widgets trop larges et de garantir que toutes les valeurs restent visibles sans troncature."
+msgstr "The width is estimated based on the maximum number of characters required (max value, sign, decimals) and the widget’s font metrics. This prevents widgets from becoming too wide and ensures that all values remain visible without truncation."
+
+#: of palm_tracer.Tools.Ui.set_spin_width:6
+msgid "Spinbox à ajuster."
+msgstr "Spinbox to adjust."
+
+#: of palm_tracer.Tools.Ui.sync_button_group:1
+msgid "Synchronise un groupe de boutons exclusif avec un autre via son id."
+msgstr "Synchronizes one exclusive button group with another via its ID."
+
+#: of palm_tracer.Tools.Ui.sync_button_group:3 palm_tracer.Tools.Ui.sync_spin:3
+msgid "On bloque les signaux le temps de la mise à jour pour éviter les appels en série."
+msgstr "Signals are blocked during the update to prevent serialized calls."
+
+#: of palm_tracer.Tools.Ui.sync_button_group:5 palm_tracer.Tools.Ui.sync_spin:5
+msgid "Exemple d'utilisation ::"
+msgstr "Usage example ::"
+
+#: of palm_tracer.Tools.Ui.sync_button_group:10
+msgid "QButtonGroup à mettre à jour."
+msgstr "QButtonGroup to update."
+
+#: of palm_tracer.Tools.Ui.sync_button_group:11
+msgid "Identifiant du bouton à sélectionner."
+msgstr "ID of the button to select."
+
+#: of palm_tracer.Tools.Ui.sync_spin:1
+msgid "Synchronise une spinbox avec la valeur envoyée (par signal)."
+msgstr "Synchronizes a spinbox with the value sent (via signal)."
+
+#: of palm_tracer.Tools.Ui.sync_spin:10
+msgid "Spinbox à mettre à jour."
+msgstr "Spinbox to update."
+
+#: of palm_tracer.Tools.Ui.sync_spin:11
+msgid "Valeur à insérer."
+msgstr "Value to insert."
+
+#: of palm_tracer.Tools.Ui.update_spin_limits:1
+msgid "Mets à jour dynamiquement les bornes d'une spinbox."
+msgstr "Dynamically updates the bounds of a spinbox."
+
+#: of palm_tracer.Tools.Ui.update_spin_limits:3
+msgid "Les bornes non spécifiées conservent leur valeur actuelle."
+msgstr "Unspecified bounds retain their current value."
+
+#: of palm_tracer.Tools.Ui.update_spin_limits:5
+msgid "Qt ajuste automatiquement la valeur courante si elle sort du nouvel intervalle."
+msgstr "Qt automatically adjusts the current value if it falls outside the new range."
+
+#: of palm_tracer.Tools.Ui.update_spin_limits:7
+msgid "Spinbox cible."
+msgstr "Target spinbox."
+
+#: of palm_tracer.Tools.Ui.update_spin_limits:8
+msgid "Nouvelle borne minimale (optionnelle)."
+msgstr "New minimum bound (optional)."
+
+#: of palm_tracer.Tools.Ui.update_spin_limits:9
+msgid "Nouvelle borne maximale (optionnelle)."
+msgstr "New maximum bound (optional)."
+
+#: of palm_tracer.Tools.Ui.print_error:1
+msgid "Affiche un message avec une couleur rouge."
+msgstr "Displays a message in red."
+
+#: of palm_tracer.Tools.Ui.print_error:3 palm_tracer.Tools.Ui.print_success:3
+#: palm_tracer.Tools.Ui.print_warning:3
+msgid "Message à afficher."
+msgstr "Message to display."
+
+#: of palm_tracer.Tools.Ui.print_warning:1
+msgid "Affiche un message avec une couleur jaune."
+msgstr "Displays a message in yellow."
+
+#: of palm_tracer.Tools.Ui.print_success:1
+msgid "Affiche un message avec une couleur verte."
+msgstr "Displays a message in green."
+
+#: of palm_tracer.Tools.Ui.format_time:1
+msgid "Fonction pour formater le temps en secondes en HH:MM:SS."
+msgstr "Function to format time in seconds as HH:MM:SS."
+
+#: of palm_tracer.Tools.Ui.format_time:3
+msgid "Temps en secondes."
+msgstr "Time in seconds."
+
+#: of palm_tracer.Tools.Ui.format_time:4
+msgid "Chaine de caractère représentant le temps au format HH:MM:SS."
+msgstr "String representing the time in HH:MM:SS format."

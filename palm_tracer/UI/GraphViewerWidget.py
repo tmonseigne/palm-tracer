@@ -20,19 +20,17 @@ Notes
 
 .. todo:: Warning si plus de 10 millions de points sur un affichage (avec option se souvenir du choix).
 """
+from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
-import numpy as np
-import pandas as pd
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QButtonGroup, QCheckBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QRadioButton, QVBoxLayout
+from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Settings.Groups import Filters
-from palm_tracer.Settings.Types import CheckBox, Combo, FileList, SpinInt
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Settings.Groups import Graph
+from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList
+from palm_tracer.Tools import Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
 # ==================================================
@@ -46,24 +44,11 @@ DATA_SRC: dict[str, list] = {
 		}
 
 TIPS = {
-		"Add Stack":   "Add a stack to the batch and load the latest results for it.\n"
-					   "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
+		"Add Stack": "Add a stack to the batch and load the latest results for it.\n"
+					 "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
 
-		"Dual Source": "Allow second source for Graph in scatter plot source A by source B.",
-		"Source":      "Data selected for Graph.",
-
-		"MSD Step":    "Step selected for display.",
-		"Log":         "Apply a logarithmic scale to the data.",
-		"Cumul":       "Show cumulative histogram instead of simple histogram.",
-		"Limits":      "Limits data to ±3σ around the mean (3-sigma rule).",
-		"Sigma":       "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean.",
-		"Gauss":       "Displays the Gaussian curve associated with the mean and standard deviation of the data.",
-		"KDE":         "Displays the kernel density estimation (the curve closest to the histogram) associated with the data.",
-		"Density":     "The data on Y is expressed in terms of density.",
-		"Count":       "The data on Y is expressed in terms of count.",
-
-		"Actualize":   "Updates files/data from PALMTracer status.",
-		"Export":      "Opens a dialog box and exports the figure according to the selected extension.",
+		"Actualize": "Updates files/data from PALMTracer status.",
+		"Export":    "Opens a dialog box and exports the figure according to the selected extension.",
 		}
 
 
@@ -85,19 +70,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		- _pt (:class:`PALMTracer <palm_tracer.PALMTracer>`) : Référence vers l'instance principale de PALMTracer (aucune copie).
 		- _fig  (:class:`Optional[go.Figure]`) : Dernière figure Plotly produite (pour export/maj).
 		- _html  (:class:`Optional[str]`)  : Dernier HTML généré pour la figure (export .html).
-		- _grapher  (:class:`Grapher <palm_tracer.Processing.Grapher>`) : Utilitaire de création de figures (histogrammes, scatter, etc.).
-		- _file  (:class:`str`) : Chemin du fichier image courant (TIF).
-		- _stack  (:class:`numpy.ndarray`) : Pile d'images (chargée depuis `_file`).
-		- _df  (:class:`pandas.DataFrame`) : Dictionnaires de dataframe.
-
-	Remarques :
-		- Les boutons de domaine "Localization"/"Tracking" sont automatiquement désactivés si
-		  aucune donnée correspondante n'est trouvée (cf. :meth:`_refresh_source_buttons`).
-		- L'export PNG utilise un fallback par capture du widget Qt si Kaleido n'est pas utilisé.
 	"""
+	UI_NAME: str = "Graph Viewer"
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, palmtracer: PALMTracer | None = None):
@@ -107,22 +84,15 @@ class GraphViewerWidget(BasePlotlyWidget):
 		:param palmtracer: Instance principale :class:`PALMTracer <palm_tracer.PALMTracer>` sans copie (référence partagée).
 		"""
 		super().__init__()
-		self.setWindowTitle("Graph Viewer")
+		self.setWindowTitle(self.UI_NAME)
 		# Initialisation des membres
 		self._pt = PALMTracer() if palmtracer is None else palmtracer
-		self._file: str = ""
-		self._density: bool = False
-
-		self._stack: np.ndarray = np.empty(0)
-		self._df = {"Localization": pd.DataFrame(), "Tracking": pd.DataFrame(), "MSD": pd.DataFrame(), "Instant D": pd.DataFrame(), "Fit": pd.DataFrame()}
-
-		self._is_updating = True
+		self._graph_settings: Graph = self._pt.settings.graph
 
 		# Construction UI
 		self._init_ui()
 		self._connect_signals()
-		# Tracé initial
-		self._actualize()
+		self._actualize()  # Actualisation des statuts et tracé initial
 
 	##################################################
 	def _init_ui(self):
@@ -141,98 +111,60 @@ class GraphViewerWidget(BasePlotlyWidget):
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
-		# Colonne gauche
+		# --- Colonne gauche ---
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
 		left.setMinimumWidth(300)
 		vbox = QVBoxLayout(left)
 		Ui.init_layout(vbox)
+		scroll_content = QWidget()
+		scroll_layout = QVBoxLayout(scroll_content)
+		Ui.init_layout(scroll_layout)
+		scroll_area = Ui.make_vertical_scroll(scroll_content)
+		main_layout.addWidget(left)
+		main_layout.addWidget(self._web, stretch=1)
 
-		# Boutton pour charger une stack
+		# --- Bouton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
 		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
 
-		# Bloc Infos (lecture seule)
+		# --- Bloc Infos (lecture seule) ---
 		grp_infos, self._status = Ui.make_file_info_group()
 
-		# Bloc Source (donnée) + Type de graphe
+		# --- Bloc Source (donnée) + Type de graphe ---
 		grp_source = QGroupBox("Source")
-
-		h, self._btg_src, self._btn_src = Ui.make_exclusive_btn_group(["Localization", "Tracks"], 0)
-
 		form = Ui.make_form(grp_source)
-		form.addRow(h)
+		for key in self._graph_settings:
+			if isinstance(self._graph_settings[key], BaseSettingType):
+				self._graph_settings[key].get_ui(self.UI_NAME).attach_to_form(form)
+				if isinstance(self._graph_settings[key], Combo):
+					self._graph_settings[key].get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
-		# Combo box
-		self._cmb_src_a = Combo("Source", TIPS["Source"])
-		self._cmb_src_a.box.setMinimumWidth(200)
-		self._cmb_src_a.attach_to_form(form)
-		self._msd_step = SpinInt("MSD Step", TIPS["MSD Step"], 1, [1, 10000], 1)
-		self._msd_step.attach_to_form(form)
-		self._msd_step.hide()
-
-		self._dual_source = CheckBox("Dual Source", TIPS["Dual Source"])
-		self._dual_source.attach_to_form(form)
-
-		self._cmb_src_b = Combo("Source", TIPS["Source"])
-		self._cmb_src_b.attach_to_form(form)
-		self._cmb_src_b.box.setMinimumWidth(200)
-		self._cmb_src_b.hide()
-
-		# Bloc Affichage (2 colonnes)
+		# --- Bloc Affichage (2 colonnes) ---
+		display_settings = self._graph_settings.display
 		grp_display = QGroupBox("Display")
 		grid = QGridLayout(grp_display)
-		self._display_settings: dict[str, Any] = {
-				"Cumul":   QCheckBox("Cumulative Histogram"),
-				"Log":     QCheckBox("Use Log Scale"),
-				"Limits":  QCheckBox("Apply Limits"),
-				"Sigma":   QCheckBox("Show σ"),
-				"Gauss":   QCheckBox("Show Gaussian"),
-				"KDE":     QCheckBox("Show KDE"),
-				"Density": QRadioButton("Density"),
-				"Count":   QRadioButton("Count"),
-				"Y Scale": QButtonGroup(),
-				}
+		Ui.init_layout(grid)
+		for i, key in enumerate(display_settings):
+			row, col = i // 2, (i % 2) * 2
+			ui = display_settings[key].get_ui(self.UI_NAME)
+			grid.addLayout(ui.layout, row, col)
+			grid.addWidget(ui.label, row, col + 1)
 
-		# Autres options
-		self._display_settings["Log"].setChecked(False)
-		self._display_settings["Cumul"].setChecked(False)
-		self._display_settings["Limits"].setChecked(True)
-		self._display_settings["Sigma"].setChecked(False)
-		self._display_settings["Gauss"].setChecked(False)
-		self._display_settings["KDE"].setChecked(False)
-		self._display_settings["Density"].setChecked(True)
+		grid.setColumnStretch(1, 1)
+		grid.setColumnStretch(3, 1)
+		grid.setRowStretch(grid.rowCount(), 1)
 
-		# Sélecteur d'échelle Y : Densité / Comptes
-		self._display_settings["Y Scale"].addButton(self._display_settings["Density"])
-		self._display_settings["Y Scale"].addButton(self._display_settings["Count"])
-
-		for key in list(self._display_settings)[:-1]: self._display_settings[key].setToolTip(TIPS[key])
-
-		# Placement 2 colonnes
-		grid.addWidget(self._display_settings["Limits"], 0, 0)
-		grid.addWidget(self._display_settings["Sigma"], 0, 1)
-		grid.addWidget(self._display_settings["Gauss"], 1, 0)
-		grid.addWidget(self._display_settings["KDE"], 1, 1)
-		grid.addWidget(self._display_settings["Density"], 2, 0)
-		grid.addWidget(self._display_settings["Count"], 2, 1)
-		grid.addWidget(self._display_settings["Cumul"], 3, 0)
-		grid.addWidget(self._display_settings["Log"], 3, 1)
-
-		# Bloc Filtres
+		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
-		self._filters = Filters()
-		self._filters.update_from_dict(self._pt.settings.filters.to_dict())
-		vbox_filters.addWidget(self._filters.widget)
+		self._filters = self._pt.settings.filters
+		self._filters_ui = self._filters.get_ui(self.UI_NAME)
+		vbox_filters.addWidget(self._filters_ui.widget)
 		# Masquage initial
-		self._filters["Save"].hide()
-		self._filters["Localization"].remove_header()
-		self._filters["Tracks"].remove_header()
-		self._filters["Localization"].hide()
-		self._filters["Tracks"].hide()
+		self._filters["Save"].get_ui(self.UI_NAME).hide()
 
-		# Actions
+		# --- Actions ---
 		actions_row = QHBoxLayout()
 		self._btn_actualize = QPushButton("Actualize files")
 		self._btn_actualize.setToolTip(TIPS["Actualize"])
@@ -242,323 +174,93 @@ class GraphViewerWidget(BasePlotlyWidget):
 		actions_row.addWidget(self._btn_actualize)
 		actions_row.addWidget(self._btn_export)
 
-		vbox.addWidget(self._btn_add_stack)
-		vbox.addWidget(grp_infos)
-		vbox.addWidget(grp_source)
-		vbox.addWidget(grp_display)
-		vbox.addWidget(grp_filters)
-		vbox.addLayout(actions_row)
-		vbox.addStretch(1)
+		# --- Mise en page dans le scroll ---
+		scroll_layout.addWidget(grp_infos)
+		scroll_layout.addWidget(grp_source)
+		scroll_layout.addWidget(grp_display)
+		scroll_layout.addWidget(grp_filters)
+		scroll_layout.addStretch()  # Optionnel mais recommandé
 
-		main_layout.addWidget(left)
-		main_layout.addWidget(self._web, stretch=1)
+		# --- Mise en page globbale ---
+		vbox.addWidget(self._btn_add_stack)
+		vbox.addWidget(scroll_area)
+		vbox.addLayout(actions_row)
+
+		# --- Affiche / masque les éléments en fonction des paramètres initiaux ---
+		self._toggle_type(self._graph_settings["Type"].value)
+		self._graph_settings["Display"]["Limits"].value = True
+		self._graph_settings.toggle_dual(self._graph_settings["Dual"].value)
+		self._graph_settings.toggle_src()
 
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
+		# Connexion des boutons Filters de cette UI
+		self._pt.connect_filters_button(self.UI_NAME)
+
 		self._btn_add_stack.clicked.connect(self._add_stack)
 
 		# Sources
-		self._btg_src.idClicked.connect(self._on_source_changed)
-		self._cmb_src_a.connect(self._on_source_cmb_changed)
-		self._cmb_src_b.connect(self._on_source_cmb_changed)
-		self._dual_source.connect(self._on_dual_source_changed)
+		self._graph_settings["Type"].connect(self._toggle_type)
 
-		# Display Options Connexion
-		for _, setting in self._display_settings.items():
-			if isinstance(setting, QCheckBox): setting.stateChanged.connect(self._update_plot)
-			elif isinstance(setting, QButtonGroup): setting.idClicked.connect(self._update_plot)
-			elif isinstance(setting, SpinInt): setting.connect(self._update_plot)
+		# Settings Connexion
+		self._graph_settings.connect(self._update_plot)
+		self._filters.connect_button(self._actualize, self.UI_NAME, "reset")
+		self._filters.connect_button(self._actualize, self.UI_NAME, "update")
 
-		# Filters
-		self._filters.buttons["reset"].clicked.connect(self._reset_filtered)
-		self._filters.buttons["update"].clicked.connect(self._update_filtered)
-		self._filters.buttons["save"].clicked.connect(self._pt.save_filtered)
-		self._filters.connect(self._update_plot)
-
-		# Action Row
+		# Action Row a supprimer
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_export.clicked.connect(self._on_export)
 
-	# ==================================================
-	# endregion Initialisation
-	# ==================================================
-
-	# ==================================================
-	# region UI Callback
-	# ==================================================
 	##################################################
-	def _refresh_source_buttons(self) -> None:
-		"""
-		Active/désactive les boutons de domaine selon la disponibilité des données.
-		Si le bouton actif devient indisponible (ex. pas de localisation), bascule automatiquement sur "Stack".
-		"""
-		self._update_df()
-		self._btn_src["Localization"].setEnabled(not self._df["Localization"].empty)
-		self._btn_src["Tracks"].setEnabled(not self._df["Tracking"].empty)
-		# si un bouton tracking désactivé était sélectionné, repasse sur Localization
-		if self._btn_src["Tracks"].isChecked() and self._df["Tracking"].empty: self._btn_src["Localization"].setChecked(True)
-
-	##################################################
-	def _on_source_changed(self, btn_id: int) -> None:
-		"""
-		Mets à jour la liste des sources selon le domaine choisi puis redessine.
-
-		:param btn_id: Identifiant du bouton domaine sélectionné (0=Stack, 1=Localization, 2=Tracking).
-		"""
-		self._is_updating = True
-		# Remplir la ComboBox 'Source' en fonction du domaine
-		if btn_id == 0: src = DATA_SRC["Localization"]  # Localization
-		else: src = self._get_tracks_src()  # .			  Tracking
-
-		if self._dual_source.value: src = [s for s in src if s not in DATA_SRC["No Dual"]]
-		with self._cmb_src_a.signal_blocked(): self._cmb_src_a.update_box(src)
-		with self._cmb_src_b.signal_blocked(): self._cmb_src_b.update_box(src)
-
-		self._update_filters_ui()  # .						Mise à jour des filtres à afficher
-		self._is_updating = False
-		self._update_plot()  # .							Puis redessiner le graphe si besoin
-
-	##################################################
-	def _on_source_cmb_changed(self) -> None:
-		"""Mets à jour les filtres et l'affichage lors du changement de la variable d'intérêt."""
-		# Affichage de l'option lors de la selection MSD pour choisir le Step et faire Histogram par ce Step
-		if self._btg_src.checkedId() == 1 and self._cmb_src_a.current_text == "MSD": self._msd_step.show()
-		else: self._msd_step.hide()
-		self._update_plot()  # Puis redessiner le graphe si besoin
-
-	##################################################
-	def _on_dual_source_changed(self, status: bool) -> None:
-		"""Affiche/Masque la seconde source."""
-		self._cmb_src_b.show() if status else self._cmb_src_b.hide()
-		self._on_source_changed(self._btg_src.checkedId())
-
-	##################################################
-	def _update_filters_ui(self):
-		"""
-		Mets à jour les filtres à afficher.
-		Selon la source, les filtres ne seront pas les mêmes (pour ne pas surcharger l'interface de filtres inutiles).
-		"""
-		src_id = self._btg_src.checkedId()
-
-		if src_id == 0:  # Localisation
-			self._filters["Localization"].show()
-			self._filters["Tracks"].hide()
-		else:  # Tracking
-			self._filters["Localization"].hide()
-			self._filters["Tracks"].show()
-
-	##################################################
-	def _get_tracks_src(self) -> list[str]:
-		"""
-		Génère la liste des variables d'intérêt pour les Trajectoires en fonction des fichiers disponibles.
-
-		:return: La liste des sources disponibles pour les trajectoires.
-		"""
-		res = list(DATA_SRC["Tracking"])
-		if not self._df["MSD"].empty: res += ["MSD"]
-		if not self._df["Instant D"].empty: res += ["Instant D"]
-		if not self._df["Fit"].empty: res += self._df["Fit"].columns[2:].tolist()
-
-		return res
+	def closeEvent(self, event):
+		try: self._pt.settings.clean_ui(self.UI_NAME)
+		finally: super().closeEvent(event)
 
 	# ==================================================
-	# endregion UI Callback
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================
 	# region PALMTracer Link
 	# ==================================================
 	##################################################
+	def _toggle_type(self, btn_id: int):
+		"""
+		Mets à jour la liste des sources et l'affichage des filtres.
+
+		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
+		"""
+		if btn_id == 0:  # Localisation
+			self._filters["Localization"].get_ui(self.UI_NAME).show()
+			self._filters["Tracks"].get_ui(self.UI_NAME).hide()
+		else:  # Tracking
+			self._filters["Localization"].get_ui(self.UI_NAME).hide()
+			self._filters["Tracks"].get_ui(self.UI_NAME).show()
+
+	##################################################
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
 		self._pt.load()  # . Chargement des derniers résultats
-		self._actualize()  # Actualisation des statuts et dataframes internes.
-
-	##################################################
-	def _update_df(self):
-		"""Récupère les dataframes dans l'objet PALMTracer et mets à jour les status."""
-		# Récupération des clés
-		loc_key = self._pt.get_localization_key()
-		trc_key = self._pt.get_tracks_key()
-		tc_key = self._pt.get_tracks_compute_key()
-
-		# Mise à jour des Dataframe
-		self._df["Localization"] = self._pt.df[loc_key]
-		self._df["Tracking"] = self._pt.df[trc_key]
-		self._df["MSD"] = self._pt.df[tc_key[0]]
-		self._df["Instant D"] = self._pt.df[tc_key[1]]
-		self._df["Fit"] = self._pt.df[tc_key[2]]
-
-		# Mise à jour des Status
-		status = self._pt.get_status()
-		for key in status: self._status[key].setText(status[key])
+		self._actualize()  # Actualisation des statuts
 
 	##################################################
 	def _actualize(self):
-		"""
-		Actualise les fichiers/données depuis l'état PALMTracer :
-			- Lit le TIF sélectionné (pile `_stack`) pour l'affichage Stack.
-			- Mets à jour les libellés d'information et l'état d'activation des boutons de domaine.
-			- Sélectionne par défaut le domaine "Stack" et redessine.
+		"""Actualise les status des fichiers/données depuis l'état PALMTracer et redessine le graph."""
+		file = cast(FileList, self._pt.settings.batch["Files"]).current_text
+		self._status["File"].setText(Path(file).name if file else "No File")
+		# Mise à jour des Status
+		status = self._pt.get_status()
+		for key in status: self._status[key].setText(status[key])
+		self._graph_settings["Display"]["Limits"].value = True
+		self._update_plot()  # Puis redessiner le graphe.
 
-		En cas d'erreur de lecture, logue l'erreur via :func:`palm_tracer.Tools.Ui.print_error`.
-		"""
-		self._is_updating = True
-		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._filters.update_from_dict(self._pt.settings.filters.to_dict())
-
-			# Métadonnées d'information
-			self._file = (cast(FileList, self._pt.settings.batch["Files"]).get_selected())
-			if self._file != "":
-				try: self._stack = FileIO.open_tif(self._file)
-				except Exception as e: Ui.print_error(f"Error loading {self._file} in GraphViewer : {e}")
-				z, y, x = self._stack.shape
-				self._filters.update_limits(x, y, z)
-
-		self._status["File"].setText(Path(self._file).name if self._file else "No File")
-		self._refresh_source_buttons()  # Applique has_loc/has_track
-		self._on_source_changed(0)  # .	  Change la source pour Stack
-
-	##################################################
-	def _reset_filtered(self):
-		"""Supprime les dataframes de filtre."""
-		self._is_updating = True
-		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._pt.reset_filtered()  # Nettoyage des dataframes filtrés
-			self._filters.reset()
-		self._update_df()  # .		 Récupération des bons dataframe
-		self._is_updating = False
-		self._update_plot()  # .	 Puis redessiner le graphe si besoin
-
-	##################################################
-	def _update_filtered(self):
-		"""Applique les filtres sur les dataframes."""
-		self._is_updating = True
-		with self._filters.signal_blocked(), self._pt.settings.signal_blocked():
-			self._pt.settings.filters.update_from_dict(self._filters.to_dict())
-			self._pt.update_filtered()  # Mise à jour des filtres
-
-		self._update_df()  # .			  Récupération des bons dataframe
-		self._is_updating = False
-		self._update_plot()  # .		  Puis redessiner le graphe si besoin
-
-	# ==================================================
-	# endregion PALMTracer Link
-	# ==================================================
-
-	# ==================================================
-	# region Drawing
-	# ==================================================
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-		if self._is_updating: return
-		src_id = self._btg_src.checkedId()
-		src_a = self._cmb_src_a.current_text
-		src_b = self._cmb_src_b.current_text
-		dual = self._dual_source.value
-		limit = self._display_settings["Limits"].checkState() == Qt.CheckState.Checked
-		sigma = self._display_settings["Sigma"].checkState() == Qt.CheckState.Checked
-		kde = self._display_settings["KDE"].checkState() == Qt.CheckState.Checked
-		gauss = self._display_settings["Gauss"].checkState() == Qt.CheckState.Checked
-		density = self._display_settings["Density"].isChecked()
-		cumul = self._display_settings["Cumul"].isChecked()
-
-		# Préparation des Données
-		data, title = self._get_plot_data()
-		# print(f"{data.shape}, {data.size}, {title}") with data.size over 10M make a warning box
-
-		# Selection du graphique à afficher
-		if src_id == 0 and src_a == "Localizations Count":
-			self._fig = self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
-		elif src_id == 1 and src_a == "Length":
-			self._fig = self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
-		elif dual:
-			self._fig = self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss)
-		else:
-			self._fig = self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, density=density, cumulative=cumul)
-
+		self._fig = self._pt.graph()
 		self._update_web_widget()
-
-	##################################################
-	def _get_plot_data(self) -> tuple[np.ndarray, str]:
-		"""Récupère et prépare les données pour l'affichage."""
-		src_id = self._btg_src.checkedId()
-		src_a = self._cmb_src_a.current_text
-		src_b = self._cmb_src_b.current_text
-		dual = self._dual_source.value
-		log_scale = self._display_settings["Log"].isChecked()
-
-		d, t = self._get_plot_data_from_source(src_id, src_a, log_scale)
-		if dual:
-			t += f" / {src_b}"
-			d_b, _ = self._get_plot_data_from_source(src_id, src_b, log_scale)
-			if d.ndim == 2: d = d[:, 1]
-			if d_b.ndim == 2: d_b = d_b[:, 1]
-			if d_b.size != d.size: return np.empty(0), t
-			d = np.column_stack((d, d_b))
-
-		return d, t
-
-	##################################################
-	def _get_plot_data_from_source(self, src_id, src, log_scale) -> tuple[np.ndarray, str]:
-		"""Récupère et prépare les données pour l'affichage."""
-		# Localizations
-		if src_id == 0:
-			if src == "Localizations Count":
-				s = self._df["Localization"]["Plane"].astype(np.int64)
-				if s.empty:  return np.empty(0), src
-				else:
-					planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
-					counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-					return np.column_stack((planes, counts)), src
-			else:
-				s = self._df["Localization"].get(src)  # None si la colonne n'existe pas
-				if s is None: return np.empty(0), f"Localizations {src}"
-				return self._log_data(s.to_numpy(dtype=float), log_scale), f"Localizations {src}"
-
-		# Tracks
-		else:
-			if src == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-				group = self._df["Tracking"].groupby("Track")["Plane"].agg(["min", "max"])  # Groupement par track + calcul min et max
-				group["delta"] = group["max"] - group["min"]  # .							  Calcul du delta
-				res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
-				return res, f"Tracks {src}"
-
-			elif src == "MSD":
-				res = self._df["MSD"]
-				step = self._msd_step.value  # .															  Récupération du numéro du Step.
-				col = f"Step {step}"  # .																	  Récupération du nom de la colonne.
-				if not {"Track", col}.issubset(res.columns): return np.empty(0), f"Tracks MSD Step {step}"  # Vérification de présence des colonnes
-				track, values = res["Track"].astype(int).to_numpy(), res[col].astype(float).to_numpy()  # .	  Séparation track et valeur
-				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
-				return res[np.isfinite(res).all(axis=1)], f"Tracks MSD Step {step}"  # .					  Retour avec filtrage des Lignes NaN
-
-			elif src == "Instant D":
-				res = self._df["Instant D"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .  Récupération des colonnes
-				res = self._log_data(res, log_scale)  # .													  Application du log sur les valeurs
-				return res[np.isfinite(res)], f"Tracks {src}"  # .											  Retour avec filtrage des Lignes NaN
-
-			else:
-				res = self._df["Fit"]
-				if not {"Track", src}.issubset(res.columns): return np.empty(0), f"Tracks {src}"  # .		  Vérification de présence des colonnes
-				track, values = res["Track"].astype(int).to_numpy(), res[src].astype(float).to_numpy()  # .	  Séparation track et valeur
-				res = np.column_stack((track, self._log_data(values, log_scale)))  # .						  Application du log sur les valeurs
-				return res[np.isfinite(res).all(axis=1)], f"Tracks {src}"  # .								  Retour avec filtrage des Lignes NaN
-
-	##################################################
-	@staticmethod
-	def _log_data(data: np.ndarray, log: bool) -> np.ndarray:
-		"""
-		Application du log avec suppression du warning pour les valeurs ≤ 0 et remplacement par Nan de ces valeurs.
-
-		:param data: Données à transformer
-		:param log: Application du log ou non
-		:return: Données transformées
-		"""
-		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
 
 
 ##################################################

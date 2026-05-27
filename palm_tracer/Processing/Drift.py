@@ -1,4 +1,5 @@
 """Fichier contenant des fonctions pour le drift."""
+from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -93,10 +94,10 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 ##################################################
 def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> pd.DataFrame:
 	"""
-	Extrait des billes suivies à travers les plans en ne conservant que celles qui ont un match	dans **tous** les plans
+	Extrait des billes suivies à travers les plans en ne conservant que celles qui ont une correspondance dans **tous** les plans
 	(du premier au dernier plan présent dans ``data``).
 
-	La correspondance entre deux plans consécutifs est réalisée avec une contrainte de distance	euclidienne de type "sphère" :
+	La correspondance entre deux plans consécutifs est réalisée avec une contrainte de distance euclidienne de type "sphère" :
 	:math:`\\sqrt{x^2+y^2+z^2} \\leq max_{distance}`
 
 	En cas de multiples candidats, on choisit le plus proche en distance euclidienne.
@@ -108,8 +109,8 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	:param max_distance: Distance maximale autorisée entre deux plans (en unités des coordonnées) selon la norme L∞.
 	:param is_3d: Si ``True``, utilise (X,Y,Z). Sinon, utilise uniquement (X,Y).
 	:param strict: Si ``True``, la distance doit être strictement inférieure à la distance maximale (comportement par défaut).
-	:param k: Nombre de matchs maximum pour chaques points, permet de gérer les collisions de suivis (par défaut 4 maximum).
-	          Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul match ou aucun pour chaques points.
+	:param k: Nombre de correspondances maximum pour chaque point, permet de gérer les collisions de suivis (par défaut 4 maximum).
+	          Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul correspondant ou aucun pour chaque point.
 
 	:returns: Un nouveau DataFrame ne contenant **que** les points appartenant à des billes valides,
 			  avec une colonne ``Bead`` (1..N) indiquant l'identifiant de la bille. Les lignes sont triées par ``Bead`` puis ``Plane``.
@@ -276,7 +277,7 @@ def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) ->
 	:param is_3d: Si ``True``, applique aussi la correction en Z.
 
 	:returns: Un nouveau DataFrame corrigé (mêmes colonnes que ``data``).
-	:raises ValueError: Si colonnes manquantes dans ``data`` ou ``drift``.
+	:raises ValueError: Si des colonnes sont manquantes dans ``data`` ou ``drift``.
 	"""
 	# ----- Vérifications initiales -----
 	if data.empty or drift.empty: return pd.DataFrame()

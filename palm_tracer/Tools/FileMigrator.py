@@ -1,6 +1,8 @@
 """
 Ce fichier contient la classe :class:`FileMigrator` permettant de lire un dossier de résultat de PALMTracer depuis Metamorph vers le format actuel.
 """
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -146,7 +148,7 @@ class FileMigrator:
 
 	##################################################
 	def make_meta(self):
-		"""Écriture du fichier meta uniquement si au moins une valeur est différente de -1."""
+		"""Écriture du fichier méta uniquement si au moins une valeur est différente de -1."""
 		if (self.meta != -1).any().any(): self.meta.to_csv(self.output_folder / f"meta-{self.suffix}.csv", index=False)
 
 	##################################################
@@ -154,8 +156,8 @@ class FileMigrator:
 		"""
 		Mets à jour l'objet meta et vérifie si une valeur différente est présente.
 
-		:param column: Colonne à mettre à jour
-		:param v: Valeur à insérer
+		:param column: Colonne à mettre à jour.
+		:param v: Valeur à insérer.
 		"""
 		ref = self.meta.loc[0, column]
 		if ref == -1: self.meta.loc[0, column] = v
@@ -415,8 +417,8 @@ class FileMigrator:
 		"""
 		Retourne une clé actuelle à partir d'un nom de colonne ancien.
 
-		:param name: Nom de la colonne en entrée
-		:return: Nom de la nouvelle colonne
+		:param name: Nom de la colonne en entrée.
+		:return: Nom de la nouvelle colonne.
 		"""
 		# Nettoyage du nom de la colonne
 		s = name.strip().lower()  # .		 Changement de casse

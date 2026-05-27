@@ -179,7 +179,7 @@ jobs:
 
       - name: Compute LOC badge
         run: |
-          git ls-files | cloc --json --list-file=- --out=cloc_raw.json --exclude-dir=input,output --exclude-ext=json,html,xml,csv
+          git ls-files | cloc --json --list-file=- --out=cloc_raw.json --exclude-dir=input,output --exclude-ext=json,html,xml,csv,po
 
           python3 - << 'PY'
           import json, pathlib

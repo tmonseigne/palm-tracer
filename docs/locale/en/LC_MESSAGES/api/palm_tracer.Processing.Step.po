@@ -1,0 +1,87 @@
+#: ../../api/palm_tracer.Processing.Step.rst:2
+msgid "Step"
+msgstr ""
+
+#: of palm_tracer.Processing.Step:1
+msgid "Classes utiles à la gestion du Pipeline PALM Tracer."
+msgstr "Classes used to manage the PALM Tracer pipeline."
+
+#: of palm_tracer.Processing.Step.Step:1
+msgid "Classe immuable permettant de définir une étape du traitement."
+msgstr "An immutable class used to define a processing step."
+
+#: ../../api/palm_tracer.Processing.Step.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Processing.Step.Step.group_name:1
+msgid "Nom du groupe de paramètres lié"
+msgstr "Name of the associated setting group"
+
+#: of palm_tracer.Processing.Step.Step.keys:1
+msgid "Liste des clés du/des DataFrame(s) dans le dictionnaire."
+msgstr "List of keys from the DataFrame(s) in the dictionary."
+
+#: of palm_tracer.Processing.Step.Step.process_func:1
+msgid "Fonction de traitement de cette étape."
+msgstr "Processing function for this step."
+
+#: of palm_tracer.Processing.Step.Step.filter_func:1
+msgid "Fonction de filtre de cette étape."
+msgstr "Filter function for this step."
+
+#: of palm_tracer.Processing.Step.Step.allow_dirty:1
+msgid "Autorise la réutilisation d'ancien traitement malgré un pipeline contenant un calcul (cas des billes)."
+msgstr "Allows reuse of previous processing even if the pipeline contains a calculation (e.g., for beads)."
+
+#: of palm_tracer.Processing.Step.Step.apply_filter:1
+msgid "Choix de filtre à appliquer ou non (cas des visualisations)."
+msgstr "Choice of whether to apply a filter (e.g., visualizations)."
+
+#: of palm_tracer.Processing.Step.StepAction:1
+msgid "Actions possibles pour une étape du pipeline."
+msgstr "Possible actions for a pipeline step."
+
+#: of palm_tracer.Processing.Step.StepAction.Compute:1
+msgid "Calcul réel."
+msgstr "Real computes."
+
+#: of palm_tracer.Processing.Step.StepAction.Reuse:1
+msgid "Réutilisation d'un résultat existant."
+msgstr "Reuse of an existing result."
+
+#: of palm_tracer.Processing.Step.StepAction.Skip:1
+msgid "Ignoré (pas actif ou impossible)."
+msgstr "Ignored (not active or impossible)."
+
+#: of palm_tracer.Processing.Step.prepare_step_action:1
+msgid "Estime le type d'action à effectuer pour une étape du traitement."
+msgstr "Estimates the type of action to perform for a processing."
+
+#: of palm_tracer.Processing.Step.prepare_step_action:3
+msgid "Groupe de paramètres actuel."
+msgstr "Name of the associated setting group."
+
+#: of palm_tracer.Processing.Step.prepare_step_action:4
+msgid "Groupe de paramètres du précédent process."
+msgstr "Name of the associated setting group."
+
+#: of palm_tracer.Processing.Step.prepare_step_action:5
+msgid "État du processus actuel (si un calcul a été fait, il n'est plus cohérent pour la suite)."
+msgstr "Status of the current process (if a calculation has been performed, it is no longer consistent for the rest of the process)."
+
+#: of palm_tracer.Processing.Step.prepare_step_action:6
+msgid "Cas particulier ou une non-cohérence est permise. Exemple : l'extraction des billes a pu être fait avec des paramètres de localisations différents du traitement des données finales."
+msgstr "Special case where inconsistency is permitted. E.g.: the extraction of beads may have been performed using location settings different from those used in the final data processing."
+
+#: ../../api/palm_tracer.Processing.Step.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.Step.prepare_step_action:8
+msgid "Type d'action à effectuer pour cette étape."
+msgstr "Type of action to perform for this step."
+
+#: ../../api/palm_tracer.Processing.Step.rst
+msgid "Type renvoyé"
+msgstr "Return type"

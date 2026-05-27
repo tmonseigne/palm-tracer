@@ -131,7 +131,7 @@ msgstr "Information tab"
 
 #: ../../user/viewer_graph.rst:120
 msgid "Cet onglet contient le nom du fichier courant ainsi qu'un statut pour les différentes catégories de données (Localisation, Trajectoires, MSD, Diffusion instantanée, Fit)."
-msgstr "This tab contains the name of the current file, as well as a status for the different data categories (Localization, Trajectories, MSD, Instantaneous diffusion, Fit)."
+msgstr "This tab contains the name of the current file, as well as a status for the different data categories (Localizations, Tracks, MSD, Instantaneous diffusion, Fit)."
 
 #: ../../user/viewer_graph.rst:122
 msgid "Le statut est défini comme suit:"
@@ -151,11 +151,11 @@ msgstr "**Yes (Filtered)**: A filtered table."
 
 #: ../../user/viewer_graph.rst:127
 msgid "**Yes (Reconnected)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement."
-msgstr "**Yes (Reconnected)**: A trajectory table that has undergone reconnections due to blinking."
+msgstr "**Yes (Reconnected)**: A track table that has undergone reconnections due to blinking."
 
 #: ../../user/viewer_graph.rst:128
 msgid "**Yes (Reconnected and Filtered)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement et filtré."
-msgstr "**Yes (Reconnected and Filtered)**: A trajectory table that has undergone reconnections due to blinking and has been filtered."
+msgstr "**Yes (Reconnected and Filtered)**: A track table that has undergone reconnections due to blinking and has been filtered."
 
 #: ../../user/viewer_graph.rst:131
 msgid "Onglet source"
@@ -163,11 +163,11 @@ msgstr "Source tab"
 
 #: ../../user/viewer_graph.rst:142
 msgid "Il existe 3 types de données à visualiser qui sont les informations relatives à la pile (*stack*) chargée, les localisations et les trajectoires."
-msgstr "There are three types of data to visualize: information related to the loaded stack, localizations, and trajectories."
+msgstr "There are three types of data to visualize: information related to the loaded stack, localizations, and tracks."
 
 #: ../../user/viewer_graph.rst:145
 msgid "La liste déroulante des sources s'adapte dynamiquement selon les sources disponibles, notamment pour les trajectoires dont les données disponibles varient selon l'ajustement."
-msgstr "The source dropdown list adapts dynamically depending on the available sources, especially for trajectories where the available data vary depending on the fitting."
+msgstr "The source dropdown list adapts dynamically depending on the available sources, especially for tracks where the available data vary depending on the fitting."
 
 #: ../../user/viewer_graph.rst:153 ../../user/viewer_graph.rst:200
 msgid "Affichage des sources disponibles pour les localisations"
@@ -180,19 +180,19 @@ msgstr "Sources for localizations"
 #: ../../user/viewer_graph.rst:161 ../../user/viewer_graph.rst:208
 #: ../../user/viewer_graph.rst:218
 msgid "Affichage des sources disponibles pour les trajectoires"
-msgstr "Display of available sources for trajectories"
+msgstr "Display of available sources for tracks"
 
 #: ../../user/viewer_graph.rst:167
 msgid "Sources pour les trajectoires"
-msgstr "Sources for trajectories"
+msgstr "Sources for tracks"
 
 #: ../../user/viewer_graph.rst:169
 msgid "Affichage des sources disponibles pour les trajectoires sans les ajustements"
-msgstr "Display of available sources for trajectories without fittings"
+msgstr "Display of available sources for tracks without fittings"
 
 #: ../../user/viewer_graph.rst:175
 msgid "Sources pour les trajectoires sans les ajustements"
-msgstr "Sources for trajectories without fittings"
+msgstr "Sources for tracks without fittings"
 
 #: ../../user/viewer_graph.rst:179
 msgid "Onglet affichage"
@@ -270,7 +270,7 @@ msgstr "Dual Source"
 
 #: ../../user/viewer_graph.rst:299
 msgid "Le Dual Source permet de faire un graphique avec deux sources différentes. L'affichage des courbes associées aux distributions (gaussiennes ou noyau de densité) sera alors une Heatmap. Le noyau de densité (KDE) est alors une estimation de la densité en fonction des deux sources, ce qui, visuellement, peut-être plus explicite."
-msgstr "Dual Source allows you to create a graph with two different sources. The curves associated with the distributions (Gaussian or kernel density) will then be displayed as a heatmap. The kernel density (KDE) is an estimate of the density based on the two sources, which may be more visually explicit.”
+msgstr "Dual Source allows you to create a graph with two different sources. The curves associated with the distributions (Gaussian or kernel density) will then be displayed as a heatmap. The kernel density (KDE) is an estimate of the density based on the two sources, which may be more visually explicit."
 
 #: ../../user/viewer_graph.rst:306 ../../user/viewer_graph.rst:312
 msgid "Affichage du Sigma en X et en Y."
@@ -298,7 +298,7 @@ msgstr "Filters for localizations"
 
 #: ../../user/viewer_graph.rst:349 ../../user/viewer_graph.rst:355
 msgid "Filtres pour les trajectoires"
-msgstr "Filters for trajectories"
+msgstr "Filters for tracks"
 
 #: ../../user/viewer_graph.rst:357
 msgid "Chaque filtre doit-être coché pour être effectif, mais ne sera pas appliqué tant qu'il n'y aura pas d'appuie sur le bouton :guilabel:`Update`. À ce moment, les filtres seront appliqués au sein de l'interface principale sur les dernières données en mémoire (données de base ou déjà filtré), les options de filtrage seront mises à jour également dans l'interface principale."
@@ -318,7 +318,7 @@ msgstr "Display with reset filters"
 
 #: ../../user/viewer_graph.rst:389
 msgid "Si vous avez supprimé des localisations par le biais de filtres, les trajectoires ne sont pas recalculées. Certaines trajectoires peuvent alors contenir des points filtrés, un nouveau process avec les filtres actifs doit être lancé dans l'interface principale."
-msgstr "If you removed localizations using filters, the trajectories are not recalculated. Some trajectories may then contain filtered points, and a new processing run with the active filters must be started in the main interface."
+msgstr "If you removed localizations using filters, the tracks are not recalculated. Some tracks may then contain filtered points, and a new processing run with the active filters must be started in the main interface."
 
 #: ../../user/viewer_graph.rst:394
 msgid "Lien avec l'interface principale"
@@ -342,7 +342,7 @@ msgstr "Trajectories (reconnected if they were, and filtered or not)"
 
 #: ../../user/viewer_graph.rst:403
 msgid "Les calculs sur trajectoires : MSD, Diffusion instantanée, Ajustements (filtrés ou non)"
-msgstr "Trajectory calculations: MSD, instantaneous diffusion, fittings (filtered or not)"
+msgstr "Tracks computes: MSD, instantaneous diffusion, fittings (filtered or not)"
 
 #: ../../user/viewer_graph.rst:405
 msgid "Plusieurs éléments permettent une communication bidirectionnelle entre les deux interfaces :"

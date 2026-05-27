@@ -1,0 +1,35 @@
+#: ../../api/palm_tracer.Settings.Groups.Gallery.rst:2
+msgid "Gallery"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.Gallery.Gallery:1
+msgid "Classe contenant les paramètres de la Galerie :"
+msgstr "Class containing the Gallery settings:"
+
+#: of palm_tracer.Settings.Groups.Gallery.Gallery:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.Gallery.Gallery:4
+msgid "**ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la Zone autour des points (par défaut : `9`)."
+msgstr "**ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Size of the area around the points (default: `9`)."
+
+#: of palm_tracer.Settings.Groups.Gallery.Gallery:5
+msgid "**Gallery Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Nombre de points par ligne (par défaut : `20`)."
+msgstr "**Gallery Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`): Number of points per line (default: `20`)."
+
+#: ../../api/palm_tracer.Settings.Groups.Gallery.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.Gallery.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.Gallery.Gallery.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.Gallery.Gallery.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."

@@ -1,8 +1,10 @@
 """Fichier des tests pour les différents types de paramètres."""
-from typing import Any, List
+import copy
+from typing import Any, cast, List
 
 import pytest
-from qtpy.QtWidgets import QFormLayout, QWidget
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QSpinBox, QWidget
 
 from palm_tracer._tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
@@ -11,26 +13,22 @@ from palm_tracer.Settings.Types import *
 ###################################################
 def setting_base_test(setting: BaseSettingType, change, default):
 	"""
-	Tests de base pour un paramètre
+	Tests de base pour un paramètre.
 
-	:param setting: Paramètre à tester
-	:param change: Valeur à changer
-	:param default: Valeur attendue par défaut
+	:param setting: Paramètre à tester.
+	:param change: Valeur à changer.
+	:param default: Valeur attendue par défaut.
 	"""
 
+	# Changement de valeurs
 	assert setting.value == default, "Valeur par défaut non valide."
-
 	setting.value = change
 	assert setting.value == change, "Valeur défini non valide."
 
-	dictionary = setting.to_dict()
-	min_dictionary = setting.to_compact_dict()
+	# Utilisation du dictionnaire
+	min_dictionary = copy.deepcopy(setting.to_compact_dict())  # Deep Copy car les listes peuvent devenir des références
 	setting.reset()
 	assert setting.value == default, "Valeur par défaut après reset non valide."
-
-	setting = create_setting_from_dict(dictionary)
-	assert setting.value == change, "Valeur récupérée du dictionnaire non valide."
-	setting.reset()
 	setting.update_from_compact_dict(min_dictionary)
 	assert setting.value == change, "Valeur récupérée du dictionnaire non valide."
 
@@ -38,196 +36,283 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	setting.hide()
 	setting.show()
 
-	# Hide and seek
+	# Interface
+	_ = setting.get_ui("default")
 	form = QFormLayout()
-	setting.attach_to_form(form)
-	setting.hide()
-	setting.show()
+	setting.attach_to_form("default", form)  # Second appel a get_ui à l'intérieur
 
-	# Signal
+	setting.value = default
+	setting.value = default  # Second appel vers une valeur identique
+
+	# Signaux
 	received: List[Any] = []
 	setting.connect(lambda v: received.append(v))
 
 	with setting.signal_blocked():
 		setting.emit("A")
 		setting.emit("B")  # Écrase A
-	assert received == [] if isinstance(setting, Button) else ["B"]
+	assert received == ["B"]
+
+	with setting.signal_blocked(emit_last=False): setting.emit("C")  # Ne va pas le renvoyer
+	assert received == ["B"]
+
 	setting.disconnect()
 
 
 ###################################################
-def test_base_setting(qtbot):
-	"""Test basique de la classe abstraite"""
+def test_base_setting():
+	"""Test basique de la classe abstraite."""
 	setting = BaseSettingType("Test")
-	with pytest.raises(NotImplementedError) as exception_info: setting.to_dict()
+	with pytest.raises(NotImplementedError) as exception_info: setting.get_ui()
 	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
-	with pytest.raises(NotImplementedError) as exception_info: BaseSettingType.from_dict({})
-	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
-	layout = setting.layout
-	assert layout is not None, "Le layout n'existe pas."
-	label_widget = setting.label_widget
-	assert label_widget is not None, "Le widget n'existe pas."
-	box = setting.box
-	assert isinstance(box, QWidget), "Le widget n'existe pas."
 
 
 ###################################################
-def test_create_setting_from_dict(qtbot):
-	"""Test de création de setting par dictionnaire vide excepté le type."""
-	setting = create_setting_from_dict({"type": "BrowseFile"})
-	assert isinstance(setting, BrowseFile), "La création par dictionnaire vide pour un BrowseFile à échoué."
-	setting = create_setting_from_dict({"type": "Button"})
-	assert isinstance(setting, Button), "La création par dictionnaire vide pour un Button à échoué."
-	setting = create_setting_from_dict({"type": "CheckBox"})
-	assert isinstance(setting, CheckBox), "La création par dictionnaire vide pour un CheckBox à échoué."
-	setting = create_setting_from_dict({"type": "Combo"})
-	assert isinstance(setting, Combo), "La création par dictionnaire vide pour un Combo à échoué."
-	setting = create_setting_from_dict({"type": "FileList"})
-	assert isinstance(setting, FileList), "La création par dictionnaire vide pour un FileList à échoué."
-	setting = create_setting_from_dict({"type": "SpinFloat"})
-	assert isinstance(setting, SpinFloat), "La création par dictionnaire vide pour un SpinFloat à échoué."
-	setting = create_setting_from_dict({"type": "SpinInt"})
-	assert isinstance(setting, SpinInt), "La création par dictionnaire vide pour un SpinInt à échoué."
-	setting = create_setting_from_dict({"type": "CheckRangeFloat"})
-	assert isinstance(setting, CheckRangeFloat), "La création par dictionnaire vide pour un CheckRangeFloat à échoué."
-	setting = create_setting_from_dict({"type": "CheckRangeInt"})
-	assert isinstance(setting, CheckRangeInt), "La création par dictionnaire vide pour un CheckRangeInt à échoué."
+def test_base_ui(qtbot):
+	ui = BaseUI(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])
+	ui.set_tooltip("")
+
+	ui.hide()
+	ui.show()
+
+	form = QFormLayout()
+	ui.attach_to_form(form)
+
+	ui.hide()
+	ui.show()
 
 
 ###################################################
-def test_create_setting_from_dict_fail(qtbot):
-	"""Test de création de setting par dictionnaire avec un type invalide ou absent."""
-	with pytest.raises(ValueError) as exception_info: create_setting_from_dict({"type": "BadSetting"})
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-	with pytest.raises(ValueError) as exception_info: create_setting_from_dict({})
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+def test_base_ui_no_label(qtbot):
+	ui = BaseUI(layout=QHBoxLayout(), boxes=[QCheckBox()])
+	ui.set_tooltip("")
+
+	ui.hide()
+	ui.show()
+
+	form = QFormLayout()
+	ui.attach_to_form(form)
+
+	ui.hide()
+	ui.show()
 
 
 ###################################################
 def test_spin_int(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
 	setting_base_test(setting, 5, 1)
 
 
 ###################################################
 def test_spin_float(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = SpinFloat("Test", "", 1.0, [0.0, 10.0], 1.0)
 	setting_base_test(setting, 5.0, 1.0)
 
 
 ###################################################
 def test_check_box(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = CheckBox("Test")
 	setting_base_test(setting, True, False)
+
+	ui = setting.get_ui("new")
+
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert setting.value
+
+	w.close()
 
 
 ###################################################
 def test_combo(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = Combo("Test", "", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
+	# Get Actual Text
 	assert setting.current_text == "Choix 1"
+	# Change items after UI Creation
+	setting.items = ["1", "2"]
+	assert setting.items == ["1", "2"]
 
 
 ###################################################
 def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
 
 	fake_qfiledialog(BrowseFile, None)  # Simuler un "Cancel" sur le QFileDialog
 	setting.browse_file()
-	assert setting.value == "", "Le setting devrait être vide"
+	assert setting.value == "", "le paramètre devrait être vide"
 
 	fake_qfiledialog(BrowseFile, "file.tif")  # Simuler un fichier inexistant
 	setting.browse_file()
-	assert setting.value == "", "Le setting devrait être vide."
+	assert setting.value == "", "le paramètre devrait être vide."
 
 	fake_qfiledialog(BrowseFile, f"{INPUT_DIR}/stack.tif")
 	setting.browse_file()
-	assert "stack.tif" in setting.value, "Le setting devrait être '...stack.tif'"
+	assert "stack.tif" in setting.value, "le paramètre devrait être '...stack.tif'"
 
 
 ###################################################
 def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = FileList("Test")
 	setting_base_test(setting, -1, -1)
 	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a jamais eu
-	setting.update_box(["File1", "File2", "File3"])
+	setting.items = ["File1", "File2", "File3"]
 	setting.value = 1
-	assert setting.get_selected() == "File2", "Valeur sélectionnée non valide."
+	assert setting.current_text == "File2", "Valeur sélectionnée non valide."
 	setting.remove_file()
-	assert setting.get_list() == ["File1", "File3"], "Liste de fichiers après suppression non valide."
+	assert setting.items == ["File1", "File3"], "Liste de fichiers après suppression non valide."
 	setting.clear_files()
-	assert setting.get_list() == [], "Liste de fichiers après nettoyage non valide."
-	assert setting.get_selected() == "", "Valeur non vide."
+	assert setting.items == [], "Liste de fichiers après nettoyage non valide."
+	assert setting.current_text == "", "Valeur non vide."
 	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a plus
 
 	fake_qfiledialog(BrowseFile, None)  # Simuler un "Cancel" sur le QFileDialog
 	setting.add_file()
-	assert setting.get_list() == [], "Liste de fichiers non valide."
+	assert setting.items == [], "Liste de fichiers non valide."
 
 	fake_qfiledialog(BrowseFile, "file.tif")  # Simuler un fichier inexistant
 	setting.add_file()
-	assert setting.get_list() == [], "Liste de fichiers non valide."
+	assert setting.items == [], "Liste de fichiers non valide."
 
 	fake_qfiledialog(BrowseFile, f"{INPUT_DIR}/stack.tif")
 	setting.add_file()
-	assert "stack.tif" in setting.get_selected(), "Le setting devrait être '...stack.tif'"
+	assert "stack.tif" in setting.current_text, "Le paramètre devrait être '...stack.tif'"
 
 
 ###################################################
 def test_check_range_int(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = CheckRangeInt("Test", "", [0, 0], [-10, 10])
-	setting_base_test(setting, [5, 3], [0, 0])
+	setting_base_test(setting, [3, 5], [0, 0])
 
 	# Special tests
-	setting.value = [9, 3]
-	assert setting.value == [9, 9], "Valeur non valide."
-	setting.box[0].setValue(10)
+	setting.value = [9, 4]
+	assert setting.value == [4, 4], "Valeur non valide."
+	setting.min = 10
 	assert setting.value == [10, 10], "Valeur non valide."
-	setting.box[1].setValue(3)
+	setting.max = 3
 	assert setting.value == [3, 3], "Valeur non valide."
 
 	setting.active = True
-	assert setting.active == True, "Le paramètre doit être activés."
+	assert setting.active, "Le paramètre doit être activés."
 
-	setting.box[1].setValue(10)
+	setting.max = 10
 	assert setting.value == [3, 10], "Valeur non valide."
-	setting.update_limits(4, 6)
+	setting.limits = [4, 6]
 	assert setting.value == [4, 6], "Valeur non valide."
+
+	ui = setting.get_ui("new")
+
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	cast(QSpinBox, ui.boxes[1]).setValue(5)
+	assert setting.min == 5
+	cast(QSpinBox, ui.boxes[2]).setValue(5)
+	assert setting.max == 5
+	print(setting.active)
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	print(setting.active)
+	assert not setting.active
+
+	w.close()
 
 
 ###################################################
 def test_check_range_float(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = CheckRangeFloat("Test", "", [0.0, 0.0], [-10, 10])
-	setting_base_test(setting, [5.0, 3.0], [0.0, 0.0])
+	setting_base_test(setting, [3.0, 5.0], [0.0, 0.0])
 
 	# Special tests
-	setting.value = [9, 3]
-	assert setting.value == [9, 9], "Valeur non valide."
-	setting.box[0].setValue(10)
+	setting.value = [9, 4]
+	assert setting.value == [4, 4], "Valeur non valide."
+	setting.min = 10
 	assert setting.value == [10, 10], "Valeur non valide."
-	setting.box[1].setValue(3)
+	setting.max = 3
 	assert setting.value == [3, 3], "Valeur non valide."
 
 	setting.active = True
-	assert setting.active == True, "Le paramètre doit être activés."
+	assert setting.active, "Le paramètre doit être activés."
 
-	setting.box[1].setValue(10)
+	setting.max = 10
 	assert setting.value == [3, 10], "Valeur non valide."
-	setting.update_limits(4, 6)
+	setting.limits = [4, 6]
 	assert setting.value == [4, 6], "Valeur non valide."
+
+	ui = setting.get_ui("new")
+
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	cast(QDoubleSpinBox, ui.boxes[1]).setValue(5)
+	assert setting.min == 5
+	cast(QDoubleSpinBox, ui.boxes[2]).setValue(5)
+	assert setting.max == 5
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert not setting.active
+
+	w.close()
 
 
 ###################################################
-def test_button(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)"""
+def test_button(qtbot, capsys):
+	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = Button("Test")
 	setting_base_test(setting, True, True)
+	setting.connect_button(lambda: print("Hi"), "default", 0)  # Ui sur laquelle on ne va pas cliquer
+	setting.connect_button(lambda: print("Hello"), "new", 0)  # Ui sur laquelle on va cliquer
+
+	ui = setting.get_ui("new")
+
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Hello" in out
+	assert "Hi" not in out
+
+	w.close()
+
+
+###################################################
+def test_button_group(qtbot):
+	"""Test basique de la classe (constructeur, getter, setter)."""
+	setting = ButtonGroup("Test", "", 0, ["Choix 1", "Choix 2"])
+	setting_base_test(setting, 1, 0)
+	assert setting.current_text == "Choix 1"
+
+
+###################################################
+def test_sync(qtbot):
+	"""Test basique de la classe abstraite."""
+	spin_1 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
+	spin_2 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
+	spin_1.sync(spin_2)
+	spin_1.value = 5
+	assert spin_2.value == 5, "Valeur non valide."
+
+	spin_2.value = 3
+	assert spin_1.value == 3, "Valeur non valide."

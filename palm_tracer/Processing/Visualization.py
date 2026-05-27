@@ -1,4 +1,6 @@
 """Module contenant les fonctions de visualisation."""
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -21,7 +23,7 @@ def normalize_data(data: np.ndarray, scale: int = SCALE) -> np.ndarray:
 		- Si toutes les valeurs sont positives, on considère 0 comme min et on normalise avec la puissance de 2 la plus proche du max.
 
 	:param data: Données à normaliser.
-	:param scale: Échelle de normalisation
+	:param scale: Échelle de normalisation.
 	:return: Données normalisées.
 	"""
 	if data is None or data.size == 0: return np.zeros_like(data)
@@ -48,7 +50,7 @@ def get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 	"""
 	Calcule un nombre de bin adaptatif pour un histogramme.
 
-	:param data: Données à analyser
+	:param data: Données à analyser.
 	:param limits: Bornes pour le nombre de bins.
 	:return: Nombre de bins.
 	"""
@@ -191,13 +193,13 @@ def render_tracks_image(width: int, height: int, ratio: int, tracks: pd.DataFram
 ##################################################
 def render_roi(image: np.ndarray, points: np.ndarray, roi_size: int, color: list[int]) -> np.ndarray:
 	"""
-	Construit une image RGB à partir d'une image en niveaux de gris et ajoute des contours de ROIs autour des points donnés.
+	Construit une image RGB à partir d'une image en niveaux de gris et ajoute les contours des zones d'intérêts autour des points donnés.
 
 	:param image: Image d'entrée en niveaux de gris (numpy array 2D).
 	:param points: Tableau 2D des coordonnées (X, Y) des points, sous forme de flottants.
 	:param roi_size: Taille du carré à dessiner autour de chaque point.
 	:param color: Couleur du contour du ROI en RGB (tuple ou liste de trois valeurs).
-	:return: Image RGB avec les contours des ROIs dessinés.
+	:return: Image RGB avec les contours des zones d'intérêts dessinés.
 	"""
 	# Normalisation des niveaux de gris sur 0-255
 	min_val, max_val = image.min(), image.max()

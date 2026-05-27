@@ -2,13 +2,16 @@
 Fichier contenant la classe :class:`Localisation` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de localisation nécessaires à la configuration de PALM Tracer.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 
 from palm_tracer.Processing.Parsing import degrees_to_radians
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
 from palm_tracer.Settings.Groups.SplineFit import SplineFit
 from palm_tracer.Settings.Types import Button, CheckBox, Combo, SpinFloat, SpinInt
@@ -47,15 +50,29 @@ class Localization(BaseSettingGroup):
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}
-	_inner_groups = ["Gaussian Fit", "Spline Fit"]
 
 	##################################################
-	def initialize_ui(self):
-		super().initialize_ui()
-		self._settings["Gaussian Fit"].remove_header()
-		self._settings["Spline Fit"].remove_header()
+	@property
+	def gaussian(self) -> GaussianFit:
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		return cast(GaussianFit, self._settings["Gaussian Fit"])
+
+	##################################################
+	@property
+	def spline(self) -> SplineFit:
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		return cast(SplineFit, self._settings["Spline Fit"])
+
+	##################################################
+	def initialize(self):
+		super().initialize()
 		self._settings["Fit"].connect(self.toggle_fit_mode)
+
+	##################################################
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+		ui = super().get_ui(name, mode)
 		self.toggle_fit_mode(self._settings["Fit"].value)
+		return ui
 
 	##################################################
 	def toggle_fit_mode(self, mode):
@@ -109,7 +126,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = Localization()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

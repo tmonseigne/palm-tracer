@@ -38,7 +38,7 @@ Si Git (ou GitKraken pour une utilisation avec une interface graphique) est inst
 Le dossier :file:`palm-tracer` sera alors créé dans le répertoire courant.
 
 Vous devez maintenant dézipper le fichier :file:`DLL.7z`.
-Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`
+Faites un clic droit sur le fichier, puis :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`.
 Le mot de passe vous est demandé lors de l'extraction.
 Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
 
@@ -49,7 +49,7 @@ Méthode 2 : téléchargement manuel (ZIP)
 2. Cliquez sur **Code** (le bouton vert).
 3. Choisissez **Download ZIP** pour télécharger les fichiers du projet sur votre ordinateur.
 4. Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\\palm-tracer`).
-5. Dezippez le fichier :file:`DLL.7z` :
+5. Dézippez le fichier :file:`DLL.7z` :
     - Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`
     - Le mot de passe vous est demandé lors de l'extraction.
     - Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
@@ -63,7 +63,7 @@ Méthode 2 : téléchargement manuel (ZIP)
 Étape 2 : Installation de Python et des éléments additionnels
 ------------------------------------------------------------------------
 
-Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installation à partir de :console:`PowerShell` (nécessite des droits administrateur)
+Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installations à partir de :console:`PowerShell` (nécessite des droits administrateur)
 
 .. code-block:: console
 

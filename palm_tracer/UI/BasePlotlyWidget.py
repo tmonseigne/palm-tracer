@@ -1,4 +1,6 @@
 """Module contenant la classe mère :class:`BasePlotlyWidget`, permettant de centraliser des fonctions communes aux widgets Stand Alone."""
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Optional
@@ -59,9 +61,9 @@ class BasePlotlyWidget(QWidget):
 	##################################################
 	def _make_web_widget(self):
 		"""
-		Créé un Widget pour integrer plotly
+		Créé un Widget pour integrer plotly.
 
-		:return: QWebEngineView ou QTextBrowser si indisponible
+		:return: QWebEngineView ou QTextBrowser si indisponible.
 		"""
 		# Zone droite : QWebEngineView avec Plotly
 		if _HAS_WEBENGINE: res = QWebEngineView(self)

@@ -10,22 +10,25 @@ Ce fichier définit la classe :class:`.Settings`, utilisée pour gérer et enreg
 
 La classe :class:`.Settings` est conçue pour interagir directement avec l'interface utilisateur en facilitant le paramétrage de PALM Tracer.
 """
+from __future__ import annotations
+
 from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.Batch import Batch
+from palm_tracer.Settings.Groups.BeadsExtraction import BeadsExtraction
 from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnection
 from palm_tracer.Settings.Groups.Calibration import Calibration
-from palm_tracer.Settings.Groups.BeadsExtraction import BeadsExtraction
 from palm_tracer.Settings.Groups.Filters import Filters
 from palm_tracer.Settings.Groups.Gallery import Gallery
+from palm_tracer.Settings.Groups.Graph import Graph
+from palm_tracer.Settings.Groups.HR import HR
 from palm_tracer.Settings.Groups.Localization import Localization
 from palm_tracer.Settings.Groups.Tracking import Tracking
 from palm_tracer.Settings.Groups.TracksCompute import TracksCompute
-from palm_tracer.Settings.Groups.VisualizationGraph import VisualizationGraph
-from palm_tracer.Settings.Groups.VisualizationHR import VisualizationHR
 
 
 ##################################################
@@ -35,6 +38,8 @@ class Settings:
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 	"""Dictionnaire de groupes de paramètres."""
+	_uis: dict[str, dict[str, BaseUI]] = field(init=False, default_factory=lambda: dict[str, dict[str, BaseUI]]())
+	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
 
 	# ==================================================
 	# region Initialization
@@ -44,12 +49,9 @@ class Settings:
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
 		list_settings = [Batch, Calibration, Localization, BeadsExtraction, Tracking, BlinkingReconnection, TracksCompute,
-						 Gallery, VisualizationHR, VisualizationGraph, Filters]
-		for setting in list_settings:
-			self._settings[setting.__name__] = setting()
-
-		self._settings["Batch"].always_active()
-		self._settings["Calibration"].always_active()
+						 Gallery, Graph, HR, Filters]
+		for setting in list_settings: self._settings[setting.__name__] = setting()
+		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
 
 	##################################################
 	def reset(self):
@@ -71,7 +73,7 @@ class Settings:
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 
 		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés
+		:return: Nombre de slots déconnectés.
 		"""
 		for _, setting in self._settings.items(): setting.disconnect(f)
 
@@ -94,6 +96,28 @@ class Settings:
 	# ==================================================
 	# region Getter/Setter
 	# ==================================================
+	##################################################
+	def get_ui(self, name: str = "default") -> dict[str, BaseUI]:
+		"""
+		Retourne un dictionnaire d'objets :class:`.BaseUI` (un par groupe de paramètres), existants ou les créés si nécessaire.
+
+		:param name: Nom de l'interface dans le dictionnaire.
+		"""
+		if name in self._uis: return self._uis[name]
+		ui = dict[str, BaseUI]()
+		for key, setting in self._settings.items(): ui[key] = setting.get_ui(name)
+		self._uis[name] = ui  # Ajoute l'ui au dictionnaire
+		return ui
+
+	##################################################
+	def clean_ui(self, name: str):
+		"""
+		Supprime récursivement les interfaces Qt associées au nom donné.
+
+		:param name: Nom de l'interface dans le dictionnaire.
+		"""
+		for setting in self._settings.values(): setting.clean_ui(name)
+
 	##################################################
 	@property
 	def batch(self) -> Batch:
@@ -134,7 +158,7 @@ class Settings:
 	##################################################
 	@property
 	def tracks_compute(self) -> TracksCompute:
-		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`.)"""
+		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`)."""
 		return cast(TracksCompute, self._settings["TracksCompute"])
 
 	##################################################
@@ -145,17 +169,17 @@ class Settings:
 
 	##################################################
 	@property
-	def visualization_hr(self) -> VisualizationHR:
+	def hr(self) -> HR:
 		"""Groupe de paramètres liés à la Visualisation haute-résolution
-		(:class:`VisualizationHR <palm_tracer.Settings.Groups.VisualizationHR.VisualizationHR>`)."""
-		return cast(VisualizationHR, self._settings["VisualizationHR"])
+		(:class:`HR <palm_tracer.Settings.Groups.HR.HR>`)."""
+		return cast(HR, self._settings["HR"])
 
 	##################################################
 	@property
-	def visualization_graph(self) -> VisualizationGraph:
+	def graph(self) -> Graph:
 		"""Groupe de paramètres liés à la Visualisation graphique
-		(:class:`VisualizationGraph <palm_tracer.Settings.Groups.VisualizationGraph.VisualizationGraph>`)."""
-		return cast(VisualizationGraph, self._settings["VisualizationGraph"])
+		(:class:`Graph <palm_tracer.Settings.Groups.Graph.Graph>`)."""
+		return cast(Graph, self._settings["Graph"])
 
 	##################################################
 	@property
@@ -170,26 +194,6 @@ class Settings:
 	# ==================================================
 	# region Parsing
 	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		"""Renvoie un dictionnaire contenant toutes les informations de la classe."""
-		return {"PALM Tracer Settings": {name: obj.to_dict() for name, obj in self._settings.items()}}
-
-	##################################################
-	@classmethod
-	def from_dict(cls, data: dict[str, Any]) -> "Settings":
-		"""Créé une instance de la classe à partir d'un dictionnaire."""
-		res = cls()  # Instancie la classe appelée
-		res.update_from_dict(data)
-		return res
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire."""
-		groups = data["PALM Tracer Settings"]
-		for name, obj in self._settings.items():
-			if name in groups: obj.update_from_dict(groups[name])
-
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
@@ -223,3 +227,22 @@ class Settings:
 
 	##################################################
 	def __str__(self) -> str: return self.tostring()
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	settings = Settings()
+	setting_ui = settings.get_ui()
+
+	lay.addWidget(setting_ui["Batch"].widget)
+	lay.addWidget(setting_ui["Calibration"].widget)
+	lay.addWidget(setting_ui["Localization"].widget)
+	lay.addStretch(1)
+	w.show()
+	sys.exit(app.exec_())

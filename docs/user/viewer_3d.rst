@@ -111,7 +111,7 @@ Ouverture des fichiers
 ----------------------------------
 
 Pour mettre à jour ou modifier le fichier utilisé par la visionneuse, il faut cliquer sur le bouton :guilabel:`Load CSV`.
-Pour être valide le fichier doit contenir au moins les colonnes X, Y, Z et Integrated Intensity
+Pour être valide, le fichier doit contenir au moins les colonnes X, Y, Z et Integrated Intensity
 
 
 Options de visualisation

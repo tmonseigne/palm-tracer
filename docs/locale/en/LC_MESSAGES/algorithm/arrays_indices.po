@@ -23,10 +23,20 @@ msgstr "A one-dimensional array is called a **vector**. It can be represented in
 msgid "Mathématiquement, un vecteur ligne (:math:`V \\in \\mathbb{R}^{1 \\times n}`\\) s'écrit :"
 msgstr "Mathematically, a row vector (:math:`V \\in \\mathbb{R}^{1 \\times n}`\\) is written as:"
 
+#: ../../algorithm/arrays_indices.rst:22
+#, python-brace-format
+msgid "V = \\begin{bmatrix} v_0 & v_1 & v_2 & \\dots & v_{n-1} \\end{bmatrix}"
+msgstr ""
+
 #: ../../algorithm/arrays_indices.rst:26
 #, python-brace-format
 msgid "Un vecteur colonne (:math:`V \\in \\mathbb{R}^{n \\times 1}`) s'écrit :"
 msgstr "A column vector (:math:`V \\in \\mathbb{R}^{n \\times 1}`) is written as:"
+
+#: ../../algorithm/arrays_indices.rst:28
+#, python-brace-format
+msgid "V = \\begin{bmatrix} v_0 \\\\ v_1 \\\\ v_2 \\\\ \\vdots \\\\ v_{n-1} \\end{bmatrix}"
+msgstr ""
 
 #: ../../algorithm/arrays_indices.rst:32 ../../algorithm/arrays_indices.rst:70
 msgid "En Python avec `numpy` :"
@@ -52,6 +62,11 @@ msgstr "A 2D array is a **matrix** (:math:`M \\in \\mathbb{R}^{m \\times n}`), w
 #: ../../algorithm/arrays_indices.rst:58
 msgid "Mathématiquement, une matrice :math:`M` de taille :math:`m \\times n` s'écrit :"
 msgstr "Mathematically, a matrix :math:`M` of size :math:`m \\times n` is written as:"
+
+#: ../../algorithm/arrays_indices.rst:60
+#, python-brace-format
+msgid "M = \\begin{bmatrix}\n         m_{0,0} & m_{0,1} & \\dots & m_{0,n-1} \\\\\n         m_{1,0} & m_{1,1} & \\dots & m_{1,n-1} \\\\\n         \\vdots & \\vdots & \\ddots & \\vdots \\\\\n         m_{m-1,0} & m_{m-1,1} & \\dots & m_{m-1,n-1}\n\\end{bmatrix}"
+msgstr ""
 
 #: ../../algorithm/arrays_indices.rst:82
 msgid "**Attention : Coordonnées (x, y) vs Indices (i, j)**"
@@ -94,7 +109,7 @@ msgid "**Ordre C (row-major)** : Les éléments d'une ligne sont contigus en mé
 msgstr "**C order (row-major)**: elements of a row are contiguous in memory (default in :console:`numpy`)."
 
 #: ../../algorithm/arrays_indices.rst:109
-msgid "**Ordre Fortran (column-major)** : Les éléments d'une colonne sont contigus en mémoire (par défaut dans des languages scientifiques tel que :console:`Matlab`, :console:`R`, :console:`Julia`)."
+msgid "**Ordre Fortran (column-major)** : Les éléments d'une colonne sont contigus en mémoire (par défaut dans des langages scientifiques tels que :console:`Matlab`, :console:`R`, :console:`Julia`)."
 msgstr "**Fortran order (column-major)**: elements of a column are contiguous in memory (default in scientific languages such as :console:`Matlab`, :console:`R`, and :console:`Julia`)."
 
 #: ../../algorithm/arrays_indices.rst:111
@@ -109,6 +124,11 @@ msgstr "3D arrays: tensors and interpretation"
 #, python-brace-format
 msgid "Un tableau 3D, qui ajoute une profondeur (axe supplémentaire), représente un **tenseur**  (:math:`T \\in \\mathbb{R}^{m \\times n \\times l}`), où chaque élément est référencé par un triplet d'indices :math:`(i,j,k)`. Il peut être vu comme une pile de matrices :"
 msgstr "A 3D array, which adds a depth (an additional axis), represents a **tensor** (:math:`T \\in \\mathbb{R}^{m \\times n \\times l}`), where each element is referenced by a triplet of indices :math:`(i, j, k)`. It can be seen as a stack of matrices:"
+
+#: ../../algorithm/arrays_indices.rst:135
+#, python-brace-format
+msgid "T =\n\\begin{bmatrix}\n        M_0 \\\\ M_1 \\\\ \\vdots \\\\ M_{p-1}\n\\end{bmatrix}"
+msgstr ""
 
 #: ../../algorithm/arrays_indices.rst:142
 msgid "ou de façon explicite :"
@@ -162,6 +182,11 @@ msgstr "Visualizing a tensor in perspective"
 #: ../../algorithm/arrays_indices.rst:187
 msgid "Pour mieux comprendre un tableau 3D , on peut écrire une notation matricielle en **perspective**, simulant une profondeur :"
 msgstr "To better understand a 3D array, one can write a matrix notation in **perspective**, simulating depth:"
+
+#: ../../algorithm/arrays_indices.rst:189
+#, python-brace-format
+msgid "T =\n\\begin{bmatrix}\n\\begin{bmatrix}\n        t_{0,0,0} & t_{0,0,1} & \\dots & t_{0,0,n-1} \\\\\n        t_{0,1,0} & t_{0,1,1} & \\dots & t_{0,1,n-1} \\\\\n\\end{bmatrix}, \\quad\n\\begin{bmatrix}\n        t_{1,0,0} & t_{1,0,1} & \\dots & t_{1,0,n-1} \\\\\n        t_{1,1,0} & t_{1,1,1} & \\dots & t_{1,1,n-1} \\\\\n\\end{bmatrix}, \\dots\n\\end{bmatrix}"
+msgstr ""
 
 #: ../../algorithm/arrays_indices.rst:203
 msgid "Cela permet d'afficher mentalement chaque **plan matriciel** séparément."

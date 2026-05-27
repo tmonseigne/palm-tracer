@@ -1,0 +1,75 @@
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst:2
+msgid "Batch"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.Batch.Batch:1
+msgid "Classe contenant les informations de batch de fichiers :"
+msgstr "Class containing batch file information:"
+
+#: of palm_tracer.Settings.Groups.Batch.Batch:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.Batch.Batch:4
+msgid "**Files** (:class:`FileList <palm_tracer.Settings.Types.FileList.FileList>`) : Liste des fichiers au Batch."
+msgstr "**Files** (:class:`FileList <palm_tracer.Settings.Types.FileList.FileList>`): List of files in the batch."
+
+#: of palm_tracer.Settings.Groups.Batch.Batch:5
+msgid "**Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'utilisation du Batch (Un seul fichier est traité ou chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition)."
+msgstr "**Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Method of using the batch (a single file is processed, each file is processed separately, or all files correspond to a single acquisition)."
+
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.mode:1
+msgid "Méthode d'affichage du groupe par défaut."
+msgstr "Default group display method."
+
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst:16
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst:19
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_paths:1
+msgid "Génère un chemin basé sur les fichiers du Batch et le mode sélectionné."
+msgstr "Generates a path based on the files in the batch and the selected mode."
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_paths:3
+msgid "Suffixe à ajouter au nom du dossier créé."
+msgstr "Suffix to add to the name of the created folder."
+
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_paths:4
+msgid "Chemin complet du dossier généré."
+msgstr "Full path of the generated folder."
+
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_stacks:1
+msgid "Récupère la liste de piles en fonction des paramètres."
+msgstr "Retrieves the list of stacks based on the settings."
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_stacks:3
+msgid "Une liste de piles en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de piles)."
+msgstr "A list of stacks based on the batch (a single stack, a set of concatenated stacks, or a group of stacks)."

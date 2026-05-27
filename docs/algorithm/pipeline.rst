@@ -19,8 +19,8 @@ Selon le batch défini dans les paramètres de l'interface. Les piles sont charg
 
 Il y a plusieurs possibilités :
 
-- Une seule pile est chargée, dans ce cas là le mode importe peu.
-- Plusieurs piles sont chargées, dans ce cas-là le mode influe :
+- Une seule pile est chargée, dans ce cas-là, le mode importe peu.
+- Plusieurs piles sont chargées, dans ce cas-là, le mode influe :
    - **Only one** : seule la pile sélectionnée est utilisée.
    - **Each File separately** : les piles sont utilisées les unes après les autres.
    - **All in One** : les piles sont concaténées en une seule.
@@ -82,7 +82,7 @@ Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder 
 Si l'option :console:`save filtered` est sélectionné, les calculs reconnectés et filtrés sont sauvegardés dans trois fichiers :
 :file:`tracking_MSD_filtered-<timestamp>.csv`, :file:`tracking_InstantD_filtered-<timestamp>.csv`, :file:`tracking_Fit_filtered-<timestamp>.csv`.
 
-.. note:: Si les calculs sont désactivés, les étapes suivantes seront capable de calculer les éléments nécessaires rapidement.
+.. note:: Si les calculs sont désactivés, les étapes suivantes seront capables de calculer les éléments nécessaires rapidement.
 
 .. warning:: Les trajectoires éliminées sont également éliminées dans le tableau de suivi original et le fichier :file:`tracking_filtered-<timestamp>.csv` est réécrit.
 

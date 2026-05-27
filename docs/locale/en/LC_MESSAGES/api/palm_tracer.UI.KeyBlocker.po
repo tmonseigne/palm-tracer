@@ -1,0 +1,35 @@
+#: ../../api/palm_tracer.UI.KeyBlocker.rst:2
+msgid "KeyBlocker"
+msgstr ""
+
+#: of palm_tracer.UI.KeyBlocker.KeyBlocker:1
+msgid "Empêche Napari de capturer certaines touches lorsqu'un widget d'édition a le focus."
+msgstr "Prevents Napari from capturing certain keys when an edit widget has focus."
+
+#: ../../api/palm_tracer.UI.KeyBlocker.rst:9
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.UI.KeyBlocker.rst:12
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.UI.KeyBlocker.KeyBlocker.eventFilter:1
+msgid "Permet de filtrer la gestion du clavier si l'on est sur un objet QT éditable."
+msgstr "Allows filtering of keyboard handling when on an editable QT object."
+
+#: ../../api/palm_tracer.UI.KeyBlocker.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.KeyBlocker.KeyBlocker.eventFilter:3
+msgid "Objet QT en cours."
+msgstr "Current QT object."
+
+#: of palm_tracer.UI.KeyBlocker.KeyBlocker.eventFilter:4
+msgid "Evenement clavier."
+msgstr "Keyboard event."
+
+#: ../../api/palm_tracer.UI.KeyBlocker.rst
+msgid "Renvoie"
+msgstr "Returns"

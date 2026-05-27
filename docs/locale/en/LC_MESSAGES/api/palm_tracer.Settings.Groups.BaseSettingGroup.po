@@ -1,0 +1,199 @@
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:2
+msgid "BaseSettingGroup"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup:1
+msgid "Classe mère pour un groupe de paramètres."
+msgstr "Parent class for a group of settings."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.set_active
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.update_from_compact_dict
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of settings in the group (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.mode:1
+msgid "Méthode d'affichage du groupe par défaut."
+msgstr "Default method for displaying the group."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.active:1
+msgid "État du groupe, activé ou non (:class:`bool`)."
+msgstr "Group status, enabled or disabled (:class:`bool`)."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.value:1
+msgid "Fonction vide nécessaire aux parcours automatiques."
+msgstr "Empty function required for automatic traversal."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.settings_names:1
+msgid "Récupère les noms des paramètres de ce groupe."
+msgstr "Retrieves the names of the settings in this group."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.settings:1
+msgid "Récupère les valeurs des paramètres."
+msgstr "Retrieves the settings values."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:20
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:23
+msgid "Initialization"
+msgstr ""
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.initialize:1
+msgid "Initialise le dictionnaire de paramètres."
+msgstr "Initializes the settings dictionary."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.reset:1
+msgid "Remet les valeurs par défaut des paramètres."
+msgstr "Resets the settings to their default values."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:29
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns a :class:`.BaseUI` object, either an existing one or one created if necessary."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.clean_ui:3
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Name of the interface in the dictionary."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:4
+msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
+msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"remove header\" state (no title area created)"
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:4
+msgid "Méthode de création du groupe."
+msgstr "Group creation method."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:6
+msgid "-1 : Valeur par défaut du groupe"
+msgstr "-1: Group default value"
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:7
+msgid "0 : Avec un titre et une checkbox pour activer/désactiver le groupe"
+msgstr "0: With a title and a checkbox to enable/disable the group"
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:8
+msgid "1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)"
+msgstr "1: State when using the \"always active\" method (the checkbox is not created)"
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:9
+msgid "2 : État remove header (aucune création de l'espace titre)"
+msgstr "2: \"Remove header\" state (no title area created)"
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:11
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings. Groups.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.to_compact_dict
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.clean_ui:1
+msgid "Supprime l'interface Qt associée au nom donné."
+msgstr "Removes the Qt interface associated with the specified name."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:35
+msgid "Hide and Seek"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.hide:1
+msgid "Cache le paramètre."
+msgstr "Hides the setting."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.show:1
+msgid "Affiche le paramètre."
+msgstr "Shows the setting."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:41
+msgid "Parsing"
+msgstr ""
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.to_compact_dict:1
+msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
+msgstr "Returns a minimal dictionary containing the setting's value."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.update_from_compact_dict:1
+msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+msgstr "Updates the class from a minimal dictionary."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.tostring:1
+msgid "Retourne une chaîne de caractères correspondant à la liste des paramètres."
+msgstr "Returns a string corresponding to the list of settings."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.tostring:3
+msgid "Préfixe de chaque ligne (par exemple pour ajouter une indentation)."
+msgstr "Prefix for each line (e.g., to add indentation)."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.tostring:4
+msgid "Une description textuelle des paramètres."
+msgstr "A textual description of the settings."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:48
+msgid "Callbacks"
+msgstr ""
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.set_active:1
+msgid "Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."
+msgstr "Updates the group's active state when the checkbox is toggled."
+
+#: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:53
+msgid "Signals"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect:1
+msgid "Connecte une fonction ou un slot à tous les éléments du groupe."
+msgstr "Connects a function or slot to all elements in the group."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect:3
+msgid "Fonction ou slot à connecter."
+msgstr "Function or slot to connect."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:1
+msgid "Déconnecte une fonction ou un slot à tous les éléments du groupe."
+msgstr "Disconnects a function or slot from all elements in the group."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:3
+msgid "Fonction ou slot à déconnecter."
+msgstr "Function or slot to disconnect."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:4
+msgid "Nombre de slots déconnectés."
+msgstr "Number of disconnected slots."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:1
+msgid "Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec `with ...:`."
+msgstr "Signal blocking for the entire group (recursive). Returns a context manager usable with `with ...:`."

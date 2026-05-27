@@ -1,0 +1,129 @@
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst:2
+msgid "CheckRangeFloat"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat:1
+msgid "Classe pour un paramètre spécifique de type intervalle de nombre flottant."
+msgstr "Class for a specific setting of type floating-point number range."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst of
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.set_active
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.set_max
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.set_min
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.update_from_compact_dict
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat:3
+msgid "Nom du paramètre à afficher."
+msgstr "Name of the setting to display."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat:4
+msgid "Description détaillée en overlay."
+msgstr "Detailed description in the overlay."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat:5
+msgid "Valeurs par défaut du paramètre."
+msgstr "Default values of the setting."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat:6
+msgid "Valeurs limites du paramètre."
+msgstr "Limit values ​​of the setting."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat:7
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.precision:1
+msgid "Précision du paramètre."
+msgstr "Setting precision."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.default:1
+msgid "Valeur par défaut du paramètre (:class:`list[float]`)."
+msgstr "Default value of the setting (:class:`list[float]`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.step:1
+msgid "Pas à chaque appui sur une des flèches du paramètre."
+msgstr "Step size at each press on one of the setting arrows."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.active:1
+msgid "Indicateur d'activation du paramètre (:class:`bool`)."
+msgstr "Setting activation indicator (:class:`bool`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.min:1
+msgid "Indicateur de la valeur minimale du paramètre (:class:`float`)."
+msgstr "Indicator of the minimum value of the setting (:class:`float`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.max:1
+msgid "Indicateur de la valeur maximale du paramètre (:class:`float`)."
+msgstr "Indicator of the maximum value of the setting (:class:`float`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.limits:1
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.value:1
+msgid "Valeur actuelle du paramètre (:class:`list[float]`)."
+msgstr "Current value of the setting (:class:`list[float]`)."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst:21
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst:24
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.reset:1
+msgid "Réinitialise le paramètre à sa valeur par défaut."
+msgstr "Resets the setting to its default value."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst:29
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.get_ui:4
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst of
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.to_compact_dict
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst:34
+msgid "Parsing"
+msgstr ""
+
+#: of
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.to_compact_dict:1
+msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
+msgstr "Returns a minimal dictionary containing the setting’s value."
+
+#: of
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.update_from_compact_dict:1
+msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+msgstr "Updates the class from a minimal dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeFloat.rst:40
+msgid "Callbacks"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.set_active:1
+msgid "Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."
+msgstr "Updates the group's active state when the checkbox is toggled."
+
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.set_max:1
+#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.set_min:1
+msgid "S'assure que min ≤ max."
+msgstr "Ensures that min ≤ max."

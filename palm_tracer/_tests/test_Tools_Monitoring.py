@@ -22,7 +22,7 @@ def simulate_cpu_usage(monitoring: Monitoring, intensity: int = 1000000, duratio
 	"""
 	Simule une utilisation importante de CPU en effectuant des calculs intensifs.
 
-	:param monitoring: Moniteur à manipuler
+	:param monitoring: Moniteur à manipuler.
 	:param duration: Durée pendant laquelle le CPU sera sollicité (en secondes).
 	:param intensity: Nombre de calculs dans chaque itération (détermine l'intensité).
 	"""
@@ -39,7 +39,7 @@ def simulate_gpu_usage(monitoring: Monitoring, tensor_size: int = 4096, duration
 	"""
 	Simule une utilisation importante de GPU en effectuant des calculs intensifs.
 
-	:param monitoring: Moniteur à manipuler
+	:param monitoring: Moniteur à manipuler.
 	:param tensor_size: Taille des matrices carrées utilisées pour les calculs.
 	:param duration: Durée en secondes pendant lesquelles les opérations GPU sont répétées.
 	"""
@@ -67,7 +67,7 @@ def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: floa
 	"""
 	Simule une utilisation importante de mémoire en allouant un tableau de bytes.
 
-	:param monitoring: Moniteur à manipuler
+	:param monitoring: Moniteur à manipuler.
 	:param size: Taille totale de mémoire à allouer (en mégaoctets).
 	:param duration: Temps pendant lequel la mémoire reste allouée (en secondes).
 	"""
@@ -87,7 +87,7 @@ def simulate_disk_io(monitoring: Monitoring, file_size: int = 1, duration: float
 	"""
 	Simule des opérations intensives de disque en écrivant et lisant un fichier volumineux.
 
-	:param monitoring: Moniteur à manipuler
+	:param monitoring: Moniteur à manipuler.
 	:param file_size: Taille du fichier à écrire (en mégaoctets).
 	:param duration: Temps pendant lequel le fichier est maintenu sur le disque (en secondes).
 	:param file_name: Nom du fichier temporaire utilisé pour l'opération.

@@ -1,0 +1,43 @@
+#: ../../api/palm_tracer.Processing.Gallery.rst:2
+msgid "Gallery"
+msgstr ""
+
+#: of palm_tracer.Processing.Gallery:1
+msgid "Fichier contenant des fonctions pour la création de galeries."
+msgstr "File containing functions for creating galleries."
+
+#: of palm_tracer.Processing.Gallery.make_gallery:1
+msgid "Génère une galerie d'images extraites d'une pile d'images en fonction des localisations spécifiées."
+msgstr "Generates a gallery of images extracted from a stack of images based on specified localizations."
+
+#: ../../api/palm_tracer.Processing.Gallery.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Processing.Gallery.make_gallery:3
+msgid "Un tableau 3D ``(n_planes, height, width)`` représentant la pile d'images."
+msgstr "A 3D array ``(n_planes, height, width)`` representing the stack of images."
+
+#: of palm_tracer.Processing.Gallery.make_gallery:4
+msgid "DataFrame contenant au minimum les colonnes ``[\"Plane\",\"Y\",\"X\"]`` avec les coordonnées des zones d'intérêts."
+msgstr "DataFrame containing at least the columns ``[\"Plane\",\"Y\",\"X\"]`` with the coordinates of the regions of interest."
+
+#: of palm_tracer.Processing.Gallery.make_gallery:5
+msgid "Taille de chaque zone d'intérêt (carré de dimensions `roi_size x roi_size`)."
+msgstr "Size of each region of interest (square with dimensions `roi_size x roi_size`)."
+
+#: of palm_tracer.Processing.Gallery.make_gallery:6
+msgid "Nombre de zones par ligne dans la galerie."
+msgstr "Number of regions per row in the gallery."
+
+#: ../../api/palm_tracer.Processing.Gallery.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.Gallery.make_gallery:7
+msgid "Un tableau numpy 3D ``(n_planes, size, size)`` contenant la galerie."
+msgstr "A 3D NumPy array ``(n_planes, size, size)`` containing the gallery."
+
+#: ../../api/palm_tracer.Processing.Gallery.rst
+msgid "Type renvoyé"
+msgstr "Return type"

@@ -100,7 +100,7 @@ def test_sync_spin(qtbot):
 ##################################################
 def test_sync_button_group(qtbot):
 	"""Test des fonctions de synchronisation."""
-	main_widget = QWidget()
+	_ = QWidget()
 
 	_, grp_1, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
 	assert isinstance(grp_1, QButtonGroup)

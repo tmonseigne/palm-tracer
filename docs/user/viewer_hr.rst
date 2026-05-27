@@ -263,7 +263,7 @@ Il peut également apparaitre lors d'un appui sur :guilabel:`Generate`.
 Ce message indique que le dossier sélectionné contenant les résultats est bon, mais que la pile n'est pas à l'emplacement prévu par la nomenclature standard de PALMTracer.
 Cela arrive si vous avez uniquement récupéré le dossier de résultat ou déplacé celui-ci.
 Il a besoin de la pile initiale actuellement pour pouvoir retrouver les dimensions initiales du fichier.
-*Cet élément sera potentiellement modifié pour lire, le fichier meta contenant ces informations le cas échéant.*
+*Cet élément sera potentiellement modifié pour lire, le fichier méta contenant ces informations le cas échéant.*
 
 .. code-block:: console
 

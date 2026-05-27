@@ -1,0 +1,4 @@
+#: ../../api/palm_tracer.Settings.Groups.rst:2
+#: ../../api/palm_tracer.Settings.Groups.rst:4
+msgid "Groups"
+msgstr ""

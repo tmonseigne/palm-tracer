@@ -1,0 +1,123 @@
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst:2
+msgid "CheckRangeInt"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt:1
+msgid "Classe pour un paramètre spécifique de type intervalle de nombre entier."
+msgstr "Class for a specific setting of type integer range."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst of
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.set_active
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.set_max
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.set_min
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.update_from_compact_dict
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt:3
+msgid "Nom du paramètre à afficher."
+msgstr "Name of the setting to display."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt:4
+msgid "Description détaillée en overlay."
+msgstr "Detailed description in the overlay."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt:5
+msgid "Valeurs par défaut du paramètre."
+msgstr "Default values of the setting."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt:6
+msgid "Valeurs limites du paramètre."
+msgstr "Limit values ​​of the setting."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.default:1
+msgid "Valeur par défaut du paramètre (:class:`list[int]`)."
+msgstr "Default value of the setting (:class:`list[int]`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.step:1
+msgid "Pas à chaque appui sur une des flèches du paramètre."
+msgstr "Step size at each press on one of the setting arrows."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.active:1
+msgid "Indicateur d'activation du paramètre (:class:`bool`)."
+msgstr "Setting activation indicator (:class:`bool`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.min:1
+msgid "Indicateur de la valeur minimale du paramètre (:class:`int`)."
+msgstr "Indicator of the minimum value of the setting (:class:`int`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.max:1
+msgid "Indicateur de la valeur maximale du paramètre (:class:`int`)."
+msgstr "Indicator of the maximum value of the setting (:class:`int`)."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.limits:1
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.value:1
+msgid "Valeur actuelle du paramètre (:class:`list[int]`)."
+msgstr "Current value of the setting (:class:`list[int]`)."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst:20
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst:23
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.reset:1
+msgid "Réinitialise le paramètre à sa valeur par défaut."
+msgstr "Resets the setting to its default value."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst:28
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.get_ui:4
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst of
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.to_compact_dict
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst:33
+msgid "Parsing"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.to_compact_dict:1
+msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
+msgstr "Returns a minimal dictionary containing the setting’s value."
+
+#: of
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.update_from_compact_dict:1
+msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+msgstr "Updates the class from a minimal dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.CheckRangeInt.rst:39
+msgid "Callbacks"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.set_active:1
+msgid "Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."
+msgstr "Updates the group's active state when the checkbox is toggled."
+
+#: of palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.set_max:1
+#: palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt.set_min:1
+msgid "S'assure que min ≤ max."
+msgstr "Ensures that min ≤ max."

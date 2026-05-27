@@ -1,6 +1,7 @@
 """Fichier de fonctions et constantes utiles pour les tests."""
+from __future__ import annotations
+
 import os
-import platform
 import re
 from pathlib import Path
 from typing import Any, cast, Optional
@@ -43,27 +44,31 @@ def get_lines_output(capsys) -> list[str]:
 	"""
 	out, err = capsys.readouterr()
 	out = strip_ansi(out)
-	return [l for l in out.splitlines()]
+	return [line for line in out.splitlines()]
 
 
 ##################################################
 def add_basic_file(pt: PALMTracer, files: Optional[list[str]] = None):
 	"""Mise à jour basique de la liste des fichiers."""
 	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.update_box([str(INPUT_DIR / "stack.tif")] if files is None else files)
+	file_list.items = [str(INPUT_DIR / "stack.tif")] if files is None else files
 
 
 ##################################################
-def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
-	"""
-	Génère un suffixe pour les fichiers de localisation.
-
-	:param gaussian: Mode du filtre gaussien.
-	:param watershed: Mode du watershed.
-	:param threshold: Seuil.
-	:return: Suffixe
-	"""
-	return f"{threshold}_{watershed}_{gaussian}_{default_sigma}_{default_theta}_{default_roi}"
+def get_fake_pt():
+	"""Instance basique de PALMTracer pour chaque test."""
+	pt = PALMTracer()
+	add_basic_file(pt)
+	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
+	pt.df["f_loc"] = pt.df["loc"].copy()
+	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
+	pt.df["f_trc"] = pt.df["trc"].copy()
+	pt.df["blk"] = pt.df["trc"].copy()
+	pt.df["f_blk"] = pt.df["trc"].copy()
+	pt.df["MSD"] = pd.read_csv(INPUT_DIR / "tracking_MSD.csv")
+	pt.df["InD"] = pd.read_csv(INPUT_DIR / "tracking_InstantD.csv")
+	pt.df["Fit"] = pd.read_csv(INPUT_DIR / "tracking_Fit.csv")
+	return pt
 
 
 ##################################################
@@ -71,8 +76,8 @@ def get_fit_params(fit: int) -> np.ndarray:
 	"""
 	Basique fit_param pour la localisation.
 
-	:param fit: Type d'ajustement
-	:return: tableau complet
+	:param fit: Type d'ajustement.
+	:return: tableau complet.
 	"""
 	# np.random.seed(42)
 	# shape = [roi, 16, 16, 297, 0, 10]  # les premiers éléments
@@ -88,11 +93,24 @@ def get_fit_params(fit: int) -> np.ndarray:
 
 
 ##################################################
+def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
+	"""
+	Génère un suffixe pour les fichiers de localisation.
+
+	:param gaussian: Mode du filtre gaussien.
+	:param watershed: Mode du watershed.
+	:param threshold: Seuil.
+	:return: Suffixe.
+	"""
+	return f"{threshold}_{watershed}_{gaussian}_{default_sigma}_{default_theta}_{default_roi}"
+
+
+##################################################
 def get_trc_suffix() -> str:
 	"""
 	Génère un suffixe pour les fichiers de tracking.
 
-	:return: Suffixe
+	:return: Suffixe.
 	"""
 	return f"{max_distance}_{min_life}_{decrease}_{cost_birth}"
 
@@ -104,8 +122,8 @@ def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
 
 	:param a: Première valeur.
 	:param b: Seconde valeur.
-	:param tol: Tolérance (par défaut 0.00001)
-	:return: Vrai si les deux valeurs sont proches
+	:param tol: Tolérance (par défaut 0.00001).
+	:return: Vrai si les deux valeurs sont proches.
 	"""
 
 	return np.abs(a - b) <= tol
@@ -131,7 +149,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	:param b: Second DataFrame.
 	:param tol: Tolérance pour la comparaison des valeurs numériques. Defaults to 1e-5.
 	:param group_cols: Colonne de regroupement (pour séparer les plans et les canaux par exemple).
-	:param compare_cols: Colonnes à comparer. Defaults toutes les colonnes de localisations
+	:param compare_cols: Colonnes à comparer. Defaults toutes les colonnes de localisations.
 	:return: True si les fichiers sont similaires selon les critères définis, False sinon.
 	"""
 	if group_cols is None: group_cols = ["Plane", "Channel"]

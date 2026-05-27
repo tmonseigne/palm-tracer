@@ -1,0 +1,14 @@
+msgid "PALMTracerWidget"
+msgstr ""
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget:1
+msgid "Widget principal gérant toute l'interface."
+msgstr "Main widget managing the entire interface."
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.UI.PALMTracerWidget.rst:9
+msgid "Attributs"
+msgstr "Attributes"

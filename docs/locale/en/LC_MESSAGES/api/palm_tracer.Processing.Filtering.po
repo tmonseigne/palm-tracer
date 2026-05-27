@@ -1,0 +1,74 @@
+#: ../../api/palm_tracer.Processing.Filtering.rst:2
+msgid "Filtering"
+msgstr "Filtering"
+
+#: of palm_tracer.Processing.Filtering.Filtering:1
+msgid "Classe de filtrages."
+msgstr "Filtering Class."
+
+#: ../../api/palm_tracer.Processing.Filtering.rst of
+#: palm_tracer.Processing.Filtering.Filtering
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Processing.Filtering.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: ../../api/palm_tracer.Processing.Filtering.rst:14
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Processing.Filtering.rst:17
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Processing.Filtering.Filtering.localization:1
+msgid "Filtre un DataFrame de localisation."
+msgstr "Filters a localization DataFrame."
+
+#: of palm_tracer.Processing.Filtering.Filtering.localization:3
+#: palm_tracer.Processing.Filtering.Filtering.tracking:5
+msgid "DataFrame à filtrer."
+msgstr "DataFrame to be filtered."
+
+#: ../../api/palm_tracer.Processing.Filtering.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.Filtering.Filtering.localization:4
+#: palm_tracer.Processing.Filtering.Filtering.tracking:6
+msgid ":class:`DataFrame <pandas.DataFrame>` filtré."
+msgstr "Filtered :class:`DataFrame <pandas.DataFrame>`."
+
+#: ../../api/palm_tracer.Processing.Filtering.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Processing.Filtering.Filtering.tracking:1
+msgid "Filtre un DataFrame de trajectoires. Simpliste uniquement sur la longueur, car il faut le calcul des statistiques sur trajectoires pour le reste. Cependant, il peut s'agir d'une première étape avant, justement, ces calculs de statistiques."
+msgstr "Filters a tracks DataFrame. This is a simplified filter based solely on length, as statistics on tracks must be calculated for the remaining data. However, it can serve as a first step prior to these statistical calculations."
+
+#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:1
+msgid "Filtre un DataFrame de calcul sur les trajectoires."
+msgstr "Filters a tracks compute DataFrame."
+
+#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:3
+msgid "DataFrame de trajectoires."
+msgstr "Track DataFrame."
+
+#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:4
+msgid "DataFrame de calcul des MSD."
+msgstr "MSD comput DataFrame."
+
+#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:5
+msgid "DataFrame de calcul de la diffusion instantanée."
+msgstr "Instantaneous diffusion compute DataFrame."
+
+#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:6
+msgid "DataFrame de calcul de l'ajustement."
+msgstr "Fit compute DataFrame."
+
+#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:7
+msgid "DataFrames filtrés."
+msgstr "Filtered DataFrames."

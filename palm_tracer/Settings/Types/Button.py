@@ -1,13 +1,14 @@
 """
 Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type bouton à cliquer.
 """
+from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
-from qtpy.QtWidgets import QPushButton
+from qtpy.QtWidgets import QHBoxLayout, QPushButton
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseUI import BaseUI
 
 
 ##################################################
@@ -16,46 +17,39 @@ class Button(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type bouton à cliquer.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	"""
-
-	_box: QPushButton = field(init=False)
-
-	# ==================================================
-	# region Initialization
-	# ==================================================
-	##################################################
-	def initialize(self):
-		super().initialize()  # .			   Appelle l'initialisation de la classe mère.
-		self._box = QPushButton(self.label)  # Création de la boite.
-		self._layout.addWidget(self._box)  # . Ajout du champ de texte
 
 	##################################################
 	def reset(self): pass
 
-	# ==================================================
-	# endregion Initialization
-	# ==================================================
-
-	# ==================================================
-	# region  Parsing
-	# ==================================================
 	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label}
+	def get_ui(self, name: str = "default") -> BaseUI:
+		if name in self._uis: return self._uis[name]
 
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		self.label = data.get("label", "")
-		self._box.setText(self.label)
+		box: QPushButton = QPushButton(self.label)  # Création de la boite.
+		ui = BaseUI(layout=QHBoxLayout(), boxes=[box])
+		box.setToolTip(self.tooltip)  # .			  Ajout du Tooltip
+		box.clicked.connect(self.emit)  # .			  L'emission du signal se fera lors du clic sur le bouton
+		ui.layout.addWidget(box)  # .				  Ajout du champ de texte.
 
-	# ==================================================
-	# endregion  Parsing
-	# ==================================================
+		self._uis[name] = ui  # .					  Ajoute l'ui au dictionnaire
+		return ui
 
-	# ==================================================
-	# region  Callbacks
-	# ==================================================
-	##################################################
-	def connect(self, f: Any): self._box.clicked.connect(f)
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	setting = Button("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
+	setting.connect_button(lambda: print("Hello"), "default", 0)
+	setting.connect_button(lambda: print("Bonjour"), "second", 0)
+	w.show()
+	sys.exit(app.exec_())

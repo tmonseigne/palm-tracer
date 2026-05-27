@@ -1,6 +1,7 @@
 """
 Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés.
 """
+from __future__ import annotations
 
 import ctypes
 from dataclasses import dataclass, field
@@ -293,9 +294,7 @@ class Palm:
 		:param fit_params: Paramètres de l'ajustement (pour le moment uniquement fit length).
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 
-		.. note::
-			Pour obtenir des valeurs de diffusion en **µm²**, le paramètre ``pixel_size``
-			doit être exprimé en micromètres par pixel (µm/px)
+		.. note:: Pour obtenir des valeurs de diffusion en **µm²**, le paramètre ``pixel_size`` doit être exprimé en micromètres par pixel (µm/px).
 		"""
 		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
 		required = Parsing.FILES_COLUMNS["Tracking"]["columns"]
@@ -326,7 +325,7 @@ class Palm:
 		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
 		track_ids = pd.unique(tracks["Track"])
 		for key in res:
-			if len(res[key]) != track_ids.size: Ui.print_warning("Problem with trajectory identifiers, be careful with filtering")
+			if len(res[key]) != track_ids.size: Ui.print_warning("Problem with track id, be careful with filtering Tracks before Tracks compute.")
 			else:
 				res[key].drop(columns=["Track"], inplace=True)
 				res[key].insert(0, "Track", track_ids)

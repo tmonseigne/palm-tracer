@@ -18,6 +18,7 @@ Notes
 .. todo:: Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle).
 		  Prévoir une visualisation intermédiaire (overlay, difference map).
 """
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
@@ -48,7 +49,7 @@ class AlignmentWidget(QWidget):
 	"""
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -149,7 +150,7 @@ class AlignmentWidget(QWidget):
 		self._btn_start_alignment.clicked.connect(self._on_start_alignment)
 
 	# ==================================================
-	# endregion Initialisation
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================

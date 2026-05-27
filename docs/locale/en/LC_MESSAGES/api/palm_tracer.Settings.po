@@ -1,0 +1,3 @@
+#: ../../api/palm_tracer.Settings.rst:2 ../../api/palm_tracer.Settings.rst:4
+msgid "Settings"
+msgstr ""

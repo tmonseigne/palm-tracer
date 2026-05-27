@@ -1,0 +1,243 @@
+#: ../../api/palm_tracer.Processing.Drift.rst:2
+msgid "Drift"
+msgstr "Drift"
+
+#: of palm_tracer.Processing.Drift:1
+msgid "Fichier contenant des fonctions pour le drift."
+msgstr "File containing functions for drift."
+
+#: of palm_tracer.Processing.Drift.extract_beads:1
+msgid "Extrait des billes suivies à travers les plans en ne conservant que celles qui ont une correspondance dans **tous** les plans (du premier au dernier plan présent dans ``data``)."
+msgstr "Extracts the beads tracked across the planes, retaining only those that have a match in **all** planes (from the first to the last plane present in ``data``)."
+
+#: of palm_tracer.Processing.Drift.extract_beads:4
+#, python-brace-format
+msgid "La correspondance entre deux plans consécutifs est réalisée avec une contrainte de distance euclidienne de type \"sphère\" : :math:`\\sqrt{x^2+y^2+z^2} \\leq max_{distance}`"
+msgstr "The correspondence between two consecutive planes is established using a Euclidean distance constraint of the \"sphere\" type: :math:`\\sqrt{x^2+y^2+z^2} \\leq max_{distance}`"
+
+#: of palm_tracer.Processing.Drift.extract_beads:7
+msgid "En cas de multiples candidats, on choisit le plus proche en distance euclidienne. Les conflits (un même point du plan suivant proposé pour plusieurs tracks) sont résolus par un appariement glouton sur les distances croissantes (un point ne peut être assigné qu'à un seul track)."
+msgstr "In case of multiple candidates, the one closest in Euclidean distance is chosen. Conflicts (the same point in the next proposed plane for multiple tracks) are resolved by a greedy matching on increasing distances (a point can only be assigned to a single track)."
+
+#: ../../api/palm_tracer.Processing.Drift.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Processing.Drift.drift_correction:3
+#: palm_tracer.Processing.Drift.extract_beads:11
+msgid "DataFrame contenant au minimum les colonnes ``Plane``, ``X``, ``Y`` et ``Z``. Chaque ligne représente une détection (un point) dans un plan donné."
+msgstr "DataFrame containing at least the columns ``Plane``, ``X``, ``Y``, and ``Z``. Each row represents a detection (a point) in a given plane."
+
+#: of palm_tracer.Processing.Drift.drift_correction:5
+#: palm_tracer.Processing.Drift.extract_beads:13
+msgid "Distance maximale autorisée entre deux plans (en unités des coordonnées) selon la norme L∞."
+msgstr "Maximum allowed distance between two planes (in coordinate units) according to the L∞ norm."
+
+#: of palm_tracer.Processing.Drift.drift_correction:6
+#: palm_tracer.Processing.Drift.extract_beads:14
+msgid "Si ``True``, utilise (X,Y,Z). Sinon, utilise uniquement (X,Y)."
+msgstr "If ``True``, use (X,Y,Z). Otherwise, use only (X,Y)."
+
+#: of palm_tracer.Processing.Drift.drift_correction:7
+#: palm_tracer.Processing.Drift.extract_beads:15
+msgid "Si ``True``, la distance doit être strictement inférieure à la distance maximale (comportement par défaut)."
+msgstr "If ``True``, the distance must be strictly less than the maximum distance (default behavior)."
+
+#: of palm_tracer.Processing.Drift.extract_beads:16
+msgid "Nombre de correspondances maximum pour chaque point, permet de gérer les collisions de suivis (par défaut 4 maximum). Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul correspondant ou aucun pour chaque point."
+msgstr "Maximum number of matches for each point, used to manage tracking collisions (default maximum of 4). In practice, with consistent data and settings, there will be only one match or none for each point."
+
+#: ../../api/palm_tracer.Processing.Drift.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.Drift.extract_beads:19
+msgid "Un nouveau DataFrame ne contenant **que** les points appartenant à des billes valides, avec une colonne ``Bead`` (1..N) indiquant l'identifiant de la bille. Les lignes sont triées par ``Bead`` puis ``Plane``."
+msgstr "A new DataFrame containing **only** the points belonging to valid beads, with a ``Bead`` column (1..N) indicating the bead ID. The rows are sorted by ``Bead`` and then by ``Plane``."
+
+#: ../../api/palm_tracer.Processing.Drift.rst
+msgid "Lève"
+msgstr "Raise"
+
+#: of palm_tracer.Processing.Drift.extract_beads:22
+msgid "Si des colonnes requises sont manquantes, ou si ``max_distance`` n'est pas strictement positif."
+msgstr "If required columns are missing, or if ``max_distance`` is not strictly positive."
+
+#: ../../api/palm_tracer.Processing.Drift.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Processing.Drift.remove_beads:1
+msgid "Mets à jour data en lui enlevant les billes identifiées (matching exact sur Plane/X/Y/Z)."
+msgstr "Updates the data by removing the identified beads (exact match on Plane/X/Y/Z)."
+
+#: of palm_tracer.Processing.Drift.remove_beads:3
+msgid "Données de localisation (doit contenir Plane, X, Y, Z)."
+msgstr "Localization data (must contain Plane, X, Y, Z)."
+
+#: of palm_tracer.Processing.Drift.remove_beads:4
+msgid "Billes à retirer (doit contenir Plane, X, Y, Z)."
+msgstr "Beads to remove (must contain Plane, X, Y, Z)."
+
+#: of palm_tracer.Processing.Drift.remove_beads:5
+msgid "Nombre de décimales conservées pour la comparaison (évite les problèmes d'arrondi float)."
+msgstr "Number of decimal places retained for comparison (avoids float rounding issues)."
+
+#: of palm_tracer.Processing.Drift.remove_beads:6
+msgid "Copie de data sans les lignes correspondant aux billes."
+msgstr "Copy of data without the rows corresponding to the beads."
+
+#: of palm_tracer.Processing.Drift.get_drift:1
+msgid "Calcule le drift moyen interplans à partir d'un DataFrame de billes suivies."
+msgstr "Calculates the average inter-plane drift from a DataFrame of tracked beads."
+
+#: of palm_tracer.Processing.Drift.get_drift:3
+msgid "Le drift est calculé pour chaque bille comme la différence entre deux plans consécutifs :"
+msgstr "The drift is calculated for each bead as the difference between two consecutive planes:"
+
+#: of palm_tracer.Processing.Drift.get_drift:5
+msgid ":math:`\\Delta X(n) = X(n) - X(n-1)`"
+msgstr ""
+
+#: of palm_tracer.Processing.Drift.get_drift:6
+msgid ":math:`\\Delta Y(n) = Y(n) - Y(n-1)`"
+msgstr ""
+
+#: of palm_tracer.Processing.Drift.get_drift:7
+msgid ":math:`\\Delta Z(n) = Z(n) - Z(n-1)` (si ``is_3d=True``)"
+msgstr ":math:`\\Delta Z(n) = Z(n) - Z(n-1)` (if ``is_3d=True``)"
+
+#: of palm_tracer.Processing.Drift.get_drift:9
+msgid "Et il est associé au plan ``n`` (donc le drift commence au plan 2)."
+msgstr "And it is associated with plane ``n`` (so the drift starts at plane 2)."
+
+#: of palm_tracer.Processing.Drift.get_drift:11
+msgid "Ensuite, on moyenne ces drifts entre toutes les billes disponibles."
+msgstr "Next, we average these drifts across all available beads."
+
+#: of palm_tracer.Processing.Drift.get_drift:13
+msgid "DataFrame contenant au minimum ``Bead``, ``Plane``, ``X``, ``Y``, ``Z``. Chaque bille doit avoir exactement une ligne par plan et les plans doivent être consécutifs."
+msgstr "DataFrame containing at least ``Bead``, ``Plane``, ``X``, ``Y``, ``Z``. Each bead must have exactly one row per plane, and the planes must be consecutive."
+
+#: of palm_tracer.Processing.Drift.get_drift:15
+msgid "Si ``True``, calcule aussi le drift en Z. Sinon, la colonne Z est renvoyée à 0."
+msgstr "If ``True``, also calculates the Z drift. Otherwise, the Z column is set to 0."
+
+#: of palm_tracer.Processing.Drift.get_drift:17
+msgid "DataFrame avec colonnes ``Plane``, ``X``, ``Y``, ``Z`` contenant le drift moyen, pour les plans de 2 à N."
+msgstr "DataFrame with columns ``Plane``, ``X``, ``Y``, ``Z`` containing the average drift for planes 2 through N."
+
+#: of palm_tracer.Processing.Drift.get_drift:18
+msgid "Si des colonnes sont manquantes, ou incohérence de plans au sein des billes."
+msgstr "If columns are missing, or if there are inconsistencies in the planes within the beads."
+
+#: of palm_tracer.Processing.Drift.remove_drift:1
+msgid "Applique une correction de drift à un DataFrame de points."
+msgstr "Applies a drift correction to a DataFrame of points."
+
+#: of palm_tracer.Processing.Drift.remove_drift:3
+msgid "Le DataFrame ``drift`` doit contenir une ligne par plan, avec les colonnes ``Plane``, ``X``, ``Y`` et ``Z``. Le drift est supposé défini pour les plans 2..N et associé au plan courant (même convention que :func:`get_drift`)."
+msgstr "The ``drift`` DataFrame must contain one row per plane, with the columns ``Plane``, ``X``, ``Y``, and ``Z``. The drift is assumed to be defined for planes 2..N and associated with the current plane (same convention as :func:`get_drift`)."
+
+#: of palm_tracer.Processing.Drift.remove_drift:6
+msgid "La correction appliquée est :"
+msgstr "The applied correction is:"
+
+#: of palm_tracer.Processing.Drift.remove_drift:8
+#, python-brace-format
+msgid ":math:`X_{corr}(n) = X(n) - X_{drift}(n)`"
+msgstr ""
+
+#: of palm_tracer.Processing.Drift.remove_drift:9
+#, python-brace-format
+msgid ":math:`Y_{corr}(n) = Y(n) - Y_{drift}(n)`"
+msgstr ""
+
+#: of palm_tracer.Processing.Drift.remove_drift:10
+#, python-brace-format
+msgid ":math:`Z_{corr}(n) = Z(n) - Z_{drift}(n)`"
+msgstr ""
+
+#: of palm_tracer.Processing.Drift.remove_drift:12
+msgid "DataFrame contenant au minimum ``Plane``, ``X``, ``Y`` ``Z``."
+msgstr "DataFrame containing at least ``Plane``, ``X``, ``Y``, and ``Z``."
+
+#: of palm_tracer.Processing.Drift.remove_drift:13
+msgid "DataFrame contenant au minimum ``Plane``, ``X``, ``Y`` ``Z``, typiquement pour les plans 2..N."
+msgstr "DataFrame containing at least ``Plane``, ``X``, ``Y``, and ``Z``, typically for planes 2..N."
+
+#: of palm_tracer.Processing.Drift.remove_drift:14
+msgid "Si ``True``, applique aussi la correction en Z."
+msgstr "If ``True``, also applies the correction in Z."
+
+#: of palm_tracer.Processing.Drift.remove_drift:16
+msgid "Un nouveau DataFrame corrigé (mêmes colonnes que ``data``)."
+msgstr "A new corrected DataFrame (same columns as ``data``)."
+
+#: of palm_tracer.Processing.Drift.remove_drift:17
+msgid "Si des colonnes sont manquantes dans ``data`` ou ``drift``."
+msgstr "If columns are missing in ``data`` or ``drift``."
+
+#: of palm_tracer.Processing.Drift.drift_correction:1
+msgid "Trouve des billes au sein d'un jeu de donnée, calcule le drift et le corrige."
+msgstr "Finds beads within a dataset, calculates the drift, and corrects it."
+
+#: of palm_tracer.Processing.Drift.drift_correction:8
+msgid "Nombre de matchs maximum pour chaques points, permet de gérer les collisions de suivis (par défaut 4 maximum). Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul match ou aucun pour chaques points."
+msgstr "Maximum number of matches for each point, used to manage tracking collisions (default is 4). In practice, with consistent data and settings, there will be only one match or none for each point."
+
+#: of palm_tracer.Processing.Drift.drift_correction:11
+msgid "Les billes identifiées et un nouveau DataFrame ne contenant les données corrigées."
+msgstr "The identified beads and a new DataFrame containing the corrected data."
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:1
+msgid "Applique un filtre médian centré sur un signal 1D ou sur un tableau 2D ``(nb_points, nb_axes)``."
+msgstr "Applies a centered median filter to a 1D signal or a 2D array ``(nb_points, nb_axes)``."
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:3
+msgid "Le filtrage est effectué indépendamment sur chaque axe. Aux bords, la fenêtre est tronquée aux échantillons disponibles."
+msgstr "Filtering is performed independently on each axis. At the edges, the window is truncated to the available samples."
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:5
+msgid "Exemples pour ``size = 5`` :"
+msgstr "Examples for ``size = 5``:"
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:7
+msgid "indice 0  ⇾ médiane sur les 3 premiers (indices [0:3])"
+msgstr "index 0  ⇾ median of the first 3 (indices [0:3])"
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:8
+msgid "indice 1  ⇾ médiane sur les 4 premiers (indices [0:4])"
+msgstr "index 1  ⇾ median of the first 4 (indices [0:4])"
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:9
+msgid "indice 2  ⇾ médiane sur les 5 premiers (indices [0:5])"
+msgstr "index 2  ⇾ median of the first 5 (indices [0:5])"
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:10
+msgid "..."
+msgstr ""
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:11
+msgid "avant-dernier ⇾ médiane sur les 4 derniers"
+msgstr "penultimate ⇾ median of the last 4"
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:12
+msgid "dernier       ⇾ médiane sur les 3 derniers"
+msgstr "last       ⇾ median of the last 3"
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:14
+msgid "Signal à filtrer. Si ``data`` est 1D, la forme attendue est ``(nb_points,)``. Si ``data`` est 2D, la forme attendue est ``(nb_points, nb_axes)``."
+msgstr "Data to be filtered. If ``data`` is 1D, the expected format is ``(nb_points,)``. If ``data`` is 2D, the expected format is ``(nb_points, nb_axes)``."
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:16
+msgid "Taille de la fenêtre médiane. Doit être un entier impair strictement positif."
+msgstr "Median window size. Must be a strictly positive odd integer."
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:17
+msgid "Tableau filtré de type ``float64`` et de même forme que l'entrée."
+msgstr "Filtered array of type ``float64`` and of the same shape as the input."
+
+#: of palm_tracer.Processing.Drift.median_filter_centered:18
+msgid "Levée si ``size`` n'est pas un entier impair strictement positif."
+msgstr "Raises an error if ``size`` is not a strictly positive odd integer."

@@ -2,6 +2,7 @@
 Fichier contenant la classe :class:`GaussianFit` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres d'ajustement gaussien nécessaires à la configuration de PALM Tracer.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -13,7 +14,7 @@ from palm_tracer.Settings.Types import SpinInt
 @dataclass
 class Gallery(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de la Gallerie :
+	Classe contenant les paramètres de la Galerie :
 
 	Attributs :
 		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la Zone autour des points (par défaut : `9`).
@@ -36,7 +37,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = Gallery()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

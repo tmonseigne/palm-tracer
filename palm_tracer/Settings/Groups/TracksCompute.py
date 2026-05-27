@@ -2,6 +2,7 @@
 Fichier contenant la classe :class:`palm_tracer.Settings.Groups.TracksCompute` dérivée de :class:`.BaseSettingGroup`,
 qui regroupe les paramètres de calcul sur les trajectoires nécessaires à la configuration de PALM Tracer.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -39,20 +40,6 @@ class TracksCompute(BaseSettingGroup):
 					"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]]}
 
 
-#	##################################################
-#	def initialize_ui(self):
-#		super().initialize_ui()
-#		self._settings["Fit"].connect(self.toggle_fit_mode)
-#
-#	##################################################
-#	def toggle_fit_mode(self, mode):
-#		"""Change le mode d'ajustement."""
-#		if mode == 0:
-#			self._settings["Fit Length"].hide()
-#		else:
-#			self._settings["Fit Length"].show()
-
-
 ##################################################
 if __name__ == "__main__":
 	import sys
@@ -62,7 +49,7 @@ if __name__ == "__main__":
 	w = QWidget()
 	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
 	group = TracksCompute()
-	group.active = True
-	w.layout().addWidget(group.widget)
+	lay.addWidget(group.get_ui().widget)
+	lay.addStretch(1)
 	w.show()
 	sys.exit(app.exec_())

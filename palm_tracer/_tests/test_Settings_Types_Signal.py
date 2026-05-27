@@ -126,6 +126,27 @@ def test_block_flags_reset_after_flush(sw: SignalWrapper):
 
 
 ##################################################
+def test_block_without_emit(sw: SignalWrapper):
+	"""Après la sortie et l'émission coalescée, les drapeaux internes doivent être réinitialisés."""
+	received: List[Any] = []
+	sw.connect(lambda v: received.append(v))
+
+	# On déclenche un emit mais on n'est pas censé les récupérer après.
+	with sw.blocked(False): sw.emit("Z")
+
+	# Après la sortie, les champs doivent être remis à zéro côté instance.
+	assert received == []
+
+	sw.emit("Z")
+	assert received == ["Z"]
+
+	# Forcer un autre cycle de blocage pour vérifier que rien n'est 'retenu'.
+	with sw.blocked(False): pass
+	# Pas d'émission supplémentaire.
+	assert received == ["Z"]
+
+
+##################################################
 def test_blocked_returns_context_manager_instance(sw: SignalWrapper):
 	"""blocked() retourne bien un context manager du bon type (BlockCtx)."""
 	ctx = sw.blocked()
@@ -147,7 +168,7 @@ def test_internal_block_begin_end_paths(sw: SignalWrapper):
 	assert received == []
 
 	# 2) begin/end sans pending : ne doit rien émettre
-	sw._block_begin()
+	sw._block_begin(True)
 	sw._block_end()
 	assert received == []
 

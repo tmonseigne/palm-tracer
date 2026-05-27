@@ -1,0 +1,73 @@
+#: ../../api/palm_tracer.Settings.Types.SpinInt.rst:2
+msgid "SpinInt"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt:1
+msgid "Classe pour un paramètre spécifique de type nombre entier."
+msgstr "Class for a specific setting of type integer number."
+
+#: ../../api/palm_tracer.Settings.Types.SpinInt.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt:3
+msgid "Nom du paramètre à afficher."
+msgstr "Name of the setting to display."
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt:4
+msgid "Description détaillée en overlay."
+msgstr "Detailed description in the overlay."
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt:5
+msgid "Valeur par défaut du paramètre."
+msgstr "Default value of the setting."
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt:6
+#: palm_tracer.Settings.Types.SpinInt.SpinInt.limits:1
+msgid "Valeurs limites du paramètre."
+msgstr "Limit values ​​of the setting."
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt:7
+#: palm_tracer.Settings.Types.SpinInt.SpinInt.step:1
+msgid "Pas à chaque appui sur une des flèches du paramètre."
+msgstr "Step size at each press on one of the setting arrows."
+
+#: ../../api/palm_tracer.Settings.Types.SpinInt.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt.default:1
+msgid "Valeur par défaut du paramètre (:class:`int`)."
+msgstr "Default value of the setting (:class:`int`)."
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt.value:1
+msgid "Valeur actuelle du paramètre (:class:`int`)."
+msgstr "Current value of the setting (:class:`int`)."
+
+#: ../../api/palm_tracer.Settings.Types.SpinInt.rst:17
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.SpinInt.rst:20
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt.get_ui:1
+msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.SpinInt.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.SpinInt.SpinInt.get_ui:4
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+
+#: ../../api/palm_tracer.Settings.Types.SpinInt.rst
+msgid "Type renvoyé"
+msgstr "Return type"

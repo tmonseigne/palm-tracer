@@ -179,9 +179,15 @@ def test_find_model_center():
 
 	model_no_sign_change = np.array([[0.0, 300.0, 0.0, 0.0, 200.0], [0.0, 300.0, 0.0, 0.0, 250.0]], dtype=np.float64)
 	res = find_model_center(model_no_sign_change, Z_MAX, PIXEL_SIZE)
+	ref = -0.2442599
+	assert np.isclose(res, ref, 1e-6)
 
 	model_easy_0 = np.array([[0.0, 300.0, 0.0, 0.0, 240.0], [0.0, 300.0, 0.0, 0.0, 240.0]], dtype=np.float64)
 	res = find_model_center(model_easy_0, 1024, 1)
+	ref = -1024
+	assert np.isclose(res, ref, 1e-6)
 
 	model_bisection_no_exact_zero = np.array([[-123.41678443, 350.5466747, 0.687, 0.439, 240.456], [210, 350, 0, 0, 240], ], dtype=np.float64)
 	res = find_model_center(model_bisection_no_exact_zero, 100, 1)
+	ref = 29.2051458
+	assert np.isclose(res, ref, 1e-6)

@@ -7,6 +7,7 @@ Notes
 -----
 - Le widget est autonome : il peut être lancé directement (``python Astigmatism3DWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
 """
+from __future__ import annotations
 
 import shutil
 from pathlib import Path
@@ -52,7 +53,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	GRAPH_TYPE: list["str"] = ["Curve", "Cross", "Slope"]
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -270,7 +271,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
 		self._btn_estimate.clicked.connect(self._on_estimate)
 
-		# --- Lien entre les spins et les groueps de bouttons ---
+		# --- Lien entre les spins et les groueps de boutons ---
 		self._spin_px_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_estimate, v))
 		self._spin_px_estimate.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_compute, v))
 		self._spin_z_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_z_estimate, v))
@@ -286,7 +287,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btg_type_estimate.idClicked.connect(self._update_plot)
 
 	# ==================================================
-	# endregion Initialisation
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================
@@ -295,7 +296,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	##################################################
 	def _update_sanity_values(self, points: np.ndarray, model: np.ndarray, pixel_size: float):
 		"""
-		Mise à jour de l'onglet Sanity Check
+		Mise à jour de l'onglet Sanity Check.
+
 		:param points: Points du jeu de donnée.
 		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).

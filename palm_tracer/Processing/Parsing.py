@@ -1,4 +1,5 @@
 """Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes."""
+from __future__ import annotations
 
 import numpy as np
 import pandas as pd
@@ -70,7 +71,7 @@ SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["colum
 def apply_dataframe_type(data: pd.DataFrame, columns: list[str], numeric_type: str = "int32"):
 	"""
 	Force les colonnes en paramètres à adopter un type numérique.
-	Vérfie la présence des colonnes avant la transformation pour éviter les problèmes et préserve les NaN s'ils sont présents.
+	Vérifie la présence des colonnes avant la transformation pour éviter les problèmes et préserve les NaN s'ils sont présents.
 
 	:param data: DataFrame à modifier.
 	:param columns: Colonnes à modifier.
@@ -108,8 +109,9 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
 	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égales à 0).
-	:param data: Dataframe à modifier
-	:param columns: Colonnes à modifier
+
+	:param data: Dataframe à modifier.
+	:param columns: Colonnes à modifier.
 	:return: Dataframe avec les colonnes ayant été modifiées.
 	"""
 	with np.errstate(divide='ignore', invalid='ignore'):
@@ -156,7 +158,7 @@ def radians_to_degrees(angle_rad: np.ndarray | pd.Series | float | list) -> np.n
 ##################################################
 def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.pi, center: bool = True) -> np.ndarray:
 	"""
-	Contraint des angles dans l'intervalle sélectionné, exemple avec :math:`length = \\pi` et un interval centré.
+	Contraint des angles dans un intervalle sélectionné, exemple avec :math:`length = \\pi` et un intervalle centré.
 
 	.. math::
 		\\theta' \\in [-\\frac{\\pi}{2}, \\frac{\\pi}{2}[ \\quad\\quad \\text{and} \\quad\\quad
@@ -164,7 +166,7 @@ def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.
 
 	:param theta: Angles en radians.
 	:param length: Longueur de l'intervalle.
-	:param center: Définit l'interval à  :math:`[-\\frac{limit}{2}, \\frac{limit}{2}[` si true, sinon :math:`[0, length[`.
+	:param center: Définit l'intervalle à :math:`[-\\frac{limit}{2}, \\frac{limit}{2}[` si true, sinon :math:`[0, length[`.
 	:return: Angles normalisés dans :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
 	"""
 	low = length / 2 if center else 0
@@ -175,14 +177,14 @@ def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.
 def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	"""
 	Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`).
-	Puis passe des radians aux degrées pour faciliter la lisibilitée.
+	Puis passe des radians aux degrés pour faciliter la lisibilité.
 
 	Définit un theta commun possible en degré de deux méthodes différentes (moyenne et médiane circulaire) ainsi qu'une mesure de la dispersion.
 	Une dispersion R > 0.8 indique une bonne fiabilité de l'orientation, R < 0.5 indique une orientation mal définit.
 
 
 	:param theta: Angles en radians.
-	:return: Theta dnas l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
+	:return: Theta dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
 	"""
 	theta = wrap_angle(theta)  # Clean Theta interval
 
@@ -213,9 +215,10 @@ def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 ##################################################
 def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
-	:param data: Liste des informations en entrée
-	:return: :class:`DataFrame <pandas.DataFrame>` contenant les métadonnées
-	:raises ValueError: Si le nombre d'éléments ne correspond au nombre attendu pour le fichier meta.
+
+	:param data: Liste des informations en entrée.
+	:return: :class:`DataFrame <pandas.DataFrame>` contenant les métadonnées.
+	:raises ValueError: Si le nombre d'éléments ne correspond au nombre attendu pour le fichier méta.
 	"""
 	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
 
@@ -244,7 +247,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 
 	:param data: Données 1D récupérées depuis la DLL PALM. Doit être indexable et de dimension 1.
 	:return: :class:`DataFrame <pandas.DataFrame>` où chaque ligne correspond à un bloc et les colonnes contiennent les valeurs du bloc, complétées par NaN.
-	:raise ValueError: Entrée invalide (nombre de dimensions ou taille finale incorrecte)
+	:raise ValueError: Entrée invalide (nombre de dimensions ou taille finale incorrecte).
 	"""
 	if data.ndim != 1:
 		raise ValueError("`data` doit être un tableau 1D.")
@@ -296,13 +299,13 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 	(avec un nombre de colonnes non constant (:func:`parse_irregular_array`).
 
 	:param data: Données en entrée récupérées depuis la DLL PALM.
-	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit)
+	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit).
 	:param is_log: Applique un logarithme sur le résultat (si nécessaire, pour les calculs sur trajectoires).
 	:param fit_mode: Mode d'ajustement (si nécessaire, pour les calculs sur trajectoires).
-	:return: :class:`DataFrame <pandas.DataFrame>` parsé
+	:return: :class:`DataFrame <pandas.DataFrame>` parsé.
 	"""
 	# Récupération des éléments
-	if not file_type in FILES_COLUMNS: raise ValueError(f"file_type incorrect.")
+	if file_type not in FILES_COLUMNS: raise ValueError(f"file_type incorrect.")
 	columns, types = FILES_COLUMNS[file_type]["columns"], FILES_COLUMNS[file_type]["types"]
 	n_columns = len(columns)
 	log_col = []

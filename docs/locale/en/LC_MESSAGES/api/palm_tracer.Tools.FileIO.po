@@ -1,0 +1,217 @@
+#: ../../api/palm_tracer.Tools.FileIO.rst:2
+msgid "FileIO"
+msgstr ""
+
+#: of palm_tracer.Tools.FileIO:1
+msgid "Fichier de fonctions de manipulation de fichiers."
+msgstr "File Manipulation Functions File."
+
+#: of palm_tracer.Tools.FileIO:3
+msgid "Ce module regroupe diverses fonctions pour la gestion et la manipulation de fichiers."
+msgstr "This module contains various functions for managing and manipulating files."
+
+#: of palm_tracer.Tools.FileIO.add_extension:1
+msgid "Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle."
+msgstr "Adds the extension to the file if it is not already the current extension."
+
+#: ../../api/palm_tracer.Tools.FileIO.rst of
+#: palm_tracer.Tools.FileIO.cleanup_process
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Tools.FileIO.add_extension:3
+#: palm_tracer.Tools.FileIO.extract_suffix:3
+msgid "Nom du fichier."
+msgstr "File name."
+
+#: of palm_tracer.Tools.FileIO.add_extension:4
+msgid "Extension finale du fichier."
+msgstr "Final file extension."
+
+#: ../../api/palm_tracer.Tools.FileIO.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Tools.FileIO.add_extension:5
+msgid "Nom de fichier avec l'extension ajoutée."
+msgstr "File name with the extension added."
+
+#: ../../api/palm_tracer.Tools.FileIO.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Tools.FileIO.add_suffix:1
+msgid "Ajoute un suffixe à un nom de fichier (gère la possibilité d'une extension ou non au nom de fichier)."
+msgstr "Adds a suffix to a file name (supports the option of including or omitting an extension from the file name)."
+
+#: of palm_tracer.Tools.FileIO.add_suffix:3
+msgid "Nom de fichier d'origine."
+msgstr "Original file name."
+
+#: of palm_tracer.Tools.FileIO.add_suffix:4
+msgid "Suffixe à ajouter."
+msgstr "Suffix to add."
+
+#: of palm_tracer.Tools.FileIO.add_suffix:5
+msgid "Nom de fichier avec l'horodatage ajouté."
+msgstr "File name with the timestamp added."
+
+#: of palm_tracer.Tools.FileIO.get_timestamp_for_files:1
+msgid "Créé un horodatage au format -AAAAMMJJ_HHMMSS pour un nom de fichier."
+msgstr "Creates a timestamp in the format -YYYYMMDD_HHMMSS for a filename."
+
+#: of palm_tracer.Tools.FileIO.get_timestamp_for_files:3
+msgid "Ajoute ou non l'heure au timestamp."
+msgstr "Whether or not to include the time in the timestamp."
+
+#: of palm_tracer.Tools.FileIO.get_timestamp_for_files:4
+msgid "Horodatage."
+msgstr "Timestamp."
+
+#: of palm_tracer.Tools.FileIO.get_last_file:1
+msgid "Récupère le dernier fichier (le plus récent) qui contient le paramètre `name` dans son nom dans le chemin `path`."
+msgstr "Retrieves the last (most recent) file containing the `name` parameter in its filename from the `path`."
+
+#: of palm_tracer.Tools.FileIO.get_last_file:3
+msgid "Chemin du dossier où chercher les fichiers."
+msgstr "Path to the folder where files should be searched."
+
+#: of palm_tracer.Tools.FileIO.get_last_file:4
+msgid "Chaîne à rechercher dans les noms de fichiers."
+msgstr "String to search for in filenames."
+
+#: of palm_tracer.Tools.FileIO.get_last_file:5
+msgid "Mode de tri : \"time\" : date de modification (par défaut), \"alpha\" : ordre alphabétique."
+msgstr "Sort mode: \"time\": modification date (default), \"alpha\": alphabetical order."
+
+#: of palm_tracer.Tools.FileIO.get_last_file:6
+msgid "Chemin complet du dernier fichier trouvé (ou une chaîne vide si aucun fichier ne correspond)."
+msgstr "Full path of the last file found (or an empty string if no matching files are found)."
+
+#: of palm_tracer.Tools.FileIO.extract_suffix:1
+msgid "Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurrence en cas de présence multiple)."
+msgstr "Retrieves a file’s suffix (the part after the separator or after its last occurrence if there are multiple occurrences)."
+
+#: of palm_tracer.Tools.FileIO.extract_suffix:4
+msgid "Séparateur avant le suffixe."
+msgstr "Separator before the suffix."
+
+#: of palm_tracer.Tools.FileIO.extract_suffix:5
+msgid "Suffixe si le séparateur est présent sinon une chaine vide."
+msgstr "A suffix if the separator is present; otherwise, an empty string."
+
+#: of palm_tracer.Tools.FileIO.cleanup_process:1
+msgid "Supprime les derniers fichiers résiduels d'un ancien process si toutes ses sorties ont été consommées/renommées."
+msgstr "Deletes the last remaining files from a previous process if all its outputs have been consumed or renamed."
+
+#: of palm_tracer.Tools.FileIO.cleanup_process:3
+msgid "Le nettoyage n'est effectué que s'il ne reste, pour l'ancien timestamp, que les fichiers administratifs suivants : - meta-<timestamp>.csv - settings-<timestamp>.json - log-<timestamp>.log"
+msgstr "Cleanup is performed only if, for the old timestamp, only the following administrative files remain: - meta-<timestamp>.csv - settings-<timestamp>.json - log-<timestamp>.log"
+
+#: of palm_tracer.Tools.FileIO.cleanup_process:8
+msgid "Si au moins un autre fichier avec ce timestamp existe encore, aucun fichier n'est supprimé. :param path: Chemin vers le process. :param timestamp: Timestamp du process."
+msgstr "If at least one other file with this timestamp still exists, no files are deleted. :param path: Path to the process. :param timestamp: Process timestamp."
+
+#: of palm_tracer.Tools.FileIO.load_dll:1
+msgid "Charge une DLL, si elle existe."
+msgstr "Loads a DLL, if it exists."
+
+#: of palm_tracer.Tools.FileIO.load_dll:3
+msgid "Type de DLL (CPU, GPU)."
+msgstr "DLL type (CPU, GPU)."
+
+#: of palm_tracer.Tools.FileIO.load_dll:4
+msgid "Objet Python stockant la DLL chargée."
+msgstr "Python object storing the loaded DLL."
+
+#: of palm_tracer.Tools.FileIO.save_json:1
+msgid "Enregistre un dictionnaire au format JSON."
+msgstr "Saves a dictionary in JSON format."
+
+#: of palm_tracer.Tools.FileIO.save_json:3
+msgid "Chemin du fichier JSON de sortie."
+msgstr "Path to the output JSON file."
+
+#: of palm_tracer.Tools.FileIO.save_json:4
+msgid "Données à enregistrer."
+msgstr "Data to be saved."
+
+#: of palm_tracer.Tools.FileIO.open_json:1
+msgid "Ouvre un fichier JSON et récupère le dictionnaire."
+msgstr "Opens a JSON file and retrieves the dictionary."
+
+#: of palm_tracer.Tools.FileIO.open_json:3
+msgid "Chemin du fichier JSON d'entrée."
+msgstr "Path to the input JSON file."
+
+#: of palm_tracer.Tools.FileIO.open_json:4
+msgid "Dictionnaire contenu dans le JSON."
+msgstr "Dictionary contained in the JSON."
+
+#: of palm_tracer.Tools.FileIO.save_tif:1
+msgid "Sauvegarde un tableau 3D (ou 2D converti en 3D) dans un fichier TIF multi-frame avec tifffile."
+msgstr "Saves a 3D image (or a 2D image converted to 3D) to a multi-frame TIF file using tifffile."
+
+#: of palm_tracer.Tools.FileIO.save_tif:3
+msgid "Tableau contenant l'image ou les frames. - Si 2D (hauteur x largeur), convertit en pile 3D avec une seule frame. - Si 3D (frames x hauteur x largeur), sauvegarde les frames en multi-frame."
+msgstr "Array containing the image or frames. - If 2D (height x width), converts it to a 3D stack with a single frame. - If 3D (frames x height x width), saves the frames as a multi-frame file."
+
+#: of palm_tracer.Tools.FileIO.save_png:4 palm_tracer.Tools.FileIO.save_tif:6
+msgid "Nom du fichier TIF de sortie."
+msgstr "Name of the output TIF file."
+
+#: of palm_tracer.Tools.FileIO.open_tif:1
+msgid "Ouvre un fichier TIF en tant que pile 3D (frames x hauteur x largeur). Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D."
+msgstr "Opens a TIF file as a 3D stack (frames x height x width). If the file contains a single 2D image, adds a dimension to make it a 3D stack."
+
+#: of palm_tracer.Tools.FileIO.open_tif:4
+msgid "Chemin du fichier TIF à ouvrir."
+msgstr "Path to the TIF file to open."
+
+#: of palm_tracer.Tools.FileIO.open_tif:5
+msgid "Tableau 3D contenant les données TIF."
+msgstr "3D array containing the TIF data."
+
+#: of palm_tracer.Tools.FileIO.open_tif:8
+msgid "Attention les données doivent rester telle quelle pour le transfert à la DLL. Aucun cast en float ne doit être fait."
+msgstr "Note: the data must remain unchanged for transfer to the DLL. No casting to float should be performed."
+
+#: of palm_tracer.Tools.FileIO.save_png:1
+msgid "Sauvegarde un tableau 2D dans un fichier PNG avec Pillow."
+msgstr "Saves a 2D array to a PNG file using Pillow."
+
+#: of palm_tracer.Tools.FileIO.save_png:3
+msgid "Tableau contenant l'image 2D."
+msgstr "Array containing the 2D image."
+
+#: of palm_tracer.Tools.FileIO.save_png:5
+msgid "Normalise l'image avant enregistrement."
+msgstr "Normalizes the image before saving."
+
+#: of palm_tracer.Tools.FileIO.grayscale_to_color:1
+msgid "Convertie une image 2D Niveau de gris en tableau 3D (pour la couleur RGB) selon la color map. Le format est compatible avec Pillow et Napari. Une color Map Napari serait bien en cas de superposition entre un affichage Napari et en fond l'image généré."
+msgstr "Converts a 2D grayscale image into a 3D array (for RGB color) based on the color map. The format is compatible with Pillow and Napari. A Napari color map would be useful for overlaying a Napari display with the generated image in the background."
+
+#: of palm_tracer.Tools.FileIO.grayscale_to_color:4
+msgid "Image 2D (H, W) uint16."
+msgstr "2D image (H, W) uint16."
+
+#: of palm_tracer.Tools.FileIO.grayscale_to_color:5
+msgid "Nom de colormap Matplotlib. Privilégier des cartes **perceptuellement uniformes** ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo'). (`liste des colormaps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)."
+msgstr "Matplotlib color map name. Prefer **perceptually uniform** maps (‘viridis’, ‘magma’, ‘plasma’, ‘inferno’, ‘cividis’, ‘turbo’). (`list of color maps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)."
+
+#: of palm_tracer.Tools.FileIO.grayscale_to_color:8
+msgid "Image RGB de forme (H, W, 3) en dtype uint8, compatible Pillow et Napari."
+msgstr "RGB image of shape (H, W, 3) in dtype uint8, compatible with Pillow and Napari."
+
+#: of palm_tracer.Tools.FileIO.open_calibration_mat:1
+msgid "Charge un fichier de calibration Matlab."
+msgstr "Loads a Matlab calibration file."
+
+#: of palm_tracer.Tools.FileIO.open_calibration_mat:3
+msgid "Nom du fichier mat en entrée."
+msgstr "Name of the input MAT file."
+
+#: of palm_tracer.Tools.FileIO.open_calibration_mat:4
+msgid "Dictionnaire contenant les éléments utiles."
+msgstr "Dictionary containing useful elements."

@@ -1,0 +1,43 @@
+#: ../../api/palm_tracer.Settings.Groups.HRGaussian.rst:2
+msgid "HRGaussian"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:1
+msgid "Classe contenant les paramètres de Visualisation haute résolution :"
+msgstr "Class containing the high-resolution visualization settings:"
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:4
+msgid "**Intensity** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Intensité intégrée de la courbe gaussienne si l'option `Intensité fixe` est sélectionnée ; sinon, le rapport par lequel la valeur sélectionnée dans la source sera divisée."
+msgstr "**Intensity** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`): The integral intensity of the Gaussian curve if the `Fixed Intensity` option is selected; otherwise, the ratio by which the value selected in the source will be divided."
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:7
+msgid "**Fixed Intensity** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Garantit que chaque point a la même intensité."
+msgstr "**Fixed Intensity** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Ensures that each point has the same intensity."
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:8
+msgid "**Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Définit la forme de la distribution gaussienne (isotrope, anisotrope ou taille fixe, de sorte que chaque point ait la même forme isotrope)."
+msgstr "**Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Defines the shape of the Gaussian distribution (isotropic, anisotropic, or fixed size, so that each point has the same isotropic shape)."
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:10
+msgid "**Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : L'écart-type de la distribution gaussienne si `Taille fixe` est sélectionné."
+msgstr "**Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : The standard deviation of the Gaussian distribution if `Fixed Size` is selected."
+
+#: ../../api/palm_tracer.Settings.Groups.HRGaussian.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.HRGaussian.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."

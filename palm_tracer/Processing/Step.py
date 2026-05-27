@@ -1,4 +1,6 @@
 """Classes utiles à la gestion du Pipeline PALM Tracer."""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import auto, Enum
 from typing import Callable, TypeAlias
@@ -20,38 +22,39 @@ class Step:
 	group_name: str
 	"""Nom du groupe de paramètres lié"""
 	keys: list[str]
-	"""Liste des clés du/des DataFrame(s) dans le dictionnaire"""
+	"""Liste des clés du/des DataFrame(s) dans le dictionnaire."""
 	process_func: Callable[[], None]  # Fonction sans argument qui ne retourne rien
-	"""Fonction de traitement de cette étape"""
+	"""Fonction de traitement de cette étape."""
 	filter_func: Callable
-	"""Fonction de filtre de cette étape"""
+	"""Fonction de filtre de cette étape."""
 	allow_dirty: bool = False
-	"""Autorise la réutilisation d'ancien traitement malgré un pipeline contenant un calcul (cas des billes)"""
+	"""Autorise la réutilisation d'ancien traitement malgré un pipeline contenant un calcul (cas des billes)."""
 	apply_filter: bool = True
-	"""Choix de filtre à appliquer ou non (cas des visualisations)"""
+	"""Choix de filtre à appliquer ou non (cas des visualisations)."""
 
 
 ##################################################
 class StepAction(Enum):
 	"""Actions possibles pour une étape du pipeline."""
 	Compute = auto()
-	"""Calcul réel"""
+	"""Calcul réel."""
 	Reuse = auto()
-	"""Réutilisation d'un résultat existant"""
+	"""Réutilisation d'un résultat existant."""
 	Skip = auto()
-	"""Ignoré (pas actif ou impossible)"""
+	"""Ignoré (pas actif ou impossible)."""
 
 
 ##################################################
 def prepare_step_action(group: BaseSettingGroup, previous_group: BaseSettingGroup | None, pipeline_dirty: bool, allow_dirty: bool = False) -> StepAction:
 	"""
-	Estime le type d'action à effectuer pour une étape du traitement
-	:param group: Group de setting actuel
-	:param previous_group: Group de setting du précédent process
-	:param pipeline_dirty: Etat du processus actuel (si un calcul a été fait, il n'est plus cohérent pour la suite)
-	:param allow_dirty: Cas particulier ou une non-cohérence est permise
-	(exemple l'extraction des billes a pu être fait avec des paramètres de localisations différents du traitement des données finales)
-	:return: Type d'action à effectuer pour cette étape
+	Estime le type d'action à effectuer pour une étape du traitement.
+
+	:param group: Groupe de paramètres actuel.
+	:param previous_group: Groupe de paramètres du précédent process.
+	:param pipeline_dirty: État du processus actuel (si un calcul a été fait, il n'est plus cohérent pour la suite).
+	:param allow_dirty: Cas particulier ou une non-cohérence est permise.
+		Exemple : l'extraction des billes a pu être fait avec des paramètres de localisations différents du traitement des données finales.
+	:return: Type d'action à effectuer pour cette étape.
 	"""
 	# Calcul si aucun process précédent
 	if previous_group is None: return StepAction.Compute if group.active else StepAction.Skip

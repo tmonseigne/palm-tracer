@@ -1,0 +1,63 @@
+#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:2
+msgid "GraphViewerWidget"
+msgstr ""
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:1
+msgid "Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer."
+msgstr "Interactive visualization widget (Plotly + QtWebEngine) for PALMTracer."
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:3
+msgid "Ce widget expose une UI compacte pour :"
+msgstr "This widget provides a compact UI for:"
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:4
+msgid "afficher des graphes à partir de la pile TIFF (Stack) ou des CSV (Localization/Tracking),"
+msgstr "displaying graphs from the TIFF stack (Stack) or CSV files (Localization/Tracking),"
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:5
+msgid "choisir la *famille* de données (Stack / Localization / Tracking) via 3 boutons exclusifs,"
+msgstr "selecting the *data type* (Stack / Localization / Tracking) via 3 dedicated buttons,"
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:6
+msgid "sélectionner la *source* dans une ComboBox (ex. Intensité, Localizations Count, etc.),"
+msgstr "select the *source* from a ComboBox (e.g., Intensity, Localizations Count, etc.),"
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:7
+msgid "exporter la figure (HTML/PNG/PDF)."
+msgstr "export the figure (HTML/PNG/PDF)."
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:9
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:10
+msgid "_pt (:class:`PALMTracer <palm_tracer.PALMTracer>`) : Référence vers l'instance principale de PALMTracer (aucune copie)."
+msgstr "_pt (:class:`PALMTracer <palm_tracer.PALMTracer>`) : Reference to the main instance of PALMTracer (no copies)."
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:11
+msgid "_fig  (:class:`Optional[go.Figure]`) : Dernière figure Plotly produite (pour export/maj)."
+msgstr "_fig  (:class:`Optional[go.Figure]`) : Last Plotly figure produced (for export/update)."
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:12
+msgid "_html  (:class:`Optional[str]`)  : Dernier HTML généré pour la figure (export .html)."
+msgstr "_html  (:class:`Optional[str]`)  : Last HTML generated for the figure (export .html)."
+
+#: ../../api/palm_tracer.UI.GraphViewerWidget.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:14
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:17
+msgid "Initialization"
+msgstr ""
+
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.closeEvent:1
+msgid "Assure une destruction propre de QtWebEngine (évite warnings et crash à la sortie)."
+msgstr "Ensures clean destruction of QtWebEngine (prevents warnings and crashes on exit)."

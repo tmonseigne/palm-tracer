@@ -106,7 +106,7 @@ Ordre des dimensions en mémoire (C vs Fortran)
 La manière dont un tableau est stocké en mémoire peut affecter les performances :
 
 - **Ordre C (row-major)** : Les éléments d'une ligne sont contigus en mémoire (par défaut en :console:`numpy`).
-- **Ordre Fortran (column-major)** : Les éléments d'une colonne sont contigus en mémoire (par défaut dans des languages scientifiques tel que :console:`Matlab`, :console:`R`, :console:`Julia`).
+- **Ordre Fortran (column-major)** : Les éléments d'une colonne sont contigus en mémoire (par défaut dans des langages scientifiques tels que :console:`Matlab`, :console:`R`, :console:`Julia`).
 
 Vérification :
 

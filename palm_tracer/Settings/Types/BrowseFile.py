@@ -1,14 +1,17 @@
 """
 Fichier contenant la classe :class:`BrowseFile` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type recherche de fichier.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import cast
 
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFileDialog, QLineEdit, QPushButton, QApplication, QStyle
+from qtpy.QtCore import QSignalBlocker
+from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle
+
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseUI import BaseUI
 
 
 ##################################################
@@ -17,74 +20,64 @@ class BrowseFile(BaseSettingType):
 	"""
 	Classe pour un paramètre spécifique de type recherche de fichier.
 
-	:param label: Nom du paramètre à afficher
+	:param label: Nom du paramètre à afficher.
 	:param tooltip: Description détaillée en overlay.
 	:param default: Valeur par défaut du paramètre.
 	"""
 
 	default: str = ""
+	"""Valeur par défaut du paramètre (:class:`str`)."""
 	_value: str = field(init=False, default="")
-	_box: QLineEdit = field(init=False, default_factory=lambda: QLineEdit())
-
-	# ==================================================
-	# region Initialization
-	# ==================================================
-	##################################################
-	def initialize(self):
-		super().initialize()  # .							  Appelle l'initialisation de la classe mère
-		self._box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Définition de l'alignement du calque à gauche.
-
-		browse_button = QPushButton()  # .					  Ajout d'un bouton pour permettre de choisir le fichier
-		browse_button.setIcon(QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon))
-		browse_button.clicked.connect(self.browse_file)  # .  Connexion du bouton à la méthode de sélection
-
-		# Disposer le QLineEdit et le bouton dans un calque horizontal
-		self._layout.addWidget(self._box)  # .				  Ajout du champ de texte
-		self._layout.addWidget(browse_button)  # .			  Ajout du bouton de sélection
-
-	# ==================================================
-	# endregion Initialization
-	# ==================================================
+	"""Valeur actuelle du paramètre (:class:`str`)."""
 
 	# ==================================================
 	# region Getter/Setter
 	# ==================================================
 	##################################################
+	def get_ui(self, name: str = "default") -> BaseUI:
+		if name in self._uis: return self._uis[name]
+
+		box: QLineEdit = QLineEdit(self.value)
+		browse_button: QPushButton = QPushButton()
+		browse_button.setIcon(QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon))
+		browse_button.clicked.connect(self.browse_file)  # Connexion du bouton à la méthode de sélection
+
+		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box, browse_button])
+		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
+
+		box.textChanged.connect(self.set_value_from_ui)  # .Connecte le changement de valeur pour que les autres UI se mettent à jour
+
+		# Disposer le QLineEdit et le bouton dans un calque horizontal
+		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
+		ui.layout.addWidget(browse_button)  # .				Ajout du Bouton.
+
+		self._uis[name] = ui  # .							Ajoute l'ui au dictionnaire
+		return ui
+
+	##################################################
 	@property
 	def value(self) -> str:
 		"""Valeur actuelle du paramètre (:class:`str`)."""
-		self._value = self._box.text()
 		return self._value
 
 	##################################################
 	@value.setter
 	def value(self, value: str):
 		"""Valeur actuelle du paramètre (:class:`str`)."""
+		if self._value == value: return
 		self._value = value
-		self._box.setText(value)
+		for ui in self._uis.values():
+			b = cast(QLineEdit, ui.boxes[0])
+			with QSignalBlocker(b): b.setText(value)
+
+		self.emit(value)
 
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================
 
 	# ==================================================
-	# region  Parsing
-	# ==================================================
-	##################################################
-	def to_dict(self) -> dict[str, Any]:
-		return {"type": type(self).__name__, "label": self.label, "value": self._value}
-
-	##################################################
-	def update_from_dict(self, data: dict[str, Any]):
-		self.label = data.get("label", "")
-		self.value = data.get("value", "")
-
-	# ==================================================
-	# endregion  Parsing
-	# ==================================================
-
-	# ==================================================
-	# region  Callbacks
+	# region Callbacks
 	# ==================================================
 	##################################################
 	def browse_file(self):
@@ -92,6 +85,34 @@ class BrowseFile(BaseSettingType):
 		current = Path(self.value)
 		# Si le chemin par défaut n'est pas valide, on utilise le chemin principal du projet
 		if not current.exists() or current == Path.cwd(): current = Path.cwd()
-		path, _ = QFileDialog.getOpenFileName(self._box, "Sélectionner un fichier", str(current))
+		path, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier", str(current))
 		if not path: return
-		if Path(path).is_file(): self._box.setText(path)  # Mets à jour le chemin dans la boîte de texte
+		if Path(path).is_file(): self.value = path  # Mets à jour le chemin dans la boîte de texte
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QWidget, QFormLayout
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	setting = BrowseFile("Test", "tooltip")
+	setting.get_ui("default").attach_to_form(form)
+	setting.get_ui("second").attach_to_form(form)
+	counter = 0
+
+
+	def add_setting_ui():
+		global counter
+		counter += 1
+		name = f"dynamic_{counter}"
+		setting.get_ui(name).attach_to_form(form)
+
+
+	button = QPushButton("Ajouter une UI")
+	button.clicked.connect(add_setting_ui)
+	form.addRow(button)
+	w.show()
+	sys.exit(app.exec_())

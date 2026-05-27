@@ -2,7 +2,7 @@
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm
-from palm_tracer.Processing.Drift import remove_drift, extract_beads, get_drift
+from palm_tracer.Processing.Drift import extract_beads, get_drift, remove_drift
 from palm_tracer.Tools import FileIO, Ui
 
 # TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
@@ -14,8 +14,9 @@ FILE_PATH = INPUT_DIR / "big input" / "sptPALM" / f"{FILE}.stk"
 LOC_PATH = INPUT_DIR / "big input" / f"{FILE}-localizations-{get_loc_suffix(threshold=TRESH)}.csv"
 TRC_PATH = INPUT_DIR / "big input" / f"{FILE}-tracking-{get_trc_suffix()}.csv"
 
+
 ##################################################
-def test_palm_cpu(qtbot):
+def test_palm_cpu():
 	"""
 	Test pour le process sur des données importantes.
 
@@ -69,7 +70,7 @@ def test_palm_cpu(qtbot):
 
 
 ##################################################
-def test_tracking(qtbot):
+def test_tracking():
 	"""
 	Test pour le process sur des données importantes.
 

@@ -1,0 +1,7 @@
+#: ../../_templates/versions.html:21
+msgid "Langue"
+msgstr "Language"
+
+#: ../../_templates/versions.html:27
+msgid "Langues"
+msgstr "Languages"

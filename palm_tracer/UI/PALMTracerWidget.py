@@ -2,7 +2,7 @@
 Module contenant la classe :class:`PALMTracerWidget` pour l'interface principale de l'application.
 
 Ce module définit la classe :class:`.PALMTracerWidget`, qui crée et gère l'interface utilisateur principale de l'application.
-Elle contient des sections de paramètres organisées sous forme de layout,
+Elle contient des sections de paramètres organisées sous forme de calque,
 permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
 
 .. todo::
@@ -18,7 +18,7 @@ from napari import Viewer
 from napari.layers import Points, Shapes
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QDoubleSpinBox, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
@@ -38,7 +38,8 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 ##################################################
 class PALMTracerWidget(QWidget):
-	"""Widget principal gérant toute l'interface"""
+	"""Widget principal gérant toute l'interface."""
+	UI_NAME: str = "PALMTracer"
 
 	# ==================================================
 	# region Init
@@ -98,18 +99,17 @@ class PALMTracerWidget(QWidget):
 		action_widget.setLayout(setting_action_row)
 		self.layout().addWidget(action_widget)
 
-		self.layout().addWidget(self.pt.settings.batch.widget)
-		self.layout().addWidget(self.pt.settings.calibration.widget)
+		setting_ui = self.pt.settings.get_ui(self.UI_NAME)
+		self.layout().addWidget(setting_ui["Batch"].widget)
+		self.layout().addWidget(setting_ui["Calibration"].widget)
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.addTab(self._create_tab([self.pt.settings.localization.widget, self.pt.settings.beads.widget, self.pt.settings.tracking.widget,
-									  self.pt.settings.blinking.widget, self.pt.settings.tracks_compute.widget]), "Processing")
-		tabs.addTab(self._create_tab([self.pt.settings.gallery.widget,
-									  # self.pt.settings.visualization_hr.widget,
-									  # self.pt.settings.visualization_graph.widget,
+		tabs.addTab(self._create_tab([setting_ui["Localization"].widget, setting_ui["BeadsExtraction"].widget, setting_ui["Tracking"].widget,
+									  setting_ui["BlinkingReconnection"].widget, setting_ui["TracksCompute"].widget]), "Processing")
+		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget, setting_ui["Graph"].widget, setting_ui["HR"].widget,
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
-		tabs.addTab(self._create_tab([self.pt.settings.filters.widget]), "Filtering")
+		tabs.addTab(self._create_tab([setting_ui["Filters"].widget]), "Filtering")
 
 		# Layout principal
 		self.layout().addWidget(tabs)
@@ -144,12 +144,7 @@ class PALMTracerWidget(QWidget):
 		filters = self.pt.settings.filters["Localization"]
 		filters["X"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
 		filters["Y"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
-
-		# Synchronisation des spin pour tracking et blinking reconnection
-		s1 = cast(QDoubleSpinBox, self.pt.settings.tracking["Max Distance"].box)
-		s2 = cast(QDoubleSpinBox, self.pt.settings.blinking["Max Distance"].box)
-		s1.valueChanged.connect(lambda v: Ui.sync_spin(s2, v))
-		s2.valueChanged.connect(lambda v: Ui.sync_spin(s1, v))
+		self.pt.connect_filters_button(self.UI_NAME)
 
 		# Update de preview en changeant des filtres ou des paramètres de localisation
 		self.pt.settings.localization.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
@@ -259,14 +254,14 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _load_setting(self, filename: Path):
-		"""Chargement d'un fichier de setting."""
+		"""Chargement d'un fichier de paramètres."""
 		if filename.exists():
 			try:
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
 				with self.pt.settings.signal_blocked():
 					cfg = open_json(str(filename))
 					show_info(f"Loading the setting file '{filename}'.")
-					self.pt.settings.update_from_compact_dict(cfg)  # self.pt.settings.update_from_dict(cfg) si l'on veut un setting complet
+					self.pt.settings.update_from_compact_dict(cfg)
 					self.pt.settings.localization["Preview"].value = False
 					self.pt.settings.filters.deactivate_filters()
 			except Exception as e:
@@ -285,9 +280,9 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _on_change_setting(self):
-		"""Mets à jour le fichier de setting général et la preview à chaque changement de setting."""
+		"""Mets à jour le fichier de paramètres général."""
 		# Save settings
-		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())  # self.settings.to_dict() si l'on veut un setting complet
+		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())
 
 	# ==================================================
 	# endregion Settings Callback
@@ -308,7 +303,7 @@ class PALMTracerWidget(QWidget):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		self.pt.settings.localization["Preview"].value = False
 		self.pt.settings.filters.deactivate_filters()
-		selected_file = cast(FileList, self.pt.settings.batch["Files"]).get_selected()
+		selected_file = cast(FileList, self.pt.settings.batch["Files"]).current_text
 		if not selected_file:
 			self.last_file = ""
 			self.viewer.layers.clear()
@@ -429,7 +424,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
 		"""
-		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres
+		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres.
 
 		:param time: Différence de temps entre l'image actuellement affichée et celle désirée.
 		:return: L'image désirée (image actuellement affichée si time = 0).

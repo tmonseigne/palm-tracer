@@ -10,7 +10,6 @@ import pytest
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Filtering
 from palm_tracer.Settings.Groups import Filters
-from palm_tracer.Tools import FileIO
 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
@@ -18,7 +17,7 @@ OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
 
 @pytest.fixture
 def pt():
-	"""fixture interne"""
+	"""fixture interne."""
 	obj = PALMTracer()
 	yield obj
 	try: obj._logger.close()
@@ -53,7 +52,8 @@ def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[li
 ##################################################
 def check_capsys(capsys, n_lines: int, steps: list[tuple[bool, int]]):
 	"""
-	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes
+	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes.
+
 	:param capsys:
 	:param n_lines:
 	:param steps:

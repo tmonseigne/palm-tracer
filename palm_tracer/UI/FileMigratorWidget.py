@@ -1,6 +1,7 @@
 """
 Module contenant la classe :class:`FileMigratorWidget`, un outil minimaliste pour la gestion de l'ancien format de fichier Metamoprh.
 """
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
@@ -16,7 +17,7 @@ class FileMigratorWidget(QWidget):
 	"""Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."""
 
 	# ==================================================
-	# region Initialisation
+	# region Initialization
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -70,7 +71,7 @@ class FileMigratorWidget(QWidget):
 		self._btn_migrate.clicked.connect(self._on_migrate)
 
 	# ==================================================
-	# endregion Initialisation
+	# endregion Initialization
 	# ==================================================
 
 	# ==================================================

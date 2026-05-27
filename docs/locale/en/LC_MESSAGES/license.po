@@ -1,0 +1,3 @@
+#: ../../license.rst:2
+msgid "License"
+msgstr ""

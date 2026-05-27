@@ -124,7 +124,7 @@ def test_render_tracks_image_bad_input():
 
 ##################################################
 def test_render_roi():
-	"""Test de la visualisation des ROIs sur une image."""
+	"""Test de la visualisation des zones d'intérêts sur une image."""
 	visualization = render_hr_image(SIZE_X, SIZE_Y, RATIO, POINTS)
 	roi = render_roi(visualization, POINTS[:, :2] * RATIO, 7, [0, 255, 0])
 	save_png(roi, f"{OUTPUT_DIR}/test_render_roi.png")

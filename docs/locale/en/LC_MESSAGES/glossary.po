@@ -47,7 +47,7 @@ msgstr "Pipeline"
 
 #: ../../glossary.rst:41
 msgid "Enchaînement reproductible d'étapes de traitement (prétraitement, localisation, filtrage, suivi, rendu, export), avec des paramètres sauvegardés."
-msgstr "Reproducible sequence of processing steps (pre-processing, localization, filtering, tracking, rendering, export), with saved parameters."
+msgstr "Reproducible sequence of processing steps (pre-processing, localization, filtering, tracking, rendering, export), with saved settings."
 
 #: ../../glossary.rst:21
 msgid "PSF (Point Spread Function)"
@@ -87,7 +87,7 @@ msgstr "Tracking"
 
 #: ../../glossary.rst:11
 msgid "Association des localisations d'une même molécule au fil des frames afin de former une trajectoire (track)."
-msgstr "Association of localizations belonging to the same molecule across frames in order to form a trajectory (track)."
+msgstr "Association of localizations belonging to the same molecule across frames in order to form a track."
 
 #: ../../glossary.rst:30
 msgid "Watershed"
