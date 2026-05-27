@@ -154,6 +154,17 @@ def test_tracking():
 
 
 ##################################################
+def test_tracking_discontinuous():
+	"""Test sur le tracking avec un fichier qui possède des plans sans localisations."""
+	palm = Palm()
+	path = INPUT_DIR / f"localizations_discontinuous.csv"
+	if path.exists() and path.is_file():
+		localizations = pd.read_csv(path)
+		tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
+		if save_output: tracks.round(6).to_csv(f"{OUTPUT_DIR}/discontinuous-tracking.csv", index=False)
+
+
+##################################################
 def test_blinking_reconnection():
 	"""Test basique sur le tracking."""
 	palm = Palm()

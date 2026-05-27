@@ -351,7 +351,7 @@ def parse_localization_for_tracking(data: pd.DataFrame) -> np.ndarray:
 	blank = [-1 for _ in COLS_FOR_TRACKING]
 	for _, row in data.iterrows():
 		if previous_plan is not None and row["Plane"] != previous_plan:
-			res += blank
+			for i in range(int(row["Plane"] - previous_plan)): res += blank
 		res += row[COLS_FOR_TRACKING].to_list()
 		previous_plan = row["Plane"]
 

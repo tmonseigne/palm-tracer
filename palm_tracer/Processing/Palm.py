@@ -240,6 +240,9 @@ class Palm:
 		required = Parsing.FILES_COLUMNS["Localization"]["columns"]
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
 
+		plane_min = localizations["Plane"].min() - 1
+		localizations["Plane"] -= plane_min
+
 		points = Parsing.parse_localization_for_tracking(localizations[required])  # Tracking a besoin d'un format particulier de localisations
 		points = self._as_c_contig(points, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
 		track_size = len(localizations) * Parsing.N_COL_TRC  # .					 Taille du tableau final
@@ -247,8 +250,9 @@ class Palm:
 
 		count = self._dll.Tracking(points.ctypes.data_as(C_TAB), tracks.ctypes.data_as(C_TAB), C_DBL(max_distance), C_UINT(min_life),
 								   C_DBL(decrease), C_DBL(cost_birth), C_UINT(localizations["Plane"].max()))
-
-		return Parsing.parse_result(tracks[:count], "Tracking")
+		res = Parsing.parse_result(tracks[:count], "Tracking")
+		res["Plane"] += plane_min
+		return res
 
 	##################################################
 	def blinking_reconnection(self, tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
