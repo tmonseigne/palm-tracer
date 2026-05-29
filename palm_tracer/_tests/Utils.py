@@ -112,7 +112,7 @@ def get_trc_suffix() -> str:
 
 	:return: Suffixe.
 	"""
-	return f"{max_distance}_{min_life}_{decrease}_{cost_birth}"
+	return f"{max_distance}"
 
 
 ##################################################

@@ -124,32 +124,30 @@ def test_localization(qtbot):
 ##################################################
 def test_tracking(qtbot):
 	"""Test pour le filtrage des plans."""
-	src = pd.read_csv(INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv")
+	src = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
 	filters = Filters()
 	f = Filtering(filters)
 
 	filters.tracking["Length"].active = True
-	filters.tracking["Length"].value = [3, 10000]  # 52/222 : 170 suppression(s)
+	filters.tracking["Length"].value = [3, 10000]  # 166/435 : 269 suppression(s)
 
 	res = f.tracking(src)
-	res, ref = len(res), 52
+	res, ref = len(res), 166
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
 ##################################################
 def test_tracks_compute(qtbot):
 	"""Test pour le filtrage des plans."""
-	tracks = pd.read_csv(INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv")
-	fit = pd.read_csv(INPUT_DIR / "ref" / "stack-tracking_Fit.csv")
-	instant_d = pd.read_csv(INPUT_DIR / "ref" / "stack-tracking_InstantD.csv")
-	msd = pd.read_csv(INPUT_DIR / "ref" / "stack-tracking_MSD.csv")
+	tracks = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
+	fit = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-Fit.csv")
+	instant_d = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-InD.csv")
+	msd = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-MSD.csv")
 	filters = Filters()
 	f = Filtering(filters)
 
-	# Taille originale : 222,14,14,99 (99 trajectoires pour msd car il gère même les trajectoires à 1 longueur)
-
 	res = f.tracks_compute(tracks, msd, instant_d, fit)
-	ref = [52, 14, 14, 14]  # Même sans filtre, il ne conserve que l'intersection.
+	ref = [47, 9, 9, 9]  # Même sans filtre, il ne conserve que l'intersection (36, 46, 57, 71, 75, 87, 89, 138, 154).
 	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {len(res[i])}"
 
 	ft = filters.tracking
@@ -164,7 +162,7 @@ def test_tracks_compute(qtbot):
 	ft["Alpha"].active = True
 	ft["Confinement"].value = [-10, 10]
 	res = f.tracks_compute(tracks, msd, instant_d, fit)
-	ref = [26, 6, 6, 6]
+	ref = [16, 3, 3, 3]
 	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {len(res[i])}"
 
 	ft["Length"].value = [42, 10000]

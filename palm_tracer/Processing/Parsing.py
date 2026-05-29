@@ -54,7 +54,7 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 				},
 		}
 
-COLS_FOR_TRACKING = ["Id", "X", "Y", "Z", "Intensity", "Surface"]
+COLS_FOR_TRACKING = ["Id", "Plane", "X", "Y"]
 MODEL_ROWS = ["X", "Y"]
 
 # Dimensions utiles fréquement
@@ -335,28 +335,6 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 	if is_log and log_col: res = log10_dataframe(res, log_col)  # Mise à jour en fonction de la mise à l'échelle du Log.
 	apply_dataframe_type(res, types)
 	return res
-
-
-##################################################
-def parse_localization_for_tracking(data: pd.DataFrame) -> np.ndarray:
-	"""
-	Parsing du résultat de la localisation pour le suivi au sein de la DLL.
-
-	:param data: Donnée en entrée récupérées depuis la localisation.
-	:return: :class:`ndarray <numpy.ndarray>` transformé pour le suivi.
-	"""
-	# Ajoute une ligne de -1 à chaque changement de Plan dans la localisation
-	res = []
-	previous_plan = None
-	blank = [-1 for _ in COLS_FOR_TRACKING]
-	for _, row in data.iterrows():
-		if previous_plan is not None and row["Plane"] != previous_plan:
-			for i in range(int(row["Plane"] - previous_plan)): res += blank
-		res += row[COLS_FOR_TRACKING].to_list()
-		previous_plan = row["Plane"]
-
-	res += blank  # Ajout d'une dernière ligne -1 à la fin
-	return np.asarray(res, dtype=np.float64)
 # ==================================================
 # endregion Parsing
 # ==================================================

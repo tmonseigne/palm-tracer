@@ -163,15 +163,3 @@ def test_parse_result():
 
 	with pytest.raises(ValueError) as exception_info: parse_result(data, "mon type")
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-
-
-##################################################
-def test_parse_localization_for_tracking():
-	"""Test de la fonction parse_localization_for_tracking."""
-	data = parse_result(np.arange(54), "Localization")
-	data.iloc[1, 1] = 2
-	data.iloc[2, 1] = 4
-	res = parse_localization_for_tracking(data)
-	ref = [0, 4, 5, 6, 15, 16, -1, -1, -1, -1, -1, -1, 18, 22, 23, 24, 33, 34, -1, -1, -1, -1, -1, -1,
-		   -1, -1, -1, -1, -1, -1, 36, 40, 41, 42, 51, 52, -1, -1, -1, -1, -1, -1]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"

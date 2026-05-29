@@ -86,7 +86,7 @@ def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 		shutil.copy2(src, dst)
 		pt.settings.localization.active = True
 	if tracking:
-		src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5_2_10_0.5.csv"
+		src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5.csv"
 		dst = OUTPUT_FOLDER / f"tracking-{timestamp}.csv"
 		shutil.copy2(src, dst)
 		pt.settings.tracking.active = True
@@ -596,10 +596,10 @@ def test_process_tracks_compute(qtbot, capsys, pt):
 	tc["MSD"].value = True
 	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
-	assert len(pt.df["MSD"]) == 99  # Toutes les trajectoiers sont éligibles au MSD
+	assert len(pt.df["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
 	# Ajout de fichier MSD (ainsi qu'un meta, json et log)
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], clean=False)
-	check_capsys(capsys, 19, [5, 6, 7, 9, 10, 14, 15, 16])
+	check_capsys(capsys, 17, [5, 6, 7, 9, 10, 12, 13, 14])
 
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
@@ -610,7 +610,7 @@ def test_process_tracks_compute(qtbot, capsys, pt):
 	assert len(pt.df["InD"]) == 3  # Seules 3 trajectoires sont éligibles
 	assert len(pt.df["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
 	check_output(OUTPUT_FOLDER, csv=[5], log=[2], json=[2])  # Il a conservé le msd precedent mais à renommé le meta
-	check_capsys(capsys, 21, [5, 6, 7, 9, 10, 16, 17, 18])
+	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
 
 
 ##################################################
@@ -684,7 +684,7 @@ def test_process_all(qtbot, capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[1], html=[1])
-	check_capsys(capsys, 30, [5, 8, 10, 12, 14, 22, 24, 26])
+	check_capsys(capsys, 27, [5, 8, 10, 12, 14, 19, 21, 23])
 
 
 # ==================================================
@@ -1162,7 +1162,6 @@ def test_hr_stress():
 	# Génération fixe de la bille (n_beads fois sur la position [1, 1] * upscale)
 	pt.df["loc"].loc[:, ["X", "Y"]] = pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
 	viz, _ = pt.hr()
-	print(f"T1\n{viz}")
 	ref = ref_viz0.copy()
 	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1
 	assert np.allclose(ref, viz)

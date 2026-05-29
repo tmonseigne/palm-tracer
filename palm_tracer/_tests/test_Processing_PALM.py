@@ -1,7 +1,7 @@
 """Fichier des tests pour l'utilisation de la DLL CPU."""
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Processing import Palm
+from palm_tracer.Processing import Palm, Parsing
 from palm_tracer.Processing.Parsing import MODEL_ROWS
 from palm_tracer.Tools import FileIO
 
@@ -136,7 +136,7 @@ def test_tracking():
 			path = REF_DIR / f"{file}-localizations-{suffix}.csv"
 			if path.exists() and path.is_file():
 				localizations = pd.read_csv(path)
-				tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
+				tracks = palm.tracking(localizations, max_distance)
 				if save_output: tracks.round(6).to_csv(f"{OUTPUT_DIR}/{file}-tracking-{suffix_trc}.csv", index=False)
 
 				assert len(tracks) > 0, "Aucun Tracking trouvé"
@@ -149,7 +149,10 @@ def test_tracking():
 			else:
 				Ui.print_warning(f"Fichier de localisations '{path}' indisponible.")
 
-	tracks = palm.tracking(pd.DataFrame(), max_distance, min_life, decrease, cost_birth)
+	tracks = palm.tracking(pd.DataFrame(np.zeros((3,Parsing.N_COL_LOC)), columns=Parsing.FILES_COLUMNS["Localization"]["columns"]), max_distance)
+	assert tracks.empty
+
+	tracks = palm.tracking(pd.DataFrame(), max_distance)
 	assert tracks.empty
 
 
@@ -160,7 +163,7 @@ def test_tracking_discontinuous():
 	path = INPUT_DIR / f"localizations_discontinuous.csv"
 	if path.exists() and path.is_file():
 		localizations = pd.read_csv(path)
-		tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
+		tracks = palm.tracking(localizations, max_distance)
 		if save_output: tracks.round(6).to_csv(f"{OUTPUT_DIR}/discontinuous-tracking.csv", index=False)
 
 

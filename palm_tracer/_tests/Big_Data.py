@@ -6,11 +6,12 @@ from palm_tracer.Processing.Drift import extract_beads, get_drift, remove_drift
 from palm_tracer.Tools import FileIO, Ui
 
 # TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
-# TRESH, FILE = 450, "uTub_Cy3"
-# FILE_PATH = INPUT_DIR / "big input" / f"{FILE}.tif"
+TRESH, FILE = 450, "uTub_Cy3"
+FILE_PATH = INPUT_DIR / "big input" / f"{FILE}.tif"
 
-TRESH, FILE = 60, "EOS2-20ms-4000f002"
-FILE_PATH = INPUT_DIR / "big input" / "sptPALM" / f"{FILE}.stk"
+# TRESH, FILE = 60, "EOS2-20ms-4000f002"
+# FILE_PATH = INPUT_DIR / "big input" / "sptPALM" / f"{FILE}.stk"
+
 LOC_PATH = INPUT_DIR / "big input" / f"{FILE}-localizations-{get_loc_suffix(threshold=TRESH)}.csv"
 TRC_PATH = INPUT_DIR / "big input" / f"{FILE}-tracking-{get_trc_suffix()}.csv"
 
@@ -60,9 +61,8 @@ def test_palm_cpu():
 	palm = Palm()
 	if FILE_PATH.exists() and FILE_PATH.is_file():
 		stack = FileIO.open_tif(FILE_PATH)
-		suffix = get_loc_suffix(threshold=TRESH)
 		localizations = palm.localization(stack, TRESH, default_watershed, 2, get_fit_params(2))
-		if save_output: localizations.to_csv(f"{OUTPUT_DIR}/{FILE}-localizations-{suffix}.csv", index=False)
+		if save_output: localizations.to_csv(LOC_PATH, index=False)
 		assert len(localizations) > 0, "Aucune localisation trouvé"
 	else:
 		Ui.print_warning("Test non effectué car fichier manquant.")
@@ -83,18 +83,26 @@ def test_tracking():
 	- DLL Recompilé stade 1 : ~4min15 (-2min pour le chargement du fichier ~2min15),
 	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. suppression du code inutilisé
 
+	Tubulin-A647-3D-stacks_1
+		10-15min
 	avec uTub_Cy3
-	BOUCLE INFINI
+		BOUCLE INFINI abandon
+
+	NEW Tracking
+	Tubulin
+		Sans parallelisation : 2 s
+	uTub_Cy3
+		Sans parallelisation : 46 s environ 7s de calcul le reste pour ouverture et fermeture de fichiers
+		Avec parallelisation : 33 s environ 2s
 
 	"""
 	palm = Palm()
 
 	if LOC_PATH.exists() and LOC_PATH.is_file():
 		localizations = pd.read_csv(LOC_PATH)
-		suffix = get_trc_suffix()
-		tracks = palm.tracking(localizations, max_distance, min_life, decrease, cost_birth)
-		if save_output: tracks.to_csv(f"{OUTPUT_DIR}/{FILE}-tracking-{suffix}.csv", index=False)
-		assert len(localizations) > 0, "Aucune localisation trouvé"
+		tracks = palm.tracking(localizations, max_distance)
+		if save_output: tracks.to_csv(TRC_PATH, index=False)
+		assert len(tracks) > 0, "Aucune localisation trouvé"
 	else:
 		Ui.print_warning(f"Test non effectué car fichier '{LOC_PATH}' manquant.")
 	assert True

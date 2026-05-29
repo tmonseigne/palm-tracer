@@ -12,13 +12,13 @@ import pandas as pd
 import psutil
 
 from palm_tracer.Processing import Parsing
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Tools import FileIO
 
 N_TRC_CP_FIT = 12
 DENSITY = 0.1
 
-C_IMG, C_TAB = ctypes.POINTER(ctypes.c_uint16), ctypes.POINTER(ctypes.c_double)
-C_UINT, C_BOOL, C_DBL = ctypes.c_uint32, ctypes.c_bool, ctypes.c_double
+C_IMG, C_TAB_DBL, C_TAB_UINT = ctypes.POINTER(ctypes.c_uint16), ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_uint64)
+C_UINT, C_BOOL, C_DBL = ctypes.c_uint64, ctypes.c_bool, ctypes.c_double
 
 
 ##################################################
@@ -52,53 +52,52 @@ class Palm:
 	def _bind(self):
 		"""Déclare les signatures ctypes (argtypes/restype) une seule fois."""
 
-		# double AutoThreshold(uint16_t* image, uint32_t h, uint32_t w, double* fit_params)
+		# double AutoThreshold(uint16_t* image, uint64_t h, uint64_t w, double* fit_params)
 		fn = self._dll.AutoThreshold
 		fn.restype = C_DBL
-		fn.argtypes = [C_IMG, C_UINT, C_UINT, C_TAB]
+		fn.argtypes = [C_IMG, C_UINT, C_UINT, C_TAB_DBL]
 
-		# uint32_t Localization(uint16_t* stack, double* locs, uint32_t n, uint32_t h, uint32_t w, uint32_t planes,
-		# double thr, double watershed, uint32_t fit, double* fit_params)
+		# uint64_t Localization(uint16_t* stack, double* locs, uint64_t n, uint64_t h, uint64_t w, uint64_t planes,
+		# double thr, double watershed, uint64_t fit, double* fit_params)
 		fn = self._dll.Localization
 		fn.restype = C_UINT
-		fn.argtypes = [C_IMG, C_TAB, C_UINT, C_UINT, C_UINT, C_UINT, C_DBL, C_DBL, C_UINT, C_TAB]
+		fn.argtypes = [C_IMG, C_TAB_DBL, C_UINT, C_UINT, C_UINT, C_UINT, C_DBL, C_DBL, C_UINT, C_TAB_DBL]
 
-		# uint32_t Tracking(double* points, double* tracks, double max_dist, uint32_t min_life, double decrease, double cost_birth, uint32_t planes)
+		# uint64_t Tracking(double* points, double* tracks, uint64_t n_points, double max_dist)
 		fn = self._dll.Tracking
-		fn.restype = C_UINT
-		fn.argtypes = [C_TAB, C_TAB, C_DBL, C_UINT, C_DBL, C_DBL, C_UINT]
+		fn.argtypes = [C_TAB_DBL, C_TAB_UINT, C_UINT, C_DBL]
 
-		# uint32_t BlinkingReconnection(double* input, double* output, uint32_t nRow, double pixel_size, uint32_t mode,
-		# uint32_t max_duration, double max_speed)
+		# uint64_t BlinkingReconnection(double* input, double* output, uint64_t nRow, double pixel_size, uint64_t mode,
+		# uint64_t max_duration, double max_speed)
 		fn = self._dll.BlinkingReconnection
 		fn.restype = C_UINT
-		fn.argtypes = [C_TAB, C_TAB, C_UINT, C_DBL, C_UINT, C_UINT, C_DBL]
+		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_UINT, C_DBL, C_UINT, C_UINT, C_DBL]
 
-		# bool TracksCompute(double* input, double* o_msd, double* o_ind, double* o_fit, uint32_t nRow, bool is_msd, bool is_ind, bool is_3d,
-		# double pixel_size, double exposure_time, uint32_t fit_mode, double* fit_params)
+		# bool TracksCompute(double* input, double* o_msd, double* o_ind, double* o_fit, uint64_t nRow, bool is_msd, bool is_ind, bool is_3d,
+		# double pixel_size, double exposure_time, uint64_t fit_mode, double* fit_params)
 		fn = self._dll.TracksCompute
 		fn.restype = C_BOOL
-		fn.argtypes = [C_TAB, C_TAB, C_TAB, C_TAB, C_UINT, C_BOOL, C_BOOL, C_BOOL, C_DBL, C_DBL, C_UINT, C_TAB]
+		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_TAB_DBL, C_TAB_DBL, C_UINT, C_BOOL, C_BOOL, C_BOOL, C_DBL, C_DBL, C_UINT, C_TAB_DBL]
 
-		# void Alignment(uint16_t* input, uint16_t* output, uint32_t h, uint32_t w, uint32_t planes, double* factors, uint32_t upsampling)
+		# void Alignment(uint16_t* input, uint16_t* output, uint64_t h, uint64_t w, uint64_t planes, double* factors, uint64_t upsampling)
 		fn = self._dll.Alignment
 		fn.restype = None
-		fn.argtypes = [C_IMG, C_IMG, C_UINT, C_UINT, C_UINT, C_TAB, C_UINT]
+		fn.argtypes = [C_IMG, C_IMG, C_UINT, C_UINT, C_UINT, C_TAB_DBL, C_UINT]
 
-		# void Wavelett(uint16_t* input, double* output, uint32_t h, uint32_t w, uint32_t planes, uint32_t level)
+		# void Wavelett(uint16_t* input, double* output, uint64_t h, uint64_t w, uint64_t planes, uint64_t level)
 		fn = self._dll.Wavelett
 		fn.restype = None
-		fn.argtypes = [C_IMG, C_TAB, C_UINT, C_UINT, C_UINT, C_UINT]
+		fn.argtypes = [C_IMG, C_TAB_DBL, C_UINT, C_UINT, C_UINT, C_UINT]
 
-		# void Astigmatism3DCalibration(const double* input, double* output, uint32_t size, double pixelSize)
+		# void Astigmatism3DCalibration(const double* input, double* output, uint64_t size, double pixelSize)
 		fn = self._dll.Astigmatism3DCalibration
 		fn.restype = None
-		fn.argtypes = [C_TAB, C_TAB, C_UINT, C_DBL, C_BOOL]
+		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_UINT, C_DBL, C_BOOL]
 
-		# void Astigmatism3DEstimation(const double* input, double* output, uint32_t size, double pixelSize, double* model, double zMax)
+		# void Astigmatism3DEstimation(const double* input, double* output, uint64_t size, double pixelSize, double* model, double zMax)
 		fn = self._dll.Astigmatism3DEstimation
 		fn.restype = None
-		fn.argtypes = [C_TAB, C_TAB, C_UINT, C_DBL, C_TAB, C_DBL]
+		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_UINT, C_DBL, C_TAB_DBL, C_DBL]
 
 	# ==================================================
 	# endregion Initialization
@@ -189,8 +188,8 @@ class Palm:
 			n_block = plane_points * k  # . 							Nombre de points pour ce bloc
 			locs = np.empty((n_block,), dtype=np.float64, order="C")  # Création de la sortie
 
-			count = self._dll.Localization(stk_block.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB), C_UINT(n_block), C_UINT(height), C_UINT(width),
-										   C_UINT(k), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB))
+			count = self._dll.Localization(stk_block.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB_DBL), C_UINT(n_block), C_UINT(height), C_UINT(width),
+										   C_UINT(k), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB_DBL))
 
 			res = Parsing.parse_result(locs[:count], "Localization")
 			if "Plane" in res.columns: res["Plane"] += planes[0] + i  # . En cas de filtre des plans, on incrémente par i + premier plan.
@@ -220,10 +219,10 @@ class Palm:
 		img = self._as_c_contig(image, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguité
 		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
 		height, width = img.shape  # .													 Récupère les dimensions
-		return float(self._dll.AutoThreshold(img.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), params.ctypes.data_as(C_TAB)))
+		return float(self._dll.AutoThreshold(img.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), params.ctypes.data_as(C_TAB_DBL)))
 
 	##################################################
-	def tracking(self, localizations: pd.DataFrame, max_distance: float, min_life: int = 1, decrease: float = 10, cost_birth: float = 0.5) -> pd.DataFrame:
+	def tracking(self, localizations: pd.DataFrame, max_distance: float) -> pd.DataFrame:
 		"""
 		Exécute l'algorithme de tracking sur les points localisés.
 
@@ -232,27 +231,25 @@ class Palm:
 
 		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux plans successifs.
-		:param min_life: Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final.
-		:param decrease: Facteur de pénalisation appliqué au coût d'association entre des plans éloignés.
-		:param cost_birth: Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante).
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
 		required = Parsing.FILES_COLUMNS["Localization"]["columns"]
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
 
-		plane_min = localizations["Plane"].min() - 1
-		localizations["Plane"] -= plane_min
+		points = localizations.loc[localizations["Integrated Intensity"] > 0, Parsing.COLS_FOR_TRACKING]
+		if points.empty: return pd.DataFrame()  # .						En cas de dataframe qui a été vidé après le masquage des mauvais points
+		n = len(points)  # .											Nombre de points
+		track_size = n * 2  # .											Taille du tableau final
+		tracks = np.empty((track_size,), dtype=np.uint64, order="C")  # Tableau final
 
-		points = Parsing.parse_localization_for_tracking(localizations[required])  # Tracking a besoin d'un format particulier de localisations
-		points = self._as_c_contig(points, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
-		track_size = len(localizations) * Parsing.N_COL_TRC  # .					 Taille du tableau final
-		tracks = np.empty((track_size,), dtype=np.float64, order="C")  # .			 Tableau final
+		p = self._as_c_contig(points.to_numpy(), np.dtype(np.float64), writeable=False)  # Assurance de contiguité
+		self._dll.Tracking(p.ctypes.data_as(C_TAB_DBL), tracks.ctypes.data_as(C_TAB_UINT), C_UINT(n), C_DBL(max_distance))
 
-		count = self._dll.Tracking(points.ctypes.data_as(C_TAB), tracks.ctypes.data_as(C_TAB), C_DBL(max_distance), C_UINT(min_life),
-								   C_DBL(decrease), C_DBL(cost_birth), C_UINT(localizations["Plane"].max()))
-		res = Parsing.parse_result(tracks[:count], "Tracking")
-		res["Plane"] += plane_min
-		return res
+		tracks = pd.DataFrame(tracks.reshape(-1, 2), columns=["Id", "Track"])  # Passage en dataframe.
+		# Ajout et remplissage de la colonne Track aux localisations.
+		localizations.insert(0, "Track", localizations["Id"].map(tracks.set_index("Id")["Track"]).fillna(-1).astype(int))
+		res = localizations.loc[localizations["Track"] > 0, Parsing.FILES_COLUMNS["Tracking"]["columns"]]  # On ne conserve qu'une partie des colonnes
+		return res.sort_values(by=["Track", "Plane"], ascending=[True, True]).reset_index(drop=True)  # On trie le résultat final
 
 	##################################################
 	def blinking_reconnection(self, tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
@@ -276,7 +273,7 @@ class Palm:
 		track_size = n * Parsing.N_COL_TRC
 		out = np.empty((track_size,), dtype=np.float64, order="C")
 
-		count = self._dll.BlinkingReconnection(in_tracks.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size),
+		count = self._dll.BlinkingReconnection(in_tracks.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size),
 											   C_UINT(mode), C_UINT(max_duration), C_DBL(max_speed))
 
 		return Parsing.parse_result(out[:count], "Tracking")
@@ -317,22 +314,14 @@ class Palm:
 		o_ind = np.empty((n,), dtype=np.float64, order="C") if is_ind else np.empty((1,), dtype=np.float64, order="C")
 		o_fit = np.empty((n,), dtype=np.float64, order="C") if fit_mode != 0 else np.empty((1,), dtype=np.float64, order="C")
 
-		self._dll.TracksCompute(in_tracks.ctypes.data_as(C_TAB), o_msd.ctypes.data_as(C_TAB), o_ind.ctypes.data_as(C_TAB), o_fit.ctypes.data_as(C_TAB),
+		self._dll.TracksCompute(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
+								o_fit.ctypes.data_as(C_TAB_DBL),
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
-								C_UINT(fit_mode), params.ctypes.data_as(C_TAB))
+								C_UINT(fit_mode), params.ctypes.data_as(C_TAB_DBL))
 
 		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD", is_log)
 		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion", is_log)
 		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", is_log, fit_mode)
-
-		# Restauration des identifiants de trajectoire
-		# TODO un fix devra être fait dans la DLL pour qu'elle stocke l'identifiant elle même et que cette partie devienne inutile
-		track_ids = pd.unique(tracks["Track"])
-		for key in res:
-			if len(res[key]) != track_ids.size: Ui.print_warning("Problem with track id, be careful with filtering Tracks before Tracks compute.")
-			else:
-				res[key].drop(columns=["Track"], inplace=True)
-				res[key].insert(0, "Track", track_ids)
 		return res
 
 	##################################################
@@ -353,7 +342,7 @@ class Palm:
 
 		out = np.empty((planes, height * upsampling, width * upsampling), dtype=np.uint16, order="C")
 		self._dll.Alignment(stk.ctypes.data_as(C_IMG), out.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), C_UINT(planes),
-							params.ctypes.data_as(C_TAB), C_UINT(upsampling))
+							params.ctypes.data_as(C_TAB_DBL), C_UINT(upsampling))
 		return out
 
 	##################################################
@@ -371,7 +360,7 @@ class Palm:
 
 		out = np.empty((planes, height, width), dtype=np.float64, order="C")
 
-		self._dll.Wavelett(stk.ctypes.data_as(C_IMG), out.ctypes.data_as(C_TAB), C_UINT(height), C_UINT(width), C_UINT(planes), C_UINT(level))
+		self._dll.Wavelett(stk.ctypes.data_as(C_IMG), out.ctypes.data_as(C_TAB_DBL), C_UINT(height), C_UINT(width), C_UINT(planes), C_UINT(level))
 		return out
 
 	##################################################
@@ -388,7 +377,7 @@ class Palm:
 		out = np.empty(Parsing.SHAPE_MODEL, dtype=np.float64, order="C")
 		n = pts.shape[0]
 
-		self._dll.Astigmatism3DCalibration(pts.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size), C_BOOL(center))
+		self._dll.Astigmatism3DCalibration(pts.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size), C_BOOL(center))
 		return Parsing.parse_result(out, "Astigmatism 3D Model")
 
 	##################################################
@@ -407,7 +396,7 @@ class Palm:
 		s = self._as_c_contig(sigmas, np.dtype(np.float64), writeable=False)
 		m = self._as_c_contig(model, np.dtype(np.float64), writeable=False)
 		out = np.empty((n, 2), dtype=np.float64, order="C")
-		self._dll.Astigmatism3DEstimation(s.ctypes.data_as(C_TAB), out.ctypes.data_as(C_TAB), C_UINT(n), C_DBL(pixel_size),
-										  m.ctypes.data_as(C_TAB), C_DBL(z_max))
+		self._dll.Astigmatism3DEstimation(s.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size),
+										  m.ctypes.data_as(C_TAB_DBL), C_DBL(z_max))
 
 		return out

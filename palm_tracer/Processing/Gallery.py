@@ -22,6 +22,7 @@ def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, 
 	n_planes = (n_rois + rois_per_plane - 1) // rois_per_plane  # Calcul du nombre de plans nécessaires
 	max_height, max_width = stack.shape[1], stack.shape[2]  # .	  Récupération des limites de l'image
 	res = np.zeros((n_planes, size, size), dtype=stack.dtype)  # .Résultat final
+	half_size = roi_size // 2  # .								  Déterminer les bornes de la ROI
 
 	for idx, (plane, y, x) in enumerate(zip(localizations["Plane"], localizations["Y"], localizations["X"])):
 		gallery_plane = idx // rois_per_plane  # .				  Déterminer sur quel plan on est
@@ -33,8 +34,6 @@ def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, 
 		# x_min, x_max = max(0, int(round(x - half_size))), min(max_width, int(round(x + half_size)))
 		# y_min, y_max = max(0, int(round(y - half_size))), min(max_height, int(round(y + half_size)))
 
-		# Déterminer les bornes de la ROI
-		half_size = roi_size // 2
 		# Calcul centre arrondi
 		x_center = int(round(x))
 		y_center = int(round(y))
