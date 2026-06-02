@@ -7,7 +7,7 @@ Cette classe est utilisée comme conteneur des éléments Qt associés à une vu
 
 Elle permet de gérer indépendamment plusieurs instances d'interface (multi-vues) pour un même modèle de données (pattern MVC simplifié).
 
-Chaque instance de :class:`BaseUI` correspond à une **vue unique** d'un paramètre, et contient tous les objets Qt nécessaires à son affichage et son interaction.
+Chaque instance de :class:`BaseUI` correspond à une **vue unique** d'un paramètre, et contient tous les objets Qt nécessaires.
 
 Cette séparation permet :
     - de dupliquer facilement l'interface sans dupliquer les données,
@@ -18,7 +18,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from qtpy.QtWidgets import QCheckBox, QFormLayout, QLabel, QWidget
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QCheckBox, QFormLayout, QHBoxLayout, QLabel, QWidget
 
 from palm_tracer.Tools import Ui
 
@@ -63,19 +64,28 @@ class BaseUI:
 		if self.mode <= 1:  # La check box n'est pas présente et le groupe est toujours actif avec un titre
 			title = QLabel(self.name)
 			title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
-			header = QFormLayout(None)
-			if self.checkbox is not None: header.addRow(self.checkbox, title)
-			else: header.addRow(title)
+
+			header = QWidget()
+			header_layout = QHBoxLayout(header)
+			Ui.init_layout(header_layout)
+			header_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+			if self.checkbox is not None: header_layout.addWidget(self.checkbox)
+			header_layout.addWidget(title)
+			header_layout.addStretch(1)
 
 		# Base
 		self.widget = QWidget()
 		self.layout = Ui.make_form(self.widget)
+		Ui.init_layout(self.layout, 0, 0)
 		self.widget.setLayout(self.layout)
 		if header is not None: self.layout.addRow(header)
 
 		self._body = QWidget()
 		self.body_layout = QFormLayout(self._body)
-		self.body_layout.setContentsMargins(5, 0, 0, 0)  # Léger décalage.
+		self.body_layout.setContentsMargins(10, 0, 0, 0)  # Léger décalage.
+		self.body_layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+		self.body_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 		self.layout.addRow(self._body)
 		self.widget.setLayout(self.layout)
 

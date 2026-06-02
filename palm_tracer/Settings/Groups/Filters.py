@@ -10,13 +10,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, cast
 
-from qtpy.QtWidgets import QHBoxLayout, QPushButton
+from qtpy.QtWidgets import QHBoxLayout, QPushButton, QSizePolicy, QSpacerItem
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUI import BaseUI
 from palm_tracer.Settings.Groups.FiltersL import FiltersL
 from palm_tracer.Settings.Groups.FiltersT import FiltersT
 from palm_tracer.Settings.Types import CheckBox, CheckRangeInt
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -60,9 +61,13 @@ class Filters(BaseSettingGroup):
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
 		ui = super().get_ui(name, mode)
+
+		ui.layout.addItem(QSpacerItem(0, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
+
 		self.buttons[name] = {"reset": QPushButton("Reset"), "update": QPushButton("Update"), "save": QPushButton("Save")}
 		# Créer un layout horizontal pour les boutons
 		actions = QHBoxLayout()
+		Ui.init_layout(actions)
 		actions.addWidget(self.buttons[name]["reset"])
 		actions.addWidget(self.buttons[name]["update"])
 		actions.addWidget(self.buttons[name]["save"])

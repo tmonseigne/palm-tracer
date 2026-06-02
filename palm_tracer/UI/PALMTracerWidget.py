@@ -105,6 +105,7 @@ class PALMTracerWidget(QWidget):
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
+		tabs.setStyleSheet("""QTabWidget::tab-bar { alignment: left; }""")
 		tabs.addTab(self._create_tab([setting_ui["Localization"].widget, setting_ui["BeadsExtraction"].widget, setting_ui["Tracking"].widget,
 									  setting_ui["BlinkingReconnection"].widget, setting_ui["TracksCompute"].widget]), "Processing")
 		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget, setting_ui["Graph"].widget, setting_ui["HR"].widget,
@@ -112,6 +113,7 @@ class PALMTracerWidget(QWidget):
 		tabs.addTab(self._create_tab([setting_ui["Filters"].widget]), "Filtering")
 
 		# Layout principal
+		self.layout().addSpacing(10)
 		self.layout().addWidget(tabs)
 
 		# Launch/Load Button
@@ -534,8 +536,8 @@ class PALMTracerWidget(QWidget):
 if __name__ == "__main__":
 	import napari
 
-	_viewer = napari.Viewer()  # .										  Crée le viewer Napari
-	_viewer.title = "PALMTracer"  # .									  Modifier le titre de la fenêtre
-	_w = PALMTracerWidget(_viewer)  # .									  Crée ton widget en lui passant le viewer
-	_viewer.window.add_dock_widget(_w, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre Napari
-	napari.run()  # .													  Lance la boucle Qt gérée par Napari
+	_viewer = napari.Viewer()  # .										   Crée le viewer Napari
+	_viewer.title = "PALMTracer"  # .									   Modifier le titre de la fenêtre
+	_w = PALMTracerWidget(_viewer)  # .									   Crée ton widget en lui passant le viewer
+	_viewer.window.add_dock_widget(_w, name="PALMTracer", area="right")  # L'ajoute comme dock widget dans la fenêtre Napari
+	napari.run()  # .													   Lance la boucle Qt gérée par Napari

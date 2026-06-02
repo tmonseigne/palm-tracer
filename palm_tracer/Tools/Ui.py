@@ -178,7 +178,7 @@ def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: 
 	layout = QFormLayout(parent)
 	init_layout(layout, space, margin)
 	layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-	layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+	layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
 	layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint)
 	return layout
 
