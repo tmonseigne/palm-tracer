@@ -129,7 +129,7 @@ class Viewer3DWidget(QWidget):
 
 
 ##################################################
-def create_viewer3d() -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def create_viewer3d() -> tuple[napari.Viewer, QWidget]:
 	"""
 	Crée une nouvelle fenêtre Napari 3D, sans menu, et y ajoute le Viewer3DWidget docké à droite.
 
@@ -140,11 +140,11 @@ def create_viewer3d() -> napari.Viewer:  # pragma: no cover — Aucun lancement 
 	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
 	widget = Viewer3DWidget(viewer)  # .									 Crée le widget en lui passant le viewer
 	viewer.window.add_dock_widget(widget, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
-	return viewer
+	return viewer, widget
 
 
 ##################################################
-def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer 3D.
 
@@ -166,5 +166,5 @@ def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragm
 if __name__ == "__main__":
 	import napari
 
-	_v = create_viewer3d()
+	_v, _w = create_viewer3d()
 	napari.run()  # Lance la boucle Qt gérée par Napari

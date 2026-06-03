@@ -90,6 +90,8 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _init_ui(self):
 		"""Construit l'interface utilisateur."""
+		self._pt.settings.clean_ui(self.UI_NAME)
+
 		self._widget = QWidget()
 
 		layout = QVBoxLayout(self._widget)
@@ -280,7 +282,7 @@ class ViewerHRWidget(QWidget):
 
 
 ##################################################
-def create_viewerhr(palmtracer: PALMTracer | None = None) -> napari.Viewer:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer, QWidget]:
 	"""
 	Crée une nouvelle fenêtre Napari HR, sans menu,	et y ajoute le ViewerHRWidget docké à droite.
 
@@ -292,11 +294,11 @@ def create_viewerhr(palmtracer: PALMTracer | None = None) -> napari.Viewer:  # p
 	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
 	widget = ViewerHRWidget(viewer, palmtracer)  # .						 Crée le widget en lui passant le viewer
 	viewer.window.add_dock_widget(widget, name="Viewer HR", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
-	return viewer
+	return viewer, widget
 
 
 ##################################################
-def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR.
 
@@ -319,5 +321,5 @@ if __name__ == "__main__":
 	import napari
 
 	app = QApplication.instance() or QApplication([])
-	_v = create_viewerhr()
+	_v, _w = create_viewerhr()
 	napari.run()  # Lance la boucle Qt gérée par Napari

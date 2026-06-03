@@ -33,3 +33,7 @@ exclude_also =
 	if __name__ == "__main__":
 	# les if contenant _HAS_WEBENGINE sont la en cas de mauvaises installation donc non couvert à 100%
 	_HAS_WEBENGINE
+    # Fonctions retournant un viewer Napari + QWidget
+    ^\s*def create_.*-> tuple\[napari\.Viewer,\s*QWidget\]:
+    # Fonctions prenant un viewer Napari en argument
+    ^\s*def open_.*\(_viewer:\s*["']napari\.viewer\.Viewer["']\s*=\s*None,\s*\)\s*->\s*QWidget:

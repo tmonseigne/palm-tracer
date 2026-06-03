@@ -57,7 +57,9 @@ class PALMTracerWidget(QWidget):
 		# ----- Viewers -----
 		self.viewer = viewer
 		self.viewer_hr: Optional[Viewer] = None
+		self.viewer_hr_widget: Optional[QWidget] = None
 		self.viewer_3d: Optional[Viewer] = None
+		self.viewer_3d_widget: Optional[QWidget] = None
 		self.viewer_graph: Optional[GraphViewerWidget] = None
 		# ----- Threading -----
 		self._processing = False  # .					 Permets d'éviter les clics multiples.
@@ -496,14 +498,14 @@ class PALMTracerWidget(QWidget):
 	def _open_hr_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 		"""Ouvre une instance Napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
 		if self.viewer_hr is None:
-			self.viewer_hr = create_viewerhr(self.pt)
+			self.viewer_hr, self.viewer_hr_widget = create_viewerhr(self.pt)
 			self._bind_viewer_lifecycle("viewer_hr")
 
 	##################################################
 	def _open_3d_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 		"""Ouvre une instance Napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
-			self.viewer_3d = create_viewer3d()
+			self.viewer_3d, self.viewer_3d_widget = create_viewer3d()
 			self._bind_viewer_lifecycle("viewer_3d")
 
 	##################################################
@@ -511,11 +513,11 @@ class PALMTracerWidget(QWidget):
 		"""Ouvre la visionneuse de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
-			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
-			# Quand le widget est détruit, rémettre la réf à None.
-			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
 			w.resize(1280, 720)
 			self.viewer_graph = w
+			# Quand le widget est détruit, rémettre la réf à None.
+			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
 
 		# (re)montrer et mettre au premier plan
 		self.viewer_graph.show()
@@ -525,11 +527,19 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
 		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
-		viewer = getattr(self, viewer_attr)
+		viewer = getattr(self, viewer_attr, None)
 		if viewer is None: return
-		qt_window = viewer.window._qt_window  # .									QMainWindow
-		qt_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)  # .		Garantit que "close" détruit vraiment la fenêtre.
-		qt_window.destroyed.connect(lambda *_: setattr(self, viewer_attr, None))  # Quand la fenêtre est détruite, on invalide le pointeur Python.
+
+		def _on_close(*_):
+			w = getattr(self, f"{viewer_attr}_widget", None)
+			if w is not None:
+				w.close()
+				setattr(self, f"{viewer_attr}_widget", None)
+			setattr(self, viewer_attr, None)
+
+		qt_window = viewer.window._qt_window  # .							 QMainWindow
+		qt_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)  # Garantit que "close" détruit vraiment la fenêtre.
+		qt_window.destroyed.connect(_on_close)  # .							 Quand la fenêtre est détruite, on invalide le pointeur Python.
 
 
 ##################################################

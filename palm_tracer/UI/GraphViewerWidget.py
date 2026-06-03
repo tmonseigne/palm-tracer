@@ -107,7 +107,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 			- Zone droite :
 				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
 		"""
-
+		self._pt.settings.clean_ui(self.UI_NAME)
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
