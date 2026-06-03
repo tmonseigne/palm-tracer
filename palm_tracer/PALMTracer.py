@@ -84,7 +84,7 @@ class PALMTracer:
 
 		self._STEPS: list[Step] = [
 				Step("localization", ["loc"], self._localization, self.filtering.localization),
-				Step("beads", ["bds"], self._beads_extraction, self.filtering.localization, allow_dirty=True),
+				Step("beads", ["bds"], self._beads_extraction, lambda x: x, allow_dirty=True, apply_filter=False),
 				Step("tracking", ["trc"], self._tracking, self.filtering.tracking),
 				Step("blinking", ["blk"], self._blinking_reconnection, self.filtering.tracking),
 				Step("tracks_compute", ["MSD", "InD", "Fit"], self._tracks_compute, self.filtering.tracks_compute),
@@ -436,6 +436,7 @@ class PALMTracer:
 			pipeline_dirty = True  # Pipeline incohérent pour la suite, on évitera de réutiliser des éléments précédents, car un calcul a été fait
 
 		# --- Filtrage ---
+		if not step.apply_filter: return pipeline_dirty
 		# Cas Standard Un seul dataframe
 		if len(step.keys) == 1:
 			f_key = f"f_{step.keys[0]}"
