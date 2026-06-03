@@ -66,6 +66,7 @@ testing = [
 documentation = [
 	"sphinx",
 	"sphinx-autobuild",
+	"sphinx-design",
 	"sphinx-rtd-theme",
 	"sphinx-qt-documentation",
 	"ansi2html", # Utile pour transformer les rapports

@@ -1,6 +1,8 @@
 Manuel d'utilisation
 =====================================
 
+.. _manual_page:
+
 .. role:: python(code)
    :language: python
 

@@ -31,6 +31,7 @@ extensions = [
 		"sphinx.ext.graphviz",
 		"sphinxcontrib.jquery",
 		"sphinx_qt_documentation",
+		"sphinx_design",
 		]
 
 autodoc_typehints = "both"

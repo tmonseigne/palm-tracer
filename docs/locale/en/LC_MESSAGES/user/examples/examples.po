@@ -1,0 +1,3 @@
+#: ../../user/examples/examples.rst:2
+msgid "Exemples d'utilisation de PALM Tracer"
+msgstr "Examples of how to use PALM Tracer"

@@ -120,20 +120,8 @@ msgstr "This method applies a tracking algorithm to the provided localization da
 msgid "Distance maximale autorisée entre deux points pour les relier entre deux plans successifs."
 msgstr "Maximum allowed distance between two points to connect them across two successive planes."
 
-#: of palm_tracer.Processing.Palm.Palm.tracking:8
-msgid "Longueur minimale d'une trajectoire pour qu'elle soit conservée dans le résultat final."
-msgstr "Minimum length of a track for it to be retained in the final result."
-
-#: of palm_tracer.Processing.Palm.Palm.tracking:9
-msgid "Facteur de pénalisation appliqué au coût d'association entre des plans éloignés."
-msgstr "Penalty factor applied to the cost of associating distant frames."
-
-#: of palm_tracer.Processing.Palm.Palm.tracking:10
-msgid "Coût associé à la création d'une nouvelle trajectoire (point non associé à une trajectoire existante)."
-msgstr "Cost associated with creating a new track (point not associated with an existing track)."
-
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:8
-#: palm_tracer.Processing.Palm.Palm.tracking:11
+#: palm_tracer.Processing.Palm.Palm.tracking:8
 #: palm_tracer.Processing.Palm.Palm.tracks_compute:12
 msgid ":class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées."
 msgstr ":class:`DataFrame <pandas.DataFrame>` containing the detected tracks."
@@ -201,7 +189,7 @@ msgstr "Fitting mode."
 msgid "Paramètres de l'ajustement (pour le moment uniquement fit length)."
 msgstr "Fitting settings (currently only fit length)."
 
-#: of palm_tracer.Processing.Palm.Palm.tracks_compute:15
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:14
 msgid "Pour obtenir des valeurs de diffusion en **µm²**, le paramètre ``pixel_size`` doit être exprimé en micromètres par pixel (µm/px)."
 msgstr "To obtain diffusion values in **µm²**, the ``pixel_size`` parameter must be expressed in micrometers per pixel (µm/px)."
 

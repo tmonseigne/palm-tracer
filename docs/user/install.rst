@@ -1,6 +1,8 @@
 Installation
 =====================================
 
+.. _install_page:
+
 .. role:: python(code)
    :language: python
 

@@ -252,15 +252,3 @@ msgstr "Fitting mode (if necessary, for tracks calculations)."
 #: of palm_tracer.Processing.Parsing.parse_result:15
 msgid ":class:`DataFrame <pandas.DataFrame>` parsé."
 msgstr "Parsed :class:`DataFrame <pandas.DataFrame>`."
-
-#: of palm_tracer.Processing.Parsing.parse_localization_for_tracking:1
-msgid "Parsing du résultat de la localisation pour le suivi au sein de la DLL."
-msgstr "Parsing the localization result for tracking within the DLL."
-
-#: of palm_tracer.Processing.Parsing.parse_localization_for_tracking:3
-msgid "Donnée en entrée récupérées depuis la localisation."
-msgstr "Input data retrieved from the localization."
-
-#: of palm_tracer.Processing.Parsing.parse_localization_for_tracking:4
-msgid ":class:`ndarray <numpy.ndarray>` transformé pour le suivi."
-msgstr ":class:`ndarray <numpy.ndarray>` transformed for tracking."

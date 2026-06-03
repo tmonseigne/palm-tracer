@@ -6,6 +6,7 @@ Guide de l'utilisateur de PALM Tracer
 
    install
    manual
+   examples/examples
    viewer_graph
    viewer_hr
    viewer_3d
