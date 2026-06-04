@@ -17,9 +17,9 @@ MAX_UI_16 = np.iinfo(np.uint16).max
 class Renderer:
 	"""Créateur de graphiques avec Plotly."""
 
-	_width: int = field(init=False, default=1)
-	_height: int = field(init=False, default=1)
-	_ratio: int = field(init=False, default=1)
+	_w: int = field(init=False, default=1)
+	_h: int = field(init=False, default=1)
+	_r: int = field(init=False, default=1)
 
 	##################################################
 	def set_size(self, width: int, height: int, ratio: int):
@@ -30,7 +30,7 @@ class Renderer:
 		:param height: Hauteur de l'image.
 		:param ratio: Ratio d'agrandissement de l'image. Les coordonnées sont multipliées par ce facteur.
 		"""
-		self._width, self._height, self._ratio = width, height, ratio
+		self._w, self._h, self._r = width * ratio, height * ratio, ratio
 
 	##################################################
 	def localizations(self, loc: np.ndarray, color_mode: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
@@ -43,42 +43,25 @@ class Renderer:
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
 		# Vérification des dimensions
-		new_h, new_w = int(self._height * self._ratio), int(self._width * self._ratio)
-		if new_h < 1 or new_w < 1: return np.zeros((max(new_h, 1), max(new_w, 1)), dtype=np.uint16)
-		res = np.zeros((new_h, new_w), dtype=float)
+		if self._h < 1 or self._w < 1: return np.zeros((max(self._h, 1), max(self._w, 1)), dtype=np.uint16)
+		res = np.zeros((self._h, self._w), dtype=float)
 		if loc.ndim != 2 or loc.shape[1] < 3: return res.astype(np.uint16)
 
-		# Calcul des nouvelles coordonnées entières (vectorisé)
-		coords = np.round(loc[:, :2] * self._ratio).astype(int)
-		x, y, colors = coords[:, 0], coords[:, 1], loc[:, 2]
-
-		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
-		valid = (x >= 0) & (x < new_w) & (y >= 0) & (y < new_h)
-		x, y, colors = x[valid], y[valid], colors[valid]
-		if x.size == 0: return res.astype(np.uint16)
+		loc_v = self.prepare_data(loc, False, False if gaussian is None else True)
+		if loc_v.shape[0] == 0: return res.astype(np.uint16)
 
 		# Rendu
-		if gaussian is None:  # .								  Calcul de l'image en mode spot
-			if color_mode == 0: np.add.at(res, (y, x), colors)  # Accumulation des valeurs (plus efficace qu'une boucle)
-			else: np.maximum.at(res, (y, x), colors)  # .		  Max par pixel
-		else:  # .												  Calcul de l'image en mode Gaussien
+		if gaussian is None:  # .							 Calcul de l'image en mode spot
+			x, y, c = np.round(loc_v[:, 0]).astype(int), np.round(loc_v[:, 1]).astype(int), loc_v[:, 2]
+			valid = ((x >= 0) & (x < self._w) & (y >= 0) & (y < self._h))
+			x, y, c = x[valid], y[valid], c[valid]  # .		 Avec les arrondis, on revérifie les points hors dimension
+			if color_mode == 0: np.add.at(res, (y, x), c)  # Accumulation des valeurs (plus efficace qu'une boucle)
+			else: np.maximum.at(res, (y, x), c)  # .		 Conservation de la valeur maximale en cas de superposition.
+		else:  # .											 Calcul de l'image en mode Gaussien
 			if loc.shape[1] < 6: return res.astype(np.uint16)
-			sx, sy, theta = loc[:, 3] * self._ratio, loc[:, 4] * self._ratio, Parsing.degrees_to_radians(loc[:, 5])
-			if gaussian["Shape"] == 0:  # .						  Taille fixe isotrope
-				theta.fill(0)
-				s = gaussian["Size"] * self._ratio
-				sx.fill(s)
-				sy.fill(s)
-			elif gaussian["Shape"] == 1:  # .					  Isotrope (theta = 0, sigma = moyenne des deux axes)
-				theta.fill(0)
-				s = (sx + sy) / 2
-				sx = sy = s
-			# else: .											  Anisotrope aucun changement.
-
-			# Modification des couleurs
-			if gaussian["Fixed Intensity"]: colors.fill(gaussian["Intensity"])
-			else: colors /= gaussian["Intensity"]
-			self.draw_gaussian_2d(res, x, y, colors, sx, sy, theta, color_mode)
+			x, y = loc_v[:, 0], loc_v[:, 1]
+			c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 2:6], gaussian)
+			self.draw_gaussian_2d(res, x, y, c, sx, sy, theta, color_mode)
 
 		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
 		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
@@ -98,19 +81,18 @@ class Renderer:
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
 		# Vérification des dimensions
-		new_h, new_w = int(self._height * self._ratio), int(self._width * self._ratio)
-		if new_h < 1 or new_w < 1: return np.zeros((max(new_h, 1), max(new_w, 1)), dtype=np.uint16)
-		res = np.zeros((new_h, new_w), dtype=np.uint16)
+		if self._h < 1 or self._w < 1: return np.zeros((max(self._h, 1), max(self._w, 1)), dtype=np.uint16)
+		res = np.zeros((self._h, self._w), dtype=np.uint16)
 		if trc.ndim != 2 or trc.shape[1] != 4: return res
 
-		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
-		mask = ((trc[:, 1] >= 0) & (trc[:, 1] < self._width) & (trc[:, 2] >= 0) & (trc[:, 2] < self._height))
-		trc = trc[mask]
-		if trc.size == 0: return res
-
 		# Calcul des nouvelles coordonnées entières (vectorisé)
-		coords = np.round(trc[:, 1:3] * self._ratio).astype(int)
+		coords = np.round(trc[:, 1:3] * self._r).astype(int)
 		trc, x, y, colors = trc[:, 0].astype(int), coords[:, 0], coords[:, 1], trc[:, 3].astype(np.uint16)
+
+		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
+		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)
+		trc, x, y, colors = trc[valid], x[valid], y[valid], colors[valid]
+		if trc.size == 0: return res.astype(np.uint16)
 
 		# Indices de début/fin de chaque groupe Track
 		# tracks[1:] != tracks[:-1] Compare chaque élément au précédent
@@ -128,6 +110,50 @@ class Renderer:
 				for i in range(start, end - 1): self.draw_line(res, x[i], y[i], x[i + 1], y[i + 1], colors[i])
 
 		return res
+
+	##################################################
+	def z_stack(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, gaussian: dict[str, Any] | None = None) -> np.ndarray:
+		"""
+		Construit une image Haute résolution (uint16) en fonction des éléments localisés.
+
+		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur).
+		:param color_mode: Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée.
+		:param z_step: Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres).
+		:param gaussian: Paramètres pour le rendu gaussien loc doit avoir au moins 7 colonnes  (X, Y, Z, Couleur, Sigma X, Sigma Y, Theta).
+		:return: Nouvelle image en uint16 de forme (Z, height*ratio, width*ratio).
+		"""
+		# Vérification des dimensions
+		if self._h < 1 or self._w < 1: return np.zeros((1, max(self._h, 1), max(self._w, 1)), dtype=np.uint16)
+		if loc.ndim != 2 or loc.shape[1] < 4: return np.zeros((1, self._h, self._w), dtype=np.uint16)
+
+		loc_v = self.prepare_data(loc, True, False if gaussian is None else True)
+		if loc_v.shape[0] == 0: return np.zeros((1, self._h, self._w), dtype=np.uint16)
+
+		# Calcul des plans Z
+		z = loc_v[:, 2]
+		z_min, z_max = np.nanmin(z), np.nanmax(z)
+		n_planes = max(int(np.floor((z_max - z_min) / z_step)) + 1, 1)
+
+		res = np.zeros((n_planes, self._h, self._w), dtype=float)
+
+		# Rendu
+		if gaussian is None:  # .								   Calcul de l'image en mode spot
+			x, y, c = np.round(loc_v[:, 0]).astype(int), np.round(loc_v[:, 1]).astype(int), loc_v[:, 3]
+			valid = ((x >= 0) & (x < self._w) & (y >= 0) & (y < self._h))
+			x, y, c = x[valid], y[valid], c[valid]  # .			   Avec les arrondis, on revérifie les points hors dimension
+			z_id = np.floor((z - z_min) / z_step).astype(int)
+			if color_mode == 0: np.add.at(res, (z_id, y, x), c)  # Accumulation des valeurs (plus efficace qu'une boucle)
+			else: np.maximum.at(res, (z_id, y, x), c)  # .		   Conservation de la valeur maximale en cas de superposition.
+		else:  # .												   Calcul de l'image en mode Gaussien
+			if loc.shape[1] < 7: return res.astype(np.uint16)
+			x, y = loc_v[:, 0], loc_v[:, 1]
+			z_id = (z - z_min) / z_step
+
+			c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 3:7], gaussian)
+			self.draw_gaussian_3d(res, x, y, z_id, c, sx, color_mode)
+
+		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
+		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
 
 	# ==================================================
 	# region Tools
@@ -249,6 +275,62 @@ class Renderer:
 		return data[["Track", "Plane", "X", "Y", "Color"]]
 
 	##################################################
+	def prepare_data(self, data: np.ndarray, is_3d: bool = False, is_gaussian: bool = False) -> np.ndarray:
+		"""
+		Prépare les données pour le rendu :
+
+		- Multiplie par le ratio les colonnes concernées
+		- Change les degrées en gradient si necessaire.
+		- Vérifie les bornes de l'image et supprime les points hors dimensions.
+
+		:param data: Données à préparer
+		:param is_3d: Les données possèdent une composante Z.
+		:param is_gaussian: Les données seront utilisées pour une représentation gaussienne.
+		:return:
+		"""
+
+		res = data.copy()
+		scale_col = [0, 1]
+		shift = 1 if is_3d else 0
+		if is_gaussian and data.shape[1] > 5 + shift:
+			gaussian_col = [3 + shift, 4 + shift, 5 + shift]
+			scale_col += gaussian_col[:2]
+			res[:, gaussian_col[-1]] = Parsing.degrees_to_radians(res[:, gaussian_col[-1]])
+
+		res[:, scale_col] *= self._r
+
+		# Filtrage des points hors des dimensions
+		valid = (res[:, 0] >= 0) & (res[:, 0] < self._w) & (res[:, 1] >= 0) & (res[:, 1] < self._h)
+		res = res[valid, :]
+		return res
+
+	##################################################
+	def prepare_gaussian_data(self, loc: np.ndarray, gaussian: dict[str, Any]) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+		"""
+		Récupère les données Color, Sigma X, Sigma Y, Theta et les modifient en fonction des paramètres utilisateurs.
+
+		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et 3 colonnes (Sigma X, Sigma Y, Theta).
+		:param gaussian: Paramètres pour le rendu gaussien.
+		:return: le quatuor de tableaux 1D pour Color, Sigma X, Sigma Y et Theta.
+		"""
+		c, sx, sy, theta = loc[:, 0], loc[:, 1] * self._r, loc[:, 2] * self._r, Parsing.degrees_to_radians(loc[:, 3])
+		if gaussian["Shape"] == 0:  # .	Taille fixe isotrope
+			theta.fill(0)
+			s = gaussian["Size"] * self._r
+			sx.fill(s)
+			sy.fill(s)
+		elif gaussian["Shape"] == 1:  # Isotrope (theta = 0, sigma = moyenne des deux axes)
+			theta.fill(0)
+			s = (sx + sy) / 2
+			sx = sy = s
+		# else: .						Anisotrope aucun changement.
+
+		# Modification des couleurs
+		if gaussian["Fixed Intensity"]: c.fill(gaussian["Intensity"])
+		else: c /= gaussian["Intensity"]
+		return c, sx, sy, theta
+
+	##################################################
 	@staticmethod
 	def draw_line(img: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: np.uint16):
 		"""
@@ -333,6 +415,53 @@ class Renderer:
 			patch = (amp / (2.0 * np.pi * sigma_x * sigma_y)) * np.exp(-(a * dx * dx + b * dx * dy + c * dy * dy))
 
 			view = img[y_min:y_max + 1, x_min:x_max + 1]
+			if color_mode == 0: view += patch
+			else: np.maximum(view, patch, out=view)
+
+		return img
+
+	##################################################
+	@staticmethod
+	def draw_gaussian_3d(img: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, z: np.ndarray | float,
+						 colors: np.ndarray | float, s: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
+		"""
+		Dessine des gaussiennes 3D isotropes dans un volume.
+
+		:param img: Volume de sortie 3D, modifié sur place, forme (Z, Y, X).
+		:param x: Coordonnées X des centres.
+		:param y: Coordonnées Y des centres.
+		:param z: Coordonnées Z des centres.
+		:param colors: Intensité totale de chaque gaussienne.
+		:param s: Sigma isotrope de chaque gaussienne.
+		:param color_mode: 0 : addition des intensités, autre : conservation du maximum voxel à voxel.
+		:return: Volume résultat.
+		"""
+		depth, h, w = img.shape
+		# On force tout en tableau 1D pour que .shape[0] fonctionne toujours
+		x, y, z, colors, s = np.atleast_1d(x), np.atleast_1d(y), np.atleast_1d(z), np.atleast_1d(colors), np.atleast_1d(s)
+
+		for idx in range(x.shape[0]):
+			xc, yc, zc = float(x[idx]), float(y[idx]), float(z[idx])
+			sigma, amp = float(s[idx]), float(colors[idx])
+
+			radius = 3.0 * sigma
+			x_min, x_max = max(0, int(np.floor(xc - radius))), min(w - 1, int(np.ceil(xc + radius)))
+			y_min, y_max = max(0, int(np.floor(yc - radius))), min(h - 1, int(np.ceil(yc + radius)))
+			z_min, z_max = max(0, int(np.floor(zc - radius))), min(depth - 1, int(np.ceil(zc + radius)))
+
+			if x_min > x_max or y_min > y_max or z_min > z_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
+
+			x_grid = np.arange(x_min, x_max + 1, dtype=np.float64)
+			y_grid = np.arange(y_min, y_max + 1, dtype=np.float64)
+			z_grid = np.arange(z_min, z_max + 1, dtype=np.float64)
+			zz, xx, yy = np.meshgrid(z_grid, y_grid, x_grid, indexing="ij")
+
+			dx, dy, dz = xx - xc, yy - yc, zz - zc
+			r2 = dx * dx + dy * dy + dz * dz
+			norm = amp / (((2.0 * np.pi) ** 1.5) * sigma ** 3)
+			patch = norm * np.exp(-r2 / (2.0 * sigma * sigma))
+			view = img[z_min:z_max + 1, y_min:y_max + 1, x_min:x_max + 1]
+
 			if color_mode == 0: view += patch
 			else: np.maximum(view, patch, out=view)
 

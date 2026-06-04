@@ -1,16 +1,15 @@
 """Fichier des tests pour le renderer."""
-import numpy as np
-import pandas as pd
 
+from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Renderer
 
 
 ##################################################
 def test_set_size():
 	r = Renderer()
-	assert r._width == 1 and r._height == 1 and r._ratio == 1
+	assert r._w == 1 and r._h == 1 and r._r == 1
 	r.set_size(100, 200, 10)
-	assert r._width == 100 and r._height == 200 and r._ratio == 10
+	assert r._w == 1000 and r._h == 2000 and r._r == 10
 
 
 ##################################################
@@ -102,6 +101,49 @@ def test_get_tracks_colors():
 
 
 ##################################################
+def test_prepare_data():
+	r = Renderer()
+	r.set_size(5, 10, 2)
+	loc = np.array([[0, 1, 2, 3, 4, 5, 6],
+					[1, 2, 3, 4, 5, 6, 7],
+					[10, 10, 4, 5, 6, 7, 8],
+					[3, 4, 5, 6, 7, 8, 9],
+					[4, 5, 6, 7, 8, 9, 10]], dtype=np.float64)
+
+	# 2D non gaussien
+	res = r.prepare_data(loc, False, False)
+	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
+					[2, 4, 3, 4, 5, 6, 7],
+					[6, 8, 5, 6, 7, 8, 9],
+					[8, 10, 6, 7, 8, 9, 10]], dtype=np.float64)
+	np.testing.assert_array_almost_equal(res, ref)
+
+	# 2D Gaussien
+	res = r.prepare_data(loc, False, True)
+	ref = np.array([[0, 2, 2, 6, 8, 0.08726646, 6],
+					[2, 4, 3, 8, 10, 0.10471976, 7],
+					[6, 8, 5, 12, 14, 0.13962634, 9],
+					[8, 10, 6, 14, 16, 0.15707963, 10]], dtype=np.float64)
+	np.testing.assert_array_almost_equal(res, ref)
+
+	# 3D Non Gaussien
+	res = r.prepare_data(loc, True)
+	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
+					[2, 4, 3, 4, 5, 6, 7],
+					[6, 8, 5, 6, 7, 8, 9],
+					[8, 10, 6, 7, 8, 9, 10]], dtype=np.float64)
+	np.testing.assert_array_almost_equal(res, ref)
+
+	# 3D Gaussien
+	res = r.prepare_data(loc, True, True)
+	ref = np.array([[0, 2, 2, 3, 8, 10, 0.10471976],
+					[2, 4, 3, 4, 10, 12, 0.12217305],
+					[6, 8, 5, 6, 14, 16, 0.15707963],
+					[8, 10, 6, 7, 16, 18, 0.17453293]], dtype=np.float64)
+	np.testing.assert_array_almost_equal(res, ref)
+
+
+##################################################
 def test_draw_line():
 	img = np.zeros((5, 5), dtype=np.uint16)
 
@@ -158,25 +200,67 @@ def test_draw_gaussian():
 
 	# Simple anisotrope
 	res = r.draw_gaussian_2d(img, x, y, color, sx, sy, theta, 1)
-	assert np.allclose(res, ref, atol=1e-6)
+	np.testing.assert_array_almost_equal(res, ref)
 
 	# Simple anisotrope avec cumul
 	res = r.draw_gaussian_2d(res, x, y, color, sx, sy, theta, 0)
-	assert np.allclose(res, 2 * ref, atol=1e-6)
+	np.testing.assert_array_almost_equal(res, 2 * ref)
 
 	# Simple anisotrope avec angle de 90° (transposé du premier test
 	img = np.zeros((5, 5), dtype=float)
 	res = r.draw_gaussian_2d(img, x, y, color, sx, sy, np.pi / 2, 1)
-	assert np.allclose(res, ref.transpose(), atol=1e-6)
+	np.testing.assert_array_almost_equal(res, ref.transpose())
 
 	# Hors dimensions
 	img = np.zeros((5, 5), dtype=float)
 	res = r.draw_gaussian_2d(img, -10, -10, color, sx, sy, theta, 0)
-	assert np.allclose(res, 0.0)
+	np.testing.assert_array_almost_equal(res, 0.0)
 
 	# Sigma négatif
 	res = r.draw_gaussian_2d(img, x, y, color, -1, sy, theta, 0)
-	assert np.allclose(res, 0.0)
+	np.testing.assert_array_equal(res, 0.0)
+
+
+##################################################
+def test_draw_gaussian_3d():
+	r = Renderer()
+
+	img = np.zeros((3, 3, 3), dtype=float)
+	x, y, z, color, s = 1.5, 1.5, 1.5, 100, 1
+
+	ref = np.array([[[0.21726327, 0.59058281, 0.59058281],
+					 [0.59058281, 1.60537052, 1.60537052],
+					 [0.59058281, 1.60537052, 1.60537052]],
+
+					[[0.59058281, 1.60537052, 1.60537052],
+					 [1.60537052, 4.36384952, 4.36384952],
+					 [1.60537052, 4.36384952, 4.36384952]],
+
+					[[0.59058281, 1.60537052, 1.60537052],
+					 [1.60537052, 4.36384952, 4.36384952],
+					 [1.60537052, 4.36384952, 4.36384952]]])
+
+	# Simple isotrope 3D
+	res = r.draw_gaussian_3d(img, x, y, z, color, s, 1)
+	np.testing.assert_array_almost_equal(res, ref)
+
+	# Simple isotrope 3D avec cumul
+	res = r.draw_gaussian_3d(res, x, y, z, color, s, 0)
+	np.testing.assert_array_almost_equal(res, 2 * ref)
+
+	# Maximum : redessiner une gaussienne identique ne doit pas changer le résultat
+	res = r.draw_gaussian_3d(res, x, y, z, color, s, 1)
+	np.testing.assert_array_almost_equal(res, 2 * ref)
+
+	# Hors dimensions
+	img = np.zeros((5, 5, 5), dtype=float)
+	res = r.draw_gaussian_3d(img, -10, -10, -10, color, s, 0)
+	np.testing.assert_array_almost_equal(res, 0.0)
+
+	# Sigma négatif
+	img = np.zeros((5, 5, 5), dtype=float)
+	res = r.draw_gaussian_3d(img, x, y, z, color, -1, 0)
+	np.testing.assert_array_equal(res, 0.0)
 
 
 ##################################################
@@ -249,12 +333,12 @@ def test_localizations_gaussian():
 					[2, 9, 15, 9, 2],
 					[1, 5, 9, 5, 1],
 					[0, 1, 2, 1, 0]], dtype=np.uint16)
-	np.allclose(res, ref)
+	np.testing.assert_array_equal(res, ref)
 
 	# Fixed Size and not intensity
 	gaussian["Fixed Intensity"] = False
 	res = r.localizations(loc, 0, gaussian)
-	np.allclose(res, ref)
+	np.testing.assert_array_equal(res, ref)
 
 	# Isotrope (Sigma = 1.5 car moyenne des deux)
 	gaussian["Fixed Intensity"] = True
@@ -265,7 +349,7 @@ def test_localizations_gaussian():
 					[2, 5, 7, 5, 2],
 					[2, 4, 5, 4, 2],
 					[1, 2, 2, 2, 1]], dtype=np.uint16)
-	np.allclose(res, ref)
+	np.testing.assert_array_equal(res, ref)
 
 	# Anisotrope
 	gaussian["Shape"] = 2
@@ -275,12 +359,12 @@ def test_localizations_gaussian():
 					[4, 7, 7, 7, 4],
 					[2, 4, 4, 4, 2],
 					[0, 0, 1, 0, 0]], dtype=np.uint16)
-	np.allclose(res, ref)
+	np.testing.assert_array_equal(res, ref)
 
 	# Max, résultat identique, car 2 points confondus.
 	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
 	res = r.localizations(loc, 1, gaussian)
-	np.allclose(res, ref)
+	np.testing.assert_array_equal(res, ref)
 
 	# Accumulate (on vérifie que les flottants ont bien été pris en compte durant le calcul, ce n'est pas un simple * 2 de la valeur entière finale)
 	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
@@ -290,7 +374,27 @@ def test_localizations_gaussian():
 					[9, 14, 15, 14, 9],
 					[5, 8, 9, 8, 5],
 					[1, 1, 2, 1, 1]], dtype=np.uint16)
-	np.allclose(res, ref)
+	np.testing.assert_array_equal(res, ref)
+
+	# Un des points est hors cadre
+	loc = np.array([[-1, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
+	res = r.localizations(loc, 0, gaussian)
+	ref = np.array([[0, 0, 1, 0, 0],
+					[2, 4, 4, 4, 2],
+					[4, 7, 7, 7, 4],
+					[2, 4, 4, 4, 2],
+					[0, 0, 1, 0, 0]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+
+	# Dimensions flottantes
+	loc = np.array([[1.5, 1.5, 100, 1, 2, 0]], dtype=np.float64)
+	res = r.localizations(loc, 0, gaussian)
+	ref = np.array([[1, 2, 2, 1, 1],
+					[5, 6, 6, 5, 3],
+					[5, 6, 6, 5, 3],
+					[1, 2, 2, 1, 1],
+					[0, 0, 0, 0, 0]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
 
 
 ##################################################
@@ -331,4 +435,151 @@ def test_tracks():
 	ref[6, 2:6] = 10
 	ref[6, 7:9] = 10
 	ref[2:9, 6] = 20
+	np.testing.assert_array_equal(res, ref)
+
+
+##################################################
+def test_z_stack():
+	r = Renderer()
+
+	# Not initialized
+	loc = np.array([1, 2, 3], dtype=np.float64)
+	res = r.z_stack(loc)
+	assert res.shape == (1, 1, 1)
+
+	# Bad Size
+	r.set_size(10, -1, 2)
+	res = r.z_stack(loc)
+	assert res.shape == (1, 1, 20)
+
+	# Invalid Shape
+	r.set_size(5, 10, 2)
+	res = r.z_stack(loc)
+	assert res.shape == (1, 20, 10)
+	assert np.count_nonzero(res) == 0
+
+	# Points outside
+	loc = np.array([[10, 2, 0, 5], [2, 10, 0, 6], [-1, 2, 0, 7], [2, -1, 0, 8]], dtype=np.float64)
+	res = r.z_stack(loc)
+	assert res.shape == (1, 20, 10)
+	assert np.count_nonzero(res) == 0
+
+	# Z uniforme à 0 + accumulation
+	loc = np.array([[2, 3, 0, 10], [2, 3, 0, 5], [4, 1, 0, 7]], dtype=np.float64)
+	res = r.z_stack(loc, color_mode=0, z_step=20)
+	ref = np.zeros((1, 20, 10), dtype=np.uint16)
+	ref[0, 6, 4] = 15
+	ref[0, 2, 8] = 7
+	np.testing.assert_array_equal(res, ref)
+
+	# Z uniforme à 0 + max
+	res = r.z_stack(loc, color_mode=1, z_step=20)
+	ref = np.zeros((1, 20, 10), dtype=np.uint16)
+	ref[0, 6, 4] = 10
+	ref[0, 2, 8] = 7
+	np.testing.assert_array_equal(res, ref)
+
+	# Z dans [-X ; +Y]
+	loc = np.array([
+			[1, 1, -40, 10],  # plan 0
+			[2, 1, -20, 20],  # plan 1
+			[3, 1, +00, 30],  # plan 2
+			[4, 1, +20, 40],  # plan 3
+			[1, 2, +40, 50],  # plan 4
+			], dtype=np.float64)
+
+	res = r.z_stack(loc, color_mode=0, z_step=20)
+	ref = np.zeros((5, 20, 10), dtype=np.uint16)
+	ref[0, 2, 2] = 10
+	ref[1, 2, 4] = 20
+	ref[2, 2, 6] = 30
+	ref[3, 2, 8] = 40
+	ref[4, 4, 2] = 50
+	np.testing.assert_array_equal(res, ref)
+
+	# Points hors dimensions + points valides
+	loc = np.array([[1, 1, 0, 10], [100, 1, 0, 20], [1, 100, 0, 30], [-1, 1, 0, 40], [1, -1, 0, 50]], dtype=np.float64)
+	res = r.z_stack(loc, color_mode=0, z_step=20)
+	ref = np.zeros((1, 20, 10), dtype=np.uint16)
+	ref[0, 2, 2] = 10
+	np.testing.assert_array_equal(res, ref)
+
+	# Clip uint16
+	loc = np.array([[1, 1, 0, 70000], [1, 1, 0, 1000], ], dtype=np.float64)
+	res = r.z_stack(loc, color_mode=0, z_step=20)
+	assert res[0, 2, 2] == np.iinfo(np.uint16).max
+
+
+##################################################
+def test_z_stack_gaussian():
+	r = Renderer()
+	r.set_size(5, 5, 1)
+
+	# Bad size
+	loc = np.array([[2, 2, 0, 100, 1]], dtype=np.float64)
+	gaussian = {
+			"Intensity":       100,
+			"Fixed Intensity": True,
+			"Shape":           0,
+			"Size":            1
+			}
+	res = r.z_stack(loc, 0, 20, gaussian)
+	assert res.shape == (1, 5, 5) and np.count_nonzero(res) == 0
+
+	# Fixed Size and intensity
+	loc = np.array([[2, 2, 0, 10000, 1, 2, 0]], dtype=np.float64)
+	res = r.z_stack(loc, 0, 20, gaussian)
+	ref = np.array([[[0, 0, 0, 0, 0],
+					 [0, 2, 3, 2, 0],
+					 [0, 3, 6, 3, 0],
+					 [0, 2, 3, 2, 0],
+					 [0, 0, 0, 0, 0]]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+
+	# 2 point in nearly same Z
+	loc = np.array([[1, 1, 0, 10000, 1, 2, 0], [3, 3, 9, 10000, 1, 2, 0]], dtype=np.float64)
+	res = r.z_stack(loc, 0, 20, gaussian)
+	ref = np.array([[[2, 3, 2, 0, 0],
+					 [3, 6, 4, 1, 0],
+					 [2, 4, 4, 4, 2],
+					 [0, 1, 4, 5, 3],
+					 [0, 0, 2, 3, 2]]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+
+	# 2 point in nearly same Z and Max color mode
+	loc = np.array([[1, 1, 0, 10000, 1, 2, 0], [3, 3, 9, 10000, 1, 2, 0]], dtype=np.float64)
+	res = r.z_stack(loc, 1, 20, gaussian)
+	ref = np.array([[[2, 3, 2, 0, 0],
+					 [3, 6, 3, 0, 0],
+					 [2, 3, 2, 3, 2],
+					 [0, 0, 3, 5, 3],
+					 [0, 0, 2, 3, 2]]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+
+	# 2 point in different Z (and spaced)
+	loc = np.array([[1, 1, 0, 10000, 1, 2, 0], [3, 3, 60, 10000, 1, 2, 0]], dtype=np.float64)
+	res = r.z_stack(loc, 0, 20, gaussian)
+	ref = np.array([[[2, 3, 2, 0, 0],
+					 [3, 6, 3, 0, 0],
+					 [2, 3, 2, 0, 0],
+					 [0, 0, 0, 0, 0],
+					 [0, 0, 0, 0, 0]],
+
+					[[1, 2, 1, 0, 0],
+					 [2, 3, 2, 0, 0],
+					 [1, 2, 1, 0, 0],
+					 [0, 0, 0, 0, 0],
+					 [0, 0, 0, 0, 0]],
+
+					[[0, 0, 0, 0, 0],
+					 [0, 0, 0, 0, 0],
+					 [0, 0, 1, 2, 1],
+					 [0, 0, 2, 3, 2],
+					 [0, 0, 1, 2, 1]],
+
+					[[0, 0, 0, 0, 0],
+					 [0, 0, 0, 0, 0],
+					 [0, 0, 2, 3, 2],
+					 [0, 0, 3, 6, 3],
+					 [0, 0, 2, 3, 2]]], dtype=np.uint16)
 	np.testing.assert_array_equal(res, ref)
