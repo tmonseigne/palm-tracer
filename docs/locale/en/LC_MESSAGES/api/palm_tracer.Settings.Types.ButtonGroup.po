@@ -65,3 +65,15 @@ msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
 #: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst
 msgid "Type renvoyé"
 msgstr "Return type"
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.active_item:1
+msgid "Active ou désactive une option du groupe de boutons."
+msgstr "Turns a button group option on or off."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.active_item:3
+msgid "Identifiant du bouton à modifier."
+msgstr "The ID of the button to be modified."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.active_item:4
+msgid "Si :data:`True`, active l'option, sinon la désactive."
+msgstr "If :data: is `True`, this enables the option; otherwise, it disables it."

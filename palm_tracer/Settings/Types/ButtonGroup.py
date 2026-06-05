@@ -74,6 +74,16 @@ class ButtonGroup(BaseSettingType):
 		"""Valeur actuelle du paramètre (élément dans la liste en :class:`str`)."""
 		return self._items[self.value] if 0 <= self.value < len(self._items) else ""
 
+	##################################################
+	def active_item(self, item_id: int, active: bool) -> None:
+		"""
+		Active ou désactive une option du groupe de boutons.
+
+		:param item_id: Identifiant du bouton à modifier.
+		:param active: Si :data:`True`, active l'option, sinon la désactive.
+		"""
+		for ui in self._uis.values(): ui.boxes[item_id].setEnabled(active)
+
 
 ##################################################
 if __name__ == "__main__":

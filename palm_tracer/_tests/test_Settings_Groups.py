@@ -66,6 +66,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	group.connect(lambda v: received.append(v))
 	with group.signal_blocked(): pass
 	group.disconnect()
+	group.clean_ui()
 
 
 ###################################################
@@ -264,7 +265,7 @@ def test_filters(qtbot):
 	g.update_limits(10, 10, 10)
 	assert isinstance(g.localization, FiltersL)
 	assert isinstance(g.tracking, FiltersT)
-
+	_ = g.get_ui()
 	g.connect_button(lambda: print("Hi"), "default", "0")  # Bouton inexistant
 	g.connect_button(lambda: print("Hi"), "new", "0")  # UI inexistante
 	g.connect_button(lambda: print("Hi"), "default", "reset")
@@ -312,14 +313,24 @@ def test_graph_display(qtbot):
 def test_hr(qtbot):
 	"""Test basique de la classe HR (constructeur, getter, setter)."""
 	g = HR()
-	group_base_test(g, ["Type", "Source", "Color mode", "Ratio", "Crop", "Remove Beads", "Drift Correction", "Smooth Drift", "Gaussian"], ButtonGroup, 1, 0)
+	g["Type"].value = 1  # Passage aux Tracks
+	group_base_test(g, ["Dimension", "Type", "Source", "Color mode", "Ratio", "Crop", "Remove Beads",
+						"Drift Correction", "Smooth Drift", "Gaussian", "Z Stack"], ButtonGroup, 1, 0)
 	assert isinstance(g.gaussian, HRGaussian)
+	assert isinstance(g.z_stack, HRStack)
+
 
 
 ###################################################
 def test_hr_gaussian(qtbot):
 	"""Test basique de la classe HRGaussian (constructeur, getter, setter)."""
 	group_base_test(HRGaussian(), ["Intensity", "Fixed Intensity", "Shape", "Size"], SpinInt, 10, 100)
+
+
+###################################################
+def test_hr_zstack(qtbot):
+	"""Test basique de la classe HRGaussian (constructeur, getter, setter)."""
+	group_base_test(HRStack(), ["Z Step"], SpinInt, 10, 20)
 
 
 ###################################################

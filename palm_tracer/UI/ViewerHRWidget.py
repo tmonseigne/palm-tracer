@@ -265,18 +265,20 @@ class ViewerHRWidget(QWidget):
 			show_warning("No visualization available.")
 			return
 
+		# Changement des noms
+		suffix_file = f"-{suffix}-{FileIO.get_timestamp_for_files()}.png"
+		self._filename = str(self._pt.output_viz_name())
+		self._screenshot_filename = f"{path}/screenshot{suffix_file}"
+
+		if self._hr_settings["Dimension"].value == 0: self.viewer.dims.ndisplay = 2  # Passage en 2D
+		else: self.viewer.dims.ndisplay = 3  # passage en 3D
+
 		if self._hr_settings["Type"].value == 0:  # Localisations
 			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)
 		else:  # Trajectoires
 			layer = self.viewer.add_tracks(plot_data, name="Tracks", blending="translucent", visible=False)
 
-		src = cast(Combo, self._hr_settings["Source"]).current_text
-		upscale = self._hr_settings["Ratio"].value
 		layer.editable = False
-		suffix_drift = '_corrected' if self._hr_settings["Drift Correction"].value else ''
-		suffix_file = f"{suffix_drift}_x{upscale}_{src}-{suffix}.png"
-		self._filename = f"{path}/visualization{suffix_file}"
-		self._screenshot_filename = f"{path}/screenshot{suffix_file}"
 		layer = self.viewer.add_image(self.visualization, name="Visualization")
 		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
 

@@ -204,3 +204,7 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 	w._generate()
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0
+	w._pt.settings.hr["Dimension"].value = 1
+	w._generate()
+	lines = get_lines_output(capsys)
+	assert len(lines) == 0

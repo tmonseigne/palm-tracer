@@ -93,7 +93,7 @@ class BaseSettingGroup:
 		return ui
 
 	##################################################
-	def clean_ui(self, name: str):
+	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime l'interface Qt associée au nom donné.
 

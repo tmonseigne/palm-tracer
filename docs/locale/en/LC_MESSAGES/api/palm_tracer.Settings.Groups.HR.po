@@ -46,6 +46,10 @@ msgstr "**Smooth Drift** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox
 msgid "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`) : Paramètres spécifiques à la représentation gaussienne."
 msgstr "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`): Settings specific to the Gaussian representation."
 
+#: of palm_tracer.Settings.Groups.HR.HR:16
+msgid "**Z Stack** (:class:`HRStack <palm_tracer.Settings.Types.HRStack.HRStack>`) : Paramètres spécifiques à la représentation sous forme de Z-stack."
+msgstr "**Z Stack** (:class:`HRStack <palm_tracer.Settings.Types.HRStack.HRStack>`): Settings specific to Z-stack visualization."
+
 #: ../../api/palm_tracer.Settings.Groups.HR.rst
 msgid "Paramètres"
 msgstr "Parameters"
@@ -66,11 +70,15 @@ msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, B
 msgid "Groupe de paramètres liés à la représentation gaussienne (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
 msgstr "Group of settings related to the Gaussian representation (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
 
-#: ../../api/palm_tracer.Settings.Groups.HR.rst:16
+#: of palm_tracer.Settings.Groups.HR.HR.z_stack:1
+msgid "Groupe de paramètres liés à la représentation sous forme de Z-stack (:class:`HRStack <palm_tracer.Settings.Groups.HRStack.HRStack>`)."
+msgstr "Group of settings related to the Z-stack representation (:class:`HRStack <palm_tracer.Settings.Groups.HRStack.HRStack>`)."
+
+#: ../../api/palm_tracer.Settings.Groups.HR.rst:17
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Settings.Groups.HR.rst:19
+#: ../../api/palm_tracer.Settings.Groups.HR.rst:20
 msgid "Divers"
 msgstr "Miscellaneous"
 
@@ -121,6 +129,10 @@ msgstr "Setting interface (:class:`palm_tracer.Settings. Groups.BaseUI.BaseUI`).
 #: ../../api/palm_tracer.Settings.Groups.HR.rst
 msgid "Type renvoyé"
 msgstr "Return type"
+
+#: of palm_tracer.Settings.Groups.HR.HR.toggle_dimension:1
+msgid "Désactive l'option tracking dans le cas de la 3D et affiche/masque les options 3D."
+msgstr "Disables the tracking option for 3D and shows or hides the 3D options."
 
 #: of palm_tracer.Settings.Groups.HR.HR.toggle_type:1
 msgid "Change la liste des sources pour les graphiques."

@@ -147,7 +147,15 @@ msgstr "The returned dictionary always contains the following keys: ``Localizati
 msgid "Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau."
 msgstr "A ``{str: str}`` dictionary containing the status for each array type."
 
-#: ../../api/palm_tracer.PALMTracer.rst:42
+#: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:1
+msgid "Indique le nom du fichier de visualization à enregistrer CHEMIN / name-Timestamp.extension."
+msgstr "Specify the name of the visualization file to be saved: PATH / name-Timestamp.extension."
+
+#: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:3
+msgid "Nom du fichier."
+msgstr "File name."
+
+#: ../../api/palm_tracer.PALMTracer.rst:43
 msgid "Process"
 msgstr "Process"
 
@@ -169,7 +177,7 @@ msgstr "Runs the PALM process according to the settings provided."
 msgid "Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."
 msgstr "Saves the metadata file (creates the DataFrame and saves it as CSV if different from the previous one)."
 
-#: ../../api/palm_tracer.PALMTracer.rst:49
+#: ../../api/palm_tracer.PALMTracer.rst:50
 msgid "Filtering"
 msgstr "Filtering"
 
@@ -193,7 +201,7 @@ msgstr "Saves all filtered files if they are not empty."
 msgid "Connecte les boutons d'une interface de filtre."
 msgstr "Connects the buttons of a filter interface."
 
-#: ../../api/palm_tracer.PALMTracer.rst:57
+#: ../../api/palm_tracer.PALMTracer.rst:58
 msgid "Visualization"
 msgstr "Visualization"
 

@@ -253,6 +253,22 @@ class PALMTracer:
 		"""
 		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
 
+	##################################################
+	def output_viz_name(self) -> Path:
+		"""
+		Indique le nom du fichier de visualization à enregistrer CHEMIN / name-Timestamp.extension.
+
+		:return: Nom du fichier.
+		"""
+		s = self.settings.hr.settings
+		dim, typ, rat, src, dft = s["Dimension"], s["Type"], s["Ratio"], s["Source"], s["Drift Correction"]
+		suffix_drift = "_corrected" if dft else ""
+		if dim == 0: suffix_dim, ext = "2d", "png"
+		else: suffix_dim, ext = "z_stack", "tif"
+		suffix_type = "localizations" if typ == 0 else "tracks"
+		name = f"visualization_{suffix_dim}_{suffix_type}{suffix_drift}_x{rat}_{src}"
+		return self._output_name(name, ext=ext, previous=False)
+
 	# ==================================================
 	# endregion Getter/Setter
 	# ==================================================
@@ -838,12 +854,22 @@ class PALMTracer:
 			df = self._correct_drift(df)
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
-			viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
-			plot_data = df[["Y", "X"]].to_numpy() * upscale
-
 			gaussian = s.gaussian.settings if s.gaussian.active else None
 			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
-			viz = self._renderer.localizations(viz_data, color_mode, gaussian)
+
+			if s["Dimension"].value == 0:
+				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
+				plot_data = df[["Y", "X"]].to_numpy() * upscale
+				viz = self._renderer.localizations(viz_data, color_mode, gaussian)
+			else:
+				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
+				z_step = s.z_stack["Z Step"].value
+				viz = self._renderer.z_stack(viz_data, color_mode, z_step, gaussian)
+
+				plot_data = df[["Z", "Y", "X"]].to_numpy(copy=True)
+				z_min = np.nanmin(plot_data[:, 0])
+				plot_data[:, 0] = np.floor((plot_data[:, 0] - z_min) / z_step).astype(int)
+				plot_data[:, 1:] *= upscale
 			return viz, plot_data
 
 		# --- Tracks ---
@@ -887,27 +913,26 @@ class PALMTracer:
 
 		# --- Masque des pixels non nuls ---
 		mask = img != 0
-		if not np.any(mask): return np.zeros((1, 1), dtype=img.dtype)  # Si tout est noir
+		if not np.any(mask): return np.zeros(tuple(1 for _ in range(img.ndim)), dtype=img.dtype)  # Si tout est noir
 
-		# --- Indices min/max ---
-		rows, cols = np.any(mask, axis=1), np.any(mask, axis=0)  # Projection sur les axes
-		y_min, y_max = np.where(rows)[0][[0, -1]]
-		x_min, x_max = np.where(cols)[0][[0, -1]]
+		slices = []
+		for axis in range(img.ndim):
+			# Projection sur tous les axes sauf l'axe courant
+			proj_axes = tuple(i for i in range(img.ndim) if i != axis)
+			active = np.any(mask, axis=proj_axes)
+			idx = np.where(active)[0]
+			# Ajout marge (avec clamp pour ne pas dépasser les dimensions initiales)
+			axis_min, axis_max = max(0, idx[0] - margin), min(img.shape[axis] - 1, idx[-1] + margin)
+			slices.append(slice(axis_min, axis_max + 1))
 
-		# --- Ajout marge (avec clamp) ---
-		y_min, y_max = max(0, y_min - margin), min(img.shape[0] - 1, y_max + margin)
-		x_min, x_max = max(0, x_min - margin), min(img.shape[1] - 1, x_max + margin)
-
-		return img[y_min:y_max + 1, x_min:x_max + 1]  # Crop
+		return img[tuple(slices)]
 
 	##################################################
 	def _visualization_hr(self):
 		"""Lance la creation d'une visualisation haute résolution à partir des paramètres passés en paramètres."""
-		s = self.settings.hr.settings
-		suffix_drift = "_corrected" if s["Drift Correction"] else ""
-		suffix_type = "_localizations" if s["Type"] == 0 else "_tracks"
-		name = f"visualization{suffix_type}{suffix_drift}_x{s['Ratio']}_{s['Source']}"
+		name = self.output_viz_name()
 		viz, _ = self.hr()
-		self._logger.add(f"\tSaving high-resolution visualization (x{s['Ratio']}, {s['Source']}).")
-		FileIO.save_png(self.crop(viz), self._output_name(name, ext=".png"))
+		self._logger.add(f"\tSaving high-resolution visualization.")
+		if name.suffix == ".png": FileIO.save_png(self.crop(viz), name)  # Si extension png.
+		else: FileIO.save_tif(self.crop(viz), name)  # .				   Si extension tif.
 		return

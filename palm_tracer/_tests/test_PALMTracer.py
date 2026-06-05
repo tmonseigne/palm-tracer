@@ -94,7 +94,7 @@ def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 
 
 ##################################################
-def test_reset_result(qtbot, capsys, pt):
+def test_reset_result(pt):
 	"""Test pour le process sans fichiers en entrée."""
 
 	pt.df["loc"] = pd.DataFrame([1, 1])
@@ -121,7 +121,7 @@ def test_reset_result(qtbot, capsys, pt):
 # region Getter/Setter
 # ==================================================
 ##################################################
-def test_getter_localization(qtbot, pt):
+def test_getter_localization(pt):
 	"""Test pour le getter de la localisation."""
 	res = pt.localizations
 	assert res.empty, "Le Dataframe devrait être vide."
@@ -143,7 +143,7 @@ def test_getter_localization(qtbot, pt):
 
 
 ##################################################
-def test_getter_beads(qtbot, pt):
+def test_getter_beads(pt):
 	"""Test pour le getter de la localisation."""
 	res = pt.beads
 	assert res.empty, "Le Dataframe devrait être vide."
@@ -154,7 +154,7 @@ def test_getter_beads(qtbot, pt):
 
 
 ##################################################
-def test_getter_tracks(qtbot, pt):
+def test_getter_tracks(pt):
 	"""Test pour le process sans fichiers en entrée."""
 	res = pt.tracks
 	assert res.empty, "Le Dataframe devrait être vide."
@@ -176,7 +176,7 @@ def test_getter_tracks(qtbot, pt):
 
 
 ##################################################
-def test_getter_tracks_compute(qtbot, pt):
+def test_getter_tracks_compute(pt):
 	"""Test pour le process sans fichiers en entrée."""
 	df = pt.tracks_compute
 	assert df["MSD"].empty, "Le Dataframe devrait être vide."
@@ -187,7 +187,7 @@ def test_getter_tracks_compute(qtbot, pt):
 
 
 ##################################################
-def test_get_status(qtbot, pt):
+def test_get_status(pt):
 	# État initial
 	ref = {"Localization": FILE_STATUS[0], "Beads": FILE_STATUS[0], "Tracking": FILE_STATUS[0],
 		   "MSD":          FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
@@ -244,21 +244,21 @@ def test_get_status(qtbot, pt):
 
 
 ##################################################
-def test_getter_path(qtbot, pt):
+def test_getter_path(pt):
 	"""Test pour le process sans fichiers en entrée."""
 	res = pt.path
 	assert res == ""
 
 
 ##################################################
-def test_getter_stack(qtbot, pt):
+def test_getter_stack(pt):
 	"""Test pour le process sans fichiers en entrée."""
 	res = pt.stack
 	assert res is None
 
 
 ##################################################
-def test_getter_suffix(qtbot, pt):
+def test_getter_suffix(pt):
 	"""Test pour le process sans fichiers en entrée."""
 	res = pt.suffix
 	assert res == ""
@@ -272,7 +272,7 @@ def test_getter_suffix(qtbot, pt):
 # region Process
 # ==================================================
 ##################################################
-def test_load_bad_dll(qtbot, capsys, pt):
+def test_load_bad_dll(capsys, pt):
 	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
 	pt.palm._dll = None
 	pt.load("")
@@ -281,7 +281,7 @@ def test_load_bad_dll(qtbot, capsys, pt):
 
 
 ##################################################
-def test_load_nothing(qtbot, capsys, pt):
+def test_load_nothing(capsys, pt):
 	"""Test pour le chargement avec fichier, mais sans settings."""
 	pt.load("bad path")
 	lines = get_lines_output(capsys)
@@ -289,7 +289,7 @@ def test_load_nothing(qtbot, capsys, pt):
 
 
 ##################################################
-def test_load(qtbot, capsys, pt):
+def test_load(capsys, pt):
 	"""Test pour le chargement avec fichier, mais sans settings."""
 	clean_output()
 
@@ -329,7 +329,7 @@ def test_load(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_no_input(qtbot, capsys, pt):
+def test_process_no_input(capsys, pt):
 	"""Test pour le process sans fichiers en entrée."""
 	clean_output()
 	pt.process()
@@ -339,7 +339,7 @@ def test_process_no_input(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_nothing(qtbot, capsys, pt):
+def test_process_nothing(capsys, pt):
 	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
 	clean_output()
 
@@ -394,7 +394,7 @@ def test_process_nothing(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_bad_dll(qtbot, capsys, pt):
+def test_process_bad_dll(capsys, pt):
 	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
 	pt.palm._dll = None
 	pt.process()
@@ -404,7 +404,7 @@ def test_process_bad_dll(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_multiple_stack(qtbot, capsys, pt):
+def test_process_multiple_stack(capsys, pt):
 	"""Test pour le process avec plusieurs piles."""
 	clean_output()
 
@@ -419,7 +419,7 @@ def test_process_multiple_stack(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_localization(qtbot, capsys, pt):
+def test_process_localization(capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
 
@@ -433,7 +433,7 @@ def test_process_localization(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_localization_z(qtbot, capsys, pt):
+def test_process_localization_z(capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
 
@@ -460,7 +460,7 @@ def test_process_localization_z(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_localization_spline_bad(qtbot, capsys, pt):
+def test_process_localization_spline_bad(capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
 
@@ -476,7 +476,7 @@ def test_process_localization_spline_bad(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_localization_spline(qtbot, capsys, pt):
+def test_process_localization_spline(capsys, pt):
 	"""Test pour le process de localisation."""
 	clean_output()
 
@@ -492,7 +492,7 @@ def test_process_localization_spline(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_beads_extraction_no_beads(qtbot, capsys, pt):
+def test_process_beads_extraction_no_beads(capsys, pt):
 	"""Test pour le process de l'extraction des billes."""
 	clean_output()
 
@@ -508,7 +508,7 @@ def test_process_beads_extraction_no_beads(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_plane_discontinuous(qtbot, capsys, pt):
+def test_process_plane_discontinuous(capsys, pt):
 	"""Test pour le process de l'extraction des billes."""
 	clean_output()
 
@@ -522,7 +522,7 @@ def test_process_plane_discontinuous(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_beads_extraction(qtbot, capsys, pt):
+def test_process_beads_extraction(capsys, pt):
 	"""Test pour le process de l'extraction des billes."""
 	clean_output()
 
@@ -543,7 +543,7 @@ def test_process_beads_extraction(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_tracking(qtbot, capsys, pt):
+def test_process_tracking(capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
 
@@ -562,7 +562,7 @@ def test_process_tracking(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_tracking_blinking(qtbot, capsys, pt):
+def test_process_tracking_blinking(capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
 
@@ -578,7 +578,7 @@ def test_process_tracking_blinking(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_tracks_compute(qtbot, capsys, pt):
+def test_process_tracks_compute(capsys, pt):
 	"""Test pour le process de tracking."""
 	clean_output()
 
@@ -614,7 +614,7 @@ def test_process_tracks_compute(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_gallery(qtbot, capsys, pt):
+def test_process_gallery(capsys, pt):
 	"""Test pour le process de visualization HR."""
 	clean_output()
 
@@ -632,7 +632,7 @@ def test_process_gallery(qtbot, capsys, pt):
 
 
 ##################################################
-def test_process_visualization_graph(qtbot, capsys, pt):
+def test_process_visualization_graph(capsys, pt):
 	"""Test pour le process de visualization de graph."""
 	clean_output()
 
@@ -647,7 +647,7 @@ def test_process_visualization_graph(qtbot, capsys, pt):
 
 
 #################################################
-def test_process_visualization_hr(qtbot, capsys, pt):
+def test_process_visualization_hr(capsys, pt):
 	"""Test pour le process de visualization HR."""
 	clean_output()
 
@@ -658,12 +658,18 @@ def test_process_visualization_hr(qtbot, capsys, pt):
 	pt.settings.hr["Crop"].value = False
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[1], clean=False)
+	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[1])
+	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
+
+	pt.settings.hr["Dimension"].value = 1  # Génération de Z-stack
+	pt.process()
+
+	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], tif=[1])
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
 
 
 ##################################################
-def test_process_all(qtbot, capsys, pt):
+def test_process_all(capsys, pt):
 	"""Test Basique pour le process complet."""
 	clean_output()
 
@@ -695,7 +701,7 @@ def test_process_all(qtbot, capsys, pt):
 # region Filtering
 # ==================================================
 ##################################################
-def test_reset_filtered(qtbot, capsys, pt):
+def test_reset_filtered(capsys, pt):
 	"""Test pour la suppréssion des tableaux filtrés."""
 
 	pt.df["loc"] = pd.DataFrame([1, 1])
@@ -720,7 +726,7 @@ def test_reset_filtered(qtbot, capsys, pt):
 
 
 ##################################################
-def test_update_filtered(qtbot, capsys, pt):
+def test_update_filtered(capsys, pt):
 	"""Test pour la mise à jour des tableaux filtrés."""
 	clean_output()
 	pt.update_filtered()  # Tout est vide
@@ -736,7 +742,7 @@ def test_update_filtered(qtbot, capsys, pt):
 
 
 ##################################################
-def test_save_filtered(qtbot, capsys, pt):
+def test_save_filtered(capsys, pt):
 	"""Test pour la mise à jour des tableaux filtrés."""
 	clean_output()
 	pt._path = OUTPUT_DIR
@@ -761,7 +767,7 @@ def test_connect_filters_button(qtbot, capsys, pt):
 
 
 ##################################################
-def test_filter_localization(qtbot, capsys, pt):
+def test_filter_localization(capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 
@@ -796,7 +802,7 @@ def test_filter_localization(qtbot, capsys, pt):
 
 
 ##################################################
-def test_filter_tracks_compute(qtbot, capsys, pt):
+def test_filter_tracks_compute(capsys, pt):
 	"""Test pour le filtrage complet lors de l'exécution."""
 	clean_output()
 
@@ -1046,10 +1052,14 @@ def test_crop():
 	assert np.allclose(img, res)  # .		   Crop à True, avec un carré à 1 et une marge (par défaut) de 5
 
 	img = np.zeros((10, 10), dtype=np.uint16)
-	img[2:4, 6:] = 1
+	img[2:4, 6:] = 1  # Carré de 1.
 	ref = img[:-1, 1:].copy()  # .			   Le crop avec une marge de 5 va très peu recadrer
 	assert np.allclose(pt.crop(img), ref)  # .Crop à True, avec un carré à 1 et une marge (par défaut) de 5
-	assert np.allclose(pt.crop(img, 0), 1)  # Crop à True, avec aucune marge donc un seul point
+	assert np.allclose(pt.crop(img, 0), np.ones((2, 4)))  # Crop à True, avec aucune marge donc uniquement les points à 1
+
+	vol = np.zeros((10, 10, 10), dtype=np.uint16)
+	vol[0, 2:4, 6:] = 1
+	assert np.allclose(pt.crop(vol, 0), np.ones((1, 2, 4)))  # Crop à True, avec aucune marge donc uniquement les points à 1
 
 	pt.settings.hr["Crop"].value = False
 	assert np.allclose(pt.crop(img), img)  # .Crop à False, aucun changement dans l'image
@@ -1117,6 +1127,24 @@ def test_hr():
 	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
+
+
+###################################################
+def test_hr_z_stack():
+	"""Test de différentes récupérations de données."""
+	pt = get_fake_pt()
+	s = pt.settings.hr
+	s["Dimension"].value = 1
+	s["Ratio"].value = 2
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+	# HR Localisation
+	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
+	viz, plot = pt.hr()
+	ref_viz = np.zeros((1, 10, 10), dtype=np.uint16)
+	ref_viz[0, 4, 2] = ref_viz[0, 6, 4] = 2
+	ref_plot = [[0, 4, 2], [0, 6, 4], [0, 8, 6], [0, 10, 8], [0, 4, 2], [0, 6, 4]]
+	assert np.allclose(ref_viz, viz) and np.allclose(ref_plot, plot)
 
 
 ##################################################
