@@ -92,6 +92,7 @@ class Viewer3DWidget(QWidget):
 			return
 
 		self.data = df.copy()
+		self.data[["X", "Y"]] *= self.settings["Pixel Size"].value
 		# Supprimer le calque précédent s'il existe, (le nombre de points peu changer)
 		if self.points_layer is not None:
 			try: self.viewer.layers.remove(self.points_layer)

@@ -325,4 +325,4 @@ def test_hr_gaussian(qtbot):
 ###################################################
 def test_visualization_3d(qtbot):
 	"""Test basique de la classe Visualization3D (constructeur, getter, setter)."""
-	group_base_test(Visualization3D(), ["Point Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 1, 0.5)
+	group_base_test(Visualization3D(), ["Point Size", "Pixel Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 2, 1)

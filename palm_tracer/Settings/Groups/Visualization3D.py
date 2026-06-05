@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckBox, SpinFloat
+from palm_tracer.Settings.Types import CheckBox, SpinFloat, SpinInt
 
 
 ##################################################
@@ -24,7 +24,8 @@ class Visualization3D(BaseSettingGroup):
 	"""
 
 	label: str = "3D"
-	setting_list = {"Point Size":      [SpinFloat, ["Point Size", "", 0.5, [0.1, 10], 0.1, 1]],
+	setting_list = {"Point Size":      [SpinFloat, ["Point Size", "", 1, [0.1, 1000], 1, 1]],
+					"Pixel Size":      [SpinInt, ["Pixel Size (nm)", "", 160, [1, 1000], 10]],
 					"XY Scale":        [SpinFloat, ["XY Scale", "", 1.0, [0.0, 1000], 1.0, 1]],
 					"Z Scale":         [SpinFloat, ["Z Scale", "", 1.0, [0.0, 1000], 1.0, 1]],
 					"Remove Outliers": [CheckBox, ["Remove Outliers", "", False]]}
