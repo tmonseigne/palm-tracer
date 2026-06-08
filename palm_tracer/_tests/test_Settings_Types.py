@@ -225,9 +225,7 @@ def test_check_range_int(qtbot):
 	assert setting.min == 5
 	cast(QSpinBox, ui.boxes[2]).setValue(5)
 	assert setting.max == 5
-	print(setting.active)
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
-	print(setting.active)
 	assert not setting.active
 
 	w.close()
@@ -303,6 +301,11 @@ def test_button_group(qtbot):
 	setting = ButtonGroup("Test", "", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
 	assert setting.current_text == "Choix 1"
+	ui = setting.get_ui("default")
+	setting.active_item(0, False)
+	assert not ui.boxes[0].isEnabled()
+	setting.active_item(0, True)
+	assert ui.boxes[0].isEnabled()
 
 
 ###################################################

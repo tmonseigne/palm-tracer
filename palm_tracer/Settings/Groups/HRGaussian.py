@@ -1,6 +1,6 @@
 """
-Fichier contenant la classe :class:`VisualizationHR` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de visualisation haute résolution nécessaires à la configuration de PALM Tracer.
+Fichier contenant la classe :class:`HRGaussian` dérivée de :class:`.BaseSettingGroup`,
+qui regroupe les paramètres de visualisation haute résolution gaussienne nécessaires à la configuration de PALM Tracer.
 """
 from __future__ import annotations
 

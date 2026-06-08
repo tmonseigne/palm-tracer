@@ -35,6 +35,7 @@ msgid "Ratio d'agrandissement de l'image. Les coordonnées sont multipliées par
 msgstr "Image scaling factor. Coordinates are multiplied by this factor."
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:1
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:1
 msgid "Construit une image Haute résolution (uint16) en fonction des éléments localisés."
 msgstr "Generates a high-resolution image (uint16) based on the located elements."
 
@@ -43,6 +44,7 @@ msgid "Position des points à représenter sous forme de tableau 2D de N lignes 
 msgstr "Position of points to be plotted as a 2D array of N rows and at least 3 columns (X, Y, Color)."
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:4
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:4
 msgid "Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée."
 msgstr "Specifies whether rendering in the case of overlap adds the values or retains the highest value."
 
@@ -87,7 +89,23 @@ msgstr "\"Color\": intensity to plot ``(0..65535)``. Any out-of-range values are
 msgid "Tableau des points de trajectoires sous forme de tableau 2D de N lignes et 4 colonnes (Track, X, Y, Couleur)."
 msgstr "Array of tracks points in the form of a 2D array with N rows and 4 columns (Track, X, Y, Color)."
 
-#: ../../api/palm_tracer.Processing.Renderer.rst:19
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:3
+msgid "Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur)."
+msgstr "Position of points to be plotted as a 2D array of N rows and at least 4 columns (X, Y, Z, Color)."
+
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:5
+msgid "Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres)."
+msgstr "Distance between two planes (unit identical to the Z column, typically in nanometers)."
+
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:6
+msgid "Paramètres pour le rendu gaussien loc doit avoir au moins 7 colonnes  (X, Y, Z, Couleur, Sigma X, Sigma Y, Theta)."
+msgstr "Parameters for Gaussian rendering: loc must have at least 7 columns (X, Y, Z, Color, Sigma X, Sigma Y, Theta)."
+
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:7
+msgid "Nouvelle image en uint16 de forme (Z, height*ratio, width*ratio)."
+msgstr "New image in uint16 format (Z, height*ratio, width*ratio)."
+
+#: ../../api/palm_tracer.Processing.Renderer.rst:20
 msgid "Tools"
 msgstr ""
 
@@ -185,6 +203,50 @@ msgstr "Data type to use for calculating the ``Color`` component."
 msgid "Tableau numpy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``."
 msgstr "A NumPy array of shape ``(N, 5)`` of type ``float64`` containing ``Track``, ``Plane``, ``X``, ``Y``, and ``Color``."
 
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:1
+msgid "Prépare les données pour le rendu :"
+msgstr "Prepare the data for rendering:"
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:3
+msgid "Multiplie par le ratio les colonnes concernées"
+msgstr "Multiplies the relevant columns by the ratio."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:4
+msgid "Change les degrées en gradient si necessaire."
+msgstr "Converts degrees to gradients if necessary."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:5
+msgid "Vérifie les bornes de l'image et supprime les points hors dimensions."
+msgstr "Checks the image boundaries and removes out-of-bounds points."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:7
+msgid "Données à préparer"
+msgstr "Data to be prepared"
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:8
+msgid "Les données possèdent une composante Z."
+msgstr "The data must include a Z component."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:9
+msgid "Les données seront utilisées pour une représentation gaussienne."
+msgstr "The data will be used for a Gaussian representation."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:1
+msgid "Récupère les données Color, Sigma X, Sigma Y, Theta et les modifient en fonction des paramètres utilisateurs."
+msgstr "Retrieves the Color, Sigma X, Sigma Y, and Theta data and modifies them according to user parameters."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:3
+msgid "Position des points à représenter sous forme de tableau 2D de N lignes et 3 colonnes (Sigma X, Sigma Y, Theta)."
+msgstr "Position of points to be plotted as a 2D array of N rows and 3 columns (Sigma X, Sigma Y, Theta)."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:4
+msgid "Paramètres pour le rendu gaussien."
+msgstr "Parameters for Gaussian rendering."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:5
+msgid "le quatuor de tableaux 1D pour Color, Sigma X, Sigma Y et Theta."
+msgstr "The quartet of 1D arrays for Color, Sigma X, Sigma Y, and Theta."
+
 #: of palm_tracer.Processing.Renderer.Renderer.draw_line:1
 msgid "Trace une ligne discrète entre deux points dans une image 2D en utilisant l'algorithme de Bresenham (version entière, sans flottants)."
 msgstr "Draws a discrete line between two points in a 2D image using the Bresenham algorithm (integer version, without floating-point numbers)."
@@ -230,14 +292,17 @@ msgid "Image de sortie 2D, modifiée sur place."
 msgstr "2D output image, modified in-place."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:4
+#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:4
 msgid "Coordonnées X des centres."
 msgstr "X-coordinates of the centers."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:5
+#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:5
 msgid "Coordonnées Y des centres."
 msgstr "Y-coordinates of the centers."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:6
+#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:7
 msgid "Intensité totale de chaque gaussienne."
 msgstr "Total intensity of each Gaussian."
 
@@ -260,3 +325,27 @@ msgstr "0: sum of intensities; otherwise: preserve the maximum pixel-by-pixel."
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:11
 msgid "Image résultat."
 msgstr "Result image."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:1
+msgid "Dessine des gaussiennes 3D isotropes dans un volume."
+msgstr "Plots 3D isotropic Gaussians in an image."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:3
+msgid "Volume de sortie 3D, modifié sur place, forme (Z, Y, X)."
+msgstr "3D output volume, modified on-site, shape (Z, Y, X)."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:6
+msgid "Coordonnées Z des centres."
+msgstr "Z-coordinates of the centers."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:8
+msgid "Sigma isotrope de chaque gaussienne."
+msgstr "The isotropic sigma of each Gaussian."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:9
+msgid "0 : addition des intensités, autre : conservation du maximum voxel à voxel."
+msgstr "0: sum of intensities; otherwise: preserve the maximum voxel-by-voxel."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:10
+msgid "Volume résultat."
+msgstr "Result Volume."
