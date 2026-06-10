@@ -23,7 +23,7 @@ from .Graph import Graph
 from .GraphDisplay import GraphDisplay
 from .HR import HR
 from .HRGaussian import HRGaussian
-from .HRStack import HRStack
+from .HR3D import HR3D
 from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
@@ -36,4 +36,4 @@ __all__ = ["BaseSettingGroup", "BaseUI",
 		   "Filters", "FiltersL", "FiltersT",
 		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",
 		   "Tracking", "BlinkingReconnection", "TracksCompute",
-		   "Gallery", "Graph", "GraphDisplay", "HR", "HRGaussian", "HRStack", "Visualization3D"]
+		   "Gallery", "Graph", "GraphDisplay", "HR", "HRGaussian", "HR3D", "Visualization3D"]

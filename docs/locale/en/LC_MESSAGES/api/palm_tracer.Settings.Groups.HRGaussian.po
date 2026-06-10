@@ -3,8 +3,8 @@ msgid "HRGaussian"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:1
-msgid "Classe contenant les paramètres de Visualisation haute résolution :"
-msgstr "Class containing the high-resolution visualization settings:"
+msgid "Classe contenant les paramètres de Visualisation haute résolution pour le rendu gaussien :"
+msgstr "Class containing the high-resolution visualization settings for Gaussian rendering:"
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:3
 msgid "Attributs :"

@@ -9,8 +9,8 @@ from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.HR3D import HR3D
 from palm_tracer.Settings.Groups.HRGaussian import HRGaussian
-from palm_tracer.Settings.Groups.HRStack import HRStack
 from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
 
 DATA_SRC: dict[str, list] = {
@@ -39,11 +39,11 @@ class HR(BaseSettingGroup):
 		  Applique une correction de la dérive (Remarque : les billes doivent avoir été extraites au préalable.)
 		- **Smooth Drift** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique un lissage à la correction de dérive.
 		- **Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`) : Paramètres spécifiques à la représentation gaussienne.
-		- **Z Stack** (:class:`HRStack <palm_tracer.Settings.Types.HRStack.HRStack>`) : Paramètres spécifiques à la représentation sous forme de Z-stack.
+		- **3D** (:class:`HR3D <palm_tracer.Settings.Types.HR3D.HR3D>`) : Paramètres spécifiques à la reconstruction 3D.
 	"""
 
 	label: str = "High Resolution"
-	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack"]]],
+	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation"]]],
 					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 					"Source":           [Combo, ["Source", "Data selected for Reconstruction.", 0, DATA_SRC["Localization"]]],
 					"Color mode":       [Combo, ["Color mode",
@@ -57,7 +57,8 @@ class HR(BaseSettingGroup):
 					"Drift Correction": [CheckBox, ["Drift Correction", "Apply a drift correction (Note: The beads must have been extracted before.)", True]],
 					"Smooth Drift":     [CheckBox, ["Smooth Drift", "Apply a smooth on drift correction", True]],
 					"Gaussian":         [HRGaussian, []],
-					"Z Stack":          [HRStack, []]}
+					"3D":               [HR3D, []]
+					}
 
 	##################################################
 	@property
@@ -67,9 +68,9 @@ class HR(BaseSettingGroup):
 
 	##################################################
 	@property
-	def z_stack(self) -> HRStack:
-		"""Groupe de paramètres liés à la représentation sous forme de Z-stack (:class:`HRStack <palm_tracer.Settings.Groups.HRStack.HRStack>`)."""
-		return cast(HRStack, self._settings["Z Stack"])
+	def hr_3d(self) -> HR3D:
+		"""Groupe de paramètres liés à la reconstruction 3D (:class:`HR3D <palm_tracer.Settings.Groups.HR3D.HR3D>`)."""
+		return cast(HR3D, self._settings["3D"])
 
 	##################################################
 	def initialize(self):
@@ -91,12 +92,18 @@ class HR(BaseSettingGroup):
 		"""Désactive l'option tracking dans le cas de la 3D et affiche/masque les options 3D."""
 		s = cast(ButtonGroup, self._settings["Type"])
 		if self._settings["Dimension"].value == 0:
-			self._settings["Z Stack"].hide()
+			self._settings["3D"].hide()
 			s.active_item(1, True)
 		else:
-			self._settings["Z Stack"].show()
+			self._settings["3D"].show()
 			s.active_item(1, False)
 			s.value = 0
+			if self._settings["Dimension"].value == 1:
+				self._settings["3D"]["Axis"].hide()
+				self._settings["3D"]["Frames"].hide()
+			else:
+				self._settings["3D"]["Axis"].show()
+				self._settings["3D"]["Frames"].show()
 
 	##################################################
 	def toggle_type(self):

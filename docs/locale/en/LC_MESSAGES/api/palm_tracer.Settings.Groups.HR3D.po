@@ -1,0 +1,43 @@
+#: ../../api/palm_tracer.Settings.Groups.HR3D.rst:2
+msgid "HR3D"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D:1
+msgid "Classe contenant les paramètres de Visualisation haute résolution pour la 3D :"
+msgstr ""Class containing high-resolution visualization settings for 3D:"
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D:3
+msgid "Attributs :"
+msgstr "Attributes:"
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D:4
+msgid "**Z Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres)."
+msgstr "**Z Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Distance between two planes (unit is the same as the Z column, typically in nanometers)."
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D:6
+msgid "**Axis** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Axe de rotation de la pile."
+msgstr "**Axis** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Rotation axis of the stack."
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D:7
+msgid "**N Plane** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Définit le nombre de plans pour un tour complet lors de la Rotation 3D."
+msgstr "**N Plane** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Sets the number of planes for a full rotation during 3D Rotation."
+
+#: ../../api/palm_tracer.Settings.Groups.HR3D.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.HR3D.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D.label:1
+msgid "Nom du Groupe."
+msgstr "Group name."
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D.setting_list:1
+msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgstr "List of settings in the group (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+
+#: of palm_tracer.Settings.Groups.HR3D.HR3D.mode:1
+msgid "Méthode d'affichage du groupe par défaut."
+msgstr "Default method for displaying the group."

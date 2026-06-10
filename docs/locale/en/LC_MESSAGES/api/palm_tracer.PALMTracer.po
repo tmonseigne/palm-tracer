@@ -214,8 +214,8 @@ msgid "Génère une représentation en Haute Résolution des données."
 msgstr "Generates a high-resolution representation of the data."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:1
-msgid "Recadre automatiquement l'image en supprimant les zones nulles autour, avec une marge configurable."
-msgstr "Automatically crops the image by removing the null areas around it, with a configurable margin."
+msgid "Recadre automatiquement l'image (ou le volume) en supprimant les zones nulles autour, avec une marge configurable."
+msgstr "Automatically crops the image (or the volume) by removing the null areas around it, with a configurable margin."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:3
 msgid "Image à recadrer."

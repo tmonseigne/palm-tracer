@@ -314,11 +314,13 @@ def test_hr(qtbot):
 	"""Test basique de la classe HR (constructeur, getter, setter)."""
 	g = HR()
 	g["Type"].value = 1  # Passage aux Tracks
+	g["Dimension"].value = 1  # Passage à Z-stack
+	g["Dimension"].value = 2  # Passage à 3D Rotation
+	g["Dimension"].reset()
 	group_base_test(g, ["Dimension", "Type", "Source", "Color mode", "Ratio", "Crop", "Remove Beads",
-						"Drift Correction", "Smooth Drift", "Gaussian", "Z Stack"], ButtonGroup, 1, 0)
+						"Drift Correction", "Smooth Drift", "Gaussian", "3D"], ButtonGroup, 1, 0)
 	assert isinstance(g.gaussian, HRGaussian)
-	assert isinstance(g.z_stack, HRStack)
-
+	assert isinstance(g.hr_3d, HR3D)
 
 
 ###################################################
@@ -328,9 +330,9 @@ def test_hr_gaussian(qtbot):
 
 
 ###################################################
-def test_hr_zstack(qtbot):
+def test_hr_3d(qtbot):
 	"""Test basique de la classe HRGaussian (constructeur, getter, setter)."""
-	group_base_test(HRStack(), ["Z Step"], SpinInt, 10, 20)
+	group_base_test(HR3D(), ["Z Step", "Axis", "Frames"], SpinInt, 10, 20)
 
 
 ###################################################

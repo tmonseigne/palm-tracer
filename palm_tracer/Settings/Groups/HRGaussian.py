@@ -14,7 +14,7 @@ from palm_tracer.Settings.Types import CheckBox, Combo, SpinFloat, SpinInt
 @dataclass
 class HRGaussian(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de Visualisation haute résolution :
+	Classe contenant les paramètres de Visualisation haute résolution pour le rendu gaussien :
 
 	Attributs :
 		- **Intensity** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
