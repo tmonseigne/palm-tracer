@@ -35,7 +35,6 @@ msgid "Ratio d'agrandissement de l'image. Les coordonnées sont multipliées par
 msgstr "Image scaling factor. Coordinates are multiplied by this factor."
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:1
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:1
 msgid "Construit une image Haute résolution (uint16) en fonction des éléments localisés."
 msgstr "Generates a high-resolution image (uint16) based on the located elements."
 
@@ -44,7 +43,8 @@ msgid "Position des points à représenter sous forme de tableau 2D de N lignes 
 msgstr "Position of points to be plotted as a 2D array of N rows and at least 3 columns (X, Y, Color)."
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:4
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:4
+#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:6
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:6
 msgid "Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée."
 msgstr "Specifies whether rendering in the case of overlap adds the values or retains the highest value."
 
@@ -89,23 +89,48 @@ msgstr "\"Color\": intensity to plot ``(0..65535)``. Any out-of-range values are
 msgid "Tableau des points de trajectoires sous forme de tableau 2D de N lignes et 4 colonnes (Track, X, Y, Couleur)."
 msgstr "Array of tracks points in the form of a 2D array with N rows and 4 columns (Track, X, Y, Color)."
 
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:1
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:1
+msgid "Construit un volume 3D Haute résolution (uint16) en fonction des éléments localisés."
+msgstr "Generates a high-resolution volume (uint16) based on the located elements."
+
 #: of palm_tracer.Processing.Renderer.Renderer.z_stack:3
+msgid "Chaque plan représente une coupe sur la hauteur Z."
+msgstr "Each plane represents a cross-section along the Z-axis."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:5
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:5
 msgid "Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur)."
 msgstr "Position of points to be plotted as a 2D array of N rows and at least 4 columns (X, Y, Z, Color)."
 
-#: of palm_tracer.Processing.Renderer.Renderer.z_stack:5
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:7
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:7
 msgid "Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres)."
 msgstr "Distance between two planes (unit identical to the Z column, typically in nanometers)."
 
-#: of palm_tracer.Processing.Renderer.Renderer.z_stack:6
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:10
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:8
 msgid "Paramètres pour le rendu gaussien loc doit avoir au moins 7 colonnes  (X, Y, Z, Couleur, Sigma X, Sigma Y, Theta)."
 msgstr "Parameters for Gaussian rendering: loc must have at least 7 columns (X, Y, Z, Color, Sigma X, Sigma Y, Theta)."
 
-#: of palm_tracer.Processing.Renderer.Renderer.z_stack:7
-msgid "Nouvelle image en uint16 de forme (Z, height*ratio, width*ratio)."
-msgstr "New image in uint16 format (Z, height*ratio, width*ratio)."
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:11
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:9
+msgid "Nouveau volume en uint16 de forme (Z, height*ratio, width*ratio)."
+msgstr "New volume in uint16 format (Z, height*ratio, width*ratio)."
 
-#: ../../api/palm_tracer.Processing.Renderer.rst:20
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:3
+msgid "Chaque plan représente une projection selon l'axe de rotation et l'angle sélectionné."
+msgstr "Each plane represents a projection along the rotation axis and the selected angle."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:8
+msgid "Nombre de plans pour effectuer une rotation complète."
+msgstr "Number of frames required to complete a full rotation."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:9
+msgid "Axe de rotation (X,Y,Z)."
+msgstr "Axis of rotation (X, Y, Z)."
+
+#: ../../api/palm_tracer.Processing.Renderer.rst:21
 msgid "Tools"
 msgstr ""
 
@@ -349,3 +374,6 @@ msgstr "0: sum of intensities; otherwise: preserve the maximum voxel-by-voxel."
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:10
 msgid "Volume résultat."
 msgstr "Result Volume."
+
+#~ msgid "Nouveau volume en uint16 de forme (Z, height*ratio, width*ratio)"
+#~ msgstr "New volume in uint16 format (height*ratio, width*ratio)."
