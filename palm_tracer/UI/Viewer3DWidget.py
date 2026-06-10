@@ -86,13 +86,12 @@ class Viewer3DWidget(QWidget):
 		"""
 		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "Fichiers CSV (*.csv)")
 		if not path or not Path(path).is_file(): return
-		df = pd.read_csv(path)
-		if not all(col in df.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):
+		self.data = pd.read_csv(path)
+		if not all(col in self.data.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):
+			self.data = pd.DataFrame()
 			show_warning("The file must contain the columns X, Y, Z, and Integrated Intensity.")
 			return
 
-		self.data = df.copy()
-		self.data[["X", "Y"]] *= self.settings["Pixel Size"].value
 		# Supprimer le calque précédent s'il existe, (le nombre de points peu changer)
 		if self.points_layer is not None:
 			try: self.viewer.layers.remove(self.points_layer)
@@ -115,9 +114,10 @@ class Viewer3DWidget(QWidget):
 		"""
 		if self.data.empty: return
 		s = self.settings.settings
-		size, scale_xy, scale_z, outliers = s["Point Size"], s["XY Scale"], s["Z Scale"], s["Remove Outliers"]
+		px_size, size, scale_xy, scale_z, outliers = s["Pixel Size"], s["Point Size"], s["XY Scale"], s["Z Scale"], s["Remove Outliers"]
 		coords = self.data[["Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
-		coords *= np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)
+		coords[:, 1:3] *= px_size  # Passage en nanomètres pour X et Y précédemment en pixel
+		coords *= np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)  # Changemenet des échelles
 
 		if outliers: coords = coords[self.data["Integrated Intensity"] > 0]
 
