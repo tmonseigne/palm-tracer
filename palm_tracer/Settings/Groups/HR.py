@@ -99,9 +99,11 @@ class HR(BaseSettingGroup):
 			s.active_item(1, False)
 			s.value = 0
 			if self._settings["Dimension"].value == 1:
+				self._settings["3D"]["Z Step"].show()
 				self._settings["3D"]["Axis"].hide()
 				self._settings["3D"]["Frames"].hide()
 			else:
+				self._settings["3D"]["Z Step"].hide()
 				self._settings["3D"]["Axis"].show()
 				self._settings["3D"]["Frames"].show()
 
@@ -113,7 +115,6 @@ class HR(BaseSettingGroup):
 		if self._settings["Type"].value == 0:
 			src.items = DATA_SRC["Localization"]
 			self._settings["Gaussian"].show()
-
 		else:
 			src.items = DATA_SRC["Tracking"]
 			self._settings["Gaussian"].active = False
