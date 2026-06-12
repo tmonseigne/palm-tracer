@@ -59,5 +59,5 @@ msgid "Initialization"
 msgstr ""
 
 #: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.closeEvent:1
-msgid "Assure une destruction propre de QtWebEngine (évite warnings et crash à la sortie)."
-msgstr "Ensures clean destruction of QtWebEngine (prevents warnings and crashes on exit)."
+msgid "Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre."
+msgstr "Clearing the settings UI when the window is closed."

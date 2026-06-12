@@ -83,6 +83,10 @@ msgstr "Instance of the Napari viewer to which the HR layer will be added."
 msgid "Instance PALMTracer à lier."
 msgstr "PALMTracer instance to link."
 
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.closeEvent:1
+msgid "Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre."
+msgstr "Clearing the settings UI when the window is closed."
+
 #: of palm_tracer.UI.ViewerHRWidget.create_viewerhr:1
 msgid "Crée une nouvelle fenêtre Napari HR, sans menu, et y ajoute le ViewerHRWidget docké à droite."
 msgstr "Creates a new Napari HR window, without a menu, and adds the ViewerHRWidget docked on the right."

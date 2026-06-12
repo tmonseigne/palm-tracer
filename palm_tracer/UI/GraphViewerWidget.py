@@ -214,6 +214,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 	##################################################
 	def closeEvent(self, event):
+		"""
+		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
+
+		:param event:
+		"""
 		try: self._pt.settings.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 

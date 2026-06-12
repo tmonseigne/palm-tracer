@@ -47,7 +47,7 @@ class Renderer:
 		res = np.zeros((self._h, self._w), dtype=float)
 		if loc.ndim != 2 or loc.shape[1] < 3: return res.astype(np.uint16)
 
-		loc_v = self.prepare_data(loc, False, False if gaussian is None else True)
+		loc_v = self.prepare_data(loc, False, gaussian is not None)
 		if loc_v.shape[0] == 0: return res.astype(np.uint16)
 
 		# Rendu
@@ -114,25 +114,29 @@ class Renderer:
 	##################################################
 	def z_stack(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
-		Construit une image Haute résolution (uint16) en fonction des éléments localisés.
+		Construit un volume 3D Haute résolution (uint16) en fonction des éléments localisés.
+
+		Chaque plan représente une coupe sur la hauteur Z.
 
 		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur).
 		:param color_mode: Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée.
 		:param z_step: Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres).
 		:param gaussian: Paramètres pour le rendu gaussien loc doit avoir au moins 7 colonnes  (X, Y, Z, Couleur, Sigma X, Sigma Y, Theta).
-		:return: Nouvelle image en uint16 de forme (Z, height*ratio, width*ratio).
+		:return: Nouveau volume en uint16 de forme (Z, height*ratio, width*ratio).
 		"""
 		# Vérification des dimensions
 		if self._h < 1 or self._w < 1: return np.zeros((1, max(self._h, 1), max(self._w, 1)), dtype=np.uint16)
-		if loc.ndim != 2 or loc.shape[1] < 4: return np.zeros((1, self._h, self._w), dtype=np.uint16)
+		if loc.ndim != 2 or loc.shape[1] < 4 or z_step <= 0: return np.zeros((1, self._h, self._w), dtype=np.uint16)
 
-		loc_v = self.prepare_data(loc, True, False if gaussian is None else True)
+		# Préparation des données
+		loc_v = self.prepare_data(loc, True, gaussian is not None)
 		if loc_v.shape[0] == 0: return np.zeros((1, self._h, self._w), dtype=np.uint16)
 
 		# Calcul des plans Z
 		z = loc_v[:, 2]
-		z_min, z_max = np.nanmin(z), np.nanmax(z)
-		n_planes = max(int(np.floor((z_max - z_min) / z_step)) + 1, 1)
+		z_min = np.nanmin(z)
+		z_id = (z - z_min) / z_step  # Passage en "mode plan"
+		n_planes = max(int(np.nanmax(z_id)) + 1, 1)
 
 		res = np.zeros((n_planes, self._h, self._w), dtype=float)
 
@@ -141,16 +145,77 @@ class Renderer:
 			x, y, c = np.round(loc_v[:, 0]).astype(int), np.round(loc_v[:, 1]).astype(int), loc_v[:, 3]
 			valid = ((x >= 0) & (x < self._w) & (y >= 0) & (y < self._h))
 			x, y, c = x[valid], y[valid], c[valid]  # .			   Avec les arrondis, on revérifie les points hors dimension
-			z_id = np.floor((z - z_min) / z_step).astype(int)
+			z_id = np.floor(z_id[valid]).astype(int)
 			if color_mode == 0: np.add.at(res, (z_id, y, x), c)  # Accumulation des valeurs (plus efficace qu'une boucle)
 			else: np.maximum.at(res, (z_id, y, x), c)  # .		   Conservation de la valeur maximale en cas de superposition.
 		else:  # .												   Calcul de l'image en mode Gaussien
 			if loc.shape[1] < 7: return res.astype(np.uint16)
 			x, y = loc_v[:, 0], loc_v[:, 1]
-			z_id = (z - z_min) / z_step
-
-			c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 3:7], gaussian)
+			c, sx, _, _ = self.prepare_gaussian_data(loc_v[:, 3:7], gaussian)
+			c *= self._r  # EN 3D, on ajoute encore un scale à la couleur
 			self.draw_gaussian_3d(res, x, y, z_id, c, sx, color_mode)
+
+		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
+		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
+
+	##################################################
+	def rotation_3d(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, frames: int = 36, axis: int = 1,
+					gaussian: dict[str, Any] | None = None) -> np.ndarray:
+		"""
+		Construit un volume 3D Haute résolution (uint16) en fonction des éléments localisés.
+
+		Chaque plan représente une projection selon l'axe de rotation et l'angle sélectionné.
+
+		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur).
+		:param color_mode: Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée.
+		:param z_step: Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres).
+		:param frames: Nombre de plans pour effectuer une rotation complète.
+		:param axis: Axe de rotation (X,Y,Z).
+		:param gaussian: Paramètres pour le rendu gaussien loc doit avoir au moins 7 colonnes  (X, Y, Z, Couleur, Sigma X, Sigma Y, Theta).
+		:return: Nouveau volume en uint16 de forme (Z, height*ratio, width*ratio).
+		"""
+		# Vérification des dimensions
+		if self._h < 1 or self._w < 1: return np.zeros((1, max(self._h, 1), max(self._w, 1)), dtype=np.uint16)
+		if loc.ndim != 2 or loc.shape[1] < 4 or frames < 1 or z_step <= 0: return np.zeros((1, self._h, self._w), dtype=np.uint16)
+
+		loc_v = self.prepare_data(loc, True, gaussian is not None)
+		if loc_v.shape[0] == 0: return np.zeros((1, self._h, self._w), dtype=np.uint16)
+
+		# Préparation des données
+		x, y, z, c = loc_v[:, 0], loc_v[:, 1], loc_v[:, 2], loc_v[:, 3]
+		z_id = (z - np.nanmin(z)) / z_step  # .																Conversion du Z en indice de plan
+		cx, cy, cz = (self._w - 1) / 2.0, (self._h - 1) / 2.0, (np.nanmax(z_id) - np.nanmin(z_id)) / 2.0  # Centre de la géométrie source
+		x0, y0, z0 = x - cx, y - cy, z_id - cz  # .															Coordonnées relatives au centre
+
+		# Taille de projection volontairement carrée pour éviter le clipping pendant la rotation.
+		diameter = int(np.ceil(2.0 * np.sqrt(cx * cx + cy * cy + cz * cz))) + 3
+		out_h, out_w = max(self._h, diameter), max(self._w, diameter)
+		# Centre de l'image résultat
+		ox, oy = (out_w - 1) / 2.0, (out_h - 1) / 2.0
+
+		# Allocation
+		res = np.zeros((frames, out_h, out_w), dtype=float)
+		angles = np.linspace(0.0, 2.0 * np.pi, frames, endpoint=False)
+
+		if gaussian is not None:
+			if loc_v.shape[1] < 7: return res.astype(np.uint16)
+			c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 3:7], gaussian)
+
+		for angle_id, angle in enumerate(angles):  # .							Pour chaque angle, calcul de la projection
+			cos_a, sin_a = np.cos(angle), np.sin(angle)
+			if axis == 0: xr, yr = x0, cos_a * y0 - sin_a * z0  # .				Rotation autour de X, projection sur X/Y'
+			elif axis == 1: xr, yr = cos_a * x0 + sin_a * z0, y0  # .			Rotation autour de Y, projection sur X'/Y
+			else: xr, yr = cos_a * x0 - sin_a * y0, sin_a * x0 + cos_a * y0  # .Rotation autour de Z, projection sur X'/Y'
+			xp, yp = xr + ox, yr + oy  # .										Position réelle (ajout du centre qui a été avant rotation)
+
+			if gaussian is not None:
+				self.draw_gaussian_2d(res[angle_id], xp, yp, c, sx, sy, theta, color_mode)
+			else:
+				xi, yi = np.round(xp).astype(int), np.round(yp).astype(int)  # Postion en pixel
+				valid = (xi >= 0) & (xi < out_w) & (yi >= 0) & (yi < out_h)
+				xi, yi, ci = xi[valid], yi[valid], c[valid]  # .				Avec les arrondis, on revérifie les points hors dimension
+				if color_mode == 0: np.add.at(res, (angle_id, yi, xi), ci)  # .	Accumulation des valeurs (plus efficace qu'une boucle)
+				else: np.maximum.at(res, (angle_id, yi, xi), ci)  # .			Conservation de la valeur maximale en cas de superposition.
 
 		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
 		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
@@ -313,7 +378,7 @@ class Renderer:
 		:param gaussian: Paramètres pour le rendu gaussien.
 		:return: le quatuor de tableaux 1D pour Color, Sigma X, Sigma Y et Theta.
 		"""
-		c, sx, sy, theta = loc[:, 0], loc[:, 1] * self._r, loc[:, 2] * self._r, Parsing.degrees_to_radians(loc[:, 3])
+		c, sx, sy, theta = loc[:, 0], loc[:, 1], loc[:, 2], Parsing.degrees_to_radians(loc[:, 3])
 		if gaussian["Shape"] == 0:  # .	Taille fixe isotrope
 			theta.fill(0)
 			s = gaussian["Size"] * self._r
@@ -321,13 +386,14 @@ class Renderer:
 			sy.fill(s)
 		elif gaussian["Shape"] == 1:  # Isotrope (theta = 0, sigma = moyenne des deux axes)
 			theta.fill(0)
-			s = (sx + sy) / 2
+			s = ((sx + sy) / 2)
 			sx = sy = s
 		# else: .						Anisotrope aucun changement.
 
 		# Modification des couleurs
-		if gaussian["Fixed Intensity"]: c.fill(gaussian["Intensity"])
-		else: c /= gaussian["Intensity"]
+		r2: float = self._r * self._r  # On possède l'intensité intégrée, donc la valeur doit être multiplié le carré de l'upscale en 2D (et le cube en 3D).
+		if gaussian["Fixed Intensity"]: c.fill(gaussian["Intensity"] * r2)
+		else: c *= r2 / gaussian["Intensity"]
 		return c, sx, sy, theta
 
 	##################################################
@@ -412,7 +478,8 @@ class Renderer:
 			b = sin_2t / sx2 - sin_2t / sy2
 			c = cos_t2 / sx2 + sin_t2 / sy2
 
-			patch = (amp / (2.0 * np.pi * sigma_x * sigma_y)) * np.exp(-(a * dx * dx + b * dx * dy + c * dy * dy))
+			norm = amp / (2.0 * np.pi * sigma_x * sigma_y)
+			patch = norm * np.exp(-(a * dx * dx + b * dx * dy + c * dy * dy))
 
 			view = img[y_min:y_max + 1, x_min:x_max + 1]
 			if color_mode == 0: view += patch
@@ -454,7 +521,7 @@ class Renderer:
 			x_grid = np.arange(x_min, x_max + 1, dtype=np.float64)
 			y_grid = np.arange(y_min, y_max + 1, dtype=np.float64)
 			z_grid = np.arange(z_min, z_max + 1, dtype=np.float64)
-			zz, xx, yy = np.meshgrid(z_grid, y_grid, x_grid, indexing="ij")
+			zz, yy, xx = np.meshgrid(z_grid, y_grid, x_grid, indexing="ij")
 
 			dx, dy, dz = xx - xc, yy - yc, zz - zc
 			r2 = dx * dx + dy * dy + dz * dz

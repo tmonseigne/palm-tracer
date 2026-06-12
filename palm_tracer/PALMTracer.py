@@ -264,7 +264,8 @@ class PALMTracer:
 		dim, typ, rat, src, dft = s["Dimension"], s["Type"], s["Ratio"], s["Source"], s["Drift Correction"]
 		suffix_drift = "_corrected" if dft else ""
 		if dim == 0: suffix_dim, ext = "2d", "png"
-		else: suffix_dim, ext = "z_stack", "tif"
+		elif dim == 1: suffix_dim, ext = "z_stack", "tif"
+		else: suffix_dim, ext = "3D_rotation", "tif"
 		suffix_type = "localizations" if typ == 0 else "tracks"
 		name = f"visualization_{suffix_dim}_{suffix_type}{suffix_drift}_x{rat}_{src}"
 		return self._output_name(name, ext=ext, previous=False)
@@ -857,19 +858,26 @@ class PALMTracer:
 			gaussian = s.gaussian.settings if s.gaussian.active else None
 			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
 
-			if s["Dimension"].value == 0:
-				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
-				plot_data = df[["Y", "X"]].to_numpy() * upscale
-				viz = self._renderer.localizations(viz_data, color_mode, gaussian)
-			else:
-				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)
-				z_step = s.z_stack["Z Step"].value
-				viz = self._renderer.z_stack(viz_data, color_mode, z_step, gaussian)
-
+			if s["Dimension"].value == 0:  # .	 2D
+				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
+				plot_data = df[["Y", "X"]].to_numpy() * upscale  # Mise à l'échelle des X et Y.
+				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # Rendu
+			else:  # . 							 3D
+				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
+				uniform_z_step = self._get_uniform_z_step()
 				plot_data = df[["Z", "Y", "X"]].to_numpy(copy=True)
 				z_min = np.nanmin(plot_data[:, 0])
-				plot_data[:, 0] = np.floor((plot_data[:, 0] - z_min) / z_step).astype(int)
-				plot_data[:, 1:] *= upscale
+				# On n'a pas besoin de les caster en entier, Napari n'est pas trop bête et si l'utilisateur passe en vue 3D, il aura les Z flottants.
+				plot_data[:, 0] = (plot_data[:, 0] - z_min) / uniform_z_step
+				plot_data[:, 1:] *= upscale  # Mise à l'échelle des X et Y.
+				if s["Dimension"].value == 1:  # Z Stack
+					z_step = s.hr_3d["Z Step"].value
+					viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, gaussian)  # Rendu
+				else:  # .						   3D Rotation
+					frames = s.hr_3d["Frames"].value
+					axis = s.hr_3d["Axis"].value
+					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, gaussian)  # Rendu
+
 			return viz, plot_data
 
 		# --- Tracks ---
@@ -903,7 +911,7 @@ class PALMTracer:
 	##################################################
 	def crop(self, img: np.ndarray, margin: int = 5) -> np.ndarray:
 		"""
-		Recadre automatiquement l'image en supprimant les zones nulles autour, avec une marge configurable.
+		Recadre automatiquement l'image (ou le volume) en supprimant les zones nulles autour, avec une marge configurable.
 
 		:param img: Image à recadrer.
 		:param margin: Nombre de pixels à conserver autour de la zone utile.
@@ -926,6 +934,17 @@ class PALMTracer:
 			slices.append(slice(axis_min, axis_max + 1))
 
 		return img[tuple(slices)]
+
+	##################################################
+	def _get_uniform_z_step(self) -> float:
+		"""
+		Calcule le pas en nanomètre sur Z pour une échelle uniforme.
+
+		:return: Pas sur Z identique au pas sur X et Y.
+		"""
+		pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en Nanomètres
+		upscale = self.settings.hr["Ratio"].value
+		return pixel_size / upscale
 
 	##################################################
 	def _visualization_hr(self):

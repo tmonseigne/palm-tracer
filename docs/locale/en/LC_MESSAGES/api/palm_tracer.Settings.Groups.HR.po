@@ -47,8 +47,8 @@ msgid "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.H
 msgstr "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`): Settings specific to the Gaussian representation."
 
 #: of palm_tracer.Settings.Groups.HR.HR:16
-msgid "**Z Stack** (:class:`HRStack <palm_tracer.Settings.Types.HRStack.HRStack>`) : Paramètres spécifiques à la représentation sous forme de Z-stack."
-msgstr "**Z Stack** (:class:`HRStack <palm_tracer.Settings.Types.HRStack.HRStack>`): Settings specific to Z-stack visualization."
+msgid "**3D** (:class:`HR3D <palm_tracer.Settings.Types.HR3D.HR3D>`) : Paramètres spécifiques à la reconstruction 3D."
+msgstr "**3D** (:class:`HR3D <palm_tracer.Settings.Types.HR3D.HR3D>`): Settings specific to 3D reconstruction."
 
 #: ../../api/palm_tracer.Settings.Groups.HR.rst
 msgid "Paramètres"
@@ -70,9 +70,9 @@ msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, B
 msgid "Groupe de paramètres liés à la représentation gaussienne (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
 msgstr "Group of settings related to the Gaussian representation (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
 
-#: of palm_tracer.Settings.Groups.HR.HR.z_stack:1
-msgid "Groupe de paramètres liés à la représentation sous forme de Z-stack (:class:`HRStack <palm_tracer.Settings.Groups.HRStack.HRStack>`)."
-msgstr "Group of settings related to the Z-stack representation (:class:`HRStack <palm_tracer.Settings.Groups.HRStack.HRStack>`)."
+#: of palm_tracer.Settings.Groups.HR.HR.hr_3d:1
+msgid "Groupe de paramètres liés à la reconstruction 3D (:class:`HR3D <palm_tracer.Settings.Groups.HR3D.HR3D>`)."
+msgstr "Group of settings related to the 3D reconstruction (:class:`HR3D <palm_tracer.Settings.Groups.HR3D.HR3D>`)."
 
 #: ../../api/palm_tracer.Settings.Groups.HR.rst:17
 msgid "Méthodes"

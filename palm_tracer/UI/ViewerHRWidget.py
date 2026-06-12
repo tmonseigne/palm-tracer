@@ -21,7 +21,7 @@ from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QV
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import HR
-from palm_tracer.Settings.Types import Combo, FileList
+from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
 
 # ==================================================
@@ -155,8 +155,6 @@ class ViewerHRWidget(QWidget):
 		layout.addWidget(scroll_area)
 		layout.addLayout(actions_row)
 
-		self._toggle_type(self._hr_settings["Type"].value)
-
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
@@ -164,9 +162,6 @@ class ViewerHRWidget(QWidget):
 		self._pt.connect_filters_button(self.UI_NAME)
 
 		self._btn_add_stack.clicked.connect(self._add_stack)
-
-		# Sources
-		self._hr_settings["Type"].connect(self._toggle_type)
 
 		# Action Row
 		self._btn_actualize.clicked.connect(self._actualize)
@@ -176,6 +171,11 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def closeEvent(self, event):
+		"""
+		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
+
+		:param event:
+		"""
 		try: self._pt.settings.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
@@ -187,26 +187,14 @@ class ViewerHRWidget(QWidget):
 	# region PALMTracer Link
 	# ==================================================
 	##################################################
-	def _toggle_type(self, btn_id: int):
-		"""
-		Affiche ou masque les éléments de filtres inutiles pour la représentation actuelle.
-
-		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
-		"""
-		if btn_id == 0:  # Localisation
-			self._filters["Localization"].get_ui(self.UI_NAME).show()
-			self._filters["Tracks"].get_ui(self.UI_NAME).hide()
-		else:  # Tracking
-			self._filters["Localization"].get_ui(self.UI_NAME).hide()
-			self._filters["Tracks"].get_ui(self.UI_NAME).show()
-
-	##################################################
 	def _check_beads(self):
-		"""Affiche ou masque les élements liés aux billes si des données sont présentes ou non."""
+		"""Affiche ou masque les élements liés aux billes si des données sont présentes ou non.
+		 Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route."""
+		s_list = ["Remove Beads", "Drift Correction", "Smooth Drift"]
 		if self._pt.beads.empty:
-			for s in ["Remove Beads", "Drift Correction", "Smooth Drift"]: self._hr_settings[s].get_ui(self.UI_NAME).hide()
+			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).hide()
 		else:
-			for s in ["Remove Beads", "Drift Correction", "Smooth Drift"]: self._hr_settings[s].get_ui(self.UI_NAME).show()
+			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).show()
 
 	##################################################
 	def _add_stack(self):
@@ -266,12 +254,12 @@ class ViewerHRWidget(QWidget):
 			return
 
 		# Changement des noms
-		suffix_file = f"-{suffix}-{FileIO.get_timestamp_for_files()}.png"
 		self._filename = str(self._pt.output_viz_name())
-		self._screenshot_filename = f"{path}/screenshot{suffix_file}"
+		self._screenshot_filename = f"{path}/screenshot-{suffix}-{FileIO.get_timestamp_for_files()}.png"
 
-		if self._hr_settings["Dimension"].value == 0: self.viewer.dims.ndisplay = 2  # Passage en 2D
-		else: self.viewer.dims.ndisplay = 3  # passage en 3D
+		# On reste en 2D, l'utilisateur choisira s'il veut passer en 3D.
+		# if self._hr_settings["Dimension"].value == 0: self.viewer.dims.ndisplay = 2  # Passage en 2D
+		# else: self.viewer.dims.ndisplay = 3  # passage en 3D
 
 		if self._hr_settings["Type"].value == 0:  # Localisations
 			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)

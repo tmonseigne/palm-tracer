@@ -270,12 +270,12 @@ def test_localizations():
 	# Not initialized
 	loc = np.array([1, 2, 3], dtype=np.float64)
 	res = r.localizations(loc)
-	assert res.shape == (1, 1)
+	assert res.shape == (1, 1) and np.count_nonzero(res) == 0
 
 	# Bad Size
 	r.set_size(10, -1, 2)
 	res = r.localizations(loc)
-	assert res.shape == (1, 20)
+	assert res.shape == (1, 20) and np.count_nonzero(res) == 0
 
 	# Invalid Shape
 	r.set_size(5, 10, 2)
@@ -316,12 +316,7 @@ def test_localizations_gaussian():
 
 	# Bad size
 	loc = np.array([[2, 2, 100]], dtype=np.float64)
-	gaussian = {
-			"Intensity":       100,
-			"Fixed Intensity": True,
-			"Shape":           0,
-			"Size":            1
-			}
+	gaussian = {"Intensity": 100, "Fixed Intensity": True, "Shape": 0, "Size": 1}
 	res = r.localizations(loc, 0, gaussian)
 	assert res.shape == (5, 5) and np.count_nonzero(res) == 0
 
@@ -396,6 +391,14 @@ def test_localizations_gaussian():
 					[0, 0, 0, 0, 0]], dtype=np.uint16)
 	np.testing.assert_array_equal(res, ref)
 
+	# L'upscale ne doit pas influencer l'intensité maximale
+	r.set_size(5, 5, 10)
+	res = r.localizations(loc, 0, gaussian)
+	ref_max = res.max()
+	r.set_size(5, 5, 20)
+	res = r.localizations(loc, 0, gaussian)
+	assert ref_max == res.max()
+
 
 ##################################################
 def test_tracks():
@@ -404,12 +407,12 @@ def test_tracks():
 	# Not initialized
 	trc = np.array([1, 2, 3], dtype=np.float64)
 	res = r.tracks(trc)
-	assert res.shape == (1, 1)
+	assert res.shape == (1, 1) and np.count_nonzero(res) == 0
 
 	# Bad Size
 	r.set_size(10, -1, 2)
 	res = r.tracks(trc)
-	assert res.shape == (1, 20)
+	assert res.shape == (1, 20) and np.count_nonzero(res) == 0
 
 	# Invalid Shape
 	r.set_size(5, 10, 2)
@@ -445,24 +448,22 @@ def test_z_stack():
 	# Not initialized
 	loc = np.array([1, 2, 3], dtype=np.float64)
 	res = r.z_stack(loc)
-	assert res.shape == (1, 1, 1)
+	assert res.shape == (1, 1, 1) and np.count_nonzero(res) == 0
 
 	# Bad Size
 	r.set_size(10, -1, 2)
 	res = r.z_stack(loc)
-	assert res.shape == (1, 1, 20)
+	assert res.shape == (1, 1, 20) and np.count_nonzero(res) == 0
 
 	# Invalid Shape
 	r.set_size(5, 10, 2)
 	res = r.z_stack(loc)
-	assert res.shape == (1, 20, 10)
-	assert np.count_nonzero(res) == 0
+	assert res.shape == (1, 20, 10) and np.count_nonzero(res) == 0
 
 	# Points outside
 	loc = np.array([[10, 2, 0, 5], [2, 10, 0, 6], [-1, 2, 0, 7], [2, -1, 0, 8]], dtype=np.float64)
 	res = r.z_stack(loc)
-	assert res.shape == (1, 20, 10)
-	assert np.count_nonzero(res) == 0
+	assert res.shape == (1, 20, 10) and np.count_nonzero(res) == 0
 
 	# Z uniforme à 0 + accumulation
 	loc = np.array([[2, 3, 0, 10], [2, 3, 0, 5], [4, 1, 0, 7]], dtype=np.float64)
@@ -479,7 +480,7 @@ def test_z_stack():
 	ref[0, 2, 8] = 7
 	np.testing.assert_array_equal(res, ref)
 
-	# Z dans [-X ; +Y]
+	# Z dans [-40 ; +40]
 	loc = np.array([
 			[1, 1, -40, 10],  # plan 0
 			[2, 1, -20, 20],  # plan 1
@@ -517,12 +518,7 @@ def test_z_stack_gaussian():
 
 	# Bad size
 	loc = np.array([[2, 2, 0, 100, 1]], dtype=np.float64)
-	gaussian = {
-			"Intensity":       100,
-			"Fixed Intensity": True,
-			"Shape":           0,
-			"Size":            1
-			}
+	gaussian = {"Intensity": 100, "Fixed Intensity": True, "Shape": 0, "Size": 1}
 	res = r.z_stack(loc, 0, 20, gaussian)
 	assert res.shape == (1, 5, 5) and np.count_nonzero(res) == 0
 
@@ -559,27 +555,164 @@ def test_z_stack_gaussian():
 	# 2 point in different Z (and spaced)
 	loc = np.array([[1, 1, 0, 10000, 1, 2, 0], [3, 3, 60, 10000, 1, 2, 0]], dtype=np.float64)
 	res = r.z_stack(loc, 0, 20, gaussian)
-	ref = np.array([[[2, 3, 2, 0, 0],
-					 [3, 6, 3, 0, 0],
-					 [2, 3, 2, 0, 0],
-					 [0, 0, 0, 0, 0],
-					 [0, 0, 0, 0, 0]],
+	patch_low = np.array([[1, 2, 1],
+						  [2, 3, 2],
+						  [1, 2, 1]], dtype=np.uint16)
 
-					[[1, 2, 1, 0, 0],
-					 [2, 3, 2, 0, 0],
-					 [1, 2, 1, 0, 0],
-					 [0, 0, 0, 0, 0],
-					 [0, 0, 0, 0, 0]],
+	patch_high = np.array([[2, 3, 2],
+						   [3, 6, 3],
+						   [2, 3, 2]], dtype=np.uint16)
+	ref = np.zeros((4, 5, 5), dtype=np.uint16)
 
-					[[0, 0, 0, 0, 0],
-					 [0, 0, 0, 0, 0],
-					 [0, 0, 1, 2, 1],
-					 [0, 0, 2, 3, 2],
-					 [0, 0, 1, 2, 1]],
+	# Point 1 : centré en (y=1, x=1), déborde sur les plans 0 et 1.
+	ref[0, 0:3, 0:3] += patch_high
+	ref[1, 0:3, 0:3] += patch_low
 
-					[[0, 0, 0, 0, 0],
-					 [0, 0, 0, 0, 0],
-					 [0, 0, 2, 3, 2],
-					 [0, 0, 3, 6, 3],
-					 [0, 0, 2, 3, 2]]], dtype=np.uint16)
+	# Point 2 : centré en (y=3, x=3), déborde sur les plans 2 et 3.
+	ref[2, 2:5, 2:5] += patch_low
+	ref[3, 2:5, 2:5] += patch_high
 	np.testing.assert_array_equal(res, ref)
+
+	# L'upscale ne doit pas influencer l'intensité maximale
+	r.set_size(5, 5, 10)
+	res = r.z_stack(loc, 0, 20, gaussian)
+	ref_max = res.max()
+	r.set_size(5, 5, 20)
+	res = r.z_stack(loc, 0, 20, gaussian)
+	assert ref_max == res.max()
+
+
+##################################################
+def test_rotation():
+	r = Renderer()
+
+	# Not initialized
+	loc = np.array([1, 2, 3], dtype=np.float64)
+	res = r.rotation_3d(loc)
+	assert res.shape == (1, 1, 1) and np.count_nonzero(res) == 0
+
+	# Bad Size
+	r.set_size(10, -1, 2)
+	res = r.rotation_3d(loc)
+	assert res.shape == (1, 1, 20) and np.count_nonzero(res) == 0
+
+	# Invalid Shape
+	r.set_size(5, 5, 2)
+	res = r.rotation_3d(loc)
+	assert res.shape == (1, 10, 10) and np.count_nonzero(res) == 0
+
+	# Points outside
+	loc = np.array([[10, 2, 0, 5], [2, 10, 0, 6], [-1, 2, 0, 7], [2, -1, 0, 8]], dtype=np.float64)
+	res = r.rotation_3d(loc)
+	assert res.shape == (1, 10, 10) and np.count_nonzero(res) == 0
+
+	# Z uniforme à 0.
+	loc = np.array([[2, 3, 0, 10], [2, 3, 0, 5], [3, 2, 0, 7]], dtype=np.float64)
+
+	# Z uniforme à 0 + accumulation rotation sur X, X ne change pas, mais Y s'inverse autour de l'axe central (7.5)
+	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=2, axis=0)
+	ref = np.zeros((2, 16, 16), dtype=np.uint16)
+	ref[0, 9, 7], ref[0, 7, 9] = 15, 7  # 0°
+	ref[1, 6, 7], ref[1, 8, 9] = 15, 7  # 180°
+	np.testing.assert_array_equal(res, ref)
+
+	# Z uniforme à 0 + accumulation rotation sur Y, Y ne change pas, mais X s'inverse autour de l'axe central (7.5)
+	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=2, axis=1)
+	ref = np.zeros((2, 16, 16), dtype=np.uint16)
+	ref[0, 9, 7], ref[0, 7, 9] = 15, 7  # 0°
+	ref[1, 9, 8], ref[1, 7, 6] = 15, 7  # 180°
+	np.testing.assert_array_equal(res, ref)
+
+	# Z uniforme à 0 + max rotation sur Z, Z ne change pas, mais X et Y se transposent s'inverse autour de l'axe central (7.5, 7.5)
+	res = r.rotation_3d(loc, color_mode=1, z_step=20, frames=2, axis=2)
+	ref = np.zeros((2, 16, 16), dtype=np.uint16)
+	ref[0, 9, 7], ref[0, 7, 9] = 10, 7  # 0°
+	ref[1, 6, 8], ref[1, 8, 6] = 10, 7  # 180°
+	np.testing.assert_array_equal(res, ref)
+
+	# Z non uniforme [-20 ; +20], aucun changement pour 0 et 180° masi ajout de 90 et 270 Y inchangé, mais X autour du centre évolue
+	# Attention, l'arrondi python dans le cas de X.5 va arrondir au nombre pair le plus proche
+	# ce qui donne l'impression de l'axe central à 7 sur les angles 90 et 270.
+	# np.round([6.5, 7.5, 8.5, 9.5]) = array([ 6.,  8.,  8., 10.])
+	loc = np.array([[2, 3, -20, 10], [2, 3, -20, 5], [3, 2, 20, 7]], dtype=np.float64)
+	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=4, axis=1)
+	ref = np.zeros((4, 16, 16), dtype=np.uint16)
+	ref[0, 9, 7], ref[0, 7, 9] = 15, 7  # 0°
+	ref[2, 9, 8], ref[2, 7, 6] = 15, 7  # 180°
+	ref[1, 9, 6], ref[1, 7, 8] = 15, 7  # 90°
+	ref[3, 9, 8], ref[3, 7, 6] = 15, 7  # 270°
+	np.testing.assert_array_equal(res, ref)
+
+
+##################################################
+def test_rotation_gaussian():
+	r = Renderer()
+	r.set_size(3, 3, 2)
+	loc = np.array([[0, 0, 0, 1000, 1, 1, 0]], dtype=np.float64)
+	gaussian = {"Intensity": 100, "Fixed Intensity": True, "Shape": 0, "Size": 1}
+	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=2, axis=1, gaussian=gaussian)
+	ref = np.zeros((2, 11, 11), dtype=np.uint16)
+	patch = np.array([[3, 5, 7, 7, 5, 3, 1, 0],
+					  [5, 9, 11, 11, 9, 5, 2, 0],
+					  [7, 11, 14, 14, 11, 7, 3, 1],
+					  [7, 11, 14, 14, 11, 7, 3, 1],
+					  [5, 9, 11, 11, 9, 5, 2, 0],
+					  [3, 5, 7, 7, 5, 3, 1, 0],
+					  [1, 2, 3, 3, 2, 1, 0, 0],
+					  [0, 0, 1, 1, 0, 0, 0, 0]], dtype=np.uint16)
+	ref[0, 0:8, 0:8] = patch
+	ref[1, 0:8, 3:11] = np.fliplr(patch)
+	np.testing.assert_array_equal(res, ref)
+
+	# L'upscale ne doit pas influencer l'intensité maximale
+	r.set_size(3, 3, 10)
+	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=1, axis=1, gaussian=gaussian)
+	ref_max = res.max()
+	r.set_size(3, 3, 20)
+	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=1, axis=1, gaussian=gaussian)
+	assert ref_max == res.max()
+
+	# Bad size
+	r.set_size(3, 3, 2)
+	loc = np.array([[0, 0, 0, 1000, 1, 1]], dtype=np.float64)
+	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=2, axis=1, gaussian=gaussian)
+	assert res.shape == (2, 11, 11) and np.count_nonzero(res) == 0
+
+
+##################################################
+def test_renderer_atom():
+	r = Renderer()
+	r.set_size(700, 500, 2)
+	loc = pd.read_csv(INPUT_DIR / "atoms_sphere_motion.csv").to_numpy()
+	loc[:, 0] += 3.5  # les positions vont de -3 à +3
+	loc[:, 1] += 2.5  # les positions vont de -2 à +2
+	loc[:, 0:3] *= 100  # Passsage en gros à des pixel
+	loc = np.hstack((loc, np.zeros((loc.shape[0], 3))))  # Ajout de SigmaX,SigmaY et Theta
+	loc[:, 4] = 1  # Sigma X
+	loc[:, 5] = 2  # Sigma Y
+	gaussian = {"Intensity": 1000, "Fixed Intensity": True, "Shape": 2, "Size": 1}
+
+	loc_2d = np.delete(loc, 2, axis=1)
+	res = r.localizations(loc_2d)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_png(res, OUTPUT_DIR / "atoms_sphere_motion_loc.png")
+
+	res = r.localizations(loc_2d, gaussian=gaussian)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_png(res, OUTPUT_DIR / "atoms_sphere_motion_loc_gaussian.png")
+
+	res = r.z_stack(loc)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_Zstack.tif")
+
+	res = r.z_stack(loc, gaussian=gaussian)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_Zstack_gaussian.tif")
+
+	res = r.rotation_3d(loc, z_step=1)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D.tif")
+
+	res = r.rotation_3d(loc, z_step=1, gaussian=gaussian)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D_gaussian.tif")
