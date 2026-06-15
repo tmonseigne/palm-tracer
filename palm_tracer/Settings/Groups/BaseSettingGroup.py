@@ -12,7 +12,7 @@ from typing import Any, Optional, Union
 
 from qtpy.QtCore import QSignalBlocker
 
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRangeInt
 
 
@@ -31,7 +31,7 @@ class BaseSettingGroup:
 	"""État du groupe (activé ou non)."""
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	"""Liste des paramètres du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
-	_uis: dict[str, BaseUI] = field(init=False, default_factory=lambda: dict[str, BaseUI]())
+	_uis: dict[str, BaseUIGroup] = field(init=False, default_factory=lambda: dict[str, BaseUIGroup]())
 	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
 
 	# ==================================================
@@ -64,9 +64,9 @@ class BaseSettingGroup:
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		"""
-		Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire.
+		Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
 		:param mode: Méthode de création du groupe.
@@ -76,11 +76,11 @@ class BaseSettingGroup:
 			- 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)
 			- 2 : État remove header (aucune création de l'espace titre)
 
-		:return: Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUI.BaseUI`).
+		:return: Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`).
 		"""
 		if name in self._uis: return self._uis[name]
 		if mode < 0: mode = self.mode
-		ui = BaseUI(name=self.label, mode=mode)
+		ui = BaseUIGroup(name=self.label, mode=mode)
 		if ui.checkbox is not None:  ui.checkbox.toggled.connect(self.set_active)  # Connecte le changement de la checkbox
 		ui.active(self.active if mode == 0 else True)
 		body = ui.body_layout

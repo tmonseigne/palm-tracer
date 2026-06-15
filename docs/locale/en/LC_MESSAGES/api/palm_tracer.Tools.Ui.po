@@ -47,7 +47,7 @@ msgid "Ajoute une ligne de paramètre dans un :class:`QFormLayout`."
 msgstr "Adds a parameter row to a :class:`QFormLayout`."
 
 #: of palm_tracer.Tools.Ui.add_setting_row:3
-msgid "Le champ (colonne de droite) est encapsulé dans un :class:`QHBoxLayout` contenant le widget puis un ``stretch``. Cela évite que le widget s'étire horizontalement jusqu'au bord droit de l'onglet : il conserve sa taille naturelle (*sizeHint*) et l'espace     restant est laissé vide à droite."
+msgid "Le champ (colonne de droite) est encapsulé dans un :class:`QHBoxLayout` contenant le widget puis un ``stretch``. Cela évite que le widget s'étire horizontalement jusqu'au bord droit de l'onglet : il conserve sa taille naturelle (*sizeHint*) et l'espace restant est laissé vide à droite."
 msgstr "The field (right column) is wrapped in a :class:`QHBoxLayout` containing the widget, followed by a ``stretch``. This prevents the widget from stretching horizontally to the right edge of the tab: it retains its natural size (*sizeHint*) and the remaining space is left empty on the right."
 
 #: ../../api/palm_tracer.Tools.Ui.rst
@@ -194,7 +194,7 @@ msgstr "The ``value`` column is resizable to maintain proper alignment, while la
 
 #: of palm_tracer.Tools.Ui.make_info_grid:7
 msgid "Dictionnaire décrivant les lignes à afficher. Chaque entrée doit contenir :          - ``\"label\"`` : :class:`QLabel` (libellé) ;         - ``\"value\"`` : :class:`QLabel` (valeur associée) ;         - optionnellement ``\"unit\"`` : :class:`QLabel` (unité) si ``size == 3`` ;         - optionnellement ``\"tips\"`` : ``str`` (tooltip appliqué au label)."
-msgstr "Dictionary describing the rows to display. Each entry must contain:          - ``\“label\”``: :class:`QLabel` (label);         - ``\“value\”``: :class:`QLabel` (associated value);         - optionally ``\“unit\”``: :class:`QLabel` (unit) if ``size == 3``;         - optionally ``\“tips\”``: ``str`` (tooltip applied to the label)."
+msgstr "Dictionary describing the rows to display. Each entry must contain:          - ``\"label\"``: :class:`QLabel` (label);         - ``\"value\"``: :class:`QLabel` (associated value);         - optionally ``\"unit\"``: :class:`QLabel` (unit) if ``size == 3``;         - optionally ``\"tips\"``: ``str`` (tooltip applied to the label)."
 
 #: of palm_tracer.Tools.Ui.make_info_grid:8
 msgid "Dictionnaire décrivant les lignes à afficher. Chaque entrée doit contenir :"
@@ -250,7 +250,7 @@ msgstr "The group consists of: a title, the list of files, and their statuses."
 
 #: of palm_tracer.Tools.Ui.make_file_info_group:5
 msgid "Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de status des fichiers."
-msgstr "The :class:`QGroupBox` configured along with the link to the file status :class:`QLabel`s."
+msgstr "The :class:`QGroupBox` configured along with the link to the file status QLabels."
 
 #: of palm_tracer.Tools.Ui.make_path_label:1
 msgid "Crée un :class:`QLabel` stylisé pour afficher un chemin ou un nom de fichier."
@@ -360,7 +360,7 @@ msgstr "Initial value."
 
 #: of palm_tracer.Tools.Ui.make_spin:16
 msgid "Nombre de décimales (si > 0 → spinbox flottante)."
-msgstr "Number of decimal places (if > 0 → floating spin box)."
+msgstr "Number of decimals (if > 0 → floating spin box)."
 
 #: of palm_tracer.Tools.Ui.make_spin:17
 msgid "Affiche ou non les boutons up/down."

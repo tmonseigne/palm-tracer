@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, cast, Optional
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.Batch import Batch
 from palm_tracer.Settings.Groups.BeadsExtraction import BeadsExtraction
 from palm_tracer.Settings.Groups.BlinkingReconnection import BlinkingReconnection
@@ -38,7 +38,7 @@ class Settings:
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 	"""Dictionnaire de groupes de paramètres."""
-	_uis: dict[str, dict[str, BaseUI]] = field(init=False, default_factory=lambda: dict[str, dict[str, BaseUI]]())
+	_uis: dict[str, dict[str, BaseUIGroup]] = field(init=False, default_factory=lambda: dict[str, dict[str, BaseUIGroup]]())
 	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
 
 	# ==================================================
@@ -97,14 +97,14 @@ class Settings:
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> dict[str, BaseUI]:
+	def get_ui(self, name: str = "default") -> dict[str, BaseUIGroup]:
 		"""
-		Retourne un dictionnaire d'objets :class:`.BaseUI` (un par groupe de paramètres), existants ou les créés si nécessaire.
+		Retourne un dictionnaire d'objets :class:`.BaseUIGroup` (un par groupe de paramètres), existants ou les créés si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
 		"""
 		if name in self._uis: return self._uis[name]
-		ui = dict[str, BaseUI]()
+		ui = dict[str, BaseUIGroup]()
 		for key, setting in self._settings.items(): ui[key] = setting.get_ui(name)
 		self._uis[name] = ui  # Ajoute l'ui au dictionnaire
 		return ui

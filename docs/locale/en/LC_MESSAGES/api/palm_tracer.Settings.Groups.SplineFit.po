@@ -16,7 +16,7 @@ msgstr "**Sensor** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : S
 
 #: of palm_tracer.Settings.Groups.SplineFit.SplineFit:5
 msgid "**sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) : Fichier de calibration du capteur sCMOS."
-msgstr "**sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types. BrowseFile.BrowseFile>`): sCMOS sensor calibration file."
+msgstr "**sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`): sCMOS sensor calibration file."
 
 #: of palm_tracer.Settings.Groups.SplineFit.SplineFit:6
 msgid "**Calibration File** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) : Fichier de calibration de la PSF (calculé à partir de SMAP)."

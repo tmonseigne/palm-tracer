@@ -55,7 +55,7 @@ def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int =
 	Ajoute une ligne de paramètre dans un :class:`QFormLayout`.
 
 	Le champ (colonne de droite) est encapsulé dans un :class:`QHBoxLayout`	contenant le widget puis un ``stretch``.
-	Cela évite que le widget s'étire horizontalement jusqu'au bord droit de l'onglet : il conserve sa taille naturelle (*sizeHint*) et l'espace	restant est
+	Cela évite que le widget s'étire horizontalement jusqu'au bord droit de l'onglet : il conserve sa taille naturelle (*sizeHint*) et l'espace restant est
 	laissé vide à droite.
 
 	:param form: Formulaire cible à modifier (modification in-place via :meth:`addRow`).

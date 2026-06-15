@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from qtpy.QtWidgets import QHBoxLayout, QPushButton
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
 ##################################################
@@ -25,11 +25,11 @@ class Button(BaseSettingType):
 	def reset(self): pass
 
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
 		box: QPushButton = QPushButton(self.label)  # Création de la boite.
-		ui = BaseUI(layout=QHBoxLayout(), boxes=[box])
+		ui = BaseUIType(layout=QHBoxLayout(), boxes=[box])
 		box.setToolTip(self.tooltip)  # .			  Ajout du Tooltip
 		box.clicked.connect(self.emit)  # .			  L'emission du signal se fera lors du clic sur le bouton
 		ui.layout.addWidget(box)  # .				  Ajout du champ de texte.

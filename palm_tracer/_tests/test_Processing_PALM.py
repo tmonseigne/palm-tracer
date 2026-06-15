@@ -149,7 +149,7 @@ def test_tracking():
 			else:
 				Ui.print_warning(f"Fichier de localisations '{path}' indisponible.")
 
-	tracks = palm.tracking(pd.DataFrame(np.zeros((3,Parsing.N_COL_LOC)), columns=Parsing.FILES_COLUMNS["Localization"]["columns"]), max_distance)
+	tracks = palm.tracking(pd.DataFrame(np.zeros((3, Parsing.N_COL_LOC)), columns=Parsing.FILES_COLUMNS["Localization"]["columns"]), max_distance)
 	assert tracks.empty
 
 	tracks = palm.tracking(pd.DataFrame(), max_distance)

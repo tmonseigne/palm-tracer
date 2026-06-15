@@ -16,7 +16,7 @@ msgstr "**Intensity** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinI
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:7
 msgid "**Fixed Intensity** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Garantit que chaque point a la même intensité."
-msgstr "**Fixed Intensity** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Ensures that each point has the same intensity."
+msgstr "**Fixed Intensity** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Ensures that each point has the same intensity."
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:8
 msgid "**Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Définit la forme de la distribution gaussienne (isotrope, anisotrope ou taille fixe, de sorte que chaque point ait la même forme isotrope)."

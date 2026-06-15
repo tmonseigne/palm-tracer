@@ -13,7 +13,7 @@ from typing import Any, cast
 from qtpy.QtWidgets import QHBoxLayout, QPushButton, QSizePolicy, QSpacerItem
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.FiltersL import FiltersL
 from palm_tracer.Settings.Groups.FiltersT import FiltersT
 from palm_tracer.Settings.Types import CheckBox, CheckRangeInt
@@ -59,7 +59,7 @@ class Filters(BaseSettingGroup):
 		return cast(FiltersT, self._settings["Tracks"])
 
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 
 		ui.layout.addItem(QSpacerItem(0, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))

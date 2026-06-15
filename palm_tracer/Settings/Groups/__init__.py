@@ -9,7 +9,7 @@ Ce sous-package gère les groupes de paramètres.
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingGroup import BaseSettingGroup
-from .BaseUI import BaseUI
+from .BaseUIGroup import BaseUIGroup
 from .Batch import Batch
 from .BeadsExtraction import BeadsExtraction
 from .BlinkingReconnection import BlinkingReconnection
@@ -22,8 +22,8 @@ from .GaussianFit import GaussianFit
 from .Graph import Graph
 from .GraphDisplay import GraphDisplay
 from .HR import HR
-from .HRGaussian import HRGaussian
 from .HR3D import HR3D
+from .HRGaussian import HRGaussian
 from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
@@ -31,7 +31,7 @@ from .TracksCompute import TracksCompute
 from .Visualization3D import Visualization3D
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingGroup", "BaseUI",
+__all__ = ["BaseSettingGroup", "BaseUIGroup",
 		   "Batch", "Calibration",
 		   "Filters", "FiltersL", "FiltersT",
 		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",

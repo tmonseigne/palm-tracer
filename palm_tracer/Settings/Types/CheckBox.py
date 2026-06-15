@@ -10,7 +10,7 @@ from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
 ##################################################
@@ -33,11 +33,11 @@ class CheckBox(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
 		box: QCheckBox = QCheckBox()
-		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
+		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
 		ui.set_tooltip(self.tooltip)  # .			   Ajout du Tooltip
 
 		box.setChecked(self._value)

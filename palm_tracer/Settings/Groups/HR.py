@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.HR3D import HR3D
 from palm_tracer.Settings.Groups.HRGaussian import HRGaussian
 from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
@@ -81,7 +81,7 @@ class HR(BaseSettingGroup):
 		self.toggle_type()
 
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_dimension()
 		self.toggle_type()

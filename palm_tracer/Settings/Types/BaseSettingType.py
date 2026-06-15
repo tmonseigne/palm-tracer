@@ -13,7 +13,7 @@ from typing import Any, cast, Optional
 
 from qtpy.QtWidgets import QFormLayout, QPushButton
 
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
 
 
@@ -41,7 +41,7 @@ class BaseSettingType:
 	"""Valeur actuelle du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
 	_signal: SignalWrapper = field(init=False, default_factory=lambda: SignalWrapper())
 	"""Signal permettant de communiquer avec l'interface."""
-	_uis: dict[str, BaseUI] = field(init=False, default_factory=lambda: dict[str, BaseUI]())
+	_uis: dict[str, BaseUIType] = field(init=False, default_factory=lambda: dict[str, BaseUIType]())
 	"""Dictionnaire des interfaces qui ont été créé pour ce paramètre."""
 
 	# ==================================================
@@ -65,12 +65,12 @@ class BaseSettingType:
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		"""
-		Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire.
+		Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
-		:return: Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`).
+		:return: Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`).
 		"""
 		raise NotImplementedError("La méthode 'get_ui' doit être implémentée dans la sous-classe.")
 

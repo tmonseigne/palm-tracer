@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, SpinInt
 
 
@@ -49,7 +49,7 @@ class GaussianFit(BaseSettingGroup):
 		self._settings["Z"].connect(self.toggle_z_estimate)
 
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_fit_mode(self._settings["Mode"].value)
 		self.toggle_z_estimate(self._settings["Z"].value)

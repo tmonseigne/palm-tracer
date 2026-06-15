@@ -60,7 +60,7 @@ msgstr "Preview"
 
 #: ../../user/examples/01_SPT.rst:64
 msgid "La première étape consiste à trouver les paramètres de localisation optimaux pour vos données. Il suffit de cliquer sur localisation pour activer cette étape de traitement, puis de cliquer sur le bouton :guilabel:`Preview` pour voir les points détectés en temps réel sur votre image."
-msgstr "The first step is to find the optimal localization parameters for your data. Simply click on “Localization” to activate this processing step, then click the :guilabel:`Preview` button to see the detected points in real time on your image."
+msgstr "The first step is to find the optimal localization parameters for your data. Simply click on Localization to activate this processing step, then click the :guilabel:`Preview` button to see the detected points in real time on your image."
 
 #: ../../user/examples/01_SPT.rst:68
 msgid "Le bouton :guilabel:`Auto Threshold` permet de trouver un seuil de détection automatique, mais il est souvent nécessaire de le modifier."

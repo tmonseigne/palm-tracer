@@ -10,7 +10,7 @@ from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
@@ -47,14 +47,14 @@ class CheckRangeInt(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
 		checkbox: QCheckBox = QCheckBox()
 		spin_min: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.value[0], buttons=False)
 		spin_max: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.value[1], buttons=False)
 
-		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max])
+		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max])
 		ui.set_tooltip(self.tooltip)  # .			   Ajout du Tooltip
 
 		checkbox.setChecked(self.active)

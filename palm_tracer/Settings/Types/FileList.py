@@ -11,7 +11,7 @@ from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
@@ -40,13 +40,13 @@ class FileList(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
 		btn_add, btn_rem, btn_clr = QPushButton("+"), QPushButton("-"), QPushButton("Clear")
 		combo: QComboBox = QComboBox()
 
-		ui = BaseUI(layout=QVBoxLayout(), label=QLabel(self.label), boxes=[btn_add, btn_rem, btn_clr, combo])
+		ui = BaseUIType(layout=QVBoxLayout(), label=QLabel(self.label), boxes=[btn_add, btn_rem, btn_clr, combo])
 		ui.set_tooltip(self.tooltip)  # .						   Ajout du Tooltip
 		Ui.init_layout(ui.layout, 5, 5)
 

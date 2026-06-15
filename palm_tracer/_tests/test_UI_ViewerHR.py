@@ -4,7 +4,7 @@ import shutil
 from qtpy.QtCore import QCoreApplication, QEvent, Qt
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Types import BaseUI, ButtonGroup
+from palm_tracer.Settings.Types import BaseUIType, ButtonGroup
 from palm_tracer.UI import ViewerHRWidget
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
@@ -40,8 +40,7 @@ def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot
 	w.close()
 	flush_qt_delete_events()
 
-	# Ici les BaseUI sont encore dans les settings,
-	# mais leurs objets Qt internes peuvent être supprimés côté C++.
+	# Ici les BaseUI sont encore dans les settings, mais leurs objets Qt internes peuvent être supprimés côté C++.
 	w2 = ViewerHRWidget(pt)
 	w2.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 	w2.resize(1000, 600)
@@ -71,7 +70,7 @@ def test_change_type(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	viewer = make_napari_viewer()  # .			 Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
-	ui: BaseUI = cast(ButtonGroup, w._pt.settings.hr["Type"]).get_ui(w.UI_NAME)
+	ui: BaseUIType = cast(ButtonGroup, w._pt.settings.hr["Type"]).get_ui(w.UI_NAME)
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
 	assert w._pt.settings.hr["Type"].value == 0
 	qtbot.mouseClick(ui.boxes[1], Qt.MouseButton.LeftButton)  # Appuie sur Tracks
@@ -140,7 +139,7 @@ def test_check_beads(make_napari_viewer, patched_napari_viewer):
 	viewer = make_napari_viewer()  # .			 Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
-	ui: BaseUI = w._pt.settings.hr["Remove Beads"].get_ui(w.UI_NAME)
+	ui: BaseUIType = w._pt.settings.hr["Remove Beads"].get_ui(w.UI_NAME)
 	w._check_beads()  # False
 	assert ui.boxes[0].isHidden()
 	w._pt.df["bds"] = w._pt.df["loc"].copy()

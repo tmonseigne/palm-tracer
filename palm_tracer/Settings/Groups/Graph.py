@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.GraphDisplay import GraphDisplay
 from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
 
@@ -62,7 +62,7 @@ class Graph(BaseSettingGroup):
 		self.toggle_src()
 
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_dual(self._settings["Dual"].value)
 		self.toggle_src()

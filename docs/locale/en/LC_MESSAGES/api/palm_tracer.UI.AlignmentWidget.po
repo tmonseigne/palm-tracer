@@ -24,7 +24,7 @@ msgstr "Simple input handling (selection of TIFF/TXT files via :class:`QFileDial
 
 #: of palm_tracer.UI.AlignmentWidget:9
 msgid "Chargement des images via :func:`palm_tracer.Tools.open_tif` et sauvegarde via :func:`palm_tracer.Tools.save_tif`."
-msgstr "Image loading via :func:`palm_tracer. Tools.open_tif` and saving via :func:`palm_tracer.Tools.save_tif`."
+msgstr "Image loading via :func:`palm_tracer.Tools.open_tif` and saving via :func:`palm_tracer.Tools.save_tif`."
 
 #: of palm_tracer.UI.AlignmentWidget:10
 msgid "Chargement des coefficients d'alignement sous forme d'un tableau NumPy de taille ``(2, 10)``."

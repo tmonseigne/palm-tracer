@@ -16,7 +16,7 @@ msgstr "**Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.Bu
 
 #: of palm_tracer.Settings.Groups.HR.HR:5
 msgid "**Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter."
-msgstr "**Source** (:class:`Combo <palm_tracer. Settings.Types.Combo.Combo>`): Source of the data to display."
+msgstr "**Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Source of the data to display."
 
 #: of palm_tracer.Settings.Groups.HR.HR:6
 msgid "**Color mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : En cas de chevauchement, sélectionne si les valeurs des pixels sont additionnées ou si seule la valeur maximale est conservée."
@@ -28,7 +28,7 @@ msgstr "**Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`
 
 #: of palm_tracer.Settings.Groups.HR.HR:9
 msgid "**Crop** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprime tout le cadre noir autour de la reconstruction (utile lors d'une reconstruction sur une partie du champ, conserve une marge de 5 pixels)."
-msgstr "**Crop** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Removes the entire black border around the reconstruction (useful when reconstructing a portion of the field; retains a 5-pixel margin)."
+msgstr "**Crop** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Removes the entire black border around the reconstruction (useful when reconstructing a portion of the field; retains a 5-pixel margin)."
 
 #: of palm_tracer.Settings.Groups.HR.HR:11
 msgid "**Remove Beads** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprime les billes lors de la reconstruction."
@@ -40,7 +40,7 @@ msgstr "**Drift Correction** (:class:`CheckBox <palm_tracer.Settings.Types.Check
 
 #: of palm_tracer.Settings.Groups.HR.HR:14
 msgid "**Smooth Drift** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique un lissage à la correction de dérive."
-msgstr "**Smooth Drift** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Applies smoothing to the drift correction."
+msgstr "**Smooth Drift** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Applies smoothing to the drift correction."
 
 #: of palm_tracer.Settings.Groups.HR.HR:15
 msgid "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`) : Paramètres spécifiques à la représentation gaussienne."
@@ -87,8 +87,8 @@ msgid "Initialise le dictionnaire de paramètres."
 msgstr "Initializes the settings dictionary."
 
 #: of palm_tracer.Settings.Groups.HR.HR.get_ui:1
-msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
-msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.HR.HR.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."
@@ -123,8 +123,8 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Groups.HR.HR.get_ui:11
-msgid "Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUI.BaseUI`)."
-msgstr "Setting interface (:class:`palm_tracer.Settings. Groups.BaseUI.BaseUI`)."
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
 
 #: ../../api/palm_tracer.Settings.Groups.HR.rst
 msgid "Type renvoyé"

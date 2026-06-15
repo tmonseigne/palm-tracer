@@ -16,7 +16,7 @@ msgstr "**MSD** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:6
 msgid "**Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Calcul de la diffusion instantanée par trajectoire et par plans successifs (par défaut : `False`)."
-msgstr "**Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox. CheckBox>`): Calculation of instantaneous diffusion per track and per successive planes (default: `False`)."
+msgstr "**Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Calculation of instantaneous diffusion per track and per successive planes (default: `False`)."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:8
 msgid "**Fit Length** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Longueur de la fenêtre de calcul initiale des métriques génériques (par défaut : `4`)."
@@ -28,7 +28,7 @@ msgstr "**3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:12
 msgid "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Utilisation ou non d'une échelle logarithmique pour les résultats (par défaut : `False`)."
-msgstr "**Log Scale** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Whether to use a logarithmic scale for the results (default: `False`)."
+msgstr "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Whether to use a logarithmic scale for the results (default: `False`)."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:14
 msgid "**Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement du mouvement de la trajectoire (par défaut : `None`)."

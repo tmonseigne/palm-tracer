@@ -10,7 +10,7 @@ from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QHBoxLayout, QLabel, QSpinBox
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
@@ -41,11 +41,11 @@ class SpinInt(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
 		box: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.value)
-		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
+		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
 		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
 
 		box.setKeyboardTracking(False)  # .					Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)

@@ -3,7 +3,7 @@ import pytest
 from qtpy.QtCore import QCoreApplication, QEvent, Qt
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Types import BaseUI, ButtonGroup, Combo
+from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, Combo
 from palm_tracer.UI import BasePlotlyWidget, GraphViewerWidget
 
 OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"
@@ -53,8 +53,7 @@ def test_widget_double_creation(qtbot):
 	w.close()
 	flush_qt_delete_events()
 
-	# Ici les BaseUI sont encore dans les settings,
-	# mais leurs objets Qt internes peuvent être supprimés côté C++.
+	# Ici les BaseUI sont encore dans les settings, mais leurs objets Qt internes peuvent être supprimés côté C++.
 	w2 = GraphViewerWidget(pt)
 	w2.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 	w2.resize(1000, 600)
@@ -86,7 +85,7 @@ def test_change_type(w: GraphViewerWidget, qtbot):
 	w.show()
 	qtbot.waitExposed(w)
 
-	ui: BaseUI = cast(ButtonGroup, w._pt.settings.graph["Type"]).get_ui(w.UI_NAME)
+	ui: BaseUIType = cast(ButtonGroup, w._pt.settings.graph["Type"]).get_ui(w.UI_NAME)
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
 	assert w._pt.settings.graph["Type"].value == 0
 	qtbot.mouseClick(ui.boxes[1], Qt.MouseButton.LeftButton)  # Appuie sur Tracks
@@ -104,7 +103,7 @@ def test_update_plot_localization(w: GraphViewerWidget, qtbot, capsys):
 	qtbot.waitExposed(w)
 
 	s = w._pt.settings.graph
-	ui: BaseUI = cast(ButtonGroup, s["Type"]).get_ui(w.UI_NAME)
+	ui: BaseUIType = cast(ButtonGroup, s["Type"]).get_ui(w.UI_NAME)
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
 	assert w._pt.settings.graph["Type"].value == 0
 

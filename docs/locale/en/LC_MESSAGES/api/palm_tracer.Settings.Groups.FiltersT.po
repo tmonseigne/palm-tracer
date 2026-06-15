@@ -20,11 +20,11 @@ msgstr "**Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.Check
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:8
 msgid "**D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de direction sélectionné (par défaut : `[-5, 5]`)."
-msgstr "**D Coeff** (:class:`CheckRangeFloat <palm_tracer. Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected direction range (default: `[-5, 5]`)."
+msgstr "**D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected direction range (default: `[-5, 5]`)."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:10
 msgid "**Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de puissance sélectionné (par défaut : `[-10, 10]`)."
-msgstr "**Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat. CheckRangeFloat>`): Selected power range (default: `[-10, 10]`)."
+msgstr "**Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected power range (default: `[-10, 10]`)."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:12
 msgid "**Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de vitesse sélectionné (par défaut : `[0, 1]`)."

@@ -32,7 +32,7 @@ msgstr "**ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinIn
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:10
 msgid "**Watershed** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Activation ou désactivation du mode Watershed (par défaut : `True`)."
-msgstr "**Watershed** (:class:`CheckBox <palm_tracer. Settings.Types.CheckBox.CheckBox>`): Enables or disables Watershed mode (default: `True`)."
+msgstr "**Watershed** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Enables or disables Watershed mode (default: `True`)."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:12
 msgid "**Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Mode de calcul d'ajustement pour la localisation (par défaut : `Nothing`)."
@@ -80,8 +80,8 @@ msgid "Initialise le dictionnaire de paramètres."
 msgstr "Initializes the settings dictionary."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_ui:1
-msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
-msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."
@@ -116,8 +116,8 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_ui:11
-msgid "Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUI.BaseUI`)."
-msgstr "Setting interface (:class:`palm_tracer.Settings. Groups.BaseUI.BaseUI`)."
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
 
 #: ../../api/palm_tracer.Settings.Groups.Localization.rst of
 #: palm_tracer.Settings.Groups.Localization.Localization.get_fit

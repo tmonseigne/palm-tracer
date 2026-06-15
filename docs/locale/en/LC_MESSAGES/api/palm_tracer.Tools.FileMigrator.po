@@ -106,8 +106,7 @@ msgstr "Global metadata for the dataset. A line initially set to -1 that will be
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open:1
 msgid "Sélectionne le dossier d'entrée contenant les résultats PALMTracer."
-msgstr "Selects the input folder containing the PALMTracer results.
-Selects the input folder containing the PALMTracer results."
+msgstr "Selects the input folder containing the PALMTracer results."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open:3
 msgid "Le dossier Metamorph / PALMTracer est généralement nommé ``<monfichier>.PT``. Si ce n'est pas le cas, un avertissement est affiché (sans empêcher l'analyse)."
@@ -265,7 +264,7 @@ msgstr "Explicitly assigns column names and row indices from ``FILES_COLUMNS[\"A
 #: of
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:7
 msgid "écrit le modèle sous forme de CSV dans :attr:`output_folder`."
-msgstr "Writes the model as a CSV file to:attr:`output_folder`."
+msgstr "Writes the model as a CSV file to :attr:`output_folder`."
 
 #: of
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:9

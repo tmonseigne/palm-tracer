@@ -61,8 +61,8 @@ msgid "Getter/Setter"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:1
-msgid "Retourne un objet :class:`.BaseUI`, existant ou le créé si nécessaire."
-msgstr "Returns an existing :class:`.BaseUI` object, or creates one if necessary."
+msgid "Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire."
+msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.clean_ui:3
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:3
@@ -74,8 +74,8 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:4
-msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
-msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUI.BaseUI`)."
+msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
+msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
 
 #: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst of
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.to_compact_dict

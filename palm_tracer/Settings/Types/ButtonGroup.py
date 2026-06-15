@@ -9,7 +9,7 @@ from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QButtonGroup
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
@@ -37,12 +37,12 @@ class ButtonGroup(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
 		h, self.group[name], buttons = Ui.make_exclusive_btn_group(self._items, 0)
 
-		ui = BaseUI(layout=h, boxes=list(buttons.values()))
+		ui = BaseUIType(layout=h, boxes=list(buttons.values()))
 		ui.set_tooltip(self.tooltip)  # .							  Ajout du Tooltip
 
 		self.group[name].button(self.value).setChecked(True)

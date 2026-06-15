@@ -20,7 +20,7 @@ Ce sous-package gère les différents types de paramètres.
 """
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingType import BaseSettingType
-from .BaseUI import BaseUI
+from .BaseUIType import BaseUIType
 from .BrowseFile import BrowseFile
 from .Button import Button
 from .ButtonGroup import ButtonGroup
@@ -34,6 +34,6 @@ from .SpinFloat import SpinFloat
 from .SpinInt import SpinInt
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingType", "BaseUI", "SignalWrapper",
+__all__ = ["BaseSettingType", "BaseUIType", "SignalWrapper",
 		   "BrowseFile", "Button", "ButtonGroup", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
 		   "CheckRangeFloat", "CheckRangeInt"]

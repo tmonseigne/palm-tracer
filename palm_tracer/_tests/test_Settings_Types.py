@@ -69,7 +69,7 @@ def test_base_setting():
 
 ###################################################
 def test_base_ui(qtbot):
-	ui = BaseUI(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])
+	ui = BaseUIType(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])
 	ui.set_tooltip("")
 
 	ui.hide()
@@ -84,7 +84,7 @@ def test_base_ui(qtbot):
 
 ###################################################
 def test_base_ui_no_label(qtbot):
-	ui = BaseUI(layout=QHBoxLayout(), boxes=[QCheckBox()])
+	ui = BaseUIType(layout=QHBoxLayout(), boxes=[QCheckBox()])
 	ui.set_tooltip("")
 
 	ui.hide()

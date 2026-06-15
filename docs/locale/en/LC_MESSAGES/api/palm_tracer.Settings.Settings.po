@@ -113,8 +113,8 @@ msgid "Getter/Setter"
 msgstr ""
 
 #: of palm_tracer.Settings.Settings.Settings.get_ui:1
-msgid "Retourne un dictionnaire d'objets :class:`.BaseUI` (un par groupe de paramètres), existants ou les créés si nécessaire."
-msgstr "Returns a dictionary of `:class:`.BaseUI` objects (one per setting group), existing or created if necessary."
+msgid "Retourne un dictionnaire d'objets :class:`.BaseUIGroup` (un par groupe de paramètres), existants ou les créés si nécessaire."
+msgstr "Returns a dictionary of :class:`.BaseUIGroup` objects (one per setting group), existing or created if necessary."
 
 #: of palm_tracer.Settings.Settings.Settings.clean_ui:3
 #: palm_tracer.Settings.Settings.Settings.get_ui:3

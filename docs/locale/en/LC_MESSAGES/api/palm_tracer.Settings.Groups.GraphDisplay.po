@@ -16,7 +16,7 @@ msgstr "**Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckB
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:5
 msgid "**Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Trace des lignes pointillées à des distances de 1, 2 et 3 sigmas de la moyenne."
-msgstr "**Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox. CheckBox>`): Plots dashed lines at distances of 1, 2, and 3 sigmas from the mean."
+msgstr "**Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Plots dashed lines at distances of 1, 2, and 3 sigmas from the mean."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:7
 msgid "**Gauss** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche la courbe gaussienne associée à la moyenne et à l'écart-type des données. ."

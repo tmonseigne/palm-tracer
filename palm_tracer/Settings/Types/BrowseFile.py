@@ -11,7 +11,7 @@ from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
-from palm_tracer.Settings.Types.BaseUI import BaseUI
+from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
 ##################################################
@@ -34,7 +34,7 @@ class BrowseFile(BaseSettingType):
 	# region Getter/Setter
 	# ==================================================
 	##################################################
-	def get_ui(self, name: str = "default") -> BaseUI:
+	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
 		box: QLineEdit = QLineEdit(self.value)
@@ -42,7 +42,7 @@ class BrowseFile(BaseSettingType):
 		browse_button.setIcon(QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon))
 		browse_button.clicked.connect(self.browse_file)  # Connexion du bouton à la méthode de sélection
 
-		ui = BaseUI(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box, browse_button])
+		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box, browse_button])
 		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
 
 		box.textChanged.connect(self.set_value_from_ui)  # .Connecte le changement de valeur pour que les autres UI se mettent à jour

@@ -11,7 +11,7 @@ import numpy as np
 
 from palm_tracer.Processing.Parsing import degrees_to_radians
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Groups.BaseUI import BaseUI
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.GaussianFit import GaussianFit
 from palm_tracer.Settings.Groups.SplineFit import SplineFit
 from palm_tracer.Settings.Types import Button, CheckBox, Combo, SpinFloat, SpinInt
@@ -69,7 +69,7 @@ class Localization(BaseSettingGroup):
 		self._settings["Fit"].connect(self.toggle_fit_mode)
 
 	##################################################
-	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUI:
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_fit_mode(self._settings["Fit"].value)
 		return ui

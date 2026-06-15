@@ -32,7 +32,7 @@ class HRGaussian(BaseSettingGroup):
 															   "the ratio by which the value selected in the source will be divided.", 100, [1, 100000], 10]],
 					"Fixed Intensity": [CheckBox, ["Fixed Intensity", "Ensures that each point has the same intensity."]],
 					"Shape":           [Combo, ["Shape", "Defines the shape of the Gaussian distribution (Isotropic, Anisotropic, or Fixed Size, "
-														  "so that each point has the same isotropic shape).", 0, ["Fixed Size", "Isotrope", "Anisotrope"]]],
+														 "so that each point has the same isotropic shape).", 0, ["Fixed Size", "Isotrope", "Anisotrope"]]],
 					"Size":            [SpinFloat, ["Size", "The standard deviation of the Gaussian distribution if \"Fixed Size\" is selected.",
 													1, [0, 50], 0.01, 3]],
 					}

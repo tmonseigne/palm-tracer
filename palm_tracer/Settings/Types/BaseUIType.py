@@ -1,5 +1,5 @@
 """
-Fichier contenant la classe :class:`BaseUI`.
+Fichier contenant la classe :class:`BaseUIType`.
 
 Ce module définit une classe de base pour la représentation graphique d'un paramètre dans l'interface utilisateur Qt.
 
@@ -7,7 +7,8 @@ Cette classe est utilisée comme conteneur des éléments Qt associés à une vu
 
 Elle permet de gérer indépendamment plusieurs instances d'interface (multi-vues) pour un même modèle de données (pattern MVC simplifié).
 
-Chaque instance de :class:`BaseUI` correspond à une **vue unique** d'un paramètre, et contient tous les objets Qt nécessaires à son affichage et son interaction.
+Chaque instance de :class:`BaseUIType` correspond à une **vue unique** d'un paramètre,
+et contient tous les objets Qt nécessaires à son affichage et son interaction.
 
 Cette séparation permet :
     - de dupliquer facilement l'interface sans dupliquer les données,
@@ -25,7 +26,7 @@ from palm_tracer.Tools import Ui
 
 ##################################################
 @dataclass
-class BaseUI:
+class BaseUIType:
 	"""
 	Classe de base représentant une vue Qt associée à un paramètre.
 
