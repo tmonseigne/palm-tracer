@@ -396,21 +396,12 @@ class PALMTracerWidget(QWidget):
 		filter_loc = self.pt.settings.filters["Localization"]
 		is_xf, is_yf = filter_loc["X"].active, filter_loc["Y"].active
 
-		if not is_xf and not is_yf:  # .			 Aucun filtre -> rien à afficher
+		if not is_xf and not is_yf:  # .												  Aucun filtre -> rien à afficher
 			self._remove_layer(l_name)
 			return
 
-		raw_data = self.viewer.layers["Raw"].data  # Récupération du layer Raw
-		x0, x1 = 0, raw_data.shape[-1] - 1  # .		 Shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
-		y0, y1 = 0, raw_data.shape[-2] - 1  # .		 Shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
-
-		if is_xf:
-			xf = filter_loc["X"].value
-			x0, x1 = max(x0, min(xf[0], x1)), max(x0, min(xf[1], x1))
-
-		if is_yf:
-			yf = filter_loc["Y"].value
-			y0, y1 = max(y0, min(yf[0], y1)), max(y0, min(yf[1], y1))
+		raw_data = self.viewer.layers["Raw"].data  # .									   Récupération du layer Raw
+		x0, x1, y0, y1 = self.pt.get_roi_limits(raw_data.shape[-1], raw_data.shape[-2])  # Shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
 
 		# Si range dégénéré (ligne/colonne), on peut soit l'accepter, soit ne rien afficher. Ici : si rectangle vide, on ne crée pas de layer.
 		if x1 <= x0 or y1 <= y0:
