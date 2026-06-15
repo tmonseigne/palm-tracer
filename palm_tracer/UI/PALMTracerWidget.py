@@ -413,8 +413,7 @@ class PALMTracerWidget(QWidget):
 		if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rect  # Remplace le rectangle
 		else:  # .																   Création du Calque s'il n'existe pas
 			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.5, face_color="transparent")
-			layer.editable = False  # .											   Rendre non éditable (Napari)
-			layer.visible = True  # .											   L'affiche
+			layer.editable, layer.visible = False, True  # .					   Rendre non éditable (Napari) et l'affiche
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:

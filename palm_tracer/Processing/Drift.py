@@ -35,7 +35,7 @@ def _check_planes(data: pd.DataFrame) -> np.ndarray:
 	"""
 	planes = np.array(sorted(pd.unique(data["Plane"])))
 	expected = np.arange(planes[0], planes[-1] + 1, dtype=planes.dtype)
-	if planes.size < 2:  raise ValueError(f"We need at least 2 planes.")
+	if planes.size < 2: raise ValueError(f"We need at least 2 planes.")
 	if planes.size != expected.size or np.any(planes != expected): raise ValueError(f"The planes are not consecutive: {planes}.")
 	return planes
 

@@ -690,7 +690,7 @@ class PALMTracer:
 		filters.connect_button(self.save_filtered, ui_name, "save")
 
 	##################################################
-	def get_roi_limits(self, width, height) -> tuple[int, int, int, int]:
+	def get_roi_limits(self, width: int, height: int) -> tuple[int, int, int, int]:
 		"""
 		Calcul les dimensions sur x et y de la zone d'intérêt (rectangulaire) en fonction des paramètres de filtre.
 

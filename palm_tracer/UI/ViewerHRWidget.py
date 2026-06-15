@@ -81,6 +81,7 @@ class ViewerHRWidget(QWidget):
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
+		self._current_roi: tuple[int, int, int, int] = 0, 1, 0, 1
 
 		# Construction UI
 		self._init_ui()
@@ -158,6 +159,10 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
+
+		filters = self._pt.settings.filters.localization
+		filters["X"].connect(self._add_roi_filter_layer)  # Mise à jour de la ROI dans l'affichage.
+		filters["Y"].connect(self._add_roi_filter_layer)  # Mise à jour de la ROI dans l'affichage.
 		# Connexion des boutons Filters de cette UI
 		self._pt.connect_filters_button(self.UI_NAME)
 
@@ -232,6 +237,54 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
+	# region Layers Callback
+	# ==================================================
+	##################################################
+	def _remove_layer(self, name: str):
+		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
+		try:
+			if name in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[name])
+		except Exception as e: Ui.print_warning(F"Error when deleting the old layer '{name}' : {e}")
+
+	##################################################
+	def _add_roi_filter_layer(self):
+		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
+		stack = self._pt.stack
+		if "Visualization" not in self.viewer.layers or stack is None: return
+		# Suppression du calque "ROI Filter" s'il existe
+		l_name = "ROI Filter"
+
+		# Récupération des dimensions initiales et de la ROI
+		depth, height, width = stack.shape  # .						Dimensions maximales
+		x0, x1, y0, y1 = self._pt.get_roi_limits(width, height)  # .Nouveaux x0, x1, y0, y1 sans l'upscale
+		x0c, x1c, y0c, y1c = self._current_roi  # .					Anciens x0, x1, y0, y1 sans l'upscale
+		n_w, n_h = x1 - x0, y1 - y0  # .							Nouvelle Hauteru et largeur
+		upscale = self._pt.settings.hr["Ratio"].value
+
+		# Si range dégénéré (ligne/colonne), on peut soit l'accepter, soit ne rien afficher.
+		# Ici : si rectangle vide, aou aucune coupe, on ne crée pas de layer.
+		if x1 <= x0 or y1 <= y0 or (n_h == height and n_w == width):
+			self._remove_layer(l_name)
+			return
+
+		# Calcul de la position relative de la nouvelle ROI par rapport à l'ancienne (en pixels d'origine)
+		# On cherche à savoir à quelle distance du bord supérieur gauche de l'ancienne ROI se trouve la nouvelle
+		# Application de l'upscale pour correspondre aux dimensions du layer "Raw" actuel
+		x0_n, x1_n = (x0 - x0c) * upscale, (x1 - x0c) * upscale
+		y0_n, y1_n = (y0 - y0c) * upscale, (y1 - y0c) * upscale
+
+		# Napari attend un tableau (N, 2) pour un shape, la succession des points à tracer.
+		rect = [[[y0_n, x0_n], [y0_n, x1_n], [y1_n, x1_n], [y1_n, x0_n]]]  # .	   Haut-gauche, haut-droite, bas-droite, bas-gauche
+		if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rect  # Remplace le rectangle
+		else:  # .																   Création du Calque s'il n'existe pas
+			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.5, face_color="transparent")
+			layer.editable, layer.visible = False, True  # .					   Rendre non éditable (Napari) et l'affiche
+
+	# ==================================================
+	# endregion Layers Callback
+	# ==================================================
+
+	# ==================================================
 	# region Drawing
 	# ==================================================
 	##################################################
@@ -257,6 +310,9 @@ class ViewerHRWidget(QWidget):
 		self._filename = str(self._pt.output_viz_name())
 		self._screenshot_filename = f"{path}/screenshot-{suffix}-{FileIO.get_timestamp_for_files()}.png"
 
+		# Mise à jour de la ROI qui a été utilisé
+		_, height, width = stack.shape
+		self._current_roi = self._pt.get_roi_limits(width, height)
 		# On reste en 2D, l'utilisateur choisira s'il veut passer en 3D.
 		# if self._hr_settings["Dimension"].value == 0: self.viewer.dims.ndisplay = 2  # Passage en 2D
 		# else: self.viewer.dims.ndisplay = 3  # passage en 3D

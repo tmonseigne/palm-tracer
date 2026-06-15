@@ -265,11 +265,11 @@ def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> flo
 	idx = int(sign_change_indices[0])
 	left_z, right_z, left_d = z_values[idx], z_values[idx + 1], delta_values[idx]
 
-	def delta(z: float) -> float: return sigma_model(model[0], z, pixel_size, 1.0) - sigma_model(model[1], z, pixel_size, 1.0)
+	# def delta(z: float) -> float: return sigma_model(model[0], z, pixel_size, 1.0) - sigma_model(model[1], z, pixel_size, 1.0)
 
 	for i in range(n_bisect):
 		mid_z = 0.5 * (left_z + right_z)
-		mid_d = delta(mid_z)
+		mid_d = sigma_model(model[0], mid_z, pixel_size, 1.0) - sigma_model(model[1], mid_z, pixel_size, 1.0)
 
 		abs_mid_d = abs(mid_d)
 		if abs_mid_d < best_d: best_d, best_z = abs_mid_d, mid_z
