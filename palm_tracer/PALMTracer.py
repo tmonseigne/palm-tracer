@@ -867,17 +867,22 @@ class PALMTracer:
 		depth, height, width = self._stack.shape
 		src = cast(Combo, s["Source"]).current_text
 		upscale = s["Ratio"].value
-		self._renderer.set_size(width, height, upscale)
+		x0, x1, y0, y1 = self.get_roi_limits(width, height)
+		n_w, n_h = x1 - x0, y1 - y0
+		self._renderer.set_size(n_w, n_h, upscale)
 
 		# --- Localisations ---
 		if s["Type"].value == 0:
-			df = self.localizations
+			df = self.localizations.copy()
 			if s["Remove Beads"].value: df = Drift.remove_beads(df, self.beads)
 			df = self._correct_drift(df)
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
 			gaussian = s.gaussian.settings if s.gaussian.active else None
 			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			df["X"] -= x0  # Ajustement à la ROI sur X
+			df["Y"] -= y0  # Ajustement à la ROI sur Y
+			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
 
 			if s["Dimension"].value == 0:  # .	 2D
 				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
@@ -902,9 +907,12 @@ class PALMTracer:
 			return viz, plot_data
 
 		# --- Tracks ---
-		df = self._correct_drift(self.tracks)
+		df = self._correct_drift(self.tracks.copy())
 		if df.empty: return viz, plot_data
 		df = self._renderer.add_colors_to_tracks(df, src)
+		df["X"] -= x0  # Ajustement à la ROI sur X
+		df["Y"] -= y0  # Ajustement à la ROI sur Y
+		df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
 		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
 		viz_data = df[:, [0, 2, 3, 4]]
 		plot_data = df[:, [0, 1, 3, 2]]

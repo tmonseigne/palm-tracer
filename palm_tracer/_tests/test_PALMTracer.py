@@ -11,7 +11,7 @@ import pytest
 from palm_tracer._tests.Utils import *
 from palm_tracer.PALMTracer import FILE_STATUS
 from palm_tracer.Processing import Parsing
-from palm_tracer.Settings.Types import Combo
+from palm_tracer.Settings.Types import CheckRangeInt, Combo
 from palm_tracer.Tools import FileIO
 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
@@ -1057,21 +1057,21 @@ def test_crop():
 
 	pt = get_fake_pt()
 	img = np.zeros((1, 1), dtype=np.uint16)
-	res = pt.crop(img)  # .				   Crop à True, image noire
-	assert np.allclose(img, res)  # .		   Crop à True, avec un carré à 1 et une marge (par défaut) de 5
+	res = pt.crop(img)  # .										Crop à True, image noire
+	assert np.allclose(img, res)  # .							Crop à True, avec un carré à 1 et une marge (par défaut) de 5
 
 	img = np.zeros((10, 10), dtype=np.uint16)
 	img[2:4, 6:] = 1  # Carré de 1.
-	ref = img[:-1, 1:].copy()  # .			   Le crop avec une marge de 5 va très peu recadrer
-	assert np.allclose(pt.crop(img), ref)  # .Crop à True, avec un carré à 1 et une marge (par défaut) de 5
-	assert np.allclose(pt.crop(img, 0), np.ones((2, 4)))  # Crop à True, avec aucune marge donc uniquement les points à 1
+	ref = img[:-1, 1:].copy()  # .								Le crop avec une marge de 5 va très peu recadrer
+	assert np.allclose(pt.crop(img), ref)  # .					Crop à True, avec un carré à 1 et une marge (par défaut) de 5
+	assert np.allclose(pt.crop(img, 0), np.ones((2, 4)))  # .	Crop à True, avec aucune marge donc uniquement les points à 1
 
 	vol = np.zeros((10, 10, 10), dtype=np.uint16)
 	vol[0, 2:4, 6:] = 1
-	assert np.allclose(pt.crop(vol, 0), np.ones((1, 2, 4)))  # Crop à True, avec aucune marge donc uniquement les points à 1
+	assert np.allclose(pt.crop(vol, 0), np.ones((1, 2, 4)))  # .Crop à True, avec aucune marge donc uniquement les points à 1
 
 	pt.settings.hr["Crop"].value = False
-	assert np.allclose(pt.crop(img), img)  # .Crop à False, aucun changement dans l'image
+	assert np.allclose(pt.crop(img), img)  # .					Crop à False, aucun changement dans l'image
 
 
 ###################################################
@@ -1094,7 +1094,7 @@ def test_hr():
 	viz, plot = pt.hr()
 	ref_viz = ref_viz0.copy()
 	ref_viz[4, 2] = ref_viz[6, 4] = 2
-	ref_plot = [[4, 2], [6, 4], [8, 6], [10, 8], [4, 2], [6, 4]]
+	ref_plot = [[4, 2], [6, 4], [8, 6], [10, 8], [4, 2], [6, 4]]  # (8,6) à une intensité de 0 et (10,8) est sur le bord de l'image (donc hors cadre)
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
@@ -1140,6 +1140,57 @@ def test_hr():
 	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
+
+
+###################################################
+def test_hr_filter():
+	"""Test de différentes récupérations de données."""
+	pt = get_fake_pt()
+	ref_empty = np.zeros((1, 1), dtype=np.uint16)
+	ref_viz0 = np.zeros((10, 10), dtype=np.uint16)
+	s = pt.settings.hr
+	s["Ratio"].value = 2
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+
+	# Filtre sur X
+	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
+	sf = pt.settings.filters.localization
+	sfx = cast(CheckRangeInt, sf["X"])
+	sfx.active = True
+	sfx.min = 2
+	sfx.max = 5
+	viz, plot = pt.hr()
+	ref_viz = np.zeros((10, 6), dtype=np.uint16)
+	ref_viz[6, 0] = 2  # précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 * upscale de 2 = -4)
+	ref_plot = [[6, 0], [8, 2], [10, 4], [6, 0]]
+	np.testing.assert_array_equal(viz, ref_viz)
+	np.testing.assert_array_equal(plot, ref_plot)
+
+	# Filtre sur Y
+	sfy = cast(CheckRangeInt, sf["Y"])
+	sfy.active = True
+	sfy.min = 2
+	sfy.max = 5
+	viz, plot = pt.hr()
+	ref_viz = np.zeros((6, 6), dtype=np.uint16)
+	ref_viz[2, 0] = 2
+	ref_plot = [[2, 0], [4, 2], [6, 4], [2, 0]]
+	np.testing.assert_array_equal(viz, ref_viz)
+	np.testing.assert_array_equal(plot, ref_plot)
+
+	# Tracking Filtré
+	s["Type"].value = 1
+	sfx.min, sfx.max = 1, 4
+	sfy.min, sfy.max = 1, 2
+	viz, plot = pt.hr()
+	print(viz, plot)
+	ref_viz = np.zeros((2, 6), dtype=np.uint16)
+	ref_viz[0, 0] = 8
+	ref_plot = [[1, 1, 0, 0], [1, 99, 0, 0], [3, 3, 0, 6], [3, 4, 0, 6], [5, 5, 0, 6], [5, 6, 0, 6],
+				[6, 11, 0, 0], [6, 12, 0, 0], [8, 31, 0, 0], [8, 32, 0, 0]]
+	np.testing.assert_array_equal(viz, ref_viz)
+	np.testing.assert_array_equal(plot, ref_plot)
 
 
 ###################################################
