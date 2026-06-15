@@ -90,7 +90,7 @@ Sinon, vous pouvez tout faire manuellement :
    Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
 
    **Attention** : Si Python a changé de version récemment, certaines bibliothèques peuvent ne plus être compatibles.
-   Ex : au moment d'écrire ces lignes Python 3.14 est disponible, mais Napari n'est pas encore compatible, il faut utiliser Python 3.13.
+   Ex : Il a fallu attendre 8 mois après la sortie de python 3.14 pour que Napari soit compatible.
 
 4. Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :
 
