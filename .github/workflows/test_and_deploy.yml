@@ -26,7 +26,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-
 jobs:
   Test:
     name: Tests on ${{ matrix.platform }} for Python ${{ matrix.python-version }}
@@ -40,18 +39,40 @@ jobs:
         #platform: [ windows-latest ]
         #python-version: [ "3.14" ]
 
+    # Environnement spécifique pour contourner les alertes Homebrew sur macOS
+    env:
+      HOMEBREW_NO_REQUIRE_TAP_TRUST: "1"
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
+
+      # Purge complète des paquets Cloud tiers encombrant l'image macOS
+      - name: Force cleanup stale Homebrew dependencies (macOS only)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          # Désinstaller les outils pour détruire les dépendances qui bloquent le untap
+          brew uninstall --force packer || true
+          brew uninstall --force aws-sam-cli || true
+          brew uninstall --force bicep || true
+          # Supprimer les taps obsolètes maintenant qu'ils sont vides
+          brew untap hashicorp/tap aws/tap azure/bicep || true
+
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v3
+        with:
+          qt: true
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-
-      # It could works but it erase python path
-      # - name: Install Qt
-      #   uses: jurplel/install-qt-action@v4
+          cache: 'pip'          # Garde la CI rapide (réutilise les packages téléchargés)
+          # Force l'invalidation du cache obsolète/corrompu sur GitHub
+          cache-dependency-path: |
+            **/setup.py
+            **/pyproject.toml
+            **/*requirements*.txt
 
       # Installation of vcredist2010 if problem install all (vcredist-all)
       - name: Install Dependencies and Libraries Windows
@@ -75,21 +96,6 @@ jobs:
         run: |
           7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -y
 
-      # strategy borrowed from vispy for installing OpenGL libs on windows
-      - name: Set up OpenGL for Windows
-        if: runner.os == 'Windows'
-        run: |
-          git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
-          powershell gl-ci-helpers/appveyor/install_opengl.ps1
-
-      - name: Install Qt runtime libs (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-              sudo apt-get install -y libegl1 libgl1 libopengl0 libxkbcommon-x11-0 libxcb-xinerama0 libxcb-cursor0 libdbus-1-3 libnss3 libfontconfig1
-          # Ubuntu 24.04 : libasound2 => libasound2t64
-          sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
-
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -97,9 +103,6 @@ jobs:
 
       # this runs the platform-specific tests declared in tox.ini
       - name: Run tests with tox
-        uses: aganders3/headless-gui@v2
-        with:
-          run: python -m tox
         env:
           PLATFORM: ${{ matrix.platform }}
           QT_QPA_PLATFORM: offscreen
@@ -108,6 +111,7 @@ jobs:
           PYTHONFAULTHANDLER: "1"
           NAPARI_ASYNC: "0"
           MPLBACKEND: Agg
+        run: python -m tox
 
       - name: Manage Test Reports
         run: |
@@ -116,7 +120,7 @@ jobs:
         continue-on-error: true  # Permet de continuer même si cette étape échoue
 
       - name: Upload Test Reports as Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: reports-${{ matrix.platform }}_${{ matrix.python-version }}
           path: |
@@ -126,7 +130,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: matrix.platform == 'windows-latest' && matrix.python-version == '3.14'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: tmonseigne/palm-tracer
@@ -138,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -164,7 +168,7 @@ jobs:
           python -m pip install .[documentation]
 
       - name: Download Test Reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: docs/reports/
           pattern: reports-*
@@ -195,16 +199,16 @@ jobs:
           PY
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload documentation to GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: 'docs/_build/html'
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   #deploy:
   #  # this will run when you have tagged a commit, starting with "v*"
@@ -215,7 +219,7 @@ jobs:
   #  if: contains(github.ref, 'tags')
   #  steps:
   #    - name: Checkout code
-  #      uses: actions/checkout@v6
+  #      uses: actions/checkout@v7
 
   #    - name: Set up Python
   #      uses: actions/setup-python@v6
