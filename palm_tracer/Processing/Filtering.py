@@ -16,7 +16,8 @@ class Filtering:
 	filters: Filters
 
 	##################################################
-	def __init__(self, filters: Filters): self.filters = filters
+	def __init__(self, filters: Filters):
+		self.filters = filters
 
 	##################################################
 	def localization(self, datas: pd.DataFrame) -> pd.DataFrame:

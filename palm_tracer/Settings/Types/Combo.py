@@ -104,7 +104,8 @@ class Combo(BaseSettingType):
 	# region Parsing
 	# ==================================================
 	##################################################
-	def to_compact_dict(self) -> dict[str, Any]: return {"value": self.value, "items": self.items}
+	def to_compact_dict(self) -> dict[str, Any]:
+		return {"value": self.value, "items": self.items}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):

@@ -84,9 +84,12 @@ class FileMigrator:
 		:raises NotADirectoryError: Si ``folder`` n'est pas un dossier.
 		:raises ValueError: Si ``folder`` ne finit pas par .PT comme un dossier de sortie type de PALMTracer sur Metamorph.
 		"""
-		if not folder.exists(): raise FileNotFoundError(f"Input folder does not exist: {folder}")
-		if not folder.is_dir(): raise NotADirectoryError(f"Input path is not a directory: {folder}")
-		if folder.suffix.lower() != ".pt": raise ValueError(f"Input folder should be named like 'something.PT' (MetaMorph output): {folder}")
+		if not folder.exists():
+			raise FileNotFoundError(f"Input folder does not exist: {folder}")
+		if not folder.is_dir():
+			raise NotADirectoryError(f"Input path is not a directory: {folder}")
+		if folder.suffix.lower() != ".pt":
+			raise ValueError(f"Input folder should be named like 'something.PT' (MetaMorph output): {folder}")
 		self.input_folder = folder
 
 	##################################################
@@ -100,7 +103,8 @@ class FileMigrator:
 
 		:raises RuntimeError: Si aucun dossier n'a été sélectionné via :meth:`open`.
 		"""
-		if self.input_folder == Path(): raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
+		if self.input_folder == Path():
+			raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
 
 		for key in self.files: self.files[key].clear()  # .							  Reset propre (évite d'empiler d'anciennes analyses).
 		old_name_to_key = {link.old: key for key, link in self.FILES_LINK.items()}  # Index inversé : ancien nom ⇾ clé logique
@@ -127,7 +131,8 @@ class FileMigrator:
 		:raises RuntimeError: Si :attr:`input_folder` n'est pas défini.
 		"""
 
-		if self.input_folder == Path(): raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
+		if self.input_folder == Path():
+			raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
 
 		# Création du dossier de sortie
 		stem = self.input_folder.stem  # "abc" si "abc.PT"
@@ -346,7 +351,8 @@ class FileMigrator:
 			:return: Tuple ``(dataframe, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``).
 			:raises FileNotFoundError: Si le fichier n'existe pas.
 		"""
-		if not file.is_file(): raise FileNotFoundError(f"Filename invalid: {file}")
+		if not file.is_file():
+			raise FileNotFoundError(f"Filename invalid: {file}")
 
 		header_lines: list[str] = []
 		with file.open("r", encoding="utf-8", errors="replace") as f:
@@ -377,12 +383,14 @@ class FileMigrator:
 		:raises FileNotFoundError: Si le fichier n'existe pas.
 		:raises ValueError: Si le fichier ne contient pas assez de lignes d'en-tête.
 		"""
-		if not file.is_file(): raise FileNotFoundError(f"Filename invalid: {file}")
+		if not file.is_file():
+			raise FileNotFoundError(f"Filename invalid: {file}")
 
 		# 1) Lecture brute
 		lines = file.read_text(encoding="utf-8", errors="replace").splitlines()
 
-		if len(lines) < skiprows: raise ValueError(f"File does not contain {skiprows} header lines: {file}")
+		if len(lines) < skiprows:
+			raise ValueError(f"File does not contain {skiprows} header lines: {file}")
 
 		header_lines = lines[:skiprows]
 		data_lines = lines[skiprows:]

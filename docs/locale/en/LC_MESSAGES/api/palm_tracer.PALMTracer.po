@@ -201,7 +201,23 @@ msgstr "Saves all filtered files if they are not empty."
 msgid "Connecte les boutons d'une interface de filtre."
 msgstr "Connects the buttons of a filter interface."
 
-#: ../../api/palm_tracer.PALMTracer.rst:58
+#: of palm_tracer.PALMTracer.PALMTracer.get_roi_limits:1
+msgid "Calcul les dimensions sur x et y de la zone d'intérêt (rectangulaire) en fonction des paramètres de filtre."
+msgstr "Computes the x and y dimensions of the region of interest (rectangular) based on the filter settings."
+
+#: of palm_tracer.PALMTracer.PALMTracer.get_roi_limits:3
+msgid "Largeur originale."
+msgstr "Original width."
+
+#: of palm_tracer.PALMTracer.PALMTracer.get_roi_limits:4
+msgid "Hauteur originale."
+msgstr "Original height."
+
+#: of palm_tracer.PALMTracer.PALMTracer.get_roi_limits:5
+msgid "Liste des positions de la zone d'intérêt (x0, x1, y0, y1)."
+msgstr "List of region of interest positions (x0, x1, y0, y1)."
+
+#: ../../api/palm_tracer.PALMTracer.rst:59
 msgid "Visualization"
 msgstr "Visualization"
 

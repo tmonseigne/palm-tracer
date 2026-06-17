@@ -95,7 +95,8 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 	"""
 	# Vérifier que toutes les colonnes spécifiées existent dans le DataFrame
 	missing_columns = [col for col in columns if col not in data.columns]
-	if missing_columns: raise ValueError(f"Les colonnes suivantes sont absentes du DataFrame : {missing_columns}")
+	if missing_columns:
+		raise ValueError(f"Les colonnes suivantes sont absentes du DataFrame : {missing_columns}")
 
 	if remaining:
 		remaining_columns = [col for col in data.columns if col not in columns]  # Colonnes restantes (toutes sauf celles déjà définies)
@@ -223,7 +224,8 @@ def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
 
 	arr = np.asarray(data).reshape(1, -1)  # Aplatit vers (N,) puis force (1, N)
-	if arr.shape[1] != len(columns): raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
+	if arr.shape[1] != len(columns):
+		raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
 
 	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en Dataframe
 	apply_dataframe_type(res, types)  # Conversion en entier nullable (préserve les NaN si présents)
@@ -267,7 +269,8 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 		if l <= 0: break  # fin du flux
 
 		i += 1  # on avance sur le premier élément du bloc
-		if i + l > n: raise ValueError(f"Bloc tronqué: longueur {l} annoncée à l'indice {i - 1}, mais seulement {n - i} élément(s) disponible(s).")
+		if i + l > n:
+			raise ValueError(f"Bloc tronqué: longueur {l} annoncée à l'indice {i - 1}, mais seulement {n - i} élément(s) disponible(s).")
 		# Extraction du bloc (les L valeurs, sans L lui-même)
 		rows.append(np.asarray(data[i:i + l]))
 		i += l  # passer au bloc suivant
@@ -305,7 +308,8 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 	:return: :class:`DataFrame <pandas.DataFrame>` parsé.
 	"""
 	# Récupération des éléments
-	if file_type not in FILES_COLUMNS: raise ValueError(f"file_type incorrect.")
+	if file_type not in FILES_COLUMNS:
+		raise ValueError(f"file_type incorrect.")
 	columns, types = FILES_COLUMNS[file_type]["columns"], FILES_COLUMNS[file_type]["types"]
 	n_columns = len(columns)
 	log_col = []
@@ -328,7 +332,8 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 		else:
 			# les colonnes dépendent de l'ajustement.
 			log_col = columns[2:]
-			if not 1 <= fit_mode <= 3: raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
+			if not 1 <= fit_mode <= 3:
+				raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
 			log_col += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
 			res.columns = columns[:2] + log_col
 

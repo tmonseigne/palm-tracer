@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Parsing, Renderer
 from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Types import Combo
+from palm_tracer.Settings.Types import CheckRangeInt, Combo
 from palm_tracer.Tools import FileIO, Logger, Ui
 
 MAX_UI_16 = np.iinfo(np.uint16).max
@@ -689,6 +689,27 @@ class PALMTracer:
 		filters.connect_button(self.update_filtered, ui_name, "update")
 		filters.connect_button(self.save_filtered, ui_name, "save")
 
+	##################################################
+	def get_roi_limits(self, width: int, height: int) -> tuple[int, int, int, int]:
+		"""
+		Calcul les dimensions sur x et y de la zone d'intérêt (rectangulaire) en fonction des paramètres de filtre.
+
+		:param width: Largeur originale.
+		:param height: Hauteur originale.
+		:return: Liste des positions de la zone d'intérêt (x0, x1, y0, y1).
+		"""
+		s = self.settings.filters.localization
+		x0, x1, y0, y1 = 0, width, 0, height
+		if cast(CheckRangeInt, s["X"]).active:
+			xf = s["X"].value
+			x0, x1 = max(x0, min(xf[0], x1)), max(x0, min(xf[1], x1))
+
+		if cast(CheckRangeInt, s["Y"]).active:
+			yf = s["Y"].value
+			y0, y1 = max(y0, min(yf[0], y1)), max(y0, min(yf[1], y1))
+
+		return x0, x1, y0, y1
+
 	# ==================================================
 	# endregion Filtering
 	# ==================================================
@@ -846,17 +867,22 @@ class PALMTracer:
 		depth, height, width = self._stack.shape
 		src = cast(Combo, s["Source"]).current_text
 		upscale = s["Ratio"].value
-		self._renderer.set_size(width, height, upscale)
+		x0, x1, y0, y1 = self.get_roi_limits(width, height)
+		n_w, n_h = x1 - x0, y1 - y0
+		self._renderer.set_size(n_w, n_h, upscale)
 
 		# --- Localisations ---
 		if s["Type"].value == 0:
-			df = self.localizations
+			df = self.localizations.copy()
 			if s["Remove Beads"].value: df = Drift.remove_beads(df, self.beads)
 			df = self._correct_drift(df)
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
 			gaussian = s.gaussian.settings if s.gaussian.active else None
 			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			df["X"] -= x0  # Ajustement à la ROI sur X
+			df["Y"] -= y0  # Ajustement à la ROI sur Y
+			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
 
 			if s["Dimension"].value == 0:  # .	 2D
 				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
@@ -881,9 +907,12 @@ class PALMTracer:
 			return viz, plot_data
 
 		# --- Tracks ---
-		df = self._correct_drift(self.tracks)
+		df = self._correct_drift(self.tracks.copy())
 		if df.empty: return viz, plot_data
 		df = self._renderer.add_colors_to_tracks(df, src)
+		df["X"] -= x0  # Ajustement à la ROI sur X
+		df["Y"] -= y0  # Ajustement à la ROI sur Y
+		df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
 		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
 		viz_data = df[:, [0, 2, 3, 4]]
 		plot_data = df[:, [0, 1, 3, 2]]

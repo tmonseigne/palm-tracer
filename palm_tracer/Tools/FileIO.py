@@ -212,7 +212,8 @@ def open_json(filename: str | Path) -> dict[str, Any]:
 	:return: Dictionnaire contenu dans le JSON.
 	"""
 	path = Path(filename)
-	if not path.is_file(): raise OSError(f"Le fichier '{path}' est introuvable.")
+	if not path.is_file():
+		raise OSError(f"Le fichier '{path}' est introuvable.")
 	return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -234,7 +235,8 @@ def save_tif(stack: np.ndarray, filename: str | Path):
 	:param filename: Nom du fichier TIF de sortie.
 	"""
 	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # .	   Si le tableau est 2D, le transformer en 3D avec une seule frame
-	if stack.ndim != 3: raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
+	if stack.ndim != 3:
+		raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
 	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # .S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
 	tiff.imwrite(filename, stack, photometric="minisblack")  # Sauvegarde la pile avec tifffile
 
@@ -253,7 +255,8 @@ def open_tif(filename: str | Path) -> np.ndarray:
 		Aucun cast en float ne doit être fait.
 	"""
 	path = Path(filename)
-	if not path.is_file(): raise OSError(f'Le fichier "{path}" est introuvable.')
+	if not path.is_file():
+		raise OSError(f'Le fichier "{path}" est introuvable.')
 	res = tiff.imread(str(path))  # .									 Lecture sans modification du dtype
 	# --- Normalisation des dimensions ---
 	if res.ndim == 2: res = res[np.newaxis, :, :]  # .					 Cas image unique ⇾ ajout axe frame
@@ -279,7 +282,8 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 	:param filename: Nom du fichier TIF de sortie.
 	:param normalization: Normalise l'image avant enregistrement.
 	"""
-	if not (2 <= image.ndim <= 3): raise ValueError("L'image doit être en 2D (niveaux de gris) ou 3D (RGB).")
+	if not (2 <= image.ndim <= 3):
+		raise ValueError("L'image doit être en 2D (niveaux de gris) ou 3D (RGB).")
 	if normalization:
 		min_val, max_val = image.min(), image.max()
 		if max_val > min_val: image = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
@@ -337,7 +341,8 @@ def open_calibration_mat(filename: str | Path) -> dict[str, Any]:
 	:return: Dictionnaire contenant les éléments utiles.
 	"""
 	path = Path(filename)
-	if not path.is_file(): raise OSError(f'Le fichier de calibration "{path}" est introuvable.')
+	if not path.is_file():
+		raise OSError(f'Le fichier de calibration "{path}" est introuvable.')
 
 	calibration = io.loadmat(str(path))
 	cspline = calibration["SXY"]["cspline"][0, 0]  # .			   Élément cspline

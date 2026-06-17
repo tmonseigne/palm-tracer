@@ -34,7 +34,8 @@ class FileList(BaseSettingType):
 	"""Liste des fichiers actuels (:class:`list[str]`)."""
 
 	##################################################
-	def reset(self): self.clear_files()
+	def reset(self):
+		self.clear_files()
 
 	# ==================================================
 	# region Getter/Setter

@@ -268,7 +268,8 @@ class Grapher:
 		:return: Objet Plotly :class:`go.Figure <plotly.graph_objects.Figure>` prêt à être affiché.
 		:raises ValueError: Si les dimensions du modèle ne correspondent pas à celles attendues (2x5).
 		"""
-		if model.shape != SHAPE_MODEL: raise ValueError(f"Le modèle doit être de dimension {SHAPE_MODEL}.")
+		if model.shape != SHAPE_MODEL:
+			raise ValueError(f"Le modèle doit être de dimension {SHAPE_MODEL}.")
 
 		fig = go.Figure()
 

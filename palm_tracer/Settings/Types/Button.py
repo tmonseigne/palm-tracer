@@ -22,7 +22,8 @@ class Button(BaseSettingType):
 	"""
 
 	##################################################
-	def reset(self): pass
+	def reset(self):
+		pass
 
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:

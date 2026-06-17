@@ -35,8 +35,10 @@ def _check_planes(data: pd.DataFrame) -> np.ndarray:
 	"""
 	planes = np.array(sorted(pd.unique(data["Plane"])))
 	expected = np.arange(planes[0], planes[-1] + 1, dtype=planes.dtype)
-	if planes.size < 2:  raise ValueError(f"We need at least 2 planes.")
-	if planes.size != expected.size or np.any(planes != expected): raise ValueError(f"The planes are not consecutive: {planes}.")
+	if planes.size < 2:
+		raise ValueError(f"We need at least 2 planes.")
+	if planes.size != expected.size or np.any(planes != expected):
+		raise ValueError(f"The planes are not consecutive: {planes}.")
 	return planes
 
 
@@ -118,7 +120,8 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	:raises ValueError: Si des colonnes requises sont manquantes, ou si ``max_distance`` n'est pas strictement positif.
 	"""
 	# ----- Vérifications initiales -----
-	if max_distance <= 0: raise ValueError("max_distance must be strictly positive.")
+	if max_distance <= 0:
+		raise ValueError("max_distance must be strictly positive.")
 	if data.empty: return pd.DataFrame()
 
 	columns, types = FILES_COLUMNS["Beads"]["columns"], FILES_COLUMNS["Beads"]["types"]
@@ -348,7 +351,8 @@ def median_filter_centered(data: np.ndarray, size: int = 5) -> np.ndarray:
 	:return: Tableau filtré de type ``float64`` et de même forme que l'entrée.
 	:raises ValueError: Levée si ``size`` n'est pas un entier impair strictement positif.
 	"""
-	if size <= 0 or size % 2 == 0: raise ValueError(f"'size' doit être un entier impair strictement positif, mais vaut {size}.")
+	if size <= 0 or size % 2 == 0:
+		raise ValueError(f"'size' doit être un entier impair strictement positif, mais vaut {size}.")
 
 	is_1d = data.ndim == 1
 
