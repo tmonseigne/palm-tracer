@@ -130,7 +130,8 @@ class BaseSettingGroup:
 
 	##################################################
 	@value.setter
-	def value(self, value: Any): return
+	def value(self, value: Any):
+		return
 
 	##################################################
 	@property
@@ -217,7 +218,8 @@ class BaseSettingGroup:
 		return msg
 
 	##################################################
-	def __str__(self) -> str: return self.tostring()
+	def __str__(self) -> str:
+		return self.tostring()
 
 	# ==================================================
 	# endregion Parsing
