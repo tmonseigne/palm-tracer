@@ -1094,7 +1094,8 @@ def test_hr():
 	viz, plot = pt.hr()
 	ref_viz = ref_viz0.copy()
 	ref_viz[4, 2] = ref_viz[6, 4] = 2
-	ref_plot = [[4, 2], [6, 4], [8, 6], [10, 8], [4, 2], [6, 4]]  # (8,6) à une intensité de 0 et (10,8) est sur le bord de l'image (donc hors cadre)
+	ref_plot = [[0, 4, 2], [0, 6, 4], [0, 8, 6], [0, 10, 8], [0, 4, 2],
+				[0, 6, 4]]  # (8,6) à une intensité de 0 et (10,8) est sur le bord de l'image (donc hors cadre)
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
@@ -1115,7 +1116,7 @@ def test_hr():
 	viz, plot = pt.hr()
 	ref_viz = ref_viz0.copy()
 	ref_viz[4, 0] = ref_viz[6, 4] = 1
-	ref_plot = [[6, 4], [8, 6], [10, 8], [4, 0]]
+	ref_plot = [[0, 6, 4], [0, 8, 6], [0, 10, 8], [0, 4, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 	s["Drift Correction"].value = False
@@ -1163,7 +1164,7 @@ def test_hr_filter():
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((10, 6), dtype=np.uint16)
 	ref_viz[6, 0] = 2  # précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 * upscale de 2 = -4)
-	ref_plot = [[6, 0], [8, 2], [10, 4], [6, 0]]
+	ref_plot = [[0, 6, 0], [0, 8, 2], [0, 10, 4], [0, 6, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
@@ -1175,7 +1176,7 @@ def test_hr_filter():
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((6, 6), dtype=np.uint16)
 	ref_viz[2, 0] = 2
-	ref_plot = [[2, 0], [4, 2], [6, 4], [2, 0]]
+	ref_plot = [[0, 2, 0], [0, 4, 2], [0, 6, 4], [0, 2, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 

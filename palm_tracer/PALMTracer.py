@@ -887,6 +887,7 @@ class PALMTracer:
 			if s["Dimension"].value == 0:  # .	 2D
 				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
 				plot_data = df[["Y", "X"]].to_numpy() * upscale  # Mise à l'échelle des X et Y.
+				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
 				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # Rendu
 			else:  # . 							 3D
 				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
