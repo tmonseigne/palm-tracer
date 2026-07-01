@@ -10,7 +10,7 @@ permettant de modifier différents paramètres pour l'exécution des algorithmes
     l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
 """
 from pathlib import Path
-from typing import Callable, cast, Optional
+from typing import Any, Callable, cast, Optional
 
 import napari
 import numpy as np
@@ -40,6 +40,15 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 class PALMTracerWidget(QWidget):
 	"""Widget principal gérant toute l'interface."""
 	UI_NAME: str = "PALMTracer"
+	LAYERS_NAME: list[str] = ["Raw", "Points Present", "ROI Present", "Points Filtered", "Points Past", "Points Future", "ROI Filter"]
+
+	LAYER_ARGS: dict[str, dict[str, Any]] = {"Present":  {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
+											 "Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red"},
+											 "Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
+											 "Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"}
+											 }
+	EMPTY_PREVIEW: np.ndarray = np.empty((0, 2), dtype=np.float32)
+	EMPTY_STACK: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
 
 	# ==================================================
 	# region Init
@@ -67,8 +76,20 @@ class PALMTracerWidget(QWidget):
 		# ----- Objets -----
 		self.pt = PALMTracer()
 		self.last_file = ""
-		self._preview_locs: dict[str, np.ndarray] = {"Present": np.empty(0), "Filtered": np.empty(0), "Past": np.empty(0), "Future": np.empty(0)}
+		self._preview_locs: dict[str, np.ndarray] = {"Present": self.EMPTY_PREVIEW, "Filtered": self.EMPTY_PREVIEW,
+													 "Past":    self.EMPTY_PREVIEW, "Future": self.EMPTY_PREVIEW}
+		self._current_stack = self.EMPTY_STACK
 		# ----- UI -----
+		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self._current_stack, name=self.LAYERS_NAME[0]),
+						self.LAYERS_NAME[1]: self.viewer.add_points(self.EMPTY_PREVIEW, name=self.LAYERS_NAME[1]),
+						self.LAYERS_NAME[2]: self.viewer.add_shapes([], name=self.LAYERS_NAME[2]),
+						self.LAYERS_NAME[3]: self.viewer.add_points(self.EMPTY_PREVIEW, name=self.LAYERS_NAME[3]),
+						self.LAYERS_NAME[4]: self.viewer.add_points(self.EMPTY_PREVIEW, name=self.LAYERS_NAME[4]),
+						self.LAYERS_NAME[5]: self.viewer.add_points(self.EMPTY_PREVIEW, name=self.LAYERS_NAME[5]),
+						self.LAYERS_NAME[6]: self.viewer.add_shapes([], name=self.LAYERS_NAME[6])}
+
+		for layer in self._layers.values(): layer.editable, layer.locked = False, True
+
 		self.key_blocker = KeyBlocker()
 		self._init_ui()
 		self._connect_signal()
@@ -296,11 +317,18 @@ class PALMTracerWidget(QWidget):
 	# region Layers Callback
 	# ==================================================
 	##################################################
-	def _remove_layer(self, name: str):
-		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
-		try:
-			if name in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[name])
-		except Exception as e: Ui.print_warning(F"Error when deleting the old layer '{name}' : {e}")
+	def _clean_layer(self, raw: bool = True, preview: bool = True, roi: bool = True):
+		"""Vide les calques sans les supprimer"""
+		if raw: self._layers[self.LAYERS_NAME[0]].data = self._current_stack
+		if preview:
+			self._layers[self.LAYERS_NAME[1]].data = self.EMPTY_PREVIEW
+			self._layers[self.LAYERS_NAME[2]].data = []
+			self._layers[self.LAYERS_NAME[3]].data = self.EMPTY_PREVIEW
+			self._layers[self.LAYERS_NAME[4]].data = self.EMPTY_PREVIEW
+			self._layers[self.LAYERS_NAME[5]].data = self.EMPTY_PREVIEW
+		if roi: self._layers[self.LAYERS_NAME[6]].data = []
+
+		return
 
 	##################################################
 	def _reset_layer(self):
@@ -309,56 +337,46 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.filters.deactivate_filters()
 		selected_file = cast(FileList, self.pt.settings.batch["Files"]).current_text
 		if not selected_file:
+			self._current_stack = self.EMPTY_STACK
 			self.last_file = ""
-			self.viewer.layers.clear()
+			self._clean_layer()
 			return
 
 		if self.last_file == selected_file: return
 		else: self.last_file = selected_file
 
-		self.viewer.layers.clear()  # Nettoyez tous les layers existants dans le viewer
-
 		# Chargez le fichier TIF sélectionné comme un layer Raw dans le viewer
 		try:
-			raw_data = open_tif(selected_file)
-			self.viewer.add_image(raw_data, name="Raw")
-			show_info(f"Loaded {selected_file} into Napari viewer.")
+			self._current_stack = open_tif(selected_file)
+			self._layers[self.LAYERS_NAME[0]].data = self._current_stack
+			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
+			self.viewer.reset_view()  # Recentrer et ajuster la vue
+			try:
+				self.viewer.layers.selection.active = self._layers["Raw"]
+				self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)
+			except Exception as e: show_error(f"Error during layer selection: {e}")
+			show_info(f"Loaded {selected_file} {self._current_stack.shape} into Napari viewer.")
 			filters = self.pt.settings.filters
 			# Update Max
-			z, y, x = raw_data.shape
+			z, y, x = self._current_stack.shape
 			filters.update_limits(x, y, z)
-
 		except Exception as e:
 			show_error(f"Error loading {selected_file}: {e}")
 
 	##################################################
 	def _add_preview_layers(self):
 		"""Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant."""
-		state_args = {
-				"Present":  {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
-				"Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red"},
-				"Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
-				"Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"},
-				}
+		self._clean_layer(False, True, False)
 		for state, points in self._preview_locs.items():
-			if not self.pt.settings.localization["Preview"].value or points.size == 0:
-				self._remove_layer(f"Points {state}")
-				self._remove_layer(f"ROI {state}")
-				continue
+			if not self.pt.settings.localization["Preview"].value or points.size == 0: continue
 
-			args = state_args[state]
+			args = self.LAYER_ARGS[state]
 
 			# Points
-			l_name = f"Points {state}"
-			if l_name in self.viewer.layers:
-				layer = self.viewer.layers[l_name]
-				layer.data = points  # Remplace tous les points
-				layer.size = 1  # .	   Remets les différents arguments en cas de nombre de points différents
-				layer.border_color = args["color"]
-				layer.border_width = args["border"]
-				layer.face_color = args["face"]
-			else: self.viewer.add_points(points, size=1, border_color=args["color"], face_color=args["face"], border_width=args["border"], name=l_name)
-			self.viewer.layers[l_name].editable = False
+			layer = self._layers[f"Points {state}"]
+			layer.data = points  # Remplace tous les points
+			# Remets les différents arguments en cas de nombre de points différents
+			layer.size, layer.border_color, layer.border_width, layer.face_color = 1, args["color"], args["border"], args["face"]
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
@@ -372,48 +390,36 @@ class PALMTracerWidget(QWidget):
 				rois = [[[y - half_size, x - half_size], [y + half_size, x + half_size]] for y, x in points]
 				s_type = "rectangle"
 
-			l_name = f"ROI {state}"
-			# Si le calque existe, mais n'est pas du bon type, on le supprime
-			if l_name in self.viewer.layers:
-				layer = self.viewer.layers[l_name]
-				layer.data = (rois, len(rois) * [s_type])  # Remplace toutes les formes
-				layer.edge_color = args["color"]  # .		 Remets les différents arguments en cas de nombre de ROIs différents
-				layer.edge_width = args["edge"]
-				layer.face_color = "transparent"
-			else:
-				self.viewer.add_shapes(rois, shape_type=s_type, edge_color=args["color"], edge_width=args["edge"], face_color="transparent", name=l_name)
-			self.viewer.layers[l_name].editable = False
+			layer = self._layers[f"ROI {state}"]
+			layer.data = (rois, len(rois) * [s_type])  # Remplace toutes les formes
+			# Remets les différents arguments en cas de nombre de ROIs différents
+			layer.edge_color, layer.edge_width, layer.face_color = args["color"], args["edge"], "transparent"
 
-		if "Raw" in self.viewer.layers: self.viewer.layers.selection.active = self.viewer.layers["Raw"]
+		try: self.viewer.layers.selection.active = self._layers["Raw"]
+		except Exception as e: show_error(f"Error during layer selection: {e}")
 
 	##################################################
 	def _add_roi_filter_layer(self):
 		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
-		if "Raw" not in self.viewer.layers: return
-		# Suppression du calque "ROI Filter" s'il existe
-		l_name = "ROI Filter"
-
+		if self._current_stack.size <= 1: return
+		self._clean_layer(False, False, True)  # .			 Nettoyage du calque
 		filter_loc = self.pt.settings.filters["Localization"]
 		is_xf, is_yf = filter_loc["X"].active, filter_loc["Y"].active
 
-		if not is_xf and not is_yf:  # .												  Aucun filtre -> rien à afficher
-			self._remove_layer(l_name)
-			return
+		if not is_xf and not is_yf: return  # .				 Aucun filtre -> rien à afficher
 
-		raw_data = self.viewer.layers["Raw"].data  # .									   Récupération du layer Raw
-		x0, x1, y0, y1 = self.pt.get_roi_limits(raw_data.shape[-1], raw_data.shape[-2])  # Shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
+		y, x = self._current_stack.shape[-1], self._current_stack.shape[-2]  # Shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
+		x0, x1, y0, y1 = self.pt.get_roi_limits(y, x)
 
-		# Si range dégénéré (ligne/colonne), on peut soit l'accepter, soit ne rien afficher. Ici : si rectangle vide, on ne crée pas de layer.
-		if x1 <= x0 or y1 <= y0:
-			self._remove_layer(l_name)
-			return
+		if x1 <= x0 or y1 <= y0: return  # .				 Si range dégénéré (ligne/colonne)
 
 		# Napari attend un tableau (N, 2) pour un shape, la succession des points à tracer.
-		rect = [[[y0, x0], [y0, x1], [y1, x1], [y1, x0]]]  # .					   Haut-gauche, haut-droite, bas-droite, bas-gauche
-		if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rect  # Remplace le rectangle
-		else:  # .																   Création du Calque s'il n'existe pas
-			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.5, face_color="transparent")
-			layer.editable, layer.visible = False, True  # .					   Rendre non éditable (Napari) et l'affiche
+		rect = [[[y0, x0], [y0, x1], [y1, x1], [y1, x0]]]  # Haut-gauche, haut-droite, bas-droite, bas-gauche
+		layer = self._layers[f"ROI Filter"]
+		layer.data = (rect, len(rect) * ["polygon"])  # .	 Remplace le rectangle
+		args = self.LAYER_ARGS["Filtered"]
+		# Remets les différents arguments en cas de nombre de ROIs différents
+		layer.edge_color, layer.edge_width, layer.face_color = args["color"], args["edge"], "transparent"
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
@@ -423,11 +429,10 @@ class PALMTracerWidget(QWidget):
 		:param time: Différence de temps entre l'image actuellement affichée et celle désirée.
 		:return: L'image désirée (image actuellement affichée si time = 0).
 		"""
-		if "Raw" not in self.viewer.layers: return None
-		layer = self.viewer.layers["Raw"]  # .				   Récupération du layer Raw
+		if self._current_stack.size <= 1: return None
 		plane_idx = self.viewer.dims.current_step[0] + time  # Récupération de l'index du plan actuellement affiché plus delta de temps
-		if plane_idx < 0 or plane_idx >= self.viewer.layers["Raw"].data.shape[0]: return None
-		plane = layer.data[plane_idx]  # .					   Récupération des données du plan affiché
+		if plane_idx < 0 or plane_idx >= self._current_stack.shape[0]: return None
+		plane = self._current_stack[plane_idx]  # .			   Récupération des données du plan affiché
 		return np.asarray(plane, dtype=np.uint16)  # .		   Renvoie sous le format numpy
 
 	##################################################
@@ -435,28 +440,31 @@ class PALMTracerWidget(QWidget):
 		"""Action lors d'un clic sur le bouton de preview."""
 		if not self.pt.settings.localization["Preview"].value: return
 
-		past, pres, fut = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
-		if pres is None: return
+		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
+		if present is None: return
 
 		s = self.pt.settings.localization.settings
 		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
 		except Exception: raise
-		pres_loc = self.pt.palm.localization(pres, t, w, f, fp)
+		pres_loc = self.pt.palm.localization(present, t, w, f, fp)
 		filt_loc = self.pt.filtering.localization(pres_loc)
 		remo_loc = pres_loc.loc[~pres_loc.index.isin(filt_loc.index)].copy()
 
 		self._preview_locs = {
 				"Present":  filt_loc[["Y", "X"]].to_numpy(),
 				"Filtered": remo_loc[["Y", "X"]].to_numpy(),
-				"Past":     np.empty(0) if past is None else self.pt.filtering.localization(
+				"Past":     self.EMPTY_PREVIEW if past is None else self.pt.filtering.localization(
 						self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
-				"Future":   np.empty(0) if fut is None else self.pt.filtering.localization(self.pt.palm.localization(fut, t, w, f, fp))[["Y", "X"]].to_numpy(),
+				"Future":   self.EMPTY_PREVIEW if future is None else self.pt.filtering.localization(
+						self.pt.palm.localization(future, t, w, f, fp))[["Y", "X"]].to_numpy(),
 				}
 
 		# Affichage console (les notifications posent problème en thread externe)
-		l_past, l_pres, l_fut = len(self._preview_locs["Past"]), len(self._preview_locs["Present"]), len(self._preview_locs["Future"])
-		print(f"Preview of plane {self.viewer.dims.current_step[0]} : {l_past + l_pres + l_fut} detected points "
-			  f"({l_pres} on the current frame, {l_past} on the previous frame, {l_fut} on the next frame).")
+		l_past, l_present, l_future = len(self._preview_locs["Past"]), len(self._preview_locs["Present"]), len(self._preview_locs["Future"])
+		l_filt = len(self._preview_locs["Filtered"])
+		print(f"Preview of plane {self.viewer.dims.current_step[0]} : {l_past + l_present + l_future} detected points "
+			  f"{'+ {l_filt} filtered ' if l_filt > 0 else ''}"
+			  f"({l_present} on the current frame, {l_past} on the previous frame, {l_future} on the next frame).")
 
 	##################################################
 	def _auto_threshold(self):

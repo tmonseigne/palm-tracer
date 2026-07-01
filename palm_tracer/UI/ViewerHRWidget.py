@@ -61,6 +61,7 @@ class ViewerHRWidget(QWidget):
 	:param palmtracer: Instance PALMTracer à lier.
 	"""
 	UI_NAME: str = "HR"
+	LAYERS_NAME: list[str] = ["Visualization", "Points", "Tracks", "ROI Filter"]
 
 	# ==================================================
 	# region Initialization
@@ -80,8 +81,18 @@ class ViewerHRWidget(QWidget):
 		self._hr_settings: HR = self._pt.settings.hr
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
-		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
+		self.visualization: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
 		self._current_roi: tuple[int, int, int, int] = 0, 1, 0, 1
+
+		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
+						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=np.float32), name=self.LAYERS_NAME[1],
+																	size=1, face_color="lime", visible=False),
+						self.LAYERS_NAME[2]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=np.float32), name=self.LAYERS_NAME[2],
+																	blending="translucent", visible=False),
+						self.LAYERS_NAME[3]: self.viewer.add_shapes([], name=self.LAYERS_NAME[3], shape_type="polygon", edge_color="red",
+																	edge_width=0.5, face_color="transparent")}
+
+		for layer in self._layers.values(): layer.editable, layer.locked = False, True
 
 		# Construction UI
 		self._init_ui()
@@ -89,6 +100,7 @@ class ViewerHRWidget(QWidget):
 		self._actualize()
 
 	##################################################
+
 	def _init_ui(self):
 		"""Construit l'interface utilisateur."""
 		self._pt.settings.clean_ui(self.UI_NAME)
@@ -161,8 +173,8 @@ class ViewerHRWidget(QWidget):
 		"""Connecte les signaux UI aux callbacks."""
 
 		filters = self._pt.settings.filters.localization
-		filters["X"].connect(self._add_roi_filter_layer)  # Mise à jour de la ROI dans l'affichage.
-		filters["Y"].connect(self._add_roi_filter_layer)  # Mise à jour de la ROI dans l'affichage.
+		filters["X"].connect(self._update_roi_layer)  # Mise à jour de la ROI dans l'affichage.
+		filters["Y"].connect(self._update_roi_layer)  # Mise à jour de la ROI dans l'affichage.
 		# Connexion des boutons Filters de cette UI
 		self._pt.connect_filters_button(self.UI_NAME)
 
@@ -222,7 +234,9 @@ class ViewerHRWidget(QWidget):
 	def _save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
-			FileIO.save_png(self._pt.crop(self.visualization), self._filename)
+			crop = self._pt.crop(self.visualization)
+			if self._filename[-3:] == "png": FileIO.save_png(crop, self._filename, False)
+			else: FileIO.save_tif(crop, self._filename)
 			show_info("Image file saved successfully.")
 
 	##################################################
@@ -240,31 +254,22 @@ class ViewerHRWidget(QWidget):
 	# region Layers Callback
 	# ==================================================
 	##################################################
-	def _remove_layer(self, name: str):
-		"""Supprime un calque s'il existe et rend silencieuses les erreurs internes à Napari."""
-		try:
-			if name in self.viewer.layers: self.viewer.layers.remove(self.viewer.layers[name])
-		except Exception as e: Ui.print_warning(F"Error when deleting the old layer '{name}' : {e}")
-
-	##################################################
-	def _add_roi_filter_layer(self):
+	def _update_roi_layer(self):
 		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
 		stack = self._pt.stack
-		if "Visualization" not in self.viewer.layers or stack is None: return
-		# Suppression du calque "ROI Filter" s'il existe
-		l_name = "ROI Filter"
+		if stack is None: return
 
 		# Récupération des dimensions initiales et de la ROI
+		upscale = self._pt.settings.hr["Ratio"].value  # .			Ratio d'agrandissement
 		depth, height, width = stack.shape  # .						Dimensions maximales
 		x0, x1, y0, y1 = self._pt.get_roi_limits(width, height)  # .Nouveaux x0, x1, y0, y1 sans l'upscale
 		x0c, x1c, y0c, y1c = self._current_roi  # .					Anciens x0, x1, y0, y1 sans l'upscale
-		n_w, n_h = x1 - x0, y1 - y0  # .							Nouvelle Hauteru et largeur
-		upscale = self._pt.settings.hr["Ratio"].value
+		n_w, n_h = x1 - x0, y1 - y0  # .							Nouvelle Hauteur et largeur
 
 		# Si range dégénéré (ligne/colonne), on peut soit l'accepter, soit ne rien afficher.
 		# Ici : si rectangle vide, aou aucune coupe, on ne crée pas de layer.
 		if x1 <= x0 or y1 <= y0 or (n_h == height and n_w == width):
-			self._remove_layer(l_name)
+			self._layers[self.LAYERS_NAME[3]].data = []
 			return
 
 		# Calcul de la position relative de la nouvelle ROI par rapport à l'ancienne (en pixels d'origine)
@@ -274,11 +279,8 @@ class ViewerHRWidget(QWidget):
 		y0_n, y1_n = (y0 - y0c) * upscale, (y1 - y0c) * upscale
 
 		# Napari attend un tableau (N, 2) pour un shape, la succession des points à tracer.
-		rect = [[[y0_n, x0_n], [y0_n, x1_n], [y1_n, x1_n], [y1_n, x0_n]]]  # .	   Haut-gauche, haut-droite, bas-droite, bas-gauche
-		if l_name in self.viewer.layers: self.viewer.layers[l_name].data = rect  # Remplace le rectangle
-		else:  # .																   Création du Calque s'il n'existe pas
-			layer = self.viewer.add_shapes(rect, shape_type="polygon", name=l_name, edge_color="red", edge_width=0.5, face_color="transparent")
-			layer.editable, layer.visible = False, True  # .					   Rendre non éditable (Napari) et l'affiche
+		rect = [[[y0_n, x0_n], [y0_n, x1_n], [y1_n, x1_n], [y1_n, x0_n]]]  # Haut-gauche, haut-droite, bas-droite, bas-gauche
+		self._layers[self.LAYERS_NAME[3]].data = rect
 
 	# ==================================================
 	# endregion Layers Callback
@@ -297,10 +299,6 @@ class ViewerHRWidget(QWidget):
 			show_warning(f"No stack processed loaded.")
 			return
 
-		# On supprime les calques (la mise à jour n'est pas optimale sous Napari).
-		try: self.viewer.layers.clear()
-		except Exception as e: show_warning(f"Error when deleting old layers: {e}")
-
 		self.visualization, plot_data = self._pt.hr()
 		if self.visualization.size <= 1:
 			show_warning("No visualization available.")
@@ -318,13 +316,18 @@ class ViewerHRWidget(QWidget):
 		# else: self.viewer.dims.ndisplay = 3  # passage en 3D
 
 		if self._hr_settings["Type"].value == 0:  # Localisations
-			layer = self.viewer.add_points(plot_data, size=1, face_color="lime", name="Localizations", visible=False)
+			self._layers[self.LAYERS_NAME[1]].data = plot_data
+			self._layers[self.LAYERS_NAME[1]].face_color = "lime"
+			self._layers[self.LAYERS_NAME[2]].visible = False
 		else:  # Trajectoires
-			layer = self.viewer.add_tracks(plot_data, name="Tracks", blending="translucent", visible=False)
+			self._layers[self.LAYERS_NAME[2]].data = plot_data
+			self._layers[self.LAYERS_NAME[2]].blending = "translucent"
+			self._layers[self.LAYERS_NAME[1]].visible = False
 
-		layer.editable = False
-		layer = self.viewer.add_image(self.visualization, name="Visualization")
-		self.viewer.layers.move(self.viewer.layers.index(layer), 0)
+		self._layers[self.LAYERS_NAME[0]].data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
+		self._layers[self.LAYERS_NAME[0]].visible = True
+		self._update_roi_layer()
+		self.viewer.reset_view()  # Recentrer et ajuster la vue
 
 
 ##################################################

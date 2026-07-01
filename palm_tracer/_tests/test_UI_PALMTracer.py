@@ -17,7 +17,7 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 ##################################################
-def test_widget_creation(make_napari_viewer, patched_napari_viewer):
+def test_creation(make_napari_viewer, patched_napari_viewer):
 	"""Test basique de création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
 	viewer = make_napari_viewer()  # .		 Créer un viewer à l'aide de la fixture.
@@ -25,7 +25,7 @@ def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 
 
 ##################################################
-def test_widget_on_load_setting(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
+def test_on_load_setting(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -38,7 +38,7 @@ def test_widget_on_load_setting(make_napari_viewer, patched_napari_viewer, capsy
 
 
 ##################################################
-def test_widget_reset_setting(make_napari_viewer, patched_napari_viewer):
+def test_reset_setting(make_napari_viewer, patched_napari_viewer):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -48,7 +48,7 @@ def test_widget_reset_setting(make_napari_viewer, patched_napari_viewer):
 
 
 ##################################################
-def test_widget_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
+def test_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -63,7 +63,7 @@ def test_widget_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, q
 
 
 ##################################################
-def test_widget_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
+def test_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test de récupération d'image."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -77,7 +77,7 @@ def test_widget_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbo
 
 
 ##################################################
-def test_widget_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
+def test_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test Ajout des calques de détection."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -95,27 +95,27 @@ def test_widget_add_detection_layers(make_napari_viewer, patched_napari_viewer, 
 	w._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS, "Filtered": POINTS}
 	w._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Present" in layers, timeout=5000)
-
+	assert len(w._layers["Points Past"].data) == 707
 	# Ajout avec des calques existants et un futur vide.
 	w._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": np.empty(0), "Filtered": np.empty(0)}
 	w._add_preview_layers()
-	qtbot.waitUntil(lambda: "Points Future" not in layers, timeout=5000)
+	assert len(w._layers["Points Future"].data) == 0
 
 	# Ajout avec un tableau vide et rien en passé et future.
 	w._preview_locs = {"Past": np.zeros((2, 0)), "Present": POINTS, "Future": np.empty(0), "Filtered": np.empty(0)}
 	w._add_preview_layers()
-	qtbot.waitUntil(lambda: "Points Past" not in layers, timeout=5000)
+	assert len(w._layers["Points Past"].data) == 0
 
 	w.pt.settings.localization["ROI Shape"].value = 1
 	qtbot.waitUntil(lambda: w.pt.settings.localization["ROI Shape"].value == 1, timeout=5000)
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)
 	w._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
 	w._add_preview_layers()
-	qtbot.waitUntil(lambda: "Points Future" in layers, timeout=5000)
+	assert len(w._layers["Points Future"].data) == 707
 
 
 ##################################################
-def test_widget_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
+def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton preview."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -143,7 +143,7 @@ def test_widget_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot
 
 
 ##################################################
-def test_widget_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
+def test_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test click sur le bouton preview."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -151,32 +151,30 @@ def test_widget_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbo
 
 	filter_x = cast(CheckRangeInt, w.pt.settings.filters["Localization"]["X"])
 	filter_y = cast(CheckRangeInt, w.pt.settings.filters["Localization"]["Y"])
-	layers = w.viewer.layers
-	l_name = "ROI Filter"
+	layer = w._layers[f"ROI Filter"]
 
 	w._add_roi_filter_layer()  # .									Lancement sans aucune entrée.
 	# Ajout d'une entrée
 	add_basic_file(w.pt)  # .										Ajout d'une entrée.
-	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .		Attente : qu'il ait mis une image.
 
 	filter_x.active = True  # .										On active le filtre sur X.
-	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ait mis une image.
+	assert len(layer.data) == 1
 
 	filter_y.active = True  # .										On active le filtre sur Y (l'image existe déjà).
-	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ait mis une image.
+	assert len(layer.data) == 1
 
 	filter_x.min = filter_x.max  # .								Cas dégénéré, min et max sont égaux.
-	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .Attente : Il supprime le calque en cas dégénéré.
+	assert len(layer.data) == 0
 
 	filter_x.active = False  # .									On désactive le filtre sur X (l'image est recréé).
-	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .	Attente : qu'il ait mis une image à nouveau.
+	assert len(layer.data) == 1
 
 	filter_y.active = False  # .									On désactive le filtre sur Y (l'image est à nouveau supprimé).
-	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .Attente : Il supprime le calque.
+	assert len(layer.data) == 0
 
 
 ##################################################
-def test_widget_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
+def test_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Test click sur le bouton auto_threshold."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -194,7 +192,7 @@ def test_widget_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys
 
 
 ##################################################
-def test_widget_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
+def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test click sur le bouton process."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
@@ -218,7 +216,7 @@ def test_widget_thread_process(make_napari_viewer, patched_napari_viewer, qtbot)
 
 
 ##################################################
-def test_widget_keyblocker(make_napari_viewer, patched_napari_viewer, qtbot):
+def test_keyblocker(make_napari_viewer, patched_napari_viewer, qtbot):
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
 
@@ -233,6 +231,7 @@ def test_widget_keyblocker(make_napari_viewer, patched_napari_viewer, qtbot):
 	w.key_blocker.eventFilter(viewer.window.qt_viewer, event)
 
 
+##################################################
 def test_filters_button(make_napari_viewer, patched_napari_viewer, qtbot):
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	SETTINGS_FILE.unlink(missing_ok=True)

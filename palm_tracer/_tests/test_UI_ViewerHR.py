@@ -1,6 +1,7 @@
 """Fichier des tests pour le widget."""
 import shutil
 
+from matplotlib import lines
 from qtpy.QtCore import QCoreApplication, QEvent, Qt
 
 from palm_tracer._tests.Utils import *
@@ -29,9 +30,10 @@ def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot
 	"""Test Permettant de gérer la création en doublon de la même UI."""
 
 	"""Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++."""
+	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	pt = get_fake_pt()
 
-	w = ViewerHRWidget(pt)
+	w = ViewerHRWidget(viewer, pt)
 	w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 	w.resize(1000, 600)
 	w.show()
@@ -41,7 +43,7 @@ def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot
 	flush_qt_delete_events()
 
 	# Ici les BaseUI sont encore dans les settings, mais leurs objets Qt internes peuvent être supprimés côté C++.
-	w2 = ViewerHRWidget(pt)
+	w2 = ViewerHRWidget(viewer, pt)
 	w2.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 	w2.resize(1000, 600)
 	w2.show()
@@ -92,18 +94,27 @@ def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 ##################################################
 def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Test basique de création du widget."""
-	res = OUTPUT_DIR / "HR.png"
-	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
+	res_2d = OUTPUT_DIR / "HR.png"
+	res_3d = OUTPUT_DIR / "HR.tif"
+	res_2d.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
+	res_3d.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
 
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 	w._filename = ""
 	qtbot.mouseClick(w._btn_save, Qt.MouseButton.LeftButton)  # Il ne fait rien si pas de nom de fichier.
-	w._filename = str(res.resolve())
+
+	w._filename = str(res_3d.resolve())
 	qtbot.mouseClick(w._btn_save, Qt.MouseButton.LeftButton)
-	assert res.exists(), "File not saved."
-	res.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
+	assert res_3d.exists(), "File not saved."
+	res_3d.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
+
+	w.visualization = np.zeros((1, 1), dtype=np.uint16)
+	w._filename = str(res_2d.resolve())
+	qtbot.mouseClick(w._btn_save, Qt.MouseButton.LeftButton)
+	assert res_2d.exists(), "File not saved."
+	res_2d.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
 
 
 ##################################################
@@ -210,7 +221,7 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 
 
 ##################################################
-def test_widget_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
+def test_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
 	"""Test sur le dessin de la ROI."""
 	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
@@ -225,14 +236,15 @@ def test_widget_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbo
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
 
 	filter_x = cast(CheckRangeInt, w._pt.settings.filters.localization["X"])
-	layers, l_name = w.viewer.layers, "ROI Filter"
+	layer = w._layers["ROI Filter"]
 
-	w._add_roi_filter_layer()  # .										Lancement sans aucune entrée.
-	w._generate()  # .													Génération de la Vizualization.
-	qtbot.waitUntil(lambda: "Visualization" in layers, timeout=5000)  # Attente : qu'il ait mis une image.
-	filter_x.active = True  # .											On active le filtre sur X, mais il prend tout l'espace donc pas d'affichage
-	filter_x.min = 10  # .												On a un filtre qui est plus petit que l'image
-	qtbot.waitUntil(lambda: l_name in layers, timeout=5000)  # .		Attente : qu'il ait mis une image.
-	filter_x.min = 11  # .												On a un filtre qui est plus petit que l'image, mise à jour du calque
-	filter_x.active = False  # .										On désactive le filtre pour supprimer les calques
-	qtbot.waitUntil(lambda: l_name not in layers, timeout=5000)  # .	Attente : qu'il n'y ait plus d'une image.
+	w._update_roi_layer()  # .	Lancement sans aucune entrée.
+	w._generate()  # .			Génération de la Vizualization.
+	filter_x.active = True  # .	On active le filtre sur X, mais il prend tout l'espace donc pas d'affichage
+	filter_x.min = 10  # .		On a un filtre qui est plus petit que l'image
+	assert len(layer.data) == 1
+	filter_x.min = 11  # .		On a un filtre qui est plus petit que l'image, mise à jour du calque
+	filter_x.active = False  # .On désactive le filtre pour supprimer les calques
+	assert len(layer.data) == 0
+	pt._stack = None
+	w._update_roi_layer()  # .	Lancement sans stack
