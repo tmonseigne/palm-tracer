@@ -11,7 +11,6 @@ Installation
 
 Ce guide vous aidera à installer le projet étape par étape.
 
-
 .. important::
    | Toutes les lignes de commandes décrites sont effectuées à partir de :console:`PowerShell` sous Windows (le terminal :console:`cmd` ne possède pas toujours la même syntaxe et sur les autres systèmes d'exploitation, des différences peuvent apparaitre).
    | De préférence, le terminal doit être lancé en mode administrateur pour éviter des problèmes de droits, dans le cas contraire, il est possible que des blocages apparaissent.
@@ -20,49 +19,8 @@ Ce guide vous aidera à installer le projet étape par étape.
 .. note::
    Les calculs sont effectués à partir d'une DLL, celle-ci est dans le fichier :console:`7z` à décompresser, vous devez connaitre le mot de passe pour le faire.
 
-Étape 1 : Téléchargement de PalmTracer
-----------------------------------------
 
-Deux méthodes sont possibles pour récupérer le projet **PalmTracer**.
-Si vous utilisez déjà **Git**, la première méthode est recommandée, car elle facilite le suivi des mises à jour. Une `(très) courte introduction à Git <https://tmonseigne.github.io/Intro_Git/>`_ est disponible si vous souhaitez débuter avec Git.
-Sinon, vous pouvez télécharger une archive ZIP.
-
-Méthode 1 (recommandée) : via Git
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Si Git (ou GitKraken pour une utilisation avec une interface graphique) est installé sur votre machine, clonez simplement le dépôt :
-
-.. code-block:: console
-
-   cd C:\ (pour installer à la racine, mais vous pouvez le mettre où vous voulez)
-   git clone https://github.com/tmonseigne/palm-tracer.git
-
-Le dossier :file:`palm-tracer` sera alors créé dans le répertoire courant.
-
-Vous devez maintenant dézipper le fichier :file:`DLL.7z`.
-Faites un clic droit sur le fichier, puis :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`.
-Le mot de passe vous est demandé lors de l'extraction.
-Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
-
-Méthode 2 : téléchargement manuel (ZIP)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-1. Rendez-vous sur `la page GitHub du projet <https://github.com/tmonseigne/palm-tracer>`_.
-2. Cliquez sur **Code** (le bouton vert).
-3. Choisissez **Download ZIP** pour télécharger les fichiers du projet sur votre ordinateur.
-4. Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\\palm-tracer`).
-5. Dézippez le fichier :file:`DLL.7z` :
-    - Faites un clic droit sur le fichier, :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`
-    - Le mot de passe vous est demandé lors de l'extraction.
-    - Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
-
-.. note::
-   | Attention, l'extraction avec l'outil intégré à Windows créé des sous-dossiers.
-   | Si vous avez extrait dans :file:`C:\\palm-tracer`, vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`.
-	Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran.
-
-
-Étape 2 : Installation de Python et des éléments additionnels
+Étape 1 : Installation de Python et des éléments additionnels
 ------------------------------------------------------------------------
 
 Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installations à partir de :console:`PowerShell` (nécessite des droits administrateur)
@@ -98,6 +56,47 @@ Sinon, vous pouvez tout faire manuellement :
    - vcredist : celui-ci sera installé avec **Build Tools for Visual Studio**.
 
 
+Étape 2 : Téléchargement de PalmTracer
+----------------------------------------
+
+Deux méthodes sont possibles pour récupérer le projet **PalmTracer**.
+Si vous utilisez déjà **Git**, la première méthode est recommandée, car elle facilite le suivi des mises à jour. Une `(très) courte introduction à Git <https://tmonseigne.github.io/Intro_Git/>`_ est disponible si vous souhaitez débuter avec Git.
+Sinon, vous pouvez télécharger une archive ZIP.
+
+Méthode 1 (recommandée) : via Git
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Si Git (ou GitKraken pour une utilisation avec une interface graphique) est installé sur votre machine, clonez simplement le dépôt :
+
+.. code-block:: console
+
+   cd C:\ (pour installer à la racine, mais vous pouvez le mettre où vous voulez)
+   git clone https://github.com/tmonseigne/palm-tracer.git
+
+Le dossier :file:`palm-tracer` sera alors créé dans le répertoire courant.
+
+Méthode 2 : téléchargement manuel (ZIP)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Rendez-vous sur `la page GitHub du projet <https://github.com/tmonseigne/palm-tracer>`_.
+2. Cliquez sur **Code** (le bouton vert).
+3. Choisissez **Download ZIP** pour télécharger les fichiers du projet sur votre ordinateur.
+4. Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\\palm-tracer`). Vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`.
+   Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran.
+
+Extraction de la DLL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Vous devez maintenant dézipper le fichier :file:`DLL.7z`.
+Faites un clic droit sur le fichier, puis :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`.
+Le mot de passe vous est demandé lors de l'extraction.
+Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
+
+.. note::
+   | Attention, vous **devez** utiliser 7-zip pour extraire le fichier :file:`DLL.7z`. L'outil d'extraction intégré à Windows ne fonctionne pas correctement avec ce format.
+   | De plus, vous devez utiliser :menuselection:`Extraire ici` et non pas dans un sous-dossier, sinon Napari ne trouvera pas la DLL.
+
+
 Étape 3 : Création d'un environnement virtuel (optionnel)
 ------------------------------------------------------------------------
 
@@ -130,7 +129,7 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 .. note::
    | La première ligne est nécessaire, si vous avez **téléchargé** le zip du code source à partir de Git.
    | Si vous avez **cloné** le dépôt, cela n'est plus nécessaire.
-   | Les éléments supplémentaires tels que testing installent Napari entre autres éléments si vous ne l'aviez pas déjà.
+   | Les éléments supplémentaires, tels que testing, installent Napari entre autres éléments si vous ne les aviez pas déjà.
 
 Étape 5 : Lancement du plugin
 ------------------------------------------------------------------------
@@ -175,8 +174,8 @@ Il est possible de voir apparaitre un message d'erreur lors de l'extraction.
 
    Erreur d'extraction
 
-Cela signifie que votre Windows n'arrive pas à lire le fichier compressé. Vous avez très certainement 7-zip d'installé par défaut par votre administrateur.
-Suivez les instructions décrites pour l'extraction.
+Cela signifie que Windows n'arrive pas à lire le fichier compressé, car vous n'avez pas utilisé 7-zip. Vous avez très certainement 7-zip d'installé par défaut par votre administrateur.
+Suivez les instructions décrites à l’étape 2 pour l'extraction.
 
 2. Pourquoi utiliser un environnement virtuel ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -184,19 +183,25 @@ Pour éviter les conflits entre les dépendances de différents projets. Ou néc
 
 3. Et si je n'ai pas :console:`pip install` ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 2 et assurez-vous d'avoir ajouté Python au :console:`PATH`.
+Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 1 et assurez-vous d'avoir ajouté Python au :console:`PATH`.
 
-4. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?
+4. La commande :console:`napari` provoque une erreur
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+La commande :console:`napari` peut provoquer une erreur malgré une installation réussie, il faut l'ajouter au :console:`PATH` (les variables d'environnement) de votre système.
+Le chemin à ajouter est :file:`<Path_to_python>\\Scripts\napari.exe`.
+Si vous n'avez pas les droits ou ne savez pas comment faire pour ajouter une variable d'environnement, vous pouvez tout de même lancer Napari avec la commande :console:`python -m napari` depuis le terminal ou l'invite de commande.
+
+5. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Certaines commandes nécessitent des droits administrateur. Il faut lancer le terminal en mode administrateur sous Windows.
 
-5. Je dois tout recommencer à chaque mise à jour ?
+6. Je dois tout recommencer à chaque mise à jour ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers devrait mettre automatiquement à jour votre Napari.
-Mais il est possible d'observer des blocages, dans ce cas, il est nécessaire de réinstaller le plugin avec la même commande de l'étape 4.
+Mais il est possible d'observer des blocages, dans ce cas, il est nécessaire de réinstaller le plugin avec la commande précédente.
 
 .. warning:: Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :file:`DLL.7z` avec le mot de passe.
 
-6. Où puis-je trouver plus d'aide ?
+7. Où puis-je trouver plus d'aide ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Consultez la documentation officielle de Python ou contactez le support du projet.
+Consultez la documentation officielle de Python, Napari ou contactez le support du projet.
