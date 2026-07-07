@@ -15,7 +15,6 @@ from typing import Any, Callable, cast, Optional
 import napari
 import numpy as np
 from napari import Viewer
-from napari.layers import Points, Shapes
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
@@ -25,7 +24,6 @@ from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_json, open_tif, save_json
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
-from palm_tracer.UI.KeyBlocker import KeyBlocker
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
@@ -90,7 +88,6 @@ class PALMTracerWidget(QWidget):
 
 		for layer in self._layers.values(): layer.editable, layer.locked = False, True
 
-		self.key_blocker = KeyBlocker()
 		self._init_ui()
 		self._connect_signal()
 		self._on_startup()
@@ -177,8 +174,6 @@ class PALMTracerWidget(QWidget):
 
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
-		self.viewer.layers.selection.events.active.connect(self._on_select_layer)
-		self.viewer.window.qt_viewer.installEventFilter(self.key_blocker)
 
 	##################################################
 	def _on_startup(self):
@@ -463,7 +458,7 @@ class PALMTracerWidget(QWidget):
 		l_past, l_present, l_future = len(self._preview_locs["Past"]), len(self._preview_locs["Present"]), len(self._preview_locs["Future"])
 		l_filt = len(self._preview_locs["Filtered"])
 		print(f"Preview of plane {self.viewer.dims.current_step[0]} : {l_past + l_present + l_future} detected points "
-			  f"{'+ {l_filt} filtered ' if l_filt > 0 else ''}"
+			  f"{f'+ {l_filt} filtered ' if l_filt > 0 else ''}"
 			  f"({l_present} on the current frame, {l_past} on the previous frame, {l_future} on the next frame).")
 
 	##################################################
@@ -475,15 +470,6 @@ class PALMTracerWidget(QWidget):
 		print(f"Auto Threshold: {threshold:.2f}")
 		# show_info(f"Auto Threshold: {threshold:.2f}") Durant les threads externes, dangereux de faire appel à l'interface
 		self.pt.settings.localization["Threshold"].value = threshold  # .								  Changement du seuil dans les settings
-
-	##################################################
-	@staticmethod
-	def _on_select_layer(event):
-		"""Sélectionne tous les éléments d'un calque Points ou Shapes actif."""
-		layer = event.value
-		if layer is None: return
-		if isinstance(layer, (Shapes, Points)) and layer.data is not None and len(layer.data) > 0:
-			layer.selected_data = set(range(len(layer.data)))
 
 	# ==================================================
 	# endregion Layers Callback

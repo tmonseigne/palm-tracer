@@ -1,9 +1,8 @@
 """Fichier des tests pour le widget."""
 import shutil
 
-from qtpy.QtCore import QEvent, Qt
-from qtpy.QtGui import QKeyEvent
-from qtpy.QtWidgets import QSpinBox, QTabWidget
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QTabWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import CheckRangeInt
@@ -213,22 +212,6 @@ def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 	w._thread_process(w._auto_threshold)  # .					Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-
-
-##################################################
-def test_keyblocker(make_napari_viewer, patched_napari_viewer, qtbot):
-	viewer = make_napari_viewer()
-	w = PALMTracerWidget(viewer)
-
-	qtbot.addWidget(w)
-	w.show()
-
-	spin = QSpinBox(w)
-	qtbot.addWidget(spin)
-	spin.show()
-	spin.setFocus()
-	event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Backspace, Qt.KeyboardModifier.NoModifier)
-	w.key_blocker.eventFilter(viewer.window.qt_viewer, event)
 
 
 ##################################################
