@@ -25,6 +25,7 @@ from .BrowseFile import BrowseFile
 from .Button import Button
 from .ButtonGroup import ButtonGroup
 from .CheckBox import CheckBox
+from .CheckInt import CheckInt
 from .CheckRangeFloat import CheckRangeFloat
 from .CheckRangeInt import CheckRangeInt
 from .Combo import Combo
@@ -36,4 +37,4 @@ from .SpinInt import SpinInt
 # Définir la liste des symboles exportés
 __all__ = ["BaseSettingType", "BaseUIType", "SignalWrapper",
 		   "BrowseFile", "Button", "ButtonGroup", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
-		   "CheckRangeFloat", "CheckRangeInt"]
+		   "CheckInt", "CheckRangeFloat", "CheckRangeInt"]

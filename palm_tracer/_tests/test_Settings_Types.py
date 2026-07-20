@@ -57,6 +57,8 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	assert received == ["B"]
 
 	setting.disconnect()
+	setting.clean_ui("default")
+	_ = setting.get_ui("default")
 
 
 ###################################################
@@ -116,7 +118,6 @@ def test_check_box(qtbot):
 	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = CheckBox("Test")
 	setting_base_test(setting, True, False)
-
 	ui = setting.get_ui("new")
 
 	w = QWidget()
@@ -192,10 +193,38 @@ def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
 
 
 ###################################################
+def test_check_int(qtbot):
+	"""Test basique de la classe (constructeur, getter, setter)."""
+	setting = CheckInt("Test", "", 1, [1, 10])
+	setting_base_test(setting, 2, 1)
+	ui = setting.get_ui("new")
+
+	setting.active = True
+	assert setting.active, "Le paramètre doit être activés."
+
+	setting.limits = [4, 6]
+	assert setting.value == 4, "Valeur non valide."
+
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	cast(QSpinBox, ui.boxes[1]).setValue(5)
+	assert setting.value == 5
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert not setting.active
+
+	w.close()
+
+
+###################################################
 def test_check_range_int(qtbot):
 	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = CheckRangeInt("Test", "", [0, 0], [-10, 10])
 	setting_base_test(setting, [3, 5], [0, 0])
+	ui = setting.get_ui("new")
 
 	# Special tests
 	setting.value = [9, 4]
@@ -212,8 +241,6 @@ def test_check_range_int(qtbot):
 	assert setting.value == [3, 10], "Valeur non valide."
 	setting.limits = [4, 6]
 	assert setting.value == [4, 6], "Valeur non valide."
-
-	ui = setting.get_ui("new")
 
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
@@ -236,6 +263,7 @@ def test_check_range_float(qtbot):
 	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = CheckRangeFloat("Test", "", [0.0, 0.0], [-10, 10])
 	setting_base_test(setting, [3.0, 5.0], [0.0, 0.0])
+	ui = setting.get_ui("new")
 
 	# Special tests
 	setting.value = [9, 4]
@@ -252,8 +280,6 @@ def test_check_range_float(qtbot):
 	assert setting.value == [3, 10], "Valeur non valide."
 	setting.limits = [4, 6]
 	assert setting.value == [4, 6], "Valeur non valide."
-
-	ui = setting.get_ui("new")
 
 	w = QWidget()
 	form = QFormLayout(w)  # crée et assigne le layout au widget
@@ -278,7 +304,6 @@ def test_button(qtbot, capsys):
 	setting_base_test(setting, True, True)
 	setting.connect_button(lambda: print("Hi"), "default", 0)  # Ui sur laquelle on ne va pas cliquer
 	setting.connect_button(lambda: print("Hello"), "new", 0)  # Ui sur laquelle on va cliquer
-
 	ui = setting.get_ui("new")
 
 	w = QWidget()
