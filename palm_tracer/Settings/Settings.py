@@ -29,6 +29,8 @@ from palm_tracer.Settings.Groups.HR import HR
 from palm_tracer.Settings.Groups.Localization import Localization
 from palm_tracer.Settings.Groups.Tracking import Tracking
 from palm_tracer.Settings.Groups.TracksCompute import TracksCompute
+from palm_tracer.Settings.ROIManager import ROIManager
+from palm_tracer.Settings.Types import CheckInt, SpinInt
 
 
 ##################################################
@@ -40,6 +42,8 @@ class Settings:
 	"""Dictionnaire de groupes de paramètres."""
 	_uis: dict[str, dict[str, BaseUIGroup]] = field(init=False, default_factory=lambda: dict[str, dict[str, BaseUIGroup]]())
 	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
+	rois: ROIManager = field(init=False)
+	"""Manager des zones d'intérêts."""
 
 	# ==================================================
 	# region Initialization
@@ -52,6 +56,7 @@ class Settings:
 						 Gallery, Graph, HR, Filters]
 		for setting in list_settings: self._settings[setting.__name__] = setting()
 		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
+		self.rois = ROIManager(cast(CheckInt, self.filters["ROI"]), cast(SpinInt, self.hr["Ratio"]))
 
 	##################################################
 	def reset(self):
@@ -197,7 +202,9 @@ class Settings:
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
-		return {"PALM Tracer Settings": {name: obj.to_compact_dict() for name, obj in self._settings.items()}}
+		res = {"PALM Tracer Settings": {name: obj.to_compact_dict() for name, obj in self._settings.items()}}
+		res["PALM Tracer Settings"]["ROIs"] = self.rois.to_dict_list()
+		return res
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
@@ -205,6 +212,7 @@ class Settings:
 		groups = data["PALM Tracer Settings"]
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_compact_dict(groups[name])
+		if "ROIs" in groups: self.rois.from_dict_list(groups["ROIs"])
 
 	# ==================================================
 	# endregion Parsing

@@ -16,6 +16,8 @@ Ce sous-package gère les paramètres de configuration et l'interface utilisateu
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .Settings import Settings
+from .ROI import ROI
+from .ROIManager import ROIManager
 
 # Définir la liste des symboles exportés
-__all__ = ["Groups", "Types", "Settings"]
+__all__ = ["Groups", "Types", "Settings", "ROI", "ROIManager"]
