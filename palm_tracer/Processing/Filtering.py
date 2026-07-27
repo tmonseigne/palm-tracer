@@ -6,6 +6,7 @@ from typing import cast
 import numpy as np
 import pandas as pd
 
+from palm_tracer.Settings import ROIManager
 from palm_tracer.Settings.Groups import Filters
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 
@@ -14,10 +15,12 @@ from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 class Filtering:
 	"""Classe de filtrages."""
 	filters: Filters
+	rois: ROIManager
 
 	##################################################
-	def __init__(self, filters: Filters):
+	def __init__(self, filters: Filters, rois: ROIManager) -> None:
 		self.filters = filters
+		self.rois = rois
 
 	##################################################
 	def localization(self, datas: pd.DataFrame) -> pd.DataFrame:
@@ -28,10 +31,9 @@ class Filtering:
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
 		if datas.empty: return datas
-		res = datas.copy()
+		res = self.rois.filtering_dataframe(datas)
 		f = self.filters.localization
-		filters = [[self.filters["Plane"], "Plane"],
-				   [f["X"], "X"], [f["Y"], "Y"], [f["Z"], "Z"],
+		filters = [[self.filters["Plane"], "Plane"], [f["Z"], "Z"],
 				   [f["Intensity"], "Integrated Intensity"],
 				   [f["Sigma X"], "Sigma X"], [f["Sigma Y"], "Sigma Y"],
 				   [f["Theta"], "Theta"], [f["Circularity"], "Circularity"],
