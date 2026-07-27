@@ -15,4 +15,4 @@ class ROI:
 	type: str
 	"""Type de dessin (rectangle, polygone, ellipse)."""
 	data: np.ndarray
-	"""Liste des points sous forme de tableau numpy."""
+	"""Liste des points sous forme de tableau NumPy."""

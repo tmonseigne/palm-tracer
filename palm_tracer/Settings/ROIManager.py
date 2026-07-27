@@ -19,9 +19,7 @@ from palm_tracer.Tools.Ui import print_warning
 ##################################################
 @dataclass
 class ROIManager:
-	"""
-	Classe permettant de gérer les ROI de filtrage des résultats.
-	"""
+	"""Classe permettant de gérer les ROI de filtrage des résultats."""
 	roi_selection: CheckInt
 	hr_ratio: SpinInt
 
@@ -100,9 +98,9 @@ class ROIManager:
 	@rois.setter
 	def rois(self, rois: list[ROI]):
 		"""
-		Mets à jour la liste des zones d'intérêts
+		Mets à jour la liste des zones d'intérêts.
 
-		:param rois: Liste à appliquer
+		:param rois: Liste à appliquer.
 		"""
 		intial_l = len(self._rois)
 		new_l = len(rois)
@@ -112,17 +110,18 @@ class ROIManager:
 	##################################################
 	def set_size(self, width, height):
 		"""
-		Mets à jour la hauteur et largeur maximale de la ROI
+		Mets à jour la hauteur et largeur maximale de la ROI.
 
-		:param width: Largeur en pixel
-		:param height: Hauteur en pixel
+		:param width: Largeur en pixel.
+		:param height: Hauteur en pixel.
 		"""
 		self.width, self.height = width, height
 
 	##################################################
 	def set_xy_roi(self, x_min: float, x_max: float, y_min: float, y_max: float, add: bool = True):
 		"""
-		Ajoute une zone d'intérêt type rectangle pou run filtre rapide sur X et Y (utile pour simplifier le filtre par ROI en script)
+		Ajoute une zone d'intérêt type rectangle pour un filtre rapide sur X et Y (utile pour simplifier le filtre par ROI en script).
+
 		:param x_min: Position minimale sur X.
 		:param x_max: Position maximale sur X.
 		:param y_min: Position minimale sur Y.
@@ -185,7 +184,7 @@ class ROIManager:
 		"""
 		Mets à jour le calque Haute Résolution.
 
-		Les zones d'intérêts doivent être adaptées au ratio d'agrandissement et aux dimensions maximales de l'image
+		Les zones d'intérêts doivent être adaptées au ratio d'agrandissement et aux dimensions maximales de l'image.
 		"""
 		if self._layer_hr is None or len(self.rois) == 0: return
 		upscale = self.hr_ratio.value  # .		Ratio d'agrandissement
@@ -254,9 +253,7 @@ class ROIManager:
 
 	##################################################
 	def to_dict_list(self):
-		"""
-		 Exporte une liste de dictionnaires de formes pour le format json.
-		"""
+		"""Exporte une liste de dictionnaires de formes pour le format json."""
 		res = []
 		for roi in self.rois: res.append({"type": roi.type, "data": roi.data.tolist()})
 		return res
@@ -291,7 +288,7 @@ class ROIManager:
 		"""
 		Définit la bounding box de la zone d'intérêt (utile pour la génération HR).
 
-		:return: Positions x_min, x_max, y_min, y_max
+		:return: Positions x_min, x_max, y_min, y_max.
 		"""
 
 		selection = self.roi_selection.value - 1

@@ -35,7 +35,7 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:12
-msgid "Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées."
+msgid "tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées."
 msgstr "NumPy array, of the same shape as ``planes``, containing the estimated Z values."
 
 #: ../../api/palm_tracer.Processing.Astigmatism3D.rst
@@ -59,7 +59,7 @@ msgid "Si ``True``, centre la pile autour de 0. Sinon, démarre à 0."
 msgstr "If ``True``, centers the stack around 0. Otherwise, starts at 0."
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_step:7
-msgid "Tableau NumPy contenant les valeurs de Z estimées."
+msgid "tableau NumPy contenant les valeurs de Z estimées."
 msgstr "NumPy array containing the estimated Z values."
 
 #: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:1
@@ -114,7 +114,7 @@ msgid "Facteur d'agrandissement (les fichiers de localisation sauvegardés le so
 msgstr "Upscale factor (localization files are saved before upscale, so leave this at 1)."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:7
-msgid "Tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle."
+msgid "tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle."
 msgstr "NumPy array containing sigma values as a function of Z for the model."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_validity:1

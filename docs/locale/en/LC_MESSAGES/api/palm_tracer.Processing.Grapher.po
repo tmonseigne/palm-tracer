@@ -43,7 +43,7 @@ msgid "Trace un histogramme des données \"façon\" Seaborn avec Plotly et optio
 msgstr "Plots a Seaborn-style histogram of the data using Plotly and, optionally, a kernel density estimation curve."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:3
-msgid "Données sous forme de tableau numpy 1D/ND (aplati)."
+msgid "Données sous forme de tableau NumPy 1D/ND (aplati)."
 msgstr "Data in the form of a 1D/ND (flattened) NumPy array."
 
 #: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:14
@@ -110,7 +110,7 @@ msgstr "Plots a Seaborn-style curve of the data using Plotly."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:3
 #: palm_tracer.Processing.Grapher.Grapher.scatter:3
-msgid "Données sous forme de tableau numpy 1D ou 2D."
+msgid "Données sous forme de tableau NumPy 1D ou 2D."
 msgstr "Data in the form of a 1D or 2D NumPy array."
 
 #: ../../api/palm_tracer.Processing.Grapher.rst

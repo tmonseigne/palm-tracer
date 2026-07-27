@@ -155,7 +155,7 @@ class Palm:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
 
-		:param stack: Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement).
+		:param stack: Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement).
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
 		:param fit: Mode d'ajustement (défini par `get_fit`).
@@ -303,7 +303,7 @@ class Palm:
 		in_tracks = tracks[required].copy()
 		if not is_3d: in_tracks["Z"] = 0  # On simplifie, la suite les calculs se font toujours en 3D, mais la dernière dimension sera nulle
 
-		in_tracks = in_tracks.to_numpy(dtype=np.float64, copy=False)  # .				   Passage en tableau numpy
+		in_tracks = in_tracks.to_numpy(dtype=np.float64, copy=False)  # .				   Passage en tableau NumPy
 		in_tracks = self._as_c_contig(in_tracks, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
 		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # . Assurance de contiguité
 		n_row = len(tracks)  # .														   Nombre de points pour les trajectoires
@@ -329,7 +329,7 @@ class Palm:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
 
-		:param stack: Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement).
+		:param stack: Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement).
 		:param factors: Facteurs d'alignement.
 		:param upsampling: Facteur d'agrandissement de l'image (par défaut : `1` aucun agrandissement).
 		:return: Image alignée.
@@ -350,7 +350,7 @@ class Palm:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
 
-		:param stack: Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement).
+		:param stack: Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement).
 		:param level: Niveau d'ondelette en sortie.
 		:return: Image décomposée.
 		"""
@@ -368,10 +368,10 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
-		:param points: Ensemble des points nécessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
+		:param points: Ensemble des points nécessaire à la calibration sous forme de tableau NumPy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
 		:param pixel_size: Taille des pixels en nanomètres.
 		:param center: Permet de centrer le modèle pour que si :math:`\\sigma_x(0) \\approx \\sigma_y(0)`.
-		:return: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
+		:return: Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
 		pts = self._as_c_contig(points, np.dtype(np.float64), writeable=False)
 		out = np.empty(Parsing.SHAPE_MODEL, dtype=np.float64, order="C")
@@ -385,9 +385,9 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle.
 
-		:param sigmas: Ensemble des points à estimer sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y].
+		:param sigmas: Ensemble des points à estimer sous forme de tableau NumPy 2D avec pour colonnes [sigma_x, sigma_y].
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param model: Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne).
+		:param model: Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne).
 		:param z_max: Distance absolue maximale sur Z par rapport à l'origine.
 		:return: Ensemble des Z estimés pour chaque point.
 		"""

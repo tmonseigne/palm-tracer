@@ -1,0 +1,168 @@
+#: ../../api/palm_tracer.Settings.ROIManager.rst:2
+msgid "ROIManager"
+msgstr ""
+
+#: of palm_tracer.Settings.ROIManager.ROIManager:1
+msgid "Classe permettant de gérer les ROI de filtrage des résultats."
+msgstr "A class for managing ROI for result filtering."
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst of
+#: palm_tracer.Settings.ROIManager.ROIManager
+#: palm_tracer.Settings.ROIManager.ROIManager.update_colors
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.layer_main:1
+msgid "Calque de l'interface principale."
+msgstr "Main interface layer."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.layer_hr:1
+#: palm_tracer.Settings.ROIManager.ROIManager.rois:1
+msgid "Calque de l'interface haute résolution."
+msgstr "High Resolution interface layer."
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst:21
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst:24
+msgid "Getter/Setter"
+msgstr ""
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_size:1
+msgid "Mets à jour la hauteur et largeur maximale de la ROI."
+msgstr "Update the maximum height and width of the ROI."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_size:3
+msgid "Largeur en pixel."
+msgstr "Width in pixels."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_size:4
+msgid "Hauteur en pixel."
+msgstr "Height in pixels."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_xy_roi:1
+msgid "Ajoute une zone d'intérêt type rectangle pour un filtre rapide sur X et Y (utile pour simplifier le filtre par ROI en script)."
+msgstr "Adds a rectangular region of interest for quick filtering along the X and Y axes (useful for simplifying ROI filtering in scripts)."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_xy_roi:3
+msgid "Position minimale sur X."
+msgstr "Minimum position on X."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_xy_roi:4
+msgid "Position maximale sur X."
+msgstr "Maximum position on X."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_xy_roi:5
+msgid "Position minimale sur Y."
+msgstr "Minimum position on Y."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_xy_roi:6
+msgid "Position maximale sur Y."
+msgstr "Maximum position on Y."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.set_xy_roi:7
+msgid "Ajoute la zone aux zones éxistantes si ``True``, sinon remplace les zones par la nouvelle."
+msgstr "Adds the region to existing regions if ``True``, otherwise replaces the regions with the new one."
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst:30
+msgid "Synchronization"
+msgstr ""
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_from_main:1
+msgid "Mets à jour la liste des ROI à partir du calque principal (callback appelé à chaque modification dans le calque principal)."
+msgstr "Update the ROI list from the main layer (callback called whenever a change is made to the main layer)."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_from_hr:1
+msgid "Mets à jour la liste des ROI à partir du calque haute résolution (callback appelé à chaque modification dans le calque haute résolution)."
+msgstr "Update the ROI list from the high-resolution layer (callback called whenever a change is made to the high-resolution layer)."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_main:1
+msgid "Mets à jour le calque principal."
+msgstr "Update the main layer."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_hr:1
+msgid "Mets à jour le calque Haute Résolution."
+msgstr "Update the high resoultion layer."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_hr:3
+msgid "Les zones d'intérêts doivent être adaptées au ratio d'agrandissement et aux dimensions maximales de l'image."
+msgstr "The areas of interest must be adjusted to the magnification ratio and the maximum dimensions of the image."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.on_hr_selection_changed:1
+#: palm_tracer.Settings.ROIManager.ROIManager.on_main_selection_changed:1
+msgid "Traite un changement de sélection."
+msgstr "Handles a change in selection."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.on_hr_selection_changed:3
+#: palm_tracer.Settings.ROIManager.ROIManager.on_main_selection_changed:3
+msgid "Événement napari associé au changement."
+msgstr "A Napari event associated with change."
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst:40
+msgid "IO"
+msgstr ""
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.from_dict_list:1
+msgid "Importe une liste de dictionnaires de formes depuis un enregistrement json."
+msgstr "Imports a list of shape dictionaries from a JSON file."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.from_dict_list:3
+msgid "Liste récupéré."
+msgstr "List retrieved."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.to_dict_list:1
+msgid "Exporte une liste de dictionnaires de formes pour le format json."
+msgstr "Exports a list of shape dictionaries to JSON format."
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst:46
+msgid "Misc"
+msgstr ""
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_colors:1
+msgid "Met à jour les couleurs selon la sélection courante."
+msgstr "Updates the colors based on the current selection."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.get_roi_limits:1
+msgid "Définit la bounding box de la zone d'intérêt (utile pour la génération HR)."
+msgstr "Sets the bounding box for the region of interest (useful for HR generation)."
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.get_roi_limits:3
+msgid "Positions x_min, x_max, y_min, y_max."
+msgstr "Positions x_min, x_max, y_min, y_max."
+
+#: ../../api/palm_tracer.Settings.ROIManager.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_hr_box:1
+msgid "Mets à jour la bounding box actuelle de la génération Haute résolution."
+msgstr "Updates the current bounding box for high-resolution generation."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.filtering_dataframe:1
+msgid "Filtre un DataFrame selon la ROI sélectionnée."
+msgstr "Filters a DataFrame based on the selected ROI."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.filtering_dataframe:3
+msgid "Un premier filtrage rapide est effectué à partir de la bounding box. Si ``strict`` vaut ``True``, les points sont ensuite filtrés selon la géométrie exacte de la ROI."
+msgstr "An initial quick filter is applied using the bounding box. If ``strict`` is ``True``, the points are then filtered based on the exact geometry of the ROI."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.filtering_dataframe:6
+msgid "DataFrame contenant les colonnes ``X`` et ``Y``."
+msgstr "DataFrame containing the ``X`` and ``Y`` columns."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.filtering_dataframe:7
+msgid "Filtre selon la forme exacte et non uniquement selon la bounding box."
+msgstr "Filters based on the exact shape, not just the bounding box."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.filtering_dataframe:8
+msgid "Copie filtrée du DataFrame."
+msgstr "Filtered copy of the DataFrame."

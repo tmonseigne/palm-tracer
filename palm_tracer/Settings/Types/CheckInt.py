@@ -87,13 +87,13 @@ class CheckInt(BaseSettingType):
 	##################################################
 	@property
 	def value(self) -> int:
-		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
+		"""Valeur actuelle du paramètre (:class:`int`)."""
 		return self._value
 
 	##################################################
 	@value.setter
 	def value(self, value: int):
-		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
+		"""Valeur actuelle du paramètre (:class:`int`)."""
 		if self._value == value: return
 		self._value = value
 		for ui in self._uis.values():
@@ -105,13 +105,13 @@ class CheckInt(BaseSettingType):
 	##################################################
 	@property
 	def limits(self) -> list[int]:
-		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
+		"""Limites actuelle du paramètre (:class:`list[int]`)."""
 		return self._limits
 
 	##################################################
 	@limits.setter
 	def limits(self, value: list[int]):
-		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
+		"""Limites actuelle du paramètre (:class:`list[int]`)."""
 		if self._limits == value: return
 		self._limits = value
 		if self._value < self._limits[0]: self._value = self._limits[0]

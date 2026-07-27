@@ -227,7 +227,7 @@ class Renderer:
 	@staticmethod
 	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
-		Construit un tableau numpy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur.
+		Construit un tableau NumPy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur.
 
 		Le tableau retourné est de forme ``(N, 3)`` et contient, dans l'ordre : ``X``, ``Y`` et ``Color``.
 
@@ -272,7 +272,7 @@ class Renderer:
 	@staticmethod
 	def add_colors_to_tracks(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
-		Construit un tableau numpy contenant les numéros, plans et coordonnées des trajectoires
+		Construit un tableau NumPy contenant les numéros, plans et coordonnées des trajectoires
 		ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur.
 
 		Le tableau retourné est de forme ``(N, 5)`` et contient, dans l'ordre : ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
@@ -287,7 +287,7 @@ class Renderer:
 		:param trc: DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``.
 		:param source: Type de données à utiliser pour calculer la composante ``Color``.
 		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
-		:return: Tableau numpy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
+		:return: tableau NumPy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
 		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
 
 		.. note::

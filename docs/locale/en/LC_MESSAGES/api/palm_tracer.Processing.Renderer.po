@@ -135,7 +135,7 @@ msgid "Tools"
 msgstr ""
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:1
-msgid "Construit un tableau numpy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur."
+msgid "Construit un tableau NumPy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur."
 msgstr "Creates a NumPy array containing the coordinates of the localizations and an associated scalar value to be used as intensity/color."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:3
@@ -201,7 +201,7 @@ msgid "La normalisation n'est appliquée que si le maximum de la colonne ``Color
 msgstr "Normalization is applied only if the maximum value in the ``Color`` column after shifting is strictly positive. This prevents division by zero when all values are zero."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:1
-msgid "Construit un tableau numpy contenant les numéros, plans et coordonnées des trajectoires ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur."
+msgid "Construit un tableau NumPy contenant les numéros, plans et coordonnées des trajectoires ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur."
 msgstr "Constructs a NumPy array containing the track numbers, planes, and coordinates, as well as an associated scalar value to be used as intensity/color."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:4
@@ -225,7 +225,7 @@ msgid "Type de données à utiliser pour calculer la composante ``Color``."
 msgstr "Data type to use for calculating the ``Color`` component."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:16
-msgid "Tableau numpy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``."
+msgid "tableau NumPy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``."
 msgstr "A NumPy array of shape ``(N, 5)`` of type ``float64`` containing ``Track``, ``Plane``, ``X``, ``Y``, and ``Color``."
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_data:1

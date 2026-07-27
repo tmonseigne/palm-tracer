@@ -1,0 +1,23 @@
+#: ../../api/palm_tracer.Settings.ROI.rst:2
+msgid "ROI"
+msgstr ""
+
+#: of palm_tracer.Settings.ROI.ROI:1
+msgid "Classe de définition d'une zone d'intérêt (ROI) pour Napari."
+msgstr "Class for defining a region of interest (ROI) in Napari."
+
+#: of palm_tracer.Settings.ROI.ROI
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.ROI.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.ROI.ROI.type:1
+msgid "Type de dessin (rectangle, polygone, ellipse)."
+msgstr "Shape type (rectangle, polygon, ellipse)."
+
+#: of palm_tracer.Settings.ROI.ROI.data:1
+msgid "Liste des points sous forme de tableau NumPy."
+msgstr "List of points in the form of a NumPy array."

@@ -21,7 +21,7 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 	:param z_min: Valeur minimale de Z correspondant au premier plan.
 	:param z_max: Valeur maximale de Z correspondant au dernier plan.
 
-	:return: Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées.
+	:return: tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées.
 	"""
 	planes = np.asarray(planes, dtype=np.float64)  # passage en flottant
 	p_min, p_max = planes.min(), planes.max()  # Récupération des min/max
@@ -37,7 +37,7 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 	:param z_step: Distance entre deux plans consécutifs (même unité que la sortie). Doit être strictement positive.
 	:param center: Si ``True``, centre la pile autour de 0. Sinon, démarre à 0.
 
-	:return: Tableau NumPy contenant les valeurs de Z estimées.
+	:return: tableau NumPy contenant les valeurs de Z estimées.
 	"""
 	# Indices centrés : impair ⇾ un plan à 0 ; pair ⇾ 0 entre les deux plans centraux.
 	if center: indices = np.arange(n_planes, dtype=np.float64) - 0.5 * (n_planes - 1)
@@ -104,7 +104,7 @@ def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sam
 	:param z: Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle.
 	:param pixel_size: Taille des pixels en nanomètres.
 	:param sampling: Facteur d'agrandissement (les fichiers de localisation sauvegardés le sont avant agrandissement donc à laisser à 1).
-	:return: Tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle.
+	:return: tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle.
 	"""
 	z0, w, c3, c4, a = model
 
