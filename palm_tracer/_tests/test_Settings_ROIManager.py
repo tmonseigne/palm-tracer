@@ -123,7 +123,7 @@ def test_dict(manager: ROIManager):
 # ==================================================
 ##################################################
 def test_roi_limits(manager: ROIManager):
-	manager.width, manager.height = 100, 80
+	manager.set_size(100, 80)
 	manager.rois = [ROI("rectangle", np.array([[-5.2, -10.8], [-5.2, 120.4], [90.7, 120.4], [90.7, -10.8]]))]
 	manager.roi_selection.value = 0
 	assert manager.get_roi_limits() == (0, 100, 0, 80)
@@ -133,7 +133,7 @@ def test_roi_limits(manager: ROIManager):
 
 ##################################################
 def test_hr_box(manager: ROIManager):
-	manager.width, manager.height = 100, 80
+	manager.set_size(100, 80)
 	manager.rois = [ROI("rectangle", np.array([[-5.2, -10.8], [-5.2, 120.4], [90.7, 120.4], [90.7, -10.8]]))]
 	assert manager.hr_box == (0, 1, 0, 1)
 	manager.update_hr_box()
@@ -142,7 +142,7 @@ def test_hr_box(manager: ROIManager):
 
 ##################################################
 def test_filtering_dataframe(manager: ROIManager):
-	manager.width, manager.height = 10, 10
+	manager.set_size(10, 10)
 	df = pd.DataFrame({"X": [1, 2, 3], "Y": [1, 2, 3]})
 	res = manager.filtering_dataframe(df)  # ROI sélection non actif
 	assert res is df
@@ -173,7 +173,7 @@ def test_filtering_dataframe(manager: ROIManager):
 ##################################################
 def test_filtering_dataframe_concave_cross(manager: ROIManager):
 	"""Vérifie le filtrage exact d'une ROI concave en forme de croix."""
-	manager.width, manager.height = 10, 10
+	manager.set_size(10, 10)
 	manager.roi_selection.active = True
 
 	# Polygone concave en forme de croix. Les coordonnées Napari sont données dans l'ordre (Y, X).

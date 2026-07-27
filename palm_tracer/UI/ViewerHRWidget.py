@@ -82,7 +82,6 @@ class ViewerHRWidget(QWidget):
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
 		self.visualization: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
-		self._current_roi: tuple[int, int, int, int] = 0, 1, 0, 1
 
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
 						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=np.float32), name=self.LAYERS_NAME[1],
@@ -93,6 +92,8 @@ class ViewerHRWidget(QWidget):
 																	edge_width=0.5, face_color="transparent")}
 
 		for layer in self._layers.values(): layer.editable, layer.locked = False, True
+
+		self._pt.settings.rois.layer_hr = self._layers[self.LAYERS_NAME[3]]  # Connexion du calque avec le manager.
 
 		# Construction UI
 		self._init_ui()
@@ -248,42 +249,6 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
-	# region Layers Callback
-	# ==================================================
-	##################################################
-	def _update_roi_layer(self):
-		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
-		stack = self._pt.stack
-		if stack is None: return
-
-		# Récupération des dimensions initiales et de la ROI
-		upscale = self._pt.settings.hr["Ratio"].value  # .			Ratio d'agrandissement
-		depth, height, width = stack.shape  # .						Dimensions maximales
-		x0, x1, y0, y1 = self._pt.get_roi_limits(width, height)  # .Nouveaux x0, x1, y0, y1 sans l'upscale
-		x0c, x1c, y0c, y1c = self._current_roi  # .					Anciens x0, x1, y0, y1 sans l'upscale
-		n_w, n_h = x1 - x0, y1 - y0  # .							Nouvelle Hauteur et largeur
-
-		# Si range dégénéré (ligne/colonne), on peut soit l'accepter, soit ne rien afficher.
-		# Ici : si rectangle vide, aou aucune coupe, on ne crée pas de layer.
-		if x1 <= x0 or y1 <= y0 or (n_h == height and n_w == width):
-			self._layers[self.LAYERS_NAME[3]].data = []
-			return
-
-		# Calcul de la position relative de la nouvelle ROI par rapport à l'ancienne (en pixels d'origine)
-		# On cherche à savoir à quelle distance du bord supérieur gauche de l'ancienne ROI se trouve la nouvelle
-		# Application de l'upscale pour correspondre aux dimensions du layer "Raw" actuel
-		x0_n, x1_n = (x0 - x0c) * upscale, (x1 - x0c) * upscale
-		y0_n, y1_n = (y0 - y0c) * upscale, (y1 - y0c) * upscale
-
-		# Napari attend un tableau (N, 2) pour un shape, la succession des points à tracer.
-		rect = [[[y0_n, x0_n], [y0_n, x1_n], [y1_n, x1_n], [y1_n, x0_n]]]  # Haut-gauche, haut-droite, bas-droite, bas-gauche
-		self._layers[self.LAYERS_NAME[3]].data = rect
-
-	# ==================================================
-	# endregion Layers Callback
-	# ==================================================
-
-	# ==================================================
 	# region Drawing
 	# ==================================================
 	##################################################
@@ -306,11 +271,7 @@ class ViewerHRWidget(QWidget):
 		self._screenshot_filename = f"{path}/screenshot-{suffix}-{FileIO.get_timestamp_for_files()}.png"
 
 		# Mise à jour de la ROI qui a été utilisé
-		_, height, width = stack.shape
-		self._current_roi = self._pt.get_roi_limits(width, height)
-		# On reste en 2D, l'utilisateur choisira s'il veut passer en 3D.
-		# if self._hr_settings["Dimension"].value == 0: self.viewer.dims.ndisplay = 2  # Passage en 2D
-		# else: self.viewer.dims.ndisplay = 3  # passage en 3D
+		self._pt.settings.rois.update_hr_box()
 
 		if self._hr_settings["Type"].value == 0:  # Localisations
 			self._layers[self.LAYERS_NAME[1]].data = plot_data
@@ -323,7 +284,7 @@ class ViewerHRWidget(QWidget):
 
 		self._layers[self.LAYERS_NAME[0]].data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
 		self._layers[self.LAYERS_NAME[0]].visible = True
-		self._update_roi_layer()
+		self._pt.settings.rois.update_hr()
 		self.viewer.reset_view()  # Recentrer et ajuster la vue
 
 

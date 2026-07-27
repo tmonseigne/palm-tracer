@@ -1,11 +1,10 @@
 """Fichier des tests pour le widget."""
 import shutil
 
-from matplotlib import lines
 from qtpy.QtCore import QCoreApplication, QEvent, Qt
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, CheckRangeInt
+from palm_tracer.Settings.Types import BaseUIType, ButtonGroup
 from palm_tracer.UI import ViewerHRWidget
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
@@ -218,33 +217,3 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 	w._generate()
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0
-
-
-##################################################
-def test_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Test sur le dessin de la ROI."""
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
-	pt = PALMTracer()
-	add_basic_file(pt)
-	pt.process()  # Process Vide pour créer le dossier et un paramètre de base
-	shutil.copy2(INPUT_DIR / "localizations.csv", INPUT_DIR / "stack_PALM_Tracer" / f"localizations-{pt._timestamp}.csv")
-	shutil.copy2(INPUT_DIR / "tracking.csv", INPUT_DIR / "stack_PALM_Tracer" / f"tracking-{pt._timestamp}.csv")
-	shutil.copy2(INPUT_DIR / "beads.csv", INPUT_DIR / "stack_PALM_Tracer" / f"beads-{pt._timestamp}.csv")
-	pt.load()
-	pt.df["loc"]["Integrated Intensity"] *= 100
-	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
-
-	filter_x = cast(CheckRangeInt, w._pt.settings.filters.localization["X"])
-	layer = w._layers["ROI Filter"]
-
-	w._update_roi_layer()  # .	Lancement sans aucune entrée.
-	w._generate()  # .			Génération de la Vizualization.
-	filter_x.active = True  # .	On active le filtre sur X, mais il prend tout l'espace donc pas d'affichage
-	filter_x.min = 10  # .		On a un filtre qui est plus petit que l'image
-	assert len(layer.data) == 1
-	filter_x.min = 11  # .		On a un filtre qui est plus petit que l'image, mise à jour du calque
-	filter_x.active = False  # .On désactive le filtre pour supprimer les calques
-	assert len(layer.data) == 0
-	pt._stack = None
-	w._update_roi_layer()  # .	Lancement sans stack

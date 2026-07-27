@@ -56,10 +56,7 @@ trc_s["Max Distance"].value = TRACKING_DISTANCE
 
 filt_s: Filters = pt.settings.filters  # .			Paramètres des filtres
 filt_s["Save"].value = True  # .					Enregistrement des fichiers filtrés
-cast(CheckRangeInt, filt_s.localization["X"]).active = True
-filt_s.localization["X"].value = X_FILTER
-cast(CheckRangeInt, filt_s.localization["Y"]).active = True
-filt_s.localization["Y"].value = Y_FILTER
+pt.settings.rois.set_xy_roi(X_FILTER[0], X_FILTER[1], Y_FILTER[0], Y_FILTER[1])
 cast(CheckRangeFloat, filt_s.localization["MSE XY"]).active = True
 filt_s.localization["MSE XY"].value = MSE_FILTER
 cast(CheckRangeInt, filt_s.tracking["Length"]).active = True

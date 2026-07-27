@@ -3,9 +3,7 @@ Ce fichier définit la classe :class:`.ROIManager`, utilisée pour gérer les zo
 """
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Optional
 
 import numpy as np
@@ -110,6 +108,16 @@ class ROIManager:
 		new_l = len(rois)
 		self._rois = rois
 		if intial_l != new_l and new_l != 0: self.roi_selection.limits = [1, new_l]
+
+	##################################################
+	def set_size(self, width, height):
+		"""
+		Mets à jour la hauteur et largeur maximale de la ROI
+
+		:param width: Largeur en pixel
+		:param height: Hauteur en pixel
+		"""
+		self.width, self.height = width, height
 
 	##################################################
 	def set_xy_roi(self, x_min: float, x_max: float, y_min: float, y_max: float, add: bool = True):
@@ -349,7 +357,7 @@ class ROIManager:
 		:param roi_data: Sommets Napari sous la forme ``(Y, X)``.
 		:return: Masque booléen indiquant les points contenus dans le polygone.
 		"""
-		path = MatplotlibPath(np.asarray(roi_data, dtype=float)[:, [-1, -2]]) # passage de Y, X vers X, Y et création du chemin
+		path = MatplotlibPath(np.asarray(roi_data, dtype=float)[:, [-1, -2]])  # passage de Y, X vers X, Y et création du chemin
 		return path.contains_points(points, radius=1.0e-9)  # Un petit rayon positif permet d'inclure les points situés sur le bord.
 
 	##################################################

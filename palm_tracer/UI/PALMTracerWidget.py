@@ -88,6 +88,8 @@ class PALMTracerWidget(QWidget):
 
 		for layer in self._layers.values(): layer.editable, layer.locked = False, True
 
+		self.pt.settings.rois.layer_main = self._layers[self.LAYERS_NAME[6]]  # Connexion du calque avec le manager.
+
 		self._init_ui()
 		self._connect_signal()
 		self._on_startup()
@@ -281,6 +283,7 @@ class PALMTracerWidget(QWidget):
 					self.pt.settings.update_from_compact_dict(cfg)
 					self.pt.settings.localization["Preview"].value = False
 					self.pt.settings.filters.deactivate_filters()
+					self.pt.settings.rois.update_main()
 			except Exception as e:
 				show_warning(f"Error loading file '{filename}': {e}")
 
@@ -338,6 +341,9 @@ class PALMTracerWidget(QWidget):
 		# Chargez le fichier TIF sélectionné comme un layer Raw dans le viewer
 		try:
 			self._current_stack = open_tif(selected_file)
+			depth, height, width = self._current_stack.shape
+			self.pt.settings.rois.set_size(width, height)
+			self.pt.settings.filters.update_limits(depth)  # Update Max
 			self._layers[self.LAYERS_NAME[0]].data = self._current_stack
 			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
 			self.viewer.reset_view()  # Recentrer et ajuster la vue
@@ -381,32 +387,6 @@ class PALMTracerWidget(QWidget):
 			layer.data = (rois, len(rois) * [s_type])  # Remplace toutes les formes
 			# Remets les différents arguments en cas de nombre de ROIs différents
 			layer.edge_color, layer.edge_width, layer.face_color = args["color"], args["edge"], "transparent"
-
-		try: self.viewer.layers.selection.active = self._layers["Raw"]
-		except Exception as e: show_error(f"Error during layer selection: {e}")
-
-	##################################################
-	def _add_roi_filter_layer(self):
-		"""Ajoute un calque à Napari pour afficher la zone d'intérêt si le filtre est activé."""
-		if self._current_stack.size <= 1: return
-		self._clean_layer(False, False, True)  # .			 Nettoyage du calque
-		filter_loc = self.pt.settings.filters["Localization"]
-		is_xf, is_yf = filter_loc["X"].active, filter_loc["Y"].active
-
-		if not is_xf and not is_yf: return  # .				 Aucun filtre -> rien à afficher
-
-		y, x = self._current_stack.shape[-1], self._current_stack.shape[-2]  # Shape peut-être (Y, X) | (Z, Y, X) | (T, Z, Y, X)
-		x0, x1, y0, y1 = self.pt.get_roi_limits(y, x)
-
-		if x1 <= x0 or y1 <= y0: return  # .				 Si range dégénéré (ligne/colonne)
-
-		# Napari attend un tableau (N, 2) pour un shape, la succession des points à tracer.
-		rect = [[[y0, x0], [y0, x1], [y1, x1], [y1, x0]]]  # Haut-gauche, haut-droite, bas-droite, bas-gauche
-		layer = self._layers[f"ROI Filter"]
-		layer.data = (rect, len(rect) * ["polygon"])  # .	 Remplace le rectangle
-		args = self.LAYER_ARGS["Filtered"]
-		# Remets les différents arguments en cas de nombre de ROIs différents
-		layer.edge_color, layer.edge_width, layer.face_color = args["color"], args["edge"], "transparent"
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:

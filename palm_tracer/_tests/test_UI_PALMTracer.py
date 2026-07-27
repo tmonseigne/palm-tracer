@@ -5,7 +5,6 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QTabWidget
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Types import CheckRangeInt
 from palm_tracer.UI import PALMTracerWidget
 from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
 
@@ -44,6 +43,17 @@ def test_reset_setting(make_napari_viewer, patched_napari_viewer):
 	w = PALMTracerWidget(viewer)
 
 	w._on_reset_setting_btn()
+
+
+##################################################
+def test_clean_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
+	"""Test nettoyage des calques."""
+	SETTINGS_FILE.unlink(missing_ok=True)
+	viewer = make_napari_viewer()
+	w = PALMTracerWidget(viewer)
+
+	w._clean_layer()
+	w._clean_layer(False, False, False)
 
 
 ##################################################
@@ -139,37 +149,6 @@ def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 		w._preview()  # .										Preview simple
 		lines = get_lines_output(capsys)
 		assert "Preview of plane 4 : 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in lines[-1]
-
-
-##################################################
-def test_roi_filter_layer(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Test click sur le bouton preview."""
-	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
-	w = PALMTracerWidget(viewer)
-
-	filter_x = cast(CheckRangeInt, w.pt.settings.filters["Localization"]["X"])
-	filter_y = cast(CheckRangeInt, w.pt.settings.filters["Localization"]["Y"])
-	layer = w._layers[f"ROI Filter"]
-
-	w._add_roi_filter_layer()  # .									Lancement sans aucune entrée.
-	# Ajout d'une entrée
-	add_basic_file(w.pt)  # .										Ajout d'une entrée.
-
-	filter_x.active = True  # .										On active le filtre sur X.
-	assert len(layer.data) == 1
-
-	filter_y.active = True  # .										On active le filtre sur Y (l'image existe déjà).
-	assert len(layer.data) == 1
-
-	filter_x.min = filter_x.max  # .								Cas dégénéré, min et max sont égaux.
-	assert len(layer.data) == 0
-
-	filter_x.active = False  # .									On désactive le filtre sur X (l'image est recréé).
-	assert len(layer.data) == 1
-
-	filter_y.active = False  # .									On désactive le filtre sur Y (l'image est à nouveau supprimé).
-	assert len(layer.data) == 0
 
 
 ##################################################

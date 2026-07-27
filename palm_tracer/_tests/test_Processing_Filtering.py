@@ -20,7 +20,7 @@ def f() -> Filtering:
 	"""Construit un gestionnaire avec une sélection active et un ratio HR de 4."""
 	filters = Filters()
 	manager = ROIManager(cast(CheckInt, filters["ROI"]), SpinInt("Up scaling ratio", "", 4, [1, 256], 2))
-	manager.width, manager.height = 256, 128
+	manager.set_size(256, 128)
 	return Filtering(filters, manager)
 
 

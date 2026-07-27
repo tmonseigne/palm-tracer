@@ -81,6 +81,7 @@ def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
 	timestamp = "20260101_000000"
+	pt.settings.rois.set_size(256, 128)
 	if localisation:
 		src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 		dst = OUTPUT_FOLDER / f"localizations-{timestamp}.csv"
@@ -1091,6 +1092,7 @@ def test_hr():
 
 	# HR Localisation
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
 	viz, plot = pt.hr()
 	ref_viz = ref_viz0.copy()
 	ref_viz[4, 2] = ref_viz[6, 4] = 2
@@ -1147,8 +1149,6 @@ def test_hr():
 def test_hr_filter():
 	"""Test de différentes récupérations de données."""
 	pt = get_fake_pt()
-	ref_empty = np.zeros((1, 1), dtype=np.uint16)
-	ref_viz0 = np.zeros((10, 10), dtype=np.uint16)
 	s = pt.settings.hr
 	s["Ratio"].value = 2
 	s["Remove Beads"].value = False
@@ -1156,11 +1156,10 @@ def test_hr_filter():
 
 	# Filtre sur X
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
-	sf = pt.settings.filters.localization
-	sfx = cast(CheckRangeInt, sf["X"])
-	sfx.active = True
-	sfx.min = 2
-	sfx.max = 5
+	pt.settings.rois.set_size(5, 5)
+	sf = pt.settings.filters
+	sf["ROI"].active = True
+	pt.settings.rois.set_xy_roi(2, 5, 0, 5, False)
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((10, 6), dtype=np.uint16)
 	ref_viz[6, 0] = 2  # précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 * upscale de 2 = -4)
@@ -1169,10 +1168,7 @@ def test_hr_filter():
 	np.testing.assert_array_equal(plot, ref_plot)
 
 	# Filtre sur Y
-	sfy = cast(CheckRangeInt, sf["Y"])
-	sfy.active = True
-	sfy.min = 2
-	sfy.max = 5
+	pt.settings.rois.set_xy_roi(2, 5, 2, 5, False)
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((6, 6), dtype=np.uint16)
 	ref_viz[2, 0] = 2
@@ -1182,10 +1178,8 @@ def test_hr_filter():
 
 	# Tracking Filtré
 	s["Type"].value = 1
-	sfx.min, sfx.max = 1, 4
-	sfy.min, sfy.max = 1, 2
+	pt.settings.rois.set_xy_roi(1, 4, 1, 2, False)
 	viz, plot = pt.hr()
-	print(viz, plot)
 	ref_viz = np.zeros((2, 6), dtype=np.uint16)
 	ref_viz[0, 0] = 8
 	ref_plot = [[1, 1, 0, 0], [1, 99, 0, 0], [3, 3, 0, 6], [3, 4, 0, 6], [5, 5, 0, 6], [5, 6, 0, 6],
@@ -1205,6 +1199,7 @@ def test_hr_z_stack():
 	s["Drift Correction"].value = False
 	# HR Localisation
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((1, 10, 10), dtype=np.uint16)
 	ref_viz[0, 4, 2] = ref_viz[0, 6, 4] = 2
@@ -1225,6 +1220,7 @@ def test_hr_rotation():
 	s["Drift Correction"].value = False
 	# HR Localisation
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((2, 17, 17), dtype=np.uint16)
 	ref_viz[0, 8, 6] = ref_viz[0, 10, 8] = ref_viz[1, 8, 10] = ref_viz[1, 10, 8] = 2
@@ -1237,8 +1233,10 @@ def test_hr_rotation():
 def test_hr_stress():
 	"""Test de génération HR plus complexe."""
 	pt = PALMTracer()
+	pt.settings.rois.set_size(8, 8)
 	n_p, n_x, n_y = 8, 8, 4  # Dimensions de la pile
 	pt._stack = np.zeros((n_p, n_y, n_x), dtype=np.uint16)
+	pt.settings.rois.set_size(8, 4)
 	ref_viz0 = np.zeros((n_y * 2, n_x * 2), dtype=np.uint16)
 
 	s = pt.settings.hr
