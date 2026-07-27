@@ -67,7 +67,7 @@ msgstr "Performs image processing with an external PALM DLL to detect points in 
 #: of palm_tracer.Processing.Palm.Palm.align:3
 #: palm_tracer.Processing.Palm.Palm.localization:3
 #: palm_tracer.Processing.Palm.Palm.wavelett:3
-msgid "Pile d'images en entrée sous forme de tableau numpy (possibilité d'envoyer une image directement)."
+msgid "Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement)."
 msgstr "Input image stack in the form of a NumPy array (option to send a single image directly)."
 
 #: of palm_tracer.Processing.Palm.Palm.localization:4
@@ -218,7 +218,7 @@ msgid "Exécute un traitement avec une DLL PALM externe pour calibrer un modèle
 msgstr "Performs processing using an external PALM DLL to calibrate an astigmatism model for estimating an axial position."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:3
-msgid "Ensemble des points nécessaire à la calibration sous forme de tableau numpy 2D avec pour colonnes [Sigma X, Sigma Y, Z]."
+msgid "Ensemble des points nécessaire à la calibration sous forme de tableau NumPy 2D avec pour colonnes [Sigma X, Sigma Y, Z]."
 msgstr "Set of points required for calibration in the form of a 2D NumPy array with columns [Sigma X, Sigma Y, Z]."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:5
@@ -227,7 +227,7 @@ msgstr "Allows centering the model so that :math:`\\sigma_x(0) \\approx \\sigma_
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:6
 #: palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:5
-msgid "Modèle d'astigmatisme (un tableau numpy 2D de 2 lignes et 5 paramètres par ligne)."
+msgid "Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne)."
 msgstr "Astigmatism model (a 2D NumPy array with 2 rows and 5 parameters per row)."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:1
@@ -235,7 +235,7 @@ msgid "Exécute un traitement avec une DLL PALM externe pour estimer une positio
 msgstr "Performs a calculation using an external PALM DLL to estimate an axial position based on a model."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:3
-msgid "Ensemble des points à estimer sous forme de tableau numpy 2D avec pour colonnes [sigma_x, sigma_y]."
+msgid "Ensemble des points à estimer sous forme de tableau NumPy 2D avec pour colonnes [sigma_x, sigma_y]."
 msgstr "Set of points to be estimated in the form of a 2D NumPy array with columns [sigma_x, sigma_y]."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:6

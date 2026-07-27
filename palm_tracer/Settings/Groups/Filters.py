@@ -16,7 +16,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.FiltersL import FiltersL
 from palm_tracer.Settings.Groups.FiltersT import FiltersT
-from palm_tracer.Settings.Types import CheckBox, CheckRangeInt
+from palm_tracer.Settings.Types import CheckBox, CheckInt, CheckRangeInt
 from palm_tracer.Tools import Ui
 
 
@@ -31,6 +31,7 @@ class Filters(BaseSettingGroup):
 		  Sauvegarde les éléments une fois filtrés (dans un fichier séparé du fichier non filtré)  (par défaut : `False`).
 		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
 		  Intervalle de plans sélectionné (par défaut : `[1,10000]`).
+		- **ROI** (:class:`CheckInt <palm_tracer.Settings.Types.CheckInt.CheckInt>`) : ROI sélectionnée pour la sélection (par défaut : `1`).
 		- **Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Paramètres de filtrage de la Localisation.
 		- **Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Paramètres de filtrage du Tracking.
 	"""
@@ -38,7 +39,8 @@ class Filters(BaseSettingGroup):
 	label: str = "Filters"
 	setting_list = {
 			"Save":         [CheckBox, ["Save filtered", "Save filtered datas in _filtered.csv file.", False]],
-			"Plane":        [CheckRangeInt, ["Plane", "", [1, 100000], [1, 100000]]],
+			"Plane":        [CheckRangeInt, ["Plane", "Limits the planes to be used.", [1, 100000], [1, 100000]]],
+			"ROI":          [CheckInt, ["ROI", "ROI selected for filtering. Selected ROI appear in yellow.", 1, [1, 1]]],
 			"Localization": [FiltersL, []],
 			"Tracks":       [FiltersT, []]
 			}
@@ -85,7 +87,7 @@ class Filters(BaseSettingGroup):
 		ft.deactivate_filters()
 
 	##################################################
-	def update_limits(self, x_max: int | None = None, y_max: int | None = None, plane_max: int | None = None):
+	def update_limits(self, plane_max: int | None = None):
 		"""Mets à jour le min et le max de certains filtres."""
 		with self.signal_blocked():
 			if plane_max is not None:
@@ -94,13 +96,6 @@ class Filters(BaseSettingGroup):
 				ft = cast(FiltersT, self._settings["Tracks"])
 				s = cast(CheckRangeInt, ft["Length"])
 				s.limits = [s.limits[0], plane_max]
-			fl = cast(FiltersL, self._settings["Localization"])
-			if x_max is not None:
-				s = cast(CheckRangeInt, fl["X"])
-				s.limits = [s.limits[0], x_max]
-			if y_max is not None:
-				s = cast(CheckRangeInt, fl["Y"])
-				s.limits = [s.limits[0], y_max]
 
 	##################################################
 	def connect_button(self, f: Any, ui_name: str = "default", name: str = "reset"):

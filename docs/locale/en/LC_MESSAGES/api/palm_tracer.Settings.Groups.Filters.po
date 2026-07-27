@@ -19,10 +19,14 @@ msgid "**Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeIn
 msgstr "**Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Selected plane range (default: `[1,10000]`)."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:8
+msgid "**ROI** (:class:`CheckInt <palm_tracer.Settings.Types.CheckInt.CheckInt>`) : ROI sélectionnée pour la sélection (par défaut : `1`)."
+msgstr "**ROI** (:class:`CheckInt <palm_tracer.Settings.Types.CheckInt.CheckInt>`) : Selected ROI (default: `1`)."
+
+#: of palm_tracer.Settings.Groups.Filters.Filters:9
 msgid "**Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Paramètres de filtrage de la Localisation."
 msgstr "**Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Localization filter settings."
 
-#: of palm_tracer.Settings.Groups.Filters.Filters:9
+#: of palm_tracer.Settings.Groups.Filters.Filters:10
 msgid "**Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Paramètres de filtrage du Tracking."
 msgstr "**Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Tracking filter settings"
 

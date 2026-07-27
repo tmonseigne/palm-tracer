@@ -28,7 +28,7 @@ class FiltersL(BaseSettingGroup):
 		- **Theta** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
 		  Intervalle de Theta sélectionné (par défaut : `[-90, 90]`).
 		- **Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Z sélectionné (par défaut : `[-5, 5]`).
+		  Intervalle de Z sélectionné (par défaut : `[-2000, 2000]`).
 		- **MSE XY** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
 		  Intervalle de MSE XY sélectionné (par défaut : `[0.0, 1.0]`).
 		- **MSE Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
@@ -37,8 +37,6 @@ class FiltersL(BaseSettingGroup):
 
 	label: str = "Localization"
 	setting_list = {
-			"X":           [CheckRangeInt, ["X", "", [0, 100000], [0, 100000]]],
-			"Y":           [CheckRangeInt, ["Y", "", [0, 100000], [0, 100000]]],
 			"Z":           [CheckRangeInt, ["Z", "", [-2000, 2000], [-2000, 2000]]],
 			"Intensity":   [CheckRangeInt, ["Intensity", "", [0, 10000000], [0, 10000000]]],
 			"Sigma X":     [CheckRangeFloat, ["Sigma X", "", [0, 10], [0, 10]]],

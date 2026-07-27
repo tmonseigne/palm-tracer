@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Parsing, Renderer
 from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Types import CheckRangeInt, Combo
+from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO, Logger, Ui
 
 MAX_UI_16 = np.iinfo(np.uint16).max
@@ -79,8 +79,7 @@ class PALMTracer:
 	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
-		filters = self.settings.filters
-		self.filtering = Filtering(filters)
+		self.filtering = Filtering(self.settings.filters, self.settings.rois)
 
 		self._STEPS: list[Step] = [
 				Step("localization", ["loc"], self._localization, self.filtering.localization),
@@ -663,8 +662,7 @@ class PALMTracer:
 		self.df["f_blk"] = self.filtering.tracking(df["blk"])
 
 		o_name = "f_trc" if self.df["f_blk"].empty else "f_blk"
-		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
-			= self.filtering.tracks_compute(self.tracks, df["MSD"], df["InD"], df["Fit"])
+		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] = self.filtering.tracks_compute(self.tracks, df["MSD"], df["InD"], df["Fit"])
 
 		for key in ["loc", "dft", "trc", "blk"]:
 			f_key = f"f_{key}"
@@ -688,27 +686,6 @@ class PALMTracer:
 		filters.connect_button(self.reset_filtered, ui_name, "reset")
 		filters.connect_button(self.update_filtered, ui_name, "update")
 		filters.connect_button(self.save_filtered, ui_name, "save")
-
-	##################################################
-	def get_roi_limits(self, width: int, height: int) -> tuple[int, int, int, int]:
-		"""
-		Calcul les dimensions sur x et y de la zone d'intérêt (rectangulaire) en fonction des paramètres de filtre.
-
-		:param width: Largeur originale.
-		:param height: Hauteur originale.
-		:return: Liste des positions de la zone d'intérêt (x0, x1, y0, y1).
-		"""
-		s = self.settings.filters.localization
-		x0, x1, y0, y1 = 0, width, 0, height
-		if cast(CheckRangeInt, s["X"]).active:
-			xf = s["X"].value
-			x0, x1 = max(x0, min(xf[0], x1)), max(x0, min(xf[1], x1))
-
-		if cast(CheckRangeInt, s["Y"]).active:
-			yf = s["Y"].value
-			y0, y1 = max(y0, min(yf[0], y1)), max(y0, min(yf[1], y1))
-
-		return x0, x1, y0, y1
 
 	# ==================================================
 	# endregion Filtering
@@ -864,10 +841,9 @@ class PALMTracer:
 
 		# --- Paramètres ---
 		s = self.settings.hr
-		depth, height, width = self._stack.shape
 		src = cast(Combo, s["Source"]).current_text
 		upscale = s["Ratio"].value
-		x0, x1, y0, y1 = self.get_roi_limits(width, height)
+		x0, x1, y0, y1 = self.settings.rois.get_roi_limits()
 		n_w, n_h = x1 - x0, y1 - y0
 		self._renderer.set_size(n_w, n_h, upscale)
 
@@ -887,6 +863,7 @@ class PALMTracer:
 			if s["Dimension"].value == 0:  # .	 2D
 				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
 				plot_data = df[["Y", "X"]].to_numpy() * upscale  # Mise à l'échelle des X et Y.
+				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
 				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # Rendu
 			else:  # . 							 3D
 				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération

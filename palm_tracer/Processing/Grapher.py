@@ -49,7 +49,7 @@ class Grapher:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
-		:param data: Données sous forme de tableau numpy 1D/ND (aplati).
+		:param data: Données sous forme de tableau NumPy 1D/ND (aplati).
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
@@ -120,7 +120,7 @@ class Grapher:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
-		:param data: Données sous forme de tableau numpy 1D ou 2D.
+		:param data: Données sous forme de tableau NumPy 1D ou 2D.
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
@@ -168,7 +168,7 @@ class Grapher:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
-		:param data: Données sous forme de tableau numpy 1D ou 2D.
+		:param data: Données sous forme de tableau NumPy 1D ou 2D.
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.

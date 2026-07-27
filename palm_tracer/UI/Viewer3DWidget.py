@@ -52,8 +52,9 @@ class Viewer3DWidget(QWidget):
 		:type viewer: :class:`napari.Viewer`
 		"""
 		super().__init__()
-		self.viewer = viewer
-		self.points_layer = None
+		self.viewer: napari.Viewer = viewer
+		self.layer = self.viewer.add_points(np.empty((0, 3), dtype=float), size=1, name="Points 3D", ndim=3)
+		self.layer.locked = True
 		self.data = pd.DataFrame()  # DataFrame d'origine
 		self.z_scale = 1.0
 		self._widget = QWidget()
@@ -92,11 +93,6 @@ class Viewer3DWidget(QWidget):
 			show_warning("The file must contain the columns X, Y, Z, and Integrated Intensity.")
 			return
 
-		# Supprimer le calque précédent s'il existe, (le nombre de points peu changer)
-		if self.points_layer is not None:
-			try: self.viewer.layers.remove(self.points_layer)
-			except Exception as e: show_warning(F"Error when deleting the old layer: {e}")
-			self.points_layer = None
 		self.update_layer()
 
 	##################################################
@@ -116,17 +112,14 @@ class Viewer3DWidget(QWidget):
 		s = self.settings.settings
 		px_size, size, scale_xy, scale_z, outliers = s["Pixel Size"], s["Point Size"], s["XY Scale"], s["Z Scale"], s["Remove Outliers"]
 		coords = self.data[["Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
-		coords[:, 1:3] *= px_size  # Passage en nanomètres pour X et Y précédemment en pixel
+		coords[:, 1:3] *= px_size  # .											 Passage en nanomètres pour X et Y précédemment en pixel
 		coords *= np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)  # Changemenet des échelles
 
 		if outliers: coords = coords[self.data["Integrated Intensity"] > 0]
 
-		# Ajout ou mise à jour du calque
-		if self.points_layer is None:
-			self.points_layer = self.viewer.add_points(coords, size=size, name="Points 3D", ndim=3)
-		else:
-			self.points_layer.data = coords
-			self.points_layer.size = size
+		# mise à jour du calque
+		self.layer.data = coords
+		self.layer.size = size
 
 
 ##################################################

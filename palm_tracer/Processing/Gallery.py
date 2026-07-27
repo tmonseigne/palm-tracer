@@ -14,7 +14,7 @@ def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, 
     :param localizations: DataFrame contenant au minimum les colonnes ``["Plane","Y","X"]`` avec les coordonnées des zones d'intérêts.
     :param roi_size: Taille de chaque zone d'intérêt (carré de dimensions `roi_size x roi_size`).
     :param rois_per_line: Nombre de zones par ligne dans la galerie.
-    :return: Un tableau numpy 3D ``(n_planes, size, size)`` contenant la galerie.
+    :return: Un tableau NumPy 3D ``(n_planes, size, size)`` contenant la galerie.
 	"""
 	size = roi_size * rois_per_line  # .						  Taille d'un plan de la galerie
 	rois_per_plane = rois_per_line ** 2  # .					  Nombre de ROIs maximum par plan

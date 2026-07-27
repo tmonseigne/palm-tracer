@@ -35,7 +35,7 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Processing.Gallery.make_gallery:7
-msgid "Un tableau numpy 3D ``(n_planes, size, size)`` contenant la galerie."
+msgid "Un tableau NumPy 3D ``(n_planes, size, size)`` contenant la galerie."
 msgstr "A 3D NumPy array ``(n_planes, size, size)`` containing the gallery."
 
 #: ../../api/palm_tracer.Processing.Gallery.rst

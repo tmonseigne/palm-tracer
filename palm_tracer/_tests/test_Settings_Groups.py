@@ -259,10 +259,10 @@ def test_tracks_computes(qtbot):
 def test_filters(qtbot):
 	"""Test basique de la classe Filters (constructeur, getter, setter)."""
 	g = Filters()
-	group_base_test(g, ["Save", "Plane", "Localization", "Tracks"], CheckBox, True, False)
+	group_base_test(g, ["Save", "Plane", "ROI", "Localization", "Tracks"], CheckBox, True, False)
 	g.deactivate_filters()
-	g.update_limits(None, None, None)
-	g.update_limits(10, 10, 10)
+	g.update_limits(None)
+	g.update_limits(10)
 	assert isinstance(g.localization, FiltersL)
 	assert isinstance(g.tracking, FiltersT)
 	_ = g.get_ui()
@@ -275,7 +275,7 @@ def test_filters(qtbot):
 def test_filters_l(qtbot):
 	"""Test basique de la classe FiltersL (constructeur, getter, setter)."""
 	g = FiltersL()
-	group_base_test(g, ["X", "Y", "Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [0, 100000])
+	group_base_test(g, ["Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [-2000, 2000])
 	g.deactivate_filters()
 
 
