@@ -172,9 +172,6 @@ class ViewerHRWidget(QWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 
-		filters = self._pt.settings.filters.localization
-		filters["X"].connect(self._update_roi_layer)  # Mise à jour de la ROI dans l'affichage.
-		filters["Y"].connect(self._update_roi_layer)  # Mise à jour de la ROI dans l'affichage.
 		# Connexion des boutons Filters de cette UI
 		self._pt.connect_filters_button(self.UI_NAME)
 

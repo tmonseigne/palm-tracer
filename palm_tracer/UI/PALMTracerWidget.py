@@ -163,9 +163,6 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.localization["Auto Threshold"].connect(self._auto_threshold)  # Calcul automatique du Seuil
 		self.pt.settings.connect(self._on_change_setting)  # .							 Connexion à chaque changement de paramètres
 
-		filters = self.pt.settings.filters["Localization"]
-		filters["X"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
-		filters["Y"].connect(self._add_roi_filter_layer)  # .							 Mise à jour de la ROI dans l'affichage.
 		self.pt.connect_filters_button(self.UI_NAME)
 
 		# Update de preview en changeant des filtres ou des paramètres de localisation
@@ -323,8 +320,6 @@ class PALMTracerWidget(QWidget):
 			self._layers[self.LAYERS_NAME[5]].data = self.EMPTY_PREVIEW
 		if roi: self._layers[self.LAYERS_NAME[6]].data = []
 
-		return
-
 	##################################################
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
@@ -351,10 +346,7 @@ class PALMTracerWidget(QWidget):
 				self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)
 			except Exception as e: show_error(f"Error during layer selection: {e}")
 			show_info(f"Loaded {selected_file} {self._current_stack.shape} into Napari viewer.")
-			filters = self.pt.settings.filters
-			# Update Max
-			z, y, x = self._current_stack.shape
-			filters.update_limits(x, y, z)
+
 		except Exception as e:
 			show_error(f"Error loading {selected_file}: {e}")
 
