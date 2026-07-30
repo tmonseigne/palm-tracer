@@ -299,7 +299,7 @@ def test_graph(qtbot):
 	g = Graph()
 	group_base_test(Graph(), ["Type", "Source", "Dual", "Source B", "MSD Step", "Display"], ButtonGroup, 1, 0)
 	g["Type"].value = 1  # Passage aux Tracks
-	g["Source"].value = 1  # Passage au MSD
+	g["Source"].value = 4  # Passage au MSD
 	assert isinstance(g.display, GraphDisplay)
 
 
