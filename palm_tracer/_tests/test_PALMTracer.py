@@ -688,7 +688,9 @@ def test_process_all(capsys, pt):
 	pt.settings.localization["Gaussian Fit"]["Mode"].value = 3
 	pt.settings.beads.active = True
 	pt.settings.tracking.active = True
+	pt.settings.tracking["Max Distance"].value = 4
 	pt.settings.blinking.active = True
+	pt.settings.blinking["Max Duration"].value = 4
 	pt.settings.tracks_compute.active = True
 	pt.settings.tracks_compute["MSD"].value = True
 	pt.settings.tracks_compute["Instant Diffusion"].value = True

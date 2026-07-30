@@ -599,8 +599,7 @@ class PALMTracer:
 			return
 
 		s = self.settings.blinking.settings
-		pixel_size = self.settings.calibration.settings["Pixel Size"]
-		self.df["blk"] = self.palm.blinking_reconnection(df, pixel_size * 1000, s["Mode"], s["Max Duration"], s["Max Distance"] * 1000)
+		self.df["blk"] = self.palm.blinking_reconnection(df, 1, s["Mode"], s["Max Duration"], s["Max Distance"])
 
 		self._logger.add(f"\tSaving the reconnected tracking file ({len(self.df['blk'])} point(s) found).")
 		self.df["blk"].to_csv(self._output_name(self.KEYS_TO_FILE["blk"]), index=False)
