@@ -15,10 +15,10 @@ from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
 						 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Localizations Count"],
-		"Tracking":     ["Length", "MSD", "Instant D",
+		"Tracking":     ["Length Scatter", "Length Hist", "Length On", "Length Off", "MSD", "Instant D",
 						 "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE",
 						 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)"],
-		"No Dual":      ["Localizations Count", "Length", "MSD"],
+		"No Dual":      ["Localizations Count", "Length Scatter", "Length Hist", "Length On", "Length Off", "MSD"],
 		}
 
 

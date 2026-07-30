@@ -722,7 +722,7 @@ class PALMTracer:
 		# Selection du graphique à afficher
 		if src_id == 0 and src_a == "Localizations Count":
 			return self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
-		if src_id == 1 and src_a == "Length":
+		if src_id == 1 and src_a == "Length Scatter":
 			return self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
 		if dual:
 			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
@@ -790,13 +790,36 @@ class PALMTracer:
 
 		# Tracks
 		title = f"Tracks {src}"
-		if src == "Length":  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
+		if "Length" in src:  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
 			df = self.tracks
 			if df.empty: return np.empty(0), title
-			group = df.groupby("Track")["Plane"].agg(["min", "max"])  # Groupement par track + calcul min et max
-			group["delta"] = group["max"] - group["min"]  # .							  Calcul du delta
-			res = np.column_stack((group.index.to_numpy(), group["delta"].to_numpy()))  # Conversion vers numpy 2D : colonne Track + delta
-			return res, title
+
+			tracks_planes = df.groupby("Track", sort=False)["Plane"]
+
+			if src in {"Length Scatter", "Length Hist"}:
+				group = tracks_planes.agg(["min", "max"])
+				res = (group["max"] - group["min"] + 1).to_numpy()
+
+				if src == "Length Scatter": return np.column_stack((group.index.to_numpy(), res)), title
+				return res, title
+
+			lengths: list[int] = []
+
+			for _, planes in tracks_planes:
+				planes_array = np.sort(planes.dropna().unique())
+				if planes_array.size == 0: continue  # pragma: no cover — Techniqement impossible Plane est toujours valide
+
+				diffs = np.diff(planes_array)
+				breaks = np.flatnonzero(diffs > 1)
+
+				if src == "Length On":  # Récupère la longueur des segments continus des trajectoires.
+					segments = np.concatenate(([-1], breaks, [planes_array.size - 1],))
+					lengths.extend(np.diff(segments).tolist())
+
+				elif src == "Length Off":
+					lengths.extend((diffs[breaks]).tolist())  # Récupère la longueur des blancs dans les trajectoires.
+
+			return np.asarray(lengths, dtype=np.int64), title
 
 		df = self.tracks_compute
 		if src == "MSD":

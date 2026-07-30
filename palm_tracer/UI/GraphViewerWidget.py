@@ -36,13 +36,6 @@ from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 # ==================================================
 # region Constantes
 # ==================================================
-DATA_SRC: dict[str, list] = {
-		"Localization": ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
-						 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Localizations Count"],
-		"Tracking":     ["Length"],
-		"No Dual":      ["Localizations Count", "Length", "MSD"],
-		}
-
 TIPS = {
 		"Add Stack": "Add a stack to the batch and load the latest results for it.\n"
 					 "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",

@@ -985,9 +985,37 @@ def test_get_graph_data_from_src():
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
 
-	# Length
-	data, title = pt._get_graph_data_from_src(1, "Length")
-	ref_title, ref_shape, ref_data = "Tracks Length", (9, 2), [[1, 98], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1]]
+	# Length Scatter
+	data, title = pt._get_graph_data_from_src(1, "Length Scatter")
+	ref_title, ref_shape, ref_data = "Tracks Length Scatter", (9, 2), [[1, 99], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2]]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Length Hist
+	data, title = pt._get_graph_data_from_src(1, "Length Hist")
+	ref_title, ref_shape, ref_data = "Tracks Length Hist", (9,), [99, 2, 2, 2, 2, 2, 2, 2, 2]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Length On
+	data, title = pt._get_graph_data_from_src(1, "Length On")
+	ref_title, ref_shape, ref_data = "Tracks Length On", (10,), [1, 1, 2, 2, 2, 2, 2, 2, 2, 2]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Length Off
+	data, title = pt._get_graph_data_from_src(1, "Length Off")
+	ref_title, ref_shape, ref_data = "Tracks Length Off", (1,), [98]
+	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
+	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+	np.testing.assert_array_equal(data, ref_data)
+
+	# Length bad
+	data, title = pt._get_graph_data_from_src(1, "Length New")
+	ref_title, ref_shape, ref_data = "Tracks Length New", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
