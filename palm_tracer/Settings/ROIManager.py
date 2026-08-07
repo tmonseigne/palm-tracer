@@ -245,7 +245,7 @@ class ROIManager:
 		"""
 		Importe une liste de dictionnaires de formes depuis un enregistrement json.
 
-		:param rois: Liste récupéré.
+		:param rois: Liste récupérée.
 		"""
 		res = []
 		for roi in rois: res.append(ROI(roi["type"], np.asarray(roi["data"], dtype=float)))

@@ -112,7 +112,7 @@ msgid "Importe une liste de dictionnaires de formes depuis un enregistrement jso
 msgstr "Imports a list of shape dictionaries from a JSON file."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.from_dict_list:3
-msgid "Liste récupéré."
+msgid "Liste récupérée."
 msgstr "List retrieved."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.to_dict_list:1

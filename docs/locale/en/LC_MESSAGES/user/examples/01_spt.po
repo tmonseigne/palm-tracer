@@ -15,7 +15,7 @@ msgid "Suivez les instructions d'installation pour PALMTracer, puis lancez-le (p
 msgstr "Follow the installation instructions for PALMTracer, then launch it (more information :ref:`here <install_page>`). Make sure you have the SPT data ready for analysis."
 
 #: ../../user/examples/01_SPT.rst:14
-msgid "La méthode d'accès aux données peut-être une source de ralentissement. Si vous accédez à vos données via un réseau, il est recommandé de les copier localement pour accélérer le traitement. De plus, si vous avez des données volumineuses, assurez-vous d'avoir suffisamment de mémoire RAM pour les traiter efficacement. Un fichier de 20Go nécessite au moins 32Go de RAM, en dessous de cette limite d'importants ralentissements pourront être présent."
+msgid "La méthode d'accès aux données peut être une source de ralentissement. Si vous accédez à vos données via un réseau, il est recommandé de les copier localement pour accélérer le traitement. De plus, si vous avez des données volumineuses, assurez-vous d'avoir suffisamment de mémoire RAM pour les traiter efficacement. Un fichier de 20Go nécessite au moins 32Go de RAM. En dessous de cette limite, d'importants ralentissements pourront être présents."
 msgstr "The method of accessing the data can cause slowdowns. If you are accessing your data over a network, it is recommended that you copy it locally to speed up processing. Additionally, if you have large datasets, ensure you have sufficient RAM to process them efficiently. A 20GB file requires at least 32GB of RAM; below this limit, significant slowdowns may occur."
 
 #: ../../user/examples/01_SPT.rst:21
@@ -200,7 +200,7 @@ msgstr "Visualization with a filter area."
 
 #: ../../user/examples/01_SPT.rst:230
 msgid "Il est également possible d'utiliser le Graphviewer de l'onglet visualisation afin d'avoir une visualisation graphique des statistiques des différents éléments de votre traitement, par exemple la distribution des localisations en fonction de leur position, de leur intensité ou de leur qualité d'ajustement (plus d'informations :ref:`ici <viewer_graph_page>`)."
-msgstr "You can also use the GraphViewer in the Visualization tab to get a graphical view of the statistics for the different elements of your processing, such as the distribution of localizations based on their position, intensity, or fit quality (more information:ref:`here <viewer_graph_page>`)."
+msgstr "You can also use the GraphViewer in the Visualization tab to get a graphical view of the statistics for the different elements of your processing, such as the distribution of localizations based on their position, intensity, or fit quality (more information :ref:`here <viewer_graph_page>`)."
 
 #: ../../user/examples/01_SPT.rst:237
 msgid "Histogramme initial de l’intensité intégrée des localisations"

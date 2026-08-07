@@ -45,7 +45,7 @@ intersphinx_mapping = {
 		"matplotlib":   ("https://matplotlib.org/stable/", None),
 		"seaborn":      ("https://seaborn.pydata.org/", None),
 		"pillow":       ("https://pillow.readthedocs.io/en/stable/", None),
-		"psutil":       ("https://psutil.readthedocs.io/en/latest/", None),
+		"psutil":       ("https://psutil.readthedocs.io/en/stable/", None),
 		"pytest":       ("https://docs.pytest.org/en/latest/", None),
 		"pytest-cov":   ("https://pytest-cov.readthedocs.io/en/latest/", None),
 		"pytest-qt":    ("https://pytest-qt.readthedocs.io/en/latest/", None),

@@ -19,7 +19,7 @@ msgid "des fonctions de synchronisation de widgets (callbacks) ;"
 msgstr "widget synchronization functions (callbacks);"
 
 #: of palm_tracer.Tools.Ui:6
-msgid "des fonctions d'affichage, console, coloré (erreurs, warnings, succès) ;"
+msgid "des fonctions d'affichage console colorée (erreurs, warnings, succès) ;"
 msgstr "functions for colored console output (errors, warnings, success);"
 
 #: of palm_tracer.Tools.Ui:7
@@ -75,7 +75,7 @@ msgid "Valeur (en pixels) utilisée pour les marges du calque. Par défaut : ``0
 msgstr "Value (in pixels) used for layer margins. Default: ``0``."
 
 #: of palm_tracer.Tools.Ui.add_setting_row:12
-msgid "Tooltip à ajouter (Une chaine vide n'ajoute aucun tooltip)."
+msgid "Tooltip à ajouter (Une chaîne vide n'ajoute aucun tooltip)."
 msgstr "Tooltip to add (An empty string adds no tooltip)."
 
 #: of palm_tracer.Tools.Ui.init_layout:1
@@ -136,7 +136,7 @@ msgid "Parent Qt du group box (peut-être ``None`` si définie plus tard)."
 msgstr "Qt parent of the group box (may be ``None`` if defined later)."
 
 #: of palm_tracer.Tools.Ui.make_group:4
-msgid "Titre affiché dans l'entête du group box."
+msgid "Titre affiché dans l'en-tête du group box."
 msgstr "Title displayed in the group box header."
 
 #: of palm_tracer.Tools.Ui.make_exclusive_btn_group:6
@@ -245,11 +245,11 @@ msgid "Construit un groupe d'information pour le listing des fichiers calculés.
 msgstr "Creates an information group for the list of calculated files."
 
 #: of palm_tracer.Tools.Ui.make_file_info_group:3
-msgid "Le groupe est composée de : un titre, la liste des fichiers et leurs status."
+msgid "Le groupe est composé de : un titre, la liste des fichiers et leurs statuts."
 msgstr "The group consists of: a title, the list of files, and their statuses."
 
 #: of palm_tracer.Tools.Ui.make_file_info_group:5
-msgid "Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de status des fichiers."
+msgid "Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de statuts des fichiers."
 msgstr "The :class:`QGroupBox` configured along with the link to the file status QLabels."
 
 #: of palm_tracer.Tools.Ui.make_path_label:1
@@ -464,5 +464,5 @@ msgid "Temps en secondes."
 msgstr "Time in seconds."
 
 #: of palm_tracer.Tools.Ui.format_time:4
-msgid "Chaine de caractère représentant le temps au format HH:MM:SS."
+msgid "Chaîne de caractère représentant le temps au format HH:MM:SS."
 msgstr "String representing the time in HH:MM:SS format."

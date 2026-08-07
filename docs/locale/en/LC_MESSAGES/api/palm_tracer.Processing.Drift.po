@@ -68,7 +68,7 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Processing.Drift.remove_beads:1
-msgid "Mets à jour data en lui enlevant les billes identifiées (matching exact sur Plane/X/Y/Z)."
+msgid "Mets à jour data en lui enlevant les billes identifiées (correspondance exact sur Plane/X/Y/Z)."
 msgstr "Updates the data by removing the identified beads (exact match on Plane/X/Y/Z)."
 
 #: of palm_tracer.Processing.Drift.remove_beads:3
@@ -183,7 +183,7 @@ msgid "Trouve des billes au sein d'un jeu de donnée, calcule le drift et le cor
 msgstr "Finds beads within a dataset, calculates the drift, and corrects it."
 
 #: of palm_tracer.Processing.Drift.drift_correction:8
-msgid "Nombre de matchs maximum pour chaques points, permet de gérer les collisions de suivis (par défaut 4 maximum). Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul match ou aucun pour chaques points."
+msgid "Nombre maximal de correspondances autorisées pour chaque point. Permet de gérer les collisions de suivi (4 au maximum par défaut). En pratique, avec des données et des paramètres cohérents, chaque point ne possède qu'une seule correspondance, voire aucune."
 msgstr "Maximum number of matches for each point, used to manage tracking collisions (default is 4). In practice, with consistent data and settings, there will be only one match or none for each point."
 
 #: of palm_tracer.Processing.Drift.drift_correction:11

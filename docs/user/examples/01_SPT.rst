@@ -11,10 +11,10 @@ Ouvrir Napari et PALMTracer
 Suivez les instructions d'installation pour PALMTracer, puis lancez-le (plus d'informations :ref:`ici <install_page>`).
 Assurez-vous que vous avez les données de SPT prêtes à être analysées.
 
-.. note:: La méthode d'accès aux données peut-être une source de ralentissement.
+.. note:: La méthode d'accès aux données peut être une source de ralentissement.
 	Si vous accédez à vos données via un réseau, il est recommandé de les copier localement pour accélérer le traitement.
 	De plus, si vous avez des données volumineuses, assurez-vous d'avoir suffisamment de mémoire RAM pour les traiter efficacement.
-	Un fichier de 20Go nécessite au moins 32Go de RAM, en dessous de cette limite d'importants ralentissements pourront être présent.
+	Un fichier de 20Go nécessite au moins 32Go de RAM. En dessous de cette limite, d'importants ralentissements pourront être présents.
 
 
 Ouvrir le(s) fichier(s) de données

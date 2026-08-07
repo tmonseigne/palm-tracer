@@ -14,7 +14,7 @@ from palm_tracer.Settings.Types import CheckBox
 @dataclass
 class GraphDisplay(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de Visualization :
+	Classe contenant les paramètres de Visualisation :
 
 	Attributs :
 		- **Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Limite les données à ±3σ autour de la moyenne (règle des 3 sigmas).

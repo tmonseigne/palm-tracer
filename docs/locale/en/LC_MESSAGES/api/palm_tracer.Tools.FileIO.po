@@ -97,7 +97,7 @@ msgid "Séparateur avant le suffixe."
 msgstr "Separator before the suffix."
 
 #: of palm_tracer.Tools.FileIO.extract_suffix:5
-msgid "Suffixe si le séparateur est présent sinon une chaine vide."
+msgid "Suffixe si le séparateur est présent sinon une chaîne vide."
 msgstr "A suffix if the separator is present; otherwise, an empty string."
 
 #: of palm_tracer.Tools.FileIO.cleanup_process:1
@@ -189,7 +189,7 @@ msgid "Normalise l'image avant enregistrement."
 msgstr "Normalizes the image before saving."
 
 #: of palm_tracer.Tools.FileIO.grayscale_to_color:1
-msgid "Convertie une image 2D Niveau de gris en tableau 3D (pour la couleur RGB) selon la color map. Le format est compatible avec Pillow et Napari. Une color Map Napari serait bien en cas de superposition entre un affichage Napari et en fond l'image généré."
+msgid "Convertie une image 2D Niveau de gris en tableau 3D (pour la couleur RGB) selon la color map. Le format est compatible avec Pillow et Napari. Une color Map Napari serait bien en cas de superposition entre un affichage Napari et en fond l'image générée."
 msgstr "Converts a 2D grayscale image into a 3D array (for RGB color) based on the color map. The format is compatible with Pillow and Napari. A Napari color map would be useful for overlaying a Napari display with the generated image in the background."
 
 #: of palm_tracer.Tools.FileIO.grayscale_to_color:4

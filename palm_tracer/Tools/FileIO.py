@@ -101,7 +101,7 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 
 	:param filename: Nom du fichier.
 	:param separator: Séparateur avant le suffixe.
-	:return: Suffixe si le séparateur est présent sinon une chaine vide.
+	:return: Suffixe si le séparateur est présent sinon une chaîne vide.
 	"""
 	stem = Path(filename).stem
 	parts = stem.rsplit(separator, 1)
@@ -298,7 +298,7 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarray:
 	"""
 	Convertie une image 2D Niveau de gris en tableau 3D (pour la couleur RGB) selon la color map. Le format est compatible avec Pillow et Napari.
-	Une color Map Napari serait bien en cas de superposition entre un affichage Napari et en fond l'image généré.
+	Une color Map Napari serait bien en cas de superposition entre un affichage Napari et en fond l'image générée.
 
 	:param data: Image 2D (H, W) uint16.
 	:param color_map: Nom de colormap Matplotlib.

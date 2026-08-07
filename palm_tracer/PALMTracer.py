@@ -68,7 +68,7 @@ class PALMTracer:
 			"MSD": "tracking_MSD", "f_MSD": "tracking_MSD_filtered",
 			"InD": "tracking_InstantD", "f_InD": "tracking_InstantD_filtered",
 			"Fit": "tracking_Fit", "f_Fit": "tracking_Fit_filtered"})
-	"""Alias entre les noms de fichiers et les clé dans le dictionnaire de dataframes."""
+	"""Alias entre les noms de fichiers et les clés dans le dictionnaire de dataframes."""
 
 	_STEPS: list[Step] = field(init=False)
 	"""Listes des étapes du pipeline de traitement."""
@@ -255,7 +255,7 @@ class PALMTracer:
 	##################################################
 	def output_viz_name(self) -> Path:
 		"""
-		Indique le nom du fichier de visualization à enregistrer CHEMIN / name-Timestamp.extension.
+		Indique le nom du fichier de visualisation à enregistrer CHEMIN / name-Timestamp.extension.
 
 		:return: Nom du fichier.
 		"""
@@ -922,7 +922,7 @@ class PALMTracer:
 	##################################################
 	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:
 		"""
-		Vérifie si la correciton de drift est activé, faisable et l'applique.
+		Vérifie si la correction de drift est activé, faisable et l'applique.
 
 		:param data: Données à corriger.
 		:return: Données corrigées.

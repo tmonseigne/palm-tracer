@@ -233,11 +233,11 @@ msgid "Prépare les données pour le rendu :"
 msgstr "Prepare the data for rendering:"
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_data:3
-msgid "Multiplie par le ratio les colonnes concernées"
+msgid "Multiplie par le ratio les colonnes concernées."
 msgstr "Multiplies the relevant columns by the ratio."
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_data:4
-msgid "Change les degrées en gradient si necessaire."
+msgid "Remplace les degrés par des gradients si nécessaire."
 msgstr "Converts degrees to gradients if necessary."
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_data:5

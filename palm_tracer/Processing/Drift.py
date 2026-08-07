@@ -196,7 +196,7 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 ##################################################
 def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> pd.DataFrame:
 	"""
-	Mets à jour data en lui enlevant les billes identifiées (matching exact sur Plane/X/Y/Z).
+	Mets à jour data en lui enlevant les billes identifiées (correspondance exact sur Plane/X/Y/Z).
 
 	:param data: Données de localisation (doit contenir Plane, X, Y, Z).
 	:param beads: Billes à retirer (doit contenir Plane, X, Y, Z).
@@ -318,8 +318,8 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 	:param max_distance: Distance maximale autorisée entre deux plans (en unités des coordonnées) selon la norme L∞.
 	:param is_3d: Si ``True``, utilise (X,Y,Z). Sinon, utilise uniquement (X,Y).
 	:param strict: Si ``True``, la distance doit être strictement inférieure à la distance maximale (comportement par défaut).
-	:param k: Nombre de matchs maximum pour chaques points, permet de gérer les collisions de suivis (par défaut 4 maximum).
-	          Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul match ou aucun pour chaques points.
+	:param k: Nombre maximal de correspondances autorisées pour chaque point. Permet de gérer les collisions de suivi (4 au maximum par défaut).
+			  En pratique, avec des données et des paramètres cohérents, chaque point ne possède qu'une seule correspondance, voire aucune.
 
 	:returns: Les billes identifiées et un nouveau DataFrame ne contenant les données corrigées.
 	"""

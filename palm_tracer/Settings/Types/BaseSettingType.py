@@ -158,7 +158,7 @@ class BaseSettingType:
 
 		:param f: Fonction ou slot à connecter.
 		:param ui_name: Nom de l'interface à connecter.
-		:param n: Numéro de la boite contenant le bouton.
+		:param n: Numéro de la boîte contenant le bouton.
 		"""
 		b = cast(QPushButton, self.get_ui(ui_name).boxes[n])
 		b.clicked.connect(f)

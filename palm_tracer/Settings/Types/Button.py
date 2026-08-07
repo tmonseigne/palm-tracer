@@ -29,7 +29,7 @@ class Button(BaseSettingType):
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
-		box: QPushButton = QPushButton(self.label)  # Création de la boite.
+		box: QPushButton = QPushButton(self.label)  # Création de la boîte.
 		ui = BaseUIType(layout=QHBoxLayout(), boxes=[box])
 		box.setToolTip(self.tooltip)  # .			  Ajout du Tooltip
 		box.clicked.connect(self.emit)  # .			  L'emission du signal se fera lors du clic sur le bouton

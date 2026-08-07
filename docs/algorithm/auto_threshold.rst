@@ -8,7 +8,7 @@ Seuillage automatique
 	Calcule un seuil automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe.
 
 	Cette fonction applique une segmentation itérative à l'image en exploitant la méthode **PALM (Point Accumulation for Localized Mean)**.
-	L'objectif est d'affiner progressivement un seuil basé sur l'écart type des pixels non segmentés.
+	L'objectif est d'affiner progressivement un seuil basé sur l'écart-type des pixels non segmentés.
 
 	:param image: Image en niveaux de gris sous forme de tableau NumPy 2D.
 	:type image: np.array
@@ -17,7 +17,7 @@ Seuillage automatique
 	:param max_iterations: Nombre maximal d'itérations pour l'affinement du seuil. Défaut : 4.
 	:type max_iterations: int
 
-	:return: Seuil calculé après convergence (écart type des pixels non segmentés).
+	:return: Seuil calculé après convergence (écart-type des pixels non segmentés).
 	:rtype: float
 
 
@@ -29,7 +29,7 @@ L'algorithme fonctionne en plusieurs étapes :
 1. **Initialisation :**
 
 	- Création d'un masque vide, de la même taille que l'image, rempli de zéros.
-	- Calcul de l'écart type initial de l'image (:math:`\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \bar{x})^2}`).
+	- Calcul de l'écart-type initial de l'image (:math:`\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \bar{x})^2}`).
 	- Définition de la demi-taille de la région d'intérêt (`roi_size`).
 
 2. **Segmentation itérative :**
@@ -41,7 +41,7 @@ L'algorithme fonctionne en plusieurs étapes :
 		- Sigma vaut 1.
 		- Théta vaut :math:`\pi / 4`.
 	- Mise à jour du masque en activant les pixels correspondant aux régions détectées (zone autour de chaque point détecté).
-	- Recalcule de l'écart type sur les pixels *hors* segmentation.
+	- Recalcule de l'écart-type sur les pixels *hors* segmentation.
 	- Répétition jusqu'à `max_iterations` ou convergence.
 
 3. **Critère d'arrêt :**

@@ -51,10 +51,10 @@ class Grapher:
 
 		:param data: Données sous forme de tableau NumPy 1D/ND (aplati).
 		:param title: Titre du graphe.
-		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
-		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
+		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
+		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
 		:param kde: Si True, superpose la KDE gaussienne.
 		:param gaussian: Si True, superpose la gaussienne.
 		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
@@ -122,10 +122,10 @@ class Grapher:
 
 		:param data: Données sous forme de tableau NumPy 1D ou 2D.
 		:param title: Titre du graphe.
-		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
-		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
+		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
+		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
@@ -170,10 +170,10 @@ class Grapher:
 
 		:param data: Données sous forme de tableau NumPy 1D ou 2D.
 		:param title: Titre du graphe.
-		:param xlabel: Label optionnel pour l'axe X. Si la chaine est vide, ne change rien.
-		:param ylabel: Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien.
+		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
+		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
 		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigma.
+		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
 		:param kde: Si True, superpose la KDE gaussienne 2D.
 		:param gaussian: Si True, superpose la gaussienne 2D.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.

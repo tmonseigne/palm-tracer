@@ -344,8 +344,8 @@ class Renderer:
 		"""
 		Prépare les données pour le rendu :
 
-		- Multiplie par le ratio les colonnes concernées
-		- Change les degrées en gradient si necessaire.
+		- Multiplie par le ratio les colonnes concernées.
+		- Remplace les degrés par des gradients si nécessaire.
 		- Vérifie les bornes de l'image et supprime les points hors dimensions.
 
 		:param data: Données à préparer

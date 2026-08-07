@@ -3,7 +3,7 @@ msgid "GraphDisplay"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:1
-msgid "Classe contenant les paramètres de Visualization :"
+msgid "Classe contenant les paramètres de Visualisation :"
 msgstr "Class containing visualization settings:"
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:3

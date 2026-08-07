@@ -56,13 +56,13 @@ msgstr "Graph title."
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:5
 #: palm_tracer.Processing.Grapher.Grapher.histogram:5
 #: palm_tracer.Processing.Grapher.Grapher.scatter:5
-msgid "Label optionnel pour l'axe X. Si la chaine est vide, ne change rien."
+msgid "Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien."
 msgstr "Optional label for the X-axis. If the string is empty, no change is made."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:6
 #: palm_tracer.Processing.Grapher.Grapher.histogram:6
 #: palm_tracer.Processing.Grapher.Grapher.scatter:6
-msgid "Label optionnel pour l'axe Y. Si la chaine est vide, ne change rien."
+msgid "Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien."
 msgstr "Optional label for the Y-axis. If the string is empty, no change is made."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:7
@@ -74,7 +74,7 @@ msgstr "If True, applies the 3-sigma rule to trim outliers."
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:8
 #: palm_tracer.Processing.Grapher.Grapher.histogram:8
 #: palm_tracer.Processing.Grapher.Grapher.scatter:8
-msgid "Si True, superpose la moyenne, ±1,±2,±3 sigma."
+msgid "Si True, superpose la moyenne, ±1,±2,±3 sigmas."
 msgstr "If True, overlays the mean, ±1, ±2, ±3 sigma."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:9

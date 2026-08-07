@@ -214,7 +214,7 @@ class Palm:
 
 		:param image: Image 2D sous forme de tableau NumPy.
 		:param fit_params: Paramètres du mode d'ajustement.
-		:return: Seuil calculé (écart type final).
+		:return: Seuil calculé (écart-type final).
 		"""
 		img = self._as_c_contig(image, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguité
 		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
@@ -257,7 +257,7 @@ class Palm:
 		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
 
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param tracks: Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillement.
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
@@ -284,7 +284,7 @@ class Palm:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
 
-		:param tracks: Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param tracks: Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL.
 		:param is_msd: Calcul MSD.
 		:param is_ind: Calcul de la diffusion instantanée.
 		:param is_3d: Calcul sur la 3D.

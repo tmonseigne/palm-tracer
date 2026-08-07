@@ -145,7 +145,7 @@ msgstr "Function or slot to connect."
 
 #: of
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:5
-msgid "Numéro de la boite contenant le bouton."
+msgid "Numéro de la boîte contenant le bouton."
 msgstr "Number of the box containing the button."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect:1

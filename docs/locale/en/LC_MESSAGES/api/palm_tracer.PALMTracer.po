@@ -27,7 +27,7 @@ msgid "Résultats des différents calculs."
 msgstr "Results of various calculations."
 
 #: of palm_tracer.PALMTracer.PALMTracer.KEYS_TO_FILE:1
-msgid "Alias entre les noms de fichiers et les clé dans le dictionnaire de dataframes."
+msgid "Alias entre les noms de fichiers et les clés dans le dictionnaire de dataframes."
 msgstr "Aliases between filenames and keys in the dataframe dictionary."
 
 #: of palm_tracer.PALMTracer.PALMTracer.localizations:1
@@ -148,7 +148,7 @@ msgid "Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tabl
 msgstr "A ``{str: str}`` dictionary containing the status for each array type."
 
 #: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:1
-msgid "Indique le nom du fichier de visualization à enregistrer CHEMIN / name-Timestamp.extension."
+msgid "Indique le nom du fichier de visualisation à enregistrer CHEMIN / name-Timestamp.extension."
 msgstr "Specify the name of the visualization file to be saved: PATH / name-Timestamp.extension."
 
 #: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:3

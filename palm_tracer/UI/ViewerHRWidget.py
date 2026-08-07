@@ -220,7 +220,7 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def _actualize(self):
-		"""Actualise les status des fichiers/données depuis l'état PALMTracer."""
+		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer."""
 		file = cast(FileList, self._pt.settings.batch["Files"]).current_text
 		self._status["File"].setText(Path(file).name if file else "No File")
 		# Mise à jour des Status

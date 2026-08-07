@@ -131,11 +131,11 @@ msgid "Prévoir un outil de conversion pipeline PALM Tracer metamorph -> PALM Tr
 msgstr "Provide a conversion tool for PALM Tracer Metamorph pipelines to PALM Tracer Python."
 
 #: ../../cdc.rst:69
-msgid "Lecture écriture de fichiers de pre-processing : *(CSV plus simple pour des analyses futures. l'entête actuel pourra être enregistré à part)*"
+msgid "Lecture écriture de fichiers de pre-processing : *(CSV plus simple pour des analyses futures. l'en-tête actuel pourra être enregistré à part)*"
 msgstr "Pre-processing file input/output: *(CSV is preferred for future analyses; the current header can be stored separately)*"
 
 #: ../../cdc.rst:70
-msgid "Prévoir un outil de conversion de fichiers de localisation PALM Tracer metamorph -> PALM Tracer Python *(il s'agit juste de supprimer l'entête et d'en faire un CSV)*"
+msgid "Prévoir un outil de conversion de fichiers de localisation PALM Tracer metamorph -> PALM Tracer Python *(il s'agit juste de supprimer l'en-tête et d'en faire un CSV)*"
 msgstr "Provide a conversion tool for PALM Tracer Metamorph localization files to PALM Tracer Python *(this mainly consists in removing the header and converting to CSV)*"
 
 #: ../../cdc.rst:71
@@ -327,7 +327,7 @@ msgid "Au cours des prétraitements et générations d'images HR. Un sous-dossie
 msgstr "During pre-processing and high-resolution image generation, a subdirectory will be created following this structure:"
 
 #: ../../cdc.rst:150
-msgid "**Meta** : Fichier contenant les entêtes des fichiers précédents (Width, Height, nb_Planes, Pixel_Size(um), Frame_Duration(s)) avec d'autres éléments comme la date, la configuration matérielle, les éléments d'acquisitions (pixel size, exposition…), la version de PALM Tracer."
+msgid "**Meta** : Fichier contenant les en-têtes des fichiers précédents (Width, Height, nb_Planes, Pixel_Size(um), Frame_Duration(s)) avec d'autres éléments comme la date, la configuration matérielle, les éléments d'acquisitions (pixel size, exposition…), la version de PALM Tracer."
 msgstr "**Meta**: File containing the headers of the previous files (Width, Height, nb_Planes, Pixel_Size (µm), Frame_Duration (s)), along with additional information such as date, hardware configuration, acquisition parameters (pixel size, exposure, etc.), and the PALM Tracer version."
 
 #: ../../cdc.rst:152

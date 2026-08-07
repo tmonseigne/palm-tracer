@@ -49,7 +49,7 @@ msgid "Valeur actuelle du paramètre (:class:`int`)."
 msgstr "Current value of the setting (:class:`int`)."
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt.limits:1
-msgid "Limites actuelle du paramètre (:class:`list[int]`)."
+msgid "Limites actuelles du paramètre (:class:`list[int]`)."
 msgstr "Current limits of the setting (:class:`list[int]`)."
 
 #: ../../api/palm_tracer.Settings.Types.CheckInt.rst:18

@@ -105,13 +105,13 @@ class CheckInt(BaseSettingType):
 	##################################################
 	@property
 	def limits(self) -> list[int]:
-		"""Limites actuelle du paramètre (:class:`list[int]`)."""
+		"""Limites actuelles du paramètre (:class:`list[int]`)."""
 		return self._limits
 
 	##################################################
 	@limits.setter
 	def limits(self, value: list[int]):
-		"""Limites actuelle du paramètre (:class:`list[int]`)."""
+		"""Limites actuelles du paramètre (:class:`list[int]`)."""
 		if self._limits == value: return
 		self._limits = value
 		if self._value < self._limits[0]: self._value = self._limits[0]

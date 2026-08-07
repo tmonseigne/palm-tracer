@@ -26,7 +26,7 @@ DATA_SRC: dict[str, list] = {
 @dataclass
 class Graph(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de Visualization :
+	Classe contenant les paramètres de Visualisation :
 
 	Attributs :
 		- **Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi).

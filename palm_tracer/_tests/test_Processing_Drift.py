@@ -231,7 +231,7 @@ def test_remove_drift():
 
 ##################################################
 def test_chain_drift():
-	"""Test d'enchainement de la correction de Drift."""
+	"""Test d'enchaînement de la correction de Drift."""
 	bead = pd.DataFrame([[1, 1, 1, 1, 1], [1, 2, 0, 1, 0], [1, 3, 1, 0, 0], [1, 4, 1, 1, 2]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
 	drift = get_drift(bead, True)
 

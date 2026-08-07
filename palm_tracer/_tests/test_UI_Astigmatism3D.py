@@ -26,7 +26,7 @@ def test_widget_creation(qtbot):
 
 ##################################################
 def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
+	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -82,7 +82,7 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
+	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)

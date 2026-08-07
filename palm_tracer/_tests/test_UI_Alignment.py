@@ -23,7 +23,7 @@ def test_widget_creation(qtbot):
 
 ##################################################
 def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
+	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -49,7 +49,7 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boite de dialogue d'ouverture de fichier."""
+	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)

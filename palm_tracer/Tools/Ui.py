@@ -4,7 +4,7 @@ Fonctions utilitaires génériques pour la construction d'interfaces utilisateur
 Ce module regroupe :
 	- des helpers pour créer et configurer rapidement des calques Qt cohérents (onglets, groupes, formulaires, séparateurs, spinbox, etc.) ;
 	- des fonctions de synchronisation de widgets (callbacks) ;
-	- des fonctions d'affichage, console, coloré (erreurs, warnings, succès) ;
+	- des fonctions d'affichage console colorée (erreurs, warnings, succès) ;
 	- quelques utilitaires généraux liés à l'IHM.
 
 L'objectif est d'assurer :
@@ -63,7 +63,7 @@ def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int =
 	:param widget: Widget à placer dans la colonne de droite (spinbox, checkbox, combobox, ...).
 	:param space: Valeur (en pixels) utilisée pour l'espacement du calque. Par défaut : ``0``.
 	:param margin: Valeur (en pixels) utilisée pour les marges du calque. Par défaut : ``0``.
-	:param tooltip: Tooltip à ajouter (Une chaine vide n'ajoute aucun tooltip).
+	:param tooltip: Tooltip à ajouter (Une chaîne vide n'ajoute aucun tooltip).
 	"""
 	layout = QHBoxLayout()
 	init_layout(layout, space, margin)
@@ -117,7 +117,7 @@ def make_group(parent: QWidget | None = None, name: str = "", space: int = COMMO
 	Crée un :class:`QGroupBox` avec un layout vertical configuré.
 
 	:param parent: Parent Qt du group box (peut-être ``None`` si définie plus tard).
-	:param name: Titre affiché dans l'entête du group box.
+	:param name: Titre affiché dans l'en-tête du group box.
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
 	:param margin: Valeur (en pixels) utilisée pour les marges du layout. Par défaut : ``COMMON_SPACE``.
 
@@ -250,9 +250,9 @@ def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) 
 	"""
 	Construit un groupe d'information pour le listing des fichiers calculés.
 
-	Le groupe est composée de : un titre, la liste des fichiers et leurs status.
+	Le groupe est composé de : un titre, la liste des fichiers et leurs statuts.
 
-	:return: Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de status des fichiers.
+	:return: Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de statuts des fichiers.
 	"""
 	grp = QGroupBox("Informations")
 	tips = {"File":         "Current stack.",
@@ -520,7 +520,7 @@ def format_time(seconds):
 	Fonction pour formater le temps en secondes en HH:MM:SS.
 
 	:param seconds: Temps en secondes.
-	:return: Chaine de caractère représentant le temps au format HH:MM:SS.
+	:return: Chaîne de caractère représentant le temps au format HH:MM:SS.
 	"""
 	hours = int(seconds // 3600)
 	minutes = int((seconds % 3600) // 60)

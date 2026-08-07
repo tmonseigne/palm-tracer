@@ -66,8 +66,8 @@ Base
 - Portable Network Graphics (:file:`.png`) (Out)
 - Lecture/écriture de fichiers pipeline : *(à moins d'un format spécifique largement répandu, JSON)*
 - Prévoir un outil de conversion pipeline PALM Tracer metamorph -> PALM Tracer Python
-- Lecture écriture de fichiers de pre-processing : *(CSV plus simple pour des analyses futures. l'entête actuel pourra être enregistré à part)*
-- Prévoir un outil de conversion de fichiers de localisation PALM Tracer metamorph -> PALM Tracer Python *(il s'agit juste de supprimer l'entête et d'en faire un CSV)*
+- Lecture écriture de fichiers de pre-processing : *(CSV plus simple pour des analyses futures. l'en-tête actuel pourra être enregistré à part)*
+- Prévoir un outil de conversion de fichiers de localisation PALM Tracer metamorph -> PALM Tracer Python *(il s'agit juste de supprimer l'en-tête et d'en faire un CSV)*
 - Outil de Génération de données simulées (`Sample Maker <https://github.com/tmonseigne/Sample-Maker>`_) *(pour les tests de base, mais aussi pour des éléments plus complexes)*
 - Optimisation des algorithmes *(attention aux MAJ des bibliothèques)*
 - Vérifier la performance DLL C++ (date : ≈2010) et code Python.
@@ -147,7 +147,7 @@ Au cours des prétraitements et générations d'images HR. Un sous-dossier sera 
 		|-Pipeline_Timestamp.json
 		|-log_Timestamp.log
 
-- **Meta** : Fichier contenant les entêtes des fichiers précédents
+- **Meta** : Fichier contenant les en-têtes des fichiers précédents
   (Width, Height, nb_Planes, Pixel_Size(um), Frame_Duration(s)) avec d'autres éléments comme la date, la configuration matérielle, les éléments d'acquisitions (pixel size, exposition…), la version de PALM Tracer.
 - **Localization**, Tracking, Drift tableaux de coordonnées
 - **Fichiers Images** : Format différent possible si c'est plus conventionnel, l'enregistrement se fait automatiquement à la fin de chaque traitement.

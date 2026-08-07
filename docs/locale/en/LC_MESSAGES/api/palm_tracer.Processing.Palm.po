@@ -105,7 +105,7 @@ msgid "Image 2D sous forme de tableau NumPy."
 msgstr "2D image as a NumPy array."
 
 #: of palm_tracer.Processing.Palm.Palm.auto_threshold:5
-msgid "Seuil calculé (écart type final)."
+msgid "Seuil calculé (écart-type final)."
 msgstr "Computed threshold (final standard deviation)."
 
 #: of palm_tracer.Processing.Palm.Palm.tracking:1
@@ -138,7 +138,7 @@ msgstr "Pixel size in nanometers."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:4
 #: palm_tracer.Processing.Palm.Palm.tracks_compute:3
-msgid "Liste des points déjà trackés sous forme de dataframe contenant toutes les informations reçues de la DLL."
+msgid "Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL."
 msgstr "List of already tracked points in the form of a DataFrame containing all information received from the DLL."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:5
