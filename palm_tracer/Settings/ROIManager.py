@@ -292,7 +292,7 @@ class ROIManager:
 		"""
 
 		selection = self.roi_selection.value - 1
-		if not 0 <= selection < len(self._rois): return 0, self.width, 0, self.height
+		if not self.roi_selection.active or not 0 <= selection < len(self._rois): return 0, self.width, 0, self.height
 
 		points = np.asarray(self._rois[selection].data)
 
