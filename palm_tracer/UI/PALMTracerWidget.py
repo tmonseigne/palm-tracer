@@ -168,11 +168,11 @@ class PALMTracerWidget(QWidget):
 		self.pt.connect_filters_button(self.UI_NAME)
 
 		# Update de preview en changeant des filtres ou des paramètres de localisation
-		self.pt.settings.localization.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
-		self.pt.settings.filters.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
+		self.pt.settings.localization.connect(self._preview)
+		self.pt.settings.filters.connect(self._preview)
 
 		# Update de preview en changeant de plan
-		self.viewer.dims.events.current_step.connect(lambda: self._thread_process(self._preview, self._add_preview_layers))
+		self.viewer.dims.events.current_step.connect(self._preview)
 
 	##################################################
 	def _on_startup(self):
@@ -435,6 +435,8 @@ class PALMTracerWidget(QWidget):
 		print(f"Preview of plane {self.viewer.dims.current_step[0]} : {l_past + l_present + l_future} detected points "
 			  f"{f'+ {l_filt} filtered ' if l_filt > 0 else ''}"
 			  f"({l_present} on the current frame, {l_past} on the previous frame, {l_future} on the next frame).")
+
+		self._add_preview_layers()
 
 	##################################################
 	def _auto_threshold(self):
