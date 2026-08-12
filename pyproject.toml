@@ -67,6 +67,7 @@ testing = [
 documentation = [
 	"sphinx",
 	"sphinx-autobuild",
+    "sphinx-copybutton",
 	"sphinx-design",
 	"sphinx-rtd-theme",
 	"sphinx-qt-documentation",

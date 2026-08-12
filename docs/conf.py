@@ -29,6 +29,7 @@ extensions = [
 		"sphinx.ext.todo",
 		"sphinx.ext.viewcode",
 		"sphinx.ext.graphviz",
+		"sphinx_copybutton",
 		"sphinxcontrib.jquery",
 		"sphinx_qt_documentation",
 		"sphinx_design",

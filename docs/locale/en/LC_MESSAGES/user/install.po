@@ -2,263 +2,242 @@
 msgid "Installation"
 msgstr "Installation"
 
-#: ../../user/install.rst:12
+#: ../../user/install.rst:20
 msgid "Ce guide vous aidera à installer le projet étape par étape."
 msgstr "This guide will help you install the project step by step."
 
-#: ../../user/install.rst:15
-msgid "Toutes les lignes de commandes décrites sont effectuées à partir de :console:`PowerShell` sous Windows (le terminal :console:`cmd` ne possède pas toujours la même syntaxe et sur les autres systèmes d'exploitation, des différences peuvent apparaitre)."
-msgstr "All command lines described here are executed from :console:`PowerShell` on Windows (the :console:`cmd` terminal does not always use the same syntax, and differences may appear on other operating systems)."
+#: ../../user/install.rst:23
+msgid "Toutes les lignes de commandes décrites sont effectuées à partir de |powershell| :console:`PowerShell` sous **Windows**."
+msgstr "All the command lines described here are executed from |powershell| :console:`PowerShell` on **Windows**."
 
-#: ../../user/install.rst:16
-msgid "De préférence, le terminal doit être lancé en mode administrateur pour éviter des problèmes de droits, dans le cas contraire, il est possible que des blocages apparaissent."
-msgstr "Ideally, the terminal should be launched in administrator mode to avoid permission issues; otherwise, you may encounter blocking errors."
-
-#: ../../user/install.rst:17
-msgid "Dans le cadre d'utilisation par une session non administrateur, il est nécessaire de lancer avant les commandes :console:`Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` pour autoriser l'exécution de scripts dans la session en cours."
-msgstr "If you are using a non-administrator session, run :console:`Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` before the commands below to allow script execution in the current session."
-
-#: ../../user/install.rst:20
-msgid "Les calculs sont effectués à partir d'une DLL, celle-ci est dans le fichier :console:`7z` à décompresser, vous devez connaitre le mot de passe pour le faire."
-msgstr "Computations are performed using a DLL. It is provided in a :file:`7z` archive that must be extracted; you must know the password to do so."
+#: ../../user/install.rst:12
+msgid "PowerShell"
+msgstr ""
 
 #: ../../user/install.rst:24
-msgid "Étape 1 : Installation de Python et des éléments additionnels"
-msgstr "Step 1: Installing Python and additional components"
+msgid "De préférence, le terminal doit être lancé en mode **administrateur** pour éviter des problèmes de droits, dans le cas contraire, il est possible que des blocages apparaissent."
+msgstr "Ideally, the terminal should be launched in **administrator** mode to avoid permission issues; otherwise, you may encounter blocking errors."
 
-#: ../../user/install.rst:26
-msgid "Vous pouvez utiliser `chocolatey <https://chocolatey.org/install>`_ pour gérer vos différents programmes et installations à partir de :console:`PowerShell` (nécessite des droits administrateur)"
-msgstr "You can use `Chocolatey <https://chocolatey.org/install>`_ to manage your programs and installations from :console:`PowerShell` (requires administrator rights)."
+#: ../../user/install.rst:25
+msgid "Si vous êtes sur le terminal |terminal| :console:`cmd` ou un autre système d'exploitation, des différences peuvent apparaitre. (Ex : `$env:...` devient `export ...`)"
+msgstr "If you are using the |terminal| :console:`cmd` terminal or another operating system, there may be some differences. (For example: `$env:...` becomes `export ...`)"
 
-#: ../../user/install.rst:38
-msgid "Sinon, vous pouvez tout faire manuellement :"
-msgstr "Otherwise, you can do everything manually:"
+#: ../../user/install.rst:16
+msgid "Terminal"
+msgstr ""
 
-#: ../../user/install.rst:40
-msgid "Téléchargez Python 64-bit depuis le `site officiel <https://www.python.org/downloads/>`_."
-msgstr "Download 64-bit Python from the `official website <https://www.python.org/downloads/>`_."
+#: ../../user/install.rst:29
+msgid "Étape 1 : Téléchargement de PalmTracer"
+msgstr "Step 1: Downloading PalmTracer"
 
-#: ../../user/install.rst:41
-msgid "Pendant l'installation, assurez-vous de cocher l'option **Add Python to PATH**."
-msgstr "During installation, make sure to check **Add Python to PATH**."
-
-#: ../../user/install.rst:42
-msgid "Une fois installé, vérifiez que Python fonctionne :"
-msgstr "Once installed, verify that Python works:"
-
-#: ../../user/install.rst:44 ../../user/install.rst:141
-msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows)."
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows)."
-
-#: ../../user/install.rst:45
-msgid "Tapez la commande suivante :console:`python --version` et appuyez sur **Entrée**"
-msgstr "Type :console:`python --version` and press **Enter**."
-
-#: ../../user/install.rst:48
-msgid "Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`)."
-msgstr "You should see a Python version (for example, :console:`Python 3.x.x`)."
-
-#: ../../user/install.rst:50
-msgid "**Attention** : Si Python a changé de version récemment, certaines bibliothèques peuvent ne plus être compatibles. Ex : Il a fallu attendre 8 mois après la sortie de python 3.14 pour que Napari soit compatible."
-msgstr "**Warning**: If Python has recently changed versions, some libraries may no longer be compatible. For example, It took eight months after the release of Python 3.14 for Napari to become compatible."
-
-#: ../../user/install.rst:53
-msgid "Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :"
-msgstr "Some libraries may require additional components to work properly:"
-
-#: ../../user/install.rst:55
-msgid "`Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_. Pendant l'installation, assurez-vous de cocher **C++ build tools**"
-msgstr "`Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_. During installation, make sure to select **C++ build tools**."
-
-#: ../../user/install.rst:56
-msgid "vcredist : celui-ci sera installé avec **Build Tools for Visual Studio**."
-msgstr "vcredist: it will be installed with **Build Tools for Visual Studio**."
-
-#: ../../user/install.rst:60
-msgid "Étape 2 : Téléchargement de PalmTracer"
-msgstr "Step 2: Downloading PalmTracer"
-
-#: ../../user/install.rst:62
+#: ../../user/install.rst:31
 msgid "Deux méthodes sont possibles pour récupérer le projet **PalmTracer**. Si vous utilisez déjà **Git**, la première méthode est recommandée, car elle facilite le suivi des mises à jour. Une `(très) courte introduction à Git <https://tmonseigne.github.io/Intro_Git/>`_ est disponible si vous souhaitez débuter avec Git. Sinon, vous pouvez télécharger une archive ZIP."
 msgstr "Two methods are available to retrieve the **PalmTracer** project. If you already use **Git**, the first method is recommended because it makes it easier to track updates. A (very) short `introduction to Git <https://tmonseigne.github.io/Intro_Git/>`_ is available if you want to get started with Git. Otherwise, you can download a ZIP archive."
 
-#: ../../user/install.rst:67
+#: ../../user/install.rst:37
 msgid "Méthode 1 (recommandée) : via Git"
 msgstr "Method 1 (recommended): via Git"
 
-#: ../../user/install.rst:69
-msgid "Si Git (ou GitKraken pour une utilisation avec une interface graphique) est installé sur votre machine, clonez simplement le dépôt :"
+#: ../../user/install.rst:39
+msgid "Si Git (ou toute interface graphique utilisant git) est installé sur votre machine, clonez simplement le dépôt :"
 msgstr "If Git (or GitKraken for a graphical interface) is installed on your machine, simply clone the repository:"
 
-#: ../../user/install.rst:76
+#: ../../user/install.rst:46
 msgid "Le dossier :file:`palm-tracer` sera alors créé dans le répertoire courant."
 msgstr "The :file:`palm-tracer` folder will then be created in the current directory."
 
-#: ../../user/install.rst:79
+#: ../../user/install.rst:49
 msgid "Méthode 2 : téléchargement manuel (ZIP)"
 msgstr "Method 2: Manual download (ZIP)"
 
-#: ../../user/install.rst:81
-msgid "Rendez-vous sur `la page GitHub du projet <https://github.com/tmonseigne/palm-tracer>`_."
-msgstr "Go to `the project's GitHub page <https://github.com/tmonseigne/palm-tracer>`_."
+#: ../../user/install.rst:51
+msgid "`Téléchargez directement l'archive ZIP de PalmTracer <https://github.com/tmonseigne/palm-tracer/archive/refs/heads/master.zip>`_."
+msgstr "Download the PalmTracer ZIP archive directly <https://github.com/tmonseigne/palm-tracer/archive/refs/heads/master.zip>`_."
 
-#: ../../user/install.rst:82
-msgid "Cliquez sur **Code** (le bouton vert)."
-msgstr "Click **Code** (the green button)."
-
-#: ../../user/install.rst:83
-msgid "Choisissez **Download ZIP** pour télécharger les fichiers du projet sur votre ordinateur."
-msgstr "Choose **Download ZIP** to download the project files to your computer."
-
-#: ../../user/install.rst:84
-msgid "Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\\\\palm-tracer`). Vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`. Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran."
+#: ../../user/install.rst:52
+msgid "Extrayez l'archive dans un dossier accessible (par exemple, :file:`C:\\\\palm-tracer`). Vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`. Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran."
 msgstr "Extract the files into an accessible folder (for example, :file:`C:\\\\palm-tracer`). You should then have several folders and files: :file:`palm_tracer, docs, README.md...`. They may have been placed in a subfolder named :file:`palm-tracer-master` and need to be moved up one level."
 
-#: ../../user/install.rst:89
-msgid "Étape 3 : Création d'un environnement virtuel (optionnel)"
-msgstr "Step 3: Creating a virtual environment (optional)"
+#: ../../user/install.rst:57
+msgid "Étape 2 : Installation de Python et des éléments additionnels"
+msgstr "Step 2: Installing Python and additional components"
 
-#: ../../user/install.rst:91
+#: ../../user/install.rst:59
+msgid "Téléchargez la dernière version de Python 64-bit compatible depuis le `site officiel <https://www.python.org/downloads/>`_ (`Python 3.14 <https://www.python.org/downloads/latest/python3.14/>`_)."
+msgstr "Download 64-bit Python from the `official website <https://www.python.org/downloads/>`_ (`Python 3.14 <https://www.python.org/downloads/latest/python3.14/>`_)."
+
+#: ../../user/install.rst:60
+msgid "Pendant l'installation, assurez-vous de cocher l'option **Add Python to PATH**. Installer pour tout les utilisateurs est recommandé, mais pas obligatoire. L'installation peut prendre quelques minutes."
+msgstr "During installation, be sure to check the **Add Python to PATH** option. Installing for all users is recommended, but not required. The installation may take a few minutes."
+
+#: ../../user/install.rst:62
+msgid "Une fois installé, vérifiez que Python fonctionne :"
+msgstr "Once installed, verify that Python works:"
+
+#: ../../user/install.rst:64 ../../user/install.rst:122
+msgid "Ouvrez un terminal ou une invite de commande (|powershell| :console:`PowerShell` sur Windows)."
+msgstr "Open a terminal or command prompt (|powershell| :console:`PowerShell` on Windows)."
+
+#: ../../user/install.rst:65
+msgid "Tapez la commande suivante :console:`python --version` et appuyez sur **Entrée**"
+msgstr "Type :console:`python --version` and press **Enter**."
+
+#: ../../user/install.rst:68
+msgid "Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`)."
+msgstr "You should see a Python version (for example, :console:`Python 3.x.x`)."
+
+#: ../../user/install.rst:70
+msgid "**Attention** : Si Python a changé de version récemment, certaines bibliothèques peuvent ne plus être compatibles. Ex : Il a fallu attendre 8 mois après la sortie de python 3.14 pour que Napari soit compatible."
+msgstr "**Warning**: If Python has recently changed versions, some libraries may no longer be compatible. For example, It took eight months after the release of Python 3.14 for Napari to become compatible."
+
+#: ../../user/install.rst:73
+msgid "Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :"
+msgstr "Some libraries may require additional components to work properly:"
+
+#: ../../user/install.rst:75
+msgid "`Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_. Pendant l'installation, assurez-vous de cocher **C++ build tools**"
+msgstr "`Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_. During installation, make sure to select **C++ build tools**."
+
+#: ../../user/install.rst:76
+msgid "vcredist : celui-ci sera installé avec **Build Tools for Visual Studio**."
+msgstr "vcredist: it will be installed with **Build Tools for Visual Studio**."
+
+#: ../../user/install.rst:80
+msgid "Étape 3 (Optionnelle) : Création d'un environnement virtuel"
+msgstr "Step 3 (Optional): Creating a virtual environment"
+
+#: ../../user/install.rst:82
 msgid "Un environnement virtuel permet de gérer les dépendances du projet de manière isolée."
 msgstr "A virtual environment lets you manage the project's dependencies in an isolated way."
 
-#: ../../user/install.rst:93 ../../user/install.rst:107
-#: ../../user/install.rst:125
+#: ../../user/install.rst:84
 msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
 msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type :console:`cd C:\\\\palm_tracer`, then press **Enter**."
 
-#: ../../user/install.rst:95
+#: ../../user/install.rst:86
 msgid "Créez un environnement virtuel avec la commande suivante :console:`python -m venv venv`"
 msgstr "Create a virtual environment with: :console:`python -m venv venv`."
 
-#: ../../user/install.rst:96
+#: ../../user/install.rst:87
 msgid "Activez l'environnement virtuel :"
 msgstr "Activate the virtual environment:"
 
-#: ../../user/install.rst:98
+#: ../../user/install.rst:89
 msgid "Sous Windows : :console:`.\\\\venv\\\\Scripts\\\\activate`"
 msgstr "On Windows: :console:`.\\\\venv\\\\Scripts\\\\activate`"
 
-#: ../../user/install.rst:99
+#: ../../user/install.rst:90
 msgid "Sous macOS/Linux : :console:`source venv/bin/activate`"
 msgstr "On macOS/Linux: :console:`source venv/bin/activate`"
 
-#: ../../user/install.rst:101
+#: ../../user/install.rst:92
 msgid "Vous verrez maintenant :console:`(venv)` au début de votre invite de commande, indiquant que l'environnement virtuel est actif."
 msgstr "You will now see :console:`(venv)` at the beginning of your command prompt, indicating that the virtual environment is active."
 
-#: ../../user/install.rst:105
+#: ../../user/install.rst:96
 msgid "Étape 4 : Installation du plugin"
 msgstr "Step 4: Installing the plugin"
 
-#: ../../user/install.rst:109 ../../user/install.rst:127
+#: ../../user/install.rst:98
+msgid "Ouvrez un terminal ou une invite de commande (|powershell| :console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
+msgstr "Open a terminal or command prompt (|powershell| :console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+
+#: ../../user/install.rst:100
 msgid "Assurez-vous que l'environnement virtuel est activé si vous le souhaitez (voir Étape 3)."
 msgstr "Make sure the virtual environment is activated if you chose to use one (see Step 3)."
 
-#: ../../user/install.rst:110
+#: ../../user/install.rst:101
 msgid "Installez les dépendances nécessaires avec la commande :"
 msgstr "Install the required dependencies with:"
 
-#: ../../user/install.rst:118
-msgid "La première ligne est nécessaire, si vous avez **téléchargé** le zip du code source à partir de Git."
-msgstr "The first line is required if you **downloaded** the source code ZIP from GitHub."
+#: ../../user/install.rst:110
+msgid "Étape 5 : Vérification de l'installation en lançant le plugin"
+msgstr "Step 5: Verify the installation by launching the plugin"
 
-#: ../../user/install.rst:119
-msgid "Si vous avez **cloné** le dépôt, cela n'est plus nécessaire."
-msgstr "If you **cloned** the repository, this is no longer necessary."
+#: ../../user/install.rst:112
+msgid "Si vous avez créé un environnement virtuel, assurez-vous qu'il est activé (voir Étape 3)."
+msgstr "If you have created a virtual environment, make sure it is enabled (see Step 3)."
 
-#: ../../user/install.rst:120
-msgid "Les éléments supplémentaires, tels que testing, installent Napari entre autres éléments si vous ne les aviez pas déjà."
-msgstr "Additional components, such as testing, will install Napari along with other components if you don't already have them."
-
-#: ../../user/install.rst:123
-msgid "Étape 5 : Lancement du plugin"
-msgstr "Step 5: Launching the plugin"
-
-#: ../../user/install.rst:128
+#: ../../user/install.rst:113
 msgid "Lancez Napari avec la commande : :console:`napari`"
 msgstr "Launch Napari with: :console:`napari`"
 
-#: ../../user/install.rst:131
-msgid "Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où."
-msgstr "If you did not create a virtual environment, Napari can be launched from anywhere."
-
-#: ../../user/install.rst:133
+#: ../../user/install.rst:114
 msgid "Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`"
 msgstr "Enable the plugin in Napari: :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`"
 
-#: ../../user/install.rst:136
-msgid "Étape 6 : Supprimer la mise à l'échelle de Napari"
-msgstr "Step 6: Disabling Napari scaling"
+#: ../../user/install.rst:115
+msgid "Vous pouvez également lancer Napari avec le plugin directement activé via la commande : :console:`napari -w palm-tracer`"
+msgstr "You can also launch Napari with the plugin already enabled using the following command: :console:`napari -w palm-tracer`"
 
-#: ../../user/install.rst:137
-msgid "Napari utilise QT et celui-ci est paramétré sur la mise à l'échelle automatique de Windows qui permet, notamment, d'agrandir l'interface sur les petits écrans ayant une résolution élevée. Cela peut devenir parfois gênant, il est possible de modifier ce comportement."
-msgstr "Napari uses Qt, which is configured to use Windows automatic scaling. This can enlarge the interface on small screens with high resolution. This behavior can sometimes be inconvenient; it can be changed."
+#: ../../user/install.rst:118
+msgid "Étape 6 (Optionnelle) : Supprimer la mise à l'échelle Windows"
+msgstr "Step 6 (Optional): Disabling Windows scaling"
 
-#: ../../user/install.rst:142
-msgid "Lancez la commande :console:`$env:QT_AUTO_SCREEN_SCALE_FACTOR=\"0\"` dans :console:`PowerShell` sous Windows ou :console:`export QT_AUTO_SCREEN_SCALE_FACTOR=0` sous Linux et macOS."
-msgstr "Run :console:`$env:QT_AUTO_SCREEN_SCALE_FACTOR=\"0\"` in :console:`PowerShell` on Windows, or :console:`export QT_AUTO_SCREEN_SCALE_FACTOR=0` on Linux and macOS."
+#: ../../user/install.rst:119
+msgid "Napari utilise QT et celui-ci est paramétré sur la mise à l'échelle automatique de Windows qui permet, notamment, d'agrandir l'interface sur les petits écrans ayant une résolution élevée. Cela peut devenir parfois gênant avec une interface démesurée, il est possible de modifier ce comportement."
+msgstr "Napari uses QT, which is configured to use Windows' automatic scaling feature, allowing the interface to be enlarged on small screens with high resolution. This can sometimes be annoying because the interface becomes too large, but you can change this behavior."
 
-#: ../../user/install.rst:144
-msgid "Pour réactiver la mise à l'échelle, lancez la commande : :console:`Remove-Item Env:\\\\QT_AUTO_SCREEN_SCALE_FACTOR` dans :console:`PowerShell` sous Windows ou :console:`unset QT_AUTO_SCREEN_SCALE_FACTOR` sous Linux et macOS."
-msgstr "To re-enable scaling, run :console:`Remove-Item Env:\\\\QT_AUTO_SCREEN_SCALE_FACTOR` in :console:`PowerShell` on Windows, or :console:`unset QT_AUTO_SCREEN_SCALE_FACTOR` on Linux and macOS."
+#: ../../user/install.rst:123
+msgid "Lancez la commande :console:`$env:QT_AUTO_SCREEN_SCALE_FACTOR=\"0\"` dans |powershell| :console:`PowerShell` sous Windows ou :console:`export QT_AUTO_SCREEN_SCALE_FACTOR=0` sous Linux et macOS."
+msgstr "Run :console:`$env:QT_AUTO_SCREEN_SCALE_FACTOR=\"0\"` in |powershell| :console:`PowerShell` on Windows, or :console:`export QT_AUTO_SCREEN_SCALE_FACTOR=0` on Linux and macOS."
 
-#: ../../user/install.rst:147
+#: ../../user/install.rst:125
+msgid "Pour réactiver la mise à l'échelle, lancez la commande : :console:`Remove-Item Env:\\\\QT_AUTO_SCREEN_SCALE_FACTOR` dans |powershell| :console:`PowerShell` sous Windows ou :console:`unset QT_AUTO_SCREEN_SCALE_FACTOR` sous Linux et macOS."
+msgstr "To re-enable scaling, run :console:`Remove-Item Env:\\\\QT_AUTO_SCREEN_SCALE_FACTOR` in |powershell| :console:`PowerShell` on Windows, or :console:`unset QT_AUTO_SCREEN_SCALE_FACTOR` on Linux and macOS."
+
+#: ../../user/install.rst:128
 msgid "C'est terminé ! 🎉 Vous avez installé et configuré le plugin avec succès."
 msgstr "All done! 🎉 You have successfully installed and configured the plugin."
 
-#: ../../user/install.rst:150
+#: ../../user/install.rst:131
 msgid "FAQ"
 msgstr "FAQ"
 
-#: ../../user/install.rst:153
-msgid "2. Pourquoi utiliser un environnement virtuel ?"
-msgstr "2. Why use a virtual environment?"
+#: ../../user/install.rst:134
+msgid "1. Pourquoi utiliser un environnement virtuel ?"
+msgstr "1. Why use a virtual environment?"
 
-#: ../../user/install.rst:154
+#: ../../user/install.rst:135
 msgid "Pour éviter les conflits entre les dépendances de différents projets. Ou nécessaire lorsque vous n'avez pas les droits administrateur sur votre système."
 msgstr "To avoid conflicts between dependencies from different projects. It is also necessary when you do not have administrator rights on your system."
 
-#: ../../user/install.rst:157
-msgid "3. Et si je n'ai pas :console:`pip install` ?"
-msgstr "3. What if I don't have :console:`pip install`?"
+#: ../../user/install.rst:138
+msgid "2. Et si je n'ai pas :console:`pip install` ?"
+msgstr "2. What if I don't have :console:`pip install`?"
 
-#: ../../user/install.rst:158
+#: ../../user/install.rst:139
 msgid "Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 1 et assurez-vous d'avoir ajouté Python au :console:`PATH`."
 msgstr "This means Python is not installed correctly. Repeat Step 1 and make sure you added Python to :console:`PATH`."
 
-#: ../../user/install.rst:161
-msgid "4. La commande :console:`napari` provoque une erreur"
-msgstr "4. The :console:`napari` command causes an error"
+#: ../../user/install.rst:142
+msgid "3. La commande :console:`napari` provoque une erreur"
+msgstr "3. The :console:`napari` command causes an error"
 
-#: ../../user/install.rst:162
+#: ../../user/install.rst:143
 msgid "La commande :console:`napari` peut provoquer une erreur malgré une installation réussie, il faut l'ajouter au :console:`PATH` (les variables d'environnement) de votre système. Le chemin à ajouter est :file:`<Path_to_python>\\\\Scripts\\napari.exe`. Si vous n'avez pas les droits ou ne savez pas comment faire pour ajouter une variable d'environnement, vous pouvez tout de même lancer Napari avec la commande :console:`python -m napari` depuis le terminal ou l'invite de commande."
 msgstr "The :console:`napari` command may return an error even after a successful installation; you must add it to your system's :console:`PATH` (environment variables). The path to add is :file:`<Path_to_python>\\\\Scripts\\napari.exe`. If you don't have the necessary permissions or don't know how to add an environment variable, you can still launch Napari using the :console:`python -m napari` command from the terminal or command prompt."
 
-#: ../../user/install.rst:167
-msgid "5. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?"
-msgstr "5. Why do some commands fail with a permissions error?"
+#: ../../user/install.rst:148
+msgid "4. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?"
+msgstr "4. Why do some commands fail with a permissions error?"
 
-#: ../../user/install.rst:168
+#: ../../user/install.rst:149
 msgid "Certaines commandes nécessitent des droits administrateur. Il faut lancer le terminal en mode administrateur sous Windows."
 msgstr "Some commands require administrator rights. You must run the terminal as administrator on Windows."
 
-#: ../../user/install.rst:171
-msgid "6. Je dois tout recommencer à chaque mise à jour ?"
-msgstr "6. Do I need to redo everything after each update?"
+#: ../../user/install.rst:152
+msgid "5. Je dois tout recommencer à chaque mise à jour ?"
+msgstr "5. Do I need to redo everything after each update?"
 
-#: ../../user/install.rst:172
+#: ../../user/install.rst:153
 msgid "Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers devrait mettre automatiquement à jour votre Napari. Mais il est possible d'observer des blocages, dans ce cas, il est nécessaire de réinstaller le plugin avec la commande précédente."
 msgstr "If you used the command :console:`python -m pip install -e .[testing,documentation]`, replacing the files should automatically update your Napari. However, you may encounter issues; in that case, you'll need to reinstall the plugin using the command above."
 
-#: ../../user/install.rst:175
-msgid "Attention, si la DLL a été mise à jour, vous devrez à nouveau dézipper le fichier :file:`DLL.7z` avec le mot de passe."
-msgstr "Warning: if the DLL has been updated, you will need to extract the :file:`DLL.7z` file again using the password."
+#: ../../user/install.rst:157
+msgid "6. Où puis-je trouver plus d'aide ?"
+msgstr "6. Where can I find more help?"
 
-#: ../../user/install.rst:178
-msgid "7. Où puis-je trouver plus d'aide ?"
-msgstr "7. Where can I find more help?"
-
-#: ../../user/install.rst:179
+#: ../../user/install.rst:158
 msgid "Consultez la documentation officielle de Python, Napari ou contactez le support du projet."
 msgstr "Check the official Python or Napari documentation or contact the project support."
