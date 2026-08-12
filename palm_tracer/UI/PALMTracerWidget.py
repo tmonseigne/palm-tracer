@@ -366,10 +366,12 @@ class PALMTracerWidget(QWidget):
 			args = self.LAYER_ARGS[state]
 
 			# Points
+			n_points = len(points)
 			layer = self._layers[f"Points {state}"]
 			layer.data = points  # Remplace tous les points
 			# Remets les différents arguments en cas de nombre de points différents
-			layer.size, layer.border_color, layer.border_width, layer.face_color = 1, args["color"], args["border"], args["face"]
+			layer.size, layer.face_color = np.full(n_points, 1.0), [args["face"]] * n_points
+			layer.border_color, layer.border_width = [args["color"]] * n_points, np.full(n_points, args["border"])
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
@@ -383,10 +385,11 @@ class PALMTracerWidget(QWidget):
 				rois = [[[y - half_size, x - half_size], [y + half_size, x + half_size]] for y, x in points]
 				s_type = "rectangle"
 
+			n_rois = len(rois)
 			layer = self._layers[f"ROI {state}"]
-			layer.data = (rois, len(rois) * [s_type])  # Remplace toutes les formes
+			layer.data = (rois, [s_type] * n_rois)  # Remplace toutes les formes
 			# Remets les différents arguments en cas de nombre de ROIs différents
-			layer.edge_color, layer.edge_width, layer.face_color = args["color"], args["edge"], "transparent"
+			layer.edge_color, layer.edge_width, layer.face_color = [args["color"]] * n_rois, [args["edge"]] * n_rois, ["transparent"] * n_rois
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
