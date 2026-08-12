@@ -84,18 +84,6 @@ Méthode 2 : téléchargement manuel (ZIP)
 4. Extrayez les fichiers dans un dossier accessible (par exemple, :file:`C:\\palm-tracer`). Vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`.
    Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran.
 
-Extraction de la DLL
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Vous devez maintenant dézipper le fichier :file:`DLL.7z`.
-Faites un clic droit sur le fichier, puis :menuselection:`Afficher d'autres options --> 7-Zip --> Extraire ici`.
-Le mot de passe vous est demandé lors de l'extraction.
-Le fichier extrait est automatiquement placé dans le dossier approprié (:file:`palm-tracer\\palm_tracer\\DLL`).
-
-.. note::
-   | Attention, vous **devez** utiliser 7-zip pour extraire le fichier :file:`DLL.7z`. L'outil d'extraction intégré à Windows ne fonctionne pas correctement avec ce format.
-   | De plus, vous devez utiliser :menuselection:`Extraire ici` et non pas dans un sous-dossier, sinon Napari ne trouvera pas la DLL.
-
 
 Étape 3 : Création d'un environnement virtuel (optionnel)
 ------------------------------------------------------------------------
@@ -160,22 +148,6 @@ C'est terminé ! 🎉 Vous avez installé et configuré le plugin avec succès.
 
 FAQ
 ---
-
-1. Je n'arrive pas à dézipper la DLL ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Il est possible de voir apparaitre un message d'erreur lors de l'extraction.
-
-.. figure:: ../_static/img/install/Extract_error.png
-   :figclass: centered-caption
-   :alt: Erreur d'extraction
-   :align: center
-   :width: 40%
-   :target: ../_static/img/install/Extract_error.png
-
-   Erreur d'extraction
-
-Cela signifie que Windows n'arrive pas à lire le fichier compressé, car vous n'avez pas utilisé 7-zip. Vous avez très certainement 7-zip d'installé par défaut par votre administrateur.
-Suivez les instructions décrites à l’étape 2 pour l'extraction.
 
 2. Pourquoi utiliser un environnement virtuel ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

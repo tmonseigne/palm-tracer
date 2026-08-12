@@ -1,8 +1,6 @@
-# This workflows will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
 name: PALM Tracer Test and Deploy
 
+# Ce workflow est déclenché lors d'un push vers les branches « master » ou « npe2 », lors de pull requests vers ces branches, et peut également être déclenché manuellement via `workflow_dispatch`.
 on:
   push:
     branches:
@@ -16,28 +14,28 @@ on:
       - npe2
   workflow_dispatch:
 
-
+# Des autorisations sont nécessaires pour que le déploiement sur GitHub Pages fonctionne
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Groupe de concurrence pour éviter les déploiements simultanés
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
+  # Exécute des tests sur plusieurs plateformes et versions de Python
   Test:
     name: Tests on ${{ matrix.platform }} for Python ${{ matrix.python-version }}
-    runs-on: ${{ matrix.platform }}
-    timeout-minutes: 30
+    runs-on: ${{ matrix.platform }} # Plateforme sur laquelle le job s'exécute (Ubuntu, Windows, macOS).
+    timeout-minutes: 30 # .           Limite de temps pour chaque job de test (30 minutes).
     strategy:
-      fail-fast: false  # Continue other jobs if one matrix fail
-      matrix:
+      fail-fast: false  # .           Poursuivre les autres tâches si une matrice échoue.
+      matrix: # .                     Définition de la matrice pour exécuter les tests sur différentes plateformes et versions de Python.
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
         python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
-        #platform: [ windows-latest ]
-        #python-version: [ "3.14" ]
 
     # Environnement spécifique pour contourner les alertes Homebrew sur macOS
     env:
@@ -47,7 +45,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      # Purge complète des paquets Cloud tiers encombrant l'image macOS
+      # Purge complète des paquets Cloud tiers encombrant l'image macOS et peut provoquer des erreurs de dépendances lors de l'installation de Homebrew.
       - name: Force cleanup stale Homebrew dependencies (macOS only)
         if: matrix.platform == 'macos-latest'
         run: |
@@ -58,11 +56,13 @@ jobs:
           # Supprimer les taps obsolètes maintenant qu'ils sont vides
           brew untap hashicorp/tap aws/tap azure/bicep || true
 
+      # Configurer un écran sans interface utilisateur pour PyVista (nécessaire pour certains tests)
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v3
         with:
           qt: true
 
+      # Installation de Python et mise en cache des dépendances pour accélérer la CI
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
@@ -74,34 +74,26 @@ jobs:
             **/pyproject.toml
             **/*requirements*.txt
 
-      # Installation of vcredist2010 if problem install all (vcredist-all)
+      # Installation de vcredist2010 ; en cas de problème, installez l'ensemble des composants (vcredist-all)
       - name: Install Dependencies and Libraries Windows
         if: runner.os == 'Windows'
         run: |
           choco install vcredist2010 -y
-          choco install 7zip -y
 
-      # Mise à jour avec un vrai 7zip sur macOS (no comment...)
-      - name: Install Dependencies, 7-Zip (macOS) and extract archive
+      # Mise à jour de Homebrew et installation de libomp sur macOS
+      - name: Install Dependencies
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install sevenzip libomp
-          7zz x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -y
+          brew install libomp
 
-      # Extraction des bibliothèques dynamiques
-      - name: Extract archive (Unix/Windows)
-        if: runner.os != 'macOS'
-        shell: bash
-        run: |
-          7z x DLL.7z -p"${{ secrets.DLL_PASSWORD }}" -y
-
+      # Installation des dépendances Python nécessaires pour exécuter les tests
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install setuptools tox tox-gh-actions ansi2html
 
-      # this runs the platform-specific tests declared in tox.ini
+      # Exécute les tests spécifiques à la plateforme déclarés dans le fichier tox.ini
       - name: Run tests with tox
         env:
           PLATFORM: ${{ matrix.platform }}
@@ -113,12 +105,14 @@ jobs:
           MPLBACKEND: Agg
         run: python -m tox
 
+      # Gérer les rapports de test et les déplacer dans le répertoire des rapports
       - name: Manage Test Reports
         run: |
           python ./docs/tools/pytest_json_to_rst.py ./reports/test_report.json ./reports/test_report_ci_${{ matrix.platform }}_${{ matrix.python-version }}.rst
           mv ./reports/monitoring.html ./reports/monitoring_ci_${{ matrix.platform }}_${{ matrix.python-version }}.html
         continue-on-error: true  # Permet de continuer même si cette étape échoue
 
+      # Télécharge les rapports de test en tant qu'artefacts pour une consultation ultérieure.
       - name: Upload Test Reports as Artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -128,6 +122,7 @@ jobs:
             reports/monitoring_ci_*.html
         continue-on-error: true  # Permet de continuer même si cette étape échoue
 
+      # Télécharge les rapports de couverture de code vers Codecov pour l'analyse et la visualisation.
       - name: Upload coverage reports to Codecov
         if: matrix.platform == 'windows-latest' && matrix.python-version == '3.14'
         uses: codecov/codecov-action@v7
@@ -135,6 +130,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: tmonseigne/palm-tracer
 
+  # Construction et déploiement de la documentation Sphinx
   Documentation:
     name: Build and Deploy Sphinx Documentation
     needs: [ Test ]
@@ -144,11 +140,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      # Installation de Python et mise en cache des dépendances pour accélérer la CI
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.14'
+          cache: 'pip'          # Garde la CI rapide (réutilise les packages téléchargés)
+          # Force l'invalidation du cache obsolète/corrompu sur GitHub
+          cache-dependency-path: |
+            **/setup.py
+            **/pyproject.toml
+            **/*requirements*.txt
 
+      # Installation des bibliothèques d'exécution Qt nécessaires pour la génération de la documentation sur Linux
       - name: Install Qt runtime libs
         if: runner.os == 'Linux'
         run: |
@@ -157,16 +161,19 @@ jobs:
           # Ubuntu 24.04 : libasound2 => libasound2t64
           sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
 
+      # Installation de Graphviz et cloc pour la génération de la documentation et le calcul des lignes de code
       - name: Install Graphviz system package
         run: |
           sudo apt-get update
           sudo apt-get install -y graphviz cloc
 
+      # Installation des dépendances Python nécessaires pour générer la documentation
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install .[documentation]
 
+      # Télécharge les rapports de test générés par le job "Test" pour les inclure dans la documentation.
       - name: Download Test Reports
         uses: actions/download-artifact@v8
         with:
@@ -174,6 +181,7 @@ jobs:
           pattern: reports-*
           merge-multiple: true
 
+      # Génération de la documentation Sphinx en français et en anglais
       - name: Build documentation
         run: |
           python ./docs/tools/generate_api_files.py  # Génération de l'API
@@ -181,6 +189,7 @@ jobs:
           sphinx-build -b html -D language=fr docs docs/_build/html
           sphinx-build -b html -D language=en docs docs/_build/html/en
 
+      # Calcul du badge de lignes de code
       - name: Compute LOC badge
         run: |
           git ls-files | cloc --json --list-file=- --out=cloc_raw.json --exclude-dir=input,output --exclude-ext=json,html,xml,csv,po
@@ -198,14 +207,17 @@ jobs:
           out.write_text(json.dumps(badge), encoding="utf-8")
           PY
 
+      # Déploiement de la documentation sur GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
+      # Télécharge la documentation générée en tant qu'artefact pour le déploiement sur GitHub Pages
       - name: Upload documentation to GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: 'docs/_build/html'
 
+      # Déploiement de la documentation sur GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
