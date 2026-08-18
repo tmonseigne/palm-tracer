@@ -890,8 +890,9 @@ def test_graph():
 	fig = pt.graph()
 	assert fig.data[0].type == "scatter"
 
-	# Tracking Length
+	# Tracking Length Scatter
 	s["Type"].value = 1
+	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Length Scatter est un affichage Scatter Plot
 	fig = pt.graph()
 	assert fig.data[0].type == "scatter"
 
@@ -993,8 +994,8 @@ def test_get_graph_data_from_src():
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Length Hist
-	data, title = pt._get_graph_data_from_src(1, "Length Hist")
-	ref_title, ref_shape, ref_data = "Tracks Length Hist", (9,), [99, 2, 2, 2, 2, 2, 2, 2, 2]
+	data, title = pt._get_graph_data_from_src(1, "Length")
+	ref_title, ref_shape, ref_data = "Tracks Length", (9,), [99, 2, 2, 2, 2, 2, 2, 2, 2]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)

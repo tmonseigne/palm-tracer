@@ -796,7 +796,7 @@ class PALMTracer:
 
 			tracks_planes = df.groupby("Track", sort=False)["Plane"]
 
-			if src in {"Length Scatter", "Length Hist"}:
+			if src in {"Length Scatter", "Length"}:
 				group = tracks_planes.agg(["min", "max"])
 				res = (group["max"] - group["min"] + 1).to_numpy()
 
