@@ -640,7 +640,7 @@ class PALMTracer:
 	##################################################
 	def reset_filtered(self):
 		"""Vide entièrement les DataFrames filtrés dans `df`."""
-		with self.settings.signal_blocked(): self.settings.filters.reset()
+		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		for key in self.df:
 			if key.startswith("f_"): self.df[key] = pd.DataFrame()
 
