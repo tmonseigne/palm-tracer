@@ -44,9 +44,14 @@ class Filters(BaseSettingGroup):
 			"Localization": [FiltersL, []],
 			"Tracks":       [FiltersT, []]
 			}
-	mode: int = 2
+	mode: int = 0
 	buttons: dict[str, dict[str, QPushButton]] = field(init=False, default_factory=lambda: dict[str, dict[str, QPushButton]]())
 	"""Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`) pour chaque UI."""
+
+	##################################################
+	def __post_init__(self):
+		super().__post_init__()
+		self.active = True
 
 	##################################################
 	@property
@@ -63,6 +68,7 @@ class Filters(BaseSettingGroup):
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
+		ui.body_layout.setContentsMargins(5, 0, 0, 0)  # Très léger décalage.
 
 		ui.layout.addItem(QSpacerItem(0, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
 
