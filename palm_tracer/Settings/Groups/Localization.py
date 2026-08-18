@@ -41,7 +41,7 @@ class Localization(BaseSettingGroup):
 	label: str = "Localization"
 	setting_list = {
 			"Preview":        [CheckBox, ["Preview", "", False]],
-			"Threshold":      [SpinFloat, ["Threshold", "", 90.0, [10.0, 10000], 5.0, 2]],
+			"Threshold":      [SpinFloat, ["Threshold", "", 90.0, [1.0, 10000.0], 5.0, 2]],
 			"Auto Threshold": [Button, ["Auto Threshold", ""]],
 			"ROI Shape":      [Combo, ["ROI Shape", "", 0, ["Circle", "Square"]]],
 			"ROI Size":       [SpinInt, ["ROI Size", "", 7, [3, 50], 1]],
