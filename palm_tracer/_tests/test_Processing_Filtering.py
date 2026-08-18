@@ -74,6 +74,11 @@ def test_localization(qtbot, f):
 	res = f.localization(src)
 	assert res.empty, "Un dataframe vide doit être retourné."
 
+	f.filters.active = False  # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
+	res = f.localization(src)
+	res, ref = len(res), len(src)
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
 
 ##################################################
 def test_tracking(qtbot, f):
@@ -85,6 +90,11 @@ def test_tracking(qtbot, f):
 
 	res = f.tracking(src)
 	res, ref = len(res), 166
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+	f.filters.active = False  # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
+	res = f.tracking(src)
+	res, ref = len(res), len(src)
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
