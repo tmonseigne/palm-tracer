@@ -131,7 +131,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 		splitter.setStretchFactor(0, 0)
 		splitter.setStretchFactor(1, 1)
 		# Taille initiale de la colonne adaptée au contenu.
-		QTimer.singleShot(0, lambda: splitter.setSizes([max(left.sizeHint().width(), left.minimumWidth()), 1000]))
+		self._splitter_resize_timer = QTimer(self)
+		self._splitter_resize_timer.setSingleShot(True)
+		self._splitter_resize_timer.timeout.connect(lambda: splitter.setSizes([max(left.sizeHint().width(), left.minimumWidth()), 1000]))
+		self._splitter_resize_timer.start(0)
 
 		# --- Bouton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")

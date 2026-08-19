@@ -138,3 +138,19 @@ msgstr "Name of the interface to connect."
 #: of palm_tracer.Settings.Groups.Filters.Filters.connect_button:5
 msgid "Nom du bouton dans l'interface."
 msgstr "Name of the button in the interface."
+
+#: of palm_tracer.Settings.Groups.Filters.Filters.show_part:1
+msgid "Affiche/Cache les parties à filtrer."
+msgstr "Show/Hide the part to filter."
+
+#: of palm_tracer.Settings.Groups.Filters.Filters.show_part:3
+msgid "Nom de l'interface à modifier."
+msgstr "Name of the interface to modify."
+
+#: of palm_tracer.Settings.Groups.Filters.Filters.show_part:4
+msgid "Partie Localization."
+msgstr "Localization Part."
+
+#: of palm_tracer.Settings.Groups.Filters.Filters.show_part:5
+msgid "Partie Tracking."
+msgstr "Tracking Part."

@@ -73,6 +73,9 @@ class Filters(BaseSettingGroup):
 		ui.layout.addItem(QSpacerItem(0, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
 
 		self.buttons[name] = {"reset": QPushButton("Reset"), "update": QPushButton("Update"), "save": QPushButton("Save")}
+		self.buttons[name]["reset"].setToolTip("Uncheck all filters and delete filtered data.")
+		self.buttons[name]["update"].setToolTip("Compute filtered data.")
+		self.buttons[name]["save"].setToolTip("Save filtered data in csv file.")
 		# Créer un layout horizontal pour les boutons
 		actions = QHBoxLayout()
 		Ui.init_layout(actions)
@@ -118,10 +121,11 @@ class Filters(BaseSettingGroup):
 	##################################################
 	def show_part(self, ui_name: str = "default", localization: bool = True, tracking: bool = True):
 		"""
-		Affiche/Cache les parties à filtrer
+		Affiche/Cache les parties à filtrer.
+
 		:param ui_name: Nom de l'interface à modifier.
-		:param localization: Partie Localization
-		:param tracking: Partie Tracking
+		:param localization: Partie Localization.
+		:param tracking: Partie Tracking.
 		"""
 		self.localization.get_ui(ui_name).show() if localization else self.localization.get_ui(ui_name).hide()
 		self.tracking.get_ui(ui_name).show() if tracking else self.tracking.get_ui(ui_name).hide()
