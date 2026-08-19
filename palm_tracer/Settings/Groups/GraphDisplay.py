@@ -34,6 +34,8 @@ class GraphDisplay(BaseSettingGroup):
 			"Sigma":     [CheckBox, ["Show σ", "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean."]],
 			"Gauss":     [CheckBox, ["Show Gaussian", "Displays the Gaussian curve associated with the mean and standard deviation of the data."]],
 			"KDE":       [CheckBox, ["Show KDE", "Displays the kernel density estimation (the curve closest to the histogram) associated with the data."]],
+			"Poiss":     [CheckBox, ["Show Poisson", "Displays the Poissonnian curve associated with the mean of the data."]],
+			"Exp":       [CheckBox, ["Show Exponential", "Displays the Exponential inverse curve associated with the mean of the data."]],
 			"Cumul":     [CheckBox, ["Cumulative Histogram", "Show cumulative histogram instead of simple histogram."]],
 			"Log Scale": [CheckBox, ["Log Scale", "Apply a logarithmic scale to the data."]],
 			# "Count":   [CheckBox, ["Count", "The data on Y is expressed in terms of count (instead of density."]]}
