@@ -45,7 +45,7 @@ class Grapher:
 	##################################################
 	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False,
 				  show_sigma: bool = False, kde: bool = False, gaussian: bool = False, poissonian: bool = False, exponential: bool = False,
-				  density: bool = True, cumulative: bool = False, bins: Optional[int] = None) -> go.Figure:
+				  density: bool = True, cumulative: bool = False, bins: int = 0) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
@@ -60,7 +60,7 @@ class Grapher:
 		:param poissonian: Si True, superpose la poissonnienne.
 		:param exponential: Si True, superpose l'exponentielle inverse.
 		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
-		:param bins: Nombre de bins explicite (sinon Sturges).
+		:param bins: Nombre de bins explicite (Sturges si 0 et avec des valeurs entières si négatif).
 		:param cumulative: Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		"""
@@ -80,12 +80,17 @@ class Grapher:
 		x, limits, mu, sigma = self._get_range(x, limit)
 
 		# Récupération du nombre de bin
-		if bins is None: bins = self._get_bins_number(x)
+		if bins == 0: bins = self._get_bins_number(x)
 		bin_width = (limits[1] - limits[0]) / max(int(bins), 1)
+		if bins < 0:
+			bin_width = 1
+			limits[0] -= 0.5
+			limits[1] += 0.5
 
 		# Histogramme
 		histnorm = "probability density" if density else None
-		fig.add_histogram(x=x, nbinsx=bins, histnorm=histnorm, cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
+		fig.add_histogram(x=x, xbins=dict(start=limits[0], end=limits[1], size=bin_width), histnorm=histnorm,
+						  cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
 						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
 		# KDE
@@ -370,7 +375,7 @@ class Grapher:
 
 	##################################################
 	@staticmethod
-	def _get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float], float, float]:
+	def _get_range(data: np.ndarray, limit: bool) -> tuple[np.ndarray, list[float], float, float]:
 		"""
 		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si nécessaire.
 
@@ -380,11 +385,11 @@ class Grapher:
 		"""
 		mu, sigma = float(np.mean(data)), float(np.std(data))
 		if limit and sigma > 0:
-			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .					   Limite théoriques des datas
-			data = data[(data >= limits[0]) & (data <= limits[1])]  # .		   Suppression des datas au dela des limites
-			limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
+			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .											 Limite théoriques des datas
+			data = data[(data >= limits[0]) & (data <= limits[1])]  # .								 Suppression des datas au dela des limites
+			limits = [max(limits[0], float(np.min(data))), min(limits[1], float(np.max(data))), ]  # On resserre les limites autour des datas
 		else:
-			limits = [min(data), max(data)]
+			limits = [float(np.min(data)), float(np.max(data))]
 		return data, limits, mu, sigma
 
 	##################################################

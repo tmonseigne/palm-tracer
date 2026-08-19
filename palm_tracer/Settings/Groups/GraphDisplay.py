@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckBox
+from palm_tracer.Settings.Types import CheckBox, SpinInt
 
 
 ##################################################
@@ -38,14 +38,13 @@ class GraphDisplay(BaseSettingGroup):
 			"Exp":       [CheckBox, ["Show Exponential", "Displays the Exponential inverse curve associated with the mean of the data."]],
 			"Cumul":     [CheckBox, ["Cumulative Histogram", "Show cumulative histogram instead of simple histogram."]],
 			"Log Scale": [CheckBox, ["Log Scale", "Apply a logarithmic scale to the data."]],
-			# "Count":   [CheckBox, ["Count", "The data on Y is expressed in terms of count (instead of density."]]}
+			"Count":     [CheckBox, ["Count", "The data on Y is expressed in terms of count (instead of density."]],
+			"Bins":      [SpinInt, ["Bins", "The number of bins along the histogram (0 for auto).", 0, [0, 1000]]]
 			}
 	mode: int = 1
 
 
 ##################################################
-
-
 if __name__ == "__main__":
 	import sys
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
