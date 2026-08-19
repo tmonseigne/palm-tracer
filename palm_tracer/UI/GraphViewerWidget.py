@@ -245,12 +245,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
-		if btn_id == 0:  # Localisation
-			self._filters["Localization"].get_ui(self.UI_NAME).show()
-			self._filters["Tracks"].get_ui(self.UI_NAME).hide()
-		else:  # Tracking
-			self._filters["Localization"].get_ui(self.UI_NAME).hide()
-			self._filters["Tracks"].get_ui(self.UI_NAME).show()
+		if btn_id == 0: self._filters.show_part(self.UI_NAME, localization=True, tracking=False)  # Localisation
+		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
 
 	##################################################
 	def _add_stack(self):

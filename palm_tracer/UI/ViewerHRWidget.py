@@ -140,6 +140,7 @@ class ViewerHRWidget(QWidget):
 		vbox_filters.addWidget(self._filters_ui.widget)
 		# Masquage initial
 		self._filters["Save"].get_ui(self.UI_NAME).hide()
+		self._toggle_type(self._hr_settings["Type"].value)
 
 		# --- Actions ---
 		actions_row = QHBoxLayout()
@@ -177,6 +178,7 @@ class ViewerHRWidget(QWidget):
 		self._pt.connect_filters_button(self.UI_NAME)
 
 		self._btn_add_stack.clicked.connect(self._add_stack)
+		self._hr_settings["Type"].connect(self._toggle_type)
 
 		# Action Row
 		self._btn_actualize.clicked.connect(self._actualize)
@@ -243,6 +245,16 @@ class ViewerHRWidget(QWidget):
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
 			show_info("Screenshot saved successfully.")
+
+	##################################################
+	def _toggle_type(self, btn_id: int):
+		"""
+		Mets à jour la liste des sources et l'affichage des filtres.
+
+		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
+		"""
+		if btn_id == 0: self._filters.show_part(self.UI_NAME, localization=True, tracking=False)  # Localisation
+		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
 
 	# ==================================================
 	# endregion PALMTracer Link

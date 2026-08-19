@@ -115,6 +115,17 @@ class Filters(BaseSettingGroup):
 		if ui_name in self.buttons and name in self.buttons[ui_name]:
 			self.buttons[ui_name][name].clicked.connect(f)
 
+	##################################################
+	def show_part(self, ui_name: str = "default", localization: bool = True, tracking: bool = True):
+		"""
+		Affiche/Cache les parties à filtrer
+		:param ui_name: Nom de l'interface à modifier.
+		:param localization: Partie Localization
+		:param tracking: Partie Tracking
+		"""
+		self.localization.get_ui(ui_name).show() if localization else self.localization.get_ui(ui_name).hide()
+		self.tracking.get_ui(ui_name).show() if tracking else self.tracking.get_ui(ui_name).hide()
+
 
 ##################################################
 if __name__ == "__main__":
