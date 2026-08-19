@@ -44,9 +44,14 @@ class Filters(BaseSettingGroup):
 			"Localization": [FiltersL, []],
 			"Tracks":       [FiltersT, []]
 			}
-	mode: int = 2
+	mode: int = 0
 	buttons: dict[str, dict[str, QPushButton]] = field(init=False, default_factory=lambda: dict[str, dict[str, QPushButton]]())
 	"""Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`) pour chaque UI."""
+
+	##################################################
+	def __post_init__(self):
+		super().__post_init__()
+		self.active = True
 
 	##################################################
 	@property
@@ -63,10 +68,14 @@ class Filters(BaseSettingGroup):
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
+		ui.body_layout.setContentsMargins(5, 0, 0, 0)  # Très léger décalage.
 
 		ui.layout.addItem(QSpacerItem(0, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
 
 		self.buttons[name] = {"reset": QPushButton("Reset"), "update": QPushButton("Update"), "save": QPushButton("Save")}
+		self.buttons[name]["reset"].setToolTip("Uncheck all filters and delete filtered data.")
+		self.buttons[name]["update"].setToolTip("Compute filtered data.")
+		self.buttons[name]["save"].setToolTip("Save filtered data in csv file.")
 		# Créer un layout horizontal pour les boutons
 		actions = QHBoxLayout()
 		Ui.init_layout(actions)
@@ -108,6 +117,18 @@ class Filters(BaseSettingGroup):
 		"""
 		if ui_name in self.buttons and name in self.buttons[ui_name]:
 			self.buttons[ui_name][name].clicked.connect(f)
+
+	##################################################
+	def show_part(self, ui_name: str = "default", localization: bool = True, tracking: bool = True):
+		"""
+		Affiche/Cache les parties à filtrer.
+
+		:param ui_name: Nom de l'interface à modifier.
+		:param localization: Partie Localization.
+		:param tracking: Partie Tracking.
+		"""
+		self.localization.get_ui(ui_name).show() if localization else self.localization.get_ui(ui_name).hide()
+		self.tracking.get_ui(ui_name).show() if tracking else self.tracking.get_ui(ui_name).hide()
 
 
 ##################################################

@@ -25,7 +25,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import cast
 
-from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtCore import Qt, QTimer
+from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
@@ -104,6 +105,14 @@ class GraphViewerWidget(BasePlotlyWidget):
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
+		self.setStyleSheet("""QAbstractSpinBox { padding: 1px 10px; min-width: 70px; min-height: 18px; }
+		QLineEdit { min-height: 20px; padding: 2px; }
+		QComboBox { padding: 3px 10px 3px 8px; }""")
+
+		# --- Séparateur redimensionnable ---
+		splitter = QSplitter(Qt.Orientation.Horizontal, self)
+		main_layout.addWidget(splitter)
+
 		# --- Colonne gauche ---
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
@@ -114,8 +123,18 @@ class GraphViewerWidget(BasePlotlyWidget):
 		scroll_layout = QVBoxLayout(scroll_content)
 		Ui.init_layout(scroll_layout)
 		scroll_area = Ui.make_vertical_scroll(scroll_content)
-		main_layout.addWidget(left)
-		main_layout.addWidget(self._web, stretch=1)
+
+		# --- Mise en page globale ---
+		splitter.addWidget(left)
+		splitter.addWidget(self._web)
+		# La partie droite récupère l'espace supplémentaire.
+		splitter.setStretchFactor(0, 0)
+		splitter.setStretchFactor(1, 1)
+		# Taille initiale de la colonne adaptée au contenu.
+		self._splitter_resize_timer = QTimer(self)
+		self._splitter_resize_timer.setSingleShot(True)
+		self._splitter_resize_timer.timeout.connect(lambda: splitter.setSizes([max(left.sizeHint().width(), left.minimumWidth()), 1000]))
+		self._splitter_resize_timer.start(0)
 
 		# --- Bouton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
@@ -229,12 +248,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
-		if btn_id == 0:  # Localisation
-			self._filters["Localization"].get_ui(self.UI_NAME).show()
-			self._filters["Tracks"].get_ui(self.UI_NAME).hide()
-		else:  # Tracking
-			self._filters["Localization"].get_ui(self.UI_NAME).hide()
-			self._filters["Tracks"].get_ui(self.UI_NAME).show()
+		if btn_id == 0: self._filters.show_part(self.UI_NAME, localization=True, tracking=False)  # Localisation
+		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
 
 	##################################################
 	def _add_stack(self):

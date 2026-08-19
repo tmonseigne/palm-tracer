@@ -270,6 +270,9 @@ def test_filters(qtbot):
 	g.connect_button(lambda: print("Hi"), "new", "0")  # UI inexistante
 	g.connect_button(lambda: print("Hi"), "default", "reset")
 
+	g.show_part()
+	g.show_part(localization=False, tracking=False)
+
 
 ###################################################
 def test_filters_l(qtbot):

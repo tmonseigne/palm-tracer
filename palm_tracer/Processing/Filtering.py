@@ -30,7 +30,7 @@ class Filtering:
 		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
-		if datas.empty: return datas
+		if datas.empty or not self.filters.active: return datas
 		res = self.rois.filtering_dataframe(datas)
 		f = self.filters.localization
 		filters = [[self.filters["Plane"], "Plane"], [f["Z"], "Z"],
@@ -56,7 +56,7 @@ class Filtering:
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
 		f = cast(CheckRangeInt, self.filters.tracking["Length"])
-		if not f.active or datas.empty: return datas
+		if datas.empty or not self.filters.active or not f.active: return datas
 		res = datas.copy()
 		limits = f.value
 		counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
@@ -80,7 +80,7 @@ class Filtering:
 		o_msd = msd.copy()
 		o_ind = instant_d.copy()
 		o_fit = fit.copy()
-		if o_trc.empty: return o_trc, o_msd, o_ind, o_fit
+		if o_trc.empty or not self.filters.active: return o_trc, o_msd, o_ind, o_fit
 
 		f = self.filters.tracking
 

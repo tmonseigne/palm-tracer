@@ -81,7 +81,9 @@ class BaseSettingGroup:
 		if name in self._uis: return self._uis[name]
 		if mode < 0: mode = self.mode
 		ui = BaseUIGroup(name=self.label, mode=mode)
-		if ui.checkbox is not None:  ui.checkbox.toggled.connect(self.set_active)  # Connecte le changement de la checkbox
+		if ui.checkbox is not None:
+			ui.checkbox.setChecked(self.active)  # .		Active ou non la Check Box
+			ui.checkbox.toggled.connect(self.set_active)  # Connecte le changement de la checkbox
 		ui.active(self.active if mode == 0 else True)
 		body = ui.body_layout
 
