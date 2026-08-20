@@ -6,7 +6,7 @@ from typing import Literal, Optional
 
 import numpy as np
 import plotly.graph_objects as go
-from scipy.stats import gaussian_kde, multivariate_normal
+from scipy.stats import expon, gaussian_kde, multivariate_normal, poisson
 
 from palm_tracer.Processing.Astigmatism3D import sigma_model
 from palm_tracer.Processing.Parsing import SHAPE_MODEL
@@ -43,9 +43,9 @@ class Grapher:
 		return fig
 
 	##################################################
-	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "",
-				  limit: bool = False, show_sigma: bool = False, kde: bool = False,
-				  gaussian: bool = False, density: bool = True, cumulative: bool = False, bins: Optional[int] = None) -> go.Figure:
+	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False,
+				  show_sigma: bool = False, kde: bool = False, gaussian: bool = False, poissonian: bool = False, exponential: bool = False,
+				  density: bool = True, cumulative: bool = False, bins: int = 0) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
@@ -57,8 +57,10 @@ class Grapher:
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
 		:param kde: Si True, superpose la KDE gaussienne.
 		:param gaussian: Si True, superpose la gaussienne.
+		:param poissonian: Si True, superpose la poissonnienne.
+		:param exponential: Si True, superpose l'exponentielle inverse.
 		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
-		:param bins: Nombre de bins explicite (sinon Sturges).
+		:param bins: Nombre de bins explicite (Sturges si 0 et avec des valeurs entières si négatif).
 		:param cumulative: Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		"""
@@ -78,18 +80,24 @@ class Grapher:
 		x, limits, mu, sigma = self._get_range(x, limit)
 
 		# Récupération du nombre de bin
-		if bins is None: bins = self._get_bins_number(x)
+		if bins == 0: bins = self._get_bins_number(x)
 		bin_width = (limits[1] - limits[0]) / max(int(bins), 1)
+		if bins < 0:
+			bin_width = 1
+			limits[0] -= 0.5
+			limits[1] += 0.5
 
 		# Histogramme
 		histnorm = "probability density" if density else None
-		fig.add_histogram(x=x, nbinsx=bins, histnorm=histnorm, cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
+		fig.add_histogram(x=x, xbins=dict(start=limits[0], end=limits[1], size=bin_width), histnorm=histnorm,
+						  cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
 						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
 		# KDE
 		if x.size > 1 and sigma > 0:
 			x_grid = np.linspace(limits[0], limits[1], MESH_SIZE)  # grille régulière sur l'intervalle affiché
 
+			# Estimation par noyau
 			if kde:
 				kde_model = gaussian_kde(x)  # choisit sa propre bandwidth
 				y_pdf = kde_model(x_grid)
@@ -97,12 +105,28 @@ class Grapher:
 				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
 										 name="KDE", hoverinfo="skip", hovertemplate=None))
 
-			# Gaussian
+			# Gaussienne
 			if gaussian:
 				y_pdf = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x_grid - mu) / sigma) ** 2)
 				y = self._scale_curve(x_grid, y_pdf, x.size, bin_width, density, cumulative)
 				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
 										 name="Gaussian", hoverinfo="skip", hovertemplate=None))
+
+			# Poissonnienne
+			if poissonian and mu >= 0:
+				x_poisson = np.arange(max(0, int(np.floor(limits[0]))), int(np.ceil(limits[1])) + 1)
+				y_pdf = poisson.pmf(x_poisson, mu)
+				y = self._scale_curve(x_poisson, y_pdf, x.size, bin_width, density, cumulative, discrete=True)
+				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[3]),
+										 name="Poisson", hoverinfo="skip", hovertemplate=None))
+
+			# Exponentielle
+			if exponential and mu > 0:
+				x_exponential = x_grid[x_grid >= 0]
+				y_pdf = expon.pdf(x_exponential, scale=mu)
+				y = self._scale_curve(x_exponential, y_pdf, x.size, bin_width, density, cumulative)
+				fig.add_trace(go.Scatter(x=x_exponential, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[4]),
+										 name="Exponential", hoverinfo="skip", hovertemplate=None))
 
 		# Mu et Sigmas
 		if show_sigma and x.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, True)
@@ -164,7 +188,7 @@ class Grapher:
 
 	##################################################
 	def cloud(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False,
-			  kde: bool = False, gaussian: bool = False) -> go.Figure:
+			  kde: bool = False, gaussian: bool = False, poissonian: bool = False, exponential: bool = False) -> go.Figure:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
@@ -176,6 +200,8 @@ class Grapher:
 		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
 		:param kde: Si True, superpose la KDE gaussienne 2D.
 		:param gaussian: Si True, superpose la gaussienne 2D.
+		:param poissonian: Si True, superpose la poissonnienne 2D.
+		:param exponential: Si True, superpose l'exponentielle inverse 2D.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
@@ -222,6 +248,26 @@ class Grapher:
 				z = rv.pdf(np.dstack([xm, ym]))
 
 				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Gaussian", hoverinfo="skip", hovertemplate=None))
+
+			if poissonian and mu_x >= 0 and mu_y >= 0:
+				xg = np.arange(max(0, int(np.floor(limits_x[0]))), int(np.ceil(limits_x[1])) + 1, )
+				yg = np.arange(max(0, int(np.floor(limits_y[0]))), int(np.ceil(limits_y[1])) + 1, )
+
+				zx = poisson.pmf(xg, mu_x)
+				zy = poisson.pmf(yg, mu_y)
+				z = np.outer(zy, zx)
+
+				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Poisson", hoverinfo="skip", hovertemplate=None))
+
+			if exponential and mu_x > 0 and mu_y > 0:
+				xg = np.linspace(max(0.0, limits_x[0]), limits_x[1], MESH_SIZE)
+				yg = np.linspace(max(0.0, limits_y[0]), limits_y[1], MESH_SIZE)
+
+				zx = expon.pdf(xg, scale=mu_x)
+				zy = expon.pdf(yg, scale=mu_y)
+				z = np.outer(zy, zx)
+
+				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Exponential", hoverinfo="skip", hovertemplate=None))
 
 		fig.add_trace(go.Scattergl(x=x, y=y, mode="markers", marker=dict(size=4, color=_SEABORN_DEEP[0]), opacity=0.75, name="Data",
 								   hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
@@ -329,7 +375,7 @@ class Grapher:
 
 	##################################################
 	@staticmethod
-	def _get_range(data: np.ndarray, limit) -> tuple[np.ndarray, list[float], float, float]:
+	def _get_range(data: np.ndarray, limit: bool) -> tuple[np.ndarray, list[float], float, float]:
 		"""
 		Calcule les limites du graphique avec la règle des 3 sigmas et ajuste le tableau si nécessaire.
 
@@ -339,35 +385,41 @@ class Grapher:
 		"""
 		mu, sigma = float(np.mean(data)), float(np.std(data))
 		if limit and sigma > 0:
-			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .					   Limite théoriques des datas
-			data = data[(data >= limits[0]) & (data <= limits[1])]  # .		   Suppression des datas au dela des limites
-			limits = [max(limits[0], min(data)), min(limits[1], max(data))]  # On resserre les limites autour des datas
+			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .											 Limite théoriques des datas
+			data = data[(data >= limits[0]) & (data <= limits[1])]  # .								 Suppression des datas au dela des limites
+			limits = [max(limits[0], float(np.min(data))), min(limits[1], float(np.max(data))), ]  # On resserre les limites autour des datas
 		else:
-			limits = [min(data), max(data)]
+			limits = [float(np.min(data)), float(np.max(data))]
 		return data, limits, mu, sigma
 
 	##################################################
 	@staticmethod
-	def _scale_curve(x_grid: np.ndarray, y_pdf: np.ndarray, n: int, bin_width: float, density: bool = False, cumulative: bool = False):
+	def _scale_curve(x_grid: np.ndarray, y_pdf: np.ndarray, n: int, bin_width: float, density: bool = False, cumulative: bool = False, discrete: bool = False):
 		"""
 		Adapte une courbe PDF pour l'affichage selon les modes densité / comptes et normal / cumulé.
 
 		:param x_grid: Abscisses régulières.
-		:param y_pdf: Densité (PDF) à convertir.
-		:param n: Nombre de bins.
-		:param bin_width: Largeur d'une bin.
+		:param y_pdf: Densité (PDF) ou masse de probabilité (PMF) à convertir.
+		:param n: Nombre de données.
+		:param bin_width: Largeur d'une bin de l'histogramme.
 		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
 		:param cumulative: Si True, calcule la version cumulée de la courbe.
+		:param discrete: Si True, considère ``y_pdf`` comme une PMF discrète.
 		:return: Courbe prête à être affichée.
 		"""
 		if cumulative:
-			dx = float(x_grid[1] - x_grid[0])
-			y_cdf = np.cumsum(y_pdf) * dx
-			# Protection numérique pour rester dans [0, 1] si possible.
-			if y_cdf.size > 0 and y_cdf[-1] > 0: y_cdf = y_cdf / y_cdf[-1]
-			y = np.clip(y_cdf, 0.0, 1.0)
+			if discrete: y = np.cumsum(y_pdf)
+			else:
+				dx = float(x_grid[1] - x_grid[0])
+				y = np.cumsum(y_pdf) * dx
+
+			# Protection contre les erreurs numériques et la troncature de la plage.
+			if y.size > 0 and y[-1] > 0: y /= y[-1]
+			y = np.clip(y, 0.0, 1.0)
+
 			return y if density else y * n  # Conversion densité ⇾ comptes approximatifs.
-		return y_pdf if density else y_pdf * n * bin_width  # convertir la densité en comptes ~ dens * N * bin_width
+		if density: return y_pdf  # Non cumulatif et densité, aucune mise à l'échelle
+		return y_pdf * n if discrete else y_pdf * n * bin_width  # convertir la densité en comptes ~ dens * N * bin_width
 
 	##################################################
 	@staticmethod

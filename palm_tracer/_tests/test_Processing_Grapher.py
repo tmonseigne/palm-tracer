@@ -1,6 +1,5 @@
 """Fichier des tests pour le grapher."""
 import json
-import platform
 
 import plotly.graph_objects as go
 import pytest
@@ -9,7 +8,8 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Grapher
 
 SIZE = 1000
-POINTS = rng.normal(loc=0.0, scale=1.0, size=SIZE).astype(np.float32)
+POINTS = rng.normal(loc=1.0, scale=1.0, size=SIZE).astype(np.float32)
+POINTS_2 = rng.normal(loc=2.0, scale=1.0, size=SIZE).astype(np.float32)
 IDX = np.arange(1, SIZE + 1, dtype=POINTS.dtype)
 
 BLANK_FIG = json.loads((REF_DIR / "grapher_blank.json").read_text(encoding="utf-8"))
@@ -41,23 +41,34 @@ def test_histogram():
 	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
 
 	# Entrée 1D sans aucune option à part les Bins fixés
-	res = g.histogram(POINTS, "Histogram", "", "", False, False, False, False, False, bins=20)
+	res = g.histogram(POINTS, "Histogram", "", "", False, False, False, False, False, False, False, False, bins=20)
 	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_1.json")
 	ref = json.loads((REF_DIR / "grapher_Histogram_1.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 1D avec toutes les options à True
-	res = g.histogram(POINTS, "Histogram", "", "", True, True, True, True, True, True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_2.json")
-	ref = json.loads((REF_DIR / "grapher_Histogram_2.json").read_text(encoding="utf-8"))
+	res = g.histogram(POINTS, "Histogram", "", "", True, True, True, True, True, True, True, True, True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_2.json")
 	# Attention, le Calcul du KDE diffère entre les OS et version de scipy...
+	# ref = json.loads((REF_DIR / "grapher_Histogram_2.json").read_text(encoding="utf-8"))
 	# if platform.system() == "Windows": assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Entrée 1D avec gaussienne densité et non cumulatif
+	# Entrée 1D avec courbes densité et non cumulatif
+	res = g.histogram(POINTS, "Histogram", "", "", kde=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_kde.json")
 	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3.json")
-	# ref = json.loads((REF_DIR / "grapher_Histogram_3.json").read_text(encoding="utf-8"))
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_gaussian.json")
+	res = g.histogram(POINTS, "Histogram", "", "", poissonian=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_poissonian.json")
+	res = g.histogram(POINTS, "Histogram", "", "", exponential=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_exponential.json")
+	# Attention, le Calcul du KDE, gaussian, poisson... diffère entre les OS et version de scipy...
+	# ref = json.loads((REF_DIR / "grapher_Histogram_3_kde.json").read_text(encoding="utf-8"))
 	# assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	# Gaussienne count
+	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True, density=False)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_count.json")
 
 	# Entrée 2D
 	res = g.histogram(np.stack((IDX, POINTS), axis=0), "Histogram", limit=True)
@@ -137,22 +148,34 @@ def test_cloud():
 	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
 
 	# Entrée 2D
-	res = g.cloud(np.stack((IDX, POINTS), axis=0), "cloud")
+	stack = np.stack((POINTS, POINTS_2), axis=0)
+	res = g.cloud(stack, "cloud")
 	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_2.json")
 	ref = json.loads((REF_DIR / "grapher_cloud_2.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 2D (transposé) avec limitation
-	res = g.cloud(np.stack((IDX, POINTS), axis=1), "cloud", limit=True)
+	res = g.cloud(np.stack((POINTS, POINTS_2), axis=1), "cloud", limit=True)
 	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_3.json")
 	ref = json.loads((REF_DIR / "grapher_cloud_3.json").read_text(encoding="utf-8"))
 	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 2D (transposé) avec affichage des mu et sigma
-	res = g.cloud(np.stack((IDX, POINTS), axis=1), "cloud", show_sigma=True, kde=True, gaussian=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4.json")
+	res = g.cloud(stack, "cloud", show_sigma=True)
+	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_sigma.json")
+	ref = json.loads((REF_DIR / "grapher_cloud_4_sigma.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+	res = g.cloud(stack, "cloud", kde=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_kde.json")
+	res = g.cloud(stack, "cloud", gaussian=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_gaussian.json")
+	res = g.cloud(stack, "cloud", poissonian=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_poissonian.json")
+	res = g.cloud(stack, "cloud", exponential=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_exponential.json")
 	# Map complexe et suivant la version de python et l'OS les résultats peuvent légèrement différer
-	# ref = json.loads((REF_DIR / "grapher_cloud_4.json").read_text(encoding="utf-8"))
+	# ref = json.loads((REF_DIR / "grapher_cloud_4_kde.json").read_text(encoding="utf-8"))
 	# assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Entrée 2D avec des données constantes

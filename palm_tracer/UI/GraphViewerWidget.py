@@ -26,11 +26,11 @@ from pathlib import Path
 from typing import cast
 
 from qtpy.QtCore import Qt, QTimer
-from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget, QAbstractSpinBox
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
-from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList
+from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList, SpinInt
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
@@ -105,7 +105,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
-		self.setStyleSheet("""QAbstractSpinBox { padding: 1px 10px; min-width: 70px; min-height: 18px; }
+		self.setStyleSheet("""QAbstractSpinBox { padding: 1px 10px; min-width: 10px; min-height: 18px; }
 		QLineEdit { min-height: 20px; padding: 2px; }
 		QComboBox { padding: 3px 10px 3px 8px; }""")
 
@@ -160,6 +160,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		for i, key in enumerate(display_settings):
 			row, col = i // 2, (i % 2) * 2
 			ui = display_settings[key].get_ui(self.UI_NAME)
+			if isinstance(display_settings[key], SpinInt): cast(QAbstractSpinBox, ui.boxes[0]).setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
 			grid.addLayout(ui.layout, row, col)
 			grid.addWidget(ui.label, row, col + 1)
 
