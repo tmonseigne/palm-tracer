@@ -301,7 +301,7 @@ def test_check_range_float(qtbot):
 def test_check_int_selection(qtbot):
 	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = CheckIntSelection("Test", "")
-	setting_base_test(setting, "2;3", "")
+	setting_base_test(setting, "1;3-4", "")
 	ui = setting.get_ui("new")
 
 	setting.active = True
@@ -310,9 +310,10 @@ def test_check_int_selection(qtbot):
 	assert setting.value == "", "Valeur non valide."
 	assert setting.ranges == [], "Valeur non valide."
 	assert not setting.contains(7), "Valeur non valide."
-	setting.value = "2;4-6;10-8;7--7;;9;8:6"  # Gestion des cas problématiques (plusieurs fois ; ou -, caractère non valide et min/max inversé
-	assert setting.value == "2;4-6;8-10;7;9", "Valeur non valide."
-	assert setting.ranges == [(2, 2), (4, 6), (8, 10), (7, 7), (9, 9)], "Valeur non valide."
+	# Gestion des cas problématiques (plusieurs fois ; ou -, caractère non valide et min/max inversé et fusion d'intevalles
+	setting.value = "4-6;10-8;7--7;;9;8:6;2"
+	assert setting.value == "2;4-10", "Valeur non valide."
+	assert setting.ranges == [(2, 2), (4, 10)], "Valeur non valide."
 	assert setting.contains(7), "Valeur non valide."
 
 	w = QWidget()

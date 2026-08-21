@@ -168,7 +168,17 @@ class CheckIntSelection(BaseSettingType):
 			maximum = int(match.group(2)) if match.group(2) is not None else minimum
 			ranges.append((maximum, minimum)) if minimum > maximum else ranges.append((minimum, maximum))
 
-		return ranges
+		ranges.sort()
+		# Fusion des intervalles consécutifs (ou déjà présent dans le range actuel)
+		merged: list[tuple[int, int]] = []
+		for minimum, maximum in ranges:
+			if not merged or minimum > merged[-1][1] + 1:
+				merged.append((minimum, maximum))
+				continue
+
+			merged[-1] = (merged[-1][0], max(merged[-1][1], maximum))
+
+		return merged
 
 	##################################################
 	@classmethod
