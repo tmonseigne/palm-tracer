@@ -85,11 +85,26 @@ def test_tracking(qtbot, f):
 	"""Test pour le filtrage des plans."""
 	src = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
 	filters = f.filters
+
+	filters.tracking["Track"].active = True
+	filters.tracking["Track"].value = "1-9;200-250"  # 66/435 : 269 suppression(s)
+
+	res = f.tracking(src)
+	res, ref = len(res), 66
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+	filters.tracking["Track"].active = False
 	filters.tracking["Length"].active = True
 	filters.tracking["Length"].value = [3, 10000]  # 166/435 : 269 suppression(s)
 
 	res = f.tracking(src)
 	res, ref = len(res), 166
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+	filters.tracking["Track"].active = True
+
+	res = f.tracking(src)
+	res, ref = len(res), 9
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 	f.filters.active = False
@@ -108,7 +123,7 @@ def test_tracks_compute(qtbot, f):
 
 	res = f.tracks_compute(tracks, msd, instant_d, fit)
 	ref = [47, 9, 9, 9]  # Même sans filtre, il ne conserve que l'intersection (36, 46, 57, 71, 75, 87, 89, 138, 154).
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {len(res[i])}"
+	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
 
 	ft = f.filters.tracking
 	ft["Length"].active = True
@@ -142,4 +157,20 @@ def test_tracks_compute(qtbot, f):
 	ft["Length"].value = [42, 10000]
 	res = f.tracks_compute(tracks, msd, instant_d, fit)
 	ref = [0, 0, 0, 0]
+	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
+
+	# Cas dégénéré, les tableaux n'ont aucune trajectoire commune.
+	ft["Length"].value = [3, 10000]
+	msd.loc[:, "Track"] += 1000
+	instant_d.loc[:, "Track"] += 2000
+	fit.loc[:, "Track"] += 3000
+
+	res = f.tracks_compute(tracks, msd, instant_d, fit)
+	ref = [0, 0, 0, 0]
+	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
+
+	# Filtre désactivé
+	f.filters.active = False
+	res = f.tracks_compute(tracks, msd, instant_d, fit)
+	ref = [435, 111, 11, 13]  # Si le filtrage est completement désactivé, il ne fait rien du tout
 	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"

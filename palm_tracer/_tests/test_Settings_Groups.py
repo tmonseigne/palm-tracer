@@ -7,7 +7,7 @@ from qtpy.QtWidgets import QFormLayout, QWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import *
-from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckRangeInt, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeInt, Combo, SpinFloat, SpinInt
 
 
 ###################################################
@@ -286,7 +286,7 @@ def test_filters_l(qtbot):
 def test_filters_t(qtbot):
 	"""Test basique de la classe FiltersT (constructeur, getter, setter)."""
 	g = FiltersT()
-	group_base_test(g, ["Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckRangeInt, [2, 3], [1, 10000])
+	group_base_test(g, ["Track", "Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckIntSelection, "1;3-4", "")
 	g.deactivate_filters()
 
 

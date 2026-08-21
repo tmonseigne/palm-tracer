@@ -24,7 +24,7 @@ def test_settings(qtbot, capsys):
 
 	print(settings)
 	lines = get_lines_output(capsys)
-	assert len(lines) == 121
+	assert len(lines) == 122
 
 
 ###################################################
