@@ -105,13 +105,11 @@ msgstr "Return type"
 msgid "Parsing"
 msgstr ""
 
-#: of
-#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.to_compact_dict:1
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.to_compact_dict:1
 msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
 msgstr "Returns a minimal dictionary containing the setting’s value."
 
-#: of
-#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.update_from_compact_dict:1
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.update_from_compact_dict:1
 msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
 msgstr "Updates the class from a minimal dictionary."
 

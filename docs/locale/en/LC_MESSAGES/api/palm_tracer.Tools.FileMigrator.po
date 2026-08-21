@@ -246,28 +246,23 @@ msgstr "renames and populates the columns according to ``FILES_COLUMNS[\"Trackin
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"trc\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"trc\"].new``."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:1
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:1
 msgid "Migre le fichier de modèle d'astigmatisme 3D PALMTracer."
 msgstr "Migrates the PALMTracer 3D astigmatism model file."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:4
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:4
 msgid "lit le fichier ``3DFit.txt`` s'il est présent"
 msgstr "Reads the ``3DFit.txt`` file if present"
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:5
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:5
 msgid "assigne explicitement les noms de colonnes et les indices de lignes à partir de ``FILES_COLUMNS[\"Astigmatism 3D Model\"]`` et ``MODEL_ROWS``"
 msgstr "Explicitly assigns column names and row indices from ``FILES_COLUMNS[\"Astigmatism 3D Model\"]`` and ``MODEL_ROWS``"
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:7
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:7
 msgid "écrit le modèle sous forme de CSV dans :attr:`output_folder`."
 msgstr "Writes the model as a CSV file to :attr:`output_folder`."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:9
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:9
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"A3D\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"A3D\"].new``."
 
@@ -275,20 +270,17 @@ msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_nam
 msgid "Migre le fichier MSD (Mean Square Displacement) PALMTracer."
 msgstr "Migrates the PALMTracer MSD (Mean Square Displacement) file."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:4
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:4
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:4
 msgid "lit un fichier à structure irrégulière (nombre de colonnes variable par ligne)"
 msgstr "Reads a file with an irregular structure (variable number of columns per row)"
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:5
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:5
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:5
 msgid "supprime la colonne ROI (première colonne)"
 msgstr "removes the ROI column (first column)"
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:6
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:6
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:6
 msgid "renomme les colonnes sous la forme : ``Track, <metric> 1, <metric> 2, ..., <metric> N`` ;"
 msgstr "renames the columns as: ``Track, <metric> 1, <metric> 2, ..., <metric> N``;"
@@ -301,18 +293,15 @@ msgstr "The metric name is derived from ``FILES_COLUMNS[\"MSD\"][\"columns\"]``.
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"MSD\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv``, where ``new_name`` corresponds to ``FILES_LINK[\"MSD\"].new``."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:1
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:1
 msgid "Migre le fichier de diffusion instantanée PALMTracer."
 msgstr "Migrates the PALMTracer instant broadcast file."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:9
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:9
 msgid "Le nom de la métrique est issu de ``FILES_COLUMNS[\"InD\"][\"columns\"]``."
 msgstr "The metric name is taken from ``FILES_COLUMNS[\"InD\"][\"columns\"]``."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:11
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:11
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"InD\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"InD\"].new``."
 

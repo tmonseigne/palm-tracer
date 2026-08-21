@@ -30,7 +30,6 @@ msgstr "Attributes"
 msgid "Nom du Groupe."
 msgstr "Group name."
 
-#: of
-#: palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction.setting_list:1
+#: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction.setting_list:1
 msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
 msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."

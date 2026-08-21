@@ -20,7 +20,7 @@ class FiltersT(BaseSettingGroup):
 
 	Attributs :
 		- **Track** (:class:`CheckIntSelection <palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection>`) :
-		  Sélectionne les Track IDs à conserver. Utilisez - pour définir un intervalle et ; pour séparer plusieurs valeurs ou intervalles.
+		  Trajectoire IDs sélectionnés. Utilisez - pour définir un intervalle et ; pour séparer plusieurs valeurs ou intervalles.
 		  Exemple : 1-10;15;20-25.
 		- **Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
 		  Intervalle de longueur sélectionné (par défaut : `[1, 10000]`).
@@ -38,7 +38,7 @@ class FiltersT(BaseSettingGroup):
 
 	label: str = "Tracks"
 	setting_list = {
-			"Track":       [CheckIntSelection, ["Track ID", "Select the Track IDs to keep. Use - to specify a range and ; "
+			"Track":       [CheckIntSelection, ["Track ID", "Selected Track IDs. Use - to specify a range and ; "
 															"to separate multiple values or ranges. Example: 1-10;15;20-25."]],
 			"Length":      [CheckRangeInt, ["Length", "", [1, 10000], [1, 100000]]],
 			"Instant D":   [CheckRangeFloat, ["Instant D", "", [-5, 5], [-10, 10]]],
