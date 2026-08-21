@@ -298,6 +298,36 @@ def test_check_range_float(qtbot):
 
 
 ###################################################
+def test_check_int_selection(qtbot):
+	"""Test basique de la classe (constructeur, getter, setter)."""
+	setting = CheckIntSelection("Test", "")
+	setting_base_test(setting, "1;3-4", "")
+	ui = setting.get_ui("new")
+
+	setting.active = True
+	assert setting.active, "Le paramètre doit être activés."
+
+	assert setting.value == "", "Valeur non valide."
+	assert setting.ranges == [], "Valeur non valide."
+	assert not setting.contains(7), "Valeur non valide."
+	# Gestion des cas problématiques (plusieurs fois ; ou -, caractère non valide et min/max inversé et fusion d'intevalles
+	setting.value = "4-6;10-8;7--7;;9;8:6;2"
+	assert setting.value == "2;4-10", "Valeur non valide."
+	assert setting.ranges == [(2, 2), (4, 10)], "Valeur non valide."
+	assert setting.contains(7), "Valeur non valide."
+
+	w = QWidget()
+	form = QFormLayout(w)  # crée et assigne le layout au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert not setting.active
+	w.close()
+
+
+###################################################
 def test_button(qtbot, capsys):
 	"""Test basique de la classe (constructeur, getter, setter)."""
 	setting = Button("Test")

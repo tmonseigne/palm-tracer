@@ -34,12 +34,10 @@ msgstr "Parameters"
 msgid "Attributs"
 msgstr "Attributes"
 
-#: of
-#: palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection.label:1
+#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection.label:1
 msgid "Nom du Groupe."
 msgstr "Group name."
 
-#: of
-#: palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection.setting_list:1
+#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection.setting_list:1
 msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
 msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."

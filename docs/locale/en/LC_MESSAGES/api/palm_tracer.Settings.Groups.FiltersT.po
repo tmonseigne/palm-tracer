@@ -11,26 +11,30 @@ msgid "Attributs :"
 msgstr "Attributes:"
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:4
+msgid "**Track** (:class:`CheckIntSelection <palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection>`) : Trajectoire IDs sélectionnés. Utilisez - pour définir un intervalle et ; pour séparer plusieurs valeurs ou intervalles. Exemple : 1-10;15;20-25."
+msgstr "**Track** (:class:`CheckIntSelection <palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection>`) : Selected Track IDs. Use - to specify a range and ; to separate multiple values or ranges. Example: 1-10;15;20-25."
+
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:7
 msgid "**Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Intervalle de longueur sélectionné (par défaut : `[1, 10000]`)."
 msgstr "**Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Selected length interval (default: `[1, 10000]`)."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:6
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:9
 msgid "**Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de diffusion instantanée sélectionné (par défaut : `[-5, 5]`)."
 msgstr "**Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected instantaneous spread interval (default: `[-5, 5]`)."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:8
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:11
 msgid "**D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de direction sélectionné (par défaut : `[-5, 5]`)."
 msgstr "**D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected direction range (default: `[-5, 5]`)."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:10
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:13
 msgid "**Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de puissance sélectionné (par défaut : `[-10, 10]`)."
 msgstr "**Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected power range (default: `[-10, 10]`)."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:12
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:15
 msgid "**Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de vitesse sélectionné (par défaut : `[0, 1]`)."
 msgstr "**Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected speed range (default: `[0, 1]`)."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:14
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:17
 msgid "**Confinement** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de confinement sélectionné (par défaut : `[-10, 10]`)."
 msgstr "**Confinement** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected Confinement range (default: `[-10, 10]`)."
 

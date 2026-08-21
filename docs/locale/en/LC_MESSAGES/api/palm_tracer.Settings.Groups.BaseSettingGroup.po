@@ -21,8 +21,7 @@ msgstr "Attributes"
 msgid "Nom du Groupe."
 msgstr "Group name."
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.setting_list:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.setting_list:1
 msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
 msgstr "List of settings in the group (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
 
@@ -38,8 +37,7 @@ msgstr "Group status, enabled or disabled (:class:`bool`)."
 msgid "Fonction vide nécessaire aux parcours automatiques."
 msgstr "Empty function required for automatic traversal."
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.settings_names:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.settings_names:1
 msgid "Récupère les noms des paramètres de ce groupe."
 msgstr "Retrieves the names of the settings in this group."
 
@@ -55,8 +53,7 @@ msgstr "Methods"
 msgid "Initialization"
 msgstr ""
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.initialize:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.initialize:1
 msgid "Initialise le dictionnaire de paramètres."
 msgstr "Initializes the settings dictionary."
 
@@ -135,13 +132,11 @@ msgstr "Shows the setting."
 msgid "Parsing"
 msgstr ""
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.to_compact_dict:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.to_compact_dict:1
 msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
 msgstr "Returns a minimal dictionary containing the setting's value."
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.update_from_compact_dict:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.update_from_compact_dict:1
 msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
 msgstr "Updates the class from a minimal dictionary."
 
@@ -161,8 +156,7 @@ msgstr "A textual description of the settings."
 msgid "Callbacks"
 msgstr ""
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.set_active:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.set_active:1
 msgid "Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."
 msgstr "Updates the group's active state when the checkbox is toggled."
 
@@ -178,22 +172,18 @@ msgstr "Connects a function or slot to all elements in the group."
 msgid "Fonction ou slot à connecter."
 msgstr "Function or slot to connect."
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:1
 msgid "Déconnecte une fonction ou un slot à tous les éléments du groupe."
 msgstr "Disconnects a function or slot from all elements in the group."
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:3
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:3
 msgid "Fonction ou slot à déconnecter."
 msgstr "Function or slot to disconnect."
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:4
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:4
 msgid "Nombre de slots déconnectés."
 msgstr "Number of disconnected slots."
 
-#: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:1
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:1
 msgid "Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec `with ...:`."
 msgstr "Signal blocking for the entire group (recursive). Returns a context manager usable with `with ...:`."

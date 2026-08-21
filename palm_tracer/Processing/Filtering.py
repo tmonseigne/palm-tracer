@@ -8,7 +8,7 @@ import pandas as pd
 
 from palm_tracer.Settings import ROIManager
 from palm_tracer.Settings.Groups import Filters
-from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
+from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, CheckRangeInt
 
 
 ##################################################
@@ -55,10 +55,21 @@ class Filtering:
 		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
-		f = cast(CheckRangeInt, self.filters.tracking["Length"])
-		if datas.empty or not self.filters.active or not f.active: return datas
-		res = datas.copy()
-		limits = f.value
+		if datas.empty or not self.filters.active: return datas
+		track_filter = cast(CheckIntSelection, self.filters.tracking["Track"])
+		length_filter = cast(CheckRangeInt, self.filters.tracking["Length"])
+		if not track_filter.active and not length_filter.active: return datas  # Aucun Filtre basique
+
+		# Track ID Filter
+		res = datas
+		if track_filter.active:
+			mask = np.zeros(len(res), dtype=bool)
+			for minimum, maximum in track_filter.ranges: mask |= res["Track"].between(minimum, maximum).to_numpy()
+			res = res[mask]
+
+		# Length Filter
+		if not length_filter.active: return res
+		limits = length_filter.value
 		counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
 		keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
 		res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
@@ -76,11 +87,12 @@ class Filtering:
 		:param fit: DataFrame de calcul de l'ajustement.
 		:return: DataFrames filtrés.
 		"""
-		o_trc = tracks.copy()
+		o_trc = self.tracking(tracks)
 		o_msd = msd.copy()
 		o_ind = instant_d.copy()
 		o_fit = fit.copy()
-		if o_trc.empty or not self.filters.active: return o_trc, o_msd, o_ind, o_fit
+		if not self.filters.active: return o_trc, o_msd, o_ind, o_fit
+		if o_trc.empty: return o_trc, o_msd.iloc[0:0], o_ind.iloc[0:0], o_fit.iloc[0:0]
 
 		f = self.filters.tracking
 
@@ -91,19 +103,10 @@ class Filtering:
 			if not df.empty and "Track" in df.columns: id_sets.append(set(df["Track"].unique().tolist()))
 		keep_ids = set.intersection(*id_sets)
 
-		# ----- Filtre Longueur -----
-		f_tmp = cast(CheckRangeInt, f["Length"])
-		if f_tmp.active:
-			limits_l = f_tmp.value
-			counts = o_trc.groupby("Track").size()
-			ok_len_ids = set(counts.index[(limits_l[0] <= counts) & (counts <= limits_l[1])].tolist())
-			keep_ids &= ok_len_ids  # intersection sur des sets d'IDs
-
 		# ----- Filtre sur Instant D -----
 		f_tmp = cast(CheckRangeInt, f["Instant D"])
 		if f_tmp.active and not o_ind.empty:
 			limits_d = f_tmp.value
-
 			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]  # .					 Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_ind.empty:
 				val_cols = [c for c in o_ind.columns if c != "Track"]  # .		 Colonnes de valeurs = toutes sauf 'Track'
