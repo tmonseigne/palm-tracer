@@ -6,7 +6,6 @@ Fournit le widget de visualisation interactive des données PALM avec Plotly.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import cast
 
 from qtpy.QtCore import Qt, QTimer
@@ -84,7 +83,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 			- Zone droite :
 				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
 		"""
-		self._pt.settings.clean_ui(self.UI_NAME)
+		self._pt.clean_ui(self.UI_NAME)
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
@@ -122,9 +121,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# --- Bouton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
 		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
-
-		# --- Bloc Infos (lecture seule) ---
-		grp_infos, self._status = Ui.make_file_info_group()
 
 		# --- Bloc Source (donnée) + Type de graphe ---
 		grp_source = QGroupBox("Source")
@@ -171,7 +167,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		actions_row.addWidget(self._btn_export)
 
 		# --- Mise en page dans le scroll ---
-		scroll_layout.addWidget(grp_infos)
+		scroll_layout.addWidget(self._pt.results.get_ui(self.UI_NAME).widget)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_display)
 		scroll_layout.addWidget(grp_filters)
@@ -215,7 +211,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
-		try: self._pt.settings.clean_ui(self.UI_NAME)
+		try: self._pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
 	# ==================================================
@@ -245,11 +241,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _actualize(self):
 		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer et redessine le graph."""
-		file = cast(FileList, self._pt.settings.batch["Files"]).current_text
-		self._status["File"].setText(Path(file).name if file else "No File")
-		# Mise à jour des Status
-		status = self._pt.get_status()
-		for key in status: self._status[key].setText(status[key])
+		self._pt.results.update_uis()  # TODO Vérifier peut etre inutile techniquement chaque maj d'éléments par [] met à jour l'ui.
 		self._graph_settings["Display"]["Limits"].value = True
 		self._update_plot()  # Puis redessiner le graphe.
 

@@ -10,7 +10,6 @@ from time import sleep
 import pytest
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.PALMTracer import FILE_STATUS
 from palm_tracer.Processing import Parsing
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
@@ -187,64 +186,6 @@ def test_getter_tracks_compute(pt):
 	pt.df["f_MSD"] = ref1
 	df = pt.tracks_compute
 	assert df["MSD"].equals(ref1), "Le Dataframe devrait non vide."
-
-
-##################################################
-def test_get_status(pt):
-	# État initial
-	"""Vérifie le calcul du statut des tableaux de résultats."""
-	ref = {"Localization": FILE_STATUS[0], "Beads": FILE_STATUS[0], "Tracking": FILE_STATUS[0],
-		   "MSD":          FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Intégralité des DataFrames remplis
-	pt.df["loc"] = pd.DataFrame([1, 1])
-	pt.df["dft"] = pd.DataFrame([1, 2])
-	pt.df["bds"] = pd.DataFrame([1, 3])
-	pt.df["trc"] = pd.DataFrame([1, 4])
-	pt.df["blk"] = pd.DataFrame([1, 5])
-	pt.df["MSD"] = pd.DataFrame([1, 6])
-	pt.df["InD"] = pd.DataFrame([1, 7])
-	pt.df["Fit"] = pd.DataFrame([1, 8])
-	pt.df["f_loc"] = pd.DataFrame([2, 1])
-	pt.df["f_dft"] = pd.DataFrame([2, 2])
-	pt.df["f_trc"] = pd.DataFrame([2, 3])
-	pt.df["f_blk"] = pd.DataFrame([2, 4])
-	pt.df["f_MSD"] = pd.DataFrame([2, 5])
-	pt.df["f_InD"] = pd.DataFrame([2, 6])
-	pt.df["f_Fit"] = pd.DataFrame([2, 7])
-	ref = {"Localization": FILE_STATUS[6], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[4],
-		   "MSD":          FILE_STATUS[2], "Instant D": FILE_STATUS[2], "Fit": FILE_STATUS[2]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Suppression des filtres pour les tracks compute, les reconnexions et corrections filtrées
-	pt.df["f_dft"] = pd.DataFrame()
-	pt.df["f_blk"] = pd.DataFrame()
-	pt.df["f_MSD"] = pd.DataFrame()
-	pt.df["f_InD"] = pd.DataFrame()
-	pt.df["f_Fit"] = pd.DataFrame()
-	ref = {"Localization": FILE_STATUS[5], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[3],
-		   "MSD":          FILE_STATUS[1], "Instant D": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Suppression des reconnexions et corrections
-	pt.df["dft"] = pd.DataFrame()
-	pt.df["blk"] = pd.DataFrame()
-	ref = {"Localization": FILE_STATUS[2], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[2],
-		   "MSD":          FILE_STATUS[1], "Instant D": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Suppression des localisations et suivi filtrés
-	pt.df["f_loc"] = pd.DataFrame()
-	pt.df["f_trc"] = pd.DataFrame()
-	ref = {"Localization": FILE_STATUS[1], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[1],
-		   "MSD":          FILE_STATUS[1], "Instant D": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 
 ##################################################

@@ -14,16 +14,14 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
+from palm_tracer.Results import Results
 from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Parsing, Renderer
 from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Types import Combo
+from palm_tracer.Settings.Types import Combo, FileList
 from palm_tracer.Tools import FileIO, Logger, Ui
 
 MAX_UI_16 = np.iinfo(np.uint16).max
-FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)",
-						  "Yes (Reconnected)", "Yes (Reconnected and Filtered)",
-						  "Yes (Corrected)", "Yes (Corrected and Filtered)"]
 
 
 ##################################################
@@ -44,11 +42,7 @@ class PALMTracer:
 	"""Journal d'activité."""
 	filtering: Filtering = field(init=False)
 	"""Outil de filtrage."""
-	df: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
-			"loc":   pd.DataFrame(), "dft": pd.DataFrame(), "bds": pd.DataFrame(), "trc": pd.DataFrame(), "blk": pd.DataFrame(),
-			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),
-			"f_loc": pd.DataFrame(), "f_dft": pd.DataFrame(), "f_trc": pd.DataFrame(), "f_blk": pd.DataFrame(),
-			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})
+	results: Results = field(init=False, default_factory=Results)
 	"""Résultats des différents calculs."""
 
 	_path: str = field(init=False, default="")
@@ -64,16 +58,6 @@ class PALMTracer:
 	"""Générateur de graphique."""
 	_renderer: Renderer = field(init=False, default_factory=Renderer)
 	"""Générateur de rendu."""
-
-	KEYS_TO_FILE: dict[str, str] = field(init=False, default_factory=lambda: {
-			"loc": "localizations", "f_loc": "localizations_filtered",
-			"dft": "localizations_corrected", "f_dft": "localizations_corrected_filtered", "bds": "beads",
-			"trc": "tracking", "f_trc": "tracking_filtered",
-			"blk": "tracking_reconnected", "f_blk": "tracking_reconnected_filtered",
-			"MSD": "tracking_MSD", "f_MSD": "tracking_MSD_filtered",
-			"InD": "tracking_InstantD", "f_InD": "tracking_InstantD_filtered",
-			"Fit": "tracking_Fit", "f_Fit": "tracking_Fit_filtered"})
-	"""Alias entre les noms de fichiers et les clés dans le dictionnaire de DataFrames."""
 
 	_STEPS: list[Step] = field(init=False)
 	"""Listes des étapes du pipeline de traitement."""
@@ -106,10 +90,14 @@ class PALMTracer:
 		"""
 		return self.palm.is_valid()
 
-	##################################################
-	def reset_result(self):
-		"""Vide entièrement les DataFrame de résultat dans ``df``."""
-		for key in self.df: self.df[key] = pd.DataFrame()
+	def clean_ui(self, name: str = "default"):
+		"""
+		Supprime l'interface Qt associée au nom donné pour les résultats et les paramètres.
+
+		:param name: Nom de l'interface dans le dictionnaire.
+		"""
+		self.results.clean_ui(name)
+		self.settings.clean_ui(name)
 
 	# ==================================================
 	# endregion Initialisation
@@ -118,115 +106,6 @@ class PALMTracer:
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
-	def get_localization_key(self) -> str:
-		"""Clé des localisations (filtrées si le tableau est non vide) et corrigées si le tableau est non vide également."""
-		if self.df["f_dft"].empty:
-			if self.df["dft"].empty:
-				if self.df["f_loc"].empty:
-					return "loc"
-				return "f_loc"
-			return "dft"
-		return "f_dft"
-
-	##################################################
-	def get_tracks_key(self) -> str:
-		"""Clé des trajectoires (filtrées si le tableau est non vide) et reconnectées si le tableau est non vide également."""
-		if self.df["f_blk"].empty:
-			if self.df["blk"].empty:
-				if self.df["f_trc"].empty:
-					return "trc"
-				return "f_trc"
-			return "blk"
-		return "f_blk"
-
-	##################################################
-	def get_tracks_compute_key(self) -> list[str]:
-		"""Clé des calculs sur trajectoires (filtrées si le tableau est non vide)."""
-		if self.df["f_MSD"].empty and self.df["f_InD"].empty and self.df["f_Fit"].empty:
-			return ["MSD", "InD", "Fit"]
-		return ["f_MSD", "f_InD", "f_Fit"]
-
-	##################################################
-	def get_status(self) -> dict[str, str]:
-		"""
-		Retourne un dictionnaire décrivant le statut des tableaux actuellement chargés dans ``self._df``
-		pour les différentes catégories de données (Localisations, Trajectoires, MSD, Diffusion instantanée, Fit).
-
-		Cette méthode analyse chaque tableau pour savoir s'il correspond :
-			- à un tableau standard,
-			- à un tableau filtré,
-			- à un tableau reconnecté (pour les trajectoires),
-			- à un tableau corrigé (pour les localisations),
-			- ou à une absence de données.
-
-		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`.
-
-		Le dictionnaire retourné contient systématiquement les clés suivantes :
-		``Localization``, ``Beads``, ``Tracking``, ``MSD``, ``Instant D``, ``Fit``
-
-		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
-		"""
-		res = {"Localization": FILE_STATUS[0], "Tracking": FILE_STATUS[0], "MSD": FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
-
-		# --- Localisation ---
-		if self.df["f_dft"].empty:
-			if self.df["dft"].empty:
-				if self.df["f_loc"].empty:
-					if self.df["loc"].empty: res["Localization"] = FILE_STATUS[0]
-					else: res["Localization"] = FILE_STATUS[1]
-				else: res["Localization"] = FILE_STATUS[2]
-			else: res["Localization"] = FILE_STATUS[5]
-		else: res["Localization"] = FILE_STATUS[6]
-
-		# --- Billes ---
-		if self.df["bds"].empty: res["Beads"] = FILE_STATUS[0]
-		else: res["Beads"] = FILE_STATUS[1]
-
-		# --- Suivi ---
-		if self.df["f_blk"].empty:
-			if self.df["blk"].empty:
-				if self.df["f_trc"].empty:
-					if self.df["trc"].empty: res["Tracking"] = FILE_STATUS[0]
-					else: res["Tracking"] = FILE_STATUS[1]
-				else: res["Tracking"] = FILE_STATUS[2]
-			else: res["Tracking"] = FILE_STATUS[3]
-		else: res["Tracking"] = FILE_STATUS[4]
-
-		# --- Calcul sur trajectoires ---
-		tcs = [("MSD", "MSD"), ("InD", "Instant D"), ("Fit", "Fit")]
-		for k1, k2 in tcs:
-			if self.df[f"f_{k1}"].empty:
-				if self.df[k1].empty: res[k2] = FILE_STATUS[0]
-				else: res[k2] = FILE_STATUS[1]
-			else: res[k2] = FILE_STATUS[2]
-		return res
-
-	##################################################
-	@property
-	def localizations(self) -> pd.DataFrame:
-		"""Getter du :class:`DataFrame <pandas.DataFrame>` de la localisation (filtrée si elle est non vide)."""
-		return self.df[self.get_localization_key()]
-
-	##################################################
-	@property
-	def beads(self) -> pd.DataFrame:
-		"""Getter du :class:`DataFrame <pandas.DataFrame>` des billes détectées."""
-		return self.df["bds"]
-
-	##################################################
-	@property
-	def tracks(self) -> pd.DataFrame:
-		"""Getter du :class:`DataFrame <pandas.DataFrame>` du suivi (filtré s'il est non vide) et reconnecté s'il est non vide également."""
-		return self.df[self.get_tracks_key()]
-
-	##################################################
-	@property
-	def tracks_compute(self) -> dict[str, pd.DataFrame]:
-		"""Getter du trio de :class:`DataFrame <pandas.DataFrame>` des calculs sur trajectoires (filtrées si le tableau est non vide)."""
-		keys = self.get_tracks_compute_key()
-		return {"MSD": self.df[keys[0]], "InD": self.df[keys[1]], "Fit": self.df[keys[2]]}
-
 	##################################################
 	@property
 	def path(self) -> str:
@@ -286,14 +165,18 @@ class PALMTracer:
 		"""Charge les précédents résultats du fichier courant."""
 		if not self.is_dll_valid():
 			Ui.print_warning("Process not completed due to missing DLLs.")
+			self.results.reset()
 			return
 
 		# --- Chargement des paramètres ---
+		file = cast(FileList, self.settings.batch["Files"]).current_text
+		self.results.stack_name = Path(file).name if file else ""
 		self._path = self.settings.batch.get_paths()[0] if path == "" else path  # Parsing du batch
 		settings_filename = FileIO.get_last_file(self._path, "settings")
 		self._timestamp = FileIO.extract_suffix(settings_filename)
 		if not settings_filename or not self._timestamp:
 			Ui.print_warning("No valid settings file to load.")
+			self.results.reset()
 			return
 
 		print(f"Loading setting file '{settings_filename}'.")
@@ -303,20 +186,7 @@ class PALMTracer:
 			self.settings.localization["Preview"].value = False
 
 		# --- Chargement des fichiers associés à ces paramètres. ---
-		self.reset_result()  # Réinitialisation des DataFrames de résultats
-		print(f"\tLoading files from the '{self._path}' folder with the timestamp {self._timestamp}.")
-		for key, fname in self.KEYS_TO_FILE.items():
-			f = self._output_name(fname)
-			try:
-				if Path(f).is_file():
-					self.df[key] = pd.read_csv(f)  # Lecture du fichier CSV avec pandas
-					print(f"\tFile '{fname}' loaded successfully.")
-				else:
-					self.df[key] = pd.DataFrame()
-					print(f"\tFile '{fname}' not found.")
-			except Exception as e:
-				self.df[key] = pd.DataFrame()
-				Ui.print_warning(f"\tError loading file '{fname}': {e}")
+		self.results.load(file, self._path, self._timestamp)
 
 		# --- Chargement de la pile ---
 		try:
@@ -343,7 +213,7 @@ class PALMTracer:
 		# --- Parcours du batch ---
 		for self._path, self._stack in zip(paths, stacks):
 			# Réinitialisation des DataFrames de résultats
-			self.reset_result()
+			self.results.reset()
 
 			# Logger
 			Path(self._path).mkdir(parents=True, exist_ok=True)
@@ -437,15 +307,15 @@ class PALMTracer:
 			self._logger.add(f"{group.label} load previous result (Timestamp : {self._timestamp_previous}).")
 			success = True
 			for key in step.keys:
-				old_file = self._output_name(self.KEYS_TO_FILE[key], previous=True)
-				new_file = self._output_name(self.KEYS_TO_FILE[key])
+				old_file = self.results.output_name_by_key(key, self._path, self._timestamp_previous)
+				new_file = self.results.output_name_by_key(key, self._path, self._timestamp)
 				try:
-					self.df[key] = pd.read_csv(old_file)
-					self._logger.add(f"\tFile '{old_file.name}' loaded successfully, {len(self.df[key])} row(s) found.")
+					self.results[key] = pd.read_csv(old_file)
+					self._logger.add(f"\tFile '{old_file.name}' loaded successfully, {len(self.results[key])} row(s) found.")
 					old_file.rename(new_file)  # On renomme le fichier pour qu'à la prochaine étape, ce process soit celui du csv.
 				except Exception as e:
 					self._logger.add(f"\tError loading file '{old_file.name}': {e}")
-					self.df[key] = pd.DataFrame()
+					self.results[key] = pd.DataFrame()
 					success = False
 
 			if not success and group.active: action = StepAction.Compute
@@ -462,33 +332,33 @@ class PALMTracer:
 		# Cas standard : un seul DataFrame
 		if len(step.keys) == 1:
 			f_key = f"f_{step.keys[0]}"
-			self.df[f_key] = step.filter_func(self.df[step.keys[0]])
-			n_init, n_end = len(self.df[step.keys[0]]), len(self.df[f_key])
+			self.results[f_key] = step.filter_func(self.results[step.keys[0]])
+			n_init, n_end = len(self.results[step.keys[0]]), len(self.results[f_key])
 			if n_init != n_end:
 				self._logger.add(f"\t\tFiltering of file {n_end} row(s) instead of {n_init}: {n_init - n_end} deletion(s).")
 				if self.settings.filters["Save"].value and n_end != 0:
 					self._logger.add(f"\t\tSaving the filtered file.")
-					self.df[f_key].to_csv(self._output_name(self.KEYS_TO_FILE[f_key]), index=False)
+					self.results.save(f_key, self._path, self._timestamp)
 			else:
-				self.df[f_key] = pd.DataFrame()
+				self.results[f_key] = pd.DataFrame()
 		# Cas spécial des tracks_compute qui modifient beaucoup de choses en même temps
 		else:
-			n_init = len(self.df["MSD"])
-			o_name = self.get_tracks_key()
+			n_init = len(self.results["MSD"])
+			o_name = self.results.get_tracks_key()
 			if "f_" not in o_name: o_name = f"f_{o_name}"  # Si aucun filtre la clé sera sans le f_ devant
-			self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] \
-				= step.filter_func(self.tracks, self.df["MSD"], self.df["InD"], self.df["Fit"])
+			self.results[o_name], self.results["f_MSD"], self.results["f_InD"], self.results["f_Fit"] \
+				= step.filter_func(self.results.tracks, self.results["MSD"], self.results["InD"], self.results["Fit"])
 
-			n_end = len(self.df["f_MSD"])
+			n_end = len(self.results["f_MSD"])
 			if n_init != n_end:
 				self._logger.add(f"\t\tFiltering of files {n_end} row(s) instead of {n_init}: {n_init - n_end} deletion(s)")
 				if self.settings.filters["Save"].value:
 					for key, name in [(o_name, "tracking"), ("f_MSD", "MSD"), ("f_InD", "Instant Diffusion"), ("f_Fit", "Fit")]:
-						if not self.df[key].empty:
+						if not self.results[key].empty:
 							self._logger.add(f"\t\tSaving the filtered {name} file.")
-							self.df[key].to_csv(self._output_name(self.KEYS_TO_FILE[key]), index=False)
+							self.results.save(key, self._path, self._timestamp)
 			else:
-				for key in ["f_MSD", "f_InD", "f_Fit"]: self.df[key] = pd.DataFrame()
+				for key in ["f_MSD", "f_InD", "f_Fit"]: self.results[key] = pd.DataFrame()
 
 		return pipeline_dirty
 
@@ -505,10 +375,10 @@ class PALMTracer:
 		try: fit_params = self.settings.localization.get_fit_params()
 		except Exception: raise
 		# Run command
-		self.df["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
+		self.results["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
 		# Estimation du Z.
-		if not self.df["loc"].empty and fit in (3, 4) and s["Gaussian Fit Z"]:
+		if not self.results["loc"].empty and fit in (3, 4) and s["Gaussian Fit Z"]:
 			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]))
 
 			if model.empty:
@@ -517,12 +387,12 @@ class PALMTracer:
 			else:
 				z_max = s["Gaussian Fit Z max"]
 				pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en nanomètres
-				points = self.df["loc"].loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
+				points = self.results["loc"].loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
 				estimated_z = self.palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
-				self.df["loc"][["Z", "MSE Z"]] = estimated_z
+				self.results["loc"][["Z", "MSE Z"]] = estimated_z
 
-		self._logger.add(f"\tSaving the localization file ({len(self.df['loc'])} localization(s) found).")
-		self.df["loc"].to_csv(self._output_name(self.KEYS_TO_FILE["loc"]), index=False)
+		self._logger.add(f"\tSaving the localization file ({len(self.results['loc'])} localization(s) found).")
+		self.results.save("loc", self._path, self._timestamp)
 
 	##################################################
 	def _get_astigmatism_model(self, path: Path) -> pd.DataFrame:
@@ -566,54 +436,54 @@ class PALMTracer:
 	##################################################
 	def _beads_extraction(self):
 		"""Extrait les billes des localisations."""
-		df = self.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
+		df = self.results.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
 			return
 
 		s = self.settings.beads.settings
-		try: self.df["bds"] = Drift.extract_beads(df, s["Max Distance"], s["3D"], strict=False, k=2)
-		except ValueError: self.df["bds"] = pd.DataFrame()
-		if self.df["bds"].empty:
+		try: self.results["bds"] = Drift.extract_beads(df, s["Max Distance"], s["3D"], strict=False, k=2)
+		except ValueError: self.results["bds"] = pd.DataFrame()
+		if self.results["bds"].empty:
 			self._logger.add("\tNo beads found.")
 			return
-		self._logger.add(f"\tSaving the beads file ({self.df['bds'].iloc[-1, 0]} beads(s) found).")
-		self.df["bds"].to_csv(self._output_name(self.KEYS_TO_FILE["bds"]), index=False)
+		self._logger.add(f"\tSaving the beads file ({self.results['bds'].iloc[-1, 0]} beads(s) found).")
+		self.results.save("bds", self._path, self._timestamp)
 
 	##################################################
 	def _tracking(self):
 		"""Lance le suivi à partir des paramètres de l'interface."""
-		df = self.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
+		df = self.results.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
 			return
 
 		s = self.settings.tracking.settings
-		self.df["trc"] = self.palm.tracking(df, s["Max Distance"])
+		self.results["trc"] = self.palm.tracking(df, s["Max Distance"])
 
-		self._logger.add(f"\tSaving the tracking file ({len(self.df['trc'])} point(s) found).")
-		self.df["trc"].to_csv(self._output_name(self.KEYS_TO_FILE["trc"]), index=False)
+		self._logger.add(f"\tSaving the tracking file ({len(self.results['trc'])} point(s) found).")
+		self.results.save("trc", self._path, self._timestamp)
 
 	##################################################
 	def _blinking_reconnection(self):
 		"""Lance le tracking à partir des paramètres de l'interface."""
-		df = self.df["trc"]  # Récupère le DataFrame du suivi
+		df = self.results["trc"]  # Récupère le DataFrame du suivi non filtré (si jamais il existe)
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
 			return
 
 		s = self.settings.blinking.settings
-		self.df["blk"] = self.palm.blinking_reconnection(df, 1, s["Mode"], s["Max Duration"], s["Max Distance"])
+		self.results["blk"] = self.palm.blinking_reconnection(df, 1, s["Mode"], s["Max Duration"], s["Max Distance"])
 
-		self._logger.add(f"\tSaving the reconnected tracking file ({len(self.df['blk'])} point(s) found).")
-		self.df["blk"].to_csv(self._output_name(self.KEYS_TO_FILE["blk"]), index=False)
+		self._logger.add(f"\tSaving the reconnected tracking file ({len(self.results['blk'])} point(s) found).")
+		self.results.save("blk", self._path, self._timestamp)
 
 	##################################################
 	def _tracks_compute(self):
 		"""Lance les calculs sur les trajectoires à partir des paramètres de l'interface."""
-		df = self.tracks  # Récupère automatiquement le "bon" DataFrame (blinking et filtré ou non)
+		df = self.results.tracks  # Récupère automatiquement le "bon" DataFrame (blinking et filtré ou non)
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
 			return
@@ -631,12 +501,12 @@ class PALMTracer:
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
 		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
-		for key in res: self.df[key] = res[key]
+		for key in res: self.results[key] = res[key]
 
 		for key, name in [("MSD", "MSD"), ("InD", "Instant Diffusion"), ("Fit", "Fit")]:
 			if s[name] and not res[key].empty:
 				self._logger.add(f"\tSaving the {name} file.")
-				res[key].to_csv(self._output_name(self.KEYS_TO_FILE[key]), index=False)
+				self.results.save(key, self._path, self._timestamp)
 
 	# ==================================================
 	# endregion Traitements
@@ -649,8 +519,7 @@ class PALMTracer:
 	def reset_filtered(self):
 		"""Vide entièrement les DataFrames filtrés dans ``df``."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
-		for key in self.df:
-			if key.startswith("f_"): self.df[key] = pd.DataFrame()
+		self.results.reset_filtered()
 
 	##################################################
 	def update_filtered(self, last: bool = True):
@@ -661,30 +530,27 @@ class PALMTracer:
 		"""
 		df = {}
 		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
-			df[key] = self.df[key] if self.df[f"f_{key}"].empty or not last else self.df[f"f_{key}"]
+			df[key] = self.results[key] if self.results[f"f_{key}"].empty or not last else self.results[f"f_{key}"]
 
-		self.df["f_loc"] = self.filtering.localization(df["loc"])
-		self.df["f_dft"] = self.filtering.localization(df["dft"])
-		self.df["f_trc"] = self.filtering.tracking(df["trc"])
-		self.df["f_blk"] = self.filtering.tracking(df["blk"])
+		self.results["f_loc"] = self.filtering.localization(df["loc"])
+		self.results["f_dft"] = self.filtering.localization(df["dft"])
+		self.results["f_trc"] = self.filtering.tracking(df["trc"])
+		self.results["f_blk"] = self.filtering.tracking(df["blk"])
 
-		o_name = "f_trc" if self.df["f_blk"].empty else "f_blk"
-		self.df[o_name], self.df["f_MSD"], self.df["f_InD"], self.df["f_Fit"] = self.filtering.tracks_compute(self.tracks, df["MSD"], df["InD"], df["Fit"])
+		o_name = "f_trc" if self.results["f_blk"].empty else "f_blk"
+		self.results[o_name], self.results["f_MSD"], self.results["f_InD"], self.results["f_Fit"] \
+			= self.filtering.tracks_compute(self.results.tracks, df["MSD"], df["InD"], df["Fit"])
 
 		for key in ["loc", "dft", "trc", "blk"]:
 			f_key = f"f_{key}"
-			if len(self.df[key]) == len(self.df[f_key]): self.df[f_key] = pd.DataFrame()
+			if len(self.results[key]) == len(self.results[f_key]): self.results[f_key] = pd.DataFrame()
 
 		if self.settings.filters["Save"].value: self.save_filtered()
 
 	##################################################
 	def save_filtered(self):
 		"""Enregistre tous les fichiers filtrés s'ils ne sont pas vides."""
-		self._timestamp = FileIO.get_timestamp_for_files()
-		for key, fname in self.KEYS_TO_FILE.items():
-			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
-			if "f_" in key and not self.df[key].empty and len(self.df[key]) != len(self.df[key[2:]]):
-				self.df[key].to_csv(self._output_name(fname), index=False)
+		self.results.save_filtered(self._path, "")
 
 	##################################################
 	def connect_filters_button(self, ui_name: str = "default"):
@@ -705,10 +571,11 @@ class PALMTracer:
 	def _gallery(self):
 		"""Lance la génération d'une galerie à partir des paramètres passés en paramètres."""
 		s = self.settings.gallery.settings
-		if self.localizations.empty:
+		loc = self.results.localizations
+		if loc.empty:
 			self._logger.add(f"\tNo localization data for gallery generation.")
 			return
-		gallery = Gallery.make_gallery(self._stack, self.localizations, s["ROI Size"], s["ROIs Per Line"])
+		gallery = Gallery.make_gallery(self._stack, loc, s["ROI Size"], s["ROIs Per Line"])
 		self._logger.add(f"\tSaving gallery ({s}).")
 		FileIO.save_tif(gallery, self._output_name(f"gallery_{s['ROI Size']}_{s['ROIs Per Line']}", "tif"))
 
@@ -789,7 +656,7 @@ class PALMTracer:
 		# Localizations
 		if src_id == 0:
 			title = f"Localizations {src}"
-			df = self.localizations
+			df = self.results.localizations
 			if df.empty:  return np.empty(0), title
 			if src == "Localizations Count":
 				s = df["Plane"].astype(np.int64)
@@ -804,7 +671,7 @@ class PALMTracer:
 		# Tracks
 		title = f"Tracks {src}"
 		if "Length" in src:  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-			df = self.tracks
+			df = self.results.tracks
 			if df.empty: return np.empty(0), title
 
 			tracks_planes = df.groupby("Track", sort=False)["Plane"]
@@ -834,7 +701,7 @@ class PALMTracer:
 
 			return np.asarray(lengths, dtype=np.int64), title
 
-		df = self.tracks_compute
+		df = self.results.tracks_compute
 		if src == "MSD":
 			df = df["MSD"]
 			if df.empty: return np.empty(0), title
@@ -884,8 +751,8 @@ class PALMTracer:
 
 		# --- Localisations ---
 		if s["Type"].value == 0:
-			df = self.localizations.copy()
-			if s["Remove Beads"].value: df = Drift.remove_beads(df, self.beads)
+			df = self.results.localizations.copy()
+			if s["Remove Beads"].value: df = Drift.remove_beads(df, self.results.beads)
 			df = self._correct_drift(df)
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
@@ -919,7 +786,7 @@ class PALMTracer:
 			return viz, plot_data
 
 		# --- Tracks ---
-		df = self._correct_drift(self.tracks.copy())
+		df = self._correct_drift(self.results.tracks.copy())
 		if df.empty: return viz, plot_data
 		df = self._renderer.add_colors_to_tracks(df, src)
 		df["X"] -= x0  # Ajustement à la ROI sur X
@@ -942,7 +809,7 @@ class PALMTracer:
 		"""
 		s = self.settings.hr
 		if not s["Drift Correction"].value: return data
-		beads = self.beads
+		beads = self.results.beads
 		if beads.empty: return data
 		# Application de la correction de drift
 		drift = Drift.get_drift(beads, is_3d=False)

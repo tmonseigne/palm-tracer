@@ -140,6 +140,7 @@ class PALMTracerWidget(QWidget):
 		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget, setting_ui["Graph"].widget, setting_ui["HR"].widget,
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
 		tabs.addTab(self._create_tab([setting_ui["Filters"].widget]), "Filtering")
+		tabs.addTab(self._create_tab([self.pt.results.get_ui(self.UI_NAME).widget]), "Info")
 
 		# Mise en page principale
 		self.layout().addSpacing(10)
@@ -350,6 +351,8 @@ class PALMTracerWidget(QWidget):
 			self._current_stack = self.EMPTY_STACK
 			self.last_file = ""
 			self._clean_layer()
+			self.pt.results.reset()  # .	   On nettoie les résultats.
+			self.pt.results.stack_name = ""  # On supprime le nom courant.
 			return
 
 		if self.last_file == selected_file: return
@@ -363,7 +366,8 @@ class PALMTracerWidget(QWidget):
 			self.pt.settings.filters.update_limits(depth)  # Update Max
 			self._layers[self.LAYERS_NAME[0]].data = self._current_stack
 			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
-			self.viewer.reset_view()  # Recentrer et ajuster la vue
+			self.viewer.reset_view()  # .  Recentrer et ajuster la vue
+			self.pt.load(selected_file)  # Ajout du chargement du dernier lancement pour ce fichier. Alternative à juste un reset des éléments.
 			try:
 				self.viewer.layers.selection.active = self._layers["Raw"]
 				self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)

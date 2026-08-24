@@ -78,7 +78,7 @@ class Settings:
 		return ui
 
 	##################################################
-	def clean_ui(self, name: str):
+	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime récursivement les interfaces Qt associées au nom donné.
 
