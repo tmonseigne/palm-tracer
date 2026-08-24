@@ -23,7 +23,8 @@ DATA_SRC: dict[str, list] = {
 ##################################################
 @dataclass
 class Graph(BaseSettingGroup):
-	"""Regroupe les paramètres de sélection des graphiques.
+	"""
+	Regroupe les paramètres de sélection des graphiques.
 
 	Paramètres regroupés :
 
@@ -36,6 +37,7 @@ class Graph(BaseSettingGroup):
 	"""
 
 	label: str = "Graph"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Type":     [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 			"Source":   [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
@@ -43,15 +45,17 @@ class Graph(BaseSettingGroup):
 			"Source B": [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
 			"MSD Step": [SpinInt, ["MSD Step", "Step selected for display.", 1, [1, 10000], 1]],
 			"Display":  [GraphDisplay, []]}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 	##################################################
 	@property
 	def display(self) -> GraphDisplay:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(GraphDisplay, self._settings["Display"])
 
 	##################################################
 	def initialize(self):
+		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
 		self._settings["Type"].connect(self.toggle_type)
 		self._settings["Dual"].connect(self.toggle_dual)

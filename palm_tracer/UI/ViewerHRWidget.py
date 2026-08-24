@@ -1,4 +1,5 @@
-"""Fournit le widget Napari de visualisation haute résolution des résultats.
+"""
+Fournit le widget Napari de visualisation haute résolution des résultats.
 
 .. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 """
@@ -38,7 +39,8 @@ TIPS = {
 
 
 class ViewerHRWidget(QWidget):
-	"""Affiche les résultats PALM en haute résolution dans Napari.
+	"""
+	Affiche les résultats PALM en haute résolution dans Napari.
 
 	Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation
 	sous forme d'image PNG.
@@ -50,7 +52,9 @@ class ViewerHRWidget(QWidget):
 	"""
 
 	UI_NAME: str = "HR"
+	"""Nom de l'interface de visualisation haute résolution."""
 	LAYERS_NAME: list[str] = ["Visualization", "Points", "Tracks", "ROI Filter"]
+	"""Noms des calques gérés par la visionneuse haute résolution."""
 
 	# ==================================================
 	# region Initialization
@@ -194,8 +198,10 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _check_beads(self):
-		"""Affiche ou masque les élements liés aux billes si des données sont présentes ou non.
-		 Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route."""
+		"""
+		Affiche ou masque les élements liés aux billes si des données sont présentes ou non.
+		Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route.
+		"""
 		s_list = ["Remove Beads", "Drift Correction", "Smooth Drift"]
 		if self._pt.beads.empty:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).hide()
@@ -238,7 +244,7 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _toggle_type(self, btn_id: int):
 		"""
-		Mets à jour la liste des sources et l'affichage des filtres.
+		Met à jour la liste des sources et l'affichage des filtres.
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
@@ -292,7 +298,7 @@ class ViewerHRWidget(QWidget):
 ##################################################
 def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer, QWidget]:
 	"""
-	Crée une nouvelle fenêtre Napari HR, sans menu,	et y ajoute le ViewerHRWidget docké à droite.
+	Crée une nouvelle fenêtre Napari HR, sans menu, et y ajoute le ViewerHRWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 	"""

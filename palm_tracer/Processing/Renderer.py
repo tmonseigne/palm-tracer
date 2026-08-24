@@ -16,19 +16,23 @@ MAX_UI_16 = np.iinfo(np.uint16).max
 ##################################################
 @dataclass
 class Renderer:
-	"""Produit les rendus haute résolution à partir des localisations.
+	"""
+	Produit les rendus haute résolution à partir des localisations.
 
 	La taille de sortie et le facteur d'agrandissement sont conservés par l'instance afin d'être réutilisés par les différents modes de rendu.
 	"""
 
 	_w: int = field(init=False, default=1)
+	"""Largeur de l'image produite, en pixels."""
 	_h: int = field(init=False, default=1)
+	"""Hauteur de l'image produite, en pixels."""
 	_r: int = field(init=False, default=1)
+	"""Facteur d'agrandissement appliqué au rendu."""
 
 	##################################################
 	def set_size(self, width: int, height: int, ratio: int):
 		"""
-		Mets à jour les tailles pour le rendu.
+		Met à jour les tailles pour le rendu.
 
 		:param width: Largeur de l'image.
 		:param height: Hauteur de l'image.
@@ -76,7 +80,7 @@ class Renderer:
 		Construit une image haute résolution (uint16) à partir de trajectoires localisées.
 		Chaque trajectoire est tracée par segments (P0→P1, P1→P2, …).
 
-		Colonnes attendues dans `tracks` :
+		Colonnes attendues dans ``tracks`` :
 			- "Track" : identifiant de la trajectoire (:class:`int`)
 			- "X", "Y" : coordonnées (:class:`float`, en pixels dans l'image de base)
 			- "Color" : intensité à tracer ``(0..65535)``. Toute valeur hors bornes est tronquée.
@@ -248,11 +252,10 @@ class Renderer:
 		:param loc: DataFrame à modifier.
 		:param col: Nom de la colonne à utiliser pour calculer la composante ``Color``.
 		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
-		:return: Dataframe avec la colonne Color ajouté.
+		:return: DataFrame avec la colonne Color ajouté.
 		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
 
-		.. note::
-			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
+		.. note:: La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
 		"""
 		if loc.empty: return loc
@@ -276,7 +279,7 @@ class Renderer:
 	@staticmethod
 	def add_colors_to_tracks(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
-		Construit un tableau NumPy contenant les numéros, plans et coordonnées des trajectoires
+		Construit un tableau NumPy contenant les numéros de trajectoire, les plans, les coordonnées des trajectoires
 		ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur.
 
 		Le tableau retourné est de forme ``(N, 5)`` et contient, dans l'ordre : ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
@@ -294,8 +297,7 @@ class Renderer:
 		:return: tableau NumPy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
 		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
 
-		.. note::
-			La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
+		.. note:: La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
 		"""
 		if trc.empty: return trc

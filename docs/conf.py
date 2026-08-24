@@ -113,6 +113,15 @@ def setup(app):
 	"""Ajoute des variables de contexte HTML (Jinja) en fonction de la langue réellement utilisée."""
 
 	def _inject_context(app_, pagename, templatename, context, doctree):
+		"""
+		Ajoute les informations de langue au contexte du gabarit.
+
+		:param app_: Application Sphinx.
+		:param pagename: Nom de la page générée.
+		:param templatename: Nom du gabarit.
+		:param context: Contexte transmis au gabarit.
+		:param doctree: Arbre documentaire de la page.
+		"""
 		cur = app_.config.language or default_language_code
 		context["default_language_code"] = default_language_code
 		context["current_language_code"] = cur

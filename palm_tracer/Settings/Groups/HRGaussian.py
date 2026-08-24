@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import CheckBox, Combo, SpinFloat, SpinInt
 ##################################################
 @dataclass
 class HRGaussian(BaseSettingGroup):
-	"""Regroupe les paramètres du rendu gaussien haute résolution.
+	"""
+	Regroupe les paramètres du rendu gaussien haute résolution.
 
 	Paramètres regroupés :
 
@@ -22,6 +23,7 @@ class HRGaussian(BaseSettingGroup):
 	"""
 
 	label: str = "Gaussian Mode"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"Intensity":       [SpinInt, ["Intensity", "Integrated intensity of the Gaussian curve if 'Fixed Intensity' is selected; otherwise, "
 															   "the ratio by which the value selected in the source will be divided.", 100, [1, 100000], 10]],
 					"Fixed Intensity": [CheckBox, ["Fixed Intensity", "Ensures that each point has the same intensity."]],
@@ -30,6 +32,7 @@ class HRGaussian(BaseSettingGroup):
 					"Size":            [SpinFloat, ["Size", "The standard deviation of the Gaussian distribution if \"Fixed Size\" is selected.",
 													1, [0, 50], 0.01, 3]],
 					}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 
 ##################################################

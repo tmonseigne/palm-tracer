@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import SpinFloat
 ##################################################
 @dataclass
 class Tracking(BaseSettingGroup):
-	"""Regroupe les paramètres de suivi des particules.
+	"""
+	Regroupe les paramètres de suivi des particules.
 
 	Paramètres regroupés :
 
@@ -20,7 +21,9 @@ class Tracking(BaseSettingGroup):
 	"""
 
 	label: str = "Tracking"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"Max Distance": [SpinFloat, ["Max Distance (px)", "Maximum distance between two planes for a point.", 1.0, [0.0, 20.0], 1.0, 2]]}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 
 ##################################################

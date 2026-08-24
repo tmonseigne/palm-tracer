@@ -44,7 +44,8 @@ class IntSelectionValidator(QValidator):
 ##################################################
 @dataclass
 class CheckIntSelection(BaseSettingType):
-	"""Représente une sélection activable de valeurs entières et d'intervalles.
+	"""
+	Représente une sélection activable de valeurs entières et d'intervalles.
 
 	Les éléments sont séparés par des points-virgules et les intervalles par un tiret.
 	Par exemple, ``1-10;15;20-25`` sélectionne les valeurs de 1 à 10, la valeur 15 et les valeurs de 20 à 25.
@@ -63,6 +64,7 @@ class CheckIntSelection(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		super().reset()
 		self.active = False
 
@@ -222,7 +224,7 @@ class CheckIntSelection(BaseSettingType):
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
-		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
 
 
@@ -241,6 +243,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

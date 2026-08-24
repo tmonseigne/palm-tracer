@@ -9,13 +9,13 @@ import pandas as pd
 ##################################################
 def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, rois_per_line: int) -> np.ndarray:
 	"""
-    Génère une galerie d'images extraites d'une pile d'images en fonction des localisations spécifiées.
+	Génère une galerie d'images extraites d'une pile d'images en fonction des localisations spécifiées.
 
-    :param stack: Un tableau 3D ``(n_planes, height, width)`` représentant la pile d'images.
-    :param localizations: DataFrame contenant au minimum les colonnes ``["Plane","Y","X"]`` avec les coordonnées des zones d'intérêts.
-    :param roi_size: Taille de chaque zone d'intérêt (carré de dimensions `roi_size x roi_size`).
-    :param rois_per_line: Nombre de zones par ligne dans la galerie.
-    :return: Un tableau NumPy 3D ``(n_planes, size, size)`` contenant la galerie.
+	:param stack: Un tableau 3D ``(n_planes, height, width)`` représentant la pile d'images.
+	:param localizations: DataFrame contenant au minimum les colonnes ``["Plane","Y","X"]`` avec les coordonnées des zones d'intérêts.
+	:param roi_size: Taille de chaque zone d'intérêt (carré de dimensions ``roi_size x roi_size``).
+	:param rois_per_line: Nombre de zones par ligne dans la galerie.
+	:return: Un tableau NumPy 3D ``(n_planes, size, size)`` contenant la galerie.
 	"""
 	size = roi_size * rois_per_line  # .						  Taille d'un plan de la galerie
 	rois_per_plane = rois_per_line ** 2  # .					  Nombre de ROIs maximum par plan

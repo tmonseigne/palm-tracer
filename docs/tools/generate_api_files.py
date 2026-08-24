@@ -1,4 +1,5 @@
-"""Génère les pages reStructuredText de l'API publique pour Sphinx.
+"""
+Génère les pages reStructuredText de l'API publique pour Sphinx.
 
 La génération repose sur l'analyse statique de l'arborescence Python et ne nécessite aucun import des modules documentés.
 """
@@ -23,7 +24,8 @@ MODULE_PATH = ROOT_PATH / "palm_tracer"
 ##################################################
 @dataclass(frozen=True)
 class ModulePublicApi:
-	"""Décrit les symboles publics d'un module Python.
+	"""
+	Décrit les symboles publics d'un module Python.
 
 	:param classes: Noms des classes publiques, dans leur ordre de déclaration.
 	:param functions: Noms des fonctions publiques, dans leur ordre de déclaration.
@@ -31,40 +33,50 @@ class ModulePublicApi:
 	"""
 
 	classes: tuple[str, ...]
+	"""Noms des classes publiques, dans leur ordre de déclaration."""
 	functions: tuple[str, ...]
+	"""Noms des fonctions publiques, dans leur ordre de déclaration."""
 	constants: tuple[str, ...]
+	"""Noms des constantes publiques, dans leur ordre de déclaration."""
 
 
 ##################################################
 @dataclass(frozen=True)
 class ClassMember:
-	"""Identifie un membre public d'une classe.
+	"""
+	Identifie un membre public d'une classe.
 
 	:param name: Nom du membre.
 	:param lineno: Numéro de sa ligne de déclaration.
 	"""
 
 	name: str
+	"""Nom du membre."""
 	lineno: int
+	"""Numéro de la ligne de déclaration du membre."""
 
 
 ##################################################
 @dataclass(frozen=True)
 class ClassPublicApi:
-	"""Décrit les membres publics d'une classe Python.
+	"""
+	Décrit les membres publics d'une classe Python.
 
 	:param attributes: Attributs publics, dans leur ordre de déclaration.
 	:param methods: Méthodes publiques, dans leur ordre de déclaration.
 	"""
 
 	attributes: tuple[ClassMember, ...]
+	"""Attributs publics, dans leur ordre de déclaration."""
 	methods: tuple[ClassMember, ...]
+	"""Méthodes publiques, dans leur ordre de déclaration."""
 
 
 ##################################################
 @dataclass(frozen=True)
 class PackageNode:
-	"""Décrit un package Python et ses descendants directs.
+	"""
+	Décrit un package Python et ses descendants directs.
 
 	:param dotted_name: Nom qualifié du package.
 	:param dir_path: Chemin du répertoire correspondant.
@@ -73,9 +85,13 @@ class PackageNode:
 	"""
 
 	dotted_name: str
+	"""Nom qualifié du package."""
 	dir_path: Path
+	"""Chemin du répertoire du package."""
 	subpackages: tuple["PackageNode", ...]
-	modules: tuple[str, ...]  # noms en dotted (incluant le package), sans __init__
+	"""Sous-packages directs."""
+	modules: tuple[str, ...]
+	"""Modules publics directs."""  # noms en dotted (incluant le package), sans __init__
 
 
 # ==================================================
@@ -147,6 +163,13 @@ def _parse_public_api_from_file(py_file: Path) -> ModulePublicApi:
 
 ##################################################
 def _parse_class_public_api(py_file: Path, class_name: str) -> ClassPublicApi:
+	"""
+	Analyse les membres publics d'une classe Python.
+
+	:param py_file: Fichier Python à analyser.
+	:param class_name: Nom de la classe à analyser.
+	:return: Attributs et méthodes publics de la classe.
+	"""
 	tree = ast.parse(py_file.read_text(encoding="utf-8"), filename=str(py_file))
 
 	for node in tree.body:
@@ -183,6 +206,12 @@ def _parse_class_public_api(py_file: Path, class_name: str) -> ClassPublicApi:
 
 ##################################################
 def _is_property(func: ast.FunctionDef) -> bool:
+	"""
+	Indique si une fonction AST représente une propriété ou son setter.
+
+	:param func: Nœud AST de la fonction.
+	:return: ``True`` si la fonction représente une propriété ou son setter.
+	"""
 	for dec in func.decorator_list:
 		if isinstance(dec, ast.Name) and dec.id == "property": return True
 		if isinstance(dec, ast.Attribute) and dec.attr == "setter": return True
@@ -191,7 +220,8 @@ def _is_property(func: ast.FunctionDef) -> bool:
 
 ##################################################
 def _parse_regions_markers(py_file: Path) -> list[tuple[int, int | None, str]]:
-	"""Retourne les régions sous la forme (start_line, end_line_or_none, name).
+	"""
+	Retourne les régions sous la forme (start_line, end_line_or_none, name).
 
 	- start_line / end_line sont 1-indexés.
 	- Si '# endregion' absent, end_line vaut None (sera clos plus tard).
@@ -251,6 +281,12 @@ def _find_region_name(lineno: int, regions: list[tuple[int, int, str]]) -> str:
 
 ##################################################
 def _unique_members_preserve_order(items: list[ClassMember]) -> tuple[ClassMember, ...]:
+	"""
+	Déduplique les membres en conservant leur ordre de déclaration.
+
+	:param items: Membres à dédupliquer.
+	:return: Membres dédupliqués dans leur ordre de déclaration.
+	"""
 	seen: set[str] = set()
 	out: list[ClassMember] = []
 	for m in sorted(items, key=lambda x: x.lineno):  # bysource
@@ -318,7 +354,8 @@ def _rst_package_page(node: PackageNode) -> str:
 
 ##################################################
 def _rst_module_page(dotted_module: str, py_file: Path) -> str:
-	"""Génère une page module avec une stratégie :
+	"""
+	Génère une page module avec une stratégie :
 	- 1 classe publique, 0 fonction publique ⇒ autosummary vers la classe (template class.rst)
 	- sinon ⇒ automodule (ou autosummary mixte si tu préfères)
 	"""
@@ -341,6 +378,14 @@ def _rst_module_page(dotted_module: str, py_file: Path) -> str:
 
 ##################################################
 def _rst_class_page(dotted_module: str, class_name: str, py_file: Path) -> str:
+	"""
+	Génère la page reStructuredText d'une classe.
+
+	:param dotted_module: Nom qualifié du module.
+	:param class_name: Nom de la classe à analyser.
+	:param py_file: Fichier Python à analyser.
+	:return: Contenu reStructuredText de la page.
+	"""
 	out = _rst_title(class_name, "=")
 	fqcn = f"{dotted_module}.{class_name}"
 	class_api = _parse_class_public_api(py_file, class_name)

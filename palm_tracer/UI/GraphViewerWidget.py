@@ -1,4 +1,5 @@
-"""Fournit le widget de visualisation interactive des données PALM avec Plotly.
+"""
+Fournit le widget de visualisation interactive des données PALM avec Plotly.
 
 .. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 """
@@ -9,7 +10,7 @@ from pathlib import Path
 from typing import cast
 
 from qtpy.QtCore import Qt, QTimer
-from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget, QAbstractSpinBox
+from qtpy.QtWidgets import QAbstractSpinBox, QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
@@ -35,7 +36,8 @@ TIPS = {
 
 ##################################################
 class GraphViewerWidget(BasePlotlyWidget):
-	"""Affiche interactivement les graphiques associés aux données PALM.
+	"""
+	Affiche interactivement les graphiques associés aux données PALM.
 
 	Le widget sélectionne une famille de données et une ou deux sources, délègue la construction des figures à :class:`~palm_tracer.Processing.Grapher.Grapher`
 	et permet leur export en HTML, PNG ou PDF.
@@ -46,6 +48,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	"""
 
 	UI_NAME: str = "Graph Viewer"
+	"""Nom de l'interface de visualisation des graphiques."""
 
 	# ==================================================
 	# region Initialization
@@ -55,7 +58,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""
 		Initialise le widget (UI, connexions, état initial) et lie PALMTracer.
 
-		:param palmtracer: Instance principale :class:`PALMTracer <palm_tracer.PALMTracer>` sans copie (référence partagée).
+		:param palmtracer: Instance principale :class:`~palm_tracer.PALMTracer` sans copie (référence partagée).
 		"""
 		super().__init__()
 		self.setWindowTitle(self.UI_NAME)
@@ -225,7 +228,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _toggle_type(self, btn_id: int):
 		"""
-		Mets à jour la liste des sources et l'affichage des filtres.
+		Met à jour la liste des sources et l'affichage des filtres.
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""

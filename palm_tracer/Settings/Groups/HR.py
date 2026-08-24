@@ -21,7 +21,8 @@ DATA_SRC: dict[str, list] = {
 ##################################################
 @dataclass
 class HR(BaseSettingGroup):
-	"""Regroupe les paramètres des reconstructions haute résolution.
+	"""
+	Regroupe les paramètres des reconstructions haute résolution.
 
 	Paramètres regroupés :
 
@@ -38,6 +39,7 @@ class HR(BaseSettingGroup):
 	"""
 
 	label: str = "High Resolution"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation"]]],
 					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 					"Source":           [Combo, ["Source", "Data selected for Reconstruction.", 0, DATA_SRC["Localization"]]],
@@ -54,21 +56,23 @@ class HR(BaseSettingGroup):
 					"Gaussian":         [HRGaussian, []],
 					"3D":               [HR3D, []]
 					}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 	##################################################
 	@property
 	def gaussian(self) -> HRGaussian:
-		"""Groupe de paramètres liés à la représentation gaussienne (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."""
+		"""Groupe de paramètres liés à la représentation gaussienne (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`)."""
 		return cast(HRGaussian, self._settings["Gaussian"])
 
 	##################################################
 	@property
 	def hr_3d(self) -> HR3D:
-		"""Groupe de paramètres liés à la reconstruction 3D (:class:`HR3D <palm_tracer.Settings.Groups.HR3D.HR3D>`)."""
+		"""Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."""
 		return cast(HR3D, self._settings["3D"])
 
 	##################################################
 	def initialize(self):
+		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
 		self._settings["Dimension"].connect(self.toggle_dimension)
 		self._settings["Type"].connect(self.toggle_type)

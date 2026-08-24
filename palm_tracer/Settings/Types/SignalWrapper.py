@@ -9,7 +9,8 @@ from qtpy.QtCore import QObject, Signal
 
 ##################################################
 class SignalWrapper(QObject):
-	"""Encapsule un signal Qt et regroupe les émissions produites pendant son blocage.
+	"""
+	Encapsule un signal Qt et regroupe les émissions produites pendant son blocage.
 
 	Les connexions et déconnexions sont déléguées au signal interne. Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement
 	la dernière valeur ; celle-ci est émise une seule fois à la sortie du blocage externe.
@@ -40,7 +41,7 @@ class SignalWrapper(QObject):
 
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
 		"""
-		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
+		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés.
@@ -79,29 +80,49 @@ class SignalWrapper(QObject):
 	##################################################
 	# --- Gestion du blocage des signaux ---
 	class BlockCtx:
-		"""Gère le blocage temporaire d'un :class:`SignalWrapper` dans une instruction ``with``.
+		"""
+		Gère le blocage temporaire d'un :class:`SignalWrapper` dans une instruction ``with``.
 
 		:param owner: Signal encapsulé dont les émissions sont bloquées.
 		:param emit_last: Émet la dernière valeur mémorisée à la sortie du contexte externe.
 		"""
 
 		def __init__(self, owner: "SignalWrapper", emit_last: bool = True):
+			"""
+			Initialise l'instance.
+
+			:param owner: Signal encapsulé dont les émissions sont bloquées.
+			:param emit_last: Si ``True``, émet la dernière valeur mémorisée à la sortie du contexte.
+			"""
 			self._o = owner
 			self._emit_last = emit_last
 
 		def __enter__(self):
+			"""
+			Active le contexte de blocage et retourne son gestionnaire.
+
+			:return: Gestionnaire de contexte actif.
+			"""
 			self._o._block_begin(self._emit_last)
 			return self
 
 		def __exit__(self, exc_type, exc, tb):
+			"""
+			Termine le contexte de blocage sans masquer les exceptions.
+
+			:param exc_type: Type de l'exception levée.
+			:param exc: Exception levée.
+			:param tb: Trace de l'exception.
+			:return: Toujours ``False`` afin de propager les exceptions.
+			"""
 			self._o._block_end()
 			return False
 
 	def blocked(self, emit_last: bool = True) -> "BlockCtx":
-		"""Retourne un contexte de blocage des signaux.
+		"""
+		Retourne un contexte de blocage des signaux.
 
-        :param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage.
-                          Si ``False``, ignore toutes les émissions reçues pendant le blocage.
+		:param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage.
 		"""
 		return SignalWrapper.BlockCtx(self, emit_last)
 

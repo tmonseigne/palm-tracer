@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import BrowseFile, Combo
 ##################################################
 @dataclass
 class SplineFit(BaseSettingGroup):
-	"""Regroupe les paramètres de l'ajustement par spline.
+	"""
+	Regroupe les paramètres de l'ajustement par spline.
 
 	Paramètres regroupés :
 
@@ -21,12 +22,15 @@ class SplineFit(BaseSettingGroup):
 	"""
 
 	label: str = "Spline Fit"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Sensor":       [Combo, ["Sensor", "", 0, ["EMCCD", "sCMOS"]]],
 			"Variance Map": [BrowseFile, ["sCMOS Variance Map", "", ""]],
 			"File":         [BrowseFile, ["Calibration File", "", ""]],
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 2
+	"""Mode d'affichage du groupe dans l'interface."""
 
 
 ##################################################

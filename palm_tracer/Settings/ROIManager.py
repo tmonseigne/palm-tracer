@@ -18,7 +18,8 @@ from palm_tracer.Tools.Ui import print_warning
 ##################################################
 @dataclass
 class ROIManager:
-	"""Gère les zones d'intérêt utilisées pour filtrer les résultats.
+	"""
+	Gère les zones d'intérêt utilisées pour filtrer les résultats.
 
 	Le gestionnaire synchronise les calques Napari principal et haute résolution, conserve la zone sélectionnée et applique les transformations d'échelle
 	nécessaires entre les deux vues.
@@ -28,20 +29,31 @@ class ROIManager:
 	"""
 
 	roi_selection: CheckInt
+	"""Paramètre qui sélectionne la zone d'intérêt active."""
 	hr_ratio: SpinInt
+	"""Facteur d'agrandissement de la reconstruction haute résolution."""
 
 	width: int = field(init=False, default=1)
+	"""Largeur de l'image de référence, en pixels."""
 	height: int = field(init=False, default=1)
+	"""Hauteur de l'image de référence, en pixels."""
 
 	_rois: list[ROI] = field(init=False, default_factory=list)
+	"""Zones d'intérêt actuellement définies."""
 	hr_box: tuple[int, int, int, int] = field(init=False, default=(0, 1, 0, 1))
+	"""Limites de la zone haute résolution sous la forme ``(x_min, x_max, y_min, y_max)``."""
 
 	_layer_main: Optional[Shapes] = field(init=False, default=None)
+	"""Calque principal des zones d'intérêt."""
 	_layer_hr: Optional[Shapes] = field(init=False, default=None)
+	"""Calque des zones d'intérêt dans la visionneuse haute résolution."""
 
 	_default_color: str = field(init=False, default="white")
+	"""Couleur des zones d'intérêt non sélectionnées."""
 	_selected_color: str = field(init=False, default="yellow")
+	"""Couleur de la zone d'intérêt sélectionnée."""
 	_is_synchronizing: bool = field(init=False, default=False)
+	"""Indique qu'une synchronisation de calques est en cours."""
 
 	##################################################
 	def __post_init__(self) -> None:
@@ -105,7 +117,7 @@ class ROIManager:
 	@rois.setter
 	def rois(self, rois: list[ROI]):
 		"""
-		Mets à jour la liste des zones d'intérêts.
+		Met à jour la liste des zones d'intérêts.
 
 		:param rois: Liste à appliquer.
 		"""
@@ -117,7 +129,7 @@ class ROIManager:
 	##################################################
 	def set_size(self, width, height):
 		"""
-		Mets à jour la hauteur et largeur maximale de la ROI.
+		Met à jour la hauteur et largeur maximale de la ROI.
 
 		:param width: Largeur en pixel.
 		:param height: Hauteur en pixel.
@@ -148,7 +160,7 @@ class ROIManager:
 	# ==================================================
 	##################################################
 	def update_from_main(self):
-		"""Mets à jour la liste des ROI à partir du calque principal (callback appelé à chaque modification dans le calque principal)."""
+		"""Met à jour la liste des ROI à partir du calque principal (callback appelé à chaque modification dans le calque principal)."""
 		if self._layer_main is None or self._is_synchronizing: return
 		self._is_synchronizing = True
 
@@ -160,7 +172,7 @@ class ROIManager:
 
 	##################################################
 	def update_from_hr(self):
-		"""Mets à jour la liste des ROI à partir du calque haute résolution (callback appelé à chaque modification dans le calque haute résolution)."""
+		"""Met à jour la liste des ROI à partir du calque haute résolution (callback appelé à chaque modification dans le calque haute résolution)."""
 		if self._layer_hr is None or self._is_synchronizing: return
 		self._is_synchronizing = True
 
@@ -181,7 +193,7 @@ class ROIManager:
 
 	##################################################
 	def update_main(self):
-		"""Mets à jour le calque principal."""
+		"""Met à jour le calque principal."""
 		if self._layer_main is None or len(self.rois) == 0: return
 		self._layer_main.data = [np.array(roi.data, copy=True) for roi in self._rois]
 		self._layer_main.shape_type = [roi.type for roi in self._rois]
@@ -189,7 +201,7 @@ class ROIManager:
 	##################################################
 	def update_hr(self):
 		"""
-		Mets à jour le calque Haute Résolution.
+		Met à jour le calque Haute Résolution.
 
 		Les zones d'intérêts doivent être adaptées au ratio d'agrandissement et aux dimensions maximales de l'image.
 		"""
@@ -311,7 +323,7 @@ class ROIManager:
 
 	##################################################
 	def update_hr_box(self):
-		"""Mets à jour la bounding box actuelle de la génération Haute résolution."""
+		"""Met à jour la bounding box actuelle de la génération Haute résolution."""
 		self.hr_box = self.get_roi_limits()
 
 	##################################################
@@ -322,7 +334,7 @@ class ROIManager:
 		Un premier filtrage rapide est effectué à partir de la bounding box.
 		Si ``strict`` vaut ``True``, les points sont ensuite filtrés selon la géométrie exacte de la ROI.
 
-		:param dataframe: DataFrame contenant les colonnes ``X`` et ``Y``.
+		:param DataFrame: DataFrame contenant les colonnes ``X`` et ``Y``.
 		:param strict: Filtre selon la forme exacte et non uniquement selon la bounding box.
 		:return: Copie filtrée du DataFrame.
 		"""

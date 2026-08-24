@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 ##################################################
 @dataclass
 class FiltersL(BaseSettingGroup):
-	"""Regroupe les filtres applicables aux localisations.
+	"""
+	Regroupe les filtres applicables aux localisations.
 
 	Paramètres regroupés :
 
@@ -29,6 +30,7 @@ class FiltersL(BaseSettingGroup):
 	"""
 
 	label: str = "Localization"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Z":           [CheckRangeInt, ["Z", "", [-2000, 2000], [-2000, 2000]]],
 			"Intensity":   [CheckRangeInt, ["Intensity", "", [0, 10000000], [0, 10000000]]],
@@ -39,11 +41,13 @@ class FiltersL(BaseSettingGroup):
 			"MSE XY":      [CheckRangeFloat, ["MSE XY", "", [0, 1], [0, 1]]],
 			"MSE Z":       [CheckRangeFloat, ["MSE Z", "", [0, 1], [0, 1]]]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 	##################################################
 	def deactivate_filters(self):
-		""" Désactive tous les filtres."""
+		"""Désactive tous les filtres."""
 		for key in self.setting_list: self._settings[key].active = False
 
 

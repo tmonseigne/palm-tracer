@@ -14,17 +14,26 @@ from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, Check
 
 ##################################################
 class Filtering:
-	"""Applique les paramètres de filtrage aux localisations et aux trajectoires.
+	"""
+	Applique les paramètres de filtrage aux localisations et aux trajectoires.
 
 	:param filters: Groupe des paramètres de filtrage.
 	:param rois: Gestionnaire des zones d'intérêt utilisées pour le filtrage spatial.
 	"""
 
 	filters: Filters
+	"""Paramètres de filtrage appliqués aux données."""
 	rois: ROIManager
+	"""Gestionnaire des zones d'intérêt du filtrage spatial."""
 
 	##################################################
 	def __init__(self, filters: Filters, rois: ROIManager) -> None:
+		"""
+		Initialise l'instance.
+
+		:param filters: Groupe des Paramètres de filtrage.
+		:param rois: Gestionnaire des zones d'intérêt utilisées pour le filtrage spatial.
+		"""
 		self.filters = filters
 		self.rois = rois
 

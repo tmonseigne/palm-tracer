@@ -16,7 +16,8 @@ from palm_tracer.Tools import FileIO, Ui
 ##################################################
 @dataclass
 class Batch(BaseSettingGroup):
-	"""Regroupe les paramètres du traitement par lots.
+	"""
+	Regroupe les paramètres du traitement par lots.
 
 	Paramètres regroupés :
 
@@ -26,11 +27,14 @@ class Batch(BaseSettingGroup):
 	"""
 
 	label: str = "Batch"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Files": [FileList, ["Files", ""]],
 			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]],
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 	##################################################
 	def get_paths(self, suffix: str = "_PALM_Tracer") -> list[str]:
@@ -39,7 +43,7 @@ class Batch(BaseSettingGroup):
 
 		:param suffix: Suffixe à ajouter au nom du dossier créé.
 		:return: Chemin complet du dossier généré.
-        """
+		"""
 		file_list = cast(FileList, self._settings["Files"])
 		mode = self._settings["Mode"].value
 

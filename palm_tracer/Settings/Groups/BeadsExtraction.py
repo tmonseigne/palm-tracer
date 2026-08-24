@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import CheckBox, SpinFloat
 ##################################################
 @dataclass
 class BeadsExtraction(BaseSettingGroup):
-	"""Regroupe les paramètres d'extraction des billes nécessaires à la correction de dérive.
+	"""
+	Regroupe les paramètres d'extraction des billes nécessaires à la correction de dérive.
 
 	Paramètres regroupés :
 
@@ -21,8 +22,10 @@ class BeadsExtraction(BaseSettingGroup):
 	"""
 
 	label: str = "Beads Extraction"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"Max Distance": [SpinFloat, ["Max Distance (pixel)", "Maximum distance between two planes for a bead.", 1.0, [0.0, 20.0], 0.1, 2]],
 					"3D":           [CheckBox, ["3D", "Use the Z-axis during computes.", False]]}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 
 ##################################################

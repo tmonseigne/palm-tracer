@@ -16,7 +16,8 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class CheckInt(BaseSettingType):
-	"""Représente un entier dont l'application peut être activée ou désactivée.
+	"""
+	Représente un entier dont l'application peut être activée ou désactivée.
 
 	:param label: Libellé affiché dans l'interface.
 	:param tooltip: Description affichée dans l'infobulle.
@@ -38,6 +39,7 @@ class CheckInt(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		super().reset()
 		self.active = False
 
@@ -145,7 +147,7 @@ class CheckInt(BaseSettingType):
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
-		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
 
 
@@ -164,6 +166,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

@@ -13,7 +13,8 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class BaseUIGroup:
-	"""Représente une vue Qt associée à un groupe de paramètres.
+	"""
+	Représente une vue Qt associée à un groupe de paramètres.
 
 	Chaque instance possède ses propres widgets, mais reste synchronisée avec le même modèle afin qu'un groupe puisse être affiché simultanément dans
 	plusieurs interfaces.

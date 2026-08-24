@@ -25,7 +25,8 @@ MESH_SIZE = 128
 ##################################################
 @dataclass
 class Grapher:
-	"""Construit les figures Plotly utilisées pour explorer les résultats PALM.
+	"""
+	Construit les figures Plotly utilisées pour explorer les résultats PALM.
 
 	Les méthodes statiques produisent les histogrammes, distributions, nuages de points et autres représentations sans conserver d'état entre les appels.
 	"""
@@ -313,7 +314,7 @@ class Grapher:
 		:param title: Titre du graphe.
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm). Utilisé pour l’évaluation du modèle.
 		:param z_max: Valeur maximale (en valeur absolue) de l’intervalle Z : :math:`Z \\in [-z_{max}, z_{max}]`.
-		:param mode:  Mode de visualisation : ``"curve"`` : σX vs σY (paramétré par Z), ``"cross"`` : σX(Z) et σY(Z), ``"slope"`` : σX(Z) - σY(Z).
+		:param mode: Mode de visualisation : ``"curve"`` : σX vs σY (paramétré par Z), ``"cross"`` : σX(Z) et σY(Z), ``"slope"`` : σX(Z) - σY(Z).
 		:param n_points: Nombre de points utilisés pour échantillonner la courbe. Plus la valeur est élevée, plus la courbe est lisse (coût négligeable).
 		:return: Objet Plotly :class:`go.Figure <plotly.graph_objects.Figure>` prêt à être affiché.
 		:raises ValueError: Si les dimensions du modèle ne correspondent pas à celles attendues (2x5).
@@ -448,4 +449,11 @@ class Grapher:
 	##################################################
 	@staticmethod
 	def _axis_dict(title: str, limits: Optional[list] = None) -> dict:
+		"""
+		Construit la configuration commune d'un axe Plotly.
+
+		:param title: Titre de l'axe.
+		:param limits: Bornes de l'axe.
+		:return: Configuration de l'axe Plotly.
+		"""
 		return dict(title=title, range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH)

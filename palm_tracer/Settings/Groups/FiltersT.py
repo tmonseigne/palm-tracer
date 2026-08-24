@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, Check
 ##################################################
 @dataclass
 class FiltersT(BaseSettingGroup):
-	"""Regroupe les filtres applicables aux trajectoires et à leurs métriques.
+	"""
+	Regroupe les filtres applicables aux trajectoires et à leurs métriques.
 
 	Paramètres regroupés :
 
@@ -30,6 +31,7 @@ class FiltersT(BaseSettingGroup):
 	"""
 
 	label: str = "Tracks"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Track":       [CheckIntSelection, ["Track ID", "Selected Track IDs. Use - to specify a range and ; "
 															"to separate multiple values or ranges. Example: 1-10;15;20-25."]],
@@ -40,11 +42,13 @@ class FiltersT(BaseSettingGroup):
 			"Speed":       [CheckRangeFloat, ["Speed (µm/s)", "", [0, 1], [0, 100]]],
 			"Confinement": [CheckRangeFloat, ["Confinement (µm)", "", [-10, 10], [-100, 100]]]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 	##################################################
 	def deactivate_filters(self):
-		""" Désactive tous les filtres."""
+		"""Désactive tous les filtres."""
 		for key in self.setting_list: self._settings[key].active = False
 
 

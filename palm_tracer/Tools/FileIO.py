@@ -71,7 +71,7 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 ##################################################
 def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha"] = "alpha") -> str:
 	"""
-	Récupère le dernier fichier (le plus récent) qui contient le paramètre `name` dans son nom dans le chemin `path`.
+	Récupère le dernier fichier (le plus récent) qui contient le paramètre ``name`` dans son nom dans le chemin ``path``.
 
 	:param path: Chemin du dossier où chercher les fichiers.
 	:param name: Chaîne à rechercher dans les noms de fichiers.
@@ -165,6 +165,12 @@ def _compact_value_arrays(text: str) -> str:
 	pattern = re.compile(r'\{\s*"value"\s*:\s*\[\s*([^\]]*?)\s*\]\s*\}', flags=re.MULTILINE | re.DOTALL)
 
 	def replacer(match: re.Match[str]) -> str:
+		"""
+		Compacte la valeur reconnue par l'expression régulière.
+
+		:param match: Correspondance produite par l'expression régulière.
+		:return: Fragment JSON compacté.
+		"""
 		content = match.group(1)
 		items = [item.strip() for item in content.split(",") if item.strip()]
 		return f'{{ "value": [{", ".join(items)}] }}'
@@ -174,10 +180,16 @@ def _compact_value_arrays(text: str) -> str:
 
 ##################################################
 def _compact_value_scalars(text: str) -> str:
-	""" Compacte les dictionnaires du type {"value": x} sur une seule ligne, pour les valeurs scalaires JSON : nombre, booléen, null, chaîne. """
+	"""Compacte les dictionnaires du type {"value": x} sur une seule ligne, pour les valeurs scalaires JSON : nombre, booléen, null, chaîne."""
 	pattern = re.compile(r'\{\s*"value"\s*:\s*(true|false|null|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:\\.|[^"\\])*")\s*\}', flags=re.MULTILINE)
 
 	def replacer(match: re.Match[str]) -> str:
+		"""
+		Compacte la valeur reconnue par l'expression régulière.
+
+		:param match: Correspondance produite par l'expression régulière.
+		:return: Fragment JSON compacté.
+		"""
 		value = match.group(1)
 		return f'{{ "value": {value} }}'
 
@@ -247,9 +259,7 @@ def open_tif(filename: str | Path) -> np.ndarray:
 	:param filename: Chemin du fichier TIF à ouvrir.
 	:return: Tableau 3D contenant les données TIF.
 
-	.. note::
-		Attention les données doivent rester telle quelle pour le transfert à la DLL.
-		Aucun cast en float ne doit être fait.
+	.. note:: Attention les données doivent rester telle quelle pour le transfert à la DLL. Aucun cast en float ne doit être fait.
 	"""
 	path = Path(filename)
 	if not path.is_file():

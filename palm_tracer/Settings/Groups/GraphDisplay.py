@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import CheckBox, SpinInt
 ##################################################
 @dataclass
 class GraphDisplay(BaseSettingGroup):
-	"""Regroupe les options de rendu statistique des graphiques.
+	"""
+	Regroupe les options de rendu statistique des graphiques.
 
 	Paramètres regroupés :
 
@@ -27,6 +28,7 @@ class GraphDisplay(BaseSettingGroup):
 	"""
 
 	label: str = "Display"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Limits":    [CheckBox, ["Apply Limits", "Limits data to ±3σ around the mean (3-sigma rule).", True]],
 			"Sigma":     [CheckBox, ["Show σ", "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean."]],
@@ -39,7 +41,9 @@ class GraphDisplay(BaseSettingGroup):
 			"Count":     [CheckBox, ["Count", "The data on Y is expressed in terms of count (instead of density."]],
 			"Bins":      [SpinInt, ["Bins", "The number of bins along the histogram (0 for auto).", 0, [0, 1000]]]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 
 ##################################################

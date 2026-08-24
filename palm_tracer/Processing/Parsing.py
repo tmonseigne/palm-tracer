@@ -92,9 +92,9 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 
 	:param data: Le DataFrame à réorganiser.
 	:param columns: Liste des noms de colonnes à placer en premier.
-	:param remaining: Si `True`, ajoute les colonnes non spécifiées après celles définies dans `columns`.
+	:param remaining: Si ``True``, ajoute les colonnes non spécifiées après celles définies dans ``columns``.
 	:return: Un nouveau DataFrame avec les colonnes réorganisées.
-	:raises ValueError: Si une colonne spécifiée dans `columns` n'existe pas dans `data`.
+	:raises ValueError: Si une colonne spécifiée dans ``columns`` n'existe pas dans ``data``.
 	"""
 	# Vérifier que toutes les colonnes spécifiées existent dans le DataFrame
 	missing_columns = [col for col in columns if col not in data.columns]
@@ -112,11 +112,11 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 ##################################################
 def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
-	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égales à 0).
+	Applique un log en base 10 sur certaines colonnes du DataFrame (remplace par Nan les valeurs inférieures ou égales à 0).
 
-	:param data: Dataframe à modifier.
+	:param data: DataFrame à modifier.
 	:param columns: Colonnes à modifier.
-	:return: Dataframe avec les colonnes ayant été modifiées.
+	:return: DataFrame avec les colonnes ayant été modifiées.
 	"""
 	with np.errstate(divide='ignore', invalid='ignore'):
 		logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
@@ -218,7 +218,8 @@ def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 # ==================================================
 ##################################################
 def get_meta(data: list | np.ndarray) -> pd.DataFrame:
-	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
+	"""
+	Créer le DataFrame pour les informations meta (dimensions du fichier et calibration).
 
 	:param data: Liste des informations en entrée.
 	:return: :class:`DataFrame <pandas.DataFrame>` contenant les métadonnées.
@@ -296,7 +297,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 
 	Pour les localisations et les trajectoires, on a un tableau 1D de grande taille en entrée :
 		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``). La taille du tableau est vérifiée et tronquée si nécessaire.
-		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
+		- On le transforme en DataFrame avec les colonnes définies par ``SEGMENTS``.
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	Pour les calculs sur trajectoire, on a un tableau 1D représentant un tableau 2D irrégulier

@@ -13,7 +13,8 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 ##################################################
 @dataclass
 class Button(BaseSettingType):
-	"""Représente une action déclenchée par un bouton Qt.
+	"""
+	Représente une action déclenchée par un bouton Qt.
 
 	:param label: Libellé affiché sur le bouton.
 	:param tooltip: Description affichée dans l'infobulle.
@@ -21,6 +22,7 @@ class Button(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		pass
 
 	##################################################

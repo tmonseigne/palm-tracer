@@ -19,7 +19,8 @@ from palm_tracer.Tools.FileIO import open_calibration_mat
 ##################################################
 @dataclass
 class Localization(BaseSettingGroup):
-	"""Regroupe les paramètres de détection et d'ajustement des localisations.
+	"""
+	Regroupe les paramètres de détection et d'ajustement des localisations.
 
 	Paramètres regroupés :
 
@@ -35,6 +36,7 @@ class Localization(BaseSettingGroup):
 	"""
 
 	label: str = "Localization"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Preview":        [CheckBox, ["Preview", "", False]],
 			"Threshold":      [SpinFloat, ["Threshold", "", 90.0, [1.0, 10000.0], 5.0, 2]],
@@ -46,21 +48,23 @@ class Localization(BaseSettingGroup):
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 	##################################################
 	@property
 	def gaussian(self) -> GaussianFit:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(GaussianFit, self._settings["Gaussian Fit"])
 
 	##################################################
 	@property
 	def spline(self) -> SplineFit:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(SplineFit, self._settings["Spline Fit"])
 
 	##################################################
 	def initialize(self):
+		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
 		self._settings["Fit"].connect(self.toggle_fit_mode)
 

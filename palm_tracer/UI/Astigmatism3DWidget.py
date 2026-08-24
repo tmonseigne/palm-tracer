@@ -22,7 +22,8 @@ _windows = []  # pour garder une référence globale, éviter le Garbage Collect
 
 
 class Astigmatism3DWidget(BasePlotlyWidget):
-	"""Permet de calibrer un modèle d'astigmatisme 3D puis d'estimer des positions axiales.
+	"""
+	Permet de calibrer un modèle d'astigmatisme 3D puis d'estimer des positions axiales.
 
 	Le premier onglet construit le modèle à partir des écarts-types selon X et Y. Le second charge un modèle et ajoute l'estimation de Z aux localisations.
 
@@ -32,7 +33,9 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	"""
 
 	GRAPH_TITLE: str = "Astigmatism model"
+	"""Titre du graphique d'astigmatisme."""
 	GRAPH_TYPE: list["str"] = ["Curve", "Cross", "Slope"]
+	"""Modes d'affichage disponibles pour le graphique d'astigmatisme."""
 
 	# ==================================================
 	# region Initialization

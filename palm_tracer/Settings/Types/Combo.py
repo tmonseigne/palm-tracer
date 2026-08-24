@@ -15,7 +15,8 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 ##################################################
 @dataclass
 class Combo(BaseSettingType):
-	"""Représente un choix effectué dans une liste déroulante.
+	"""
+	Représente un choix effectué dans une liste déroulante.
 
 	:param label: Libellé affiché dans l'interface.
 	:param tooltip: Description affichée dans l'infobulle.
@@ -85,7 +86,7 @@ class Combo(BaseSettingType):
 	##################################################
 	@items.setter
 	def items(self, items: Optional[list[str]] = None):
-		"""Mets à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
+		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
 		if items is not None: self._items = items
 		for ui in self._uis.values():
 			b = cast(QComboBox, ui.boxes[0])
@@ -126,6 +127,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import Combo, SpinFloat, SpinInt
 ##################################################
 @dataclass
 class BlinkingReconnection(BaseSettingGroup):
-	"""Regroupe les paramètres de reconnexion des trajectoires interrompues par le scintillement.
+	"""
+	Regroupe les paramètres de reconnexion des trajectoires interrompues par le scintillement.
 
 	Paramètres regroupés :
 
@@ -23,9 +24,11 @@ class BlinkingReconnection(BaseSettingGroup):
 	"""
 
 	label: str = "Blinking Reconnection"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"Mode":         [Combo, ["Mode", "Expected type of movement of points.", 0, ["Immobile", "Diffuse", "Linear"]]],
 					"Max Duration": [SpinInt, ["Max Duration (plane)", "Maximum blinking duration in number of planes", 1, [1, 1000], 1]],
 					"Max Distance": [SpinFloat, ["Max Distance (px)", "Maximum distance between two planes for a point.", 1.0, [0.0, 20.0], 1.0, 2]]}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 
 ##################################################

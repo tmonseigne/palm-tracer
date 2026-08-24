@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import SpinInt
 ##################################################
 @dataclass
 class Gallery(BaseSettingGroup):
-	"""Regroupe les paramètres de construction des galeries d'images.
+	"""
+	Regroupe les paramètres de construction des galeries d'images.
 
 	Paramètres regroupés :
 
@@ -20,10 +21,12 @@ class Gallery(BaseSettingGroup):
 	"""
 
 	label: str = "Gallery"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"ROI Size":      [SpinInt, ["ROI Size", "Size of the area around the points.", 9, [3, 31], 2]],
 			"ROIs Per Line": [SpinInt, ["ROIs Per Line", "Number of points per line and column.", 30, [1, 500], 1]],
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 
 ##################################################

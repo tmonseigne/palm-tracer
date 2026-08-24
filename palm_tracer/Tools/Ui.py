@@ -42,7 +42,7 @@ def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int =
 	"""
 	Ajoute une ligne de paramètre dans un :class:`QFormLayout`.
 
-	Le champ (colonne de droite) est encapsulé dans un :class:`QHBoxLayout`	contenant le widget puis un ``stretch``.
+	Le champ (colonne de droite) est encapsulé dans un :class:`QHBoxLayout` contenant le widget puis un ``stretch``.
 	Cela évite que le widget s'étire horizontalement jusqu'au bord droit de l'onglet : il conserve sa taille naturelle (*sizeHint*) et l'espace restant est
 	laissé vide à droite.
 
@@ -280,7 +280,7 @@ def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 ##################################################
 def update_path_label(lbl: QLabel, path: str | Path):
 	"""
-	Mets à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
+	Met à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
 
 	Le texte visible correspond uniquement au ``name`` du fichier/dossier, le chemin complet est placé dans le tooltip.
 
@@ -452,7 +452,7 @@ def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 ##################################################
 def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | None = None, maximum: float | int | None = None, ):
 	"""
-	Mets à jour dynamiquement les bornes d'une spinbox.
+	Met à jour dynamiquement les bornes d'une spinbox.
 
 	Les bornes non spécifiées conservent leur valeur actuelle.
 

@@ -13,7 +13,8 @@ _windows = []  # pour garder une référence globale, éviter le Garbage Collect
 
 
 class FileMigratorWidget(QWidget):
-	"""Fournit l'interface de migration des anciens dossiers de résultats Metamorph.
+	"""
+	Fournit l'interface de migration des anciens dossiers de résultats Metamorph.
 
 	:param parent: Widget Qt parent.
 	"""

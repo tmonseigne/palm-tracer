@@ -18,7 +18,8 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class Filters(BaseSettingGroup):
-	"""Regroupe les paramètres de filtrage communs aux localisations et aux trajectoires.
+	"""
+	Regroupe les paramètres de filtrage communs aux localisations et aux trajectoires.
 
 	Paramètres regroupés :
 
@@ -34,6 +35,7 @@ class Filters(BaseSettingGroup):
 	"""
 
 	label: str = "Filters"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Save":         [CheckBox, ["Save filtered", "Save filtered datas in _filtered.csv file.", False]],
 			"Plane":        [CheckRangeInt, ["Plane", "Limits the planes to be used.", [1, 100000], [1, 100000]]],
@@ -41,25 +43,28 @@ class Filters(BaseSettingGroup):
 			"Localization": [FiltersL, []],
 			"Tracks":       [FiltersT, []]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 0
+	"""Mode d'affichage du groupe dans l'interface."""
 	buttons: dict[str, dict[str, QPushButton]] = field(init=False, default_factory=lambda: dict[str, dict[str, QPushButton]]())
 	"""Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`) pour chaque UI."""
 
 	##################################################
 	def __post_init__(self):
+		"""Finalise l'initialisation de l'instance."""
 		super().__post_init__()
 		self.active = True
 
 	##################################################
 	@property
 	def localization(self) -> FiltersL:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(FiltersL, self._settings["Localization"])
 
 	##################################################
 	@property
 	def tracking(self) -> FiltersT:
-		"""Groupe de paramètres liés aux filtres sur le suivi (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`)."""
+		"""Groupe de paramètres liés aux filtres sur le suivi (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`)."""
 		return cast(FiltersT, self._settings["Tracks"])
 
 	##################################################
@@ -84,7 +89,7 @@ class Filters(BaseSettingGroup):
 
 	##################################################
 	def deactivate_filters(self):
-		""" Désactive tous les filtres."""
+		"""Désactive tous les filtres."""
 		self._settings["Save"].value = False
 		self._settings["Plane"].active = False
 		fl = cast(FiltersL, self._settings["Localization"])
@@ -94,7 +99,7 @@ class Filters(BaseSettingGroup):
 
 	##################################################
 	def update_limits(self, plane_max: int | None = None):
-		"""Mets à jour le min et le max de certains filtres."""
+		"""Met à jour le min et le max de certains filtres."""
 		with self.signal_blocked():
 			if plane_max is not None:
 				s = cast(CheckRangeInt, self._settings["Plane"])

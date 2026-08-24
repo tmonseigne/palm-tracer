@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import CheckBox, Combo, SpinInt
 ##################################################
 @dataclass
 class TracksCompute(BaseSettingGroup):
-	"""Regroupe les paramètres des calculs effectués sur les trajectoires.
+	"""
+	Regroupe les paramètres des calculs effectués sur les trajectoires.
 
 	Paramètres regroupés :
 
@@ -24,12 +25,14 @@ class TracksCompute(BaseSettingGroup):
 	"""
 
 	label: str = "Tracks Compute"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"MSD":               [CheckBox, ["MSD", "", False]],
 					"Instant Diffusion": [CheckBox, ["Instant Diffusion", "", False]],
 					"Fit Length":        [SpinInt, ["Fit Length", "", 4, [2, 1000], 1]],
 					"3D":                [CheckBox, ["3D", "Use the Z-axis during computes.", False]],
 					"Log Scale":         [CheckBox, ["Log Scale", "Use log scale before saving results.", False]],
 					"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]]}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 
 ##################################################

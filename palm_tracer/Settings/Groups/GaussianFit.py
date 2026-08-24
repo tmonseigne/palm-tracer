@@ -12,7 +12,8 @@ from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, S
 ##################################################
 @dataclass
 class GaussianFit(BaseSettingGroup):
-	"""Regroupe les paramètres de l'ajustement gaussien des localisations.
+	"""
+	Regroupe les paramètres de l'ajustement gaussien des localisations.
 
 	Paramètres regroupés :
 
@@ -27,6 +28,7 @@ class GaussianFit(BaseSettingGroup):
 	"""
 
 	label: str = "Gaussian Fit"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Mode":  [Combo, ["Mode", "Selects the elements to fit.", 0, ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
 			"Sigma": [SpinFloat, ["σ", "Initial value of sigma.", 1.0, [0.0, 10.0], 0.1]],
@@ -35,10 +37,13 @@ class GaussianFit(BaseSettingGroup):
 			"Z max": [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator.", 500, [10, 2000], 10]],
 			"Model": [BrowseFile, ["Specific Model", "Use only if your model isn't in File output folder"], ""],
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 2
+	"""Mode d'affichage du groupe dans l'interface."""
 
 	##################################################
 	def initialize(self):
+		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)

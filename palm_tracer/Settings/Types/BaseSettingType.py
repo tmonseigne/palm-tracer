@@ -14,7 +14,8 @@ from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
 ##################################################
 @dataclass
 class BaseSettingType:
-	"""Définit le modèle commun d'un paramètre configurable.
+	"""
+	Définit le modèle commun d'un paramètre configurable.
 
 	La classe conserve la valeur, notifie ses changements et synchronise toutes les représentations Qt créées pour le même paramètre.
 
@@ -33,7 +34,7 @@ class BaseSettingType:
 	_signal: SignalWrapper = field(init=False, default_factory=lambda: SignalWrapper())
 	"""Signal permettant de communiquer avec l'interface."""
 	_uis: dict[str, BaseUIType] = field(init=False, default_factory=lambda: dict[str, BaseUIType]())
-	"""Dictionnaire des interfaces qui ont été créé pour ce paramètre."""
+	"""Dictionnaire des interfaces qui ont été créées pour ce paramètre."""
 
 	# ==================================================
 	# region Initialization
@@ -58,7 +59,7 @@ class BaseSettingType:
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		"""
-		Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire.
+		Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
 		:return: Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`).
@@ -88,7 +89,7 @@ class BaseSettingType:
 
 	##################################################
 	def set_value_from_ui(self, value: Any):
-		"""Mets à jour la valeur à chaque modification de l'UI (appelle le setter)."""
+		"""Met à jour la valeur à chaque modification de l'UI (appelle le setter)."""
 		self.value = value
 
 	# ==================================================
@@ -122,7 +123,7 @@ class BaseSettingType:
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
+		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		self.value = data["value"]  # Appel du Setter
 
 	# ==================================================
@@ -166,7 +167,7 @@ class BaseSettingType:
 	##################################################
 	def disconnect(self, f: Optional[Any] = None) -> int:
 		"""
-		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
+		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés.
@@ -205,6 +206,12 @@ class BaseSettingType:
 		"""
 
 		def sync(setting: "BaseSettingType", value: Any):
+			"""
+			Propage la valeur vers le paramètre synchronisé.
+
+			:param setting: Paramètre à synchroniser.
+			:param value: Valeur à propager.
+			"""
 			with setting.signal_blocked(emit_last=False): setting.value = value
 
 		self.connect(lambda v: sync(other, v))

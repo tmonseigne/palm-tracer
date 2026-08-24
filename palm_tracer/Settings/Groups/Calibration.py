@@ -11,7 +11,8 @@ from palm_tracer.Settings.Types import SpinFloat
 ##################################################
 @dataclass
 class Calibration(BaseSettingGroup):
-	"""Regroupe les paramètres de calibration spatiale, temporelle et photométrique.
+	"""
+	Regroupe les paramètres de calibration spatiale, temporelle et photométrique.
 
 	Paramètres regroupés :
 
@@ -22,12 +23,15 @@ class Calibration(BaseSettingGroup):
 	"""
 
 	label: str = "Calibration"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Pixel Size": [SpinFloat, ["Pixel Size (μm)", "", 0.160, [0.001, 1.0], 0.01, 3]],
 			"Exposure":   [SpinFloat, ["Exposure Time (s/frame)", "", 0.050, [0.001, 1.0], 0.01, 3]],
 			"Intensity":  [SpinFloat, ["Intensity (photon/ADU)", "", 0.0120, [0.0, 1.0], 0.001, 4]]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 
 ##################################################

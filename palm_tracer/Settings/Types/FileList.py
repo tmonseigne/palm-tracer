@@ -17,7 +17,8 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class FileList(BaseSettingType):
-	"""Représente un paramètre contenant une liste de fichiers et une sélection active.
+	"""
+	Représente un paramètre contenant une liste de fichiers et une sélection active.
 
 	:param label: Libellé affiché dans l'interface.
 	:param tooltip: Description affichée dans l'infobulle.
@@ -33,6 +34,7 @@ class FileList(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		self.clear_files()
 
 	# ==================================================
@@ -100,7 +102,7 @@ class FileList(BaseSettingType):
 	##################################################
 	@items.setter
 	def items(self, items: Optional[list[str]] = None):
-		"""Mets à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
+		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
 		if items is not None: self._items = items
 		for ui in self._uis.values():
 			b = cast(QComboBox, ui.boxes[3])
@@ -118,12 +120,10 @@ class FileList(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
-		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
 		return {"value": self._value, "items": self._items}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
 		self.items = data["items"]  # Récupération de la liste des éléments avant de mettre à jour la valeur
 		self.value = data["value"]
 
@@ -179,6 +179,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

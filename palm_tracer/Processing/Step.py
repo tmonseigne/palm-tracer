@@ -19,7 +19,8 @@ FilterTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks com
 ##################################################
 @dataclass(frozen=True)
 class Step:
-	"""Décrit une étape immuable du pipeline de traitement.
+	"""
+	Décrit une étape immuable du pipeline de traitement.
 
 	:param group_name: Nom du groupe de paramètres contrôlant l'étape.
 	:param keys: Clés des DataFrames lus ou produits par l'étape.
@@ -30,7 +31,7 @@ class Step:
 	"""
 
 	group_name: str
-	"""Nom du groupe de paramètres lié"""
+	"""Nom du groupe de paramètres lié."""
 	keys: list[str]
 	"""Liste des clés du/des DataFrame(s) dans le dictionnaire."""
 	process_func: Callable[[], None]  # Fonction sans argument qui ne retourne rien

@@ -12,7 +12,8 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class BaseUIType:
-	"""Représente une vue Qt associée à un paramètre configurable.
+	"""
+	Représente une vue Qt associée à un paramètre configurable.
 
 	Chaque vue conserve ses propres widgets, sa disposition et sa position éventuelle dans un formulaire.
 

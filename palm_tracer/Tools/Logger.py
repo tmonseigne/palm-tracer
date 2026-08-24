@@ -14,7 +14,8 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class Logger:
-	"""Écrit un journal d'activité horodaté et utilisable comme gestionnaire de contexte.
+	"""
+	Écrit un journal d'activité horodaté et utilisable comme gestionnaire de contexte.
 
 	.. note:: L'ouverture et la fermeture sont idempotentes. Ouvrir un nouveau fichier ferme d'abord le précédent, et plusieurs appels successifs à
 	   :meth:`close` sont autorisés.
@@ -35,7 +36,7 @@ class Logger:
 		:param filename: Chemin du fichier de log.
 
 		.. note:: Si un fichier était déjà ouvert, il est fermé avant la réouverture afin d'éviter les handles orphelins
-				  (particulièrement problématiques sous Windows).
+			(particulièrement problématiques sous Windows).
 		"""
 		# Si déjà ouvert, on ferme proprement avant de rouvrir.
 		if self._isopen: self.close()
@@ -53,10 +54,10 @@ class Logger:
 
 	##################################################
 	def close(self):
-		"""Ferme le fichier de log.
+		"""
+		Ferme le fichier de log.
 
-		.. note:: Méthode idempotente : peut être appelée plusieurs fois.
-				  Force un flush + fsync pour limiter les surprises d'I/O (notamment sous Windows).
+		.. note:: Méthode idempotente : peut être appelée plusieurs fois. Force un flush + fsync pour limiter les surprises d'I/O (notamment sous Windows).
 		"""
 		if not self._isopen or self.file_handle is None:
 			# On ne spamme pas de warnings ici : fermer un logger déjà fermé est un cas normal.

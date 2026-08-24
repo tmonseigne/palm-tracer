@@ -16,20 +16,24 @@ from palm_tracer.Tools import FileIO, Ui
 
 ##################################################
 class Link(NamedTuple):
-	"""Associe un ancien nom de fichier à son nouveau suffixe.
+	"""
+	Associe un ancien nom de fichier à son nouveau suffixe.
 
 	:param old: Ancien nom de fichier.
 	:param new: Nouveau suffixe normalisé.
 	"""
 
 	old: str
+	"""Ancien nom de colonne."""
 	new: str
+	"""Nouveau nom de colonne."""
 
 
 ##################################################
 @dataclass
 class FileMigrator:
-	"""Convertit un dossier de résultats PALMTracer au format historique Metamorph vers le format actuel.
+	"""
+	Convertit un dossier de résultats PALMTracer au format historique Metamorph vers le format actuel.
 
 	L'analyse classe les fichiers sources par type, puis la migration crée un dossier de sortie et convertit les données et métadonnées reconnues.
 
@@ -146,7 +150,7 @@ class FileMigrator:
 	##################################################
 	def update_meta(self, column: str, v: int | float):
 		"""
-		Mets à jour l'objet meta et vérifie si une valeur différente est présente.
+		Met à jour l'objet meta et vérifie si une valeur différente est présente.
 
 		:param column: Colonne à mettre à jour.
 		:param v: Valeur à insérer.
@@ -324,19 +328,19 @@ class FileMigrator:
 	@staticmethod
 	def open_old_file(file: Path, header: bool = True, skiprows: int = 2, sep: str = "\t") -> tuple[pd.DataFrame, list[str]]:
 		"""
-			Ouvre un fichier PALMTracer (MetaMorph) au format texte tabulé.
+		Ouvre un fichier PALMTracer (MetaMorph) au format texte tabulé.
 
-			Le fichier est supposé structuré de la façon suivante :
-				- ``skiprows`` premières lignes : informations globales (dimensions, calibration, options…)
-				- ligne suivante (optionnelle)   : titres des colonnes
-				- reste du fichier               : données tabulaires
+		Le fichier est supposé structuré de la façon suivante :
+			- ``skiprows`` premières lignes : informations globales (dimensions, calibration, options…)
+			- Ligne suivante (optionnelle)  : titres des colonnes
+			- Reste du fichier              : données tabulaires
 
-			:param file: Chemin vers le fichier PALMTracer à ouvrir.
-			:param header: Indique si une ligne de titres de colonnes est présente après les lignes d'en-tête.
-			:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
-			:param sep: Séparateur de colonnes utilisé dans le fichier.
-			:return: Tuple ``(dataframe, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``).
-			:raises FileNotFoundError: Si le fichier n'existe pas.
+		:param file: Chemin vers le fichier PALMTracer à ouvrir.
+		:param header: Indique si une ligne de titres de colonnes est présente après les lignes d'en-tête.
+		:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
+		:param sep: Séparateur de colonnes utilisé dans le fichier.
+		:return: Tuple ``(DataFrame, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``).
+		:raises FileNotFoundError: Si le fichier n'existe pas.
 		"""
 		if not file.is_file():
 			raise FileNotFoundError(f"Filename invalid: {file}")
@@ -366,7 +370,7 @@ class FileMigrator:
 		:param file: Chemin vers le fichier PALMTracer à ouvrir.
 		:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
 		:param sep: Séparateur de colonnes utilisé dans le fichier.
-		:return: Tuple ``(dataframe, header_lines)``.
+		:return: Tuple ``(DataFrame, header_lines)``.
 		:raises FileNotFoundError: Si le fichier n'existe pas.
 		:raises ValueError: Si le fichier ne contient pas assez de lignes d'en-tête.
 		"""

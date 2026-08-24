@@ -1,4 +1,5 @@
-"""Teste l'orchestration complète des traitements par la classe :class:`PALMTracer`.
+"""
+Teste l'orchestration complète des traitements par la classe :class:`PALMTracer`.
 
 .. note:: Certaines vérifications du journal portent uniquement sur le nombre de lignes, car chaque traitement en produit au moins quinze.
 """

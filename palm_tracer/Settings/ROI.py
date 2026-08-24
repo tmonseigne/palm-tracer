@@ -10,7 +10,8 @@ import numpy as np
 ##################################################
 @dataclass
 class ROI:
-	"""Représente une zone d'intérêt issue d'un calque Napari.
+	"""
+	Représente une zone d'intérêt issue d'un calque Napari.
 
 	:param type: Type géométrique de la zone.
 	:param data: Coordonnées décrivant sa géométrie.

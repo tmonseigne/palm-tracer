@@ -1,4 +1,5 @@
-"""Fournit le widget principal de configuration et d'exécution de PALM Tracer.
+"""
+Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 
 .. todo:: Rendre interruptibles les prévisualisations sans bloquer l'interface Napari.
 """
@@ -30,7 +31,8 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 ##################################################
 class PALMTracerWidget(QWidget):
-	"""Fournit l'interface Napari principale de PALM Tracer.
+	"""
+	Fournit l'interface Napari principale de PALM Tracer.
 
 	Le widget expose les paramètres du pipeline, déclenche les traitements et synchronise les calques de prévisualisation et de résultats.
 
@@ -38,15 +40,20 @@ class PALMTracerWidget(QWidget):
 	"""
 
 	UI_NAME: str = "PALMTracer"
+	"""Nom de l'interface principale."""
 	LAYERS_NAME: list[str] = ["Raw", "Points Present", "ROI Present", "Points Filtered", "Points Past", "Points Future", "ROI Filter"]
+	"""Noms des calques gérés par l'interface principale."""
 
 	LAYER_ARGS: dict[str, dict[str, Any]] = {"Present":  {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
 											 "Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red"},
 											 "Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
 											 "Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"}
 											 }
+	"""Propriétés graphiques des différents calques de points."""
 	EMPTY_PREVIEW: np.ndarray = np.empty((0, 2), dtype=np.float32)
+	"""Tableau vide utilisé lorsqu'aucun point n'est prévisualisé."""
 	EMPTY_STACK: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
+	"""Pile minimale utilisée lorsqu'aucune image n'est chargée."""
 
 	# ==================================================
 	# region Init
@@ -225,7 +232,9 @@ class PALMTracerWidget(QWidget):
 		self._freeze_ui(True)
 
 		@thread_worker(start_thread=False)
-		def _run_background() -> None: compute_func()  # STRICTEMENT aucun accès au viewer/layers ici, pragma: no cover —  lancement sur thread.
+		def _run_background() -> None:
+			"""Exécute le traitement dans le worker d'arrière-plan."""
+			compute_func()  # STRICTEMENT aucun accès au viewer/layers ici, pragma: no cover —  lancement sur thread.
 
 		w: FunctionWorker = cast(FunctionWorker, _run_background())
 		self._worker = w
@@ -234,6 +243,11 @@ class PALMTracerWidget(QWidget):
 		if post_func is not None: w.returned.connect(lambda _ok: post_func())
 
 		def _finish(*_args: object) -> None:  # UI thread : fin propre
+			"""
+			Libère le worker puis finalise le traitement.
+
+			:param _args: Arguments transmis par le signal Qt et ignorés.
+			"""
 			self._worker = None
 			self._process_done()
 
@@ -300,7 +314,7 @@ class PALMTracerWidget(QWidget):
 
 	##################################################
 	def _on_change_setting(self):
-		"""Mets à jour le fichier de paramètres général."""
+		"""Met à jour le fichier de paramètres général."""
 		# Save settings
 		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())
 
@@ -313,7 +327,7 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 	##################################################
 	def _clean_layer(self, raw: bool = True, preview: bool = True, roi: bool = True):
-		"""Vide les calques sans les supprimer"""
+		"""Vide les calques sans les supprimer."""
 		if raw: self._layers[self.LAYERS_NAME[0]].data = self._current_stack
 		if preview:
 			self._layers[self.LAYERS_NAME[1]].data = self.EMPTY_PREVIEW
@@ -492,6 +506,11 @@ class PALMTracerWidget(QWidget):
 		if viewer is None: return
 
 		def _on_close(*_):
+			"""
+			Nettoie les références lorsque la visionneuse est fermée.
+
+			:param _: Arguments transmis par le callback et ignorés.
+			"""
 			w = getattr(self, f"{viewer_attr}_widget", None)
 			if w is not None:
 				w.close()

@@ -15,7 +15,8 @@ from palm_tracer.Settings.Groups import Visualization3D
 
 
 class Viewer3DWidget(QWidget):
-	"""Affiche les localisations tridimensionnelles dans un calque Napari.
+	"""
+	Affiche les localisations tridimensionnelles dans un calque Napari.
 
 	Le widget charge un fichier CSV, règle les échelles XY et Z, ajuste la taille des points et peut exclure les localisations d'intensité nulle.
 

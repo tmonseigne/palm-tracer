@@ -16,7 +16,8 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 ##################################################
 @dataclass
 class BrowseFile(BaseSettingType):
-	"""Représente un paramètre de sélection de fichier.
+	"""
+	Représente un paramètre de sélection de fichier.
 
 	:param label: Libellé affiché dans l'interface.
 	:param tooltip: Description affichée dans l'infobulle.
@@ -103,6 +104,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

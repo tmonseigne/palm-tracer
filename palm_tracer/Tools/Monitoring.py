@@ -1,4 +1,5 @@
-"""Surveille les ressources système utilisées pendant l'exécution des tests.
+"""
+Surveille les ressources système utilisées pendant l'exécution des tests.
 
 Le suivi couvre notamment le processeur, la mémoire, le disque et, lorsqu'il est disponible, le processeur graphique.
 """
@@ -36,7 +37,8 @@ except ImportError:
 ##################################################
 @dataclass
 class Monitoring:
-	"""Surveille les ressources système utilisées pendant l'exécution des tests.
+	"""
+	Surveille les ressources système utilisées pendant l'exécution des tests.
 
 	Les mesures du processeur, de la mémoire, du disque et, si disponible, du processeur graphique sont collectées dans un thread dédié puis représentées
 	sous forme de graphiques ou de rapports.
@@ -113,7 +115,7 @@ class Monitoring:
 
 	##################################################
 	def _update(self):
-		"""Mets à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
+		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
 		try:
 			pytest_pid = os.getpid()  # .					   PID de pytest
@@ -210,7 +212,7 @@ class Monitoring:
 	##################################################
 	def _update_array_for_readability(self, round_time: int = 2):
 		"""
-		Mets à jour les tableaux pour faciliter la lecture (ajustement des timestamps et normalisation).
+		Met à jour les tableaux pour faciliter la lecture (ajustement des timestamps et normalisation).
 
 		:param round_time: Le nombre de décimales pour arrondir les timestamps.
 		"""
@@ -242,7 +244,7 @@ class Monitoring:
 		Si le nombre de fichiers dépasse le nombre de couleurs disponibles dans la palette, elle réutilise les couleurs de manière cyclique.
 
 		:param names: Liste des noms des fichiers pour lesquels une couleur doit être attribuée.
-		:param palette: Liste des couleurs à utiliser pour les fichiers. La palette `Plotly` est utilisée par défaut.
+		:param palette: Liste des couleurs à utiliser pour les fichiers. La palette ``Plotly`` est utilisée par défaut.
 		:return: Dictionnaire où les clés sont les noms de fichiers et les valeurs sont les couleurs attribuées.
 		"""
 		unique_names = set(names)  # Récupérer les noms uniques
@@ -296,7 +298,7 @@ class Monitoring:
 		:param row: L'index de la ligne dans la figure Plotly (utile lorsque plusieurs sous-graphiques sont utilisés) pour ajouter
 				les éléments (barres verticales et zones colorées) dans la section correspondante.
 
-		:return: Cette fonction modifie l'objet `fig` en ajoutant des traces et des formes, mais ne retourne rien.
+		:return: Cette fonction modifie l'objet ``fig`` en ajoutant des traces et des formes, mais ne retourne rien.
 		"""
 
 		# Ajouter les barres verticales pour chaque test et des zones colorées en fonction du fichier
@@ -358,9 +360,9 @@ class Monitoring:
 
 		Cette méthode permet de sauvegarder les informations de monitoring dans différents formats en fonction de l'extension du fichier fourni :
 
-				- `.png` : Sauvegarde une image de la figure générée par la méthode `draw`.
-				- `.html` : Sauvegarde la figure au format HTML.
-				- `.json` : Sauvegarde les données au format JSON.
+				- ``.png`` : Sauvegarde une image de la figure générée par la méthode ``draw``.
+				- ``.html`` : Sauvegarde la figure au format HTML.
+				- ``.json`` : Sauvegarde les données au format JSON.
 				- Pour d'autres formats, les informations de monitoring seront enregistrées sous forme de texte brut.
 
 		Le format texte contient les informations suivantes :
@@ -409,4 +411,10 @@ class Monitoring:
 				f"Memory Usage : {self._memory}\nDisk Usage : {self._disk}")
 
 	##################################################
-	def __str__(self) -> str: return self.tostring()
+	def __str__(self) -> str:
+		"""
+		Retourne une représentation textuelle de l'objet.
+
+		:return: Représentation textuelle de l'objet.
+		"""
+		return self.tostring()

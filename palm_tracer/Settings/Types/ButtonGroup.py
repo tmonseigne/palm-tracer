@@ -15,7 +15,8 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class ButtonGroup(BaseSettingType):
-	"""Représente un choix exclusif effectué avec un groupe de boutons.
+	"""
+	Représente un choix exclusif effectué avec un groupe de boutons.
 
 	:param label: Libellé affiché dans l'interface.
 	:param tooltip: Description affichée dans l'infobulle.
@@ -101,6 +102,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

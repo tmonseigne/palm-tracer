@@ -1,4 +1,5 @@
-"""Orchestre le chargement, le traitement, le filtrage et l'enregistrement des données PALM.
+"""
+Orchestre le chargement, le traitement, le filtrage et l'enregistrement des données PALM.
 
 .. todo:: Documenter précisément la stratégie de filtrage appliquée aux calculs, aux visualisations et aux sauvegardes.
 """
@@ -28,7 +29,8 @@ FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)",
 ##################################################
 @dataclass
 class PALMTracer:
-	"""Orchestre un traitement PALM complet et conserve ses données intermédiaires et finales.
+	"""
+	Orchestre un traitement PALM complet et conserve ses données intermédiaires et finales.
 
 	La classe coordonne la configuration, les appels à la DLL PALM, le pipeline de traitement, le filtrage, la production des visualisations et la
 	sauvegarde des résultats.
@@ -54,9 +56,9 @@ class PALMTracer:
 	_stack: Optional[np.ndarray] = field(init=False, default=None)
 	"""Pile en cours de traitement."""
 	_timestamp: str = field(init=False, default="")
-	"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
+	"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 	_timestamp_previous: str = field(init=False, default="")
-	"""Suffixe des fichiers pour le traitement précédent (timestamp au format `YYYYMMDD_HHMMSS`)."""
+	"""Suffixe des fichiers pour le traitement précédent (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 
 	_grapher: Grapher = field(init=False, default_factory=Grapher)
 	"""Générateur de graphique."""
@@ -71,7 +73,7 @@ class PALMTracer:
 			"MSD": "tracking_MSD", "f_MSD": "tracking_MSD_filtered",
 			"InD": "tracking_InstantD", "f_InD": "tracking_InstantD_filtered",
 			"Fit": "tracking_Fit", "f_Fit": "tracking_Fit_filtered"})
-	"""Alias entre les noms de fichiers et les clés dans le dictionnaire de dataframes."""
+	"""Alias entre les noms de fichiers et les clés dans le dictionnaire de DataFrames."""
 
 	_STEPS: list[Step] = field(init=False)
 	"""Listes des étapes du pipeline de traitement."""
@@ -106,7 +108,7 @@ class PALMTracer:
 
 	##################################################
 	def reset_result(self):
-		"""Vide entièrement les DataFrame de résultat dans `df`."""
+		"""Vide entièrement les DataFrame de résultat dans ``df``."""
 		for key in self.df: self.df[key] = pd.DataFrame()
 
 	# ==================================================
@@ -240,7 +242,7 @@ class PALMTracer:
 	##################################################
 	@property
 	def suffix(self) -> str:
-		"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
+		"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 		return self._timestamp
 
 	##################################################
@@ -248,7 +250,7 @@ class PALMTracer:
 		"""
 		Indique le nom du fichier à enregistrer CHEMIN / name-Timestamp.extension.
 
-		:param name: Nomp du fichier.
+		:param name: Nom du fichier.
 		:param ext: Extension du fichier (par défaut csv, exception pour le log, les paramètres et les visualizations).
 		:param previous: Si True, application du précédent timestamp. Sinon Timestamp Actuel.
 		:return: Nom du fichier.
@@ -397,7 +399,7 @@ class PALMTracer:
 
 	##################################################
 	def save_meta(self):
-		""" Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."""
+		"""Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."""
 		prev_name = Path(self._output_name("meta", previous=True))
 		prev_meta = pd.read_csv(prev_name) if prev_name.is_file() else None
 
@@ -415,7 +417,7 @@ class PALMTracer:
 		"""
 		Éffectue une étape du pipeline.
 
-		:param step: Etape du pipeline.
+		:param step: Étape du pipeline.
 		:param previous_settings: Paramètres du précédent pipeline.
 		:param pipeline_dirty: État du pipeline (si True, Reuse est devenu impossible).
 		"""
@@ -537,8 +539,8 @@ class PALMTracer:
 		:raises Exception: Aucune exception n'est propagée. En cas d'erreur de lecture, un message est affiché via ``Ui.print_error``.
 
 		.. note::
-			Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
-			Si ce n'est pas le cas, le modèle est considéré comme invalide.
+		        Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
+		        Si ce n'est pas le cas, le modèle est considéré comme invalide.
 
 		.. tip:: Permet de rendre l'appel robuste en cas de chemin utilisateur invalide, en utilisant automatiquement des emplacements par défaut du projet.
 		"""
@@ -644,7 +646,7 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def reset_filtered(self):
-		"""Vide entièrement les DataFrames filtrés dans `df`."""
+		"""Vide entièrement les DataFrames filtrés dans ``df``."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		for key in self.df:
 			if key.startswith("f_"): self.df[key] = pd.DataFrame()
@@ -652,9 +654,9 @@ class PALMTracer:
 	##################################################
 	def update_filtered(self, last: bool = True):
 		"""
-		Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original.
+		Recalcul les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original.
 
-		:param last: Utilise les dernières versions des dataframes si `True`, sinon les données brutes seront utilisées.
+		:param last: Utilise les dernières versions des DataFrames si ``True``, sinon les données brutes seront utilisées.
 		"""
 		df = {}
 		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
@@ -775,7 +777,8 @@ class PALMTracer:
 
 	##################################################
 	def _get_graph_data_from_src(self, src_id, src: str, log_scale: bool = False) -> tuple[np.ndarray, str]:
-		"""Récupère et prépare les données pour l'affichage.
+		"""
+		Récupère et prépare les données pour l'affichage.
 
 		:param src_id:
 		:param src:

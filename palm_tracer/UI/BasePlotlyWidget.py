@@ -27,7 +27,8 @@ except Exception:
 
 ##################################################
 class BasePlotlyWidget(QWidget):
-	"""Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly.
+	"""
+	Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly.
 
 	La classe centralise l'affichage dans QtWebEngine ainsi que l'export des figures vers les formats pris en charge.
 
@@ -35,9 +36,13 @@ class BasePlotlyWidget(QWidget):
 	"""
 
 	PLOT_DIV_ID = "plotly_graph"
+	"""Identifiant HTML du conteneur Plotly."""
 	RESOURCE_DIR = Path(__file__).resolve().parent / "res"
+	"""Répertoire des ressources de l'interface."""
 	PLOTLY_JS_PATH = RESOURCE_DIR / "plotly.min.js"
+	"""Chemin local de la bibliothèque JavaScript Plotly."""
 	PLOTLY_JS_URL = "https://cdn.plot.ly/plotly-3.4.0.min.js"
+	"""Adresse de secours de la bibliothèque JavaScript Plotly."""
 
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):

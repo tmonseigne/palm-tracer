@@ -16,7 +16,8 @@ from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRa
 ##################################################
 @dataclass
 class BaseSettingGroup:
-	"""Gère un ensemble cohérent de paramètres et ses représentations Qt.
+	"""
+	Gère un ensemble cohérent de paramètres et ses représentations Qt.
 
 	Les sous-classes déclarent leurs paramètres dans :attr:`setting_list`. La classe de base construit les objets correspondants, propage leur activation,
 	crée leurs vues et assure leur sérialisation.
@@ -33,7 +34,7 @@ class BaseSettingGroup:
 	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
 	"""Liste des paramètres du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
 	_uis: dict[str, BaseUIGroup] = field(init=False, default_factory=lambda: dict[str, BaseUIGroup]())
-	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
+	"""Dictionnaire des interfaces qui ont été créées pour ce groupe de paramètres."""
 
 	# ==================================================
 	# region Initialization
@@ -67,7 +68,7 @@ class BaseSettingGroup:
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		"""
-		Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire.
+		Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
 		:param mode: Méthode de création du groupe.
@@ -134,6 +135,11 @@ class BaseSettingGroup:
 	##################################################
 	@value.setter
 	def value(self, value: Any):
+		"""
+		Définit la valeur du groupe de paramètres.
+
+		:param value: Nouvelle valeur du groupe.
+		"""
 		return
 
 	##################################################
@@ -154,7 +160,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:
-		"""Surcharge de l'opérateur []"""
+		"""Surcharge de l'opérateur []."""
 		return self._settings[key]
 
 	##################################################
@@ -198,7 +204,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
+		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		self.active = data.get("active", False)
 		settings = data["settings"]
 		for key, value in self.setting_list.items():  # Appelle `update_from_compact_dict` pour chaque élément de setting_list
@@ -222,6 +228,11 @@ class BaseSettingGroup:
 
 	##################################################
 	def __str__(self) -> str:
+		"""
+		Retourne une représentation textuelle de l'objet.
+
+		:return: Représentation textuelle de l'objet.
+		"""
 		return self.tostring()
 
 	# ==================================================
@@ -233,7 +244,7 @@ class BaseSettingGroup:
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
-		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
 
 	# ==================================================
@@ -264,7 +275,7 @@ class BaseSettingGroup:
 
 	##################################################
 	def signal_blocked(self) -> AbstractContextManager[Any]:
-		"""Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec `with ...:`."""
+		"""Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec ``with ...:``."""
 		if not self._settings: return nullcontext()
 
 		stack = ExitStack()

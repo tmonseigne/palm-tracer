@@ -1,4 +1,5 @@
-"""Fournit le widget de calcul et d'application des alignements géométriques.
+"""
+Fournit le widget de calcul et d'application des alignements géométriques.
 
 .. todo:: Implémenter le calcul automatique des coefficients et une visualisation intermédiaire de l'alignement.
 """
@@ -19,7 +20,8 @@ _windows = []  # pour garder une référence globale, éviter le Garbage Collect
 
 
 class AlignmentWidget(QWidget):
-	"""Permet de calculer puis d'appliquer un alignement géométrique entre deux acquisitions.
+	"""
+	Permet de calculer puis d'appliquer un alignement géométrique entre deux acquisitions.
 
 	Le premier onglet calcule les coefficients à partir d'une image TIFF contenant les vues de référence et déformée. Le second applique des coefficients
 	existants à une image sélectionnée.

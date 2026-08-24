@@ -23,7 +23,8 @@ C_UINT, C_BOOL, C_DBL = ctypes.c_uint64, ctypes.c_bool, ctypes.c_double
 ##################################################
 @dataclass
 class Palm:
-	"""Encapsule le chargement et les appels aux algorithmes de la DLL PALM.
+	"""
+	Encapsule le chargement et les appels aux algorithmes de la DLL PALM.
 
 	L'instance configure les signatures des fonctions natives et convertit leurs entrées et sorties vers les structures Python utilisées par le pipeline.
 	"""
@@ -161,10 +162,10 @@ class Palm:
 		:param stack: Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement).
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
-		:param fit: Mode d'ajustement (défini par `get_fit`).
+		:param fit: Mode d'ajustement (défini par ``get_fit``).
 		:param fit_params: Paramètres du mode d'ajustement.
 		:param planes: Liste des plans à analyser (None pour tous les plans, les plans sont contigus par principe).
-		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:return: Liste des points détectés sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		"""
 		# --- Initialisation ---
 		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguité
@@ -232,7 +233,7 @@ class Palm:
 		Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies,
 		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
 
-		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param localizations: Liste des points détectés sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux plans successifs.
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
@@ -260,7 +261,7 @@ class Palm:
 		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
 
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param tracks: Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param tracks: Liste des points déjà suivis sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillement.
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
@@ -287,7 +288,7 @@ class Palm:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
 
-		:param tracks: Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param tracks: Liste des points déjà suivis sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param is_msd: Calcul MSD.
 		:param is_ind: Calcul de la diffusion instantanée.
 		:param is_3d: Calcul sur la 3D.
@@ -334,7 +335,7 @@ class Palm:
 
 		:param stack: Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement).
 		:param factors: Facteurs d'alignement.
-		:param upsampling: Facteur d'agrandissement de l'image (par défaut : `1` aucun agrandissement).
+		:param upsampling: Facteur d'agrandissement de l'image (par défaut : ``1`` aucun agrandissement).
 		:return: Image alignée.
 		"""
 
