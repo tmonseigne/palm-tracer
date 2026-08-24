@@ -13,7 +13,7 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 ##################################################
 def test_open():
-	"""Test de la classe FileMigrator."""
+	"""Vérifie la classe FileMigrator."""
 	m = FileMigrator()
 
 	with pytest.raises(ValueError) as exception_info: m.open(INPUT_DIR)
@@ -30,7 +30,7 @@ def test_open():
 
 ##################################################
 def test_update_meta(capsys):
-	"""Test basique de update_meta."""
+	"""Vérifie update_meta."""
 	m = FileMigrator()
 
 	ref = np.zeros(6) - 1
@@ -49,7 +49,7 @@ def test_update_meta(capsys):
 
 ##################################################
 def test_open_old_file():
-	"""Test basique de open_old_file."""
+	"""Vérifie open_old_file."""
 	m = FileMigrator()
 
 	with pytest.raises(FileNotFoundError) as exception_info: m.open_old_file(INPUT_FOLDER)
@@ -65,7 +65,7 @@ def test_open_old_file():
 
 ##################################################
 def test_open_old_irregular_file():
-	"""Test basique de open_old_file."""
+	"""Vérifie open_old_file."""
 	m = FileMigrator()
 
 	with pytest.raises(FileNotFoundError) as exception_info: m.open_old_irregular_file(INPUT_FOLDER)
@@ -85,7 +85,7 @@ def test_open_old_irregular_file():
 
 ##################################################
 def test_column_migrator():
-	"""Test basique de column_migrator."""
+	"""Vérifie column_migrator."""
 	m = FileMigrator()
 	data = ["MSe", "MSE(Gauss)", "Angle(Rad)", "CentroidX", "Centroid Y", "Centroid Z (nm)", "SigmaX", "Sigma y",
 			"Intensity_0", "Intensity Offset", "Intensity", "IntegratedIntensity",
@@ -101,7 +101,7 @@ def test_column_migrator():
 
 ##################################################
 def test_analyze():
-	"""Test de la classe FileMigrator."""
+	"""Vérifie la classe FileMigrator."""
 	m = FileMigrator()
 	print(m.input_folder)
 	with pytest.raises(RuntimeError) as exception_info: m.analyze()
@@ -121,7 +121,7 @@ def test_analyze():
 
 ##################################################
 def test_migrate(capsys):
-	"""Test de la classe FileMigrator."""
+	"""Vérifie la classe FileMigrator."""
 	m = FileMigrator()
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
 

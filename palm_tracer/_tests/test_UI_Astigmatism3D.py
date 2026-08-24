@@ -16,7 +16,7 @@ BACKUP_DIR = INPUT_DIR / "backup"
 
 ##################################################
 def test_widget_creation(qtbot):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -27,7 +27,7 @@ def test_widget_creation(qtbot):
 
 ##################################################
 def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
+	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -83,7 +83,7 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
+	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -117,7 +117,7 @@ def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration sans fichier chargé."""
+	"""Vérifie le lancement de la calibration sans fichier chargé."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -133,7 +133,7 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_check_loc(qtbot, capsys):
-	"""Test basique de lancement de la calibration sans fichier chargé."""
+	"""Vérifie le lancement de la calibration sans fichier chargé."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -181,7 +181,7 @@ def test_check_loc(qtbot, capsys):
 
 ##################################################
 def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -213,7 +213,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_mean_beads(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -250,7 +250,7 @@ def test_compute_mean_beads(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_remove_bead_col(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -284,7 +284,7 @@ def test_compute_remove_bead_col(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_remove_multi(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -321,7 +321,7 @@ def test_compute_remove_multi(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -366,7 +366,7 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_center_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -399,7 +399,7 @@ def test_compute_center_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute_bad_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -431,7 +431,7 @@ def test_compute_bad_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de l'estimation sans fichier chargé."""
+	"""Vérifie le lancement de l'estimation sans fichier chargé."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -461,7 +461,7 @@ def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de l'estimation."""
+	"""Vérifie le lancement de l'estimation."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -501,7 +501,7 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de l'estimation."""
+	"""Vérifie le lancement de l'estimation."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -556,7 +556,7 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de vérification de lien entre les spins pixel size."""
+	"""Vérifie vérification de lien entre les spins pixel size."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -576,7 +576,7 @@ def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique du callback de téléchargement du graphique."""
+	"""Vérifie le callback de téléchargement du graphique."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)

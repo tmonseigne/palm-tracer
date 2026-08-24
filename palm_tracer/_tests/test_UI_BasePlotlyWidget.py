@@ -7,7 +7,7 @@ from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # classe
 
 ##################################################
 def test_creation(qtbot):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	w = BasePlotlyWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -18,7 +18,7 @@ def test_creation(qtbot):
 
 ##################################################
 def test_update_plotly(qtbot):
-	"""Test basique de gestion de plotly."""
+	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -32,7 +32,7 @@ def test_update_plotly(qtbot):
 
 ##################################################
 def test_update_plotly_no_js(qtbot):
-	"""Test basique de gestion de plotly."""
+	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -46,7 +46,7 @@ def test_update_plotly_no_js(qtbot):
 
 ##################################################
 def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de gestion de plotly."""
+	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -76,7 +76,7 @@ def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_export_plotly(qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de gestion de plotly."""
+	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)

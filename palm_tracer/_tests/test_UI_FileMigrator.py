@@ -13,7 +13,7 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 ##################################################
 def test_widget_creation(qtbot):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	w = FileMigratorWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -24,7 +24,7 @@ def test_widget_creation(qtbot):
 
 ##################################################
 def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
+	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = FileMigratorWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -48,7 +48,7 @@ def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique de lancement de la calibration."""
+	"""Vérifie le lancement de la calibration."""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	w = FileMigratorWidget()
 	qtbot.addWidget(w)

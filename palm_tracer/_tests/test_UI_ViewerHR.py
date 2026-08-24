@@ -14,20 +14,21 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 ##################################################
 def flush_qt_delete_events():
+	"""Traite les événements Qt de suppression différée."""
 	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 	QCoreApplication.processEvents()
 
 
 ##################################################
 def test_widget_creation(make_napari_viewer, patched_napari_viewer):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	_ = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 
 ##################################################
 def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Test Permettant de gérer la création en doublon de la même UI."""
+	"""Vérifie Permettant de gérer la création en doublon de la même UI."""
 
 	"""Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++."""
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
@@ -54,7 +55,7 @@ def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot
 
 ##################################################
 def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique du widget."""
+	"""Vérifie le widget."""
 	viewer = make_napari_viewer()  # .Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
@@ -68,7 +69,7 @@ def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mon
 
 ##################################################
 def test_change_type(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
-	"""Test basique du widget."""
+	"""Vérifie le widget."""
 	viewer = make_napari_viewer()  # .			 Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
@@ -81,7 +82,7 @@ def test_change_type(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 
 ##################################################
 def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
-	"""Test basique du widget."""
+	"""Vérifie le widget."""
 	viewer = make_napari_viewer()  # .			Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, PALMTracer())  # Créer notre widget, en passant par le viewer.
 
@@ -93,7 +94,7 @@ def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 
 ##################################################
 def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	res_2d = OUTPUT_DIR / "HR.png"
 	res_3d = OUTPUT_DIR / "HR.tif"
 	res_2d.unlink(missing_ok=True)  # .		Suppression du fichier de résultat s'il existe.
@@ -119,7 +120,7 @@ def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 
 ##################################################
 def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	res = OUTPUT_DIR / "HR.png"
 	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
 	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
@@ -146,7 +147,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mo
 
 ##################################################
 def test_check_beads(make_napari_viewer, patched_napari_viewer):
-	"""Test basique du widget."""
+	"""Vérifie le widget."""
 	viewer = make_napari_viewer()  # .			 Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
@@ -160,7 +161,7 @@ def test_check_beads(make_napari_viewer, patched_napari_viewer):
 
 ##################################################
 def test_generate_bad(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
-	"""Test basique du widget."""
+	"""Vérifie le widget."""
 	viewer = make_napari_viewer()  # .Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
@@ -194,7 +195,7 @@ def test_generate_bad(make_napari_viewer, patched_napari_viewer, qtbot, capsys, 
 
 ##################################################
 def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
-	"""Test basique du widget."""
+	"""Vérifie le widget."""
 	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()

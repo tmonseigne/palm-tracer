@@ -12,7 +12,7 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 
 ##################################################
 def test_widget_creation(qtbot):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -23,7 +23,7 @@ def test_widget_creation(qtbot):
 
 ##################################################
 def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
+	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -49,7 +49,7 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test basique d'erreurs avec la boîte de dialogue d'ouverture de fichier."""
+	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -83,13 +83,7 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""
-	Test basique de création du widget.
-
-	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
-	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
-	"""
+	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -105,13 +99,7 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""
-	Test basique de création du widget.
-
-	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
-	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
-	"""
+	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -136,13 +124,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""
-	Test basique de création du widget.
-
-	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
-	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
-	"""
+	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
@@ -171,13 +153,7 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 ##################################################
 def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""
-	Test basique de création du widget.
-
-	- Clic sur 'Compute coefficients' sans stack ⇾ message d'erreur.
-	- Simulation de différents comportements de QFileDialog / open_tif.
-	- Clic sur 'Compute coefficients' avec stack chargée ⇾ message 'not implemented'.
-	"""
+	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)

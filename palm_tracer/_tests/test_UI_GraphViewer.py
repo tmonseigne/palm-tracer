@@ -24,13 +24,14 @@ def w() -> GraphViewerWidget:
 
 ##################################################
 def flush_qt_delete_events():
+	"""Traite les événements Qt de suppression différée."""
 	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 	QCoreApplication.processEvents()
 
 
 ##################################################
 def test_widget_creation(w: GraphViewerWidget, qtbot):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
 	w.show()
@@ -40,7 +41,7 @@ def test_widget_creation(w: GraphViewerWidget, qtbot):
 
 ##################################################
 def test_widget_double_creation(qtbot):
-	"""Test Permettant de gérer la création en doublon de la même UI."""
+	"""Vérifie Permettant de gérer la création en doublon de la même UI."""
 
 	"""Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++."""
 	pt = get_fake_pt()
@@ -66,7 +67,7 @@ def test_widget_double_creation(qtbot):
 
 ##################################################
 def test_add_stack(w: GraphViewerWidget, qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Test d'ajout du'ne pile."""
+	"""Vérifie l'ajout d'une pile."""
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
 	w.show()
@@ -80,7 +81,7 @@ def test_add_stack(w: GraphViewerWidget, qtbot, capsys, monkeypatch, fake_qfiled
 
 ##################################################
 def test_change_type(w: GraphViewerWidget, qtbot):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
 	w.show()
@@ -97,7 +98,7 @@ def test_change_type(w: GraphViewerWidget, qtbot):
 
 ###################################################
 def test_update_plot_localization(w: GraphViewerWidget, qtbot, capsys):
-	"""Test de différentes visualizations."""
+	"""Vérifie différentes visualizations."""
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
 	w.show()

@@ -18,6 +18,13 @@ BLANK_FIG = json.loads((REF_DIR / "grapher_blank.json").read_text(encoding="utf-
 
 ##################################################
 def _save_output(res: go.Figure, path: Path):
+	"""
+	Enregistre une figure Plotly pour inspection.
+
+	:param res: Figure Plotly à enregistrer.
+	:param path: Chemin du fichier JSON.
+	:return: Aucune valeur.
+	"""
 	data = get_light_json(res.to_plotly_json())
 	if save_output:
 		res.write_html(path.with_suffix(".html"), full_html=False, include_plotlyjs="cdn")
@@ -27,6 +34,7 @@ def _save_output(res: go.Figure, path: Path):
 
 ##################################################
 def test_blank():
+	"""Vérifie la création d'une figure vide."""
 	g = Grapher()
 	res = g.blank("blank")
 	res = _save_output(res, OUTPUT_DIR / "grapher_blank.json")
@@ -35,6 +43,7 @@ def test_blank():
 
 ##################################################
 def test_histogram():
+	"""Vérifie la génération des histogrammes."""
 	g = Grapher()
 	# Entrée Vide
 	res = g.histogram(np.empty(0), "blank")
@@ -97,6 +106,7 @@ def test_histogram():
 
 ##################################################
 def test_scatter():
+	"""Vérifie la génération des nuages de points."""
 	g = Grapher()
 	# Entrée Vide
 	res = g.scatter(np.empty(0), "blank")
@@ -138,6 +148,7 @@ def test_scatter():
 
 ##################################################
 def test_cloud():
+	"""Vérifie la génération des graphiques de densité."""
 	g = Grapher()
 	# Entrée Vide
 	res = g.cloud(np.empty(0), "blank")
@@ -200,6 +211,7 @@ def test_cloud():
 
 ##################################################
 def test_astigmatism3d():
+	"""Vérifie la génération du graphique d'astigmatisme 3D."""
 	g = Grapher()
 	# Entrée invalide
 	with pytest.raises(ValueError) as exception_info: g.astigmatism3d(np.zeros((3, 3)), None, "blank")

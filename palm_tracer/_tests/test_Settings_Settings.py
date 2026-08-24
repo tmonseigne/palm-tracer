@@ -10,7 +10,7 @@ from palm_tracer.Settings.Groups import *
 
 ###################################################
 def test_settings(qtbot, capsys):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	settings = Settings()
 	settings.calibration["Pixel Size"].value = 0.32
 
@@ -30,7 +30,7 @@ def test_settings(qtbot, capsys):
 
 ###################################################
 def test_settings_group_getter(qtbot):
-	"""Test de récupération des différents groupes de paramètres."""
+	"""Vérifie la récupération des différents groupes de paramètres."""
 	settings = Settings()
 	s = settings.batch
 	assert isinstance(s, Batch), "Récupération du groupe incorrecte."
@@ -58,7 +58,7 @@ def test_settings_group_getter(qtbot):
 
 ###################################################
 def test_settings_signal(qtbot):
-	"""Test de Connexion d'un slot Python, blocage et émission."""
+	"""Vérifie Connexion d'un slot Python, blocage et émission."""
 	settings = Settings()
 
 	received: List[Any] = []

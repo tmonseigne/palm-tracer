@@ -8,7 +8,7 @@ LOG_PATH = OUTPUT_DIR / "test_logger.log"
 
 ##################################################
 def test_logger(capsys):
-	"""Test du logger."""
+	"""Vérifie le logger."""
 	logger = Logger()
 	logger.open(LOG_PATH)
 	logger.add("First message")
@@ -27,7 +27,7 @@ def test_logger(capsys):
 
 ##################################################
 def test_logger_bad_use(capsys):
-	"""Test d'une mauvaise utilisation du Logger."""
+	"""Vérifie l'une mauvaise utilisation du Logger."""
 	logger = Logger()
 	logger.close()
 	logger.add("Message without logger open.")
@@ -40,7 +40,7 @@ def test_logger_bad_use(capsys):
 
 ##################################################
 def test_logger_with_use(capsys):
-	"""Test d'une mauvaise utilisation du Logger."""
+	"""Vérifie l'une mauvaise utilisation du Logger."""
 	with Logger() as logger:
 		logger.open(LOG_PATH)
 		logger.add("Message")

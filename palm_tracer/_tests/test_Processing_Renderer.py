@@ -6,6 +6,7 @@ from palm_tracer.Processing import Renderer
 
 ##################################################
 def test_set_size():
+	"""Vérifie le calcul de la taille d'une reconstruction."""
 	r = Renderer()
 	assert r._w == 1 and r._h == 1 and r._r == 1
 	r.set_size(100, 200, 10)
@@ -15,6 +16,7 @@ def test_set_size():
 ##################################################
 def test_get_localization_colors():
 	# Empty Dataframe
+	"""Vérifie la génération des couleurs des localisations."""
 	loc = pd.DataFrame(columns=["X", "Y", "Intensity"])
 	res = Renderer.add_colors_to_localizations(loc, "Intensity")
 	assert res.shape == (0, 3)
@@ -52,6 +54,7 @@ def test_get_localization_colors():
 ##################################################
 def test_get_tracks_colors():
 	# Empty Dataframe
+	"""Vérifie la génération des couleurs des trajectoires."""
 	trc = pd.DataFrame(columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
 	res = Renderer.add_colors_to_tracks(trc, "Track Number")
 	assert res.shape == (0, 5)
@@ -102,6 +105,7 @@ def test_get_tracks_colors():
 
 ##################################################
 def test_prepare_data():
+	"""Vérifie la préparation des données de rendu."""
 	r = Renderer()
 	r.set_size(5, 10, 2)
 	loc = np.array([[0, 1, 2, 3, 4, 5, 6],
@@ -145,6 +149,7 @@ def test_prepare_data():
 
 ##################################################
 def test_draw_line():
+	"""Vérifie le tracé d'une ligne dans l'image."""
 	img = np.zeros((5, 5), dtype=np.uint16)
 
 	# Single Point
@@ -188,6 +193,7 @@ def test_draw_line():
 
 ##################################################
 def test_draw_gaussian():
+	"""Vérifie le rendu gaussien en 2D."""
 	r = Renderer()
 
 	img = np.zeros((5, 5), dtype=float)
@@ -223,6 +229,7 @@ def test_draw_gaussian():
 
 ##################################################
 def test_draw_gaussian_3d():
+	"""Vérifie le rendu gaussien en 3D."""
 	r = Renderer()
 
 	img = np.zeros((3, 3, 3), dtype=float)
@@ -265,6 +272,7 @@ def test_draw_gaussian_3d():
 
 ##################################################
 def test_localizations():
+	"""Vérifie le rendu des localisations."""
 	r = Renderer()
 
 	# Not initialized
@@ -311,6 +319,7 @@ def test_localizations():
 
 ##################################################
 def test_localizations_gaussian():
+	"""Vérifie le rendu gaussien des localisations."""
 	r = Renderer()
 	r.set_size(5, 5, 1)
 
@@ -402,6 +411,7 @@ def test_localizations_gaussian():
 
 ##################################################
 def test_tracks():
+	"""Vérifie le rendu des trajectoires."""
 	r = Renderer()
 
 	# Not initialized
@@ -443,6 +453,7 @@ def test_tracks():
 
 ##################################################
 def test_z_stack():
+	"""Vérifie le rendu d'une pile Z."""
 	r = Renderer()
 
 	# Not initialized
@@ -513,6 +524,7 @@ def test_z_stack():
 
 ##################################################
 def test_z_stack_gaussian():
+	"""Vérifie le rendu gaussien d'une pile Z."""
 	r = Renderer()
 	r.set_size(5, 5, 1)
 
@@ -584,6 +596,7 @@ def test_z_stack_gaussian():
 
 ##################################################
 def test_rotation():
+	"""Vérifie le rendu d'une rotation 3D."""
 	r = Renderer()
 
 	# Not initialized
@@ -646,6 +659,7 @@ def test_rotation():
 
 ##################################################
 def test_rotation_gaussian():
+	"""Vérifie le rendu gaussien d'une rotation 3D."""
 	r = Renderer()
 	r.set_size(3, 3, 2)
 	loc = np.array([[0, 0, 0, 1000, 1, 1, 0]], dtype=np.float64)
@@ -681,6 +695,7 @@ def test_rotation_gaussian():
 
 ##################################################
 def test_renderer_atom():
+	"""Vérifie le rendu d'une localisation isolée."""
 	r = Renderer()
 	r.set_size(700, 500, 2)
 	loc = pd.read_csv(INPUT_DIR / "atoms_sphere_motion.csv").to_numpy()

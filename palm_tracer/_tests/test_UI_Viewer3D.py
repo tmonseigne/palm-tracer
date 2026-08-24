@@ -10,14 +10,14 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 ##################################################
 def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
 	_ = Viewer3DWidget(viewer)  # .	 Créer notre widget, en passant par le viewer.
 
 
 ##################################################
 def test_viewer3d(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = Viewer3DWidget(viewer)

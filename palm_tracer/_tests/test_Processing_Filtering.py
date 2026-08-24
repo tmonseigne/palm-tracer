@@ -23,7 +23,7 @@ def f() -> Filtering:
 
 ##################################################
 def test_filter_bad(qtbot, f):
-	"""Test pour le filtrage complet."""
+	"""Vérifie le filtrage complet."""
 	res = f.localization(pd.DataFrame())
 	assert res.empty, "Un dataframe vide doit être retourné."
 	res = f.tracking(pd.DataFrame())
@@ -34,7 +34,7 @@ def test_filter_bad(qtbot, f):
 
 ##################################################
 def test_localization(qtbot, f):
-	"""Test pour le filtrage complet."""
+	"""Vérifie le filtrage complet."""
 	src = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
 	f.filters["Plane"].active = True
 	f.filters["Plane"].value = [1, 9]  # .	Suppression du dernier plan uniquement 411/451 : 40 suppression(s)
@@ -79,7 +79,7 @@ def test_localization(qtbot, f):
 
 ##################################################
 def test_tracking(qtbot, f):
-	"""Test pour le filtrage des plans."""
+	"""Vérifie le filtrage des plans."""
 	src = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
 	filters = f.filters
 
@@ -112,7 +112,7 @@ def test_tracking(qtbot, f):
 
 ##################################################
 def test_tracks_compute(qtbot, f):
-	"""Test pour le filtrage des plans."""
+	"""Vérifie le filtrage des plans."""
 	tracks = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
 	fit = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-Fit.csv")
 	instant_d = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-InD.csv")

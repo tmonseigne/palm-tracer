@@ -6,9 +6,11 @@ from palm_tracer.Settings.Groups import Localization
 
 ##################################################
 def test_object_creation():
-	"""Test step objects creation."""
+	"""Vérifie step objects creation."""
 
-	def f(): return
+	def f():
+		"""Retourne la valeur utilisée par le scénario de test."""
+		return
 
 	print(f"Step : {Step.Step('name', ['key'], f, f)}")
 	print(f"Actions : {Step.StepAction.Compute},{Step.StepAction.Reuse},{Step.StepAction.Skip}")
@@ -16,7 +18,7 @@ def test_object_creation():
 
 ##################################################
 def test_prepare_action(qtbot):
-	"""Test step action preparation."""
+	"""Vérifie step action preparation."""
 
 	group1 = Localization()
 	group2 = Localization()

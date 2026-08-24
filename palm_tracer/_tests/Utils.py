@@ -140,12 +140,12 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	Laisser par défaut les colonnes pour des fichiers de localisation issues de plan-tracer python.
 
 	Changer les colonnes à comparer si la localisation vient de Metamorph.
-		["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance"]
+	        ["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance"]
 
 	Changer les colonnes pour le Tracking
-		sort = ["Track"]
-		group = ["Track"]
-		compare = TRACK_FILE_COLS
+	        sort = ["Track"]
+	        group = ["Track"]
+	        compare = TRACK_FILE_COLS
 
 	:param a: Premier DataFrame.
 	:param b: Second DataFrame.
@@ -308,7 +308,8 @@ def get_light_json(data: dict) -> dict:
 
 ##################################################
 class _FakeDownload:
-	"""Simule un téléchargement QtWebEngine pour tester les actions d'export.
+	"""
+	Simule un téléchargement QtWebEngine pour tester les actions d'export.
 
 	:param suggested: Nom de fichier suggéré par le téléchargement.
 	"""
