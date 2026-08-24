@@ -63,6 +63,8 @@ N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # .								  Nombre de pa
 N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # .							  Nombre de paramètres pour le tracking (18).
 SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["columns"]))  # Dimensions pour le model d'astigmatisme 3D (2,5).
 
+TRACKS_COMPUTE_MIN = 10e-5  # .															  Valeur minimale au niveau des Calculs sur trajectoires.
+
 
 # ==================================================
 # region Manipulation de DataFrame
@@ -261,19 +263,17 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	while i < n:
 		# Lecture de L (la longueur annoncée du bloc)
 		l_raw = data[i]
-		try:
-			l = int(l_raw)
-		except (TypeError, ValueError):
-			raise ValueError(f"Longueur de bloc non entière à l'indice {i}: {l_raw!r}") from None
+		try: length = int(l_raw)
+		except (TypeError, ValueError): raise ValueError(f"Longueur de bloc non entière à l'indice {i}: {l_raw!r}") from None
 
-		if l <= 0: break  # fin du flux
+		if length <= 0: break  # Fin du flux.
 
-		i += 1  # on avance sur le premier élément du bloc
-		if i + l > n:
-			raise ValueError(f"Bloc tronqué: longueur {l} annoncée à l'indice {i - 1}, mais seulement {n - i} élément(s) disponible(s).")
-		# Extraction du bloc (les L valeurs, sans L lui-même)
-		rows.append(np.asarray(data[i:i + l]))
-		i += l  # passer au bloc suivant
+		i += 1  # On avance sur le premier élément du bloc.
+		if i + length > n:
+			raise ValueError(f"Bloc tronqué: longueur {length} annoncée à l'indice {i - 1}, mais seulement {n - i} élément(s) disponible(s).")
+		# Extraction du bloc (les L valeurs, sans L lui-même).
+		rows.append(np.asarray(data[i:i + length]))
+		i += length  # Passer au bloc suivant.
 
 	# Construction du DataFrame avec padding NaN
 	if not rows: return pd.DataFrame()  # aucun bloc valide avant un L<=0 ou tableau vide
@@ -316,14 +316,15 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 
 	if file_type == "Localization" or file_type == "Tracking":
 		# Manipulation du tableau 1D.
-		size = (data.size // n_columns) * n_columns  # .Récupération de la taille correcte si non multiple de N_SEGMENT
-		data = data[:size].reshape(-1, n_columns)  # .	Passage en tableau 2D
-		data = data[data[:, columns.index("X")] > 0]  # Filtrage sur les X inférieurs ou égal à 0 en amont.
-		res = pd.DataFrame(data, columns=columns)  # .	Transformation en Dataframe
+		size = (data.size // n_columns) * n_columns  # .					Récupération de la taille correcte si non multiple de N_SEGMENT
+		data = data[:size].reshape(-1, n_columns)  # .						Passage en tableau 2D
+		data = data[data[:, columns.index("X")] > 0]  # .					Filtrage sur les X inférieurs ou égal à 0 en amont.
+		res = pd.DataFrame(data, columns=columns)  # .						Transformation en Dataframe
 	elif file_type == "Astigmatism 3D Model":
 		res = pd.DataFrame(data, columns=columns, index=MODEL_ROWS)
-	else:
+	else:  # .																Fichiers MSD, Instant Diffusion et Fit du MSD.
 		res = parse_irregular_array(data)
+		res[(res > 0) & (res < TRACKS_COMPUTE_MIN)] = TRACKS_COMPUTE_MIN  # Ramène les petites valeurs positives au minimum autorisé (en conservant les -1).
 		ncols = res.shape[1]
 		if ncols == 0: return pd.DataFrame()
 		if file_type == "MSD" or file_type == "Instant Diffusion":
