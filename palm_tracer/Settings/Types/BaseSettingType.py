@@ -1,11 +1,5 @@
-"""
-Fichier contenant la classe :class:`BaseSettingType` et ses sous-classes pour la gestion des paramètres d'interface utilisateur.
+"""Définit la classe de base commune aux types de paramètres."""
 
-Ce module définit la classe abstraite :class:`BaseSettingType`,
-qui sert de base pour la création de différents types de paramètres dans une interface utilisateur Qt.
-Les sous-classes permettent de gérer des paramètres spécifiques tels que les entiers, les flottants et les listes déroulantes.
-Ces classes sont utilisées pour créer et configurer des widgets de paramètres dans une interface graphique.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

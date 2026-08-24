@@ -1,19 +1,5 @@
-"""
-Fichier contenant la classe :class:`BaseUIGroup`.
+"""Définit la représentation Qt d'un groupe de paramètres."""
 
-Ce module définit une classe de base pour la représentation graphique d'un paramètre dans l'interface utilisateur Qt.
-
-Cette classe est utilisée comme conteneur des éléments Qt associés à une vue spécifique d'un :class:`BaseSettingType`.
-
-Elle permet de gérer indépendamment plusieurs instances d'interface (multi-vues) pour un même modèle de données (pattern MVC simplifié).
-
-Chaque instance de :class:`BaseUIGroup` correspond à une **vue unique** d'un paramètre, et contient tous les objets Qt nécessaires.
-
-Cette séparation permet :
-    - de dupliquer facilement l'interface sans dupliquer les données,
-    - de synchroniser automatiquement toutes les vues,
-    - de simplifier la gestion du cycle de vie des widgets Qt.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

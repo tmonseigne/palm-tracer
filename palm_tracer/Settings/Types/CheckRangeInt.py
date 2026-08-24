@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type intervalle de nombre entier.
-"""
+"""Définit un intervalle entier dont l'application peut être activée ou désactivée."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

@@ -1,6 +1,5 @@
-"""
-Ce fichier définit la classe :class:`.ROIManager`, utilisée pour gérer les zones d'intérêts dans Napari.
-"""
+"""Gère les zones d'intérêt et leur synchronisation avec les calques Napari."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

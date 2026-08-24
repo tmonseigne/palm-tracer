@@ -1,4 +1,5 @@
-"""Fichier des tests pour les différents types de paramètres."""
+"""Teste les différents types de paramètres et leurs interfaces Qt."""
+
 import copy
 from typing import Any, cast, List
 

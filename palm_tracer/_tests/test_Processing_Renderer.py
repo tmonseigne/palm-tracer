@@ -1,4 +1,4 @@
-"""Fichier des tests pour le renderer."""
+"""Teste la production des rendus haute résolution."""
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Renderer

@@ -1,4 +1,5 @@
-"""Fichier des tests pour le grapher."""
+"""Teste la construction des figures Plotly."""
+
 import json
 
 import plotly.graph_objects as go

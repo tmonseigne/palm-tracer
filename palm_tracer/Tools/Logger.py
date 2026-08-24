@@ -1,8 +1,5 @@
-"""
-Module d'enregistrement d'un journal d'activité du process.
+"""Enregistre dans un journal horodaté les différentes étapes d'un traitement."""
 
-Ce fichier contient une classe principale :class:`Logger` permettant d'enregistrer les différentes étapes du process.
-"""
 from __future__ import annotations
 
 import os

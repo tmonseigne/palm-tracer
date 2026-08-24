@@ -1,4 +1,5 @@
-"""Tests unitaires pour SignalWrapper."""
+"""Teste l'abstraction et le regroupement des signaux Qt."""
+
 from typing import Any, List
 
 import pytest

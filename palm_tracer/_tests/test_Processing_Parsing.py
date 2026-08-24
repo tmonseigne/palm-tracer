@@ -1,4 +1,5 @@
-"""Fichier des tests pour l'utilisation des DLL."""
+"""Teste la conversion et la structuration des résultats des DLL PALM."""
+
 import pytest
 
 from palm_tracer.Processing.Parsing import *

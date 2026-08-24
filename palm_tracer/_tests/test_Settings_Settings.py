@@ -1,4 +1,5 @@
-"""Fichier des tests pour l'ensemble des paramètres."""
+"""Teste l'organisation et la sérialisation des paramètres."""
+
 import copy
 from typing import List
 

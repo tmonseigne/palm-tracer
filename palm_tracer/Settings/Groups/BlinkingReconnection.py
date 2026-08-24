@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`palm_tracer.Settings.Groups.TrackingBlinkingReconnection` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de reconnexion de trajectoires en cas de scintillement nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de reconnexion des trajectoires interrompues par le scintillement."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

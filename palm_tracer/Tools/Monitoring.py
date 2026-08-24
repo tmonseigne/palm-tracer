@@ -1,24 +1,8 @@
+"""Surveille les ressources système utilisées pendant l'exécution des tests.
+
+Le suivi couvre notamment le processeur, la mémoire, le disque et, lorsqu'il est disponible, le processeur graphique.
 """
-Module de surveillance des ressources système pendant l'exécution de tests.
 
-Ce fichier contient une classe principale :class:`Monitoring` permettant de suivre en temps réel l'utilisation des
-ressources système (CPU, mémoire, disque) durant l'exécution de tests. Il offre des fonctionnalités de surveillance,
-de mise à jour des données et de visualisation graphique des résultats.
-
-**Contenu** :
-
-1. **Classe principale**
-
-   - :class:`Monitoring` : Classe pour surveiller et analyser les ressources utilisées.
-
-2. **Fonctionnalités**
-
-   - Surveillance des ressources système (CPU, mémoire, disque) via `psutil`.
-   - Génération de graphiques interactifs avec `plotly`.
-   - Sauvegarde des résultats au format texte, HTML ou JSON.
-   - Gestion des intervalles de mise à jour via des threads.
-
-"""
 from __future__ import annotations
 
 import os

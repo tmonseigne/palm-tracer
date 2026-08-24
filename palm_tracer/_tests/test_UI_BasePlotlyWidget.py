@@ -1,4 +1,4 @@
-"""Fichier des tests pour le widget."""
+"""Teste la classe de base des widgets autonomes utilisant Plotly."""
 
 from palm_tracer._tests.Utils import *
 from palm_tracer._tests.Utils import _FakeDownload

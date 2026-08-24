@@ -1,3 +1,5 @@
+"""Configure les fixtures et les hooks Pytest communs à la suite de tests."""
+
 import json
 import os
 import platform

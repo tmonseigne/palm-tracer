@@ -1,4 +1,5 @@
-"""Fichier contenant une classe pour créer des graphiques."""
+"""Construit les figures Plotly utilisées pour visualiser les données PALM."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

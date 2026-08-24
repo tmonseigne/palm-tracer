@@ -1,4 +1,4 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget de calcul et d'application des alignements géométriques."""
 
 from qtpy.QtCore import Qt
 

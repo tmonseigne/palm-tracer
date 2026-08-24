@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`Calibration` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de calibration nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de calibration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

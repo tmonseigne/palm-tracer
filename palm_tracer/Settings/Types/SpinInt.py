@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`SpinInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type nombre entier.
-"""
+"""Définit un paramètre entier représenté par une boîte de sélection numérique."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

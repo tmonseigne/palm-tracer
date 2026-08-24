@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`FileList` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type liste de fichiers.
-"""
+"""Définit un paramètre contenant une liste de fichiers."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

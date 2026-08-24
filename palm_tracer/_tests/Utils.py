@@ -1,4 +1,5 @@
-"""Fichier de fonctions et constantes utiles pour les tests."""
+"""Fournit les fonctions et les constantes communes aux tests."""
+
 from __future__ import annotations
 
 import os

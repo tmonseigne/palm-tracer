@@ -1,6 +1,5 @@
-"""
-Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés.
-"""
+"""Encapsule la DLL PALM et ses algorithmes de détection et de suivi."""
+
 from __future__ import annotations
 
 import ctypes

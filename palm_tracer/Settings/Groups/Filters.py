@@ -1,10 +1,5 @@
-"""
-Fichier contenant la classe :class:`Filters` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de filtrage nécessaires à la configuration de PALM Tracer.
+"""Définit le groupe principal des paramètres de filtrage."""
 
-.. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres
-	      intensité c'est intensité intégré de la localisation donc potentiellement beaucouppppppp
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

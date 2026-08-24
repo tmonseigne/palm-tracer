@@ -1,4 +1,4 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget Napari de visualisation 3D des localisations."""
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.UI import Viewer3DWidget

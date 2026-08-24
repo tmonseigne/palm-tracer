@@ -1,6 +1,5 @@
-"""
-Ce fichier définit la classe :class:`.ROI`, utilisée pour gérer les zones d'intérêts dans Napari.
-"""
+"""Définit une zone d'intérêt utilisée pour filtrer les données dans Napari."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

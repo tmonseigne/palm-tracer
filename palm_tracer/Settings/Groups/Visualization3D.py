@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`Visualization3D` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de visualisation3D nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de visualisation 3D."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,11 +1,8 @@
-"""Fichier permettant de générer les fichiers de l'API pour Sphinx.
+"""Génère les pages reStructuredText de l'API publique pour Sphinx.
 
-Le but est de remplacer sphinx-apidoc par une génération maîtrisée :
-- pages "package" : 2 toctree (modules vs sous-packages) avec maxdepth différents,
-- pages "module" : automodule (Sphinx/autosummary gère ensuite classes/méthodes via templates).
-
-Aucun import des modules n'est nécessaire : on s'appuie sur l'arborescence Python.
+La génération repose sur l'analyse statique de l'arborescence Python et ne nécessite aucun import des modules documentés.
 """
+
 from __future__ import annotations
 
 import ast

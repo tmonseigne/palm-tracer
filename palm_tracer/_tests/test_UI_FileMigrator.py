@@ -1,4 +1,5 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget de migration des anciens résultats Metamorph."""
+
 import shutil
 
 from qtpy.QtCore import Qt

@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`CheckBox` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type case à cocher.
-"""
+"""Définit un paramètre booléen représenté par une case à cocher."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

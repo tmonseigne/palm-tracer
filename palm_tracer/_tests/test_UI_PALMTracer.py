@@ -1,4 +1,5 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget principal de PALM Tracer."""
+
 import shutil
 
 from qtpy.QtCore import Qt

@@ -1,4 +1,5 @@
-"""Fichier permettant de mettre à jour le toctree du fichier de test."""
+"""Met à jour la table des matières des rapports de tests."""
+
 from __future__ import annotations
 
 from pathlib import Path

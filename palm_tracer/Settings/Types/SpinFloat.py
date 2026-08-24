@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`SpinFloat` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type nombre réel.
-"""
+"""Définit un paramètre flottant représenté par une boîte de sélection numérique."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

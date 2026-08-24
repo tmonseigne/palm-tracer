@@ -1,17 +1,5 @@
-"""
-Fonctions utilitaires génériques pour la construction d'interfaces utilisateur Qt et l'affichage console coloré.
+"""Fournit les utilitaires de construction et de synchronisation des interfaces Qt."""
 
-Ce module regroupe :
-	- des helpers pour créer et configurer rapidement des calques Qt cohérents (onglets, groupes, formulaires, séparateurs, spinbox, etc.) ;
-	- des fonctions de synchronisation de widgets (callbacks) ;
-	- des fonctions d'affichage console colorée (erreurs, warnings, succès) ;
-	- quelques utilitaires généraux liés à l'IHM.
-
-L'objectif est d'assurer :
-	- une ergonomie homogène sur l'ensemble des interfaces ;
-	- une réduction du boilerplate Qt ;
-	- une meilleure lisibilité et maintenabilité du code UI.
-"""
 from __future__ import annotations
 
 from pathlib import Path

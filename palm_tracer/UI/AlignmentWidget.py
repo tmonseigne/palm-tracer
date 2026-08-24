@@ -1,23 +1,8 @@
+"""Fournit le widget de calcul et d'application des alignements géométriques.
+
+.. todo:: Implémenter le calcul automatique des coefficients et une visualisation intermédiaire de l'alignement.
 """
-Module contenant la classe :class:`AlignmentWidget`, un outil minimaliste pour la gestion de l'alignement géométrique entre acquisitions dans PALMTracer.
 
-Ce widget offre une interface simple organisée en deux onglets : ``Compute Alignment Coefficients``, ``Apply Alignment``
-
-Fonctionnalités principales
----------------------------
-- Interface légère en PySide6/PyQt6 basée sur des :class:`QTabWidget`, :class:`QGroupBox` et :class:`QPushButton`.
-- Gestion simple des entrées (sélection de fichiers TIFF / TXT via :class:`QFileDialog`).
-- Chargement des images via :func:`palm_tracer.Tools.open_tif` et sauvegarde via :func:`palm_tracer.Tools.save_tif`.
-- Chargement des coefficients d'alignement sous forme d'un tableau NumPy de taille ``(2, 10)``.
-- Application de l'alignement via :meth:`Palm.align`, issue du module :mod:`palm_tracer.Processing`.
-
-Notes
------
-- Le widget est autonome : il peut être lancé directement (``python AlignmentWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
-
-.. todo:: Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle).
-		  Prévoir une visualisation intermédiaire (overlay, difference map).
-"""
 from __future__ import annotations
 
 from pathlib import Path

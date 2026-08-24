@@ -1,8 +1,5 @@
-"""
-Fichier de fonctions de manipulation de fichiers.
+"""Fournit les fonctions de lecture, d'écriture et de gestion des fichiers."""
 
-Ce module regroupe diverses fonctions pour la gestion et la manipulation de fichiers.
-"""
 from __future__ import annotations
 
 import ctypes

@@ -1,4 +1,5 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget de calibration et d'estimation axiale par astigmatisme 3D."""
+
 import shutil
 
 from qtpy.QtCore import Qt

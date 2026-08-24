@@ -1,14 +1,8 @@
-"""
-Widget d'affichage Haute Résolution pour Napari permettant de charger un dossier de résultats et de visualiser les points.
+"""Fournit le widget Napari de visualisation haute résolution des résultats.
 
-Ce widget ajoute dans le dock de Napari :
-	- un bouton de chargement du dossier,
-	- trois champs pour contrôler les paramètres de visualisation Haute Résolution,
-	- un calque Napari Points/trajectoires mis à jour dynamiquement.
-	- Un bouton pour sauvegarder une image PNG résultat
-
-.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option "se souvenir du choix").
+.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 """
+
 from __future__ import annotations
 
 from pathlib import Path

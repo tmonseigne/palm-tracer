@@ -1,8 +1,8 @@
-"""
-Fichier des tests pour la classe PALMTracer
+"""Teste l'orchestration complète des traitements par la classe :class:`PALMTracer`.
 
-.. note:: Il est fréquent que la vérificaiton du log ne se fasse qu'au nombre de lignes, car au moins 15 lignes à chaque process.
+.. note:: Certaines vérifications du journal portent uniquement sur le nombre de lignes, car chaque traitement en produit au moins quinze.
 """
+
 import shutil
 from time import sleep
 

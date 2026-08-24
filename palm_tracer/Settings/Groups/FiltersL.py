@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`FiltersL` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de filtrage de l'ajustement gaussien nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de filtrage des localisations."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,8 +1,5 @@
-"""
-Fichier des tests pour la classe PALMTracer
+"""Teste le filtrage des localisations et des trajectoires."""
 
-.. note:: Il est fréquent que la vérificaiton du log ne se fasse qu'au nombre de lignes, car au moins 15 lignes à chaque process.
-"""
 import pytest
 
 from palm_tracer._tests.Utils import *

@@ -1,4 +1,5 @@
-"""PALMTracer"""
+"""Expose l'API publique principale de PALM Tracer."""
+
 try:
 	from ._version import version as __version__
 except ImportError:

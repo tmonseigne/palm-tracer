@@ -1,4 +1,4 @@
-"""Fichier des tests pour le logger."""
+"""Teste l'enregistrement du journal d'activité."""
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import Logger

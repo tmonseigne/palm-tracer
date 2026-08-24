@@ -1,4 +1,5 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget Napari de visualisation haute résolution des résultats."""
+
 import shutil
 
 from qtpy.QtCore import QCoreApplication, QEvent, Qt

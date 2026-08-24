@@ -1,12 +1,5 @@
-"""
-Module contenant la classe :class:`Astigmatism3DWidget`, un outil minimaliste pour le calcul d'un modèle d'astigmatisme en lien avec la position axiale.
+"""Fournit le widget de calibration et d'estimation axiale par astigmatisme 3D."""
 
-Ce widget offre une interface simple organisée en deux onglets : ``Compute Astigmatism Model``, ``Estimate Z``
-
-Notes
------
-- Le widget est autonome : il peut être lancé directement (``python Astigmatism3DWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
-"""
 from __future__ import annotations
 
 import shutil

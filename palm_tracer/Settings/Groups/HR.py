@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`HR` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de visualisation haute résolution nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres du rendu haute résolution."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

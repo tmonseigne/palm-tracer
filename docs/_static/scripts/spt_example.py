@@ -1,4 +1,5 @@
-"""Example script for SPT processing."""
+"""Présente un exemple de traitement de suivi de particules uniques."""
+
 from __future__ import annotations
 
 import shutil

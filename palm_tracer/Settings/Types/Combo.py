@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`Combo` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type liste déroulante.
-"""
+"""Définit un paramètre de sélection dans une liste déroulante."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

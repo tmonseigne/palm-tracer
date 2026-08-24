@@ -1,9 +1,8 @@
-"""
-Module contenant les fonctions de traitement de PALM.
+"""Orchestre le chargement, le traitement, le filtrage et l'enregistrement des données PALM.
 
-.. todo:: Ajouter clairement un point dans la doc sur le systeme de filtre, l'enregistrement, le calcul sur l'intégralité des éléments
-		  et filtre ensuite lors de la visualisation des graph et des sauvegarde si la case est coché...
+.. todo:: Documenter précisément la stratégie de filtrage appliquée aux calculs, aux visualisations et aux sauvegardes.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

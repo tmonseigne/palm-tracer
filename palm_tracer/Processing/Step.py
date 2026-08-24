@@ -1,4 +1,5 @@
-"""Classes utiles à la gestion du Pipeline PALM Tracer."""
+"""Définit les étapes et les transitions du pipeline de traitement PALM."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,4 +1,5 @@
-"""Fichier des tests pour la création de galeries."""
+"""Teste les fonctions d'extraction des billes et de correction de la dérive."""
+
 import pytest
 
 from palm_tracer.Processing.Drift import *

@@ -1,25 +1,8 @@
+"""Fournit le widget de visualisation interactive des données PALM avec Plotly.
+
+.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 """
-Module contenant la classe :class:`GraphViewerWidget` pour la visualisation interactive
-des graphiques liés aux données PALMTracer (pile TIFF, localisations, tracking).
 
-Ce widget fournit :
-- Une interface en deux parties :
-  • Colonne gauche : informations fichier + présence localisation/tracking, choix du domaine
-	(Stack / Localization / Tracking) via 3 boutons exclusifs, et sélection de la source.
-  • Zone droite : rendu d'un graphe Plotly dans un QWebEngineView (zoom, pan, hover, export).
-- Un couplage léger avec :class:`PALMTracer` pour accéder aux fichiers en cours et charger
-  automatiquement pile/CSV (localisations/tracking).
-- Des exports HTML/PNG/PDF (PNG via capture Qt en fallback, si Kaleido indisponible).
-
-Notes
------
-- Le rendu interactif utilise QtWebEngine (PySide6-Addons / PyQt6-WebEngine / PyQtWebEngine selon binding).
-  Si QtWebEngine n'est pas disponible, un fallback texte explicite est affiché.
-- Le widget ne copie pas l'objet :class:`PALMTracer` ; il garde une **référence** passée au constructeur.
-- Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
-
-.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option se souvenir du choix).
-"""
 from __future__ import annotations
 
 from pathlib import Path

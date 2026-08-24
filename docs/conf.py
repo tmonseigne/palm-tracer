@@ -1,4 +1,5 @@
-"""Configuration file for the Sphinx documentation builder."""
+"""Configure la génération de la documentation avec Sphinx."""
+
 from __future__ import annotations
 
 # -- Gestion des fichiers à ajouter ------------------------------------------

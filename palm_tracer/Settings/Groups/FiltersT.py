@@ -1,9 +1,5 @@
-"""
-Fichier contenant la classe :class:`Filters` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de filtrage du tracking nécessaires à la configuration de PALM Tracer.
+"""Définit le groupe de paramètres de filtrage des trajectoires."""
 
-.. todo:: Vérifier l'ordre de grandeur et les valeurs par défaut des paramètres des filtres. Dynamiquement, changer le max de la longueur
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,4 +1,4 @@
-"""Fichier des tests pour l'astigmatisme 3D,"""
+"""Teste les fonctions de calibration et d'estimation axiale par astigmatisme 3D."""
 
 from palm_tracer.Processing.Astigmatism3D import *
 

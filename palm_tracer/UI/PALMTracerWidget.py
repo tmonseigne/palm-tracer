@@ -1,14 +1,8 @@
-"""
-Module contenant la classe :class:`PALMTracerWidget` pour l'interface principale de l'application.
+"""Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 
-Ce module définit la classe :class:`.PALMTracerWidget`, qui crée et gère l'interface utilisateur principale de l'application.
-Elle contient des sections de paramètres organisées sous forme de calque,
-permettant de modifier différents paramètres pour l'exécution des algorithmes et l'affichage des résultats.
-
-.. todo::
-    Pour le moment, la partie permettant de mettre en attente et annuler des preview ne fonctionne pas car Napari freeze le temps de la mise à jour.
-    l'utilisation de thread pour lancer certaines fonctions est problématique à l'heure actuelle.
+.. todo:: Rendre interruptibles les prévisualisations sans bloquer l'interface Napari.
 """
+
 from pathlib import Path
 from typing import Any, Callable, cast, Optional
 

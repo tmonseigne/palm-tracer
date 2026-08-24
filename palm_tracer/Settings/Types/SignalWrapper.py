@@ -1,9 +1,5 @@
-"""
-Fichier contenant la classe :class:`SignalWrapper`.
+"""Fournit une abstraction des signaux Qt avec regroupement des émissions bloquées."""
 
-Cette classe fournit une abstraction légère pour gérer des signaux dans une application basée sur Qt.
-Elle encapsule un objet `Signal` de PyQt/PySide et facilite la gestion des connexions et des émissions de signaux.
-"""
 from __future__ import annotations
 
 from typing import Any, Callable, Optional

@@ -1,4 +1,5 @@
-"""Fichier des tests pour les fonctions en lien avec l'affichage."""
+"""Teste les utilitaires de construction et de synchronisation des interfaces Qt."""
+
 from pathlib import Path
 
 from qtpy.QtCore import Qt

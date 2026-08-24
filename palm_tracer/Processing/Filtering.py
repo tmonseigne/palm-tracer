@@ -1,4 +1,5 @@
-"""Fonction de filtrages."""
+"""Fournit les filtres applicables aux localisations et aux trajectoires."""
+
 from __future__ import annotations
 
 from typing import cast

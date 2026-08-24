@@ -1,4 +1,5 @@
-"""Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes."""
+"""Convertit et structure les entrées et sorties des DLL PALM."""
+
 from __future__ import annotations
 
 import numpy as np

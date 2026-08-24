@@ -1,4 +1,5 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget de visualisation interactive des données PALM."""
+
 import pytest
 from qtpy.QtCore import QCoreApplication, QEvent, Qt
 

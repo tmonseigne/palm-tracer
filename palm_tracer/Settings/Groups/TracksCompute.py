@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`palm_tracer.Settings.Groups.TracksCompute` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de calcul sur les trajectoires nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres des calculs sur les trajectoires."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

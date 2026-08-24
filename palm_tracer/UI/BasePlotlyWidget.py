@@ -1,4 +1,5 @@
-"""Module contenant la classe mère :class:`BasePlotlyWidget`, permettant de centraliser des fonctions communes aux widgets Stand Alone."""
+"""Définit la classe de base commune aux widgets autonomes utilisant Plotly."""
+
 from __future__ import annotations
 
 import json

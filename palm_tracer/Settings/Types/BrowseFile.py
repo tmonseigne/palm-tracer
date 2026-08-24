@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`BrowseFile` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type recherche de fichier.
-"""
+"""Définit un paramètre de sélection de fichier."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

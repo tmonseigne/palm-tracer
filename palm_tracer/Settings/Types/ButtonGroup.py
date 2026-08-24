@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type bouton à cliquer.
-"""
+"""Définit un paramètre représenté par un groupe de boutons exclusifs."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

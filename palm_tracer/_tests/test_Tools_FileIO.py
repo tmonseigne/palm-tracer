@@ -1,4 +1,5 @@
-"""Fichier des tests pour la lecture/écriture des fichiers."""
+"""Teste les fonctions de lecture, d'écriture et de gestion des fichiers."""
+
 import ctypes
 import shutil
 

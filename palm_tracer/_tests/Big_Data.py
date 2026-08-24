@@ -1,4 +1,4 @@
-"""Fichier des tests pour l'utilisation de la DLL CPU."""
+"""Teste les traitements PALM sur des jeux de données volumineux."""
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm

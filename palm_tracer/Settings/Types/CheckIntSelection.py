@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`CheckIntSelection` dérivée de :class:`.BaseSettingType`,
-qui permet la gestion d'une sélection de valeurs entières et d'intervalles.
-"""
+"""Définit un paramètre de sélection de valeurs entières et d'intervalles."""
+
 from __future__ import annotations
 
 import re

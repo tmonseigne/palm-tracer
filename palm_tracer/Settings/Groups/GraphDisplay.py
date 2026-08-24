@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`Graph` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de visualisation de graphique nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres d'affichage des graphiques."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,4 +1,5 @@
-"""Fichier des tests pour les groupes de paramètres."""
+"""Teste les groupes de paramètres."""
+
 import copy
 from typing import List, Type
 

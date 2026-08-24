@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`palm_tracer.Settings.Groups.Tracking` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de tracking nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de suivi des particules."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,15 +1,5 @@
-"""
-Widget d'affichage 3D pour Napari permettant de charger un fichier CSV et de visualiser les points en 3D
-avec ajustements interactifs des échelles et de la taille des points.
+"""Fournit le widget Napari de visualisation 3D des localisations."""
 
-Ce widget ajoute dans le dock de Napari :
-	- un bouton de chargement de fichier CSV,
-	- trois champs pour contrôler les échelles en XY et Z et la taille des points,
-	- une option permettant d'exclure les points avec intensité nulle,
-	- un calque Napari Points mis à jour dynamiquement.
-
-Le CSV doit contenir les colonnes ``X``, ``Y``, ``Z`` et ``Integrated Intensity``.
-"""
 from __future__ import annotations
 
 from pathlib import Path

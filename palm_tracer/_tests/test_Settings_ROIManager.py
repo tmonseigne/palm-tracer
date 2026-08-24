@@ -1,4 +1,5 @@
-"""Tests unitaires de :class:`ROIManager`."""
+"""Teste la gestion et la synchronisation des zones d'intérêt."""
+
 from __future__ import annotations
 
 import numpy as np

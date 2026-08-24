@@ -1,4 +1,5 @@
-"""Fichier contenant une classe pour créer des rendus."""
+"""Produit les rendus d'images haute résolution à partir des localisations."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

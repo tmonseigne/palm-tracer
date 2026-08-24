@@ -1,15 +1,5 @@
-"""
-Ce fichier définit la classe :class:`.Settings`, utilisée pour gérer et enregistrer les paramètres nécessaires à la configuration de PALM Tracer.
+"""Gère la configuration, la sérialisation et l'organisation des paramètres de PALM Tracer."""
 
-**Fonctionnalités principales** :
-
-- Permet le parsing et l'enregistrement des paramètres liés à l'interface utilisateur.
-- Fournit une gestion structurée des paramètres par sections et algorithmes.
-
-**Usage** :
-
-La classe :class:`.Settings` est conçue pour interagir directement avec l'interface utilisateur en facilitant le paramétrage de PALM Tracer.
-"""
 from __future__ import annotations
 
 from contextlib import AbstractContextManager, ExitStack

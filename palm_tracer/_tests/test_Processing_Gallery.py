@@ -1,4 +1,5 @@
-"""Fichier des tests pour la création de galeries."""
+"""Teste la construction des galeries d'images."""
+
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Gallery
 from palm_tracer.Tools import FileIO

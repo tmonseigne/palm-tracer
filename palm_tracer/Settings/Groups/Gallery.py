@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`GaussianFit` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres d'ajustement gaussien nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de construction des galeries."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

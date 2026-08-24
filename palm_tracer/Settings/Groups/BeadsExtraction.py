@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`palm_tracer.Settings.Groups.BeadsExtraction` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres permettant l'extraction des billes à partir des localisation nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres d'extraction des billes."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

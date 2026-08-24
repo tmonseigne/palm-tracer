@@ -1,4 +1,5 @@
-"""Fichier contenant des fonctions pour la création de galeries."""
+"""Construit des galeries d'images à partir des localisations détectées."""
+
 from __future__ import annotations
 
 import numpy as np

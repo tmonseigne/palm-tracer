@@ -1,8 +1,5 @@
-"""
-Fichier contenant la classe :class:`BaseSettingGroup` et ses sous-classes pour la gestion des groupes de paramètres.
+"""Définit la classe de base commune aux groupes de paramètres."""
 
-Ce module définit la classe abstraite :class:`.BaseSettingGroup`, qui sert de base pour la création de différents groupes de paramètres.
-"""
 from __future__ import annotations
 
 import copy

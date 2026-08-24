@@ -1,6 +1,5 @@
-"""
-Module contenant la classe :class:`FileMigratorWidget`, un outil minimaliste pour la gestion de l'ancien format de fichier Metamoprh.
-"""
+"""Fournit le widget de migration des anciens résultats Metamorph."""
+
 from __future__ import annotations
 
 from pathlib import Path

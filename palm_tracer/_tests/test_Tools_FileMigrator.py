@@ -1,4 +1,5 @@
-"""Fichier des tests pour la lecture/écriture des fichiers."""
+"""Teste la migration des anciens résultats Metamorph."""
+
 import shutil
 
 import pytest

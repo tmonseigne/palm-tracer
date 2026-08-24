@@ -1,4 +1,5 @@
-"""Fichier contenant des fonctions lié à l'astigmatisme 3D (estimation de la position axiale en fonction des écarts-types sur X et Y)."""
+"""Fournit les fonctions de calibration et d'estimation de la position axiale par astigmatisme 3D."""
+
 from __future__ import annotations
 
 import numpy as np

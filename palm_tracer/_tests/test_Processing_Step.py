@@ -1,4 +1,5 @@
-"""Fichier des tests pour la création de galeries."""
+"""Teste les étapes et les transitions du pipeline de traitement."""
+
 from palm_tracer.Processing import Step
 from palm_tracer.Settings.Groups import Localization
 

@@ -1,4 +1,5 @@
-"""Fichier contenant des fonctions pour le drift."""
+"""Fournit les fonctions d'extraction des billes et de correction de la dérive."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

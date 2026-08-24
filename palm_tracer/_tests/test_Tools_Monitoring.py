@@ -1,4 +1,5 @@
-"""Fichier des tests pour le monitoring."""
+"""Teste la surveillance des ressources système."""
+
 import time
 
 from palm_tracer._tests.Utils import *

@@ -1,4 +1,5 @@
-"""Fichier permettant de transformer un rapport Pytest JSON en reStructuredText pour sphinx."""
+"""Convertit un rapport Pytest JSON en document reStructuredText."""
+
 from __future__ import annotations
 
 import datetime
