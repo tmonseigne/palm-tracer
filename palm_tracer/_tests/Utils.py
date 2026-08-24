@@ -308,6 +308,11 @@ def get_light_json(data: dict) -> dict:
 
 ##################################################
 class _FakeDownload:
+	"""Simule un téléchargement QtWebEngine pour tester les actions d'export.
+
+	:param suggested: Nom de fichier suggéré par le téléchargement.
+	"""
+
 	def __init__(self, suggested="plot.png"):
 		self._suggested = suggested
 		self.directory = None

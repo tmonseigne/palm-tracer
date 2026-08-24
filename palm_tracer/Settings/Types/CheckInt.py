@@ -16,13 +16,13 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class CheckInt(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type nombre entier.
+	"""Représente un entier dont l'application peut être activée ou désactivée.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeurs par défaut du paramètre.
-	:param _limits: Valeurs limites du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Valeur par défaut.
+	:param _limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par la boîte de sélection numérique.
 	"""
 
 	default: int = 0

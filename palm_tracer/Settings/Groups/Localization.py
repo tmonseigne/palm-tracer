@@ -19,21 +19,19 @@ from palm_tracer.Tools.FileIO import open_calibration_mat
 ##################################################
 @dataclass
 class Localization(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Localisation :
+	"""Regroupe les paramètres de détection et d'ajustement des localisations.
 
-	Attributs :
-		- **Preview** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Activation de l'aperçu ou non (par défaut : `False`).
-		- **Threshold** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		  Seuil de détection de la localisation en intensité (par défaut : `90`).
-		- **Auto Threshold** (:class:`Button <palm_tracer.Settings.Types.Button.Button>`) : Bouton pour calculer le seuil automatiquement.
-		- **ROI Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Forme de la zone autour de la localisation (par défaut : `Circle`).
-		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la zone autour des localisations (par défaut : `7`).
-		- **Watershed** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Activation ou désactivation du mode Watershed (par défaut : `True`).
-		- **Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Mode de calcul d'ajustement pour la localisation (par défaut : `Nothing`).
-		- **Gaussian Fit** (:class:`GaussianFit <palm_tracer.Settings.Groups.GaussianFit.GaussianFit>`) : Paramètres du Gaussian Fit.
-		- **Spline Fit** (:class:`SplineFit <palm_tracer.Settings.Groups.SplineFit.SplineFit>`) : Paramètres du Spline Fit.
+	Paramètres regroupés :
+
+	- ``Preview`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active la prévisualisation ; valeur par défaut : ``False``.
+	- ``Threshold`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : seuil d'intensité de la détection ; valeur par défaut : ``90.0``.
+	- ``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`) : calcule automatiquement le seuil.
+	- ``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : forme circulaire ou carrée de la zone d'ajustement.
+	- ``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille de la zone d'ajustement ; valeur par défaut : ``7`` pixels.
+	- ``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : sépare les points voisins ; valeur par défaut : ``True``.
+	- ``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : sélectionne l'absence d'ajustement, l'ajustement gaussien ou l'ajustement par spline.
+	- ``Gaussian Fit`` (:class:`~palm_tracer.Settings.Groups.GaussianFit.GaussianFit`) : paramètres de l'ajustement gaussien.
+	- ``Spline Fit`` (:class:`~palm_tracer.Settings.Groups.SplineFit.SplineFit`) : paramètres de l'ajustement par spline.
 	"""
 
 	label: str = "Localization"

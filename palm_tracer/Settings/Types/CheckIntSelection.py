@@ -16,7 +16,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 ##################################################
 class IntSelectionValidator(QValidator):
-	"""Validateur Qt pour une sélection de valeurs entières et d'intervalles."""
+	"""Valide la syntaxe d'une sélection de valeurs entières et d'intervalles."""
 
 	##################################################
 	def validate(self, text: str, pos: int) -> tuple[QValidator.State, str, int]:
@@ -44,16 +44,14 @@ class IntSelectionValidator(QValidator):
 ##################################################
 @dataclass
 class CheckIntSelection(BaseSettingType):
-	"""
-	Classe pour un paramètre permettant de sélectionner des valeurs entières individuelles ou des intervalles.
+	"""Représente une sélection activable de valeurs entières et d'intervalles.
 
-	La sélection est saisie sous forme textuelle. Les éléments sont séparés par des points-virgules et les intervalles
-	sont définis avec un tiret. Par exemple, ``1-10;15;20-25`` sélectionne les valeurs de 1 à 10, la valeur 15 et
-	les valeurs de 20 à 25.
+	Les éléments sont séparés par des points-virgules et les intervalles par un tiret.
+	Par exemple, ``1-10;15;20-25`` sélectionne les valeurs de 1 à 10, la valeur 15 et les valeurs de 20 à 25.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Sélection par défaut.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Sélection textuelle par défaut.
 	"""
 
 	default: str = ""

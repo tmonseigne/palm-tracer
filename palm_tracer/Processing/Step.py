@@ -19,7 +19,16 @@ FilterTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks com
 ##################################################
 @dataclass(frozen=True)
 class Step:
-	"""Classe immuable permettant de définir une étape du traitement."""
+	"""Décrit une étape immuable du pipeline de traitement.
+
+	:param group_name: Nom du groupe de paramètres contrôlant l'étape.
+	:param keys: Clés des DataFrames lus ou produits par l'étape.
+	:param process_func: Fonction exécutant le calcul.
+	:param filter_func: Fonction appliquant le filtrage associé.
+	:param allow_dirty: Autorise la réutilisation d'un résultat malgré l'invalidation du pipeline.
+	:param apply_filter: Indique si le filtrage doit être appliqué.
+	"""
+
 	group_name: str
 	"""Nom du groupe de paramètres lié"""
 	keys: list[str]
@@ -36,7 +45,8 @@ class Step:
 
 ##################################################
 class StepAction(Enum):
-	"""Actions possibles pour une étape du pipeline."""
+	"""Énumère les décisions possibles lors de la préparation d'une étape du pipeline."""
+
 	Compute = auto()
 	"""Calcul réel."""
 	Reuse = auto()

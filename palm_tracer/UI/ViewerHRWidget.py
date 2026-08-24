@@ -38,22 +38,17 @@ TIPS = {
 
 
 class ViewerHRWidget(QWidget):
+	"""Affiche les résultats PALM en haute résolution dans Napari.
+
+	Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation
+	sous forme d'image PNG.
+
+	:param viewer: Visionneuse Napari recevant les calques.
+	:param palmtracer: Instance principale à laquelle le widget est associé.
+
+	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer HR"``.
 	"""
-	Widget d'affichage HR pour un viewer Napari.
 
-	Ce widget permet :
-		- de charger un dossier,
-		- de modifier la taille des points,
-		- de modifier le facteur d'agrandissement,
-		- de sélectionner la source d'information permettant la coloration des points,
-		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points` ou :class:`napari.layers.Tracks`,
-		- de sauvegarder une image PNG résultat de la visualisation.
-
-	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer HR"``
-
-	:param viewer: Instance du viewer Napari où sera ajouté le calque HR.
-	:param palmtracer: Instance PALMTracer à lier.
-	"""
 	UI_NAME: str = "HR"
 	LAYERS_NAME: list[str] = ["Visualization", "Points", "Tracks", "ROI Filter"]
 

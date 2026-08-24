@@ -18,17 +18,19 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class Filters(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de filtrage :
+	"""Regroupe les paramètres de filtrage communs aux localisations et aux trajectoires.
 
-	Attributs :
-		- **Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Sauvegarde les éléments une fois filtrés (dans un fichier séparé du fichier non filtré)  (par défaut : `False`).
-		- **Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Intervalle de plans sélectionné (par défaut : `[1,10000]`).
-		- **ROI** (:class:`CheckInt <palm_tracer.Settings.Types.CheckInt.CheckInt>`) : ROI sélectionnée pour la sélection (par défaut : `1`).
-		- **Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Paramètres de filtrage de la Localisation.
-		- **Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Paramètres de filtrage du Tracking.
+	Paramètres regroupés :
+
+	- ``Save`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enregistre séparément les résultats filtrés ; valeur par défaut :
+	  ``False``.
+	- ``Plane`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle des plans conservés ; valeur par défaut :
+	  ``[1, 100000]``.
+	- ``ROI`` (:class:`~palm_tracer.Settings.Types.CheckInt.CheckInt`) : indice de la zone d'intérêt utilisée pour le filtrage spatial.
+	- ``Localization`` (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`) : filtres propres aux localisations.
+	- ``Tracks`` (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`) : filtres propres aux trajectoires.
+
+	.. todo:: Vérifier les ordres de grandeur et les valeurs par défaut des filtres, notamment la plage de l'intensité intégrée des localisations.
 	"""
 
 	label: str = "Filters"

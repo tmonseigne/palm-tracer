@@ -30,7 +30,13 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 ##################################################
 class PALMTracerWidget(QWidget):
-	"""Widget principal gérant toute l'interface."""
+	"""Fournit l'interface Napari principale de PALM Tracer.
+
+	Le widget expose les paramètres du pipeline, déclenche les traitements et synchronise les calques de prévisualisation et de résultats.
+
+	:param viewer: Visionneuse Napari dans laquelle l'interface et les calques sont créés.
+	"""
+
 	UI_NAME: str = "PALMTracer"
 	LAYERS_NAME: list[str] = ["Raw", "Points Present", "ROI Present", "Points Filtered", "Points Past", "Points Future", "ROI Filter"]
 

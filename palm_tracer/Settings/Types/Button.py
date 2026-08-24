@@ -13,11 +13,10 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 ##################################################
 @dataclass
 class Button(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type bouton à cliquer.
+	"""Représente une action déclenchée par un bouton Qt.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché sur le bouton.
+	:param tooltip: Description affichée dans l'infobulle.
 	"""
 
 	##################################################

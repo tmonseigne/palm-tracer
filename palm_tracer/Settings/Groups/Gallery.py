@@ -11,12 +11,12 @@ from palm_tracer.Settings.Types import SpinInt
 ##################################################
 @dataclass
 class Gallery(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de la Galerie :
+	"""Regroupe les paramètres de construction des galeries d'images.
 
-	Attributs :
-		- **ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la Zone autour des points (par défaut : `9`).
-		- **Gallery Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Nombre de points par ligne (par défaut : `20`).
+	Paramètres regroupés :
+
+	- ``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : côté de la zone extraite autour de chaque point ; valeur par défaut : ``9`` pixels.
+	- ``ROIs Per Line`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de zones par ligne et par colonne ; valeur par défaut : ``30``.
 	"""
 
 	label: str = "Gallery"

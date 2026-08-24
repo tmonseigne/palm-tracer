@@ -12,21 +12,18 @@ from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, S
 ##################################################
 @dataclass
 class GaussianFit(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres du Gaussian Fit :
+	"""Regroupe les paramètres de l'ajustement gaussien des localisations.
 
-	Attributs :
+	Paramètres regroupés :
 
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement gaussien (par défaut : `Mode X, Y`).
-
-			- `0` : `Mode X, Y` (theta et sigma sont fixes)
-			- `1` : `Mode X, Y, Sigma` (theta est fixe, Sigma Non)
-			- `2` : `Mode X, Y, SigmaX, SigmaY` (theta n'est pas fixe, Sigma Si)
-			- `3` : `Mode X, Y, SigmaX, SigmaY, Theta` (theta et sigma ne sont pas fixes)
-
-		- **Sigma** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre σ pour l'ajustement gaussien (par défaut : `1.0`).
-		- **Theta** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre θ pour l'ajustement gaussien (par défaut : `0.0`).
-		- **Z** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Utilise le modèle d'astigmatisme pour estimer la position axiale Z.
+	- ``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : paramètres ajustés parmi :math:`X`, :math:`Y`, :math:`\\sigma`, :math:`\\sigma_x`,
+	  :math:`\\sigma_y` et :math:`\\theta`.
+	- ``Sigma`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\sigma` ; valeur par défaut : ``1.0`` pixel.
+	- ``Theta`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\theta` ; valeur par défaut : ``0.0`` degré.
+	- ``Z`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active l'estimation axiale par astigmatisme.
+	- ``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : valeur absolue maximale utilisée pour initialiser l'estimation axiale ; valeur
+	  par défaut : ``500`` nm.
+	- ``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser.
 	"""
 
 	label: str = "Gaussian Fit"

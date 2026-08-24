@@ -15,13 +15,12 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 ##################################################
 @dataclass
 class Combo(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type liste déroulante.
+	"""Représente un choix effectué dans une liste déroulante.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeurs par défaut du paramètre.
-	:param _items: Choix de la liste déroulante.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Indice sélectionné par défaut.
+	:param _items: Libellés des choix proposés.
 	"""
 
 	default: int = 0

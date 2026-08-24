@@ -88,6 +88,11 @@ def fake_napari_layers(monkeypatch):
 	"""Bypass des méthodes d'ajout de layers Napari qui déclenchent VisPy/OpenGL."""
 
 	class DummyLayer:
+		"""Simule le sous-ensemble minimal d'un calque Napari nécessaire aux tests.
+
+		:param name: Nom du calque simulé.
+		"""
+
 		def __init__(self, name=""):
 			self.name = name
 			self.editable = True

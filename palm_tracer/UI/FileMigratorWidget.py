@@ -13,7 +13,10 @@ _windows = []  # pour garder une référence globale, éviter le Garbage Collect
 
 
 class FileMigratorWidget(QWidget):
-	"""Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."""
+	"""Fournit l'interface de migration des anciens dossiers de résultats Metamorph.
+
+	:param parent: Widget Qt parent.
+	"""
 
 	# ==================================================
 	# region Initialization

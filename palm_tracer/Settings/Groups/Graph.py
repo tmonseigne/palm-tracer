@@ -23,16 +23,16 @@ DATA_SRC: dict[str, list] = {
 ##################################################
 @dataclass
 class Graph(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Visualisation :
+	"""Regroupe les paramètres de sélection des graphiques.
 
-	Attributs :
-		- **Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter.
-		- **Dual** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Active la représentation de deux sources.
-		- **Source B** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source secondaire des données à représenter.
-		- **MSD Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Lors de la représentation du MSD, sélection de l'étape à représenter.
-		- **Display** (:class:`GraphDisplay <palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay>`) : Options d'affichage du graphique.
+	Paramètres regroupés :
+
+	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
+	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée.
+	- ``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active un nuage de points utilisant deux grandeurs.
+	- ``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque ``Dual`` est actif.
+	- ``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : décalage temporel sélectionné pour le MSD.
+	- ``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : options de rendu du graphique.
 	"""
 
 	label: str = "Graph"

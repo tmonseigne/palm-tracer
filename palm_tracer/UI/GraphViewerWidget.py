@@ -35,19 +35,16 @@ TIPS = {
 
 ##################################################
 class GraphViewerWidget(BasePlotlyWidget):
-	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
+	"""Affiche interactivement les graphiques associés aux données PALM.
 
-	Ce widget expose une UI compacte pour :
-		- afficher des graphes à partir de la pile TIFF (Stack) ou des CSV (Localization/Tracking),
-		- choisir la *famille* de données (Stack / Localization / Tracking) via 3 boutons exclusifs,
-		- sélectionner la *source* dans une ComboBox (ex. Intensité, Localizations Count, etc.),
-		- exporter la figure (HTML/PNG/PDF).
+	Le widget sélectionne une famille de données et une ou deux sources, délègue la construction des figures à :class:`~palm_tracer.Processing.Grapher.Grapher`
+	et permet leur export en HTML, PNG ou PDF.
 
-	Attributs :
-		- _pt (:class:`PALMTracer <palm_tracer.PALMTracer>`) : Référence vers l'instance principale de PALMTracer (aucune copie).
-		- _fig  (:class:`Optional[go.Figure]`) : Dernière figure Plotly produite (pour export/maj).
-		- _html  (:class:`Optional[str]`)  : Dernier HTML généré pour la figure (export .html).
+	:param palmtracer: Instance principale dont les données sont visualisées. La référence est conservée sans effectuer de copie.
+
+	.. note:: Si QtWebEngine n'est pas disponible, le widget utilise un affichage textuel de remplacement.
 	"""
+
 	UI_NAME: str = "Graph Viewer"
 
 	# ==================================================

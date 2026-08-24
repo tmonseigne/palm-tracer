@@ -16,14 +16,13 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class SpinInt(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type nombre entier.
+	"""Représente un entier avec une boîte de sélection numérique.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeur par défaut du paramètre.
-	:param limits: Valeurs limites du paramètre.
-	:param step: Pas à chaque appui sur une des flèches du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Valeur par défaut.
+	:param limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par la boîte de sélection numérique.
 	"""
 
 	default: int = 0

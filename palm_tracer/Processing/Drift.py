@@ -14,7 +14,13 @@ from palm_tracer.Processing.Parsing import apply_dataframe_type, FILES_COLUMNS
 ##################################################
 @dataclass
 class _ActiveTrack:
-	"""Structure interne de suivi actif d'une bille à travers les plans."""
+	"""Conserve l'état temporaire du suivi d'une bille entre plusieurs plans.
+
+	:param track_id: Identifiant de la trajectoire en cours de construction.
+	:param ids: Identifiants successifs des localisations associées.
+	:param last_pos: Dernière position connue de la bille.
+	"""
+
 	track_id: int
 	ids: list[int]
 	last_pos: np.ndarray  # shape (D,)

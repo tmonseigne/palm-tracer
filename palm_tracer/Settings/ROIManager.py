@@ -18,7 +18,15 @@ from palm_tracer.Tools.Ui import print_warning
 ##################################################
 @dataclass
 class ROIManager:
-	"""Classe permettant de gérer les ROI de filtrage des résultats."""
+	"""Gère les zones d'intérêt utilisées pour filtrer les résultats.
+
+	Le gestionnaire synchronise les calques Napari principal et haute résolution, conserve la zone sélectionnée et applique les transformations d'échelle
+	nécessaires entre les deux vues.
+
+	:param roi_selection: Paramètre contenant l'indice de la zone sélectionnée.
+	:param hr_ratio: Facteur d'agrandissement de la vue haute résolution.
+	"""
+
 	roi_selection: CheckInt
 	hr_ratio: SpinInt
 

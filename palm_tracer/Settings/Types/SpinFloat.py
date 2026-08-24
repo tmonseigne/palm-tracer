@@ -16,16 +16,16 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class SpinFloat(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type nombre réel.
+	"""Représente un nombre flottant avec une boîte de sélection numérique.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeur par défaut du paramètre.
-	:param limits: Valeurs limites du paramètre.
-	:param step: Pas à chaque appui sur une des flèches du paramètre.
-	:param precision: Précision du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Valeur par défaut.
+	:param limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par la boîte de sélection numérique.
+	:param precision: Nombre de décimales affichées.
 	"""
+
 	default: float = 0.0
 	"""Valeur par défaut du paramètre (:class:`float`)."""
 	_value: float = field(init=False, default=0.0)

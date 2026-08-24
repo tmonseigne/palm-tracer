@@ -9,11 +9,10 @@ from qtpy.QtCore import QObject, Signal
 
 ##################################################
 class SignalWrapper(QObject):
-	"""
-	Encapsulation d'un signal Qt avec connexion, déconnexion, émission, blocage temporaire et coalescence.
-		- :func:`blocked()` : contexte pour bloquer temporairement les signaux.
-		- Pendant le blocage, les appels à :func:`emit()` ne propagent rien ; seule la **dernière** valeur est mémorisée.
-		- À la fin du blocage externe (compteur à 0), une **seule** émission est effectuée avec la dernière valeur mémorisée (ou `None` si aucune).
+	"""Encapsule un signal Qt et regroupe les émissions produites pendant son blocage.
+
+	Les connexions et déconnexions sont déléguées au signal interne. Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement
+	la dernière valeur ; celle-ci est émise une seule fois à la sortie du blocage externe.
 	"""
 
 	_signal = Signal(object)
@@ -80,7 +79,11 @@ class SignalWrapper(QObject):
 	##################################################
 	# --- Gestion du blocage des signaux ---
 	class BlockCtx:
-		"""Contexte interne pour `with signal.blocked(): ...`."""
+		"""Gère le blocage temporaire d'un :class:`SignalWrapper` dans une instruction ``with``.
+
+		:param owner: Signal encapsulé dont les émissions sont bloquées.
+		:param emit_last: Émet la dernière valeur mémorisée à la sortie du contexte externe.
+		"""
 
 		def __init__(self, owner: "SignalWrapper", emit_last: bool = True):
 			self._o = owner

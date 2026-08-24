@@ -11,14 +11,13 @@ from palm_tracer.Settings.Types import Combo, SpinInt
 ##################################################
 @dataclass
 class HR3D(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Visualisation haute résolution pour la 3D :
+	"""Regroupe les paramètres des reconstructions haute résolution 3D.
 
-	Attributs :
-		- **Z Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
-		  Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres).
-		- **Axis** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Axe de rotation de la pile.
-		- **N Plane** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Définit le nombre de plans pour un tour complet lors de la Rotation 3D.
+	Paramètres regroupés :
+
+	- ``Z Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : distance entre deux plans, dans l'unité de la colonne Z.
+	- ``Axis`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : axe de rotation de la pile.
+	- ``Frames`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre d'images produites pour une rotation complète ; valeur par défaut : ``36``.
 	"""
 
 	label: str = "3D"

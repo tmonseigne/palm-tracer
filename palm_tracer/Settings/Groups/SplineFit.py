@@ -11,14 +11,13 @@ from palm_tracer.Settings.Types import BrowseFile, Combo
 ##################################################
 @dataclass
 class SplineFit(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres du Spline Fit :
+	"""Regroupe les paramètres de l'ajustement par spline.
 
-	Attributs :
-		- **Sensor** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Sélection du type de capteur (par défaut : `EMCCD`).
-		- **sCMOS Variance Map** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) : Fichier de calibration du capteur sCMOS.
-		- **Calibration File** (:class:`BrowseFile <palm_tracer.Settings.Types.BrowseFile.BrowseFile>`) :
-		  Fichier de calibration de la PSF (calculé à partir de SMAP).
+	Paramètres regroupés :
+
+	- ``Sensor`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : type de capteur, ``EMCCD`` ou ``sCMOS``.
+	- ``Variance Map`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : carte de variance du capteur sCMOS.
+	- ``File`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : fichier de calibration de la fonction d'étalement du point.
 	"""
 
 	label: str = "Spline Fit"

@@ -25,7 +25,10 @@ MESH_SIZE = 128
 ##################################################
 @dataclass
 class Grapher:
-	"""Créateur de graphiques avec Plotly."""
+	"""Construit les figures Plotly utilisées pour explorer les résultats PALM.
+
+	Les méthodes statiques produisent les histogrammes, distributions, nuages de points et autres représentations sans conserver d'état entre les appels.
+	"""
 
 	# ==================================================
 	# region Statistic Figure

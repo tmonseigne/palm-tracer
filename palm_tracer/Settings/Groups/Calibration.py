@@ -11,14 +11,14 @@ from palm_tracer.Settings.Types import SpinFloat
 ##################################################
 @dataclass
 class Calibration(BaseSettingGroup):
-	"""
-	Classe contenant les informations de calibration :
+	"""Regroupe les paramètres de calibration spatiale, temporelle et photométrique.
 
-	Attributs :
-		- **Pixel Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Taille d'un pixel en micromètre (par défaut : `0.160`).
-		- **Exposure** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Temps d'exposition en secondes par image (par défaut : `0.050`).
-		- **Intensity** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		  Intensité lumineuse en photons par Unités analogique-numérique (ADU) (par défaut : `0.0120`).
+	Paramètres regroupés :
+
+	- ``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : taille d'un pixel ; valeur par défaut : ``0.160`` µm.
+	- ``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : temps d'exposition par image ; valeur par défaut : ``0.050`` s.
+	- ``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur de conversion photométrique ; valeur par défaut :
+	  ``0.0120`` photon/ADU.
 	"""
 
 	label: str = "Calibration"

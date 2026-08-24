@@ -19,18 +19,14 @@ _windows = []  # pour garder une référence globale, éviter le Garbage Collect
 
 
 class AlignmentWidget(QWidget):
-	"""
-	Widget minimaliste pour la gestion de l'alignement entre acquisitions.
+	"""Permet de calculer puis d'appliquer un alignement géométrique entre deux acquisitions.
 
-	Ce widget fournit deux onglets :
-		- ``Compute Alignment Coefficients`` :
-			- Bouton pour charger un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte (référence / déformation).
-			- Bouton pour lancer le calcul des coefficients.
+	Le premier onglet calcule les coefficients à partir d'une image TIFF contenant les vues de référence et déformée. Le second applique des coefficients
+	existants à une image sélectionnée.
 
-		- ``Apply Alignment`` :
-			- Bouton pour charger un fichier TIFF à corriger.
-			- Bouton pour charger un fichier de coefficients.
-			- Bouton pour lancer l'alignement.
+	:param parent: Widget Qt parent.
+
+	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
 
 	# ==================================================

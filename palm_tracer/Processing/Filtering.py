@@ -14,7 +14,12 @@ from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, Check
 
 ##################################################
 class Filtering:
-	"""Classe de filtrages."""
+	"""Applique les paramètres de filtrage aux localisations et aux trajectoires.
+
+	:param filters: Groupe des paramètres de filtrage.
+	:param rois: Gestionnaire des zones d'intérêt utilisées pour le filtrage spatial.
+	"""
+
 	filters: Filters
 	rois: ROIManager
 

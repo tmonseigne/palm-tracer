@@ -16,7 +16,10 @@ MAX_UI_16 = np.iinfo(np.uint16).max
 ##################################################
 @dataclass
 class Renderer:
-	"""Créateur de graphiques avec Plotly."""
+	"""Produit les rendus haute résolution à partir des localisations.
+
+	La taille de sortie et le facteur d'agrandissement sont conservés par l'instance afin d'être réutilisés par les différents modes de rendu.
+	"""
 
 	_w: int = field(init=False, default=1)
 	_h: int = field(init=False, default=1)

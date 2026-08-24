@@ -17,11 +17,10 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class FileList(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type recherche de fichier.
+	"""Représente un paramètre contenant une liste de fichiers et une sélection active.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
 	"""
 
 	default: int = field(init=False, default=-1)

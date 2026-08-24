@@ -11,14 +11,13 @@ from palm_tracer.Settings.Types import CheckBox, SpinFloat
 ##################################################
 @dataclass
 class BeadsExtraction(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de correction du drift.
+	"""Regroupe les paramètres d'extraction des billes nécessaires à la correction de dérive.
 
-	Attributs :
-		- **Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		  Distance maximale entre deux plans pour une bille (par défaut : `1.0`).
-		- **3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Utilisation ou non de la coordonnée Z dans les calculs (par défaut : `False`).
+	Paramètres regroupés :
+
+	- ``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale entre deux plans pour associer une bille ; valeur
+	  par défaut : ``1.0`` pixel.
+	- ``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z ; valeur par défaut : ``False``.
 	"""
 
 	label: str = "Beads Extraction"

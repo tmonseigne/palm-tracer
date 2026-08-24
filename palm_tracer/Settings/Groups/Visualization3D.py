@@ -11,14 +11,15 @@ from palm_tracer.Settings.Types import CheckBox, SpinFloat, SpinInt
 ##################################################
 @dataclass
 class Visualization3D(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Visualisation 3D :
+	"""Regroupe les paramètres de la visualisation 3D.
 
-	Attributs :
-		- **Point Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Taille des points.
-		- **XY Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur les axes X et Y.
-		- **Z Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur l'axe Z.
-		- **Remove Outliers** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprimme les éléments avec une intensité nulle.
+	Paramètres regroupés :
+
+	- ``Point Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : taille des points.
+	- ``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille physique d'un pixel ; valeur par défaut : ``160`` nm.
+	- ``XY Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur d'échelle des axes X et Y.
+	- ``Z Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur d'échelle de l'axe Z.
+	- ``Remove Outliers`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exclut les localisations dont l'intensité est nulle.
 	"""
 
 	label: str = "3D"

@@ -11,18 +11,14 @@ from palm_tracer.Settings.Types import CheckBox, Combo, SpinFloat, SpinInt
 ##################################################
 @dataclass
 class HRGaussian(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Visualisation haute résolution pour le rendu gaussien :
+	"""Regroupe les paramètres du rendu gaussien haute résolution.
 
-	Attributs :
-		- **Intensity** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
-		  Intensité intégrée de la courbe gaussienne si l'option `Intensité fixe` est sélectionnée ;
-		  sinon, le rapport par lequel la valeur sélectionnée dans la source sera divisée.
-		- **Fixed Intensity** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Garantit que chaque point a la même intensité.
-		- **Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Définit la forme de la distribution gaussienne (isotrope, anisotrope ou taille fixe, de sorte que chaque point ait la même forme isotrope).
-		- **Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		  L'écart-type de la distribution gaussienne si `Taille fixe` est sélectionné.
+	Paramètres regroupés :
+
+	- ``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : intensité intégrée fixe ou diviseur appliqué à la source sélectionnée.
+	- ``Fixed Intensity`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : impose la même intensité à chaque localisation.
+	- ``Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : choisit une distribution isotrope, anisotrope ou de taille fixe.
+	- ``Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : écart-type utilisé lorsque la taille est fixe.
 	"""
 
 	label: str = "Gaussian Mode"

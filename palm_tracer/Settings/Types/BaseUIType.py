@@ -12,14 +12,13 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class BaseUIType:
-	"""
-	Classe de base représentant une vue Qt associée à un paramètre.
+	"""Représente une vue Qt associée à un paramètre configurable.
 
-	Cette classe encapsule tous les objets Qt nécessaires à l'affichage d'un paramètre dans une interface utilisateur.
+	Chaque vue conserve ses propres widgets, sa disposition et sa position éventuelle dans un formulaire.
 
-	Elle est conçue pour être instanciée plusieurs fois pour un même paramètre, afin de permettre la duplication d'interface (multi-fenêtres, preview, etc.).
-
-	Chaque instance est indépendante en termes de widgets Qt, mais synchronisée avec le modèle de données auquel elle est associée.
+	:param layout: Disposition contenant les widgets du paramètre.
+	:param boxes: Widgets interactifs synchronisés avec le modèle.
+	:param label: Libellé Qt associé au paramètre, s'il existe.
 	"""
 
 	layout: QHBoxLayout | QVBoxLayout

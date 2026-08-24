@@ -11,26 +11,21 @@ from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 ##################################################
 @dataclass
 class FiltersL(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres du filtrage pour la localisation :
+	"""Regroupe les filtres applicables aux localisations.
 
-	Attributs :
-		- **Intensity** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Intervalle d'intensités sélectionnées (par défaut : `[1,10000000]`).
-		- **Sigma X** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Sigma X sélectionné (par défaut : `[0.0, 10.0]`).
-		- **Sigma Y** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Sigma Y sélectionné (par défaut : `[0.0, 10.0]`).
-		- **Circularity** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Circularités sélectionné (par défaut : `[0.0, 1.0]`).
-		- **Theta** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Theta sélectionné (par défaut : `[-90, 90]`).
-		- **Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Z sélectionné (par défaut : `[-2000, 2000]`).
-		- **MSE XY** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de MSE XY sélectionné (par défaut : `[0.0, 1.0]`).
-		- **MSE Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de MSE Z sélectionné (par défaut : `[0.0, 1.0]`).
+	Paramètres regroupés :
+
+	- ``Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle axial ; valeur par défaut : ``[-2000, 2000]`` nm.
+	- ``Intensity`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle d'intensité intégrée ; valeur par défaut :
+	  ``[0, 10000000]``.
+	- ``Sigma X`` et ``Sigma Y`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des écarts-types selon X et Y ;
+	  valeur par défaut : ``[0.0, 10.0]`` pixel.
+	- ``Circularity`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de circularité ; valeur par défaut :
+	  ``[0.0, 1.0]``.
+	- ``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle angulaire ; valeur par défaut :
+	  ``[-90.0, 90.0]`` degrés.
+	- ``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des erreurs quadratiques moyennes ;
+	  valeur par défaut : ``[0.0, 1.0]``.
 	"""
 
 	label: str = "Localization"

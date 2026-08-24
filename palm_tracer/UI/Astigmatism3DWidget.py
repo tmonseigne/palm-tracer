@@ -22,24 +22,13 @@ _windows = []  # pour garder une référence globale, éviter le Garbage Collect
 
 
 class Astigmatism3DWidget(BasePlotlyWidget):
-	"""
-	Widget minimaliste pour le calcul d'un modèle d'astigmatisme en lien avec la position axiale et l'estimation d'une position axiale en fonction d'un modèle.
+	"""Permet de calibrer un modèle d'astigmatisme 3D puis d'estimer des positions axiales.
 
-	Ce widget fournit deux onglets :
-		- ``Compute Astigmatism Model`` :
-			- Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X, Sigma Y, Z.
-			- Spin float pour la taille des pixels en micromètres (μm/px) avec 3 décimales.
-			- Spin float pour la hauteur max sur Z (utilisé si le Z doit être calculé à partir des plans).
-			- Bouton pour lancer le calcul du modèle.
+	Le premier onglet construit le modèle à partir des écarts-types selon X et Y. Le second charge un modèle et ajoute l'estimation de Z aux localisations.
 
-		- ``Estimate Z`` :
-			- Bouton pour charger un fichier de localisation contenant au moins les colonnes Sigma X,Sigma Y.
-			- Spin float pour la taille des pixels en micromètres (μm) avec 3 décimales.
-			- Spin float pour la hauteur max sur Z.
-			- Checkbox pour sauvegarder l'original dans un dossier backup.
-			- Bouton pour lancer l'estimation.
+	:param parent: Widget Qt parent.
 
-	 La partie de droite sert à visualiser le modèle calculé ou chargé.
+	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
 
 	GRAPH_TITLE: str = "Astigmatism model"

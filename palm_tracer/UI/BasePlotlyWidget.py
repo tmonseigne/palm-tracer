@@ -27,7 +27,12 @@ except Exception:
 
 ##################################################
 class BasePlotlyWidget(QWidget):
-	"""Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."""
+	"""Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly.
+
+	La classe centralise l'affichage dans QtWebEngine ainsi que l'export des figures vers les formats pris en charge.
+
+	:param parent: Widget Qt parent.
+	"""
 
 	PLOT_DIV_ID = "plotly_graph"
 	RESOURCE_DIR = Path(__file__).resolve().parent / "res"

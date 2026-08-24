@@ -16,12 +16,11 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 ##################################################
 @dataclass
 class BrowseFile(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type recherche de fichier.
+	"""Représente un paramètre de sélection de fichier.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeur par défaut du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Chemin sélectionné par défaut.
 	"""
 
 	default: str = ""

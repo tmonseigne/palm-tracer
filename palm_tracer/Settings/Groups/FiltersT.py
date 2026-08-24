@@ -11,25 +11,22 @@ from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, Check
 ##################################################
 @dataclass
 class FiltersT(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres du filtrage pour le tracking :
+	"""Regroupe les filtres applicables aux trajectoires et à leurs métriques.
 
-	Attributs :
-		- **Track** (:class:`CheckIntSelection <palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection>`) :
-		  Trajectoire IDs sélectionnés. Utilisez - pour définir un intervalle et ; pour séparer plusieurs valeurs ou intervalles.
-		  Exemple : 1-10;15;20-25.
-		- **Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Intervalle de longueur sélectionné (par défaut : `[1, 10000]`).
-		- **Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de diffusion instantanée sélectionné (par défaut : `[-5, 5]`).
-		- **D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de direction sélectionné (par défaut : `[-5, 5]`).
-		- **Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de puissance sélectionné (par défaut : `[-10, 10]`).
-		- **Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de vitesse sélectionné (par défaut : `[0, 1]`).
-		- **Confinement** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de confinement sélectionné (par défaut : `[-10, 10]`).
+	Paramètres regroupés :
+
+	- ``Track`` (:class:`~palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection`) : identifiants individuels ou intervalles, par exemple
+	  ``1-10;15;20-25``.
+	- ``Length`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle de longueur ; valeur par défaut : ``[1, 10000]``.
+	- ``Instant D`` et ``D Coeff`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des coefficients de
+	  diffusion ; valeur par défaut : ``[-5.0, 5.0]``.
+	- ``Alpha`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de l'exposant du mouvement ; valeur par défaut :
+	  ``[-10.0, 10.0]``.
+	- ``Speed`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de vitesse ; valeur par défaut : ``[0.0, 1.0]`` µm/s.
+	- ``Confinement`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de confinement ; valeur par défaut :
+	  ``[-10.0, 10.0]`` µm.
+
+	.. todo:: Vérifier les ordres de grandeur et les valeurs par défaut, puis adapter dynamiquement la borne supérieure de ``Length`` aux données.
 	"""
 
 	label: str = "Tracks"

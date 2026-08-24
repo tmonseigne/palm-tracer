@@ -16,7 +16,11 @@ from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRa
 ##################################################
 @dataclass
 class BaseSettingGroup:
-	"""Classe mère pour un groupe de paramètres."""
+	"""Gère un ensemble cohérent de paramètres et ses représentations Qt.
+
+	Les sous-classes déclarent leurs paramètres dans :attr:`setting_list`. La classe de base construit les objets correspondants, propage leur activation,
+	crée leurs vues et assure leur sérialisation.
+	"""
 
 	label: str = field(init=False, default="Base Setting Group")
 	"""Nom du Groupe."""

@@ -15,20 +15,13 @@ from palm_tracer.Settings.Groups import Visualization3D
 
 
 class Viewer3DWidget(QWidget):
-	"""
-	Widget d'affichage 3D pour un viewer Napari.
+	"""Affiche les localisations tridimensionnelles dans un calque Napari.
 
-	Ce widget permet :
-		- de charger un fichier CSV contenant des coordonnées 3D
-		- d'ajuster l'échelle XY et Z
-		- de modifier la taille des points
-		- d'activer ou non la suppression des points d'intensité nulle
-		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points`.
+	Le widget charge un fichier CSV, règle les échelles XY et Z, ajuste la taille des points et peut exclure les localisations d'intensité nulle.
 
-	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer 3D"``
+	:param viewer: Visionneuse Napari recevant le calque de points.
 
-	:param viewer: Instance du viewer Napari où sera ajouté le calque 3D.
-	:type viewer: :class:`napari.Viewer`
+	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer 3D"``.
 	"""
 
 	##################################################

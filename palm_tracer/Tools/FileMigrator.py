@@ -16,12 +16,12 @@ from palm_tracer.Tools import FileIO, Ui
 
 ##################################################
 class Link(NamedTuple):
-	"""
-	Structure permettant le lien entre nouvelle et ancienne nomenclature.
+	"""Associe un ancien nom de fichier à son nouveau suffixe.
 
 	:param old: Ancien nom de fichier.
-	:param new: Nouveau nom de fichier.
+	:param new: Nouveau suffixe normalisé.
 	"""
+
 	old: str
 	new: str
 
@@ -29,23 +29,11 @@ class Link(NamedTuple):
 ##################################################
 @dataclass
 class FileMigrator:
-	"""
-	Outil de migration d'un dossier de traitement PALMTracer (ancien format Metamorph) vers le format Python plus récent.
+	"""Convertit un dossier de résultats PALMTracer au format historique Metamorph vers le format actuel.
 
-	Le principe est :
-		- l'utilisateur pointe un dossier d'entrée (un dossier se terminant par ``.PT``) ;
-		- :meth:`analyze` inspecte les fichiers et les classes par type (loc/trc/MSD/...) ;
-		- :meth:`migrate` crée un dossier de sortie et exécute ensuite les conversions nécessaires.
+	L'analyse classe les fichiers sources par type, puis la migration crée un dossier de sortie et convertit les données et métadonnées reconnues.
 
-	.. note::
-	   Cette classe ne modifie **pas** le dossier d'entrée : elle lit depuis :attr:`input_folder` et écrit dans :attr:`output_folder`.
-
-	Attributs :
-		- input_folder: Dossier source sélectionné par l'utilisateur.
-		- output_folder: Dossier cible où seront écrits les fichiers convertis.
-		- files: Dictionnaire ``{type: [paths...]}`` rempli par :meth:`analyze`.
-		- suffix: Suffixe optionnel ajouté au nom du dossier de sortie.
-		- meta: Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers.
+	.. note:: Le dossier d'entrée n'est jamais modifié. Les fichiers convertis sont écrits dans :attr:`output_folder`.
 	"""
 
 	FILES_LINK: dict[str, Link] = field(init=False, default_factory=lambda:

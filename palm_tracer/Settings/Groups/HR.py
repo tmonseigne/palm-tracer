@@ -21,23 +21,20 @@ DATA_SRC: dict[str, list] = {
 ##################################################
 @dataclass
 class HR(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Visualisation haute résolution :
+	"""Regroupe les paramètres des reconstructions haute résolution.
 
-	Attributs :
-		- **Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter.
-		- **Color mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  En cas de chevauchement, sélectionne si les valeurs des pixels sont additionnées ou si seule la valeur maximale est conservée.
-		- **Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Facteur d'agrandissement (par défaut : `4`).
-		- **Crop** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Supprime tout le cadre noir autour de la reconstruction (utile lors d'une reconstruction sur une partie du champ, conserve une marge de 5 pixels).
-		- **Remove Beads** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprime les billes lors de la reconstruction.
-		- **Drift Correction** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Applique une correction de la dérive (Remarque : les billes doivent avoir été extraites au préalable.)
-		- **Smooth Drift** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique un lissage à la correction de dérive.
-		- **Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`) : Paramètres spécifiques à la représentation gaussienne.
-		- **3D** (:class:`HR3D <palm_tracer.Settings.Types.HR3D.HR3D>`) : Paramètres spécifiques à la reconstruction 3D.
+	Paramètres regroupés :
+
+	- ``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z ou rotation 3D.
+	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
+	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : grandeur utilisée pour colorer ou pondérer les points.
+	- ``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur maximum.
+	- ``Ratio`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : facteur d'agrandissement ; valeur par défaut : ``4``.
+	- ``Crop`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : retire automatiquement les bordures vides.
+	- ``Remove Beads`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exclut les billes de la reconstruction.
+	- ``Drift Correction`` et ``Smooth Drift`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : appliquent puis lissent la correction de dérive.
+	- ``Gaussian`` (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`) : paramètres du rendu gaussien.
+	- ``3D`` (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`) : paramètres de la pile ou de la rotation 3D.
 	"""
 
 	label: str = "High Resolution"

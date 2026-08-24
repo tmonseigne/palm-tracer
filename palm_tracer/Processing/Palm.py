@@ -23,7 +23,11 @@ C_UINT, C_BOOL, C_DBL = ctypes.c_uint64, ctypes.c_bool, ctypes.c_double
 ##################################################
 @dataclass
 class Palm:
-	"""Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés."""
+	"""Encapsule le chargement et les appels aux algorithmes de la DLL PALM.
+
+	L'instance configure les signatures des fonctions natives et convertit leurs entrées et sorties vers les structures Python utilisées par le pipeline.
+	"""
+
 	_type: str = field(init=False, default="CPU")
 	"""Type de DLL, par défaut CPU, GPU également possible."""
 	_dll: ctypes.CDLL = field(init=False)

@@ -15,12 +15,14 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class ButtonGroup(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type groupe de boutons.
+	"""Représente un choix exclusif effectué avec un groupe de boutons.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Indice sélectionné par défaut.
+	:param _items: Libellés des choix proposés.
 	"""
+
 	default: int = 0
 	"""Valeur (position dans la liste) par défaut du paramètre (:class:`int`)."""
 	_value: int = field(init=False, default=0)

@@ -11,22 +11,16 @@ from palm_tracer.Settings.Types import CheckBox, Combo, SpinInt
 ##################################################
 @dataclass
 class TracksCompute(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Calcul sur les trajectoires :
+	"""Regroupe les paramètres des calculs effectués sur les trajectoires.
 
-	Attributs :
-		- **MSD** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Calcul du MSD par trajectoire et par plans successifs (par défaut : `False`).
-		- **Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Calcul de la diffusion instantanée par trajectoire et par plans successifs (par défaut : `False`).
-		- **Fit Length** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) :
-		  Longueur de la fenêtre de calcul initiale des métriques génériques (par défaut : `4`).
-		- **3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Utilisation ou non de la coordonnée Z dans les calculs (par défaut : `False`).
-		- **Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Utilisation ou non d'une échelle logarithmique pour les résultats (par défaut : `False`).
-		- **Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) :
-		  Méthode d'ajustement du mouvement de la trajectoire (par défaut : `None`).
+	Paramètres regroupés :
+
+	- ``MSD`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule le déplacement quadratique moyen.
+	- ``Instant Diffusion`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule la diffusion instantanée.
+	- ``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : longueur initiale de la fenêtre d'ajustement ; valeur par défaut : ``4``.
+	- ``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z.
+	- ``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : transforme les résultats en échelle logarithmique avant leur sauvegarde.
+	- ``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de mouvement utilisé pour l'ajustement.
 	"""
 
 	label: str = "Tracks Compute"

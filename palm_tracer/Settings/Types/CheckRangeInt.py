@@ -16,13 +16,13 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class CheckRangeInt(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type intervalle de nombre entier.
+	"""Représente un intervalle entier dont l'application peut être activée ou désactivée.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeurs par défaut du paramètre.
-	:param _limits: Valeurs limites du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Bornes sélectionnées par défaut.
+	:param _limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par les boîtes de sélection numérique.
 	"""
 
 	default: list[int] = field(default_factory=lambda: [0, 100])

@@ -26,7 +26,10 @@ from palm_tracer.Settings.Types import CheckInt, SpinInt
 ##################################################
 @dataclass
 class Settings:
-	"""Classe nécessaire au parsing et enregistrement des différents paramètres de PALM Tracer."""
+	"""Centralise les groupes de paramètres de PALM Tracer.
+
+	La classe construit les groupes, crée leurs représentations Qt et assure leur sérialisation vers les formats compact et détaillé.
+	"""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 	"""Dictionnaire de groupes de paramètres."""

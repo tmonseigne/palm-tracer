@@ -15,12 +15,11 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 ##################################################
 @dataclass
 class CheckBox(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type case à cocher.
+	"""Représente un paramètre booléen avec une case à cocher.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeur par défaut du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: État sélectionné par défaut.
 	"""
 
 	default: bool = False

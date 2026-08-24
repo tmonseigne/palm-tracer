@@ -14,15 +14,12 @@ from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
 ##################################################
 @dataclass
 class BaseSettingType:
-	"""
-	Classe mère abstraite pour la gestion des paramètres dans l'interface utilisateur.
+	"""Définit le modèle commun d'un paramètre configurable.
 
-	Cette classe représente un paramètre d'interface utilisateur avec un calque spécifique.
-	Elle est utilisée comme	base pour des paramètres plus spécifiques.
-	Chaque paramètre pourra hériter de cette classe pour définir son comportement et ses options spécifiques.
+	La classe conserve la valeur, notifie ses changements et synchronise toutes les représentations Qt créées pour le même paramètre.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
 	"""
 
 	label: str = ""

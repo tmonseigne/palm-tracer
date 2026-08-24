@@ -14,13 +14,10 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class Logger:
-	"""Classe du journal d'activité.
+	"""Écrit un journal d'activité horodaté et utilisable comme gestionnaire de contexte.
 
-	Notes
-	-----
-	- L'ouverture est idempotente : si un fichier est déjà ouvert, il est fermé avant de rouvrir.
-	- La fermeture est idempotente : `close()` peut être appelée plusieurs fois sans erreurs.
-	- La classe implémente le protocole context manager pour garantir la fermeture.
+	.. note:: L'ouverture et la fermeture sont idempotentes. Ouvrir un nouveau fichier ferme d'abord le précédent, et plusieurs appels successifs à
+	   :meth:`close` sont autorisés.
 	"""
 
 	filename: str = field(init=False, default="")

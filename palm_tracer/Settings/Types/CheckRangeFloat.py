@@ -16,14 +16,14 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class CheckRangeFloat(BaseSettingType):
-	"""
-	Classe pour un paramètre spécifique de type intervalle de nombre flottant.
+	"""Représente un intervalle flottant dont l'application peut être activée ou désactivée.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeurs par défaut du paramètre.
-	:param _limits: Valeurs limites du paramètre.
-	:param precision: Précision du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Bornes sélectionnées par défaut.
+	:param _limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par les boîtes de sélection numérique.
+	:param precision: Nombre de décimales affichées.
 	"""
 
 	default: list[float] = field(default_factory=lambda: [-1.0, 1.0])

@@ -11,12 +11,12 @@ from palm_tracer.Settings.Types import SpinFloat
 ##################################################
 @dataclass
 class Tracking(BaseSettingGroup):
-	"""
-	Classe contenant les paramètres de Tracking :
+	"""Regroupe les paramètres de suivi des particules.
 
-	Attributs :
-		- **Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		  Distance maximale en pixel entre deux plans (par défaut : `1.0`).
+	Paramètres regroupés :
+
+	- ``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale entre deux plans pour associer un point ; valeur
+	  par défaut : ``1.0`` pixel.
 	"""
 
 	label: str = "Tracking"

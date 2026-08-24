@@ -28,7 +28,11 @@ FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)",
 ##################################################
 @dataclass
 class PALMTracer:
-	"""Classe principale de PALM Tracer."""
+	"""Orchestre un traitement PALM complet et conserve ses données intermédiaires et finales.
+
+	La classe coordonne la configuration, les appels à la DLL PALM, le pipeline de traitement, le filtrage, la production des visualisations et la
+	sauvegarde des résultats.
+	"""
 
 	settings: Settings = field(init=False, default_factory=Settings)
 	"""Classe principale des paramètres PALMTracer."""

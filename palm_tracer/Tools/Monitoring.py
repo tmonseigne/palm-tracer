@@ -36,23 +36,12 @@ except ImportError:
 ##################################################
 @dataclass
 class Monitoring:
-	"""
-	Classe de monitoring qui suit l'utilisation des ressources (CPU, mémoire, disque) pendant l'exécution des tests.
+	"""Surveille les ressources système utilisées pendant l'exécution des tests.
 
-	Cette classe collecte les informations sur l'utilisation des ressources du système durant l'exécution des tests.
-	Elle fournit des fonctionnalités pour démarrer et arrêter la surveillance, mettre à jour les valeurs des ressources,
-	et générer des graphiques ou des fichiers texte avec ces données.
+	Les mesures du processeur, de la mémoire, du disque et, si disponible, du processeur graphique sont collectées dans un thread dédié puis représentées
+	sous forme de graphiques ou de rapports.
 
-	Attributs :
-			- **cpu (:class:`List[float]`)** : Liste des valeurs d'utilisation du CPU.
-			- **memory (:class:`List[float]`)** : Liste des valeurs d'utilisation de la mémoire.
-			- **disk (:class:`List[float]`)** : Liste des valeurs d'utilisation du disque.
-			- **times (:class:`List[float]`)** : Liste des timestamps correspondant aux valeurs des ressources.
-			- **monitoring (:class:`bool`)** : Indique si la surveillance est en cours ou non.
-			- **thread (:class:`threading.Thread`)** : Le thread qui exécute le monitoring.
-			- **tests_info (:class:`List[dict]`)** : Liste des informations relatives aux tests exécutés.
-			- **interval (:class:`float`)** : Intervalle de temps entre chaque mise à jour des données en secondes.
-
+	:param interval: Intervalle entre deux mesures, en secondes.
 	"""
 
 	interval: float = 1.0

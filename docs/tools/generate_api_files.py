@@ -23,7 +23,13 @@ MODULE_PATH = ROOT_PATH / "palm_tracer"
 ##################################################
 @dataclass(frozen=True)
 class ModulePublicApi:
-	"""Représente un module Python."""
+	"""Décrit les symboles publics d'un module Python.
+
+	:param classes: Noms des classes publiques, dans leur ordre de déclaration.
+	:param functions: Noms des fonctions publiques, dans leur ordre de déclaration.
+	:param constants: Noms des constantes publiques, dans leur ordre de déclaration.
+	"""
+
 	classes: tuple[str, ...]
 	functions: tuple[str, ...]
 	constants: tuple[str, ...]
@@ -32,7 +38,12 @@ class ModulePublicApi:
 ##################################################
 @dataclass(frozen=True)
 class ClassMember:
-	"""Identifie un membre de classe."""
+	"""Identifie un membre public d'une classe.
+
+	:param name: Nom du membre.
+	:param lineno: Numéro de sa ligne de déclaration.
+	"""
+
 	name: str
 	lineno: int
 
@@ -40,7 +51,12 @@ class ClassMember:
 ##################################################
 @dataclass(frozen=True)
 class ClassPublicApi:
-	"""Représente une classe Python."""
+	"""Décrit les membres publics d'une classe Python.
+
+	:param attributes: Attributs publics, dans leur ordre de déclaration.
+	:param methods: Méthodes publiques, dans leur ordre de déclaration.
+	"""
+
 	attributes: tuple[ClassMember, ...]
 	methods: tuple[ClassMember, ...]
 
@@ -48,7 +64,13 @@ class ClassPublicApi:
 ##################################################
 @dataclass(frozen=True)
 class PackageNode:
-	"""Représente un package Python et ses enfants (packages / modules)."""
+	"""Décrit un package Python et ses descendants directs.
+
+	:param dotted_name: Nom qualifié du package.
+	:param dir_path: Chemin du répertoire correspondant.
+	:param subpackages: Sous-packages directs.
+	:param modules: Modules publics directs.
+	"""
 
 	dotted_name: str
 	dir_path: Path
