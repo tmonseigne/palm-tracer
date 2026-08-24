@@ -11,7 +11,7 @@ import pytest
 from palm_tracer._tests.Utils import *
 from palm_tracer.PALMTracer import FILE_STATUS
 from palm_tracer.Processing import Parsing
-from palm_tracer.Settings.Types import CheckRangeInt, Combo
+from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
@@ -599,19 +599,20 @@ def test_process_tracks_compute(capsys, pt):
 	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	assert len(pt.df["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
-	# Ajout de fichier MSD (ainsi qu'un meta, json et log)
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], clean=False)
-	check_capsys(capsys, 17, [5, 6, 7, 9, 10, 12, 13, 14])
+	assert len(pt.df["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
+	# Ajout de fichier MSD (ainsi qu'un fit minimal, un meta, un json et un log)
+	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1], clean=False)
+	check_capsys(capsys, 19, [5, 6, 7, 9, 10, 14, 15, 16])
 
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
 	tc["Fit"].value = 1
 	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
-	assert len(pt.df["MSD"]) == 0  # MSD désactivé
+	assert len(pt.df["MSD"]) == 0  # MSD désactivé, il est conservé
 	assert len(pt.df["InD"]) == 3  # Seules 3 trajectoires sont éligibles
 	assert len(pt.df["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
-	check_output(OUTPUT_FOLDER, csv=[5], log=[2], json=[2])  # Il a conservé le msd precedent mais à renommé le meta
+	check_output(OUTPUT_FOLDER, csv=[6], log=[2], json=[2])  # Il a conservé le msd precedent mais à renommé le meta
 	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
 
 
