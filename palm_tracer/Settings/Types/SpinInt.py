@@ -37,7 +37,7 @@ class SpinInt(BaseSettingType):
 	"""Pas à chaque appui sur une des flèches du paramètre."""
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = SpinInt("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)

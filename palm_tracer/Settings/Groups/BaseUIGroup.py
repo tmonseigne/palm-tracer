@@ -76,7 +76,7 @@ class BaseUIGroup:
 		self.widget.setLayout(self.layout)
 
 	# ==================================================
-	# region Layout management
+	# region Gestion de la mise en page
 	# ==================================================
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
@@ -107,5 +107,5 @@ class BaseUIGroup:
 		self._body.show() if state else self._body.hide()
 
 # ==================================================
-# region Layout management
+# region Gestion de la mise en page
 # ==================================================

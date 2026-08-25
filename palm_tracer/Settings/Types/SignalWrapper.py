@@ -27,7 +27,7 @@ class SignalWrapper(QObject):
 		self._pending: bool = False  # .				 Indique si une émission est en attente.
 		self._pending_value: Any = None  # .			 Dernière valeur reçue pendant le blocage.
 		self._slots: list[Callable[[Any], None]] = []  # Liste des Fonctions ou slots connectés.
-		self._emit_on_unblock_stack: list[bool] = []  # .Liste des emit à conserver
+		self._emit_on_unblock_stack: list[bool] = []  # .Liste des émissions à conserver
 
 	##################################################
 	def connect(self, f: Callable[[Any], None], **kwargs):
@@ -48,22 +48,22 @@ class SignalWrapper(QObject):
 		"""
 		n = 0
 		if f is None:
-			# déconnecte tout ce qu'on connaît
+			# Déconnecte tous les signaux connus
 			for s in list(self._slots):
 				try:
 					self._signal.disconnect(s)
 					n += 1
-				except (TypeError, RuntimeError): pass  # déjà déconnecté / objet détruit → on ignore
+				except (TypeError, RuntimeError): pass  # Signal déjà déconnecté ou objet détruit : ignorer
 			self._slots.clear()
 			return n
 
-		# déconnecte un slot précis
+		# Déconnecte un slot précis
 		try:
 			self._signal.disconnect(f)
 			n = 1
 		except (TypeError, RuntimeError): n = 0
 
-		# nettoie le registre
+		# Nettoie le registre
 		try: self._slots.remove(f)
 		except ValueError: pass
 		return n

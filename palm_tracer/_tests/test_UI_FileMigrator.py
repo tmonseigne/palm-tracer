@@ -5,7 +5,7 @@ import shutil
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.UI.FileMigratorWidget import FileMigratorWidget  # classe
+from palm_tracer.UI.FileMigratorWidget import FileMigratorWidget  # Classe
 
 INPUT_FOLDER = INPUT_DIR / "stack.PT"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"

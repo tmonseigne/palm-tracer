@@ -121,7 +121,7 @@ def test_reset_result(pt):
 
 
 # ==================================================
-# region Getter/Setter
+# region Accesseurs
 # ==================================================
 ##################################################
 def test_getter_localization(pt):
@@ -198,7 +198,7 @@ def test_get_status(pt):
 	res = pt.get_status()
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Intégralité des dataframes remplis
+	# Intégralité des DataFrames remplis
 	pt.df["loc"] = pd.DataFrame([1, 1])
 	pt.df["dft"] = pd.DataFrame([1, 2])
 	pt.df["bds"] = pd.DataFrame([1, 3])
@@ -269,11 +269,11 @@ def test_getter_suffix(pt):
 
 
 # ==================================================
-# endregion Getter/Setter
+# endregion Accesseurs
 # ==================================================
 
 # ==================================================
-# region Process
+# region Traitements
 # ==================================================
 ##################################################
 def test_load_bad_dll(capsys, pt):
@@ -629,7 +629,7 @@ def test_process_gallery(capsys, pt):
 	pt.settings.gallery.active = True
 	pt.process()
 
-	# dimension 270 (30 ROI / lignes(colonnes) * taille de ROI de 9) et 1 frame (30 * 30 = 900 / frame et environ 450 en entrée)
+	# Dimension 270 (30 ROI / lignes(colonnes) * taille de ROI de 9) et 1 frame (30 * 30 = 900 / frame et environ 450 en entrée)
 	res, ref = FileIO.open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], tif=[1])
@@ -709,11 +709,11 @@ def test_process_all(capsys, pt):
 
 
 # ==================================================
-# endregion Process
+# endregion Traitements
 # ==================================================
 
 # ==================================================
-# region Filtering
+# region Filtrage
 # ==================================================
 ##################################################
 def test_reset_filtered(capsys, pt):
@@ -868,11 +868,11 @@ def test_filter_tracks_compute(capsys, pt):
 
 
 # ==================================================
-# endregion Filtering
+# endregion Filtrage
 # ==================================================
 
 # ==================================================
-# region Visualization
+# region Visualisation
 # ==================================================
 ###################################################
 def test_graph():
@@ -1158,7 +1158,7 @@ def test_hr():
 	np.testing.assert_array_equal(plot, ref_plot)
 	s["Drift Correction"].value = False
 
-	# HR Localisation Empty dataframe
+	# HR Localisation DataFrame vide
 	for _ in range(4): pt.localizations.drop(pt.localizations.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
@@ -1174,7 +1174,7 @@ def test_hr():
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
-	# HR Tracking Empty dataframe
+	# HR Tracking DataFrame vide
 	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
@@ -1197,7 +1197,7 @@ def test_hr_filter():
 	pt.settings.rois.set_xy_roi(2, 5, 0, 5, False)
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((10, 6), dtype=np.uint16)
-	ref_viz[6, 0] = 2  # précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 * upscale de 2 = -4)
+	ref_viz[6, 0] = 2  # Précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 × facteur d'agrandissement de 2 = -4)
 	ref_plot = [[0, 6, 0], [0, 8, 2], [0, 10, 4], [0, 6, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
@@ -1325,7 +1325,7 @@ def test_hr_stress():
 	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
-	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # les autres points hors champs continues (0,16) (-1, 18)...
+	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # Les autres points hors champ continuent (0,16) (-1, 18)...
 	np.testing.assert_array_equal(viz, ref)
 
 	# Seconde bille qui descend comme la précédente, mais ne va pas vers la gauche donc la pente initiale sera divisé par 2.
@@ -1338,7 +1338,7 @@ def test_hr_stress():
 	pt.df["bds"] = pd.concat([beads, beads2], ignore_index=True)
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
-	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # les autres points hors champs continues (-1,13) (-2, 14)...
+	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # Les autres points hors champ continuent (-1,13) (-2, 14)...
 	np.testing.assert_array_equal(viz, ref)
 
 	# On ajoute nos 2 billes à la localisation et on enlève le drift, tout doit être affiché
@@ -1399,7 +1399,7 @@ def test_hr_stress():
 
 
 # ==================================================
-# endregion Visualization
+# endregion Visualisation
 # ==================================================
 
 ##################################################

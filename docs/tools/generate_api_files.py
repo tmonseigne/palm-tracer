@@ -19,7 +19,7 @@ MODULE_PATH = ROOT_PATH / "palm_tracer"
 
 
 # ==================================================
-# region Class
+# region Classes
 # ==================================================
 ##################################################
 @dataclass(frozen=True)
@@ -91,15 +91,15 @@ class PackageNode:
 	subpackages: tuple["PackageNode", ...]
 	"""Sous-packages directs."""
 	modules: tuple[str, ...]
-	"""Modules publics directs."""  # noms en dotted (incluant le package), sans __init__
+	"""Modules publics directs."""  # Noms qualifiés (package inclus), sans __init__
 
 
 # ==================================================
-# endregion Class
+# endregion Classes
 # ==================================================
 
 # ==================================================
-# region File Check
+# region Vérification des fichiers
 # ==================================================
 ##################################################
 def _is_python_package(directory: Path) -> bool:
@@ -125,12 +125,12 @@ def _iter_public_subpackages(package_dir: Path) -> Iterable[Path]:
 
 
 # ==================================================
-# endregion File Check
+# endregion Vérification des fichiers
 # ==================================================
 
 
 # ==================================================
-# region Parsing
+# region Analyse
 # ==================================================
 ##################################################
 def _parse_public_api_from_file(py_file: Path) -> ModulePublicApi:
@@ -289,7 +289,7 @@ def _unique_members_preserve_order(items: list[ClassMember]) -> tuple[ClassMembe
 	"""
 	seen: set[str] = set()
 	out: list[ClassMember] = []
-	for m in sorted(items, key=lambda x: x.lineno):  # bysource
+	for m in sorted(items, key=lambda x: x.lineno):  # Ordre bysource
 		if m.name in seen: continue
 		seen.add(m.name)
 		out.append(m)
@@ -309,11 +309,11 @@ def _unique_preserve_order(items: Iterable[str]) -> tuple[str, ...]:
 
 
 # ==================================================
-# endregion Parsing
+# endregion Analyse
 # ==================================================
 
 # ==================================================
-# region RST Generation
+# region Génération RST
 # ==================================================
 
 ##################################################
@@ -403,7 +403,7 @@ def _rst_class_page(dotted_module: str, class_name: str, py_file: Path) -> str:
 
 	regions = _clamp_regions_to_class(markers, class_start, class_end)
 
-	# Header: doc de classe seule
+	# En-tête : documentation de la classe uniquement
 	out += f".. autoclass:: {fqcn}\n"
 	out += "   :show-inheritance:\n"
 	out += "   :no-members:\n\n"
@@ -411,7 +411,7 @@ def _rst_class_page(dotted_module: str, class_name: str, py_file: Path) -> str:
 	# Attributs : pas de ré-affichage de la classe et aucun tri par région
 	if class_api.attributes:
 		out += _rst_title("Attributs", "-")
-		# pas forcément utile de retrier, mais au cas où pour conserver l'ordre du code...
+		# Pas forcément utile de retrier, mais au cas où pour conserver l'ordre du code...
 		for a in sorted(class_api.attributes, key=lambda x: x.lineno): out += f".. autoattribute:: {fqcn}.{a.name}\n"
 		out += "\n"
 
@@ -447,7 +447,7 @@ def _generate_node_files(node: PackageNode, api_path: Path = API_PATH) -> None:
 		mod = f"{node.dotted_name}.{py.stem}"
 		(api_path / f"{mod}.rst").write_text(_rst_module_page(mod, py), encoding="utf-8")
 
-	# Recurse
+	# Récursion
 	for sub in node.subpackages: _generate_node_files(sub, api_path)
 
 
@@ -472,7 +472,7 @@ def generate_api_rst() -> None:
 
 
 # ==================================================
-# endregion RST Generation
+# endregion Génération RST
 # ==================================================
 
 ##################################################

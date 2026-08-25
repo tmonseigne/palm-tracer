@@ -70,7 +70,7 @@ def test_block_without_emits_no_output(sw: SignalWrapper):
 	sw.connect(lambda v: received.append(v))
 
 	with sw.blocked():
-		# pas d'emit
+		# Aucune émission
 		pass
 
 	assert received == []
@@ -86,9 +86,9 @@ def test_nested_blocks_emit_once_at_outer_exit(sw: SignalWrapper):
 		with sw.blocked():
 			sw.emit(1)
 			sw.emit(2)
-		# à ce stade, toujours rien
+		# À ce stade, toujours rien
 		assert received == []
-		# encore du bruit
+		# Encore du bruit
 		sw.emit(3)
 
 	# Une seule émission à la fin, avec la dernière valeur (3)
@@ -175,7 +175,7 @@ def test_coalescence_overwrite_multiple_times(sw: SignalWrapper):
 
 	with sw.blocked():
 		for i in range(10): sw.emit(i)
-	assert received == [9]  # dernière
+	assert received == [9]  # Dernière émission
 
 
 ##################################################

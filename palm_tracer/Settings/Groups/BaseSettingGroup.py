@@ -37,7 +37,7 @@ class BaseSettingGroup:
 	"""Dictionnaire des interfaces qui ont été créées pour ce groupe de paramètres."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -59,11 +59,11 @@ class BaseSettingGroup:
 		for _, setting in self._settings.items(): setting.reset()
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
@@ -174,11 +174,11 @@ class BaseSettingGroup:
 		return iter(self._settings)
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Hide and Seek
+	# region Visibilité
 	# ==================================================
 	##################################################
 	def hide(self):
@@ -191,11 +191,11 @@ class BaseSettingGroup:
 		for ui in self._uis.values(): ui.show()
 
 	# ==================================================
-	# endregion Hide and Seek
+	# endregion Visibilité
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Analyse
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -207,7 +207,7 @@ class BaseSettingGroup:
 		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		self.active = data.get("active", False)
 		settings = data["settings"]
-		for key, value in self.setting_list.items():  # Appelle `update_from_compact_dict` pour chaque élément de setting_list
+		for key, value in self.setting_list.items():  # Appelle update_from_compact_dict pour chaque élément de setting_list
 			if key in settings: self._settings[key].update_from_compact_dict(settings[key])
 
 	##################################################
@@ -236,11 +236,11 @@ class BaseSettingGroup:
 		return self.tostring()
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Analyse
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
@@ -248,11 +248,11 @@ class BaseSettingGroup:
 		self.active = bool(state)
 
 	# ==================================================
-	# endregion Callbacks
+	# endregion Fonctions de rappel
 	# ==================================================
 
 	# ==================================================
-	# region Signals
+	# region Signaux
 	# ==================================================
 	##################################################
 	def connect(self, f: Any):

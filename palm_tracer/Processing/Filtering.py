@@ -73,9 +73,9 @@ class Filtering:
 		if datas.empty or not self.filters.active: return datas
 		track_filter = cast(CheckIntSelection, self.filters.tracking["Track"])
 		length_filter = cast(CheckRangeInt, self.filters.tracking["Length"])
-		if not track_filter.active and not length_filter.active: return datas  # Aucun Filtre basique
+		if not track_filter.active and not length_filter.active: return datas  # Aucun filtre de base
 
-		# Track ID Filter
+		# Filtre sur les identifiants de trajectoire
 		res = datas
 		if track_filter.active:
 			mask = np.zeros(len(res), dtype=bool)
@@ -114,7 +114,7 @@ class Filtering:
 		# ----- Base : IDs présents dans les 4 DataFrames (donc une intersection) -----
 		id_sets: list[set[int]] = []
 		for df in (o_trc, o_msd, o_ind, o_fit):
-			# évite d'ajouter un set vide qui tuerait l'intersection
+			# Évite d'ajouter un ensemble vide qui annulerait l'intersection
 			if not df.empty and "Track" in df.columns: id_sets.append(set(df["Track"].unique().tolist()))
 		keep_ids = set.intersection(*id_sets)
 
@@ -124,7 +124,7 @@ class Filtering:
 			limits_d = f_tmp.value
 			o_ind = o_ind[o_ind["Track"].isin(keep_ids)]  # .					 Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_ind.empty:
-				val_cols = [c for c in o_ind.columns if c != "Track"]  # .		 Colonnes de valeurs = toutes sauf 'Track'
+				val_cols = [c for c in o_ind.columns if c != "Track"]  # .		 Colonnes de valeurs : toutes sauf Track
 				vals = o_ind[val_cols]
 				vals_np = vals.to_numpy(dtype=float)  # .						 Convertir en numpy pour un contrôle fin
 				finite = np.isfinite(vals_np)  # .								 Masque des valeurs finies (ni NaN, ni ±inf)
@@ -135,22 +135,22 @@ class Filtering:
 				np.divide(n_out, n_valid, out=pct_out_np, where=n_valid > 0)
 				pct_out = pd.Series(pct_out_np * 100.0, index=o_ind.index)
 
-				# avec une troisieme valeur limit[2] qui serait le pourcentage de fail max autorisé
-				# Ou alors un nouveau setting type Instant D Failure Tolerance (%), je vais mettre 50% ici
+				# avec une troisième valeur limit[2] qui serait le pourcentage maximal d'échecs autorisé
+				# Ou alors un nouveau type de paramètre Instant D Failure Tolerance (%), je vais mettre 50% ici
 				ok_ids = set(map(int, np.unique(o_ind.loc[pct_out <= 50.0, "Track"].to_numpy())))
 				keep_ids &= ok_ids
 
-		# ----- Filtre sur Fit -----
+		# ----- Filtre sur l'ajustement -----
 		if not o_fit.empty:
 			o_fit = o_fit[o_fit["Track"].isin(keep_ids)]  # Restreindre aux trajectoires admissibles jusqu'ici
 			if not o_fit.empty:
 				filters = [
 						# Quel que soit l'ajustement.
 						[f["D Coeff"], "D(0) (μm²/s)"],
-						# Fit Puissance
+						# Ajustement par loi de puissance
 						[f["Alpha"], "Alpha"],
 						[f["Speed"], "Average Speed (Last-First)(μm/s)"],
-						# Fit Exponentiel
+						# Ajustement exponentiel
 						[f["Confinement"], "Confinement Radius (μm)"]]
 
 				for filt, col in filters:

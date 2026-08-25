@@ -51,7 +51,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	"""Nom de l'interface de visualisation des graphiques."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, palmtracer: PALMTracer | None = None):
@@ -219,11 +219,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		finally: super().closeEvent(event)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region PALMTracer Link
+	# region Liaison avec PALMTracer
 	# ==================================================
 	##################################################
 	def _toggle_type(self, btn_id: int):
@@ -233,7 +233,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
 		if btn_id == 0: self._filters.show_part(self.UI_NAME, localization=True, tracking=False)  # Localisation
-		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
+		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # .			Tracking
 
 	##################################################
 	def _add_stack(self):

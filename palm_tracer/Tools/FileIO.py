@@ -24,7 +24,7 @@ DLL_PATH = Path(__file__).parent.parent / "DLL"
 
 
 # ==================================================
-# region File Management
+# region Gestion des fichiers
 # ==================================================
 ##################################################
 def add_extension(filename: str, extension: str) -> str:
@@ -153,11 +153,11 @@ def load_dll(name: str) -> Optional[ctypes.CDLL]:
 
 
 # ==================================================
-# endregion File Management
+# endregion Gestion des fichiers
 # ==================================================
 
 # ==================================================
-# region JSON IO
+# region Entrées-sorties JSON
 # ==================================================
 ##################################################
 def _compact_value_arrays(text: str) -> str:
@@ -227,11 +227,11 @@ def open_json(filename: str | Path) -> dict[str, Any]:
 
 
 # ==================================================
-# endregion JSON IO
+# endregion Entrées-sorties JSON
 # ==================================================
 
 # ==================================================
-# region TIF IO
+# region Entrées-sorties TIF
 # ==================================================
 ##################################################
 def save_tif(stack: np.ndarray, filename: str | Path):
@@ -274,11 +274,11 @@ def open_tif(filename: str | Path) -> np.ndarray:
 
 
 # ==================================================
-# endregion TIF IO
+# endregion Entrées-sorties TIF
 # ==================================================
 
 # ==================================================
-# region PNG IO
+# region Entrées-sorties PNG
 # ==================================================
 ##################################################
 def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True):
@@ -333,11 +333,11 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 
 
 # ==================================================
-# endregion PNG IO
+# endregion Entrées-sorties PNG
 # ==================================================
 
 # ==================================================
-# region Matlab File IO
+# region Entrées-sorties MATLAB
 # ==================================================
 ##################################################
 def open_calibration_mat(filename: str | Path) -> dict[str, Any]:

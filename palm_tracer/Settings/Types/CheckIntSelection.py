@@ -69,7 +69,7 @@ class CheckIntSelection(BaseSettingType):
 		self.active = False
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -136,11 +136,11 @@ class CheckIntSelection(BaseSettingType):
 		return self.parse(self.value)
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Selection
+	# region Sélection
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -200,11 +200,11 @@ class CheckIntSelection(BaseSettingType):
 		return any(minimum <= value <= maximum for minimum, maximum in self.ranges)
 
 	# ==================================================
-	# endregion Selection
+	# endregion Sélection
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Analyse
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -216,11 +216,11 @@ class CheckIntSelection(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Analyse
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = CheckIntSelection("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)

@@ -44,7 +44,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	ui = group.get_ui()  # Second appel l'ui existe déjà
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 
 	# Hide and seek

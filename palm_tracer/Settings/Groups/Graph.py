@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = Graph()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

@@ -78,33 +78,33 @@ def test_get_z_from_step():
 def test_remove_multi_loc():
 	"""Vérifie le comportement de remove_multi_loc."""
 	columns = ["Plane", "X", "Y", "Sigma X", "Sigma Y", "Z"]
-	# Dataframe vide
+	# DataFrame vide
 	data = pd.DataFrame([], columns=columns)
 	res = remove_multi_beads(data)
 	assert res.empty
 
-	# Dataframe sans la colonne "Plane".
+	# DataFrame sans la colonne "Plane".
 	data = pd.DataFrame([[0, 0, 0, 0, 0]], columns=columns[1:])
 	res = remove_multi_beads(data)
 	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
 
-	# Dataframe avec déjà un seul point par plan.
+	# DataFrame avec déjà un seul point par plan.
 	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0], [3, 5, 5, 1, 1, 0]], columns=columns)
 	res = remove_multi_beads(data)
 	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
 
-	# Dataframe avec aucun plan ne contenant qu'une localisation.
+	# DataFrame dont aucun plan ne contient une seule localisation.
 	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0]], columns=columns)
 	res = remove_multi_beads(data)
 	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
 
-	# Dataframe Cohérent.
+	# DataFrame cohérent.
 	data = pd.DataFrame([[1, 3, 3, 1, 1, 0], [1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
 	res = remove_multi_beads(data)
 	ref = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
 	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Dataframe avec une colonne Bead.
+	# DataFrame avec une colonne Bead.
 	data = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0], [2, 1, 5, 5, 1, 1, 0], [2, 2, 5, 5, 1, 1, 0]], columns=["Bead"] + columns)
 	res = remove_multi_beads(data)
 	ref = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0]], columns=["Bead"] + columns)
@@ -151,7 +151,7 @@ def test_model_projection_validity():
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Vérification des métriques pour un modèle avec axe inversé,
-	# attendu rmse et mae élevé (du même ordre de grnadeur que Z_MAX), mais distances en pixel faible : signature d'une inversion du Z.
+	# RMSE et MAE attendues élevées (du même ordre de grandeur que Z_MAX), mais distances en pixels faibles : signature d'une inversion du Z.
 	# Le biais faible en est une conséquence (les erreurs s'annulent presque du fait que la courbe est PRESQUE symétrique).
 	res = model_projection_validity(DATASET, REF_MODEL[::-1], Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
 	ref = {'rmse_z': 577.31, 'mae_z': 499.94, 'p95_abs_z': 950, 'bias_z': 7.4, 'std_z': 577.27, 'mean_dist': 0.03, 'p95_dist': 0.1, "slope_mean": 0.004}

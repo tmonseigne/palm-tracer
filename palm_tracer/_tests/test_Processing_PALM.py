@@ -212,7 +212,7 @@ def test_tracks_compute():
 				if ref_path.exists() and ref_path.is_file():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
-					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					# Comparaison entre le DataFrame t_output[name] et ref avec une tolérance de 1e-5 et ignore les NaN
 					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Test sur différents modes d'ajustement.
@@ -226,7 +226,7 @@ def test_tracks_compute():
 				if ref_path.exists() and ref_path.is_file():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
-					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					# Comparaison entre le DataFrame t_output[name] et ref avec une tolérance de 1e-5 et ignore les NaN
 					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Dernier True/False pour la couverture de code

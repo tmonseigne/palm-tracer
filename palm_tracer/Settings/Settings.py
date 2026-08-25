@@ -40,7 +40,7 @@ class Settings:
 	"""Manager des zones d'intérêts."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -89,11 +89,11 @@ class Settings:
 		return stack
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> dict[str, BaseUIGroup]:
@@ -184,11 +184,11 @@ class Settings:
 		return cast(Filters, self._settings["Filters"])
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Analyse
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -206,11 +206,11 @@ class Settings:
 		if "ROIs" in groups: self.rois.from_dict_list(groups["ROIs"])
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Analyse
 	# ==================================================
 
 	# ==================================================
-	# region IO
+	# region Entrées-sorties
 	# ==================================================
 	##################################################
 	def tostring(self) -> str:
@@ -241,7 +241,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	settings = Settings()
 	setting_ui = settings.get_ui()
 

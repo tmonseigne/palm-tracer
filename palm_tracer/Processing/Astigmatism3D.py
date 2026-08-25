@@ -25,7 +25,7 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 
 	:return: Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées.
 	"""
-	planes = np.asarray(planes, dtype=np.float64)  # passage en flottant
+	planes = np.asarray(planes, dtype=np.float64)  # Passage en nombres flottants
 	p_min, p_max = planes.min(), planes.max()  # Récupération des min/max
 	if p_min == p_max: return np.full_like(planes, fill_value=0.5 * (z_min + z_max), dtype=np.float64)  # Cas dégénéré : un seul plan
 	return z_min + (planes - p_min) * (z_max - z_min) / (p_max - p_min)  # Interpolation linéaire

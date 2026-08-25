@@ -57,7 +57,7 @@ class ViewerHRWidget(QWidget):
 	"""Noms des calques gérés par la visionneuse haute résolution."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
@@ -156,7 +156,7 @@ class ViewerHRWidget(QWidget):
 		scroll_layout.addWidget(grp_infos)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_filters)
-		scroll_layout.addStretch()  # optionnel mais recommandé
+		scroll_layout.addStretch()  # Optionnel, mais recommandé
 
 		# --- Mise en page globbale ---
 		layout.addWidget(self._btn_add_stack)
@@ -190,11 +190,11 @@ class ViewerHRWidget(QWidget):
 		finally: super().closeEvent(event)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region PALMTracer Link
+	# region Liaison avec PALMTracer
 	# ==================================================
 	##################################################
 	def _check_beads(self):
@@ -212,7 +212,7 @@ class ViewerHRWidget(QWidget):
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
-		self._pt.load()  # . Chargement des derniers résultats
+		self._pt.load()  # .	Chargement des derniers résultats
 		self._actualize()  # Actualisation des statuts
 
 	##################################################
@@ -235,7 +235,7 @@ class ViewerHRWidget(QWidget):
 			show_info("Image file saved successfully.")
 
 	##################################################
-	def _screenshot(self):  # pragma: no cover — Accès au canvas
+	def _screenshot(self):  # pragma: no cover — Accès au canevas
 		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les régalges de color map, contraste."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
@@ -252,11 +252,11 @@ class ViewerHRWidget(QWidget):
 		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
 
 	# ==================================================
-	# endregion PALMTracer Link
+	# endregion Liaison avec PALMTracer
 	# ==================================================
 
 	# ==================================================
-	# region Drawing
+	# region Dessin
 	# ==================================================
 	##################################################
 	def _generate(self):

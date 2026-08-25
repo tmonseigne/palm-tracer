@@ -18,7 +18,7 @@ def manager() -> ROIManager:
 
 
 # ==================================================
-# region Getter/Setter
+# region Accesseurs
 # ==================================================
 ##################################################
 def test_rois(manager: ROIManager):
@@ -55,11 +55,11 @@ def test_layer(manager: ROIManager):
 
 
 # ==================================================
-# endregion Getter/Setter
+# endregion Accesseurs
 # ==================================================
 
 # ==================================================
-# region Synchronization
+# region Synchronisation
 # ==================================================
 ##################################################
 def test_update_main(manager: ROIManager):
@@ -101,11 +101,11 @@ def test_update_roi_selection(manager: ROIManager):
 
 
 # ==================================================
-# endregion Synchronization
+# endregion Synchronisation
 # ==================================================
 
 # ==================================================
-# region IO
+# region Entrées-sorties
 # ==================================================
 ##################################################
 def test_dict(manager: ROIManager):
@@ -123,11 +123,11 @@ def test_dict(manager: ROIManager):
 
 
 # ==================================================
-# endregion IO
+# endregion Entrées-sorties
 # ==================================================
 
 # ==================================================
-# region Misc
+# region Divers
 # ==================================================
 ##################################################
 def test_roi_limits(manager: ROIManager):
@@ -195,8 +195,8 @@ def test_filtering_dataframe_concave_cross(manager: ROIManager):
 	res = manager.filtering_dataframe(dataframe, strict=False)
 	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1], [1, 1], [9, 9]])  # Uniquement le dernier qui est en dehors de la bounding box.
 	res = manager.filtering_dataframe(dataframe, strict=True)
-	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1]])  # enlève en plus les 2 points dans des coins.
+	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1]])  # Enlève en plus les 2 points dans des coins.
 
 # ==================================================
-# endregion Misc
+# endregion Divers
 # ==================================================

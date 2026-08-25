@@ -74,7 +74,7 @@ class Monitoring:
 	"""GPU à surveiller."""
 
 	# ==================================================
-	# region Monitoring Manipulation
+	# region Gestion du suivi
 	# ==================================================
 	##################################################
 	@property
@@ -228,11 +228,11 @@ class Monitoring:
 		self._disk.insert(0, 0)  # .																			Ajouter 0 au début pour restaurer la taille
 
 	# ==================================================
-	# endregion Monitoring Manipulation
+	# endregion Gestion du suivi
 	# ==================================================
 
 	# ==================================================
-	# region Drawing
+	# region Dessin
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -347,11 +347,11 @@ class Monitoring:
 		self._figure.update_xaxes(title_text="Time (s)", row=len(params), col=1)  # Place le titre X uniquement sur le graphique du bas
 
 	# ==================================================
-	# endregion Drawing
+	# endregion Dessin
 	# ==================================================
 
 	# ==================================================
-	# endregion IO
+	# endregion Entrées-sorties
 	# ==================================================
 	##################################################
 	def save(self, filename: str | Path, full_html: bool = False):

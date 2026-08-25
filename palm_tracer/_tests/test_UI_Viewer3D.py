@@ -45,4 +45,4 @@ def test_viewer3d(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch,
 	my_widget.update_layer()
 
 	my_widget.data = pd.DataFrame()
-	my_widget.update_layer()  # .						Mise à jour avec un dataframe vide
+	my_widget.update_layer()  # .						Mise à jour avec un DataFrame vide

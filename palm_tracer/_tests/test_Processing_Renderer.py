@@ -15,7 +15,7 @@ def test_set_size():
 
 ##################################################
 def test_get_localization_colors():
-	# Empty Dataframe
+	# DataFrame vide
 	"""Vérifie la génération des couleurs des localisations."""
 	loc = pd.DataFrame(columns=["X", "Y", "Intensity"])
 	res = Renderer.add_colors_to_localizations(loc, "Intensity")
@@ -53,7 +53,7 @@ def test_get_localization_colors():
 
 ##################################################
 def test_get_tracks_colors():
-	# Empty Dataframe
+	# DataFrame vide
 	"""Vérifie la génération des couleurs des trajectoires."""
 	trc = pd.DataFrame(columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
 	res = Renderer.add_colors_to_tracks(trc, "Track Number")
@@ -65,7 +65,7 @@ def test_get_tracks_colors():
 	ref = np.array([[1, 3, 0, 0, 1], [1, 6, 0, 1, 1], [2, 5, 2, 2, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
-	# Track number
+	# Numéro de trajectoire
 	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [7, 3, 5]})
 	res = Renderer.add_colors_to_tracks(trc, "Track Number")
 	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 2]], dtype=np.float64)
@@ -290,7 +290,7 @@ def test_localizations():
 	res = r.localizations(loc)
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
 
-	# Points outside
+	# Points hors limites
 	loc = np.array([[10, 2, 5], [2, 10, 6]], dtype=np.float64)
 	res = r.localizations(loc)
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
@@ -429,7 +429,7 @@ def test_tracks():
 	res = r.tracks(trc)
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
 
-	# Points outside
+	# Points hors limites
 	trc = np.array([[1, 10, 2, 100], [1, 2, 10, 100], ], dtype=np.float64)
 	res = r.tracks(trc)
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
@@ -471,7 +471,7 @@ def test_z_stack():
 	res = r.z_stack(loc)
 	assert res.shape == (1, 20, 10) and np.count_nonzero(res) == 0
 
-	# Points outside
+	# Points hors limites
 	loc = np.array([[10, 2, 0, 5], [2, 10, 0, 6], [-1, 2, 0, 7], [2, -1, 0, 8]], dtype=np.float64)
 	res = r.z_stack(loc)
 	assert res.shape == (1, 20, 10) and np.count_nonzero(res) == 0
@@ -493,11 +493,11 @@ def test_z_stack():
 
 	# Z dans [-40 ; +40]
 	loc = np.array([
-			[1, 1, -40, 10],  # plan 0
-			[2, 1, -20, 20],  # plan 1
-			[3, 1, +00, 30],  # plan 2
-			[4, 1, +20, 40],  # plan 3
-			[1, 2, +40, 50],  # plan 4
+			[1, 1, -40, 10],  # Plan 0
+			[2, 1, -20, 20],  # Plan 1
+			[3, 1, +00, 30],  # Plan 2
+			[4, 1, +20, 40],  # Plan 3
+			[1, 2, +40, 50],  # Plan 4
 			], dtype=np.float64)
 
 	res = r.z_stack(loc, color_mode=0, z_step=20)
@@ -614,7 +614,7 @@ def test_rotation():
 	res = r.rotation_3d(loc)
 	assert res.shape == (1, 10, 10) and np.count_nonzero(res) == 0
 
-	# Points outside
+	# Points hors limites
 	loc = np.array([[10, 2, 0, 5], [2, 10, 0, 6], [-1, 2, 0, 7], [2, -1, 0, 8]], dtype=np.float64)
 	res = r.rotation_3d(loc)
 	assert res.shape == (1, 10, 10) and np.count_nonzero(res) == 0
@@ -645,7 +645,7 @@ def test_rotation():
 
 	# Z non uniforme [-20 ; +20], aucun changement pour 0 et 180° masi ajout de 90 et 270 Y inchangé, mais X autour du centre évolue
 	# Attention, l'arrondi python dans le cas de X.5 va arrondir au nombre pair le plus proche
-	# ce qui donne l'impression de l'axe central à 7 sur les angles 90 et 270.
+	# Cela donne l'impression de l'axe central à 7 sur les angles 90 et 270.
 	# np.round([6.5, 7.5, 8.5, 9.5]) = array([ 6.,  8.,  8., 10.])
 	loc = np.array([[2, 3, -20, 10], [2, 3, -20, 5], [3, 2, 20, 7]], dtype=np.float64)
 	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=4, axis=1)
@@ -699,8 +699,8 @@ def test_renderer_atom():
 	r = Renderer()
 	r.set_size(700, 500, 2)
 	loc = pd.read_csv(INPUT_DIR / "atoms_sphere_motion.csv").to_numpy()
-	loc[:, 0] += 3.5  # les positions vont de -3 à +3
-	loc[:, 1] += 2.5  # les positions vont de -2 à +2
+	loc[:, 0] += 3.5  # Les positions vont de -3 à +3
+	loc[:, 1] += 2.5  # Les positions vont de -2 à +2
 	loc[:, 0:3] *= 100  # Passsage en gros à des pixel
 	loc = np.hstack((loc, np.zeros((loc.shape[0], 3))))  # Ajout de SigmaX,SigmaY et Theta
 	loc[:, 4] = 1  # Sigma X

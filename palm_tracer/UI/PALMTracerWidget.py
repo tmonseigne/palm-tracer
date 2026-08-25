@@ -56,7 +56,7 @@ class PALMTracerWidget(QWidget):
 	"""Pile minimale utilisée lorsqu'aucune image n'est chargée."""
 
 	# ==================================================
-	# region Init
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, viewer: "napari.viewer.Viewer"):
@@ -75,7 +75,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_3d: Optional[Viewer] = None
 		self.viewer_3d_widget: Optional[QWidget] = None
 		self.viewer_graph: Optional[GraphViewerWidget] = None
-		# ----- Threading -----
+		# ----- Threads -----
 		self._processing = False  # .					 Permets d'éviter les clics multiples.
 		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
 		# ----- Objets -----
@@ -110,7 +110,7 @@ class PALMTracerWidget(QWidget):
 		# -- Size policy / bornes --
 		self.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
 		self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-		self.setMinimumWidth(360)  # borne basse réaliste (à ajuster)
+		self.setMinimumWidth(360)  # Borne basse réaliste (à ajuster)
 		self.setMinimumHeight(220)
 
 		# Viewer Button
@@ -141,7 +141,7 @@ class PALMTracerWidget(QWidget):
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
 		tabs.addTab(self._create_tab([setting_ui["Filters"].widget]), "Filtering")
 
-		# Layout principal
+		# Mise en page principale
 		self.layout().addSpacing(10)
 		self.layout().addWidget(tabs)
 
@@ -208,11 +208,11 @@ class PALMTracerWidget(QWidget):
 		return Ui.make_vertical_scroll(tab)
 
 	# ==================================================
-	# endregion Init
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Threading
+	# region Threads
 	# ==================================================
 	##################################################
 	def _thread_process(self, compute_func: Callable[[], None], post_func: Optional[Callable[[], None]] = None):
@@ -239,7 +239,7 @@ class PALMTracerWidget(QWidget):
 		w: FunctionWorker = cast(FunctionWorker, _run_background())
 		self._worker = w
 
-		# s'exécute dans le thread UI
+		# S'exécute dans le thread de l'interface
 		if post_func is not None: w.returned.connect(lambda _ok: post_func())
 
 		def _finish(*_args: object) -> None:  # UI thread : fin propre
@@ -276,14 +276,14 @@ class PALMTracerWidget(QWidget):
 		if on: QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 		else:
 			try: QApplication.restoreOverrideCursor()
-			except RuntimeError: pass  # .Aucun curseur à restaurer
+			except RuntimeError: pass  # .	Aucun curseur à restaurer
 
 	# ==================================================
-	# endregion Threading
+	# endregion Threads
 	# ==================================================
 
 	# ==================================================
-	# region Settings Callback
+	# region Fonctions de rappel des paramètres
 	# ==================================================
 	##################################################
 	def _load_setting(self, filename: Path):
@@ -319,11 +319,11 @@ class PALMTracerWidget(QWidget):
 		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())
 
 	# ==================================================
-	# endregion Settings Callback
+	# endregion Fonctions de rappel des paramètres
 	# ==================================================
 
 	# ==================================================
-	# region Layers Callback
+	# region Fonctions de rappel des calques
 	# ==================================================
 	##################################################
 	def _clean_layer(self, raw: bool = True, preview: bool = True, roi: bool = True):
@@ -463,28 +463,28 @@ class PALMTracerWidget(QWidget):
 		self.pt.settings.localization["Threshold"].value = threshold  # .								  Changement du seuil dans les settings
 
 	# ==================================================
-	# endregion Layers Callback
+	# endregion Fonctions de rappel des calques
 	# ==================================================
 
 	# ==================================================
-	# region Extern Viewer
+	# region Visualiseurs externes
 	# ==================================================
 	##################################################
-	def _open_hr_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+	def _open_hr_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Ouvre une instance Napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
 		if self.viewer_hr is None:
 			self.viewer_hr, self.viewer_hr_widget = create_viewerhr(self.pt)
 			self._bind_viewer_lifecycle("viewer_hr")
 
 	##################################################
-	def _open_3d_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+	def _open_3d_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Ouvre une instance Napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d, self.viewer_3d_widget = create_viewer3d()
 			self._bind_viewer_lifecycle("viewer_3d")
 
 	##################################################
-	def _open_graph_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+	def _open_graph_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Ouvre la visionneuse de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
@@ -500,7 +500,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.activateWindow()
 
 	##################################################
-	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
 		viewer = getattr(self, viewer_attr, None)
 		if viewer is None: return

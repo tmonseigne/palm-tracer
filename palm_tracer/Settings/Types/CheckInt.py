@@ -44,7 +44,7 @@ class CheckInt(BaseSettingType):
 		self.active = False
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -122,11 +122,11 @@ class CheckInt(BaseSettingType):
 			with QSignalBlocker(b): Ui.update_spin_limits(b, self._limits[0], self._limits[1])
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Analyse
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -139,11 +139,11 @@ class CheckInt(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Analyse
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = CheckInt("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)

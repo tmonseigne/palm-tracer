@@ -37,7 +37,7 @@ class BaseSettingType:
 	"""Dictionnaire des interfaces qui ont été créées pour ce paramètre."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -50,11 +50,11 @@ class BaseSettingType:
 		self.value = self.default
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -93,11 +93,11 @@ class BaseSettingType:
 		self.value = value
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Hide and Seek
+	# region Visibilité
 	# ==================================================
 	##################################################
 	def hide(self):
@@ -110,11 +110,11 @@ class BaseSettingType:
 		for ui in self._uis.values(): ui.show()
 
 	# ==================================================
-	# endregion Hide and Seek
+	# endregion Visibilité
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Analyse
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -127,11 +127,11 @@ class BaseSettingType:
 		self.value = data["value"]  # Appel du Setter
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Analyse
 	# ==================================================
 
 	# ==================================================
-	# region Signals
+	# region Signaux
 	# ==================================================
 	##################################################
 	def attach_to_form(self, ui_name: str, form: QFormLayout):

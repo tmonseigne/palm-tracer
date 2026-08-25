@@ -61,7 +61,7 @@ class ROIManager:
 		self.roi_selection.connect(self._on_roi_selection_changed)
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	@property
@@ -152,11 +152,11 @@ class ROIManager:
 		else: self.rois = [roi]
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Synchronization
+	# region Synchronisation
 	# ==================================================
 	##################################################
 	def update_from_main(self):
@@ -253,11 +253,11 @@ class ROIManager:
 		if self.layer_hr is not None: self.layer_hr.selected_data = selected_data
 
 	# ==================================================
-	# endregion Synchronization
+	# endregion Synchronisation
 	# ==================================================
 
 	# ==================================================
-	# region IO
+	# region Entrées-sorties
 	# ==================================================
 	##################################################
 	def from_dict_list(self, rois: list[dict[str, Any]]):
@@ -278,11 +278,11 @@ class ROIManager:
 		return res
 
 	# ==================================================
-	# endregion IO
+	# endregion Entrées-sorties
 	# ==================================================
 
 	# ==================================================
-	# region Misc
+	# region Divers
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -373,7 +373,7 @@ class ROIManager:
 		:param roi_data: Sommets Napari sous la forme ``(Y, X)``.
 		:return: Masque booléen indiquant les points contenus dans le polygone.
 		"""
-		path = MatplotlibPath(np.asarray(roi_data, dtype=float)[:, [-1, -2]])  # passage de Y, X vers X, Y et création du chemin
+		path = MatplotlibPath(np.asarray(roi_data, dtype=float)[:, [-1, -2]])  # Passage de Y, X vers X, Y et création du chemin
 		return path.contains_points(points, radius=1.0e-9)  # Un petit rayon positif permet d'inclure les points situés sur le bord.
 
 	##################################################

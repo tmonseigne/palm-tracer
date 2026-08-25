@@ -16,7 +16,7 @@ from palm_tracer.Processing import Palm
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
 
-_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+_windows = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
 class AlignmentWidget(QWidget):
@@ -32,7 +32,7 @@ class AlignmentWidget(QWidget):
 	"""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -132,11 +132,11 @@ class AlignmentWidget(QWidget):
 		self._btn_start_alignment.clicked.connect(self._on_start_alignment)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	def _on_load_tif(self):
 		"""Callback du bouton 'Load TIFF file'."""
@@ -221,7 +221,7 @@ class AlignmentWidget(QWidget):
 
 
 ##################################################
-def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
 
@@ -231,7 +231,7 @@ def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans c
 	widget = AlignmentWidget()
 	widget.resize(500, 250)
 	widget.show()
-	_windows.append(widget)  # éviter que Python le détruise en le stockant
+	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
 
 
 ##################################################

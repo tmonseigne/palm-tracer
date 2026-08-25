@@ -30,7 +30,7 @@ class BrowseFile(BaseSettingType):
 	"""Valeur actuelle du paramètre (:class:`str`)."""
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -44,7 +44,7 @@ class BrowseFile(BaseSettingType):
 		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box, browse_button])
 		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
 
-		box.textChanged.connect(self.set_value_from_ui)  # .Connecte le changement de valeur pour que les autres UI se mettent à jour
+		box.textChanged.connect(self.set_value_from_ui)  # .	Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		# Disposer le QLineEdit et le bouton dans un calque horizontal
 		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
@@ -72,11 +72,11 @@ class BrowseFile(BaseSettingType):
 		self.emit(value)
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def browse_file(self):
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = BrowseFile("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)

@@ -29,7 +29,7 @@ class CheckBox(BaseSettingType):
 	"""Valeur actuelle du paramètre (:class:`bool`)."""
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = CheckBox("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)

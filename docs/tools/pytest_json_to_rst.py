@@ -41,7 +41,7 @@ def format_duration(duration: float) -> str:
 
 
 # ==================================================
-# region Generation
+# region Génération
 # ==================================================
 ##################################################
 def generate_rst_from_json(src: str | Path, dst: str | Path):
@@ -236,7 +236,7 @@ def get_outcome_icon(outcome: str) -> str:
 
 
 # ==================================================
-# endregion Generation
+# endregion Génération
 # ==================================================
 ##################################################
 def usage():

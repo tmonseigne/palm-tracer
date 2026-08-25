@@ -18,7 +18,7 @@ from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
 DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
-_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+_windows = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
 class Astigmatism3DWidget(BasePlotlyWidget):
@@ -38,7 +38,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	"""Modes d'affichage disponibles pour le graphique d'astigmatisme."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -125,7 +125,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		# --- Groupe Vérification de cohérence ---
 		self._sanity: list[dict[str, dict[str, QLabel | str]]] = [{
-				# Columns 1 title "Sigma Sanity Check"
+				# Titre de la colonne 1 "Sigma Sanity Check"
 				"rmse_x":  {"label": QLabel("RMSE x:"), "value": QLabel("     --"), "unit": QLabel("px"),
 							"tips":  "Root Mean Square Error on x (0 for a perfect model)."},
 				"rmse_y":  {"label": QLabel("RMSE y:"), "value": QLabel("     --"), "unit": QLabel("px"),
@@ -142,7 +142,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 							"tips":  "Percent of variance explained on y (100 % for a perfect model)."},
 				"blank":   {"label": QLabel(""), "value": QLabel(""), "unit": QLabel(""), "tips": ""}}, {
 
-				# Columns 2 title "Z Sanity Check"
+				# Titre de la colonne 2 "Z Sanity Check"
 				"rmse_z":     {"label": QLabel("RMSE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
 							   "tips":  "Root Mean Square Error on z (0 for a perfect model)."},
 				"mae_z":      {"label": QLabel("MAE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
@@ -272,11 +272,11 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btg_type_estimate.idClicked.connect(self._update_plot)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region UI
+	# region Interface utilisateur
 	# ==================================================
 	##################################################
 	def _update_sanity_values(self, points: np.ndarray, model: np.ndarray, pixel_size: float):
@@ -316,11 +316,11 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._update_web_widget()
 
 	# ==================================================
-	# endregion UI
+	# endregion Interface utilisateur
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def _check_loc(self):
@@ -463,7 +463,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Suppression des artefacts ou autres billes ---
 		if self._check_only_one.isChecked(): work = remove_multi_beads(work)
 
-		# --- Préparation des data ---
+		# --- Préparation des données ---
 		beads: list[np.ndarray] = []
 		if "Bead" in work.columns:  # Une ou plusieurs billes identifiées
 			for _, df in work.groupby("Bead", sort=True): beads.append(df.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True))
@@ -549,7 +549,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 
 ##################################################
-def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
 
@@ -559,7 +559,7 @@ def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sa
 	widget = Astigmatism3DWidget()
 	widget.resize(1280, 720)
 	widget.show()
-	_windows.append(widget)  # éviter que Python le détruise en le stockant
+	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
 
 
 ##################################################

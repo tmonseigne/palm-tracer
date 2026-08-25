@@ -26,7 +26,7 @@ all_tests_monitoring = Monitoring()
 
 
 # ==================================================
-# region Fixture
+# region Fixtures pytest
 # ==================================================
 ##################################################
 @pytest.fixture
@@ -57,7 +57,7 @@ def fake_qfiledialog(monkeypatch):
 
 		# 1) Déterminer le module à partir de target
 		if isinstance(target, types.ModuleType): module = target
-		else: module = sys.modules[target.__module__]  # target est probablement une classe : on remonte à son module
+		else: module = sys.modules[target.__module__]  # La cible est probablement une classe : on remonte à son module
 
 		# Sanity check : QFileDialog doit exister dans ce module
 		if not hasattr(module, "QFileDialog"): raise AttributeError(f"Le module {module.__name__!r} ne contient pas 'QFileDialog'.")
@@ -291,11 +291,11 @@ def patched_napari_viewer(monkeypatch, qtbot):
 
 
 # ==================================================
-# endregion Fixture
+# endregion Fixtures pytest
 # ==================================================
 
 # ==================================================
-# region Hook
+# region Hooks pytest
 # ==================================================
 ##################################################
 def _is_qt_or_napari_test(item) -> bool:
@@ -375,7 +375,7 @@ def pytest_metadata(metadata):
 			handle = nvmlDeviceGetHandleByIndex(0)  # Premier GPU
 			name_raw = nvmlDeviceGetName(handle)
 			name = name_raw.decode("utf-8") if isinstance(name_raw, bytes) else name_raw
-			memory = nvmlDeviceGetMemoryInfo(handle).total // (1024 * 1024)  # en Mo
+			memory = nvmlDeviceGetMemoryInfo(handle).total // (1024 * 1024)  # Taille en Mo
 			metadata["GPU"] = f"{name} (Memory: {memory} MB)"
 		else:
 			metadata["GPU"] = "No GPU found"
@@ -437,5 +437,5 @@ def pytest_runtest_teardown(item, nextitem):
 	global all_tests_monitoring
 	if _is_qt_or_napari_test(item) and not _is_qt_or_napari_test(nextitem): all_tests_monitoring.resume()
 # ==================================================
-# endregion Hook
+# endregion Hooks pytest
 # ==================================================

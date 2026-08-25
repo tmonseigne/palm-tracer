@@ -104,12 +104,12 @@ class Localization(BaseSettingGroup):
 		s = self.settings
 		# No fit
 		if s["Fit"] == 0: return np.array([s["ROI Size"]], dtype=np.float64)
-		# Gaussian Fit
+		# Ajustement gaussien
 		if s["Fit"] == 1:
 			return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], 2 * s["Gaussian Fit Sigma"],
 							 degrees_to_radians(s["Gaussian Fit Theta"])], dtype=np.float64)
-		# Spline Fit
-		# Load Mat File
+		# Ajustement par spline
+		# Chargement du fichier MAT
 		try:
 			calib = open_calibration_mat(s["Spline Fit File"])
 			sx, sy, sz = calib["coeff"].shape[:3]
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = Localization()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

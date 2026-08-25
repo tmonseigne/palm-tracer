@@ -12,12 +12,12 @@ from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, Q
 							QSpinBox, QVBoxLayout, QWidget)
 
 # ==================================================
-# region Constants
+# region Constantes
 # ==================================================
 # Style pour une ligne d'information
 STYLESHEET_INFO: str = "color: #666666; font-style: italic; padding: 2px;"
 
-# Configuration par défaut de l'interface Plotly opur les différents standalone.
+# Configuration par défaut de l'interface Plotly pour les différentes fenêtres autonomes.
 CONFIG_PLOTLY: dict[str, Any] = {
 		"responsive":             True,
 		"displayModeBar":         True,
@@ -26,16 +26,16 @@ CONFIG_PLOTLY: dict[str, Any] = {
 								   "resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian"],
 		"toImageButtonOptions":   dict(format="png", height=1200, width=1200, scale=2)}
 
-# Espace par défaut de l'interface (padding, marge...).
+# Espace par défaut de l'interface (espacement interne, marge...).
 COMMON_SPACE: int = 5
 
 
 # ==================================================
-# endregion Constants
+# endregion Constantes
 # ==================================================
 
 # ==================================================
-# region UI Build
+# region Construction de l'interface
 # ==================================================
 ##################################################
 def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int = 0, margin: int = 0, *, tooltip: str = ""):
@@ -56,7 +56,7 @@ def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int =
 	layout = QHBoxLayout()
 	init_layout(layout, space, margin)
 	layout.addWidget(widget)
-	layout.addStretch(1)  # pousse tout à gauche, espace vide à droite
+	layout.addStretch(1)  # Pousse tout à gauche, espace vide à droite
 	label_widget = QLabel(label)
 	label_widget.setToolTip(tooltip)
 	form.addRow(label_widget, layout)
@@ -136,7 +136,7 @@ def make_exclusive_btn_group(labels: list[str], space: int = COMMON_SPACE) -> tu
 	i = 0
 	for _, button in buttons.items():
 		button.setCheckable(True)
-		button.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # évite le focus rectangle
+		button.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # Évite le rectangle de focus
 		layout.addWidget(button)
 		group.addButton(button, i)  # Insertion dans le groupe exclusif
 		i += 1
@@ -207,15 +207,15 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	layout.addWidget(make_horizontal_separator(), 1, 0, 1, size)  # Séparateur horizontal
 
 	# Colonnes fixes : label | value | unit. On force la colonne "value" à s'étendre, pour garder l'alignement propre.
-	layout.setColumnStretch(0, 0)  # .								Label
-	layout.setColumnStretch(1, 1)  # .								Value (s'étire)
-	if size == 3:    layout.setColumnStretch(2, 0)  # .				Unit
+	layout.setColumnStretch(0, 0)  # .								Libellé
+	layout.setColumnStretch(1, 1)  # .								Valeur (s'étire)
+	if size == 3:    layout.setColumnStretch(2, 0)  # .				Unité
 
 	row = 2
 	for key, item in elements.items():
 		lbl: QLabel = item["label"]
 		val: QLabel = item["value"]
-		lbl.setToolTip(item.get("tips", ""))  # .					Tooltips collé au label
+		lbl.setToolTip(item.get("tips", ""))  # .					Infobulle associée au libellé
 
 		# Alignements : gauche | droite | gauche (si une unité)
 		val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -300,7 +300,7 @@ def make_vertical_scroll(widget: QWidget) -> QScrollArea:
 	:return: La :class:`QScrollArea` configuré.
 	"""
 	scroll = QScrollArea()
-	scroll.setWidgetResizable(True)  # le contenu suit la largeur disponible.
+	scroll.setWidgetResizable(True)  # Le contenu suit la largeur disponible.
 	scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 	scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 	scroll.setFrameShape(QScrollArea.Shape.NoFrame)
@@ -363,14 +363,14 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 	"""
 	if decimals <= 0:
 		spin = QSpinBox(parent, minimum=minimum, maximum=maximum, singleStep=step, value=value)
-		spin.setStyleSheet("QSpinBox { padding: 0; }")  # .								 Suppression du padidng
+		spin.setStyleSheet("QSpinBox { padding: 0; }")  # .								 Suppression de l'espacement interne
 		if not buttons: spin.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)  # .	 Supprime les flèches
 	else:
 		spin = QDoubleSpinBox(parent, decimals=decimals, minimum=minimum, maximum=maximum, singleStep=step, value=value)
-		spin.setStyleSheet("QDoubleSpinBox { padding: 0; }")  # .						 Suppression du padidng
+		spin.setStyleSheet("QDoubleSpinBox { padding: 0; }")  # .						 Suppression de l'espacement interne
 		if not buttons: spin.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.NoButtons)  # Supprime les flèches
 
-	spin.setContentsMargins(0, 0, 0, 0)  # .											 Suppresison des marges
+	spin.setContentsMargins(0, 0, 0, 0)  # .											 Suppression des marges
 	spin.setAlignment(Qt.AlignmentFlag.AlignCenter)  # .								 Définir l'alignement au centre.
 	set_spin_width(spin)  # .															 Définition de la largeur maximale
 	return spin
@@ -396,17 +396,17 @@ def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 
 	# ---- conversion caractères → pixels ----
 	metrics = QFontMetrics(spin.font())
-	# petite marge de confort (boutons up/down, padding) "−" est en général le caractère le plus long en cas de police non uniforme.
+	# Petite marge de confort (boutons up/down, padding) "−" est en général le caractère le plus long en cas de police non uniforme.
 	width_px = char_count * metrics.horizontalAdvance("−") + 50
 	spin.setFixedWidth(width_px)
 
 
 # ==================================================
-# endregion UI Build
+# endregion Construction de l'interface
 # ==================================================
 
 # ==================================================
-# region Callbacks
+# region Fonctions de rappel
 # ==================================================
 ##################################################
 def sync_button_group(target: QButtonGroup, value: int):
@@ -466,11 +466,11 @@ def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | N
 
 
 # ==================================================
-# endregion Callbacks
+# endregion Fonctions de rappel
 # ==================================================
 
 # ==================================================
-# region Prints
+# region Affichages
 # ==================================================
 ##################################################
 def print_error(msg: str):
@@ -515,5 +515,5 @@ def format_time(seconds):
 	seconds = int(seconds % 60)
 	return f"{hours:02}:{minutes:02}:{seconds:02}"
 # ==================================================
-# endregion Prints
+# endregion Affichages
 # ==================================================

@@ -101,7 +101,7 @@ class Viewer3DWidget(QWidget):
 
 		if outliers: coords = coords[self.data["Integrated Intensity"] > 0]
 
-		# mise à jour du calque
+		# Mise à jour du calque
 		self.layer.data = coords
 		self.layer.size = size
 

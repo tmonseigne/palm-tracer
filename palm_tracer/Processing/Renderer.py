@@ -102,7 +102,7 @@ class Renderer:
 		trc, x, y, colors = trc[valid], x[valid], y[valid], colors[valid]
 		if trc.size == 0: return res.astype(np.uint16)
 
-		# Indices de début/fin de chaque groupe Track
+		# Indices de début/fin de chaque groupe de trajectoire
 		# tracks[1:] != tracks[:-1] Compare chaque élément au précédent
 		# np.flatnonzero pour avoir les indices des True donc indique le dernier élément de chaque trajectoire
 		# np.r_ concatène des séquences. On ajoute 0 et tracks.size.
@@ -111,10 +111,10 @@ class Renderer:
 		# Pour chaque trajectoire, couleur unique
 		for g in range(len(split_idx) - 1):
 			start, end = split_idx[g], split_idx[g + 1]
-			# if end - start == 0: continue impossible, on vérifie en amont les dataframe vide pouvant provoquer ce cas
+			# if end - start == 0: continue impossible, on vérifie en amont les DataFrames vides pouvant provoquer ce cas
 
-			if end - start == 1: self.draw_line(res, x[start], y[start], x[start], y[start], colors[start])  # tracer des points isolés
-			else:  # tracer segments successifs
+			if end - start == 1: self.draw_line(res, x[start], y[start], x[start], y[start], colors[start])  # Tracer les points isolés
+			else:  # Tracer les segments successifs
 				for i in range(start, end - 1): self.draw_line(res, x[i], y[i], x[i + 1], y[i + 1], colors[i])
 
 		return res
@@ -213,13 +213,13 @@ class Renderer:
 			cos_a, sin_a = np.cos(angle), np.sin(angle)
 			if axis == 0: xr, yr = x0, cos_a * y0 - sin_a * z0  # .				Rotation autour de X, projection sur X/Y'
 			elif axis == 1: xr, yr = cos_a * x0 + sin_a * z0, y0  # .			Rotation autour de Y, projection sur X'/Y
-			else: xr, yr = cos_a * x0 - sin_a * y0, sin_a * x0 + cos_a * y0  # .Rotation autour de Z, projection sur X'/Y'
+			else: xr, yr = cos_a * x0 - sin_a * y0, sin_a * x0 + cos_a * y0  # .	Rotation autour de Z, projection sur X'/Y'
 			xp, yp = xr + ox, yr + oy  # .										Position réelle (ajout du centre qui a été avant rotation)
 
 			if gaussian is not None:
 				self.draw_gaussian_2d(res[angle_id], xp, yp, c, sx, sy, theta, color_mode)
 			else:
-				xi, yi = np.round(xp).astype(int), np.round(yp).astype(int)  # Postion en pixel
+				xi, yi = np.round(xp).astype(int), np.round(yp).astype(int)  # Position en pixels
 				valid = (xi >= 0) & (xi < out_w) & (yi >= 0) & (yi < out_h)
 				xi, yi, ci = xi[valid], yi[valid], c[valid]  # .				Avec les arrondis, on revérifie les points hors dimension
 				if color_mode == 0: np.add.at(res, (angle_id, yi, xi), ci)  # .	Accumulation des valeurs (plus efficace qu'une boucle)
@@ -229,7 +229,7 @@ class Renderer:
 		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
 
 	# ==================================================
-	# region Tools
+	# region Outils
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -304,7 +304,7 @@ class Renderer:
 
 		# --- Extraction des données utiles. ---
 		data = trc[["Track", "Plane", "X", "Y", "Integrated Intensity"]].copy()
-		data = data.sort_values(["Track", "Plane"], kind="mergesort")  # Tri stable : Track puis Plane puis ordre d'origine.
+		data = data.sort_values(["Track", "Plane"], kind="mergesort")  # Tri stable : Track, puis Plane puis ordre d'origine.
 
 		# --- Définition de la couleur selon la source ---
 		# Numéro de la trajectoire.
@@ -317,7 +317,7 @@ class Renderer:
 
 		# Longueur totale de la trajectoire
 		elif source == "Length":
-			# somme des distances euclidiennes entre points successifs d'une même trajectoire.
+			# Somme des distances euclidiennes entre points successifs d'une même trajectoire.
 			dx = data.groupby("Track")["X"].diff().to_numpy(dtype=np.float64)
 			dy = data.groupby("Track")["Y"].diff().to_numpy(dtype=np.float64)
 			# Les premières valeurs de chaque trajectoire valent NaN : elles ne contribuent pas à la longueur.
@@ -331,7 +331,7 @@ class Renderer:
 		elif source == "Duration":
 			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
 			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=np.float64)
-			data["Color"] = last_plane - first_plane + 1  # +1 pour etre inclusif
+			data["Color"] = last_plane - first_plane + 1  # +1 pour inclure les deux bornes
 		# Autre source.
 		else:
 			data["Color"] = np.ones(len(trc), dtype=np.float64)
@@ -397,7 +397,7 @@ class Renderer:
 		# else: .						Anisotrope aucun changement.
 
 		# Modification des couleurs
-		r2: float = self._r * self._r  # On possède l'intensité intégrée, donc la valeur doit être multiplié le carré de l'upscale en 2D (et le cube en 3D).
+		r2: float = self._r * self._r  # Intensité intégrée : facteur d'agrandissement au carré en 2D, au cube en 3D.
 		if gaussian["Fixed Intensity"]: c.fill(gaussian["Intensity"] * r2)
 		else: c *= r2 / gaussian["Intensity"]
 		return c, sx, sy, theta
@@ -427,7 +427,7 @@ class Renderer:
 		err = dx + dy  # .									   Erreur accumulée (dy est négatif)
 		while True:
 			if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .	   Vérification des limites de l'image
-				if color > img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus élevé que la couleur courante.
+				if color > img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus élevée que la couleur courante.
 			if x0 == x1 and y0 == y1: break  # .			   Condition d'arrêt
 			e2 = err << 1  # .								   2*err pour décider dans quelle direction avancer.
 			if e2 >= dy:  # .								   On avance en X si l’erreur le permet

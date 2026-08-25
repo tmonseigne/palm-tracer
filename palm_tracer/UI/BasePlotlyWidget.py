@@ -64,7 +64,7 @@ class BasePlotlyWidget(QWidget):
 		self._connect_web_widget()
 
 	# ==================================================
-	# region Web Widget (for Plotly)
+	# region Widget Web Plotly
 	# ==================================================
 	##################################################
 	def _make_web_widget(self):
@@ -75,7 +75,7 @@ class BasePlotlyWidget(QWidget):
 		"""
 		# Zone droite : QWebEngineView avec Plotly
 		if _HAS_WEBENGINE: res = QWebEngineView(self)
-		else:  # pragma: no cover — Fallback affichant un message d'erreur explicite
+		else:  # pragma: no cover — Solution de repli affichant un message d'erreur explicite
 			res = QTextBrowser(self)
 			res.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 		return res
@@ -254,11 +254,11 @@ class BasePlotlyWidget(QWidget):
 		download.accept()
 
 	# ==================================================
-	# endregion Web Widget (for Plotly)
+	# endregion Widget Web Plotly
 	# ==================================================
 
 	# ==================================================
-	# region Export (for Plotly)
+	# region Export Plotly
 	# ==================================================
 	##################################################
 	def _export_via_plotly_download(self, path: Path, fmt: str):
@@ -321,7 +321,7 @@ class BasePlotlyWidget(QWidget):
 		except Exception as e: print_warning(f"Export failed : {e}")
 
 	# ==================================================
-	# endregion Export (for Plotly)
+	# endregion Export Plotly
 	# ==================================================
 
 	##################################################

@@ -27,7 +27,7 @@ class _ActiveTrack:
 	ids: list[int]
 	"""Indices des localisations associées à la trajectoire."""
 	last_pos: np.ndarray
-	"""Dernière position connue de la trajectoire."""  # shape (D,)
+	"""Dernière position connue de la trajectoire."""  # Forme : (D,)
 
 
 ##################################################
@@ -71,7 +71,7 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 	:param n_points: Nombre de points dans le plan courant (``tree.n``).
 	:returns: (keep_tracks, keep_points) indices des suivis (0..T-1) et points (0..P-1) retenus.
 	"""
-	# Normalisation shape : (n, k)
+	# Normalisation de la forme : (n, k)
 	if indices.ndim == 1: indices, distances = indices[:, None], distances[:, None]
 
 	n, k = indices.shape
@@ -80,7 +80,7 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 	# Construction des propositions valides.
 	for i in range(n):  # .									  Pour chaque suivi.
 		for j in range(k):  # .								  Pour les k plus proches voisins.
-			p_j = int(indices[i, j])  # .					  Récupération du jieme voisin du suivi i.
+			p_j = int(indices[i, j])  # .					  Récupération du j-ième voisin du suivi i.
 			if p_j >= n_points: continue  # .				  >= n_points signifie "pas de voisin dans le rayon" ⇒ on ignore.
 			pairs.append((float(distances[i, j]), i, p_j))  # On ajoute aux propositions, la distance, le suivi et le point.
 
@@ -140,12 +140,12 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	common_columns = [c for c in columns if c in data.columns]  # Permissif sur les colonnes pour le fichier.
 	_check_cols(data, {"Plane", "X", "Y", "Z"})  # Vérification des colonnes minimales
 
-	# Création d'une copie légère et on conserve l'index original pour le slicing final.
+	# Création d'une copie légère et on conserve l'index original pour le découpage final.
 	work = data.loc[:, list(common_columns)]
 	work["_index"] = data.index
 	planes = _check_planes(work)
 
-	# ----- Intialisation -----
+	# ----- Initialisation -----
 	by_plane: dict[int, pd.DataFrame] = {p: df for p, df in work.groupby("Plane", sort=False)}
 	coord_cols = ["X", "Y", "Z"] if is_3d else ["X", "Y"]
 
@@ -171,7 +171,7 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	for p in planes[1:]:
 		_, c_p, i_p = _get_plane_infos(p)
 		# if df_p.empty or not active_tracks: return pd.DataFrame()  # Plus de points ou plus de suivi ⇒ terminé. Impossible dans ce flux.
-		tree = cKDTree(c_p)  # .										KDTreee des points du plan actuel.
+		tree = cKDTree(c_p)  # .										KDTree des points du plan actuel.
 		last = np.stack([t.last_pos for t in active_tracks], axis=0)  # Dernier point de chaque suivi (taille N_suivi).
 
 		# --- Query "k plus proches voisins dans un rayon" ---
@@ -190,18 +190,18 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 			t.last_pos = c_p[p_j].copy()  # Remplacement de la dernière position.
 			new_active_tracks.append(t)
 
-		active_tracks = new_active_tracks  # Switch
+		active_tracks = new_active_tracks  # Remplacement des trajectoires actives
 
 	# ----- Préparation des données à renvoyer -----
 	work.drop(columns=["_index"], inplace=True)
-	rows: list[pd.DataFrame] = []  # Les tracks restants sont des billes valides. On rassemble leurs points dans une liste de dataframe.
+	rows: list[pd.DataFrame] = []  # Les trajectoires restantes sont des billes valides. On rassemble leurs points dans une liste de DataFrames.
 	for p in range(len(active_tracks)):
 		df_bead = work.loc[active_tracks[p].ids]
 		df_bead.insert(0, "Bead", int(p + 1))  # Ajout d'une colonne Bead avec le numéro de la bille de 1 à N.
 		rows.append(df_bead)
 
 	# if not rows: return pd.DataFrame()  # Aucune bille complète ⇒ terminé. Impossible dans ce flux
-	beads = pd.concat(rows, axis=0, ignore_index=False)  # Concatenation en un seul dataframe
+	beads = pd.concat(rows, axis=0, ignore_index=False)  # Concaténation en un seul DataFrame
 	apply_dataframe_type(beads, types)
 	return beads.sort_values(by=["Bead", "Plane"], kind="stable").reset_index(drop=True)  # Tri stable pour lisibilité.
 
@@ -227,7 +227,7 @@ def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> 
 	# --- Création de copies arrondies pour comparaison ---
 	data_cmp = data.assign(X=data["X"].round(decimals), Y=data["Y"].round(decimals), Z=data["Z"].round(decimals))
 	beads_cmp = beads.assign(X=beads["X"].round(decimals), Y=beads["Y"].round(decimals), Z=beads["Z"].round(decimals)).drop_duplicates()
-	# --- Anti-join ---
+	# --- Anti-jointure ---
 	mask = ~pd.MultiIndex.from_frame(data_cmp[keys]).isin(pd.MultiIndex.from_frame(beads_cmp[keys]))
 	return data.loc[mask].copy().reset_index(drop=True)
 
@@ -308,7 +308,7 @@ def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) ->
 	drift_work[["X", "Y", "Z"]] = drift_work[["X", "Y", "Z"]].cumsum()
 	drift_work = drift_work.set_index("Plane")
 
-	# --- Application : join + soustraction ---
+	# --- Application : jointure et soustraction ---
 	out = data.copy()
 	out = out.join(drift_work, on="Plane", rsuffix="_drift")  # On fait un merge aligné sur Plane pour vectoriser (évite une boucle Python par plan).
 	out = out.fillna(0.0)

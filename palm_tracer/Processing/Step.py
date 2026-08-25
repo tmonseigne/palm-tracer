@@ -11,7 +11,7 @@ import pandas as pd
 from palm_tracer.Settings.Groups import BaseSettingGroup
 
 ##################################################
-FilterSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un dataframe et qui en retourne un.
+FilterSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un DataFrame et qui en retourne un.
 FilterTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks compute
 	[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame], tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]]
 

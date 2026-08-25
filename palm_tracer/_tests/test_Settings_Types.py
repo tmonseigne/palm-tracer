@@ -124,7 +124,7 @@ def test_check_box(qtbot):
 	ui = setting.get_ui("new")
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -142,7 +142,7 @@ def test_combo(qtbot):
 	setting_base_test(setting, 1, 0)
 	# Get Actual Text
 	assert setting.current_text == "Choix 1"
-	# Change items after UI Creation
+	# Modification des éléments après la création de l'interface
 	setting.items = ["1", "2"]
 	assert setting.items == ["1", "2"]
 
@@ -209,7 +209,7 @@ def test_check_int(qtbot):
 	assert setting.value == 4, "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -246,7 +246,7 @@ def test_check_range_int(qtbot):
 	assert setting.value == [4, 6], "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -285,7 +285,7 @@ def test_check_range_float(qtbot):
 	assert setting.value == [4, 6], "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -320,7 +320,7 @@ def test_check_int_selection(qtbot):
 	assert setting.contains(7), "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -340,7 +340,7 @@ def test_button(qtbot, capsys):
 	ui = setting.get_ui("new")
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)

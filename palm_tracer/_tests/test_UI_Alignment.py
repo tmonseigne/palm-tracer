@@ -3,7 +3,7 @@
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.UI.AlignmentWidget import AlignmentWidget  # classe
+from palm_tracer.UI.AlignmentWidget import AlignmentWidget  # Classe
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -40,7 +40,7 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 	lines = get_lines_output(capsys)
 	assert "No TIFF file selected." in lines[0]  # On vérifie juste que le warning attendu est bien passé par print_warning la première fois
-	assert "Selected file: nofile.tif." in lines[1]  # il a vu le fichier la seconde fois
+	assert "Selected file: nofile.tif." in lines[1]  # Le fichier a été détecté la seconde fois
 	assert "Unable to read the TIFF file" in lines[2]  # Mais erreur
 	assert w._stack is None
 

@@ -97,7 +97,7 @@ class FileMigrator:
 		if self.input_folder == Path():
 			raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
 
-		for key in self.files: self.files[key].clear()  # .							  Reset propre (évite d'empiler d'anciennes analyses).
+		for key in self.files: self.files[key].clear()  # .							  Réinitialisation propre (évite d'empiler d'anciennes analyses).
 		old_name_to_key = {link.old: key for key, link in self.FILES_LINK.items()}  # Index inversé : ancien nom ⇾ clé logique
 
 		# Parcours non récursif : uniquement les fichiers présents à la racine du dossier PT
@@ -312,11 +312,11 @@ class FileMigrator:
 		else:
 			file = self.files["Fit"][0]
 			data, header = self.open_old_file(file, header=True, skiprows=3)
-			data.iloc[:, 0] = -1  # La colonne ROI n'est plus utilisé, mais sera remplacé par la colonne length (à -1).
+			data.iloc[:, 0] = -1  # La colonne ROI n'est plus utilisée, mais sera remplacée par la colonne length (à -1).
 			cols = list(data.columns)
 			ncols = len(cols)
-			cols[0], cols[1] = cols[1], cols[0]  # .															Switch les noms de colonnes ROI et Trace
-			data = data[cols]  # .																				Change l'ordre des colonnes
+			cols[0], cols[1] = cols[1], cols[0]  # .															Permutation des noms des colonnes ROI et Trace
+			data = data[cols]  # .																				Modification de l'ordre des colonnes
 			cols = FILES_COLUMNS["Fit"]["columns"].copy()
 			fit_mode = 1 if ncols == 9 else 2 if ncols == 10 else 3
 			cols += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
@@ -389,7 +389,7 @@ class FileMigrator:
 		# 2) Gestion de la ligne de titre si présente
 		start_idx = 0
 
-		# 3) Split des lignes data et détection largeur max
+		# 3) Séparation des lignes de données et détection largeur max
 		rows: list[list[str]] = []
 		max_cols = 0
 

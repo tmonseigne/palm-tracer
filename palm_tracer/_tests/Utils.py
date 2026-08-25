@@ -177,7 +177,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	for group_values, group_a in a.groupby(group_cols):
 		# Si group_cols contient une seule colonne, group_values sera un scalaire, sinon un tuple
 		group_values = (group_values,) if isinstance(group_values, (int, float, str)) else group_values
-		# Construire un masque dynamique pour filtrer `b`
+		# Construire un masque dynamique pour filtrer b
 		mask = (b[col] == val for col, val in zip(group_cols, group_values))
 		group_b = b.loc[pd.concat(mask, axis=1).all(axis=1)]  # Conserver les lignes où toutes les conditions sont vraies.
 		group_a = group_a.reset_index(drop=True)
@@ -207,7 +207,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		matched_a = group_a.iloc[matched_a_indices].reset_index(drop=True)
 		matched_b = group_b.iloc[matched_b_indices].reset_index(drop=True)
 
-		# Parcours des lignes dans le premier dataframe.
+		# Parcours des lignes dans le premier DataFrame.
 		for i, row_a in matched_a.iterrows():
 			row_b = matched_b.iloc[i]  # Récupération du point le plus proche
 

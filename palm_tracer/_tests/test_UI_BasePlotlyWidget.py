@@ -2,7 +2,7 @@
 
 from palm_tracer._tests.Utils import *
 from palm_tracer._tests.Utils import _FakeDownload
-from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # classe
+from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # Classe
 
 
 ##################################################

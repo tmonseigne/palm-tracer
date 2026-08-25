@@ -39,7 +39,7 @@ class BaseUIType:
 		Ui.init_layout(self.layout, 0, 0)  # .				Initialise le layout
 
 	# ==================================================
-	# region Layout management
+	# region Gestion de la mise en page
 	# ==================================================
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
@@ -49,7 +49,7 @@ class BaseUIType:
 		:param form: :class:`QFormLayout` dans lequel va être inséré le paramètre.
 		"""
 		self.form = form
-		self.row = form.rowCount()  # rowCount() avant addRow = index de la nouvelle ligne
+		self.row = form.rowCount()  # rowCount() avant addRow() donne l'indice de la nouvelle ligne
 		if self.label is not None: form.addRow(self.label, self.layout)
 		else: form.addRow(self.layout)
 
@@ -57,7 +57,7 @@ class BaseUIType:
 	def hide(self):
 		"""Cache le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, False)
-		else:  # fallback si pas attaché
+		else:  # Solution de repli si le widget n'est pas attaché
 			if self.label is not None: self.label.hide()
 			for b in self.boxes: b.hide()
 
@@ -65,7 +65,7 @@ class BaseUIType:
 	def show(self):
 		"""Affiche le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, True)
-		else:  # fallback si pas attaché
+		else:  # Solution de repli si le widget n'est pas attaché
 			if self.label is not None: self.label.show()
 			for b in self.boxes: b.show()
 

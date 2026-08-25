@@ -79,7 +79,7 @@ class PALMTracer:
 	"""Listes des étapes du pipeline de traitement."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -112,11 +112,11 @@ class PALMTracer:
 		for key in self.df: self.df[key] = pd.DataFrame()
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_localization_key(self) -> str:
@@ -275,11 +275,11 @@ class PALMTracer:
 		return self._output_name(name, ext=ext, previous=False)
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Process
+	# region Traitements
 	# ==================================================
 	##################################################
 	def load(self, path: str = ""):
@@ -303,7 +303,7 @@ class PALMTracer:
 			self.settings.localization["Preview"].value = False
 
 		# --- Chargement des fichiers associés à ces paramètres. ---
-		self.reset_result()  # Reset result Dataframes
+		self.reset_result()  # Réinitialisation des DataFrames de résultats
 		print(f"\tLoading files from the '{self._path}' folder with the timestamp {self._timestamp}.")
 		for key, fname in self.KEYS_TO_FILE.items():
 			f = self._output_name(fname)
@@ -342,7 +342,7 @@ class PALMTracer:
 
 		# --- Parcours du batch ---
 		for self._path, self._stack in zip(paths, stacks):
-			# Reset result Dataframes
+			# Réinitialisation des DataFrames de résultats
 			self.reset_result()
 
 			# Logger
@@ -458,7 +458,7 @@ class PALMTracer:
 
 		# --- Filtrage ---
 		if not step.apply_filter: return pipeline_dirty
-		# Cas Standard Un seul dataframe
+		# Cas standard : un seul DataFrame
 		if len(step.keys) == 1:
 			f_key = f"f_{step.keys[0]}"
 			self.df[f_key] = step.filter_func(self.df[step.keys[0]])
@@ -565,7 +565,7 @@ class PALMTracer:
 	##################################################
 	def _beads_extraction(self):
 		"""Extrait les billes des localisations."""
-		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
+		df = self.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
@@ -583,7 +583,7 @@ class PALMTracer:
 	##################################################
 	def _tracking(self):
 		"""Lance le suivi à partir des paramètres de l'interface."""
-		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
+		df = self.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
@@ -598,7 +598,7 @@ class PALMTracer:
 	##################################################
 	def _blinking_reconnection(self):
 		"""Lance le tracking à partir des paramètres de l'interface."""
-		df = self.df["trc"]  # Récupère le dataframe du suivi
+		df = self.df["trc"]  # Récupère le DataFrame du suivi
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
 			return
@@ -612,7 +612,7 @@ class PALMTracer:
 	##################################################
 	def _tracks_compute(self):
 		"""Lance les calculs sur les trajectoires à partir des paramètres de l'interface."""
-		df = self.tracks  # Récupère automatiquement le "bon" dataframe (blinking et filtré ou non)
+		df = self.tracks  # Récupère automatiquement le "bon" DataFrame (blinking et filtré ou non)
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
 			return
@@ -638,11 +638,11 @@ class PALMTracer:
 				res[key].to_csv(self._output_name(self.KEYS_TO_FILE[key]), index=False)
 
 	# ==================================================
-	# endregion Process
+	# endregion Traitements
 	# ==================================================
 
 	# ==================================================
-	# region Filtering
+	# region Filtrage
 	# ==================================================
 	##################################################
 	def reset_filtered(self):
@@ -694,11 +694,11 @@ class PALMTracer:
 		filters.connect_button(self.save_filtered, ui_name, "save")
 
 	# ==================================================
-	# endregion Filtering
+	# endregion Filtrage
 	# ==================================================
 
 	# ==================================================
-	# region Visualization
+	# region Visualisation
 	# ==================================================
 	##################################################
 	def _gallery(self):
@@ -726,7 +726,7 @@ class PALMTracer:
 
 		# Préparation des Données
 		data, title = self._get_graph_data()
-		# print(f"{data.shape}, {data.size}, {title}") with data.size over 10M make a warning message
+		# print(f"{data.shape}, {data.size}, {title}") avec une taille supérieure à 10 M, affiche un avertissement
 
 		# Selection du graphique à afficher
 		if src_id == 0 and src_a == "Localizations Count":
@@ -819,7 +819,7 @@ class PALMTracer:
 
 			for _, planes in tracks_planes:
 				planes_array = np.sort(planes.dropna().unique())
-				if planes_array.size == 0: continue  # pragma: no cover — Techniqement impossible Plane est toujours valide
+				if planes_array.size == 0: continue  # pragma: no cover — Techniquement impossible : Plane est toujours valide
 
 				diffs = np.diff(planes_array)
 				breaks = np.flatnonzero(diffs > 1)
@@ -889,31 +889,31 @@ class PALMTracer:
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
 			gaussian = s.gaussian.settings if s.gaussian.active else None
-			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
-			df["X"] -= x0  # Ajustement à la ROI sur X
-			df["Y"] -= y0  # Ajustement à la ROI sur Y
-			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
+			color_mode = 0 if src == "Count" else s["Color mode"].value  # .Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			df["X"] -= x0  # .												Ajustement à la ROI sur X
+			df["Y"] -= y0  # .												Ajustement à la ROI sur Y
+			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # .	Sélection dans les bornes
 
-			if s["Dimension"].value == 0:  # .	 2D
-				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
+			if s["Dimension"].value == 0:  # .																				   Rendu 2D
+				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .			   Récupération
 				plot_data = df[["Y", "X"]].to_numpy() * upscale  # Mise à l'échelle des X et Y.
 				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
-				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # Rendu
-			else:  # . 							 3D
-				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
+				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # .										   Rendu
+			else:  # .																										   Rendu 3D
+				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .		   Récupération
 				uniform_z_step = self._get_uniform_z_step()
 				plot_data = df[["Z", "Y", "X"]].to_numpy(copy=True)
 				z_min = np.nanmin(plot_data[:, 0])
 				# On n'a pas besoin de les caster en entier, Napari n'est pas trop bête et si l'utilisateur passe en vue 3D, il aura les Z flottants.
 				plot_data[:, 0] = (plot_data[:, 0] - z_min) / uniform_z_step
-				plot_data[:, 1:] *= upscale  # Mise à l'échelle des X et Y.
-				if s["Dimension"].value == 1:  # Z Stack
+				plot_data[:, 1:] *= upscale  # .																			   Mise à l'échelle des X et Y.
+				if s["Dimension"].value == 1:  # .																			   Rendu Z Stack
 					z_step = s.hr_3d["Z Step"].value
 					viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, gaussian)  # Rendu
-				else:  # .						   3D Rotation
+				else:  # .																									   Rendu 3D Rotation
 					frames = s.hr_3d["Frames"].value
 					axis = s.hr_3d["Axis"].value
-					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, gaussian)  # Rendu
+					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, gaussian)  # .		   Rendu
 
 			return viz, plot_data
 

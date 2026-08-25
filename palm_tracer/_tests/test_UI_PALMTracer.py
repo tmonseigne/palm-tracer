@@ -141,7 +141,7 @@ def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 
 	# Ajout d'une entrée
 	add_basic_file(w.pt)  # .									Ajout d'une entrée.
-	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # . Attente : qu'il ait mis une image.
+	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .	Attente : qu'il ait mis une image.
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : le flag doit passer à False.
 
 	with setting.signal_blocked():
@@ -180,7 +180,7 @@ def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
 	w._thread_process(w._auto_threshold)
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 
-	# appel avec un process en cours
+	# Appel avec un traitement en cours
 	w._processing = True
 	w._thread_process(w._auto_threshold)
 	w._processing = False

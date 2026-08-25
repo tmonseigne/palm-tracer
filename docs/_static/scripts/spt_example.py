@@ -30,7 +30,7 @@ Y_FILTER = [20, 80]  # .							Filtre sur Y
 MSE_FILTER = [0, 0.8]  # .							Filtre sur MSE XY
 LEN_FILTER = [10, 4000]  # .						Filtre sur la longueur des trajectoires
 
-VIZ_RATIO: int = 8  # . 							Taille du rendu Haute Résolution
+VIZ_RATIO: int = 8  # .								Taille du rendu Haute Résolution
 # endregion ---------- Valeurs à modifier ----------
 
 # region ---------- Application des paramètres ----------

@@ -9,7 +9,7 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBox
 
 from palm_tracer.Tools import FileMigrator, Ui
 
-_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+_windows = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
 class FileMigratorWidget(QWidget):
@@ -20,7 +20,7 @@ class FileMigratorWidget(QWidget):
 	"""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -73,11 +73,11 @@ class FileMigratorWidget(QWidget):
 		self._btn_migrate.clicked.connect(self._on_migrate)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def _update_filelist(self):
@@ -123,7 +123,7 @@ class FileMigratorWidget(QWidget):
 
 
 ##################################################
-def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
 	Ouvre la fenêtre de l'outil de migration en mode autonome.
 
@@ -133,7 +133,7 @@ def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans co
 	widget = FileMigratorWidget()
 	widget.resize(500, 250)
 	widget.show()
-	_windows.append(widget)  # éviter que Python le détruise en le stockant
+	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
 
 
 ##################################################

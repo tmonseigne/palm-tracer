@@ -48,7 +48,7 @@ class CheckRangeFloat(BaseSettingType):
 		self.active = False
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -64,7 +64,7 @@ class CheckRangeFloat(BaseSettingType):
 		ui.set_tooltip(self.tooltip)  # .			   Ajout du Tooltip
 
 		checkbox.setChecked(self.active)
-		checkbox.toggled.connect(self.set_active)  # . Connecte le changement de valeur pour que les autres UI se mettent à jour
+		checkbox.toggled.connect(self.set_active)  # .	Connecte le changement de valeur pour que les autres UI se mettent à jour
 		spin_min.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
 		spin_min.valueChanged.connect(self.set_min)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 		spin_max.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
@@ -74,7 +74,7 @@ class CheckRangeFloat(BaseSettingType):
 		ui.layout.addWidget(spin_min)
 		ui.layout.addWidget(QLabel("→"))
 		ui.layout.addWidget(spin_max)
-		ui.layout.addStretch(1)  # . 				   Pousse tout à gauche, espace vide à droite.
+		ui.layout.addStretch(1)  # .				   Pousse tout à gauche, espace vide à droite.
 
 		self._uis[name] = ui  # .					   Ajoute l'ui au dictionnaire
 		return ui
@@ -167,11 +167,11 @@ class CheckRangeFloat(BaseSettingType):
 				with QSignalBlocker(b): Ui.update_spin_limits(b, self._limits[0], self._limits[1])
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Analyse
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -184,11 +184,11 @@ class CheckRangeFloat(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Analyse
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = CheckRangeFloat("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)

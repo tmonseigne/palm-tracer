@@ -72,12 +72,12 @@ html_context = {"allow_html_in_rst": True}
 
 # -- Automatisation ----------------------------------------------------------
 
-autosummary_generate = False  # .			Evite des arborescences trop profondes et des liens internes vers de nouvelles pages
-autodoc_member_order = "bysource"  # .		Evite le tri alphabétique
-add_module_names = False  # .				Evite le nom des module(s) parent au début des objets
-toc_object_entries_show_parents = "hide"  # Evite le nom des module(s) parent au début des objets dans l'arborescence
+autosummary_generate = False  # .			Évite des arborescences trop profondes et des liens internes vers de nouvelles pages
+autodoc_member_order = "bysource"  # .		Évite le tri alphabétique
+add_module_names = False  # .				Évite le nom des modules parents au début des objets
+toc_object_entries_show_parents = "hide"  # Évite le nom des modules parents au début des objets dans l'arborescence
 todo_include_todos = True
-python_use_unqualified_type_names = True  # Evite le nom des module(s) parent au début des objets
+python_use_unqualified_type_names = True  # Évite le nom des modules parents au début des objets
 
 suppress_warnings = ["autosectionlabel.*"]
 
@@ -85,11 +85,11 @@ suppress_warnings = ["autosectionlabel.*"]
 locale_dirs = ["locale/"]
 gettext_compact = False
 
-# Création des fichiers de reférences de texte pour la traduction
+# Création des fichiers de références de texte pour la traduction
 # sphinx-build -b gettext docs/ docs/_build/gettext
 # Création des fichiers de traductions
 # sphinx-intl update -p docs/_build/gettext -d docs/locale -l fr -l en
-# Build de la documentation avec les traductions
+# Génération de la documentation avec les traductions
 # sphinx-build -b html -D language=fr docs docs/_build/html
 # sphinx-build -b html -D language=en docs docs/_build/html/en
 

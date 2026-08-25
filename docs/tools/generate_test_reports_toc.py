@@ -10,7 +10,7 @@ def generate_toctree_rst(dst: str = "tests.rst"):
 	"""Génère un fichier toctree Sphinx listant les rapports de tests CI."""
 
 	docs_path = Path("docs")
-	reports_path = docs_path / "reports"  # Répertoire contenant les fichiers `.rst`
+	reports_path = docs_path / "reports"  # Répertoire contenant les fichiers .rst
 	pattern = "test_report_ci_"  # .		Modèle pour les fichiers à inclure
 
 	# Recherche des fichiers correspondants
