@@ -1,23 +1,9 @@
 """
-Module contenant la classe :class:`AlignmentWidget`, un outil minimaliste pour la gestion de l'alignement géométrique entre acquisitions dans PALMTracer.
+Fournit le widget de calcul et d'application des alignements géométriques.
 
-Ce widget offre une interface simple organisée en deux onglets : ``Compute Alignment Coefficients``, ``Apply Alignment``
-
-Fonctionnalités principales
----------------------------
-- Interface légère en PySide6/PyQt6 basée sur des :class:`QTabWidget`, :class:`QGroupBox` et :class:`QPushButton`.
-- Gestion simple des entrées (sélection de fichiers TIFF / TXT via :class:`QFileDialog`).
-- Chargement des images via :func:`palm_tracer.Tools.open_tif` et sauvegarde via :func:`palm_tracer.Tools.save_tif`.
-- Chargement des coefficients d'alignement sous forme d'un tableau NumPy de taille ``(2, 10)``.
-- Application de l'alignement via :meth:`Palm.align`, issue du module :mod:`palm_tracer.Processing`.
-
-Notes
------
-- Le widget est autonome : il peut être lancé directement (``python AlignmentWidget.py``), utilisé dans PALMTracer ou dans un plugin externe.
-
-.. todo:: Implémenter la méthode de calcul automatique des coefficients (méthode interne PALMTracer actuelle).
-		  Prévoir une visualisation intermédiaire (overlay, difference map).
+.. todo:: Implémenter le calcul automatique des coefficients et une visualisation intermédiaire de l'alignement.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -30,26 +16,23 @@ from palm_tracer.Processing import Palm
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
 
-_windows = []  # pour garder une référence globale, éviter le Garbage Collector
+_windows = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
 class AlignmentWidget(QWidget):
 	"""
-	Widget minimaliste pour la gestion de l'alignement entre acquisitions.
+	Permet de calculer puis d'appliquer un alignement géométrique entre deux acquisitions.
 
-	Ce widget fournit deux onglets :
-		- ``Compute Alignment Coefficients`` :
-			- Bouton pour charger un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte (référence / déformation).
-			- Bouton pour lancer le calcul des coefficients.
+	Le premier onglet calcule les coefficients à partir d'une image TIFF contenant les vues de référence et déformée. Le second applique des coefficients
+	existants à une image sélectionnée.
 
-		- ``Apply Alignment`` :
-			- Bouton pour charger un fichier TIFF à corriger.
-			- Bouton pour charger un fichier de coefficients.
-			- Bouton pour lancer l'alignement.
+	:param parent: Widget Qt parent.
+
+	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -149,11 +132,11 @@ class AlignmentWidget(QWidget):
 		self._btn_start_alignment.clicked.connect(self._on_start_alignment)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	def _on_load_tif(self):
 		"""Callback du bouton 'Load TIFF file'."""
@@ -238,7 +221,7 @@ class AlignmentWidget(QWidget):
 
 
 ##################################################
-def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans controle en CI
+def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
 
@@ -248,7 +231,7 @@ def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans c
 	widget = AlignmentWidget()
 	widget.resize(500, 250)
 	widget.show()
-	_windows.append(widget)  # éviter que Python le détruise en le stockant
+	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
 
 
 ##################################################

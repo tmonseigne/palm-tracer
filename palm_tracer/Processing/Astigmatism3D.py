@@ -1,4 +1,5 @@
-"""Fichier contenant des fonctions lié à l'astigmatisme 3D (estimation de la position axiale en fonction des écarts-types sur X et Y)."""
+"""Fournit les fonctions de calibration et d'estimation de la position axiale par astigmatisme 3D."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -8,22 +9,26 @@ from scipy.spatial import cKDTree
 from palm_tracer.Tools import Ui
 
 
+# ==================================================
+# region Préparation des données
+# ==================================================
 ##################################################
 def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
-	"""Estime une position Z (en unités physiques) à partir d'indices de plans.
+	"""
+	Estime une position Z (en unités physiques) à partir d'indices de plans.
 
 	Les indices de plans sont supposés répartis linéairement entre ``z_min`` et ``z_max`` :
-	- ``min(planes)``  ⇾ ``z_min``
-	- ``max(planes)``  ⇾ ``z_max``
-	- valeurs intermédiaires interpolées linéairement.
+		- ``min(planes)``  ⇾ ``z_min``
+		- ``max(planes)``  ⇾ ``z_max``
+		- valeurs intermédiaires interpolées linéairement.
 
-	:param planes: Tableau des indices de plans (entiers). Peut-être de n'importe quelle forme.
+	:param planes: Tableau des indices de plans (entiers). Peut être de n'importe quelle forme.
 	:param z_min: Valeur minimale de Z correspondant au premier plan.
 	:param z_max: Valeur maximale de Z correspondant au dernier plan.
 
-	:return: tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées.
+	:return: Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées.
 	"""
-	planes = np.asarray(planes, dtype=np.float64)  # passage en flottant
+	planes = np.asarray(planes, dtype=np.float64)  # Passage en nombres flottants
 	p_min, p_max = planes.min(), planes.max()  # Récupération des min/max
 	if p_min == p_max: return np.full_like(planes, fill_value=0.5 * (z_min + z_max), dtype=np.float64)  # Cas dégénéré : un seul plan
 	return z_min + (planes - p_min) * (z_max - z_min) / (p_max - p_min)  # Interpolation linéaire
@@ -31,13 +36,13 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 
 ##################################################
 def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray:
-	"""Estime les positions Z (en unités physiques) pour une pile de plans équidistants.
+	"""
+	Estime les positions Z (en unités physiques) pour une pile de plans équidistants.
 
 	:param n_planes: Nombre total de plans. Doit être strictement positif.
 	:param z_step: Distance entre deux plans consécutifs (même unité que la sortie). Doit être strictement positive.
 	:param center: Si ``True``, centre la pile autour de 0. Sinon, démarre à 0.
-
-	:return: tableau NumPy contenant les valeurs de Z estimées.
+	:return: Tableau NumPy contenant les valeurs de Z estimées.
 	"""
 	# Indices centrés : impair ⇾ un plan à 0 ; pair ⇾ 0 entre les deux plans centraux.
 	if center: indices = np.arange(n_planes, dtype=np.float64) - 0.5 * (n_planes - 1)
@@ -96,15 +101,23 @@ def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 	return res.sort_values("Plane").reset_index(drop=True)
 
 
+# ==================================================
+# endregion Préparation des données
+# ==================================================
+
+# ==================================================
+# region Modèle et validation
+# ==================================================
 ##################################################
 def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sampling: float = 1) -> np.ndarray | float:
-	"""Modèle astigmatique sigma(z).
+	"""
+	Modèle astigmatique sigma(z).
 
 	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z: Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle.
 	:param pixel_size: Taille des pixels en nanomètres.
 	:param sampling: Facteur d'agrandissement (les fichiers de localisation sauvegardés le sont avant agrandissement donc à laisser à 1).
-	:return: tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle.
+	:return: Tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle.
 	"""
 	z0, w, c3, c4, a = model
 
@@ -227,15 +240,22 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 			}
 
 
+# ==================================================
+# endregion Modèle et validation
+# ==================================================
+
+# ==================================================
+# region Recherche du centre
+# ==================================================
 ##################################################
 def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> float:
 	"""
 	Recherche la position axiale pour laquelle les deux sigmas astigmatiques sont les plus proches.
 
 	La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter :
-	- soit un zéro exact de la différence entre les deux courbes de sigma ;
-	- soit un changement de signe, auquel cas une bissection locale est appliquée ;
-	- soit, à défaut, la position minimisant la valeur absolue de cette différence.
+		- soit un zéro exact de la différence entre les deux courbes de sigma ;
+		- soit un changement de signe, auquel cas une bissection locale est appliquée ;
+		- soit, à défaut, la position minimisant la valeur absolue de cette différence.
 
 	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).

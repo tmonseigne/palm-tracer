@@ -3,17 +3,41 @@ msgid "BasePlotlyWidget"
 msgstr ""
 
 #: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget:1
-msgid "Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."
-msgstr "Parent class containing internal functions for Stand Alone widgets (excluding Napari)."
+msgid "Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly."
+msgstr "Provides the common functions for standalone Qt widgets that use Plotly."
 
-#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget:3
+msgid "La classe centralise l'affichage dans QtWebEngine ainsi que l'export des figures vers les formats pris en charge."
+msgstr "The class centralizes display in QtWebEngine and figure export to the supported formats."
+
+#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst of
 #: palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.closeEvent
 msgid "Paramètres"
 msgstr "Parameters"
 
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget:5
+msgid "Widget Qt parent."
+msgstr "Parent Qt widget."
+
 #: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:9
 msgid "Attributs"
 msgstr "Attributes"
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.PLOT_DIV_ID:1
+msgid "Identifiant HTML du conteneur Plotly."
+msgstr "HTML identifier of the Plotly container."
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.RESOURCE_DIR:1
+msgid "Répertoire des ressources de l'interface."
+msgstr "Interface resource directory."
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.PLOTLY_JS_PATH:1
+msgid "Chemin local de la bibliothèque JavaScript Plotly."
+msgstr "Local path to the Plotly JavaScript library."
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.PLOTLY_JS_URL:1
+msgid "Adresse de secours de la bibliothèque JavaScript Plotly."
+msgstr "Fallback URL for the Plotly JavaScript library."
 
 #: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:17
 msgid "Méthodes"

@@ -1,11 +1,5 @@
-"""
-Fichier contenant la classe :class:`BaseSettingType` et ses sous-classes pour la gestion des paramètres d'interface utilisateur.
+"""Définit la classe de base commune aux types de paramètres."""
 
-Ce module définit la classe abstraite :class:`BaseSettingType`,
-qui sert de base pour la création de différents types de paramètres dans une interface utilisateur Qt.
-Les sous-classes permettent de gérer des paramètres spécifiques tels que les entiers, les flottants et les listes déroulantes.
-Ces classes sont utilisées pour créer et configurer des widgets de paramètres dans une interface graphique.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,14 +15,12 @@ from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
 @dataclass
 class BaseSettingType:
 	"""
-	Classe mère abstraite pour la gestion des paramètres dans l'interface utilisateur.
+	Définit le modèle commun d'un paramètre configurable.
 
-	Cette classe représente un paramètre d'interface utilisateur avec un calque spécifique.
-	Elle est utilisée comme	base pour des paramètres plus spécifiques.
-	Chaque paramètre pourra hériter de cette classe pour définir son comportement et ses options spécifiques.
+	La classe conserve la valeur, notifie ses changements et synchronise toutes les représentations Qt créées pour le même paramètre.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
 	"""
 
 	label: str = ""
@@ -42,10 +34,10 @@ class BaseSettingType:
 	_signal: SignalWrapper = field(init=False, default_factory=lambda: SignalWrapper())
 	"""Signal permettant de communiquer avec l'interface."""
 	_uis: dict[str, BaseUIType] = field(init=False, default_factory=lambda: dict[str, BaseUIType]())
-	"""Dictionnaire des interfaces qui ont été créé pour ce paramètre."""
+	"""Dictionnaire des interfaces qui ont été créées pour ce paramètre."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -58,16 +50,16 @@ class BaseSettingType:
 		self.value = self.default
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		"""
-		Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire.
+		Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
 		:return: Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`).
@@ -97,15 +89,15 @@ class BaseSettingType:
 
 	##################################################
 	def set_value_from_ui(self, value: Any):
-		"""Mets à jour la valeur à chaque modification de l'UI (appelle le setter)."""
+		"""Met à jour la valeur à chaque modification de l'UI (appelle le setter)."""
 		self.value = value
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Hide and Seek
+	# region Interface et visibilité
 	# ==================================================
 	##################################################
 	def hide(self):
@@ -117,30 +109,6 @@ class BaseSettingType:
 		"""Affiche le paramètre."""
 		for ui in self._uis.values(): ui.show()
 
-	# ==================================================
-	# endregion Hide and Seek
-	# ==================================================
-
-	# ==================================================
-	# region Parsing
-	# ==================================================
-	##################################################
-	def to_compact_dict(self) -> dict[str, Any]:
-		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
-		return {"value": self.value}
-
-	##################################################
-	def update_from_compact_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
-		self.value = data["value"]  # Appel du Setter
-
-	# ==================================================
-	# endregion Parsing
-	# ==================================================
-
-	# ==================================================
-	# region Signals
-	# ==================================================
 	##################################################
 	def attach_to_form(self, ui_name: str, form: QFormLayout):
 		"""
@@ -151,6 +119,31 @@ class BaseSettingType:
 		"""
 		self.get_ui(ui_name).attach_to_form(form)
 
+
+	# ==================================================
+	# endregion Interface et visibilité
+	# ==================================================
+
+	# ==================================================
+	# region Sérialisation
+	# ==================================================
+	##################################################
+	def to_compact_dict(self) -> dict[str, Any]:
+		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
+		return {"value": self.value}
+
+	##################################################
+	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""Met à jour la classe à partir d'un dictionnaire minimal."""
+		self.value = data["value"]  # Appel du Setter
+
+	# ==================================================
+	# endregion Sérialisation
+	# ==================================================
+
+	# ==================================================
+	# region Signaux et synchronisation
+	# ==================================================
 	##################################################
 	def connect_button(self, f: Any, ui_name: str = "default", n: int = 0):
 		"""
@@ -175,7 +168,7 @@ class BaseSettingType:
 	##################################################
 	def disconnect(self, f: Optional[Any] = None) -> int:
 		"""
-		Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
+		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés.
@@ -200,6 +193,7 @@ class BaseSettingType:
 
 		:param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage.
 		                  Si ``False``, ignore toutes les émissions reçues pendant le blocage.
+		:return: Gestionnaire de contexte contrôlant le blocage des signaux.
 		"""
 		return self._signal.blocked(emit_last)
 
@@ -214,6 +208,12 @@ class BaseSettingType:
 		"""
 
 		def sync(setting: "BaseSettingType", value: Any):
+			"""
+			Propage la valeur vers le paramètre synchronisé.
+
+			:param setting: Paramètre à synchroniser.
+			:param value: Valeur à propager.
+			"""
 			with setting.signal_blocked(emit_last=False): setting.value = value
 
 		self.connect(lambda v: sync(other, v))

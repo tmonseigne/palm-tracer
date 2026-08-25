@@ -1,18 +1,22 @@
 #: ../../api/palm_tracer.UI.FileMigratorWidget.rst:2
 msgid "FileMigratorWidget"
-msgstr ""
+msgstr "FileMigratorWidget"
 
 #: of palm_tracer.UI.FileMigratorWidget:1
-msgid "Module contenant la classe :class:`FileMigratorWidget`, un outil minimaliste pour la gestion de l'ancien format de fichier Metamoprh."
-msgstr "Module containing the :class:`FileMigratorWidget` class, a minimalist tool for managing the legacy Metamoprh file format."
+msgid "Fournit le widget de migration des anciens résultats Metamorph."
+msgstr "Provides the widget for migrating legacy Metamorph results."
 
 #: of palm_tracer.UI.FileMigratorWidget.FileMigratorWidget:1
-msgid "Widget minimaliste pour la gestion de l'ancien format de fichier Metamoprh."
-msgstr "Minimalist widget for managing the old Metamoprh file format."
+msgid "Fournit l'interface de migration des anciens dossiers de résultats Metamorph."
+msgstr "Provides the interface for migrating legacy Metamorph result folders."
 
-#: of palm_tracer.UI.FileMigratorWidget.FileMigratorWidget
+#: ../../api/palm_tracer.UI.FileMigratorWidget.rst
 msgid "Paramètres"
 msgstr "Parameters"
+
+#: of palm_tracer.UI.FileMigratorWidget.FileMigratorWidget:3
+msgid "Widget Qt parent."
+msgstr "Parent Qt widget."
 
 #: of palm_tracer.UI.FileMigratorWidget.open_migrator:1
 msgid "Ouvre la fenêtre de l'outil de migration en mode autonome."

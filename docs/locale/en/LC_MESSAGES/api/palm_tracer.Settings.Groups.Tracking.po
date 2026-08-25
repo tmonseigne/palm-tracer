@@ -3,16 +3,16 @@ msgid "Tracking"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.Tracking.Tracking:1
-msgid "Classe contenant les paramètres de Tracking :"
-msgstr "Class containing tracking settings:"
+msgid "Regroupe les paramètres de suivi des particules."
+msgstr "Groups the particle-tracking settings."
 
 #: of palm_tracer.Settings.Groups.Tracking.Tracking:3
-msgid "Attributs :"
-msgstr "Attributes:"
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
-#: of palm_tracer.Settings.Groups.Tracking.Tracking:4
-msgid "**Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Distance maximale en pixel entre deux plans (par défaut : `1.0`)."
-msgstr "**Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Maximum distance in pixels between two planes (default: `1.0`)."
+#: of palm_tracer.Settings.Groups.Tracking.Tracking:5
+msgid "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale entre deux plans pour associer un point ; valeur par défaut : ``1.0`` pixel."
+msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : maximum distance between two planes for associating a point; default value: ``1.0`` pixel."
 
 #: ../../api/palm_tracer.Settings.Groups.Tracking.rst
 msgid "Paramètres"
@@ -23,9 +23,9 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.Tracking.Tracking.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.Tracking.Tracking.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."

@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`BrowseFile` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type recherche de fichier.
-"""
+"""Définit un paramètre de sélection de fichier."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -18,11 +17,11 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 @dataclass
 class BrowseFile(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type recherche de fichier.
+	Représente un paramètre de sélection de fichier.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeur par défaut du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Chemin sélectionné par défaut.
 	"""
 
 	default: str = ""
@@ -31,7 +30,7 @@ class BrowseFile(BaseSettingType):
 	"""Valeur actuelle du paramètre (:class:`str`)."""
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -45,7 +44,7 @@ class BrowseFile(BaseSettingType):
 		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box, browse_button])
 		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
 
-		box.textChanged.connect(self.set_value_from_ui)  # .Connecte le changement de valeur pour que les autres UI se mettent à jour
+		box.textChanged.connect(self.set_value_from_ui)  # .	Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		# Disposer le QLineEdit et le bouton dans un calque horizontal
 		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
@@ -73,11 +72,11 @@ class BrowseFile(BaseSettingType):
 		self.emit(value)
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def browse_file(self):
@@ -85,7 +84,7 @@ class BrowseFile(BaseSettingType):
 		current = Path(self.value)
 		# Si le chemin par défaut n'est pas valide, on utilise le chemin principal du projet
 		if not current.exists() or current == Path.cwd(): current = Path.cwd()
-		path, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier", str(current))
+		path, _ = QFileDialog.getOpenFileName(None, "Select a file", str(current))
 		if not path: return
 		if Path(path).is_file(): self.value = path  # Mets à jour le chemin dans la boîte de texte
 
@@ -97,7 +96,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = BrowseFile("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -105,6 +104,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

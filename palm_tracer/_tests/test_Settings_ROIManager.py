@@ -1,4 +1,5 @@
-"""Tests unitaires de :class:`ROIManager`."""
+"""Teste la gestion et la synchronisation des zones d'intérêt."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -17,10 +18,11 @@ def manager() -> ROIManager:
 
 
 # ==================================================
-# region Getter/Setter
+# region Accesseurs
 # ==================================================
 ##################################################
 def test_rois(manager: ROIManager):
+	"""Vérifie la gestion de la collection de zones d'intérêt."""
 	manager.rois = [ROI("rectangle", np.zeros((4, 2)))]
 	assert manager.roi_selection.limits == [1, 1]
 	manager.rois = [ROI("rectangle", np.zeros((4, 2))), ROI("ellipse", np.ones((4, 2)))]
@@ -31,6 +33,7 @@ def test_rois(manager: ROIManager):
 
 ##################################################
 def test_set_xy_roi(manager: ROIManager):
+	"""Vérifie la définition d'une zone d'intérêt XY."""
 	manager.rois = [ROI("ellipse", np.ones((4, 2)))]
 	manager.set_xy_roi(10, 20, 30, 40, add=False)
 
@@ -44,6 +47,7 @@ def test_set_xy_roi(manager: ROIManager):
 
 ##################################################
 def test_layer(manager: ROIManager):
+	"""Vérifie la synchronisation du calque de zones d'intérêt."""
 	assert manager.layer_main is None and manager.layer_hr is None
 	manager.layer_main = Shapes()
 	manager.layer_hr = Shapes()
@@ -51,14 +55,15 @@ def test_layer(manager: ROIManager):
 
 
 # ==================================================
-# endregion Getter/Setter
+# endregion Accesseurs
 # ==================================================
 
 # ==================================================
-# region Synchronization
+# region Synchronisation
 # ==================================================
 ##################################################
 def test_update_main(manager: ROIManager):
+	"""Vérifie la mise à jour de la zone d'intérêt principale."""
 	manager.update_from_main()  # Aucun layer
 	manager.update_main()  # Aucun layer
 	manager.layer_main = Shapes()
@@ -71,6 +76,7 @@ def test_update_main(manager: ROIManager):
 
 ##################################################
 def test_update_hr(manager: ROIManager):
+	"""Vérifie la mise à jour de la zone d'intérêt haute résolution."""
 	manager.update_from_hr()  # Aucun layer
 	manager.update_hr()  # Aucun layer
 	manager.layer_hr = Shapes()
@@ -84,6 +90,7 @@ def test_update_hr(manager: ROIManager):
 ##################################################
 def test_update_roi_selection(manager: ROIManager):
 	# Appel du callback _on_roi_selection_changed
+	"""Vérifie la mise à jour de la sélection des zones d'intérêt."""
 	manager.roi_selection.value = 0  # Aucune ROI donc rejet, car hors limite.
 	manager.rois = [ROI("rectangle", np.zeros((4, 2)))]  # Ajout d'une forme
 	manager.roi_selection.value = 1  # Bonne selection, mais aucun layer.
@@ -94,14 +101,15 @@ def test_update_roi_selection(manager: ROIManager):
 
 
 # ==================================================
-# endregion Synchronization
+# endregion Synchronisation
 # ==================================================
 
 # ==================================================
-# region IO
+# region Entrées-sorties
 # ==================================================
 ##################################################
 def test_dict(manager: ROIManager):
+	"""Vérifie la sérialisation du gestionnaire de zones d'intérêt."""
 	manager.rois = [ROI("rectangle", np.zeros((4, 2)))]  # Ajout d'une forme
 	res = manager.to_dict_list()
 	assert len(res) == 1
@@ -115,14 +123,15 @@ def test_dict(manager: ROIManager):
 
 
 # ==================================================
-# endregion IO
+# endregion Entrées-sorties
 # ==================================================
 
 # ==================================================
-# region Misc
+# region Divers
 # ==================================================
 ##################################################
 def test_roi_limits(manager: ROIManager):
+	"""Vérifie le calcul des limites des zones d'intérêt."""
 	manager.set_size(100, 80)
 	manager.rois = [ROI("rectangle", np.array([[-5.2, -10.8], [-5.2, 120.4], [90.7, 120.4], [90.7, -10.8]]))]
 	manager.roi_selection.value = 0
@@ -133,6 +142,7 @@ def test_roi_limits(manager: ROIManager):
 
 ##################################################
 def test_hr_box(manager: ROIManager):
+	"""Vérifie le calcul de la boîte haute résolution."""
 	manager.set_size(100, 80)
 	manager.rois = [ROI("rectangle", np.array([[-5.2, -10.8], [-5.2, 120.4], [90.7, 120.4], [90.7, -10.8]]))]
 	assert manager.hr_box == (0, 1, 0, 1)
@@ -142,6 +152,7 @@ def test_hr_box(manager: ROIManager):
 
 ##################################################
 def test_filtering_dataframe(manager: ROIManager):
+	"""Vérifie le filtrage spatial d'un DataFrame."""
 	manager.set_size(10, 10)
 	df = pd.DataFrame({"X": [1, 2, 3], "Y": [1, 2, 3]})
 	res = manager.filtering_dataframe(df)  # ROI sélection non actif
@@ -184,8 +195,8 @@ def test_filtering_dataframe_concave_cross(manager: ROIManager):
 	res = manager.filtering_dataframe(dataframe, strict=False)
 	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1], [1, 1], [9, 9]])  # Uniquement le dernier qui est en dehors de la bounding box.
 	res = manager.filtering_dataframe(dataframe, strict=True)
-	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1]])  # enlève en plus les 2 points dans des coins.
+	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1]])  # Enlève en plus les 2 points dans des coins.
 
 # ==================================================
-# endregion Misc
+# endregion Divers
 # ==================================================

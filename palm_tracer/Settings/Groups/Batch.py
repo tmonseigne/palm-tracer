@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`Batch` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de Batch nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres du traitement par lots."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,20 +17,24 @@ from palm_tracer.Tools import FileIO, Ui
 @dataclass
 class Batch(BaseSettingGroup):
 	"""
-	Classe contenant les informations de batch de fichiers :
+	Regroupe les paramètres du traitement par lots.
 
-	Attributs :
-		- **Files** (:class:`FileList <palm_tracer.Settings.Types.FileList.FileList>`) : Liste des fichiers au Batch.
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'utilisation du Batch
-		  (Un seul fichier est traité ou chaque fichier est traité séparément ou l'ensemble des fichiers correspondent à une seule acquisition).
+	Paramètres regroupés :
+
+	- ``Files`` (:class:`~palm_tracer.Settings.Types.FileList.FileList`) : fichiers à traiter.
+	- ``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : traite un seul fichier, chaque fichier séparément ou tous les fichiers comme une
+	  acquisition unique.
 	"""
 
 	label: str = "Batch"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Files": [FileList, ["Files", ""]],
 			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]],
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 	##################################################
 	def get_paths(self, suffix: str = "_PALM_Tracer") -> list[str]:
@@ -41,7 +43,7 @@ class Batch(BaseSettingGroup):
 
 		:param suffix: Suffixe à ajouter au nom du dossier créé.
 		:return: Chemin complet du dossier généré.
-        """
+		"""
 		file_list = cast(FileList, self._settings["Files"])
 		mode = self._settings["Mode"].value
 
@@ -90,7 +92,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = Batch()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

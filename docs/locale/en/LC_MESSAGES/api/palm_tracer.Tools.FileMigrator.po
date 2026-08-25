@@ -3,12 +3,12 @@ msgid "FileMigrator"
 msgstr ""
 
 #: of palm_tracer.Tools.FileMigrator:1
-msgid "Ce fichier contient la classe :class:`FileMigrator` permettant de lire un dossier de résultat de PALMTracer depuis Metamorph vers le format actuel."
-msgstr "This file contains the :class:`FileMigrator` class, which is used to read a PALMTracer results folder from Metamorph into the current format."
+msgid "Convertit les anciens résultats Metamorph vers le format actuel de PALM Tracer."
+msgstr "Converts legacy Metamorph results to the current PALM Tracer format."
 
 #: of palm_tracer.Tools.FileMigrator.Link:1
-msgid "Structure permettant le lien entre nouvelle et ancienne nomenclature."
-msgstr "Structure that maps the old and new file naming conventions."
+msgid "Associe un ancien nom de fichier à son nouveau suffixe."
+msgstr "Maps a legacy file name to its new suffix."
 
 #: ../../api/palm_tracer.Tools.FileMigrator.rst
 msgid "Paramètres"
@@ -19,65 +19,28 @@ msgid "Ancien nom de fichier."
 msgstr "Old file name."
 
 #: of palm_tracer.Tools.FileMigrator.Link:4
-msgid "Nouveau nom de fichier."
-msgstr "New file name."
+msgid "Nouveau suffixe normalisé."
+msgstr "Normalized new suffix."
 
 #: of palm_tracer.Tools.FileMigrator.Link.old:1
-msgid "Alias for field number 0"
-msgstr ""
+msgid "Ancien nom de colonne."
+msgstr "Old column name."
 
 #: of palm_tracer.Tools.FileMigrator.Link.new:1
-msgid "Alias for field number 1"
-msgstr ""
+msgid "Nouveau nom de colonne."
+msgstr "New column name."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator:1
-msgid "Outil de migration d'un dossier de traitement PALMTracer (ancien format Metamorph) vers le format Python plus récent."
+msgid "Convertit un dossier de résultats PALMTracer au format historique Metamorph vers le format actuel."
 msgstr "Tool for migrating a PALMTracer processing folder (old Metamorph format) to the newer Python format."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator:3
-msgid "Le principe est :"
-msgstr "The process is as follows:"
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:4
-msgid "l'utilisateur pointe un dossier d'entrée (un dossier se terminant par ``.PT``) ;"
-msgstr "the user specifies an input folder (a folder ending in ``.PT``);"
+msgid "L'analyse classe les fichiers sources par type, puis la migration crée un dossier de sortie et convertit les données et métadonnées reconnues."
+msgstr "The analysis classifies source files by type, then migration creates an output folder and converts the recognized data and metadata."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator:5
-msgid ":meth:`analyze` inspecte les fichiers et les classes par type (loc/trc/MSD/...) ;"
-msgstr ":meth:`analyze` inspects the files and classes by type (loc/trc/MSD/...);"
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:6
-msgid ":meth:`migrate` crée un dossier de sortie et exécute ensuite les conversions nécessaires."
-msgstr ":meth:`migrate` creates an output folder and then performs the necessary conversions."
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:9
-msgid "Cette classe ne modifie **pas** le dossier d'entrée : elle lit depuis :attr:`input_folder` et écrit dans :attr:`output_folder`."
-msgstr "This class **does not** modify the input folder: it reads from :attr:`input_folder` and writes to :attr:`output_folder`."
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:11
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:12
-msgid "input_folder: Dossier source sélectionné par l'utilisateur."
-msgstr "input_folder: Source folder selected by the user."
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:13
-msgid "output_folder: Dossier cible où seront écrits les fichiers convertis."
-msgstr "output_folder: Target folder where the converted files will be written."
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:14
-#, python-brace-format
-msgid "files: Dictionnaire ``{type: [paths...]}`` rempli par :meth:`analyze`."
-msgstr "files: Dictionary ``{type: [paths...]}`` populated by :meth:`analyze`."
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:15
-msgid "suffix: Suffixe optionnel ajouté au nom du dossier de sortie."
-msgstr "suffix: Optional suffix added to the output folder name."
-
-#: of palm_tracer.Tools.FileMigrator.FileMigrator:16
-msgid "meta: Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers."
-msgstr "meta: Global metadata for the dataset. A line initialized to -1 that will be updated during file migration."
+msgid "Le dossier d'entrée n'est jamais modifié. Les fichiers convertis sont écrits dans :attr:`output_folder`."
+msgstr "writes the converted CSV file to :attr:`output_folder`."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.FILES_LINK:1
 msgid "Correspondances entre les anciens noms et les nouveaux."
@@ -173,7 +136,7 @@ msgid "Écriture du fichier méta uniquement si au moins une valeur est différe
 msgstr "Writes the metadata file only if at least one value is different from -1."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.update_meta:1
-msgid "Mets à jour l'objet meta et vérifie si une valeur différente est présente."
+msgid "Met à jour l'objet meta et vérifie si une valeur différente est présente."
 msgstr "Updates the metadata object and checks if a different value is present."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.update_meta:3
@@ -246,23 +209,28 @@ msgstr "renames and populates the columns according to ``FILES_COLUMNS[\"Trackin
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"trc\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"trc\"].new``."
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:1
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:1
 msgid "Migre le fichier de modèle d'astigmatisme 3D PALMTracer."
 msgstr "Migrates the PALMTracer 3D astigmatism model file."
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:4
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:4
 msgid "lit le fichier ``3DFit.txt`` s'il est présent"
 msgstr "Reads the ``3DFit.txt`` file if present"
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:5
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:5
 msgid "assigne explicitement les noms de colonnes et les indices de lignes à partir de ``FILES_COLUMNS[\"Astigmatism 3D Model\"]`` et ``MODEL_ROWS``"
 msgstr "Explicitly assigns column names and row indices from ``FILES_COLUMNS[\"Astigmatism 3D Model\"]`` and ``MODEL_ROWS``"
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:7
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:7
 msgid "écrit le modèle sous forme de CSV dans :attr:`output_folder`."
 msgstr "Writes the model as a CSV file to :attr:`output_folder`."
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:9
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_astigmatism_3d_model:9
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"A3D\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"A3D\"].new``."
 
@@ -270,17 +238,20 @@ msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_nam
 msgid "Migre le fichier MSD (Mean Square Displacement) PALMTracer."
 msgstr "Migrates the PALMTracer MSD (Mean Square Displacement) file."
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:4
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:4
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:4
 msgid "lit un fichier à structure irrégulière (nombre de colonnes variable par ligne)"
 msgstr "Reads a file with an irregular structure (variable number of columns per row)"
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:5
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:5
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:5
 msgid "supprime la colonne ROI (première colonne)"
 msgstr "removes the ROI column (first column)"
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:6
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:6
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:6
 msgid "renomme les colonnes sous la forme : ``Track, <metric> 1, <metric> 2, ..., <metric> N`` ;"
 msgstr "renames the columns as: ``Track, <metric> 1, <metric> 2, ..., <metric> N``;"
@@ -293,15 +264,18 @@ msgstr "The metric name is derived from ``FILES_COLUMNS[\"MSD\"][\"columns\"]``.
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"MSD\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv``, where ``new_name`` corresponds to ``FILES_LINK[\"MSD\"].new``."
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:1
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:1
 msgid "Migre le fichier de diffusion instantanée PALMTracer."
 msgstr "Migrates the PALMTracer instant broadcast file."
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:9
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:9
 msgid "Le nom de la métrique est issu de ``FILES_COLUMNS[\"InD\"][\"columns\"]``."
 msgstr "The metric name is taken from ``FILES_COLUMNS[\"InD\"][\"columns\"]``."
 
-#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:11
+#: of
+#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:11
 msgid "Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK[\"InD\"].new``."
 msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_name`` corresponds to ``FILES_LINK[\"InD\"].new``."
 
@@ -362,11 +336,11 @@ msgid "``skiprows`` premières lignes : informations globales (dimensions, calib
 msgstr "``skiprows`` first lines: general information (dimensions, calibration, options, etc.)"
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:5
-msgid "ligne suivante (optionnelle)   : titres des colonnes"
+msgid "Ligne suivante (optionnelle)  : titres des colonnes"
 msgstr "next line (optional): column headers"
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:6
-msgid "reste du fichier               : données tabulaires"
+msgid "Reste du fichier              : données tabulaires"
 msgstr "rest of the file: tabular data"
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:8
@@ -393,7 +367,7 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:12
-msgid "Tuple ``(dataframe, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``)."
+msgid "Tuple ``(DataFrame, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``)."
 msgstr "Tuple ``(dataframe, header_lines)`` containing the numerical data and the list of raw information lines (without ``\\n``)."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_file:13
@@ -411,10 +385,10 @@ msgstr "Opens a PALMTracer (MetaMorph) file in tab-delimited text format, tolera
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:3
 msgid "Si certaines lignes n'ont pas le même nombre de colonnes, la fonction : - détecte le nombre maximal de colonnes, - complète les lignes plus courtes avec des valeurs manquantes (NaN), - tronque les lignes plus longues à la largeur max (rare, mais protège)."
-msgstr "If some rows do not have the same number of columns, the function: - detects the maximum number of columns, - pads shorter rows with missing msgstr "values (NaN), - truncates longer rows to the maximum width (rare, but provides protection)."
+msgstr "If some rows do not have the same number of columns, the function: - detects the maximum number of columns, - pads shorter rows with missing msgstr \"values (NaN), - truncates longer rows to the maximum width (rare, but provides protection)."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:11
-msgid "Tuple ``(dataframe, header_lines)``."
+msgid "Tuple ``(DataFrame, header_lines)``."
 msgstr "Tuple ``(dataframe, header_lines)``."
 
 #: of palm_tracer.Tools.FileMigrator.FileMigrator.open_old_irregular_file:13

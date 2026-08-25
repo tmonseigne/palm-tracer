@@ -1,4 +1,4 @@
-"""Fichier des tests pour l'utilisation de la DLL CPU."""
+"""Teste l'encapsulation et l'utilisation de la DLL PALM."""
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Palm, Parsing
@@ -8,14 +8,14 @@ from palm_tracer.Tools import FileIO
 
 ##################################################
 def test_palm_dll_valid():
-	"""Test sur la présence d ela DLL PALM."""
+	"""Vérifie sur la présence d ela DLL PALM."""
 	palm = Palm()
 	assert palm.is_valid(), "Erreur lors du chargement de la DLL"
 
 
 ##################################################
 def test_palm_cpu_empty_result():
-	"""Test sur le lancement de PALM sur une noire."""
+	"""Vérifie sur le lancement de PALM sur une noire."""
 	palm = Palm()
 	stack = np.zeros((10, 10, 10), dtype=np.uint16)
 	res = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
@@ -24,7 +24,7 @@ def test_palm_cpu_empty_result():
 
 ##################################################
 def test_palm_cpu_image():
-	"""Test sur le lancement de PALM sur une frame."""
+	"""Vérifie sur le lancement de PALM sur une frame."""
 	palm = Palm()
 	file = "stack"
 	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
@@ -46,7 +46,7 @@ def test_palm_cpu_image():
 
 ##################################################
 def test_palm_cpu_stack():
-	"""Test sur le lancement de PALM sur une pile."""
+	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	file = "stack"
 	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
@@ -68,7 +68,7 @@ def test_palm_cpu_stack():
 
 ##################################################
 def test_palm_cpu_stack_plane_selection():
-	"""Test sur le lancement de PALM sur une pile."""
+	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	file = "stack"
 	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
@@ -86,7 +86,7 @@ def test_palm_cpu_stack_plane_selection():
 
 ##################################################
 def test_palm_cpu_stack_dll_check_quadrant():
-	"""	Test sur le lancement de PALM sur une pile."""
+	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	suffix = get_loc_suffix()
 	file = "stack_quadrant"
@@ -112,7 +112,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 
 ##################################################
 def test_cpu_auto_threshold():
-	"""Test basique sur l'auto-seuillage avec la DLL CPU."""
+	"""Vérifie l'auto-seuillage avec la DLL CPU."""
 	palm = Palm()
 	image = FileIO.open_tif(f"{INPUT_DIR}/stack.tif")
 	ref = [63.639888, 65.789447, 63.192296, 64.375352, 63.954150,
@@ -125,7 +125,7 @@ def test_cpu_auto_threshold():
 
 ##################################################
 def test_tracking():
-	"""Test basique sur le tracking."""
+	"""Vérifie le tracking."""
 	palm = Palm()
 	file = "stack"
 	for watershed in [True, False]:
@@ -158,7 +158,7 @@ def test_tracking():
 
 ##################################################
 def test_tracking_discontinuous():
-	"""Test sur le tracking avec un fichier qui possède des plans sans localisations."""
+	"""Vérifie sur le tracking avec un fichier qui possède des plans sans localisations."""
 	palm = Palm()
 	path = INPUT_DIR / f"localizations_discontinuous.csv"
 	if path.exists() and path.is_file():
@@ -169,7 +169,7 @@ def test_tracking_discontinuous():
 
 ##################################################
 def test_blinking_reconnection():
-	"""Test basique sur le tracking."""
+	"""Vérifie le tracking."""
 	palm = Palm()
 	file = "tracking"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
@@ -195,7 +195,7 @@ def test_blinking_reconnection():
 
 ##################################################
 def test_tracks_compute():
-	"""Test basique sur le tracking."""
+	"""Vérifie le tracking."""
 	palm = Palm()
 	file = "tracking2"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
@@ -212,7 +212,7 @@ def test_tracks_compute():
 				if ref_path.exists() and ref_path.is_file():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
-					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					# Comparaison entre le DataFrame t_output[name] et ref avec une tolérance de 1e-5 et ignore les NaN
 					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Test sur différents modes d'ajustement.
@@ -226,7 +226,7 @@ def test_tracks_compute():
 				if ref_path.exists() and ref_path.is_file():
 					print(f"Comparaison avec : '{ref_path}'")
 					ref = pd.read_csv(ref_path)
-					# comparaison entre le dataframe t_output[name] et ref avec une toelrance de 1e-5 et ignore les Nan
+					# Comparaison entre le DataFrame t_output[name] et ref avec une tolérance de 1e-5 et ignore les NaN
 					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Dernier True/False pour la couverture de code
@@ -240,7 +240,7 @@ def test_tracks_compute():
 
 ##################################################
 def test_align():
-	"""Test basique pour l'alignement."""
+	"""Vérifie le comportement de l'alignement."""
 	palm = Palm()
 
 	# --- Lecture stack ---
@@ -280,7 +280,7 @@ def test_align():
 
 ##################################################
 def test_wavelett():
-	"""Test basique pour récupérer un plan d'ondelette."""
+	"""Vérifie le comportement de récupérer un plan d'ondelette."""
 	palm = Palm()
 
 	# --- Lecture stack ---
@@ -295,7 +295,7 @@ def test_wavelett():
 
 ##################################################
 def test_astigmatism_3d_calibration():
-	"""Test basique pour la calibration de l'astigatisme 3D."""
+	"""Vérifie le comportement de la calibration de l'astigatisme 3D."""
 	palm = Palm()
 
 	# --- Lecture d'un fichier de localisation ---
@@ -315,7 +315,7 @@ def test_astigmatism_3d_calibration():
 
 ##################################################
 def test_astigmatism_3d_estimation():
-	"""Test basique pour l'estimation de l'astigmatisme 3D."""
+	"""Vérifie le comportement de l'estimation de l'astigmatisme 3D."""
 	palm = Palm()
 
 	# --- Lecture des fichiers ---

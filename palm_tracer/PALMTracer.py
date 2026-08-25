@@ -1,9 +1,9 @@
 """
-Module contenant les fonctions de traitement de PALM.
+Orchestre le chargement, le traitement, le filtrage et l'enregistrement des données PALM.
 
-.. todo:: Ajouter clairement un point dans la doc sur le systeme de filtre, l'enregistrement, le calcul sur l'intégralité des éléments
-		  et filtre ensuite lors de la visualisation des graph et des sauvegarde si la case est coché...
+.. todo:: Documenter précisément la stratégie de filtrage appliquée aux calculs, aux visualisations et aux sauvegardes.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -29,7 +29,12 @@ FILE_STATUS: list[str] = ["No", "Yes", "Yes (Filtered)",
 ##################################################
 @dataclass
 class PALMTracer:
-	"""Classe principale de PALM Tracer."""
+	"""
+	Orchestre un traitement PALM complet et conserve ses données intermédiaires et finales.
+
+	La classe coordonne la configuration, les appels à la DLL PALM, le pipeline de traitement, le filtrage, la production des visualisations et la
+	sauvegarde des résultats.
+	"""
 
 	settings: Settings = field(init=False, default_factory=Settings)
 	"""Classe principale des paramètres PALMTracer."""
@@ -51,9 +56,9 @@ class PALMTracer:
 	_stack: Optional[np.ndarray] = field(init=False, default=None)
 	"""Pile en cours de traitement."""
 	_timestamp: str = field(init=False, default="")
-	"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
+	"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 	_timestamp_previous: str = field(init=False, default="")
-	"""Suffixe des fichiers pour le traitement précédent (timestamp au format `YYYYMMDD_HHMMSS`)."""
+	"""Suffixe des fichiers pour le traitement précédent (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 
 	_grapher: Grapher = field(init=False, default_factory=Grapher)
 	"""Générateur de graphique."""
@@ -68,13 +73,13 @@ class PALMTracer:
 			"MSD": "tracking_MSD", "f_MSD": "tracking_MSD_filtered",
 			"InD": "tracking_InstantD", "f_InD": "tracking_InstantD_filtered",
 			"Fit": "tracking_Fit", "f_Fit": "tracking_Fit_filtered"})
-	"""Alias entre les noms de fichiers et les clés dans le dictionnaire de dataframes."""
+	"""Alias entre les noms de fichiers et les clés dans le dictionnaire de DataFrames."""
 
 	_STEPS: list[Step] = field(init=False)
 	"""Listes des étapes du pipeline de traitement."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -103,15 +108,15 @@ class PALMTracer:
 
 	##################################################
 	def reset_result(self):
-		"""Vide entièrement les DataFrame de résultat dans `df`."""
+		"""Vide entièrement les DataFrame de résultat dans ``df``."""
 		for key in self.df: self.df[key] = pd.DataFrame()
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_localization_key(self) -> str:
@@ -237,7 +242,7 @@ class PALMTracer:
 	##################################################
 	@property
 	def suffix(self) -> str:
-		"""Suffixe des fichiers pour un traitement (timestamp au format `YYYYMMDD_HHMMSS`)."""
+		"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 		return self._timestamp
 
 	##################################################
@@ -245,7 +250,7 @@ class PALMTracer:
 		"""
 		Indique le nom du fichier à enregistrer CHEMIN / name-Timestamp.extension.
 
-		:param name: Nomp du fichier.
+		:param name: Nom du fichier.
 		:param ext: Extension du fichier (par défaut csv, exception pour le log, les paramètres et les visualizations).
 		:param previous: Si True, application du précédent timestamp. Sinon Timestamp Actuel.
 		:return: Nom du fichier.
@@ -270,11 +275,11 @@ class PALMTracer:
 		return self._output_name(name, ext=ext, previous=False)
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Process
+	# region Traitements
 	# ==================================================
 	##################################################
 	def load(self, path: str = ""):
@@ -298,7 +303,7 @@ class PALMTracer:
 			self.settings.localization["Preview"].value = False
 
 		# --- Chargement des fichiers associés à ces paramètres. ---
-		self.reset_result()  # Reset result Dataframes
+		self.reset_result()  # Réinitialisation des DataFrames de résultats
 		print(f"\tLoading files from the '{self._path}' folder with the timestamp {self._timestamp}.")
 		for key, fname in self.KEYS_TO_FILE.items():
 			f = self._output_name(fname)
@@ -337,7 +342,7 @@ class PALMTracer:
 
 		# --- Parcours du batch ---
 		for self._path, self._stack in zip(paths, stacks):
-			# Reset result Dataframes
+			# Réinitialisation des DataFrames de résultats
 			self.reset_result()
 
 			# Logger
@@ -394,7 +399,7 @@ class PALMTracer:
 
 	##################################################
 	def save_meta(self):
-		""" Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."""
+		"""Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."""
 		prev_name = Path(self._output_name("meta", previous=True))
 		prev_meta = pd.read_csv(prev_name) if prev_name.is_file() else None
 
@@ -412,9 +417,10 @@ class PALMTracer:
 		"""
 		Éffectue une étape du pipeline.
 
-		:param step: Etape du pipeline.
+		:param step: Étape du pipeline.
 		:param previous_settings: Paramètres du précédent pipeline.
 		:param pipeline_dirty: État du pipeline (si True, Reuse est devenu impossible).
+		:return: État d'invalidation du pipeline après le traitement de l'étape.
 		"""
 		group = getattr(self.settings, step.group_name)
 		previous_group = getattr(previous_settings, step.group_name) if isinstance(previous_settings, Settings) else None
@@ -453,7 +459,7 @@ class PALMTracer:
 
 		# --- Filtrage ---
 		if not step.apply_filter: return pipeline_dirty
-		# Cas Standard Un seul dataframe
+		# Cas standard : un seul DataFrame
 		if len(step.keys) == 1:
 			f_key = f"f_{step.keys[0]}"
 			self.df[f_key] = step.filter_func(self.df[step.keys[0]])
@@ -534,8 +540,8 @@ class PALMTracer:
 		:raises Exception: Aucune exception n'est propagée. En cas d'erreur de lecture, un message est affiché via ``Ui.print_error``.
 
 		.. note::
-			Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
-			Si ce n'est pas le cas, le modèle est considéré comme invalide.
+		        Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
+		        Si ce n'est pas le cas, le modèle est considéré comme invalide.
 
 		.. tip:: Permet de rendre l'appel robuste en cas de chemin utilisateur invalide, en utilisant automatiquement des emplacements par défaut du projet.
 		"""
@@ -560,7 +566,7 @@ class PALMTracer:
 	##################################################
 	def _beads_extraction(self):
 		"""Extrait les billes des localisations."""
-		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
+		df = self.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
@@ -578,7 +584,7 @@ class PALMTracer:
 	##################################################
 	def _tracking(self):
 		"""Lance le suivi à partir des paramètres de l'interface."""
-		df = self.localizations  # Récupère automatiquement le "bon" dataframe (filtré ou non)
+		df = self.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
 		if "Integrated Intensity" in df.columns: df = df[df["Integrated Intensity"] > 0]  # Suppression des éléments où l'ajustement a échoué.
 		if df.empty:
 			self._logger.add("\tNo localizations data calculated, no additional calculations can be performed.")
@@ -593,7 +599,7 @@ class PALMTracer:
 	##################################################
 	def _blinking_reconnection(self):
 		"""Lance le tracking à partir des paramètres de l'interface."""
-		df = self.df["trc"]  # Récupère le dataframe du suivi
+		df = self.df["trc"]  # Récupère le DataFrame du suivi
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
 			return
@@ -607,7 +613,7 @@ class PALMTracer:
 	##################################################
 	def _tracks_compute(self):
 		"""Lance les calculs sur les trajectoires à partir des paramètres de l'interface."""
-		df = self.tracks  # Récupère automatiquement le "bon" dataframe (blinking et filtré ou non)
+		df = self.tracks  # Récupère automatiquement le "bon" DataFrame (blinking et filtré ou non)
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
 			return
@@ -633,15 +639,15 @@ class PALMTracer:
 				res[key].to_csv(self._output_name(self.KEYS_TO_FILE[key]), index=False)
 
 	# ==================================================
-	# endregion Process
+	# endregion Traitements
 	# ==================================================
 
 	# ==================================================
-	# region Filtering
+	# region Filtrage
 	# ==================================================
 	##################################################
 	def reset_filtered(self):
-		"""Vide entièrement les DataFrames filtrés dans `df`."""
+		"""Vide entièrement les DataFrames filtrés dans ``df``."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		for key in self.df:
 			if key.startswith("f_"): self.df[key] = pd.DataFrame()
@@ -649,9 +655,9 @@ class PALMTracer:
 	##################################################
 	def update_filtered(self, last: bool = True):
 		"""
-		Recalcul les filtres sur le dernier dataframe disponible pour chacun si last est sélectionné, sinon sur l'original.
+		Recalcul les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original.
 
-		:param last: Utilise les dernières versions des dataframes si `True`, sinon les données brutes seront utilisées.
+		:param last: Utilise les dernières versions des DataFrames si ``True``, sinon les données brutes seront utilisées.
 		"""
 		df = {}
 		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
@@ -689,11 +695,11 @@ class PALMTracer:
 		filters.connect_button(self.save_filtered, ui_name, "save")
 
 	# ==================================================
-	# endregion Filtering
+	# endregion Filtrage
 	# ==================================================
 
 	# ==================================================
-	# region Visualization
+	# region Visualisation
 	# ==================================================
 	##################################################
 	def _gallery(self):
@@ -721,7 +727,7 @@ class PALMTracer:
 
 		# Préparation des Données
 		data, title = self._get_graph_data()
-		# print(f"{data.shape}, {data.size}, {title}") with data.size over 10M make a warning message
+		# print(f"{data.shape}, {data.size}, {title}") avec une taille supérieure à 10 M, affiche un avertissement
 
 		# Selection du graphique à afficher
 		if src_id == 0 and src_a == "Localizations Count":
@@ -752,7 +758,7 @@ class PALMTracer:
 		"""
 		Récupère et prépare les données pour l'affichage.
 
-		:return:
+		:return: Données préparées pour le graphique et titre associé.
 		"""
 		s = self.settings.graph.settings
 		src_id, dual, log_scale = s["Type"], s["Dual"], s["Display Log Scale"]
@@ -772,12 +778,13 @@ class PALMTracer:
 
 	##################################################
 	def _get_graph_data_from_src(self, src_id, src: str, log_scale: bool = False) -> tuple[np.ndarray, str]:
-		"""Récupère et prépare les données pour l'affichage.
+		"""
+		Récupère et prépare les données pour l'affichage.
 
-		:param src_id:
-		:param src:
-		:param log_scale:
-		:return:
+		:param src_id: Identifiant du type de source à représenter.
+		:param src: Nom de la donnée ou de la colonne à extraire.
+		:param log_scale: Applique une transformation logarithmique aux valeurs si ``True``.
+		:return: Données extraites et titre associé au graphique.
 		"""
 		# Localizations
 		if src_id == 0:
@@ -813,7 +820,7 @@ class PALMTracer:
 
 			for _, planes in tracks_planes:
 				planes_array = np.sort(planes.dropna().unique())
-				if planes_array.size == 0: continue  # pragma: no cover — Techniqement impossible Plane est toujours valide
+				if planes_array.size == 0: continue  # pragma: no cover — Techniquement impossible : Plane est toujours valide
 
 				diffs = np.diff(planes_array)
 				breaks = np.flatnonzero(diffs > 1)
@@ -883,31 +890,31 @@ class PALMTracer:
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
 			gaussian = s.gaussian.settings if s.gaussian.active else None
-			color_mode = 0 if src == "Count" else s["Color mode"].value  # Si count, on est forcément en mode cumulatif, sinon on voit l'option.
-			df["X"] -= x0  # Ajustement à la ROI sur X
-			df["Y"] -= y0  # Ajustement à la ROI sur Y
-			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
+			color_mode = 0 if src == "Count" else s["Color mode"].value  # .Si count, on est forcément en mode cumulatif, sinon on voit l'option.
+			df["X"] -= x0  # .												Ajustement à la ROI sur X
+			df["Y"] -= y0  # .												Ajustement à la ROI sur Y
+			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # .	Sélection dans les bornes
 
-			if s["Dimension"].value == 0:  # .	 2D
-				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
+			if s["Dimension"].value == 0:  # .																				   Rendu 2D
+				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .			   Récupération
 				plot_data = df[["Y", "X"]].to_numpy() * upscale  # Mise à l'échelle des X et Y.
 				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
-				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # Rendu
-			else:  # . 							 3D
-				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # Récupération
+				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # .										   Rendu
+			else:  # .																										   Rendu 3D
+				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .		   Récupération
 				uniform_z_step = self._get_uniform_z_step()
 				plot_data = df[["Z", "Y", "X"]].to_numpy(copy=True)
 				z_min = np.nanmin(plot_data[:, 0])
 				# On n'a pas besoin de les caster en entier, Napari n'est pas trop bête et si l'utilisateur passe en vue 3D, il aura les Z flottants.
 				plot_data[:, 0] = (plot_data[:, 0] - z_min) / uniform_z_step
-				plot_data[:, 1:] *= upscale  # Mise à l'échelle des X et Y.
-				if s["Dimension"].value == 1:  # Z Stack
+				plot_data[:, 1:] *= upscale  # .																			   Mise à l'échelle des X et Y.
+				if s["Dimension"].value == 1:  # .																			   Rendu Z Stack
 					z_step = s.hr_3d["Z Step"].value
 					viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, gaussian)  # Rendu
-				else:  # .						   3D Rotation
+				else:  # .																									   Rendu 3D Rotation
 					frames = s.hr_3d["Frames"].value
 					axis = s.hr_3d["Axis"].value
-					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, gaussian)  # Rendu
+					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, gaussian)  # .		   Rendu
 
 			return viz, plot_data
 

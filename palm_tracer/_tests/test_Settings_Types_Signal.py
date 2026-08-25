@@ -1,4 +1,5 @@
-"""Tests unitaires pour SignalWrapper."""
+"""Teste l'abstraction et le regroupement des signaux Qt."""
+
 from typing import Any, List
 
 import pytest
@@ -15,7 +16,7 @@ def sw() -> SignalWrapper:
 
 ##################################################
 def test_connect_and_emit_direct(sw: SignalWrapper):
-	"""Connexion d'un slot Python et émission immédiate."""
+	"""Vérifie la connexion d'un slot Python et émission immédiate."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
@@ -25,7 +26,7 @@ def test_connect_and_emit_direct(sw: SignalWrapper):
 
 ##################################################
 def test_disconnect(sw: SignalWrapper):
-	"""Connexion d'un slot Python et émission immédiate."""
+	"""Vérifie la connexion d'un slot Python et émission immédiate."""
 	received: List[Any] = []
 	received2: List[Any] = []
 	slot = lambda v: received.append(v)  # <– même objet pour connect & disconnect
@@ -49,10 +50,7 @@ def test_disconnect(sw: SignalWrapper):
 
 ##################################################
 def test_block_simple_coalescence_last_value(sw: SignalWrapper):
-	"""
-	Pendant un blocage, plusieurs emit() sont coalescés :
-	une seule émission à la sortie, avec la DERNIÈRE valeur.
-	"""
+	"""Vérifie que pendant un blocage, plusieurs emit() sont coalescés : une seule émission à la sortie, avec la DERNIÈRE valeur."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
@@ -67,12 +65,12 @@ def test_block_simple_coalescence_last_value(sw: SignalWrapper):
 
 ##################################################
 def test_block_without_emits_no_output(sw: SignalWrapper):
-	"""Si aucun emit() pendant le blocage : rien n'est émis à la sortie."""
+	"""Vérifie que si aucun emit() pendant le blocage : rien n'est émis à la sortie."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
 	with sw.blocked():
-		# pas d'emit
+		# Aucune émission
 		pass
 
 	assert received == []
@@ -80,7 +78,7 @@ def test_block_without_emits_no_output(sw: SignalWrapper):
 
 ##################################################
 def test_nested_blocks_emit_once_at_outer_exit(sw: SignalWrapper):
-	"""Blocages imbriqués : aucune émission avant le dernier __exit__."""
+	"""Vérifie que les blocages imbriqués : aucune émission avant le dernier __exit__."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
@@ -88,9 +86,9 @@ def test_nested_blocks_emit_once_at_outer_exit(sw: SignalWrapper):
 		with sw.blocked():
 			sw.emit(1)
 			sw.emit(2)
-		# à ce stade, toujours rien
+		# À ce stade, toujours rien
 		assert received == []
-		# encore du bruit
+		# Encore du bruit
 		sw.emit(3)
 
 	# Une seule émission à la fin, avec la dernière valeur (3)
@@ -99,7 +97,7 @@ def test_nested_blocks_emit_once_at_outer_exit(sw: SignalWrapper):
 
 ##################################################
 def test_emit_default_none_coalesced(sw: SignalWrapper):
-	"""Appel emit() sans valeur (None par défaut) pendant blocage → émis ensuite."""
+	"""Vérifie qu'un appel emit() sans valeur (None par défaut) pendant blocage → émis ensuite."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
@@ -110,7 +108,7 @@ def test_emit_default_none_coalesced(sw: SignalWrapper):
 
 ##################################################
 def test_block_flags_reset_after_flush(sw: SignalWrapper):
-	"""Après la sortie et l'émission coalescée, les drapeaux internes doivent être réinitialisés."""
+	"""Vérifie qu'après la sortie et l'émission coalescée, les drapeaux internes doivent être réinitialisés."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
@@ -127,7 +125,7 @@ def test_block_flags_reset_after_flush(sw: SignalWrapper):
 
 ##################################################
 def test_block_without_emit(sw: SignalWrapper):
-	"""Après la sortie et l'émission coalescée, les drapeaux internes doivent être réinitialisés."""
+	"""Vérifie qu'après la sortie et l'émission coalescée, les drapeaux internes doivent être réinitialisés."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
@@ -148,18 +146,14 @@ def test_block_without_emit(sw: SignalWrapper):
 
 ##################################################
 def test_blocked_returns_context_manager_instance(sw: SignalWrapper):
-	"""blocked() retourne bien un context manager du bon type (BlockCtx)."""
+	"""Vérifie que blocked() retourne bien un context manager du bon type (BlockCtx)."""
 	ctx = sw.blocked()
 	assert isinstance(ctx, SignalWrapper.BlockCtx)
 
 
 ##################################################
 def test_internal_block_begin_end_paths(sw: SignalWrapper):
-	"""
-	Couvre explicitement les chemins internes :
-	  - _block_end() appelé alors que le compteur est à 0 → early return
-	  - _block_begin() puis _block_end() sans pending → pas d'émission
-	"""
+	"""Vérifie le scénario ``internal_block_begin_end_paths``."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
@@ -181,12 +175,12 @@ def test_coalescence_overwrite_multiple_times(sw: SignalWrapper):
 
 	with sw.blocked():
 		for i in range(10): sw.emit(i)
-	assert received == [9]  # dernière
+	assert received == [9]  # Dernière émission
 
 
 ##################################################
 def test_emit_direct_after_previous_block(sw: SignalWrapper):
-	"""Après un blocage avec émission, un emit direct doit passer immédiatement (et ne pas être coalescé par un ancien état)."""
+	"""Vérifie qu'après un blocage avec émission, un emit direct doit passer immédiatement (et ne pas être coalescé par un ancien état)."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 

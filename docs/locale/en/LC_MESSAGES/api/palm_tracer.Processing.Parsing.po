@@ -3,7 +3,7 @@ msgid "Parsing"
 msgstr ""
 
 #: of palm_tracer.Processing.Parsing:1
-msgid "Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes."
+msgid "Convertit et structure les entrées et sorties des DLL PALM."
 msgstr "File containing functions to parse the input and output of external DLLs."
 
 #: of palm_tracer.Processing.Parsing.apply_dataframe_type:1
@@ -15,6 +15,7 @@ msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Processing.Parsing.apply_dataframe_type:4
+#: palm_tracer.Processing.Parsing.log10_dataframe:3
 msgid "DataFrame à modifier."
 msgstr "DataFrame to be modified."
 
@@ -40,7 +41,7 @@ msgid "Liste des noms de colonnes à placer en premier."
 msgstr "List of column names to place first."
 
 #: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:5
-msgid "Si `True`, ajoute les colonnes non spécifiées après celles définies dans `columns`."
+msgid "Si ``True``, ajoute les colonnes non spécifiées après celles définies dans ``columns``."
 msgstr "If `True`, adds the unspecified columns after those defined in `columns`."
 
 #: ../../api/palm_tracer.Processing.Parsing.rst
@@ -56,7 +57,7 @@ msgid "Lève"
 msgstr "Raise"
 
 #: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:7
-msgid "Si une colonne spécifiée dans `columns` n'existe pas dans `data`."
+msgid "Si une colonne spécifiée dans ``columns`` n'existe pas dans ``data``."
 msgstr "If a column specified in `columns` does not exist in `data`."
 
 #: ../../api/palm_tracer.Processing.Parsing.rst
@@ -64,15 +65,11 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Processing.Parsing.log10_dataframe:1
-msgid "Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égales à 0)."
+msgid "Applique un log en base 10 sur certaines colonnes du DataFrame (remplace par Nan les valeurs inférieures ou égales à 0)."
 msgstr "Applies a base-10 logarithm to certain columns of the DataFrame (replaces values less than or equal to 0 with NaN)."
 
-#: of palm_tracer.Processing.Parsing.log10_dataframe:3
-msgid "Dataframe à modifier."
-msgstr "DataFrame to be modified."
-
 #: of palm_tracer.Processing.Parsing.log10_dataframe:5
-msgid "Dataframe avec les colonnes ayant été modifiées."
+msgid "DataFrame avec les colonnes ayant été modifiées."
 msgstr "A new DataFrame with the columns rearranged."
 
 #: of palm_tracer.Processing.Parsing.degrees_to_radians:1
@@ -152,8 +149,8 @@ msgid "Theta dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`."
 msgstr "Theta in the interval :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2} [`."
 
 #: of palm_tracer.Processing.Parsing.get_meta:1
-msgid "Créer le Dataframe pour les informations meta (dimensions du fichier et calibration)."
-msgstr "Créer le Dataframe pour les informations meta (dimensions du fichier et calibration)."
+msgid "Créer le DataFrame pour les informations meta (dimensions du fichier et calibration)."
+msgstr "Creates the DataFrame containing metadata (file dimensions and calibration)."
 
 #: of palm_tracer.Processing.Parsing.get_meta:3
 msgid "Liste des informations en entrée."
@@ -222,7 +219,7 @@ msgid "On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``). La taille d
 msgstr "We slice it into a 2D array with 13 columns (``N_SEGMENTS``). The array size is checked and truncated if necessary."
 
 #: of palm_tracer.Processing.Parsing.parse_result:5
-msgid "On le transforme en dataframe avec les colonnes définies par `SEGMENTS`."
+msgid "On le transforme en DataFrame avec les colonnes définies par ``SEGMENTS``."
 msgstr "We convert it into a dataframe with columns defined by `SEGMENTS`."
 
 #: of palm_tracer.Processing.Parsing.parse_result:6

@@ -1,4 +1,4 @@
-"""Fichier des tests pour l'astigmatisme 3D,"""
+"""Teste les fonctions de calibration et d'estimation axiale par astigmatisme 3D."""
 
 from palm_tracer.Processing.Astigmatism3D import *
 
@@ -34,7 +34,7 @@ DATASET = get_dataset()
 
 ##################################################
 def test_get_z_from_planes():
-	"""Test basique pour get_z_from_planes."""
+	"""Vérifie le comportement de get_z_from_planes."""
 	planes = np.array([0, 1, 2, 3, 4])
 
 	res = z_from_planes(planes, z_min=-10, z_max=10)
@@ -60,7 +60,7 @@ def test_get_z_from_planes():
 
 ##################################################
 def test_get_z_from_step():
-	"""Test basique pour get_z_from_step."""
+	"""Vérifie le comportement de get_z_from_step."""
 	res = z_from_step(5, 1)
 	ref = [-2, -1, 0, 1, 2.]
 	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
@@ -76,35 +76,35 @@ def test_get_z_from_step():
 
 ##################################################
 def test_remove_multi_loc():
-	"""Test basique pour remove_multi_loc."""
+	"""Vérifie le comportement de remove_multi_loc."""
 	columns = ["Plane", "X", "Y", "Sigma X", "Sigma Y", "Z"]
-	# Dataframe vide
+	# DataFrame vide
 	data = pd.DataFrame([], columns=columns)
 	res = remove_multi_beads(data)
 	assert res.empty
 
-	# Dataframe sans la colonne "Plane".
+	# DataFrame sans la colonne "Plane".
 	data = pd.DataFrame([[0, 0, 0, 0, 0]], columns=columns[1:])
 	res = remove_multi_beads(data)
 	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
 
-	# Dataframe avec déjà un seul point par plan.
+	# DataFrame avec déjà un seul point par plan.
 	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0], [3, 5, 5, 1, 1, 0]], columns=columns)
 	res = remove_multi_beads(data)
 	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
 
-	# Dataframe avec aucun plan ne contenant qu'une localisation.
+	# DataFrame dont aucun plan ne contient une seule localisation.
 	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0]], columns=columns)
 	res = remove_multi_beads(data)
 	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
 
-	# Dataframe Cohérent.
+	# DataFrame cohérent.
 	data = pd.DataFrame([[1, 3, 3, 1, 1, 0], [1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
 	res = remove_multi_beads(data)
 	ref = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
 	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Dataframe avec une colonne Bead.
+	# DataFrame avec une colonne Bead.
 	data = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0], [2, 1, 5, 5, 1, 1, 0], [2, 2, 5, 5, 1, 1, 0]], columns=["Bead"] + columns)
 	res = remove_multi_beads(data)
 	ref = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0]], columns=["Bead"] + columns)
@@ -113,7 +113,7 @@ def test_remove_multi_loc():
 
 ##################################################
 def test_sigma_model():
-	"""Test basique pour sigma_model."""
+	"""Vérifie le comportement de sigma_model."""
 	model = np.array([200., 100., 0., 0., 32.], dtype=np.float64)
 	z = np.linspace(-200, 200, 11, dtype=np.float64)
 	res = sigma_model(model, z, 160, 1)
@@ -123,7 +123,7 @@ def test_sigma_model():
 
 ##################################################
 def test_model_validity():
-	"""Test basique pour model_validity."""
+	"""Vérifie le comportement de model_validity."""
 	# Vérification des métriques pour le bon modèle.
 	# J'ai un bruit de 0.02 donc rmse environ 0.02 et mae légèrement inférieur, R² très proche de 1 (supérieur à 99% de variance expliquée).
 	res = model_validity(DATASET, REF_MODEL, PIXEL_SIZE, SAMPLING)
@@ -143,7 +143,7 @@ def test_model_validity():
 
 ##################################################
 def test_model_projection_validity():
-	"""Test basique pour model_projection_validity."""
+	"""Vérifie le comportement de model_projection_validity."""
 	# Vérification des métriques pour le bon modèle. Le bruit de 0.02 (et son carré) est retrouvé dans les deux derniers éléments du dictionnaire
 	res = model_projection_validity(DATASET, REF_MODEL, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
 	print(res)
@@ -151,7 +151,7 @@ def test_model_projection_validity():
 	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
 
 	# Vérification des métriques pour un modèle avec axe inversé,
-	# attendu rmse et mae élevé (du même ordre de grnadeur que Z_MAX), mais distances en pixel faible : signature d'une inversion du Z.
+	# RMSE et MAE attendues élevées (du même ordre de grandeur que Z_MAX), mais distances en pixels faibles : signature d'une inversion du Z.
 	# Le biais faible en est une conséquence (les erreurs s'annulent presque du fait que la courbe est PRESQUE symétrique).
 	res = model_projection_validity(DATASET, REF_MODEL[::-1], Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
 	ref = {'rmse_z': 577.31, 'mae_z': 499.94, 'p95_abs_z': 950, 'bias_z': 7.4, 'std_z': 577.27, 'mean_dist': 0.03, 'p95_dist': 0.1, "slope_mean": 0.004}
@@ -167,7 +167,7 @@ def test_model_projection_validity():
 
 ##################################################
 def test_find_model_center():
-	"""Test basique pour find_model_center."""
+	"""Vérifie le comportement de find_model_center."""
 	res = find_model_center(REF_MODEL, Z_MAX, PIXEL_SIZE)
 	ref = 21.3895675
 	assert np.isclose(res, ref, 1e-6)

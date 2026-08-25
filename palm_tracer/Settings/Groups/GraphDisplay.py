@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`Graph` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de visualisation de graphique nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres d'affichage des graphiques."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,21 +12,23 @@ from palm_tracer.Settings.Types import CheckBox, SpinInt
 @dataclass
 class GraphDisplay(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de Visualisation :
+	Regroupe les options de rendu statistique des graphiques.
 
-	Attributs :
-		- **Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Limite les données à ±3σ autour de la moyenne (règle des 3 sigmas).
-		- **Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Trace des lignes pointillées à des distances de 1, 2 et 3 sigmas de la moyenne.
-		- **Gauss** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Affiche la courbe gaussienne associée à la moyenne et à l'écart-type des données. .
-		- **KDE** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) :
-		  Affiche l'estimation de densité par noyau (la courbe la plus proche de l'histogramme) associée aux données.
-		- **Cumul** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche un histogramme cumulatif à la place d'un histogramme simple.
-		- **Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique une échelle logarithmique aux données.
+	Paramètres regroupés :
+
+	- ``Limits`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : limite l'affichage à l'intervalle :math:`[\\mu-3\\sigma,\\mu+3\\sigma]`.
+	- ``Sigma`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche les repères à un, deux et trois écarts-types de la moyenne.
+	- ``Gauss``, ``Poiss`` et ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : superposent respectivement les modèles gaussien,
+	  poissonnien et exponentiel.
+	- ``KDE`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche l'estimation de densité par noyau.
+	- ``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : produit un histogramme cumulatif.
+	- ``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise une échelle logarithmique.
+	- ``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exprime l'axe Y en effectifs plutôt qu'en densité.
+	- ``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de classes de l'histogramme ; ``0`` active le choix automatique.
 	"""
 
 	label: str = "Display"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Limits":    [CheckBox, ["Apply Limits", "Limits data to ±3σ around the mean (3-sigma rule).", True]],
 			"Sigma":     [CheckBox, ["Show σ", "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean."]],
@@ -41,7 +41,9 @@ class GraphDisplay(BaseSettingGroup):
 			"Count":     [CheckBox, ["Count", "The data on Y is expressed in terms of count (instead of density."]],
 			"Bins":      [SpinInt, ["Bins", "The number of bins along the histogram (0 for auto).", 0, [0, 1000]]]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 
 ##################################################
@@ -51,7 +53,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = GraphDisplay()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

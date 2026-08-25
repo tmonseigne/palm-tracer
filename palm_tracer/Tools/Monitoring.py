@@ -1,24 +1,9 @@
 """
-Module de surveillance des ressources système pendant l'exécution de tests.
+Surveille les ressources système utilisées pendant l'exécution des tests.
 
-Ce fichier contient une classe principale :class:`Monitoring` permettant de suivre en temps réel l'utilisation des
-ressources système (CPU, mémoire, disque) durant l'exécution de tests. Il offre des fonctionnalités de surveillance,
-de mise à jour des données et de visualisation graphique des résultats.
-
-**Contenu** :
-
-1. **Classe principale**
-
-   - :class:`Monitoring` : Classe pour surveiller et analyser les ressources utilisées.
-
-2. **Fonctionnalités**
-
-   - Surveillance des ressources système (CPU, mémoire, disque) via `psutil`.
-   - Génération de graphiques interactifs avec `plotly`.
-   - Sauvegarde des résultats au format texte, HTML ou JSON.
-   - Gestion des intervalles de mise à jour via des threads.
-
+Le suivi couvre notamment le processeur, la mémoire, le disque et, lorsqu'il est disponible, le processeur graphique.
 """
+
 from __future__ import annotations
 
 import os
@@ -53,22 +38,12 @@ except ImportError:
 @dataclass
 class Monitoring:
 	"""
-	Classe de monitoring qui suit l'utilisation des ressources (CPU, mémoire, disque) pendant l'exécution des tests.
+	Surveille les ressources système utilisées pendant l'exécution des tests.
 
-	Cette classe collecte les informations sur l'utilisation des ressources du système durant l'exécution des tests.
-	Elle fournit des fonctionnalités pour démarrer et arrêter la surveillance, mettre à jour les valeurs des ressources,
-	et générer des graphiques ou des fichiers texte avec ces données.
+	Les mesures du processeur, de la mémoire, du disque et, si disponible, du processeur graphique sont collectées dans un thread dédié puis représentées
+	sous forme de graphiques ou de rapports.
 
-	Attributs :
-			- **cpu (:class:`List[float]`)** : Liste des valeurs d'utilisation du CPU.
-			- **memory (:class:`List[float]`)** : Liste des valeurs d'utilisation de la mémoire.
-			- **disk (:class:`List[float]`)** : Liste des valeurs d'utilisation du disque.
-			- **times (:class:`List[float]`)** : Liste des timestamps correspondant aux valeurs des ressources.
-			- **monitoring (:class:`bool`)** : Indique si la surveillance est en cours ou non.
-			- **thread (:class:`threading.Thread`)** : Le thread qui exécute le monitoring.
-			- **tests_info (:class:`List[dict]`)** : Liste des informations relatives aux tests exécutés.
-			- **interval (:class:`float`)** : Intervalle de temps entre chaque mise à jour des données en secondes.
-
+	:param interval: Intervalle entre deux mesures, en secondes.
 	"""
 
 	interval: float = 1.0
@@ -99,7 +74,7 @@ class Monitoring:
 	"""GPU à surveiller."""
 
 	# ==================================================
-	# region Monitoring Manipulation
+	# region Gestion du suivi
 	# ==================================================
 	##################################################
 	@property
@@ -140,7 +115,7 @@ class Monitoring:
 
 	##################################################
 	def _update(self):
-		"""Mets à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
+		"""Met à jour les valeurs d'utilisation du CPU, de la mémoire et du disque en fonction des processus en cours."""
 		# Sélection de processus
 		try:
 			pytest_pid = os.getpid()  # .					   PID de pytest
@@ -237,7 +212,7 @@ class Monitoring:
 	##################################################
 	def _update_array_for_readability(self, round_time: int = 2):
 		"""
-		Mets à jour les tableaux pour faciliter la lecture (ajustement des timestamps et normalisation).
+		Met à jour les tableaux pour faciliter la lecture (ajustement des timestamps et normalisation).
 
 		:param round_time: Le nombre de décimales pour arrondir les timestamps.
 		"""
@@ -253,11 +228,11 @@ class Monitoring:
 		self._disk.insert(0, 0)  # .																			Ajouter 0 au début pour restaurer la taille
 
 	# ==================================================
-	# endregion Monitoring Manipulation
+	# endregion Gestion du suivi
 	# ==================================================
 
 	# ==================================================
-	# region Drawing
+	# region Dessin
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -269,7 +244,7 @@ class Monitoring:
 		Si le nombre de fichiers dépasse le nombre de couleurs disponibles dans la palette, elle réutilise les couleurs de manière cyclique.
 
 		:param names: Liste des noms des fichiers pour lesquels une couleur doit être attribuée.
-		:param palette: Liste des couleurs à utiliser pour les fichiers. La palette `Plotly` est utilisée par défaut.
+		:param palette: Liste des couleurs à utiliser pour les fichiers. La palette ``Plotly`` est utilisée par défaut.
 		:return: Dictionnaire où les clés sont les noms de fichiers et les valeurs sont les couleurs attribuées.
 		"""
 		unique_names = set(names)  # Récupérer les noms uniques
@@ -323,7 +298,7 @@ class Monitoring:
 		:param row: L'index de la ligne dans la figure Plotly (utile lorsque plusieurs sous-graphiques sont utilisés) pour ajouter
 				les éléments (barres verticales et zones colorées) dans la section correspondante.
 
-		:return: Cette fonction modifie l'objet `fig` en ajoutant des traces et des formes, mais ne retourne rien.
+		:return: Cette fonction modifie l'objet ``fig`` en ajoutant des traces et des formes, mais ne retourne rien.
 		"""
 
 		# Ajouter les barres verticales pour chaque test et des zones colorées en fonction du fichier
@@ -372,11 +347,11 @@ class Monitoring:
 		self._figure.update_xaxes(title_text="Time (s)", row=len(params), col=1)  # Place le titre X uniquement sur le graphique du bas
 
 	# ==================================================
-	# endregion Drawing
+	# endregion Dessin
 	# ==================================================
 
 	# ==================================================
-	# endregion IO
+	# region Entrées-sorties
 	# ==================================================
 	##################################################
 	def save(self, filename: str | Path, full_html: bool = False):
@@ -385,9 +360,9 @@ class Monitoring:
 
 		Cette méthode permet de sauvegarder les informations de monitoring dans différents formats en fonction de l'extension du fichier fourni :
 
-				- `.png` : Sauvegarde une image de la figure générée par la méthode `draw`.
-				- `.html` : Sauvegarde la figure au format HTML.
-				- `.json` : Sauvegarde les données au format JSON.
+				- ``.png`` : Sauvegarde une image de la figure générée par la méthode ``draw``.
+				- ``.html`` : Sauvegarde la figure au format HTML.
+				- ``.json`` : Sauvegarde les données au format JSON.
 				- Pour d'autres formats, les informations de monitoring seront enregistrées sous forme de texte brut.
 
 		Le format texte contient les informations suivantes :
@@ -436,4 +411,10 @@ class Monitoring:
 				f"Memory Usage : {self._memory}\nDisk Usage : {self._disk}")
 
 	##################################################
-	def __str__(self) -> str: return self.tostring()
+	def __str__(self) -> str:
+		"""
+		Retourne une représentation textuelle de l'objet.
+
+		:return: Représentation textuelle de l'objet.
+		"""
+		return self.tostring()

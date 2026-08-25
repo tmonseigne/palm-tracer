@@ -1,4 +1,5 @@
-"""Fichier des tests pour les différents types de paramètres."""
+"""Teste les différents types de paramètres et leurs interfaces Qt."""
+
 import copy
 from typing import Any, cast, List
 
@@ -63,7 +64,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 
 ###################################################
 def test_base_setting():
-	"""Test basique de la classe abstraite."""
+	"""Vérifie la classe abstraite."""
 	setting = BaseSettingType("Test")
 	with pytest.raises(NotImplementedError) as exception_info: setting.get_ui()
 	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
@@ -71,6 +72,7 @@ def test_base_setting():
 
 ###################################################
 def test_base_ui(qtbot):
+	"""Vérifie l'interface de base avec libellé."""
 	ui = BaseUIType(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])
 	ui.set_tooltip("")
 
@@ -86,6 +88,7 @@ def test_base_ui(qtbot):
 
 ###################################################
 def test_base_ui_no_label(qtbot):
+	"""Vérifie l'interface de base sans libellé."""
 	ui = BaseUIType(layout=QHBoxLayout(), boxes=[QCheckBox()])
 	ui.set_tooltip("")
 
@@ -101,27 +104,27 @@ def test_base_ui_no_label(qtbot):
 
 ###################################################
 def test_spin_int(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
 	setting_base_test(setting, 5, 1)
 
 
 ###################################################
 def test_spin_float(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = SpinFloat("Test", "", 1.0, [0.0, 10.0], 1.0)
 	setting_base_test(setting, 5.0, 1.0)
 
 
 ###################################################
 def test_check_box(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckBox("Test")
 	setting_base_test(setting, True, False)
 	ui = setting.get_ui("new")
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -134,19 +137,19 @@ def test_check_box(qtbot):
 
 ###################################################
 def test_combo(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = Combo("Test", "", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
 	# Get Actual Text
 	assert setting.current_text == "Choix 1"
-	# Change items after UI Creation
+	# Modification des éléments après la création de l'interface
 	setting.items = ["1", "2"]
 	assert setting.items == ["1", "2"]
 
 
 ###################################################
 def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
 
@@ -165,7 +168,7 @@ def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
 
 ###################################################
 def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = FileList("Test")
 	setting_base_test(setting, -1, -1)
 	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a jamais eu
@@ -194,7 +197,7 @@ def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
 
 ###################################################
 def test_check_int(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckInt("Test", "", 1, [1, 10])
 	setting_base_test(setting, 2, 1)
 	ui = setting.get_ui("new")
@@ -206,7 +209,7 @@ def test_check_int(qtbot):
 	assert setting.value == 4, "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -221,7 +224,7 @@ def test_check_int(qtbot):
 
 ###################################################
 def test_check_range_int(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckRangeInt("Test", "", [0, 0], [-10, 10])
 	setting_base_test(setting, [3, 5], [0, 0])
 	ui = setting.get_ui("new")
@@ -243,7 +246,7 @@ def test_check_range_int(qtbot):
 	assert setting.value == [4, 6], "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -260,7 +263,7 @@ def test_check_range_int(qtbot):
 
 ###################################################
 def test_check_range_float(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckRangeFloat("Test", "", [0.0, 0.0], [-10, 10])
 	setting_base_test(setting, [3.0, 5.0], [0.0, 0.0])
 	ui = setting.get_ui("new")
@@ -282,7 +285,7 @@ def test_check_range_float(qtbot):
 	assert setting.value == [4, 6], "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -299,7 +302,7 @@ def test_check_range_float(qtbot):
 
 ###################################################
 def test_check_int_selection(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckIntSelection("Test", "")
 	setting_base_test(setting, "1;3-4", "")
 	ui = setting.get_ui("new")
@@ -317,7 +320,7 @@ def test_check_int_selection(qtbot):
 	assert setting.contains(7), "Valeur non valide."
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -329,7 +332,7 @@ def test_check_int_selection(qtbot):
 
 ###################################################
 def test_button(qtbot, capsys):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = Button("Test")
 	setting_base_test(setting, True, True)
 	setting.connect_button(lambda: print("Hi"), "default", 0)  # Ui sur laquelle on ne va pas cliquer
@@ -337,7 +340,7 @@ def test_button(qtbot, capsys):
 	ui = setting.get_ui("new")
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 	w.show()
 	qtbot.waitExposed(w)
@@ -352,7 +355,7 @@ def test_button(qtbot, capsys):
 
 ###################################################
 def test_button_group(qtbot):
-	"""Test basique de la classe (constructeur, getter, setter)."""
+	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = ButtonGroup("Test", "", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
 	assert setting.current_text == "Choix 1"
@@ -365,7 +368,7 @@ def test_button_group(qtbot):
 
 ###################################################
 def test_sync(qtbot):
-	"""Test basique de la classe abstraite."""
+	"""Vérifie la classe abstraite."""
 	spin_1 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
 	spin_2 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
 	spin_1.sync(spin_2)

@@ -1,6 +1,5 @@
-"""
-Ce fichier contient la classe :class:`FileMigrator` permettant de lire un dossier de résultat de PALMTracer depuis Metamorph vers le format actuel.
-"""
+"""Convertit les anciens résultats Metamorph vers le format actuel de PALM Tracer."""
+
 from __future__ import annotations
 
 import re
@@ -18,35 +17,27 @@ from palm_tracer.Tools import FileIO, Ui
 ##################################################
 class Link(NamedTuple):
 	"""
-	Structure permettant le lien entre nouvelle et ancienne nomenclature.
+	Associe un ancien nom de fichier à son nouveau suffixe.
 
 	:param old: Ancien nom de fichier.
-	:param new: Nouveau nom de fichier.
+	:param new: Nouveau suffixe normalisé.
 	"""
+
 	old: str
+	"""Ancien nom de colonne."""
 	new: str
+	"""Nouveau nom de colonne."""
 
 
 ##################################################
 @dataclass
 class FileMigrator:
 	"""
-	Outil de migration d'un dossier de traitement PALMTracer (ancien format Metamorph) vers le format Python plus récent.
+	Convertit un dossier de résultats PALMTracer au format historique Metamorph vers le format actuel.
 
-	Le principe est :
-		- l'utilisateur pointe un dossier d'entrée (un dossier se terminant par ``.PT``) ;
-		- :meth:`analyze` inspecte les fichiers et les classes par type (loc/trc/MSD/...) ;
-		- :meth:`migrate` crée un dossier de sortie et exécute ensuite les conversions nécessaires.
+	L'analyse classe les fichiers sources par type, puis la migration crée un dossier de sortie et convertit les données et métadonnées reconnues.
 
-	.. note::
-	   Cette classe ne modifie **pas** le dossier d'entrée : elle lit depuis :attr:`input_folder` et écrit dans :attr:`output_folder`.
-
-	Attributs :
-		- input_folder: Dossier source sélectionné par l'utilisateur.
-		- output_folder: Dossier cible où seront écrits les fichiers convertis.
-		- files: Dictionnaire ``{type: [paths...]}`` rempli par :meth:`analyze`.
-		- suffix: Suffixe optionnel ajouté au nom du dossier de sortie.
-		- meta: Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers.
+	.. note:: Le dossier d'entrée n'est jamais modifié. Les fichiers convertis sont écrits dans :attr:`output_folder`.
 	"""
 
 	FILES_LINK: dict[str, Link] = field(init=False, default_factory=lambda:
@@ -71,6 +62,9 @@ class FileMigrator:
 	meta: pd.DataFrame = field(init=False, default_factory=lambda: get_meta(np.zeros(shape=(1, N_COL_META), dtype=int) - 1))
 	"""Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers."""
 
+	# ==================================================
+	# region Analyse et orchestration
+	# ==================================================
 	##################################################
 	def open(self, folder: Path):
 		"""
@@ -106,7 +100,7 @@ class FileMigrator:
 		if self.input_folder == Path():
 			raise RuntimeError("No input folder selected. Call 'open(folder)' before 'analyze()'.")
 
-		for key in self.files: self.files[key].clear()  # .							  Reset propre (évite d'empiler d'anciennes analyses).
+		for key in self.files: self.files[key].clear()  # .							  Réinitialisation propre (évite d'empiler d'anciennes analyses).
 		old_name_to_key = {link.old: key for key, link in self.FILES_LINK.items()}  # Index inversé : ancien nom ⇾ clé logique
 
 		# Parcours non récursif : uniquement les fichiers présents à la racine du dossier PT
@@ -151,6 +145,13 @@ class FileMigrator:
 		self.migrate_astigmatism_3d_model()
 		self.make_meta()
 
+	# ==================================================
+	# endregion Analyse et orchestration
+	# ==================================================
+
+	# ==================================================
+	# region Migration des fichiers
+	# ==================================================
 	##################################################
 	def make_meta(self):
 		"""Écriture du fichier méta uniquement si au moins une valeur est différente de -1."""
@@ -159,7 +160,7 @@ class FileMigrator:
 	##################################################
 	def update_meta(self, column: str, v: int | float):
 		"""
-		Mets à jour l'objet meta et vérifie si une valeur différente est présente.
+		Met à jour l'objet meta et vérifie si une valeur différente est présente.
 
 		:param column: Colonne à mettre à jour.
 		:param v: Valeur à insérer.
@@ -321,11 +322,11 @@ class FileMigrator:
 		else:
 			file = self.files["Fit"][0]
 			data, header = self.open_old_file(file, header=True, skiprows=3)
-			data.iloc[:, 0] = -1  # La colonne ROI n'est plus utilisé, mais sera remplacé par la colonne length (à -1).
+			data.iloc[:, 0] = -1  # La colonne ROI n'est plus utilisée, mais sera remplacée par la colonne length (à -1).
 			cols = list(data.columns)
 			ncols = len(cols)
-			cols[0], cols[1] = cols[1], cols[0]  # .															Switch les noms de colonnes ROI et Trace
-			data = data[cols]  # .																				Change l'ordre des colonnes
+			cols[0], cols[1] = cols[1], cols[0]  # .															Permutation des noms des colonnes ROI et Trace
+			data = data[cols]  # .																				Modification de l'ordre des colonnes
 			cols = FILES_COLUMNS["Fit"]["columns"].copy()
 			fit_mode = 1 if ncols == 9 else 2 if ncols == 10 else 3
 			cols += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
@@ -333,23 +334,30 @@ class FileMigrator:
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['Fit'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("Fit file migrated.")
 
+	# ==================================================
+	# endregion Migration des fichiers
+	# ==================================================
+
+	# ==================================================
+	# region Outils de conversion
+	# ==================================================
 	##################################################
 	@staticmethod
 	def open_old_file(file: Path, header: bool = True, skiprows: int = 2, sep: str = "\t") -> tuple[pd.DataFrame, list[str]]:
 		"""
-			Ouvre un fichier PALMTracer (MetaMorph) au format texte tabulé.
+		Ouvre un fichier PALMTracer (MetaMorph) au format texte tabulé.
 
-			Le fichier est supposé structuré de la façon suivante :
-				- ``skiprows`` premières lignes : informations globales (dimensions, calibration, options…)
-				- ligne suivante (optionnelle)   : titres des colonnes
-				- reste du fichier               : données tabulaires
+		Le fichier est supposé structuré de la façon suivante :
+			- ``skiprows`` premières lignes : informations globales (dimensions, calibration, options…)
+			- Ligne suivante (optionnelle)  : titres des colonnes
+			- Reste du fichier              : données tabulaires
 
-			:param file: Chemin vers le fichier PALMTracer à ouvrir.
-			:param header: Indique si une ligne de titres de colonnes est présente après les lignes d'en-tête.
-			:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
-			:param sep: Séparateur de colonnes utilisé dans le fichier.
-			:return: Tuple ``(dataframe, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``).
-			:raises FileNotFoundError: Si le fichier n'existe pas.
+		:param file: Chemin vers le fichier PALMTracer à ouvrir.
+		:param header: Indique si une ligne de titres de colonnes est présente après les lignes d'en-tête.
+		:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
+		:param sep: Séparateur de colonnes utilisé dans le fichier.
+		:return: Tuple ``(DataFrame, header_lines)`` avec les données numériques et la liste des lignes d'informations brutes (sans ``\\n``).
+		:raises FileNotFoundError: Si le fichier n'existe pas.
 		"""
 		if not file.is_file():
 			raise FileNotFoundError(f"Filename invalid: {file}")
@@ -379,7 +387,7 @@ class FileMigrator:
 		:param file: Chemin vers le fichier PALMTracer à ouvrir.
 		:param skiprows: Nombre de lignes d'informations à lire et à conserver avant les données.
 		:param sep: Séparateur de colonnes utilisé dans le fichier.
-		:return: Tuple ``(dataframe, header_lines)``.
+		:return: Tuple ``(DataFrame, header_lines)``.
 		:raises FileNotFoundError: Si le fichier n'existe pas.
 		:raises ValueError: Si le fichier ne contient pas assez de lignes d'en-tête.
 		"""
@@ -398,7 +406,7 @@ class FileMigrator:
 		# 2) Gestion de la ligne de titre si présente
 		start_idx = 0
 
-		# 3) Split des lignes data et détection largeur max
+		# 3) Séparation des lignes de données et détection largeur max
 		rows: list[list[str]] = []
 		max_cols = 0
 

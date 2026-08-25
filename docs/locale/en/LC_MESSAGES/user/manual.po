@@ -16,7 +16,7 @@ msgstr "Launch"
 
 #: ../../user/manual.rst:18
 msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. For example, for :file:`C:\\\\palm-tracer`, open the terminal, type :console:`cd C:\\\\palm_tracer`, and press **Enter**."
 
 #: ../../user/manual.rst:20
 msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."
@@ -36,7 +36,7 @@ msgstr "Enable the plugin in Napari: :menuselection:`Plugins --> PALM Tracer -->
 
 #: ../../user/manual.rst:29
 msgid "Il est possible de lancer Napari directement avec le plugin avec la commande : :console:`napari -w palm-tracer`"
-msgstr "It is also possible to launch Napari directly with the plugin using the command: :console:`napari -w palm-tracer`"
+msgstr "It is possible to launch Napari directly with the plugin using the command: :console:`napari -w palm-tracer`"
 
 #: ../../user/manual.rst:33
 msgid "Organisation de l'interface"

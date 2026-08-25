@@ -1,6 +1,5 @@
-"""
-Ce fichier définit la classe :class:`.ROI`, utilisée pour gérer les zones d'intérêts dans Napari.
-"""
+"""Définit une zone d'intérêt utilisée pour filtrer les données dans Napari."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,7 +10,13 @@ import numpy as np
 ##################################################
 @dataclass
 class ROI:
-	"""Classe de définition d'une zone d'intérêt (ROI) pour Napari."""
+	"""
+	Représente une zone d'intérêt issue d'un calque Napari.
+
+	:param type: Type géométrique de la zone.
+	:param data: Coordonnées décrivant sa géométrie.
+	"""
+
 	type: str
 	"""Type de dessin (rectangle, polygone, ellipse)."""
 	data: np.ndarray

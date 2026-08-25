@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`CheckRangeInt` dérivée de :class:`.BaseSettingType`,
-qui permet la gestion d'un paramètre type intervalle de nombre flottant.
-"""
+"""Définit un intervalle flottant dont l'application peut être activée ou désactivée."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -19,13 +17,14 @@ from palm_tracer.Tools import Ui
 @dataclass
 class CheckRangeFloat(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type intervalle de nombre flottant.
+	Représente un intervalle flottant dont l'application peut être activée ou désactivée.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeurs par défaut du paramètre.
-	:param _limits: Valeurs limites du paramètre.
-	:param precision: Précision du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Bornes sélectionnées par défaut.
+	:param _limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par les boîtes de sélection numérique.
+	:param precision: Nombre de décimales affichées.
 	"""
 
 	default: list[float] = field(default_factory=lambda: [-1.0, 1.0])
@@ -44,11 +43,12 @@ class CheckRangeFloat(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		super().reset()
 		self.active = False
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -64,7 +64,7 @@ class CheckRangeFloat(BaseSettingType):
 		ui.set_tooltip(self.tooltip)  # .			   Ajout du Tooltip
 
 		checkbox.setChecked(self.active)
-		checkbox.toggled.connect(self.set_active)  # . Connecte le changement de valeur pour que les autres UI se mettent à jour
+		checkbox.toggled.connect(self.set_active)  # .	Connecte le changement de valeur pour que les autres UI se mettent à jour
 		spin_min.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
 		spin_min.valueChanged.connect(self.set_min)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 		spin_max.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
@@ -74,7 +74,7 @@ class CheckRangeFloat(BaseSettingType):
 		ui.layout.addWidget(spin_min)
 		ui.layout.addWidget(QLabel("→"))
 		ui.layout.addWidget(spin_max)
-		ui.layout.addStretch(1)  # . 				   Pousse tout à gauche, espace vide à droite.
+		ui.layout.addStretch(1)  # .				   Pousse tout à gauche, espace vide à droite.
 
 		self._uis[name] = ui  # .					   Ajoute l'ui au dictionnaire
 		return ui
@@ -167,11 +167,11 @@ class CheckRangeFloat(BaseSettingType):
 				with QSignalBlocker(b): Ui.update_spin_limits(b, self._limits[0], self._limits[1])
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -184,15 +184,15 @@ class CheckRangeFloat(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
-		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
 
 	##################################################
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = CheckRangeFloat("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -221,6 +221,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

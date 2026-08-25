@@ -3,20 +3,20 @@ msgid "Button"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.Button.Button:1
-msgid "Classe pour un paramètre spécifique de type bouton à cliquer."
-msgstr "Class for a specific setting of type clickable button."
+msgid "Représente une action déclenchée par un bouton Qt."
+msgstr "Represents an action triggered by a Qt button."
 
 #: ../../api/palm_tracer.Settings.Types.Button.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Settings.Types.Button.Button:3
-msgid "Nom du paramètre à afficher."
-msgstr "Name of the setting to display."
+msgid "Libellé affiché sur le bouton."
+msgstr "Label displayed on the button."
 
 #: of palm_tracer.Settings.Types.Button.Button:4
-msgid "Description détaillée en overlay."
-msgstr "Detailed description in the overlay."
+msgid "Description affichée dans l'infobulle."
+msgstr "Description displayed in the tooltip."
 
 #: ../../api/palm_tracer.Settings.Types.Button.rst:9
 msgid "Méthodes"
@@ -31,7 +31,7 @@ msgid "Réinitialise le paramètre à sa valeur par défaut."
 msgstr "Resets the setting to its default value."
 
 #: of palm_tracer.Settings.Types.Button.Button.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.Button.Button.get_ui:3

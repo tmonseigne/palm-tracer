@@ -1,4 +1,4 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget Napari de visualisation 3D des localisations."""
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.UI import Viewer3DWidget
@@ -10,14 +10,14 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 ##################################################
 def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
 	_ = Viewer3DWidget(viewer)  # .	 Créer notre widget, en passant par le viewer.
 
 
 ##################################################
 def test_viewer3d(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch, fake_qfiledialog):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	my_widget = Viewer3DWidget(viewer)
@@ -45,4 +45,4 @@ def test_viewer3d(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch,
 	my_widget.update_layer()
 
 	my_widget.data = pd.DataFrame()
-	my_widget.update_layer()  # .						Mise à jour avec un dataframe vide
+	my_widget.update_layer()  # .						Mise à jour avec un DataFrame vide

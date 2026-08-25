@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`palm_tracer.Settings.Groups.Tracking` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de tracking nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de suivi des particules."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,15 +12,18 @@ from palm_tracer.Settings.Types import SpinFloat
 @dataclass
 class Tracking(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de Tracking :
+	Regroupe les paramètres de suivi des particules.
 
-	Attributs :
-		- **Max Distance** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) :
-		  Distance maximale en pixel entre deux plans (par défaut : `1.0`).
+	Paramètres regroupés :
+
+	- ``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale entre deux plans pour associer un point ; valeur
+	  par défaut : ``1.0`` pixel.
 	"""
 
 	label: str = "Tracking"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"Max Distance": [SpinFloat, ["Max Distance (px)", "Maximum distance between two planes for a point.", 1.0, [0.0, 20.0], 1.0, 2]]}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 
 ##################################################
@@ -32,7 +33,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = Tracking()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

@@ -3,52 +3,20 @@ msgid "Monitoring"
 msgstr ""
 
 #: of palm_tracer.Tools.Monitoring.Monitoring:1
-msgid "Classe de monitoring qui suit l'utilisation des ressources (CPU, mémoire, disque) pendant l'exécution des tests."
-msgstr "A monitoring class that tracks resource usage (CPU, memory, disk) during test execution."
+msgid "Surveille les ressources système utilisées pendant l'exécution des tests."
+msgstr "Monitors the system resources used while tests are running."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring:3
-msgid "Cette classe collecte les informations sur l'utilisation des ressources du système durant l'exécution des tests. Elle fournit des fonctionnalités pour démarrer et arrêter la surveillance, mettre à jour les valeurs des ressources, et générer des graphiques ou des fichiers texte avec ces données."
-msgstr "This class collects information on system resource usage during test execution. It provides functionality to start and stop monitoring, update resource values, and generate graphs or text files containing this data."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:7
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:8
-msgid "**cpu (:class:`List[float]`)** : Liste des valeurs d'utilisation du CPU."
-msgstr "**cpu (:class:`List[float]`)**: List of CPU usage values."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:9
-msgid "**memory (:class:`List[float]`)** : Liste des valeurs d'utilisation de la mémoire."
-msgstr "**memory (:class:`List[float]`)**: List of memory usage values."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:10
-msgid "**disk (:class:`List[float]`)** : Liste des valeurs d'utilisation du disque."
-msgstr "**disk (:class:`List[float]`)**: List of disk usage values."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:11
-msgid "**times (:class:`List[float]`)** : Liste des timestamps correspondant aux valeurs des ressources."
-msgstr "**times (:class:`List[float]`)**: List of timestamps corresponding to the resource values."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:12
-msgid "**monitoring (:class:`bool`)** : Indique si la surveillance est en cours ou non."
-msgstr "**monitoring (:class:`bool`)**: Indicates whether monitoring is currently in progress."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:13
-msgid "**thread (:class:`threading.Thread`)** : Le thread qui exécute le monitoring."
-msgstr "**thread (:class:`threading.Thread`)**: The thread executing the monitoring."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:14
-msgid "**tests_info (:class:`List[dict]`)** : Liste des informations relatives aux tests exécutés."
-msgstr "**tests_info (:class:`List[dict]`)**: List of information related to the tests executed."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring:15
-msgid "**interval (:class:`float`)** : Intervalle de temps entre chaque mise à jour des données en secondes."
-msgstr "**interval (:class:`float`)**: Time interval between each data update in seconds."
+msgid "Les mesures du processeur, de la mémoire, du disque et, si disponible, du processeur graphique sont collectées dans un thread dédié puis représentées sous forme de graphiques ou de rapports."
+msgstr "CPU, memory, disk, and, when available, GPU measurements are collected in a dedicated thread and then represented as plots or reports."
 
 #: ../../api/palm_tracer.Tools.Monitoring.rst
 msgid "Paramètres"
 msgstr "Parameters"
+
+#: of palm_tracer.Tools.Monitoring.Monitoring:6
+msgid "Intervalle entre deux mesures, en secondes."
+msgstr "Time interval between each data update in seconds."
 
 #: ../../api/palm_tracer.Tools.Monitoring.rst:9
 msgid "Attributs"
@@ -71,8 +39,8 @@ msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Tools.Monitoring.rst:19
-msgid "Monitoring Manipulation"
-msgstr "Monitoring Manipulation"
+msgid "Gestion du suivi"
+msgstr "Monitoring management"
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.start:1
 msgid "Démarre la surveillance des ressources."
@@ -107,8 +75,8 @@ msgid "Le nom complet du test, au format \"<path>test_<file>.py::test_<test_name
 msgstr "The full name of the test, in the format \"<path>test_<file>.py::test_<test_name>\"."
 
 #: ../../api/palm_tracer.Tools.Monitoring.rst:29
-msgid "Drawing"
-msgstr ""
+msgid "Dessin"
+msgstr "Drawing"
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.get_color_map_by_name:1
 msgid "Génère un dictionnaire associant chaque nom de fichier à une couleur unique."
@@ -123,7 +91,7 @@ msgid "Liste des noms des fichiers pour lesquels une couleur doit être attribu�
 msgstr "List of filenames to which a color should be assigned."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.get_color_map_by_name:7
-msgid "Liste des couleurs à utiliser pour les fichiers. La palette `Plotly` est utilisée par défaut."
+msgid "Liste des couleurs à utiliser pour les fichiers. La palette ``Plotly`` est utilisée par défaut."
 msgstr "List of colors to use for the files. The `Plotly` palette is used by default."
 
 #: ../../api/palm_tracer.Tools.Monitoring.rst
@@ -172,7 +140,7 @@ msgstr "The range of values on the Y-axis for the section of the graph where the
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:12
 msgid "Une liste de dictionnaires représentant les tests effectués. Chaque dictionnaire doit contenir les clés : - \"Timestamp\" (float) : Le timestamp du test. - \"File\" (str) : Le nom du fichier associé au test. - \"Test\" (str) : Le nom du test effectué."
-msgstr "A list of dictionaries representing the tests performed. Each dictionary must contain the following keys: - \"Timestamp\" (float): The test’s timestamp. - \"File\" (str): The name of the file associated with the test. - \"Test\" (str): The name of the test performed."
+msgstr "A list of dictionaries representing the tests performed. Each dictionary must contain the following keys: - \"Timestamp\" (float): The test's timestamp. - \"File\" (str): The name of the file associated with the test. - \"Test\" (str): The name of the test performed."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:17
 msgid "Un dictionnaire associant chaque fichier de test à une couleur. Le fichier est utilisé comme clé et la couleur (en format HTML) comme valeur."
@@ -187,12 +155,12 @@ msgid "L'index de la ligne dans la figure Plotly (utile lorsque plusieurs sous-g
 msgstr "The row index in the Plotly figure (useful when multiple subplots are used) to add elements (vertical bars and colored areas) to the corresponding section."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:25
-msgid "Cette fonction modifie l'objet `fig` en ajoutant des traces et des formes, mais ne retourne rien."
+msgid "Cette fonction modifie l'objet ``fig`` en ajoutant des traces et des formes, mais ne retourne rien."
 msgstr "This function modifies the `fig` object by adding plots and shapes, but does not return anything."
 
 #: ../../api/palm_tracer.Tools.Monitoring.rst:36
-msgid "Divers"
-msgstr "Miscellaneous"
+msgid "Entrées-sorties"
+msgstr "Input/output"
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.save:1
 msgid "Sauvegarde les données de monitoring dans un fichier spécifié en fonction de l'extension du fichier."
@@ -203,15 +171,15 @@ msgid "Cette méthode permet de sauvegarder les informations de monitoring dans 
 msgstr "This method allows you to save monitoring information in different formats depending on the file extension provided:"
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.save:5
-msgid "`.png` : Sauvegarde une image de la figure générée par la méthode `draw`."
+msgid "``.png`` : Sauvegarde une image de la figure générée par la méthode ``draw``."
 msgstr "`.png`: Saves an image of the figure generated by the `draw` method."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.save:6
-msgid "`.html` : Sauvegarde la figure au format HTML."
+msgid "``.html`` : Sauvegarde la figure au format HTML."
 msgstr "`.html`: Saves the figure in HTML format."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.save:7
-msgid "`.json` : Sauvegarde les données au format JSON."
+msgid "``.json`` : Sauvegarde les données au format JSON."
 msgstr "`.json`: Saves the data in JSON format."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.save:8

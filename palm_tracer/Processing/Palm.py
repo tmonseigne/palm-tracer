@@ -1,6 +1,5 @@
-"""
-Fichier contenant une classe pour utiliser la DLL externe CPU_PALM, exécuter les algorithmes de détection de points et les paramètres liés.
-"""
+"""Encapsule la DLL PALM et ses algorithmes de détection et de suivi."""
+
 from __future__ import annotations
 
 import ctypes
@@ -24,14 +23,19 @@ C_UINT, C_BOOL, C_DBL = ctypes.c_uint64, ctypes.c_bool, ctypes.c_double
 ##################################################
 @dataclass
 class Palm:
-	"""Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés."""
+	"""
+	Encapsule le chargement et les appels aux algorithmes de la DLL PALM.
+
+	L'instance configure les signatures des fonctions natives et convertit leurs entrées et sorties vers les structures Python utilisées par le pipeline.
+	"""
+
 	_type: str = field(init=False, default="CPU")
 	"""Type de DLL, par défaut CPU, GPU également possible."""
 	_dll: ctypes.CDLL = field(init=False)
 	"""DLL chargée."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -100,11 +104,11 @@ class Palm:
 		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_UINT, C_DBL, C_TAB_DBL, C_DBL]
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Argument Parser
+	# region Analyse des arguments
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -142,11 +146,11 @@ class Palm:
 		return max(budget, giga)
 
 	# ==================================================
-	# endregion Argument Parser
+	# endregion Analyse des arguments
 	# ==================================================
 
 	# ==================================================
-	# region DLL Call
+	# region Appels de la DLL
 	# ==================================================
 
 	##################################################
@@ -158,26 +162,26 @@ class Palm:
 		:param stack: Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement).
 		:param threshold: Seuil pour la détection.
 		:param watershed: Active ou désactive le mode watershed.
-		:param fit: Mode d'ajustement (défini par `get_fit`).
+		:param fit: Mode d'ajustement (défini par ``get_fit``).
 		:param fit_params: Paramètres du mode d'ajustement.
 		:param planes: Liste des plans à analyser (None pour tous les plans, les plans sont contigus par principe).
-		:return: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:return: Liste des points détectés sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		"""
 		# --- Initialisation ---
-		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguité
-		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
+		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguïté
+		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
 		height, width = stk.shape[-2:]  # .												 Récupère les deux dernières dimensions
 		n_planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							 Récupère le nombre de plans si 3D sinon 1
 		if planes is None: planes = list(range(n_planes))  # .							 Si aucune sélection, liste de tous les plans
 		else: planes = [p for p in planes if 0 <= p < n_planes]  # .					 Sinon, sélection des plans valides
 		n_planes = len(planes)  # .														 Nouveau nombre de plans
-		# Ajoute une dimension plan artificielle pour une Image 2D ou une vue mémoire (slice) pour une pile 3D
+		# Ajoute une dimension plan artificielle pour une image 2D ou une vue mémoire (slice) pour une pile 3D
 		stk = stk[np.newaxis, :, :] if stk.ndim == 2 else stk[planes[0]:planes[0] + n_planes]
 
 		# --- Calcul du budget RAM Disponible ---
 		max_points = int(self.max_allocation_bytes() // 8)  # .				Nombre de points maximum allouable en une fois
 		plane_points = int(height * width * DENSITY) * Parsing.N_COL_LOC  # Taille théorique max pour un seul plan (N points max * N Col localisation)
-		if max_points < plane_points: return pd.DataFrame()  # . 			pragma: no cover — Cas extrême un seul plan est gargantuesque.
+		if max_points < plane_points: return pd.DataFrame()  # pragma: no cover — Cas extrême un seul plan est gargantuesque.
 		n_plane_max = int(min(max_points // plane_points, n_planes))  # .	Nombre de plans qui tiennent dans max_allocation
 
 		dfs: list[pd.DataFrame] = []
@@ -185,14 +189,14 @@ class Palm:
 		while i < len(planes):
 			k = min(n_plane_max, n_planes - i)  # .						Taille réelle du bloc, soit le max, soit "ce qui reste".
 			stk_block = stk[i:i + k]  # .								Indices relatifs (0..n_planes-1)
-			n_block = plane_points * k  # . 							Nombre de points pour ce bloc
+			n_block = plane_points * k  # .								Nombre de points pour ce bloc
 			locs = np.empty((n_block,), dtype=np.float64, order="C")  # Création de la sortie
 
 			count = self._dll.Localization(stk_block.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB_DBL), C_UINT(n_block), C_UINT(height), C_UINT(width),
 										   C_UINT(k), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB_DBL))
 
 			res = Parsing.parse_result(locs[:count], "Localization")
-			if "Plane" in res.columns: res["Plane"] += planes[0] + i  # . En cas de filtre des plans, on incrémente par i + premier plan.
+			if "Plane" in res.columns: res["Plane"] += planes[0] + i  # En cas de filtre des plans, on incrémente par i + premier plan.
 			dfs.append(res)
 			i += k
 
@@ -200,10 +204,10 @@ class Palm:
 
 		if not res.empty:
 			res.reset_index(drop=True, inplace=True)
-			res["Id"] = res.index + 1  # .					  1-based comme attendu
-			if fit == 4:  # Fit Gaussien avec Theta
+			res["Id"] = res.index + 1  # .												 1-based comme attendu
+			if fit == 4:  # .															 Ajustement gaussien avec Theta
 				mask = res["Integrated Intensity"] > 0
-				res.loc[mask, "Theta"] = Parsing.manage_theta(res.loc[mask, "Theta"])  # Clean Theta and show stats
+				res.loc[mask, "Theta"] = Parsing.manage_theta(res.loc[mask, "Theta"])  # Normalisation de Theta et affichage des statistiques
 
 		return res
 
@@ -216,8 +220,8 @@ class Palm:
 		:param fit_params: Paramètres du mode d'ajustement.
 		:return: Seuil calculé (écart-type final).
 		"""
-		img = self._as_c_contig(image, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguité
-		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
+		img = self._as_c_contig(image, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguïté
+		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
 		height, width = img.shape  # .													 Récupère les dimensions
 		return float(self._dll.AutoThreshold(img.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), params.ctypes.data_as(C_TAB_DBL)))
 
@@ -229,7 +233,7 @@ class Palm:
 		Cette méthode applique un algorithme de suivi (tracking) sur les données de localisation fournies,
 		en prenant en compte divers paramètres influençant le coût et la durée de vie des trajectoires.
 
-		:param localizations: Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param localizations: Liste des points détectés sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param max_distance: Distance maximale autorisée entre deux points pour les relier entre deux plans successifs.
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
@@ -237,19 +241,19 @@ class Palm:
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
 
 		points = localizations.loc[localizations["Integrated Intensity"] > 0, Parsing.COLS_FOR_TRACKING]
-		if points.empty: return pd.DataFrame()  # .						En cas de dataframe qui a été vidé après le masquage des mauvais points
+		if points.empty: return pd.DataFrame()  # .						En cas de DataFrame qui a été vidé après le masquage des mauvais points
 		n = len(points)  # .											Nombre de points
 		track_size = n * 2  # .											Taille du tableau final
 		tracks = np.empty((track_size,), dtype=np.uint64, order="C")  # Tableau final
 
-		p = self._as_c_contig(points.to_numpy(), np.dtype(np.float64), writeable=False)  # Assurance de contiguité
+		p = self._as_c_contig(points.to_numpy(), np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
 		self._dll.Tracking(p.ctypes.data_as(C_TAB_DBL), tracks.ctypes.data_as(C_TAB_UINT), C_UINT(n), C_DBL(max_distance))
 
-		tracks = pd.DataFrame(tracks.reshape(-1, 2), columns=["Id", "Track"])  # Passage en dataframe.
-		# Ajout et remplissage de la colonne Track aux localisations.
+		tracks = pd.DataFrame(tracks.reshape(-1, 2), columns=["Id", "Track"])  # Passage en DataFrame.
+		# Ajout et remplissage de la colonne de trajectoire aux localisations.
 		localizations.insert(0, "Track", localizations["Id"].map(tracks.set_index("Id")["Track"]).fillna(-1).astype(int))
 		res = localizations.loc[localizations["Track"] > 0, Parsing.FILES_COLUMNS["Tracking"]["columns"]]  # On ne conserve qu'une partie des colonnes
-		return res.sort_values(by=["Track", "Plane"], ascending=[True, True]).reset_index(drop=True)  # On trie le résultat final
+		return res.sort_values(by=["Track", "Plane"], ascending=[True, True]).reset_index(drop=True)  # .	 On trie le résultat final
 
 	##################################################
 	def blinking_reconnection(self, tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
@@ -257,7 +261,7 @@ class Palm:
 		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
 
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param tracks: Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param tracks: Liste des points déjà suivis sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
 		:param max_duration: Durée maximale d'un scintillement.
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
@@ -284,7 +288,7 @@ class Palm:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
 
-		:param tracks: Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL.
+		:param tracks: Liste des points déjà suivis sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param is_msd: Calcul MSD.
 		:param is_ind: Calcul de la diffusion instantanée.
 		:param is_3d: Calcul sur la 3D.
@@ -304,8 +308,8 @@ class Palm:
 		if not is_3d: in_tracks["Z"] = 0  # On simplifie, la suite les calculs se font toujours en 3D, mais la dernière dimension sera nulle
 
 		in_tracks = in_tracks.to_numpy(dtype=np.float64, copy=False)  # .				   Passage en tableau NumPy
-		in_tracks = self._as_c_contig(in_tracks, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
-		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # . Assurance de contiguité
+		in_tracks = self._as_c_contig(in_tracks, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
+		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # . Assurance de contiguïté
 		n_row = len(tracks)  # .														   Nombre de points pour les trajectoires
 		n = n_row * N_TRC_CP_FIT  # .													   Taille maximale des tableaux finaux
 
@@ -331,12 +335,12 @@ class Palm:
 
 		:param stack: Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement).
 		:param factors: Facteurs d'alignement.
-		:param upsampling: Facteur d'agrandissement de l'image (par défaut : `1` aucun agrandissement).
+		:param upsampling: Facteur d'agrandissement de l'image (par défaut : ``1`` aucun agrandissement).
 		:return: Image alignée.
 		"""
 
-		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .	  Assurance de contiguité
-		params = self._as_c_contig(factors, np.dtype(np.float64), writeable=False)  # Assurance de contiguité
+		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .	  Assurance de contiguïté
+		params = self._as_c_contig(factors, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
 		height, width = stk.shape[-2:]  # .											  Récupère les deux dernières dimensions
 		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							  Récupère le nombre de plans si 3D sinon 1
 
@@ -354,7 +358,7 @@ class Palm:
 		:param level: Niveau d'ondelette en sortie.
 		:return: Image décomposée.
 		"""
-		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # Assurance de contiguité
+		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # Assurance de contiguïté
 		height, width = stk.shape[-2:]  # .										Récupère les deux dernières dimensions
 		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .						Récupère le nombre de plans si 3D sinon 1
 

@@ -1,4 +1,5 @@
-"""Classes utiles à la gestion du Pipeline PALM Tracer."""
+"""Définit les étapes et les transitions du pipeline de traitement PALM."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -10,7 +11,7 @@ import pandas as pd
 from palm_tracer.Settings.Groups import BaseSettingGroup
 
 ##################################################
-FilterSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un dataframe et qui en retourne un.
+FilterSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un DataFrame et qui en retourne un.
 FilterTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks compute
 	[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame], tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]]
 
@@ -18,9 +19,19 @@ FilterTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks com
 ##################################################
 @dataclass(frozen=True)
 class Step:
-	"""Classe immuable permettant de définir une étape du traitement."""
+	"""
+	Décrit une étape immuable du pipeline de traitement.
+
+	:param group_name: Nom du groupe de paramètres contrôlant l'étape.
+	:param keys: Clés des DataFrames lus ou produits par l'étape.
+	:param process_func: Fonction exécutant le calcul.
+	:param filter_func: Fonction appliquant le filtrage associé.
+	:param allow_dirty: Autorise la réutilisation d'un résultat malgré l'invalidation du pipeline.
+	:param apply_filter: Indique si le filtrage doit être appliqué.
+	"""
+
 	group_name: str
-	"""Nom du groupe de paramètres lié"""
+	"""Nom du groupe de paramètres lié."""
 	keys: list[str]
 	"""Liste des clés du/des DataFrame(s) dans le dictionnaire."""
 	process_func: Callable[[], None]  # Fonction sans argument qui ne retourne rien
@@ -35,7 +46,8 @@ class Step:
 
 ##################################################
 class StepAction(Enum):
-	"""Actions possibles pour une étape du pipeline."""
+	"""Énumère les décisions possibles lors de la préparation d'une étape du pipeline."""
+
 	Compute = auto()
 	"""Calcul réel."""
 	Reuse = auto()

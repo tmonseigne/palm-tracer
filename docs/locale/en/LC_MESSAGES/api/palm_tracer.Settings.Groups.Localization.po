@@ -3,48 +3,48 @@ msgid "Localization"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:1
-msgid "Classe contenant les paramètres de Localisation :"
-msgstr "Class containing the Location settings:"
+msgid "Regroupe les paramètres de détection et d'ajustement des localisations."
+msgstr "Retrieves the settings for the fit."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:3
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Settings.Groups.Localization.Localization:4
-msgid "**Preview** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Activation de l'aperçu ou non (par défaut : `False`)."
-msgstr "**Preview** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Enables or disables the preview (default: `False`)."
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:5
-msgid "**Threshold** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Seuil de détection de la localisation en intensité (par défaut : `90`)."
-msgstr "**Threshold** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`): Threshold for detecting location based on intensity (default: `90`)."
+msgid "``Preview`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active la prévisualisation ; valeur par défaut : ``False``."
+msgstr "``Preview`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enables preview; default value: ``False``."
+
+#: of palm_tracer.Settings.Groups.Localization.Localization:6
+msgid "``Threshold`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : seuil d'intensité de la détection ; valeur par défaut : ``90.0``."
+msgstr "``Threshold`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : detection intensity threshold; default value: ``90.0``."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:7
-msgid "**Auto Threshold** (:class:`Button <palm_tracer.Settings.Types.Button.Button>`) : Bouton pour calculer le seuil automatiquement."
-msgstr "** **Auto Threshold** (:class:`Button <palm_tracer.Settings.Types.Button.Button>`) : Button to calculate the threshold automatically."
+msgid "``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`) : calcule automatiquement le seuil."
+msgstr "``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`) : automatically computes the threshold."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:8
-msgid "**ROI Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Forme de la zone autour de la localisation (par défaut : `Circle`)."
-msgstr "**ROI Shape** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Shape of the area around the location (default: `Circle`)."
+msgid "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : forme circulaire ou carrée de la zone d'ajustement."
+msgstr "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : circular or square shape of the fitting region."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:9
-msgid "**ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la zone autour des localisations (par défaut : `7`)."
-msgstr "**ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`): Size of the area around the locations (default: `7`)."
+msgid "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille de la zone d'ajustement ; valeur par défaut : ``7`` pixels."
+msgstr "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : size of the fitting region; default value: ``7`` pixels."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:10
-msgid "**Watershed** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Activation ou désactivation du mode Watershed (par défaut : `True`)."
-msgstr "**Watershed** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Enables or disables Watershed mode (default: `True`)."
+msgid "``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : sépare les points voisins ; valeur par défaut : ``True``."
+msgstr "``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : separates neighboring points; default value: ``True``."
+
+#: of palm_tracer.Settings.Groups.Localization.Localization:11
+msgid "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : sélectionne l'absence d'ajustement, l'ajustement gaussien ou l'ajustement par spline."
+msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : selects no fitting, Gaussian fitting, or spline fitting."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:12
-msgid "**Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Mode de calcul d'ajustement pour la localisation (par défaut : `Nothing`)."
-msgstr "**Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Fit calculation mode for the location (default: `Nothing`)."
+msgid "``Gaussian Fit`` (:class:`~palm_tracer.Settings.Groups.GaussianFit.GaussianFit`) : paramètres de l'ajustement gaussien."
+msgstr "``Gaussian Fit`` (:class:`~palm_tracer.Settings.Groups.GaussianFit.GaussianFit`) : Gaussian-fitting settings."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:13
-msgid "**Gaussian Fit** (:class:`GaussianFit <palm_tracer.Settings.Groups.GaussianFit.GaussianFit>`) : Paramètres du Gaussian Fit."
-msgstr "**Gaussian Fit** (:class:`GaussianFit <palm_tracer.Settings.Groups.GaussianFit.GaussianFit>`): Gaussian Fit parameters."
-
-#: of palm_tracer.Settings.Groups.Localization.Localization:14
-msgid "**Spline Fit** (:class:`SplineFit <palm_tracer.Settings.Groups.SplineFit.SplineFit>`) : Paramètres du Spline Fit."
-msgstr "**Spline Fit** (:class:`SplineFit <palm_tracer.Settings.Groups.SplineFit.SplineFit>`): Spline Fit parameters."
+msgid "``Spline Fit`` (:class:`~palm_tracer.Settings.Groups.SplineFit.SplineFit`) : paramètres de l'ajustement par spline."
+msgstr "``Spline Fit`` (:class:`~palm_tracer.Settings.Groups.SplineFit.SplineFit`) : spline-fitting settings."
 
 #: ../../api/palm_tracer.Settings.Groups.Localization.rst
 msgid "Paramètres"
@@ -55,16 +55,16 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.gaussian:1
 #: palm_tracer.Settings.Groups.Localization.Localization.spline:1
-msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
+msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 msgstr "Group of settings related to localization filters (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
 
 #: ../../api/palm_tracer.Settings.Groups.Localization.rst:17
@@ -76,11 +76,11 @@ msgid "Divers"
 msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.initialize:1
-msgid "Initialise le dictionnaire de paramètres."
+msgid "Initialise les connexions entre les paramètres."
 msgstr "Initializes the settings dictionary."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_ui:3
@@ -89,7 +89,7 @@ msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_ui:4
 msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"Remove header\" state (no title area created)"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_ui:4
 msgid "Méthode de création du groupe."
@@ -127,7 +127,7 @@ msgstr "Return type"
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.toggle_fit_mode:1
 msgid "Change le mode d'ajustement."
-msgstr "Changes the fit mode."
+msgstr "Changes the fitting mode."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.get_fit:1
 msgid "Récupère le paramètre indiquant le mode d'ajustement."

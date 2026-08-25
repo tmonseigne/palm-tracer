@@ -1,8 +1,9 @@
 """
-Fichier des tests pour la classe PALMTracer
+Teste l'orchestration complète des traitements par la classe :class:`PALMTracer`.
 
-.. note:: Il est fréquent que la vérificaiton du log ne se fasse qu'au nombre de lignes, car au moins 15 lignes à chaque process.
+.. note:: Certaines vérifications du journal portent uniquement sur le nombre de lignes, car chaque traitement en produit au moins quinze.
 """
+
 import shutil
 from time import sleep
 
@@ -57,9 +58,9 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 	"""
 	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes.
 
-	:param capsys:
-	:param n_lines:
-	:param steps:
+	:param capsys: Fixture Pytest capturant la sortie standard.
+	:param n_lines: Nombre de lignes attendu dans la sortie.
+	:param steps: Indices des lignes associées aux différentes étapes du pipeline.
 	"""
 	lines = get_lines_output(capsys)
 	# for i in range(len(lines)): print(f"{i}: {lines[i]}")
@@ -97,7 +98,7 @@ def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 
 ##################################################
 def test_reset_result(pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Vérifie le process sans fichiers en entrée."""
 
 	pt.df["loc"] = pd.DataFrame([1, 1])
 	pt.df["dft"] = pd.DataFrame([1, 2])
@@ -120,11 +121,11 @@ def test_reset_result(pt):
 
 
 # ==================================================
-# region Getter/Setter
+# region Accesseurs
 # ==================================================
 ##################################################
 def test_getter_localization(pt):
-	"""Test pour le getter de la localisation."""
+	"""Vérifie le getter de la localisation."""
 	res = pt.localizations
 	assert res.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
@@ -146,7 +147,7 @@ def test_getter_localization(pt):
 
 ##################################################
 def test_getter_beads(pt):
-	"""Test pour le getter de la localisation."""
+	"""Vérifie le getter de la localisation."""
 	res = pt.beads
 	assert res.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
@@ -157,7 +158,7 @@ def test_getter_beads(pt):
 
 ##################################################
 def test_getter_tracks(pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.tracks
 	assert res.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
@@ -179,7 +180,7 @@ def test_getter_tracks(pt):
 
 ##################################################
 def test_getter_tracks_compute(pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Vérifie le process sans fichiers en entrée."""
 	df = pt.tracks_compute
 	assert df["MSD"].empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
@@ -191,12 +192,13 @@ def test_getter_tracks_compute(pt):
 ##################################################
 def test_get_status(pt):
 	# État initial
+	"""Vérifie le calcul du statut des tableaux de résultats."""
 	ref = {"Localization": FILE_STATUS[0], "Beads": FILE_STATUS[0], "Tracking": FILE_STATUS[0],
 		   "MSD":          FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
 	res = pt.get_status()
 	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Intégralité des dataframes remplis
+	# Intégralité des DataFrames remplis
 	pt.df["loc"] = pd.DataFrame([1, 1])
 	pt.df["dft"] = pd.DataFrame([1, 2])
 	pt.df["bds"] = pd.DataFrame([1, 3])
@@ -247,35 +249,35 @@ def test_get_status(pt):
 
 ##################################################
 def test_getter_path(pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.path
 	assert res == ""
 
 
 ##################################################
 def test_getter_stack(pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.stack
 	assert res is None
 
 
 ##################################################
 def test_getter_suffix(pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.suffix
 	assert res == ""
 
 
 # ==================================================
-# endregion Getter/Setter
+# endregion Accesseurs
 # ==================================================
 
 # ==================================================
-# region Process
+# region Traitements
 # ==================================================
 ##################################################
 def test_load_bad_dll(capsys, pt):
-	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
+	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
 	pt.palm._dll = None
 	pt.load("")
 	lines = get_lines_output(capsys)
@@ -284,7 +286,7 @@ def test_load_bad_dll(capsys, pt):
 
 ##################################################
 def test_load_nothing(capsys, pt):
-	"""Test pour le chargement avec fichier, mais sans settings."""
+	"""Vérifie le chargement avec fichier, mais sans settings."""
 	pt.load("bad path")
 	lines = get_lines_output(capsys)
 	assert "No valid settings file to load." in lines[0]
@@ -292,7 +294,7 @@ def test_load_nothing(capsys, pt):
 
 ##################################################
 def test_load(capsys, pt):
-	"""Test pour le chargement avec fichier, mais sans settings."""
+	"""Vérifie le chargement avec fichier, mais sans settings."""
 	clean_output()
 
 	# Process initial
@@ -332,7 +334,7 @@ def test_load(capsys, pt):
 
 ##################################################
 def test_process_no_input(capsys, pt):
-	"""Test pour le process sans fichiers en entrée."""
+	"""Vérifie le process sans fichiers en entrée."""
 	clean_output()
 	pt.process()
 	assert pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
@@ -342,7 +344,7 @@ def test_process_no_input(capsys, pt):
 
 ##################################################
 def test_process_nothing(capsys, pt):
-	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
+	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -397,7 +399,7 @@ def test_process_nothing(capsys, pt):
 
 ##################################################
 def test_process_bad_dll(capsys, pt):
-	"""Test pour le process avec tous les éléments à False et aucun fichier chargeable."""
+	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
 	pt.palm._dll = None
 	pt.process()
 
@@ -407,7 +409,7 @@ def test_process_bad_dll(capsys, pt):
 
 ##################################################
 def test_process_multiple_stack(capsys, pt):
-	"""Test pour le process avec plusieurs piles."""
+	"""Vérifie le process avec plusieurs piles."""
 	clean_output()
 
 	add_basic_file(pt, [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack_quadrant.tif"])
@@ -422,7 +424,7 @@ def test_process_multiple_stack(capsys, pt):
 
 ##################################################
 def test_process_localization(capsys, pt):
-	"""Test pour le process de localisation."""
+	"""Vérifie le process de localisation."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -436,7 +438,7 @@ def test_process_localization(capsys, pt):
 
 ##################################################
 def test_process_localization_z(capsys, pt):
-	"""Test pour le process de localisation."""
+	"""Vérifie le process de localisation."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -463,7 +465,7 @@ def test_process_localization_z(capsys, pt):
 
 ##################################################
 def test_process_localization_spline_bad(capsys, pt):
-	"""Test pour le process de localisation."""
+	"""Vérifie le process de localisation."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -479,7 +481,7 @@ def test_process_localization_spline_bad(capsys, pt):
 
 ##################################################
 def test_process_localization_spline(capsys, pt):
-	"""Test pour le process de localisation."""
+	"""Vérifie le process de localisation."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -495,7 +497,7 @@ def test_process_localization_spline(capsys, pt):
 
 ##################################################
 def test_process_beads_extraction_no_beads(capsys, pt):
-	"""Test pour le process de l'extraction des billes."""
+	"""Vérifie le process de l'extraction des billes."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -511,7 +513,7 @@ def test_process_beads_extraction_no_beads(capsys, pt):
 
 ##################################################
 def test_process_plane_discontinuous(capsys, pt):
-	"""Test pour le process de l'extraction des billes."""
+	"""Vérifie le process de l'extraction des billes."""
 	clean_output()
 
 	src = INPUT_DIR / "localizations.csv"
@@ -525,7 +527,7 @@ def test_process_plane_discontinuous(capsys, pt):
 
 ##################################################
 def test_process_beads_extraction(capsys, pt):
-	"""Test pour le process de l'extraction des billes."""
+	"""Vérifie le process de l'extraction des billes."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -546,7 +548,7 @@ def test_process_beads_extraction(capsys, pt):
 
 ##################################################
 def test_process_tracking(capsys, pt):
-	"""Test pour le process de tracking."""
+	"""Vérifie le process de tracking."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -565,7 +567,7 @@ def test_process_tracking(capsys, pt):
 
 ##################################################
 def test_process_tracking_blinking(capsys, pt):
-	"""Test pour le process de tracking."""
+	"""Vérifie le process de tracking."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -581,7 +583,7 @@ def test_process_tracking_blinking(capsys, pt):
 
 ##################################################
 def test_process_tracks_compute(capsys, pt):
-	"""Test pour le process de tracking."""
+	"""Vérifie le process de tracking."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -618,7 +620,7 @@ def test_process_tracks_compute(capsys, pt):
 
 ##################################################
 def test_process_gallery(capsys, pt):
-	"""Test pour le process de visualization HR."""
+	"""Vérifie le process de visualization HR."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -627,7 +629,7 @@ def test_process_gallery(capsys, pt):
 	pt.settings.gallery.active = True
 	pt.process()
 
-	# dimension 270 (30 ROI / lignes(colonnes) * taille de ROI de 9) et 1 frame (30 * 30 = 900 / frame et environ 450 en entrée)
+	# Dimension 270 (30 ROI / lignes(colonnes) * taille de ROI de 9) et 1 frame (30 * 30 = 900 / frame et environ 450 en entrée)
 	res, ref = FileIO.open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], tif=[1])
@@ -636,7 +638,7 @@ def test_process_gallery(capsys, pt):
 
 ##################################################
 def test_process_visualization_graph(capsys, pt):
-	"""Test pour le process de visualization de graph."""
+	"""Vérifie le process de visualization de graph."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -651,7 +653,7 @@ def test_process_visualization_graph(capsys, pt):
 
 #################################################
 def test_process_visualization_hr(capsys, pt):
-	"""Test pour le process de visualization HR."""
+	"""Vérifie le process de visualization HR."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -681,7 +683,7 @@ def test_process_visualization_hr(capsys, pt):
 
 ##################################################
 def test_process_all(capsys, pt):
-	"""Test Basique pour le process complet."""
+	"""Vérifie Basique pour le process complet."""
 	clean_output()
 
 	pt.settings.localization.active = True
@@ -707,15 +709,15 @@ def test_process_all(capsys, pt):
 
 
 # ==================================================
-# endregion Process
+# endregion Traitements
 # ==================================================
 
 # ==================================================
-# region Filtering
+# region Filtrage
 # ==================================================
 ##################################################
 def test_reset_filtered(capsys, pt):
-	"""Test pour la suppréssion des tableaux filtrés."""
+	"""Vérifie la suppréssion des tableaux filtrés."""
 
 	pt.df["loc"] = pd.DataFrame([1, 1])
 	pt.df["dft"] = pd.DataFrame([1, 2])
@@ -740,7 +742,7 @@ def test_reset_filtered(capsys, pt):
 
 ##################################################
 def test_update_filtered(capsys, pt):
-	"""Test pour la mise à jour des tableaux filtrés."""
+	"""Vérifie la mise à jour des tableaux filtrés."""
 	clean_output()
 	pt.update_filtered()  # Tout est vide
 	pt.settings.filters["Save"].value = True
@@ -756,7 +758,7 @@ def test_update_filtered(capsys, pt):
 
 ##################################################
 def test_save_filtered(capsys, pt):
-	"""Test pour la mise à jour des tableaux filtrés."""
+	"""Vérifie la mise à jour des tableaux filtrés."""
 	clean_output()
 	pt._path = OUTPUT_DIR
 	pt.update_filtered()  # Tout est vide
@@ -775,13 +777,14 @@ def test_save_filtered(capsys, pt):
 
 ##################################################
 def test_connect_filters_button(qtbot, capsys, pt):
+	"""Vérifie la connexion des boutons de filtrage."""
 	pt.settings.get_ui("test")
 	pt.connect_filters_button("test")
 
 
 ##################################################
 def test_filter_localization(capsys, pt):
-	"""Test pour le filtrage complet lors de l'exécution."""
+	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -816,7 +819,7 @@ def test_filter_localization(capsys, pt):
 
 ##################################################
 def test_filter_tracks_compute(capsys, pt):
-	"""Test pour le filtrage complet lors de l'exécution."""
+	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
 
 	add_basic_file(pt)
@@ -865,15 +868,15 @@ def test_filter_tracks_compute(capsys, pt):
 
 
 # ==================================================
-# endregion Filtering
+# endregion Filtrage
 # ==================================================
 
 # ==================================================
-# region Visualization
+# region Visualisation
 # ==================================================
 ###################################################
 def test_graph():
-	"""Test de différentes récupérations de données."""
+	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
 
 	ref_title: str
@@ -905,7 +908,7 @@ def test_graph():
 
 ###################################################
 def test_get_graph_data():
-	"""Test de différentes récupérations de données."""
+	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
 
 	ref_title: str
@@ -943,7 +946,7 @@ def test_get_graph_data():
 
 ###################################################
 def test_get_graph_data_from_src():
-	"""Test de différentes récupérations de données."""
+	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
 
 	ref_title: str
@@ -1086,7 +1089,7 @@ def test_get_graph_data_from_src():
 
 ##################################################
 def test_crop():
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 
 	pt = get_fake_pt()
 	img = np.zeros((1, 1), dtype=np.uint16)
@@ -1109,7 +1112,7 @@ def test_crop():
 
 ###################################################
 def test_hr():
-	"""Test de différentes récupérations de données."""
+	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
 	ref_empty = np.zeros((1, 1), dtype=np.uint16)
 	ref_viz0 = np.zeros((10, 10), dtype=np.uint16)
@@ -1155,7 +1158,7 @@ def test_hr():
 	np.testing.assert_array_equal(plot, ref_plot)
 	s["Drift Correction"].value = False
 
-	# HR Localisation Empty dataframe
+	# HR Localisation DataFrame vide
 	for _ in range(4): pt.localizations.drop(pt.localizations.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
@@ -1171,7 +1174,7 @@ def test_hr():
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
-	# HR Tracking Empty dataframe
+	# HR Tracking DataFrame vide
 	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
@@ -1179,7 +1182,7 @@ def test_hr():
 
 ###################################################
 def test_hr_filter():
-	"""Test de différentes récupérations de données."""
+	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
 	s = pt.settings.hr
 	s["Ratio"].value = 2
@@ -1194,7 +1197,7 @@ def test_hr_filter():
 	pt.settings.rois.set_xy_roi(2, 5, 0, 5, False)
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((10, 6), dtype=np.uint16)
-	ref_viz[6, 0] = 2  # précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 * upscale de 2 = -4)
+	ref_viz[6, 0] = 2  # Précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 × facteur d'agrandissement de 2 = -4)
 	ref_plot = [[0, 6, 0], [0, 8, 2], [0, 10, 4], [0, 6, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
@@ -1222,7 +1225,7 @@ def test_hr_filter():
 
 ###################################################
 def test_hr_z_stack():
-	"""Test de différentes récupérations de données."""
+	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
 	s = pt.settings.hr
 	s["Dimension"].value = 1
@@ -1242,7 +1245,7 @@ def test_hr_z_stack():
 
 ###################################################
 def test_hr_rotation():
-	"""Test de différentes récupérations de données."""
+	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
 	s = pt.settings.hr
 	s["Dimension"].value = 2
@@ -1263,7 +1266,7 @@ def test_hr_rotation():
 
 ##################################################
 def test_hr_stress():
-	"""Test de génération HR plus complexe."""
+	"""Vérifie génération HR plus complexe."""
 	pt = PALMTracer()
 	pt.settings.rois.set_size(8, 8)
 	n_p, n_x, n_y = 8, 8, 4  # Dimensions de la pile
@@ -1322,7 +1325,7 @@ def test_hr_stress():
 	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
-	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # les autres points hors champs continues (0,16) (-1, 18)...
+	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # Les autres points hors champ continuent (0,16) (-1, 18)...
 	np.testing.assert_array_equal(viz, ref)
 
 	# Seconde bille qui descend comme la précédente, mais ne va pas vers la gauche donc la pente initiale sera divisé par 2.
@@ -1335,7 +1338,7 @@ def test_hr_stress():
 	pt.df["bds"] = pd.concat([beads, beads2], ignore_index=True)
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
-	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # les autres points hors champs continues (-1,13) (-2, 14)...
+	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # Les autres points hors champ continuent (-1,13) (-2, 14)...
 	np.testing.assert_array_equal(viz, ref)
 
 	# On ajoute nos 2 billes à la localisation et on enlève le drift, tout doit être affiché
@@ -1396,12 +1399,12 @@ def test_hr_stress():
 
 
 # ==================================================
-# endregion Visualization
+# endregion Visualisation
 # ==================================================
 
 ##################################################
 def test_get_astigmatism_model():
-	"""Test pour la récupération du modèle d'astigmatisme."""
+	"""Vérifie la récupération du modèle d'astigmatisme."""
 	pt = PALMTracer()
 	tmp_output = OUTPUT_DIR / "Model"
 	shutil.rmtree(tmp_output, ignore_errors=True)

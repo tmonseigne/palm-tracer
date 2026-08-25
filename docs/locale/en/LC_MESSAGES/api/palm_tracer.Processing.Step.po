@@ -3,19 +3,43 @@ msgid "Step"
 msgstr ""
 
 #: of palm_tracer.Processing.Step:1
-msgid "Classes utiles à la gestion du Pipeline PALM Tracer."
-msgstr "Classes used to manage the PALM Tracer pipeline."
+msgid "Définit les étapes et les transitions du pipeline de traitement PALM."
+msgstr "Defines the steps and transitions of the PALM processing pipeline."
 
 #: of palm_tracer.Processing.Step.Step:1
-msgid "Classe immuable permettant de définir une étape du traitement."
-msgstr "An immutable class used to define a processing step."
+msgid "Décrit une étape immuable du pipeline de traitement."
+msgstr "Describes an immutable step in the processing pipeline."
 
 #: ../../api/palm_tracer.Processing.Step.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
+#: of palm_tracer.Processing.Step.Step:3
+msgid "Nom du groupe de paramètres contrôlant l'étape."
+msgstr "Name of the associated setting group"
+
+#: of palm_tracer.Processing.Step.Step:4
+msgid "Clés des DataFrames lus ou produits par l'étape."
+msgstr "Keys of the DataFrames read or produced by the step."
+
+#: of palm_tracer.Processing.Step.Step:5
+msgid "Fonction exécutant le calcul."
+msgstr "Function that performs the computation."
+
+#: of palm_tracer.Processing.Step.Step:6
+msgid "Fonction appliquant le filtrage associé."
+msgstr "Function that applies the associated filtering."
+
+#: of palm_tracer.Processing.Step.Step:7
+msgid "Autorise la réutilisation d'un résultat malgré l'invalidation du pipeline."
+msgstr "Allows a result to be reused despite pipeline invalidation."
+
+#: of palm_tracer.Processing.Step.Step:8
+msgid "Indique si le filtrage doit être appliqué."
+msgstr "Indicates whether filtering should be applied."
+
 #: of palm_tracer.Processing.Step.Step.group_name:1
-msgid "Nom du groupe de paramètres lié"
+msgid "Nom du groupe de paramètres lié."
 msgstr "Name of the associated setting group"
 
 #: of palm_tracer.Processing.Step.Step.keys:1
@@ -39,7 +63,7 @@ msgid "Choix de filtre à appliquer ou non (cas des visualisations)."
 msgstr "Choice of whether to apply a filter (e.g., visualizations)."
 
 #: of palm_tracer.Processing.Step.StepAction:1
-msgid "Actions possibles pour une étape du pipeline."
+msgid "Énumère les décisions possibles lors de la préparation d'une étape du pipeline."
 msgstr "Possible actions for a pipeline step."
 
 #: of palm_tracer.Processing.Step.StepAction.Compute:1

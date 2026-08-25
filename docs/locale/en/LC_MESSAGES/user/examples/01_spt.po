@@ -40,11 +40,11 @@ msgstr "To load all 4 files, you must add them one by one."
 
 #: ../../user/examples/01_SPT.rst:40
 msgid "Paramètres de Batch."
-msgstr "Batch Settings."
+msgstr "Batch settings."
 
 #: ../../user/examples/01_SPT.rst:47
 msgid "Une fois le fichier chargé, vous avez une prévisualisation de votre pile (par défaut positionné au plan central de la pile). Vous pouvez modifier le contraste et la colormap pour bien visualiser les données. Vous pouvez parcourir les plans avec les flèches gauche et droite du clavier ou directement sur le bas de la partie visualisation de Napari."
-msgstr "Once the file is loaded, you’ll see a preview of your stack (positioned by default at the center of the stack). You can adjust the contrast and color map to view the data clearly. You can navigate through the planes using the left and right arrow keys on your keyboard or directly at the bottom of the Napari visualization pane."
+msgstr "Once the file is loaded, you'll see a preview of your stack (positioned by default at the center of the stack). You can adjust the contrast and color map to view the data clearly. You can navigate through the planes using the left and right arrow keys on your keyboard or directly at the bottom of the Napari visualization pane."
 
 #: ../../user/examples/01_SPT.rst:51
 msgid "Visualisation de Napari."
@@ -52,7 +52,7 @@ msgstr "Napari visualization."
 
 #: ../../user/examples/01_SPT.rst:59
 msgid "Localisation"
-msgstr "Localisztion"
+msgstr "Localization"
 
 #: ../../user/examples/01_SPT.rst:62
 msgid "Prévisualisation"
@@ -104,7 +104,7 @@ msgstr "A green circle appears around the detected points in the current plane, 
 
 #: ../../user/examples/01_SPT.rst:102
 msgid "Dans les paramètres de localisation, vous avez le watershed qui est une méthode de séparation de points très proches. Il est quasiment toujours activé pour éviter d'avoir des points fusionnés."
-msgstr "In the localization settings, you’ll find the watershed method, which is used to separate points that are very close together. It is almost always enabled to prevent points from merging."
+msgstr "In the localization settings, you'll find the watershed method, which is used to separate points that are very close together. It is almost always enabled to prevent points from merging."
 
 #: ../../user/examples/01_SPT.rst:105
 msgid "La méthode d'ajustement permet d'affiner la détection initiale sur X et Y, mais également pour l'ajustement gaussien de définir la forme de la PSF avec Sigma X (largeur horizontale), Sigma Y (largeur verticale) et Theta (orientation). Selon le mode d'ajustement gaussien, vous avez les paramètres qui seront ajustés (:guilabel:`X, Y` signifie que seule la position sera ajustée, alors que :guilabel:`X, Y, SigmaX, SigmaY, Theta` signifie que la position, la forme et l'orientation de la PSF seront ajustées, plus d'informations :ref:`ici <fit_page>`)."
@@ -120,7 +120,7 @@ msgstr "Filters"
 
 #: ../../user/examples/01_SPT.rst:116
 msgid "On peut déjà commencer à essayer les filtres de localisation pour voir leur effet sur les points détectés, par exemple le filtre de MSE XY qui permet de filtrer les points en fonction de la qualité de l'ajustement gaussien. Les points actuels qui ont été supprimés sont maintenant affichés en rouge, cela permet de voir l'effet du filtre sur les points détectés."
-msgstr "You can already start experimenting with location filters to see how they affect the detected points; for example, the MSE XY filter allows you to filter points based on the quality of the Gaussian fit. The current points that have been removed are now displayed in red, which helps you see the filter’s effect on the detected points."
+msgstr "You can already start experimenting with location filters to see how they affect the detected points; for example, the MSE XY filter allows you to filter points based on the quality of the Gaussian fit. The current points that have been removed are now displayed in red, which helps you see the filter's effect on the detected points."
 
 #: ../../user/examples/01_SPT.rst:120
 msgid "Il est possible de désactiver les différents calques dans la visualisation et chaque code couleur correspond à un calque différent. Donc si vous avez trop d'informations, vous pouvez, par exemple, ne conserver que les points du plan actuel et les points filtrés durant cette étape."
@@ -220,7 +220,7 @@ msgstr "Reconstruction and visualization"
 
 #: ../../user/examples/01_SPT.rst:262
 msgid "Visualisation des localisations."
-msgstr "Visualisation des localisations."
+msgstr "Localization visualization."
 
 #: ../../user/examples/01_SPT.rst:268
 msgid "Localisations"
@@ -264,7 +264,7 @@ msgstr "The PALMTracer API has several levels of abstraction; the example provid
 
 #: ../../user/examples/01_SPT.rst:304
 msgid "La documentation du code source, vous permet de facilement trouver les paramètres à entrer dans le script pour reproduire votre traitement de SPT ou d'autres équivalent. Il est également possible de faire du développement plus avancé en utilisant les fonctions de bas niveau de l'API pour personnaliser davantage votre traitement."
-msgstr "The source code documentation makes it easy to find the parameters you need to enter in the script to replicate your SPT processing or other equivalent processes. You can also perform more advanced development by using the API’s low-level functions to further customize your processing."
+msgstr "The source code documentation makes it easy to find the parameters you need to enter in the script to replicate your SPT processing or other equivalent processes. You can also perform more advanced development by using the API's low-level functions to further customize your processing."
 
 #: ../../user/examples/01_SPT.rst:310
 msgid "FAQ"

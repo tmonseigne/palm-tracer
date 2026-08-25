@@ -1,14 +1,9 @@
 """
-Widget d'affichage Haute Résolution pour Napari permettant de charger un dossier de résultats et de visualiser les points.
+Fournit le widget Napari de visualisation haute résolution des résultats.
 
-Ce widget ajoute dans le dock de Napari :
-	- un bouton de chargement du dossier,
-	- trois champs pour contrôler les paramètres de visualisation Haute Résolution,
-	- un calque Napari Points/trajectoires mis à jour dynamiquement.
-	- Un bouton pour sauvegarder une image PNG résultat
-
-.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option "se souvenir du choix").
+.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -45,26 +40,24 @@ TIPS = {
 
 class ViewerHRWidget(QWidget):
 	"""
-	Widget d'affichage HR pour un viewer Napari.
+	Affiche les résultats PALM en haute résolution dans Napari.
 
-	Ce widget permet :
-		- de charger un dossier,
-		- de modifier la taille des points,
-		- de modifier le facteur d'agrandissement,
-		- de sélectionner la source d'information permettant la coloration des points,
-		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points` ou :class:`napari.layers.Tracks`,
-		- de sauvegarder une image PNG résultat de la visualisation.
+	Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation
+	sous forme d'image PNG.
 
-	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer HR"``
+	:param viewer: Visionneuse Napari recevant les calques.
+	:param palmtracer: Instance principale à laquelle le widget est associé.
 
-	:param viewer: Instance du viewer Napari où sera ajouté le calque HR.
-	:param palmtracer: Instance PALMTracer à lier.
+	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer HR"``.
 	"""
+
 	UI_NAME: str = "HR"
+	"""Nom de l'interface de visualisation haute résolution."""
 	LAYERS_NAME: list[str] = ["Visualization", "Points", "Tracks", "ROI Filter"]
+	"""Noms des calques gérés par la visionneuse haute résolution."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
@@ -74,6 +67,7 @@ class ViewerHRWidget(QWidget):
 		La création du calque Napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
 
 		:param viewer: Viewer Napari cible.
+		:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
 		"""
 		super().__init__()
 		self.viewer = viewer
@@ -163,7 +157,7 @@ class ViewerHRWidget(QWidget):
 		scroll_layout.addWidget(grp_infos)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_filters)
-		scroll_layout.addStretch()  # optionnel mais recommandé
+		scroll_layout.addStretch()  # Optionnel, mais recommandé
 
 		# --- Mise en page globbale ---
 		layout.addWidget(self._btn_add_stack)
@@ -191,22 +185,24 @@ class ViewerHRWidget(QWidget):
 		"""
 		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
 
-		:param event:
+		:param event: Événement de fermeture Qt.
 		"""
 		try: self._pt.settings.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region PALMTracer Link
+	# region Liaison avec PALMTracer
 	# ==================================================
 	##################################################
 	def _check_beads(self):
-		"""Affiche ou masque les élements liés aux billes si des données sont présentes ou non.
-		 Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route."""
+		"""
+		Affiche ou masque les élements liés aux billes si des données sont présentes ou non.
+		Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route.
+		"""
 		s_list = ["Remove Beads", "Drift Correction", "Smooth Drift"]
 		if self._pt.beads.empty:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).hide()
@@ -217,7 +213,7 @@ class ViewerHRWidget(QWidget):
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
-		self._pt.load()  # . Chargement des derniers résultats
+		self._pt.load()  # .	Chargement des derniers résultats
 		self._actualize()  # Actualisation des statuts
 
 	##################################################
@@ -240,7 +236,7 @@ class ViewerHRWidget(QWidget):
 			show_info("Image file saved successfully.")
 
 	##################################################
-	def _screenshot(self):  # pragma: no cover — Accès au canvas
+	def _screenshot(self):  # pragma: no cover — Accès au canevas
 		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les régalges de color map, contraste."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
@@ -249,7 +245,7 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _toggle_type(self, btn_id: int):
 		"""
-		Mets à jour la liste des sources et l'affichage des filtres.
+		Met à jour la liste des sources et l'affichage des filtres.
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
@@ -257,11 +253,11 @@ class ViewerHRWidget(QWidget):
 		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
 
 	# ==================================================
-	# endregion PALMTracer Link
+	# endregion Liaison avec PALMTracer
 	# ==================================================
 
 	# ==================================================
-	# region Drawing
+	# region Dessin
 	# ==================================================
 	##################################################
 	def _generate(self):
@@ -303,9 +299,12 @@ class ViewerHRWidget(QWidget):
 ##################################################
 def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer, QWidget]:
 	"""
-	Crée une nouvelle fenêtre Napari HR, sans menu,	et y ajoute le ViewerHRWidget docké à droite.
+	Crée une nouvelle fenêtre Napari HR, sans menu, et y ajoute le ViewerHRWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
+
+	:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
+	:return: Visionneuse Napari créée et widget haute résolution associé.
 	"""
 	if palmtracer is None: palmtracer = PALMTracer()
 	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari
@@ -325,6 +324,9 @@ def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	- Crée une nouvelle fenêtre Napari HR dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire
 	  l'API "widget plugin" de Napari.
+
+	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
+	:return: Widget factice masqué attendu par l'API des plugins Napari.
 	"""
 	# Crée la nouvelle fenêtre HR
 	create_viewerhr()

@@ -1,15 +1,5 @@
-"""
-Ce fichier définit la classe :class:`.Settings`, utilisée pour gérer et enregistrer les paramètres nécessaires à la configuration de PALM Tracer.
+"""Gère la configuration, la sérialisation et l'organisation des paramètres de PALM Tracer."""
 
-**Fonctionnalités principales** :
-
-- Permet le parsing et l'enregistrement des paramètres liés à l'interface utilisateur.
-- Fournit une gestion structurée des paramètres par sections et algorithmes.
-
-**Usage** :
-
-La classe :class:`.Settings` est conçue pour interagir directement avec l'interface utilisateur en facilitant le paramétrage de PALM Tracer.
-"""
 from __future__ import annotations
 
 from contextlib import AbstractContextManager, ExitStack
@@ -36,17 +26,21 @@ from palm_tracer.Settings.Types import CheckInt, SpinInt
 ##################################################
 @dataclass
 class Settings:
-	"""Classe nécessaire au parsing et enregistrement des différents paramètres de PALM Tracer."""
+	"""
+	Centralise les groupes de paramètres de PALM Tracer.
+
+	La classe construit les groupes, crée leurs représentations Qt et assure leur sérialisation vers les formats compact et détaillé.
+	"""
 
 	_settings: dict[str, BaseSettingGroup] = field(init=False, default_factory=dict[str, BaseSettingGroup])
 	"""Dictionnaire de groupes de paramètres."""
 	_uis: dict[str, dict[str, BaseUIGroup]] = field(init=False, default_factory=lambda: dict[str, dict[str, BaseUIGroup]]())
-	"""Dictionnaire des interfaces qui ont été créé pour ce groupe de paramètres."""
+	"""Dictionnaire des interfaces qui ont été créées pour ce groupe de paramètres."""
 	rois: ROIManager = field(init=False)
 	"""Manager des zones d'intérêts."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __post_init__(self):
@@ -63,43 +57,12 @@ class Settings:
 		"""Remet les valeurs par défaut des paramètres."""
 		for _, setting in self._settings.items(): setting.reset()
 
-	##################################################
-	def connect(self, f: Any):
-		"""
-		Connecte une fonction ou un slot à l'intégralité des paramètres.
-
-		:param f: Fonction ou slot à connecter.
-		"""
-		for _, setting in self._settings.items(): setting.connect(f)
-
-	##################################################
-	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
-		"""
-		Déconnecte une fonction ou un slot à tous les éléments du groupe.
-
-		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés.
-		"""
-		for _, setting in self._settings.items(): setting.disconnect(f)
-
-	##################################################
-	def signal_blocked(self) -> AbstractContextManager[Any]:
-		"""
-		Blocage des signaux pour l'intégralité des paramètres.
-
-		:return: Retourne un context manager utilisable avec `with ...:`.
-		"""
-		# if not self._settings: return nullcontext() # On n'a pas de settings vide
-		stack = ExitStack()
-		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
-		return stack
-
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> dict[str, BaseUIGroup]:
@@ -126,78 +89,75 @@ class Settings:
 	##################################################
 	@property
 	def batch(self) -> Batch:
-		"""Groupe de paramètres liés au batch (:class:`Batch <palm_tracer.Settings.Groups.Batch.Batch>`)."""
+		"""Groupe de paramètres liés au batch (:class:`~palm_tracer.Settings.Groups.Batch.Batch`)."""
 		return cast(Batch, self._settings["Batch"])
 
 	##################################################
 	@property
 	def calibration(self) -> Calibration:
-		"""Groupe de paramètres liés à la calibration (:class:`Calibration <palm_tracer.Settings.Groups.Calibration.Calibration>`)."""
+		"""Groupe de paramètres liés à la calibration (:class:`~palm_tracer.Settings.Groups.Calibration.Calibration`)."""
 		return cast(Calibration, self._settings["Calibration"])
 
 	##################################################
 	@property
 	def localization(self) -> Localization:
-		"""Groupe de paramètres liés à la localisation (:class:`Localization <palm_tracer.Settings.Groups.Localization.Localization>`)."""
+		"""Groupe de paramètres liés à la localisation (:class:`~palm_tracer.Settings.Groups.Localization.Localization`)."""
 		return cast(Localization, self._settings["Localization"])
 
 	##################################################
 	@property
 	def beads(self) -> BeadsExtraction:
-		"""Groupe de paramètres liés à l'extraction des billes (:class:`BeadsExtraction <palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction>`)."""
+		"""Groupe de paramètres liés à l'extraction des billes (:class:`~palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction`)."""
 		return cast(BeadsExtraction, self._settings["BeadsExtraction"])
 
 	##################################################
 	@property
 	def tracking(self) -> Tracking:
-		"""Groupe de paramètres liés au suivi (:class:`Tracking <palm_tracer.Settings.Groups.Tracking.Tracking>`)."""
+		"""Groupe de paramètres liés au suivi (:class:`~palm_tracer.Settings.Groups.Tracking.Tracking`)."""
 		return cast(Tracking, self._settings["Tracking"])
 
 	##################################################
 	@property
 	def blinking(self) -> BlinkingReconnection:
-		"""Groupe de paramètres liés à la correction du scintillement
-		(:class:`BlinkingReconnection <palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection>`)."""
+		""" Groupe de paramètres liés à la correction du scintillement (:class:`~palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection`)."""
 		return cast(BlinkingReconnection, self._settings["BlinkingReconnection"])
 
 	##################################################
 	@property
 	def tracks_compute(self) -> TracksCompute:
-		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`)."""
+		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`~palm_tracer.Settings.Groups.TracksCompute.TracksCompute`)."""
 		return cast(TracksCompute, self._settings["TracksCompute"])
 
 	##################################################
 	@property
 	def gallery(self) -> Gallery:
-		"""Groupe de paramètres liés à la génération de galerie (:class:`Gallery <palm_tracer.Settings.Groups.Gallery.Gallery>`)."""
+		"""Groupe de paramètres liés à la génération de galerie (:class:`~palm_tracer.Settings.Groups.Gallery.Gallery`)."""
 		return cast(Gallery, self._settings["Gallery"])
 
 	##################################################
 	@property
 	def hr(self) -> HR:
-		"""Groupe de paramètres liés à la Visualisation haute-résolution
-		(:class:`HR <palm_tracer.Settings.Groups.HR.HR>`)."""
+		"""Groupe de paramètres liés à la Visualisation haute-résolution (:class:`~palm_tracer.Settings.Groups.HR.HR`)."""
 		return cast(HR, self._settings["HR"])
 
 	##################################################
 	@property
 	def graph(self) -> Graph:
-		"""Groupe de paramètres liés à la Visualisation graphique
-		(:class:`Graph <palm_tracer.Settings.Groups.Graph.Graph>`)."""
+		"""Groupe de paramètres liés à la Visualisation graphique (:class:`~palm_tracer.Settings.Groups.Graph.Graph`)."""
 		return cast(Graph, self._settings["Graph"])
 
 	##################################################
 	@property
 	def filters(self) -> Filters:
-		"""Groupe de paramètres liés au filtrage (:class:`Filters <palm_tracer.Settings.Groups.Filters.Filters>`)."""
+		"""Groupe de paramètres liés au filtrage (:class:`~palm_tracer.Settings.Groups.Filters.Filters`)."""
 		return cast(Filters, self._settings["Filters"])
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -208,18 +168,18 @@ class Settings:
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
+		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		groups = data["PALM Tracer Settings"]
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_compact_dict(groups[name])
 		if "ROIs" in groups: self.rois.from_dict_list(groups["ROIs"])
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
-	# region IO
+	# region Entrées-sorties
 	# ==================================================
 	##################################################
 	def tostring(self) -> str:
@@ -234,7 +194,52 @@ class Settings:
 		return msg
 
 	##################################################
-	def __str__(self) -> str: return self.tostring()
+	def __str__(self) -> str:
+		"""
+		Retourne une représentation textuelle de l'objet.
+
+		:return: Représentation textuelle de l'objet.
+		"""
+		return self.tostring()
+
+	# ==================================================
+	# endregion Entrées-sorties
+	# ==================================================
+
+	# ==================================================
+	# region Signaux
+	# ==================================================
+
+	##################################################
+	def connect(self, f: Any):
+		"""
+		Connecte une fonction ou un slot à l'intégralité des paramètres.
+
+		:param f: Fonction ou slot à connecter.
+		"""
+		for _, setting in self._settings.items(): setting.connect(f)
+
+	##################################################
+	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
+		"""
+		Déconnecte une fonction ou un slot à tous les éléments du groupe.
+
+		:param f: Fonction ou slot à déconnecter.
+		:return: Nombre de slots déconnectés.
+		"""
+		for _, setting in self._settings.items(): setting.disconnect(f)
+
+	##################################################
+	def signal_blocked(self) -> AbstractContextManager[Any]:
+		"""
+		Blocage des signaux pour l'intégralité des paramètres.
+
+		:return: Retourne un context manager utilisable avec ``with ...:``.
+		"""
+		# if not self._settings: return nullcontext() # On n'a pas de settings vide
+		stack = ExitStack()
+		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
+		return stack
 
 
 ##################################################
@@ -244,7 +249,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	settings = Settings()
 	setting_ui = settings.get_ui()
 

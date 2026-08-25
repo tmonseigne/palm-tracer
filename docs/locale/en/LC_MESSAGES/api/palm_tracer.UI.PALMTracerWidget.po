@@ -1,14 +1,43 @@
+#: ../../api/palm_tracer.UI.PALMTracerWidget.rst:2
 msgid "PALMTracerWidget"
 msgstr ""
 
 #: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget:1
-msgid "Widget principal gérant toute l'interface."
-msgstr "Main widget managing the entire interface."
+msgid "Fournit l'interface Napari principale de PALM Tracer."
+msgstr "Provides the main PALM Tracer interface for Napari."
 
-#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget:3
+msgid "Le widget expose les paramètres du pipeline, déclenche les traitements et synchronise les calques de prévisualisation et de résultats."
+msgstr "The widget exposes the pipeline settings, triggers processing, and synchronizes the preview and result layers."
+
+#: ../../api/palm_tracer.UI.PALMTracerWidget.rst
 msgid "Paramètres"
 msgstr "Parameters"
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget:5
+msgid "Visionneuse Napari dans laquelle l'interface et les calques sont créés."
+msgstr "Napari viewer in which the interface and layers are created."
 
 #: ../../api/palm_tracer.UI.PALMTracerWidget.rst:9
 msgid "Attributs"
 msgstr "Attributes"
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.UI_NAME:1
+msgid "Nom de l'interface principale."
+msgstr "Name of the main interface."
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.LAYERS_NAME:1
+msgid "Noms des calques gérés par l'interface principale."
+msgstr "Names of the layers managed by the main interface."
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.LAYER_ARGS:1
+msgid "Propriétés graphiques des différents calques de points."
+msgstr "Graphical properties of the different point layers."
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.EMPTY_PREVIEW:1
+msgid "Tableau vide utilisé lorsqu'aucun point n'est prévisualisé."
+msgstr "Empty array used when no point is previewed."
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.EMPTY_STACK:1
+msgid "Pile minimale utilisée lorsqu'aucune image n'est chargée."
+msgstr "Minimal stack used when no image is loaded."

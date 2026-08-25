@@ -3,44 +3,8 @@ msgid "Ui"
 msgstr ""
 
 #: of palm_tracer.Tools.Ui:1
-msgid "Fonctions utilitaires génériques pour la construction d'interfaces utilisateur Qt et l'affichage console coloré."
-msgstr "Generic utility functions for building Qt user interfaces and color-coded console output."
-
-#: of palm_tracer.Tools.Ui:3
-msgid "Ce module regroupe :"
-msgstr "This module includes:"
-
-#: of palm_tracer.Tools.Ui:4
-msgid "des helpers pour créer et configurer rapidement des calques Qt cohérents (onglets, groupes, formulaires, séparateurs, spinbox, etc.) ;"
-msgstr "helpers for quickly creating and configuring consistent Qt layouts (tabs, groups, forms, separators, spin boxes, etc.);"
-
-#: of palm_tracer.Tools.Ui:5
-msgid "des fonctions de synchronisation de widgets (callbacks) ;"
-msgstr "widget synchronization functions (callbacks);"
-
-#: of palm_tracer.Tools.Ui:6
-msgid "des fonctions d'affichage console colorée (erreurs, warnings, succès) ;"
-msgstr "functions for colored console output (errors, warnings, success);"
-
-#: of palm_tracer.Tools.Ui:7
-msgid "quelques utilitaires généraux liés à l'IHM."
-msgstr "a few general utilities related to the GUI."
-
-#: of palm_tracer.Tools.Ui:9
-msgid "L'objectif est d'assurer :"
-msgstr "The goal is to ensure:"
-
-#: of palm_tracer.Tools.Ui:10
-msgid "une ergonomie homogène sur l'ensemble des interfaces ;"
-msgstr "consistent usability across all interfaces;"
-
-#: of palm_tracer.Tools.Ui:11
-msgid "une réduction du boilerplate Qt ;"
-msgstr "a reduction in Qt boilerplate code;"
-
-#: of palm_tracer.Tools.Ui:12
-msgid "une meilleure lisibilité et maintenabilité du code UI."
-msgstr "better readability and maintainability of UI code."
+msgid "Fournit les utilitaires de construction et de synchronisation des interfaces Qt."
+msgstr "Provides utilities for building and synchronizing Qt interfaces."
 
 #: of palm_tracer.Tools.Ui.add_setting_row:1
 msgid "Ajoute une ligne de paramètre dans un :class:`QFormLayout`."
@@ -249,6 +213,14 @@ msgid "Le groupe est composé de : un titre, la liste des fichiers et leurs stat
 msgstr "The group consists of: a title, the list of files, and their statuses."
 
 #: of palm_tracer.Tools.Ui.make_file_info_group:5
+msgid "Espacement interne entre les éléments, en pixels."
+msgstr "Internal spacing between elements (in pixels)."
+
+#: of palm_tracer.Tools.Ui.make_file_info_group:6
+msgid "Marges du groupe, en pixels."
+msgstr "Layout margins (in pixels)."
+
+#: of palm_tracer.Tools.Ui.make_file_info_group:7
 msgid "Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de statuts des fichiers."
 msgstr "The :class:`QGroupBox` configured along with the link to the file status QLabels."
 
@@ -273,7 +245,7 @@ msgid "Le :class:`QLabel` configuré."
 msgstr "The configured :class:`QLabel`."
 
 #: of palm_tracer.Tools.Ui.update_path_label:1
-msgid "Mets à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`."
+msgid "Met à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`."
 msgstr "Updates a path label with a new :class:`pathlib.Path` object."
 
 #: of palm_tracer.Tools.Ui.update_path_label:3
@@ -293,6 +265,10 @@ msgid "Crééer une zone scrollable verticalement."
 msgstr "Create a vertically scrollable area."
 
 #: of palm_tracer.Tools.Ui.make_vertical_scroll:3
+msgid "Widget à placer dans la zone de défilement."
+msgstr "Widget to place in the scroll area."
+
+#: of palm_tracer.Tools.Ui.make_vertical_scroll:4
 msgid "La :class:`QScrollArea` configuré."
 msgstr "The configured :class:`QScrollArea`."
 
@@ -376,7 +352,7 @@ msgstr "Adjusts the fixed width of a spin box based on the displayable content."
 
 #: of palm_tracer.Tools.Ui.set_spin_width:3
 msgid "La largeur est estimée à partir du nombre maximal de caractères nécessaires (valeur max, signe, décimales) et de la métrique de police du widget. Cela permet d'éviter les widgets trop larges et de garantir que toutes les valeurs restent visibles sans troncature."
-msgstr "The width is estimated based on the maximum number of characters required (max value, sign, decimals) and the widget’s font metrics. This prevents widgets from becoming too wide and ensures that all values remain visible without truncation."
+msgstr "The width is estimated based on the maximum number of characters required (max value, sign, decimals) and the widget's font metrics. This prevents widgets from becoming too wide and ensures that all values remain visible without truncation."
 
 #: of palm_tracer.Tools.Ui.set_spin_width:6
 msgid "Spinbox à ajuster."
@@ -415,7 +391,7 @@ msgid "Valeur à insérer."
 msgstr "Value to insert."
 
 #: of palm_tracer.Tools.Ui.update_spin_limits:1
-msgid "Mets à jour dynamiquement les bornes d'une spinbox."
+msgid "Met à jour dynamiquement les bornes d'une spinbox."
 msgstr "Dynamically updates the bounds of a spinbox."
 
 #: of palm_tracer.Tools.Ui.update_spin_limits:3

@@ -1,19 +1,5 @@
-"""
-Fichier contenant la classe :class:`BaseUIGroup`.
+"""Définit la représentation Qt d'un groupe de paramètres."""
 
-Ce module définit une classe de base pour la représentation graphique d'un paramètre dans l'interface utilisateur Qt.
-
-Cette classe est utilisée comme conteneur des éléments Qt associés à une vue spécifique d'un :class:`BaseSettingType`.
-
-Elle permet de gérer indépendamment plusieurs instances d'interface (multi-vues) pour un même modèle de données (pattern MVC simplifié).
-
-Chaque instance de :class:`BaseUIGroup` correspond à une **vue unique** d'un paramètre, et contient tous les objets Qt nécessaires.
-
-Cette séparation permet :
-    - de dupliquer facilement l'interface sans dupliquer les données,
-    - de synchroniser automatiquement toutes les vues,
-    - de simplifier la gestion du cycle de vie des widgets Qt.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -28,13 +14,13 @@ from palm_tracer.Tools import Ui
 @dataclass
 class BaseUIGroup:
 	"""
-	Classe de base représentant une vue Qt associée à un paramètre.
+	Représente une vue Qt associée à un groupe de paramètres.
 
-	Cette classe encapsule tous les objets Qt nécessaires à l'affichage d'un paramètre dans une interface utilisateur.
+	Chaque instance possède ses propres widgets, mais reste synchronisée avec le même modèle afin qu'un groupe puisse être affiché simultanément dans
+	plusieurs interfaces.
 
-	Elle est conçue pour être instanciée plusieurs fois pour un même paramètre, afin de permettre la duplication d'interface (multi-fenêtres, preview, etc.).
-
-	Chaque instance est indépendante en termes de widgets Qt, mais synchronisée avec le modèle de données auquel elle est associée.
+	:param name: Nom de la vue.
+	:param mode: Mode de disposition des paramètres.
 	"""
 
 	name: str
@@ -90,7 +76,7 @@ class BaseUIGroup:
 		self.widget.setLayout(self.layout)
 
 	# ==================================================
-	# region Layout management
+	# region Gestion de la mise en page
 	# ==================================================
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
@@ -119,7 +105,3 @@ class BaseUIGroup:
 		:param state: Statut.
 		"""
 		self._body.show() if state else self._body.hide()
-
-# ==================================================
-# region Layout management
-# ==================================================

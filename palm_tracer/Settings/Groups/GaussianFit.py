@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`GaussianFit` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres d'ajustement gaussien nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de l'ajustement gaussien."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -15,23 +13,22 @@ from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, S
 @dataclass
 class GaussianFit(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres du Gaussian Fit :
+	Regroupe les paramètres de l'ajustement gaussien des localisations.
 
-	Attributs :
+	Paramètres regroupés :
 
-		- **Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement gaussien (par défaut : `Mode X, Y`).
-
-			- `0` : `Mode X, Y` (theta et sigma sont fixes)
-			- `1` : `Mode X, Y, Sigma` (theta est fixe, Sigma Non)
-			- `2` : `Mode X, Y, SigmaX, SigmaY` (theta n'est pas fixe, Sigma Si)
-			- `3` : `Mode X, Y, SigmaX, SigmaY, Theta` (theta et sigma ne sont pas fixes)
-
-		- **Sigma** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre σ pour l'ajustement gaussien (par défaut : `1.0`).
-		- **Theta** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre θ pour l'ajustement gaussien (par défaut : `0.0`).
-		- **Z** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Utilise le modèle d'astigmatisme pour estimer la position axiale Z.
+	- ``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : paramètres ajustés parmi :math:`X`, :math:`Y`, :math:`\\sigma`, :math:`\\sigma_x`,
+	  :math:`\\sigma_y` et :math:`\\theta`.
+	- ``Sigma`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\sigma` ; valeur par défaut : ``1.0`` pixel.
+	- ``Theta`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\theta` ; valeur par défaut : ``0.0`` degré.
+	- ``Z`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active l'estimation axiale par astigmatisme.
+	- ``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : valeur absolue maximale utilisée pour initialiser l'estimation axiale ; valeur
+	  par défaut : ``500`` nm.
+	- ``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser.
 	"""
 
 	label: str = "Gaussian Fit"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Mode":  [Combo, ["Mode", "Selects the elements to fit.", 0, ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
 			"Sigma": [SpinFloat, ["σ", "Initial value of sigma.", 1.0, [0.0, 10.0], 0.1]],
@@ -40,10 +37,13 @@ class GaussianFit(BaseSettingGroup):
 			"Z max": [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator.", 500, [10, 2000], 10]],
 			"Model": [BrowseFile, ["Specific Model", "Use only if your model isn't in File output folder"], ""],
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 2
+	"""Mode d'affichage du groupe dans l'interface."""
 
 	##################################################
 	def initialize(self):
+		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = GaussianFit()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

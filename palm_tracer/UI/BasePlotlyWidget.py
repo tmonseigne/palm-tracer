@@ -1,4 +1,5 @@
-"""Module contenant la classe mère :class:`BasePlotlyWidget`, permettant de centraliser des fonctions communes aux widgets Stand Alone."""
+"""Définit la classe de base commune aux widgets autonomes utilisant Plotly."""
+
 from __future__ import annotations
 
 import json
@@ -26,12 +27,22 @@ except Exception:
 
 ##################################################
 class BasePlotlyWidget(QWidget):
-	"""Classe mère avec les fonctions internes aux widgets Stand Alone (hors Napari)."""
+	"""
+	Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly.
+
+	La classe centralise l'affichage dans QtWebEngine ainsi que l'export des figures vers les formats pris en charge.
+
+	:param parent: Widget Qt parent.
+	"""
 
 	PLOT_DIV_ID = "plotly_graph"
+	"""Identifiant HTML du conteneur Plotly."""
 	RESOURCE_DIR = Path(__file__).resolve().parent / "res"
+	"""Répertoire des ressources de l'interface."""
 	PLOTLY_JS_PATH = RESOURCE_DIR / "plotly.min.js"
+	"""Chemin local de la bibliothèque JavaScript Plotly."""
 	PLOTLY_JS_URL = "https://cdn.plot.ly/plotly-3.4.0.min.js"
+	"""Adresse de secours de la bibliothèque JavaScript Plotly."""
 
 	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
@@ -53,7 +64,7 @@ class BasePlotlyWidget(QWidget):
 		self._connect_web_widget()
 
 	# ==================================================
-	# region Web Widget (for Plotly)
+	# region Widget Web Plotly
 	# ==================================================
 	##################################################
 	def _make_web_widget(self):
@@ -64,7 +75,7 @@ class BasePlotlyWidget(QWidget):
 		"""
 		# Zone droite : QWebEngineView avec Plotly
 		if _HAS_WEBENGINE: res = QWebEngineView(self)
-		else:  # pragma: no cover — Fallback affichant un message d'erreur explicite
+		else:  # pragma: no cover — Solution de repli affichant un message d'erreur explicite
 			res = QTextBrowser(self)
 			res.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 		return res
@@ -243,11 +254,11 @@ class BasePlotlyWidget(QWidget):
 		download.accept()
 
 	# ==================================================
-	# endregion Web Widget (for Plotly)
+	# endregion Widget Web Plotly
 	# ==================================================
 
 	# ==================================================
-	# region Export (for Plotly)
+	# region Export Plotly
 	# ==================================================
 	##################################################
 	def _export_via_plotly_download(self, path: Path, fmt: str):
@@ -310,7 +321,7 @@ class BasePlotlyWidget(QWidget):
 		except Exception as e: print_warning(f"Export failed : {e}")
 
 	# ==================================================
-	# endregion Export (for Plotly)
+	# endregion Export Plotly
 	# ==================================================
 
 	##################################################

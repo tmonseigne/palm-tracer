@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type bouton à cliquer.
-"""
+"""Définit un paramètre représenté par un bouton d'action."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -15,14 +14,15 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 @dataclass
 class Button(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type bouton à cliquer.
+	Représente une action déclenchée par un bouton Qt.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché sur le bouton.
+	:param tooltip: Description affichée dans l'infobulle.
 	"""
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		pass
 
 	##################################################
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = Button("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)

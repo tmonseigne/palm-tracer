@@ -1,15 +1,5 @@
-"""
-Widget d'affichage 3D pour Napari permettant de charger un fichier CSV et de visualiser les points en 3D
-avec ajustements interactifs des échelles et de la taille des points.
+"""Fournit le widget Napari de visualisation 3D des localisations."""
 
-Ce widget ajoute dans le dock de Napari :
-	- un bouton de chargement de fichier CSV,
-	- trois champs pour contrôler les échelles en XY et Z et la taille des points,
-	- une option permettant d'exclure les points avec intensité nulle,
-	- un calque Napari Points mis à jour dynamiquement.
-
-Le CSV doit contenir les colonnes ``X``, ``Y``, ``Z`` et ``Integrated Intensity``.
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -26,19 +16,13 @@ from palm_tracer.Settings.Groups import Visualization3D
 
 class Viewer3DWidget(QWidget):
 	"""
-	Widget d'affichage 3D pour un viewer Napari.
+	Affiche les localisations tridimensionnelles dans un calque Napari.
 
-	Ce widget permet :
-		- de charger un fichier CSV contenant des coordonnées 3D
-		- d'ajuster l'échelle XY et Z
-		- de modifier la taille des points
-		- d'activer ou non la suppression des points d'intensité nulle
-		- de créer ou mettre à jour un calque de type :class:`napari.layers.Points`.
+	Le widget charge un fichier CSV, règle les échelles XY et Z, ajuste la taille des points et peut exclure les localisations d'intensité nulle.
 
-	**Remarque** : peut être lancé directement avec la commande ``napari -w palm-tracer "Viewer 3D"``
+	:param viewer: Visionneuse Napari recevant le calque de points.
 
-	:param viewer: Instance du viewer Napari où sera ajouté le calque 3D.
-	:type viewer: :class:`napari.Viewer`
+	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer 3D"``.
 	"""
 
 	##################################################
@@ -85,7 +69,7 @@ class Viewer3DWidget(QWidget):
 
 		Cette méthode déclenche ensuite :meth:`update_layer` pour créer le calque 3D.
 		"""
-		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "Fichiers CSV (*.csv)")
+		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "CSV files (*.csv)")
 		if not path or not Path(path).is_file(): return
 		self.data = pd.read_csv(path)
 		if not all(col in self.data.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):
@@ -117,7 +101,7 @@ class Viewer3DWidget(QWidget):
 
 		if outliers: coords = coords[self.data["Integrated Intensity"] > 0]
 
-		# mise à jour du calque
+		# Mise à jour du calque
 		self.layer.data = coords
 		self.layer.size = size
 
@@ -128,6 +112,8 @@ def create_viewer3d() -> tuple[napari.Viewer, QWidget]:
 	Crée une nouvelle fenêtre Napari 3D, sans menu, et y ajoute le Viewer3DWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
+
+	:return: Visionneuse Napari créée et widget 3D associé.
 	"""
 	viewer = napari.Viewer(ndisplay=3)  # .									 Crée le viewer 3D napari
 	viewer.title = "3D Viewer"  # .											 Modifier le titre de la fenêtre
@@ -146,6 +132,9 @@ def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	- Crée une nouvelle fenêtre Napari 3D dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire
 	  l'API "widget plugin" de Napari.
+
+	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
+	:return: Widget factice masqué attendu par l'API des plugins Napari.
 	"""
 	# Crée la nouvelle fenêtre 3D
 	create_viewer3d()

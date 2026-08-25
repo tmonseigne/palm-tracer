@@ -1,4 +1,5 @@
-"""Fichier contenant des fonctions pour la création de galeries."""
+"""Construit des galeries d'images à partir des localisations détectées."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -8,13 +9,13 @@ import pandas as pd
 ##################################################
 def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, rois_per_line: int) -> np.ndarray:
 	"""
-    Génère une galerie d'images extraites d'une pile d'images en fonction des localisations spécifiées.
+	Génère une galerie d'images extraites d'une pile d'images en fonction des localisations spécifiées.
 
-    :param stack: Un tableau 3D ``(n_planes, height, width)`` représentant la pile d'images.
-    :param localizations: DataFrame contenant au minimum les colonnes ``["Plane","Y","X"]`` avec les coordonnées des zones d'intérêts.
-    :param roi_size: Taille de chaque zone d'intérêt (carré de dimensions `roi_size x roi_size`).
-    :param rois_per_line: Nombre de zones par ligne dans la galerie.
-    :return: Un tableau NumPy 3D ``(n_planes, size, size)`` contenant la galerie.
+	:param stack: Un tableau 3D ``(n_planes, height, width)`` représentant la pile d'images.
+	:param localizations: DataFrame contenant au minimum les colonnes ``["Plane","Y","X"]`` avec les coordonnées des zones d'intérêts.
+	:param roi_size: Taille de chaque zone d'intérêt (carré de dimensions ``roi_size x roi_size``).
+	:param rois_per_line: Nombre de zones par ligne dans la galerie.
+	:return: Un tableau NumPy 3D ``(n_planes, size, size)`` contenant la galerie.
 	"""
 	size = roi_size * rois_per_line  # .						  Taille d'un plan de la galerie
 	rois_per_plane = rois_per_line ** 2  # .					  Nombre de ROIs maximum par plan
@@ -29,12 +30,12 @@ def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, 
 		pos_in_plane = idx % rois_per_plane  # .				  Position dans la grille du plan
 		row, col = divmod(pos_in_plane, rois_per_line)  # .		  Calculer la ligne et la colonne dans la grille
 
-		# Déterminer les bornes de la ROI (méthode non sure car avec les arrondis la ROI peut avoir une taille de roi_size ou roi_size + 1)
+		# Déterminer les bornes de la ROI (méthode peu sûre car avec les arrondis la ROI peut avoir une taille de roi_size ou roi_size + 1)
 		# half_size = roi_size / 2
 		# x_min, x_max = max(0, int(round(x - half_size))), min(max_width, int(round(x + half_size)))
 		# y_min, y_max = max(0, int(round(y - half_size))), min(max_height, int(round(y + half_size)))
 
-		# Calcul centre arrondi
+		# Calcul du centre arrondi
 		x_center = int(round(x))
 		y_center = int(round(y))
 

@@ -3,28 +3,32 @@ msgid "Visualization3D"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:1
-msgid "Classe contenant les paramètres de Visualisation 3D :"
+msgid "Regroupe les paramètres de la visualisation 3D."
 msgstr "Class containing 3D visualization settings:"
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:3
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:4
-msgid "**Point Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Taille des points."
-msgstr "**Point Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Point size."
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:5
-msgid "**XY Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur les axes X et Y."
-msgstr "**XY Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`): Scale along the X and Y axes."
+msgid "``Point Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : taille des points."
+msgstr "``Point Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : point size."
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:6
-msgid "**Z Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Échelle sur l'axe Z."
-msgstr "**Z Scale** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`): Scale along the Z axis."
+msgid "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille physique d'un pixel ; valeur par défaut : ``160`` nm."
+msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : physical pixel size; default value: ``160`` nm."
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:7
-msgid "**Remove Outliers** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprimme les éléments avec une intensité nulle."
-msgstr "**Remove Outliers** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Removes elements with zero intensity."
+msgid "``XY Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur d'échelle des axes X et Y."
+msgstr "``XY Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : scale factor along the X and Y axes."
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:8
+msgid "``Z Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur d'échelle de l'axe Z."
+msgstr "``Z Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : scale factor along the Z axis."
+
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:9
+msgid "``Remove Outliers`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exclut les localisations dont l'intensité est nulle."
+msgstr "``Remove Outliers`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : excludes localizations with zero intensity."
 
 #: ../../api/palm_tracer.Settings.Groups.Visualization3D.rst
 msgid "Paramètres"
@@ -35,13 +39,14 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
-#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+#: of
+#: palm_tracer.Settings.Groups.Visualization3D.Visualization3D.setting_list:1
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D.mode:1
-msgid "Méthode d'affichage du groupe par défaut."
+msgid "Mode d'affichage du groupe dans l'interface."
 msgstr "Default group display method."

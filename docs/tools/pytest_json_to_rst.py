@@ -1,4 +1,5 @@
-"""Fichier permettant de transformer un rapport Pytest JSON en reStructuredText pour sphinx."""
+"""Convertit un rapport Pytest JSON en document reStructuredText."""
+
 from __future__ import annotations
 
 import datetime
@@ -40,7 +41,7 @@ def format_duration(duration: float) -> str:
 
 
 # ==================================================
-# region Generation
+# region Génération
 # ==================================================
 ##################################################
 def generate_rst_from_json(src: str | Path, dst: str | Path):
@@ -235,7 +236,7 @@ def get_outcome_icon(outcome: str) -> str:
 
 
 # ==================================================
-# endregion Generation
+# endregion Génération
 # ==================================================
 ##################################################
 def usage():

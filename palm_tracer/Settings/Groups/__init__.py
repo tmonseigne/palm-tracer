@@ -1,11 +1,4 @@
-"""
-Ce sous-package gère les groupes de paramètres.
-
-**Fonctionnalités principales** :
-
-- Permet un accès direct aux classes principales via `from palm_tracer.Settings.Group import <classe>`.
-
-"""
+"""Expose les groupes de paramètres de PALM Tracer."""
 
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingGroup import BaseSettingGroup

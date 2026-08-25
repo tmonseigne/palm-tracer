@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`Button` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type bouton à cliquer.
-"""
+"""Définit un paramètre représenté par un groupe de boutons exclusifs."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -17,11 +16,14 @@ from palm_tracer.Tools import Ui
 @dataclass
 class ButtonGroup(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type groupe de boutons.
+	Représente un choix exclusif effectué avec un groupe de boutons.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Indice sélectionné par défaut.
+	:param _items: Libellés des choix proposés.
 	"""
+
 	default: int = 0
 	"""Valeur (position dans la liste) par défaut du paramètre (:class:`int`)."""
 	_value: int = field(init=False, default=0)
@@ -34,7 +36,7 @@ class ButtonGroup(BaseSettingType):
 	"""Dictionnaire des Groupes de boutons."""
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -92,7 +94,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = ButtonGroup("Test", "tooltip", 0, ["1", "2", "3"])
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -100,6 +102,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

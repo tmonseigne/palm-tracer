@@ -1,17 +1,4 @@
-"""
-Ce sous-package contient des outils utilitaires pour le projet SampleMaker.
-
-**Modules disponibles** :
-
-- Drawing : Fournit des fonctions de dessin génériques.
-- Monitoring : Fournit un module de surveillance des ressources système pendant l'exécution de tests.
-- Utils : Fournit des fonctions d'assistance génériques.
-
-**Fonctionnalités principales** :
-
-- Tous les modules peuvent être importés directement via `from palm_tracer.Tools import <module>`.
-
-"""
+"""Expose les outils génériques utilisés par PALM Tracer."""
 
 # Exemple d'importation des modules pour un accès direct
 from .FileMigrator import FileMigrator

@@ -112,7 +112,7 @@ msgstr "A virtual environment lets you manage the project's dependencies in an i
 
 #: ../../user/install.rst:84
 msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. For example, for :file:`C:\\\\palm-tracer`, open the terminal, type :console:`cd C:\\\\palm_tracer`, and press **Enter**."
 
 #: ../../user/install.rst:86
 msgid "Créez un environnement virtuel avec la commande suivante :console:`python -m venv venv`"
@@ -160,7 +160,7 @@ msgstr "If you have created a virtual environment, make sure it is enabled (see 
 
 #: ../../user/install.rst:113
 msgid "Lancez Napari avec la commande : :console:`napari`"
-msgstr "Launch Napari with: :console:`napari`"
+msgstr "Launch Napari with the command: :console:`napari`"
 
 #: ../../user/install.rst:114
 msgid "Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`"

@@ -1,4 +1,5 @@
-"""Fichier contenant des fonctions pour parser les entrées et sorties des DLLs externes."""
+"""Convertit et structure les entrées et sorties des DLL PALM."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -80,7 +81,7 @@ def apply_dataframe_type(data: pd.DataFrame, columns: list[str], numeric_type: s
 	:param numeric_type: Type à adopter.
 	"""
 	for key in columns:
-		# Vérification en cas de Dataframe Vide et conversion en entier nullable (préserve les NaN si présents)
+		# Vérification en cas de DataFrame vide et conversion en entier nullable (préserve les NaN si présents)
 		if key in data.columns: data[key] = pd.to_numeric(data[key], errors="coerce").astype(numeric_type)
 
 
@@ -91,9 +92,9 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 
 	:param data: Le DataFrame à réorganiser.
 	:param columns: Liste des noms de colonnes à placer en premier.
-	:param remaining: Si `True`, ajoute les colonnes non spécifiées après celles définies dans `columns`.
+	:param remaining: Si ``True``, ajoute les colonnes non spécifiées après celles définies dans ``columns``.
 	:return: Un nouveau DataFrame avec les colonnes réorganisées.
-	:raises ValueError: Si une colonne spécifiée dans `columns` n'existe pas dans `data`.
+	:raises ValueError: Si une colonne spécifiée dans ``columns`` n'existe pas dans ``data``.
 	"""
 	# Vérifier que toutes les colonnes spécifiées existent dans le DataFrame
 	missing_columns = [col for col in columns if col not in data.columns]
@@ -111,11 +112,11 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 ##################################################
 def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
-	Applique un log en base 10 sur certaines colonnes du dataframe (remplace par Nan les valeurs inférieures ou égales à 0).
+	Applique un log en base 10 sur certaines colonnes du DataFrame (remplace par Nan les valeurs inférieures ou égales à 0).
 
-	:param data: Dataframe à modifier.
+	:param data: DataFrame à modifier.
 	:param columns: Colonnes à modifier.
-	:return: Dataframe avec les colonnes ayant été modifiées.
+	:return: DataFrame avec les colonnes ayant été modifiées.
 	"""
 	with np.errstate(divide='ignore', invalid='ignore'):
 		logged = np.where(data[columns] > 0, np.log10(data[columns]), np.nan)  # Remplace log(x<=0) par NaN pour éviter les -inf/erreurs
@@ -189,7 +190,7 @@ def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	:param theta: Angles en radians.
 	:return: Theta dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`.
 	"""
-	theta = wrap_angle(theta)  # Clean Theta interval
+	theta = wrap_angle(theta)  # Normalisation de l'intervalle de Theta
 
 	cos_theta, sin_theta = np.cos(theta), np.sin(theta)
 
@@ -213,11 +214,12 @@ def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 # ==================================================
 
 # ==================================================
-# region Parsing
+# region Analyse
 # ==================================================
 ##################################################
 def get_meta(data: list | np.ndarray) -> pd.DataFrame:
-	"""Créer le Dataframe pour les informations meta (dimensions du fichier et calibration).
+	"""
+	Créer le DataFrame pour les informations meta (dimensions du fichier et calibration).
 
 	:param data: Liste des informations en entrée.
 	:return: :class:`DataFrame <pandas.DataFrame>` contenant les métadonnées.
@@ -229,7 +231,7 @@ def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	if arr.shape[1] != len(columns):
 		raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
 
-	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en Dataframe
+	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en DataFrame
 	apply_dataframe_type(res, types)  # Conversion en entier nullable (préserve les NaN si présents)
 	return res
 
@@ -275,8 +277,8 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 		rows.append(np.asarray(data[i:i + length]))
 		i += length  # Passer au bloc suivant.
 
-	# Construction du DataFrame avec padding NaN
-	if not rows: return pd.DataFrame()  # aucun bloc valide avant un L<=0 ou tableau vide
+	# Construction du DataFrame avec remplissage par NaN
+	if not rows: return pd.DataFrame()  # Aucun bloc valide avant un L<=0 ou tableau vide
 
 	max_len = max(len(r) for r in rows)
 	out = np.full((len(rows), max_len), np.nan, dtype=float)
@@ -295,7 +297,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 
 	Pour les localisations et les trajectoires, on a un tableau 1D de grande taille en entrée :
 		- On le découpe en tableau 2D à 13 colonnes (``N_SEGMENTS``). La taille du tableau est vérifiée et tronquée si nécessaire.
-		- On le transforme en dataframe avec les colonnes définies par `SEGMENTS`.
+		- On le transforme en DataFrame avec les colonnes définies par ``SEGMENTS``.
 		- On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0).
 
 	Pour les calculs sur trajectoire, on a un tableau 1D représentant un tableau 2D irrégulier
@@ -319,10 +321,10 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 		size = (data.size // n_columns) * n_columns  # .					Récupération de la taille correcte si non multiple de N_SEGMENT
 		data = data[:size].reshape(-1, n_columns)  # .						Passage en tableau 2D
 		data = data[data[:, columns.index("X")] > 0]  # .					Filtrage sur les X inférieurs ou égal à 0 en amont.
-		res = pd.DataFrame(data, columns=columns)  # .						Transformation en Dataframe
+		res = pd.DataFrame(data, columns=columns)  # .						Transformation en DataFrame
 	elif file_type == "Astigmatism 3D Model":
 		res = pd.DataFrame(data, columns=columns, index=MODEL_ROWS)
-	else:  # .																Fichiers MSD, Instant Diffusion et Fit du MSD.
+	else:  # .																Fichiers MSD, diffusion instantanée et ajustement du MSD.
 		res = parse_irregular_array(data)
 		res[(res > 0) & (res < TRACKS_COMPUTE_MIN)] = TRACKS_COMPUTE_MIN  # Ramène les petites valeurs positives au minimum autorisé (en conservant les -1).
 		ncols = res.shape[1]
@@ -331,7 +333,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 			log_col = [f"{columns[1]} {i}" for i in range(1, ncols)]
 			res.columns = [columns[0]] + log_col
 		else:
-			# les colonnes dépendent de l'ajustement.
+			# Les colonnes dépendent de l'ajustement.
 			log_col = columns[2:]
 			if not 1 <= fit_mode <= 3:
 				raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
@@ -342,5 +344,5 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 	apply_dataframe_type(res, types)
 	return res
 # ==================================================
-# endregion Parsing
+# endregion Analyse
 # ==================================================

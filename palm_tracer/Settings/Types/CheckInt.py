@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`CheckInt` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type nombre entier.
-"""
+"""Définit un paramètre entier dont l'application peut être activée ou désactivée."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -18,12 +17,13 @@ from palm_tracer.Tools import Ui
 @dataclass
 class CheckInt(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type nombre entier.
+	Représente un entier dont l'application peut être activée ou désactivée.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeurs par défaut du paramètre.
-	:param _limits: Valeurs limites du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Valeur par défaut.
+	:param _limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par la boîte de sélection numérique.
 	"""
 
 	default: int = 0
@@ -39,11 +39,12 @@ class CheckInt(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		super().reset()
 		self.active = False
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -121,11 +122,11 @@ class CheckInt(BaseSettingType):
 			with QSignalBlocker(b): Ui.update_spin_limits(b, self._limits[0], self._limits[1])
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -138,15 +139,15 @@ class CheckInt(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
-		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
 
 
@@ -157,7 +158,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = CheckInt("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -165,6 +166,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

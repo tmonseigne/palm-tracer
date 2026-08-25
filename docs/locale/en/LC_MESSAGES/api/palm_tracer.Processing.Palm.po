@@ -3,15 +3,19 @@ msgid "Palm"
 msgstr ""
 
 #: of palm_tracer.Processing.Palm.Palm:1
-msgid "Classe permettant d'utiliser la DLL externe PALM, exécuter les algorithmes de détection de points et les paramètres liés."
-msgstr "Class that allows you to use the external PALM DLL, execute point detection algorithms, and manage related settings."
+msgid "Encapsule le chargement et les appels aux algorithmes de la DLL PALM."
+msgstr "Encapsulates loading and calls to the algorithms provided by the PALM DLL."
+
+#: of palm_tracer.Processing.Palm.Palm:3
+msgid "L'instance configure les signatures des fonctions natives et convertit leurs entrées et sorties vers les structures Python utilisées par le pipeline."
+msgstr "The instance configures native function signatures and converts their inputs and outputs to the Python structures used by the pipeline."
 
 #: ../../api/palm_tracer.Processing.Palm.rst:9
 msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Processing.Palm.rst:12
-msgid "Initialization"
+msgid "Initialisation"
 msgstr ""
 
 #: of palm_tracer.Processing.Palm.Palm.is_valid:1
@@ -31,8 +35,8 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: ../../api/palm_tracer.Processing.Palm.rst:17
-msgid "Argument Parser"
-msgstr ""
+msgid "Analyse des arguments"
+msgstr "Argument analysis"
 
 #: of palm_tracer.Processing.Palm.Palm.max_allocation_bytes:1
 msgid "Permet de calculer la quantité de mémoire disponible au maximum pour une allocation."
@@ -55,8 +59,8 @@ msgid "Valeur en byte de l'allocation maximum tolérée."
 msgstr "Value in bytes of the maximum allowed allocation."
 
 #: ../../api/palm_tracer.Processing.Palm.rst:22
-msgid "DLL Call"
-msgstr ""
+msgid "Appels de la DLL"
+msgstr "DLL calls"
 
 #: of palm_tracer.Processing.Palm.Palm.align:1
 #: palm_tracer.Processing.Palm.Palm.localization:1
@@ -79,7 +83,7 @@ msgid "Active ou désactive le mode watershed."
 msgstr "Enables or disables watershed mode."
 
 #: of palm_tracer.Processing.Palm.Palm.localization:6
-msgid "Mode d'ajustement (défini par `get_fit`)."
+msgid "Mode d'ajustement (défini par ``get_fit``)."
 msgstr "Fitting mode (defined by `get_fit`)."
 
 #: of palm_tracer.Processing.Palm.Palm.auto_threshold:4
@@ -93,7 +97,7 @@ msgstr "List of frames to analyze (None for all frames; frames are contiguous by
 
 #: of palm_tracer.Processing.Palm.Palm.localization:9
 #: palm_tracer.Processing.Palm.Palm.tracking:6
-msgid "Liste des points détectés sous forme de dataframe contenant toutes les informations reçues de la DLL."
+msgid "Liste des points détectés sous forme de DataFrame contenant toutes les informations reçues de la DLL."
 msgstr "List of detected points as a dataframe containing all information received from the DLL."
 
 #: of palm_tracer.Processing.Palm.Palm.auto_threshold:1
@@ -138,7 +142,7 @@ msgstr "Pixel size in nanometers."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:4
 #: palm_tracer.Processing.Palm.Palm.tracks_compute:3
-msgid "Liste des points déjà suivis sous forme de dataframe contenant toutes les informations reçues de la DLL."
+msgid "Liste des points déjà suivis sous forme de DataFrame contenant toutes les informations reçues de la DLL."
 msgstr "List of already tracked points in the form of a DataFrame containing all information received from the DLL."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:5
@@ -159,7 +163,7 @@ msgstr "Runs the tracks compute algorithm."
 
 #: of palm_tracer.Processing.Palm.Palm.tracks_compute:4
 msgid "Calcul MSD."
-msgstr "MSD computes."
+msgstr "MSD calculation."
 
 #: of palm_tracer.Processing.Palm.Palm.tracks_compute:5
 msgid "Calcul de la diffusion instantanée."
@@ -167,7 +171,7 @@ msgstr "Instantaneous diffusion computes."
 
 #: of palm_tracer.Processing.Palm.Palm.tracks_compute:6
 msgid "Calcul sur la 3D."
-msgstr "3D computes."
+msgstr "3D calculation."
 
 #: of palm_tracer.Processing.Palm.Palm.tracks_compute:7
 msgid "Applique un logarithme sur le résultat."
@@ -198,7 +202,7 @@ msgid "Facteurs d'alignement."
 msgstr "Alignment factors."
 
 #: of palm_tracer.Processing.Palm.Palm.align:5
-msgid "Facteur d'agrandissement de l'image (par défaut : `1` aucun agrandissement)."
+msgid "Facteur d'agrandissement de l'image (par défaut : ``1`` aucun agrandissement)."
 msgstr "Image magnification factor (default: `1` no magnification)."
 
 #: of palm_tracer.Processing.Palm.Palm.align:6

@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`Graph` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de visualisation de graphique nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de génération des graphiques."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -26,18 +24,20 @@ DATA_SRC: dict[str, list] = {
 @dataclass
 class Graph(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres de Visualisation :
+	Regroupe les paramètres de sélection des graphiques.
 
-	Attributs :
-		- **Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi).
-		- **Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter.
-		- **Dual** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Active la représentation de deux sources.
-		- **Source B** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source secondaire des données à représenter.
-		- **MSD Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Lors de la représentation du MSD, sélection de l'étape à représenter.
-		- **Display** (:class:`GraphDisplay <palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay>`) : Options d'affichage du graphique.
+	Paramètres regroupés :
+
+	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
+	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée.
+	- ``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active un nuage de points utilisant deux grandeurs.
+	- ``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque ``Dual`` est actif.
+	- ``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : décalage temporel sélectionné pour le MSD.
+	- ``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : options de rendu du graphique.
 	"""
 
 	label: str = "Graph"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Type":     [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 			"Source":   [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
@@ -45,15 +45,17 @@ class Graph(BaseSettingGroup):
 			"Source B": [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
 			"MSD Step": [SpinInt, ["MSD Step", "Step selected for display.", 1, [1, 10000], 1]],
 			"Display":  [GraphDisplay, []]}
+	"""Définition des paramètres du groupe et de leur configuration."""
 
 	##################################################
 	@property
 	def display(self) -> GraphDisplay:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."""
+		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(GraphDisplay, self._settings["Display"])
 
 	##################################################
 	def initialize(self):
+		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
 		self._settings["Type"].connect(self.toggle_type)
 		self._settings["Dual"].connect(self.toggle_dual)
@@ -108,7 +110,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = Graph()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

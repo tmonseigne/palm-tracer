@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`CheckIntSelection` dérivée de :class:`.BaseSettingType`,
-qui permet la gestion d'une sélection de valeurs entières et d'intervalles.
-"""
+"""Définit un paramètre de sélection de valeurs entières et d'intervalles."""
+
 from __future__ import annotations
 
 import re
@@ -18,7 +16,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 ##################################################
 class IntSelectionValidator(QValidator):
-	"""Validateur Qt pour une sélection de valeurs entières et d'intervalles."""
+	"""Valide la syntaxe d'une sélection de valeurs entières et d'intervalles."""
 
 	##################################################
 	def validate(self, text: str, pos: int) -> tuple[QValidator.State, str, int]:
@@ -47,15 +45,14 @@ class IntSelectionValidator(QValidator):
 @dataclass
 class CheckIntSelection(BaseSettingType):
 	"""
-	Classe pour un paramètre permettant de sélectionner des valeurs entières individuelles ou des intervalles.
+	Représente une sélection activable de valeurs entières et d'intervalles.
 
-	La sélection est saisie sous forme textuelle. Les éléments sont séparés par des points-virgules et les intervalles
-	sont définis avec un tiret. Par exemple, ``1-10;15;20-25`` sélectionne les valeurs de 1 à 10, la valeur 15 et
-	les valeurs de 20 à 25.
+	Les éléments sont séparés par des points-virgules et les intervalles par un tiret.
+	Par exemple, ``1-10;15;20-25`` sélectionne les valeurs de 1 à 10, la valeur 15 et les valeurs de 20 à 25.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Sélection par défaut.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Sélection textuelle par défaut.
 	"""
 
 	default: str = ""
@@ -67,11 +64,12 @@ class CheckIntSelection(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		super().reset()
 		self.active = False
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -138,11 +136,11 @@ class CheckIntSelection(BaseSettingType):
 		return self.parse(self.value)
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Selection
+	# region Sélection
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -202,11 +200,11 @@ class CheckIntSelection(BaseSettingType):
 		return any(minimum <= value <= maximum for minimum, maximum in self.ranges)
 
 	# ==================================================
-	# endregion Selection
+	# endregion Sélection
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -218,15 +216,15 @@ class CheckIntSelection(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Parsing
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 	##################################################
 	def set_active(self, state: int):
-		"""Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."""
+		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
 
 
@@ -237,7 +235,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = CheckIntSelection("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -245,6 +243,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

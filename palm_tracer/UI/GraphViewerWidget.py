@@ -1,32 +1,16 @@
 """
-Module contenant la classe :class:`GraphViewerWidget` pour la visualisation interactive
-des graphiques liés aux données PALMTracer (pile TIFF, localisations, tracking).
+Fournit le widget de visualisation interactive des données PALM avec Plotly.
 
-Ce widget fournit :
-- Une interface en deux parties :
-  • Colonne gauche : informations fichier + présence localisation/tracking, choix du domaine
-	(Stack / Localization / Tracking) via 3 boutons exclusifs, et sélection de la source.
-  • Zone droite : rendu d'un graphe Plotly dans un QWebEngineView (zoom, pan, hover, export).
-- Un couplage léger avec :class:`PALMTracer` pour accéder aux fichiers en cours et charger
-  automatiquement pile/CSV (localisations/tracking).
-- Des exports HTML/PNG/PDF (PNG via capture Qt en fallback, si Kaleido indisponible).
-
-Notes
------
-- Le rendu interactif utilise QtWebEngine (PySide6-Addons / PyQt6-WebEngine / PyQtWebEngine selon binding).
-  Si QtWebEngine n'est pas disponible, un fallback texte explicite est affiché.
-- Le widget ne copie pas l'objet :class:`PALMTracer` ; il garde une **référence** passée au constructeur.
-- Le calcul/formatage des figures est délégué à :class:`palm_tracer.Processing.Grapher`.
-
-.. todo:: Warning si plus de 10 millions de points sur un affichage (avec option se souvenir du choix).
+.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
 from typing import cast
 
 from qtpy.QtCore import Qt, QTimer
-from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget, QAbstractSpinBox
+from qtpy.QtWidgets import QAbstractSpinBox, QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
@@ -52,30 +36,29 @@ TIPS = {
 
 ##################################################
 class GraphViewerWidget(BasePlotlyWidget):
-	"""Widget de visualisation interactive (Plotly + QtWebEngine) pour PALMTracer.
-
-	Ce widget expose une UI compacte pour :
-		- afficher des graphes à partir de la pile TIFF (Stack) ou des CSV (Localization/Tracking),
-		- choisir la *famille* de données (Stack / Localization / Tracking) via 3 boutons exclusifs,
-		- sélectionner la *source* dans une ComboBox (ex. Intensité, Localizations Count, etc.),
-		- exporter la figure (HTML/PNG/PDF).
-
-	Attributs :
-		- _pt (:class:`PALMTracer <palm_tracer.PALMTracer>`) : Référence vers l'instance principale de PALMTracer (aucune copie).
-		- _fig  (:class:`Optional[go.Figure]`) : Dernière figure Plotly produite (pour export/maj).
-		- _html  (:class:`Optional[str]`)  : Dernier HTML généré pour la figure (export .html).
 	"""
+	Affiche interactivement les graphiques associés aux données PALM.
+
+	Le widget sélectionne une famille de données et une ou deux sources, délègue la construction des figures à :class:`~palm_tracer.Processing.Grapher.Grapher`
+	et permet leur export en HTML, PNG ou PDF.
+
+	:param palmtracer: Instance principale dont les données sont visualisées. La référence est conservée sans effectuer de copie.
+
+	.. note:: Si QtWebEngine n'est pas disponible, le widget utilise un affichage textuel de remplacement.
+	"""
+
 	UI_NAME: str = "Graph Viewer"
+	"""Nom de l'interface de visualisation des graphiques."""
 
 	# ==================================================
-	# region Initialization
+	# region Initialisation
 	# ==================================================
 	##################################################
 	def __init__(self, palmtracer: PALMTracer | None = None):
 		"""
 		Initialise le widget (UI, connexions, état initial) et lie PALMTracer.
 
-		:param palmtracer: Instance principale :class:`PALMTracer <palm_tracer.PALMTracer>` sans copie (référence partagée).
+		:param palmtracer: Instance principale :class:`~palm_tracer.PALMTracer` sans copie (référence partagée).
 		"""
 		super().__init__()
 		self.setWindowTitle(self.UI_NAME)
@@ -230,27 +213,27 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""
 		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
 
-		:param event:
+		:param event: Événement de fermeture Qt.
 		"""
 		try: self._pt.settings.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
 	# ==================================================
-	# endregion Initialization
+	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
-	# region PALMTracer Link
+	# region Liaison avec PALMTracer
 	# ==================================================
 	##################################################
 	def _toggle_type(self, btn_id: int):
 		"""
-		Mets à jour la liste des sources et l'affichage des filtres.
+		Met à jour la liste des sources et l'affichage des filtres.
 
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
 		if btn_id == 0: self._filters.show_part(self.UI_NAME, localization=True, tracking=False)  # Localisation
-		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
+		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # .			Tracking
 
 	##################################################
 	def _add_stack(self):

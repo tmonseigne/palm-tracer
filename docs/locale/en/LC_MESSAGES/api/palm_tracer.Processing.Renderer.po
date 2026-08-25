@@ -3,19 +3,23 @@ msgid "Renderer"
 msgstr ""
 
 #: of palm_tracer.Processing.Renderer.Renderer:1
-msgid "Créateur de graphiques avec Plotly."
-msgstr "Plotly chart creator."
+msgid "Produit les rendus haute résolution à partir des localisations."
+msgstr "Produces high-resolution renderings from localizations."
+
+#: of palm_tracer.Processing.Renderer.Renderer:3
+msgid "La taille de sortie et le facteur d'agrandissement sont conservés par l'instance afin d'être réutilisés par les différents modes de rendu."
+msgstr "The instance retains the output size and upscaling factor so they can be reused by the different rendering modes."
 
 #: ../../api/palm_tracer.Processing.Renderer.rst:9
 msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Processing.Renderer.rst:12
-msgid "Divers"
-msgstr "Miscellaneous"
+msgid "Configuration"
+msgstr ""
 
 #: of palm_tracer.Processing.Renderer.Renderer.set_size:1
-msgid "Mets à jour les tailles pour le rendu."
+msgid "Met à jour les tailles pour le rendu."
 msgstr "Updates the dimensions for rendering."
 
 #: ../../api/palm_tracer.Processing.Renderer.rst
@@ -33,6 +37,10 @@ msgstr "Image height."
 #: of palm_tracer.Processing.Renderer.Renderer.set_size:5
 msgid "Ratio d'agrandissement de l'image. Les coordonnées sont multipliées par ce facteur."
 msgstr "Image scaling factor. Coordinates are multiplied by this factor."
+
+#: ../../api/palm_tracer.Processing.Renderer.rst:17
+msgid "Rendus"
+msgstr "Renderings"
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:1
 msgid "Construit une image Haute résolution (uint16) en fonction des éléments localisés."
@@ -70,7 +78,7 @@ msgid "Construit une image haute résolution (uint16) à partir de trajectoires 
 msgstr "Constructs a high-resolution image (uint16) from localized tracks. Each track is drawn in segments (P0→P1, P1→P2, …)."
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:4
-msgid "Colonnes attendues dans `tracks` :"
+msgid "Colonnes attendues dans ``tracks`` :"
 msgstr "Expected columns in `tracks`:"
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:5
@@ -130,9 +138,9 @@ msgstr "Number of frames required to complete a full rotation."
 msgid "Axe de rotation (X,Y,Z)."
 msgstr "Axis of rotation (X, Y, Z)."
 
-#: ../../api/palm_tracer.Processing.Renderer.rst:21
-msgid "Tools"
-msgstr ""
+#: ../../api/palm_tracer.Processing.Renderer.rst:25
+msgid "Préparation et dessin"
+msgstr "Data preparation and drawing"
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:1
 msgid "Construit un tableau NumPy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur."
@@ -183,7 +191,7 @@ msgid "Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucu
 msgstr "Target maximum value for normalization. If ``max_value ≤ 0``, no normalization is applied."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:18
-msgid "Dataframe avec la colonne Color ajouté."
+msgid "DataFrame avec la colonne Color ajouté."
 msgstr "DataFrame with the Color column added."
 
 #: ../../api/palm_tracer.Processing.Renderer.rst
@@ -195,13 +203,13 @@ msgstr "Raise"
 msgid "Si les colonnes ``X`` ou ``Y`` sont absentes."
 msgstr "If the ``X`` or ``Y`` columns are missing."
 
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:22
-#: palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:20
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:21
+#: palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:19
 msgid "La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif. Cela évite une division par zéro lorsque toutes les valeurs sont nulles."
 msgstr "Normalization is applied only if the maximum value in the ``Color`` column after shifting is strictly positive. This prevents division by zero when all values are zero."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:1
-msgid "Construit un tableau NumPy contenant les numéros, plans et coordonnées des trajectoires ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur."
+msgid "Construit un tableau NumPy contenant les numéros de trajectoire, les plans, les coordonnées des trajectoires ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur."
 msgstr "Constructs a NumPy array containing the track numbers, planes, and coordinates, as well as an associated scalar value to be used as intensity/color."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:4
@@ -255,6 +263,10 @@ msgstr "The data must include a Z component."
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_data:9
 msgid "Les données seront utilisées pour une représentation gaussienne."
 msgstr "The data will be used for a Gaussian representation."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:10
+msgid "Copie transformée des données, limitée aux dimensions du rendu."
+msgstr "Transformed copy of the data, limited to the rendering dimensions."
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:1
 msgid "Récupère les données Color, Sigma X, Sigma Y, Theta et les modifient en fonction des paramètres utilisateurs."
@@ -374,6 +386,3 @@ msgstr "0: sum of intensities; otherwise: preserve the maximum voxel-by-voxel."
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:10
 msgid "Volume résultat."
 msgstr "Result Volume."
-
-#~ msgid "Nouveau volume en uint16 de forme (Z, height*ratio, width*ratio)"
-#~ msgstr "New volume in uint16 format (height*ratio, width*ratio)."

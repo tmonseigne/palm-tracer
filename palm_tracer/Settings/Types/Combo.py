@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`Combo` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type liste déroulante.
-"""
+"""Définit un paramètre de sélection dans une liste déroulante."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -17,12 +16,12 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 @dataclass
 class Combo(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type liste déroulante.
+	Représente un choix effectué dans une liste déroulante.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeurs par défaut du paramètre.
-	:param _items: Choix de la liste déroulante.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Indice sélectionné par défaut.
+	:param _items: Libellés des choix proposés.
 	"""
 
 	default: int = 0
@@ -34,7 +33,7 @@ class Combo(BaseSettingType):
 	"""Choix de la liste déroulante (:class:`list[str]`)."""
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -87,7 +86,7 @@ class Combo(BaseSettingType):
 	##################################################
 	@items.setter
 	def items(self, items: Optional[list[str]] = None):
-		"""Mets à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
+		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
 		if items is not None: self._items = items
 		for ui in self._uis.values():
 			b = cast(QComboBox, ui.boxes[0])
@@ -97,11 +96,11 @@ class Combo(BaseSettingType):
 		self.value = 0
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region Parsing
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -120,7 +119,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = Combo("Test", "tooltip", 0, ["1", "2", "3"])
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -128,6 +127,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

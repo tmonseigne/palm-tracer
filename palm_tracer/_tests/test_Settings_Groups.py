@@ -1,4 +1,5 @@
-"""Fichier des tests pour les groupes de paramètres."""
+"""Teste les groupes de paramètres."""
+
 import copy
 from typing import List, Type
 
@@ -43,7 +44,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	ui = group.get_ui()  # Second appel l'ui existe déjà
 
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	ui.attach_to_form(form)
 
 	# Hide and seek
@@ -71,7 +72,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 
 ###################################################
 def test_base_group(qtbot):
-	"""Test basique de la classe abstraite."""
+	"""Vérifie la classe abstraite."""
 	group = BaseSettingGroup()
 	group.value = None
 	assert group.value is None, "Get Value ne doit rien retourné pour la classe mère."
@@ -84,14 +85,14 @@ def test_base_group(qtbot):
 
 ###################################################
 def test_batch(qtbot):
-	"""Test basique de la classe Batch (constructeur, getter, setter)."""
+	"""Vérifie la classe Batch (constructeur, getter, setter)."""
 	batch = Batch()
 	group_base_test(batch, ["Files", "Mode"], FileList, -1, -1)
 
 
 ###################################################
 def test_batch_get_path(qtbot):
-	"""Test du get_paths de la classe Batch."""
+	"""Vérifie le get_paths de la classe Batch."""
 	batch = Batch()
 
 	path = batch.get_paths()
@@ -124,7 +125,7 @@ def test_batch_get_path(qtbot):
 
 ###################################################
 def test_batch_get_stacks(qtbot):
-	"""Test du get_stacks de la classe Batch."""
+	"""Vérifie le get_stacks de la classe Batch."""
 	batch = Batch()
 	stacks = batch.get_stacks()
 	assert len(stacks) == 0, "Nombre de pile invalide"
@@ -156,13 +157,13 @@ def test_batch_get_stacks(qtbot):
 
 ###################################################
 def test_calibration(qtbot):
-	"""Test basique de la classe Calibration (constructeur, getter, setter)."""
+	"""Vérifie la classe Calibration (constructeur, getter, setter)."""
 	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"], SpinFloat, 0.32, 0.16)
 
 
 ###################################################
 def test_localization(qtbot):
-	"""Test basique de la classe Localisation (constructeur, getter, setter)."""
+	"""Vérifie la classe Localisation (constructeur, getter, setter)."""
 	g = Localization()
 	group_base_test(g, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
 					CheckBox, True, False)
@@ -183,7 +184,7 @@ def test_localization(qtbot):
 
 ###################################################
 def test_localization_fit(qtbot):
-	"""Test de la classe Localisation pour la récupération des paramètres de Fit."""
+	"""Vérifie la classe Localisation pour la récupération des paramètres de Fit."""
 	loc = Localization()
 
 	loc["Fit"].value = 0
@@ -200,14 +201,14 @@ def test_localization_fit(qtbot):
 
 ###################################################
 def test_gaussian_fit(qtbot):
-	"""Test basique de la classe GaussianFit (constructeur, getter, setter)."""
+	"""Vérifie la classe GaussianFit (constructeur, getter, setter)."""
 	grp = GaussianFit()
 	group_base_test(grp, ["Mode", "Sigma", "Theta", 'Z', 'Z max', 'Model'], Combo, 2, 0)
 
 
 ###################################################
 def test_gaussian_fit_z(qtbot):
-	"""Test de la classe GaussianFit avec affichage/masquage des éléments."""
+	"""Vérifie la classe GaussianFit avec affichage/masquage des éléments."""
 	grp = GaussianFit()
 	ui_z = grp["Z"].get_ui()
 	ui_z_max = grp["Z max"].get_ui()
@@ -227,37 +228,37 @@ def test_gaussian_fit_z(qtbot):
 
 ###################################################
 def test_spline_fit(qtbot):
-	"""Test basique de la classe SplineFit (constructeur, getter, setter)."""
+	"""Vérifie la classe SplineFit (constructeur, getter, setter)."""
 	group_base_test(SplineFit(), ["Sensor", "Variance Map", "File"], Combo, 1, 0)
 
 
 ###################################################
 def test_beads(qtbot):
-	"""Test basique de la classe BeadsExtraction (constructeur, getter, setter)."""
+	"""Vérifie la classe BeadsExtraction (constructeur, getter, setter)."""
 	group_base_test(BeadsExtraction(), ["Max Distance", "3D"], SpinFloat, 2, 1)
 
 
 ###################################################
 def test_tracking(qtbot):
-	"""Test basique de la classe Tracking (constructeur, getter, setter)."""
+	"""Vérifie la classe Tracking (constructeur, getter, setter)."""
 	group_base_test(Tracking(), ["Max Distance"], SpinFloat, 2, 1)
 
 
 ###################################################
 def test_tracks_blinking_reconnection(qtbot):
-	"""Test basique de la classe BlinkingReconnection (constructeur, getter, setter)."""
+	"""Vérifie la classe BlinkingReconnection (constructeur, getter, setter)."""
 	group_base_test(BlinkingReconnection(), ["Mode", "Max Duration", "Max Distance"], Combo, 1, 0)
 
 
 ###################################################
 def test_tracks_computes(qtbot):
-	"""Test basique de la classe TracksCompute (constructeur, getter, setter)."""
+	"""Vérifie la classe TracksCompute (constructeur, getter, setter)."""
 	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Log Scale", "Fit"], CheckBox, True, False)
 
 
 ###################################################
 def test_filters(qtbot):
-	"""Test basique de la classe Filters (constructeur, getter, setter)."""
+	"""Vérifie la classe Filters (constructeur, getter, setter)."""
 	g = Filters()
 	group_base_test(g, ["Save", "Plane", "ROI", "Localization", "Tracks"], CheckBox, True, False)
 	g.deactivate_filters()
@@ -276,7 +277,7 @@ def test_filters(qtbot):
 
 ###################################################
 def test_filters_l(qtbot):
-	"""Test basique de la classe FiltersL (constructeur, getter, setter)."""
+	"""Vérifie la classe FiltersL (constructeur, getter, setter)."""
 	g = FiltersL()
 	group_base_test(g, ["Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], CheckRangeInt, [2, 9], [-2000, 2000])
 	g.deactivate_filters()
@@ -284,7 +285,7 @@ def test_filters_l(qtbot):
 
 ###################################################
 def test_filters_t(qtbot):
-	"""Test basique de la classe FiltersT (constructeur, getter, setter)."""
+	"""Vérifie la classe FiltersT (constructeur, getter, setter)."""
 	g = FiltersT()
 	group_base_test(g, ["Track", "Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckIntSelection, "1;3-4", "")
 	g.deactivate_filters()
@@ -292,13 +293,13 @@ def test_filters_t(qtbot):
 
 ###################################################
 def test_gallery(qtbot):
-	"""Test basique de la classe Gallery (constructeur, getter, setter)."""
+	"""Vérifie la classe Gallery (constructeur, getter, setter)."""
 	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
 
 
 ###################################################
 def test_graph(qtbot):
-	"""Test basique de la classe Graph (constructeur, getter, setter)."""
+	"""Vérifie la classe Graph (constructeur, getter, setter)."""
 	g = Graph()
 	group_base_test(Graph(), ["Type", "Source", "Dual", "Source B", "MSD Step", "Display"], ButtonGroup, 1, 0)
 	g["Type"].value = 1  # Passage aux Tracks
@@ -308,13 +309,13 @@ def test_graph(qtbot):
 
 ###################################################
 def test_graph_display(qtbot):
-	"""Test basique de la classe GraphDisplay (constructeur, getter, setter)."""
+	"""Vérifie la classe GraphDisplay (constructeur, getter, setter)."""
 	group_base_test(GraphDisplay(), ["Limits", "Sigma", "Gauss", "KDE", "Poiss", "Exp", "Cumul", "Log Scale", "Count", "Bins"], CheckBox, False, True)
 
 
 ###################################################
 def test_hr(qtbot):
-	"""Test basique de la classe HR (constructeur, getter, setter)."""
+	"""Vérifie la classe HR (constructeur, getter, setter)."""
 	g = HR()
 	g["Type"].value = 1  # Passage aux Tracks
 	g["Dimension"].value = 1  # Passage à Z-stack
@@ -328,17 +329,17 @@ def test_hr(qtbot):
 
 ###################################################
 def test_hr_gaussian(qtbot):
-	"""Test basique de la classe HRGaussian (constructeur, getter, setter)."""
+	"""Vérifie la classe HRGaussian (constructeur, getter, setter)."""
 	group_base_test(HRGaussian(), ["Intensity", "Fixed Intensity", "Shape", "Size"], SpinInt, 10, 100)
 
 
 ###################################################
 def test_hr_3d(qtbot):
-	"""Test basique de la classe HRGaussian (constructeur, getter, setter)."""
+	"""Vérifie la classe HRGaussian (constructeur, getter, setter)."""
 	group_base_test(HR3D(), ["Z Step", "Axis", "Frames"], SpinInt, 10, 20)
 
 
 ###################################################
 def test_visualization_3d(qtbot):
-	"""Test basique de la classe Visualization3D (constructeur, getter, setter)."""
+	"""Vérifie la classe Visualization3D (constructeur, getter, setter)."""
 	group_base_test(Visualization3D(), ["Point Size", "Pixel Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 2, 1)

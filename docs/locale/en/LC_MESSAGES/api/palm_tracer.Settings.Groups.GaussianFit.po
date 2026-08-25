@@ -3,47 +3,38 @@ msgid "GaussianFit"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:1
-msgid "Classe contenant les paramètres du Gaussian Fit :"
-msgstr "Class containing the Gaussian Fit settings:"
+msgid "Regroupe les paramètres de l'ajustement gaussien des localisations."
+msgstr "Groups the settings for Gaussian fitting of localizations."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:3
-msgid "Attributs :"
-msgstr "Attributes:"
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:5
-msgid "**Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement gaussien (par défaut : `Mode X, Y`)."
-msgstr "**Mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Gaussian fitting method (default: `Mode X, Y`)."
+msgid "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : paramètres ajustés parmi :math:`X`, :math:`Y`, :math:`\\sigma`, :math:`\\sigma_x`, :math:`\\sigma_y` et :math:`\\theta`."
+msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : parameters fitted among :math:`X`, :math:`Y`, :math:`\\sigma`, :math:`\\sigma_x`, :math:`\\sigma_y`, and :math:`\\theta`."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:7
-msgid "`0` : `Mode X, Y` (theta et sigma sont fixes)"
-msgstr "`0`: `Mode X, Y` (theta and sigma are fixed)"
+msgid "``Sigma`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\sigma` ; valeur par défaut : ``1.0`` pixel."
+msgstr "``Sigma`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : initial value of :math:`\\sigma`; default value: ``1.0`` pixel."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:8
-msgid "`1` : `Mode X, Y, Sigma` (theta est fixe, Sigma Non)"
-msgstr "`1`: `Mode X, Y, Sigma` (theta is fixed, Sigma is not)"
+msgid "``Theta`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\theta` ; valeur par défaut : ``0.0`` degré."
+msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : initial value of :math:`\\theta`; default value: ``0.0`` degree."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:9
-msgid "`2` : `Mode X, Y, SigmaX, SigmaY` (theta n'est pas fixe, Sigma Si)"
-msgstr "`2`: `Mode X, Y, SigmaX, SigmaY` (theta is not fixed, Sigma is)"
+msgid "``Z`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active l'estimation axiale par astigmatisme."
+msgstr "``Z`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enables axial estimation using astigmatism."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:10
-msgid "`3` : `Mode X, Y, SigmaX, SigmaY, Theta` (theta et sigma ne sont pas fixes)"
-msgstr "`3`: `Mode X, Y, SigmaX, SigmaY, Theta` (theta and sigma are not fixed)"
+msgid "``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : valeur absolue maximale utilisée pour initialiser l'estimation axiale ; valeur par défaut : ``500`` nm."
+msgstr "``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : maximum absolute value used to initialize axial estimation; default value: ``500`` nm."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:12
-msgid "**Sigma** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre σ pour l'ajustement gaussien (par défaut : `1.0`)."
-msgstr "**Sigma** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`): Setting σ for the Gaussian fit (default: `1.0`)."
-
-#: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:13
-msgid "**Theta** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Paramètre θ pour l'ajustement gaussien (par défaut : `0.0`)."
-msgstr "**Theta** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`): Setting θ for Gaussian fitting (default: `0.0`)."
-
-#: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:14
-msgid "**Z** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Utilise le modèle d'astigmatisme pour estimer la position axiale Z."
-msgstr "**Z** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Use the astigmatism model to estimate the Z-axis position."
+msgid "``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser."
+msgstr "``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : specific astigmatism model to use."
 
 #: ../../api/palm_tracer.Settings.Groups.GaussianFit.rst of
-#: palm_tracer.Settings.Groups.GaussianFit.GaussianFit
 #: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_fit_mode
 #: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_z_estimate
 msgid "Paramètres"
@@ -54,15 +45,15 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.mode:1
-msgid "Méthode d'affichage du groupe par défaut."
+msgid "Mode d'affichage du groupe dans l'interface."
 msgstr "Default group display method."
 
 #: ../../api/palm_tracer.Settings.Groups.GaussianFit.rst:16
@@ -74,11 +65,11 @@ msgid "Divers"
 msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.initialize:1
-msgid "Initialise le dictionnaire de paramètres."
+msgid "Initialise les connexions entre les paramètres."
 msgstr "Initializes the settings dictionary."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.get_ui:3
@@ -87,7 +78,7 @@ msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.get_ui:4
 msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"Remove header\" state (no title area created)"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.get_ui:4
 msgid "Méthode de création du groupe."

@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`FileList` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type liste de fichiers.
-"""
+"""Définit un paramètre contenant une liste de fichiers."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -19,10 +18,10 @@ from palm_tracer.Tools import Ui
 @dataclass
 class FileList(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type recherche de fichier.
+	Représente un paramètre contenant une liste de fichiers et une sélection active.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
 	"""
 
 	default: int = field(init=False, default=-1)
@@ -35,10 +34,11 @@ class FileList(BaseSettingType):
 
 	##################################################
 	def reset(self):
+		"""Réinitialise le paramètre à sa valeur par défaut."""
 		self.clear_files()
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -102,7 +102,7 @@ class FileList(BaseSettingType):
 	##################################################
 	@items.setter
 	def items(self, items: Optional[list[str]] = None):
-		"""Mets à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
+		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
 		if items is not None: self._items = items
 		for ui in self._uis.values():
 			b = cast(QComboBox, ui.boxes[3])
@@ -112,29 +112,27 @@ class FileList(BaseSettingType):
 		self.value = 0
 
 	# ==================================================
-	# endregion Getter/Setter
+	# endregion Accesseurs
 	# ==================================================
 
 	# ==================================================
-	# region  Parsing
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
-		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
 		return {"value": self._value, "items": self._items}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
-		"""Mets à jour la classe à partir d'un dictionnaire minimal."""
 		self.items = data["items"]  # Récupération de la liste des éléments avant de mettre à jour la valeur
 		self.value = data["value"]
 
 	# ==================================================
-	# endregion  Parsing
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
-	# region Callbacks
+	# region Fonctions de rappel
 	# ==================================================
 
 	##################################################
@@ -142,7 +140,7 @@ class FileList(BaseSettingType):
 		"""Ajoute un fichier à la liste via un :class:`QFileDialog`."""
 		# Déterminer le répertoire initial pour la boîte de dialogue
 		initial_dir = (self._items[-1] if self._items else ".")  # Utiliser le dernier fichier ou le répertoire courant
-		path, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier", initial_dir, "Tous les fichiers (*)")
+		path, _ = QFileDialog.getOpenFileName(None, "Select a file", initial_dir, "All files (*)")
 		if path and Path(path).is_file():
 			self._items.append(path)
 			self.items = None
@@ -173,7 +171,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = FileList("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -181,6 +179,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

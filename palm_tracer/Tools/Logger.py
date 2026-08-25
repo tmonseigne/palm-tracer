@@ -1,8 +1,5 @@
-"""
-Module d'enregistrement d'un journal d'activité du process.
+"""Enregistre dans un journal horodaté les différentes étapes d'un traitement."""
 
-Ce fichier contient une classe principale :class:`Logger` permettant d'enregistrer les différentes étapes du process.
-"""
 from __future__ import annotations
 
 import os
@@ -17,13 +14,11 @@ from palm_tracer.Tools import Ui
 ##################################################
 @dataclass
 class Logger:
-	"""Classe du journal d'activité.
+	"""
+	Écrit un journal d'activité horodaté et utilisable comme gestionnaire de contexte.
 
-	Notes
-	-----
-	- L'ouverture est idempotente : si un fichier est déjà ouvert, il est fermé avant de rouvrir.
-	- La fermeture est idempotente : `close()` peut être appelée plusieurs fois sans erreurs.
-	- La classe implémente le protocole context manager pour garantir la fermeture.
+	.. note:: L'ouverture et la fermeture sont idempotentes. Ouvrir un nouveau fichier ferme d'abord le précédent, et plusieurs appels successifs à
+	   :meth:`close` sont autorisés.
 	"""
 
 	filename: str = field(init=False, default="")
@@ -41,7 +36,7 @@ class Logger:
 		:param filename: Chemin du fichier de log.
 
 		.. note:: Si un fichier était déjà ouvert, il est fermé avant la réouverture afin d'éviter les handles orphelins
-				  (particulièrement problématiques sous Windows).
+			(particulièrement problématiques sous Windows).
 		"""
 		# Si déjà ouvert, on ferme proprement avant de rouvrir.
 		if self._isopen: self.close()
@@ -59,10 +54,10 @@ class Logger:
 
 	##################################################
 	def close(self):
-		"""Ferme le fichier de log.
+		"""
+		Ferme le fichier de log.
 
-		.. note:: Méthode idempotente : peut être appelée plusieurs fois.
-				  Force un flush + fsync pour limiter les surprises d'I/O (notamment sous Windows).
+		.. note:: Méthode idempotente : peut être appelée plusieurs fois. Force un flush + fsync pour limiter les surprises d'I/O (notamment sous Windows).
 		"""
 		if not self._isopen or self.file_handle is None:
 			# On ne spamme pas de warnings ici : fermer un logger déjà fermé est un cas normal.

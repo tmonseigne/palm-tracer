@@ -1,7 +1,5 @@
-"""
-Fichier contenant la classe :class:`FiltersL` dérivée de :class:`.BaseSettingGroup`,
-qui regroupe les paramètres de filtrage de l'ajustement gaussien nécessaires à la configuration de PALM Tracer.
-"""
+"""Définit le groupe de paramètres de filtrage des localisations."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,28 +12,25 @@ from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 @dataclass
 class FiltersL(BaseSettingGroup):
 	"""
-	Classe contenant les paramètres du filtrage pour la localisation :
+	Regroupe les filtres applicables aux localisations.
 
-	Attributs :
-		- **Intensity** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) :
-		  Intervalle d'intensités sélectionnées (par défaut : `[1,10000000]`).
-		- **Sigma X** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Sigma X sélectionné (par défaut : `[0.0, 10.0]`).
-		- **Sigma Y** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Sigma Y sélectionné (par défaut : `[0.0, 10.0]`).
-		- **Circularity** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Circularités sélectionné (par défaut : `[0.0, 1.0]`).
-		- **Theta** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Theta sélectionné (par défaut : `[-90, 90]`).
-		- **Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de Z sélectionné (par défaut : `[-2000, 2000]`).
-		- **MSE XY** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de MSE XY sélectionné (par défaut : `[0.0, 1.0]`).
-		- **MSE Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) :
-		  Intervalle de MSE Z sélectionné (par défaut : `[0.0, 1.0]`).
+	Paramètres regroupés :
+
+	- ``Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle axial ; valeur par défaut : ``[-2000, 2000]`` nm.
+	- ``Intensity`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle d'intensité intégrée ; valeur par défaut :
+	  ``[0, 10000000]``.
+	- ``Sigma X`` et ``Sigma Y`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des écarts-types selon X et Y ;
+	  valeur par défaut : ``[0.0, 10.0]`` pixel.
+	- ``Circularity`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de circularité ; valeur par défaut :
+	  ``[0.0, 1.0]``.
+	- ``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle angulaire ; valeur par défaut :
+	  ``[-90.0, 90.0]`` degrés.
+	- ``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des erreurs quadratiques moyennes ;
+	  valeur par défaut : ``[0.0, 1.0]``.
 	"""
 
 	label: str = "Localization"
+	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Z":           [CheckRangeInt, ["Z", "", [-2000, 2000], [-2000, 2000]]],
 			"Intensity":   [CheckRangeInt, ["Intensity", "", [0, 10000000], [0, 10000000]]],
@@ -46,11 +41,13 @@ class FiltersL(BaseSettingGroup):
 			"MSE XY":      [CheckRangeFloat, ["MSE XY", "", [0, 1], [0, 1]]],
 			"MSE Z":       [CheckRangeFloat, ["MSE Z", "", [0, 1], [0, 1]]]
 			}
+	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
+	"""Mode d'affichage du groupe dans l'interface."""
 
 	##################################################
 	def deactivate_filters(self):
-		""" Désactive tous les filtres."""
+		"""Désactive tous les filtres."""
 		for key in self.setting_list: self._settings[key].active = False
 
 
@@ -61,7 +58,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	lay = QVBoxLayout(w)  # crée et assigne le layout au widget
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
 	group = FiltersL()
 	lay.addWidget(group.get_ui().widget)
 	lay.addStretch(1)

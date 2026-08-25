@@ -1,4 +1,5 @@
-"""Fichier des tests pour les fonctions en lien avec l'affichage."""
+"""Teste les utilitaires de construction et de synchronisation des interfaces Qt."""
+
 from pathlib import Path
 
 from qtpy.QtCore import Qt
@@ -9,7 +10,7 @@ from palm_tracer.Tools import Ui
 
 ##################################################
 def test_builders(qtbot):
-	"""Test des fonctions de build."""
+	"""Vérifie les fonctions de build."""
 	main_widget = QWidget()
 	tab, layout = Ui.make_tab(main_widget)  # Création d'un onglet
 	assert isinstance(tab, QWidget)
@@ -57,7 +58,7 @@ def test_builders(qtbot):
 
 ##################################################
 def test_builders_spin(qtbot):
-	"""Test des fonctions de build."""
+	"""Vérifie les fonctions de build."""
 	main_widget = QWidget()
 
 	spin_1 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
@@ -78,7 +79,7 @@ def test_builders_spin(qtbot):
 
 ##################################################
 def test_sync_spin(qtbot):
-	"""Test des fonctions de synchronisation."""
+	"""Vérifie les fonctions de synchronisation."""
 	main_widget = QWidget()
 
 	spin_1 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
@@ -99,7 +100,7 @@ def test_sync_spin(qtbot):
 
 ##################################################
 def test_sync_button_group(qtbot):
-	"""Test des fonctions de synchronisation."""
+	"""Vérifie les fonctions de synchronisation."""
 	_ = QWidget()
 
 	_, grp_1, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
@@ -120,23 +121,23 @@ def test_sync_button_group(qtbot):
 
 ##################################################
 def test_print_error():
-	"""Test de la fonction print error."""
+	"""Vérifie la fonction print error."""
 	Ui.print_error("Message d'erreur"), "L'affichage n'a pas pu être effectué"
 
 
 ##################################################
 def test_print_warning():
-	"""Test de la fonction print warning."""
+	"""Vérifie la fonction print warning."""
 	Ui.print_warning("Message d'avertissement"), "L'affichage n'a pas pu être effectué"
 
 
 ##################################################
 def test_print_success():
-	"""Test de la fonction print warning."""
+	"""Vérifie la fonction print warning."""
 	Ui.print_success("Message de succes"), "L'affichage n'a pas pu être effectué"
 
 
 ##################################################
 def test_format_time():
-	"""Test de la fonction print warning."""
+	"""Vérifie la fonction print warning."""
 	assert Ui.format_time(3666) == "01:01:06", "L'affichage n'a pas pu être effectué"

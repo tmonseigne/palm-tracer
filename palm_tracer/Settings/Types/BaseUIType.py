@@ -1,20 +1,5 @@
-"""
-Fichier contenant la classe :class:`BaseUIType`.
+"""Définit la représentation Qt d'un type de paramètre."""
 
-Ce module définit une classe de base pour la représentation graphique d'un paramètre dans l'interface utilisateur Qt.
-
-Cette classe est utilisée comme conteneur des éléments Qt associés à une vue spécifique d'un :class:`BaseSettingType`.
-
-Elle permet de gérer indépendamment plusieurs instances d'interface (multi-vues) pour un même modèle de données (pattern MVC simplifié).
-
-Chaque instance de :class:`BaseUIType` correspond à une **vue unique** d'un paramètre,
-et contient tous les objets Qt nécessaires à son affichage et son interaction.
-
-Cette séparation permet :
-    - de dupliquer facilement l'interface sans dupliquer les données,
-    - de synchroniser automatiquement toutes les vues,
-    - de simplifier la gestion du cycle de vie des widgets Qt.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -28,13 +13,13 @@ from palm_tracer.Tools import Ui
 @dataclass
 class BaseUIType:
 	"""
-	Classe de base représentant une vue Qt associée à un paramètre.
+	Représente une vue Qt associée à un paramètre configurable.
 
-	Cette classe encapsule tous les objets Qt nécessaires à l'affichage d'un paramètre dans une interface utilisateur.
+	Chaque vue conserve ses propres widgets, sa disposition et sa position éventuelle dans un formulaire.
 
-	Elle est conçue pour être instanciée plusieurs fois pour un même paramètre, afin de permettre la duplication d'interface (multi-fenêtres, preview, etc.).
-
-	Chaque instance est indépendante en termes de widgets Qt, mais synchronisée avec le modèle de données auquel elle est associée.
+	:param layout: Disposition contenant les widgets du paramètre.
+	:param boxes: Widgets interactifs synchronisés avec le modèle.
+	:param label: Libellé Qt associé au paramètre, s'il existe.
 	"""
 
 	layout: QHBoxLayout | QVBoxLayout
@@ -54,7 +39,7 @@ class BaseUIType:
 		Ui.init_layout(self.layout, 0, 0)  # .				Initialise le layout
 
 	# ==================================================
-	# region Layout management
+	# region Gestion de la mise en page
 	# ==================================================
 	##################################################
 	def attach_to_form(self, form: QFormLayout):
@@ -64,7 +49,7 @@ class BaseUIType:
 		:param form: :class:`QFormLayout` dans lequel va être inséré le paramètre.
 		"""
 		self.form = form
-		self.row = form.rowCount()  # rowCount() avant addRow = index de la nouvelle ligne
+		self.row = form.rowCount()  # rowCount() avant addRow() donne l'indice de la nouvelle ligne
 		if self.label is not None: form.addRow(self.label, self.layout)
 		else: form.addRow(self.layout)
 
@@ -72,7 +57,7 @@ class BaseUIType:
 	def hide(self):
 		"""Cache le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, False)
-		else:  # fallback si pas attaché
+		else:  # Solution de repli si le widget n'est pas attaché
 			if self.label is not None: self.label.hide()
 			for b in self.boxes: b.hide()
 
@@ -80,7 +65,7 @@ class BaseUIType:
 	def show(self):
 		"""Affiche le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, True)
-		else:  # fallback si pas attaché
+		else:  # Solution de repli si le widget n'est pas attaché
 			if self.label is not None: self.label.show()
 			for b in self.boxes: b.show()
 

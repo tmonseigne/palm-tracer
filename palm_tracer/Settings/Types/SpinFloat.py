@@ -1,6 +1,5 @@
-"""
-Fichier contenant la classe :class:`SpinFloat` dérivée de :class:`.BaseSettingType`, qui permet la gestion d'un paramètre type nombre réel.
-"""
+"""Définit un paramètre flottant représenté par une boîte de sélection numérique."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -18,15 +17,16 @@ from palm_tracer.Tools import Ui
 @dataclass
 class SpinFloat(BaseSettingType):
 	"""
-	Classe pour un paramètre spécifique de type nombre réel.
+	Représente un nombre flottant avec une boîte de sélection numérique.
 
-	:param label: Nom du paramètre à afficher.
-	:param tooltip: Description détaillée en overlay.
-	:param default: Valeur par défaut du paramètre.
-	:param limits: Valeurs limites du paramètre.
-	:param step: Pas à chaque appui sur une des flèches du paramètre.
-	:param precision: Précision du paramètre.
+	:param label: Libellé affiché dans l'interface.
+	:param tooltip: Description affichée dans l'infobulle.
+	:param default: Valeur par défaut.
+	:param limits: Bornes minimale et maximale autorisées.
+	:param step: Incrément appliqué par la boîte de sélection numérique.
+	:param precision: Nombre de décimales affichées.
 	"""
+
 	default: float = 0.0
 	"""Valeur par défaut du paramètre (:class:`float`)."""
 	_value: float = field(init=False, default=0.0)
@@ -40,7 +40,7 @@ class SpinFloat(BaseSettingType):
 	"""Précision du paramètre."""
 
 	# ==================================================
-	# region Getter/Setter
+	# region Accesseurs
 	# ==================================================
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = QWidget()
-	form = QFormLayout(w)  # crée et assigne le layout au widget
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
 	setting = SpinFloat("Test", "tooltip")
 	setting.get_ui("default").attach_to_form(form)
 	setting.get_ui("second").attach_to_form(form)
@@ -93,6 +93,7 @@ if __name__ == "__main__":
 
 
 	def add_setting_ui():
+		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter
 		counter += 1
 		name = f"dynamic_{counter}"

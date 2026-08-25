@@ -3,40 +3,44 @@ msgid "FiltersT"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:1
-msgid "Classe contenant les paramètres du filtrage pour le tracking :"
-msgstr "Class containing the tracking filtering settings:"
+msgid "Regroupe les filtres applicables aux trajectoires et à leurs métriques."
+msgstr "Groups the filters applicable to tracks and their metrics."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:3
-msgid "Attributs :"
-msgstr "Attributes:"
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:4
-msgid "**Track** (:class:`CheckIntSelection <palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection>`) : Trajectoire IDs sélectionnés. Utilisez - pour définir un intervalle et ; pour séparer plusieurs valeurs ou intervalles. Exemple : 1-10;15;20-25."
-msgstr "**Track** (:class:`CheckIntSelection <palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection>`) : Selected Track IDs. Use - to specify a range and ; to separate multiple values or ranges. Example: 1-10;15;20-25."
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:5
+msgid "``Track`` (:class:`~palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection`) : identifiants individuels ou intervalles, par exemple ``1-10;15;20-25``."
+msgstr "``Track`` (:class:`~palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection`) : individual identifiers or ranges, for example ``1-10;15;20-25``."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:7
-msgid "**Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Intervalle de longueur sélectionné (par défaut : `[1, 10000]`)."
-msgstr "**Length** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Selected length interval (default: `[1, 10000]`)."
+msgid "``Length`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle de longueur ; valeur par défaut : ``[1, 10000]``."
+msgstr "``Length`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : length range; default value: ``[1, 10000]``."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:9
-msgid "**Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de diffusion instantanée sélectionné (par défaut : `[-5, 5]`)."
-msgstr "**Instant D** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected instantaneous spread interval (default: `[-5, 5]`)."
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:8
+msgid "``Instant D`` et ``D Coeff`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des coefficients de diffusion ; valeur par défaut : ``[-5.0, 5.0]``."
+msgstr "``Instant D`` and ``D Coeff`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : diffusion-coefficient ranges; default value: ``[-5.0, 5.0]``."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:11
-msgid "**D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de direction sélectionné (par défaut : `[-5, 5]`)."
-msgstr "**D Coeff** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected direction range (default: `[-5, 5]`)."
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:10
+msgid "``Alpha`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de l'exposant du mouvement ; valeur par défaut : ``[-10.0, 10.0]``."
+msgstr "``Alpha`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : motion-exponent range; default value: ``[-10.0, 10.0]``."
+
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:12
+msgid "``Speed`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de vitesse ; valeur par défaut : ``[0.0, 1.0]`` µm/s."
+msgstr "``Speed`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : speed range; default value: ``[0.0, 1.0]`` µm/s."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:13
-msgid "**Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de puissance sélectionné (par défaut : `[-10, 10]`)."
-msgstr "**Alpha** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected power range (default: `[-10, 10]`)."
+msgid "``Confinement`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de confinement ; valeur par défaut : ``[-10.0, 10.0]`` µm."
+msgstr "``Confinement`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : confinement range; default value: ``[-10.0, 10.0]`` µm."
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:15
-msgid "**Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de vitesse sélectionné (par défaut : `[0, 1]`)."
-msgstr "**Speed** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected speed range (default: `[0, 1]`)."
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:16
+msgid "À faire"
+msgstr "To do"
 
-#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:17
-msgid "**Confinement** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de confinement sélectionné (par défaut : `[-10, 10]`)."
-msgstr "**Confinement** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected Confinement range (default: `[-10, 10]`)."
+#: of palm_tracer.Settings.Groups.FiltersT.FiltersT:16
+msgid "Vérifier les ordres de grandeur et les valeurs par défaut, puis adapter dynamiquement la borne supérieure de ``Length`` aux données."
+msgstr "Check the orders of magnitude and default values, then dynamically adapt the upper bound of ``Length`` to the data."
 
 #: ../../api/palm_tracer.Settings.Groups.FiltersT.rst
 msgid "Paramètres"
@@ -47,15 +51,15 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT.mode:1
-msgid "Méthode d'affichage du groupe par défaut."
+msgid "Mode d'affichage du groupe dans l'interface."
 msgstr "Default group display method."
 
 #: ../../api/palm_tracer.Settings.Groups.FiltersT.rst:16

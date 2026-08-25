@@ -1,4 +1,5 @@
-"""Fichier contenant une classe pour créer des graphiques."""
+"""Construit les figures Plotly utilisées pour visualiser les données PALM."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,10 +25,14 @@ MESH_SIZE = 128
 ##################################################
 @dataclass
 class Grapher:
-	"""Créateur de graphiques avec Plotly."""
+	"""
+	Construit les figures Plotly utilisées pour explorer les résultats PALM.
+
+	Les méthodes statiques produisent les histogrammes, distributions, nuages de points et autres représentations sans conserver d'état entre les appels.
+	"""
 
 	# ==================================================
-	# region Statistic Figure
+	# region Figures statistiques
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -65,13 +70,13 @@ class Grapher:
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
-			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
+			if data.shape[0] == 2: _, x = data[0, :], data[1, :]  # .	 (2, N) -> lignes = (x, y)
 			elif data.shape[1] == 2:  _, x = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: x = np.asarray(data).ravel()
 		else: x = np.asarray(data).ravel()
 
 		x = x[np.isfinite(x)]
-		# Aucunes données valides
+		# Aucune donnée valide
 		if x.size == 0: return self.blank(title)
 
 		fig = go.Figure()
@@ -79,7 +84,7 @@ class Grapher:
 		# Limite des données avec la règle des 3 Sigmas
 		x, limits, mu, sigma = self._get_range(x, limit)
 
-		# Récupération du nombre de bin
+		# Récupération du nombre de classes
 		if bins == 0: bins = self._get_bins_number(x)
 		bin_width = (limits[1] - limits[0]) / max(int(bins), 1)
 		if bins < 0:
@@ -95,11 +100,11 @@ class Grapher:
 
 		# KDE
 		if x.size > 1 and sigma > 0:
-			x_grid = np.linspace(limits[0], limits[1], MESH_SIZE)  # grille régulière sur l'intervalle affiché
+			x_grid = np.linspace(limits[0], limits[1], MESH_SIZE)  # Grille régulière sur l'intervalle affiché
 
 			# Estimation par noyau
 			if kde:
-				kde_model = gaussian_kde(x)  # choisit sa propre bandwidth
+				kde_model = gaussian_kde(x)  # Choisit sa propre largeur de bande
 				y_pdf = kde_model(x_grid)
 				y = self._scale_curve(x_grid, y_pdf, x.size, bin_width, density, cumulative)
 				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
@@ -112,7 +117,7 @@ class Grapher:
 				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
 										 name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
-			# Poissonnienne
+			# Loi de Poisson
 			if poissonian and mu >= 0:
 				x_poisson = np.arange(max(0, int(np.floor(limits[0]))), int(np.ceil(limits[1])) + 1)
 				y_pdf = poisson.pmf(x_poisson, mu)
@@ -159,14 +164,14 @@ class Grapher:
 			y = data[np.isfinite(data)]
 			x = np.arange(y.size, dtype=float)
 		elif data.ndim == 2:
-			if data.shape[0] == 2: x, y = data[0, :], data[1, :]  # .  (2, N) -> lignes = (x, y)
+			if data.shape[0] == 2: x, y = data[0, :], data[1, :]  # .	 (2, N) -> lignes = (x, y)
 			elif data.shape[1] == 2:  x, y = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
 			else: raise ValueError("data 2D doit avoir 2 lignes ou 2 colonnes (x,y).")
 			mask = np.isfinite(x) & np.isfinite(y)
 			x, y = x[mask], y[mask]
 		else: raise ValueError("data doit être 1D ou 2D.")
 
-		# Aucunes données valides
+		# Aucune donnée valide
 		if x.size == 0: return self.blank(title)
 
 		fig = go.Figure()
@@ -174,7 +179,7 @@ class Grapher:
 		# Limite des données avec la règle des 3 Sigmas
 		_, limits, mu, sigma = self._get_range(y, limit)
 
-		# faire une courbe style "seaborn-like"
+		# Tracer une courbe de style "seaborn-like"
 		fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas
@@ -216,7 +221,7 @@ class Grapher:
 			x, y = data[0, :], data[1, :]
 		else: raise ValueError("data doit être 2D.")
 
-		# Aucunes données valides
+		# Aucune donnée valide
 		if data.size == 0: return self.blank(title)
 
 		fig = go.Figure()
@@ -283,11 +288,11 @@ class Grapher:
 		return fig
 
 	# ==================================================
-	# endregion Statistic Figure
+	# endregion Figures statistiques
 	# ==================================================
 
 	# ==================================================
-	# region Astigmtism Figure
+	# region Figure d'astigmatisme
 	# ==================================================
 	##################################################
 	def astigmatism3d(self, model: np.ndarray, data: np.ndarray | None = None, title: str = "", pixel_size: float = 160, z_max: float = 500,
@@ -309,7 +314,7 @@ class Grapher:
 		:param title: Titre du graphe.
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm). Utilisé pour l’évaluation du modèle.
 		:param z_max: Valeur maximale (en valeur absolue) de l’intervalle Z : :math:`Z \\in [-z_{max}, z_{max}]`.
-		:param mode:  Mode de visualisation : ``"curve"`` : σX vs σY (paramétré par Z), ``"cross"`` : σX(Z) et σY(Z), ``"slope"`` : σX(Z) - σY(Z).
+		:param mode: Mode de visualisation : ``"curve"`` : σX vs σY (paramétré par Z), ``"cross"`` : σX(Z) et σY(Z), ``"slope"`` : σX(Z) - σY(Z).
 		:param n_points: Nombre de points utilisés pour échantillonner la courbe. Plus la valeur est élevée, plus la courbe est lisse (coût négligeable).
 		:return: Objet Plotly :class:`go.Figure <plotly.graph_objects.Figure>` prêt à être affiché.
 		:raises ValueError: Si les dimensions du modèle ne correspondent pas à celles attendues (2x5).
@@ -352,11 +357,11 @@ class Grapher:
 		return fig
 
 	# ==================================================
-	# endregion Astigmtism Figure
+	# endregion Figure d'astigmatisme
 	# ==================================================
 
 	# ==================================================
-	# region Tools
+	# region Outils
 	# ==================================================
 	##################################################
 	@staticmethod
@@ -385,9 +390,9 @@ class Grapher:
 		"""
 		mu, sigma = float(np.mean(data)), float(np.std(data))
 		if limit and sigma > 0:
-			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .											 Limite théoriques des datas
-			data = data[(data >= limits[0]) & (data <= limits[1])]  # .								 Suppression des datas au dela des limites
-			limits = [max(limits[0], float(np.min(data))), min(limits[1], float(np.max(data))), ]  # On resserre les limites autour des datas
+			limits = [mu - 3 * sigma, mu + 3 * sigma]  # .											 Limites théoriques des données
+			data = data[(data >= limits[0]) & (data <= limits[1])]  # .								 Suppression des données au-delà des limites
+			limits = [max(limits[0], float(np.min(data))), min(limits[1], float(np.max(data))), ]  # On resserre les limites autour des données
 		else:
 			limits = [float(np.min(data)), float(np.max(data))]
 		return data, limits, mu, sigma
@@ -419,7 +424,7 @@ class Grapher:
 
 			return y if density else y * n  # Conversion densité ⇾ comptes approximatifs.
 		if density: return y_pdf  # Non cumulatif et densité, aucune mise à l'échelle
-		return y_pdf * n if discrete else y_pdf * n * bin_width  # convertir la densité en comptes ~ dens * N * bin_width
+		return y_pdf * n if discrete else y_pdf * n * bin_width  # Convertir la densité en comptes ~ dens * N * bin_width
 
 	##################################################
 	@staticmethod
@@ -444,4 +449,11 @@ class Grapher:
 	##################################################
 	@staticmethod
 	def _axis_dict(title: str, limits: Optional[list] = None) -> dict:
+		"""
+		Construit la configuration commune d'un axe Plotly.
+
+		:param title: Titre de l'axe.
+		:param limits: Bornes de l'axe.
+		:return: Configuration de l'axe Plotly.
+		"""
 		return dict(title=title, range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH)

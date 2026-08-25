@@ -1,4 +1,5 @@
-"""Fichier des tests pour le widget."""
+"""Teste le widget principal de PALM Tracer."""
+
 import shutil
 
 from qtpy.QtCore import Qt
@@ -16,7 +17,7 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 ##################################################
 def test_creation(make_napari_viewer, patched_napari_viewer):
-	"""Test basique de création du widget."""
+	"""Vérifie la création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
 	viewer = make_napari_viewer()  # .		 Créer un viewer à l'aide de la fixture.
 	_ = PALMTracerWidget(viewer)  # .		 Créer notre widget, en passant par le viewer.
@@ -24,7 +25,7 @@ def test_creation(make_napari_viewer, patched_napari_viewer):
 
 ##################################################
 def test_on_load_setting(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
-	"""Test remise à zéro des calques."""
+	"""Vérifie la remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -37,7 +38,7 @@ def test_on_load_setting(make_napari_viewer, patched_napari_viewer, capsys, monk
 
 ##################################################
 def test_reset_setting(make_napari_viewer, patched_napari_viewer):
-	"""Test remise à zéro des calques."""
+	"""Vérifie la remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -47,7 +48,7 @@ def test_reset_setting(make_napari_viewer, patched_napari_viewer):
 
 ##################################################
 def test_clean_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
-	"""Test nettoyage des calques."""
+	"""Vérifie le nettoyage des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -58,7 +59,7 @@ def test_clean_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 
 ##################################################
 def test_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
-	"""Test remise à zéro des calques."""
+	"""Vérifie la remise à zéro des calques."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -73,7 +74,7 @@ def test_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 
 ##################################################
 def test_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Test de récupération d'image."""
+	"""Vérifie la récupération d'image."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -87,7 +88,7 @@ def test_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
 
 ##################################################
 def test_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Test Ajout des calques de détection."""
+	"""Vérifie Ajout des calques de détection."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -125,7 +126,7 @@ def test_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
 
 ##################################################
 def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
-	"""Test click sur le bouton preview."""
+	"""Vérifie le clic sur le bouton preview."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -140,7 +141,7 @@ def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 
 	# Ajout d'une entrée
 	add_basic_file(w.pt)  # .									Ajout d'une entrée.
-	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # . Attente : qu'il ait mis une image.
+	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .	Attente : qu'il ait mis une image.
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : le flag doit passer à False.
 
 	with setting.signal_blocked():
@@ -153,7 +154,7 @@ def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 
 ##################################################
 def test_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
-	"""Test click sur le bouton auto_threshold."""
+	"""Vérifie le clic sur le bouton auto_threshold."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -171,7 +172,7 @@ def test_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot
 
 ##################################################
 def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Test click sur le bouton process."""
+	"""Vérifie le clic sur le bouton process."""
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
@@ -179,7 +180,7 @@ def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
 	w._thread_process(w._auto_threshold)
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 
-	# appel avec un process en cours
+	# Appel avec un traitement en cours
 	w._processing = True
 	w._thread_process(w._auto_threshold)
 	w._processing = False
@@ -195,6 +196,7 @@ def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
 
 ##################################################
 def test_filters_button(make_napari_viewer, patched_napari_viewer, qtbot):
+	"""Vérifie le comportement du bouton de filtrage."""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = make_napari_viewer()

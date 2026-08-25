@@ -3,18 +3,49 @@ msgid "ROIManager"
 msgstr ""
 
 #: of palm_tracer.Settings.ROIManager.ROIManager:1
-msgid "Classe permettant de gérer les ROI de filtrage des résultats."
-msgstr "A class for managing ROI for result filtering."
+msgid "Gère les zones d'intérêt utilisées pour filtrer les résultats."
+msgstr "Manages the regions of interest used to filter results."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager:3
+msgid "Le gestionnaire synchronise les calques Napari principal et haute résolution, conserve la zone sélectionnée et applique les transformations d'échelle nécessaires entre les deux vues."
+msgstr "The manager synchronizes the main and high-resolution Napari layers, retains the selected region, and applies the scale transformations required between the two views."
 
 #: ../../api/palm_tracer.Settings.ROIManager.rst of
-#: palm_tracer.Settings.ROIManager.ROIManager
 #: palm_tracer.Settings.ROIManager.ROIManager.update_colors
 msgid "Paramètres"
 msgstr "Parameters"
 
+#: of palm_tracer.Settings.ROIManager.ROIManager:6
+msgid "Paramètre contenant l'indice de la zone sélectionnée."
+msgstr "Setting containing the index of the selected region."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager:7
+msgid "Facteur d'agrandissement de la vue haute résolution."
+msgstr "High Resolution interface layer."
+
 #: ../../api/palm_tracer.Settings.ROIManager.rst:9
 msgid "Attributs"
 msgstr "Attributes"
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.roi_selection:1
+msgid "Paramètre qui sélectionne la zone d'intérêt active."
+msgstr "Setting that selects the active region of interest."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.hr_ratio:1
+msgid "Facteur d'agrandissement de la reconstruction haute résolution."
+msgstr "Updates the current bounding box for high-resolution generation."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.width:1
+msgid "Largeur de l'image de référence, en pixels."
+msgstr "Width of the reference image, in pixels."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.height:1
+msgid "Hauteur de l'image de référence, en pixels."
+msgstr "Height of the reference image, in pixels."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.hr_box:1
+msgid "Limites de la zone haute résolution sous la forme ``(x_min, x_max, y_min, y_max)``."
+msgstr "Bounds of the high-resolution region as ``(x_min, x_max, y_min, y_max)``."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.layer_main:1
 msgid "Calque de l'interface principale."
@@ -30,11 +61,11 @@ msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Settings.ROIManager.rst:24
-msgid "Getter/Setter"
-msgstr ""
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.set_size:1
-msgid "Mets à jour la hauteur et largeur maximale de la ROI."
+msgid "Met à jour la hauteur et largeur maximale de la ROI."
 msgstr "Update the maximum height and width of the ROI."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.set_size:3
@@ -70,23 +101,23 @@ msgid "Ajoute la zone aux zones éxistantes si ``True``, sinon remplace les zone
 msgstr "Adds the region to existing regions if ``True``, otherwise replaces the regions with the new one."
 
 #: ../../api/palm_tracer.Settings.ROIManager.rst:30
-msgid "Synchronization"
-msgstr ""
+msgid "Synchronisation"
+msgstr "Synchronization"
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_from_main:1
-msgid "Mets à jour la liste des ROI à partir du calque principal (callback appelé à chaque modification dans le calque principal)."
+msgid "Met à jour la liste des ROI à partir du calque principal (callback appelé à chaque modification dans le calque principal)."
 msgstr "Update the ROI list from the main layer (callback called whenever a change is made to the main layer)."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_from_hr:1
-msgid "Mets à jour la liste des ROI à partir du calque haute résolution (callback appelé à chaque modification dans le calque haute résolution)."
+msgid "Met à jour la liste des ROI à partir du calque haute résolution (callback appelé à chaque modification dans le calque haute résolution)."
 msgstr "Update the ROI list from the high-resolution layer (callback called whenever a change is made to the high-resolution layer)."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_main:1
-msgid "Mets à jour le calque principal."
+msgid "Met à jour le calque principal."
 msgstr "Update the main layer."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_hr:1
-msgid "Mets à jour le calque Haute Résolution."
+msgid "Met à jour le calque Haute Résolution."
 msgstr "Update the high resoultion layer."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_hr:3
@@ -104,8 +135,8 @@ msgid "Événement napari associé au changement."
 msgstr "A Napari event associated with change."
 
 #: ../../api/palm_tracer.Settings.ROIManager.rst:40
-msgid "IO"
-msgstr ""
+msgid "Entrées-sorties"
+msgstr "Input/output"
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.from_dict_list:1
 msgid "Importe une liste de dictionnaires de formes depuis un enregistrement json."
@@ -120,8 +151,8 @@ msgid "Exporte une liste de dictionnaires de formes pour le format json."
 msgstr "Exports a list of shape dictionaries to JSON format."
 
 #: ../../api/palm_tracer.Settings.ROIManager.rst:46
-msgid "Misc"
-msgstr ""
+msgid "Divers"
+msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_colors:1
 msgid "Met à jour les couleurs selon la sélection courante."
@@ -144,7 +175,7 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_hr_box:1
-msgid "Mets à jour la bounding box actuelle de la génération Haute résolution."
+msgid "Met à jour la bounding box actuelle de la génération Haute résolution."
 msgstr "Updates the current bounding box for high-resolution generation."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.filtering_dataframe:1
