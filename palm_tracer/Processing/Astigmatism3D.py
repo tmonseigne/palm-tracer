@@ -9,6 +9,9 @@ from scipy.spatial import cKDTree
 from palm_tracer.Tools import Ui
 
 
+# ==================================================
+# region Préparation des données
+# ==================================================
 ##################################################
 def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 	"""
@@ -98,6 +101,13 @@ def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 	return res.sort_values("Plane").reset_index(drop=True)
 
 
+# ==================================================
+# endregion Préparation des données
+# ==================================================
+
+# ==================================================
+# region Modèle et validation
+# ==================================================
 ##################################################
 def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sampling: float = 1) -> np.ndarray | float:
 	"""
@@ -230,6 +240,13 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 			}
 
 
+# ==================================================
+# endregion Modèle et validation
+# ==================================================
+
+# ==================================================
+# region Recherche du centre
+# ==================================================
 ##################################################
 def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> float:
 	"""

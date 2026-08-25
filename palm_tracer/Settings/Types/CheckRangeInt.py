@@ -166,7 +166,7 @@ class CheckRangeInt(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
-	# region Analyse
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -179,7 +179,7 @@ class CheckRangeInt(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Analyse
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================

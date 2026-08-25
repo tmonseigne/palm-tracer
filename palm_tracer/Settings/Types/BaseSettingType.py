@@ -97,7 +97,7 @@ class BaseSettingType:
 	# ==================================================
 
 	# ==================================================
-	# region Visibilité
+	# region Interface et visibilité
 	# ==================================================
 	##################################################
 	def hide(self):
@@ -109,12 +109,23 @@ class BaseSettingType:
 		"""Affiche le paramètre."""
 		for ui in self._uis.values(): ui.show()
 
+	##################################################
+	def attach_to_form(self, ui_name: str, form: QFormLayout):
+		"""
+		Connecte un bouton directement et non le paramètre en lui-même.
+
+		:param ui_name: Nom de l'interface à connecter.
+		:param form: Formulaire qui va recevoir le widget.
+		"""
+		self.get_ui(ui_name).attach_to_form(form)
+
+
 	# ==================================================
-	# endregion Visibilité
+	# endregion Interface et visibilité
 	# ==================================================
 
 	# ==================================================
-	# region Analyse
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -127,22 +138,12 @@ class BaseSettingType:
 		self.value = data["value"]  # Appel du Setter
 
 	# ==================================================
-	# endregion Analyse
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
-	# region Signaux
+	# region Signaux et synchronisation
 	# ==================================================
-	##################################################
-	def attach_to_form(self, ui_name: str, form: QFormLayout):
-		"""
-		Connecte un bouton directement et non le paramètre en lui-même.
-
-		:param ui_name: Nom de l'interface à connecter.
-		:param form: Formulaire qui va recevoir le widget.
-		"""
-		self.get_ui(ui_name).attach_to_form(form)
-
 	##################################################
 	def connect_button(self, f: Any, ui_name: str = "default", n: int = 0):
 		"""

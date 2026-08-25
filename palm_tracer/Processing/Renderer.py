@@ -29,6 +29,9 @@ class Renderer:
 	_r: int = field(init=False, default=1)
 	"""Facteur d'agrandissement appliqué au rendu."""
 
+	# ==================================================
+	# region Configuration
+	# ==================================================
 	##################################################
 	def set_size(self, width: int, height: int, ratio: int):
 		"""
@@ -40,6 +43,13 @@ class Renderer:
 		"""
 		self._w, self._h, self._r = width * ratio, height * ratio, ratio
 
+	# ==================================================
+	# endregion Configuration
+	# ==================================================
+
+	# ==================================================
+	# region Rendus
+	# ==================================================
 	##################################################
 	def localizations(self, loc: np.ndarray, color_mode: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
@@ -229,7 +239,11 @@ class Renderer:
 		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
 
 	# ==================================================
-	# region Outils
+	# endregion Rendus
+	# ==================================================
+
+	# ==================================================
+	# region Préparation et dessin
 	# ==================================================
 	##################################################
 	@staticmethod

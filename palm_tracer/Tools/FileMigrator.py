@@ -62,6 +62,9 @@ class FileMigrator:
 	meta: pd.DataFrame = field(init=False, default_factory=lambda: get_meta(np.zeros(shape=(1, N_COL_META), dtype=int) - 1))
 	"""Métadonnées globales du jeu de données. Une ligne initialisée à -1 qui sera mis à jour avec durant la migration des fichiers."""
 
+	# ==================================================
+	# region Analyse et orchestration
+	# ==================================================
 	##################################################
 	def open(self, folder: Path):
 		"""
@@ -142,6 +145,13 @@ class FileMigrator:
 		self.migrate_astigmatism_3d_model()
 		self.make_meta()
 
+	# ==================================================
+	# endregion Analyse et orchestration
+	# ==================================================
+
+	# ==================================================
+	# region Migration des fichiers
+	# ==================================================
 	##################################################
 	def make_meta(self):
 		"""Écriture du fichier méta uniquement si au moins une valeur est différente de -1."""
@@ -324,6 +334,13 @@ class FileMigrator:
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['Fit'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("Fit file migrated.")
 
+	# ==================================================
+	# endregion Migration des fichiers
+	# ==================================================
+
+	# ==================================================
+	# region Outils de conversion
+	# ==================================================
 	##################################################
 	@staticmethod
 	def open_old_file(file: Path, header: bool = True, skiprows: int = 2, sep: str = "\t") -> tuple[pd.DataFrame, list[str]]:

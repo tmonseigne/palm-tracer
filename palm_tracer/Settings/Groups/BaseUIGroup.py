@@ -105,7 +105,3 @@ class BaseUIGroup:
 		:param state: Statut.
 		"""
 		self._body.show() if state else self._body.hide()
-
-# ==================================================
-# region Gestion de la mise en page
-# ==================================================

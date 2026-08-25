@@ -11,6 +11,9 @@ from scipy.spatial import cKDTree
 from palm_tracer.Processing.Parsing import apply_dataframe_type, FILES_COLUMNS
 
 
+# ==================================================
+# region Validation et appariement
+# ==================================================
 ##################################################
 @dataclass
 class _ActiveTrack:
@@ -105,6 +108,13 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 	return np.asarray(keep_t, dtype=np.int32), np.asarray(keep_p, dtype=np.int32)
 
 
+# ==================================================
+# endregion Validation et appariement
+# ==================================================
+
+# ==================================================
+# region Extraction des billes
+# ==================================================
 ##################################################
 def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> pd.DataFrame:
 	"""
@@ -232,6 +242,13 @@ def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> 
 	return data.loc[mask].copy().reset_index(drop=True)
 
 
+# ==================================================
+# endregion Extraction des billes
+# ==================================================
+
+# ==================================================
+# region Correction de la dérive
+# ==================================================
 ##################################################
 def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
@@ -342,6 +359,13 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 	return beads, remove_drift(data, drift, is_3d=is_3d)
 
 
+# ==================================================
+# endregion Correction de la dérive
+# ==================================================
+
+# ==================================================
+# region Filtrage
+# ==================================================
 ##################################################
 def median_filter_centered(data: np.ndarray, size: int = 5) -> np.ndarray:
 	"""

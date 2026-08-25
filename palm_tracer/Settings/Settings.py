@@ -57,37 +57,6 @@ class Settings:
 		"""Remet les valeurs par défaut des paramètres."""
 		for _, setting in self._settings.items(): setting.reset()
 
-	##################################################
-	def connect(self, f: Any):
-		"""
-		Connecte une fonction ou un slot à l'intégralité des paramètres.
-
-		:param f: Fonction ou slot à connecter.
-		"""
-		for _, setting in self._settings.items(): setting.connect(f)
-
-	##################################################
-	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
-		"""
-		Déconnecte une fonction ou un slot à tous les éléments du groupe.
-
-		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés.
-		"""
-		for _, setting in self._settings.items(): setting.disconnect(f)
-
-	##################################################
-	def signal_blocked(self) -> AbstractContextManager[Any]:
-		"""
-		Blocage des signaux pour l'intégralité des paramètres.
-
-		:return: Retourne un context manager utilisable avec ``with ...:``.
-		"""
-		# if not self._settings: return nullcontext() # On n'a pas de settings vide
-		stack = ExitStack()
-		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
-		return stack
-
 	# ==================================================
 	# endregion Initialisation
 	# ==================================================
@@ -188,7 +157,7 @@ class Settings:
 	# ==================================================
 
 	# ==================================================
-	# region Analyse
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -206,7 +175,7 @@ class Settings:
 		if "ROIs" in groups: self.rois.from_dict_list(groups["ROIs"])
 
 	# ==================================================
-	# endregion Analyse
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
@@ -232,6 +201,45 @@ class Settings:
 		:return: Représentation textuelle de l'objet.
 		"""
 		return self.tostring()
+
+	# ==================================================
+	# endregion Entrées-sorties
+	# ==================================================
+
+	# ==================================================
+	# region Signaux
+	# ==================================================
+
+	##################################################
+	def connect(self, f: Any):
+		"""
+		Connecte une fonction ou un slot à l'intégralité des paramètres.
+
+		:param f: Fonction ou slot à connecter.
+		"""
+		for _, setting in self._settings.items(): setting.connect(f)
+
+	##################################################
+	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
+		"""
+		Déconnecte une fonction ou un slot à tous les éléments du groupe.
+
+		:param f: Fonction ou slot à déconnecter.
+		:return: Nombre de slots déconnectés.
+		"""
+		for _, setting in self._settings.items(): setting.disconnect(f)
+
+	##################################################
+	def signal_blocked(self) -> AbstractContextManager[Any]:
+		"""
+		Blocage des signaux pour l'intégralité des paramètres.
+
+		:return: Retourne un context manager utilisable avec ``with ...:``.
+		"""
+		# if not self._settings: return nullcontext() # On n'a pas de settings vide
+		stack = ExitStack()
+		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
+		return stack
 
 
 ##################################################

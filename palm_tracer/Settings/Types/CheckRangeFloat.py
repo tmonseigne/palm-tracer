@@ -171,7 +171,7 @@ class CheckRangeFloat(BaseSettingType):
 	# ==================================================
 
 	# ==================================================
-	# region Analyse
+	# region Sérialisation
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
@@ -184,7 +184,7 @@ class CheckRangeFloat(BaseSettingType):
 		self.active = data["active"]
 
 	# ==================================================
-	# endregion Analyse
+	# endregion Sérialisation
 	# ==================================================
 
 	# ==================================================
