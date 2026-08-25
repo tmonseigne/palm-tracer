@@ -195,6 +195,9 @@ class PALMTracerWidget(QWidget):
 
 		Le contenu est placé dans une QScrollArea (style "page web") avec un scroll vertical
 		et une largeur qui s'adapte à l'onglet.
+
+		:param widgets: Widgets à placer successivement dans l'onglet.
+		:return: Zone de défilement contenant les widgets.
 		"""
 		# Widget "conteneur" qui porte le layout réel
 		tab, layout = Ui.make_tab()

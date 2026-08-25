@@ -58,9 +58,9 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 	"""
 	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes.
 
-	:param capsys:
-	:param n_lines:
-	:param steps:
+	:param capsys: Fixture Pytest capturant la sortie standard.
+	:param n_lines: Nombre de lignes attendu dans la sortie.
+	:param steps: Indices des lignes associées aux différentes étapes du pipeline.
 	"""
 	lines = get_lines_output(capsys)
 	# for i in range(len(lines)): print(f"{i}: {lines[i]}")

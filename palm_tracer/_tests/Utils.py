@@ -40,8 +40,9 @@ def strip_ansi(text: str) -> str:
 def get_lines_output(capsys) -> list[str]:
 	"""
 	Récupère la sortie lignes par lignes.
-	:param capsys:
-	:return:
+
+	:param capsys: Fixture Pytest capturant les sorties standard et d'erreur.
+	:return: Lignes de la sortie standard, sans séquences ANSI.
 	"""
 	out, err = capsys.readouterr()
 	out = strip_ansi(out)
@@ -293,6 +294,8 @@ def get_light_json(data: dict) -> dict:
 
 	À utiliser pour avoir des snapshots très stables malgré de petites fioritures graphiques.
 	:param data: Json extrait sous forme d'un dictionnaire.
+
+	:return: Dictionnaire nettoyé destiné à une comparaison déterministe.
 	"""
 	# --- Suppresison de certains champs ---
 	for trace in data.get("data", []): trace.pop("uid", None)  # UID

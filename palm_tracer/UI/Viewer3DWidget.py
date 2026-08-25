@@ -112,6 +112,8 @@ def create_viewer3d() -> tuple[napari.Viewer, QWidget]:
 	Crée une nouvelle fenêtre Napari 3D, sans menu, et y ajoute le Viewer3DWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
+
+	:return: Visionneuse Napari créée et widget 3D associé.
 	"""
 	viewer = napari.Viewer(ndisplay=3)  # .									 Crée le viewer 3D napari
 	viewer.title = "3D Viewer"  # .											 Modifier le titre de la fenêtre
@@ -130,6 +132,9 @@ def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	- Crée une nouvelle fenêtre Napari 3D dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire
 	  l'API "widget plugin" de Napari.
+
+	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
+	:return: Widget factice masqué attendu par l'API des plugins Napari.
 	"""
 	# Crée la nouvelle fenêtre 3D
 	create_viewer3d()

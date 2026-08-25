@@ -193,6 +193,7 @@ class BaseSettingType:
 
 		:param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage.
 		                  Si ``False``, ignore toutes les émissions reçues pendant le blocage.
+		:return: Gestionnaire de contexte contrôlant le blocage des signaux.
 		"""
 		return self._signal.blocked(emit_last)
 

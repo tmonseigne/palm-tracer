@@ -226,6 +226,9 @@ def _parse_regions_markers(py_file: Path) -> list[tuple[int, int | None, str]]:
 	- start_line / end_line sont 1-indexés.
 	- Si '# endregion' absent, end_line vaut None (sera clos plus tard).
 	- Pas de régions imbriquées (convention projet).
+
+	:param py_file: Fichier Python dont les marqueurs de région doivent être analysés.
+	:return: Régions détectées sous la forme ``(ligne_début, ligne_fin, nom)``.
 	"""
 	lines = py_file.read_text(encoding="utf-8").splitlines()
 
@@ -358,6 +361,10 @@ def _rst_module_page(dotted_module: str, py_file: Path) -> str:
 	Génère une page module avec une stratégie :
 	- 1 classe publique, 0 fonction publique ⇒ autosummary vers la classe (template class.rst)
 	- sinon ⇒ automodule (ou autosummary mixte si tu préfères)
+
+	:param dotted_module: Nom qualifié du module.
+	:param py_file: Fichier Python correspondant au module.
+	:return: Contenu reStructuredText de la page du module.
 	"""
 	title = dotted_module.split(".")[-1]
 	out = _rst_title(title, "=")

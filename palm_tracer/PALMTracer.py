@@ -420,6 +420,7 @@ class PALMTracer:
 		:param step: Étape du pipeline.
 		:param previous_settings: Paramètres du précédent pipeline.
 		:param pipeline_dirty: État du pipeline (si True, Reuse est devenu impossible).
+		:return: État d'invalidation du pipeline après le traitement de l'étape.
 		"""
 		group = getattr(self.settings, step.group_name)
 		previous_group = getattr(previous_settings, step.group_name) if isinstance(previous_settings, Settings) else None
@@ -757,7 +758,7 @@ class PALMTracer:
 		"""
 		Récupère et prépare les données pour l'affichage.
 
-		:return:
+		:return: Données préparées pour le graphique et titre associé.
 		"""
 		s = self.settings.graph.settings
 		src_id, dual, log_scale = s["Type"], s["Dual"], s["Display Log Scale"]
@@ -780,10 +781,10 @@ class PALMTracer:
 		"""
 		Récupère et prépare les données pour l'affichage.
 
-		:param src_id:
-		:param src:
-		:param log_scale:
-		:return:
+		:param src_id: Identifiant du type de source à représenter.
+		:param src: Nom de la donnée ou de la colonne à extraire.
+		:param log_scale: Applique une transformation logarithmique aux valeurs si ``True``.
+		:return: Données extraites et titre associé au graphique.
 		"""
 		# Localizations
 		if src_id == 0:

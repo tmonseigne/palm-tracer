@@ -371,7 +371,7 @@ class Renderer:
 		:param data: Données à préparer
 		:param is_3d: Les données possèdent une composante Z.
 		:param is_gaussian: Les données seront utilisées pour une représentation gaussienne.
-		:return:
+		:return: Copie transformée des données, limitée aux dimensions du rendu.
 		"""
 
 		res = data.copy()

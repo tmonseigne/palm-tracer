@@ -213,7 +213,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""
 		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
 
-		:param event:
+		:param event: Événement de fermeture Qt.
 		"""
 		try: self._pt.settings.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)

@@ -67,6 +67,7 @@ class ViewerHRWidget(QWidget):
 		La création du calque Napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
 
 		:param viewer: Viewer Napari cible.
+		:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
 		"""
 		super().__init__()
 		self.viewer = viewer
@@ -184,7 +185,7 @@ class ViewerHRWidget(QWidget):
 		"""
 		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
 
-		:param event:
+		:param event: Événement de fermeture Qt.
 		"""
 		try: self._pt.settings.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
@@ -301,6 +302,9 @@ def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer
 	Crée une nouvelle fenêtre Napari HR, sans menu, et y ajoute le ViewerHRWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
+
+	:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
+	:return: Visionneuse Napari créée et widget haute résolution associé.
 	"""
 	if palmtracer is None: palmtracer = PALMTracer()
 	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari
@@ -320,6 +324,9 @@ def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	- Crée une nouvelle fenêtre Napari HR dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire
 	  l'API "widget plugin" de Napari.
+
+	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
+	:return: Widget factice masqué attendu par l'API des plugins Napari.
 	"""
 	# Crée la nouvelle fenêtre HR
 	create_viewerhr()

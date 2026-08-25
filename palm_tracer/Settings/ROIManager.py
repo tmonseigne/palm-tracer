@@ -334,7 +334,7 @@ class ROIManager:
 		Un premier filtrage rapide est effectué à partir de la bounding box.
 		Si ``strict`` vaut ``True``, les points sont ensuite filtrés selon la géométrie exacte de la ROI.
 
-		:param DataFrame: DataFrame contenant les colonnes ``X`` et ``Y``.
+		:param dataframe: DataFrame contenant les colonnes ``X`` et ``Y``.
 		:param strict: Filtre selon la forme exacte et non uniquement selon la bounding box.
 		:return: Copie filtrée du DataFrame.
 		"""

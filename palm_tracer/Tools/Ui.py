@@ -240,6 +240,8 @@ def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) 
 
 	Le groupe est composé de : un titre, la liste des fichiers et leurs statuts.
 
+	:param space: Espacement interne entre les éléments, en pixels.
+	:param margin: Marges du groupe, en pixels.
 	:return: Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de statuts des fichiers.
 	"""
 	grp = QGroupBox("Information")
@@ -297,6 +299,7 @@ def make_vertical_scroll(widget: QWidget) -> QScrollArea:
 	"""
 	Crééer une zone scrollable verticalement.
 
+	:param widget: Widget à placer dans la zone de défilement.
 	:return: La :class:`QScrollArea` configuré.
 	"""
 	scroll = QScrollArea()

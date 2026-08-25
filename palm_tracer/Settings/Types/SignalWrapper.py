@@ -35,6 +35,7 @@ class SignalWrapper(QObject):
 		Connecte une fonction ou un slot au signal encapsulé.
 
 		:param f: Fonction ou slot à connecter.
+		:param kwargs: Arguments nommés ignorés, acceptés pour assurer la compatibilité avec l'API Qt.
 		"""
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 		self._slots.append(f)
@@ -123,6 +124,7 @@ class SignalWrapper(QObject):
 		Retourne un contexte de blocage des signaux.
 
 		:param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage.
+		:return: Gestionnaire de contexte contrôlant le blocage des signaux.
 		"""
 		return SignalWrapper.BlockCtx(self, emit_last)
 

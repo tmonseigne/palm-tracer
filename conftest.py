@@ -44,6 +44,9 @@ def fake_qfiledialog(monkeypatch):
 
 	fake_qfiledialog(alignment_mod, None)
 	# ⇾ simule un "Cancel" (aucun fichier choisi)
+
+	:param monkeypatch: Fixture Pytest utilisée pour remplacer les méthodes de :class:`QFileDialog`.
+	:return: Fabrique configurant les réponses simulées d'un :class:`QFileDialog`.
 	"""
 
 	def _factory(target, filename: str | None, filter_str: str = "TIFF images (*.tif *.tiff)"):
@@ -217,6 +220,9 @@ def patched_napari_viewer(monkeypatch, qtbot):
 	Attention :
 	- le patch OpenGL doit être appliqué avant l'appel à ``make_napari_viewer()`` ;
 	- cette fixture vise des tests unitaires/Qt, pas des tests de rendu réel.
+
+	:param monkeypatch: Fixture Pytest utilisée pour remplacer temporairement les composants graphiques.
+	:param qtbot: Fixture pytest-qt utilisée pour gérer l'environnement Qt du test.
 	"""
 
 	def _cleanup() -> None:
