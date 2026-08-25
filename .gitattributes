@@ -1,0 +1,27 @@
+# Normaliser tous les fichiers texte en LF.
+* text=auto eol=lf
+
+# Conserver CRLF pour les scripts natifs Windows.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Ne pas transformer les fichiers binaires.
+*.bmp binary
+*.dll binary
+*.exe binary
+*.gif binary
+*.gz binary
+*.h5 binary
+*.hdf5 binary
+*.ico binary
+*.jpeg binary
+*.jpg binary
+*.npy binary
+*.npz binary
+*.pdf binary
+*.pdb binary
+*.png binary
+*.tar binary
+*.tif binary
+*.tiff binary
+*.zip binary
