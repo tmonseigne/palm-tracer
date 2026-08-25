@@ -3,8 +3,8 @@ msgid "FileList"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.FileList.FileList:1
-msgid "Classe pour un paramètre spécifique de type recherche de fichier."
-msgstr "Class for a specific setting of type file search."
+msgid "Représente un paramètre contenant une liste de fichiers et une sélection active."
+msgstr "Represents a setting containing a list of files and an active selection."
 
 #: ../../api/palm_tracer.Settings.Types.FileList.rst of
 #: palm_tracer.Settings.Types.FileList.FileList.update_from_compact_dict
@@ -12,12 +12,12 @@ msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Settings.Types.FileList.FileList:3
-msgid "Nom du paramètre à afficher."
-msgstr "Name of the setting to display."
+msgid "Libellé affiché dans l'interface."
+msgstr "Label displayed in the interface."
 
 #: of palm_tracer.Settings.Types.FileList.FileList:4
-msgid "Description détaillée en overlay."
-msgstr "Detailed description in the overlay."
+msgid "Description affichée dans l'infobulle."
+msgstr "Description displayed in the tooltip."
 
 #: ../../api/palm_tracer.Settings.Types.FileList.rst:9
 msgid "Attributs"
@@ -52,11 +52,11 @@ msgid "Réinitialise le paramètre à sa valeur par défaut."
 msgstr "Resets the setting to its default value."
 
 #: ../../api/palm_tracer.Settings.Types.FileList.rst:25
-msgid "Getter/Setter"
-msgstr ""
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.FileList.FileList.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.get_ui:3
@@ -77,20 +77,20 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: ../../api/palm_tracer.Settings.Types.FileList.rst:30
-msgid "Parsing"
-msgstr ""
+msgid "Sérialisation"
+msgstr "Serialization"
 
 #: of palm_tracer.Settings.Types.FileList.FileList.to_compact_dict:1
 msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
-msgstr "Returns a minimal dictionary containing the setting’s value."
+msgstr "Returns a minimal dictionary containing the setting's value."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.update_from_compact_dict:1
-msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+msgid "Met à jour la classe à partir d'un dictionnaire minimal."
 msgstr "Updates the class from a minimal dictionary."
 
 #: ../../api/palm_tracer.Settings.Types.FileList.rst:36
-msgid "Callbacks"
-msgstr ""
+msgid "Fonctions de rappel"
+msgstr "Callbacks"
 
 #: of palm_tracer.Settings.Types.FileList.FileList.add_file:1
 msgid "Ajoute un fichier à la liste via un :class:`QFileDialog`."

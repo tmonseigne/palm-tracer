@@ -3,23 +3,38 @@ msgid "Filtering"
 msgstr "Filtering"
 
 #: of palm_tracer.Processing.Filtering.Filtering:1
-msgid "Classe de filtrages."
-msgstr "Filtering Class."
+msgid "Applique les paramètres de filtrage aux localisations et aux trajectoires."
+msgstr "Applies the filtering settings to localizations and tracks."
 
-#: ../../api/palm_tracer.Processing.Filtering.rst of
-#: palm_tracer.Processing.Filtering.Filtering
+#: ../../api/palm_tracer.Processing.Filtering.rst
 msgid "Paramètres"
 msgstr "Parameters"
+
+#: of palm_tracer.Processing.Filtering.Filtering:3
+msgid "Groupe des paramètres de filtrage."
+msgstr "Filtering settings group."
+
+#: of palm_tracer.Processing.Filtering.Filtering:4
+msgid "Gestionnaire des zones d'intérêt utilisées pour le filtrage spatial."
+msgstr "Region-of-interest manager used for spatial filtering."
 
 #: ../../api/palm_tracer.Processing.Filtering.rst:9
 msgid "Attributs"
 msgstr "Attributes"
 
-#: ../../api/palm_tracer.Processing.Filtering.rst:14
+#: of palm_tracer.Processing.Filtering.Filtering.filters:1
+msgid "Paramètres de filtrage appliqués aux données."
+msgstr "Filtering settings applied to the data."
+
+#: of palm_tracer.Processing.Filtering.Filtering.rois:1
+msgid "Gestionnaire des zones d'intérêt du filtrage spatial."
+msgstr "Region-of-interest manager for spatial filtering."
+
+#: ../../api/palm_tracer.Processing.Filtering.rst:15
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Processing.Filtering.rst:17
+#: ../../api/palm_tracer.Processing.Filtering.rst:18
 msgid "Divers"
 msgstr "Miscellaneous"
 
@@ -59,7 +74,7 @@ msgstr "Track DataFrame."
 
 #: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:4
 msgid "DataFrame de calcul des MSD."
-msgstr "MSD comput DataFrame."
+msgstr "DataFrame containing MSD calculations."
 
 #: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:5
 msgid "DataFrame de calcul de la diffusion instantanée."

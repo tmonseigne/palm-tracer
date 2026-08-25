@@ -3,20 +3,28 @@ msgid "ButtonGroup"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:1
-msgid "Classe pour un paramètre spécifique de type groupe de boutons."
-msgstr "Class for a specific setting of type button group."
+msgid "Représente un choix exclusif effectué avec un groupe de boutons."
+msgstr "Represents an exclusive choice made with a group of buttons."
 
 #: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:3
-msgid "Nom du paramètre à afficher."
-msgstr "Name of the setting to display."
+msgid "Libellé affiché dans l'interface."
+msgstr "Label displayed in the interface."
 
 #: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:4
-msgid "Description détaillée en overlay."
-msgstr "Detailed description in the overlay."
+msgid "Description affichée dans l'infobulle."
+msgstr "Description displayed in the tooltip."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:5
+msgid "Indice sélectionné par défaut."
+msgstr "Index selected by default."
+
+#: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup:6
+msgid "Libellés des choix proposés."
+msgstr "Labels of the available choices."
 
 #: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst:9
 msgid "Attributs"
@@ -28,7 +36,7 @@ msgstr "Default value (position in the list) of the setting (:class:`int`)."
 
 #: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.group:1
 msgid "Dictionnaire des Groupes de boutons."
-msgstr "Dictionary of Button Groups."
+msgstr "Button-group dictionary."
 
 #: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.value:1
 msgid "Valeur actuelle du paramètre (position dans la liste en :class:`int`)."
@@ -43,11 +51,11 @@ msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Settings.Types.ButtonGroup.rst:20
-msgid "Getter/Setter"
-msgstr ""
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.ButtonGroup.ButtonGroup.get_ui:3

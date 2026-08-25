@@ -3,12 +3,20 @@ msgid "ROI"
 msgstr ""
 
 #: of palm_tracer.Settings.ROI.ROI:1
-msgid "Classe de définition d'une zone d'intérêt (ROI) pour Napari."
-msgstr "Class for defining a region of interest (ROI) in Napari."
+msgid "Représente une zone d'intérêt issue d'un calque Napari."
+msgstr "Represents a region of interest originating from a Napari layer."
 
-#: of palm_tracer.Settings.ROI.ROI
+#: ../../api/palm_tracer.Settings.ROI.rst
 msgid "Paramètres"
 msgstr "Parameters"
+
+#: of palm_tracer.Settings.ROI.ROI:3
+msgid "Type géométrique de la zone."
+msgstr "Geometric type of the region."
+
+#: of palm_tracer.Settings.ROI.ROI:4
+msgid "Coordonnées décrivant sa géométrie."
+msgstr "Coordinates describing its geometry."
 
 #: ../../api/palm_tracer.Settings.ROI.rst:9
 msgid "Attributs"

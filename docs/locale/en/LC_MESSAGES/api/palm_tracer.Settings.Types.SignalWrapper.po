@@ -3,20 +3,12 @@ msgid "SignalWrapper"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:1
-msgid "Encapsulation d'un signal Qt avec connexion, déconnexion, émission, blocage temporaire et coalescence."
-msgstr "Encapsulation of a Qt signal with connection, disconnection, emission, temporary blocking, and coalescing."
-
-#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:2
-msgid ":func:`blocked()` : contexte pour bloquer temporairement les signaux."
-msgstr ":func:`blocked()`: context for temporarily blocking signals."
+msgid "Encapsule un signal Qt et regroupe les émissions produites pendant son blocage."
+msgstr "Wraps a Qt signal and coalesces the emissions produced while it is blocked."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:3
-msgid "Pendant le blocage, les appels à :func:`emit()` ne propagent rien ; seule la **dernière** valeur est mémorisée."
-msgstr "During blocking, calls to :func:`emit()` do not propagate anything; only the **last** value is stored."
-
-#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:4
-msgid "À la fin du blocage externe (compteur à 0), une **seule** émission est effectuée avec la dernière valeur mémorisée (ou `None` si aucune)."
-msgstr "At the end of the external block (counter at 0), a **single** emission is performed with the last stored value (or `None` if none)."
+msgid "Les connexions et déconnexions sont déléguées au signal interne. Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement la dernière valeur ; celle-ci est émise une seule fois à la sortie du blocage externe."
+msgstr "Connections and disconnections are delegated to the internal signal. Within a :meth:`blocked` context, calls to :meth:`emit` retain only the latest value; it is emitted once when the outermost block exits."
 
 #: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst:9
 msgid "Méthodes"
@@ -39,8 +31,12 @@ msgstr "Parameters"
 msgid "Fonction ou slot à connecter."
 msgstr "Function or slot to connect."
 
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.connect:4
+msgid "Arguments nommés ignorés, acceptés pour assurer la compatibilité avec l'API Qt."
+msgstr "Keyword arguments are ignored and accepted for compatibility with the Qt API."
+
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:1
-msgid "Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
+msgid "Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
 msgstr "Disconnects `f` if provided, otherwise **all** slots. Returns the number of disconnected slots."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:3
@@ -70,3 +66,7 @@ msgstr "Returns a signal blocking context."
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:3
 msgid "Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage."
 msgstr "If ``True``, emits the last value at the end of the block. If ``False``, ignores all emissions received during the block."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:4
+msgid "Gestionnaire de contexte contrôlant le blocage des signaux."
+msgstr "Context manager controlling signal blocking."

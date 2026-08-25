@@ -3,11 +3,11 @@ msgid "Drift"
 msgstr "Drift"
 
 #: of palm_tracer.Processing.Drift:1
-msgid "Fichier contenant des fonctions pour le drift."
-msgstr "File containing functions for drift."
+msgid "Fournit les fonctions d'extraction des billes et de correction de la dérive."
+msgstr "Provides bead-extraction and drift-correction functions."
 
 #: of palm_tracer.Processing.Drift.extract_beads:1
-msgid "Extrait des billes suivies à travers les plans en ne conservant que celles qui ont une correspondance dans **tous** les plans (du premier au dernier plan présent dans ``data``)."
+msgid "Extrait des billes suivies à travers les plans en ne conservant que celles qui ont une correspondance dans **tous** les plans. (du premier au dernier plan présent dans ``data``)."
 msgstr "Extracts the beads tracked across the planes, retaining only those that have a match in **all** planes (from the first to the last plane present in ``data``)."
 
 #: of palm_tracer.Processing.Drift.extract_beads:4
@@ -68,7 +68,7 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Processing.Drift.remove_beads:1
-msgid "Mets à jour data en lui enlevant les billes identifiées (correspondance exact sur Plane/X/Y/Z)."
+msgid "Met à jour data en lui enlevant les billes identifiées (correspondance exact sur Plane/X/Y/Z)."
 msgstr "Updates the data by removing the identified beads (exact match on Plane/X/Y/Z)."
 
 #: of palm_tracer.Processing.Drift.remove_beads:3

@@ -1,6 +1,6 @@
 #: ../../algorithm/preview.rst:2
 msgid "Aperçu (Preview)"
-msgstr ""
+msgstr "Preview"
 
 #: ../../algorithm/preview.rst:6
 msgid "Work In Progress"

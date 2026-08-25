@@ -3,8 +3,8 @@ msgid "Gallery"
 msgstr ""
 
 #: of palm_tracer.Processing.Gallery:1
-msgid "Fichier contenant des fonctions pour la création de galeries."
-msgstr "File containing functions for creating galleries."
+msgid "Construit des galeries d'images à partir des localisations détectées."
+msgstr "Generates a gallery of images extracted from a stack of images based on specified localizations."
 
 #: of palm_tracer.Processing.Gallery.make_gallery:1
 msgid "Génère une galerie d'images extraites d'une pile d'images en fonction des localisations spécifiées."
@@ -23,7 +23,7 @@ msgid "DataFrame contenant au minimum les colonnes ``[\"Plane\",\"Y\",\"X\"]`` a
 msgstr "DataFrame containing at least the columns ``[\"Plane\",\"Y\",\"X\"]`` with the coordinates of the regions of interest."
 
 #: of palm_tracer.Processing.Gallery.make_gallery:5
-msgid "Taille de chaque zone d'intérêt (carré de dimensions `roi_size x roi_size`)."
+msgid "Taille de chaque zone d'intérêt (carré de dimensions ``roi_size x roi_size``)."
 msgstr "Size of each region of interest (square with dimensions `roi_size x roi_size`)."
 
 #: of palm_tracer.Processing.Gallery.make_gallery:6

@@ -3,24 +3,12 @@ msgid "Logger"
 msgstr ""
 
 #: of palm_tracer.Tools.Logger.Logger:1
-msgid "Classe du journal d'activité."
-msgstr "Activity log class."
+msgid "Écrit un journal d'activité horodaté et utilisable comme gestionnaire de contexte."
+msgstr "Writes a timestamped activity log that can be used as a context manager."
 
-#: of palm_tracer.Tools.Logger.Logger:4
-msgid "Notes"
-msgstr ""
-
-#: of palm_tracer.Tools.Logger.Logger:5
-msgid "L'ouverture est idempotente : si un fichier est déjà ouvert, il est fermé avant de rouvrir."
-msgstr "Opening is idempotent: if a file is already open, it is closed before being reopened."
-
-#: of palm_tracer.Tools.Logger.Logger:6
-msgid "La fermeture est idempotente : `close()` peut être appelée plusieurs fois sans erreurs."
-msgstr "Closing is idempotent: `close()` can be called multiple times without errors."
-
-#: of palm_tracer.Tools.Logger.Logger:7
-msgid "La classe implémente le protocole context manager pour garantir la fermeture."
-msgstr "The class implements the context manager protocol to ensure the file is closed."
+#: of palm_tracer.Tools.Logger.Logger:3
+msgid "L'ouverture et la fermeture sont idempotentes. Ouvrir un nouveau fichier ferme d'abord le précédent, et plusieurs appels successifs à :meth:`close` sont autorisés."
+msgstr "Opening and closing are idempotent. Opening a new file first closes the previous one, and repeated calls to :meth:`close` are allowed."
 
 #: ../../api/palm_tracer.Tools.Logger.rst:9
 msgid "Attributs"

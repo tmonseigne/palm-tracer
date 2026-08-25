@@ -12,7 +12,7 @@ msgstr "Launch"
 
 #: ../../user/tool_astig.rst:14
 msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. Example for :file:`C:\\\\palm-tracer`. Open the terminal and type the following command: :console:`cd C:\\\\palm_tracer`, then press **Enter**."
+msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. For example, for :file:`C:\\\\palm-tracer`, open the terminal, type :console:`cd C:\\\\palm_tracer`, and press **Enter**."
 
 #: ../../user/tool_astig.rst:16
 msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."

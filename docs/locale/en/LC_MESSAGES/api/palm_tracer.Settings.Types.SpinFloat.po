@@ -3,39 +3,36 @@ msgid "SpinFloat"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat:1
-msgid "Classe pour un paramètre spécifique de type nombre réel."
-msgstr "Class for a specific setting of type real number."
+msgid "Représente un nombre flottant avec une boîte de sélection numérique."
+msgstr "Represents a floating-point number with a spin box."
 
 #: ../../api/palm_tracer.Settings.Types.SpinFloat.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat:3
-msgid "Nom du paramètre à afficher."
-msgstr "Name of the setting to display."
+msgid "Libellé affiché dans l'interface."
+msgstr "Label displayed in the interface."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat:4
-msgid "Description détaillée en overlay."
-msgstr "Detailed description in the overlay."
+msgid "Description affichée dans l'infobulle."
+msgstr "Description displayed in the tooltip."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat:5
-msgid "Valeur par défaut du paramètre."
+msgid "Valeur par défaut."
 msgstr "Default value of the setting."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat:6
-#: palm_tracer.Settings.Types.SpinFloat.SpinFloat.limits:1
-msgid "Valeurs limites du paramètre."
-msgstr "Limit values ​​of the setting."
+msgid "Bornes minimale et maximale autorisées."
+msgstr "Minimum and maximum allowed bounds."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat:7
-#: palm_tracer.Settings.Types.SpinFloat.SpinFloat.step:1
-msgid "Pas à chaque appui sur une des flèches du paramètre."
-msgstr "Step size at each press on one of the setting arrows."
+msgid "Incrément appliqué par la boîte de sélection numérique."
+msgstr "Increment applied by the spin box."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat:8
-#: palm_tracer.Settings.Types.SpinFloat.SpinFloat.precision:1
-msgid "Précision du paramètre."
-msgstr "Setting precision."
+msgid "Nombre de décimales affichées."
+msgstr "Number of displayed decimal places."
 
 #: ../../api/palm_tracer.Settings.Types.SpinFloat.rst:9
 msgid "Attributs"
@@ -44,6 +41,18 @@ msgstr "Attributes"
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.default:1
 msgid "Valeur par défaut du paramètre (:class:`float`)."
 msgstr "Default value of the setting (:class:`float`)."
+
+#: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.limits:1
+msgid "Valeurs limites du paramètre."
+msgstr "Limit values of the setting."
+
+#: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.step:1
+msgid "Pas à chaque appui sur une des flèches du paramètre."
+msgstr "Step size at each press on one of the setting arrows."
+
+#: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.precision:1
+msgid "Précision du paramètre."
+msgstr "Setting precision."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.value:1
 msgid "Valeur actuelle du paramètre (:class:`float`)."
@@ -54,11 +63,11 @@ msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Settings.Types.SpinFloat.rst:21
-msgid "Getter/Setter"
-msgstr ""
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.get_ui:3

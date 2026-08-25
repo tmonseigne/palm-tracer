@@ -3,20 +3,20 @@ msgid "Gallery"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.Gallery.Gallery:1
-msgid "Classe contenant les paramètres de la Galerie :"
-msgstr "Class containing the Gallery settings:"
+msgid "Regroupe les paramètres de construction des galeries d'images."
+msgstr "Groups the image-gallery construction settings."
 
 #: of palm_tracer.Settings.Groups.Gallery.Gallery:3
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Settings.Groups.Gallery.Gallery:4
-msgid "**ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Taille de la Zone autour des points (par défaut : `9`)."
-msgstr "**ROI Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Size of the area around the points (default: `9`)."
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Gallery.Gallery:5
-msgid "**Gallery Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Nombre de points par ligne (par défaut : `20`)."
-msgstr "**Gallery Size** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`): Number of points per line (default: `20`)."
+msgid "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : côté de la zone extraite autour de chaque point ; valeur par défaut : ``9`` pixels."
+msgstr "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : side length of the region extracted around each point; default value: ``9`` pixels."
+
+#: of palm_tracer.Settings.Groups.Gallery.Gallery:6
+msgid "``ROIs Per Line`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de zones par ligne et par colonne ; valeur par défaut : ``30``."
+msgstr "``ROIs Per Line`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : number of regions per row and column; default value: ``30``."
 
 #: ../../api/palm_tracer.Settings.Groups.Gallery.rst
 msgid "Paramètres"
@@ -27,9 +27,9 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.Gallery.Gallery.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.Gallery.Gallery.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."

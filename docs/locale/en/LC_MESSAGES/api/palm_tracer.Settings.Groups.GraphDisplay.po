@@ -3,36 +3,44 @@ msgid "GraphDisplay"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:1
-msgid "Classe contenant les paramètres de Visualisation :"
-msgstr "Class containing visualization settings:"
+msgid "Regroupe les options de rendu statistique des graphiques."
+msgstr "Groups the statistical rendering options for graphs."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:3
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:4
-msgid "**Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Limite les données à ±3σ autour de la moyenne (règle des 3 sigmas)."
-msgstr "**Limits** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Limits the data to ±3σ around the mean (3-sigma rule)."
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:5
-msgid "**Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Trace des lignes pointillées à des distances de 1, 2 et 3 sigmas de la moyenne."
-msgstr "**Sigma** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Plots dashed lines at distances of 1, 2, and 3 sigmas from the mean."
+msgid "``Limits`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : limite l'affichage à l'intervalle :math:`[\\mu-3\\sigma,\\mu+3\\sigma]`."
+msgstr "``Limits`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : limits the display to the :math:`[\\mu-3\\sigma,\\mu+3\\sigma]` range."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:6
+msgid "``Sigma`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche les repères à un, deux et trois écarts-types de la moyenne."
+msgstr "``Sigma`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : displays markers at one, two, and three standard deviations from the mean."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:7
-msgid "**Gauss** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche la courbe gaussienne associée à la moyenne et à l'écart-type des données. ."
-msgstr "**Gauss** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Displays the Gaussian curve associated with the mean and standard deviation of the data."
+msgid "``Gauss``, ``Poiss`` et ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : superposent respectivement les modèles gaussien, poissonnien et exponentiel."
+msgstr "``Gauss``, ``Poiss``, and ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : respectively overlay Gaussian, Poisson, and exponential models."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:9
-msgid "**KDE** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche l'estimation de densité par noyau (la courbe la plus proche de l'histogramme) associée aux données."
-msgstr "**KDE** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Displays the kernel density estimate (the curve closest to the histogram) associated with the data."
+msgid "``KDE`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche l'estimation de densité par noyau."
+msgstr "``KDE`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : displays the kernel density estimate."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:10
+msgid "``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : produit un histogramme cumulatif."
+msgstr "``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : produces a cumulative histogram."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:11
-msgid "**Cumul** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Affiche un histogramme cumulatif à la place d'un histogramme simple."
-msgstr "**Cumul** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Displays a cumulative histogram instead of a simple histogram."
+msgid "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise une échelle logarithmique."
+msgstr "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : uses a logarithmic scale."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:12
-msgid "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique une échelle logarithmique aux données."
-msgstr "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Applies a logarithmic scale to the data."
+msgid "``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exprime l'axe Y en effectifs plutôt qu'en densité."
+msgstr "``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : expresses the Y-axis as counts rather than density."
+
+#: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:13
+msgid "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de classes de l'histogramme ; ``0`` active le choix automatique."
+msgstr "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : number of histogram bins; ``0`` enables automatic selection."
 
 #: ../../api/palm_tracer.Settings.Groups.GraphDisplay.rst
 msgid "Paramètres"
@@ -43,13 +51,13 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay.mode:1
-msgid "Méthode d'affichage du groupe par défaut."
+msgid "Mode d'affichage du groupe dans l'interface."
 msgstr "Default group display method."

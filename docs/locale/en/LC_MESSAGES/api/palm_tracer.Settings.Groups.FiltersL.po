@@ -3,44 +3,36 @@ msgid "FiltersL"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:1
-msgid "Classe contenant les paramètres du filtrage pour la localisation :"
-msgstr "Class containing the filtering settings for localization:"
+msgid "Regroupe les filtres applicables aux localisations."
+msgstr "Groups the filters applicable to localizations."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:3
-msgid "Attributs :"
-msgstr "Attributes:"
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
-#: of palm_tracer.Settings.Groups.FiltersL.FiltersL:4
-msgid "**Intensity** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Intervalle d'intensités sélectionnées (par défaut : `[1,10000000]`)."
-msgstr "**Intensity** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Selected intensity range (default: `[1,10000000]`)."
+#: of palm_tracer.Settings.Groups.FiltersL.FiltersL:5
+msgid "``Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle axial ; valeur par défaut : ``[-2000, 2000]`` nm."
+msgstr "``Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : axial range; default value: ``[-2000, 2000]`` nm."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:6
-msgid "**Sigma X** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de Sigma X sélectionné (par défaut : `[0.0, 10.0]`)."
-msgstr "**Sigma X** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`): Selected Sigma X range (default: `[0.0, 10.0]`)."
+msgid "``Intensity`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle d'intensité intégrée ; valeur par défaut : ``[0, 10000000]``."
+msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : integrated-intensity range; default value: ``[0, 10000000]``."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:8
-msgid "**Sigma Y** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de Sigma Y sélectionné (par défaut : `[0.0, 10.0]`)."
-msgstr "**Sigma Y** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Selected Sigma Y range (default: `[0.0, 10.0]`)."
+msgid "``Sigma X`` et ``Sigma Y`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des écarts-types selon X et Y ; valeur par défaut : ``[0.0, 10.0]`` pixel."
+msgstr "``Sigma X`` and ``Sigma Y`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : standard-deviation ranges along X and Y; default value: ``[0.0, 10.0]`` pixel."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:10
-msgid "**Circularity** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de Circularités sélectionné (par défaut : `[0.0, 1.0]`)."
-msgstr "**Circularity** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Selected Circularity range (default: `[0.0, 1.0]`)."
+msgid "``Circularity`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de circularité ; valeur par défaut : ``[0.0, 1.0]``."
+msgstr "``Circularity`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : circularity range; default value: ``[0.0, 1.0]``."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:12
-msgid "**Theta** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de Theta sélectionné (par défaut : `[-90, 90]`)."
-msgstr "**Theta** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Selected Theta range (default: `[-90, 90]`)."
+msgid "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle angulaire ; valeur par défaut : ``[-90.0, 90.0]`` degrés."
+msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : angular range; default value: ``[-90.0, 90.0]`` degrees."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:14
-msgid "**Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de Z sélectionné (par défaut : `[-2000, 2000]`)."
-msgstr "**Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Selected Z range (default: `[-2000, 2000]`)."
-
-#: of palm_tracer.Settings.Groups.FiltersL.FiltersL:16
-msgid "**MSE XY** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de MSE XY sélectionné (par défaut : `[0.0, 1.0]`)."
-msgstr "**MSE XY** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Selected MSE XY range (default: `[0.0, 1.0]`)."
-
-#: of palm_tracer.Settings.Groups.FiltersL.FiltersL:18
-msgid "**MSE Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Intervalle de MSE Z sélectionné (par défaut : `[0.0, 1.0]`)."
-msgstr "**MSE Z** (:class:`CheckRangeFloat <palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat>`) : Selected MSE Z range (default: `[0.0, 1.0]`)."
+msgid "``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des erreurs quadratiques moyennes ; valeur par défaut : ``[0.0, 1.0]``."
+msgstr "``MSE XY`` and ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : mean-squared-error ranges; default value: ``[0.0, 1.0]``."
 
 #: ../../api/palm_tracer.Settings.Groups.FiltersL.rst
 msgid "Paramètres"
@@ -51,15 +43,15 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL.mode:1
-msgid "Méthode d'affichage du groupe par défaut."
+msgid "Mode d'affichage du groupe dans l'interface."
 msgstr "Default group display method."
 
 #: ../../api/palm_tracer.Settings.Groups.FiltersL.rst:16

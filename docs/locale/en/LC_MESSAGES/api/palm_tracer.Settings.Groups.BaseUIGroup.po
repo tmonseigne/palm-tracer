@@ -3,25 +3,24 @@ msgid "BaseUIGroup"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup:1
-msgid "Classe de base représentant une vue Qt associée à un paramètre."
+msgid "Représente une vue Qt associée à un groupe de paramètres."
 msgstr "Base class representing a Qt view associated with a setting."
 
 #: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup:3
-msgid "Cette classe encapsule tous les objets Qt nécessaires à l'affichage d'un paramètre dans une interface utilisateur."
-msgstr "This class encapsulates all the Qt objects needed to display a setting in a user interface."
+msgid "Chaque instance possède ses propres widgets, mais reste synchronisée avec le même modèle afin qu'un groupe puisse être affiché simultanément dans plusieurs interfaces."
+msgstr "Each instance owns its widgets but remains synchronized with the same model, allowing a group to be displayed simultaneously in multiple interfaces."
 
-#: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup:5
-msgid "Elle est conçue pour être instanciée plusieurs fois pour un même paramètre, afin de permettre la duplication d'interface (multi-fenêtres, preview, etc.)."
-msgstr "It is designed to be instantiated multiple times for a single setting, to allow for interface duplication (multi-window, preview, etc.)."
-
-#: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup:7
-msgid "Chaque instance est indépendante en termes de widgets Qt, mais synchronisée avec le modèle de données auquel elle est associée."
-msgstr "Each instance is independent in terms of Qt widgets, but synchronized with the data model to which it is associated."
-
-#: ../../api/palm_tracer.Settings.Groups.BaseUIGroup.rst of
-#: palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup
+#: ../../api/palm_tracer.Settings.Groups.BaseUIGroup.rst
 msgid "Paramètres"
 msgstr "Parameters"
+
+#: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup:6
+msgid "Nom de la vue."
+msgstr "View name."
+
+#: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup:7
+msgid "Mode de disposition des paramètres."
+msgstr "Settings layout mode."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseUIGroup.rst:9
 msgid "Attributs"
@@ -56,8 +55,8 @@ msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Settings.Groups.BaseUIGroup.rst:22
-msgid "Divers"
-msgstr "Miscellaneous"
+msgid "Gestion de la mise en page"
+msgstr "Layout management"
 
 #: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup.attach_to_form:1
 msgid "Ajoute l'interface du groupe à un formulaire."
@@ -65,7 +64,7 @@ msgstr "Adds the group interface to a form."
 
 #: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup.attach_to_form:3
 msgid ":class:`QFormLayout` dans lequel va être inséré le paramètre."
-msgstr ":class:`QFormLayout` form into which the setting will be inserted."
+msgstr ":class:`QFormLayout` into which the setting will be inserted."
 
 #: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup.hide:1
 msgid "Cache le groupe de paramètres."

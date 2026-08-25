@@ -3,12 +3,8 @@ msgid "FileIO"
 msgstr ""
 
 #: of palm_tracer.Tools.FileIO:1
-msgid "Fichier de fonctions de manipulation de fichiers."
-msgstr "File Manipulation Functions File."
-
-#: of palm_tracer.Tools.FileIO:3
-msgid "Ce module regroupe diverses fonctions pour la gestion et la manipulation de fichiers."
-msgstr "This module contains various functions for managing and manipulating files."
+msgid "Fournit les fonctions de lecture, d'écriture et de gestion des fichiers."
+msgstr "Provides file-reading, writing, and management functions."
 
 #: of palm_tracer.Tools.FileIO.add_extension:1
 msgid "Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle."
@@ -69,7 +65,7 @@ msgid "Horodatage."
 msgstr "Timestamp."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:1
-msgid "Récupère le dernier fichier (le plus récent) qui contient le paramètre `name` dans son nom dans le chemin `path`."
+msgid "Récupère le dernier fichier (le plus récent) qui contient le paramètre ``name`` dans son nom dans le chemin ``path``."
 msgstr "Retrieves the last (most recent) file containing the `name` parameter in its filename from the `path`."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:3
@@ -90,7 +86,7 @@ msgstr "Full path of the last file found (or an empty string if no matching file
 
 #: of palm_tracer.Tools.FileIO.extract_suffix:1
 msgid "Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurrence en cas de présence multiple)."
-msgstr "Retrieves a file’s suffix (the part after the separator or after its last occurrence if there are multiple occurrences)."
+msgstr "Retrieves a file's suffix (the part after the separator or after its last occurrence if there are multiple occurrences)."
 
 #: of palm_tracer.Tools.FileIO.extract_suffix:4
 msgid "Séparateur avant le suffixe."
@@ -172,7 +168,7 @@ msgstr "Path to the TIF file to open."
 msgid "Tableau 3D contenant les données TIF."
 msgstr "3D array containing the TIF data."
 
-#: of palm_tracer.Tools.FileIO.open_tif:8
+#: of palm_tracer.Tools.FileIO.open_tif:7
 msgid "Attention les données doivent rester telle quelle pour le transfert à la DLL. Aucun cast en float ne doit être fait."
 msgstr "Note: the data must remain unchanged for transfer to the DLL. No casting to float should be performed."
 
@@ -198,7 +194,7 @@ msgstr "2D image (H, W) uint16."
 
 #: of palm_tracer.Tools.FileIO.grayscale_to_color:5
 msgid "Nom de colormap Matplotlib. Privilégier des cartes **perceptuellement uniformes** ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo'). (`liste des colormaps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)."
-msgstr "Matplotlib color map name. Prefer **perceptually uniform** maps (‘viridis’, ‘magma’, ‘plasma’, ‘inferno’, ‘cividis’, ‘turbo’). (`list of color maps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)."
+msgstr "Matplotlib color map name. Prefer **perceptually uniform** maps ('viridis', 'magma', 'plasma', 'inferno', 'cividis', 'turbo'). (`list of color maps <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_)."
 
 #: of palm_tracer.Tools.FileIO.grayscale_to_color:8
 msgid "Image RGB de forme (H, W, 3) en dtype uint8, compatible Pillow et Napari."

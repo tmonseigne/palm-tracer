@@ -3,24 +3,24 @@ msgid "Calibration"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:1
-msgid "Classe contenant les informations de calibration :"
-msgstr "Class containing calibration information:"
+msgid "Regroupe les paramètres de calibration spatiale, temporelle et photométrique."
+msgstr "Groups the spatial, temporal, and photometric calibration settings."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:3
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Settings.Groups.Calibration.Calibration:4
-msgid "**Pixel Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Taille d'un pixel en micromètre (par défaut : `0.160`)."
-msgstr "**Pixel Size** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Pixel size in micrometers (default: `0.160`)."
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:5
-msgid "**Exposure** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Temps d'exposition en secondes par image (par défaut : `0.050`)."
-msgstr "**Exposure** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Exposure time in seconds per frame (default: `0.050`)."
+msgid "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : taille d'un pixel ; valeur par défaut : ``0.160`` µm."
+msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : pixel size; default value: ``0.160`` µm."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:6
-msgid "**Intensity** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Intensité lumineuse en photons par Unités analogique-numérique (ADU) (par défaut : `0.0120`)."
-msgstr "**Intensity** (:class:`SpinFloat <palm_tracer.Settings.Types.SpinFloat.SpinFloat>`) : Light intensity in photons per Analog-to-Digital Unit (ADU) (default: `0.0120`)."
+msgid "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : temps d'exposition par image ; valeur par défaut : ``0.050`` s."
+msgstr "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : exposure time per frame; default value: ``0.050`` s."
+
+#: of palm_tracer.Settings.Groups.Calibration.Calibration:7
+msgid "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur de conversion photométrique ; valeur par défaut : ``0.0120`` photon/ADU."
+msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : photometric conversion factor; default value: ``0.0120`` photon/ADU."
 
 #: ../../api/palm_tracer.Settings.Groups.Calibration.rst
 msgid "Paramètres"
@@ -31,13 +31,13 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration.mode:1
-msgid "Méthode d'affichage du groupe par défaut."
+msgid "Mode d'affichage du groupe dans l'interface."
 msgstr "Default group display method."

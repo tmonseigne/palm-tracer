@@ -3,36 +3,36 @@ msgid "Graph"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:1
-msgid "Classe contenant les paramètres de Visualisation :"
-msgstr "Class containing visualization settings:"
+msgid "Regroupe les paramètres de sélection des graphiques."
+msgstr "Groups the graph-selection settings."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:3
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Settings.Groups.Graph.Graph:4
-msgid "**Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi)."
-msgstr "**Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type of data to display (locations or tracking)."
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:5
-msgid "**Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter."
-msgstr "**Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source of the data to be displayed."
+msgid "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires."
+msgstr "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : data family, localizations or tracks."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:6
-msgid "**Dual** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Active la représentation de deux sources."
-msgstr "**Dual** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Enables the display of two sources."
+msgid "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée."
+msgstr "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : first quantity to display."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:7
-msgid "**Source B** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source secondaire des données à représenter."
-msgstr "**Source B** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Secondary source of the data to be displayed."
+msgid "``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active un nuage de points utilisant deux grandeurs."
+msgstr "``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enables a scatter plot using two quantities."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:8
-msgid "**MSD Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Lors de la représentation du MSD, sélection de l'étape à représenter."
-msgstr "**MSD Step** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`): When displaying the MSD, select the step to display."
+msgid "``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque ``Dual`` est actif."
+msgstr "``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : second quantity to display when ``Dual`` is enabled."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:9
-msgid "**Display** (:class:`GraphDisplay <palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay>`) : Options d'affichage du graphique."
-msgstr "**Display** (:class:`GraphDisplay <palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay>`): Graph display options."
+msgid "``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : décalage temporel sélectionné pour le MSD."
+msgstr "``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : time lag selected for the MSD."
+
+#: of palm_tracer.Settings.Groups.Graph.Graph:10
+msgid "``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : options de rendu du graphique."
+msgstr "``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : graph-rendering options."
 
 #: ../../api/palm_tracer.Settings.Groups.Graph.rst of
 #: palm_tracer.Settings.Groups.Graph.Graph.toggle_dual
@@ -44,15 +44,15 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.display:1
-msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
+msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 msgstr "Group of settings related to localization filters (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
 
 #: ../../api/palm_tracer.Settings.Groups.Graph.rst:16
@@ -64,11 +64,11 @@ msgid "Divers"
 msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.initialize:1
-msgid "Initialise le dictionnaire de paramètres."
+msgid "Initialise les connexions entre les paramètres."
 msgstr "Initializes the settings dictionary."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.get_ui:3
@@ -77,7 +77,7 @@ msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.get_ui:4
 msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"Remove header\" state (no title area created)"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.get_ui:4
 msgid "Méthode de création du groupe."

@@ -3,32 +3,40 @@ msgid "Filters"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:1
-msgid "Classe contenant les paramètres de filtrage :"
-msgstr "Class containing the filter settings:"
+msgid "Regroupe les paramètres de filtrage communs aux localisations et aux trajectoires."
+msgstr "Groups the filtering settings shared by localizations and tracks."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:3
-msgid "Attributs :"
-msgstr "Attributes:"
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
-#: of palm_tracer.Settings.Groups.Filters.Filters:4
-msgid "**Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Sauvegarde les éléments une fois filtrés (dans un fichier séparé du fichier non filtré)  (par défaut : `False`)."
-msgstr "**Save** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Saves the filtered items (in a separate file from the unfiltered file)  (default: `False`)."
+#: of palm_tracer.Settings.Groups.Filters.Filters:5
+msgid "``Save`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enregistre séparément les résultats filtrés ; valeur par défaut : ``False``."
+msgstr "``Save`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : saves filtered results separately; default value: ``False``."
 
-#: of palm_tracer.Settings.Groups.Filters.Filters:6
-msgid "**Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Intervalle de plans sélectionné (par défaut : `[1,10000]`)."
-msgstr "**Plane** (:class:`CheckRangeInt <palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt>`) : Selected plane range (default: `[1,10000]`)."
-
-#: of palm_tracer.Settings.Groups.Filters.Filters:8
-msgid "**ROI** (:class:`CheckInt <palm_tracer.Settings.Types.CheckInt.CheckInt>`) : ROI sélectionnée pour la sélection (par défaut : `1`)."
-msgstr "**ROI** (:class:`CheckInt <palm_tracer.Settings.Types.CheckInt.CheckInt>`) : Selected ROI (default: `1`)."
+#: of palm_tracer.Settings.Groups.Filters.Filters:7
+msgid "``Plane`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle des plans conservés ; valeur par défaut : ``[1, 100000]``."
+msgstr "``Plane`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : range of retained planes; default value: ``[1, 100000]``."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:9
-msgid "**Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Paramètres de filtrage de la Localisation."
-msgstr "**Localization** (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`) : Localization filter settings."
+msgid "``ROI`` (:class:`~palm_tracer.Settings.Types.CheckInt.CheckInt`) : indice de la zone d'intérêt utilisée pour le filtrage spatial."
+msgstr "``ROI`` (:class:`~palm_tracer.Settings.Types.CheckInt.CheckInt`) : index of the region of interest used for spatial filtering."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:10
-msgid "**Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Paramètres de filtrage du Tracking."
-msgstr "**Tracks** (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`) : Tracking filter settings"
+msgid "``Localization`` (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`) : filtres propres aux localisations."
+msgstr "``Localization`` (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`) : localization-specific filters."
+
+#: of palm_tracer.Settings.Groups.Filters.Filters:11
+msgid "``Tracks`` (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`) : filtres propres aux trajectoires."
+msgstr "``Tracks`` (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`) : track-specific filters."
+
+#: of palm_tracer.Settings.Groups.Filters.Filters:13
+msgid "À faire"
+msgstr "To do"
+
+#: of palm_tracer.Settings.Groups.Filters.Filters:13
+msgid "Vérifier les ordres de grandeur et les valeurs par défaut des filtres, notamment la plage de l'intensité intégrée des localisations."
+msgstr "Check the orders of magnitude and default filter values, particularly the range of the localizations' integrated intensity."
 
 #: ../../api/palm_tracer.Settings.Groups.Filters.rst of
 #: palm_tracer.Settings.Groups.Filters.Filters.update_limits
@@ -40,15 +48,15 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.mode:1
-msgid "Méthode d'affichage du groupe par défaut."
+msgid "Mode d'affichage du groupe dans l'interface."
 msgstr "Default group display method."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.buttons:1
@@ -56,11 +64,11 @@ msgid "Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, 
 msgstr "Dictionary of Reset, Update, and Save action buttons (:class:`dict[str, QPushButton]`) for each UI."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.localization:1
-msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
+msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 msgstr "Group of settings related to localization filters (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.tracking:1
-msgid "Groupe de paramètres liés aux filtres sur le suivi (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`)."
+msgid "Groupe de paramètres liés aux filtres sur le suivi (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`)."
 msgstr "Group of settings related to tracking filters (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`)."
 
 #: ../../api/palm_tracer.Settings.Groups.Filters.rst:19
@@ -72,7 +80,7 @@ msgid "Divers"
 msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:3
@@ -81,7 +89,7 @@ msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:4
 msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"Remove header\" state (no title area created)"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:4
 msgid "Méthode de création du groupe."
@@ -120,7 +128,7 @@ msgid "Désactive tous les filtres."
 msgstr "Deactivates all filters."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.update_limits:1
-msgid "Mets à jour le min et le max de certains filtres."
+msgid "Met à jour le min et le max de certains filtres."
 msgstr "Updates the min and max values for certain filters."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.connect_button:1
@@ -149,8 +157,8 @@ msgstr "Name of the interface to modify."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.show_part:4
 msgid "Partie Localization."
-msgstr "Localization Part."
+msgstr "Localization section."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.show_part:5
 msgid "Partie Tracking."
-msgstr "Tracking Part."
+msgstr "Tracking section."

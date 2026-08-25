@@ -3,8 +3,12 @@ msgid "BaseSettingGroup"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup:1
-msgid "Classe mère pour un groupe de paramètres."
-msgstr "Parent class for a group of settings."
+msgid "Gère un ensemble cohérent de paramètres et ses représentations Qt."
+msgstr "Manages a consistent group of settings and its Qt representations."
+
+#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup:3
+msgid "Les sous-classes déclarent leurs paramètres dans :attr:`setting_list`. La classe de base construit les objets correspondants, propage leur activation, crée leurs vues et assure leur sérialisation."
+msgstr "Subclasses declare their settings in :attr:`setting_list`. The base class builds the corresponding objects, propagates their activation, creates their views, and handles their serialization."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst of
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup
@@ -21,7 +25,8 @@ msgstr "Attributes"
 msgid "Nom du Groupe."
 msgstr "Group name."
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.setting_list:1
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.setting_list:1
 msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
 msgstr "List of settings in the group (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
 
@@ -37,7 +42,8 @@ msgstr "Group status, enabled or disabled (:class:`bool`)."
 msgid "Fonction vide nécessaire aux parcours automatiques."
 msgstr "Empty function required for automatic traversal."
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.settings_names:1
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.settings_names:1
 msgid "Récupère les noms des paramètres de ce groupe."
 msgstr "Retrieves the names of the settings in this group."
 
@@ -50,10 +56,11 @@ msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:23
-msgid "Initialization"
-msgstr ""
+msgid "Initialisation"
+msgstr "Initialization"
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.initialize:1
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.initialize:1
 msgid "Initialise le dictionnaire de paramètres."
 msgstr "Initializes the settings dictionary."
 
@@ -62,21 +69,21 @@ msgid "Remet les valeurs par défaut des paramètres."
 msgstr "Resets the settings to their default values."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:29
-msgid "Getter/Setter"
-msgstr ""
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
-msgstr "Returns a :class:`.BaseUIGroup` object, either an existing one or one created if necessary."
+msgid "Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire."
+msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.clean_ui:3
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."
-msgstr "Name of the interface in the dictionary."
+msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:4
 msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"remove header\" state (no title area created)"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:4
 msgid "Méthode de création du groupe."
@@ -117,8 +124,8 @@ msgid "Supprime l'interface Qt associée au nom donné."
 msgstr "Removes the Qt interface associated with the specified name."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:35
-msgid "Hide and Seek"
-msgstr ""
+msgid "Visibilité"
+msgstr "Visibility"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.hide:1
 msgid "Cache le paramètre."
@@ -129,15 +136,17 @@ msgid "Affiche le paramètre."
 msgstr "Shows the setting."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:41
-msgid "Parsing"
-msgstr ""
+msgid "Sérialisation"
+msgstr "Serialization"
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.to_compact_dict:1
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.to_compact_dict:1
 msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
 msgstr "Returns a minimal dictionary containing the setting's value."
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.update_from_compact_dict:1
-msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.update_from_compact_dict:1
+msgid "Met à jour la classe à partir d'un dictionnaire minimal."
 msgstr "Updates the class from a minimal dictionary."
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.tostring:1
@@ -153,16 +162,17 @@ msgid "Une description textuelle des paramètres."
 msgstr "A textual description of the settings."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:48
-msgid "Callbacks"
-msgstr ""
+msgid "Fonctions de rappel"
+msgstr "Callbacks"
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.set_active:1
-msgid "Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.set_active:1
+msgid "Met à jour l'état actif du groupe lorsque la checkbox est modifiée."
 msgstr "Updates the group's active state when the checkbox is toggled."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst:53
-msgid "Signals"
-msgstr ""
+msgid "Signaux"
+msgstr "Signals"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect:1
 msgid "Connecte une fonction ou un slot à tous les éléments du groupe."
@@ -172,18 +182,22 @@ msgstr "Connects a function or slot to all elements in the group."
 msgid "Fonction ou slot à connecter."
 msgstr "Function or slot to connect."
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:1
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:1
 msgid "Déconnecte une fonction ou un slot à tous les éléments du groupe."
 msgstr "Disconnects a function or slot from all elements in the group."
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:3
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:3
 msgid "Fonction ou slot à déconnecter."
 msgstr "Function or slot to disconnect."
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:4
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:4
 msgid "Nombre de slots déconnectés."
 msgstr "Number of disconnected slots."
 
-#: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:1
-msgid "Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec `with ...:`."
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:1
+msgid "Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec ``with ...:``."
 msgstr "Signal blocking for the entire group (recursive). Returns a context manager usable with `with ...:`."

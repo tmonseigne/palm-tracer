@@ -3,16 +3,20 @@ msgid "Grapher"
 msgstr ""
 
 #: of palm_tracer.Processing.Grapher.Grapher:1
-msgid "Créateur de graphiques avec Plotly."
-msgstr "Graph creator using Plotly."
+msgid "Construit les figures Plotly utilisées pour explorer les résultats PALM."
+msgstr "Builds the Plotly figures used to explore PALM results."
+
+#: of palm_tracer.Processing.Grapher.Grapher:3
+msgid "Les méthodes statiques produisent les histogrammes, distributions, nuages de points et autres représentations sans conserver d'état entre les appels."
+msgstr "The static methods produce histograms, distributions, scatter plots, and other visualizations without retaining state between calls."
 
 #: ../../api/palm_tracer.Processing.Grapher.rst:9
 msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Processing.Grapher.rst:12
-msgid "Statistic Figure"
-msgstr ""
+msgid "Figures statistiques"
+msgstr "Statistical figures"
 
 #: of palm_tracer.Processing.Grapher.Grapher.blank:1
 msgid "Créé une figure vide avec une annotation standard au centre ``_BLANK_ANNOTATIONS``."
@@ -147,8 +151,8 @@ msgid "Si True, superpose l'exponentielle inverse 2D."
 msgstr "If True, overlays the 2D Exponential inverse."
 
 #: ../../api/palm_tracer.Processing.Grapher.rst:20
-msgid "Astigmtism Figure"
-msgstr ""
+msgid "Figure d'astigmatisme"
+msgstr "Astigmatism figure"
 
 #: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:1
 msgid "Affiche la courbe d’astigmatisme 3D (σx, σy) issue d’un modèle analytique."
@@ -176,7 +180,7 @@ msgstr "If experimental data are provided, they are overlaid as points (without 
 
 #: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:12
 msgid "Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
-msgstr "Astigmatic model of form (2, 5): parameters X then Y, each row = [Z0, W, C3, C4, A]."
+msgstr "Astigmatic model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
 
 #: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:13
 msgid "Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``."

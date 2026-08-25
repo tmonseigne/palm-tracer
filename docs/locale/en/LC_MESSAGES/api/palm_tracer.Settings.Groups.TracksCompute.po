@@ -3,36 +3,36 @@ msgid "TracksCompute"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:1
-msgid "Classe contenant les paramètres de Calcul sur les trajectoires :"
+msgid "Regroupe les paramètres des calculs effectués sur les trajectoires."
 msgstr "Class containing tracks computes settings:"
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:3
-msgid "Attributs :"
-msgstr "Attributes:"
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
-#: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:4
-msgid "**MSD** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Calcul du MSD par trajectoire et par plans successifs (par défaut : `False`)."
-msgstr "**MSD** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Calculate MSD per track and per successive plane (default: `False`)."
+#: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:5
+msgid "``MSD`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule le déplacement quadratique moyen."
+msgstr "``MSD`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : computes the mean squared displacement."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:6
-msgid "**Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Calcul de la diffusion instantanée par trajectoire et par plans successifs (par défaut : `False`)."
-msgstr "**Instant Diffusion** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Calculation of instantaneous diffusion per track and per successive planes (default: `False`)."
+msgid "``Instant Diffusion`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule la diffusion instantanée."
+msgstr "``Instant Diffusion`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : computes instantaneous diffusion."
+
+#: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:7
+msgid "``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : longueur initiale de la fenêtre d'ajustement ; valeur par défaut : ``4``."
+msgstr "``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : initial fitting-window length; default value: ``4``."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:8
-msgid "**Fit Length** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Longueur de la fenêtre de calcul initiale des métriques génériques (par défaut : `4`)."
-msgstr "**Fit Length** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`): Length of the initial calculation window for generic metrics (default: `4`)."
+msgid "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z."
+msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : includes the Z coordinate."
+
+#: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:9
+msgid "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : transforme les résultats en échelle logarithmique avant leur sauvegarde."
+msgstr "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : converts results to a logarithmic scale before saving them."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:10
-msgid "**3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Utilisation ou non de la coordonnée Z dans les calculs (par défaut : `False`)."
-msgstr "**3D** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Whether or not to use the Z coordinate in calculations (default: `False`)."
-
-#: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:12
-msgid "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Utilisation ou non d'une échelle logarithmique pour les résultats (par défaut : `False`)."
-msgstr "**Log Scale** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Whether to use a logarithmic scale for the results (default: `False`)."
-
-#: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:14
-msgid "**Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Méthode d'ajustement du mouvement de la trajectoire (par défaut : `None`)."
-msgstr "**Fit** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Method for fitting the track movement (default: `None`)."
+msgid "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de mouvement utilisé pour l'ajustement."
+msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : motion model used for fitting."
 
 #: ../../api/palm_tracer.Settings.Groups.TracksCompute.rst
 msgid "Paramètres"
@@ -43,9 +43,9 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."

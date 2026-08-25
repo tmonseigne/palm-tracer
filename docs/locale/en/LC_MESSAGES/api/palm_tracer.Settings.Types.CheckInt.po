@@ -3,8 +3,8 @@ msgid "CheckInt"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt:1
-msgid "Classe pour un paramètre spécifique de type nombre entier."
-msgstr "Class for a specific integer setting."
+msgid "Représente un entier dont l'application peut être activée ou désactivée."
+msgstr "Represents an integer setting that can be enabled or disabled."
 
 #: ../../api/palm_tracer.Settings.Types.CheckInt.rst of
 #: palm_tracer.Settings.Types.CheckInt.CheckInt.set_active
@@ -13,20 +13,24 @@ msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt:3
-msgid "Nom du paramètre à afficher."
-msgstr "Name of the setting to display."
+msgid "Libellé affiché dans l'interface."
+msgstr "Label displayed in the interface."
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt:4
-msgid "Description détaillée en overlay."
-msgstr "Detailed description in an overlay."
+msgid "Description affichée dans l'infobulle."
+msgstr "Description displayed in the tooltip."
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt:5
-msgid "Valeurs par défaut du paramètre."
-msgstr "Default values for the setting."
+msgid "Valeur par défaut."
+msgstr "Default value of the setting."
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt:6
-msgid "Valeurs limites du paramètre."
-msgstr "Limit values for the setting."
+msgid "Bornes minimale et maximale autorisées."
+msgstr "Minimum and maximum allowed bounds."
+
+#: of palm_tracer.Settings.Types.CheckInt.CheckInt:7
+msgid "Incrément appliqué par la boîte de sélection numérique."
+msgstr "Increment applied by the spin box."
 
 #: ../../api/palm_tracer.Settings.Types.CheckInt.rst:9
 msgid "Attributs"
@@ -58,18 +62,18 @@ msgstr "Methods"
 
 #: ../../api/palm_tracer.Settings.Types.CheckInt.rst:21
 msgid "Divers"
-msgstr "Misc"
+msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt.reset:1
 msgid "Réinitialise le paramètre à sa valeur par défaut."
 msgstr "Resets the setting to its default value."
 
 #: ../../api/palm_tracer.Settings.Types.CheckInt.rst:26
-msgid "Getter/Setter"
-msgstr ""
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt.get_ui:3
@@ -90,21 +94,21 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: ../../api/palm_tracer.Settings.Types.CheckInt.rst:31
-msgid "Parsing"
-msgstr ""
+msgid "Sérialisation"
+msgstr "Serialization"
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt.to_compact_dict:1
 msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
-msgstr "Returns a minimal dictionary containing the setting’s value."
+msgstr "Returns a minimal dictionary containing the setting's value."
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt.update_from_compact_dict:1
-msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
+msgid "Met à jour la classe à partir d'un dictionnaire minimal."
 msgstr "Updates the class from a minimal dictionary."
 
 #: ../../api/palm_tracer.Settings.Types.CheckInt.rst:37
-msgid "Callbacks"
-msgstr ""
+msgid "Fonctions de rappel"
+msgstr "Callbacks"
 
 #: of palm_tracer.Settings.Types.CheckInt.CheckInt.set_active:1
-msgid "Mets à jour l'état actif du groupe lorsque la checkbox est modifiée."
+msgid "Met à jour l'état actif du groupe lorsque la checkbox est modifiée."
 msgstr "Updates the group's active state when the checkbox is toggled."

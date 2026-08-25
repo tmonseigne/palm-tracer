@@ -3,23 +3,35 @@ msgid "Astigmatism3D"
 msgstr "Astigmatism3D"
 
 #: of palm_tracer.Processing.Astigmatism3D:1
-msgid "Fichier contenant des fonctions lié à l'astigmatisme 3D (estimation de la position axiale en fonction des écarts-types sur X et Y)."
-msgstr "File containing functions related to 3D astigmatism (estimation of the axial position based on standard deviations along the X and Y axes)."
+msgid "Fournit les fonctions de calibration et d'estimation de la position axiale par astigmatisme 3D."
+msgstr "Provides functions for calibration and axial-position estimation using 3D astigmatism."
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:1
 msgid "Estime une position Z (en unités physiques) à partir d'indices de plans."
 msgstr "Estimates a Z position (in physical units) based on plane indices."
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:3
-msgid "Les indices de plans sont supposés répartis linéairement entre ``z_min`` et ``z_max`` : - ``min(planes)``  ⇾ ``z_min`` - ``max(planes)``  ⇾ ``z_max`` - valeurs intermédiaires interpolées linéairement."
+msgid "Les indices de plans sont supposés répartis linéairement entre ``z_min`` et ``z_max`` :"
 msgstr "The plane indices are assumed to be linearly distributed between ``z_min`` and ``z_max``: - ``min (planes)``  ⇾ ``z_min`` - ``max(planes)``  ⇾ ``z_max`` - intermediate values linearly interpolated."
+
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:4
+msgid "``min(planes)``  ⇾ ``z_min``"
+msgstr "``min(planes)``  ⇾ ``z_min``"
+
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:5
+msgid "``max(planes)``  ⇾ ``z_max``"
+msgstr "``max(planes)``  ⇾ ``z_max``"
+
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:6
+msgid "valeurs intermédiaires interpolées linéairement."
+msgstr "linearly interpolated intermediate values."
 
 #: ../../api/palm_tracer.Processing.Astigmatism3D.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:8
-msgid "Tableau des indices de plans (entiers). Peut-être de n'importe quelle forme."
+msgid "Tableau des indices de plans (entiers). Peut être de n'importe quelle forme."
 msgstr "Array of plane indices (integers). May be of any shape."
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:9
@@ -35,7 +47,7 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:12
-msgid "tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées."
+msgid "Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées."
 msgstr "NumPy array, of the same shape as ``planes``, containing the estimated Z values."
 
 #: ../../api/palm_tracer.Processing.Astigmatism3D.rst
@@ -58,8 +70,8 @@ msgstr "Distance between two consecutive planes (same unit as the output). Must 
 msgid "Si ``True``, centre la pile autour de 0. Sinon, démarre à 0."
 msgstr "If ``True``, centers the stack around 0. Otherwise, starts at 0."
 
-#: of palm_tracer.Processing.Astigmatism3D.z_from_step:7
-msgid "tableau NumPy contenant les valeurs de Z estimées."
+#: of palm_tracer.Processing.Astigmatism3D.z_from_step:6
+msgid "Tableau NumPy contenant les valeurs de Z estimées."
 msgstr "NumPy array containing the estimated Z values."
 
 #: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:1
@@ -99,7 +111,7 @@ msgstr "Astigmatic model sigma(z)."
 #: palm_tracer.Processing.Astigmatism3D.model_validity:16
 #: palm_tracer.Processing.Astigmatism3D.sigma_model:3
 msgid "Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
-msgstr "Shape (2, 5) astigmatic model: X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
+msgstr "Astigmatic model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:4
 msgid "Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle."
@@ -114,7 +126,7 @@ msgid "Facteur d'agrandissement (les fichiers de localisation sauvegardés le so
 msgstr "Upscale factor (localization files are saved before upscale, so leave this at 1)."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:7
-msgid "tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle."
+msgid "Tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle."
 msgstr "NumPy array containing sigma values as a function of Z for the model."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_validity:1
@@ -191,7 +203,7 @@ msgstr "slope_mean: Average slope of the curve σx(z) - σy(z) in pixels per nan
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:26
 msgid "Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle)."
-msgstr "Array (N, 3) containing the columns [SigmaX, SigmaY, Z] (sigas in pixels, Z in units consistent with the model)."
+msgstr "Array (N, 3) containing the columns [SigmaX, SigmaY, Z] (sigmas in pixels, Z in units consistent with the model)."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:9
 #: palm_tracer.Processing.Astigmatism3D.model_projection_validity:28
@@ -220,8 +232,20 @@ msgid "Recherche la position axiale pour laquelle les deux sigmas astigmatiques 
 msgstr "Finds the axial position where the two astigmatic sigmas are closest."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:3
-msgid "La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter : - soit un zéro exact de la différence entre les deux courbes de sigma ; - soit un changement de signe, auquel cas une bissection locale est appliquée ; - soit, à défaut, la position minimisant la valeur absolue de cette différence."
-msgstr "The method uniformly scans the interval covered by ``z`` to detect: - either an exact zero of the difference between the two sigma curves; - or a change in sign, in which case a local bisection is applied; - or, failing that, the position minimizing the absolute value of this difference."
+msgid "La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter :"
+msgstr "The method uniformly scans the interval covered by ``z`` to detect:"
+
+#: of palm_tracer.Processing.Astigmatism3D.find_model_center:4
+msgid "soit un zéro exact de la différence entre les deux courbes de sigma ;"
+msgstr "either an exact zero of the difference between the two sigma curves;"
+
+#: of palm_tracer.Processing.Astigmatism3D.find_model_center:5
+msgid "soit un changement de signe, auquel cas une bissection locale est appliquée ;"
+msgstr "or a sign change, in which case a local bisection is applied;"
+
+#: of palm_tracer.Processing.Astigmatism3D.find_model_center:6
+msgid "soit, à défaut, la position minimisant la valeur absolue de cette différence."
+msgstr "or, failing that, the position that minimizes the absolute value of this difference."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:11
 msgid "Position axiale estimée du centre astigmatique."

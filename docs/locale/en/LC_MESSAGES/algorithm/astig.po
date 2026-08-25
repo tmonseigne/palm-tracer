@@ -1,6 +1,6 @@
 #: ../../algorithm/astig.rst:2
 msgid "Astigmatisme 3D"
-msgstr ""
+msgstr "3D astigmatism"
 
 #: ../../algorithm/astig.rst:6
 msgid "Work In Progress"

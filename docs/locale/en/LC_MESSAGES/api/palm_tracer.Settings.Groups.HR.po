@@ -3,52 +3,52 @@ msgid "HR"
 msgstr ""
 
 #: of palm_tracer.Settings.Groups.HR.HR:1
-msgid "Classe contenant les paramètres de Visualisation haute résolution :"
+msgid "Regroupe les paramètres des reconstructions haute résolution."
 msgstr "Class containing high-resolution visualization settings:"
 
 #: of palm_tracer.Settings.Groups.HR.HR:3
-msgid "Attributs :"
-msgstr "Attributes:"
-
-#: of palm_tracer.Settings.Groups.HR.HR:4
-msgid "**Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type de données à représenter (localisations ou suivi)."
-msgstr "**Type** (:class:`ButtonGroup <palm_tracer.Settings.Types.ButtonGroup.ButtonGroup>`) : Type of data to display (locations or tracking)."
+msgid "Paramètres regroupés :"
+msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.HR.HR:5
-msgid "**Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : Source des données à représenter."
-msgstr "**Source** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): Source of the data to display."
+msgid "``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z ou rotation 3D."
+msgstr "``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : reconstruction mode: 2D, Z stack, or 3D rotation."
 
 #: of palm_tracer.Settings.Groups.HR.HR:6
-msgid "**Color mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`) : En cas de chevauchement, sélectionne si les valeurs des pixels sont additionnées ou si seule la valeur maximale est conservée."
-msgstr "**Color mode** (:class:`Combo <palm_tracer.Settings.Types.Combo.Combo>`): In case of overlap, selects whether pixel values are added together or only the maximum value is retained."
+msgid "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires."
+msgstr "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : data family, localizations or tracks."
+
+#: of palm_tracer.Settings.Groups.HR.HR:7
+msgid "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : grandeur utilisée pour colorer ou pondérer les points."
+msgstr "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : quantity used to color or weight the points."
 
 #: of palm_tracer.Settings.Groups.HR.HR:8
-msgid "**Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Facteur d'agrandissement (par défaut : `4`)."
-msgstr "**Ratio** (:class:`SpinInt <palm_tracer.Settings.Types.SpinInt.SpinInt>`) : Magnification factor (default: `4`)."
+msgid "``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur maximum."
+msgstr "``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : sums overlapping contributions or retains their maximum."
 
 #: of palm_tracer.Settings.Groups.HR.HR:9
-msgid "**Crop** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprime tout le cadre noir autour de la reconstruction (utile lors d'une reconstruction sur une partie du champ, conserve une marge de 5 pixels)."
-msgstr "**Crop** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Removes the entire black border around the reconstruction (useful when reconstructing a portion of the field; retains a 5-pixel margin)."
+msgid "``Ratio`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : facteur d'agrandissement ; valeur par défaut : ``4``."
+msgstr "``Ratio`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : upscaling factor; default value: ``4``."
+
+#: of palm_tracer.Settings.Groups.HR.HR:10
+msgid "``Crop`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : retire automatiquement les bordures vides."
+msgstr "``Crop`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : automatically removes empty borders."
 
 #: of palm_tracer.Settings.Groups.HR.HR:11
-msgid "**Remove Beads** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Supprime les billes lors de la reconstruction."
-msgstr "**Remove Beads** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Removes the beads during reconstruction."
+msgid "``Remove Beads`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exclut les billes de la reconstruction."
+msgstr "``Remove Beads`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : excludes beads from the reconstruction."
 
 #: of palm_tracer.Settings.Groups.HR.HR:12
-msgid "**Drift Correction** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique une correction de la dérive (Remarque : les billes doivent avoir été extraites au préalable.)"
-msgstr "**Drift Correction** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applies drift correction (Note: the beads must have been extracted beforehand.)"
+msgid "``Drift Correction`` et ``Smooth Drift`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : appliquent puis lissent la correction de dérive."
+msgstr "``Drift Correction`` and ``Smooth Drift`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : apply and then smooth the drift correction."
+
+#: of palm_tracer.Settings.Groups.HR.HR:13
+msgid "``Gaussian`` (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`) : paramètres du rendu gaussien."
+msgstr "``Gaussian`` (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`) : Gaussian-rendering settings."
 
 #: of palm_tracer.Settings.Groups.HR.HR:14
-msgid "**Smooth Drift** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`) : Applique un lissage à la correction de dérive."
-msgstr "**Smooth Drift** (:class:`CheckBox <palm_tracer.Settings.Types.CheckBox.CheckBox>`): Applies smoothing to the drift correction."
-
-#: of palm_tracer.Settings.Groups.HR.HR:15
-msgid "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`) : Paramètres spécifiques à la représentation gaussienne."
-msgstr "**Gaussian** (:class:`HRGaussian <palm_tracer.Settings.Types.HRGaussian.HRGaussian>`): Settings specific to the Gaussian representation."
-
-#: of palm_tracer.Settings.Groups.HR.HR:16
-msgid "**3D** (:class:`HR3D <palm_tracer.Settings.Types.HR3D.HR3D>`) : Paramètres spécifiques à la reconstruction 3D."
-msgstr "**3D** (:class:`HR3D <palm_tracer.Settings.Types.HR3D.HR3D>`): Settings specific to 3D reconstruction."
+msgid "``3D`` (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`) : paramètres de la pile ou de la rotation 3D."
+msgstr "``3D`` (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`) : Z-stack or 3D-rotation settings."
 
 #: ../../api/palm_tracer.Settings.Groups.HR.rst
 msgid "Paramètres"
@@ -59,19 +59,19 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.HR.HR.label:1
-msgid "Nom du Groupe."
-msgstr "Group name."
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.HR.HR.setting_list:1
-msgid "Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
-msgstr "List of group settings (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.HR.HR.gaussian:1
-msgid "Groupe de paramètres liés à la représentation gaussienne (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
+msgid "Groupe de paramètres liés à la représentation gaussienne (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`)."
 msgstr "Group of settings related to the Gaussian representation (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
 
 #: of palm_tracer.Settings.Groups.HR.HR.hr_3d:1
-msgid "Groupe de paramètres liés à la reconstruction 3D (:class:`HR3D <palm_tracer.Settings.Groups.HR3D.HR3D>`)."
+msgid "Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."
 msgstr "Group of settings related to the 3D reconstruction (:class:`HR3D <palm_tracer.Settings.Groups.HR3D.HR3D>`)."
 
 #: ../../api/palm_tracer.Settings.Groups.HR.rst:17
@@ -83,11 +83,11 @@ msgid "Divers"
 msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.Groups.HR.HR.initialize:1
-msgid "Initialise le dictionnaire de paramètres."
+msgid "Initialise les connexions entre les paramètres."
 msgstr "Initializes the settings dictionary."
 
 #: of palm_tracer.Settings.Groups.HR.HR.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIGroup`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.HR.HR.get_ui:3
@@ -96,7 +96,7 @@ msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.HR.HR.get_ui:4
 msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Group default value - 0: With a title and a checkbox to enable/disable the group - 1: State when using the \"always active\" method (the checkbox is not created) - 2: \"Remove header\" state (no title area created)"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
 
 #: of palm_tracer.Settings.Groups.HR.HR.get_ui:4
 msgid "Méthode de création du groupe."

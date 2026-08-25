@@ -3,12 +3,12 @@ msgid "BaseSettingType"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType:1
-msgid "Classe mère abstraite pour la gestion des paramètres dans l'interface utilisateur."
-msgstr "Abstract parent class for managing settings in the user interface."
+msgid "Définit le modèle commun d'un paramètre configurable."
+msgstr "Defines the common model for a configurable setting."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType:3
-msgid "Cette classe représente un paramètre d'interface utilisateur avec un calque spécifique. Elle est utilisée comme base pour des paramètres plus spécifiques. Chaque paramètre pourra hériter de cette classe pour définir son comportement et ses options spécifiques."
-msgstr "This class represents a user interface setting with a specific overlay. It is used as a base for more specific settings. Each setting can inherit from this class to define its specific behavior and options."
+msgid "La classe conserve la valeur, notifie ses changements et synchronise toutes les représentations Qt créées pour le même paramètre."
+msgstr "The class stores the value, notifies changes, and synchronizes all Qt representations created for the same setting."
 
 #: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst of
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.set_value_from_ui
@@ -16,13 +16,13 @@ msgstr "This class represents a user interface setting with a specific overlay. 
 msgid "Paramètres"
 msgstr "Parameters"
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType:7
-msgid "Nom du paramètre à afficher."
-msgstr "Name of the setting to display."
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType:5
+msgid "Libellé affiché dans l'interface."
+msgstr "Label displayed in the interface."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType:8
-msgid "Description détaillée en overlay."
-msgstr "Detailed description in the overlay."
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType:6
+msgid "Description affichée dans l'infobulle."
+msgstr "Description displayed in the tooltip."
 
 #: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:9
 msgid "Attributs"
@@ -49,19 +49,19 @@ msgid "Méthodes"
 msgstr "Methods"
 
 #: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:20
-msgid "Initialization"
-msgstr ""
+msgid "Initialisation"
+msgstr "Initialization"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.reset:1
 msgid "Réinitialise le paramètre à sa valeur par défaut."
 msgstr "Resets the setting to its default value."
 
 #: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:25
-msgid "Getter/Setter"
-msgstr ""
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:1
-msgid "Retourne un objet :class:`.BaseUIType`, existant ou le créé si nécessaire."
+msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
 msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.clean_ui:3
@@ -84,15 +84,16 @@ msgstr "Return type"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.clean_ui:1
 msgid "Supprime l'interface Qt associée au nom donné."
-msgstr "Removes the Qt interface associated with the given name."
+msgstr "Removes the Qt interface associated with the specified name."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.set_value_from_ui:1
-msgid "Mets à jour la valeur à chaque modification de l'UI (appelle le setter)."
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.set_value_from_ui:1
+msgid "Met à jour la valeur à chaque modification de l'UI (appelle le setter)."
 msgstr "Updates the value whenever the UI changes (calls the setter)."
 
 #: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:32
-msgid "Hide and Seek"
-msgstr ""
+msgid "Interface et visibilité"
+msgstr "Interface and visibility"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.hide:1
 msgid "Cache le paramètre."
@@ -102,42 +103,48 @@ msgstr "Hides the setting."
 msgid "Affiche le paramètre."
 msgstr "Shows the setting."
 
-#: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:38
-msgid "Parsing"
-msgstr ""
-
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.to_compact_dict:1
-msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
-msgstr "Returns a minimal dictionary containing the setting’s value."
-
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.update_from_compact_dict:1
-msgid "Mets à jour la classe à partir d'un dictionnaire minimal."
-msgstr "Updates the class from a minimal dictionary."
-
-#: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:44
-msgid "Signals"
-msgstr ""
-
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:1
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:1
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:1
 msgid "Connecte un bouton directement et non le paramètre en lui-même."
 msgstr "Connects a button directly rather than the setting itself."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:3
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:3
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:4
 msgid "Nom de l'interface à connecter."
 msgstr "Name of the interface to connect."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:4
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:4
 msgid "Formulaire qui va recevoir le widget."
 msgstr "Form that will receive the widget."
+
+#: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:39
+msgid "Sérialisation"
+msgstr "Serialization"
+
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.to_compact_dict:1
+msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
+msgstr "Returns a minimal dictionary containing the setting's value."
+
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.update_from_compact_dict:1
+msgid "Met à jour la classe à partir d'un dictionnaire minimal."
+msgstr "Updates the class from a minimal dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst:45
+msgid "Signaux et synchronisation"
+msgstr "Signals and synchronization"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect:3
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:3
 msgid "Fonction ou slot à connecter."
 msgstr "Function or slot to connect."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:5
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:5
 msgid "Numéro de la boîte contenant le bouton."
 msgstr "Number of the box containing the button."
 
@@ -146,7 +153,7 @@ msgid "Connecte une fonction ou un slot au signal encapsulé."
 msgstr "Connects a function or slot to the encapsulated signal."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:1
-msgid "Déconnecte `f` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
+msgid "Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
 msgstr "Disconnects `f` if provided, otherwise **all** slots. Returns the number of disconnected slots."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:3
@@ -169,13 +176,20 @@ msgstr "Used to notify parts of the application subscribed to the signal."
 msgid "Valeur à émettre."
 msgstr "Value to emit."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:1
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:1
 msgid "Contexte de blocage des signaux de ce paramètre."
 msgstr "Blocking context for signals on this setting."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:3
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:3
 msgid "Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage."
 msgstr "If ``True``, emits the last value at the end of the block. If ``False``, ignores all emissions received during the block."
+
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:5
+msgid "Gestionnaire de contexte contrôlant le blocage des signaux."
+msgstr "Context manager controlling signal blocking."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.sync:1
 msgid "Synchronise ce paramètre avec un autre paramètre."
