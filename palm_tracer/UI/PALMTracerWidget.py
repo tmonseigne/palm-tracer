@@ -304,7 +304,7 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _on_load_setting_btn(self):
 		"""Action lors d'un clic sur le bouton Load setting."""
-		filename, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier de paramètres", ".", "Fichiers JSON (*.json)")
+		filename, _ = QFileDialog.getOpenFileName(None, "Select a settings file", ".", "JSON files (*.json)")
 		self._load_setting(Path(filename))
 
 	##################################################

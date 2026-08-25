@@ -69,7 +69,7 @@ class Viewer3DWidget(QWidget):
 
 		Cette méthode déclenche ensuite :meth:`update_layer` pour créer le calque 3D.
 		"""
-		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "Fichiers CSV (*.csv)")
+		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "CSV files (*.csv)")
 		if not path or not Path(path).is_file(): return
 		self.data = pd.read_csv(path)
 		if not all(col in self.data.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):

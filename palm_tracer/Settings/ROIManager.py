@@ -358,7 +358,7 @@ class ROIManager:
 		if roi_type in {"polygon", "rectangle"}: strict_mask = self._points_in_polygon(points, roi.data)
 		elif roi_type == "ellipse": strict_mask = self._points_in_ellipse(points, roi.data)
 		else:
-			print_warning(f"Le type de ROI {roi.type!r} ne définit pas une surface compatible avec le filtrage strict.")
+			print_warning(f"ROI type {roi.type!r} does not define an area compatible with strict filtering.")
 			return df
 
 		return df.loc[strict_mask]

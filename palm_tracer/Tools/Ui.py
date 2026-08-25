@@ -242,7 +242,7 @@ def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) 
 
 	:return: Le :class:`QGroupBox` configuré ainsi que le lien vers les QLabel de statuts des fichiers.
 	"""
-	grp = QGroupBox("Informations")
+	grp = QGroupBox("Information")
 	tips = {"File":         "Current stack.",
 			"Localization": "Localizations on the current stack.",
 			"Beads":        "Beads on the current stack.",

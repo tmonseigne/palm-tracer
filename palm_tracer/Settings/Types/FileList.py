@@ -140,7 +140,7 @@ class FileList(BaseSettingType):
 		"""Ajoute un fichier à la liste via un :class:`QFileDialog`."""
 		# Déterminer le répertoire initial pour la boîte de dialogue
 		initial_dir = (self._items[-1] if self._items else ".")  # Utiliser le dernier fichier ou le répertoire courant
-		path, _ = QFileDialog.getOpenFileName(None, "Sélectionner un fichier", initial_dir, "Tous les fichiers (*)")
+		path, _ = QFileDialog.getOpenFileName(None, "Select a file", initial_dir, "All files (*)")
 		if path and Path(path).is_file():
 			self._items.append(path)
 			self.items = None
