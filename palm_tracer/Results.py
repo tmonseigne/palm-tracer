@@ -121,15 +121,25 @@ class Results:
 	# region Accesseurs
 	# ==================================================
 	##################################################
-	def __getitem__(self, key: str) -> pd.DataFrame: return self._data[key]
+	def __getitem__(self, key: str) -> pd.DataFrame:
+		"""Retourne le DataFrame associé à la clé indiquée."""
+		return self._data[key]
 
 	##################################################
 	def __setitem__(self, key: str, value: pd.DataFrame):
+		"""
+		Remplace le DataFrame associé à une clé.
+
+		:param key: Clé du résultat à remplacer.
+		:param value: Nouveau DataFrame.
+		"""
 		self._data[key] = value
 		self.update_uis()
 
 	##################################################
-	def __iter__(self): return iter(self._data)
+	def __iter__(self):
+		"""Retourne un itérateur sur les clés des résultats."""
+		return iter(self._data)
 
 	##################################################
 	def _get_active_key(self, keys: tuple[str, ...]) -> str:

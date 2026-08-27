@@ -73,3 +73,18 @@ class ResultsUI:
 		"""
 		for key, value in status.items():
 			if key in self._labels: self._labels[key].setText(value)
+
+
+##################################################
+if __name__ == "__main__":
+	import sys
+	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+	app = QApplication(sys.argv)
+	w = QWidget()
+	lay = QVBoxLayout(w)  # Crée et affecte la mise en page au widget
+	ui = ResultsUI()
+	lay.addWidget(ui.widget)
+	lay.addStretch(1)
+	w.show()
+	sys.exit(app.exec_())
