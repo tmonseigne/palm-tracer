@@ -61,16 +61,16 @@ def get_fake_pt():
 	"""Instance basique de PALMTracer pour chaque test."""
 	pt = PALMTracer()
 	add_basic_file(pt)
-	pt.df["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
-	pt.df["f_loc"] = pt.df["loc"].copy()
-	pt.df["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
-	pt.df["f_trc"] = pt.df["trc"].copy()
-	pt.df["blk"] = pt.df["trc"].copy()
-	pt.df["f_blk"] = pt.df["trc"].copy()
-	pt.df["MSD"] = pd.read_csv(INPUT_DIR / "tracking_MSD.csv")
-	pt.df["InD"] = pd.read_csv(INPUT_DIR / "tracking_InstantD.csv")
-	pt.df["Fit"] = pd.read_csv(INPUT_DIR / "tracking_Fit.csv")
-	pt.settings.calibration["Pixel Size"].value = 0.001  # 1nm/pixel
+	pt.results["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
+	pt.results["f_loc"] = pt.results["loc"].copy()
+	pt.results["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")
+	pt.results["f_trc"] = pt.results["trc"].copy()
+	pt.results["blk"] = pt.results["trc"].copy()
+	pt.results["f_blk"] = pt.results["trc"].copy()
+	pt.results["MSD"] = pd.read_csv(INPUT_DIR / "tracking_MSD.csv")
+	pt.results["InD"] = pd.read_csv(INPUT_DIR / "tracking_InstantD.csv")
+	pt.results["Fit"] = pd.read_csv(INPUT_DIR / "tracking_Fit.csv")
+	pt.settings.calibration["Pixel Size"].value = 0.001  # 1nm/pixel simplifie la vérification des calculs sur ces fausses données.
 	return pt
 
 
@@ -80,7 +80,7 @@ def get_fit_params(fit: int) -> np.ndarray:
 	Basique fit_param pour la localisation.
 
 	:param fit: Type d'ajustement.
-	:return: tableau complet.
+	:return: Tableau complet.
 	"""
 	# np.random.seed(42)
 	# shape = [roi, 16, 16, 297, 0, 10]  # les premiers éléments
