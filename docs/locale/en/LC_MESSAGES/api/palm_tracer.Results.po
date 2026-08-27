@@ -1,0 +1,227 @@
+#: ../../api/palm_tracer.Results.rst:2
+msgid "Results"
+msgstr ""
+
+#: of palm_tracer.Results.Results:1
+msgid "Conserve les résultats des traitements et leurs représentations Qt."
+msgstr "Stores processing results and their Qt representations."
+
+#: ../../api/palm_tracer.Results.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Results.Results.KEYS_TO_FILE:1
+msgid "Alias entre les noms de fichiers et les clés dans le dictionnaire de DataFrames."
+msgstr "Aliases between file names and keys in the DataFrame dictionary."
+
+#: of palm_tracer.Results.Results.stack_name:1
+msgid "Nom du fichier en cours d'analyse."
+msgstr "Name of the file currently being analyzed."
+
+#: of palm_tracer.Results.Results.localizations:1
+msgid "Localisations actives (:class:`~pandas.DataFrame`)."
+msgstr "Active localizations (:class:`~pandas.DataFrame`)."
+
+#: of palm_tracer.Results.Results.beads:1
+msgid "Billes détectées (:class:`~pandas.DataFrame`)."
+msgstr "Detected beads (:class:`~pandas.DataFrame`)."
+
+#: of palm_tracer.Results.Results.tracks:1
+msgid "Trajectoires actives (:class:`~pandas.DataFrame`), éventuellement filtrées et reconnectées."
+msgstr "Active tracks (:class:`~pandas.DataFrame`), possibly filtered and reconnected."
+
+#: of palm_tracer.Results.Results.tracks_compute:1
+msgid "Calculs actifs sur les trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."
+msgstr "Active track computations, possibly filtered (:class:`~pandas.DataFrame`)."
+
+#: ../../api/palm_tracer.Results.rst:19
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Results.rst:22
+msgid "Initialisation"
+msgstr "Initialization"
+
+#: of palm_tracer.Results.Results.output_name:1
+msgid "Construit le chemin d'un fichier de résultat sous la forme ``path / name-timestamp.ext``."
+msgstr "Builds the path to a result file in the form ``path / name-timestamp.ext``."
+
+#: ../../api/palm_tracer.Results.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Results.Results.output_name:3
+msgid "Nom du fichier."
+msgstr "File name."
+
+#: of palm_tracer.Results.Results.output_name:4
+#: palm_tracer.Results.Results.output_name_by_key:4
+msgid "Chemin du dossier."
+msgstr "Directory path."
+
+#: of palm_tracer.Results.Results.output_name:5
+#: palm_tracer.Results.Results.output_name_by_key:5
+msgid "Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."
+msgstr "File suffix for a processing run (timestamp in ``YYYYMMDD_HHMMSS`` format)."
+
+#: of palm_tracer.Results.Results.output_name:6
+#: palm_tracer.Results.Results.output_name_by_key:6
+msgid "Extension du fichier ; valeur par défaut : ``csv``."
+msgstr "File extension; default value: ``csv``."
+
+#: ../../api/palm_tracer.Results.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Results.Results.output_name:7
+#: palm_tracer.Results.Results.output_name_by_key:7
+msgid "Chemin complet vers le fichier."
+msgstr "Full path to the file."
+
+#: ../../api/palm_tracer.Results.rst of
+#: palm_tracer.Results.Results.get_localization_key
+#: palm_tracer.Results.Results.get_tracks_compute_key
+#: palm_tracer.Results.Results.get_tracks_key
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Results.Results.output_name_by_key:1
+msgid "Construit le chemin d'un fichier de résultat à partir de sa clé."
+msgstr "Builds the path to a result file from its key."
+
+#: of palm_tracer.Results.Results.output_name_by_key:3
+msgid "Clé du fichier."
+msgstr "File key."
+
+#: of palm_tracer.Results.Results.load:1
+msgid "Charge les résultats précédemment enregistrés pour une pile et un traitement."
+msgstr "Loads previously saved results for a stack and processing run."
+
+#: of palm_tracer.Results.Results.load:3
+msgid "Nom de la pile en cours d'analyse."
+msgstr "Name of the stack currently being analyzed."
+
+#: of palm_tracer.Results.Results.load:4
+msgid "Dossier contenant les fichiers de résultats."
+msgstr "Directory containing the result files."
+
+#: of palm_tracer.Results.Results.load:5
+msgid "Suffixe identifiant le traitement à charger."
+msgstr "Suffix identifying the processing run to load."
+
+#: of palm_tracer.Results.Results.reset:1
+msgid "Vide entièrement les DataFrames de résultats."
+msgstr "Completely clears the result DataFrames."
+
+#: of palm_tracer.Results.Results.reset_filtered:1
+msgid "Vide entièrement les DataFrames de résultats filtrés."
+msgstr "Completely clears the filtered result DataFrames."
+
+#: ../../api/palm_tracer.Results.rst:31
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Results.Results.get_localization_key:1
+msgid "Clé des localisations actives, en privilégiant les variantes filtrées et corrigées."
+msgstr "Key for active localizations, prioritizing filtered and corrected variants."
+
+#: of palm_tracer.Results.Results.get_tracks_key:1
+msgid "Clé des trajectoires actives, en privilégiant les variantes filtrées et reconnectées."
+msgstr "Key for active tracks, prioritizing filtered and reconnected variants."
+
+#: of palm_tracer.Results.Results.get_tracks_compute_key:1
+msgid "Clés des calculs sur les trajectoires, en privilégiant leurs variantes filtrées."
+msgstr "Keys for track computations, prioritizing their filtered variants."
+
+#: of palm_tracer.Results.Results.get_status:1
+msgid "Construit les statuts des différentes catégories de résultats actuellement chargées."
+msgstr "Builds the statuses of the result categories currently loaded."
+
+#: of palm_tracer.Results.Results.get_status:3
+msgid "Statuts indexés par catégorie de résultat."
+msgstr "Statuses indexed by result category."
+
+#: of palm_tracer.Results.Results.get_df_status:1
+msgid "Construit le statut d'un résultat à partir de ses versions initiale et filtrée."
+msgstr "Builds the status of a result from its initial and filtered versions."
+
+#: of palm_tracer.Results.Results.get_df_status:3
+msgid "DataFrame initial."
+msgstr "Initial DataFrame."
+
+#: of palm_tracer.Results.Results.get_df_status:4
+msgid "DataFrame filtré."
+msgstr "Filtered DataFrame."
+
+#: of palm_tracer.Results.Results.get_df_status:5
+msgid "Nom du type de données, par exemple ``localizations`` ou ``tracks``."
+msgstr "Data type name, for example ``localizations`` or ``tracks``."
+
+#: of palm_tracer.Results.Results.get_df_status:6
+msgid "Qualificatif ajouté au statut, par exemple ``Reconnected``."
+msgstr "Qualifier added to the status, for example ``Reconnected``."
+
+#: of palm_tracer.Results.Results.get_df_status:7
+msgid "Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage."
+msgstr "Status with the number of elements before and, if applicable, after filtering."
+
+#: ../../api/palm_tracer.Results.rst:40
+msgid "Entrées-sorties"
+msgstr "Input/output"
+
+#: of palm_tracer.Results.Results.save:1
+msgid "Enregistre un résultat dans un fichier CSV."
+msgstr "Saves a result to a CSV file."
+
+#: of palm_tracer.Results.Results.save:3
+msgid "Clé du résultat à enregistrer."
+msgstr "Key of the result to save."
+
+#: of palm_tracer.Results.Results.save:4
+#: palm_tracer.Results.Results.save_filtered:3
+msgid "Dossier de destination."
+msgstr "Destination directory."
+
+#: of palm_tracer.Results.Results.save:5
+msgid "Suffixe identifiant le traitement."
+msgstr "Suffix identifying the processing run."
+
+#: of palm_tracer.Results.Results.save_filtered:1
+msgid "Enregistre tous les résultats filtrés non vides et différents de leur version initiale."
+msgstr "Saves all non-empty filtered results that differ from their initial version."
+
+#: of palm_tracer.Results.Results.save_filtered:4
+msgid "Suffixe identifiant le traitement ; généré automatiquement lorsqu'il est vide."
+msgstr "Suffix identifying the processing run; generated automatically when empty."
+
+#: ../../api/palm_tracer.Results.rst:46
+msgid "Interface"
+msgstr ""
+
+#: of palm_tracer.Results.Results.get_ui:1
+msgid "Retourne une représentation Qt des résultats, existante ou nouvellement créée."
+msgstr "Returns an existing or newly created Qt representation of the results."
+
+#: of palm_tracer.Results.Results.get_ui:3
+msgid "Nom identifiant la représentation."
+msgstr "Name identifying the representation."
+
+#: of palm_tracer.Results.Results.get_ui:4
+msgid "Marges internes de la représentation, en pixels."
+msgstr "Internal margins of the representation, in pixels."
+
+#: of palm_tracer.Results.Results.get_ui:5
+msgid "Représentation Qt synchronisée avec les résultats."
+msgstr "Qt representation synchronized with the results."
+
+#: of palm_tracer.Results.Results.clean_ui:1
+msgid "Supprime l'interface Qt associée au nom donné."
+msgstr "Removes the Qt interface associated with the given name."
+
+#: of palm_tracer.Results.Results.clean_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: of palm_tracer.Results.Results.update_uis:1
+msgid "Actualise toutes les représentations Qt associées aux résultats."
+msgstr "Updates all Qt representations associated with the results."

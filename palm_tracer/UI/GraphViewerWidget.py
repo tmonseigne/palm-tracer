@@ -241,7 +241,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _actualize(self):
 		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer et redessine le graph."""
-		self._pt.results.update_uis()  # TODO Vérifier peut etre inutile techniquement chaque maj d'éléments par [] met à jour l'ui.
+		self._pt.results.update_uis()  # TODO Vérifier si cet appel est redondant : chaque affectation par clé actualise déjà les interfaces.
 		self._graph_settings["Display"]["Limits"].value = True
 		self._update_plot()  # Puis redessiner le graphe.
 

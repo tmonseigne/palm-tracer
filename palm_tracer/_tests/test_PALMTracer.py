@@ -1310,12 +1310,12 @@ def test_hr_stress():
 	ref[n_y, n_x] += n_p  # Localization statique
 	np.testing.assert_array_equal(viz, ref)
 
-	# Bille Random....
+	# Bille avec une trajectoire aléatoire.
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = True
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
-	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Random autour du centre
-	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Random autour du centre
+	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Aléatoire autour du centre.
+	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Aléatoire autour du centre.
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	# Position au centre puis résultat du random dans tous les sens ATTENTION LE DRIFT EST LISSÉ.
@@ -1326,7 +1326,7 @@ def test_hr_stress():
 	pt.results["loc"].loc[:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
-	# Position de la bille random corrigé ATTENTION LE DRIFT EST LISSÉ, ce n'est donc pas un point unique.
+	# Position corrigée de la bille aléatoire. Le drift est lissé, il ne s'agit donc pas d'un point unique.
 	ref[3, 9] = ref[3, 10] = ref[2, 11] = ref[2, 14] = ref[3, 14] = 1
 	np.testing.assert_array_equal(viz, ref)
 

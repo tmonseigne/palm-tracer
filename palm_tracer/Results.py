@@ -1,4 +1,4 @@
-"""blabla"""
+"""Gère les résultats des traitements et leurs représentations Qt."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import pandas as pd
 from palm_tracer.Tools import FileIO, Ui
 
 if TYPE_CHECKING:
-	from palm_tracer.UI.ResultsUI import ResultsUI  # Hack pour éviter les imports cycliques
+	from palm_tracer.UI.ResultsUI import ResultsUI  # Import conditionnel pour éviter une dépendance cyclique à l'exécution.
 
 
 ##################################################
@@ -22,10 +22,10 @@ class Results:
 	_data: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
 			"loc":   pd.DataFrame(), "dft": pd.DataFrame(), "bds": pd.DataFrame(),  # .	   Localisations.
 			"trc":   pd.DataFrame(), "blk": pd.DataFrame(),  # .						   Trajectoires.
-			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),  # .	   Calculs sur les Trajectoires.
-			"f_loc": pd.DataFrame(), "f_dft": pd.DataFrame(),  # .						   Localisations Filtrées.
-			"f_trc": pd.DataFrame(), "f_blk": pd.DataFrame(),  # .						   Trajectoires Filtrées.
-			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Calculs sur Trajectoires filtrées.
+			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),  # .	   Calculs sur les trajectoires.
+			"f_loc": pd.DataFrame(), "f_dft": pd.DataFrame(),  # .						   Localisations filtrées.
+			"f_trc": pd.DataFrame(), "f_blk": pd.DataFrame(),  # .						   Trajectoires filtrées.
+			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Calculs sur les trajectoires filtrées.
 	"""Résultats des différents calculs."""
 
 	_uis: dict[str, "ResultsUI"] = field(init=False, default_factory=dict)
@@ -52,12 +52,12 @@ class Results:
 	@staticmethod
 	def output_name(name: str, path: str | Path, timestamp: str, ext: str = "csv") -> Path:
 		"""
-		Indique le nom du fichier à enregistrer ``folder / name-timestamp.extension``.
+		Construit le chemin d'un fichier de résultat sous la forme ``path / name-timestamp.ext``.
 
 		:param name: Nom du fichier.
 		:param path: Chemin du dossier.
 		:param timestamp: Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``).
-		:param ext: Extension du fichier (par défaut csv, exception pour le log, les paramètres et les visualizations).
+		:param ext: Extension du fichier ; valeur par défaut : ``csv``.
 		:return: Chemin complet vers le fichier.
 		"""
 		return Path(path).resolve() / f"{name}-{timestamp}.{ext}"
@@ -65,20 +65,26 @@ class Results:
 	##################################################
 	def output_name_by_key(self, key: str, path: str | Path, timestamp: str, ext: str = "csv") -> Path:
 		"""
-		Indique le nom du fichier à enregistrer ``folder / name-timestamp.extension``.
+		Construit le chemin d'un fichier de résultat à partir de sa clé.
 
 		:param key: Clé du fichier.
 		:param path: Chemin du dossier.
 		:param timestamp: Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``).
-		:param ext: Extension du fichier (par défaut csv, exception pour le log, les paramètres et les visualizations).
+		:param ext: Extension du fichier ; valeur par défaut : ``csv``.
 		:return: Chemin complet vers le fichier.
 		"""
 		return self.output_name(self.KEYS_TO_FILE[key], path, timestamp, ext)
 
 	##################################################
 	def load(self, stack_name: str, path: str | Path, timestamp: str):
-		"""Charge les précédents résultats du chemin et timestamp en parametre."""
-		self.reset()  # Réinitialisation des DataFrames de résultats
+		"""
+		Charge les résultats précédemment enregistrés pour une pile et un traitement.
+
+		:param stack_name: Nom de la pile en cours d'analyse.
+		:param path: Dossier contenant les fichiers de résultats.
+		:param timestamp: Suffixe identifiant le traitement à charger.
+		"""
+		self.reset()  # Réinitialise les DataFrames de résultats.
 		self.stack_name = stack_name
 		folder = Path(path).resolve()
 		print(f"\tLoading files from the '{str(folder)}' folder with the timestamp {timestamp}.")
@@ -86,12 +92,12 @@ class Results:
 		for key, filename in self.KEYS_TO_FILE.items():
 			file = self.output_name(filename, folder, timestamp)
 
-			if not file.is_file():  # .		  Fichier inexistant
+			if not file.is_file():  # .		  Fichier inexistant.
 				print(f"\tFile '{filename}' not found.")
 				continue
 
-			try: data = pd.read_csv(file)  # .Lecture du fichier CSV avec pandas.
-			except Exception as exception:  # Echec lors de la lecture
+			try: data = pd.read_csv(file)  # . Lecture du fichier CSV avec pandas.
+			except Exception as exception:  # Échec lors de la lecture.
 				Ui.print_warning(f"\tError loading file '{filename}': {exception}")
 				continue
 
@@ -102,13 +108,13 @@ class Results:
 
 	##################################################
 	def reset(self):
-		"""Vide entièrement les DataFrame de résultat."""
+		"""Vide entièrement les DataFrames de résultats."""
 		for key in self._data: self._data[key] = pd.DataFrame()
 		self.update_uis()
 
 	##################################################
 	def reset_filtered(self):
-		"""Vide entièrement les DataFrames de résultat filtrés."""
+		"""Vide entièrement les DataFrames de résultats filtrés."""
 		for key in self._data:
 			if key.startswith("f_"): self._data[key] = pd.DataFrame()
 		self.update_uis()
@@ -144,16 +150,17 @@ class Results:
 	##################################################
 	def _get_active_key(self, keys: tuple[str, ...]) -> str:
 		"""
+		Retourne la dernière clé associée à un résultat non vide, ou la première clé par défaut.
 
-		:param keys:
-		:return:
+		:param keys: Clés classées par priorité croissante.
+		:return: Clé du résultat actif.
 		"""
 		return next((key for key in reversed(keys) if not self._data[key].empty), keys[0], )
 
 	##################################################
 	@property
 	def stack_name(self) -> str:
-		"""Nom du fichier en cours d'analyse (:class:`str`)."""
+		"""Nom du fichier en cours d'analyse."""
 		return self._stack_name
 
 	##################################################
@@ -165,62 +172,50 @@ class Results:
 
 	##################################################
 	def get_localization_key(self) -> str:
-		"""Clé des localisations (filtrées si le tableau est non vide) et corrigées si le tableau est non vide également."""
+		"""Clé des localisations actives, en privilégiant les variantes filtrées et corrigées."""
 		return self._get_active_key(("loc", "f_loc", "dft", "f_dft"))
 
 	##################################################
 	def get_tracks_key(self) -> str:
-		"""Clé des localisations (filtrées si le tableau est non vide) et corrigées si le tableau est non vide également."""
+		"""Clé des trajectoires actives, en privilégiant les variantes filtrées et reconnectées."""
 		return self._get_active_key(("trc", "f_trc", "blk", "f_blk"))
 
 	##################################################
 	def get_tracks_compute_key(self) -> list[str]:
-		"""Clé des calculs sur trajectoires (filtrées si le tableau est non vide)."""
+		"""Clés des calculs sur les trajectoires, en privilégiant leurs variantes filtrées."""
 		return [self._get_active_key(("MSD", "f_MSD")), self._get_active_key(("InD", "f_InD")), self._get_active_key(("Fit", "f_Fit"))]
 
 	##################################################
 	@property
 	def localizations(self) -> pd.DataFrame:
-		"""Getter du :class:`DataFrame <pandas.DataFrame>` de la localisation (filtrée si elle est non vide)."""
+		"""Localisations actives (:class:`~pandas.DataFrame`)."""
 		return self._data[self.get_localization_key()]
 
 	##################################################
 	@property
 	def beads(self) -> pd.DataFrame:
-		"""Getter du :class:`DataFrame <pandas.DataFrame>` des billes détectées."""
+		"""Billes détectées (:class:`~pandas.DataFrame`)."""
 		return self._data["bds"]
 
 	##################################################
 	@property
 	def tracks(self) -> pd.DataFrame:
-		"""Getter du :class:`DataFrame <pandas.DataFrame>` du suivi (filtré s'il est non vide) et reconnecté s'il est non vide également."""
+		"""Trajectoires actives (:class:`~pandas.DataFrame`), éventuellement filtrées et reconnectées."""
 		return self._data[self.get_tracks_key()]
 
 	##################################################
 	@property
 	def tracks_compute(self) -> dict[str, pd.DataFrame]:
-		"""Getter du trio de :class:`DataFrame <pandas.DataFrame>` des calculs sur trajectoires (filtrées si le tableau est non vide)."""
+		"""Calculs actifs sur les trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."""
 		keys = self.get_tracks_compute_key()
 		return {"MSD": self._data[keys[0]], "InD": self._data[keys[1]], "Fit": self._data[keys[2]]}
 
 	##################################################
 	def get_status(self) -> dict[str, str]:
 		"""
-		Retourne un dictionnaire décrivant le statut des tableaux actuellement chargés dans ``_df``
-		pour les différentes catégories de données (Localisations, Trajectoires, MSD, Diffusion instantanée, Fit).
+		Construit les statuts des différentes catégories de résultats actuellement chargées.
 
-		Cette méthode analyse chaque tableau pour savoir s'il correspond :
-			- à un tableau standard,
-			- à un tableau filtré,
-			- à un tableau reconnecté (pour les trajectoires),
-			- à un tableau corrigé (pour les localisations),
-			- ou à une absence de données.
-
-		Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`.
-
-		Le dictionnaire retourné contient systématiquement les clés suivantes : ``Localizations``, ``Beads``, ``Tracks``, ``MSD``, ``Instant D``, ``MSD Fit``
-
-		:return: Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau.
+		:return: Statuts indexés par catégorie de résultat.
 		"""
 		res = {"File":          self.stack_name if self._stack_name else "No File",
 			   "Localizations": self.get_df_status(self._data["loc"], self._data["f_loc"], "localizations"),
@@ -230,7 +225,7 @@ class Results:
 			   "Instant D":     self.get_df_status(self._data["InD"], self._data["f_InD"], "tracks"),
 			   "MSD Fit":       self.get_df_status(self._data["Fit"], self._data["f_Fit"], "tracks")}
 
-		# Remplacement du Tracking si blinking est différent de No
+		# Remplace le statut des trajectoires lorsqu'une version reconnectée est disponible.
 		blk = self.get_df_status(self._data["blk"], self._data["f_blk"], "tracks", "Reconnected")
 		if blk != "No": res["Tracks"] = blk
 
@@ -240,14 +235,13 @@ class Results:
 	@staticmethod
 	def get_df_status(original: pd.DataFrame, filtered: pd.DataFrame, name: str, pre: str = "") -> str:
 		"""
-		Retourne le status d'un ensemble de dataframe en fonction de sa version initiale et filtrée.
-		(indique également le nombre d'éléments avant et après filtre pour affichage).
+		Construit le statut d'un résultat à partir de ses versions initiale et filtrée.
 
-		:param original: Dataframe initial.
-		:param filtered: Dataframe filtré.
-		:param name: Nom du type de données (localizations, tracks)
-		:param pre: Ajoute un prefixe (exemple "reconnected" pour les trajectoires reconnectées)
-		:return: Une chaine de caractère dépendant de si le tableau a été filtré et indiquant le nombre d'éléments (ainsi que le nombre filtrés si besoin).
+		:param original: DataFrame initial.
+		:param filtered: DataFrame filtré.
+		:param name: Nom du type de données, par exemple ``localizations`` ou ``tracks``.
+		:param pre: Qualificatif ajouté au statut, par exemple ``Reconnected``.
+		:return: Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage.
 		"""
 		n_init, n_filt = len(original), len(filtered)
 		yes = f"Yes {pre}" if pre else "Yes"
@@ -259,33 +253,34 @@ class Results:
 	# ==================================================
 	# region Entrées-sorties
 	# ==================================================
-
-	# ==================================================
-	# endregion Entrées-sorties
-	# ==================================================
 	##################################################
 	def save(self, key: str, path: str | Path, timestamp: str):
 		"""
+		Enregistre un résultat dans un fichier CSV.
 
-		:param key:
-		:param path:
-		:param timestamp:
+		:param key: Clé du résultat à enregistrer.
+		:param path: Dossier de destination.
+		:param timestamp: Suffixe identifiant le traitement.
 		"""
 		self._data[key].to_csv(self.output_name(self.KEYS_TO_FILE[key], path, timestamp), index=False)
 
 	##################################################
 	def save_filtered(self, path: str | Path, timestamp: str = ""):
 		"""
-		Enregistre tous les fichiers filtrés s'ils ne sont pas vides.
+		Enregistre tous les résultats filtrés non vides et différents de leur version initiale.
 
-		:param path:
-		:param timestamp:
+		:param path: Dossier de destination.
+		:param timestamp: Suffixe identifiant le traitement ; généré automatiquement lorsqu'il est vide.
 		"""
 		timestamp = FileIO.get_timestamp_for_files() if not timestamp else timestamp
 		for key, fname in self.KEYS_TO_FILE.items():
 			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
 			if "f_" in key and not self._data[key].empty and len(self._data[key]) != len(self._data[key[2:]]):
 				self.save(key, path, timestamp)
+
+	# ==================================================
+	# endregion Entrées-sorties
+	# ==================================================
 
 	# ==================================================
 	# region Interface
@@ -296,11 +291,12 @@ class Results:
 		Retourne une représentation Qt des résultats, existante ou nouvellement créée.
 
 		:param name: Nom identifiant la représentation.
+		:param margin: Marges internes de la représentation, en pixels.
 		:return: Représentation Qt synchronisée avec les résultats.
 		"""
 		if name in self._uis: return self._uis[name]
 
-		from palm_tracer.UI.ResultsUI import ResultsUI  # Hack pour éviter les imports cycliques
+		from palm_tracer.UI.ResultsUI import ResultsUI  # Import différé pour éviter une dépendance cyclique.
 
 		ui = ResultsUI(margin=margin)
 		ui.update_status(self.get_status())

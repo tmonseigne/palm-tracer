@@ -26,7 +26,7 @@ class ResultsUI:
 	"""
 	Représente une vue Qt en lecture seule des résultats de PALMTracer.
 
-	La vue ne conserve aucune donnée métier. Elle affiche les statuts transmis par :class:`palm_tracer.Results.Results`
+	La vue ne conserve aucune donnée métier. Elle affiche les statuts transmis par :class:`~palm_tracer.Results.Results`
 	et peut ainsi être synchronisée avec les autres représentations du même modèle.
 
 	:param title: Titre du groupe d'informations.
