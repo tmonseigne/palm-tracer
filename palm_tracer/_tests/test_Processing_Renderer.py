@@ -14,6 +14,22 @@ def test_set_size():
 
 
 ##################################################
+def test_finalize_rendering():
+	"""Vérifie la saturation et le repliement cyclique d'un rendu en uint16."""
+	img = np.array([[-1, 0, 1.9, 65535, 65536, 65537, 131073]], dtype=np.float64)
+
+	res = Renderer.finalize_rendering(img)
+	ref = np.array([[0, 0, 1, 65535, 65535, 65535, 65535]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+
+	res = Renderer.finalize_rendering(img, clip=False)
+	ref = np.array([[65535, 0, 1, 65535, 0, 1, 1]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+	assert res.dtype == np.uint16
+	np.testing.assert_array_equal(img, [[-1, 0, 1.9, 65535, 65536, 65537, 131073]])
+
+
+##################################################
 def test_get_localization_colors():
 	# DataFrame vide
 	"""Vérifie la génération des couleurs des localisations."""
@@ -440,6 +456,12 @@ def test_tracks():
 	ref = np.zeros((20, 10), dtype=np.uint16)
 	ref[6, 4] = 50
 	np.testing.assert_array_equal(res, ref)
+
+	# Saturation des intensités dans les bornes du type uint16
+	trc = np.array([[1, 1, 1, -10], [2, 2, 2, 70000]], dtype=np.float64)
+	res = r.tracks(trc)
+	assert res[2, 2] == 0
+	assert res[4, 4] == np.iinfo(np.uint16).max
 
 	# Two crossed track the lowest (horizontal) is cut by the highest (vertical)
 	trc = np.array([[1, 1, 3, 10], [1, 4, 3, 10], [2, 3, 1, 20], [2, 3, 4, 20], ], dtype=np.float64)

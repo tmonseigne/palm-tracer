@@ -62,7 +62,7 @@ class Renderer:
 		"""
 		# Vérification des dimensions
 		if self._h < 1 or self._w < 1: return np.zeros((max(self._h, 1), max(self._w, 1)), dtype=np.uint16)
-		res = np.zeros((self._h, self._w), dtype=float)
+		res = np.zeros((self._h, self._w), dtype=np.float64)
 		if loc.ndim != 2 or loc.shape[1] < 3: return res.astype(np.uint16)
 
 		loc_v = self.prepare_data(loc, False, gaussian is not None)
@@ -81,8 +81,7 @@ class Renderer:
 			c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 2:6], gaussian)
 			self.draw_gaussian_2d(res, x, y, c, sx, sy, theta, color_mode)
 
-		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
-		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
+		return self.finalize_rendering(res)
 
 	##################################################
 	def tracks(self, trc: np.ndarray) -> np.ndarray:
@@ -100,12 +99,12 @@ class Renderer:
 		"""
 		# Vérification des dimensions
 		if self._h < 1 or self._w < 1: return np.zeros((max(self._h, 1), max(self._w, 1)), dtype=np.uint16)
-		res = np.zeros((self._h, self._w), dtype=np.uint16)
+		res = np.zeros((self._h, self._w), dtype=np.float64)
 		if trc.ndim != 2 or trc.shape[1] != 4: return res
 
 		# Calcul des nouvelles coordonnées entières (vectorisé)
 		coords = np.round(trc[:, 1:3] * self._r).astype(int)
-		trc, x, y, colors = trc[:, 0].astype(int), coords[:, 0], coords[:, 1], trc[:, 3].astype(np.uint16)
+		trc, x, y, colors = trc[:, 0].astype(int), coords[:, 0], coords[:, 1], trc[:, 3]
 
 		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
 		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)
@@ -127,7 +126,7 @@ class Renderer:
 			else:  # Tracer les segments successifs
 				for i in range(start, end - 1): self.draw_line(res, x[i], y[i], x[i + 1], y[i + 1], colors[i])
 
-		return res
+		return self.finalize_rendering(res)
 
 	##################################################
 	def z_stack(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, gaussian: dict[str, Any] | None = None) -> np.ndarray:
@@ -156,7 +155,7 @@ class Renderer:
 		z_id = (z - z_min) / z_step  # Passage en "mode plan"
 		n_planes = max(int(np.nanmax(z_id)) + 1, 1)
 
-		res = np.zeros((n_planes, self._h, self._w), dtype=float)
+		res = np.zeros((n_planes, self._h, self._w), dtype=np.float64)
 
 		# Rendu
 		if gaussian is None:  # .								   Calcul de l'image en mode spot
@@ -173,8 +172,7 @@ class Renderer:
 			c *= self._r  # EN 3D, on ajoute encore un scale à la couleur
 			self.draw_gaussian_3d(res, x, y, z_id, c, sx, color_mode)
 
-		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
-		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
+		return self.finalize_rendering(res)
 
 	##################################################
 	def rotation_3d(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, frames: int = 36, axis: int = 1,
@@ -212,7 +210,7 @@ class Renderer:
 		ox, oy = (out_w - 1) / 2.0, (out_h - 1) / 2.0
 
 		# Allocation
-		res = np.zeros((frames, out_h, out_w), dtype=float)
+		res = np.zeros((frames, out_h, out_w), dtype=np.float64)
 		angles = np.linspace(0.0, 2.0 * np.pi, frames, endpoint=False)
 
 		if gaussian is not None:
@@ -235,8 +233,7 @@ class Renderer:
 				if color_mode == 0: np.add.at(res, (angle_id, yi, xi), ci)  # .	Accumulation des valeurs (plus efficace qu'une boucle)
 				else: np.maximum.at(res, (angle_id, yi, xi), ci)  # .			Conservation de la valeur maximale en cas de superposition.
 
-		res = res.clip(0, MAX_UI_16)  # Limite les valeurs entre 0 et la valeur maximale possible pour un uint16
-		return res.astype(np.uint16)  # Forcer le type de l'image en np.uint16
+		return self.finalize_rendering(res)
 
 	# ==================================================
 	# endregion Rendus
@@ -245,6 +242,26 @@ class Renderer:
 	# ==================================================
 	# region Préparation et dessin
 	# ==================================================
+	##################################################
+	@staticmethod
+	def finalize_rendering(img: np.ndarray, clip: bool = True) -> np.ndarray:
+		"""
+		Convertit une image de rendu en entiers non signés sur 16 bits.
+
+		Lorsque ``clip`` vaut ``True``, les valeurs sont saturées dans l'intervalle ``[0, 65535]``.
+		Sinon, elles sont repliées cycliquement dans cet intervalle par un modulo :math:`2^{16}`.
+		La partie fractionnaire éventuelle est tronquée lors de la conversion.
+
+		L'image d'entrée n'est pas modifiée.
+
+		:param img: Image de rendu à convertir.
+		:param clip: Active la saturation des valeurs au lieu de leur repliement cyclique.
+		:return: Nouvelle image de même forme et de type :class:`numpy.uint16`.
+		"""
+		if clip: res = img.clip(0, MAX_UI_16)
+		else: res = np.remainder(img, MAX_UI_16 + 1)
+		return res.astype(np.uint16)
+
 	##################################################
 	@staticmethod
 	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
