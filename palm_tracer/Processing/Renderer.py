@@ -84,17 +84,18 @@ class Renderer:
 		bg_mask = np.zeros(res.shape[:2], dtype=bool)  # .									 Masque pour le fond.
 
 		# Rendu
-		if gaussian is None:  # .							 Calcul de l'image en mode spot
+		if gaussian is None:  # .								   Calcul de l'image en mode spot.
 			x, y, c = np.round(loc_v[:, 0]).astype(int), np.round(loc_v[:, 1]).astype(int), loc_v[:, 2]
 			valid = ((x >= 0) & (x < self._w) & (y >= 0) & (y < self._h))
-			x, y, c = x[valid], y[valid], c[valid]  # .		 Avec les arrondis, on revérifie les points hors dimension
-			if color_mode == 0: np.add.at(res, (y, x), c)  # Accumulation des valeurs (plus efficace qu'une boucle)
-			else: np.maximum.at(res, (y, x), c)  # .		 Conservation de la valeur maximale en cas de superposition.
-		else:  # .											 Calcul de l'image en mode Gaussien
-			if loc.shape[1] < 6: return res.astype(np.uint16)
+			x, y, c = x[valid], y[valid], c[valid]  # .		 	   Avec les arrondis, on revérifie les points hors dimension.
+			bg_mask[y, x] = True  # .		 					   Mise à jour du masque du fond.
+			if color_mode == 0: np.add.at(res, (y, x), c)  # .	   Accumulation des valeurs (plus efficace qu'une boucle).
+			elif color_mode == 1: np.maximum.at(res, (y, x), c)  # Conservation de la valeur maximale en cas de superposition.
+			else: np.minimum.at(res, (y, x), c)  # .			   Conservation de la valeur minimale en cas de superposition.
+		else:  # .												   Calcul de l'image en mode Gaussien
 			x, y = loc_v[:, 0], loc_v[:, 1]
 			c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 2:6], gaussian)
-			self.draw_gaussian_2d(res, x, y, c, sx, sy, theta, color_mode)
+			self.draw_gaussian_2d(res, bg_mask, x, y, c, sx, sy, theta, color_mode)
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
@@ -144,9 +145,9 @@ class Renderer:
 			start, end = split_idx[g], split_idx[g + 1]
 			# if end - start == 0: continue impossible, on vérifie en amont les DataFrames vides pouvant provoquer ce cas
 
-			if end - start == 1: self.draw_line(res, x[start], y[start], x[start], y[start], colors[start])  # Tracer les points isolés
+			if end - start == 1: self.draw_line(res, bg_mask, x[start], y[start], x[start], y[start], colors[start])  # Tracer les points isolés
 			else:  # Tracer les segments successifs
-				for i in range(start, end - 1): self.draw_line(res, x[i], y[i], x[i + 1], y[i + 1], colors[i])
+				for i in range(start, end - 1): self.draw_line(res, bg_mask, x[i], y[i], x[i + 1], y[i + 1], colors[i])
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
@@ -251,7 +252,7 @@ class Renderer:
 			xp, yp = xr + ox, yr + oy  # .										Position réelle (ajout du centre qui a été avant rotation)
 
 			if gaussian is not None:
-				self.draw_gaussian_2d(res[angle_id], xp, yp, c, sx, sy, theta, color_mode)
+				self.draw_gaussian_2d(res[angle_id], bg_mask, xp, yp, c, sx, sy, theta, color_mode)
 			else:
 				xi, yi = np.round(xp).astype(int), np.round(yp).astype(int)  # Position en pixels
 				valid = (xi >= 0) & (xi < out_w) & (yi >= 0) & (yi < out_h)
@@ -475,7 +476,7 @@ class Renderer:
 
 	##################################################
 	@staticmethod
-	def draw_line(img: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: np.uint16):
+	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: np.uint16, color_mode: int = 0):
 		"""
 		Trace une ligne discrète entre deux points dans une image 2D en utilisant l'algorithme de Bresenham (version entière, sans flottants).
 
@@ -486,11 +487,13 @@ class Renderer:
 		Cela permet de conserver l'intensité maximale (utile par exemple pour des accumulations de tracés ou des cartes d'intensité).
 
 		:param img: Image 2D (numpy.ndarray) modifiée *in-place*. Doit être indexable sous la forme ``img[y, x]``.
+		:param bg_mask: Masque booléen de même forme que ``img``. Une valeur vraie indique qu'au moins une ligne contribue au pixel.
 		:param x0: Coordonnée X du point de départ.
 		:param y0: Coordonnée Y du point de départ.
 		:param x1: Coordonnée X du point d'arrivée.
 		:param y1: Coordonnée Y du point d'arrivée.
 		:param color: Intensité à écrire dans les pixels traversés.
+		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		"""
 		h_max, w_max = img.shape[0], img.shape[1]
 		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .			   Distance maximale
@@ -498,7 +501,12 @@ class Renderer:
 		err = dx + dy  # .									   Erreur accumulée (dy est négatif)
 		while True:
 			if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .	   Vérification des limites de l'image
-				if color > img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus élevée que la couleur courante.
+				bg_mask[y0, x0] = True
+				if color_mode == 0: img[y0, x0] += color  # Addition des couleurs de couleur si elle est plus élevée que la couleur courante.
+				elif color_mode == 1:
+					if color > img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus élevée que la couleur courante.
+				else:
+					if color < img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus petite que la couleur courante.
 			if x0 == x1 and y0 == y1: break  # .			   Condition d'arrêt
 			e2 = err << 1  # .								   2*err pour décider dans quelle direction avancer.
 			if e2 >= dy:  # .								   On avance en X si l’erreur le permet
@@ -510,12 +518,21 @@ class Renderer:
 
 	##################################################
 	@staticmethod
-	def draw_gaussian_2d(img: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, colors: np.ndarray | float,
+	def draw_gaussian_2d(img: np.ndarray, bg_mask: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, colors: np.ndarray | float,
 						 sx: np.ndarray | float, sy: np.ndarray | float, theta: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
 		"""
 		Dessine des gaussiennes 2D anisotropes dans une image.
 
+		L'image et le masque sont modifiés sur place.
+		Pour chaque pixel couvert par au moins une gaussienne strictement positive, l'élément correspondant de ``bg_mask`` est positionné à :data:`True`.
+
+		En cas de superposition, ``color_mode`` détermine la méthode utilisée pour combiner les intensités :
+			- ``0`` : addition des intensités ;
+			- ``1`` : conservation de l'intensité maximale ;
+			- ``2`` : conservation de l'intensité minimale.
+
 		:param img: Image de sortie 2D, modifiée sur place.
+		:param bg_mask: Masque booléen de même forme que ``img``, modifié sur place. Une valeur vraie indique qu'au moins une gaussienne contribue au pixel.
 		:param x: Coordonnées X des centres.
 		:param y: Coordonnées Y des centres.
 		:param colors: Intensité totale de chaque gaussienne.
@@ -559,8 +576,12 @@ class Renderer:
 			patch = norm * np.exp(-(a * dx * dx + b * dx * dy + c * dy * dy))
 
 			view = img[y_min:y_max + 1, x_min:x_max + 1]
-			if color_mode == 0: view += patch
-			else: np.maximum(view, patch, out=view)
+			mask_view = bg_mask[y_min:y_max + 1, x_min:x_max + 1]
+			patch_mask = patch > 0.0
+			mask_view |= patch_mask
+			if color_mode == 0: np.add(view, patch, out=view, where=patch_mask)
+			elif color_mode == 1: np.maximum(view, patch, out=view, where=patch_mask)
+			else: np.minimum(view, patch, out=view, where=patch_mask)
 
 		return img
 
