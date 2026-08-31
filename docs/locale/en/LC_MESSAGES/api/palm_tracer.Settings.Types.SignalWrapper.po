@@ -37,7 +37,7 @@ msgstr "Keyword arguments are ignored and accepted for compatibility with the Qt
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:1
 msgid "Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
-msgstr "Disconnects `f` if provided, otherwise **all** slots. Returns the number of disconnected slots."
+msgstr "Disconnects ``f`` if provided, otherwise **all** slots. Returns the number of disconnected slots."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:3
 msgid "Fonction ou slot à déconnecter."

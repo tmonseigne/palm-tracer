@@ -200,4 +200,4 @@ msgstr "Number of disconnected slots."
 #: of
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:1
 msgid "Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec ``with ...:``."
-msgstr "Signal blocking for the entire group (recursive). Returns a context manager usable with `with ...:`."
+msgstr "Signal blocking for the entire group (recursive). Returns a context manager usable with ``with ...:``."

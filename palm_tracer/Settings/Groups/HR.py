@@ -9,7 +9,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.HR3D import HR3D
 from palm_tracer.Settings.Groups.HRGaussian import HRGaussian
-from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
+from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinFloat, SpinInt
 
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
@@ -29,6 +29,7 @@ class HR(BaseSettingGroup):
 	- ``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z ou rotation 3D.
 	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
 	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : grandeur utilisée pour colorer ou pondérer les points.
+	- ``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur multiplicatif appliqué à l'intensité ; valeur par défaut : ``1``.
 	- ``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur maximum.
 	- ``Ratio`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : facteur d'agrandissement ; valeur par défaut : ``4``.
 	- ``Crop`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : retire automatiquement les bordures vides.
@@ -43,6 +44,7 @@ class HR(BaseSettingGroup):
 	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation"]]],
 					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 					"Source":           [Combo, ["Source", "Data selected for Reconstruction.", 0, DATA_SRC["Localization"]]],
+					"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the intensity.", 1, [0.001, 1000], 0.1, 3]],
 					"Color mode":       [Combo, ["Color mode",
 												 "When overlapping, select whether the pixel values are added together "
 												 "or whether only the maximum value is retained.", 0, ["Addition", "Max"]]],

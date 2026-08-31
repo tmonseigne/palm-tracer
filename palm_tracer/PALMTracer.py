@@ -14,9 +14,9 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
-from palm_tracer.Results import Results
 from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Parsing, Renderer
 from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
+from palm_tracer.Results import Results
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Types import Combo, FileList
 from palm_tracer.Tools import FileIO, Logger, Ui
@@ -745,6 +745,7 @@ class PALMTracer:
 		s = self.settings.hr
 		src = cast(Combo, s["Source"]).current_text
 		upscale = s["Ratio"].value
+		intensity_scaling = s["Scaling"].value
 		x0, x1, y0, y1 = self.settings.rois.get_roi_limits()
 		n_w, n_h = x1 - x0, y1 - y0
 		self._renderer.set_size(n_w, n_h, upscale)
@@ -761,10 +762,11 @@ class PALMTracer:
 			df["X"] -= x0  # .												Ajustement à la ROI sur X
 			df["Y"] -= y0  # .												Ajustement à la ROI sur Y
 			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # .	Sélection dans les bornes
+			df["Color"] *= intensity_scaling  # .							Mise à l'echelle de l'intensité
 
 			if s["Dimension"].value == 0:  # .																				   Rendu 2D
 				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .			   Récupération
-				plot_data = df[["Y", "X"]].to_numpy() * upscale  # Mise à l'échelle des X et Y.
+				plot_data = df[["Y", "X"]].to_numpy() * upscale  # .														   Mise à l'échelle des X et Y.
 				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
 				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # .										   Rendu
 			else:  # .																										   Rendu 3D
@@ -792,6 +794,7 @@ class PALMTracer:
 		df["X"] -= x0  # Ajustement à la ROI sur X
 		df["Y"] -= y0  # Ajustement à la ROI sur Y
 		df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
+		df["Color"] *= intensity_scaling  # .						  Mise à l'echelle de l'intensité
 		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
 		viz_data = df[:, [0, 2, 3, 4]]
 		plot_data = df[:, [0, 1, 3, 2]]

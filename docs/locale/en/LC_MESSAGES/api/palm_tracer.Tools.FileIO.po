@@ -66,7 +66,7 @@ msgstr "Timestamp."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:1
 msgid "Récupère le dernier fichier (le plus récent) qui contient le paramètre ``name`` dans son nom dans le chemin ``path``."
-msgstr "Retrieves the last (most recent) file containing the `name` parameter in its filename from the `path`."
+msgstr "Retrieves the last (most recent) file containing the ``name`` parameter in its filename from the ``path``."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:3
 msgid "Chemin du dossier où chercher les fichiers."

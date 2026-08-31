@@ -65,11 +65,11 @@ msgstr "Dictionary of Reset, Update, and Save action buttons (:class:`dict[str, 
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.localization:1
 msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
-msgstr "Group of settings related to localization filters (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
+msgstr "Group of settings related to localization filters (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.tracking:1
 msgid "Groupe de paramètres liés aux filtres sur le suivi (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`)."
-msgstr "Group of settings related to tracking filters (:class:`FiltersT <palm_tracer.Settings.Groups.FiltersT.FiltersT>`)."
+msgstr "Group of settings related to tracking filters (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`)."
 
 #: ../../api/palm_tracer.Settings.Groups.Filters.rst:19
 msgid "Méthodes"

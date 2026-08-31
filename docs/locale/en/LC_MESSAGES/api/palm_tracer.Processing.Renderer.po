@@ -79,7 +79,7 @@ msgstr "Constructs a high-resolution image (uint16) from localized tracks. Each 
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:4
 msgid "Colonnes attendues dans ``tracks`` :"
-msgstr "Expected columns in `tracks`:"
+msgstr "Expected columns in ``tracks``:"
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:5
 msgid "\"Track\" : identifiant de la trajectoire (:class:`int`)"
@@ -141,6 +141,31 @@ msgstr "Axis of rotation (X, Y, Z)."
 #: ../../api/palm_tracer.Processing.Renderer.rst:25
 msgid "Préparation et dessin"
 msgstr "Data preparation and drawing"
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:1
+msgid "Convertit une image de rendu en entiers non signés sur 16 bits."
+msgstr "Converts a rendered image to 16-bit unsigned integers."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:3
+#, python-brace-format
+msgid "Lorsque ``clip`` vaut ``True``, les valeurs sont saturées dans l'intervalle ``[0, 65535]``. Sinon, elles sont repliées cycliquement dans cet intervalle par un modulo :math:`2^{16}`. La partie fractionnaire éventuelle est tronquée lors de la conversion."
+msgstr "When ``clip`` is ``True``, values are clipped to the ``[0, 65535]`` range. Otherwise, they wrap cyclically within this range modulo :math:`2^{16}`. Any fractional part is truncated during conversion."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:7
+msgid "L'image d'entrée n'est pas modifiée."
+msgstr "The input image is not modified."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:9
+msgid "Image de rendu à convertir."
+msgstr "Rendered image to convert."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:10
+msgid "Active la saturation des valeurs au lieu de leur repliement cyclique."
+msgstr "Enables value clipping instead of cyclic wrapping."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:11
+msgid "Nouvelle image de même forme et de type :class:`numpy.uint16`."
+msgstr "New image with the same shape and type :class:`numpy.uint16`."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:1
 msgid "Construit un tableau NumPy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur."

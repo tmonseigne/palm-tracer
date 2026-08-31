@@ -53,7 +53,7 @@ msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph.display:1
 msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
-msgstr "Group of settings related to localization filters (:class:`FiltersL <palm_tracer.Settings.Groups.FiltersL.FiltersL>`)."
+msgstr "Group of settings related to localization filters (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 
 #: ../../api/palm_tracer.Settings.Groups.Graph.rst:16
 msgid "Méthodes"
