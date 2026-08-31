@@ -25,6 +25,21 @@ def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	_ = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
+##################################################
+def test_results_status_automatic_update(make_napari_viewer, patched_napari_viewer):
+	"""Vérifie que les statuts sont actualisés directement par Results."""
+	viewer = make_napari_viewer()
+	w = ViewerHRWidget(viewer, get_fake_pt())
+	results_ui = w._pt.results.get_ui(w.UI_NAME)
+
+	w._pt.results.reset()
+	assert results_ui._labels["Beads"].text() == "No"
+
+	w._pt.results["bds"] = pd.DataFrame(np.zeros((2, 1)))
+	assert results_ui._labels["Beads"].text() == "Yes (2 localizations)"
+
+
+
 
 ##################################################
 def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot):
@@ -154,7 +169,7 @@ def test_check_beads(make_napari_viewer, patched_napari_viewer):
 	ui: BaseUIType = w._pt.settings.hr["Remove Beads"].get_ui(w.UI_NAME)
 	w._check_beads()  # False
 	assert ui.boxes[0].isHidden()
-	w._pt.df["bds"] = w._pt.df["loc"].copy()
+	w._pt.results["bds"] = w._pt.results["loc"].copy()
 	w._check_beads()  # True
 	assert not ui.boxes[0].isHidden()
 
@@ -205,7 +220,7 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 	shutil.copy2(INPUT_DIR / "tracking.csv", INPUT_DIR / "stack_PALM_Tracer" / f"tracking-{pt._timestamp}.csv")
 	shutil.copy2(INPUT_DIR / "beads.csv", INPUT_DIR / "stack_PALM_Tracer" / f"beads-{pt._timestamp}.csv")
 	pt.load()
-	pt.df["loc"]["Integrated Intensity"] *= 100
+	pt.results["loc"]["Integrated Intensity"] *= 100
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
 	fake_napari_layers(viewer)
 	_ = get_lines_output(capsys)

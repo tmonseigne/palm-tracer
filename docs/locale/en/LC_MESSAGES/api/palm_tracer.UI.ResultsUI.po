@@ -1,0 +1,65 @@
+#: ../../api/palm_tracer.UI.ResultsUI.rst:2
+msgid "ResultsUI"
+msgstr ""
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI:1
+msgid "Représente une vue Qt en lecture seule des résultats de PALMTracer."
+msgstr "Represents a read-only Qt view of PALMTracer results."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI:3
+msgid "La vue ne conserve aucune donnée métier. Elle affiche les statuts transmis par :class:`~palm_tracer.Results.Results` et peut ainsi être synchronisée avec les autres représentations du même modèle."
+msgstr "The view does not store any domain data. It displays the statuses provided by :class:`~palm_tracer.Results.Results` and can therefore be synchronized with other representations of the same model."
+
+#: ../../api/palm_tracer.UI.ResultsUI.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI:6
+#: palm_tracer.UI.ResultsUI.ResultsUI.title:1
+msgid "Titre du groupe d'informations."
+msgstr "Title of the information group."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI:7
+msgid "Espacement interne entre les éléments, en pixels."
+msgstr "Internal spacing between elements, in pixels."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI:8
+#: palm_tracer.UI.ResultsUI.ResultsUI.margin:1
+msgid "Marges internes du groupe, en pixels."
+msgstr "Internal margins of the group, in pixels."
+
+#: ../../api/palm_tracer.UI.ResultsUI.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.space:1
+msgid "Espacement entre les lignes, en pixels."
+msgstr "Spacing between rows, in pixels."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.widget:1
+msgid "Widget contenant les informations sur les résultats."
+msgstr "Widget containing the result information."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.layout:1
+msgid "Calque contenant les différentes lignes d'informations."
+msgstr "Layout containing the different information rows."
+
+#: ../../api/palm_tracer.UI.ResultsUI.rst:18
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.UI.ResultsUI.rst:21
+msgid "Mise à jour"
+msgstr "Update"
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.update_status:1
+msgid "Actualise les statuts affichés."
+msgstr "Updates the displayed statuses."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.update_status:3
+msgid "Les clés inconnues sont ignorées afin de permettre au modèle de fournir des informations qui ne sont pas représentées par cette vue."
+msgstr "Unknown keys are ignored, allowing the model to provide information that is not represented by this view."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.update_status:6
+msgid "Statuts à afficher, indexés par type de résultat."
+msgstr "Statuses to display, indexed by result type."

@@ -6,8 +6,9 @@ from .BasePlotlyWidget import BasePlotlyWidget
 from .FileMigratorWidget import FileMigratorWidget
 from .GraphViewerWidget import GraphViewerWidget
 from .PALMTracerWidget import PALMTracerWidget
+from .ResultsUI import ResultsUI
 from .Viewer3DWidget import Viewer3DWidget
 from .ViewerHRWidget import ViewerHRWidget
 
-__all__ = ["PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget", "BasePlotlyWidget",
+__all__ = ["ResultsUI", "PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget", "BasePlotlyWidget",
 		   "AlignmentWidget", "Astigmatism3DWidget", "FileMigratorWidget", "GraphViewerWidget"]

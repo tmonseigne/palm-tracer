@@ -98,7 +98,7 @@ class ViewerHRWidget(QWidget):
 
 	def _init_ui(self):
 		"""Construit l'interface utilisateur."""
-		self._pt.settings.clean_ui(self.UI_NAME)
+		self._pt.clean_ui(self.UI_NAME)
 
 		self._widget = QWidget()
 
@@ -115,9 +115,6 @@ class ViewerHRWidget(QWidget):
 		# --- Bouton pour charger une stack ---
 		self._btn_add_stack = QPushButton("Add Stack")
 		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
-
-		# --- Bloc Infos (lecture seule) ---
-		grp_infos, self._status = Ui.make_file_info_group(margin=10)
 
 		# --- Bloc Sources ---
 		grp_source = QGroupBox("Source")
@@ -154,7 +151,7 @@ class ViewerHRWidget(QWidget):
 		actions_row.addWidget(self._btn_screenshot)
 
 		# --- Mise en page dans le scroll ---
-		scroll_layout.addWidget(grp_infos)
+		scroll_layout.addWidget(self._pt.results.get_ui(self.UI_NAME, margin=10).widget)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_filters)
 		scroll_layout.addStretch()  # Optionnel, mais recommandé
@@ -187,7 +184,7 @@ class ViewerHRWidget(QWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
-		try: self._pt.settings.clean_ui(self.UI_NAME)
+		try: self._pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
 	# ==================================================
@@ -204,7 +201,7 @@ class ViewerHRWidget(QWidget):
 		Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route.
 		"""
 		s_list = ["Remove Beads", "Drift Correction", "Smooth Drift"]
-		if self._pt.beads.empty:
+		if self._pt.results.beads.empty:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).hide()
 		else:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).show()
@@ -219,11 +216,6 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _actualize(self):
 		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer."""
-		file = cast(FileList, self._pt.settings.batch["Files"]).current_text
-		self._status["File"].setText(Path(file).name if file else "No File")
-		# Mise à jour des Status
-		status = self._pt.get_status()
-		for key in status: self._status[key].setText(status[key])
 		self._check_beads()
 
 	##################################################
@@ -322,8 +314,7 @@ def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 
 	- Ignore le viewer courant.
 	- Crée une nouvelle fenêtre Napari HR dédiée.
-	- Retourne un QWidget stub (caché) juste pour satisfaire
-	  l'API "widget plugin" de Napari.
+	- Retourne un QWidget stub (caché) juste pour satisfaire l'API "widget plugin" de Napari.
 
 	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
 	:return: Widget factice masqué attendu par l'API des plugins Napari.

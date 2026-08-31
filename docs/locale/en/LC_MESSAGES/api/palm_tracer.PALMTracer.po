@@ -4,7 +4,7 @@ msgstr ""
 
 #: of palm_tracer.PALMTracer.PALMTracer:1
 msgid "Orchestre un traitement PALM complet et conserve ses données intermédiaires et finales."
-msgstr "Orchestrates a complete PALM workflow and retains its intermediate and final data."
+msgstr "Orchestrates a complete PALM workflow and stores its intermediate and final data."
 
 #: of palm_tracer.PALMTracer.PALMTracer:3
 msgid "La classe coordonne la configuration, les appels à la DLL PALM, le pipeline de traitement, le filtrage, la production des visualisations et la sauvegarde des résultats."
@@ -16,7 +16,7 @@ msgstr "Attributes"
 
 #: of palm_tracer.PALMTracer.PALMTracer.settings:1
 msgid "Classe principale des paramètres PALMTracer."
-msgstr "Main class for PALMTracer settings."
+msgstr "Main PALMTracer settings class."
 
 #: of palm_tracer.PALMTracer.PALMTracer.palm:1
 msgid "Interface vers la DLL C++ Palm."
@@ -26,29 +26,9 @@ msgstr "Interface to the Palm C++ DLL."
 msgid "Outil de filtrage."
 msgstr "Filtering tool."
 
-#: of palm_tracer.PALMTracer.PALMTracer.df:1
+#: of palm_tracer.PALMTracer.PALMTracer.results:1
 msgid "Résultats des différents calculs."
-msgstr "Results of various calculations."
-
-#: of palm_tracer.PALMTracer.PALMTracer.KEYS_TO_FILE:1
-msgid "Alias entre les noms de fichiers et les clés dans le dictionnaire de DataFrames."
-msgstr "Aliases between filenames and keys in the dataframe dictionary."
-
-#: of palm_tracer.PALMTracer.PALMTracer.localizations:1
-msgid "Getter du :class:`DataFrame <pandas.DataFrame>` de la localisation (filtrée si elle est non vide)."
-msgstr "Getter for the :class:`DataFrame <pandas.DataFrame>` of the localization (filtered if it is not empty)."
-
-#: of palm_tracer.PALMTracer.PALMTracer.beads:1
-msgid "Getter du :class:`DataFrame <pandas.DataFrame>` des billes détectées."
-msgstr "Getter for the :class:`DataFrame <pandas.DataFrame>` of detected beads."
-
-#: of palm_tracer.PALMTracer.PALMTracer.tracks:1
-msgid "Getter du :class:`DataFrame <pandas.DataFrame>` du suivi (filtré s'il est non vide) et reconnecté s'il est non vide également."
-msgstr "Getter for the :class:`DataFrame <pandas.DataFrame>` of the tracking (filtered if it is not empty) and reconnected if it is also not empty."
-
-#: of palm_tracer.PALMTracer.PALMTracer.tracks_compute:1
-msgid "Getter du trio de :class:`DataFrame <pandas.DataFrame>` des calculs sur trajectoires (filtrées si le tableau est non vide)."
-msgstr "Gets the trio of :class:`DataFrame <pandas.DataFrame>` for tracks compute (filtered if the array is non-empty)."
+msgstr "Results of the various computations."
 
 #: of palm_tracer.PALMTracer.PALMTracer.path:1
 msgid "Dossier de sortie pour le fichier en cours de traitement."
@@ -60,13 +40,13 @@ msgstr "Stack currently being processed."
 
 #: of palm_tracer.PALMTracer.PALMTracer.suffix:1
 msgid "Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."
-msgstr "File suffix for processing (timestamp in `YYYYMMDD_HHMMSS` format)."
+msgstr "File suffix for a processing run (timestamp in ``YYYYMMDD_HHMMSS`` format)."
 
-#: ../../api/palm_tracer.PALMTracer.rst:25
+#: ../../api/palm_tracer.PALMTracer.rst:20
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.PALMTracer.rst:28
+#: ../../api/palm_tracer.PALMTracer.rst:23
 msgid "Initialisation"
 msgstr "Initialization"
 
@@ -83,89 +63,13 @@ msgid "True si la DLL est valide, False sinon."
 msgstr "True if the DLL is valid, False otherwise."
 
 #: ../../api/palm_tracer.PALMTracer.rst of
-#: palm_tracer.PALMTracer.PALMTracer.get_localization_key
-#: palm_tracer.PALMTracer.PALMTracer.get_tracks_compute_key
-#: palm_tracer.PALMTracer.PALMTracer.get_tracks_key
 #: palm_tracer.PALMTracer.PALMTracer.graph palm_tracer.PALMTracer.PALMTracer.hr
 msgid "Type renvoyé"
 msgstr "Return type"
 
-#: of palm_tracer.PALMTracer.PALMTracer.reset_result:1
-msgid "Vide entièrement les DataFrame de résultat dans ``df``."
-msgstr "Completely clears the result DataFrames in `df`."
-
-#: ../../api/palm_tracer.PALMTracer.rst:34
-msgid "Accesseurs"
-msgstr "Accessors"
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_localization_key:1
-msgid "Clé des localisations (filtrées si le tableau est non vide) et corrigées si le tableau est non vide également."
-msgstr "Key for localizations (filtered if the array is non-empty) and corrected if the array is also non-empty."
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_tracks_key:1
-msgid "Clé des trajectoires (filtrées si le tableau est non vide) et reconnectées si le tableau est non vide également."
-msgstr "Key for tracks (filtered if the array is non-empty) and reconnected if the array is also non-empty."
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_tracks_compute_key:1
-msgid "Clé des calculs sur trajectoires (filtrées si le tableau est non vide)."
-msgstr "Key for track computes (filtered if the array is non-empty)."
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:1
-msgid "Retourne un dictionnaire décrivant le statut des tableaux actuellement chargés dans ``self._df`` pour les différentes catégories de données (Localisations, Trajectoires, MSD, Diffusion instantanée, Fit)."
-msgstr "Returns a dictionary describing the status of the arrays currently loaded in ``self._df`` for the different data categories (Localizations, Tracks, MSD, Instantaneous Diffusion, Fit)."
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:4
-msgid "Cette méthode analyse chaque tableau pour savoir s'il correspond :"
-msgstr "This method analyzes each array to determine whether it corresponds to:"
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:5
-msgid "à un tableau standard,"
-msgstr "a standard array,"
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:6
-msgid "à un tableau filtré,"
-msgstr "a filtered array,"
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:7
-msgid "à un tableau reconnecté (pour les trajectoires),"
-msgstr "a reconnected array (for tracks),"
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:8
-msgid "à un tableau corrigé (pour les localisations),"
-msgstr "a corrected array (for localizations),"
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:9
-msgid "ou à une absence de données."
-msgstr "or a lack of data."
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:11
-msgid "Les statuts retournés sont des chaînes de caractères provenant de la constante globale :data:`FILE_STATUS`."
-msgstr "The returned statuses are strings derived from the global constant :data:`FILE_STATUS`."
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:13
-msgid "Le dictionnaire retourné contient systématiquement les clés suivantes : ``Localization``, ``Beads``, ``Tracking``, ``MSD``, ``Instant D``, ``Fit``"
-msgstr "The returned dictionary always contains the following keys: ``Localization``, ``Beads``, ``Tracking``, ``MSD``, ``Instant D``, ``Fit``"
-
-#: of palm_tracer.PALMTracer.PALMTracer.get_status:16
-#, python-brace-format
-msgid "Un dictionnaire ``{str: str}`` contenant le statut de chaque type de tableau."
-msgstr "A ``{str: str}`` dictionary containing the status for each array type."
-
-#: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:1
-msgid "Indique le nom du fichier de visualisation à enregistrer CHEMIN / name-Timestamp.extension."
-msgstr "Specify the name of the visualization file to be saved: PATH / name-Timestamp.extension."
-
-#: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:3
-msgid "Nom du fichier."
-msgstr "File name."
-
-#: ../../api/palm_tracer.PALMTracer.rst:43
-msgid "Traitements"
-msgstr "Processing"
-
-#: of palm_tracer.PALMTracer.PALMTracer.load:1
-msgid "Charge les précédents résultats du fichier courant."
-msgstr "Loads the previous results from the current file."
+#: of palm_tracer.PALMTracer.PALMTracer.clean_ui:1
+msgid "Supprime l'interface Qt associée au nom donné pour les résultats et les paramètres."
+msgstr "Removes the Qt interface associated with the given name from both the results and settings."
 
 #: ../../api/palm_tracer.PALMTracer.rst of
 #: palm_tracer.PALMTracer.PALMTracer.connect_filters_button
@@ -173,29 +77,53 @@ msgstr "Loads the previous results from the current file."
 msgid "Paramètres"
 msgstr "Parameters"
 
+#: of palm_tracer.PALMTracer.PALMTracer.clean_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.PALMTracer.rst:29
+msgid "Accesseurs"
+msgstr "Accessors"
+
+#: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:1
+msgid "Indique le nom du fichier de visualisation à enregistrer CHEMIN / name-Timestamp.extension."
+msgstr "Provides the name of the visualization file to save: PATH / name-Timestamp.extension."
+
+#: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:3
+msgid "Nom du fichier."
+msgstr "File name."
+
+#: ../../api/palm_tracer.PALMTracer.rst:34
+msgid "Traitements"
+msgstr "Processing"
+
+#: of palm_tracer.PALMTracer.PALMTracer.load:1
+msgid "Charge les précédents résultats du fichier courant."
+msgstr "Loads the previous results for the current file."
+
 #: of palm_tracer.PALMTracer.PALMTracer.process:1
 msgid "Lance le process de PALM selon les éléments en paramètres."
-msgstr "Runs the PALM process according to the settings provided."
+msgstr "Runs PALM processing using the provided settings."
 
 #: of palm_tracer.PALMTracer.PALMTracer.save_meta:1
 msgid "Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."
-msgstr "Saves the metadata file (creates the DataFrame and saves it as CSV if different from the previous one)."
+msgstr "Saves the metadata file (creates the DataFrame and saves it as CSV if it differs from the previous one)."
 
-#: ../../api/palm_tracer.PALMTracer.rst:50
+#: ../../api/palm_tracer.PALMTracer.rst:41
 msgid "Filtrage"
 msgstr "Filtering"
 
 #: of palm_tracer.PALMTracer.PALMTracer.reset_filtered:1
 msgid "Vide entièrement les DataFrames filtrés dans ``df``."
-msgstr "Completely clears the filtered DataFrames in `df`."
+msgstr "Completely clears the filtered DataFrames in ``df``."
 
 #: of palm_tracer.PALMTracer.PALMTracer.update_filtered:1
 msgid "Recalcul les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original."
-msgstr "Recalculates the filters using the latest available dataframe for each one if `last` is selected; otherwise, uses the original."
+msgstr "Recomputes each filter using the latest available DataFrame when last is selected; otherwise, uses the original."
 
 #: of palm_tracer.PALMTracer.PALMTracer.update_filtered:3
 msgid "Utilise les dernières versions des DataFrames si ``True``, sinon les données brutes seront utilisées."
-msgstr "Uses the latest versions of the dataframes if `True`; otherwise, the raw data is used."
+msgstr "Uses the latest versions of the DataFrames if ``True``; otherwise, uses the raw data."
 
 #: of palm_tracer.PALMTracer.PALMTracer.save_filtered:1
 msgid "Enregistre tous les fichiers filtrés s'ils ne sont pas vides."
@@ -205,7 +133,7 @@ msgstr "Saves all filtered files if they are not empty."
 msgid "Connecte les boutons d'une interface de filtre."
 msgstr "Connects the buttons of a filter interface."
 
-#: ../../api/palm_tracer.PALMTracer.rst:58
+#: ../../api/palm_tracer.PALMTracer.rst:49
 msgid "Visualisation"
 msgstr "Visualization"
 
@@ -219,7 +147,7 @@ msgstr "Generates a high-resolution representation of the data."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:1
 msgid "Recadre automatiquement l'image (ou le volume) en supprimant les zones nulles autour, avec une marge configurable."
-msgstr "Automatically crops the image (or the volume) by removing the null areas around it, with a configurable margin."
+msgstr "Automatically crops the image (or volume) by removing surrounding zero-valued areas, with a configurable margin."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:3
 msgid "Image à recadrer."
@@ -227,7 +155,7 @@ msgstr "Image to crop."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:4
 msgid "Nombre de pixels à conserver autour de la zone utile."
-msgstr "Number of pixels to keep around the useful area."
+msgstr "Number of pixels to retain around the relevant area."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:5
 msgid "Image recadrée."

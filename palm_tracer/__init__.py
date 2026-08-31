@@ -6,5 +6,6 @@ except ImportError:
 	__version__ = "unknown"
 
 from .PALMTracer import PALMTracer
+from .Results import Results
 
-__all__ = ("PALMTracer", "Processing", "Settings", "Tools", "UI")
+__all__ = ("PALMTracer", "Results", "Processing", "Settings", "Tools", "UI")

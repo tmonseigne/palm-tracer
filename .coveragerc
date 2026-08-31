@@ -29,6 +29,8 @@ exclude_also =
 	except
 	finally
 	GPU
+	# Cas particulier pour hack les importations cycliques
+	if TYPE_CHECKING:
 	# Aucun appel de fichier lors des tests pour le code coverage
 	if __name__ == "__main__":
 	# les if contenant _HAS_WEBENGINE sont la en cas de mauvaises installation donc non couvert à 100%

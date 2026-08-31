@@ -10,7 +10,6 @@ from time import sleep
 import pytest
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.PALMTracer import FILE_STATUS
 from palm_tracer.Processing import Parsing
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
@@ -100,24 +99,24 @@ def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 def test_reset_result(pt):
 	"""Vérifie le process sans fichiers en entrée."""
 
-	pt.df["loc"] = pd.DataFrame([1, 1])
-	pt.df["dft"] = pd.DataFrame([1, 2])
-	pt.df["bds"] = pd.DataFrame([1, 3])
-	pt.df["blk"] = pd.DataFrame([1, 4])
-	pt.df["trc"] = pd.DataFrame([1, 5])
-	pt.df["MSD"] = pd.DataFrame([1, 6])
-	pt.df["InD"] = pd.DataFrame([1, 7])
-	pt.df["Fit"] = pd.DataFrame([1, 8])
-	pt.df["f_loc"] = pd.DataFrame([1, 9])
-	pt.df["f_blk"] = pd.DataFrame([1, 10])
-	pt.df["f_trc"] = pd.DataFrame([1, 11])
-	pt.df["f_MSD"] = pd.DataFrame([1, 12])
-	pt.df["f_InD"] = pd.DataFrame([1, 13])
-	pt.df["f_Fit"] = pd.DataFrame([1, 14])
+	pt.results["loc"] = pd.DataFrame([1, 1])
+	pt.results["dft"] = pd.DataFrame([1, 2])
+	pt.results["bds"] = pd.DataFrame([1, 3])
+	pt.results["blk"] = pd.DataFrame([1, 4])
+	pt.results["trc"] = pd.DataFrame([1, 5])
+	pt.results["MSD"] = pd.DataFrame([1, 6])
+	pt.results["InD"] = pd.DataFrame([1, 7])
+	pt.results["Fit"] = pd.DataFrame([1, 8])
+	pt.results["f_loc"] = pd.DataFrame([1, 9])
+	pt.results["f_blk"] = pd.DataFrame([1, 10])
+	pt.results["f_trc"] = pd.DataFrame([1, 11])
+	pt.results["f_MSD"] = pd.DataFrame([1, 12])
+	pt.results["f_InD"] = pd.DataFrame([1, 13])
+	pt.results["f_Fit"] = pd.DataFrame([1, 14])
 
-	pt.reset_result()
-	for key in pt.df:
-		assert pt.df[key].empty, "Le Dataframe devrait être vide."
+	pt.results.reset()
+	for key in pt.results:
+		assert pt.results[key].empty, "Le Dataframe devrait être vide."
 
 
 # ==================================================
@@ -126,125 +125,67 @@ def test_reset_result(pt):
 ##################################################
 def test_getter_localization(pt):
 	"""Vérifie le getter de la localisation."""
-	res = pt.localizations
+	res = pt.results.localizations
 	assert res.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
 	ref2 = pd.DataFrame([3, 4])
 	ref3 = pd.DataFrame([5, 6])
-	pt.df["f_loc"] = ref1
-	res = pt.localizations
+	pt.results["f_loc"] = ref1
+	res = pt.results.localizations
 	assert res.equals(ref1), f"Résultat incorrect.\nAttendu : {ref1}\tObtenu : {res}"
-	pt.df["dft"] = ref2
-	res = pt.localizations
+	pt.results["dft"] = ref2
+	res = pt.results.localizations
 	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
-	pt.df["f_dft"] = ref3
-	res = pt.localizations
+	pt.results["f_dft"] = ref3
+	res = pt.results.localizations
 	assert res.equals(ref3), f"Résultat incorrect.\nAttendu : {ref3}\tObtenu : {res}"
 	pt.reset_filtered()
-	res = pt.localizations
+	res = pt.results.localizations
 	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
 
 
 ##################################################
 def test_getter_beads(pt):
 	"""Vérifie le getter de la localisation."""
-	res = pt.beads
+	res = pt.results.beads
 	assert res.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
-	pt.df["bds"] = ref1
-	res = pt.beads
+	pt.results["bds"] = ref1
+	res = pt.results.beads
 	assert res.equals(ref1), f"Résultat incorrect.\nAttendu : {ref1}\tObtenu : {res}"
 
 
 ##################################################
 def test_getter_tracks(pt):
 	"""Vérifie le process sans fichiers en entrée."""
-	res = pt.tracks
+	res = pt.results.tracks
 	assert res.empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
 	ref2 = pd.DataFrame([3, 4])
 	ref3 = pd.DataFrame([5, 6])
-	pt.df["f_trc"] = ref1
-	res = pt.tracks
+	pt.results["f_trc"] = ref1
+	res = pt.results.tracks
 	assert res.equals(ref1), f"Résultat incorrect.\nAttendu : {ref1}\tObtenu : {res}"
-	pt.df["blk"] = ref2
-	res = pt.tracks
+	pt.results["blk"] = ref2
+	res = pt.results.tracks
 	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
-	pt.df["f_blk"] = ref3
-	res = pt.tracks
+	pt.results["f_blk"] = ref3
+	res = pt.results.tracks
 	assert res.equals(ref3), f"Résultat incorrect.\nAttendu : {ref3}\tObtenu : {res}"
 	pt.reset_filtered()
-	res = pt.tracks
+	res = pt.results.tracks
 	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
 
 
 ##################################################
 def test_getter_tracks_compute(pt):
 	"""Vérifie le process sans fichiers en entrée."""
-	df = pt.tracks_compute
+	df = pt.results.tracks_compute
 	assert df["MSD"].empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
-	pt.df["f_MSD"] = ref1
-	df = pt.tracks_compute
+	pt.results["f_MSD"] = ref1
+	df = pt.results.tracks_compute
 	assert df["MSD"].equals(ref1), "Le Dataframe devrait non vide."
-
-
-##################################################
-def test_get_status(pt):
-	# État initial
-	"""Vérifie le calcul du statut des tableaux de résultats."""
-	ref = {"Localization": FILE_STATUS[0], "Beads": FILE_STATUS[0], "Tracking": FILE_STATUS[0],
-		   "MSD":          FILE_STATUS[0], "Instant D": FILE_STATUS[0], "Fit": FILE_STATUS[0]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Intégralité des DataFrames remplis
-	pt.df["loc"] = pd.DataFrame([1, 1])
-	pt.df["dft"] = pd.DataFrame([1, 2])
-	pt.df["bds"] = pd.DataFrame([1, 3])
-	pt.df["trc"] = pd.DataFrame([1, 4])
-	pt.df["blk"] = pd.DataFrame([1, 5])
-	pt.df["MSD"] = pd.DataFrame([1, 6])
-	pt.df["InD"] = pd.DataFrame([1, 7])
-	pt.df["Fit"] = pd.DataFrame([1, 8])
-	pt.df["f_loc"] = pd.DataFrame([2, 1])
-	pt.df["f_dft"] = pd.DataFrame([2, 2])
-	pt.df["f_trc"] = pd.DataFrame([2, 3])
-	pt.df["f_blk"] = pd.DataFrame([2, 4])
-	pt.df["f_MSD"] = pd.DataFrame([2, 5])
-	pt.df["f_InD"] = pd.DataFrame([2, 6])
-	pt.df["f_Fit"] = pd.DataFrame([2, 7])
-	ref = {"Localization": FILE_STATUS[6], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[4],
-		   "MSD":          FILE_STATUS[2], "Instant D": FILE_STATUS[2], "Fit": FILE_STATUS[2]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Suppression des filtres pour les tracks compute, les reconnexions et corrections filtrées
-	pt.df["f_dft"] = pd.DataFrame()
-	pt.df["f_blk"] = pd.DataFrame()
-	pt.df["f_MSD"] = pd.DataFrame()
-	pt.df["f_InD"] = pd.DataFrame()
-	pt.df["f_Fit"] = pd.DataFrame()
-	ref = {"Localization": FILE_STATUS[5], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[3],
-		   "MSD":          FILE_STATUS[1], "Instant D": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Suppression des reconnexions et corrections
-	pt.df["dft"] = pd.DataFrame()
-	pt.df["blk"] = pd.DataFrame()
-	ref = {"Localization": FILE_STATUS[2], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[2],
-		   "MSD":          FILE_STATUS[1], "Instant D": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Suppression des localisations et suivi filtrés
-	pt.df["f_loc"] = pd.DataFrame()
-	pt.df["f_trc"] = pd.DataFrame()
-	ref = {"Localization": FILE_STATUS[1], "Beads": FILE_STATUS[1], "Tracking": FILE_STATUS[1],
-		   "MSD":          FILE_STATUS[1], "Instant D": FILE_STATUS[1], "Fit": FILE_STATUS[1]}
-	res = pt.get_status()
-	for key in res: assert res[key] == ref[key], f"Status incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 
 ##################################################
@@ -301,13 +242,13 @@ def test_load(capsys, pt):
 	add_basic_file(pt)
 	pt.settings.localization.active = True
 	pt.process()
-	assert len(pt.df["loc"]) == 455
+	assert len(pt.results["loc"]) == 455
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 	# Chargement
 	pt.load()
 
-	assert not pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
-	assert pt.df["f_loc"].empty, "Le Dataframe de localizations filtré devrait être vide."
+	assert not pt.results["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
+	assert pt.results["f_loc"].empty, "Le Dataframe de localizations filtré devrait être vide."
 
 	lines = get_lines_output(capsys)
 	assert len(lines) == 18
@@ -337,7 +278,7 @@ def test_process_no_input(capsys, pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	clean_output()
 	pt.process()
-	assert pt.df["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
+	assert pt.results["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
 	lines = get_lines_output(capsys)
 	assert "No files." in lines[0]
 
@@ -349,7 +290,7 @@ def test_process_nothing(capsys, pt):
 
 	add_basic_file(pt)
 	pt.process()
-	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
+	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 15, [5, 6, 7, 8, 9, 10, 11, 12])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
@@ -358,7 +299,7 @@ def test_process_nothing(capsys, pt):
 	pt.settings.hr.active = True
 	pt.settings.graph.active = True
 	pt.process()  # Test d'une visualisation sans données.
-	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
+	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 18, [5, 6, 7, 8, 9, 10, 12, 14])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
@@ -368,7 +309,7 @@ def test_process_nothing(capsys, pt):
 	pt.settings.hr.active = False
 	pt.settings.tracks_compute.active = True
 	pt.process()
-	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
+	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 8, 9, 11, 12, 13])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
@@ -376,7 +317,7 @@ def test_process_nothing(capsys, pt):
 	pt.settings.tracks_compute.active = False
 	pt.settings.blinking.active = True
 	pt.process()
-	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
+	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 8, 10, 11, 12, 13])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
@@ -384,7 +325,7 @@ def test_process_nothing(capsys, pt):
 	pt.settings.blinking.active = False
 	pt.settings.tracking.active = True
 	pt.process()
-	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
+	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 9, 10, 11, 12, 13])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
@@ -392,7 +333,7 @@ def test_process_nothing(capsys, pt):
 	pt.settings.tracking.active = False
 	pt.settings.beads.active = True
 	pt.process()
-	assert pt.df["loc"].empty, "Le Dataframe de localization devrait être vide"
+	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 8, 9, 10, 11, 12, 13])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
@@ -431,7 +372,7 @@ def test_process_localization(capsys, pt):
 	pt.settings.localization.active = True
 	pt.process()
 
-	assert len(pt.df["loc"]) == 455
+	assert len(pt.results["loc"]) == 455
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
@@ -449,16 +390,16 @@ def test_process_localization_z(capsys, pt):
 	s["Z"].value = True
 	pt.process()  # Lancement, mais aucun fichier de model.
 
-	assert len(pt.df["loc"]) == 455
-	assert np.allclose(pt.df["loc"]["Z"].to_numpy(), 0)
+	assert len(pt.results["loc"]) == 455
+	assert np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
 
 	s["Model"].value = str(REF_DIR / "astigmatism_3d_model.csv")
 	pt.process()  # Lancement
 
-	assert len(pt.df["loc"]) == 455
-	assert not np.allclose(pt.df["loc"]["Z"].to_numpy(), 0)
+	assert len(pt.results["loc"]) == 455
+	assert not np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
@@ -490,7 +431,7 @@ def test_process_localization_spline(capsys, pt):
 	pt.settings.localization["Spline Fit"]["File"].value = f"{INPUT_DIR}/calibration.mat"
 	pt.process()
 
-	assert len(pt.df["loc"]) == 455
+	assert len(pt.results["loc"]) == 455
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
@@ -505,8 +446,8 @@ def test_process_beads_extraction_no_beads(capsys, pt):
 	pt.settings.beads.active = True
 	pt.process()
 
-	assert len(pt.df["loc"]) == 455
-	assert pt.df["bds"].empty
+	assert len(pt.results["loc"]) == 455
+	assert pt.results["bds"].empty
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
 
@@ -517,10 +458,10 @@ def test_process_plane_discontinuous(capsys, pt):
 	clean_output()
 
 	src = INPUT_DIR / "localizations.csv"
-	pt.df["loc"] = pd.read_csv(src)
-	pt.df["loc"].loc[1, "Plane"] = 5
+	pt.results["loc"] = pd.read_csv(src)
+	pt.results["loc"].loc[1, "Plane"] = 5
 	pt._beads_extraction()
-	assert pt.df["bds"].empty
+	assert pt.results["bds"].empty
 	lines = get_lines_output(capsys)
 	assert "No beads found." in lines[0]
 
@@ -541,7 +482,7 @@ def test_process_beads_extraction(capsys, pt):
 	pt.settings.beads.active = True
 	pt.process()
 
-	assert len(pt.df["bds"]) == 4  # 2 Billes sur 2 plans
+	assert len(pt.results["bds"]) == 4  # 2 Billes sur 2 plans
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
 
@@ -557,10 +498,10 @@ def test_process_tracking(capsys, pt):
 	pt.settings.tracking.active = True
 	pt.process()
 
-	ref = pt.localizations
+	ref = pt.results.localizations
 	ref = ref[ref["Integrated Intensity"] > 0]  # Suppression des éléments où la colonne "Integrated Intensity" est inférieure à 0 (l'ajustement a échoué).
 
-	assert len(ref) == len(pt.tracks), "Nombre de points différents entre la localization et le tracking."
+	assert len(ref) == len(pt.results.tracks), "Nombre de points différents entre la localization et le tracking."
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 17, [5, 7, 8, 10, 11, 12, 13, 14])
 
@@ -576,7 +517,7 @@ def test_process_tracking_blinking(capsys, pt):
 	pt.settings.blinking.active = True
 	pt.process()
 
-	assert len(pt.df["trc"]) == len(pt.df["blk"]), "Nombre de points différents entre la reconnexion et le tracking."
+	assert len(pt.results["trc"]) == len(pt.results["blk"]), "Nombre de points différents entre la reconnexion et le tracking."
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 17, [5, 6, 7, 9, 11, 12, 13, 14])
 
@@ -600,8 +541,8 @@ def test_process_tracks_compute(capsys, pt):
 	tc["MSD"].value = True
 	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
-	assert len(pt.df["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
-	assert len(pt.df["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
+	assert len(pt.results["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
+	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
 	# Ajout de fichier MSD (ainsi qu'un fit minimal, un meta, un json et un log)
 	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1], clean=False)
 	check_capsys(capsys, 19, [5, 6, 7, 9, 10, 14, 15, 16])
@@ -611,9 +552,9 @@ def test_process_tracks_compute(capsys, pt):
 	tc["Fit"].value = 1
 	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
-	assert len(pt.df["MSD"]) == 0  # MSD désactivé, il est conservé
-	assert len(pt.df["InD"]) == 3  # Seules 3 trajectoires sont éligibles
-	assert len(pt.df["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
+	assert len(pt.results["MSD"]) == 0  # MSD désactivé, il est conservé
+	assert len(pt.results["InD"]) == 3  # Seules 3 trajectoires sont éligibles
+	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
 	check_output(OUTPUT_FOLDER, csv=[6], log=[2], json=[2])  # Il a conservé le msd precedent mais à renommé le meta
 	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
 
@@ -719,25 +660,25 @@ def test_process_all(capsys, pt):
 def test_reset_filtered(capsys, pt):
 	"""Vérifie la suppréssion des tableaux filtrés."""
 
-	pt.df["loc"] = pd.DataFrame([1, 1])
-	pt.df["dft"] = pd.DataFrame([1, 2])
-	pt.df["bds"] = pd.DataFrame([1, 3])
-	pt.df["blk"] = pd.DataFrame([1, 4])
-	pt.df["trc"] = pd.DataFrame([1, 5])
-	pt.df["MSD"] = pd.DataFrame([1, 6])
-	pt.df["InD"] = pd.DataFrame([1, 7])
-	pt.df["Fit"] = pd.DataFrame([1, 8])
-	pt.df["f_loc"] = pd.DataFrame([1, 9])
-	pt.df["f_blk"] = pd.DataFrame([1, 10])
-	pt.df["f_trc"] = pd.DataFrame([1, 11])
-	pt.df["f_MSD"] = pd.DataFrame([1, 12])
-	pt.df["f_InD"] = pd.DataFrame([1, 13])
-	pt.df["f_Fit"] = pd.DataFrame([1, 14])
+	pt.results["loc"] = pd.DataFrame([1, 1])
+	pt.results["dft"] = pd.DataFrame([1, 2])
+	pt.results["bds"] = pd.DataFrame([1, 3])
+	pt.results["blk"] = pd.DataFrame([1, 4])
+	pt.results["trc"] = pd.DataFrame([1, 5])
+	pt.results["MSD"] = pd.DataFrame([1, 6])
+	pt.results["InD"] = pd.DataFrame([1, 7])
+	pt.results["Fit"] = pd.DataFrame([1, 8])
+	pt.results["f_loc"] = pd.DataFrame([1, 9])
+	pt.results["f_blk"] = pd.DataFrame([1, 10])
+	pt.results["f_trc"] = pd.DataFrame([1, 11])
+	pt.results["f_MSD"] = pd.DataFrame([1, 12])
+	pt.results["f_InD"] = pd.DataFrame([1, 13])
+	pt.results["f_Fit"] = pd.DataFrame([1, 14])
 
 	pt.reset_filtered()
-	for key in pt.df:
-		if key.startswith("f_"): assert pt.df[key].empty, "Le Dataframe devrait être vide."
-		else: assert not pt.df[key].empty, "Le Dataframe doit subsiter."
+	for key in pt.results:
+		if key.startswith("f_"): assert pt.results[key].empty, "Le Dataframe devrait être vide."
+		else: assert not pt.results[key].empty, "Le Dataframe doit subsiter."
 
 
 ##################################################
@@ -768,7 +709,7 @@ def test_save_filtered(capsys, pt):
 	add_basic_file(pt)
 	add_fakeprocess(pt, True, False)  # Ajout d'un fichier de localisations et de tracking
 
-	pt.df["loc"] = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
+	pt.results["loc"] = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
 	pt.settings.filters["Plane"].active = True
 	pt.settings.filters["Plane"].value = [2, 3]
 	pt.update_filtered()  # Il va recalculer les filtres.
@@ -851,8 +792,8 @@ def test_filter_tracks_compute(capsys, pt):
 	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	# Vérification manuelle à l'heure actuelle
-	assert len(pt.tracks) == 26, f"Il reste {len(pt.tracks)} points au lieu de 26 sur les trajectoires."
-	assert len(pt.tracks_compute["MSD"]) == 6, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 14."
+	assert len(pt.results.tracks) == 26, f"Il reste {len(pt.results.tracks)} points au lieu de 26 sur les trajectoires."
+	assert len(pt.results.tracks_compute["MSD"]) == 6, f"Il reste {len(pt.results.tracks_compute['MSD'])} trajectoires au lieu de 14."
 
 	check_output(OUTPUT_FOLDER, csv=[9], log=[1], json=[1], clean=False)  # Track + 2 tracks computes, leurs versions filtrées et le meta = 9
 	check_capsys(capsys, 26, [5, 6, 7, 11, 12, 21, 22, 23])
@@ -861,8 +802,8 @@ def test_filter_tracks_compute(capsys, pt):
 	pt.settings.filters["Tracks"]["Length"].value = [42, 10000]
 	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
-	assert len(pt.df["f_trc"]) == 0, f"Il reste {len(pt.tracks)} points au lieu de 0 sur les trajectoires."
-	assert len(pt.df["f_MSD"]) == 0, f"Il reste {len(pt.tracks_compute['MSD'])} trajectoires au lieu de 0."
+	assert len(pt.results["f_trc"]) == 0, f"Il reste {len(pt.results.tracks)} points au lieu de 0 sur les trajectoires."
+	assert len(pt.results["f_MSD"]) == 0, f"Il reste {len(pt.results.tracks_compute['MSD'])} trajectoires au lieu de 0."
 	check_output(OUTPUT_FOLDER, csv=[9], log=[2], json=[2])  # Il ne va pas réenregistrer les éléments filtrés
 	check_capsys(capsys, 21, [5, 6, 7, 10, 11, 16, 17, 18])
 
@@ -937,7 +878,7 @@ def test_get_graph_data():
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 	# Colonne inexistante
-	pt.localizations.drop("Sigma X", inplace=True, axis=1)
+	pt.results.localizations.drop("Sigma X", inplace=True, axis=1)
 	data, title = pt._get_graph_data()
 	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
@@ -976,7 +917,7 @@ def test_get_graph_data_from_src():
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Empty
-	for _ in range(4): pt.localizations.drop(pt.localizations.index, inplace=True)
+	for _ in range(4): pt.results.localizations.drop(pt.results.localizations.index, inplace=True)
 	data, title = pt._get_graph_data_from_src(0, "X")
 	ref_title, ref_shape, ref_data = "Localizations X", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
@@ -1057,9 +998,9 @@ def test_get_graph_data_from_src():
 	np.testing.assert_array_equal(data, ref_data)
 
 	# --- Empty ---
-	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
+	for _ in range(4): pt.results.tracks.drop(pt.results.tracks.index, inplace=True)
 	for _ in range(2):
-		df = pt.tracks_compute
+		df = pt.results.tracks_compute
 		for d in df.values(): d.drop(d.index, inplace=True)
 
 	data, title = pt._get_graph_data_from_src(1, "Length")
@@ -1144,7 +1085,7 @@ def test_hr():
 
 	# HR Localisation Drift Correction
 	s["Drift Correction"].value = True
-	pt.df["bds"] = pd.DataFrame([[1, 1, 1, 1, 2, 3, 1, 1, 1, 0, 1],
+	pt.results["bds"] = pd.DataFrame([[1, 1, 1, 1, 2, 3, 1, 1, 1, 0, 1],
 								 [1, 2, 2, 2, 3, 4, 1, 1, 1, 0, 1],
 								 [1, 3, 3, 50, 3, 4, 1, 1, 1, 0, 1],  # Valeur abhérrante gommée par le smooth
 								 [1, 4, 4, 4, 3, 4, 1, 1, 1, 0, 1],
@@ -1159,7 +1100,7 @@ def test_hr():
 	s["Drift Correction"].value = False
 
 	# HR Localisation DataFrame vide
-	for _ in range(4): pt.localizations.drop(pt.localizations.index, inplace=True)
+	for _ in range(4): pt.results.localizations.drop(pt.results.localizations.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
 
@@ -1175,7 +1116,7 @@ def test_hr():
 	np.testing.assert_array_equal(plot, ref_plot)
 
 	# HR Tracking DataFrame vide
-	for _ in range(4): pt.tracks.drop(pt.tracks.index, inplace=True)
+	for _ in range(4): pt.results.tracks.drop(pt.results.tracks.index, inplace=True)
 	viz, plot = pt.hr()
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
 
@@ -1298,7 +1239,7 @@ def test_hr_stress():
 						"Sigma Y":              np.ones(n_p, dtype=np.float32),
 						"Theta":                np.zeros(n_p, dtype=np.float32)})
 
-	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
+	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
 
 	# Génération fixe (n_beads fois sur la position centrale)
 	viz, _ = pt.hr()
@@ -1307,7 +1248,7 @@ def test_hr_stress():
 	np.testing.assert_array_equal(viz, ref)
 
 	# Génération fixe de la bille (n_beads fois sur la position [1, 1] * upscale)
-	pt.df["loc"].loc[:, ["X", "Y"]] = pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+	pt.results["loc"].loc[:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1
@@ -1322,7 +1263,7 @@ def test_hr_stress():
 
 	# Génération Drift corrigé, mais la localisation était fixe
 	# (donc elle va bouger vers le haut à droite, elle remonte la diagonale et une partie sera hors champs (départ au centre)
-	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
+	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # Les autres points hors champ continuent (0,16) (-1, 18)...
@@ -1335,7 +1276,7 @@ def test_hr_stress():
 						   "Y":     bead_y,
 						   "Z":     np.zeros(n_p, dtype=np.float32)})
 
-	pt.df["bds"] = pd.concat([beads, beads2], ignore_index=True)
+	pt.results["bds"] = pd.concat([beads, beads2], ignore_index=True)
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # Les autres points hors champ continuent (-1,13) (-2, 14)...
@@ -1352,9 +1293,9 @@ def test_hr_stress():
 						 "Sigma X":              np.ones(size, dtype=np.float32),
 						 "Sigma Y":              np.ones(size, dtype=np.float32),
 						 "Theta":                np.zeros(size, dtype=np.float32)})
-	loc2.loc[n_p:, ["X", "Y"]] = pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+	loc2.loc[n_p:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
 
-	pt.df["loc"] = loc2.copy()
+	pt.results["loc"] = loc2.copy()
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1  # Bille originale
@@ -1369,12 +1310,12 @@ def test_hr_stress():
 	ref[n_y, n_x] += n_p  # Localization statique
 	np.testing.assert_array_equal(viz, ref)
 
-	# Bille Random....
+	# Bille avec une trajectoire aléatoire.
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = True
-	pt.df["bds"], pt.df["loc"] = beads.copy(), loc.copy()
-	pt.df["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Random autour du centre
-	pt.df["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Random autour du centre
+	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
+	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Aléatoire autour du centre.
+	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Aléatoire autour du centre.
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	# Position au centre puis résultat du random dans tous les sens ATTENTION LE DRIFT EST LISSÉ.
@@ -1382,10 +1323,10 @@ def test_hr_stress():
 	np.testing.assert_array_equal(viz, ref)
 
 	# Correction sur la position de la bille avec lissage...
-	pt.df["loc"].loc[:, ["X", "Y"]] = pt.df["bds"].loc[:, ["X", "Y"]].to_numpy()
+	pt.results["loc"].loc[:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
-	# Position de la bille random corrigé ATTENTION LE DRIFT EST LISSÉ, ce n'est donc pas un point unique.
+	# Position corrigée de la bille aléatoire. Le drift est lissé, il ne s'agit donc pas d'un point unique.
 	ref[3, 9] = ref[3, 10] = ref[2, 11] = ref[2, 14] = ref[3, 14] = 1
 	np.testing.assert_array_equal(viz, ref)
 

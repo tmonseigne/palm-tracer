@@ -68,7 +68,9 @@ def test_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	add_basic_file(w.pt)  # .										   Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 	lines = get_lines_output(capsys)
-	assert "INFO: Loaded" in lines[0]
+	assert len(lines) == 2
+	assert "No valid settings file to load." == lines[0]
+	assert "INFO: Loaded" in lines[1]
 	w._reset_layer()  # .											   Remise à 0 des calques sans changement.
 
 
@@ -212,8 +214,8 @@ def test_filters_button(make_napari_viewer, patched_napari_viewer, qtbot):
 	w.pt.settings.localization.active = True
 	qtbot.mouseClick(w.btn_process, Qt.MouseButton.LeftButton)
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-	assert len(w.pt.df["loc"]) == 455
-	assert len(w.pt.df["f_loc"]) == 0
+	assert len(w.pt.results["loc"]) == 455
+	assert len(w.pt.results["f_loc"]) == 0
 
 	qtbot.mouseClick(w.btn_process, Qt.MouseButton.LeftButton)
 
@@ -231,12 +233,12 @@ def test_filters_button(make_napari_viewer, patched_napari_viewer, qtbot):
 	qtbot.waitUntil(lambda: ui_buttons["update"].isVisible() and ui_buttons["update"].isEnabled(), timeout=5000)  # Attente : que l'onglet soit et actif
 
 	qtbot.mouseClick(ui_buttons["update"], Qt.MouseButton.LeftButton)
-	assert len(w.pt.df["loc"]) == 455
-	assert len(w.pt.df["f_loc"]) == 242
+	assert len(w.pt.results["loc"]) == 455
+	assert len(w.pt.results["f_loc"]) == 242
 
 	qtbot.mouseClick(ui_buttons["save"], Qt.MouseButton.LeftButton)
 	f = FileIO.get_last_file(OUTPUT_FOLDER, "localizations_filtered")
 	assert f
 
 	qtbot.mouseClick(ui_buttons["reset"], Qt.MouseButton.LeftButton)
-	assert len(w.pt.df["f_loc"]) == 0
+	assert len(w.pt.results["f_loc"]) == 0
