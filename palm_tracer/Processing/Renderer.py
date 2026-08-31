@@ -519,7 +519,7 @@ class Renderer:
 
 	##################################################
 	@staticmethod
-	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: np.uint16, color_mode: int = 0):
+	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0):
 		"""
 		Trace une ligne discrète entre deux points avec l'algorithme de Bresenham.
 
