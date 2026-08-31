@@ -72,16 +72,16 @@ class Renderer:
 		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est :data:`None`, les localisations sont rendues sous forme de pixels.
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
-		# Vérification des dimensions
+		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
 		if loc.ndim != 2 or loc.shape[1] < 3 or (gaussian is not None and loc.shape[1] < 6): self.blank_rendering(bg_color, False)
+
+		# Préparation des données
 		loc_v = self.prepare_data(loc, False, gaussian is not None)
 		if loc_v.shape[0] == 0: return self.blank_rendering(bg_color, False)
 
 		# Initialisation
-		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)  # Valeur initiale du fond.
-		res = np.full((self._h, self._w), init_value, dtype=np.float64)  # .				 Tableau de résultat.
-		bg_mask = np.zeros(res.shape[:2], dtype=bool)  # .									 Masque pour le fond.
+		res, bg_mask = self.init_rendering(color_mode, self._h, self._w)
 
 		# Rendu
 		if gaussian is None:  # .								   Calcul de l'image en mode spot.
@@ -115,24 +115,19 @@ class Renderer:
 		:param bg_color: Valeur attribuée aux pixels de fond.
 		:return: Nouvelle image en uint16 de forme (height*ratio, width*ratio).
 		"""
-		# Vérification des dimensions
+		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
 		if trc.ndim != 2 or trc.shape[1] != 4: return self.blank_rendering(bg_color, False)
 
-		# Calcul des nouvelles coordonnées entières (vectorisé)
+		# Calcul des nouvelles coordonnées entières (vectorisé) et filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
 		coords = np.round(trc[:, 1:3] * self._r).astype(int)
 		trc, x, y, colors = trc[:, 0].astype(int), coords[:, 0], coords[:, 1], trc[:, 3]
-		if trc.size == 0: return self.blank_rendering(bg_color, False)
-
-		# Filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
 		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)
+		if not np.any(valid): return self.blank_rendering(bg_color, False)
 		trc, x, y, colors = trc[valid], x[valid], y[valid], colors[valid]
-		if trc.size == 0: return self.blank_rendering(bg_color, False)
 
 		# Initialisation
-		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)  # Valeur initiale du fond.
-		res = np.full((self._h, self._w), init_value, dtype=np.float64)  # .				 Tableau de résultat.
-		bg_mask = np.zeros(res.shape[:2], dtype=bool)  # .									 Masque pour le fond.
+		res, bg_mask = self.init_rendering(color_mode, self._h, self._w)
 
 		# Indices de début/fin de chaque groupe de trajectoire
 		# tracks[1:] != tracks[:-1] Compare chaque élément au précédent
@@ -159,15 +154,15 @@ class Renderer:
 		Chaque plan représente une coupe sur la hauteur Z.
 
 		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur).
-		:param color_mode: Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée.
+		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param z_step: Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres).
 		:param bg_color: Valeur attribuée aux pixels de fond.
 		:param gaussian: Paramètres pour le rendu gaussien loc doit avoir au moins 7 colonnes  (X, Y, Z, Couleur, Sigma X, Sigma Y, Theta).
 		:return: Nouveau volume en uint16 de forme (Z, height*ratio, width*ratio).
 		"""
-		# Vérification des dimensions
+		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, True)
-		if loc.ndim != 2 or loc.shape[1] < 4 or z_step <= 0: return self.blank_rendering(bg_color, True)
+		if loc.ndim != 2 or loc.shape[1] < 4 or z_step <= 0 or (gaussian is not None and loc.shape[1] < 7): return self.blank_rendering(bg_color, True)
 
 		# Préparation des données
 		loc_v = self.prepare_data(loc, True, gaussian is not None)
@@ -179,8 +174,8 @@ class Renderer:
 		z_id = (z - z_min) / z_step  # Passage en "mode plan"
 		n_planes = max(int(np.nanmax(z_id)) + 1, 1)
 
-		res = np.zeros((n_planes, self._h, self._w), dtype=np.float64)
-		bg_mask = np.zeros(res.shape[:2], dtype=bool)  # .									 Masque pour le fond.
+		# Initialisation
+		res, bg_mask = self.init_rendering(color_mode, self._h, self._w, n_planes)
 
 		# Rendu
 		if gaussian is None:  # .								   Calcul de l'image en mode spot
@@ -191,7 +186,6 @@ class Renderer:
 			if color_mode == 0: np.add.at(res, (z_id, y, x), c)  # Accumulation des valeurs (plus efficace qu'une boucle)
 			else: np.maximum.at(res, (z_id, y, x), c)  # .		   Conservation de la valeur maximale en cas de superposition.
 		else:  # .												   Calcul de l'image en mode Gaussien
-			if loc.shape[1] < 7: return self.finalize_rendering(res, bg_mask, bg_color)
 			x, y = loc_v[:, 0], loc_v[:, 1]
 			c, sx, _, _ = self.prepare_gaussian_data(loc_v[:, 3:7], gaussian)
 			c *= self._r  # EN 3D, on ajoute encore un scale à la couleur
@@ -208,7 +202,7 @@ class Renderer:
 		Chaque plan représente une projection selon l'axe de rotation et l'angle sélectionné.
 
 		:param loc: Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur).
-		:param color_mode: Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée.
+		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param z_step: Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres).
 		:param frames: Nombre de plans pour effectuer une rotation complète.
 		:param axis: Axe de rotation (X,Y,Z).
@@ -235,9 +229,8 @@ class Renderer:
 		# Centre de l'image résultat
 		ox, oy = (out_w - 1) / 2.0, (out_h - 1) / 2.0
 
-		# Allocation
-		res = np.zeros((frames, out_h, out_w), dtype=np.float64)
-		bg_mask = np.zeros(res.shape[:2], dtype=bool)  # .									 Masque pour le fond.
+		# Initialisation
+		res, bg_mask = self.init_rendering(color_mode, out_h, out_w, frames)
 		angles = np.linspace(0.0, 2.0 * np.pi, frames, endpoint=False)
 
 		if gaussian is not None:
@@ -279,6 +272,23 @@ class Renderer:
 		"""
 		if is_3d: return np.full((1, max(self._h, 1), max(self._w, 1)), bg_color, dtype=np.uint16)
 		return np.full((max(self._h, 1), max(self._w, 1)), bg_color, dtype=np.uint16)
+
+	##################################################
+	@staticmethod
+	def init_rendering(color_mode: int, height: int, width: int, depth: int = -1) -> tuple[np.ndarray, np.ndarray]:
+		"""
+
+		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
+		:param height:
+		:param width:
+		:param depth:
+		:return:
+		"""
+		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)  # Valeur initiale du fond.
+		shape = (depth, height, width) if depth > 0 else (height, width)  # .				 Forme du Tableau (2D ou 3D).
+		img = np.full(shape, init_value, dtype=np.float64)  # .								 Tableau de résultat.
+		mask = np.zeros_like(img, dtype=bool)  # .											 Masque pour le fond.
+		return img, mask
 
 	##################################################
 	@staticmethod
