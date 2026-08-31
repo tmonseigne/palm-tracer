@@ -79,7 +79,7 @@ msgstr "Constructs a high-resolution image (uint16) from localized tracks. Each 
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:4
 msgid "Colonnes attendues dans ``tracks`` :"
-msgstr "Expected columns in `tracks`:"
+msgstr "Expected columns in ``tracks``:"
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:5
 msgid "\"Track\" : identifiant de la trajectoire (:class:`int`)"

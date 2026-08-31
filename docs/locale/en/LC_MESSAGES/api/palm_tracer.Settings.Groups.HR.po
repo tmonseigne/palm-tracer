@@ -72,11 +72,11 @@ msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.HR.HR.gaussian:1
 msgid "Groupe de paramètres liés à la représentation gaussienne (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`)."
-msgstr "Group of settings related to the Gaussian representation (:class:`HRGaussian <palm_tracer.Settings.Groups.HRGaussian.HRGaussian>`)."
+msgstr "Group of settings related to the Gaussian representation (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`)."
 
 #: of palm_tracer.Settings.Groups.HR.HR.hr_3d:1
 msgid "Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."
-msgstr "Group of settings related to the 3D reconstruction (:class:`HR3D <palm_tracer.Settings.Groups.HR3D.HR3D>`)."
+msgstr "Group of settings related to the 3D reconstruction (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."
 
 #: ../../api/palm_tracer.Settings.Groups.HR.rst:17
 msgid "Méthodes"

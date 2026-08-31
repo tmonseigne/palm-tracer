@@ -32,7 +32,7 @@ msgstr "Step 1: Downloading PalmTracer"
 
 #: ../../user/install.rst:31
 msgid "Deux méthodes sont possibles pour récupérer le projet **PalmTracer**. Si vous utilisez déjà **Git**, la première méthode est recommandée, car elle facilite le suivi des mises à jour. Une `(très) courte introduction à Git <https://tmonseigne.github.io/Intro_Git/>`_ est disponible si vous souhaitez débuter avec Git. Sinon, vous pouvez télécharger une archive ZIP."
-msgstr "Two methods are available to retrieve the **PalmTracer** project. If you already use **Git**, the first method is recommended because it makes it easier to track updates. A (very) short `introduction to Git <https://tmonseigne.github.io/Intro_Git/>`_ is available if you want to get started with Git. Otherwise, you can download a ZIP archive."
+msgstr "Two methods are available to retrieve the **PalmTracer** project. If you already use **Git**, the first method is recommended because it makes it easier to track updates. A `(very) short introduction to Git <https://tmonseigne.github.io/Intro_Git/>`_ is available if you want to get started with Git. Otherwise, you can download a ZIP archive."
 
 #: ../../user/install.rst:37
 msgid "Méthode 1 (recommandée) : via Git"

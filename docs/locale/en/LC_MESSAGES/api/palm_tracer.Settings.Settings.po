@@ -20,47 +20,47 @@ msgstr "Region of interest manager."
 
 #: of palm_tracer.Settings.Settings.Settings.batch:1
 msgid "Groupe de paramètres liés au batch (:class:`~palm_tracer.Settings.Groups.Batch.Batch`)."
-msgstr "Group of settings related to batch (:class:`Batch <palm_tracer.Settings.Groups.Batch.Batch>`)."
+msgstr "Group of settings related to batch (:class:`~palm_tracer.Settings.Groups.Batch.Batch`)."
 
 #: of palm_tracer.Settings.Settings.Settings.calibration:1
 msgid "Groupe de paramètres liés à la calibration (:class:`~palm_tracer.Settings.Groups.Calibration.Calibration`)."
-msgstr "Group of settings related to calibration (:class:`Calibration <palm_tracer.Settings.Groups.Calibration.Calibration>`)."
+msgstr "Group of settings related to calibration (:class:`~palm_tracer.Settings.Groups.Calibration.Calibration`)."
 
 #: of palm_tracer.Settings.Settings.Settings.localization:1
 msgid "Groupe de paramètres liés à la localisation (:class:`~palm_tracer.Settings.Groups.Localization.Localization`)."
-msgstr "Group of settings related to localization (:class:`Localization <palm_tracer.Settings.Groups.Localization.Localization>`)."
+msgstr "Group of settings related to localization (:class:`~palm_tracer.Settings.Groups.Localization.Localization`)."
 
 #: of palm_tracer.Settings.Settings.Settings.beads:1
 msgid "Groupe de paramètres liés à l'extraction des billes (:class:`~palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction`)."
-msgstr "Group of settings related to bead extraction (:class:`BeadsExtraction <palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction>`)."
+msgstr "Group of settings related to bead extraction (:class:`~palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction`)."
 
 #: of palm_tracer.Settings.Settings.Settings.tracking:1
 msgid "Groupe de paramètres liés au suivi (:class:`~palm_tracer.Settings.Groups.Tracking.Tracking`)."
-msgstr "Group of settings related to tracking (:class:`Tracking <palm_tracer.Settings.Groups.Tracking.Tracking>`)."
+msgstr "Group of settings related to tracking (:class:`~palm_tracer.Settings.Groups.Tracking.Tracking`)."
 
 #: of palm_tracer.Settings.Settings.Settings.blinking:1
 msgid "Groupe de paramètres liés à la correction du scintillement (:class:`~palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection`)."
-msgstr "Group of settings related to blinking correction (:class:`BlinkingReconnection <palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection>`)."
+msgstr "Group of settings related to blinking correction (:class:`~palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection`)."
 
 #: of palm_tracer.Settings.Settings.Settings.tracks_compute:1
 msgid "Groupe de paramètres liés aux calculs sur trajectoires (:class:`~palm_tracer.Settings.Groups.TracksCompute.TracksCompute`)."
-msgstr "Group of settings related to tracks compute (:class:`TracksCompute <palm_tracer.Settings.Groups.TracksCompute.TracksCompute>`)."
+msgstr "Group of settings related to tracks compute (:class:`~palm_tracer.Settings.Groups.TracksCompute.TracksCompute`)."
 
 #: of palm_tracer.Settings.Settings.Settings.gallery:1
 msgid "Groupe de paramètres liés à la génération de galerie (:class:`~palm_tracer.Settings.Groups.Gallery.Gallery`)."
-msgstr "Group of settings related to gallery generation (:class:`Gallery <palm_tracer.Settings.Groups.Gallery.Gallery>`)."
+msgstr "Group of settings related to gallery generation (:class:`~palm_tracer.Settings.Groups.Gallery.Gallery`)."
 
 #: of palm_tracer.Settings.Settings.Settings.hr:1
 msgid "Groupe de paramètres liés à la Visualisation haute-résolution (:class:`~palm_tracer.Settings.Groups.HR.HR`)."
-msgstr "Group of settings related to high-resolution visualization (:class:`HR <palm_tracer.Settings.Groups.HR.HR>`)."
+msgstr "Group of settings related to high-resolution visualization (:class:`~palm_tracer.Settings.Groups.HR.HR`)."
 
 #: of palm_tracer.Settings.Settings.Settings.graph:1
 msgid "Groupe de paramètres liés à la Visualisation graphique (:class:`~palm_tracer.Settings.Groups.Graph.Graph`)."
-msgstr "Group of settings related to Graph Visualization (:class:`Graph <palm_tracer.Settings.Groups.Graph.Graph>`)."
+msgstr "Group of settings related to Graph Visualization (:class:`~palm_tracer.Settings.Groups.Graph.Graph`)."
 
 #: of palm_tracer.Settings.Settings.Settings.filters:1
 msgid "Groupe de paramètres liés au filtrage (:class:`~palm_tracer.Settings.Groups.Filters.Filters`)."
-msgstr "Group of settings related to filtering (:class:`Filters <palm_tracer.Settings.Groups.Filters.Filters>`)."
+msgstr "Group of settings related to filtering (:class:`~palm_tracer.Settings.Groups.Filters.Filters`)."
 
 #: ../../api/palm_tracer.Settings.Settings.rst:25
 msgid "Méthodes"
@@ -159,4 +159,4 @@ msgstr "Signal blocking for all settings."
 
 #: of palm_tracer.Settings.Settings.Settings.signal_blocked:3
 msgid "Retourne un context manager utilisable avec ``with ...:``."
-msgstr "Returns a context manager that can be used with `with ...:`."
+msgstr "Returns a context manager that can be used with ``with ...:``."

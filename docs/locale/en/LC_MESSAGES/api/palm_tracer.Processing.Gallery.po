@@ -24,7 +24,7 @@ msgstr "DataFrame containing at least the columns ``[\"Plane\",\"Y\",\"X\"]`` wi
 
 #: of palm_tracer.Processing.Gallery.make_gallery:5
 msgid "Taille de chaque zone d'intérêt (carré de dimensions ``roi_size x roi_size``)."
-msgstr "Size of each region of interest (square with dimensions `roi_size x roi_size`)."
+msgstr "Size of each region of interest (square with dimensions ``roi_size x roi_size``)."
 
 #: of palm_tracer.Processing.Gallery.make_gallery:6
 msgid "Nombre de zones par ligne dans la galerie."

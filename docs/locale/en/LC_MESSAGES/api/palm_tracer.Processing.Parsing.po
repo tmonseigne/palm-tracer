@@ -42,7 +42,7 @@ msgstr "List of column names to place first."
 
 #: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:5
 msgid "Si ``True``, ajoute les colonnes non spécifiées après celles définies dans ``columns``."
-msgstr "If `True`, adds the unspecified columns after those defined in `columns`."
+msgstr "If ``True``, adds the unspecified columns after those defined in ``columns``."
 
 #: ../../api/palm_tracer.Processing.Parsing.rst
 msgid "Renvoie"
@@ -58,7 +58,7 @@ msgstr "Raise"
 
 #: of palm_tracer.Processing.Parsing.rearrange_dataframe_columns:7
 msgid "Si une colonne spécifiée dans ``columns`` n'existe pas dans ``data``."
-msgstr "If a column specified in `columns` does not exist in `data`."
+msgstr "If a column specified in ``columns`` does not exist in ``data``."
 
 #: ../../api/palm_tracer.Processing.Parsing.rst
 msgid "Type renvoyé"
@@ -220,7 +220,7 @@ msgstr "We slice it into a 2D array with 13 columns (``N_SEGMENTS``). The array 
 
 #: of palm_tracer.Processing.Parsing.parse_result:5
 msgid "On le transforme en DataFrame avec les colonnes définies par ``SEGMENTS``."
-msgstr "We convert it into a dataframe with columns defined by `SEGMENTS`."
+msgstr "We convert it into a dataframe with columns defined by ``SEGMENTS``."
 
 #: of palm_tracer.Processing.Parsing.parse_result:6
 msgid "On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X ou Y strictement positif suffit (le SigmaX et SigmaY peuvent être à 0)."

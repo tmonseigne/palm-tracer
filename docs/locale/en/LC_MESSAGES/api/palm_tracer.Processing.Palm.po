@@ -84,7 +84,7 @@ msgstr "Enables or disables watershed mode."
 
 #: of palm_tracer.Processing.Palm.Palm.localization:6
 msgid "Mode d'ajustement (défini par ``get_fit``)."
-msgstr "Fitting mode (defined by `get_fit`)."
+msgstr "Fitting mode (defined by ``get_fit``)."
 
 #: of palm_tracer.Processing.Palm.Palm.auto_threshold:4
 #: palm_tracer.Processing.Palm.Palm.localization:7
