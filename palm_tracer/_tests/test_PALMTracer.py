@@ -1077,6 +1077,13 @@ def test_hr():
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
+	# Mise à l'échelle de l'intensité des localisations
+	s["Scaling"].value = 2
+	viz, scaled_plot = pt.hr()
+	np.testing.assert_array_equal(viz, ref_viz * 2)
+	np.testing.assert_array_equal(scaled_plot, ref_plot)
+	s["Scaling"].value = 1
+
 	# HR Localisation remove beads
 	s["Remove Beads"].value = True
 	viz, plot = pt.hr()
@@ -1086,11 +1093,11 @@ def test_hr():
 	# HR Localisation Drift Correction
 	s["Drift Correction"].value = True
 	pt.results["bds"] = pd.DataFrame([[1, 1, 1, 1, 2, 3, 1, 1, 1, 0, 1],
-								 [1, 2, 2, 2, 3, 4, 1, 1, 1, 0, 1],
-								 [1, 3, 3, 50, 3, 4, 1, 1, 1, 0, 1],  # Valeur abhérrante gommée par le smooth
-								 [1, 4, 4, 4, 3, 4, 1, 1, 1, 0, 1],
-								 [1, 5, 5, 5, 3, 4, 1, 1, 1, 0, 1]],
-								columns=Parsing.FILES_COLUMNS["Beads"]["columns"])
+									  [1, 2, 2, 2, 3, 4, 1, 1, 1, 0, 1],
+									  [1, 3, 3, 50, 3, 4, 1, 1, 1, 0, 1],  # Valeur abhérrante gommée par le smooth
+									  [1, 4, 4, 4, 3, 4, 1, 1, 1, 0, 1],
+									  [1, 5, 5, 5, 3, 4, 1, 1, 1, 0, 1]],
+									 columns=Parsing.FILES_COLUMNS["Beads"]["columns"])
 	viz, plot = pt.hr()
 	ref_viz = ref_viz0.copy()
 	ref_viz[4, 0] = ref_viz[6, 4] = 1
@@ -1114,6 +1121,13 @@ def test_hr():
 				[5, 6, 2, 8], [6, 11, 2, 2], [6, 12, 2, 2], [7, 16, 2, 10], [7, 17, 2, 10], [8, 31, 2, 2], [8, 32, 2, 2]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
+
+	# Mise à l'échelle de l'intensité des trajectoires
+	s["Scaling"].value = 2
+	viz, scaled_plot = pt.hr()
+	np.testing.assert_array_equal(viz, ref_viz * 2)
+	np.testing.assert_array_equal(scaled_plot, ref_plot)
+	s["Scaling"].value = 1
 
 	# HR Tracking DataFrame vide
 	for _ in range(4): pt.results.tracks.drop(pt.results.tracks.index, inplace=True)
