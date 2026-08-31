@@ -216,7 +216,6 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _actualize(self):
 		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer."""
-		self._pt.results.update_uis()  # TODO Vérifier si cet appel est redondant : les affectations par clé et reset actualisent déjà les interfaces.
 		self._check_beads()
 
 	##################################################

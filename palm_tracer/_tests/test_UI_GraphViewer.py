@@ -38,6 +38,20 @@ def test_widget_creation(w: GraphViewerWidget, qtbot):
 	qtbot.waitExposed(w)
 	w.close()
 
+##################################################
+def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
+	"""Vérifie que les statuts sont actualisés directement par Results."""
+	qtbot.addWidget(w)
+	results_ui = w._pt.results.get_ui(w.UI_NAME)
+
+	w._pt.results.reset()
+	assert results_ui._labels["Localizations"].text() == "No"
+
+	w._pt.results["loc"] = pd.DataFrame(np.zeros((2, 1)))
+	assert results_ui._labels["Localizations"].text() == "Yes (2 localizations)"
+
+
+
 
 ##################################################
 def test_widget_double_creation(qtbot):
