@@ -746,6 +746,8 @@ class PALMTracer:
 		src = cast(Combo, s["Source"]).current_text
 		upscale = s["Ratio"].value
 		intensity_scaling = s["Scaling"].value
+		color_mode = 0 if src == "Count" else s["Color mode"].value  # .	La source Count impose le mode cumulatif.
+		bg_color = round(s["Background"].value * MAX_UI_16 / 100)  # .		Conversion du pourcentage en intensité uint16.
 		x0, x1, y0, y1 = self.settings.rois.get_roi_limits()
 		n_w, n_h = x1 - x0, y1 - y0
 		self._renderer.set_size(n_w, n_h, upscale)
@@ -758,32 +760,31 @@ class PALMTracer:
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
 			gaussian = s.gaussian.settings if s.gaussian.active else None
-			color_mode = 0 if src == "Count" else s["Color mode"].value  # .Si count, on est forcément en mode cumulatif, sinon on voit l'option.
 			df["X"] -= x0  # .												Ajustement à la ROI sur X
 			df["Y"] -= y0  # .												Ajustement à la ROI sur Y
 			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # .	Sélection dans les bornes
 			df["Color"] *= intensity_scaling  # .							Mise à l'echelle de l'intensité
 
-			if s["Dimension"].value == 0:  # .																				   Rendu 2D
-				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .			   Récupération
-				plot_data = df[["Y", "X"]].to_numpy() * upscale  # .														   Mise à l'échelle des X et Y.
+			if s["Dimension"].value == 0:  # .																			--- Rendu 2D ---
+				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .		Récupération
+				plot_data = df[["Y", "X"]].to_numpy() * upscale  # .													Mise à l'échelle des X et Y.
 				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
-				viz = self._renderer.localizations(viz_data, color_mode, gaussian)  # .										   Rendu
-			else:  # .																										   Rendu 3D
-				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .		   Récupération
+				viz = self._renderer.localizations(viz_data, color_mode, bg_color, gaussian)
+			else:  # .																									--- Rendu 3D ---
+				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .	Récupération
 				uniform_z_step = self._get_uniform_z_step()
 				plot_data = df[["Z", "Y", "X"]].to_numpy(copy=True)
 				z_min = np.nanmin(plot_data[:, 0])
 				# On n'a pas besoin de les caster en entier, Napari n'est pas trop bête et si l'utilisateur passe en vue 3D, il aura les Z flottants.
 				plot_data[:, 0] = (plot_data[:, 0] - z_min) / uniform_z_step
-				plot_data[:, 1:] *= upscale  # .																			   Mise à l'échelle des X et Y.
-				if s["Dimension"].value == 1:  # .																			   Rendu Z Stack
+				plot_data[:, 1:] *= upscale  # .																		Mise à l'échelle des X et Y.
+				if s["Dimension"].value == 1:  # .																		--- Rendu Z Stack ---
 					z_step = s.hr_3d["Z Step"].value
-					viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, gaussian)  # Rendu
-				else:  # .																									   Rendu 3D Rotation
+					viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, bg_color, gaussian)
+				else:  # .																								--- Rendu 3D Rotation ---
 					frames = s.hr_3d["Frames"].value
 					axis = s.hr_3d["Axis"].value
-					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, gaussian)  # .		   Rendu
+					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, bg_color, gaussian)
 
 			return viz, plot_data
 
@@ -799,7 +800,7 @@ class PALMTracer:
 		viz_data = df[:, [0, 2, 3, 4]]
 		plot_data = df[:, [0, 1, 3, 2]]
 		plot_data[:, [2, 3]] *= upscale
-		viz = self._renderer.tracks(viz_data)
+		viz = self._renderer.tracks(viz_data, color_mode, bg_color)
 		return viz, plot_data
 
 	##################################################

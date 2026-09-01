@@ -43,211 +43,320 @@ msgid "Rendus"
 msgstr "Renderings"
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:1
-msgid "Construit une image Haute résolution (uint16) en fonction des éléments localisés."
-msgstr "Generates a high-resolution image (uint16) based on the located elements."
+msgid "Construit une image haute résolution à partir d'un ensemble de localisations."
+msgstr "Builds a high-resolution image from a set of localizations."
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:3
-msgid "Position des points à représenter sous forme de tableau 2D de N lignes et au moins 3 colonnes (X, Y, Couleur)."
-msgstr "Position of points to be plotted as a 2D array of N rows and at least 3 columns (X, Y, Color)."
+msgid "Chaque localisation est projetée dans l'image selon ses coordonnées et sa valeur d'intensité. En cas de superposition, ``color_mode`` détermine la méthode utilisée pour combiner les valeurs :"
+msgstr "Each localization is projected onto the image according to its coordinates and intensity value. When localizations overlap, ``color_mode`` determines how their values are combined:"
 
-#: of palm_tracer.Processing.Renderer.Renderer.localizations:4
-#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:6
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:6
-msgid "Indique si le rendu en cas de superposition additionne les valeurs ou conserve la valeur la plus élevée."
-msgstr "Specifies whether rendering in the case of overlap adds the values or retains the highest value."
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:6
+msgid "``0`` : addition des valeurs ;"
+msgstr "``0``: add the values;"
 
-#: of palm_tracer.Processing.Renderer.Renderer.localizations:5
-msgid "Paramètres pour le rendu gaussien loc doit avoir au moins 6 colonnes  (X, Y, Couleur, Sigma X, Sigma Y, Theta)."
-msgstr "Parameters for Gaussian rendering: loc must have at least 6 columns (X, Y, Color, Sigma X, Sigma Y, Theta)."
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:7
+msgid "``1`` : conservation de la valeur maximale ;"
+msgstr "``1``: retain the maximum value;"
+
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:8
+msgid "``2`` : conservation de la valeur minimale."
+msgstr "``2``: retain the minimum value."
+
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:10
+msgid "Lorsque ``gaussian`` est renseigné, chaque localisation est représentée par une gaussienne 2D anisotrope. Dans ce cas, ``loc`` doit contenir au moins six colonnes : X, Y, intensité, Sigma X, Sigma Y et angle de rotation."
+msgstr "When ``gaussian`` is provided, each localization is represented by an anisotropic 2D Gaussian. In this case, ``loc`` must contain at least six columns: X, Y, intensity, Sigma X, Sigma Y, and rotation angle."
+
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:13
+msgid "Les pixels auxquels aucune localisation ne contribue reçoivent la valeur ``bg_color``."
+msgstr "Pixels to which no localization contributes receive the ``bg_color`` value."
+
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:15
+msgid "Tableau 2D contenant au minimum les colonnes X, Y et intensité."
+msgstr "2D array containing at least the X, Y, and intensity columns."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_line:15
+#: palm_tracer.Processing.Renderer.Renderer.init_rendering:10
+#: palm_tracer.Processing.Renderer.Renderer.localizations:16
+#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:11
+#: palm_tracer.Processing.Renderer.Renderer.tracks:12
+#: palm_tracer.Processing.Renderer.Renderer.z_stack:12
+msgid "Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum."
+msgstr "Method used to combine overlapping values: ``0`` for addition, ``1`` for the maximum, and ``2`` for the minimum."
+
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:17
+#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:15
+#: palm_tracer.Processing.Renderer.Renderer.tracks:13
+msgid "Valeur attribuée aux pixels de fond."
+msgstr "Value assigned to background pixels."
+
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:18
+#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:16
+msgid "Paramètres optionnels du rendu gaussien. Lorsque la valeur est ``None``, les localisations sont rendues sous forme de pixels."
+msgstr "Optional Gaussian-rendering settings. When the value is ``None``, localizations are rendered as pixels."
 
 #: ../../api/palm_tracer.Processing.Renderer.rst
 msgid "Renvoie"
 msgstr "Returns"
 
-#: of palm_tracer.Processing.Renderer.Renderer.localizations:6
-#: palm_tracer.Processing.Renderer.Renderer.tracks:10
-msgid "Nouvelle image en uint16 de forme (height*ratio, width*ratio)."
-msgstr "New image in uint16 format (height*ratio, width*ratio)."
+#: of palm_tracer.Processing.Renderer.Renderer.localizations:19
+#: palm_tracer.Processing.Renderer.Renderer.tracks:14
+msgid "Nouvelle image de forme ``(height * ratio, width * ratio)`` et de type :class:`~numpy.uint16`."
+msgstr "New image with shape ``(height * ratio, width * ratio)`` and type :class:`~numpy.uint16`."
 
 #: ../../api/palm_tracer.Processing.Renderer.rst
 msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:1
-msgid "Construit une image haute résolution (uint16) à partir de trajectoires localisées. Chaque trajectoire est tracée par segments (P0→P1, P1→P2, …)."
-msgstr "Constructs a high-resolution image (uint16) from localized tracks. Each track is drawn in segments (P0→P1, P1→P2, …)."
+msgid "Construit une image haute résolution (uint16) à partir de trajectoires localisées."
+msgstr "Builds a high-resolution image (uint16) from localized tracks."
 
-#: of palm_tracer.Processing.Renderer.Renderer.tracks:4
-msgid "Colonnes attendues dans ``tracks`` :"
-msgstr "Expected columns in ``tracks``:"
-
-#: of palm_tracer.Processing.Renderer.Renderer.tracks:5
-msgid "\"Track\" : identifiant de la trajectoire (:class:`int`)"
-msgstr "\"Track\": track identifier (:class:`int`)"
+#: of palm_tracer.Processing.Renderer.Renderer.tracks:3
+msgid "Chaque trajectoire est tracée sous forme de segments successifs entre ses points. Une trajectoire ne contenant qu'un point est représentée par un pixel unique."
+msgstr "Each track is drawn as successive segments between its points. A track containing only one point is represented by a single pixel."
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:6
-msgid "\"X\", \"Y\" : coordonnées (:class:`float`, en pixels dans l'image de base)"
-msgstr "\"X\", \"Y\": coordinates (:class:`float`, in pixels in the base image)"
-
-#: of palm_tracer.Processing.Renderer.Renderer.tracks:7
-msgid "\"Color\" : intensité à tracer ``(0..65535)``. Toute valeur hors bornes est tronquée."
-msgstr "\"Color\": intensity to plot ``(0..65535)``. Any out-of-range values are truncated."
+msgid "Les lignes appartenant à une même trajectoire doivent être consécutives dans ``trc``. En cas de superposition, ``color_mode`` détermine la méthode utilisée pour combiner les intensités."
+msgstr "Rows belonging to the same track must be consecutive in ``trc``. When tracks overlap, ``color_mode`` determines how their intensities are combined."
 
 #: of palm_tracer.Processing.Renderer.Renderer.tracks:9
-msgid "Tableau des points de trajectoires sous forme de tableau 2D de N lignes et 4 colonnes (Track, X, Y, Couleur)."
-msgstr "Array of tracks points in the form of a 2D array with N rows and 4 columns (Track, X, Y, Color)."
+msgid "Les pixels auxquels aucune trajectoire ne contribue reçoivent ``bg_color``."
+msgstr "Pixels to which no track contributes receive ``bg_color``."
 
-#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:1
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:1
-msgid "Construit un volume 3D Haute résolution (uint16) en fonction des éléments localisés."
-msgstr "Generates a high-resolution volume (uint16) based on the located elements."
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:7
+#: palm_tracer.Processing.Renderer.Renderer.tracks:11
+msgid "Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'identifiant de la trajectoire, la coordonnée X, la coordonnée Y et l'intensité."
+msgstr "2D array with shape ``(N, 4)`` containing, in order, the track identifier, X-coordinate, Y-coordinate, and intensity."
+
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:1
+msgid "Construit un volume haute résolution à partir d'un ensemble de localisations."
+msgstr "Builds a high-resolution volume from a set of localizations."
 
 #: of palm_tracer.Processing.Renderer.Renderer.z_stack:3
-msgid "Chaque plan représente une coupe sur la hauteur Z."
-msgstr "Each plane represents a cross-section along the Z-axis."
+msgid "Chaque plan du volume représente un intervalle de hauteur Z de taille ``z_step``. L'indice du premier plan est calculé à partir de la plus petite coordonnée Z disponible."
+msgstr "Each volume plane represents a Z-height interval of size ``z_step``. The index of the first plane is calculated from the smallest available Z-coordinate."
 
-#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:5
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:5
-msgid "Position des points à représenter sous forme de tableau 2D de N lignes et au moins 4 colonnes (X, Y, Z, Couleur)."
-msgstr "Position of points to be plotted as a 2D array of N rows and at least 4 columns (X, Y, Z, Color)."
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:6
+msgid "Lorsque ``gaussian`` est renseigné, chaque localisation est représentée par une gaussienne 3D isotrope. Dans ce cas, ``loc`` doit contenir au moins sept colonnes : X, Y, Z, intensité, Sigma X, Sigma Y et Theta."
+msgstr "When ``gaussian`` is provided, each localization is represented by an isotropic 3D Gaussian. In this case, ``loc`` must contain at least seven columns: X, Y, Z, intensity, Sigma X, Sigma Y, and Theta."
 
-#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:7
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:7
-msgid "Distance entre deux plans (unité identique à la colonne Z généralement en nanomètres)."
-msgstr "Distance between two planes (unit identical to the Z column, typically in nanometers)."
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:9
+msgid "Les voxels auxquels aucune localisation ne contribue reçoivent ``bg_color``."
+msgstr "Voxels to which no localization contributes receive ``bg_color``."
 
-#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:10
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:8
-msgid "Paramètres pour le rendu gaussien loc doit avoir au moins 7 colonnes  (X, Y, Z, Couleur, Sigma X, Sigma Y, Theta)."
-msgstr "Parameters for Gaussian rendering: loc must have at least 7 columns (X, Y, Z, Color, Sigma X, Sigma Y, Theta)."
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:11
+msgid "Tableau 2D contenant au minimum les colonnes X, Y, Z et intensité."
+msgstr "2D array containing at least the X, Y, Z, and intensity columns."
 
-#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:11
-#: palm_tracer.Processing.Renderer.Renderer.z_stack:9
-msgid "Nouveau volume en uint16 de forme (Z, height*ratio, width*ratio)."
-msgstr "New volume in uint16 format (Z, height*ratio, width*ratio)."
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:13
+msgid "Distance strictement positive entre deux plans, exprimée dans la même unité que la colonne Z, généralement en nanomètres."
+msgstr "Strictly positive distance between two planes, expressed in the same unit as the Z column, usually nanometers."
+
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:14
+msgid "Valeur attribuée aux voxels de fond."
+msgstr "Value assigned to background voxels."
+
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:15
+msgid "Paramètres optionnels du rendu gaussien. Lorsque la valeur est ``None``, les localisations sont rendues sous forme de voxels."
+msgstr "Optional Gaussian-rendering settings. When the value is ``None``, localizations are rendered as voxels."
+
+#: of palm_tracer.Processing.Renderer.Renderer.z_stack:16
+msgid "Nouveau volume de forme ``(depth, height * ratio, width * ratio)`` et de type :class:`~numpy.uint16`."
+msgstr "New volume with shape ``(depth, height * ratio, width * ratio)`` and type :class:`~numpy.uint16`."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:1
+msgid "Construit une séquence de projections haute résolution en rotation 3D."
+msgstr "Builds a sequence of high-resolution projections for a 3D rotation."
 
 #: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:3
-msgid "Chaque plan représente une projection selon l'axe de rotation et l'angle sélectionné."
-msgstr "Each plane represents a projection along the rotation axis and the selected angle."
+msgid "Chaque image du résultat représente une projection des localisations après rotation autour de l'axe sélectionné. Les angles sont répartis uniformément sur une rotation complète."
+msgstr "Each image in the result represents a projection of the localizations after rotation around the selected axis. The angles are distributed uniformly over a complete rotation."
 
-#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:8
-msgid "Nombre de plans pour effectuer une rotation complète."
-msgstr "Number of frames required to complete a full rotation."
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:6
+msgid "Lorsque ``gaussian`` est renseigné, les localisations projetées sont représentées par des gaussiennes 2D. Les pixels auxquels aucune localisation ne contribue reçoivent ``bg_color``."
+msgstr "When ``gaussian`` is provided, projected localizations are represented by 2D Gaussians. Pixels to which no localization contributes receive ``bg_color``."
 
 #: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:9
-msgid "Axe de rotation (X,Y,Z)."
-msgstr "Axis of rotation (X, Y, Z)."
+msgid "Tableau 2D contenant au minimum les colonnes X, Y, Z et intensité. Le rendu gaussien requiert également les colonnes Sigma X, Sigma Y et Theta."
+msgstr "2D array containing at least the X, Y, Z, and intensity columns. Gaussian rendering also requires the Sigma X, Sigma Y, and Theta columns."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:12
+msgid "Distance strictement positive entre deux plans, exprimée dans la même unité que la colonne Z."
+msgstr "Strictly positive distance between two planes, expressed in the same unit as the Z column."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:13
+msgid "Nombre strictement positif de projections générées sur une rotation complète."
+msgstr "Strictly positive number of projections generated over a complete rotation."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:14
+msgid "Axe de rotation : ``0`` pour X, ``1`` pour Y et ``2`` pour Z."
+msgstr "Rotation axis: ``0`` for X, ``1`` for Y, and ``2`` for Z."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:17
+msgid "Nouvelle séquence de forme ``(frames, output_height, output_width)`` et de type :class:`~numpy.uint16`."
+msgstr "New sequence with shape ``(frames, output_height, output_width)`` and type :class:`~numpy.uint16`."
 
 #: ../../api/palm_tracer.Processing.Renderer.rst:25
 msgid "Préparation et dessin"
 msgstr "Data preparation and drawing"
 
+#: of palm_tracer.Processing.Renderer.Renderer.blank_rendering:1
+msgid "Crée une image ou un volume vide rempli avec la couleur de fond."
+msgstr "Creates an empty image or volume filled with the background color."
+
+#: of palm_tracer.Processing.Renderer.Renderer.blank_rendering:3
+msgid "Les dimensions spatiales du résultat sont toujours au minimum égales à un pixel."
+msgstr "The spatial dimensions of the result are always at least one pixel."
+
+#: of palm_tracer.Processing.Renderer.Renderer.blank_rendering:5
+msgid "Valeur attribuée aux pixels ou aux voxels de fond."
+msgstr "Value assigned to background pixels or voxels."
+
+#: of palm_tracer.Processing.Renderer.Renderer.blank_rendering:6
+msgid "Ajoute un axe de profondeur de taille un lorsque la valeur est ``True``."
+msgstr "Adds a depth axis of size one when the value is ``True``."
+
+#: of palm_tracer.Processing.Renderer.Renderer.blank_rendering:7
+msgid "Nouvelle image ou nouveau volume de type :class:`~numpy.uint16`."
+msgstr "New image or volume of type :class:`~numpy.uint16`."
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:1
+msgid "Initialise une image de travail et son masque de contribution."
+msgstr "Initializes a working image and its contribution mask."
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:3
+msgid "L'image est remplie avec l'élément neutre du mode de combinaison :"
+msgstr "The image is filled with the neutral element of the combination mode:"
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:4
+msgid "zéro pour l'addition ;"
+msgstr "zero for addition;"
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:5
+msgid "moins l'infini pour le maximum ;"
+msgstr "negative infinity for the maximum;"
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:6
+msgid "plus l'infini pour le minimum."
+msgstr "positive infinity for the minimum."
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:8
+msgid "Le masque est initialisé à ``False``. Une valeur vraie indiquera qu'au moins un élément contribue au pixel ou au voxel correspondant."
+msgstr "The mask is initialized to ``False``. A true value indicates that at least one element contributes to the corresponding pixel or voxel."
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:11
+msgid "Hauteur de l'image, en pixels."
+msgstr "Image height."
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:12
+msgid "Largeur de l'image, en pixels."
+msgstr "Image width."
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:13
+msgid "Profondeur du volume. Une valeur inférieure ou égale à zéro produit une image 2D."
+msgstr "Volume depth. A value less than or equal to zero produces a 2D image."
+
+#: of palm_tracer.Processing.Renderer.Renderer.init_rendering:14
+msgid "Couple contenant l'image de travail de type :class:`~numpy.float64` et le masque booléen de même forme."
+msgstr "Pair containing the working image of type :class:`~numpy.float64` and the Boolean mask with the same shape."
+
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:1
-msgid "Convertit une image de rendu en entiers non signés sur 16 bits."
-msgstr "Converts a rendered image to 16-bit unsigned integers."
+msgid "Applique la couleur de fond et convertit une image de rendu en entiers non signés sur 16 bits."
+msgstr "Applies the background color and converts a rendered image to 16-bit unsigned integers."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:3
+msgid "Les pixels pour lesquels ``bg_mask`` vaut ``False`` reçoivent la valeur ``bg_color``. Cette application de la couleur de fond modifie ``img`` sur place."
+msgstr "Pixels for which ``bg_mask`` is ``False`` receive the ``bg_color`` value. Applying the background color modifies ``img`` in place."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:6
 #, python-brace-format
 msgid "Lorsque ``clip`` vaut ``True``, les valeurs sont saturées dans l'intervalle ``[0, 65535]``. Sinon, elles sont repliées cycliquement dans cet intervalle par un modulo :math:`2^{16}`. La partie fractionnaire éventuelle est tronquée lors de la conversion."
 msgstr "When ``clip`` is ``True``, values are clipped to the ``[0, 65535]`` range. Otherwise, they wrap cyclically within this range modulo :math:`2^{16}`. Any fractional part is truncated during conversion."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:7
-msgid "L'image d'entrée n'est pas modifiée."
-msgstr "The input image is not modified."
-
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:9
-msgid "Image de rendu à convertir."
-msgstr "Rendered image to convert."
-
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:10
+msgid "Image ou volume de rendu. Les éléments de fond sont modifiés sur place avant la conversion."
+msgstr "Rendered image or volume. Background elements are modified in place before conversion."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:11
+msgid "Masque booléen de même forme que ``img``. Une valeur vraie indique qu'au moins un élément contribue au pixel ou au voxel."
+msgstr "Boolean mask with the same shape as ``img``. A true value indicates that at least one element contributes to the pixel or voxel."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:12
+msgid "Valeur attribuée aux éléments de fond."
+msgstr "Value assigned to background elements."
+
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:13
 msgid "Active la saturation des valeurs au lieu de leur repliement cyclique."
 msgstr "Enables value clipping instead of cyclic wrapping."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:11
-msgid "Nouvelle image de même forme et de type :class:`numpy.uint16`."
-msgstr "New image with the same shape and type :class:`numpy.uint16`."
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:14
+msgid "Nouvelle image ou nouveau volume de même forme que ``img`` et de type :class:`~numpy.uint16`."
+msgstr "New image or volume with the same shape as ``img`` and type :class:`~numpy.uint16`."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:1
-msgid "Construit un tableau NumPy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur."
-msgstr "Creates a NumPy array containing the coordinates of the localizations and an associated scalar value to be used as intensity/color."
+msgid "Ajoute au DataFrame des localisations une composante ``Color`` utilisée comme intensité ou couleur."
+msgstr "Adds a ``Color`` component to the localization DataFrame for use as an intensity or color."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:3
-msgid "Le tableau retourné est de forme ``(N, 3)`` et contient, dans l'ordre : ``X``, ``Y`` et ``Color``."
-msgstr "The returned array has the shape ``(N, 3)`` and contains, in order: ``X``, ``Y``, and ``Color``."
+msgid "La colonne ``Color`` provient de ``col`` lorsque cette colonne existe."
+msgstr "The ``Color`` column is taken from ``col`` when that column exists."
 
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:5
-msgid "Les colonnes ``X`` et ``Y`` sont toujours extraites du DataFrame."
-msgstr "The ``X`` and ``Y`` columns are always extracted from the DataFrame."
-
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:6
-msgid "La colonne ``Color`` provient de ``col`` si elle existe."
-msgstr "The ``Color`` column comes from ``col`` if it exists."
-
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:7
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:4
 msgid "Si ``col`` est absente, la colonne ``Color`` est remplie avec la valeur 1."
 msgstr "If ``col`` is absent, the ``Color`` column is filled with the value 1."
 
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:8
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:5
 #: palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:8
 #, python-brace-format
 msgid "Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul. :math:`C_{Shifted} = C - C_{min}`"
 msgstr "If the minimum value of ``Color`` is negative, all values are shifted so that the minimum becomes zero. :math:`C_{Shifted} = C - C_{min}`"
 
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:10
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:7
 #: palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:10
 msgid "Si ``max_value > 0``, les valeurs de ``Color`` sont normalisées linéairement dans l'intervalle ``[0, max_value]``. :math:`C_{Norm} = C_{Shifted} \\times \\frac{C}{C_{max}}`"
 msgstr "If ``max_value > 0``, the values of ``Color`` are linearly normalized within the interval ``[0, max_value]``. :math:`C_{Norm} = C_{Shifted} \\times \\frac{C}{C_{max}}`"
 
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:10
+msgid "La fonction modifie le DataFrame reçu et le retourne."
+msgstr "The function modifies the provided DataFrame and returns it."
+
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:12
+msgid "DataFrame des localisations à compléter."
+msgstr "Localization DataFrame to complete."
+
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:13
-msgid "La fonction ne modifie pas le DataFrame d'origine."
-msgstr "The function does not modify the original DataFrame."
-
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:15
-msgid "DataFrame à modifier."
-msgstr "DataFrame to be modified."
-
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:16
 msgid "Nom de la colonne à utiliser pour calculer la composante ``Color``."
 msgstr "Name of the column to use for calculating the ``Color`` component."
 
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:17
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:14
 #: palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:15
 msgid "Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée."
 msgstr "Target maximum value for normalization. If ``max_value ≤ 0``, no normalization is applied."
 
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:18
-msgid "DataFrame avec la colonne Color ajouté."
-msgstr "DataFrame with the Color column added."
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:15
+msgid "DataFrame avec la colonne ``Color`` ajoutée."
+msgstr "DataFrame with the ``Color`` column added."
 
-#: ../../api/palm_tracer.Processing.Renderer.rst
-msgid "Lève"
-msgstr "Raise"
-
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:19
-#: palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:17
-msgid "Si les colonnes ``X`` ou ``Y`` sont absentes."
-msgstr "If the ``X`` or ``Y`` columns are missing."
-
-#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:21
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_localizations:17
 #: palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:19
 msgid "La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif. Cela évite une division par zéro lorsque toutes les valeurs sont nulles."
 msgstr "Normalization is applied only if the maximum value in the ``Color`` column after shifting is strictly positive. This prevents division by zero when all values are zero."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:1
-msgid "Construit un tableau NumPy contenant les numéros de trajectoire, les plans, les coordonnées des trajectoires ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur."
-msgstr "Constructs a NumPy array containing the track numbers, planes, and coordinates, as well as an associated scalar value to be used as intensity/color."
+msgid "Construit un DataFrame contenant les numéros de trajectoire, les plans, les coordonnées des trajectoires ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur."
+msgstr "Builds a DataFrame containing track numbers, planes, track coordinates, and an associated scalar value to use as an intensity or color."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:4
-msgid "Le tableau retourné est de forme ``(N, 5)`` et contient, dans l'ordre : ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``."
-msgstr "The returned array is of shape ``(N, 5)`` and contains, in order: ``Track``, ``Plane``, ``X``, ``Y``, and ``Color``."
+msgid "Le DataFrame retourné contient, dans l'ordre, les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``."
+msgstr "The returned DataFrame contains, in order, the ``Track``, ``Plane``, ``X``, ``Y``, and ``Color`` columns."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:6
 msgid "Les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity`` sont toujours extraites du DataFrame."
 msgstr "The columns ``Track``, ``Plane``, ``X``, ``Y``, and ``Integrated Intensity`` are always extracted from the DataFrame."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:7
-msgid "La colonne ``Color`` est défini selon la source, si la source n'est pas prévu, la colonne ``Color`` est remplie avec la valeur 1."
-msgstr "The ``Color`` column is defined based on the source; if the source is not specified, the ``Color`` column is filled with the value 1."
+msgid "La colonne ``Color`` est définie selon ``source`` ; si la source n'est pas prise en charge, elle est remplie avec la valeur 1."
+msgstr "The ``Color`` column is defined according to ``source``; if the source is not supported, it is filled with the value 1."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:13
 msgid "DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``."
@@ -258,72 +367,80 @@ msgid "Type de données à utiliser pour calculer la composante ``Color``."
 msgstr "Data type to use for calculating the ``Color`` component."
 
 #: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:16
-msgid "tableau NumPy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``."
-msgstr "A NumPy array of shape ``(N, 5)`` of type ``float64`` containing ``Track``, ``Plane``, ``X``, ``Y``, and ``Color``."
+msgid "DataFrame contenant les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``."
+msgstr "DataFrame containing the ``Track``, ``Plane``, ``X``, ``Y``, and ``Color`` columns."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:1
-msgid "Prépare les données pour le rendu :"
-msgstr "Prepare the data for rendering:"
+#: ../../api/palm_tracer.Processing.Renderer.rst
+msgid "Lève"
+msgstr "Raises"
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:3
-msgid "Multiplie par le ratio les colonnes concernées."
-msgstr "Multiplies the relevant columns by the ratio."
+#: of palm_tracer.Processing.Renderer.Renderer.add_colors_to_tracks:17
+msgid "Si l'une des colonnes requises est absente."
+msgstr "If any required column is missing."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:4
-msgid "Remplace les degrés par des gradients si nécessaire."
-msgstr "Converts degrees to gradients if necessary."
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:1
+msgid "Prépare les localisations utilisées par les différents modes de rendu."
+msgstr "Prepares the localizations used by the different rendering modes."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:5
-msgid "Vérifie les bornes de l'image et supprime les points hors dimensions."
-msgstr "Checks the image boundaries and removes out-of-bounds points."
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:3
+msgid "Les coordonnées X et Y sont multipliées par le facteur d'agrandissement. Pour un rendu gaussien, les sigmas sont également mis à l'échelle et Theta est converti des degrés vers les radians."
+msgstr "The X and Y coordinates are multiplied by the upscaling factor. For Gaussian rendering, the sigmas are also scaled and Theta is converted from degrees to radians."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:7
-msgid "Données à préparer"
-msgstr "Data to be prepared"
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:6
+msgid "Les paramètres géométriques et l'intensité des gaussiennes sont ensuite adaptés aux réglages utilisateur. Les localisations situées hors des dimensions du rendu sont supprimées."
+msgstr "The geometric parameters and Gaussian intensity are then adjusted according to the user settings. Localizations outside the rendering dimensions are removed."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:8
-msgid "Les données possèdent une composante Z."
-msgstr "The data must include a Z component."
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:9
+msgid "Tableau 2D contenant les localisations à préparer."
+msgstr "2D array containing the localizations to prepare."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:9
-msgid "Les données seront utilisées pour une représentation gaussienne."
-msgstr "The data will be used for a Gaussian representation."
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:10
+msgid "Indique que les données possèdent une composante Z."
+msgstr "Indicates that the data includes a Z component."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_data:10
-msgid "Copie transformée des données, limitée aux dimensions du rendu."
-msgstr "Transformed copy of the data, limited to the rendering dimensions."
-
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:1
-msgid "Récupère les données Color, Sigma X, Sigma Y, Theta et les modifient en fonction des paramètres utilisateurs."
-msgstr "Retrieves the Color, Sigma X, Sigma Y, and Theta data and modifies them according to user parameters."
-
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:3
-msgid "Position des points à représenter sous forme de tableau 2D de N lignes et 3 colonnes (Sigma X, Sigma Y, Theta)."
-msgstr "Position of points to be plotted as a 2D array of N rows and 3 columns (Sigma X, Sigma Y, Theta)."
-
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:4
-msgid "Paramètres pour le rendu gaussien."
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:11
+msgid "Paramètres optionnels du rendu gaussien."
 msgstr "Parameters for Gaussian rendering."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_gaussian_data:5
-msgid "le quatuor de tableaux 1D pour Color, Sigma X, Sigma Y et Theta."
-msgstr "The quartet of 1D arrays for Color, Sigma X, Sigma Y, and Theta."
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:12
+msgid "Copie préparée et filtrée des localisations."
+msgstr "Prepared and filtered copy of the localizations."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:1
+msgid "Prépare les données utilisées pour le rendu des trajectoires."
+msgstr "Prepares the data used to render tracks."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:3
+msgid "Les coordonnées X et Y sont multipliées par le facteur d'agrandissement, arrondies au pixel le plus proche puis converties en indices entiers."
+msgstr "The X and Y coordinates are multiplied by the upscaling factor, rounded to the nearest pixel, and then converted to integer indices."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:5
+msgid "Les points situés hors des dimensions du rendu sont supprimés."
+msgstr "Points outside the rendering dimensions are removed."
+
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:8
+msgid "Quatre tableaux contenant respectivement les identifiants des trajectoires, les coordonnées X, les coordonnées Y et les intensités."
+msgstr "Four arrays respectively containing the track identifiers, X-coordinates, Y-coordinates, and intensities."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_line:1
-msgid "Trace une ligne discrète entre deux points dans une image 2D en utilisant l'algorithme de Bresenham (version entière, sans flottants)."
-msgstr "Draws a discrete line between two points in a 2D image using the Bresenham algorithm (integer version, without floating-point numbers)."
+msgid "Trace une ligne discrète entre deux points avec l'algorithme de Bresenham."
+msgstr "Draws a discrete line between two points using Bresenham's algorithm."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_line:3
-msgid "La ligne est rastérisée en parcourant les pixels entre les coordonnées (x0, y0) et (x1, y1), avec une gestion robuste de toutes les pentes (horizontales, verticales, diagonales, fortes et faibles)."
-msgstr "The line is rasterized by traversing the pixels between the coordinates (x0, y0) and (x1, y1), with robust handling of all slopes (horizontal, vertical, diagonal, steep, and gentle)."
+msgid "La ligne est rastérisée uniquement avec des opérations entières et prend en charge toutes les orientations. Pour chaque pixel visité dans les limites de l'image, l'intensité est combinée à la valeur existante selon ``color_mode``."
+msgstr "The line is rasterized using integer operations only and supports all orientations. For each visited pixel within the image bounds, the intensity is combined with the existing value according to ``color_mode``."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_line:6
-msgid "Pour chaque pixel visité, la valeur est mise à jour uniquement si la nouvelle couleur est strictement supérieure à la valeur déjà présente. Cela permet de conserver l'intensité maximale (utile par exemple pour des accumulations de tracés ou des cartes d'intensité)."
-msgstr "For each pixel visited, the value is updated only if the new color is strictly greater than the existing value. This preserves the maximum intensity (useful, for example, for path accumulations or intensity maps)."
+msgid "L'image et le masque sont modifiés sur place. Le masque est positionné à ``True`` pour chaque pixel valide traversé par la ligne."
+msgstr "The image and mask are modified in place. The mask is set to ``True`` for each valid pixel crossed by the line."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_line:8
+msgid "Image 2D modifiée sur place."
+msgstr "2D image modified in place."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_line:9
-msgid "Image 2D (numpy.ndarray) modifiée *in-place*. Doit être indexable sous la forme ``img[y, x]``."
-msgstr "2D image (numpy.ndarray) modified *in-place*. Must be indexable in the form ``img[y, x]``."
+msgid "Masque booléen de même forme que ``img``, modifié sur place. Une valeur vraie indique qu'au moins une ligne traverse le pixel."
+msgstr "Boolean mask with the same shape as ``img``, modified in place. A true value indicates that at least one line crosses the pixel."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_line:10
 msgid "Coordonnée X du point de départ."
@@ -342,72 +459,93 @@ msgid "Coordonnée Y du point d'arrivée."
 msgstr "Y-coordinate of the ending point."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_line:14
-msgid "Intensité à écrire dans les pixels traversés."
-msgstr "Intensity to write to the traversed pixels."
+msgid "Intensité de la ligne."
+msgstr "Line intensity."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:1
 msgid "Dessine des gaussiennes 2D anisotropes dans une image."
-msgstr "Plots 2D anisotropic Gaussians in an image."
+msgstr "Draws anisotropic 2D Gaussians in an image."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:3
-msgid "Image de sortie 2D, modifiée sur place."
+msgid "Chaque gaussienne est évaluée dans une zone limitée à trois fois son plus grand sigma autour de son centre. Seules les contributions strictement positives sont appliquées et signalées dans ``bg_mask``."
+msgstr "Each Gaussian is evaluated within a region extending three times its largest sigma around its center. Only strictly positive contributions are applied and recorded in ``bg_mask``."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:6
+msgid "L'image et le masque sont modifiés sur place."
+msgstr "The image and mask are modified in place."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:8
+msgid "Image 2D de sortie, modifiée sur place."
 msgstr "2D output image, modified in-place."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:4
-#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:4
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:9
+msgid "Masque booléen de même forme que ``img``, modifié sur place. Une valeur vraie indique qu'au moins une gaussienne contribue au pixel."
+msgstr "Boolean mask with the same shape as ``img``, modified in place. A true value indicates that at least one Gaussian contributes to the pixel."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:10
+#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:10
 msgid "Coordonnées X des centres."
 msgstr "X-coordinates of the centers."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:5
-#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:5
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:11
+#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:11
 msgid "Coordonnées Y des centres."
 msgstr "Y-coordinates of the centers."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:6
-#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:7
-msgid "Intensité totale de chaque gaussienne."
-msgstr "Total intensity of each Gaussian."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:12
+#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:13
+msgid "Intensités totales des gaussiennes."
+msgstr "Total intensities of the Gaussians."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:7
-msgid "Sigma selon l'axe principal X."
-msgstr "Sigma along the main X-axis."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:13
+msgid "Sigmas selon l'axe principal X."
+msgstr "Sigmas along the principal X-axis."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:8
-msgid "Sigma selon l'axe principal Y."
-msgstr "Sigma along the main Y-axis."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:14
+msgid "Sigmas selon l'axe principal Y."
+msgstr "Sigmas along the principal Y-axis."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:9
-msgid "Angle de rotation en radians."
-msgstr "Rotation angle in radians."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:15
+msgid "Angles de rotation en radians."
+msgstr "Rotation angles in radians."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:10
-msgid "0 : addition des intensités, autre : conservation du maximum pixel à pixel."
-msgstr "0: sum of intensities; otherwise: preserve the maximum pixel-by-pixel."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:16
+#: palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:15
+msgid "Méthode de combinaison des intensités superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum."
+msgstr "Method used to combine overlapping intensities: ``0`` for addition, ``1`` for the maximum, and ``2`` for the minimum."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:11
-msgid "Image résultat."
-msgstr "Result image."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_2d:17
+msgid "Référence vers l'image ``img`` modifiée."
+msgstr "Reference to the modified ``img`` image."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:1
 msgid "Dessine des gaussiennes 3D isotropes dans un volume."
-msgstr "Plots 3D isotropic Gaussians in an image."
+msgstr "Draws isotropic 3D Gaussians in a volume."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:3
-msgid "Volume de sortie 3D, modifié sur place, forme (Z, Y, X)."
-msgstr "3D output volume, modified on-site, shape (Z, Y, X)."
+msgid "Chaque gaussienne est évaluée dans une zone limitée à trois fois son sigma autour de son centre. Seules les contributions strictement positives sont appliquées et signalées dans ``bg_mask``."
+msgstr "Each Gaussian is evaluated within a region extending three times its sigma around its center. Only strictly positive contributions are applied and recorded in ``bg_mask``."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:6
+msgid "Le volume et le masque sont modifiés sur place."
+msgstr "The volume and mask are modified in place."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:8
+msgid "Volume de sortie 3D de forme ``(Z, Y, X)``, modifié sur place."
+msgstr "3D output volume with shape ``(Z, Y, X)``, modified in place."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:9
+msgid "Masque booléen de même forme que ``img``, modifié sur place. Une valeur vraie indique qu'au moins une gaussienne contribue au voxel."
+msgstr "Boolean mask with the same shape as ``img``, modified in place. A true value indicates that at least one Gaussian contributes to the voxel."
+
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:12
 msgid "Coordonnées Z des centres."
 msgstr "Z-coordinates of the centers."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:8
-msgid "Sigma isotrope de chaque gaussienne."
-msgstr "The isotropic sigma of each Gaussian."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:14
+msgid "Sigmas isotropes strictement positifs des gaussiennes."
+msgstr "Strictly positive isotropic sigmas of the Gaussians."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:9
-msgid "0 : addition des intensités, autre : conservation du maximum voxel à voxel."
-msgstr "0: sum of intensities; otherwise: preserve the maximum voxel-by-voxel."
-
-#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:10
-msgid "Volume résultat."
-msgstr "Result Volume."
+#: of palm_tracer.Processing.Renderer.Renderer.draw_gaussian_3d:16
+msgid "Référence vers le volume ``img`` modifié."
+msgstr "Reference to the modified ``img`` volume."

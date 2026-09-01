@@ -17,16 +17,20 @@ def test_set_size():
 def test_finalize_rendering():
 	"""Vérifie la saturation et le repliement cyclique d'un rendu en uint16."""
 	img = np.array([[-1, 0, 1.9, 65535, 65536, 65537, 131073]], dtype=np.float64)
-
-	res = Renderer.finalize_rendering(img)
+	mask = np.ones(img.shape, dtype=bool)
+	res = Renderer.finalize_rendering(img, mask)
 	ref = np.array([[0, 0, 1, 65535, 65535, 65535, 65535]], dtype=np.uint16)
 	np.testing.assert_array_equal(res, ref)
 
-	res = Renderer.finalize_rendering(img, clip=False)
+	res = Renderer.finalize_rendering(img, mask, clip=False)
 	ref = np.array([[65535, 0, 1, 65535, 0, 1, 1]], dtype=np.uint16)
 	np.testing.assert_array_equal(res, ref)
 	assert res.dtype == np.uint16
 	np.testing.assert_array_equal(img, [[-1, 0, 1.9, 65535, 65536, 65537, 131073]])
+
+	mask = np.zeros(img.shape, dtype=bool)
+	res = Renderer.finalize_rendering(img, mask, bg_color=0)
+	np.testing.assert_array_equal(res, 0)
 
 
 ##################################################
@@ -120,42 +124,66 @@ def test_get_tracks_colors():
 
 
 ##################################################
-def test_prepare_data():
-	"""Vérifie la préparation des données de rendu."""
+def test_init_rendering():
+	"""Vérifie les valeurs neutres et le masque initial des rendus."""
+	for color_mode, init_value in ((0, 0.0), (1, -np.inf), (2, np.inf)):
+		img, mask = Renderer.init_rendering(color_mode, 3, 4)
+
+		assert img.shape == (3, 4)
+		assert img.dtype == np.float64
+		np.testing.assert_array_equal(img, init_value)
+
+		assert mask.shape == img.shape
+		assert mask.dtype == bool
+		assert not np.any(mask)
+
+	volume, mask = Renderer.init_rendering(0, 3, 4, 2)
+	assert volume.shape == (2, 3, 4)
+	assert mask.shape == volume.shape
+	assert not np.any(mask)
+
+
+##################################################
+def test_prepare_localizations():
+	"""Vérifie la préparation des localisations de rendu."""
 	r = Renderer()
 	r.set_size(5, 10, 2)
+
 	loc = np.array([[0, 1, 2, 3, 4, 5, 6],
 					[1, 2, 3, 4, 5, 6, 7],
 					[10, 10, 4, 5, 6, 7, 8],
 					[3, 4, 5, 6, 7, 8, 9],
 					[4, 5, 6, 7, 8, 9, 10]], dtype=np.float64)
 
-	# 2D non gaussien
-	res = r.prepare_data(loc, False, False)
+	# L'intensité reste inchangée avec r² / Intensity = 4 / 4 = 1.
+	gaussian = {"Shape": 2, "Fixed Intensity": False, "Intensity": 4, }
+
+	# Localisations 2D non gaussiennes.
+	res = r.prepare_localizations(loc, False)
 	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
 					[2, 4, 3, 4, 5, 6, 7],
 					[6, 8, 5, 6, 7, 8, 9],
 					[8, 10, 6, 7, 8, 9, 10]], dtype=np.float64)
 	np.testing.assert_array_almost_equal(res, ref)
 
-	# 2D Gaussien
-	res = r.prepare_data(loc, False, True)
+	# Localisations 2D gaussiennes.
+	res = r.prepare_localizations(loc, False, gaussian)
 	ref = np.array([[0, 2, 2, 6, 8, 0.08726646, 6],
 					[2, 4, 3, 8, 10, 0.10471976, 7],
 					[6, 8, 5, 12, 14, 0.13962634, 9],
 					[8, 10, 6, 14, 16, 0.15707963, 10]], dtype=np.float64)
 	np.testing.assert_array_almost_equal(res, ref)
 
-	# 3D Non Gaussien
-	res = r.prepare_data(loc, True)
+	# Localisations 3D non gaussiennes.
+	res = r.prepare_localizations(loc, True)
 	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
 					[2, 4, 3, 4, 5, 6, 7],
 					[6, 8, 5, 6, 7, 8, 9],
 					[8, 10, 6, 7, 8, 9, 10]], dtype=np.float64)
 	np.testing.assert_array_almost_equal(res, ref)
 
-	# 3D Gaussien
-	res = r.prepare_data(loc, True, True)
+	# Localisations 3D gaussiennes.
+	res = r.prepare_localizations(loc, True, gaussian)
 	ref = np.array([[0, 2, 2, 3, 8, 10, 0.10471976],
 					[2, 4, 3, 4, 10, 12, 0.12217305],
 					[6, 8, 5, 6, 14, 16, 0.15707963],
@@ -164,93 +192,175 @@ def test_prepare_data():
 
 
 ##################################################
+def test_prepare_tracks():
+	"""Vérifie la préparation des données de trajectoires."""
+	r = Renderer()
+	r.set_size(5, 10, 2)
+
+	tracks = np.array([[1, 1.2, 2.6, 10.5],
+					   [1, 4.0, 3.0, 20.5],
+					   [2, -1.0, 2.0, 30.5],
+					   [2, 3.0, 11.0, 40.5]], dtype=np.float64)
+
+	track_ids, x, y, colors = r.prepare_tracks(tracks)
+
+	np.testing.assert_array_equal(track_ids, [1, 1])
+	np.testing.assert_array_equal(x, [2, 8])
+	np.testing.assert_array_equal(y, [5, 6])
+	np.testing.assert_array_equal(colors, [10.5, 20.5])
+
+	assert track_ids.dtype == np.int64
+	assert x.dtype == np.intp
+	assert y.dtype == np.intp
+	assert np.issubdtype(colors.dtype, np.floating)
+
+
+##################################################
 def test_draw_line():
-	"""Vérifie le tracé d'une ligne dans l'image."""
-	img = np.zeros((5, 5), dtype=np.uint16)
+	"""Vérifie le tracé d'une ligne et la mise à jour de son masque."""
+	# Point unique
+	img = np.zeros((5, 5), dtype=np.float64)
+	mask = np.zeros(img.shape, dtype=bool)
+	Renderer.draw_line(img, mask, 2, 3, 2, 3, 123.0)
 
-	# Single Point
-	Renderer.draw_line(img, 2, 3, 2, 3, np.uint16(123))
-	ref = np.zeros((5, 5), dtype=np.uint16)
-	ref[3, 2] = 123
+	ref = np.zeros((5, 5), dtype=np.float64)
+	ref[3, 2] = 123.0
 	np.testing.assert_array_equal(img, ref)
 
-	# Horizontal line
-	img = np.zeros((5, 5), dtype=np.uint16)
-	Renderer.draw_line(img, 1, 2, 4, 2, np.uint16(10))
-	ref = np.zeros((5, 5), dtype=np.uint16)
-	ref[2, 1:5] = 10
+	ref_mask = np.zeros((5, 5), dtype=bool)
+	ref_mask[3, 2] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+	# Ligne horizontale
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, 1, 2, 4, 2, 10.0)
+
+	ref.fill(0.0)
+	ref[2, 1:5] = 10.0
 	np.testing.assert_array_equal(img, ref)
 
-	# Vertical line
-	img = np.zeros((5, 5), dtype=np.uint16)
-	Renderer.draw_line(img, 3, 1, 3, 4, np.uint16(20))
-	ref = np.zeros((5, 5), dtype=np.uint16)
-	ref[1:5, 3] = 20
+	ref_mask.fill(False)
+	ref_mask[2, 1:5] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+	# Ligne verticale
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, 3, 1, 3, 4, 20.0)
+
+	ref.fill(0.0)
+	ref[1:5, 3] = 20.0
 	np.testing.assert_array_equal(img, ref)
 
-	# Diagonal line
-	img = np.zeros((5, 5), dtype=np.uint16)
-	Renderer.draw_line(img, 0, 0, 4, 4, np.uint16(7))
-	ref = np.zeros((5, 5), dtype=np.uint16)
-	np.fill_diagonal(ref, 7)
+	ref_mask.fill(False)
+	ref_mask[1:5, 3] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+	# Ligne diagonale
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, 0, 0, 4, 4, 7.0)
+
+	ref.fill(0.0)
+	np.fill_diagonal(ref, 7.0)
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(mask, np.eye(5, dtype=bool))
+
+	# Ligne partiellement hors de l'image
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, -2, -2, 2, 2, 30.0)
+
+	ref.fill(0.0)
+	ref[0, 0] = ref[1, 1] = ref[2, 2] = 30.0
 	np.testing.assert_array_equal(img, ref)
 
-	# Keep Max
-	img = np.zeros((5, 5), dtype=np.uint16)
-	img[2, 2] = 100
-	Renderer.draw_line(img, 2, 2, 4, 2, np.uint16(50))
-	assert img[2, 2] == 100 and img[2, 3] == 50 and img[2, 4] == 50
+	ref_mask.fill(False)
+	ref_mask[0, 0] = ref_mask[1, 1] = ref_mask[2, 2] = True
+	np.testing.assert_array_equal(mask, ref_mask)
 
-	# Outside points
-	img = np.zeros((5, 5), dtype=np.uint16)
-	Renderer.draw_line(img, -2, -2, 2, 2, np.uint16(30))
-	assert img[0, 0] == 30 and img[1, 1] == 30 and img[2, 2] == 30
+	# Ligne entièrement hors de l'image
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, -4, -4, -1, -1, 50.0)
+
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
+
+	# Croisement de deux lignes pour les trois modes
+	for color_mode, init_value, crossing_value in ((0, 0.0, 30.0), (1, -np.inf, 20.0), (2, np.inf, 10.0)):
+		img = np.full((5, 5), init_value, dtype=np.float64)
+		mask = np.zeros(img.shape, dtype=bool)
+
+		Renderer.draw_line(img, mask, 0, 2, 4, 2, 10.0, color_mode)
+		Renderer.draw_line(img, mask, 2, 0, 2, 4, 20.0, color_mode)
+
+		ref = np.full((5, 5), init_value, dtype=np.float64)
+		ref[2, :] = 10.0
+		ref[:, 2] = 20.0
+		ref[2, 2] = crossing_value
+		np.testing.assert_array_equal(img, ref)
+
+		ref_mask = np.zeros((5, 5), dtype=bool)
+		ref_mask[2, :] = True
+		ref_mask[:, 2] = True
+		np.testing.assert_array_equal(mask, ref_mask)
 
 
 ##################################################
 def test_draw_gaussian():
-	"""Vérifie le rendu gaussien en 2D."""
-	r = Renderer()
-
-	img = np.zeros((5, 5), dtype=float)
-	x, y, color, sx, sy, theta = 2, 2, 100, 1, 2, 0
+	"""Vérifie le rendu gaussien 2D, son masque et ses modes."""
+	x, y, color, sx, sy, theta = 2, 2, 100.0, 1.0, 2.0, 0.0
 	ref = np.array([[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166],
 					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
 					[4.82661763, 7.02268722, 7.95774715, 7.02268722, 4.82661763],
 					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
 					[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166]])
 
-	# Simple anisotrope
-	res = r.draw_gaussian_2d(img, x, y, color, sx, sy, theta, 1)
+	# Gaussienne unique avec le mode maximum
+	img, mask = Renderer.init_rendering(1, 5, 5)
+	res = Renderer.draw_gaussian_2d(img, mask, x, y, color, sx, sy, theta, 1)
+	assert res is img
 	np.testing.assert_array_almost_equal(res, ref)
+	np.testing.assert_array_equal(mask, True)
 
-	# Simple anisotrope avec cumul
-	res = r.draw_gaussian_2d(res, x, y, color, sx, sy, theta, 0)
-	np.testing.assert_array_almost_equal(res, 2 * ref)
+	# Angle de 90 degrés
+	img, mask = Renderer.init_rendering(1, 5, 5)
+	Renderer.draw_gaussian_2d(img, mask, x, y, color, sx, sy, np.pi / 2.0, 1)
+	np.testing.assert_array_almost_equal(img, ref.transpose())
+	np.testing.assert_array_equal(mask, True)
 
-	# Simple anisotrope avec angle de 90° (transposé du premier test
-	img = np.zeros((5, 5), dtype=float)
-	res = r.draw_gaussian_2d(img, x, y, color, sx, sy, np.pi / 2, 1)
-	np.testing.assert_array_almost_equal(res, ref.transpose())
+	# Superposition pour les trois modes
+	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
+		img, mask = Renderer.init_rendering(color_mode, 5, 5)
 
-	# Hors dimensions
-	img = np.zeros((5, 5), dtype=float)
-	res = r.draw_gaussian_2d(img, -10, -10, color, sx, sy, theta, 0)
-	np.testing.assert_array_almost_equal(res, 0.0)
+		Renderer.draw_gaussian_2d(img, mask, x, y, 100.0, sx, sy, theta, color_mode)
+		np.testing.assert_array_equal(mask, True)
 
-	# Sigma négatif
-	res = r.draw_gaussian_2d(img, x, y, color, -1, sy, theta, 0)
-	np.testing.assert_array_equal(res, 0.0)
+		Renderer.draw_gaussian_2d(img, mask, x, y, 50.0, sx, sy, theta, color_mode)
+		np.testing.assert_array_almost_equal(img, expected)
+		np.testing.assert_array_equal(mask, True)
+
+	# Gaussienne entièrement hors dimensions
+	img = np.zeros((5, 5), dtype=np.float64)
+	mask = np.zeros(img.shape, dtype=bool)
+	Renderer.draw_gaussian_2d(img, mask, -10, -10, color, sx, sy, theta, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
+
+	# Sigma invalide
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_gaussian_2d(img, mask, x, y, color, -1.0, sy, theta, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
 
 
 ##################################################
 def test_draw_gaussian_3d():
 	"""Vérifie le rendu gaussien en 3D."""
-	r = Renderer()
-
-	img = np.zeros((3, 3, 3), dtype=float)
 	x, y, z, color, s = 1.5, 1.5, 1.5, 100, 1
-
 	ref = np.array([[[0.21726327, 0.59058281, 0.59058281],
 					 [0.59058281, 1.60537052, 1.60537052],
 					 [0.59058281, 1.60537052, 1.60537052]],
@@ -263,27 +373,37 @@ def test_draw_gaussian_3d():
 					 [1.60537052, 4.36384952, 4.36384952],
 					 [1.60537052, 4.36384952, 4.36384952]]])
 
-	# Simple isotrope 3D
-	res = r.draw_gaussian_3d(img, x, y, z, color, s, 1)
+	# Gaussienne unique avec le mode maximum
+	img, mask = Renderer.init_rendering(1, 3, 3, 3)
+	res = Renderer.draw_gaussian_3d(img, mask, x, y, z, color, s, 1)
+	assert res is img
 	np.testing.assert_array_almost_equal(res, ref)
+	np.testing.assert_array_equal(mask, True)
 
-	# Simple isotrope 3D avec cumul
-	res = r.draw_gaussian_3d(res, x, y, z, color, s, 0)
-	np.testing.assert_array_almost_equal(res, 2 * ref)
+	# Superposition pour les trois modes
+	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
+		img, mask = Renderer.init_rendering(color_mode, 3, 3, 3)
 
-	# Maximum : redessiner une gaussienne identique ne doit pas changer le résultat
-	res = r.draw_gaussian_3d(res, x, y, z, color, s, 1)
-	np.testing.assert_array_almost_equal(res, 2 * ref)
+		Renderer.draw_gaussian_3d(img, mask, x, y, z, 100.0, s, color_mode)
+		np.testing.assert_array_equal(mask, True)
 
-	# Hors dimensions
-	img = np.zeros((5, 5, 5), dtype=float)
-	res = r.draw_gaussian_3d(img, -10, -10, -10, color, s, 0)
-	np.testing.assert_array_almost_equal(res, 0.0)
+		Renderer.draw_gaussian_3d(img, mask, x, y, z, 50.0, s, color_mode)
+		np.testing.assert_array_almost_equal(img, expected)
+		np.testing.assert_array_equal(mask, True)
 
-	# Sigma négatif
-	img = np.zeros((5, 5, 5), dtype=float)
-	res = r.draw_gaussian_3d(img, x, y, z, color, -1, 0)
-	np.testing.assert_array_equal(res, 0.0)
+	# Gaussienne entièrement hors dimensions
+	img = np.zeros((5, 5, 5), dtype=np.float64)
+	mask = np.zeros(img.shape, dtype=bool)
+	Renderer.draw_gaussian_3d(img, mask, -10, -10, -10, color, s, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
+
+	# Sigma invalide
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_gaussian_3d(img, mask, x, y, z, color, -1.0, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
 
 
 ##################################################
@@ -327,6 +447,13 @@ def test_localizations():
 	ref[2, 8] = 7
 	np.testing.assert_array_equal(res, ref)
 
+	# Minimum et couleur de fond
+	res = r.localizations(loc, color_mode=2, bg_color=42)
+	ref = np.full((20, 10), 42, dtype=np.uint16)
+	ref[6, 4] = 5
+	ref[2, 8] = 7
+	np.testing.assert_array_equal(res, ref)
+
 	# Clip
 	loc = np.array([[1, 1, 70000], [1, 1, 1000]], dtype=np.float64)
 	res = r.localizations(loc)
@@ -342,12 +469,12 @@ def test_localizations_gaussian():
 	# Bad size
 	loc = np.array([[2, 2, 100]], dtype=np.float64)
 	gaussian = {"Intensity": 100, "Fixed Intensity": True, "Shape": 0, "Size": 1}
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	assert res.shape == (5, 5) and np.count_nonzero(res) == 0
 
 	# Fixed Size and intensity
 	loc = np.array([[2, 2, 10000, 1, 2, 0]], dtype=np.float64)
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	ref = np.array([[0, 1, 2, 1, 0],
 					[1, 5, 9, 5, 1],
 					[2, 9, 15, 9, 2],
@@ -357,13 +484,13 @@ def test_localizations_gaussian():
 
 	# Fixed Size and not intensity
 	gaussian["Fixed Intensity"] = False
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	np.testing.assert_array_equal(res, ref)
 
 	# Isotrope (Sigma = 1.5 car moyenne des deux)
 	gaussian["Fixed Intensity"] = True
 	gaussian["Shape"] = 1
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	ref = np.array([[1, 2, 2, 2, 1],
 					[2, 4, 5, 4, 2],
 					[2, 5, 7, 5, 2],
@@ -373,7 +500,7 @@ def test_localizations_gaussian():
 
 	# Anisotrope
 	gaussian["Shape"] = 2
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	ref = np.array([[0, 0, 1, 0, 0],
 					[2, 4, 4, 4, 2],
 					[4, 7, 7, 7, 4],
@@ -383,12 +510,12 @@ def test_localizations_gaussian():
 
 	# Max, résultat identique, car 2 points confondus.
 	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
-	res = r.localizations(loc, 1, gaussian)
+	res = r.localizations(loc, 1, gaussian=gaussian)
 	np.testing.assert_array_equal(res, ref)
 
 	# Accumulate (on vérifie que les flottants ont bien été pris en compte durant le calcul, ce n'est pas un simple * 2 de la valeur entière finale)
 	loc = np.array([[2, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	ref = np.array([[1, 1, 2, 1, 1],
 					[5, 8, 9, 8, 5],
 					[9, 14, 15, 14, 9],
@@ -398,7 +525,7 @@ def test_localizations_gaussian():
 
 	# Un des points est hors cadre
 	loc = np.array([[-1, 2, 100, 1, 2, 0], [2, 2, 100, 1, 2, 0]], dtype=np.float64)
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	ref = np.array([[0, 0, 1, 0, 0],
 					[2, 4, 4, 4, 2],
 					[4, 7, 7, 7, 4],
@@ -408,7 +535,7 @@ def test_localizations_gaussian():
 
 	# Dimensions flottantes
 	loc = np.array([[1.5, 1.5, 100, 1, 2, 0]], dtype=np.float64)
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	ref = np.array([[1, 2, 2, 1, 1],
 					[5, 6, 6, 5, 3],
 					[5, 6, 6, 5, 3],
@@ -418,10 +545,10 @@ def test_localizations_gaussian():
 
 	# L'upscale ne doit pas influencer l'intensité maximale
 	r.set_size(5, 5, 10)
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	ref_max = res.max()
 	r.set_size(5, 5, 20)
-	res = r.localizations(loc, 0, gaussian)
+	res = r.localizations(loc, 0, gaussian=gaussian)
 	assert ref_max == res.max()
 
 
@@ -463,14 +590,15 @@ def test_tracks():
 	assert res[2, 2] == 0
 	assert res[4, 4] == np.iinfo(np.uint16).max
 
-	# Two crossed track the lowest (horizontal) is cut by the highest (vertical)
-	trc = np.array([[1, 1, 3, 10], [1, 4, 3, 10], [2, 3, 1, 20], [2, 3, 4, 20], ], dtype=np.float64)
-	res = r.tracks(trc)
-	ref = np.zeros((20, 10), dtype=np.uint16)
-	ref[6, 2:6] = 10
-	ref[6, 7:9] = 10
-	ref[2:9, 6] = 20
-	np.testing.assert_array_equal(res, ref)
+	# Croisement de trajectoires pour les trois modes
+	trc = np.array([[1, 1, 3, 10], [1, 4, 3, 10], [2, 3, 1, 20], [2, 3, 4, 20]], dtype=np.float64)
+	for color_mode, crossing_value in ((0, 30), (1, 20), (2, 10)):
+		res = r.tracks(trc, color_mode=color_mode, bg_color=42)
+		ref = np.full((20, 10), 42, dtype=np.uint16)
+		ref[6, 2:9] = 10
+		ref[2:9, 6] = 20
+		ref[6, 6] = crossing_value
+		np.testing.assert_array_equal(res, ref)
 
 
 ##################################################
@@ -510,6 +638,13 @@ def test_z_stack():
 	res = r.z_stack(loc, color_mode=1, z_step=20)
 	ref = np.zeros((1, 20, 10), dtype=np.uint16)
 	ref[0, 6, 4] = 10
+	ref[0, 2, 8] = 7
+	np.testing.assert_array_equal(res, ref)
+
+	# Z uniforme à 0 + minimum et couleur de fond
+	res = r.z_stack(loc, color_mode=2, z_step=20, bg_color=42)
+	ref = np.full((1, 20, 10), 42, dtype=np.uint16)
+	ref[0, 6, 4] = 5
 	ref[0, 2, 8] = 7
 	np.testing.assert_array_equal(res, ref)
 
@@ -553,12 +688,12 @@ def test_z_stack_gaussian():
 	# Bad size
 	loc = np.array([[2, 2, 0, 100, 1]], dtype=np.float64)
 	gaussian = {"Intensity": 100, "Fixed Intensity": True, "Shape": 0, "Size": 1}
-	res = r.z_stack(loc, 0, 20, gaussian)
+	res = r.z_stack(loc, 0, 20, gaussian=gaussian)
 	assert res.shape == (1, 5, 5) and np.count_nonzero(res) == 0
 
 	# Fixed Size and intensity
 	loc = np.array([[2, 2, 0, 10000, 1, 2, 0]], dtype=np.float64)
-	res = r.z_stack(loc, 0, 20, gaussian)
+	res = r.z_stack(loc, 0, 20, gaussian=gaussian)
 	ref = np.array([[[0, 0, 0, 0, 0],
 					 [0, 2, 3, 2, 0],
 					 [0, 3, 6, 3, 0],
@@ -568,7 +703,7 @@ def test_z_stack_gaussian():
 
 	# 2 point in nearly same Z
 	loc = np.array([[1, 1, 0, 10000, 1, 2, 0], [3, 3, 9, 10000, 1, 2, 0]], dtype=np.float64)
-	res = r.z_stack(loc, 0, 20, gaussian)
+	res = r.z_stack(loc, 0, 20, gaussian=gaussian)
 	ref = np.array([[[2, 3, 2, 0, 0],
 					 [3, 6, 4, 1, 0],
 					 [2, 4, 4, 4, 2],
@@ -578,7 +713,7 @@ def test_z_stack_gaussian():
 
 	# 2 point in nearly same Z and Max color mode
 	loc = np.array([[1, 1, 0, 10000, 1, 2, 0], [3, 3, 9, 10000, 1, 2, 0]], dtype=np.float64)
-	res = r.z_stack(loc, 1, 20, gaussian)
+	res = r.z_stack(loc, 1, 20, gaussian=gaussian)
 	ref = np.array([[[2, 3, 2, 0, 0],
 					 [3, 6, 3, 0, 0],
 					 [2, 3, 2, 3, 2],
@@ -588,7 +723,7 @@ def test_z_stack_gaussian():
 
 	# 2 point in different Z (and spaced)
 	loc = np.array([[1, 1, 0, 10000, 1, 2, 0], [3, 3, 60, 10000, 1, 2, 0]], dtype=np.float64)
-	res = r.z_stack(loc, 0, 20, gaussian)
+	res = r.z_stack(loc, 0, 20, gaussian=gaussian)
 	patch_low = np.array([[1, 2, 1],
 						  [2, 3, 2],
 						  [1, 2, 1]], dtype=np.uint16)
@@ -609,10 +744,10 @@ def test_z_stack_gaussian():
 
 	# L'upscale ne doit pas influencer l'intensité maximale
 	r.set_size(5, 5, 10)
-	res = r.z_stack(loc, 0, 20, gaussian)
+	res = r.z_stack(loc, 0, 20, gaussian=gaussian)
 	ref_max = res.max()
 	r.set_size(5, 5, 20)
-	res = r.z_stack(loc, 0, 20, gaussian)
+	res = r.z_stack(loc, 0, 20, gaussian=gaussian)
 	assert ref_max == res.max()
 
 
@@ -665,6 +800,13 @@ def test_rotation():
 	ref[1, 6, 8], ref[1, 8, 6] = 10, 7  # 180°
 	np.testing.assert_array_equal(res, ref)
 
+	# Minimum avec une couleur de fond non nulle
+	res = r.rotation_3d(loc, color_mode=2, z_step=20, frames=2, axis=2, bg_color=42)
+	ref = np.full((2, 16, 16), 42, dtype=np.uint16)
+	ref[0, 9, 7], ref[0, 7, 9] = 5, 7
+	ref[1, 6, 8], ref[1, 8, 6] = 5, 7
+	np.testing.assert_array_equal(res, ref)
+
 	# Z non uniforme [-20 ; +20], aucun changement pour 0 et 180° masi ajout de 90 et 270 Y inchangé, mais X autour du centre évolue
 	# Attention, l'arrondi python dans le cas de X.5 va arrondir au nombre pair le plus proche
 	# Cela donne l'impression de l'axe central à 7 sur les angles 90 et 270.
@@ -712,7 +854,7 @@ def test_rotation_gaussian():
 	r.set_size(3, 3, 2)
 	loc = np.array([[0, 0, 0, 1000, 1, 1]], dtype=np.float64)
 	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=2, axis=1, gaussian=gaussian)
-	assert res.shape == (2, 11, 11) and np.count_nonzero(res) == 0
+	assert res.shape == (1, 6, 6) and np.count_nonzero(res) == 0
 
 
 ##################################################
