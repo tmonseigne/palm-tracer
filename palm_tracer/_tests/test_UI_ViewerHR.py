@@ -25,6 +25,7 @@ def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
 	_ = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
+
 ##################################################
 def test_results_status_automatic_update(make_napari_viewer, patched_napari_viewer):
 	"""Vérifie que les statuts sont actualisés directement par Results."""
@@ -37,8 +38,6 @@ def test_results_status_automatic_update(make_napari_viewer, patched_napari_view
 
 	w._pt.results["bds"] = pd.DataFrame(np.zeros((2, 1)))
 	assert results_ui._labels["Beads"].text() == "Yes (2 localizations)"
-
-
 
 
 ##################################################
@@ -225,9 +224,15 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 	fake_napari_layers(viewer)
 	_ = get_lines_output(capsys)
 
+	w._layers[w.LAYERS_NAME[1]].visible = True  # Etat initial à True
 	w._generate()
+	assert w._layers[w.LAYERS_NAME[1]].visible
+	assert not w._layers[w.LAYERS_NAME[2]].visible
 	w._pt.settings.hr["Type"].value = 1
 	w._generate()
+	assert not w._layers[w.LAYERS_NAME[1]].visible
+	assert w._layers[w.LAYERS_NAME[2]].visible
+	assert viewer.dims.range[0].stop == np.max(w._layers[w.LAYERS_NAME[2]].data[:, 1])
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0
 	w._pt.settings.hr["Dimension"].value = 1

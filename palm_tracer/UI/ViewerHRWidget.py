@@ -273,14 +273,19 @@ class ViewerHRWidget(QWidget):
 		# Mise à jour de la ROI qui a été utilisé
 		self._pt.settings.rois.update_hr_box()
 
+		point_layer_state = self._layers[self.LAYERS_NAME[1]].visible
+
 		if self._hr_settings["Type"].value == 0:  # Localisations
+			self._layers[self.LAYERS_NAME[2]].visible = False
+			self._layers[self.LAYERS_NAME[1]].visible = True
 			self._layers[self.LAYERS_NAME[1]].data = plot_data
 			self._layers[self.LAYERS_NAME[1]].face_color = "lime"
-			self._layers[self.LAYERS_NAME[2]].visible = False
+			self._layers[self.LAYERS_NAME[1]].visible = point_layer_state  # En cas de trop nombreux points, ce calque peut devenir génant, .
 		else:  # Trajectoires
+			self._layers[self.LAYERS_NAME[1]].visible = False
+			self._layers[self.LAYERS_NAME[2]].visible = True
 			self._layers[self.LAYERS_NAME[2]].data = plot_data
 			self._layers[self.LAYERS_NAME[2]].blending = "translucent"
-			self._layers[self.LAYERS_NAME[1]].visible = False
 
 		self._layers[self.LAYERS_NAME[0]].data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
 		self._layers[self.LAYERS_NAME[0]].visible = True
