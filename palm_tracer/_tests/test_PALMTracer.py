@@ -1115,12 +1115,22 @@ def test_hr():
 	s["Type"].value = 1
 	viz, plot = pt.hr()
 	ref_viz = ref_viz0.copy()
-	ref_viz[2, 2] = 8
-	ref_viz[2, 8] = 5
+	ref_viz[2, 2] = 15
+	ref_viz[2, 8] = 8
 	ref_plot = [[1, 1, 2, 2], [1, 99, 2, 2], [3, 3, 2, 8], [3, 4, 2, 8], [4, 3, 2, 10], [4, 4, 2, 10], [5, 5, 2, 8],
 				[5, 6, 2, 8], [6, 11, 2, 2], [6, 12, 2, 2], [7, 16, 2, 10], [7, 17, 2, 10], [8, 31, 2, 2], [8, 32, 2, 2]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
+
+	# Couleur de fond des trajectoires
+	s["Background"].value = 42
+	viz, background_plot = pt.hr()
+	ref_background = np.full_like(ref_viz, 27525)
+	ref_background[2, 2] = 15
+	ref_background[2, 8] = 8
+	np.testing.assert_array_equal(viz, ref_background)
+	np.testing.assert_array_equal(background_plot, ref_plot)
+	s["Background"].value = 0
 
 	# Mise à l'échelle de l'intensité des trajectoires
 	s["Scaling"].value = 2
@@ -1171,7 +1181,7 @@ def test_hr_filter():
 	pt.settings.rois.set_xy_roi(1, 4, 1, 2, False)
 	viz, plot = pt.hr()
 	ref_viz = np.zeros((2, 6), dtype=np.uint16)
-	ref_viz[0, 0] = 8
+	ref_viz[0, 0] = 15
 	ref_plot = [[1, 1, 0, 0], [1, 99, 0, 0], [3, 3, 0, 6], [3, 4, 0, 6], [5, 5, 0, 6], [5, 6, 0, 6],
 				[6, 11, 0, 0], [6, 12, 0, 0], [8, 31, 0, 0], [8, 32, 0, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)

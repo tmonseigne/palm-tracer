@@ -321,7 +321,7 @@ def test_hr(qtbot):
 	g["Dimension"].value = 1  # Passage à Z-stack
 	g["Dimension"].value = 2  # Passage à 3D Rotation
 	g["Dimension"].reset()
-	group_base_test(g, ["Dimension", "Type", "Source", "Scaling", "Color mode", "Ratio", "Crop", "Remove Beads",
+	group_base_test(g, ["Dimension", "Type", "Source", "Scaling", "Color mode", "Background", "Ratio", "Crop", "Remove Beads",
 						"Drift Correction", "Smooth Drift", "Gaussian", "3D"], ButtonGroup, 1, 0)
 	assert isinstance(g.gaussian, HRGaussian)
 	assert isinstance(g.hr_3d, HR3D)

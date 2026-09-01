@@ -30,7 +30,8 @@ class HR(BaseSettingGroup):
 	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
 	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : grandeur utilisée pour colorer ou pondérer les points.
 	- ``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur multiplicatif appliqué à l'intensité ; valeur par défaut : ``1``.
-	- ``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur maximum.
+	- ``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur maximum ou leur minimum.
+	- ``Background`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : intensité du fond, en pourcentage du noir au blanc ; valeur par défaut : ``0``.
 	- ``Ratio`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : facteur d'agrandissement ; valeur par défaut : ``4``.
 	- ``Crop`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : retire automatiquement les bordures vides.
 	- ``Remove Beads`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exclut les billes de la reconstruction.
@@ -45,9 +46,10 @@ class HR(BaseSettingGroup):
 					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 					"Source":           [Combo, ["Source", "Data selected for Reconstruction.", 0, DATA_SRC["Localization"]]],
 					"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the intensity.", 1, [0.001, 1000], 0.1, 3]],
-					"Color mode":       [Combo, ["Color mode",
-												 "When overlapping, select whether the pixel values are added together "
-												 "or whether only the maximum value is retained.", 0, ["Addition", "Max"]]],
+					"Color mode":       [Combo, ["Color mode", "When contributions overlap, select whether their pixel values are added "
+															   "or only the maximum or minimum value is retained.", 0, ["Addition", "Max", "Min"]]],
+					"Background":       [SpinInt, ["Background Color", "Background intensity as a percentage: 0% produces black and 100% produces white.",
+												   0, [0, 100], 10]],
 					"Ratio":            [SpinInt, ["Up scaling ratio", "Image upscale ratio.", 4, [1, 256], 2]],
 					"Crop":             [CheckBox, ["Auto Crop",
 													"Remove all black Frame around reconstruction (Usefull when you make reconstruciton on a part of field). "
