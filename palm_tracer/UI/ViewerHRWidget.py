@@ -93,6 +93,7 @@ class ViewerHRWidget(QWidget):
 		self._init_ui()
 		self._connect_signals()
 		self._actualize()
+		self._generate()
 
 	##################################################
 

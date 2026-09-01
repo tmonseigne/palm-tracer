@@ -74,6 +74,8 @@ def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mon
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
+	lines = get_lines_output(capsys)
+	assert "WARNING: No stack processed loaded." in lines[0]
 
 	fake_qfiledialog(FileList, f"{INPUT_DIR / 'stack.tif'}")
 	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
