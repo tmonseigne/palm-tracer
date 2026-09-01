@@ -1059,6 +1059,7 @@ def test_hr():
 	ref_viz0 = np.zeros((10, 10), dtype=np.uint16)
 	s = pt.settings.hr
 	s["Ratio"].value = 2
+	s["Source"].value = 1
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = False
 
@@ -1151,6 +1152,7 @@ def test_hr_filter():
 	pt = get_fake_pt()
 	s = pt.settings.hr
 	s["Ratio"].value = 2
+	s["Source"].value = 1
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = False
 
@@ -1195,6 +1197,7 @@ def test_hr_z_stack():
 	s = pt.settings.hr
 	s["Dimension"].value = 1
 	s["Ratio"].value = 2
+	s["Source"].value = 1
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = False
 	# HR Localisation
@@ -1216,6 +1219,7 @@ def test_hr_rotation():
 	s["Dimension"].value = 2
 	s.hr_3d["Frames"].value = 2
 	s["Ratio"].value = 2
+	s["Source"].value = 1
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = False
 	# HR Localisation
@@ -1241,6 +1245,7 @@ def test_hr_stress():
 
 	s = pt.settings.hr
 	s["Ratio"].value = 2
+	s["Source"].value = 1
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = False
 

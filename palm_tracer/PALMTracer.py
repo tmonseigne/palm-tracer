@@ -745,7 +745,7 @@ class PALMTracer:
 		s = self.settings.hr
 		src = cast(Combo, s["Source"]).current_text
 		upscale = s["Ratio"].value
-		intensity_scaling = s["Scaling"].value
+		color_scaling = s["Scaling"].value
 		color_mode = 0 if src == "Count" else s["Color mode"].value  # .	La source Count impose le mode cumulatif.
 		bg_color = round(s["Background"].value * MAX_UI_16 / 100)  # .		Conversion du pourcentage en intensité uint16.
 		x0, x1, y0, y1 = self.settings.rois.get_roi_limits()
@@ -759,11 +759,11 @@ class PALMTracer:
 			df = self._correct_drift(df)
 			if df.empty: return viz, plot_data
 			df = self._renderer.add_colors_to_localizations(df, src)
+			df["Color"] *= color_scaling  # .								Mise à l'echelle de l'intensité de la couleur.
 			gaussian = s.gaussian.settings if s.gaussian.active else None
 			df["X"] -= x0  # .												Ajustement à la ROI sur X
 			df["Y"] -= y0  # .												Ajustement à la ROI sur Y
 			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # .	Sélection dans les bornes
-			df["Color"] *= intensity_scaling  # .							Mise à l'echelle de l'intensité
 
 			if s["Dimension"].value == 0:  # .																			--- Rendu 2D ---
 				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .		Récupération
@@ -792,10 +792,10 @@ class PALMTracer:
 		df = self._correct_drift(self.results.tracks.copy())
 		if df.empty: return viz, plot_data
 		df = self._renderer.add_colors_to_tracks(df, src)
+		df["Color"] *= color_scaling  # .							  Mise à l'echelle de l'intensité de la couleur.
 		df["X"] -= x0  # Ajustement à la ROI sur X
 		df["Y"] -= y0  # Ajustement à la ROI sur Y
 		df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
-		df["Color"] *= intensity_scaling  # .						  Mise à l'echelle de l'intensité
 		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
 		viz_data = df[:, [0, 2, 3, 4]]
 		plot_data = df[:, [0, 1, 3, 2]]

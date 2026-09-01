@@ -23,8 +23,8 @@ msgid "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : grandeur 
 msgstr "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : quantity used to color or weight the points."
 
 #: of palm_tracer.Settings.Groups.HR.HR:8
-msgid "``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur multiplicatif appliqué à l'intensité ; valeur par défaut : ``1``."
-msgstr "``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : multiplicative factor applied to the intensity; default value: ``1``."
+msgid "``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur multiplicatif appliqué à la couleur ; valeur par défaut : ``1``."
+msgstr "``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : multiplicative factor applied to the color; default value: ``1``."
 
 #: of palm_tracer.Settings.Groups.HR.HR:9
 msgid "``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur valeur maximale ou minimale."

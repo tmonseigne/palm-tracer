@@ -12,7 +12,7 @@ from palm_tracer.Settings.Groups.HRGaussian import HRGaussian
 from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinFloat, SpinInt
 
 DATA_SRC: dict[str, list] = {
-		"Localization": ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
+		"Localization": ["Count", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
 						 "Surface", "MSE XY", "MSE Z"],
 		"Tracking":     ["Track Number", "Plane", "Intensity", "Duration", "Length"]
 		}
@@ -29,7 +29,7 @@ class HR(BaseSettingGroup):
 	- ``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z ou rotation 3D.
 	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
 	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : grandeur utilisée pour colorer ou pondérer les points.
-	- ``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur multiplicatif appliqué à l'intensité ; valeur par défaut : ``1``.
+	- ``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur multiplicatif appliqué à la couleur ; valeur par défaut : ``1``.
 	- ``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur valeur maximale ou minimale.
 	- ``Background`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : intensité du fond, de ``0`` % pour le noir à ``100`` % pour le blanc ;
 	  valeur par défaut : ``0``.
@@ -46,7 +46,7 @@ class HR(BaseSettingGroup):
 	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation"]]],
 					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 					"Source":           [Combo, ["Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"]]],
-					"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the intensity.", 1, [0.001, 1000], 0.1, 3]],
+					"Scaling":          [SpinFloat, ["Color scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
 					"Color mode":       [Combo, ["Color mode", "When contributions overlap, select whether their pixel values are added "
 															   "or only the maximum or minimum value is retained.", 0, ["Addition", "Max", "Min"]]],
 					"Background":       [SpinInt, ["Background Color", "Background intensity as a percentage: 0% produces black and 100% produces white.",
