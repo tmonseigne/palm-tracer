@@ -53,10 +53,11 @@ class Renderer:
 	##################################################
 	def localizations(self, loc: np.ndarray, color_mode: int = 0, bg_color: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
-		Construit une image Haute résolution (uint16) à partir d'un ensemble de localisations.
+		Construit une image haute résolution à partir d'un ensemble de localisations.
 
 		Chaque localisation est projetée dans l'image selon ses coordonnées et sa valeur d'intensité.
 		En cas de superposition, ``color_mode`` détermine la méthode utilisée pour combiner les valeurs :
+
 			- ``0`` : addition des valeurs ;
 			- ``1`` : conservation de la valeur maximale ;
 			- ``2`` : conservation de la valeur minimale.
@@ -69,8 +70,8 @@ class Renderer:
 		:param loc: Tableau 2D contenant au minimum les colonnes X, Y et intensité.
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param bg_color: Valeur attribuée aux pixels de fond.
-		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est :data:`None`, les localisations sont rendues sous forme de pixels.
-		:return: Nouvelle image de forme ``(height * ratio, width * ratio)`` et de type :class:`numpy.uint16`.
+		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est ``None``, les localisations sont rendues sous forme de pixels.
+		:return: Nouvelle image de forme ``(height * ratio, width * ratio)`` et de type :class:`~numpy.uint16`.
 		"""
 		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
@@ -114,23 +115,20 @@ class Renderer:
 		:param trc: Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'identifiant de la trajectoire, la coordonnée X, la coordonnée Y et l'intensité.
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param bg_color: Valeur attribuée aux pixels de fond.
-		:return: Nouvelle image de forme ``(height * ratio, width * ratio)`` et de type :class:`numpy.uint16`.
+		:return: Nouvelle image de forme ``(height * ratio, width * ratio)`` et de type :class:`~numpy.uint16`.
 		"""
 		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
 		if trc.ndim != 2 or trc.shape[1] != 4: return self.blank_rendering(bg_color, False)
 
-		# Calcul des nouvelles coordonnées entières (vectorisé) et filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
+		# Préparation des coordonnées entières et filtrage des points hors des dimensions du rendu.
 		track_ids, x, y, colors = self.prepare_tracks(trc)
 		if track_ids.size == 0: return self.blank_rendering(bg_color, False)
 
 		# Initialisation
 		res, bg_mask = self.init_rendering(color_mode, self._h, self._w)
 
-		# Indices de début/fin de chaque groupe de trajectoire
-		# tracks[1:] != tracks[:-1] Compare chaque élément au précédent
-		# np.flatnonzero pour avoir les indices des True donc indique le dernier élément de chaque trajectoire
-		# np.r_ concatène des séquences. On ajoute 0 et tracks.size.
+		# Délimitation des groupes de trajectoires consécutives.
 		split_idx = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size]
 
 		# Pour chaque trajectoire, couleur unique
@@ -161,8 +159,8 @@ class Renderer:
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param z_step: Distance strictement positive entre deux plans, exprimée dans la même unité que la colonne Z, généralement en nanomètres.
 		:param bg_color: Valeur attribuée aux voxels de fond.
-		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est :data:`None`, les localisations sont rendues sous forme de voxels.
-		:return: Nouveau volume de forme ``(depth, height * ratio, width * ratio)`` et de type :class:`numpy.uint16`.
+		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est ``None``, les localisations sont rendues sous forme de voxels.
+		:return: Nouveau volume de forme ``(depth, height * ratio, width * ratio)`` et de type :class:`~numpy.uint16`.
 		"""
 		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, True)
@@ -193,7 +191,7 @@ class Renderer:
 			else: np.minimum.at(res, (z_id, y, x), c)  # .				Conservation de la valeur minimale en cas de superposition.
 		else:  # .												   Calcul de l'image en mode Gaussien
 			x, y, _, c, s = loc_v[:, 0:5].T
-			c *= self._r  # EN 3D, on ajoute encore un scale à la couleur
+			c *= self._r  # En 3D, un facteur d'agrandissement supplémentaire est appliqué à l'intensité.
 			self.draw_gaussian_3d(res, bg_mask, x, y, z_id, c, s, color_mode)
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
@@ -210,15 +208,15 @@ class Renderer:
 		Lorsque ``gaussian`` est renseigné, les localisations projetées sont représentées par des gaussiennes 2D.
 		Les pixels auxquels aucune localisation ne contribue reçoivent ``bg_color``.
 
-		:param loc: Tableau 2D contenant au minimum les colonnes X, Y, Z et intensité. Le rendu gaussien requiert également les colonnes Sigma X,
-		Sigma Y et Theta.
+		:param loc: Tableau 2D contenant au minimum les colonnes X, Y, Z et intensité.
+			Le rendu gaussien requiert également les colonnes Sigma X, Sigma Y et Theta.
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param z_step: Distance strictement positive entre deux plans, exprimée dans la même unité que la colonne Z.
 		:param frames: Nombre strictement positif de projections générées sur une rotation complète.
 		:param axis: Axe de rotation : ``0`` pour X, ``1`` pour Y et ``2`` pour Z.
 		:param bg_color: Valeur attribuée aux pixels de fond.
-		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est :data:`None`, les localisations sont rendues sous forme de pixels.
-		:return: Nouvelle séquence de forme ``(frames, output_height, output_width)`` et de type :class:`numpy.uint16`.
+		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est ``None``, les localisations sont rendues sous forme de pixels.
+		:return: Nouvelle séquence de forme ``(frames, output_height, output_width)`` et de type :class:`~numpy.uint16`.
 		"""
 		# Vérification des dimensions
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, True)
@@ -233,8 +231,8 @@ class Renderer:
 		z_id = (z - np.nanmin(z)) / z_step  # .																Conversion du Z en indice de plan
 		cx, cy, cz = (self._w - 1) / 2.0, (self._h - 1) / 2.0, (np.nanmax(z_id) - np.nanmin(z_id)) / 2.0  # Centre de la géométrie source
 		x0, y0, z0 = x - cx, y - cy, z_id - cz  # .															Coordonnées relatives au centre
-		if gaussian is not None: sx, sy, theta = loc_v[:, 4:7].T  # .										Récupération des données Gaussiennes une seule
-		# fois.
+		# Récupération unique des paramètres gaussiens avant le calcul des projections.
+		if gaussian is not None: sx, sy, theta = loc_v[:, 4:7].T
 
 		# Taille de projection volontairement carrée pour éviter le clipping pendant la rotation.
 		diameter = int(np.ceil(2.0 * np.sqrt(cx * cx + cy * cy + cz * cz))) + 3
@@ -281,8 +279,8 @@ class Renderer:
 		Les dimensions spatiales du résultat sont toujours au minimum égales à un pixel.
 
 		:param bg_color: Valeur attribuée aux pixels ou aux voxels de fond.
-		:param is_3d: Ajoute un axe de profondeur de taille un lorsque la valeur est :data:`True`.
-		:return: Nouvelle image ou nouveau volume de type :class:`numpy.uint16`.
+		:param is_3d: Ajoute un axe de profondeur de taille un lorsque la valeur est ``True``.
+		:return: Nouvelle image ou nouveau volume de type :class:`~numpy.uint16`.
 		"""
 		if is_3d: return np.full((1, max(self._h, 1), max(self._w, 1)), bg_color, dtype=np.uint16)
 		return np.full((max(self._h, 1), max(self._w, 1)), bg_color, dtype=np.uint16)
@@ -298,13 +296,13 @@ class Renderer:
 			- moins l'infini pour le maximum ;
 			- plus l'infini pour le minimum.
 
-		Le masque est initialisé à :data:`False`. Une valeur vraie indiquera qu'au moins un élément contribue au pixel ou au voxel correspondant.
+		Le masque est initialisé à ``False``. Une valeur vraie indiquera qu'au moins un élément contribue au pixel ou au voxel correspondant.
 
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param height: Hauteur de l'image, en pixels.
 		:param width: Largeur de l'image, en pixels.
 		:param depth: Profondeur du volume. Une valeur inférieure ou égale à zéro produit une image 2D.
-		:return: Couple contenant l'image de travail de type :class:`numpy.float64` et le masque booléen de même forme.
+		:return: Couple contenant l'image de travail de type :class:`~numpy.float64` et le masque booléen de même forme.
 		"""
 		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)  # Valeur initiale du fond.
 		shape = (depth, height, width) if depth > 0 else (height, width)  # .				 Forme du Tableau (2D ou 3D).
@@ -318,48 +316,43 @@ class Renderer:
 		"""
 		Applique la couleur de fond et convertit une image de rendu en entiers non signés sur 16 bits.
 
-		Les pixels pour lesquels ``bg_mask`` vaut :data:`False` reçoivent la valeur ``bg_color``.
+		Les pixels pour lesquels ``bg_mask`` vaut ``False`` reçoivent la valeur ``bg_color``.
 		Cette application de la couleur de fond modifie ``img`` sur place.
 
 		Lorsque ``clip`` vaut ``True``, les valeurs sont saturées dans l'intervalle ``[0, 65535]``.
 		Sinon, elles sont repliées cycliquement dans cet intervalle par un modulo :math:`2^{16}`.
 		La partie fractionnaire éventuelle est tronquée lors de la conversion.
 
-
 		:param img: Image ou volume de rendu. Les éléments de fond sont modifiés sur place avant la conversion.
 		:param bg_mask: Masque booléen de même forme que ``img``. Une valeur vraie indique qu'au moins un élément contribue au pixel ou au voxel.
 		:param bg_color: Valeur attribuée aux éléments de fond.
 		:param clip: Active la saturation des valeurs au lieu de leur repliement cyclique.
-		:return: Nouvelle image ou nouveau volume de même forme que ``img`` et de type :class:`numpy.uint16`.
+		:return: Nouvelle image ou nouveau volume de même forme que ``img`` et de type :class:`~numpy.uint16`.
 		"""
-		img[~bg_mask] = bg_color  # .					Remplace les éléments identifiés comme fond par la couleur choisi.
+		img[~bg_mask] = bg_color  # .					Remplace les éléments identifiés comme fond par la couleur choisie.
 		if clip: img = img.clip(0, MAX_UI_16)  # .		Limite les valeurs entre 0 et la valeur maximale possible pour un uint16.
 		else: img = np.remainder(img, MAX_UI_16 + 1)  # Rend cyclique les valeurs entre 0 et la valeur maximale pour un uint16.
-		return img.astype(np.uint16)  # .				Forcer le type de l'image en np.uint16.
+		return img.astype(np.uint16)  # .				Conversion de l'image en np.uint16.
 
 	##################################################
 	@staticmethod
 	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
-		Construit un tableau NumPy contenant les coordonnées des localisations et une valeur scalaire associée à utiliser comme intensité/couleur.
+		Ajoute au DataFrame des localisations une composante ``Color`` utilisée comme intensité ou couleur.
 
-		Le tableau retourné est de forme ``(N, 3)`` et contient, dans l'ordre : ``X``, ``Y`` et ``Color``.
-
-		- Les colonnes ``X`` et ``Y`` sont toujours extraites du DataFrame.
-		- La colonne ``Color`` provient de ``col`` si elle existe.
+		- La colonne ``Color`` provient de ``col`` lorsque cette colonne existe.
 		- Si ``col`` est absente, la colonne ``Color`` est remplie avec la valeur 1.
 		- Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul.
 		  :math:`C_{Shifted} = C - C_{min}`
 		- Si ``max_value > 0``, les valeurs de ``Color`` sont normalisées linéairement dans l'intervalle ``[0, max_value]``.
 		  :math:`C_{Norm} = C_{Shifted} \\times \\frac{C}{C_{max}}`
 
-		La fonction ne modifie pas le DataFrame d'origine.
+		La fonction modifie le DataFrame reçu et le retourne.
 
-		:param loc: DataFrame à modifier.
+		:param loc: DataFrame des localisations à compléter.
 		:param col: Nom de la colonne à utiliser pour calculer la composante ``Color``.
 		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
-		:return: DataFrame avec la colonne Color ajouté.
-		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
+		:return: DataFrame avec la colonne ``Color`` ajoutée.
 
 		.. note:: La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
@@ -385,13 +378,13 @@ class Renderer:
 	@staticmethod
 	def add_colors_to_tracks(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
-		Construit un tableau NumPy contenant les numéros de trajectoire, les plans, les coordonnées des trajectoires
+		Construit un DataFrame contenant les numéros de trajectoire, les plans, les coordonnées des trajectoires
 		ainsi qu'une valeur scalaire associée à utiliser comme intensité/couleur.
 
-		Le tableau retourné est de forme ``(N, 5)`` et contient, dans l'ordre : ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
+		Le DataFrame retourné contient, dans l'ordre, les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
 
 		- Les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity`` sont toujours extraites du DataFrame.
-		- La colonne ``Color`` est défini selon la source, si la source n'est pas prévu, la colonne ``Color`` est remplie avec la valeur 1.
+		- La colonne ``Color`` est définie selon ``source`` ; si la source n'est pas prise en charge, elle est remplie avec la valeur 1.
 		- Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul.
 		  :math:`C_{Shifted} = C - C_{min}`
 		- Si ``max_value > 0``, les valeurs de ``Color`` sont normalisées linéairement dans l'intervalle ``[0, max_value]``.
@@ -400,8 +393,8 @@ class Renderer:
 		:param trc: DataFrame contenant au minimum les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Integrated Intensity``.
 		:param source: Type de données à utiliser pour calculer la composante ``Color``.
 		:param max_value: Valeur maximale cible pour la normalisation. Si ``max_value ≤ 0``, aucune normalisation n'est appliquée.
-		:return: tableau NumPy de forme ``(N, 5)`` de type ``float64`` contenant ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
-		:raises KeyError: Si les colonnes ``X`` ou ``Y`` sont absentes.
+		:return: DataFrame contenant les colonnes ``Track``, ``Plane``, ``X``, ``Y`` et ``Color``.
+		:raises KeyError: Si l'une des colonnes requises est absente.
 
 		.. note:: La normalisation n'est appliquée que si le maximum de la colonne ``Color`` après décalage est strictement positif.
 			Cela évite une division par zéro lorsque toutes les valeurs sont nulles.
@@ -538,7 +531,7 @@ class Renderer:
 		La ligne est rastérisée uniquement avec des opérations entières et prend en charge toutes les orientations.
 		Pour chaque pixel visité dans les limites de l'image, l'intensité est combinée à la valeur existante selon ``color_mode``.
 
-		L'image et le masque sont modifiés sur place. Le masque est positionné à :data:`True` pour chaque pixel valide traversé par la ligne.
+		L'image et le masque sont modifiés sur place. Le masque est positionné à ``True`` pour chaque pixel valide traversé par la ligne.
 
 		:param img: Image 2D modifiée sur place.
 		:param bg_mask: Masque booléen de même forme que ``img``, modifié sur place. Une valeur vraie indique qu'au moins une ligne traverse le pixel.
@@ -556,7 +549,7 @@ class Renderer:
 		while True:
 			if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .	   Vérification des limites de l'image
 				bg_mask[y0, x0] = True
-				if color_mode == 0: img[y0, x0] += color  # Addition des couleurs de couleur si elle est plus élevée que la couleur courante.
+				if color_mode == 0: img[y0, x0] += color  # Addition de l'intensité à la valeur courante.
 				elif color_mode == 1:
 					if color > img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus élevée que la couleur courante.
 				else:
@@ -594,7 +587,7 @@ class Renderer:
 		:return: Référence vers l'image ``img`` modifiée.
 		"""
 		h, w = img.shape
-		# On force tout en tableau 1D pour que .shape[0] fonctionne toujours
+		# Normalisation des entrées scalaires et vectorielles sous forme de tableaux 1D.
 		x, y, colors = np.atleast_1d(x), np.atleast_1d(y), np.atleast_1d(colors)
 		sx, sy, theta = np.atleast_1d(sx), np.atleast_1d(sy), np.atleast_1d(theta)
 
@@ -659,7 +652,7 @@ class Renderer:
 		:return: Référence vers le volume ``img`` modifié.
 		"""
 		depth, h, w = img.shape
-		# On force tout en tableau 1D pour que .shape[0] fonctionne toujours
+		# Normalisation des entrées scalaires et vectorielles sous forme de tableaux 1D.
 		x, y, z, colors, s = np.atleast_1d(x), np.atleast_1d(y), np.atleast_1d(z), np.atleast_1d(colors), np.atleast_1d(s)
 
 		for idx in range(x.shape[0]):
