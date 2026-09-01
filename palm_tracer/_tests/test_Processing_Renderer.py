@@ -76,7 +76,7 @@ def test_get_tracks_colors():
 	# DataFrame vide
 	"""Vérifie la génération des couleurs des trajectoires."""
 	trc = pd.DataFrame(columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
-	res = Renderer.add_colors_to_tracks(trc, "Track Number")
+	res = Renderer.add_colors_to_tracks(trc, "Track ID")
 	assert res.shape == (0, 5)
 
 	# No Column selected (and sorting)
@@ -87,38 +87,43 @@ def test_get_tracks_colors():
 
 	# Numéro de trajectoire
 	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [7, 3, 5]})
-	res = Renderer.add_colors_to_tracks(trc, "Track Number")
+	res = Renderer.add_colors_to_tracks(trc, "Track ID")
 	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 2]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
-	# Plane
-	res = Renderer.add_colors_to_tracks(trc, "Plane")
+	# Numéro de plan
+	res = Renderer.add_colors_to_tracks(trc, "Plane Number")
 	ref = np.array([[1, 5, 0, 0, 5], [1, 6, 0, 1, 6], [2, 3, 2, 2, 3]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
-	# Intensity
-	res = Renderer.add_colors_to_tracks(trc, "Intensity")
+	# Intensité de la trajectoire
+	res = Renderer.add_colors_to_tracks(trc, "Track Intensity")
 	ref = np.array([[1, 5, 0, 0, 10], [1, 6, 0, 1, 10], [2, 3, 2, 2, 5]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
-	# Length
-	res = Renderer.add_colors_to_tracks(trc, "Length")
+	# Longueur de la trajectoire
+	res = Renderer.add_colors_to_tracks(trc, "Track Length")
 	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 0]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
-	# Duration
-	res = Renderer.add_colors_to_tracks(trc, "Duration")
+	# Numéro de plan relatif
+	res = Renderer.add_colors_to_tracks(trc, "Relative Plane")
+	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 2], [2, 3, 2, 2, 1]], dtype=np.float64)
+	np.testing.assert_array_equal(res, ref)
+
+	# Durée totale de la trajectoire
+	res = Renderer.add_colors_to_tracks(trc, "Track Duration")
 	ref = np.array([[1, 5, 0, 0, 2], [1, 6, 0, 1, 2], [2, 3, 2, 2, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Normalization
-	res = Renderer.add_colors_to_tracks(trc, "Intensity", max_value=100)
+	res = Renderer.add_colors_to_tracks(trc, "Track Intensity", max_value=100)
 	ref = np.array([[1, 5, 0, 0, 100], [1, 6, 0, 1, 100], [2, 3, 2, 2, 50]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 
 	# Negative and 0
 	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [-1, 0, -1]})
-	res = Renderer.add_colors_to_tracks(trc, "Intensity")
+	res = Renderer.add_colors_to_tracks(trc, "Track Intensity")
 	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 1]], dtype=np.float64)
 	np.testing.assert_array_equal(res, ref)
 

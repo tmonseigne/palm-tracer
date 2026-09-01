@@ -407,15 +407,15 @@ class Renderer:
 
 		# --- Définition de la couleur selon la source ---
 		# Numéro de la trajectoire.
-		if source == "Track Number": data["Color"] = data["Track"].to_numpy(dtype=np.float64)
+		if source == "Track ID": data["Color"] = data["Track"].to_numpy(dtype=np.float64)
 		# Plan de chaque point.
-		elif source == "Plane": data["Color"] = data["Plane"].to_numpy(dtype=np.float64)
+		elif source == "Plane Number": data["Color"] = data["Plane"].to_numpy(dtype=np.float64)
 
 		# Somme des intensités intégrées par trajectoire, recopiée sur tous les points de la trajectoire.
-		elif source == "Intensity": data["Color"] = data.groupby("Track")["Integrated Intensity"].transform("sum").to_numpy(dtype=np.float64)
+		elif source == "Track Intensity": data["Color"] = data.groupby("Track")["Integrated Intensity"].transform("sum").to_numpy(dtype=np.float64)
 
 		# Longueur totale de la trajectoire
-		elif source == "Length":
+		elif source == "Track Length":
 			# Somme des distances euclidiennes entre points successifs d'une même trajectoire.
 			dx = data.groupby("Track")["X"].diff().to_numpy(dtype=np.float64)
 			dy = data.groupby("Track")["Y"].diff().to_numpy(dtype=np.float64)
@@ -426,11 +426,16 @@ class Renderer:
 			data["Color"] = data.groupby("Track")["SegmentLength"].transform("sum").to_numpy(dtype=np.float64)
 			data.drop(columns="SegmentLength", inplace=True)
 
-		# Durée en nombre de plans couverts par la trajectoire.
-		elif source == "Duration":
+		# Numéro du plan relatif au début de chaque trajectoire, en commençant à 1.
+		elif source == "Relative Plane":
+			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
+			data["Color"] = data["Plane"].to_numpy(dtype=np.float64) - first_plane + 1
+
+		# Durée totale de la trajectoire en nombre de plans couverts.
+		elif source == "Track Duration":
 			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
 			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=np.float64)
-			data["Color"] = last_plane - first_plane + 1  # +1 pour inclure les deux bornes
+			data["Color"] = last_plane - first_plane + 1  # +1 pour inclure les deux bornes.
 		# Autre source.
 		else:
 			data["Color"] = np.ones(len(trc), dtype=np.float64)

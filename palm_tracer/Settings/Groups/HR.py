@@ -14,7 +14,7 @@ from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinFloat, 
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Count", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
 						 "Surface", "MSE XY", "MSE Z"],
-		"Tracking":     ["Track Number", "Plane", "Intensity", "Duration", "Length"]
+		"Tracking":     ["Track ID", "Plane Number", "Track Intensity", "Relative Plane", "Track Duration", "Track Length"]
 		}
 
 
