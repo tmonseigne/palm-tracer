@@ -77,7 +77,7 @@ class Renderer:
 		if loc.ndim != 2 or loc.shape[1] < 3 or (gaussian is not None and loc.shape[1] < 6): return self.blank_rendering(bg_color, False)
 
 		# Préparation des données
-		loc_v = self.prepare_data(loc, False, gaussian is not None)
+		loc_v = self.prepare_localizations(loc, False, gaussian)
 		if loc_v.shape[0] == 0: return self.blank_rendering(bg_color, False)
 
 		# Initialisation
@@ -93,8 +93,7 @@ class Renderer:
 			elif color_mode == 1: np.maximum.at(res, (y, x), c)  # Conservation de la valeur maximale en cas de superposition.
 			else: np.minimum.at(res, (y, x), c)  # .			   Conservation de la valeur minimale en cas de superposition.
 		else:  # .												   Calcul de l'image en mode Gaussien
-			x, y = loc_v[:, 0], loc_v[:, 1]
-			c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 2:6], gaussian)
+			x, y, c, sx, sy, theta = loc_v[:, 0:6].T
 			self.draw_gaussian_2d(res, bg_mask, x, y, c, sx, sy, theta, color_mode)
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
@@ -122,11 +121,8 @@ class Renderer:
 		if trc.ndim != 2 or trc.shape[1] != 4: return self.blank_rendering(bg_color, False)
 
 		# Calcul des nouvelles coordonnées entières (vectorisé) et filtrage des points hors des dimensions initiales et retour si aucun n'est disponible
-		coords = np.round(trc[:, 1:3] * self._r).astype(int)
-		trc, x, y, colors = trc[:, 0].astype(int), coords[:, 0], coords[:, 1], trc[:, 3]
-		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)
-		if not np.any(valid): return self.blank_rendering(bg_color, False)
-		trc, x, y, colors = trc[valid], x[valid], y[valid], colors[valid]
+		track_ids, x, y, colors = self.prepare_tracks(trc)
+		if track_ids.size == 0: return self.blank_rendering(bg_color, False)
 
 		# Initialisation
 		res, bg_mask = self.init_rendering(color_mode, self._h, self._w)
@@ -135,7 +131,7 @@ class Renderer:
 		# tracks[1:] != tracks[:-1] Compare chaque élément au précédent
 		# np.flatnonzero pour avoir les indices des True donc indique le dernier élément de chaque trajectoire
 		# np.r_ concatène des séquences. On ajoute 0 et tracks.size.
-		split_idx = np.r_[0, 1 + np.flatnonzero(trc[1:] != trc[:-1]), trc.size]
+		split_idx = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size]
 
 		# Pour chaque trajectoire, couleur unique
 		for g in range(len(split_idx) - 1):
@@ -173,7 +169,7 @@ class Renderer:
 		if loc.ndim != 2 or loc.shape[1] < 4 or z_step <= 0 or (gaussian is not None and loc.shape[1] < 7): return self.blank_rendering(bg_color, True)
 
 		# Préparation des données
-		loc_v = self.prepare_data(loc, True, gaussian is not None)
+		loc_v = self.prepare_localizations(loc, True, gaussian)
 		if loc_v.shape[0] == 0: return self.blank_rendering(bg_color, True)
 
 		# Calcul des plans Z
@@ -196,10 +192,9 @@ class Renderer:
 			elif color_mode == 1: np.maximum.at(res, (z_id, y, x), c)  # Conservation de la valeur maximale en cas de superposition.
 			else: np.minimum.at(res, (z_id, y, x), c)  # .				Conservation de la valeur minimale en cas de superposition.
 		else:  # .												   Calcul de l'image en mode Gaussien
-			x, y = loc_v[:, 0], loc_v[:, 1]
-			c, sx, _, _ = self.prepare_gaussian_data(loc_v[:, 3:7], gaussian)
+			x, y, _, c, s = loc_v[:, 0:5].T
 			c *= self._r  # EN 3D, on ajoute encore un scale à la couleur
-			self.draw_gaussian_3d(res, bg_mask, x, y, z_id, c, sx, color_mode)
+			self.draw_gaussian_3d(res, bg_mask, x, y, z_id, c, s, color_mode)
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
@@ -215,7 +210,8 @@ class Renderer:
 		Lorsque ``gaussian`` est renseigné, les localisations projetées sont représentées par des gaussiennes 2D.
 		Les pixels auxquels aucune localisation ne contribue reçoivent ``bg_color``.
 
-		:param loc: Tableau 2D contenant au minimum les colonnes X, Y, Z et intensité. Le rendu gaussien requiert également les colonnes Sigma X, Sigma Y et Theta.
+		:param loc: Tableau 2D contenant au minimum les colonnes X, Y, Z et intensité. Le rendu gaussien requiert également les colonnes Sigma X,
+		Sigma Y et Theta.
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param z_step: Distance strictement positive entre deux plans, exprimée dans la même unité que la colonne Z.
 		:param frames: Nombre strictement positif de projections générées sur une rotation complète.
@@ -229,7 +225,7 @@ class Renderer:
 		if loc.ndim != 2 or loc.shape[1] < 4 or frames < 1 or z_step <= 0 or (gaussian is not None and loc.shape[1] < 7):
 			return self.blank_rendering(bg_color, True)
 
-		loc_v = self.prepare_data(loc, True, gaussian is not None)
+		loc_v = self.prepare_localizations(loc, True, gaussian)
 		if loc_v.shape[0] == 0: return self.blank_rendering(bg_color, True)
 
 		# Préparation des données
@@ -237,7 +233,8 @@ class Renderer:
 		z_id = (z - np.nanmin(z)) / z_step  # .																Conversion du Z en indice de plan
 		cx, cy, cz = (self._w - 1) / 2.0, (self._h - 1) / 2.0, (np.nanmax(z_id) - np.nanmin(z_id)) / 2.0  # Centre de la géométrie source
 		x0, y0, z0 = x - cx, y - cy, z_id - cz  # .															Coordonnées relatives au centre
-		if gaussian is not None: c, sx, sy, theta = self.prepare_gaussian_data(loc_v[:, 3:7], gaussian)  # .Préparation des données Gaussiennes une suele fois.
+		if gaussian is not None: sx, sy, theta = loc_v[:, 4:7].T  # .										Récupération des données Gaussiennes une seule
+		# fois.
 
 		# Taille de projection volontairement carrée pour éviter le clipping pendant la rotation.
 		diameter = int(np.ceil(2.0 * np.sqrt(cx * cx + cy * cy + cz * cz))) + 3
@@ -455,67 +452,82 @@ class Renderer:
 		return data[["Track", "Plane", "X", "Y", "Color"]]
 
 	##################################################
-	def prepare_data(self, data: np.ndarray, is_3d: bool = False, is_gaussian: bool = False) -> np.ndarray:
+	def prepare_localizations(self, data: np.ndarray, is_3d: bool = False, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
-		Prépare les données utilisées par les différents modes de rendu.
+		Prépare les localisations utilisées par les différents modes de rendu.
 
 		Les coordonnées X et Y sont multipliées par le facteur d'agrandissement.
 		Pour un rendu gaussien, les sigmas sont également mis à l'échelle et Theta est converti des degrés vers les radians.
 
-		Les localisations dont les coordonnées X ou Y se trouvent hors des dimensions du rendu sont supprimées.
+		Les paramètres géométriques et l'intensité des gaussiennes sont ensuite adaptés aux réglages utilisateur.
+		Les localisations situées hors des dimensions du rendu sont supprimées.
 
-		:param data: Tableau 2D contenant les données à préparer.
+		:param data: Tableau 2D contenant les localisations à préparer.
 		:param is_3d: Indique que les données possèdent une composante Z.
-		:param is_gaussian: Indique que les données contiennent les paramètres d'un rendu gaussien.
-		:return: Copie transformée et filtrée des données.
+		:param gaussian: Paramètres optionnels du rendu gaussien.
+		:return: Copie préparée et filtrée des localisations.
 		"""
-
 		res = data.copy()
-		scale_col = [0, 1]
 		shift = 1 if is_3d else 0
-		if is_gaussian and data.shape[1] > 5 + shift:
-			gaussian_col = [3 + shift, 4 + shift, 5 + shift]
-			scale_col += gaussian_col[:2]
-			res[:, gaussian_col[-1]] = Parsing.degrees_to_radians(res[:, gaussian_col[-1]])
+		scale_columns = [0, 1]
+		color_col, sigma_x_col, sigma_y_col, theta_col = 2 + shift, 3 + shift, 4 + shift, 5 + shift
 
-		res[:, scale_col] *= self._r
+		if gaussian is not None:
+			scale_columns.extend((sigma_x_col, sigma_y_col))
+			res[:, theta_col] = Parsing.degrees_to_radians(res[:, theta_col])
 
-		# Filtrage des points hors des dimensions
+		res[:, scale_columns] *= self._r
+
+		# Suppression des localisations situées hors des dimensions du rendu.
 		valid = (res[:, 0] >= 0) & (res[:, 0] < self._w) & (res[:, 1] >= 0) & (res[:, 1] < self._h)
 		res = res[valid, :]
+
+		if gaussian is None or res.shape[0] == 0: return res
+
+		# Référence (vue NumPy) vers les colonnes
+		colors = res[:, color_col]
+		sigma_x = res[:, sigma_x_col]
+		sigma_y = res[:, sigma_y_col]
+		theta = res[:, theta_col]
+
+		if gaussian["Shape"] == 0:  # Taille fixe isotrope.
+			sigma = gaussian["Size"] * self._r
+			sigma_x.fill(sigma)  # Fill remplis la vue avec une valeur unique et conserve le système de référence.
+			sigma_y.fill(sigma)
+			theta.fill(0.0)
+		elif gaussian["Shape"] == 1:  # Taille isotrope calculée à partir de la moyenne des deux axes.
+			sigma = (sigma_x + sigma_y) / 2.0
+			sigma_x[:] = sigma  # Utiliser [:] pour conserver le système de référence et ne pas faire une copie qui ne modifie pas res.
+			sigma_y[:] = sigma
+			theta.fill(0.0)
+
+		# L'intensité intégrée est mise à l'échelle selon la surface en 2D.
+		r2 = float(self._r * self._r)
+		if gaussian["Fixed Intensity"]: colors.fill(gaussian["Intensity"] * r2)
+		else: colors *= r2 / gaussian["Intensity"]
+
 		return res
 
 	##################################################
-	def prepare_gaussian_data(self, loc: np.ndarray, gaussian: dict[str, Any]) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+	def prepare_tracks(self, data: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 		"""
-		Prépare l'intensité et les paramètres géométriques des gaussiennes.
+		Prépare les données utilisées pour le rendu des trajectoires.
 
-		Selon les paramètres utilisateur, les gaussiennes utilisent une taille fixe isotrope,
-		une taille isotrope calculée à partir de la moyenne des deux sigmas ou leur forme anisotrope d'origine.
+		Les coordonnées X et Y sont multipliées par le facteur d'agrandissement, arrondies au pixel le plus proche puis converties en indices entiers.
 
-		L'intensité est ajustée en fonction du facteur d'agrandissement et des paramètres du rendu.
+		Les points situés hors des dimensions du rendu sont supprimés.
 
-		:param loc: Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'intensité, Sigma X, Sigma Y et Theta en radians.
-		:param gaussian: Paramètres du rendu gaussien.
-		:return: Quatre tableaux 1D contenant respectivement l'intensité, Sigma X, Sigma Y et Theta.
+		:param data: Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'identifiant de la trajectoire, la coordonnée X, la coordonnée Y et l'intensité.
+		:return: Quatre tableaux contenant respectivement les identifiants des trajectoires, les coordonnées X, les coordonnées Y et les intensités.
 		"""
-		c, sx, sy, theta = loc[:, 0], loc[:, 1], loc[:, 2], loc[:, 3]
-		if gaussian["Shape"] == 0:  # .	Taille fixe isotrope
-			theta.fill(0)
-			s = gaussian["Size"] * self._r
-			sx.fill(s)
-			sy.fill(s)
-		elif gaussian["Shape"] == 1:  # Isotrope (theta = 0, sigma = moyenne des deux axes)
-			theta.fill(0)
-			s = ((sx + sy) / 2)
-			sx = sy = s
-		# else: .						Anisotrope aucun changement.
+		track_ids = data[:, 0].astype(np.int64)
+		coords = np.round(data[:, 1:3] * self._r).astype(np.intp)
+		x, y = coords[:, 0], coords[:, 1]
+		colors = data[:, 3]
 
-		# Modification des couleurs
-		r2: float = self._r * self._r  # Intensité intégrée : facteur d'agrandissement au carré en 2D, au cube en 3D.
-		if gaussian["Fixed Intensity"]: c.fill(gaussian["Intensity"] * r2)
-		else: c *= r2 / gaussian["Intensity"]
-		return c, sx, sy, theta
+		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)
+
+		return track_ids[valid], x[valid], y[valid], colors[valid]
 
 	##################################################
 	@staticmethod

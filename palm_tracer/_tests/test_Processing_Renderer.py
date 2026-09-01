@@ -144,47 +144,75 @@ def test_init_rendering():
 
 
 ##################################################
-def test_prepare_data():
-	"""Vérifie la préparation des données de rendu."""
+def test_prepare_localizations():
+	"""Vérifie la préparation des localisations de rendu."""
 	r = Renderer()
 	r.set_size(5, 10, 2)
+
 	loc = np.array([[0, 1, 2, 3, 4, 5, 6],
 					[1, 2, 3, 4, 5, 6, 7],
 					[10, 10, 4, 5, 6, 7, 8],
 					[3, 4, 5, 6, 7, 8, 9],
 					[4, 5, 6, 7, 8, 9, 10]], dtype=np.float64)
 
-	# 2D non gaussien
-	res = r.prepare_data(loc, False, False)
+	# L'intensité reste inchangée avec r² / Intensity = 4 / 4 = 1.
+	gaussian = {"Shape": 2, "Fixed Intensity": False, "Intensity": 4, }
+
+	# Localisations 2D non gaussiennes.
+	res = r.prepare_localizations(loc, False)
 	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
 					[2, 4, 3, 4, 5, 6, 7],
 					[6, 8, 5, 6, 7, 8, 9],
 					[8, 10, 6, 7, 8, 9, 10]], dtype=np.float64)
 	np.testing.assert_array_almost_equal(res, ref)
 
-	# 2D Gaussien
-	res = r.prepare_data(loc, False, True)
+	# Localisations 2D gaussiennes.
+	res = r.prepare_localizations(loc, False, gaussian)
 	ref = np.array([[0, 2, 2, 6, 8, 0.08726646, 6],
 					[2, 4, 3, 8, 10, 0.10471976, 7],
 					[6, 8, 5, 12, 14, 0.13962634, 9],
 					[8, 10, 6, 14, 16, 0.15707963, 10]], dtype=np.float64)
 	np.testing.assert_array_almost_equal(res, ref)
 
-	# 3D Non Gaussien
-	res = r.prepare_data(loc, True)
+	# Localisations 3D non gaussiennes.
+	res = r.prepare_localizations(loc, True)
 	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
 					[2, 4, 3, 4, 5, 6, 7],
 					[6, 8, 5, 6, 7, 8, 9],
 					[8, 10, 6, 7, 8, 9, 10]], dtype=np.float64)
 	np.testing.assert_array_almost_equal(res, ref)
 
-	# 3D Gaussien
-	res = r.prepare_data(loc, True, True)
+	# Localisations 3D gaussiennes.
+	res = r.prepare_localizations(loc, True, gaussian)
 	ref = np.array([[0, 2, 2, 3, 8, 10, 0.10471976],
 					[2, 4, 3, 4, 10, 12, 0.12217305],
 					[6, 8, 5, 6, 14, 16, 0.15707963],
 					[8, 10, 6, 7, 16, 18, 0.17453293]], dtype=np.float64)
 	np.testing.assert_array_almost_equal(res, ref)
+
+
+##################################################
+def test_prepare_tracks():
+	"""Vérifie la préparation des données de trajectoires."""
+	r = Renderer()
+	r.set_size(5, 10, 2)
+
+	tracks = np.array([[1, 1.2, 2.6, 10.5],
+					   [1, 4.0, 3.0, 20.5],
+					   [2, -1.0, 2.0, 30.5],
+					   [2, 3.0, 11.0, 40.5]], dtype=np.float64)
+
+	track_ids, x, y, colors = r.prepare_tracks(tracks)
+
+	np.testing.assert_array_equal(track_ids, [1, 1])
+	np.testing.assert_array_equal(x, [2, 8])
+	np.testing.assert_array_equal(y, [5, 6])
+	np.testing.assert_array_equal(colors, [10.5, 20.5])
+
+	assert track_ids.dtype == np.int64
+	assert x.dtype == np.intp
+	assert y.dtype == np.intp
+	assert np.issubdtype(colors.dtype, np.floating)
 
 
 ##################################################
