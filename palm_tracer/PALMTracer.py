@@ -587,7 +587,8 @@ class PALMTracer:
 		src_id, dual = s["Type"], s["Dual"]
 		src_a = cast(Combo, self.settings.graph["Source"]).current_text
 		limit, sigma = s["Display Limits"], s["Display Sigma"]
-		kde, gauss, poiss, expo = s["Display KDE"], s["Display Gauss"], s["Display Poiss"], s["Display Exp"]
+		kde, gauss, gauss_mix = s["Display KDE"], s["Display Gauss"], s["Display Gauss Mix"]
+		poiss, expo = s["Display Poiss"], s["Display Exp"]
 		cumul, density, bins = s["Display Cumul"], not s["Display Count"], s["Display Bins"]
 
 		if "Length" in src_a: bins = -1  # Si l'on fait un histogramme de longueur (pour les trajectoires, les bins doivent être des entiers
@@ -606,7 +607,7 @@ class PALMTracer:
 			return self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
 									   poissonian=poiss, exponential=expo)
 		return self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
-									   exponential=expo, density=density, cumulative=cumul, bins=bins)
+									   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix)
 
 	##################################################
 	@staticmethod

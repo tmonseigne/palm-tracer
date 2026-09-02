@@ -310,7 +310,8 @@ def test_graph(qtbot):
 ###################################################
 def test_graph_display(qtbot):
 	"""Vérifie la classe GraphDisplay (constructeur, getter, setter)."""
-	group_base_test(GraphDisplay(), ["Limits", "Sigma", "Gauss", "KDE", "Poiss", "Exp", "Cumul", "Log Scale", "Count", "Bins"], CheckBox, False, True)
+	group_base_test(GraphDisplay(), ["Limits", "Sigma", "Gauss", "Gauss Mix", "KDE", "Poiss", "Exp", "Cumul", "Log Scale", "Count", "Bins"],
+					CheckBox, False, True)
 
 
 ###################################################
