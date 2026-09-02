@@ -12,27 +12,27 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:5
 msgid "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : paramètres ajustés parmi :math:`X`, :math:`Y`, :math:`\\sigma`, :math:`\\sigma_x`, :math:`\\sigma_y` et :math:`\\theta`."
-msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : parameters fitted among :math:`X`, :math:`Y`, :math:`\\sigma`, :math:`\\sigma_x`, :math:`\\sigma_y`, and :math:`\\theta`."
+msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): parameters fitted among :math:`X`, :math:`Y`, :math:`\\sigma`, :math:`\\sigma_x`, :math:`\\sigma_y`, and :math:`\\theta`."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:7
 msgid "``Sigma`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\sigma` ; valeur par défaut : ``1.0`` pixel."
-msgstr "``Sigma`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : initial value of :math:`\\sigma`; default value: ``1.0`` pixel."
+msgstr "``Sigma`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): initial value of :math:`\\sigma`; default value: ``1.0`` pixel."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:8
 msgid "``Theta`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : valeur initiale de :math:`\\theta` ; valeur par défaut : ``0.0`` degré."
-msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : initial value of :math:`\\theta`; default value: ``0.0`` degree."
+msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): initial value of :math:`\\theta`; default value: ``0.0`` degree."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:9
 msgid "``Z`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active l'estimation axiale par astigmatisme."
-msgstr "``Z`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enables axial estimation using astigmatism."
+msgstr "``Z`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): enables axial estimation using astigmatism."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:10
 msgid "``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : valeur absolue maximale utilisée pour initialiser l'estimation axiale ; valeur par défaut : ``500`` nm."
-msgstr "``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : maximum absolute value used to initialize axial estimation; default value: ``500`` nm."
+msgstr "``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): maximum absolute value used to initialize axial estimation; default value: ``500`` nm."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:12
 msgid "``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser."
-msgstr "``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : specific astigmatism model to use."
+msgstr "``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`): specific astigmatism model to use."
 
 #: ../../api/palm_tracer.Settings.Groups.GaussianFit.rst of
 #: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_fit_mode

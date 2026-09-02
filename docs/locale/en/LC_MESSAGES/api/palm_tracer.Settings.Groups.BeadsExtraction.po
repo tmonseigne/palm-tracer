@@ -12,11 +12,11 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction:5
 msgid "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale entre deux plans pour associer une bille ; valeur par défaut : ``1.0`` pixel."
-msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : maximum distance between two planes for associating a bead; default value: ``1.0`` pixel."
+msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): maximum distance between two planes for associating a bead; default value: ``1.0`` pixel."
 
 #: of palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction:7
 msgid "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z ; valeur par défaut : ``False``."
-msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : includes the Z coordinate; default value: ``False``."
+msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): includes the Z coordinate; default value: ``False``."
 
 #: ../../api/palm_tracer.Settings.Groups.BeadsExtraction.rst
 msgid "Paramètres"

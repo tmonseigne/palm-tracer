@@ -12,23 +12,23 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:5
 msgid "``Point Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : taille des points."
-msgstr "``Point Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : point size."
+msgstr "``Point Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): point size."
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:6
 msgid "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille physique d'un pixel ; valeur par défaut : ``160`` nm."
-msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : physical pixel size; default value: ``160`` nm."
+msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): physical pixel size; default value: ``160`` nm."
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:7
 msgid "``XY Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur d'échelle des axes X et Y."
-msgstr "``XY Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : scale factor along the X and Y axes."
+msgstr "``XY Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): scale factor along the X and Y axes."
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:8
 msgid "``Z Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur d'échelle de l'axe Z."
-msgstr "``Z Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : scale factor along the Z axis."
+msgstr "``Z Scale`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): scale factor along the Z axis."
 
 #: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D:9
 msgid "``Remove Outliers`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exclut les localisations dont l'intensité est nulle."
-msgstr "``Remove Outliers`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : excludes localizations with zero intensity."
+msgstr "``Remove Outliers`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): excludes localizations with zero intensity."
 
 #: ../../api/palm_tracer.Settings.Groups.Visualization3D.rst
 msgid "Paramètres"

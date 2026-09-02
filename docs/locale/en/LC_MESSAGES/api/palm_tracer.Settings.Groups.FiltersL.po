@@ -12,27 +12,27 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:5
 msgid "``Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle axial ; valeur par défaut : ``[-2000, 2000]`` nm."
-msgstr "``Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : axial range; default value: ``[-2000, 2000]`` nm."
+msgstr "``Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`): axial range; default value: ``[-2000, 2000]`` nm."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:6
 msgid "``Intensity`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle d'intensité intégrée ; valeur par défaut : ``[0, 10000000]``."
-msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : integrated-intensity range; default value: ``[0, 10000000]``."
+msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`): integrated-intensity range; default value: ``[0, 10000000]``."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:8
 msgid "``Sigma X`` et ``Sigma Y`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des écarts-types selon X et Y ; valeur par défaut : ``[0.0, 10.0]`` pixel."
-msgstr "``Sigma X`` and ``Sigma Y`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : standard-deviation ranges along X and Y; default value: ``[0.0, 10.0]`` pixel."
+msgstr "``Sigma X`` and ``Sigma Y`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): standard-deviation ranges along X and Y; default value: ``[0.0, 10.0]`` pixel."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:10
 msgid "``Circularity`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de circularité ; valeur par défaut : ``[0.0, 1.0]``."
-msgstr "``Circularity`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : circularity range; default value: ``[0.0, 1.0]``."
+msgstr "``Circularity`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): circularity range; default value: ``[0.0, 1.0]``."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:12
 msgid "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle angulaire ; valeur par défaut : ``[-90.0, 90.0]`` degrés."
-msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : angular range; default value: ``[-90.0, 90.0]`` degrees."
+msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): angular range; default value: ``[-90.0, 90.0]`` degrees."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:14
 msgid "``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des erreurs quadratiques moyennes ; valeur par défaut : ``[0.0, 1.0]``."
-msgstr "``MSE XY`` and ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : mean-squared-error ranges; default value: ``[0.0, 1.0]``."
+msgstr "``MSE XY`` and ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): mean-squared-error ranges; default value: ``[0.0, 1.0]``."
 
 #: ../../api/palm_tracer.Settings.Groups.FiltersL.rst
 msgid "Paramètres"

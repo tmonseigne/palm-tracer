@@ -12,19 +12,19 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:5
 msgid "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : intensité intégrée fixe ou diviseur appliqué à la source sélectionnée."
-msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : fixed integrated intensity or divisor applied to the selected source."
+msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): fixed integrated intensity or divisor applied to the selected source."
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:6
 msgid "``Fixed Intensity`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : impose la même intensité à chaque localisation."
-msgstr "``Fixed Intensity`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : assigns the same intensity to every localization."
+msgstr "``Fixed Intensity`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): assigns the same intensity to every localization."
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:7
 msgid "``Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : choisit une distribution isotrope, anisotrope ou de taille fixe."
-msgstr "``Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : selects an isotropic, anisotropic, or fixed-size distribution."
+msgstr "``Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): selects an isotropic, anisotropic, or fixed-size distribution."
 
 #: of palm_tracer.Settings.Groups.HRGaussian.HRGaussian:8
 msgid "``Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : écart-type utilisé lorsque la taille est fixe."
-msgstr "``Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : standard deviation used when the size is fixed."
+msgstr "``Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): standard deviation used when the size is fixed."
 
 #: ../../api/palm_tracer.Settings.Groups.HRGaussian.rst
 msgid "Paramètres"

@@ -12,23 +12,23 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:5
 msgid "``Save`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enregistre séparément les résultats filtrés ; valeur par défaut : ``False``."
-msgstr "``Save`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : saves filtered results separately; default value: ``False``."
+msgstr "``Save`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): saves filtered results separately; default value: ``False``."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:7
 msgid "``Plane`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle des plans conservés ; valeur par défaut : ``[1, 100000]``."
-msgstr "``Plane`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : range of retained planes; default value: ``[1, 100000]``."
+msgstr "``Plane`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`): range of retained planes; default value: ``[1, 100000]``."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:9
 msgid "``ROI`` (:class:`~palm_tracer.Settings.Types.CheckInt.CheckInt`) : indice de la zone d'intérêt utilisée pour le filtrage spatial."
-msgstr "``ROI`` (:class:`~palm_tracer.Settings.Types.CheckInt.CheckInt`) : index of the region of interest used for spatial filtering."
+msgstr "``ROI`` (:class:`~palm_tracer.Settings.Types.CheckInt.CheckInt`): index of the region of interest used for spatial filtering."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:10
 msgid "``Localization`` (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`) : filtres propres aux localisations."
-msgstr "``Localization`` (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`) : localization-specific filters."
+msgstr "``Localization`` (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`): localization-specific filters."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:11
 msgid "``Tracks`` (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`) : filtres propres aux trajectoires."
-msgstr "``Tracks`` (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`) : track-specific filters."
+msgstr "``Tracks`` (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`): track-specific filters."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters:13
 msgid "À faire"

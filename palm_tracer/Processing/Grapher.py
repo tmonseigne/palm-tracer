@@ -59,16 +59,16 @@ class Grapher:
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
-		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
-		:param kde: Si True, superpose la KDE gaussienne.
-		:param gaussian: Si True, superpose la gaussienne.
-		:param poissonian: Si True, superpose la poissonnienne.
-		:param exponential: Si True, superpose l'exponentielle inverse.
-		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
-		:param bins: Nombre de bins explicite (Sturges si 0 et avec des valeurs entières si négatif).
-		:param cumulative: Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
-		:param gaussian_mixture: Si True, superpose un mélange ajusté de deux gaussiennes.
+		:param limit: Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
+		:param kde: Si ``True``, superpose la KDE gaussienne.
+		:param gaussian: Si ``True``, superpose la gaussienne.
+		:param poissonian: Si ``True``, superpose la poissonnienne.
+		:param exponential: Si ``True``, superpose l'exponentielle inverse.
+		:param density: Affiche l'histogramme en densité (``True``) ou en compte (``False``).
+		:param bins: Nombre de bins explicite (Sturges si ``0`` et avec des valeurs entières si négatif).
+		:param cumulative: Si ``True``, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
+		:param gaussian_mixture: Si ``True``, superpose un mélange ajusté de deux gaussiennes.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
@@ -163,8 +163,8 @@ class Grapher:
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
-		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
+		:param limit: Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
@@ -211,12 +211,12 @@ class Grapher:
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
-		:param limit: Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
-		:param show_sigma: Si True, superpose la moyenne, ±1,±2,±3 sigmas.
-		:param kde: Si True, superpose la KDE gaussienne 2D.
-		:param gaussian: Si True, superpose la gaussienne 2D.
-		:param poissonian: Si True, superpose la poissonnienne 2D.
-		:param exponential: Si True, superpose l'exponentielle inverse 2D.
+		:param limit: Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
+		:param kde: Si ``True``, superpose la KDE gaussienne 2D.
+		:param gaussian: Si ``True``, superpose la gaussienne 2D.
+		:param poissonian: Si ``True``, superpose la poissonnienne 2D.
+		:param exponential: Si ``True``, superpose l'exponentielle inverse 2D.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
 		"""
@@ -417,9 +417,9 @@ class Grapher:
 		:param y_pdf: Densité (PDF) ou masse de probabilité (PMF) à convertir.
 		:param n: Nombre de données.
 		:param bin_width: Largeur d'une bin de l'histogramme.
-		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
-		:param cumulative: Si True, calcule la version cumulée de la courbe.
-		:param discrete: Si True, considère ``y_pdf`` comme une PMF discrète.
+		:param density: Affiche l'histogramme en densité (``True``) ou en compte (``False``).
+		:param cumulative: Si ``True``, calcule la version cumulée de la courbe.
+		:param discrete: Si ``True``, considère ``y_pdf`` comme une PMF discrète.
 		:return: Courbe prête à être affichée.
 		"""
 		if cumulative:

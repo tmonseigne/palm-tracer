@@ -12,15 +12,15 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:5
 msgid "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : taille d'un pixel ; valeur par défaut : ``0.160`` µm."
-msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : pixel size; default value: ``0.160`` µm."
+msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): pixel size; default value: ``0.160`` µm."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:6
 msgid "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : temps d'exposition par image ; valeur par défaut : ``0.050`` s."
-msgstr "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : exposure time per frame; default value: ``0.050`` s."
+msgstr "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): exposure time per frame; default value: ``0.050`` s."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:7
 msgid "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur de conversion photométrique ; valeur par défaut : ``0.0120`` photon/ADU."
-msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : photometric conversion factor; default value: ``0.0120`` photon/ADU."
+msgstr "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): photometric conversion factor; default value: ``0.0120`` photon/ADU."
 
 #: ../../api/palm_tracer.Settings.Groups.Calibration.rst
 msgid "Paramètres"

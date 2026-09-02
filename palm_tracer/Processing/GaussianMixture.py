@@ -41,11 +41,17 @@ class GaussianMixture:
 	"""
 
 	weights: np.ndarray
+	"""Proportions :math:`\\pi_k` des composantes, sous forme d'un tableau de taille :math:`K` dont la somme vaut un."""
 	means: np.ndarray
+	"""Moyennes :math:`\\mu_k` des composantes, triées par ordre croissant dans un tableau de taille :math:`K`."""
 	sigmas: np.ndarray
+	"""Écarts-types :math:`\\sigma_k` strictement positifs des composantes, dans un tableau de taille :math:`K`."""
 	log_likelihood: float
+	"""Log-vraisemblance finale :math:`\\mathcal{L}(\\Theta)` du modèle retenu."""
 	converged: bool
+	"""Indique si le critère de convergence a été atteint avant le nombre maximal d'itérations."""
 	n_iter: int
+	"""Nombre d'itérations exécutées par l'initialisation retenue."""
 
 	##################################################
 	@classmethod

@@ -12,15 +12,15 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.SplineFit.SplineFit:5
 msgid "``Sensor`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : type de capteur, ``EMCCD`` ou ``sCMOS``."
-msgstr "``Sensor`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : sensor type, either ``EMCCD`` or ``sCMOS``."
+msgstr "``Sensor`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): sensor type, either ``EMCCD`` or ``sCMOS``."
 
 #: of palm_tracer.Settings.Groups.SplineFit.SplineFit:6
 msgid "``Variance Map`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : carte de variance du capteur sCMOS."
-msgstr "``Variance Map`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : sCMOS sensor variance map."
+msgstr "``Variance Map`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`): sCMOS sensor variance map."
 
 #: of palm_tracer.Settings.Groups.SplineFit.SplineFit:7
 msgid "``File`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : fichier de calibration de la fonction d'étalement du point."
-msgstr "``File`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : point-spread-function calibration file."
+msgstr "``File`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`): point-spread-function calibration file."
 
 #: ../../api/palm_tracer.Settings.Groups.SplineFit.rst
 msgid "Paramètres"

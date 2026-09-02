@@ -72,45 +72,49 @@ msgstr "Optional label for the Y-axis. If the string is empty, no change is made
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:7
 #: palm_tracer.Processing.Grapher.Grapher.histogram:7
 #: palm_tracer.Processing.Grapher.Grapher.scatter:7
-msgid "Si True, applique la règle des 3 sigmas pour limiter les données (trim des outliers)."
-msgstr "If True, applies the 3-sigma rule to trim outliers."
+msgid "Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers)."
+msgstr "If ``True``, applies the 3-sigma rule to trim outliers."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:8
 #: palm_tracer.Processing.Grapher.Grapher.histogram:8
 #: palm_tracer.Processing.Grapher.Grapher.scatter:8
-msgid "Si True, superpose la moyenne, ±1,±2,±3 sigmas."
-msgstr "If True, overlays the mean, ±1, ±2, ±3 sigma."
+msgid "Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas."
+msgstr "If ``True``, overlays the mean, ±1, ±2, ±3 sigma."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:9
-msgid "Si True, superpose la KDE gaussienne."
-msgstr "If True, overlay the Gaussian KDE."
+msgid "Si ``True``, superpose la KDE gaussienne."
+msgstr "If ``True``, overlays the Gaussian KDE."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:10
-msgid "Si True, superpose la gaussienne."
-msgstr "If True, overlay the Gaussian curve."
+msgid "Si ``True``, superpose la gaussienne."
+msgstr "If ``True``, overlays the Gaussian curve."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:11
-msgid "Si True, superpose la poissonnienne."
-msgstr "If True, overlay the Poisson curve."
+msgid "Si ``True``, superpose la poissonnienne."
+msgstr "If ``True``, overlays the Poisson curve."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:12
-msgid "Si True, superpose l'exponentielle inverse."
-msgstr "If True, overlay the Exponential inverse curve."
+msgid "Si ``True``, superpose l'exponentielle inverse."
+msgstr "If ``True``, overlays the inverse exponential curve."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:13
-msgid "Affiche l'histogramme en densité (True) ou en compte (False)."
-msgstr "Display the histogram as density (True) or count (False)."
+msgid "Affiche l'histogramme en densité (``True``) ou en compte (``False``)."
+msgstr "Displays the histogram as density (``True``) or counts (``False``)."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:14
-msgid "Nombre de bins explicite (Sturges si 0 et avec des valeurs entières si négatif)."
-msgstr "Explicit number of bins (Sturges if 0 or with integer value if negative)."
+msgid "Nombre de bins explicite (Sturges si ``0`` et avec des valeurs entières si négatif)."
+msgstr "Explicit number of bins (Sturges if ``0``, or integer-valued bins if negative)."
 
 #: of palm_tracer.Processing.Grapher.Grapher.histogram:15
-msgid "Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée."
-msgstr "If True, display the cumulative histogram along with the cumulative versions of the KDE and Gaussian curves."
+msgid "Si ``True``, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée."
+msgstr "If ``True``, displays the cumulative histogram along with the cumulative versions of the KDE and Gaussian curves."
+
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:16
+msgid "Si ``True``, superpose un mélange ajusté de deux gaussiennes."
+msgstr "If ``True``, overlays a fitted mixture of two Gaussian distributions."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:13
-#: palm_tracer.Processing.Grapher.Grapher.histogram:16
+#: palm_tracer.Processing.Grapher.Grapher.histogram:17
 #: palm_tracer.Processing.Grapher.Grapher.scatter:9
 msgid ":class:`go.Figure <plotly.graph_objects.Figure>`."
 msgstr ""
@@ -127,7 +131,7 @@ msgstr "Data in the form of a 1D or 2D NumPy array."
 
 #: ../../api/palm_tracer.Processing.Grapher.rst
 msgid "Lève"
-msgstr "Raise"
+msgstr "Raises"
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:14
 #: palm_tracer.Processing.Grapher.Grapher.scatter:10
@@ -135,20 +139,20 @@ msgid "Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2
 msgstr "If the array dimensions do not match the expected ones (1D, 2D, but with only 2 rows or 2 columns)"
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:9
-msgid "Si True, superpose la KDE gaussienne 2D."
-msgstr "If True, overlays the 2D Gaussian KDE."
+msgid "Si ``True``, superpose la KDE gaussienne 2D."
+msgstr "If ``True``, overlays the 2D Gaussian KDE."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:10
-msgid "Si True, superpose la gaussienne 2D."
-msgstr "If True, overlays the 2D Gaussian."
+msgid "Si ``True``, superpose la gaussienne 2D."
+msgstr "If ``True``, overlays the 2D Gaussian."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:11
-msgid "Si True, superpose la poissonnienne 2D."
-msgstr "If True, overlays the 2D Poisson."
+msgid "Si ``True``, superpose la poissonnienne 2D."
+msgstr "If ``True``, overlays the 2D Poisson distribution."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:12
-msgid "Si True, superpose l'exponentielle inverse 2D."
-msgstr "If True, overlays the 2D Exponential inverse."
+msgid "Si ``True``, superpose l'exponentielle inverse 2D."
+msgstr "If ``True``, overlays the 2D inverse exponential distribution."
 
 #: ../../api/palm_tracer.Processing.Grapher.rst:20
 msgid "Figure d'astigmatisme"

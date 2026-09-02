@@ -12,11 +12,11 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Gallery.Gallery:5
 msgid "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : côté de la zone extraite autour de chaque point ; valeur par défaut : ``9`` pixels."
-msgstr "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : side length of the region extracted around each point; default value: ``9`` pixels."
+msgstr "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): side length of the region extracted around each point; default value: ``9`` pixels."
 
 #: of palm_tracer.Settings.Groups.Gallery.Gallery:6
 msgid "``ROIs Per Line`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de zones par ligne et par colonne ; valeur par défaut : ``30``."
-msgstr "``ROIs Per Line`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : number of regions per row and column; default value: ``30``."
+msgstr "``ROIs Per Line`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): number of regions per row and column; default value: ``30``."
 
 #: ../../api/palm_tracer.Settings.Groups.Gallery.rst
 msgid "Paramètres"

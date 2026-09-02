@@ -1,0 +1,226 @@
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst:2
+msgid "GaussianMixture"
+msgstr ""
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:1
+msgid "Représente un mélange gaussien unidimensionnel ajusté par l'algorithme Expectation-Maximization (EM)."
+msgstr "Represents a one-dimensional Gaussian mixture fitted using the Expectation-Maximization (EM) algorithm."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:3
+msgid "La densité du modèle est définie par :"
+msgstr "The model density is defined by:"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:5
+msgid "p(x \\mid \\Theta) = \\sum_{k=1}^{K} \\pi_k\n\\frac{1}{\\sigma_k\\sqrt{2\\pi}}\n\\exp\\!\\left[-\\frac{1}{2}\\left(\\frac{x-\\mu_k}{\\sigma_k}\\right)^2\\right],"
+msgstr ""
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:11
+msgid "avec :math:`\\pi_k \\geq 0`, :math:`\\sigma_k > 0` et :math:`\\sum_k \\pi_k = 1`. La log-vraisemblance mémorisée correspond à la somme des logarithmes des densités attribuées aux :math:`n` observations :"
+msgstr "with :math:`\\pi_k \\geq 0`, :math:`\\sigma_k > 0`, and :math:`\\sum_k \\pi_k = 1`. The stored log-likelihood is the sum of the logarithms of the densities assigned to the :math:`n` observations:"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:14
+#, python-brace-format
+msgid "\\mathcal{L}(\\Theta) = \\sum_{i=1}^{n}\\log p(x_i \\mid \\Theta)."
+msgstr ""
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:18
+msgid "Les composantes sont systématiquement triées par moyenne croissante. Cet ordre stable évite que deux ajustements équivalents permutent arbitrairement leurs indices dans les résultats et les représentations. ``frozen=True`` interdit la réaffectation des attributs de l'instance, mais les tableaux NumPy qu'ils contiennent restent modifiables."
+msgstr "The components are always sorted by increasing mean. This stable ordering prevents two equivalent fits from arbitrarily swapping their indices in results and visualizations. ``frozen=True`` prevents reassignment of the instance attributes, but the NumPy arrays they contain remain mutable."
+
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:22
+msgid "Proportions :math:`\\pi_k` des composantes, sous forme d'un tableau de taille :math:`K` dont la somme vaut un."
+msgstr "Component proportions :math:`\\pi_k`, as an array of size :math:`K` whose sum equals one."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:23
+msgid "Moyennes :math:`\\mu_k` des composantes, triées par ordre croissant dans un tableau de taille :math:`K`."
+msgstr "Component means :math:`\\mu_k`, sorted in increasing order in an array of size :math:`K`."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:24
+msgid "Écarts-types :math:`\\sigma_k` strictement positifs des composantes, dans un tableau de taille :math:`K`."
+msgstr "Strictly positive component standard deviations :math:`\\sigma_k`, in an array of size :math:`K`."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:25
+#, python-brace-format
+msgid "Log-vraisemblance finale :math:`\\mathcal{L}(\\Theta)` du modèle retenu."
+msgstr "Final log-likelihood :math:`\\mathcal{L}(\\Theta)` of the selected model."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:26
+msgid "Indique si le critère de convergence a été atteint avant le nombre maximal d'itérations."
+msgstr "Indicates whether the convergence criterion was reached before the maximum number of iterations."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture:27
+msgid "Nombre d'itérations exécutées par l'initialisation retenue."
+msgstr "Number of iterations performed by the selected initialization."
+
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst:19
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst:22
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:1
+msgid "Ajuste un mélange de ``n_component`` gaussiennes sur les données brutes."
+msgstr "Fits a mixture of ``n_component`` Gaussian distributions to the raw data."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:3
+msgid "Les données sont converties en nombres flottants 64 bits, aplaties, puis débarrassées de leurs valeurs non finies. L'ajustement est ensuite effectué indépendamment depuis plusieurs points de départ afin de réduire le risque qu'EM converge vers un maximum local défavorable :"
+msgstr "The data are converted to 64-bit floating-point numbers, flattened, and stripped of non-finite values. The fit is then performed independently from several starting points to reduce the risk of EM converging to an unfavorable local maximum:"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:7
+msgid ":meth:`_initialize_centers` choisit les centres initiaux par quantiles pour le premier essai, puis par k-means++ pour les suivants."
+msgstr ":meth:`_initialize_centers` selects the initial centers using quantiles for the first attempt, then k-means++ for the subsequent attempts."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:8
+msgid ":meth:`_parameters_from_centers` exécute un k-means classique et en déduit les proportions, moyennes et écarts-types initiaux."
+msgstr ":meth:`_parameters_from_centers` runs standard k-means and derives the initial proportions, means, and standard deviations from it."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:9
+msgid ":meth:`_expectation_maximization` affine ces paramètres par Expectation-Maximization (EM)."
+msgstr ":meth:`_expectation_maximization` refines these parameters using Expectation-Maximization (EM)."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:10
+msgid "Le résultat ayant la log-vraisemblance finale la plus élevée est conservé et ses composantes sont triées par moyenne croissante."
+msgstr "The result with the highest final log-likelihood is retained, and its components are sorted by increasing mean."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:12
+msgid "Pour une initialisation donnée, l'ajustement est déclaré convergé lorsque deux log-vraisemblances successives vérifient :"
+msgstr "For a given initialization, the fit is considered converged when two successive log-likelihoods satisfy:"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:14
+#, python-brace-format
+msgid "\\left|\\mathcal{L}^{(t)}-\\mathcal{L}^{(t-1)}\\right|\n\\leq \\varepsilon\\max\\!\\left(1,\\left|\\mathcal{L}^{(t-1)}\\right|\\right),"
+msgstr ""
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:19
+#, python-brace-format
+msgid "où :math:`\\varepsilon` correspond à ``tolerance``. Un écart-type minimal égal au maximum entre :math:`10^{-6}` fois l'écart-type global et la précision machine empêche une composante de devenir exactement singulière."
+msgstr "where :math:`\\varepsilon` corresponds to ``tolerance``. A minimum standard deviation equal to the maximum of :math:`10^{-6}` times the global standard deviation and machine precision prevents a component from becoming exactly singular."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:23
+msgid "La complexité temporelle est approximativement :math:`O(RINK)` et la mémoire temporaire :math:`O(NK)`, avec :math:`R` initialisations, :math:`I` itérations Expectation-Maximization (EM), :math:`N` observations et :math:`K` composantes."
+msgstr "The time complexity is approximately :math:`O(RINK)` and the temporary memory usage is :math:`O(NK)`, with :math:`R` initializations, :math:`I` Expectation-Maximization (EM) iterations, :math:`N` observations, and :math:`K` components."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:26
+msgid "Observations à ajuster. Le tableau est aplati et les valeurs non finies sont ignorées."
+msgstr "Observations to fit. The array is flattened and non-finite values are ignored."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:27
+msgid "Nombre :math:`K` de composantes gaussiennes. Il doit être strictement positif et ne pas dépasser le nombre d'observations ni le nombre de valeurs distinctes."
+msgstr "Number :math:`K` of Gaussian components. It must be strictly positive and must not exceed either the number of observations or the number of distinct values."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:29
+msgid "Nombre maximal d'itérations Expectation-Maximization (EM) exécutées pour chacune des initialisations."
+msgstr "Maximum number of Expectation-Maximization (EM) iterations performed for each initialization."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:30
+msgid "Tolérance relative :math:`\\varepsilon` utilisée pour détecter la stabilisation de la log-vraisemblance."
+msgstr "Relative tolerance :math:`\\varepsilon` used to detect stabilization of the log-likelihood."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:31
+msgid "Nombre d'ajustements Expectation-Maximization (EM) exécutés avec des paramètres initiaux différents. Le résultat ayant la meilleure log-vraisemblance est conservé."
+msgstr "Number of Expectation-Maximization (EM) fits performed with different initial parameters. The result with the highest log-likelihood is retained."
+
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:33
+msgid "Nouvelle instance contenant les paramètres du meilleur ajustement."
+msgstr "New instance containing the parameters of the best fit."
+
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst
+msgid "Lève"
+msgstr "Raises"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.fit:34
+msgid "Si un paramètre est invalide, si les données sont insuffisantes ou si leur variance est nulle."
+msgstr "If a parameter is invalid, the data are insufficient, or their variance is zero."
+
+#: ../../api/palm_tracer.Processing.GaussianMixture.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:1
+msgid "Évalue la densité de probabilité totale du mélange."
+msgstr "Evaluates the total probability density of the mixture."
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:3
+msgid "Chaque abscisse est d'abord standardisée séparément pour chacune des :math:`K` composantes :"
+msgstr "Each input value is first standardized separately for each of the :math:`K` components:"
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:5
+#, python-brace-format
+msgid "z_k(x) = \\frac{x-\\mu_k}{\\sigma_k}."
+msgstr ""
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:9
+msgid "La méthode évalue ensuite les densités normales et calcule leur somme pondérée :"
+msgstr "The method then evaluates the normal densities and computes their weighted sum:"
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:11
+msgid "p(x) = \\sum_{k=1}^{K}\\pi_k\n\\frac{\\exp\\!\\left[-z_k(x)^2/2\\right]}{\\sigma_k\\sqrt{2\\pi}}."
+msgstr ""
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:16
+msgid "Les opérations utilisent la diffusion NumPy : un axe final de taille :math:`K` est temporairement ajouté à ``x`` pour évaluer toutes les composantes sans boucle Python. La somme sur cet axe restitue ensuite exactement la forme initiale de ``x``. Lorsque les poids sont normalisés, l'intégrale de la densité sur l'ensemble de la droite vaut un."
+msgstr "The operations use NumPy broadcasting: a final axis of size :math:`K` is temporarily added to ``x`` to evaluate all components without a Python loop. Summing along this axis then restores the exact original shape of ``x``. When the weights are normalized, the integral of the density over the entire real line equals one."
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:20
+msgid "Abscisse scalaire ou tableau d'abscisses auxquelles évaluer le mélange."
+msgstr "Scalar input value or array of input values at which to evaluate the mixture."
+
+#: of
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:21
+msgid "Densité totale évaluée en chaque abscisse, avec la même forme que ``x``."
+msgstr "Total density evaluated at each input value, with the same shape as ``x``."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:1
+msgid "Construit une courbe régulière représentant la densité du mélange."
+msgstr "Builds a regular curve representing the mixture density."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:3
+#, python-brace-format
+msgid "Pour des bornes :math:`x_{min}` et :math:`x_{max}`, les ``n_point`` abscisses sont uniformément réparties selon :"
+msgstr "For bounds :math:`x_{min}` and :math:`x_{max}`, the ``n_point`` input values are uniformly distributed according to:"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:5
+msgid "x_j = x_{min} + j\\frac{x_{max}-x_{min}}{M-1},\n\\qquad j \\in \\{0,\\ldots,M-1\\},"
+msgstr ""
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:10
+msgid "où :math:`M` correspond à ``n_point``. Les ordonnées sont obtenues en appliquant :meth:`probability_density` à cette grille. La méthode retourne la densité théorique brute ; la conversion éventuelle en effectifs ou en courbe cumulée reste de la responsabilité du grapher."
+msgstr "where :math:`M` corresponds to ``n_point``. The output values are obtained by applying :meth:`probability_density` to this grid. The method returns the raw theoretical density; any conversion to counts or a cumulative curve remains the responsibility of the grapher."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:13
+#, python-brace-format
+msgid "Couple contenant les bornes finies :math:`(x_{min},x_{max})`, avec :math:`x_{min}<x_{max}`."
+msgstr "Pair containing the finite bounds :math:`(x_{min},x_{max})`, with :math:`x_{min}<x_{max}`."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:14
+msgid "Nombre :math:`M` de points de la grille régulière, supérieur ou égal à deux."
+msgstr "Number :math:`M` of points in the regular grid, greater than or equal to two."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:15
+msgid "Couple ``(x_grid, density)`` contenant deux tableaux unidimensionnels de taille ``n_point``."
+msgstr "Pair ``(x_grid, density)`` containing two one-dimensional arrays of size ``n_point``."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:16
+msgid "Si les bornes ne sont pas finies et strictement croissantes, ou si moins de deux points sont demandés."
+msgstr "If the bounds are not finite and strictly increasing, or if fewer than two points are requested."
