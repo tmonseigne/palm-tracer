@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 from scipy.stats import expon, gaussian_kde, multivariate_normal, poisson
 
 from palm_tracer.Processing.Astigmatism3D import sigma_model
+from palm_tracer.Processing.GaussianMixture import GaussianMixture
 from palm_tracer.Processing.Parsing import SHAPE_MODEL
 
 # Palette "deep" de seaborn (approx)
@@ -50,7 +51,7 @@ class Grapher:
 	##################################################
 	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False,
 				  show_sigma: bool = False, kde: bool = False, gaussian: bool = False, poissonian: bool = False, exponential: bool = False,
-				  density: bool = True, cumulative: bool = False, bins: int = 0) -> go.Figure:
+				  density: bool = True, cumulative: bool = False, bins: int = 0, gaussian_mixture: bool = False) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
@@ -67,6 +68,7 @@ class Grapher:
 		:param density: Affiche l'histogramme en densité (True) ou en compte (False).
 		:param bins: Nombre de bins explicite (Sturges si 0 et avec des valeurs entières si négatif).
 		:param cumulative: Si True, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
+		:param gaussian_mixture: Si True, superpose un mélange ajusté de deux gaussiennes.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
@@ -116,6 +118,14 @@ class Grapher:
 				y = self._scale_curve(x_grid, y_pdf, x.size, bin_width, density, cumulative)
 				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
 										 name="Gaussian", hoverinfo="skip", hovertemplate=None))
+
+			# Mélange de deux gaussiennes
+			if gaussian_mixture and np.unique(x).size >= 2:
+				mixture = GaussianMixture.fit(x, n_component=2)
+				x_mixture, y_pdf = mixture.make_curve(limits, MESH_SIZE)
+				y = self._scale_curve(x_mixture, y_pdf, x.size, bin_width, density, cumulative)
+				fig.add_trace(go.Scatter(x=x_mixture, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[5]),
+										 name="Gaussian mixture", hoverinfo="skip", hovertemplate=None))
 
 			# Loi de Poisson
 			if poissonian and mu >= 0:
