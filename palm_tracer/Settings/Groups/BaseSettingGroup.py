@@ -78,7 +78,7 @@ class BaseSettingGroup:
 			- 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)
 			- 2 : État remove header (aucune création de l'espace titre)
 
-		:return: Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`).
+		:return: Interface du paramètre (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`).
 		"""
 		if name in self._uis: return self._uis[name]
 		if mode < 0: mode = self.mode

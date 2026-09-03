@@ -4,7 +4,7 @@ msgstr ""
 
 #: of palm_tracer.Settings.Types.CheckIntSelection:1
 msgid "Définit un paramètre de sélection de valeurs entières et d'intervalles."
-msgstr "Qt validator for selecting integer values and ranges."
+msgstr "Defines a setting for selecting integer values and ranges."
 
 #: of palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator:1
 msgid "Valide la syntaxe d'une sélection de valeurs entières et d'intervalles."
@@ -20,16 +20,14 @@ msgstr "Validates the syntax of an integer selection."
 msgid "Les valeurs individuelles et les intervalles sont séparés par ``;``. Un intervalle est défini avec ``-``."
 msgstr "Individual values and ranges are separated by ``;``. A range is defined using ``-``."
 
-#: ../../api/palm_tracer.Settings.Types.CheckIntSelection.rst of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.set_active
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.update_from_compact_dict
+#: ../../api/palm_tracer.Settings.Types.CheckIntSelection.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
 #: of
 #: palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:6
 msgid "Texte à valider."
-msgstr "Text to be approved."
+msgstr "Text to validate."
 
 #: of
 #: palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:7
@@ -45,14 +43,13 @@ msgstr "Returns"
 msgid "État de validation, texte et position du curseur."
 msgstr "Validation status, text, and cursor position."
 
-#: ../../api/palm_tracer.Settings.Types.CheckIntSelection.rst of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.to_compact_dict
+#: ../../api/palm_tracer.Settings.Types.CheckIntSelection.rst
 msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection:1
 msgid "Représente une sélection activable de valeurs entières et d'intervalles."
-msgstr "Qt validator for selecting integer values and ranges."
+msgstr "Represents a selection of integer values and ranges that can be enabled or disabled."
 
 #: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection:3
 msgid "Les éléments sont séparés par des points-virgules et les intervalles par un tiret. Par exemple, ``1-10;15;20-25`` sélectionne les valeurs de 1 à 10, la valeur 15 et les valeurs de 20 à 25."
@@ -74,25 +71,17 @@ msgstr "Default selection."
 msgid "Valeur par défaut du paramètre (:class:`str`)."
 msgstr "Default value of the setting (:class:`str`)."
 
-#: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.reset:1
-msgid "Réinitialise le paramètre à sa valeur par défaut."
-msgstr "Resets the setting to its default value."
-
 #: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.get_ui:1
-msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
-msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
+msgid "Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire."
+msgstr "Returns an existing :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."
 msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.get_ui:4
-msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
-msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
-
-#: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.active:1
-msgid "Indicateur d'activation du paramètre (:class:`bool`)."
-msgstr "Setting activation indicator (:class:`bool`)."
+msgid "Interface du paramètre (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
+msgstr "Setting interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
 
 #: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.value:1
 msgid "Sélection actuelle sous sa forme textuelle normalisée (:class:`str`)."
@@ -139,19 +128,4 @@ msgstr "Value to look up."
 
 #: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.contains:4
 msgid "``True`` si la valeur appartient à au moins un intervalle, sinon ``False``."
-msgstr "True if the value falls within at least one interval; otherwise, ``False``."
-
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.to_compact_dict:1
-msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
-msgstr "Returns a minimal dictionary containing the setting's value."
-
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.update_from_compact_dict:1
-msgid "Met à jour la classe à partir d'un dictionnaire minimal."
-msgstr "Updates the class from a minimal dictionary."
-
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.set_active:1
-msgid "Met à jour l'état actif du groupe lorsque la checkbox est modifiée."
-msgstr "Updates the group's active state when the checkbox is toggled."
+msgstr "``True`` if the value falls within at least one interval; otherwise, ``False``."

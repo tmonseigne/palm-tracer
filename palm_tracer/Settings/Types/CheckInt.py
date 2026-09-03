@@ -8,14 +8,14 @@ from typing import Any, cast
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QSpinBox
 
-from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseCheckSetting import BaseCheckSetting
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
 ##################################################
 @dataclass
-class CheckInt(BaseSettingType):
+class CheckInt(BaseCheckSetting):
 	"""
 	Représente un entier dont l'application peut être activée ou désactivée.
 
@@ -30,18 +30,10 @@ class CheckInt(BaseSettingType):
 	"""Valeur par défaut du paramètre (:class:`int`)."""
 	_value: int = field(init=False, default=0)
 	"""Valeur actuelle du paramètre (:class:`int`)."""
-	_active: bool = field(init=False, default=False)
-	"""Indicateur d'activation du paramètre."""
 	_limits: list[int] = field(default_factory=lambda: [0, 100])
 	"""Valeurs limites du paramètre."""
 	step: int = 1
 	"""Pas à chaque appui sur une des flèches du paramètre."""
-
-	##################################################
-	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
-		super().reset()
-		self.active = False
 
 	# ==================================================
 	# region Accesseurs
@@ -54,36 +46,19 @@ class CheckInt(BaseSettingType):
 		spin: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step, value=self.value, buttons=False)
 
 		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin])
-		ui.set_tooltip(self.tooltip)  # .					 Ajout du Tooltip
+		ui.set_tooltip(self.tooltip)  # .					 Ajoute l'infobulle
 
 		checkbox.setChecked(self.active)
 		checkbox.toggled.connect(self.set_active)  # .		 Connecte le changement de valeur pour que les autres UI se mettent à jour
-		spin.setKeyboardTracking(False)  # .				 Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		spin.setKeyboardTracking(False)  # .				 Empêche la mise à jour à chaque appui sur une touche (attend la fin de l'édition)
 		spin.valueChanged.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		ui.layout.addWidget(checkbox)
 		ui.layout.addWidget(spin)
 		ui.layout.addStretch(1)  # .						 Pousse tout à gauche, espace vide à droite.
 
-		self._uis[name] = ui  # .							 Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .							 Ajoute l'UI au dictionnaire
 		return ui
-
-	##################################################
-	@property
-	def active(self) -> bool:
-		"""Indicateur d'activation du paramètre (:class:`bool`)."""
-		return self._active
-
-	##################################################
-	@active.setter
-	def active(self, value: bool):
-		"""Contrôle la modification de l'état actif."""
-		if self._active == value: return
-		self._active = value
-		for ui in self._uis.values():
-			b = cast(QCheckBox, ui.boxes[0])
-			with QSignalBlocker(b): b.setChecked(value)
-		self.emit(value)
 
 	##################################################
 	@property
@@ -130,25 +105,14 @@ class CheckInt(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
-		return {"value": self.value, "limits": self.limits, "active": self.active}
+		"""Renvoie la valeur, les limites et l'état actif du paramètre."""
+		return {**super().to_compact_dict(), "limits": self.limits}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""Met à jour les limites, la valeur et l'état actif depuis un dictionnaire minimal."""
 		self.limits = data["limits"]  # Récupération des limites avant de mettre à jour la valeur
-		self.value = data["value"]
-		self.active = data["active"]
-
-	# ==================================================
-	# endregion Sérialisation
-	# ==================================================
-
-	# ==================================================
-	# region Fonctions de rappel
-	# ==================================================
-	##################################################
-	def set_active(self, state: int):
-		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
-		self.active = bool(state)
+		super().update_from_compact_dict(data)
 
 
 ##################################################

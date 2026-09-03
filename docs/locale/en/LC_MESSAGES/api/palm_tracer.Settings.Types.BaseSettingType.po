@@ -61,8 +61,8 @@ msgid "Accesseurs"
 msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:1
-msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
-msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
+msgid "Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire."
+msgstr "Returns an existing :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.clean_ui:3
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:3
@@ -74,8 +74,8 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:4
-msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
-msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
+msgid "Interface du paramètre (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
+msgstr "Setting interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
 
 #: ../../api/palm_tracer.Settings.Types.BaseSettingType.rst of
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.to_compact_dict
@@ -153,8 +153,8 @@ msgid "Connecte une fonction ou un slot au signal encapsulé."
 msgstr "Connects a function or slot to the encapsulated signal."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:1
-msgid "Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
-msgstr "Disconnects ``f`` if provided, otherwise **all** slots. Returns the number of disconnected slots."
+msgid "Déconnecte ``f`` si fourni, sinon tous les slots. Renvoie le nombre de slots déconnectés."
+msgstr "Disconnects ``f`` if provided, otherwise all slots. Returns the number of disconnected slots."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:3
 msgid "Fonction ou slot à déconnecter."

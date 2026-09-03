@@ -110,8 +110,8 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:11
-msgid "Interface du paramètre (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
-msgstr "Setting interface (:class:`palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgid "Interface du paramètre (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgstr "Setting interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst of
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked

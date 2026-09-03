@@ -216,7 +216,13 @@ class Monitoring:
 
 		:param round_time: Le nombre de décimales pour arrondir les timestamps.
 		"""
-		first_time = self._times[0]
+		first_time = self._tests_info[0]["Timestamp"] if self._tests_info else self._times[0]
+		first_sample_index = next((i for i, timestamp in enumerate(self._times) if timestamp >= first_time), len(self._times) - 1)
+		self._cpu = self._cpu[first_sample_index:]
+		self._gpu = self._gpu[first_sample_index:]
+		self._memory = self._memory[first_sample_index:]
+		self._disk = self._disk[first_sample_index:]
+		self._times = self._times[first_sample_index:]
 
 		for test_info in self._tests_info: test_info["Timestamp"] = round(test_info["Timestamp"] - first_time, round_time)
 		self._times = [round(t - first_time, round_time) for t in self._times]
@@ -272,15 +278,12 @@ class Monitoring:
 
 	##################################################
 	@staticmethod
-	def draw_test_section(fig: go.Figure, y_range: list, tests: list[dict], color_map: dict, last_time: float, row: int):
+	def _build_test_section(y_range: list, tests: list[dict], color_map: dict, last_time: float, row: int) -> tuple[list[go.Scatter], list[dict[str, Any]]]:
 		"""
-		Ajoute des barres verticales et des zones colorées pour chaque test dans un graphique Plotly.
+		Construit les barres verticales et les zones colorées d'une section de tests.
 
-		Cette fonction ajoute des zones colorées en fonction des timestamps des tests et leur fichier associé,
-		ainsi que des lignes verticales pour marquer chaque test. Elle est utilisée pour représenter graphiquement
-		les périodes d'exécution de chaque test dans le temps.
-
-		:param fig: L'objet figure de Plotly dans lequel les éléments (barres et lignes) seront ajoutés.
+		Les objets Plotly sont retournés sans être ajoutés individuellement à la figure afin de permettre
+		leur insertion groupée et d'éviter les validations coûteuses à chaque itération.
 
 		:param y_range: La plage des valeurs sur l'axe Y pour la section du graphique où les zones colorées seront tracées.
 				La plage est définie par deux valeurs [y_min, y_max].
@@ -298,8 +301,11 @@ class Monitoring:
 		:param row: L'index de la ligne dans la figure Plotly (utile lorsque plusieurs sous-graphiques sont utilisés) pour ajouter
 				les éléments (barres verticales et zones colorées) dans la section correspondante.
 
-		:return: Cette fonction modifie l'objet ``fig`` en ajoutant des traces et des formes, mais ne retourne rien.
+		:return: Traces verticales et zones colorées à ajouter à la figure.
 		"""
+		traces = []
+		shapes = []
+		axis_suffix = "" if row == 1 else str(row)
 
 		# Ajouter les barres verticales pour chaque test et des zones colorées en fonction du fichier
 		for i, test in enumerate(tests):
@@ -313,12 +319,29 @@ class Monitoring:
 			if i < len(tests) - 1: next_timestamp = tests[i + 1]["Timestamp"]
 			else: next_timestamp = last_time
 
-			# Ajouter une zone colorée
-			fig.add_shape(type="rect", x0=t, x1=next_timestamp, y0=y_range[0], y1=y_range[1],
-						  fillcolor=color, opacity=0.2, line=dict(width=0), row=row, col=1)
-			# Ajouter une ligne verticale pointillée
-			fig.add_trace(go.Scatter(x=[t, t], y=y_range, mode="lines", line=dict(color=color, width=0.5, dash="dash"),
-									 name=text, hoverinfo="text", text=text), row=row, col=1)
+			shapes.append(dict(type="rect", x0=t, x1=next_timestamp, y0=y_range[0], y1=y_range[1],
+							   fillcolor=color, opacity=0.2, line=dict(width=0), xref=f"x{axis_suffix}", yref=f"y{axis_suffix}"))
+			traces.append(go.Scatter(x=[t, t], y=y_range, mode="lines", line=dict(color=color, width=0.5, dash="dash"),
+									 name=text, hoverinfo="text", text=text))
+
+		return traces, shapes
+
+	##################################################
+	@staticmethod
+	def draw_test_section(fig: go.Figure, y_range: list, tests: list[dict], color_map: dict, last_time: float, row: int):
+		"""
+		Ajoute des barres verticales et des zones colorées pour chaque test dans un graphique Plotly.
+
+		:param fig: Figure Plotly à compléter.
+		:param y_range: Plage des valeurs de l'axe Y.
+		:param tests: Informations relatives aux tests exécutés.
+		:param color_map: Couleurs associées aux fichiers de tests.
+		:param last_time: Dernier timestamp enregistré.
+		:param row: Ligne du sous-graphique à compléter.
+		"""
+		traces, shapes = Monitoring._build_test_section(y_range, tests, color_map, last_time, row)
+		fig.add_traces(traces, rows=[row] * len(traces), cols=[1] * len(traces))
+		fig.update_layout(shapes=[*fig.layout.shapes, *shapes])
 
 	##################################################
 	def _draw(self):
@@ -333,10 +356,21 @@ class Monitoring:
 
 		self._figure = make_subplots(rows=len(params), cols=1, shared_xaxes=True, vertical_spacing=0.05, subplot_titles=tuple(p["name"] for p in params))
 		color_map = self.get_color_map_by_name([test["File"] for test in self._tests_info], px.colors.qualitative.Plotly)
+		traces = []
+		trace_rows = []
+		shapes = []
 
 		for i in range(len(params)):
-			self._figure.add_trace(go.Scatter(x=self._times, y=params[i]["y"], mode="lines", name=params[i]["name"], line=params[i]["line"]), row=i + 1, col=1)
-			self.draw_test_section(self._figure, self.get_y_range(params[i]["y"]), self._tests_info, color_map, self._times[-1], i + 1)
+			row = i + 1
+			traces.append(go.Scatter(x=self._times, y=params[i]["y"], mode="lines", name=params[i]["name"], line=params[i]["line"]))
+			trace_rows.append(row)
+			test_traces, test_shapes = self._build_test_section(self.get_y_range(params[i]["y"]), self._tests_info, color_map, self._times[-1], row)
+			traces.extend(test_traces)
+			trace_rows.extend([row] * len(test_traces))
+			shapes.extend(test_shapes)
+
+		self._figure.add_traces(traces, rows=trace_rows, cols=[1] * len(traces))
+		self._figure.update_layout(shapes=shapes)
 
 		# add_color_map_legend
 		self._figure.update_layout(width=1200, height=len(params) * 200, margin={"t": 50, "l": 5, "r": 5, "b": 5},
