@@ -1,0 +1,64 @@
+#: ../../api/palm_tracer.Settings.Types.BaseCheckSetting.rst:2
+msgid "BaseCheckSetting"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting:1
+msgid "Définit le comportement commun d'un paramètre activable par une case à cocher."
+msgstr "Defines the common behavior of a setting that can be enabled or disabled using a checkbox."
+
+#: of palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting:3
+msgid "La première boîte de chaque interface associée doit être une :class:`~qtpy.QtWidgets.QCheckBox` représentant l'état d'activation."
+msgstr "The first box in each associated interface must be a :class:`~qtpy.QtWidgets.QCheckBox` representing the activation state."
+
+#: of palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting
+#: palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.set_active
+#: palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.update_from_compact_dict
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Types.BaseCheckSetting.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.active:1
+msgid "Indique si le paramètre est actif."
+msgstr "Indicates whether the setting is active."
+
+#: ../../api/palm_tracer.Settings.Types.BaseCheckSetting.rst:14
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.BaseCheckSetting.rst:17
+msgid "Divers"
+msgstr "Miscellaneous"
+
+#: of palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.reset:1
+msgid "Réinitialise la valeur et désactive le paramètre."
+msgstr "Resets the value and disables the setting."
+
+#: ../../api/palm_tracer.Settings.Types.BaseCheckSetting.rst:22
+msgid "Sérialisation"
+msgstr "Serialization"
+
+#: of
+#: palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.to_compact_dict:1
+msgid "Renvoie la valeur et l'état actif du paramètre."
+msgstr "Returns the value and active state of the setting."
+
+#: of
+#: palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.to_compact_dict
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of
+#: palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.update_from_compact_dict:1
+msgid "Met à jour la valeur et l'état actif depuis un dictionnaire minimal."
+msgstr "Updates the value and active state from a minimal dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.BaseCheckSetting.rst:28
+msgid "Fonctions de rappel"
+msgstr "Callbacks"
+
+#: of palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting.set_active:1
+msgid "Met à jour l'état actif lorsque la case à cocher est modifiée."
+msgstr "Updates the active state when the checkbox is toggled."

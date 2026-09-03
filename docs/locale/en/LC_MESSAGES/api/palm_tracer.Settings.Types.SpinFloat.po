@@ -67,8 +67,8 @@ msgid "Accesseurs"
 msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.get_ui:1
-msgid "Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire."
-msgstr "Returns an existing :class:`.BaseUIType` object, or creates one if necessary."
+msgid "Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire."
+msgstr "Returns an existing :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."
@@ -79,8 +79,8 @@ msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Types.SpinFloat.SpinFloat.get_ui:4
-msgid "Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
-msgstr "Setting interface (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
+msgid "Interface du paramètre (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
+msgstr "Setting interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
 
 #: ../../api/palm_tracer.Settings.Types.SpinFloat.rst
 msgid "Type renvoyé"

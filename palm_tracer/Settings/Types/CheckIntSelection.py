@@ -73,7 +73,7 @@ class CheckIntSelection(BaseCheckSetting):
 		line_edit.setPlaceholderText("Ex: 1-10;15;20-25")
 
 		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, line_edit])
-		ui.set_tooltip(self.tooltip)  # .			 Ajout du Tooltip
+		ui.set_tooltip(self.tooltip)  # .			 Ajoute l'infobulle
 
 		checkbox.setChecked(self.active)
 		checkbox.toggled.connect(self.set_active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
@@ -82,7 +82,7 @@ class CheckIntSelection(BaseCheckSetting):
 		ui.layout.addWidget(checkbox)
 		ui.layout.addWidget(line_edit)
 
-		self._uis[name] = ui  # .					 Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .					 Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################
@@ -142,7 +142,7 @@ class CheckIntSelection(BaseCheckSetting):
 			ranges.append((maximum, minimum)) if minimum > maximum else ranges.append((minimum, maximum))
 
 		ranges.sort()
-		# Fusion des intervalles consécutifs (ou déjà présent dans le range actuel)
+		# Fusionne les intervalles consécutifs ou déjà inclus dans l'intervalle actuel
 		merged: list[tuple[int, int]] = []
 		for minimum, maximum in ranges:
 			if not merged or minimum > merged[-1][1] + 1:

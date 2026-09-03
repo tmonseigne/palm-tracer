@@ -53,13 +53,13 @@ class CheckRangeFloat(BaseCheckSetting):
 										  value=self.value[1], decimals=self.precision, buttons=False)
 
 		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max])
-		ui.set_tooltip(self.tooltip)  # .			   Ajout du Tooltip
+		ui.set_tooltip(self.tooltip)  # .			   Ajoute l'infobulle
 
 		checkbox.setChecked(self.active)
 		checkbox.toggled.connect(self.set_active)  # .	Connecte le changement de valeur pour que les autres UI se mettent à jour
-		spin_min.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		spin_min.setKeyboardTracking(False)  # .	   Empêche la mise à jour à chaque appui sur une touche (attend la fin de l'édition)
 		spin_min.valueChanged.connect(self.set_min)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
-		spin_max.setKeyboardTracking(False)  # .	   Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		spin_max.setKeyboardTracking(False)  # .	   Empêche la mise à jour à chaque appui sur une touche (attend la fin de l'édition)
 		spin_max.valueChanged.connect(self.set_max)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		ui.layout.addWidget(checkbox)
@@ -68,7 +68,7 @@ class CheckRangeFloat(BaseCheckSetting):
 		ui.layout.addWidget(spin_max)
 		ui.layout.addStretch(1)  # .				   Pousse tout à gauche, espace vide à droite.
 
-		self._uis[name] = ui  # .					   Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .					   Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################
@@ -125,13 +125,13 @@ class CheckRangeFloat(BaseCheckSetting):
 	##################################################
 	@property
 	def limits(self) -> list[float]:
-		"""Valeur actuelle du paramètre (:class:`list[float]`)."""
+		"""Limites actuelles du paramètre (:class:`list[float]`)."""
 		return self._limits
 
 	##################################################
 	@limits.setter
 	def limits(self, value: list[float]):
-		"""Valeur actuelle du paramètre (:class:`list[float]`)."""
+		"""Limites actuelles du paramètre (:class:`list[float]`)."""
 		if self._limits == value: return
 		self._limits = value
 		if self.min < self._limits[0]: self.min = self._limits[0]
@@ -150,10 +150,12 @@ class CheckRangeFloat(BaseCheckSetting):
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
+		"""Renvoie la valeur, les limites et l'état actif du paramètre."""
 		return {**super().to_compact_dict(), "limits": self.limits}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""Met à jour les limites, la valeur et l'état actif depuis un dictionnaire minimal."""
 		self.limits = data["limits"]  # Récupération des limites avant de mettre à jour la valeur
 		super().update_from_compact_dict(data)
 

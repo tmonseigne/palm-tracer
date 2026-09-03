@@ -21,26 +21,26 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	:param default: Valeur attendue par défaut.
 	"""
 
-	# Changement de valeurs
+	# Modification des valeurs
 	assert setting.value == default, "Valeur par défaut non valide."
 	setting.value = change
 	assert setting.value == change, "Valeur défini non valide."
 
 	# Utilisation du dictionnaire
-	min_dictionary = copy.deepcopy(setting.to_compact_dict())  # Deep Copy car les listes peuvent devenir des références
+	min_dictionary = copy.deepcopy(setting.to_compact_dict())  # Copie profonde pour éviter de partager les listes
 	setting.reset()
 	assert setting.value == default, "Valeur par défaut après reset non valide."
 	setting.update_from_compact_dict(min_dictionary)
 	assert setting.value == change, "Valeur récupérée du dictionnaire non valide."
 
-	# Hide and seek
+	# Visibilité
 	setting.hide()
 	setting.show()
 
 	# Interface
 	_ = setting.get_ui("default")
 	form = QFormLayout()
-	setting.attach_to_form("default", form)  # Second appel a get_ui à l'intérieur
+	setting.attach_to_form("default", form)  # Deuxième appel interne à get_ui
 
 	setting.value = default
 	setting.value = default  # Second appel vers une valeur identique
@@ -54,7 +54,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 		setting.emit("B")  # Écrase A
 	assert received == ["B"]
 
-	with setting.signal_blocked(emit_last=False): setting.emit("C")  # Ne va pas le renvoyer
+	with setting.signal_blocked(emit_last=False): setting.emit("C")  # Ignore C
 	assert received == ["B"]
 
 	setting.disconnect()
@@ -156,7 +156,7 @@ def test_combo(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = Combo("Test", "", 0, ["Choix 1", "Choix 2"])
 	setting_base_test(setting, 1, 0)
-	# Get Actual Text
+	# Récupération du texte actuel
 	assert setting.current_text == "Choix 1"
 	# Modification des éléments après la création de l'interface
 	setting.items = ["1", "2"]
@@ -169,7 +169,7 @@ def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
 	setting = BrowseFile(label="Test")
 	setting_base_test(setting, "filename.extension", "")
 
-	fake_qfiledialog(BrowseFile, None)  # Simuler un "Cancel" sur le QFileDialog
+	fake_qfiledialog(BrowseFile, None)  # Simule une annulation du QFileDialog
 	setting.browse_file()
 	assert setting.value == "", "le paramètre devrait être vide"
 
@@ -198,7 +198,7 @@ def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
 	assert setting.current_text == "", "Valeur non vide."
 	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a plus
 
-	fake_qfiledialog(BrowseFile, None)  # Simuler un "Cancel" sur le QFileDialog
+	fake_qfiledialog(BrowseFile, None)  # Simule une annulation du QFileDialog
 	setting.add_file()
 	assert setting.items == [], "Liste de fichiers non valide."
 
@@ -245,7 +245,7 @@ def test_check_range_int(qtbot):
 	setting_base_test(setting, [3, 5], [0, 0])
 	ui = setting.get_ui("new")
 
-	# Special tests
+	# Cas particuliers
 	setting.value = [9, 4]
 	assert setting.value == [4, 4], "Valeur non valide."
 	setting.min = 10
@@ -284,7 +284,7 @@ def test_check_range_float(qtbot):
 	setting_base_test(setting, [3.0, 5.0], [0.0, 0.0])
 	ui = setting.get_ui("new")
 
-	# Special tests
+	# Cas particuliers
 	setting.value = [9, 4]
 	assert setting.value == [4, 4], "Valeur non valide."
 	setting.min = 10
@@ -329,7 +329,7 @@ def test_check_int_selection(qtbot):
 	assert setting.value == "", "Valeur non valide."
 	assert setting.ranges == [], "Valeur non valide."
 	assert not setting.contains(7), "Valeur non valide."
-	# Gestion des cas problématiques (plusieurs fois ; ou -, caractère non valide et min/max inversé et fusion d'intevalles
+	# Gestion des cas problématiques : séparateurs répétés, caractère invalide, bornes inversées et fusion d'intervalles
 	setting.value = "4-6;10-8;7--7;;9;8:6;2"
 	assert setting.value == "2;4-10", "Valeur non valide."
 	assert setting.ranges == [(2, 2), (4, 10)], "Valeur non valide."
@@ -351,8 +351,8 @@ def test_button(qtbot, capsys):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = Button("Test")
 	setting_base_test(setting, True, True)
-	setting.connect_button(lambda: print("Hi"), "default", 0)  # Ui sur laquelle on ne va pas cliquer
-	setting.connect_button(lambda: print("Hello"), "new", 0)  # Ui sur laquelle on va cliquer
+	setting.connect_button(lambda: print("Hi"), "default", 0)  # UI sur laquelle aucun clic n'est effectué
+	setting.connect_button(lambda: print("Hello"), "new", 0)  # UI sur laquelle le clic est effectué
 	ui = setting.get_ui("new")
 
 	w = QWidget()

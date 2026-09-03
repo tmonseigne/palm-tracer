@@ -59,10 +59,10 @@ class BaseSettingType:
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		"""
-		Retourne une interface :class:`.BaseUIType`, existante ou la crée si nécessaire.
+		Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
-		:return: Interface du paramètre (:class:`palm_tracer.Settings.Types.BaseUIType.BaseUIType`).
+		:return: Interface du paramètre (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`).
 		"""
 		raise NotImplementedError("La méthode 'get_ui' doit être implémentée dans la sous-classe.")
 
@@ -167,7 +167,7 @@ class BaseSettingType:
 	##################################################
 	def disconnect(self, f: Optional[Any] = None) -> int:
 		"""
-		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
+		Déconnecte ``f`` si fourni, sinon tous les slots. Renvoie le nombre de slots déconnectés.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés.
