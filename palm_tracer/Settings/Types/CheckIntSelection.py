@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import cast
 
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtGui import QValidator
 from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit
 
-from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseCheckSetting import BaseCheckSetting
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
@@ -43,7 +43,7 @@ class IntSelectionValidator(QValidator):
 
 ##################################################
 @dataclass
-class CheckIntSelection(BaseSettingType):
+class CheckIntSelection(BaseCheckSetting):
 	"""
 	Représente une sélection activable de valeurs entières et d'intervalles.
 
@@ -59,14 +59,6 @@ class CheckIntSelection(BaseSettingType):
 	"""Valeur par défaut du paramètre (:class:`str`)."""
 	_value: str = field(init=False, default="")
 	"""Valeur actuelle du paramètre (:class:`str`)."""
-	_active: bool = field(init=False, default=False)
-	"""Indicateur d'activation du paramètre."""
-
-	##################################################
-	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
-		super().reset()
-		self.active = False
 
 	# ==================================================
 	# region Accesseurs
@@ -92,23 +84,6 @@ class CheckIntSelection(BaseSettingType):
 
 		self._uis[name] = ui  # .					 Ajoute l'ui au dictionnaire
 		return ui
-
-	##################################################
-	@property
-	def active(self) -> bool:
-		"""Indicateur d'activation du paramètre (:class:`bool`)."""
-		return self._active
-
-	##################################################
-	@active.setter
-	def active(self, value: bool):
-		"""Contrôle la modification de l'état actif."""
-		if self._active == value: return
-		self._active = value
-		for ui in self._uis.values():
-			b = cast(QCheckBox, ui.boxes[0])
-			with QSignalBlocker(b): b.setChecked(value)
-		self.emit(value)
 
 	##################################################
 	@property
@@ -198,34 +173,6 @@ class CheckIntSelection(BaseSettingType):
 		:return: ``True`` si la valeur appartient à au moins un intervalle, sinon ``False``.
 		"""
 		return any(minimum <= value <= maximum for minimum, maximum in self.ranges)
-
-	# ==================================================
-	# endregion Sélection
-	# ==================================================
-
-	# ==================================================
-	# region Sérialisation
-	# ==================================================
-	##################################################
-	def to_compact_dict(self) -> dict[str, Any]:
-		return {"value": self.value, "active": self.active}
-
-	##################################################
-	def update_from_compact_dict(self, data: dict[str, Any]):
-		self.value = data["value"]
-		self.active = data["active"]
-
-	# ==================================================
-	# endregion Sérialisation
-	# ==================================================
-
-	# ==================================================
-	# region Fonctions de rappel
-	# ==================================================
-	##################################################
-	def set_active(self, state: int):
-		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
-		self.active = bool(state)
 
 
 ##################################################

@@ -71,6 +71,22 @@ def test_base_setting():
 
 
 ###################################################
+@pytest.mark.parametrize("setting_type", [CheckInt, CheckIntSelection, CheckRangeFloat, CheckRangeInt])
+def test_base_check_setting(setting_type):
+	"""Vérifie le contrat commun des paramètres activables."""
+	setting = setting_type()
+	assert isinstance(setting, BaseCheckSetting)
+
+	setting.active = True
+	data = copy.deepcopy(setting.to_compact_dict())
+	setting.reset()
+	assert not setting.active
+
+	setting.update_from_compact_dict(data)
+	assert setting.active
+
+
+###################################################
 def test_base_ui(qtbot):
 	"""Vérifie l'interface de base avec libellé."""
 	ui = BaseUIType(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])

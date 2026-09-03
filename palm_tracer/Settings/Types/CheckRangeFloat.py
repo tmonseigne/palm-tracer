@@ -8,14 +8,14 @@ from typing import Any, cast
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel, QSpinBox
 
-from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
+from palm_tracer.Settings.Types.BaseCheckSetting import BaseCheckSetting
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
 ##################################################
 @dataclass
-class CheckRangeFloat(BaseSettingType):
+class CheckRangeFloat(BaseCheckSetting):
 	"""
 	Représente un intervalle flottant dont l'application peut être activée ou désactivée.
 
@@ -32,20 +32,12 @@ class CheckRangeFloat(BaseSettingType):
 	_value: list[float] = field(init=False, default_factory=lambda: [-1.0, 1.0])
 	"""Valeur actuelle du paramètre (:class:`list[float]`)."""
 
-	_active: bool = field(init=False, default=False)
-	"""Indicateur d'activation du paramètre."""
 	_limits: list[float] = field(default_factory=lambda: [-1.0, 1.0])
 	"""Valeurs limites du paramètre."""
 	step: float = 0.1
 	"""Pas à chaque appui sur une des flèches du paramètre."""
 	precision: int = 2
 	"""Précision du paramètre."""
-
-	##################################################
-	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
-		super().reset()
-		self.active = False
 
 	# ==================================================
 	# region Accesseurs
@@ -78,23 +70,6 @@ class CheckRangeFloat(BaseSettingType):
 
 		self._uis[name] = ui  # .					   Ajoute l'ui au dictionnaire
 		return ui
-
-	##################################################
-	@property
-	def active(self) -> bool:
-		"""Indicateur d'activation du paramètre (:class:`bool`)."""
-		return self._active
-
-	##################################################
-	@active.setter
-	def active(self, value: bool):
-		"""Contrôle la modification de l'état actif."""
-		if self._active == value: return
-		self._active = value
-		for ui in self._uis.values():
-			b = cast(QCheckBox, ui.boxes[0])
-			with QSignalBlocker(b): b.setChecked(value)
-		self.emit(value)
 
 	##################################################
 	@property
@@ -175,13 +150,12 @@ class CheckRangeFloat(BaseSettingType):
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
-		return {"value": self.value, "limits": self.limits, "active": self.active}
+		return {**super().to_compact_dict(), "limits": self.limits}
 
 	##################################################
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		self.limits = data["limits"]  # Récupération des limites avant de mettre à jour la valeur
-		self.value = data["value"]
-		self.active = data["active"]
+		super().update_from_compact_dict(data)
 
 	# ==================================================
 	# endregion Sérialisation
@@ -190,11 +164,6 @@ class CheckRangeFloat(BaseSettingType):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-	##################################################
-	def set_active(self, state: int):
-		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
-		self.active = bool(state)
-
 	##################################################
 	def set_min(self, value: float):
 		"""S'assure que min ≤ max."""

@@ -1,5 +1,6 @@
 """Expose les types de paramètres et leurs représentations graphiques."""
 
+from .BaseCheckSetting import BaseCheckSetting
 # Importation explicite des classes pour qu'elles soient accessibles directement
 from .BaseSettingType import BaseSettingType
 from .BaseUIType import BaseUIType
@@ -18,6 +19,6 @@ from .SpinFloat import SpinFloat
 from .SpinInt import SpinInt
 
 # Définir la liste des symboles exportés
-__all__ = ["BaseSettingType", "BaseUIType", "SignalWrapper",
+__all__ = ["BaseSettingType", "BaseCheckSetting", "BaseUIType", "SignalWrapper",
 		   "BrowseFile", "Button", "ButtonGroup", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
 		   "CheckInt", "CheckIntSelection", "CheckRangeFloat", "CheckRangeInt"]

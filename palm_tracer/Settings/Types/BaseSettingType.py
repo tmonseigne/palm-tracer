@@ -119,7 +119,6 @@ class BaseSettingType:
 		"""
 		self.get_ui(ui_name).attach_to_form(form)
 
-
 	# ==================================================
 	# endregion Interface et visibilité
 	# ==================================================
