@@ -18,8 +18,8 @@ class GraphDisplay(BaseSettingGroup):
 
 	- ``Limits`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : limite l'affichage à l'intervalle :math:`[\\mu-3\\sigma,\\mu+3\\sigma]`.
 	- ``Sigma`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche les repères à un, deux et trois écarts-types de la moyenne.
-	- ``Gauss``, ``Poiss`` et ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : superposent respectivement les modèles gaussien,
-	  poissonnien et exponentiel.
+	- ``Gauss``, ``Gauss Mix``, ``Poiss`` et ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : superposent respectivement les modèles
+	  gaussien, mélange de deux gaussiennes, poissonnien et exponentiel.
 	- ``KDE`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche l'estimation de densité par noyau.
 	- ``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : produit un histogramme cumulatif.
 	- ``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise une échelle logarithmique.
@@ -33,6 +33,7 @@ class GraphDisplay(BaseSettingGroup):
 			"Limits":    [CheckBox, ["Apply Limits", "Limits data to ±3σ around the mean (3-sigma rule).", True]],
 			"Sigma":     [CheckBox, ["Show σ", "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean."]],
 			"Gauss":     [CheckBox, ["Show Gaussian", "Displays the Gaussian curve associated with the mean and standard deviation of the data."]],
+			"Gauss Mix": [CheckBox, ["Show Gaussian Mixture", "Displays a fitted mixture of two Gaussian distributions."]],
 			"KDE":       [CheckBox, ["Show KDE", "Displays the kernel density estimation (the curve closest to the histogram) associated with the data."]],
 			"Poiss":     [CheckBox, ["Show Poisson", "Displays the Poissonnian curve associated with the mean of the data."]],
 			"Exp":       [CheckBox, ["Show Exponential", "Displays the Exponential inverse curve associated with the mean of the data."]],

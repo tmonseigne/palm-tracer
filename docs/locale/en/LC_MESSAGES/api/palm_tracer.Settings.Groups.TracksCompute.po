@@ -12,27 +12,27 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:5
 msgid "``MSD`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule le déplacement quadratique moyen."
-msgstr "``MSD`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : computes the mean squared displacement."
+msgstr "``MSD`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): computes the mean squared displacement."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:6
 msgid "``Instant Diffusion`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule la diffusion instantanée."
-msgstr "``Instant Diffusion`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : computes instantaneous diffusion."
+msgstr "``Instant Diffusion`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): computes instantaneous diffusion."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:7
 msgid "``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : longueur initiale de la fenêtre d'ajustement ; valeur par défaut : ``4``."
-msgstr "``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : initial fitting-window length; default value: ``4``."
+msgstr "``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): initial fitting-window length; default value: ``4``."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:8
 msgid "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z."
-msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : includes the Z coordinate."
+msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): includes the Z coordinate."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:9
 msgid "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : transforme les résultats en échelle logarithmique avant leur sauvegarde."
-msgstr "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : converts results to a logarithmic scale before saving them."
+msgstr "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): converts results to a logarithmic scale before saving them."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:10
 msgid "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de mouvement utilisé pour l'ajustement."
-msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : motion model used for fitting."
+msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): motion model used for fitting."
 
 #: ../../api/palm_tracer.Settings.Groups.TracksCompute.rst
 msgid "Paramètres"

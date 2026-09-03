@@ -12,39 +12,39 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:5
 msgid "``Preview`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active la prévisualisation ; valeur par défaut : ``False``."
-msgstr "``Preview`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enables preview; default value: ``False``."
+msgstr "``Preview`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): enables preview; default value: ``False``."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:6
 msgid "``Threshold`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : seuil d'intensité de la détection ; valeur par défaut : ``90.0``."
-msgstr "``Threshold`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : detection intensity threshold; default value: ``90.0``."
+msgstr "``Threshold`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): detection intensity threshold; default value: ``90.0``."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:7
 msgid "``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`) : calcule automatiquement le seuil."
-msgstr "``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`) : automatically computes the threshold."
+msgstr "``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`): automatically computes the threshold."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:8
 msgid "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : forme circulaire ou carrée de la zone d'ajustement."
-msgstr "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : circular or square shape of the fitting region."
+msgstr "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): circular or square shape of the fitting region."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:9
 msgid "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille de la zone d'ajustement ; valeur par défaut : ``7`` pixels."
-msgstr "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : size of the fitting region; default value: ``7`` pixels."
+msgstr "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): size of the fitting region; default value: ``7`` pixels."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:10
 msgid "``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : sépare les points voisins ; valeur par défaut : ``True``."
-msgstr "``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : separates neighboring points; default value: ``True``."
+msgstr "``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): separates neighboring points; default value: ``True``."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:11
 msgid "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : sélectionne l'absence d'ajustement, l'ajustement gaussien ou l'ajustement par spline."
-msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : selects no fitting, Gaussian fitting, or spline fitting."
+msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): selects no fitting, Gaussian fitting, or spline fitting."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:12
 msgid "``Gaussian Fit`` (:class:`~palm_tracer.Settings.Groups.GaussianFit.GaussianFit`) : paramètres de l'ajustement gaussien."
-msgstr "``Gaussian Fit`` (:class:`~palm_tracer.Settings.Groups.GaussianFit.GaussianFit`) : Gaussian-fitting settings."
+msgstr "``Gaussian Fit`` (:class:`~palm_tracer.Settings.Groups.GaussianFit.GaussianFit`): Gaussian-fitting settings."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:13
 msgid "``Spline Fit`` (:class:`~palm_tracer.Settings.Groups.SplineFit.SplineFit`) : paramètres de l'ajustement par spline."
-msgstr "``Spline Fit`` (:class:`~palm_tracer.Settings.Groups.SplineFit.SplineFit`) : spline-fitting settings."
+msgstr "``Spline Fit`` (:class:`~palm_tracer.Settings.Groups.SplineFit.SplineFit`): spline-fitting settings."
 
 #: ../../api/palm_tracer.Settings.Groups.Localization.rst
 msgid "Paramètres"

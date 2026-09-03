@@ -12,27 +12,27 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:5
 msgid "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires."
-msgstr "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : data family, localizations or tracks."
+msgstr "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`): data family, localizations or tracks."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:6
 msgid "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée."
-msgstr "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : first quantity to display."
+msgstr "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): first quantity to display."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:7
 msgid "``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active un nuage de points utilisant deux grandeurs."
-msgstr "``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : enables a scatter plot using two quantities."
+msgstr "``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): enables a scatter plot using two quantities."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:8
 msgid "``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque ``Dual`` est actif."
-msgstr "``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : second quantity to display when ``Dual`` is enabled."
+msgstr "``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): second quantity to display when ``Dual`` is enabled."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:9
 msgid "``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : décalage temporel sélectionné pour le MSD."
-msgstr "``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : time lag selected for the MSD."
+msgstr "``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): time lag selected for the MSD."
 
 #: of palm_tracer.Settings.Groups.Graph.Graph:10
 msgid "``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : options de rendu du graphique."
-msgstr "``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : graph-rendering options."
+msgstr "``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`): graph-rendering options."
 
 #: ../../api/palm_tracer.Settings.Groups.Graph.rst of
 #: palm_tracer.Settings.Groups.Graph.Graph.toggle_dual

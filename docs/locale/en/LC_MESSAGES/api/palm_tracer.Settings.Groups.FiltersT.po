@@ -12,27 +12,27 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:5
 msgid "``Track`` (:class:`~palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection`) : identifiants individuels ou intervalles, par exemple ``1-10;15;20-25``."
-msgstr "``Track`` (:class:`~palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection`) : individual identifiers or ranges, for example ``1-10;15;20-25``."
+msgstr "``Track`` (:class:`~palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection`): individual identifiers or ranges, for example ``1-10;15;20-25``."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:7
 msgid "``Length`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle de longueur ; valeur par défaut : ``[1, 10000]``."
-msgstr "``Length`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : length range; default value: ``[1, 10000]``."
+msgstr "``Length`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`): length range; default value: ``[1, 10000]``."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:8
 msgid "``Instant D`` et ``D Coeff`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des coefficients de diffusion ; valeur par défaut : ``[-5.0, 5.0]``."
-msgstr "``Instant D`` and ``D Coeff`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : diffusion-coefficient ranges; default value: ``[-5.0, 5.0]``."
+msgstr "``Instant D`` and ``D Coeff`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): diffusion-coefficient ranges; default value: ``[-5.0, 5.0]``."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:10
 msgid "``Alpha`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de l'exposant du mouvement ; valeur par défaut : ``[-10.0, 10.0]``."
-msgstr "``Alpha`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : motion-exponent range; default value: ``[-10.0, 10.0]``."
+msgstr "``Alpha`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): motion-exponent range; default value: ``[-10.0, 10.0]``."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:12
 msgid "``Speed`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de vitesse ; valeur par défaut : ``[0.0, 1.0]`` µm/s."
-msgstr "``Speed`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : speed range; default value: ``[0.0, 1.0]`` µm/s."
+msgstr "``Speed`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): speed range; default value: ``[0.0, 1.0]`` µm/s."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:13
 msgid "``Confinement`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de confinement ; valeur par défaut : ``[-10.0, 10.0]`` µm."
-msgstr "``Confinement`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : confinement range; default value: ``[-10.0, 10.0]`` µm."
+msgstr "``Confinement`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): confinement range; default value: ``[-10.0, 10.0]`` µm."
 
 #: of palm_tracer.Settings.Groups.FiltersT.FiltersT:16
 msgid "À faire"

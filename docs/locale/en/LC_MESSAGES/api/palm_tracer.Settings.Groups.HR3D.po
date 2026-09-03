@@ -12,15 +12,15 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.HR3D.HR3D:5
 msgid "``Z Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : distance entre deux plans, dans l'unité de la colonne Z."
-msgstr "``Z Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : distance between two planes, in the unit of the Z column."
+msgstr "``Z Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): distance between two planes, in the unit of the Z column."
 
 #: of palm_tracer.Settings.Groups.HR3D.HR3D:6
 msgid "``Axis`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : axe de rotation de la pile."
-msgstr "``Axis`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : stack rotation axis."
+msgstr "``Axis`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): stack rotation axis."
 
 #: of palm_tracer.Settings.Groups.HR3D.HR3D:7
 msgid "``Frames`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre d'images produites pour une rotation complète ; valeur par défaut : ``36``."
-msgstr "``Frames`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : number of images produced for a complete rotation; default value: ``36``."
+msgstr "``Frames`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): number of images produced for a complete rotation; default value: ``36``."
 
 #: ../../api/palm_tracer.Settings.Groups.HR3D.rst
 msgid "Paramètres"

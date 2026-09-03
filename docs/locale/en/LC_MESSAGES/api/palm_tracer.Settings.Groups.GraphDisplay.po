@@ -8,39 +8,39 @@ msgstr "Groups the statistical rendering options for graphs."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:3
 msgid "Paramètres regroupés :"
-msgstr "Parameters"
+msgstr "Grouped settings:"
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:5
 msgid "``Limits`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : limite l'affichage à l'intervalle :math:`[\\mu-3\\sigma,\\mu+3\\sigma]`."
-msgstr "``Limits`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : limits the display to the :math:`[\\mu-3\\sigma,\\mu+3\\sigma]` range."
+msgstr "``Limits`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): limits the display to the :math:`[\\mu-3\\sigma,\\mu+3\\sigma]` range."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:6
 msgid "``Sigma`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche les repères à un, deux et trois écarts-types de la moyenne."
-msgstr "``Sigma`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : displays markers at one, two, and three standard deviations from the mean."
+msgstr "``Sigma`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): displays markers at one, two, and three standard deviations from the mean."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:7
-msgid "``Gauss``, ``Poiss`` et ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : superposent respectivement les modèles gaussien, poissonnien et exponentiel."
-msgstr "``Gauss``, ``Poiss``, and ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : respectively overlay Gaussian, Poisson, and exponential models."
+msgid "``Gauss``, ``Gauss Mix``, ``Poiss`` et ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : superposent respectivement les modèles gaussien, mélange de deux gaussiennes, poissonnien et exponentiel."
+msgstr "``Gauss``, ``Gauss Mix``, ``Poiss``, and ``Exp`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): respectively overlay the Gaussian, two-Gaussian-mixture, Poisson, and exponential models."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:9
 msgid "``KDE`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : affiche l'estimation de densité par noyau."
-msgstr "``KDE`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : displays the kernel density estimate."
+msgstr "``KDE`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): displays the kernel density estimate."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:10
 msgid "``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : produit un histogramme cumulatif."
-msgstr "``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : produces a cumulative histogram."
+msgstr "``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): produces a cumulative histogram."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:11
 msgid "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise une échelle logarithmique."
-msgstr "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : uses a logarithmic scale."
+msgstr "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): uses a logarithmic scale."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:12
 msgid "``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exprime l'axe Y en effectifs plutôt qu'en densité."
-msgstr "``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : expresses the Y-axis as counts rather than density."
+msgstr "``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): expresses the Y-axis as counts rather than density."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:13
 msgid "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de classes de l'histogramme ; ``0`` active le choix automatique."
-msgstr "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : number of histogram bins; ``0`` enables automatic selection."
+msgstr "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): number of histogram bins; ``0`` enables automatic selection."
 
 #: ../../api/palm_tracer.Settings.Groups.GraphDisplay.rst
 msgid "Paramètres"
@@ -60,4 +60,4 @@ msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay.mode:1
 msgid "Mode d'affichage du groupe dans l'interface."
-msgstr "Default group display method."
+msgstr "Group display mode in the interface."

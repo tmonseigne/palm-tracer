@@ -63,11 +63,19 @@ def test_histogram():
 	# ref = json.loads((REF_DIR / "grapher_Histogram_2.json").read_text(encoding="utf-8"))
 	# if platform.system() == "Windows": assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
+	# Histogramme avec valeurs entières
+	res = g.histogram(np.array([1, 2, 2, 4]), bins=-1)
+	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_integer.json")
+	ref = json.loads((REF_DIR / "grapher_Histogram_integer.json").read_text(encoding="utf-8"))
+	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
 	# Entrée 1D avec courbes densité et non cumulatif
 	res = g.histogram(POINTS, "Histogram", "", "", kde=True)
 	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_kde.json")
 	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True)
 	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_gaussian.json")
+	res = g.histogram(np.concatenate((POINTS - 2.0, POINTS + 2.0)), "Histogram", gaussian_mixture=True)
+	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_gaussian_mix.json")
 	res = g.histogram(POINTS, "Histogram", "", "", poissonian=True)
 	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_poissonian.json")
 	res = g.histogram(POINTS, "Histogram", "", "", exponential=True)
@@ -79,6 +87,7 @@ def test_histogram():
 	# Gaussienne count
 	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True, density=False)
 	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_count.json")
+
 
 	# Entrée 2D
 	res = g.histogram(np.stack((IDX, POINTS), axis=0), "Histogram", limit=True)

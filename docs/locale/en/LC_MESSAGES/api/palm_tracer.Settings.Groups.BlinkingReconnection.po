@@ -12,15 +12,15 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:5
 msgid "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de déplacement attendu, parmi ``Immobile``, ``Diffuse`` et ``Linear``."
-msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : expected motion model, among ``Immobile``, ``Diffuse``, and ``Linear``."
+msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): expected motion model, among ``Immobile``, ``Diffuse``, and ``Linear``."
 
 #: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:6
 msgid "``Max Duration`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : durée maximale de l'interruption ; valeur par défaut : ``1`` plan."
-msgstr "``Max Duration`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : maximum interruption duration; default value: ``1`` plane."
+msgstr "``Max Duration`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): maximum interruption duration; default value: ``1`` plane."
 
 #: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:7
 msgid "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale de reconnexion ; valeur par défaut : ``1.0`` pixel."
-msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : maximum reconnection distance; default value: ``1.0`` pixel."
+msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): maximum reconnection distance; default value: ``1.0`` pixel."
 
 #: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:9
 msgid "Une distance supérieure à celle du suivi initial reste autorisée afin de reconnecter des points éloignés sur deux plans consécutifs."

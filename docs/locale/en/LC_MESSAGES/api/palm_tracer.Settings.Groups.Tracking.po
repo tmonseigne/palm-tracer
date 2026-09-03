@@ -12,7 +12,7 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Tracking.Tracking:5
 msgid "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale entre deux plans pour associer un point ; valeur par défaut : ``1.0`` pixel."
-msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : maximum distance between two planes for associating a point; default value: ``1.0`` pixel."
+msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): maximum distance between two planes for associating a point; default value: ``1.0`` pixel."
 
 #: ../../api/palm_tracer.Settings.Groups.Tracking.rst
 msgid "Paramètres"

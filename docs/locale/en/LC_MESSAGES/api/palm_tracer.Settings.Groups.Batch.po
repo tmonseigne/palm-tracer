@@ -12,11 +12,11 @@ msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Batch.Batch:5
 msgid "``Files`` (:class:`~palm_tracer.Settings.Types.FileList.FileList`) : fichiers à traiter."
-msgstr "``Files`` (:class:`~palm_tracer.Settings.Types.FileList.FileList`) : files to process."
+msgstr "``Files`` (:class:`~palm_tracer.Settings.Types.FileList.FileList`): files to process."
 
 #: of palm_tracer.Settings.Groups.Batch.Batch:6
 msgid "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : traite un seul fichier, chaque fichier séparément ou tous les fichiers comme une acquisition unique."
-msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : processes a single file, each file separately, or all files as a single acquisition."
+msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): processes a single file, each file separately, or all files as a single acquisition."
 
 #: ../../api/palm_tracer.Settings.Groups.Batch.rst
 msgid "Paramètres"
