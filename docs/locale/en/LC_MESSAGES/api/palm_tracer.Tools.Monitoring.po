@@ -127,36 +127,28 @@ msgid "Ajoute des barres verticales et des zones colorées pour chaque test dans
 msgstr "Adds vertical bars and colored areas for each test in a Plotly chart."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:3
-msgid "Cette fonction ajoute des zones colorées en fonction des timestamps des tests et leur fichier associé, ainsi que des lignes verticales pour marquer chaque test. Elle est utilisée pour représenter graphiquement les périodes d'exécution de chaque test dans le temps."
-msgstr "This function adds colored areas based on the test timestamps and their associated files, as well as vertical lines to mark each test. It is used to graphically represent the execution periods of each test over time."
+msgid "Figure Plotly à compléter."
+msgstr "Plotly figure to update."
+
+#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:4
+msgid "Plage des valeurs de l'axe Y."
+msgstr "Y-axis value range."
+
+#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:5
+msgid "Informations relatives aux tests exécutés."
+msgstr "Information about the executed tests."
+
+#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:6
+msgid "Couleurs associées aux fichiers de tests."
+msgstr "Colors associated with the test files."
 
 #: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:7
-msgid "L'objet figure de Plotly dans lequel les éléments (barres et lignes) seront ajoutés."
-msgstr "The Plotly figure object into which the elements (bars and lines) will be added."
+msgid "Dernier timestamp enregistré."
+msgstr "Last recorded timestamp."
 
-#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:9
-msgid "La plage des valeurs sur l'axe Y pour la section du graphique où les zones colorées seront tracées. La plage est définie par deux valeurs [y_min, y_max]."
-msgstr "The range of values on the Y-axis for the section of the graph where the colored areas will be plotted. The range is defined by two values [y_min, y_max]."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:12
-msgid "Une liste de dictionnaires représentant les tests effectués. Chaque dictionnaire doit contenir les clés : - \"Timestamp\" (float) : Le timestamp du test. - \"File\" (str) : Le nom du fichier associé au test. - \"Test\" (str) : Le nom du test effectué."
-msgstr "A list of dictionaries representing the tests performed. Each dictionary must contain the following keys: - \"Timestamp\" (float): The test's timestamp. - \"File\" (str): The name of the file associated with the test. - \"Test\" (str): The name of the test performed."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:17
-msgid "Un dictionnaire associant chaque fichier de test à une couleur. Le fichier est utilisé comme clé et la couleur (en format HTML) comme valeur."
-msgstr "A dictionary associating each test file with a color. The file is used as the key and the color (in HTML format) as the value."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:20
-msgid "Le dernier timestamp enregistré, utilisé pour déterminer la fin de la zone colorée pour le dernier test."
-msgstr "The last recorded timestamp, used to determine the end of the colored area for the last test."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:22
-msgid "L'index de la ligne dans la figure Plotly (utile lorsque plusieurs sous-graphiques sont utilisés) pour ajouter les éléments (barres verticales et zones colorées) dans la section correspondante."
-msgstr "The row index in the Plotly figure (useful when multiple subplots are used) to add elements (vertical bars and colored areas) to the corresponding section."
-
-#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:25
-msgid "Cette fonction modifie l'objet ``fig`` en ajoutant des traces et des formes, mais ne retourne rien."
-msgstr "This function modifies the ``fig`` object by adding plots and shapes, but does not return anything."
+#: of palm_tracer.Tools.Monitoring.Monitoring.draw_test_section:8
+msgid "Ligne du sous-graphique à compléter."
+msgstr "Row of the subplot to update."
 
 #: ../../api/palm_tracer.Tools.Monitoring.rst:36
 msgid "Entrées-sorties"
