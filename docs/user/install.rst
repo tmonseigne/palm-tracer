@@ -127,7 +127,19 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 3. Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`
 4. Vous pouvez également lancer Napari avec le plugin directement activé via la commande : :console:`napari -w palm-tracer`
 
-Étape 6 (Optionnelle) : Supprimer la mise à l'échelle Windows
+Étape 6 (Optionnelle) : Création d'un raccourci sur le bureau
+------------------------------------------------------------------------
+
+Pour créer un raccourci **PALM Tracer** sur le bureau, lancez la commande suivante depuis le dossier du projet :
+
+.. code-block:: powershell
+
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\make_shortcut.ps1
+
+Le raccourci lance directement le plugin dans Napari et ouvre une console qui affiche les journaux d'exécution.
+
+
+Étape 7 (Optionnelle) : Supprimer la mise à l'échelle Windows
 ------------------------------------------------------------------------
 Napari utilise QT et celui-ci est paramétré sur la mise à l'échelle automatique de Windows qui permet, notamment, d'agrandir l'interface sur les petits écrans ayant une résolution élevée.
 Cela peut devenir parfois gênant avec une interface démesurée, il est possible de modifier ce comportement.
