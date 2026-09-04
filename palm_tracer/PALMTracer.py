@@ -632,26 +632,32 @@ class PALMTracer:
 		src_id, dual, log_scale = s["Type"], s["Dual"], s["Display Log Scale"]
 		src_a = cast(Combo, self.settings.graph["Source"]).current_text
 
-		d, t = self._get_graph_data_from_src(src_id, src_a, log_scale)
+		d, t = self._get_graph_data_from_src(src_id, src_a, log_scale, dual)
 		if dual:
 			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
 			t += f" / {src_b}"
-			d_b, _ = self._get_graph_data_from_src(src_id, src_b, log_scale)
-			if d.ndim == 2: d = d[:, 1]
-			if d_b.ndim == 2: d_b = d_b[:, 1]
+			d_b, _ = self._get_graph_data_from_src(src_id, src_b, log_scale, dual)
+			if src_id == 1 and d.ndim == 2 and d_b.ndim == 2:
+				source_a = pd.DataFrame(d, columns=["Track", "Source A"])
+				source_b = pd.DataFrame(d_b, columns=["Track", "Source B"])
+				common = source_a.merge(source_b, on="Track", how="inner", sort=False)
+				if common.empty: return np.empty(0), t
+				return common[["Source A", "Source B"]].to_numpy().T, t
+			if d.ndim != d_b.ndim: return np.empty(0), t
 			if d_b.size != d.size: return np.empty(0), t
-			d = np.column_stack((d, d_b))
+			d = np.vstack((d, d_b))
 
 		return d, t
 
 	##################################################
-	def _get_graph_data_from_src(self, src_id, src: str, log_scale: bool = False) -> tuple[np.ndarray, str]:
+	def _get_graph_data_from_src(self, src_id, src: str, log_scale: bool = False, with_track_ids: bool = False) -> tuple[np.ndarray, str]:
 		"""
 		Récupère et prépare les données pour l'affichage.
 
 		:param src_id: Identifiant du type de source à représenter.
 		:param src: Nom de la donnée ou de la colonne à extraire.
 		:param log_scale: Applique une transformation logarithmique aux valeurs si ``True``.
+		:param with_track_ids: Conserve les identifiants et agrège les valeurs par trajectoire pour permettre leur mise en correspondance.
 		:return: Données extraites et titre associé au graphique.
 		"""
 		# Localizations
@@ -682,24 +688,30 @@ class PALMTracer:
 				res = (group["max"] - group["min"] + 1).to_numpy()
 
 				if src == "Length Scatter": return np.column_stack((group.index.to_numpy(), res)), title
+				if with_track_ids: return np.column_stack((group.index.to_numpy(), res)), title
 				return res, title
 
 			lengths: list[int] = []
+			lengths_by_track: list[tuple[int, float]] = []
 
-			for _, planes in tracks_planes:
+			for track, planes in tracks_planes:
 				planes_array = np.sort(planes.dropna().unique())
 				if planes_array.size == 0: continue  # pragma: no cover — Techniquement impossible : Plane est toujours valide
 
 				diffs = np.diff(planes_array)
 				breaks = np.flatnonzero(diffs > 1)
 
-				if src == "Length On":  # Récupère la longueur des segments continus des trajectoires.
-					segments = np.concatenate(([-1], breaks, [planes_array.size - 1],))
-					lengths.extend(np.diff(segments).tolist())
+				# Récupère la longueur des segments continus des trajectoires.
+				if src == "Length On": track_lengths = np.diff(np.concatenate(([-1], breaks, [planes_array.size - 1],)))
+				elif src == "Length Off": track_lengths = diffs[breaks]  # Récupère la longueur des blancs dans les trajectoires.
+				else: continue
 
-				elif src == "Length Off":
-					lengths.extend((diffs[breaks]).tolist())  # Récupère la longueur des blancs dans les trajectoires.
+				lengths.extend(track_lengths.tolist())
+				if with_track_ids and track_lengths.size > 0: lengths_by_track.append((int(track), float(np.mean(track_lengths))))
 
+			if with_track_ids:
+				if not lengths_by_track: return np.empty((0, 2)), title
+				return np.asarray(lengths_by_track), title
 			return np.asarray(lengths, dtype=np.int64), title
 
 		df = self.results.tracks_compute

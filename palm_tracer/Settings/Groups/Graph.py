@@ -16,7 +16,7 @@ DATA_SRC: dict[str, list] = {
 		"Tracking":     ["Length", "Length On", "Length Off", "MSD", "Instant D",
 						 "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE",
 						 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)", "Length Scatter"],
-		"No Dual":      ["Localizations Count", "Length", "Length On", "Length Off", "MSD", "Length Scatter"],
+		"No Dual":      ["Localizations Count", "MSD", "Length Scatter"],
 		}
 
 

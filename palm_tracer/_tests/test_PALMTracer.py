@@ -119,6 +119,20 @@ def test_reset_result(pt):
 		assert pt.results[key].empty, "Le Dataframe devrait être vide."
 
 
+##################################################
+def test_clean_ui(monkeypatch, pt):
+	"""Vérifie la délégation du nettoyage des interfaces."""
+	results_names: list[str] = []
+	settings_names: list[str] = []
+	monkeypatch.setattr(pt.results, "clean_ui", results_names.append)
+	monkeypatch.setattr(pt.settings, "clean_ui", settings_names.append)
+
+	pt.clean_ui("viewer")
+
+	assert results_names == ["viewer"]
+	assert settings_names == ["viewer"]
+
+
 # ==================================================
 # region Accesseurs
 # ==================================================
@@ -873,7 +887,7 @@ def test_get_graph_data():
 	s["Source"].value = 1
 	s["Source B"].value = 2
 	data, title = pt._get_graph_data()
-	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (6, 2), [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]]
+	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (2, 6), [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
@@ -883,6 +897,44 @@ def test_get_graph_data():
 	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (0,), []
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+
+
+###################################################
+def test_get_graph_data_dual_tracks():
+	"""Vérifie la mise en correspondance des données par identifiant de trajectoire."""
+	pt = get_fake_pt()
+	pt.results["f_blk"] = pd.DataFrame({"Track": [1, 1, 1, 1, 1, 2, 2, 2, 3, 3], "Plane": [1, 2, 5, 6, 7, 10, 12, 20, 4, 5], })
+	pt.results["Fit"] = pd.DataFrame({"Track": [2, 1, 4], "MSE(0)": [20.0, 10.0, 40.0]})
+
+	s = pt.settings.graph
+	s["Type"].value = 1
+	s["Dual"].value = True
+	source_a = cast(Combo, s["Source"])
+	source_b = cast(Combo, s["Source B"])
+	source_b.value = source_b.items.index("MSE(0)")
+
+	for source, expected in (("Length", [[7.0, 10.0], [11.0, 20.0]]), ("Length On", [[2.5, 10.0], [1.0, 20.0]]), ("Length Off", [[3.0, 10.0], [5.0, 20.0]]),):
+		source_a.value = source_a.items.index(source)
+		data, title = pt._get_graph_data()
+		assert title == f"Tracks {source} / MSE(0)"
+		np.testing.assert_array_equal(data, np.asarray(expected).T)
+		figure = pt.graph()
+		np.testing.assert_array_equal(figure.data[0].x, np.asarray(expected)[:, 0])
+		np.testing.assert_array_equal(figure.data[0].y, np.asarray(expected)[:, 1])
+
+	source_a.value = source_a.items.index("Length")
+	source_b.value = source_b.items.index("Instant D")
+	data, _ = pt._get_graph_data()
+	assert data.size == 0
+
+	source_b.value = source_b.items.index("MSE(0)")
+	pt.results["Fit"]["Track"] += 100
+	data, _ = pt._get_graph_data()
+	assert data.size == 0
+
+	pt.results["f_blk"] = pd.DataFrame({"Track": [1, 1, 2, 2], "Plane": [1, 2, 4, 5]})
+	data, _ = pt._get_graph_data_from_src(1, "Length Off", with_track_ids=True)
+	assert data.shape == (0, 2)
 
 
 ###################################################
