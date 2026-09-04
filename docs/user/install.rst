@@ -9,6 +9,18 @@ Installation
 .. role:: console(code)
    :language: console
 
+.. |windows| image:: /_static/img/Windows.svg
+   :height: 1.2em
+   :alt: Windows
+
+.. |macos| image:: /_static/img/MacOS.svg
+   :height: 1.2em
+   :alt: MacOS
+
+.. |linux| image:: /_static/img/Linux.svg
+   :height: 1.2em
+   :alt: Linux
+
 .. |powershell| image:: /_static/img/Powershell.svg
    :height: 1.2em
    :alt: PowerShell
@@ -20,9 +32,10 @@ Installation
 Ce guide vous aidera à installer le projet étape par étape.
 
 .. important::
-   | Toutes les lignes de commandes décrites sont effectuées à partir de |powershell| :console:`PowerShell` sous **Windows**.
-   | De préférence, le terminal doit être lancé en mode **administrateur** pour éviter des problèmes de droits, dans le cas contraire, il est possible que des blocages apparaissent.
-   | Si vous êtes sur le terminal |terminal| :console:`cmd` ou un autre système d'exploitation, des différences peuvent apparaitre. (Ex : `$env:...` devient `export ...`)
+   | Toutes les lignes de commandes décrites sont effectuées à partir de |powershell| :console:`PowerShell` sous |windows| **Windows**.
+   | De préférence, le terminal doit être lancé en mode **administrateur** pour éviter des problèmes de droits. Dans le cas contraire, il est possible que des blocages apparaissent.
+   | Si vous êtes sur le terminal |terminal| :console:`cmd` ou un autre système d'exploitation (|macos| MacOS, |linux| Linux...), des différences peuvent apparaitre.
+   | Dans ce cas, référez-vous à la documentation de votre système et outil. (Ex : `$env:...` devient `export ...`)
 
 
 Étape 1 : Téléchargement de PalmTracer
