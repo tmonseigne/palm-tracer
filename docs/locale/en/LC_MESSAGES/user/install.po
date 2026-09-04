@@ -186,9 +186,21 @@ msgstr "Enable the plugin in Napari: :menuselection:`Plugins --> PALM Tracer -->
 msgid "Vous pouvez également lancer Napari avec le plugin directement activé via la commande : :console:`napari -w palm-tracer`"
 msgstr "You can also launch Napari with the plugin already enabled using the following command: :console:`napari -w palm-tracer`"
 
-#: ../../user/install.rst:132
-msgid "Étape 6 (Optionnelle) : Supprimer la mise à l'échelle Windows"
-msgstr "Step 6 (Optional): Disabling Windows scaling"
+#: ../../user/install.rst:130
+msgid "Étape 6 (Optionnelle) : Création d'un raccourci sur le bureau"
+msgstr "Step 6 (Optional): Creating a desktop shortcut"
+
+#: ../../user/install.rst:133
+msgid "Pour créer un raccourci **PALM Tracer** sur le bureau, lancez la commande suivante depuis le dossier du projet :"
+msgstr "To create a **PALM Tracer** shortcut on the desktop, run the following command from the project directory:"
+
+#: ../../user/install.rst:140
+msgid "Le raccourci lance directement le plugin dans Napari et ouvre une console qui affiche les journaux d'exécution."
+msgstr "The shortcut launches the plugin directly in Napari and opens a console displaying the execution logs."
+
+#: ../../user/install.rst:144
+msgid "Étape 7 (Optionnelle) : Supprimer la mise à l'échelle Windows"
+msgstr "Step 7 (Optional): Disabling Windows scaling"
 
 #: ../../user/install.rst:133
 msgid "Napari utilise QT et celui-ci est paramétré sur la mise à l'échelle automatique de Windows qui permet, notamment, d'agrandir l'interface sur les petits écrans ayant une résolution élevée. Cela peut devenir parfois gênant avec une interface démesurée, il est possible de modifier ce comportement."
