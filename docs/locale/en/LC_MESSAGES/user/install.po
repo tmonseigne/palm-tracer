@@ -6,6 +6,26 @@ msgstr "Installation"
 msgid "Ce guide vous aidera à installer le projet étape par étape."
 msgstr "This guide will help you install the project step by step."
 
+#: ../../user/install.rst:34
+msgid "Installation automatique sous Windows"
+msgstr "Automatic installation on Windows"
+
+#: ../../user/install.rst:37
+msgid "Pour effectuer une installation standard, double-cliquez sur le fichier :file:`install.cmd` situé à la racine du projet, puis acceptez la demande de droits administrateur de Windows."
+msgstr "For a standard installation, double-click the :file:`install.cmd` file in the project root, then accept the Windows administrator privilege request."
+
+#: ../../user/install.rst:40
+msgid "Le script vérifie ou installe Python et les outils de compilation Microsoft, installe PALM Tracer dans l'interpréteur Python sélectionné, crée son raccourci sur le bureau et lance l'application. Aucun environnement virtuel n'est créé."
+msgstr "The script checks or installs Python and the Microsoft build tools, installs PALM Tracer in the selected Python interpreter, creates its desktop shortcut and starts the application. No virtual environment is created."
+
+#: ../../user/install.rst:44
+msgid "L'installation des outils de compilation Microsoft peut nécessiter plusieurs gigaoctets et prendre plusieurs minutes."
+msgstr "Installing the Microsoft build tools may require several gigabytes and take several minutes."
+
+#: ../../user/install.rst:47
+msgid "En cas d'échec, la console affiche l'erreur rencontrée et conserve un journal dans le dossier temporaire de Windows. Vous pouvez ensuite poursuivre avec les étapes manuelles ci-dessous."
+msgstr "If the installation fails, the console displays the error and keeps a log in the Windows temporary folder. You can then continue with the manual steps below."
+
 #: ../../user/install.rst:36
 msgid "Toutes les lignes de commandes décrites sont effectuées à partir de |powershell| :console:`PowerShell` sous |windows| **Windows**."
 msgstr "All the command lines described here are executed from |powershell| :console:`PowerShell` on |windows| **Windows**."

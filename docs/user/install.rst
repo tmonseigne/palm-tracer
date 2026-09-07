@@ -31,6 +31,21 @@ Installation
 
 Ce guide vous aidera à installer le projet étape par étape.
 
+Installation automatique sous Windows
+--------------------------------------
+
+Pour effectuer une installation standard, double-cliquez sur le fichier :file:`install.cmd` situé à la racine du projet,
+puis acceptez la demande de droits administrateur de Windows.
+
+Le script vérifie ou installe Python et les outils de compilation Microsoft, installe PALM Tracer dans l'interpréteur Python sélectionné,
+crée son raccourci sur le bureau et lance l'application. Aucun environnement virtuel n'est créé.
+
+.. warning::
+   L'installation des outils de compilation Microsoft peut nécessiter plusieurs gigaoctets et prendre plusieurs minutes.
+
+En cas d'échec, la console affiche l'erreur rencontrée et conserve un journal dans le dossier temporaire de Windows.
+Vous pouvez ensuite poursuivre avec les étapes manuelles ci-dessous.
+
 .. important::
    | Toutes les lignes de commandes décrites sont effectuées à partir de |powershell| :console:`PowerShell` sous |windows| **Windows**.
    | De préférence, le terminal doit être lancé en mode **administrateur** pour éviter des problèmes de droits. Dans le cas contraire, il est possible que des blocages apparaissent.
