@@ -1302,23 +1302,23 @@ def test_hr_stress():
 	s["Drift Correction"].value = False
 
 	# Bille qui part en diagonale du haut à droite vers le bas à gauche
-	bead_x, bead_y = np.linspace(n_x - 0.5, 0, n_p, dtype=np.float32), np.linspace(0, n_y - 0.5, n_p, dtype=np.float32)
+	bead_x, bead_y = np.linspace(n_x - 0.5, 0, n_p, dtype=float), np.linspace(0, n_y - 0.5, n_p, dtype=float)
 
-	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=np.int32),
-						  "Plane": np.arange(1, n_p + 1, dtype=np.int32),
+	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=int),
+						  "Plane": np.arange(1, n_p + 1, dtype=int),
 						  "X":     bead_x,
 						  "Y":     bead_y,
-						  "Z":     np.zeros(n_p, dtype=np.float32)})
+						  "Z":     np.zeros(n_p, dtype=float)})
 
 	# Loclaisation au centre
-	loc = pd.DataFrame({"Plane":                np.arange(1, n_p + 1, dtype=np.int32),
-						"X":                    np.full(n_p, n_x / 2.0, dtype=np.float32),
-						"Y":                    np.full(n_p, n_y / 2.0, dtype=np.float32),
-						"Z":                    np.zeros(n_p, dtype=np.float32),
-						"Integrated Intensity": np.full(n_p, 1, dtype=np.float32),
-						"Sigma X":              np.ones(n_p, dtype=np.float32),
-						"Sigma Y":              np.ones(n_p, dtype=np.float32),
-						"Theta":                np.zeros(n_p, dtype=np.float32)})
+	loc = pd.DataFrame({"Plane":                np.arange(1, n_p + 1, dtype=int),
+						"X":                    np.full(n_p, n_x / 2.0, dtype=float),
+						"Y":                    np.full(n_p, n_y / 2.0, dtype=float),
+						"Z":                    np.zeros(n_p, dtype=float),
+						"Integrated Intensity": np.full(n_p, 1, dtype=float),
+						"Sigma X":              np.ones(n_p, dtype=float),
+						"Sigma Y":              np.ones(n_p, dtype=float),
+						"Theta":                np.zeros(n_p, dtype=float)})
 
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
 
@@ -1351,11 +1351,11 @@ def test_hr_stress():
 	np.testing.assert_array_equal(viz, ref)
 
 	# Seconde bille qui descend comme la précédente, mais ne va pas vers la gauche donc la pente initiale sera divisé par 2.
-	beads2 = pd.DataFrame({"Bead":  np.full(n_p, 2, dtype=np.int32),
-						   "Plane": np.arange(1, n_p + 1, dtype=np.int32),
-						   "X":     np.zeros_like(bead_x, dtype=np.float32),
+	beads2 = pd.DataFrame({"Bead":  np.full(n_p, 2, dtype=int),
+						   "Plane": np.arange(1, n_p + 1, dtype=int),
+						   "X":     np.zeros_like(bead_x, dtype=float),
 						   "Y":     bead_y,
-						   "Z":     np.zeros(n_p, dtype=np.float32)})
+						   "Z":     np.zeros(n_p, dtype=float)})
 
 	pt.results["bds"] = pd.concat([beads, beads2], ignore_index=True)
 	viz, _ = pt.hr()
@@ -1366,14 +1366,14 @@ def test_hr_stress():
 	# On ajoute nos 2 billes à la localisation et on enlève le drift, tout doit être affiché
 	s["Drift Correction"].value = False
 	size = 3 * n_p
-	loc2 = pd.DataFrame({"Plane":                np.tile(np.arange(1, n_p + 1, dtype=np.int32), 3),
-						 "X":                    np.full(size, n_x / 2.0, dtype=np.float32),
-						 "Y":                    np.full(size, n_y / 2.0, dtype=np.float32),
-						 "Z":                    np.zeros(size, dtype=np.float32),
-						 "Integrated Intensity": np.full(size, 1, dtype=np.float32),
-						 "Sigma X":              np.ones(size, dtype=np.float32),
-						 "Sigma Y":              np.ones(size, dtype=np.float32),
-						 "Theta":                np.zeros(size, dtype=np.float32)})
+	loc2 = pd.DataFrame({"Plane":                np.tile(np.arange(1, n_p + 1, dtype=int), 3),
+						 "X":                    np.full(size, n_x / 2.0, dtype=float),
+						 "Y":                    np.full(size, n_y / 2.0, dtype=float),
+						 "Z":                    np.zeros(size, dtype=float),
+						 "Integrated Intensity": np.full(size, 1, dtype=float),
+						 "Sigma X":              np.ones(size, dtype=float),
+						 "Sigma Y":              np.ones(size, dtype=float),
+						 "Theta":                np.zeros(size, dtype=float)})
 	loc2.loc[n_p:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
 
 	pt.results["loc"] = loc2.copy()
@@ -1395,8 +1395,8 @@ def test_hr_stress():
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = True
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
-	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Aléatoire autour du centre.
-	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Aléatoire autour du centre.
+	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=float)  # Aléatoire autour du centre.
+	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=float)  # Aléatoire autour du centre.
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	# Position au centre puis résultat du random dans tous les sens ATTENTION LE DRIFT EST LISSÉ.

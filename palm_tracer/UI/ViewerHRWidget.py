@@ -78,9 +78,9 @@ class ViewerHRWidget(QWidget):
 		self.visualization: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
 
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
-						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=np.float32), name=self.LAYERS_NAME[1],
+						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[1],
 																	size=1, face_color="lime", visible=False),
-						self.LAYERS_NAME[2]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=np.float32), name=self.LAYERS_NAME[2],
+						self.LAYERS_NAME[2]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=float), name=self.LAYERS_NAME[2],
 																	blending="translucent", visible=False),
 						self.LAYERS_NAME[3]: self.viewer.add_shapes([], name=self.LAYERS_NAME[3], shape_type="polygon", edge_color="red",
 																	edge_width=0.5, face_color="transparent")}
@@ -211,7 +211,7 @@ class ViewerHRWidget(QWidget):
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
-		self._pt.load()  # .	Chargement des derniers résultats
+		self._pt.load()  # . Chargement des derniers résultats
 		self._actualize()  # Actualisation des statuts
 
 	##################################################

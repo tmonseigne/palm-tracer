@@ -308,7 +308,7 @@ class Renderer:
 		"""
 		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)  # Valeur initiale du fond.
 		shape = (depth, height, width) if depth > 0 else (height, width)  # .				 Forme du Tableau (2D ou 3D).
-		img = np.full(shape, init_value, dtype=np.float64)  # .								 Tableau de résultat.
+		img = np.full(shape, init_value, dtype=float)  # .									 Tableau de résultat.
 		mask = np.zeros_like(img, dtype=bool)  # .											 Masque pour le fond.
 		return img, mask
 
@@ -353,14 +353,14 @@ class Renderer:
 		planes, height, width = raw.shape
 		if height * self._r != self._h or width * self._r != self._w:
 			print_warning("Raw shape doesn't have expected dimensions for output background will be 0.")
-			return np.zeros((planes, self._h, self._w), dtype=np.float64)
+			return np.zeros((planes, self._h, self._w), dtype=float)
 
-		res = np.empty((planes, self._h, self._w), dtype=np.float64)
+		res = np.empty((planes, self._h, self._w), dtype=float)
 		# La diffusion remplit les blocs sans allouer de volume intermédiaire répété.
 		if upscale_type == 0 or self._r == 1: res.reshape(planes, height, self._r, width, self._r)[:] = raw[:, :, None, :, None]
 		else:
 			for i, plane in enumerate(raw):
-				img = Image.fromarray(plane.astype(np.float32))
+				img = Image.fromarray(plane.astype(float))
 				res[i] = np.asarray(img.resize((self._w, self._h), resample=Image.Resampling.LANCZOS))
 		return res
 
@@ -397,15 +397,15 @@ class Renderer:
 		if loc.empty: return loc
 
 		# Extraction directe en numpy pour éviter les copies/alignements pandas inutiles.
-		if col in loc.columns: colors = loc[col].to_numpy(dtype=np.float64, copy=True)
-		else: colors = np.ones(len(loc), dtype=np.float64)
+		if col in loc.columns: colors = loc[col].to_numpy(dtype=float, copy=True)
+		else: colors = np.ones(len(loc), dtype=float)
 
 		# Post-traitement des couleurs.
 		color_min = np.min(colors)
-		if color_min < 0.0: colors -= color_min  # .						 Décalage pour garantir un minimum nul.
+		if color_min < 0.0: colors -= color_min  # .					Décalage pour garantir un minimum nul.
 		color_max = np.max(colors)
-		if color_max <= 0.0: colors = np.ones(len(loc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
-		elif max_value > 0.0: colors *= max_value / color_max  # .			 Normalisation éventuelle.
+		if color_max <= 0.0: colors = np.ones(len(loc), dtype=float)  # Si l'on n'a que des 0, passe tout à 1.
+		elif max_value > 0.0: colors *= max_value / color_max  # .		Normalisation éventuelle.
 
 		loc["Color"] = colors
 
@@ -444,44 +444,44 @@ class Renderer:
 
 		# --- Définition de la couleur selon la source ---
 		# Numéro de la trajectoire.
-		if source == "Track ID": data["Color"] = data["Track"].to_numpy(dtype=np.float64)
+		if source == "Track ID": data["Color"] = data["Track"].to_numpy(dtype=float)
 		# Plan de chaque point.
-		elif source == "Plane Number": data["Color"] = data["Plane"].to_numpy(dtype=np.float64)
+		elif source == "Plane Number": data["Color"] = data["Plane"].to_numpy(dtype=float)
 
 		# Somme des intensités intégrées par trajectoire, recopiée sur tous les points de la trajectoire.
-		elif source == "Track Intensity": data["Color"] = data.groupby("Track")["Integrated Intensity"].transform("sum").to_numpy(dtype=np.float64)
+		elif source == "Track Intensity": data["Color"] = data.groupby("Track")["Integrated Intensity"].transform("sum").to_numpy(dtype=float)
 
 		# Longueur totale de la trajectoire
 		elif source == "Track Length":
 			# Somme des distances euclidiennes entre points successifs d'une même trajectoire.
-			dx = data.groupby("Track")["X"].diff().to_numpy(dtype=np.float64)
-			dy = data.groupby("Track")["Y"].diff().to_numpy(dtype=np.float64)
+			dx = data.groupby("Track")["X"].diff().to_numpy(dtype=float)
+			dy = data.groupby("Track")["Y"].diff().to_numpy(dtype=float)
 			# Les premières valeurs de chaque trajectoire valent NaN : elles ne contribuent pas à la longueur.
 			segment_lengths = np.sqrt(np.square(dx) + np.square(dy))
 			segment_lengths = np.nan_to_num(segment_lengths, nan=0.0)
 			data["SegmentLength"] = segment_lengths
-			data["Color"] = data.groupby("Track")["SegmentLength"].transform("sum").to_numpy(dtype=np.float64)
+			data["Color"] = data.groupby("Track")["SegmentLength"].transform("sum").to_numpy(dtype=float)
 			data.drop(columns="SegmentLength", inplace=True)
 
 		# Numéro du plan relatif au début de chaque trajectoire, en commençant à 1.
 		elif source == "Relative Plane":
-			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
-			data["Color"] = data["Plane"].to_numpy(dtype=np.float64) - first_plane + 1
+			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=float)
+			data["Color"] = data["Plane"].to_numpy(dtype=float) - first_plane + 1
 
 		# Durée totale de la trajectoire en nombre de plans couverts.
 		elif source == "Track Duration":
-			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
-			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=np.float64)
+			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=float)
+			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=float)
 			data["Color"] = last_plane - first_plane + 1  # +1 pour inclure les deux bornes.
 		# Autre source.
 		else:
-			data["Color"] = np.ones(len(trc), dtype=np.float64)
+			data["Color"] = np.ones(len(trc), dtype=float)
 
 		# --- Post-traitement des couleurs. ---
 		color_min = data["Color"].min()
 		if color_min < 0.0:  data["Color"] -= color_min  # .						Décalage pour garantir un minimum nul.
 		color_max = data["Color"].max()
-		if color_max <= 0.0: data["Color"] = np.ones(len(trc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
+		if color_max <= 0.0: data["Color"] = np.ones(len(trc), dtype=float)  # Si l'on n'a que des 0, passe tout à 1.
 		elif max_value > 0.0: data["Color"] *= max_value / color_max  # .			Normalisation éventuelle.
 
 		return data[["Track", "Plane", "X", "Y", "Color"]]
@@ -558,17 +558,17 @@ class Renderer:
 			couleurs et bornes int64 de taille K + 1. La trajectoire i occupe la tranche ``bornes[i]:bornes[i + 1]``
 			des coordonnées et des couleurs, accessible sans copie. Sans point valide, les bornes valent ``[0]``.
 		"""
-		coords = np.empty((data.shape[0], 3), dtype=np.int64)
-		coords[:, 0] = data[:, 1]  # .										 Plans
-		coords[:, 1:] = np.round(data[:, 2:4] * self._r).astype(np.int64)  # X, Y
+		coords = np.empty((data.shape[0], 3), dtype=int)
+		coords[:, 0] = data[:, 1]  # .									Plans
+		coords[:, 1:] = np.round(data[:, 2:4] * self._r).astype(int)  # X, Y
 		x, y = coords[:, 1], coords[:, 2]
-		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)  # .	 Suppression des éléments hors cadre
-		track_ids = data[valid, 0].astype(np.int64)
+		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)  # .Suppression des éléments hors cadre
+		track_ids = data[valid, 0].astype(int)
 		coords, colors = coords[valid], data[valid, 4]
 
 		# Une seule délimitation pour les deux rendus ; aucune allocation par trajectoire.
-		if track_ids.size == 0: return track_ids, coords, colors, np.array([0], dtype=np.int64)
-		bounds = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size].astype(np.int64)
+		if track_ids.size == 0: return track_ids, coords, colors, np.array([0], dtype=int)
+		bounds = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size].astype(int)
 		return track_ids[bounds[:-1]], coords, colors, bounds
 
 	# ==================================================
@@ -614,7 +614,7 @@ class Renderer:
 		y_min, y_max = max(0, min(y0, y1) - before), min(h_max, max(y0, y1) + after + 1)
 		if y_min >= y_max or max(x0, x1) + after < 0 or min(x0, x1) - before >= w_max: return
 		if width > 1:  # L'union des empreintes est un intervalle par ligne : mémoire proportionnelle à la hauteur, pas à l'aire.
-			left, right = np.full(y_max - y_min, w_max, dtype=np.intp), np.zeros(y_max - y_min, dtype=np.intp)
+			left, right = np.full(y_max - y_min, w_max, dtype=int), np.zeros(y_max - y_min, dtype=int)
 		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .					 Distance maximale sur chaque axe (dy est négatif).
 		sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # .	 Orientation du parcours sur chaque axe.
 		err = dx + dy  # .											 Erreur accumulée entre la ligne idéale et les pixels parcourus.
@@ -702,7 +702,7 @@ class Renderer:
 
 			if x_min > x_max or y_min > y_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
 
-			x_grid, y_grid = np.arange(x_min, x_max + 1, dtype=np.float64), np.arange(y_min, y_max + 1, dtype=np.float64)
+			x_grid, y_grid = np.arange(x_min, x_max + 1, dtype=float), np.arange(y_min, y_max + 1, dtype=float)
 			xx, yy = np.meshgrid(x_grid, y_grid)
 
 			dx, dy = xx - xc, yy - yc
@@ -764,9 +764,9 @@ class Renderer:
 
 			if x_min > x_max or y_min > y_max or z_min > z_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
 
-			x_grid = np.arange(x_min, x_max + 1, dtype=np.float64)
-			y_grid = np.arange(y_min, y_max + 1, dtype=np.float64)
-			z_grid = np.arange(z_min, z_max + 1, dtype=np.float64)
+			x_grid = np.arange(x_min, x_max + 1, dtype=float)
+			y_grid = np.arange(y_min, y_max + 1, dtype=float)
+			z_grid = np.arange(z_min, z_max + 1, dtype=float)
 			zz, yy, xx = np.meshgrid(z_grid, y_grid, x_grid, indexing="ij")
 
 			dx, dy, dz = xx - xc, yy - yc, zz - zc

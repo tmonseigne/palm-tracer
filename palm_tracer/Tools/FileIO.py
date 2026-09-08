@@ -317,7 +317,7 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 	lut = np.zeros((MAX_UI_16 + 1, 3), dtype=np.uint8)
 	# Échantillons continus pour indices 1..65535 inclus
 	# t_k = (k-1)/65534 pour k ∈ [1..65535] ; nombre d'échantillons = 65535
-	t = np.linspace(0.0, 1.0, MAX_UI_16, dtype=np.float32)
+	t = np.linspace(0.0, 1.0, MAX_UI_16, dtype=float)
 
 	# Récupère la colormap sous forme d'un callable vectorisé (N,4) RGBA ∈ [0,1]
 	cmap = mpl.colormaps.get_cmap(color_map)
@@ -358,5 +358,5 @@ def open_calibration_mat(filename: str | Path) -> dict[str, Any]:
 
 	return {
 			"dz":    cspline["dz"][0][0][0][0],
-			"coeff": np.asfortranarray(coeff, dtype=np.float64)  # Passage en column major et en double
+			"coeff": np.asfortranarray(coeff, dtype=float)  # Passage en column major et en double
 			}

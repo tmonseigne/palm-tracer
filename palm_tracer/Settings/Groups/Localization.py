@@ -103,17 +103,17 @@ class Localization(BaseSettingGroup):
 		"""Récupère les paramètres pour l'ajustement."""
 		s = self.settings
 		# No fit
-		if s["Fit"] == 0: return np.array([s["ROI Size"]], dtype=np.float64)
+		if s["Fit"] == 0: return np.array([s["ROI Size"]], dtype=float)
 		# Ajustement gaussien
 		if s["Fit"] == 1:
 			return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], 2 * s["Gaussian Fit Sigma"],
-							 degrees_to_radians(s["Gaussian Fit Theta"])], dtype=np.float64)
+							 degrees_to_radians(s["Gaussian Fit Theta"])], dtype=float)
 		# Ajustement par spline
 		# Chargement du fichier MAT
 		try:
 			calib = open_calibration_mat(s["Spline Fit File"])
 			sx, sy, sz = calib["coeff"].shape[:3]
-			return np.concatenate([np.array([s["ROI Size"], sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+			return np.concatenate([np.array([s["ROI Size"], sx, sy, sz, calib["dz"]], dtype=float), calib["coeff"].flatten()])
 		except Exception: raise
 
 

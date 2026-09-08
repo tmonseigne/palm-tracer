@@ -169,7 +169,7 @@ class Palm:
 		"""
 		# --- Initialisation ---
 		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguïté
-		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
+		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)  # .	 Assurance de contiguïté
 		height, width = stk.shape[-2:]  # .												 Récupère les deux dernières dimensions
 		n_planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							 Récupère le nombre de plans si 3D sinon 1
 		if planes is None: planes = list(range(n_planes))  # .							 Si aucune sélection, liste de tous les plans
@@ -179,24 +179,24 @@ class Palm:
 		stk = stk[np.newaxis, :, :] if stk.ndim == 2 else stk[planes[0]:planes[0] + n_planes]
 
 		# --- Calcul du budget RAM Disponible ---
-		max_points = int(self.max_allocation_bytes() // 8)  # .				Nombre de points maximum allouable en une fois
-		plane_points = int(height * width * DENSITY) * Parsing.N_COL_LOC  # Taille théorique max pour un seul plan (N points max * N Col localisation)
+		max_points = int(self.max_allocation_bytes() // 8)  # .							 Nombre de points maximum allouable en une fois
+		plane_points = int(height * width * DENSITY) * Parsing.N_COL_LOC  # .			 Taille théorique max pour un seul plan (N points max * N Col)
 		if max_points < plane_points: return pd.DataFrame()  # pragma: no cover — Cas extrême un seul plan est gargantuesque.
-		n_plane_max = int(min(max_points // plane_points, n_planes))  # .	Nombre de plans qui tiennent dans max_allocation
+		n_plane_max = int(min(max_points // plane_points, n_planes))  # .				 Nombre de plans qui tiennent dans max_allocation
 
 		dfs: list[pd.DataFrame] = []
 		i = 0
 		while i < len(planes):
-			k = min(n_plane_max, n_planes - i)  # .						Taille réelle du bloc, soit le max, soit "ce qui reste".
-			stk_block = stk[i:i + k]  # .								Indices relatifs (0..n_planes-1)
-			n_block = plane_points * k  # .								Nombre de points pour ce bloc
-			locs = np.empty((n_block,), dtype=np.float64, order="C")  # Création de la sortie
+			k = min(n_plane_max, n_planes - i)  # .										 Taille réelle du bloc, soit le max, soit "ce qui reste".
+			stk_block = stk[i:i + k]  # .												 Indices relatifs (0..n_planes-1)
+			n_block = plane_points * k  # .												 Nombre de points pour ce bloc
+			locs = np.empty((n_block,), dtype=float, order="C")  # .					 Création de la sortie
 
 			count = self._dll.Localization(stk_block.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB_DBL), C_UINT(n_block), C_UINT(height), C_UINT(width),
 										   C_UINT(k), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB_DBL))
 
 			res = Parsing.parse_result(locs[:count], "Localization")
-			if "Plane" in res.columns: res["Plane"] += planes[0] + i  # En cas de filtre des plans, on incrémente par i + premier plan.
+			if "Plane" in res.columns: res["Plane"] += planes[0] + i  # .				 En cas de filtre des plans, on incrémente par i + premier plan.
 			dfs.append(res)
 			i += k
 
@@ -221,7 +221,7 @@ class Palm:
 		:return: Seuil calculé (écart-type final).
 		"""
 		img = self._as_c_contig(image, np.dtype(np.uint16), writeable=False)  # .		 Assurance de contiguïté
-		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
+		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)  # .	 Assurance de contiguïté
 		height, width = img.shape  # .													 Récupère les dimensions
 		return float(self._dll.AutoThreshold(img.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), params.ctypes.data_as(C_TAB_DBL)))
 
@@ -246,7 +246,7 @@ class Palm:
 		track_size = n * 2  # .											Taille du tableau final
 		tracks = np.empty((track_size,), dtype=np.uint64, order="C")  # Tableau final
 
-		p = self._as_c_contig(points.to_numpy(), np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
+		p = self._as_c_contig(points.to_numpy(), np.dtype(float), writeable=False)  # Assurance de contiguïté
 		self._dll.Tracking(p.ctypes.data_as(C_TAB_DBL), tracks.ctypes.data_as(C_TAB_UINT), C_UINT(n), C_DBL(max_distance))
 
 		tracks = pd.DataFrame(tracks.reshape(-1, 2), columns=["Id", "Track"])  # Passage en DataFrame.
@@ -270,12 +270,12 @@ class Palm:
 		required = Parsing.FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return pd.DataFrame()
 
-		in_tracks = tracks[required].to_numpy(dtype=np.float64, copy=False)
-		in_tracks = self._as_c_contig(in_tracks, np.dtype(np.float64), writeable=False)
+		in_tracks = tracks[required].to_numpy(dtype=float, copy=False)
+		in_tracks = self._as_c_contig(in_tracks, np.dtype(float), writeable=False)
 
 		n = len(tracks)
 		track_size = n * Parsing.N_COL_TRC
-		out = np.empty((track_size,), dtype=np.float64, order="C")
+		out = np.empty((track_size,), dtype=float, order="C")
 
 		count = self._dll.BlinkingReconnection(in_tracks.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size),
 											   C_UINT(mode), C_UINT(max_duration), C_DBL(max_speed))
@@ -307,16 +307,16 @@ class Palm:
 		in_tracks = tracks[required].copy()
 		if not is_3d: in_tracks["Z"] = 0  # On simplifie, la suite les calculs se font toujours en 3D, mais la dernière dimension sera nulle
 
-		in_tracks = in_tracks.to_numpy(dtype=np.float64, copy=False)  # .				   Passage en tableau NumPy
-		in_tracks = self._as_c_contig(in_tracks, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
-		params = self._as_c_contig(fit_params, np.dtype(np.float64), writeable=False)  # . Assurance de contiguïté
-		n_row = len(tracks)  # .														   Nombre de points pour les trajectoires
-		n = n_row * N_TRC_CP_FIT  # .													   Taille maximale des tableaux finaux
+		in_tracks = in_tracks.to_numpy(dtype=float, copy=False)  # .				  Passage en tableau NumPy
+		in_tracks = self._as_c_contig(in_tracks, np.dtype(float), writeable=False)  # Assurance de contiguïté
+		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)  # . Assurance de contiguïté
+		n_row = len(tracks)  # .													  Nombre de points pour les trajectoires
+		n = n_row * N_TRC_CP_FIT  # .												  Taille maximale des tableaux finaux
 
 		# Sorties : buffer réel si demandé, sinon buffer dummy (évite pointeurs NULL)
-		o_msd = np.empty((n,), dtype=np.float64, order="C") if is_msd else np.empty((1,), dtype=np.float64, order="C")
-		o_ind = np.empty((n,), dtype=np.float64, order="C") if is_ind else np.empty((1,), dtype=np.float64, order="C")
-		o_fit = np.empty((n,), dtype=np.float64, order="C") if fit_mode != 0 else np.empty((1,), dtype=np.float64, order="C")
+		o_msd = np.empty((n,), dtype=float, order="C") if is_msd else np.empty((1,), dtype=float, order="C")
+		o_ind = np.empty((n,), dtype=float, order="C") if is_ind else np.empty((1,), dtype=float, order="C")
+		o_fit = np.empty((n,), dtype=float, order="C") if fit_mode != 0 else np.empty((1,), dtype=float, order="C")
 
 		self._dll.TracksCompute(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
 								o_fit.ctypes.data_as(C_TAB_DBL),
@@ -339,10 +339,10 @@ class Palm:
 		:return: Image alignée.
 		"""
 
-		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .	  Assurance de contiguïté
-		params = self._as_c_contig(factors, np.dtype(np.float64), writeable=False)  # Assurance de contiguïté
-		height, width = stk.shape[-2:]  # .											  Récupère les deux dernières dimensions
-		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							  Récupère le nombre de plans si 3D sinon 1
+		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)  # .Assurance de contiguïté
+		params = self._as_c_contig(factors, np.dtype(float), writeable=False)  # Assurance de contiguïté
+		height, width = stk.shape[-2:]  # .										 Récupère les deux dernières dimensions
+		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .						 Récupère le nombre de plans si 3D sinon 1
 
 		out = np.empty((planes, height * upsampling, width * upsampling), dtype=np.uint16, order="C")
 		self._dll.Alignment(stk.ctypes.data_as(C_IMG), out.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), C_UINT(planes),
@@ -362,7 +362,7 @@ class Palm:
 		height, width = stk.shape[-2:]  # .										Récupère les deux dernières dimensions
 		planes = 1 if stk.ndim == 2 else stk.shape[0]  # .						Récupère le nombre de plans si 3D sinon 1
 
-		out = np.empty((planes, height, width), dtype=np.float64, order="C")
+		out = np.empty((planes, height, width), dtype=float, order="C")
 
 		self._dll.Wavelett(stk.ctypes.data_as(C_IMG), out.ctypes.data_as(C_TAB_DBL), C_UINT(height), C_UINT(width), C_UINT(planes), C_UINT(level))
 		return out
@@ -377,8 +377,8 @@ class Palm:
 		:param center: Permet de centrer le modèle pour que si :math:`\\sigma_x(0) \\approx \\sigma_y(0)`.
 		:return: Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne).
 		"""
-		pts = self._as_c_contig(points, np.dtype(np.float64), writeable=False)
-		out = np.empty(Parsing.SHAPE_MODEL, dtype=np.float64, order="C")
+		pts = self._as_c_contig(points, np.dtype(float), writeable=False)
+		out = np.empty(Parsing.SHAPE_MODEL, dtype=float, order="C")
 		n = pts.shape[0]
 
 		self._dll.Astigmatism3DCalibration(pts.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size), C_BOOL(center))
@@ -397,9 +397,9 @@ class Palm:
 		"""
 
 		n = len(sigmas)
-		s = self._as_c_contig(sigmas, np.dtype(np.float64), writeable=False)
-		m = self._as_c_contig(model, np.dtype(np.float64), writeable=False)
-		out = np.empty((n, 2), dtype=np.float64, order="C")
+		s = self._as_c_contig(sigmas, np.dtype(float), writeable=False)
+		m = self._as_c_contig(model, np.dtype(float), writeable=False)
+		out = np.empty((n, 2), dtype=float, order="C")
 		self._dll.Astigmatism3DEstimation(s.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size),
 										  m.ctypes.data_as(C_TAB_DBL), C_DBL(z_max))
 

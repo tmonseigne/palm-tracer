@@ -3,8 +3,8 @@
 from palm_tracer.Processing.Astigmatism3D import *
 
 Z_MAX, N_POINTS, PIXEL_SIZE, SAMPLING = 500, 5000, 160, 1
-REF_MODEL = np.array([[300, 450, -0.70, -0.30, 240], [-300, 600, 1.40, 0.04, 240]], dtype=np.float64)
-REF_MODEL2 = np.array([[-200, 100, 0, 0, 32], [200, 100, 0, 0, 32]], dtype=np.float64)
+REF_MODEL = np.array([[300, 450, -0.70, -0.30, 240], [-300, 600, 1.40, 0.04, 240]], dtype=float)
+REF_MODEL2 = np.array([[-200, 100, 0, 0, 32], [200, 100, 0, 0, 32]], dtype=float)
 
 
 ##################################################
@@ -14,7 +14,7 @@ def get_dataset(model: np.ndarray = REF_MODEL, z_max: float = Z_MAX, n: int = N_
 	rng = np.random.default_rng(42)
 
 	# Z uniformément réparti entre [-z_max, +z_max]
-	z = np.linspace(-z_max, z_max, n, dtype=np.float64)
+	z = np.linspace(-z_max, z_max, n, dtype=float)
 
 	# Sigma modèle
 	sx = sigma_model(model[0], z, pixel_size, sampling)
@@ -114,8 +114,8 @@ def test_remove_multi_loc():
 ##################################################
 def test_sigma_model():
 	"""Vérifie le comportement de sigma_model."""
-	model = np.array([200., 100., 0., 0., 32.], dtype=np.float64)
-	z = np.linspace(-200, 200, 11, dtype=np.float64)
+	model = np.array([200., 100., 0., 0., 32.], dtype=float)
+	z = np.linspace(-200, 200, 11, dtype=float)
 	res = sigma_model(model, z, 160, 1)
 	ref = [0.82462113, 0.74726167, 0.67052218, 0.59464275, 0.52, 0.4472136, 0.37735925, 0.31240999, 0.25612497, 0.21540659, 0.2]
 	assert np.allclose(res, ref), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
@@ -177,17 +177,17 @@ def test_find_model_center():
 	res = find_model_center(model, Z_MAX, PIXEL_SIZE)
 	assert np.isclose(res, 0, 1e-6)
 
-	model_no_sign_change = np.array([[0.0, 300.0, 0.0, 0.0, 200.0], [0.0, 300.0, 0.0, 0.0, 250.0]], dtype=np.float64)
+	model_no_sign_change = np.array([[0.0, 300.0, 0.0, 0.0, 200.0], [0.0, 300.0, 0.0, 0.0, 250.0]], dtype=float)
 	res = find_model_center(model_no_sign_change, Z_MAX, PIXEL_SIZE)
 	ref = -0.2442599
 	assert np.isclose(res, ref, 1e-6)
 
-	model_easy_0 = np.array([[0.0, 300.0, 0.0, 0.0, 240.0], [0.0, 300.0, 0.0, 0.0, 240.0]], dtype=np.float64)
+	model_easy_0 = np.array([[0.0, 300.0, 0.0, 0.0, 240.0], [0.0, 300.0, 0.0, 0.0, 240.0]], dtype=float)
 	res = find_model_center(model_easy_0, 1024, 1)
 	ref = -1024
 	assert np.isclose(res, ref, 1e-6)
 
-	model_bisection_no_exact_zero = np.array([[-123.41678443, 350.5466747, 0.687, 0.439, 240.456], [210, 350, 0, 0, 240], ], dtype=np.float64)
+	model_bisection_no_exact_zero = np.array([[-123.41678443, 350.5466747, 0.687, 0.439, 240.456], [210, 350, 0, 0, 240], ], dtype=float)
 	res = find_model_center(model_bisection_no_exact_zero, 100, 1)
 	ref = 29.2051458
 	assert np.isclose(res, ref, 1e-6)

@@ -500,7 +500,7 @@ class PALMTracer:
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
 		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
-									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=np.float64))
+									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
 		for key, name in [("MSD", "MSD"), ("InD", "Instant Diffusion"), ("Fit", "Fit")]:
@@ -666,7 +666,7 @@ class PALMTracer:
 			df = self.results.localizations
 			if df.empty:  return np.empty(0), title
 			if src == "Localizations Count":
-				s = df["Plane"].astype(np.int64)
+				s = df["Plane"].astype(int)
 				planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
 				counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
 				return np.column_stack((planes, counts)), src
@@ -712,7 +712,7 @@ class PALMTracer:
 			if with_track_ids:
 				if not lengths_by_track: return np.empty((0, 2)), title
 				return np.asarray(lengths_by_track), title
-			return np.asarray(lengths, dtype=np.int64), title
+			return np.asarray(lengths, dtype=int), title
 
 		df = self.results.tracks_compute
 		if src == "MSD":
@@ -751,7 +751,7 @@ class PALMTracer:
 	##################################################
 	def hr(self) -> tuple[np.ndarray, np.ndarray]:
 		"""Génère une représentation en Haute Résolution des données."""
-		viz, plot_data = np.zeros((1, 1), dtype=np.uint16), np.zeros((1, 1), dtype=np.float64)
+		viz, plot_data = np.zeros((1, 1), dtype=np.uint16), np.zeros((1, 1), dtype=float)
 		if self._stack is None: return viz, plot_data
 
 		# --- Paramètres ---
@@ -779,12 +779,12 @@ class PALMTracer:
 			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # .	Sélection dans les bornes
 
 			if s["Dimension"].value == 0:  # .																			--- Rendu 2D ---
-				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .		Récupération
+				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=float)  # .			Récupération
 				plot_data = df[["Y", "X"]].to_numpy() * upscale  # .													Mise à l'échelle des X et Y.
 				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
 				viz = self._renderer.localizations(viz_data, color_mode, bg_color, gaussian)
 			else:  # .																									--- Rendu 3D ---
-				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=np.float64)  # .	Récupération
+				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=float)  # .		Récupération
 				uniform_z_step = self._get_uniform_z_step()
 				plot_data = df[["Z", "Y", "X"]].to_numpy(copy=True)
 				z_min = np.nanmin(plot_data[:, 0])
@@ -809,7 +809,7 @@ class PALMTracer:
 		df["X"] -= x0  # Ajustement à la ROI sur X
 		df["Y"] -= y0  # Ajustement à la ROI sur Y
 		df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
-		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
+		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=float)
 		plot_data = df[:, [0, 1, 3, 2]]
 		plot_data[:, [2, 3]] *= upscale
 		viz = self._renderer.tracks(df, color_mode, bg_color)

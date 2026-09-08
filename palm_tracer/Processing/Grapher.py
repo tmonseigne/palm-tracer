@@ -334,7 +334,7 @@ class Grapher:
 
 		fig = go.Figure()
 
-		z = np.linspace(-z_max, z_max, n_points, dtype=np.float64)
+		z = np.linspace(-z_max, z_max, n_points, dtype=float)
 		sx = sigma_model(model[0], z, pixel_size, 1)
 		sy = sigma_model(model[1], z, pixel_size, 1)
 

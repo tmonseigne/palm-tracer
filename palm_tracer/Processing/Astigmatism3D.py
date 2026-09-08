@@ -28,10 +28,10 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 
 	:return: Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées.
 	"""
-	planes = np.asarray(planes, dtype=np.float64)  # Passage en nombres flottants
-	p_min, p_max = planes.min(), planes.max()  # Récupération des min/max
-	if p_min == p_max: return np.full_like(planes, fill_value=0.5 * (z_min + z_max), dtype=np.float64)  # Cas dégénéré : un seul plan
-	return z_min + (planes - p_min) * (z_max - z_min) / (p_max - p_min)  # Interpolation linéaire
+	planes = np.asarray(planes, dtype=float)  # .													 Passage en nombres flottants
+	p_min, p_max = planes.min(), planes.max()  # .													 Récupération des min/max
+	if p_min == p_max: return np.full_like(planes, fill_value=0.5 * (z_min + z_max), dtype=float)  # Cas dégénéré : un seul plan
+	return z_min + (planes - p_min) * (z_max - z_min) / (p_max - p_min)  # .						 Interpolation linéaire
 
 
 ##################################################
@@ -45,9 +45,9 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 	:return: Tableau NumPy contenant les valeurs de Z estimées.
 	"""
 	# Indices centrés : impair ⇾ un plan à 0 ; pair ⇾ 0 entre les deux plans centraux.
-	if center: indices = np.arange(n_planes, dtype=np.float64) - 0.5 * (n_planes - 1)
+	if center: indices = np.arange(n_planes, dtype=float) - 0.5 * (n_planes - 1)
 	# Indices classiques : plan 0 à 0, puis positifs.
-	else: indices = np.arange(n_planes, dtype=np.float64)
+	else: indices = np.arange(n_planes, dtype=float)
 	return indices * float(z_step)
 
 
@@ -213,7 +213,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	"""
 	sx_obs, sy_obs, z_true = dataset[:, 0], dataset[:, 1], dataset[:, 2]
 
-	z_curve = np.linspace(-z_max, z_max, n_curve, dtype=np.float64)
+	z_curve = np.linspace(-z_max, z_max, n_curve, dtype=float)
 	sx_curve = sigma_model(model[0], z_curve, pixel_size, sampling)
 	sy_curve = sigma_model(model[1], z_curve, pixel_size, sampling)
 	curve = np.column_stack((sx_curve, sy_curve))

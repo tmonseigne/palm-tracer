@@ -87,12 +87,12 @@ def get_fit_params(fit: int) -> np.ndarray:
 	# nb_random = 16 * 16 * 297 * 64
 	# coeff = np.random.uniform(low=1e-8, high=1e-4, size=nb_random)
 	# coeff = np.asfortranarray(np.load("input/coefficients.npy")) # en colonne major comme matlab
-	# return np.concatenate([np.array(shape, dtype=np.float64), coeff.flatten()])
-	if fit == 0: return np.array([default_roi], dtype=np.float64)
-	if fit != 5: return np.array([default_roi, default_sigma, 2 * default_sigma, default_theta], dtype=np.float64)
+	# return np.concatenate([np.array(shape, dtype=float), coeff.flatten()])
+	if fit == 0: return np.array([default_roi], dtype=float)
+	if fit != 5: return np.array([default_roi, default_sigma, 2 * default_sigma, default_theta], dtype=float)
 	calib = FileIO.open_calibration_mat(str(INPUT_DIR / "calibration.mat"))
 	sx, sy, sz = calib["coeff"].shape[:3]
-	return np.concatenate([np.array([default_roi, sx, sy, sz, calib["dz"]], dtype=np.float64), calib["coeff"].flatten()])
+	return np.concatenate([np.array([default_roi, sx, sy, sz, calib["dz"]], dtype=float), calib["coeff"].flatten()])
 
 
 ##################################################

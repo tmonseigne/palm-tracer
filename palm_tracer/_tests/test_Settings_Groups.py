@@ -170,10 +170,10 @@ def test_localization(qtbot):
 
 	g["Fit"].value = 0
 	assert g.get_fit() == 0, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(g.get_fit_params(), np.array([7], dtype=np.float64))
+	np.testing.assert_array_equal(g.get_fit_params(), np.array([7], dtype=float))
 	g["Fit"].value = 1
 	assert g.get_fit() == 1, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(g.get_fit_params(), np.array([7, 1, 2, 0], dtype=np.float64))
+	np.testing.assert_array_equal(g.get_fit_params(), np.array([7, 1, 2, 0], dtype=float))
 	g["Fit"].value = 2
 	assert g.get_fit() == 5, "Numéro du Fit incorrect"
 	with pytest.raises(OSError) as exception_info: g.get_fit_params()
@@ -189,10 +189,10 @@ def test_localization_fit(qtbot):
 
 	loc["Fit"].value = 0
 	assert loc.get_fit() == 0, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7], dtype=np.float64))
+	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7], dtype=float))
 	loc["Fit"].value = 1
 	assert loc.get_fit() == 1, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7, 1, 2, 0], dtype=np.float64))
+	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7, 1, 2, 0], dtype=float))
 	loc["Fit"].value = 2
 	assert loc.get_fit() == 5, "Numéro du Fit incorrect"
 	with pytest.raises(OSError) as exception_info: loc.get_fit_params()
