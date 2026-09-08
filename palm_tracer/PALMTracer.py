@@ -810,10 +810,9 @@ class PALMTracer:
 		df["Y"] -= y0  # Ajustement à la ROI sur Y
 		df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
 		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=np.float64)
-		viz_data = df[:, [0, 2, 3, 4]]
 		plot_data = df[:, [0, 1, 3, 2]]
 		plot_data[:, [2, 3]] *= upscale
-		viz = self._renderer.tracks(viz_data, color_mode, bg_color)
+		viz = self._renderer.tracks(df, color_mode, bg_color)
 		return viz, plot_data
 
 	##################################################

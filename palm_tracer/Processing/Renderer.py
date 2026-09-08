@@ -114,24 +114,24 @@ class Renderer:
 
 		Les pixels auxquels aucune trajectoire ne contribue reçoivent ``bg_color``.
 
-		:param trc: Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'identifiant de la trajectoire, la coordonnée X, la coordonnée Y et l'intensité.
+		:param trc: Tableau 2D de forme ``(N, 5)`` contenant les colonnes ``Track, Plane, X, Y, Color``.
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param bg_color: Valeur attribuée aux pixels de fond.
 		:return: Nouvelle image de forme ``(height * ratio, width * ratio)`` et de type :class:`~numpy.uint16`.
 		"""
 		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
-		if trc.ndim != 2 or trc.shape[1] != 4: return self.blank_rendering(bg_color, False)
+		if trc.ndim != 2 or trc.shape[1] != 5: return self.blank_rendering(bg_color, False)
 
 		# Préparation des coordonnées entières et filtrage des points hors des dimensions du rendu.
-		track_ids, x, y, colors = self.prepare_tracks(trc)
+		track_ids, coords, colors, split_idx = self.prepare_tracks(trc)
 		if track_ids.size == 0: return self.blank_rendering(bg_color, False)
 
 		# Initialisation
 		res, bg_mask = self.init_rendering(color_mode, self._h, self._w)
 
-		# Délimitation des groupes de trajectoires consécutives.
-		split_idx = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size]
+		# Vues sur les coordonnées spatiales ; les plans ne sont pas utilisés pour le rendu 2D.
+		x, y = coords[:, 1], coords[:, 2]
 
 		# Pour chaque trajectoire, couleur unique
 		for g in range(len(split_idx) - 1):
@@ -546,23 +546,30 @@ class Renderer:
 	##################################################
 	def prepare_tracks(self, data: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 		"""
-		Prépare les données utilisées pour le rendu des trajectoires.
+		Prépare et délimite les trajectoires pour les rendus 2D et les séquences.
 
-		Les coordonnées X et Y sont multipliées par le facteur d'agrandissement, arrondies au pixel le plus proche puis converties en indices entiers.
+		Les coordonnées X et Y sont agrandies puis arrondies au pixel le plus proche.
+		Les points hors du rendu sont supprimés après arrondi. Les plans restent inchangés.
+		L'entrée doit être triée par trajectoire puis par plan, comme la sortie de :meth:`add_colors_to_tracks`.
+		L'ordre des points est conservé et l'entrée n'est pas modifiée.
 
-		Les points situés hors des dimensions du rendu sont supprimés.
-
-		:param data: Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'identifiant de la trajectoire, la coordonnée X, la coordonnée Y et l'intensité.
-		:return: Quatre tableaux contenant respectivement les identifiants des trajectoires, les coordonnées X, les coordonnées Y et les intensités.
+		:param data: Tableau de forme ``(N, 5)`` contenant ``Track, Plane, X, Y, Color``.
+		:return: Identifiants int64 des K trajectoires, coordonnées int64 ``(N valide, 3)`` dans l'ordre ``Plane, X, Y``,
+			couleurs et bornes int64 de taille K + 1. La trajectoire i occupe la tranche ``bornes[i]:bornes[i + 1]``
+			des coordonnées et des couleurs, accessible sans copie. Sans point valide, les bornes valent ``[0]``.
 		"""
-		track_ids = data[:, 0].astype(np.int64)
-		coords = np.round(data[:, 1:3] * self._r).astype(np.intp)
-		x, y = coords[:, 0], coords[:, 1]
-		colors = data[:, 3]
+		coords = np.empty((data.shape[0], 3), dtype=np.int64)
+		coords[:, 0] = data[:, 1]  # .										 Plans
+		coords[:, 1:] = np.round(data[:, 2:4] * self._r).astype(np.int64)  # X, Y
+		x, y = coords[:, 1], coords[:, 2]
+		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)  # .	 Suppression des éléments hors cadre
+		track_ids = data[valid, 0].astype(np.int64)
+		coords, colors = coords[valid], data[valid, 4]
 
-		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)
-
-		return track_ids[valid], x[valid], y[valid], colors[valid]
+		# Une seule délimitation pour les deux rendus ; aucune allocation par trajectoire.
+		if track_ids.size == 0: return track_ids, coords, colors, np.array([0], dtype=np.int64)
+		bounds = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size].astype(np.int64)
+		return track_ids[bounds[:-1]], coords, colors, bounds
 
 	# ==================================================
 	# endregion Préparation des données

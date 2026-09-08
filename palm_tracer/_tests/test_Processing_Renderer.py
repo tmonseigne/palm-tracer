@@ -198,26 +198,37 @@ def test_prepare_localizations():
 
 ##################################################
 def test_prepare_tracks():
-	"""Vérifie la préparation des données de trajectoires."""
+	"""Vérifie les plans, les arrondis, le filtrage et les tranches de trajectoires sans copie."""
 	r = Renderer()
 	r.set_size(5, 10, 2)
-
-	tracks = np.array([[1, 1.2, 2.6, 10.5],
-					   [1, 4.0, 3.0, 20.5],
-					   [2, -1.0, 2.0, 30.5],
-					   [2, 3.0, 11.0, 40.5]], dtype=np.float64)
-
-	track_ids, x, y, colors = r.prepare_tracks(tracks)
-
-	np.testing.assert_array_equal(track_ids, [1, 1])
-	np.testing.assert_array_equal(x, [2, 8])
-	np.testing.assert_array_equal(y, [5, 6])
-	np.testing.assert_array_equal(colors, [10.5, 20.5])
-
+	tracks = np.array([[1, 3, 1.2, 2.6, 10.5], [1, 7, 4.0, 3.0, 20.5],
+					   [2, 1, -1.0, 2.0, 30.5], [2, 2, 3.0, 11.0, 40.5],
+					   [3, 4, 4.9, 1.0, 50.5], [3, 8, 0.0, 0.0, 60.5],
+					   [4, 2, 2.0, 1.0, 70.5], [4, 5, 3.0, 2.0, 80.5]], dtype=np.float64)
+	original = tracks.copy()
+	track_ids, coords, colors, bounds = r.prepare_tracks(tracks)
+	np.testing.assert_array_equal(track_ids, [1, 3, 4])
+	np.testing.assert_array_equal(coords, [[3, 2, 5], [7, 8, 6], [8, 0, 0], [2, 4, 2], [5, 6, 4]])
+	np.testing.assert_array_equal(colors, [10.5, 20.5, 60.5, 70.5, 80.5])
+	np.testing.assert_array_equal(bounds, [0, 2, 3, 5])
+	np.testing.assert_array_equal(tracks, original)
 	assert track_ids.dtype == np.int64
-	assert x.dtype == np.intp
-	assert y.dtype == np.intp
+	assert coords.dtype == np.int64 and bounds.dtype == np.int64
 	assert np.issubdtype(colors.dtype, np.floating)
+	assert np.shares_memory(coords[bounds[0]:bounds[1]], coords)
+	assert not np.shares_memory(coords, tracks)
+	assert not np.shares_memory(colors, tracks)
+
+
+##################################################
+def test_prepare_tracks_empty():
+	"""Vérifie les entrées vides, entièrement filtrées et de forme invalide."""
+	r = Renderer()
+	r.set_size(5, 10, 2)
+	for data in (np.empty((0, 5)), np.array([[1, 3, -1, 0, 10]])):
+		track_ids, coords, colors, bounds = r.prepare_tracks(data)
+		assert track_ids.shape == (0,) and coords.shape == (0, 3) and colors.shape == (0,)
+		np.testing.assert_array_equal(bounds, [0])
 
 
 ##################################################
@@ -578,25 +589,25 @@ def test_tracks():
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
 
 	# Points hors limites
-	trc = np.array([[1, 10, 2, 100], [1, 2, 10, 100], ], dtype=np.float64)
+	trc = np.array([[1, 1, 10, 2, 100], [1, 2, 2, 10, 100], ], dtype=np.float64)
 	res = r.tracks(trc)
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
 
 	# Single point
-	trc = np.array([[1, 2, 3, 50], ], dtype=np.float64)
+	trc = np.array([[1, 7, 2, 3, 50], ], dtype=np.float64)
 	res = r.tracks(trc)
 	ref = np.zeros((20, 10), dtype=np.uint16)
 	ref[6, 4] = 50
 	np.testing.assert_array_equal(res, ref)
 
 	# Saturation des intensités dans les bornes du type uint16
-	trc = np.array([[1, 1, 1, -10], [2, 2, 2, 70000]], dtype=np.float64)
+	trc = np.array([[1, 1, 1, 1, -10], [2, 3, 2, 2, 70000]], dtype=np.float64)
 	res = r.tracks(trc)
 	assert res[2, 2] == 0
 	assert res[4, 4] == np.iinfo(np.uint16).max
 
 	# Croisement de trajectoires pour les trois modes
-	trc = np.array([[1, 1, 3, 10], [1, 4, 3, 10], [2, 3, 1, 20], [2, 3, 4, 20]], dtype=np.float64)
+	trc = np.array([[1, 1, 1, 3, 10], [1, 4, 4, 3, 10], [2, 2, 3, 1, 20], [2, 8, 3, 4, 20]], dtype=np.float64)
 	for color_mode, crossing_value in ((0, 30), (1, 20), (2, 10)):
 		res = r.tracks(trc, color_mode=color_mode, bg_color=42)
 		ref = np.full((20, 10), 42, dtype=np.uint16)
