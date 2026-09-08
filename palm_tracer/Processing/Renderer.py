@@ -7,8 +7,10 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 from palm_tracer.Processing import Parsing
+from palm_tracer.Tools.Ui import print_warning
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 
@@ -269,7 +271,7 @@ class Renderer:
 	# ==================================================
 
 	# ==================================================
-	# region Préparation et dessin
+	# region Manipulation du résultat
 	# ==================================================
 	##################################################
 	def blank_rendering(self, bg_color: int = 0, is_3d: bool = False):
@@ -334,6 +336,41 @@ class Renderer:
 		else: img = np.remainder(img, MAX_UI_16 + 1)  # Rend cyclique les valeurs entre 0 et la valeur maximale pour un uint16.
 		return img.astype(np.uint16)  # .				Conversion de l'image en np.uint16.
 
+	##################################################
+	def _upscale_raw(self, raw: np.ndarray, upscale_type: int) -> np.ndarray:
+		"""
+		Agrandit les axes Y et X d'un volume sans interpoler entre les plans.
+
+		Le mode Lanczos travaille en float32 dans Pillow et peut dépasser les intensités d'origine.
+		La saturation est laissée à :meth:`finalize_rendering`. Le volume d'entrée reste inchangé.
+
+		:param raw: Image ``(hauteur, largeur)`` ou volume ``(plans, hauteur, largeur)``, déjà recadré sur la ROI.
+			Une image 2D produit un volume avec un seul plan.
+		:param upscale_type: ``0`` pour la duplication des pixels ; ``1`` pour Lanczos, plan par plan.
+		:return: Nouveau volume float64 aux dimensions du rendu ; rempli de zéros si la taille spatiale est incompatible.
+		"""
+		if raw.ndim == 2: raw = raw[None, :, :]
+		planes, height, width = raw.shape
+		if height * self._r != self._h or width * self._r != self._w:
+			print_warning("Raw shape doesn't have expected dimensions for output background will be 0.")
+			return np.zeros((planes, self._h, self._w), dtype=np.float64)
+
+		res = np.empty((planes, self._h, self._w), dtype=np.float64)
+		# La diffusion remplit les blocs sans allouer de volume intermédiaire répété.
+		if upscale_type == 0 or self._r == 1: res.reshape(planes, height, self._r, width, self._r)[:] = raw[:, :, None, :, None]
+		else:
+			for i, plane in enumerate(raw):
+				img = Image.fromarray(plane.astype(np.float32))
+				res[i] = np.asarray(img.resize((self._w, self._h), resample=Image.Resampling.LANCZOS))
+		return res
+
+	# ==================================================
+	# endregion Manipulation du résultat
+	# ==================================================
+
+	# ==================================================
+	# region Préparation des données
+	# ==================================================
 	##################################################
 	@staticmethod
 	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
@@ -527,6 +564,13 @@ class Renderer:
 
 		return track_ids[valid], x[valid], y[valid], colors[valid]
 
+	# ==================================================
+	# endregion Préparation des données
+	# ==================================================
+
+	# ==================================================
+	# region Dessin
+	# ==================================================
 	##################################################
 	@staticmethod
 	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0):

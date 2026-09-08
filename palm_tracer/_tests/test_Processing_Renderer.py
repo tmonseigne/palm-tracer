@@ -900,3 +900,72 @@ def test_renderer_atom():
 	res = r.rotation_3d(loc, z_step=1, gaussian=gaussian)
 	assert np.count_nonzero(res) != 0
 	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D_gaussian.tif")
+
+
+##################################################
+def test_upscale_raw():
+	"""Vérifie les blocs dupliqués, l'indépendance des plans et la conservation de l'entrée."""
+	r = Renderer()
+	r.set_size(3, 2, 2)
+	raw = np.arange(12, dtype=np.uint16).reshape(2, 2, 3)
+	original = raw.copy()
+	res = r._upscale_raw(raw, 0)
+	ref = np.array([[0, 0, 1, 1, 2, 2], [0, 0, 1, 1, 2, 2], [3, 3, 4, 4, 5, 5], [3, 3, 4, 4, 5, 5]])
+	np.testing.assert_array_equal(res, np.stack((ref, ref + 6)))
+	assert res.dtype == np.float64
+	assert not np.shares_memory(res, raw)
+	np.testing.assert_array_equal(raw, original)
+	# Une vue non contiguë doit également être acceptée.
+	np.testing.assert_array_equal(r._upscale_raw(raw[:, :, ::-1], 0), res[:, :, ::-1])
+
+
+##################################################
+def test_upscale_raw_lanczos():
+	"""Vérifie les plans constants, les valeurs intermédiaires et l'absence de mélange entre plans."""
+	r = Renderer()
+	r.set_size(3, 2, 3)
+	raw = np.array([[[0, 1000, 0], [0, 1000, 0]], [[1234, 1234, 1234], [1234, 1234, 1234]]], dtype=np.uint16)
+	original = raw.copy()
+	res = r._upscale_raw(raw, 1)
+	assert res.shape == (2, 6, 9)
+	assert res.dtype == np.float64
+	assert np.isfinite(res).all()
+	np.testing.assert_allclose(res[1], 1234)
+	np.testing.assert_allclose(res[0], res[0, :, ::-1], atol=1e-5)
+	assert np.any((res[0] > 0) & (res[0] < 1000))
+	assert not np.shares_memory(res, raw)
+	np.testing.assert_array_equal(raw, original)
+
+
+##################################################
+def test_upscale_raw_edge_cases():
+	"""Vérifie le ratio un, les volumes vides, les dimensions incompatibles et les paramètres invalides."""
+	r = Renderer()
+	for mode in (0, 1):
+		r.set_size(3, 2, 1)
+		raw = np.arange(6, dtype=np.float64).reshape(1, 2, 3) + 0.123456789
+		res = r._upscale_raw(raw, mode)
+		np.testing.assert_array_equal(res, raw)
+		assert not np.shares_memory(res, raw)
+		r.set_size(3, 2, 2)
+		assert r._upscale_raw(np.empty((0, 2, 3)), mode).shape == (0, 4, 6)
+		res = r._upscale_raw(np.ones((2, 1, 3)), mode)
+		assert res.shape == (2, 4, 6)
+		np.testing.assert_array_equal(res, 0)
+
+
+##################################################
+def test_upscale_raw_2d():
+	"""Vérifie qu'une image 2D produit un volume à un plan dans les deux modes."""
+	r = Renderer()
+	raw = np.array([[0, 1000, 2000], [3000, 4000, 5000]], dtype=np.uint16)
+	original = raw.copy()
+	for ratio in (1, 2):
+		r.set_size(3, 2, ratio)
+		for mode in (0, 1):
+			res = r._upscale_raw(raw, mode)
+			assert res.shape == (1, 2 * ratio, 3 * ratio)
+			assert res.dtype == np.float64
+			np.testing.assert_array_equal(res, r._upscale_raw(raw[None, :, :], mode))
+			assert not np.shares_memory(res, raw)
+			np.testing.assert_array_equal(raw, original)
