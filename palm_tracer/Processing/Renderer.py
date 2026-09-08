@@ -580,44 +580,86 @@ class Renderer:
 	# ==================================================
 	##################################################
 	@staticmethod
-	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0):
+	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0,
+				  width: int = 1, alpha: float = 1.0):
 		"""
-		Trace une ligne discrète entre deux points avec l'algorithme de Bresenham.
+		Trace une ligne de Bresenham avec une épaisseur et une transparence optionnelles.
 
-		La ligne est rastérisée uniquement avec des opérations entières et prend en charge toutes les orientations.
-		Pour chaque pixel visité dans les limites de l'image, l'intensité est combinée à la valeur existante selon ``color_mode``.
+		L'épaisseur est celle d'un pinceau carré appliqué aux pixels du tracé, sans anticrénelage.
+		Une largeur impaire est centrée ; une largeur paire est décalée d'un demi-pixel vers X et Y positifs.
+		Chaque pixel couvert est traité une seule fois par appel, même lorsque les empreintes du pinceau se recouvrent.
 
-		L'image et le masque sont modifiés sur place. Le masque est positionné à ``True`` pour chaque pixel valide traversé par la ligne.
+		Le résultat opaque est calculé selon ``color_mode``, puis mélangé avec le pixel existant :
+		``résultat = (1 - alpha) * fond + alpha * résultat_opaque``.
+		Les valeurs infinies d'initialisation des modes minimum/maximum représentent un fond nul pour ce mélange.
+		Un alpha nul ne modifie ni l'image ni le masque ; un alpha égal à un conserve le comportement opaque historique.
 
-		:param img: Image 2D modifiée sur place.
-		:param bg_mask: Masque booléen de même forme que ``img``, modifié sur place. Une valeur vraie indique qu'au moins une ligne traverse le pixel.
+		:param img: Image 2D de travail flottante, modifiée sur place.
+		:param bg_mask: Masque booléen de même forme, positionné à True pour les pixels auxquels la ligne contribue.
 		:param x0: Coordonnée X du point de départ.
 		:param y0: Coordonnée Y du point de départ.
 		:param x1: Coordonnée X du point d'arrivée.
 		:param y1: Coordonnée Y du point d'arrivée.
-		:param color: Intensité de la ligne.
-		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
+		:param color: Intensité de la ligne avant mélange.
+		:param color_mode: Combinaison opaque : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
+		:param width: Largeur entière du pinceau en pixels du rendu, ramenée à un si elle est inférieure à un.
+		:param alpha: Opacité bornée entre zéro et un.
 		"""
-		h_max, w_max = img.shape[0], img.shape[1]
-		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .			   Distance maximale
-		sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # Orientation
-		err = dx + dy  # .									   Erreur accumulée (dy est négatif)
+		# Bornage des paramètres.
+		width, alpha = max(1, width), float(np.clip(alpha, 0.0, 1.0))
+		if alpha == 0.0: return
+		h_max, w_max = img.shape
+
+		before, after = (width - 1) // 2, width // 2  # .			 Répartition du pinceau autour du pixel central.
+		y_min, y_max = max(0, min(y0, y1) - before), min(h_max, max(y0, y1) + after + 1)
+		if y_min >= y_max or max(x0, x1) + after < 0 or min(x0, x1) - before >= w_max: return
+		if width > 1:  # L'union des empreintes est un intervalle par ligne : mémoire proportionnelle à la hauteur, pas à l'aire.
+			left, right = np.full(y_max - y_min, w_max, dtype=np.intp), np.zeros(y_max - y_min, dtype=np.intp)
+		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .					 Distance maximale sur chaque axe (dy est négatif).
+		sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # .	 Orientation du parcours sur chaque axe.
+		err = dx + dy  # .											 Erreur accumulée entre la ligne idéale et les pixels parcourus.
 		while True:
-			if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .	   Vérification des limites de l'image
-				bg_mask[y0, x0] = True
-				if color_mode == 0: img[y0, x0] += color  # Addition de l'intensité à la valeur courante.
-				elif color_mode == 1:
-					if color > img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus élevée que la couleur courante.
-				else:
-					if color < img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus petite que la couleur courante.
-			if x0 == x1 and y0 == y1: break  # .			   Condition d'arrêt
-			e2 = err << 1  # .								   2*err pour décider dans quelle direction avancer.
-			if e2 >= dy:  # .								   On avance en X si l’erreur le permet
+			if width == 1:  # .										 --- Epaisseur classique de 1. ---
+				if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .		 Vérification des limites de l'image.
+					old = img[y0, x0]
+					if color_mode == 0: value = old + color  # .	 Addition de l'intensité à la valeur courante.
+					elif color_mode == 1: value = max(old, color)  # Conservation de la couleur la plus élevée.
+					else: value = min(old, color)  # .				 Conservation de la couleur la plus petite.
+					if alpha < 1.0:  # .							 Mélange avec le pixel existant ; les infinis des modes min/max représentent un fond nul.
+						background = old if np.isfinite(old) else 0.0
+						value = (1.0 - alpha) * background + alpha * value
+					img[y0, x0] = value
+					bg_mask[y0, x0] = True
+			else:  # .												 --- Epaisseur différente de 1. ---
+				# Union des empreintes du pinceau : conserver les extrémités de chaque ligne, sans dessiner plusieurs fois les recouvrements.
+				start, end = max(y_min, y0 - before) - y_min, min(y_max, y0 + after + 1) - y_min
+				if start < end:
+					np.minimum(left[start:end], max(0, x0 - before), out=left[start:end])
+					np.maximum(right[start:end], min(w_max, x0 + after + 1), out=right[start:end])
+			if x0 == x1 and y0 == y1: break  # .					 Condition d'arrêt : le dernier pixel a été traité.
+			e2 = err << 1  # .										 2*err pour décider dans quelle direction avancer.
+			if e2 >= dy:  # .										 On avance en X si l'erreur le permet.
 				err += dy
 				x0 += sx
-			if e2 <= dx:  # .								   On avance en Y si nécessaire
+			if e2 <= dx:  # .										 On avance en Y si nécessaire (les deux axes peuvent avancer pour une diagonale).
 				err += dx
 				y0 += sy
+
+		if width == 1: return
+
+		# --- Epaisseur différente de 1. ---
+		# Appliquer couleur et alpha une seule fois à chaque pixel de l'épaisseur, puis marquer exactement la même zone dans le masque.
+		for row, (start, end) in enumerate(zip(left, right)):
+			if start >= end: continue
+			view = img[y_min + row, start:end]
+			if color_mode == 0: value = view + color
+			elif color_mode == 1: value = np.maximum(view, color)
+			else: value = np.minimum(view, color)
+			if alpha < 1.0:
+				background = np.where(np.isfinite(view), view, 0.0)
+				value = (1.0 - alpha) * background + alpha * value
+			view[:] = value
+			bg_mask[y_min + row, start:end] = True
 
 	##################################################
 	@staticmethod

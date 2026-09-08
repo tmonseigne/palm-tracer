@@ -980,3 +980,100 @@ def test_upscale_raw_2d():
 			np.testing.assert_array_equal(res, r._upscale_raw(raw[None, :, :], mode))
 			assert not np.shares_memory(res, raw)
 			np.testing.assert_array_equal(raw, original)
+
+
+##################################################
+def test_draw_line_width():
+	"""Vérifie les largeurs paires et impaires, les points, les bords et l'absence de cumul interne."""
+	for width, first, last in ((1, 3, 4), (2, 3, 5), (3, 2, 5), (4, 2, 6)):
+		for mode in (0, 1, 2):
+			img, mask = Renderer.init_rendering(mode, 8, 8)
+			Renderer.draw_line(img, mask, 2, 3, 5, 3, 10, mode, width=width)
+			ref_mask = np.zeros((8, 8), dtype=bool)
+			ref_mask[first:last, 2 - (width - 1) // 2:6 + width // 2] = True
+			np.testing.assert_array_equal(mask, ref_mask)
+			np.testing.assert_array_equal(img[mask], 10)
+		# Un point isolé produit une empreinte carrée.
+		img, mask = Renderer.init_rendering(0, 8, 8)
+		Renderer.draw_line(img, mask, 3, 3, 3, 3, 10, width=width)
+		ref = np.zeros((8, 8))
+		ref[first:last, first:last] = 10
+		np.testing.assert_array_equal(img, ref)
+
+	# Une ligne dont le centre est hors de l'image peut encore toucher le bord.
+	img, mask = Renderer.init_rendering(0, 5, 5)
+	Renderer.draw_line(img, mask, -1, 0, -1, 4, 10, width=3)
+	ref = np.zeros((5, 5))
+	ref[:, 0] = 10
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(mask, ref > 0)
+
+
+##################################################
+def test_draw_line_width_orientations():
+	"""Vérifie les diagonales, les pentes variées et le sens du tracé avec une référence par empreintes."""
+	for x1, y1 in ((7, 7), (7, 4), (4, 7), (1, 7), (7, 1), (3, 7), (7, 3)):
+		for reverse in (False, True):
+			x0, y0, xe, ye = (x1, y1, 3, 3) if reverse else (3, 3, x1, y1)
+			thin, thin_mask = Renderer.init_rendering(0, 10, 10)
+			Renderer.draw_line(thin, thin_mask, x0, y0, xe, ye, 1)
+			for width in (2, 3, 4):
+				ref_mask = np.zeros((10, 10), dtype=bool)
+				for y, x in np.argwhere(thin_mask):
+					ref_mask[max(0, y - (width - 1) // 2):min(10, y + width // 2 + 1),
+							 max(0, x - (width - 1) // 2):min(10, x + width // 2 + 1)] = True
+				img = np.full((10, 10), 20.0)
+				mask = np.zeros((10, 10), dtype=bool)
+				Renderer.draw_line(img, mask, x0, y0, xe, ye, 100, 1, width, 0.25)
+				ref = np.full((10, 10), 20.0)
+				ref[ref_mask] = 40.0
+				np.testing.assert_array_equal(img, ref)
+				np.testing.assert_array_equal(mask, ref_mask)
+
+
+##################################################
+def test_draw_line_alpha():
+	"""Vérifie la transparence sur fond non nul pour les trois modes et les fonds d'initialisation infinis."""
+	for width in (1, 3):
+		for mode, color, expected in ((0, 100, 45), (1, 100, 40), (1, 10, 20), (2, 100, 20), (2, 4, 16)):
+			img = np.full((7, 7), 20.0)
+			mask = np.zeros((7, 7), dtype=bool)
+			Renderer.draw_line(img, mask, 1, 3, 5, 3, color, mode, width, 0.25)
+			assert mask.any()
+			np.testing.assert_array_equal(img[mask], expected)
+			np.testing.assert_array_equal(img[~mask], 20)
+		for mode in (0, 1, 2):
+			img, mask = Renderer.init_rendering(mode, 7, 7)
+			original = img.copy()
+			Renderer.draw_line(img, mask, 1, 3, 5, 3, 100, mode, width, 0)
+			np.testing.assert_array_equal(img, original)
+			assert not mask.any()
+			Renderer.draw_line(img, mask, 1, 3, 5, 3, 100, mode, width, 0.25)
+			np.testing.assert_array_equal(img[mask], 25)
+			np.testing.assert_array_equal(img[~mask], original[~mask])
+
+
+##################################################
+def test_draw_line_clamped_parameters():
+	"""Vérifie le bornage de la largeur et de l'opacité, sans exception ni contamination par NaN."""
+	for width in (-5, 0, 1):
+		for alpha, expected_alpha in ((-0.1, 0), (0.25, 0.25), (1.1, 1)):
+			img, mask = Renderer.init_rendering(0, 5, 5)
+			Renderer.draw_line(img, mask, 0, 0, 4, 4, 100, width=width, alpha=alpha)
+			ref = np.eye(5) * (100 * expected_alpha)
+			np.testing.assert_array_equal(img, ref)
+			np.testing.assert_array_equal(mask, ref > 0)
+
+
+##################################################
+def test_draw_line_width_finalize():
+	"""Vérifie que la finalisation conserve toute l'épaisseur grâce au masque de contribution."""
+	for mode in (0, 1, 2):
+		for width in (2, 3, 4):
+			img, mask = Renderer.init_rendering(mode, 9, 9)
+			Renderer.draw_line(img, mask, 2, 4, 6, 4, 100, mode, width, 0.5)
+			res = Renderer.finalize_rendering(img, mask, bg_color=7)
+			ref = np.full((9, 9), 7, dtype=np.uint16)
+			ref[4 - (width - 1) // 2:5 + width // 2, 2 - (width - 1) // 2:7 + width // 2] = 50
+			np.testing.assert_array_equal(res, ref)
+			np.testing.assert_array_equal(mask, ref == 50)
