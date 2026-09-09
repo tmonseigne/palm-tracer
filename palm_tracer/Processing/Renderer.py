@@ -321,7 +321,7 @@ class Renderer:
 		# --- 5. Dessin des queues, puis des têtes : deux passes sur les trajectoires. ---
 		# Pour chaque tranche split_idx[i]:split_idx[i + 1], passer les vues coords et colors à draw_track.
 		# Les segments apparaissent au plan du point d'arrivée, avec sa couleur ; aucun segment n'est anticipé dans un trou temporel.
-		# Le fade et la longueur utilisent les plans, y compris à l'intérieur des segments qui couvrent plusieurs plans.
+		# Le fade et la longueur utilisent l'âge depuis le plan d'arrivée : un seul alpha sur tout le segment, même après un long blink.
 		# Fusionner les intensités par color_mode et les alphas par maximum, sans mélange avec le fond à ce stade.
 		# Deuxième passe : draw_track_heads impose les disques uniquement sur les plans observés, avec alpha = 1.
 		# Ce passage global garantit la priorité des têtes même lorsqu'une autre trajectoire croise leur position.
@@ -917,18 +917,17 @@ class Renderer:
 	def draw_track(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray,
 				   tail_width: int = 1, tail_length: int = -1, fade_type: int = 0, color_mode: int = 0):
 		"""
-		Dessine les queues d'une trajectoire dans les volumes d'intensité et d'alpha (prototype, non implémenté).
+		Dessine les queues d'une trajectoire dans les volumes d'intensité et d'alpha.
 
 		Relier chaque observation à la précédente avec la couleur du point d'arrivée.
 		Un segment reliant les plans A et B apparaît intégralement à B, jamais avant B, même s'il manque des observations.
 		Exemple 10, 12, 20 : aucun segment à 10/11 ; apparition de 10→12 à 12, puis de 12→20 à 20.
 		Entre ces apparitions, aucune nouvelle géométrie n'est ajoutée, mais la durée et le fade continuent à faire vieillir les queues.
 
-		Pour représenter les points intermédiaires manquants, associer au pixel sa position projetée u dans [0, 1] le long du segment.
-		Son plan théorique est ``p = A + u * (B - A)`` et son âge au plan T est ``T - p``.
-		Tous les pixels de l'épaisseur partagent cette règle, avec projection bornée aux extrémités.
-		Ainsi, une queue courte peut masquer la partie ancienne d'un long segment dès son apparition.
-		Cette convention temporelle est à valider avant implémentation ; il n'y a ni tête interpolée ni tracé en pointillés pour le moment.
+		Au plan T, l'âge du segment entier vaut ``T - B``, où B est le plan d'arrivée.
+		Un seul alpha s'applique à toute son empreinte, épaisseur comprise, indépendamment de sa longueur spatiale et du plan de départ.
+		Même après un long blink, le segment apparaît entièrement opaque puis s'efface uniformément.
+		Aucun point intermédiaire n'est créé et aucune interpolation temporelle n'est effectuée le long du segment.
 
 		Pour une durée positive L : coupure nette si âge > L, ou fade linéaire ``max(0, 1 - âge / (L + 1))``.
 		Le fade vaut un à l'âge zéro et zéro à L + 1. Une durée -1 conserve les segments apparus sans fade ; zéro supprime les queues.
@@ -948,12 +947,38 @@ class Renderer:
 		:param fade_type: Zéro pour une coupure nette, un pour un fade linéaire.
 		:param color_mode: Combinaison des intensités : zéro addition, un maximum, deux minimum.
 		"""
-		# Pour chaque paire d'observations successives, préparer une seule empreinte via _line_spans.
-		# Projeter les pixels sur le segment pour retrouver leurs plans théoriques, y compris en présence d'un saut temporel.
-		# Pour un segment de longueur spatiale nulle, retenir le plan d'arrivée (éviter la division par zéro).
-		# Parcourir seulement les plans depuis l'arrivée jusqu'à extinction ou fin du volume ; actualiser intensité et alpha sans prémultiplication.
-		# Ne pas transférer le alpha_mask au draw_line actuel : celui-ci écrit un booléen et effectue déjà un mélange.
-		...
+		if tail_length == 0 or len(track) < 2: return
+		depth, height, width = img.shape
+		# --- Pour chaque segment de ma trajectoire. ---
+		for i in range(1, len(track)):
+			x0, y0 = (int(value) for value in track[i - 1, 1:])
+			p1, x1, y1 = (int(value) for value in track[i])
+
+			# --- Plans nécessitant l'affichage de ce segment. ---
+			first = max(0, p1)  # .									Le segment n'apparaît qu'à l'arrivée ; aucun indice négatif dans le volume.
+			last = depth if tail_length < 0 else min(depth, p1 + tail_length + 1)  # Borne exclusive des plans affichant le segment.
+			if first >= last: continue  # .							Segment pas encore apparu ou déjà entièrement effacé dans le volume demandé.
+
+			# --- Un alpha par plan, commun à toute l'empreinte du segment. ---
+			if tail_length < 0 or fade_type == 0: alpha = 1.0  # .	Historique illimité ou coupure nette : tous les plans de first:last sont opaques.
+			else:
+				age = np.arange(first, last, dtype=float) - p1
+				alpha = (1.0 - age / (tail_length + 1))[:, None]  # Colonne temporelle diffusée sur tous les pixels X.
+
+			# --- Préparer une seule empreinte par segment, puis la réutiliser sur ses plans visibles. ---
+			y_min, left, right = Renderer._line_spans((height, width), x0, y0, x1, y1, tail_width)
+			color = colors[i]  # .			Couleur de l'observation d'arrivée, indépendante du fade.
+			for row, (start, end) in enumerate(zip(left, right)):
+				if start >= end: continue
+				y = y_min + row
+				# Remplir tous les plans visibles en une opération, sans calcul de distance ni boucle temporelle.
+				# L'intensité reste non prémultipliée : seul le masque stocke le fade, le fond sera mélangé à la finalisation.
+				view = img[first:last, y, start:end]
+				if color_mode == 0: np.add(view, color, out=view)
+				elif color_mode == 1: np.maximum(view, color, out=view)
+				else: np.minimum(view, color, out=view)
+				alpha_view = alpha_mask[first:last, y, start:end]
+				np.maximum(alpha_view, alpha, out=alpha_view)  # Même empreinte complète que l'intensité, épaisseur comprise.
 
 	##################################################
 	@staticmethod

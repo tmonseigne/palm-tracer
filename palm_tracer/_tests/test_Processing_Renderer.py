@@ -1161,3 +1161,125 @@ def test_draw_line_thick_empty_rows():
 	ref[ref_mask] = 40
 	np.testing.assert_array_equal(img, ref)
 	np.testing.assert_array_equal(mask, ref_mask)
+
+
+##################################################
+def test_draw_track_blinks():
+	"""Vérifie les apparitions aux plans 12/20, l'historique illimité et la conservation des entrées."""
+	track = np.array([[10, 0, 1], [12, 2, 1], [20, 4, 1]])
+	colors = np.array([5.0, 10.0, 30.0])
+	original = track.copy()
+	img = np.zeros((22, 3, 5))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track(img, alpha, track, colors)
+	ref = np.zeros_like(img)
+	ref[12:, 1, :3] = 10
+	ref[20:, 1, 2:] += 30
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(alpha, ref > 0)
+	np.testing.assert_array_equal(track, original)
+	np.testing.assert_array_equal(colors, [5, 10, 30])
+
+
+##################################################
+def test_draw_track_short_fade_long_blink():
+	"""Vérifie le fade uniforme d'un segment qui apparaît après huit plans sans observation."""
+	track = np.array([[12, 0, 1], [20, 4, 1]])
+	img = np.zeros((24, 3, 5))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track(img, alpha, track, np.array([5, 90]), tail_length=2, fade_type=1)
+	ref_alpha = np.zeros_like(alpha)
+	# Tout le segment apparaît opaque, puis vieillit uniquement depuis son arrivée au plan 20.
+	ref_alpha[20, 1, :] = 1
+	ref_alpha[21, 1, :] = 2 / 3
+	ref_alpha[22, 1, :] = 1 / 3
+	np.testing.assert_allclose(alpha, ref_alpha)
+	np.testing.assert_array_equal(img, np.where(ref_alpha > 0, 90, 0))
+
+
+##################################################
+def test_draw_track_hard_cutoff():
+	"""Vérifie la limite d'âge inclusive et les plans sans nouvelle observation, sans fade."""
+	track = np.array([[0, 0, 0], [4, 4, 0]])
+	img = np.zeros((8, 1, 5))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track(img, alpha, track, np.array([1, 50]), tail_length=2)
+	ref = np.zeros_like(img)
+	ref[4:7, 0, :] = 1
+	np.testing.assert_array_equal(alpha, ref)
+	np.testing.assert_array_equal(img, ref * 50)
+
+
+##################################################
+def test_draw_track_overlap():
+	"""Vérifie la combinaison indépendante des intensités et le maximum des opacités."""
+	for mode, initial, expected in ((0, 0, 120), (1, -np.inf, 100), (2, np.inf, 20)):
+		img = np.full((5, 5, 5), initial, dtype=float)
+		alpha = np.zeros_like(img)
+		# Au plan 3, l'horizontale a un âge de 1 ; la verticale vient d'apparaître et impose alpha = 1.
+		Renderer.draw_track(img, alpha, np.array([[0, 0, 2], [2, 4, 2]]), np.array([0, 100]), tail_length=3, fade_type=1, color_mode=mode)
+		Renderer.draw_track(img, alpha, np.array([[1, 2, 0], [3, 2, 4]]), np.array([0, 20]), tail_length=3, fade_type=1, color_mode=mode)
+		assert img[3, 2, 2] == expected
+		assert alpha[3, 2, 2] == 1
+		assert alpha[4, 2, 2] == 0.75
+		assert img[0, 0, 0] == initial and alpha[0, 0, 0] == 0
+
+
+##################################################
+def test_draw_track_thickness():
+	"""Vérifie l'opacité uniforme sur toute l'épaisseur et l'absence de cumul interne."""
+	track = np.array([[0, 2, 3], [2, 4, 3]])
+	for mode, initial in ((0, 0), (1, -np.inf), (2, np.inf)):
+		img = np.full((5, 7, 7), initial, dtype=float)
+		alpha = np.zeros_like(img)
+		Renderer.draw_track(img, alpha, track, np.array([0, 80]), tail_width=3, tail_length=2, fade_type=1, color_mode=mode)
+		ref = np.zeros_like(alpha)
+		ref[2, 2:5, 1:6] = 1
+		ref[3, 2:5, 1:6] = 2 / 3
+		ref[4, 2:5, 1:6] = 1 / 3
+		np.testing.assert_allclose(alpha, ref)
+		np.testing.assert_array_equal(img, np.where(ref > 0, 80, initial))
+
+
+##################################################
+def test_draw_track_stationary_and_clipping():
+	"""Vérifie un déplacement nul au bord, les segments hors cadre et les bornes temporelles du volume."""
+	img = np.zeros((5, 3, 3))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track(img, alpha, np.array([[0, 0, 0], [2, 0, 0]]), np.array([0, 10]), tail_width=3, tail_length=1, fade_type=1)
+	ref = np.zeros_like(alpha)
+	ref[2, :2, :2] = 1
+	ref[3, :2, :2] = 0.5
+	np.testing.assert_array_equal(alpha, ref)
+	np.testing.assert_array_equal(img, np.where(ref > 0, 10, 0))
+
+	for track in (np.empty((0, 3), dtype=int), np.array([[0, 1, 1]]), np.array([[5, 0, 0], [6, 1, 1]]),
+				  np.array([[-5, 0, 0], [-4, 1, 1]]), np.array([[0, -5, -5], [1, -4, -4]])):
+		img.fill(0)
+		alpha.fill(0)
+		Renderer.draw_track(img, alpha, track, np.ones(len(track)), tail_length=1)
+		np.testing.assert_array_equal(img, 0)
+		np.testing.assert_array_equal(alpha, 0)
+
+	# Une queue désactivée ne dessine pas les têtes ; leur passe reste séparée.
+	Renderer.draw_track(img, alpha, np.array([[0, 0, 0], [1, 2, 2]]), np.array([1, 2]), tail_length=0)
+	np.testing.assert_array_equal(img, 0)
+	np.testing.assert_array_equal(alpha, 0)
+
+
+##################################################
+def test_draw_track_alpha_independent_of_geometry():
+	"""Vérifie que seul le plan d'arrivée détermine l'alpha, quels que soient le départ et la longueur spatiale."""
+	for departure in (0, 9):
+		for endpoint in ((1, 1), (8, 1), (8, 8)):
+			track = np.array([[departure, 1, 1], [10, *endpoint]])
+			img = np.zeros((14, 10, 10))
+			alpha = np.zeros_like(img)
+			Renderer.draw_track(img, alpha, track, np.array([1, 50]), tail_length=2, fade_type=1)
+			mask = img[10] > 0
+			assert mask.any()
+			for plane, expected in ((10, 1), (11, 2 / 3), (12, 1 / 3)):
+				np.testing.assert_allclose(alpha[plane, mask], expected)
+				np.testing.assert_array_equal(alpha[plane, ~mask], 0)
+			np.testing.assert_array_equal(alpha[:10], 0)
+			np.testing.assert_array_equal(alpha[13:], 0)
