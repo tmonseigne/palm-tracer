@@ -1,5 +1,7 @@
 """Teste la production des rendus haute résolution."""
 
+from PIL import Image
+
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Renderer
 
@@ -1361,3 +1363,156 @@ def test_draw_track_heads_preserve_interior():
 	mask[1, 1:6, 1:6] = contour
 	np.testing.assert_array_equal(img, np.where(mask, 90, 40))
 	np.testing.assert_array_equal(alpha, np.where(mask, 1, 0.25))
+
+
+##################################################
+def test_finalize_track_stack():
+	"""Vérifie le mélange unique avec le fond, la saturation après mélange et la troncature."""
+	img = np.array([[[100, 100, 100, 1.9, -100, 70000, 70000]]], dtype=float)
+	alpha = np.array([[[0, 0.25, 1, 1, 1, 1, 0.5]]], dtype=float)
+	original_alpha = alpha.copy()
+	res = Renderer.finalize_track_stack(img, alpha, bg_color=20)
+	np.testing.assert_array_equal(res, [[[20, 40, 100, 1, 0, 65535, 35010]]])
+	np.testing.assert_array_equal(img, [[[20, 40, 100, 1.9, 0, 65535, 35010]]])
+	np.testing.assert_array_equal(alpha, original_alpha)
+	assert res.dtype == np.uint16 and res.shape == img.shape
+	assert not np.shares_memory(res, img)
+
+
+##################################################
+def test_finalize_track_stack_empty_background():
+	"""Vérifie les fonds sans contribution et l'absence de calcul invalide avec les infinis d'initialisation."""
+	for initial in (0, -np.inf, np.inf):
+		for background, expected in ((0, 0), (42, 42), (-10, 0), (70000, 65535)):
+			img = np.full((2, 3, 4), initial, dtype=float)
+			alpha = np.zeros_like(img)
+			with np.errstate(all='raise'):
+				res = Renderer.finalize_track_stack(img, alpha, background)
+			np.testing.assert_array_equal(res, np.full(img.shape, expected, dtype=np.uint16))
+			np.testing.assert_array_equal(alpha, 0)
+	for shape in ((0, 3, 4), (2, 0, 4), (2, 3, 0)):
+		res = Renderer.finalize_track_stack(np.empty(shape), np.empty(shape))
+		assert res.shape == shape and res.dtype == np.uint16
+
+
+##################################################
+def test_finalize_track_stack_strided():
+	"""Vérifie la finalisation d'une vue non contiguë sans modifier les pixels voisins ni l'alpha."""
+	base = np.full((2, 3, 8), 100.0)
+	view = base[:, :, ::2]
+	alpha = np.full(view.shape, 0.5)
+	res = Renderer.finalize_track_stack(view, alpha, 20)
+	np.testing.assert_array_equal(res, np.full(view.shape, 60, dtype=np.uint16))
+	np.testing.assert_array_equal(base[:, :, ::2], 60)
+	np.testing.assert_array_equal(base[:, :, 1::2], 100)
+	np.testing.assert_array_equal(alpha, 0.5)
+
+
+##################################################
+def test_finalize_track_stack_drawing():
+	"""Vérifie le fade d'une queue sur fond non nul et la tête opaque sur son seul plan, pour les trois modes."""
+	for mode, initial in ((0, 0), (1, -np.inf), (2, np.inf)):
+		img = np.full((5, 3, 5), initial, dtype=float)
+		alpha = np.zeros_like(img)
+		track = np.array([[0, 1, 1], [1, 3, 1]])
+		colors = np.array([40, 100])
+		Renderer.draw_track(img, alpha, track, colors, tail_length=1, fade_type=1, color_mode=mode)
+		Renderer.draw_track_heads(img, alpha, track, colors)
+		with np.errstate(all='raise'):
+			res = Renderer.finalize_track_stack(img, alpha, 20)
+		ref = np.full(img.shape, 20, dtype=np.uint16)
+		ref[0, 1, 1] = 40
+		ref[1, 1, 1:4] = 100
+		ref[2, 1, 1:4] = 60
+		np.testing.assert_array_equal(res, ref)
+
+
+##################################################
+def test_finalize_track_stack_remainder():
+	"""Vérifie le modulo après mélange, les valeurs négatives, les tours multiples et la troncature."""
+	img = np.array([[[-1, -1.5, 65536, 65537, 131073, 70000, -np.inf, np.inf]]], dtype=float)
+	alpha = np.array([[[1, 1, 1, 1, 1, 0.5, 0, 0]]], dtype=float)
+	original_alpha = alpha.copy()
+	with np.errstate(all='raise'):
+		res = Renderer.finalize_track_stack(img, alpha, bg_color=20, clip=False)
+	np.testing.assert_array_equal(res, [[[65535, 65534, 0, 1, 1, 35010, 20, 20]]])
+	np.testing.assert_array_equal(img, [[[65535, 65534.5, 0, 1, 1, 35010, 20, 20]]])
+	np.testing.assert_array_equal(alpha, original_alpha)
+	assert res.dtype == np.uint16
+	# Le fond est également replié lorsque l'alpha est nul.
+	for background, expected in ((-1, 65535), (65536, 0), (131073, 1)):
+		res = Renderer.finalize_track_stack(np.full((1, 1, 1), np.inf), np.zeros((1, 1, 1)), background, clip=False)
+		np.testing.assert_array_equal(res, [[[expected]]])
+
+
+##################################################
+def test_track_stack_timeline():
+	"""Vérifie le recadrage temporel, les blinks, le fade et les têtes sur leurs seuls plans."""
+	r = Renderer()
+	r.set_size(5, 3, 1)
+	track = np.array([[1, 10, 0, 1, 40], [1, 12, 2, 1, 100], [1, 16, 4, 1, 80]], dtype=float)
+	original = track.copy()
+	res = r.track_stack(track, bg_color=20, tail_length=1, fade_type=1)
+	ref = np.full((7, 3, 5), 20, dtype=np.uint16)
+	ref[0, 1, 0] = 40
+	ref[2, 1, :3] = 100
+	ref[3, 1, :3] = 60
+	ref[6, 1, 2:] = 80
+	np.testing.assert_array_equal(res, ref)
+	np.testing.assert_array_equal(track, original)
+	assert res.dtype == np.uint16
+
+
+##################################################
+def test_track_stack_empty_and_scale():
+	"""Vérifie les sorties anticipées 3D et la mise à l'échelle des coordonnées."""
+	r = Renderer()
+	r.set_size(3, 2, 2)
+	for data in (np.empty((0, 5)), np.zeros(5), np.zeros((1, 4)), np.array([[1, 4, -5, -5, 20]])):
+		res = r.track_stack(data, bg_color=17)
+		np.testing.assert_array_equal(res, np.full((1, 4, 6), 17, dtype=np.uint16))
+	res = r.track_stack(np.array([[1, 50, 1, 1, 90]]), bg_color=17, tail_length=0)
+	ref = np.full((1, 4, 6), 17, dtype=np.uint16)
+	ref[0, 2, 2] = 90
+	np.testing.assert_array_equal(res, ref)
+	r.set_size(0, -1, 1)
+	np.testing.assert_array_equal(r.track_stack(np.empty((0, 5)), bg_color=17), [[[17]]])
+
+
+##################################################
+def test_track_stack_priority_and_modes():
+	"""Vérifie les croisements, les queues illimitées et la priorité globale des têtes."""
+	r = Renderer()
+	r.set_size(5, 5, 1)
+	tracks = np.array([[1, 10, 0, 2, 10], [1, 11, 4, 2, 10], [2, 10, 2, 0, 20], [2, 11, 2, 4, 20],
+					   [3, 12, 0, 0, 5]], dtype=float)
+	for mode, expected in ((0, 30), (1, 20), (2, 10)):
+		res = r.track_stack(tracks, color_mode=mode, bg_color=7)
+		assert res.shape == (3, 5, 5)
+		assert res[0, 2, 2] == 7
+		assert res[1, 2, 2] == expected and res[2, 2, 2] == expected
+	# La tête de la première trajectoire doit rester visible même si la queue suivante la traverse.
+	tracks = np.array([[1, 11, 2, 2, 3], [2, 10, 0, 2, 100], [2, 11, 4, 2, 100]], dtype=float)
+	res = r.track_stack(tracks, color_mode=1, bg_color=7)
+	assert res[1, 2, 2] == 3 and res[1, 2, 1] == 100
+
+
+##################################################
+def test_renderer_track_stack_spiral():
+	"""Exporte une spirale animée pour vérifier visuellement la queue, le fade, la tête et le fond gris foncé."""
+	r = Renderer()
+	r.set_size(192, 192, 1)
+	n_points = 72
+	theta = np.linspace(0, 4 * np.pi, n_points)
+	radius = np.linspace(12, 78, n_points)
+	track = np.column_stack((np.ones(n_points), np.arange(10, 10 + n_points),
+							 96 + radius * np.cos(theta), 96 + radius * np.sin(theta), np.full(n_points, 58000)))
+	res = r.track_stack(track, color_mode=1, bg_color=8000, head_size=9, tail_width=2, tail_length=9, fade_type=1)
+	assert res.shape == (n_points, 192, 192) and res.dtype == np.uint16
+	assert np.all(res[:, 0, 0] == 8000)
+	assert np.any((res[-1] > 8000) & (res[-1] < 58000))
+	assert np.max(res[-1]) == 58000
+	FileIO.save_tif(res, OUTPUT_DIR / "track_stack_spiral.tif")
+	# Échelle fixe sur toute l'animation pour préserver visuellement les intensités du fond et du fade.
+	frames = [Image.fromarray((plane / 257).astype(np.uint8)) for plane in res]
+	frames[0].save(OUTPUT_DIR / "track_stack_spiral.gif", save_all=True, append_images=frames[1:], duration=80, loop=0, optimize=False)

@@ -270,7 +270,7 @@ class Renderer:
 	def track_stack(self, trc: np.ndarray, color_mode: int = 0, bg_color: int = 0, head_size: int = 1, tail_width: int = 1, tail_length: int = -1,
 					fade_type: int = 0, raw: np.ndarray | None = None, upscale_type: int = 0, color_map: str = "viridis") -> np.ndarray:
 		"""
-		Prépare une séquence de trajectoires limitée aux plans contenant des observations.
+		Construit une séquence de trajectoires limitée aux plans contenant des observations.
 
 		Les données sont triées par trajectoire puis par plan. Les plans d'origine commencent à un.
 		La séquence couvre les bornes inclusives du premier au dernier point valide, sans prolongation pour terminer le fade.
@@ -289,21 +289,20 @@ class Renderer:
 			Une durée positive applique la limite d'âge décrite par :meth:`draw_track`.
 		:param fade_type: ``0`` pour une coupure nette, ``1`` pour une décroissance linéaire ; ignoré si la durée vaut -1 ou 0.
 		:param raw: Futur fond brut, déjà recadré spatialement sur la ROI, mais conservant les plans depuis le début de l'acquisition.
-			La branche raw/RGB sera implémentée ultérieurement ; ``color_mode`` y sera ignoré.
+			Paramètre réservé, non utilisé par le rendu scalaire actuel, comme upscale_type et color_map.
 		:param upscale_type: Agrandissement futur du fond brut : ``0`` plus proche voisin, ``1`` Lanczos.
 		:param color_map: Colormap des trajectoires pour la future sortie RGB ; le raw conserve une représentation en gris.
-		:return: Contrat cible : volume ``(plans, hauteur, largeur)`` uint16 sans raw, ou
-			``(plans, hauteur, largeur, 3)`` uint8 avec raw. Une entrée sans point valide donnera un volume de fond à un seul plan.
+		:return: Volume ``(plans, hauteur, largeur)`` uint16. Une entrée sans point valide produit un volume de fond à un seul plan.
+			L'indice zéro correspond au premier plan d'acquisition retenu après filtrage spatial.
 		"""
 		# --- 1. Vérification des dimensions de sortie et des entrées. ---
-		# À raccorder : retours anticipés en volume à un plan, uint16 sans raw et RGB uint8 avec raw.
-		# Le prototype conserve provisoirement ses retours historiques tant que la finalisation n'est pas implémentée.
-		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
-		if trc.ndim != 2 or trc.shape[1] != 5: return self.blank_rendering(bg_color, False)
+		background = int(np.clip(bg_color, 0, MAX_UI_16))
+		if self._h < 1 or self._w < 1: return self.blank_rendering(background, True)
+		if trc.ndim != 2 or trc.shape[1] != 5: return self.blank_rendering(background, True)
 
 		# --- 2. Préparation des coordonnées entières et filtrage des points hors des dimensions du rendu. ---
 		track_ids, coords, colors, split_idx = self.prepare_tracks(trc)
-		if track_ids.size == 0: return self.blank_rendering(bg_color, False)
+		if track_ids.size == 0: return self.blank_rendering(background, True)
 
 		# --- 3. Bornes temporelles inclusives : éviter les plans inutiles en début et fin. ---
 		p_min, p_max = int(np.min(coords[:, 0])), int(np.max(coords[:, 0]))
@@ -319,20 +318,20 @@ class Renderer:
 		# L'alpha vaut zéro hors dessin. Ne pas utiliser draw_line tel quel : il mélange déjà la couleur et écrit True dans le masque.
 
 		# --- 5. Dessin des queues, puis des têtes : deux passes sur les trajectoires. ---
-		# Pour chaque tranche split_idx[i]:split_idx[i + 1], passer les vues coords et colors à draw_track.
-		# Les segments apparaissent au plan du point d'arrivée, avec sa couleur ; aucun segment n'est anticipé dans un trou temporel.
-		# Le fade et la longueur utilisent l'âge depuis le plan d'arrivée : un seul alpha sur tout le segment, même après un long blink.
-		# Fusionner les intensités par color_mode et les alphas par maximum, sans mélange avec le fond à ce stade.
-		# Deuxième passe : draw_track_heads impose les contours de cercle uniquement sur les plans observés, avec alpha = 1.
-		# Ce passage global garantit la priorité des têtes même lorsqu'une autre trajectoire croise leur position.
+		for i in range(track_ids.size):
+			start, end = split_idx[i], split_idx[i + 1]
+			self.draw_track(res, alpha_mask, coords[start:end], colors[start:end], tail_width, tail_length, fade_type, color_mode)
+		for i in range(track_ids.size):
+			start, end = split_idx[i], split_idx[i + 1]
+			self.draw_track_heads(res, alpha_mask, coords[start:end], colors[start:end], head_size)
 
-		# --- 6. Finalisation, à raccorder après validation du pipeline. ---
-		# Sans raw : finalize_track_stack mélange res et bg_color grâce à alpha_mask, puis sature et convertit en uint16.
+		# --- 6. Finalisation scalaire. ---
+		# Sans raw : finalize_track_stack mélange res et bg_color grâce à alpha_mask, puis sature ou replie les valeurs et convertit en uint16.
 		# Remplir directement les pixels d'alpha nul pour ne jamais calculer 0 * inf sur les valeurs initiales min/max.
 		# Avec raw (étape ultérieure) : agrandir raw[p_min - 1:p_max], convertir le fond en gris RGB et les tracés via la colormap,
 		# puis composer les deux couches une seule fois. La normalisation des couleurs restera fixe sur toute la séquence.
 		# Une future finalisation RGB sera distincte ; sa règle de recouvrement ne dépendra pas de color_mode.
-		return res  # Retour temporaire du volume de travail ; ce prototype ne produit pas encore le rendu final.
+		return self.finalize_track_stack(res, alpha_mask, bg_color)
 
 	# ==================================================
 	# endregion Rendus
@@ -406,20 +405,32 @@ class Renderer:
 
 	##################################################
 	@staticmethod
-	def finalize_track_stack(img: np.ndarray, alpha_mask: np.ndarray, bg_color: int = 0) -> np.ndarray:
+	def finalize_track_stack(img: np.ndarray, alpha_mask: np.ndarray, bg_color: int = 0, clip: bool = True) -> np.ndarray:
 		"""
 		Finalise une séquence scalaire avec un masque alpha.
 
 		Les pixels d'alpha nul reçoivent directement le fond, sans multiplier les infinis d'initialisation par zéro.
-		Pour les pixels contribuants, calculer ``(1 - alpha) * bg_color + alpha * img``, puis saturer dans [0, 65535].
+		Pour les pixels contribuants, calculer ``(1 - alpha) * bg_color + alpha * img``, puis saturer dans [0, 65535] si ``clip`` vaut True.
+		Sinon, replier les valeurs par un modulo :math:`2^{16}`, comme dans :meth:`finalize_rendering`.
 		L'intensité n'est pas prémultipliée par l'alpha en entrée. Le fond raw/RGB aura une finalisation distincte ultérieurement.
 
-		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, modifiable sur place.
+		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, mélangé avec le fond puis saturé ou replié sur place.
 		:param alpha_mask: Opacités de même forme, comprises entre zéro et un ; non modifiées.
 		:param bg_color: Intensité du fond uniforme, sur l'échelle uint16.
-		:return: Contrat cible : nouveau volume uint16 de même forme ; le prototype ne retourne encore aucun résultat.
+		:param clip: Active la saturation des valeurs au lieu de leur repliement cyclique.
+		:return: Nouveau volume uint16 de même forme ; les parties fractionnaires sont tronquées lors de la conversion.
 		"""
-		...
+		res = np.empty(img.shape, dtype=np.uint16)
+		# Traiter les plans séparément pour limiter les masques et les copies temporaires à une image 2D.
+		for plane, (view, alpha) in enumerate(zip(img, alpha_mask)):
+			valid = alpha > 0.0
+			view[~valid] = bg_color  # .							Remplace les éléments identifiés comme fond par la couleur choisie.
+			# L'intensité des tracés n'est pas prémultipliée : appliquer l'alpha exactement une fois.
+			view[valid] = (1.0 - alpha[valid]) * bg_color + alpha[valid] * view[valid]
+			if clip: np.clip(view, 0, MAX_UI_16, out=view)  # .		Saturer après mélange, comme les autres rendus.
+			else: np.remainder(view, MAX_UI_16 + 1, out=view)  # .	Replier cycliquement avant la conversion en uint16.
+			res[plane] = view  # .									Conversion en uint16 avec troncature, sans modifier le masque alpha.
+		return res
 
 	##################################################
 	def _upscale_raw(self, raw: np.ndarray, upscale_type: int) -> np.ndarray:
