@@ -323,7 +323,7 @@ class Renderer:
 		# Les segments apparaissent au plan du point d'arrivée, avec sa couleur ; aucun segment n'est anticipé dans un trou temporel.
 		# Le fade et la longueur utilisent l'âge depuis le plan d'arrivée : un seul alpha sur tout le segment, même après un long blink.
 		# Fusionner les intensités par color_mode et les alphas par maximum, sans mélange avec le fond à ce stade.
-		# Deuxième passe : draw_track_heads impose les disques uniquement sur les plans observés, avec alpha = 1.
+		# Deuxième passe : draw_track_heads impose les contours de cercle uniquement sur les plans observés, avec alpha = 1.
 		# Ce passage global garantit la priorité des têtes même lorsqu'une autre trajectoire croise leur position.
 
 		# --- 6. Finalisation, à raccorder après validation du pipeline. ---
@@ -984,19 +984,42 @@ class Renderer:
 	@staticmethod
 	def draw_track_heads(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray, head_size: int = 1):
 		"""
-		Dessine les têtes observées après toutes les queues (prototype, non implémenté).
+		Dessine les têtes observées après toutes les queues, sans persistance ni fade.
 
-		Chaque tête est un disque centré sur son observation, présent uniquement sur le plan de celle-ci.
-		Imposer sa couleur et un alpha de un sur la même empreinte, en recadrant le disque aux limites de l'image.
-		Un diamètre de un produit un pixel ; les diamètres pairs suivent le décalage d'un demi-pixel vers X/Y positifs.
+		Chaque tête est un contour de cercle d'épaisseur radiale un pixel, présent uniquement sur le plan de son observation.
+		Imposer sa couleur et un alpha de un sur la même empreinte, en recadrant le contour aux limites de l'image.
+		Les diamètres un et deux produisent respectivement un et quatre pixels ; les diamètres pairs suivent le décalage d'un demi-pixel vers X/Y positifs.
 		En cas de superposition de têtes, la dernière dessinée l'emporte, selon l'ordre des trajectoires.
 
 		:param img: Volume flottant d'intensités, modifié sur place.
-		:param alpha_mask: Volume flottant de même forme, modifié sur les disques entiers.
+		:param alpha_mask: Volume flottant de même forme, modifié uniquement sur les contours.
 		:param track: Vue ``(N, 3)`` contenant les plans locaux et les coordonnées X/Y des observations.
 		:param colors: Vue des intensités associées aux observations.
-		:param head_size: Diamètre entier des disques en pixels du rendu, ramené au minimum à un.
+		:param head_size: Diamètre extérieur entier des cercles en pixels du rendu, ramené au minimum à un.
 		"""
 		# Deuxième passe globale du pipeline : aucune queue ne sera dessinée après ces têtes.
 		# Ne créer aucune tête pour les plans sans observation, ni conserver une tête sur les plans suivants.
-		...
+		head_size = max(1, head_size)
+		if len(track) == 0: return
+		depth, height, width = img.shape
+		before, after = (head_size - 1) // 2, head_size // 2
+		# Construire une seule empreinte par appel : une couronne entre les rayons diamètre/2 - 1 et diamètre/2.
+		# Les petits diamètres conservent leurs pixels minimaux ; pour les autres, ne toucher ni à l'intensité ni à l'alpha à l'intérieur.
+		# Le centre vaut 0 pour un diamètre impair, 0.5 pour un diamètre pair (même convention que les lignes épaisses).
+		center = 0.5 if head_size % 2 == 0 else 0.0
+		offsets = np.arange(-before, after + 1, dtype=float) - center
+		distance_squared = offsets[:, None] ** 2 + offsets[None, :] ** 2
+		radius = head_size / 2.0
+		ring = (distance_squared <= radius ** 2) & (distance_squared >= max(0.0, radius - 1.0) ** 2)
+		for i, point in enumerate(track):
+			plane, x, y = (int(value) for value in point)
+			if plane < 0 or plane >= depth: continue  # .		Les plans sont déjà locaux ; ne jamais écrire via un indice négatif.
+			x_min, x_max = max(0, x - before), min(width, x + after + 1)
+			y_min, y_max = max(0, y - before), min(height, y + after + 1)
+			if x_min >= x_max or y_min >= y_max: continue  # .	Cercle entièrement hors cadre.
+			# Recadrer l'empreinte avec les mêmes décalages que l'image, sans déplacer le centre au voisinage d'un bord.
+			patch = ring[y_min - y + before:y_max - y + before, x_min - x + before:x_max - x + before]
+			view = img[plane, y_min:y_max, x_min:x_max]
+			alpha_view = alpha_mask[plane, y_min:y_max, x_min:x_max]
+			view[patch] = colors[i]  # .						La tête impose sa couleur, même si elle est plus faible que celle de la queue.
+			alpha_view[patch] = 1.0  # .						Opacité totale sur exactement le même contour, uniquement sur le plan observé.

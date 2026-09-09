@@ -1283,3 +1283,81 @@ def test_draw_track_alpha_independent_of_geometry():
 				np.testing.assert_array_equal(alpha[plane, ~mask], 0)
 			np.testing.assert_array_equal(alpha[:10], 0)
 			np.testing.assert_array_equal(alpha[13:], 0)
+
+
+##################################################
+def test_draw_track_heads_planes():
+	"""Vérifie les plans observés uniquement, le diamètre minimal et la conservation des entrées."""
+	track = np.array([[1, 2, 1], [4, 3, 2]])
+	colors = np.array([20.0, 70.0])
+	original = track.copy()
+	for size in (-2, 0, 1):
+		img = np.zeros((6, 4, 5))
+		alpha = np.zeros_like(img)
+		Renderer.draw_track_heads(img, alpha, track, colors, size)
+		ref = np.zeros_like(img)
+		ref[1, 1, 2], ref[4, 2, 3] = colors
+		np.testing.assert_array_equal(img, ref)
+		np.testing.assert_array_equal(alpha, ref > 0)
+	np.testing.assert_array_equal(track, original)
+	np.testing.assert_array_equal(colors, [20, 70])
+
+
+##################################################
+def test_draw_track_heads_circles():
+	"""Vérifie les contours de diamètres pairs et impairs et les pixels minimaux du diamètre deux."""
+	for size, pattern in ((2, [[1, 1], [1, 1]]),
+						  (4, [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]]),
+						  (5, [[0, 1, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 1, 1, 0]])):
+		img = np.zeros((3, 9, 9))
+		alpha = np.zeros_like(img)
+		Renderer.draw_track_heads(img, alpha, np.array([[1, 4, 4]]), np.array([80]), size)
+		ref = np.zeros_like(img)
+		start = 4 - (size - 1) // 2
+		ref[1, start:start + size, start:start + size] = pattern
+		np.testing.assert_array_equal(alpha, ref)
+		np.testing.assert_array_equal(img, ref * 80)
+
+
+##################################################
+def test_draw_track_heads_clipping():
+	"""Vérifie le recadrage des cercles aux bords sans déplacer leur centre et les entrées hors volume."""
+	img = np.zeros((2, 3, 3))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track_heads(img, alpha, np.array([[0, 0, 0], [1, 2, 2]]), np.array([10, 20]), 4)
+	ref = np.zeros_like(img)
+	ref[0] = [[0, 0, 10], [0, 0, 10], [10, 10, 0]]
+	ref[1] = [[0, 0, 0], [0, 0, 20], [0, 20, 0]]
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(alpha, ref > 0)
+	for track in (np.empty((0, 3), dtype=int), np.array([[-1, 1, 1], [2, 1, 1], [0, -9, -9], [0, 9, 9]])):
+		Renderer.draw_track_heads(img, alpha, track, np.ones(len(track)), 4)
+		np.testing.assert_array_equal(img, ref)
+		np.testing.assert_array_equal(alpha, ref > 0)
+
+
+##################################################
+def test_draw_track_heads_priority():
+	"""Vérifie la priorité opaque des têtes sur une queue et la priorité de la dernière tête dessinée."""
+	img = np.zeros((5, 5, 5))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track(img, alpha, np.array([[0, 0, 2], [1, 4, 2]]), np.array([0, 100]), tail_length=3, fade_type=1)
+	original_img, original_alpha = img.copy(), alpha.copy()
+	Renderer.draw_track_heads(img, alpha, np.array([[2, 2, 2], [2, 2, 2]]), np.array([20, 0]))
+	original_img[2, 2, 2] = 0  # Une intensité nulle reste une tête opaque ; elle ne doit pas devenir transparente.
+	original_alpha[2, 2, 2] = 1
+	np.testing.assert_array_equal(img, original_img)
+	np.testing.assert_array_equal(alpha, original_alpha)
+
+
+##################################################
+def test_draw_track_heads_preserve_interior():
+	"""Vérifie que le contour laisse les intensités et les opacités existantes intactes à l'intérieur."""
+	img = np.full((3, 7, 7), 40.0)
+	alpha = np.full_like(img, 0.25)
+	Renderer.draw_track_heads(img, alpha, np.array([[1, 3, 3]]), np.array([90]), 5)
+	contour = np.array([[0, 1, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 1, 1, 0]], dtype=bool)
+	mask = np.zeros(img.shape, dtype=bool)
+	mask[1, 1:6, 1:6] = contour
+	np.testing.assert_array_equal(img, np.where(mask, 90, 40))
+	np.testing.assert_array_equal(alpha, np.where(mask, 1, 0.25))
