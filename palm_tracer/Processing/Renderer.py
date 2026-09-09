@@ -667,12 +667,12 @@ class Renderer:
 	@staticmethod
 	def _line_spans(shape: tuple[int, int], x0: int, y0: int, x1: int, y1: int, width: int = 1) -> tuple[int, np.ndarray, np.ndarray]:
 		"""
-		Décrit l'empreinte d'un segment épais, sans appliquer de couleur ni d'alpha (prototype, non implémenté).
+		Décrit l'empreinte d'un segment, sans appliquer de couleur ni d'alpha.
 
-		Extraire ultérieurement le calcul Bresenham/left/right de :meth:`draw_line` en conservant ses commentaires explicatifs.
-		Chaque ligne Y intersecte l'union des empreintes carrées suivant un intervalle continu : les pixels ne sont donc énumérés qu'une fois.
+		Chaque pixel de Bresenham porte un pinceau carré. Leur union forme un intervalle continu sur chaque ligne Y.
 		Une largeur paire est décalée d'un demi-pixel vers les axes positifs. Les limites sont recadrées sur l'image.
-		Le chemin direct de draw_line pour width=1 pourra être conservé afin d'éviter des allocations supplémentaires.
+		Deux tableaux de bornes suffisent : la mémoire temporaire est proportionnelle à la hauteur concernée, pas à l'aire.
+		Le parcours conserve les pixels du segment d'origine, même lorsque ses extrémités sont hors cadre.
 
 		:param shape: Hauteur et largeur de l'image cible.
 		:param x0: Coordonnée X de départ.
@@ -680,12 +680,41 @@ class Renderer:
 		:param x1: Coordonnée X d'arrivée.
 		:param y1: Coordonnée Y d'arrivée.
 		:param width: Largeur entière du pinceau carré, ramenée au minimum à un.
-		:return: Contrat cible : y_min, left et right ; la ligne y_min + i couvre ``left[i]:right[i]``.
-			Un intervalle vide a left >= right ; une empreinte entièrement hors cadre produit deux tableaux vides.
-			Le prototype ne retourne encore aucun résultat.
+		:return: y_min, left et right (tableaux d'entiers) ; la ligne y_min + i couvre ``left[i]:right[i]``.
+			Un intervalle vide a left >= right ; une empreinte entièrement hors cadre ou une image vide renvoie zéro et deux tableaux vides.
 		"""
-		...
-		return 0, np.zeros(1), np.zeros(1)
+		width = max(1, width)
+		h_max, w_max = shape
+		before, after = (width - 1) // 2, width // 2  # .		Répartition du pinceau autour du pixel central.
+		y_min, y_max = max(0, min(y0, y1) - before), min(h_max, max(y0, y1) + after + 1)
+		if h_max <= 0 or w_max <= 0 or y_min >= y_max or max(x0, x1) + after < 0 or min(x0, x1) - before >= w_max:
+			return 0, np.empty(0, dtype=int), np.empty(0, dtype=int)
+
+		# Un intervalle initialement vide par ligne ; les empreintes successives élargissent ses bornes X.
+		left, right = np.full(y_max - y_min, w_max, dtype=int), np.zeros(y_max - y_min, dtype=int)
+		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .				Distance maximale sur chaque axe (dy est négatif).
+		sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # .Orientation du parcours sur chaque axe.
+		err = dx + dy  # Erreur accumulée entre la ligne idéale et les pixels parcourus.
+		while True:
+			# Union des empreintes du pinceau : conserver les extrémités de chaque ligne, sans dessiner plusieurs fois les recouvrements.
+			# start:end désigne les lignes Y, tandis que x_min:x_max délimite les pixels X de l'empreinte courante.
+			start, end = max(y_min, y0 - before) - y_min, min(y_max, y0 + after + 1) - y_min
+			x_min, x_max = max(0, x0 - before), min(w_max, x0 + after + 1)
+			if start < end and x_min < x_max:
+				np.minimum(left[start:end], x_min, out=left[start:end])
+				np.maximum(right[start:end], x_max, out=right[start:end])
+			if x0 == x1 and y0 == y1: break  # .				Condition d'arrêt : le dernier pixel a été traité.
+			e2 = err << 1  # .									2*err pour décider dans quelle direction avancer.
+			if e2 >= dy:  # .									On avance en X si l'erreur le permet.
+				err += dy
+				x0 += sx
+			if e2 <= dx:  # .									On avance en Y si nécessaire (les deux axes peuvent avancer pour une diagonale).
+				err += dx
+				y0 += sy
+
+		# La boîte englobante peut toucher l'image alors que le segment lui-même passe à côté.
+		if not np.any(left < right): return 0, np.empty(0, dtype=int), np.empty(0, dtype=int)
+		return y_min, left, right
 
 	##################################################
 	@staticmethod
@@ -717,46 +746,36 @@ class Renderer:
 		# Bornage des paramètres.
 		width, alpha = max(1, width), float(np.clip(alpha, 0.0, 1.0))
 		if alpha == 0.0: return
-		h_max, w_max = img.shape
-
-		before, after = (width - 1) // 2, width // 2  # .			 Répartition du pinceau autour du pixel central.
-		y_min, y_max = max(0, min(y0, y1) - before), min(h_max, max(y0, y1) + after + 1)
-		if y_min >= y_max or max(x0, x1) + after < 0 or min(x0, x1) - before >= w_max: return
-		if width > 1:  # L'union des empreintes est un intervalle par ligne : mémoire proportionnelle à la hauteur, pas à l'aire.
-			left, right = np.full(y_max - y_min, w_max, dtype=int), np.zeros(y_max - y_min, dtype=int)
-		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .					 Distance maximale sur chaque axe (dy est négatif).
-		sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # .	 Orientation du parcours sur chaque axe.
-		err = dx + dy  # .											 Erreur accumulée entre la ligne idéale et les pixels parcourus.
-		while True:
-			if width == 1:  # .										 --- Epaisseur classique de 1. ---
-				if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .		 Vérification des limites de l'image.
+		# --- Chemin direct sans allocation d'empreinte pour les lignes fines. ---
+		if width == 1:
+			h_max, w_max = img.shape
+			if min(y0, y1) >= h_max or max(y0, y1) < 0 or min(x0, x1) >= w_max or max(x0, x1) < 0: return
+			dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .					 Distance maximale sur chaque axe (dy est négatif).
+			sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # .	 Orientation du parcours sur chaque axe.
+			err = dx + dy  # .											 Erreur accumulée entre la ligne idéale et les pixels parcourus.
+			while True:
+				if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .			 Vérification des limites de l'image.
 					old = img[y0, x0]
-					if color_mode == 0: value = old + color  # .	 Addition de l'intensité à la valeur courante.
-					elif color_mode == 1: value = max(old, color)  # Conservation de la couleur la plus élevée.
-					else: value = min(old, color)  # .				 Conservation de la couleur la plus petite.
-					if alpha < 1.0:  # .							 Mélange avec le pixel existant ; les infinis des modes min/max représentent un fond nul.
+					if color_mode == 0: value = old + color  # .	 	 Addition de l'intensité à la valeur courante.
+					elif color_mode == 1: value = max(old, color)  # .	 Conservation de la couleur la plus élevée.
+					else: value = min(old, color)  # .				 	 Conservation de la couleur la plus petite.
+					if alpha < 1.0:  # .							 	 Mélange avec l'existant, les infinis des modes min/max représentent un fond nul.
 						background = old if np.isfinite(old) else 0.0
 						value = (1.0 - alpha) * background + alpha * value
 					img[y0, x0] = value
 					bg_mask[y0, x0] = True
-			else:  # .												 --- Epaisseur différente de 1. ---
-				# Union des empreintes du pinceau : conserver les extrémités de chaque ligne, sans dessiner plusieurs fois les recouvrements.
-				start, end = max(y_min, y0 - before) - y_min, min(y_max, y0 + after + 1) - y_min
-				if start < end:
-					np.minimum(left[start:end], max(0, x0 - before), out=left[start:end])
-					np.maximum(right[start:end], min(w_max, x0 + after + 1), out=right[start:end])
-			if x0 == x1 and y0 == y1: break  # .					 Condition d'arrêt : le dernier pixel a été traité.
-			e2 = err << 1  # .										 2*err pour décider dans quelle direction avancer.
-			if e2 >= dy:  # .										 On avance en X si l'erreur le permet.
-				err += dy
-				x0 += sx
-			if e2 <= dx:  # .										 On avance en Y si nécessaire (les deux axes peuvent avancer pour une diagonale).
-				err += dx
-				y0 += sy
-
-		if width == 1: return
+				if x0 == x1 and y0 == y1: break  # .					 Condition d'arrêt : le dernier pixel a été traité.
+				e2 = err << 1  # .										 2*err pour décider dans quelle direction avancer.
+				if e2 >= dy:  # .										 On avance en X si l'erreur le permet.
+					err += dy
+					x0 += sx
+				if e2 <= dx:  # .										 On avance en Y si nécessaire (les deux axes peuvent avancer pour une diagonale).
+					err += dx
+					y0 += sy
+			return
 
 		# --- Epaisseur différente de 1. ---
+		y_min, left, right = Renderer._line_spans(img.shape, x0, y0, x1, y1, width)
 		# Appliquer couleur et alpha une seule fois à chaque pixel de l'épaisseur, puis marquer exactement la même zone dans le masque.
 		for row, (start, end) in enumerate(zip(left, right)):
 			if start >= end: continue

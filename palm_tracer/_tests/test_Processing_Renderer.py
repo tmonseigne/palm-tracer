@@ -1020,8 +1020,7 @@ def test_draw_line_width_orientations():
 			for width in (2, 3, 4):
 				ref_mask = np.zeros((10, 10), dtype=bool)
 				for y, x in np.argwhere(thin_mask):
-					ref_mask[max(0, y - (width - 1) // 2):min(10, y + width // 2 + 1),
-							 max(0, x - (width - 1) // 2):min(10, x + width // 2 + 1)] = True
+					ref_mask[max(0, y - (width - 1) // 2):min(10, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(10, x + width // 2 + 1)] = True
 				img = np.full((10, 10), 20.0)
 				mask = np.zeros((10, 10), dtype=bool)
 				Renderer.draw_line(img, mask, x0, y0, xe, ye, 100, 1, width, 0.25)
@@ -1077,3 +1076,88 @@ def test_draw_line_width_finalize():
 			ref[4 - (width - 1) // 2:5 + width // 2, 2 - (width - 1) // 2:7 + width // 2] = 50
 			np.testing.assert_array_equal(res, ref)
 			np.testing.assert_array_equal(mask, ref == 50)
+
+
+##################################################
+def test_line_spans():
+	"""Vérifie directement les bornes inclusives/exclusives des lignes fines, épaisses et des points."""
+	cases = [((1, 2, 4, 2, 1), 2, [1], [5]),
+			 ((3, 1, 3, 4, 1), 1, [3, 3, 3, 3], [4, 4, 4, 4]),
+			 ((0, 0, 4, 4, 1), 0, [0, 1, 2, 3, 4], [1, 2, 3, 4, 5]),
+			 ((4, 0, 0, 4, 1), 0, [4, 3, 2, 1, 0], [5, 4, 3, 2, 1]),
+			 ((2, 3, 5, 3, 3), 2, [1, 1, 1], [7, 7, 7]),
+			 ((2, 3, 5, 3, 2), 3, [2, 2], [7, 7]),
+			 ((3, 3, 3, 3, 3), 2, [2, 2, 2], [5, 5, 5]),
+			 ((3, 3, 3, 3, 4), 2, [2, 2, 2, 2], [6, 6, 6, 6]), ]
+	for args, expected_y, expected_left, expected_right in cases:
+		for reverse in (False, True):
+			x0, y0, x1, y1, width = args
+			if reverse: x0, y0, x1, y1 = x1, y1, x0, y0
+			y_min, left, right = Renderer._line_spans((8, 8), x0, y0, x1, y1, width)
+			assert y_min == expected_y
+			np.testing.assert_array_equal(left, expected_left)
+			np.testing.assert_array_equal(right, expected_right)
+			assert left.dtype == int and right.dtype == int
+
+
+##################################################
+def test_line_spans_clipping():
+	"""Vérifie les empreintes hors cadre, les lignes vides et le bornage des largeurs."""
+	for shape, points, width in (((0, 5), (0, 0, 4, 4), 3), ((5, 0), (0, 0, 4, 4), 3),
+								 ((5, 5), (-4, -4, -2, -2), 1), ((5, 5), (6, 0, 6, 4), 1),
+								 ((5, 5), (-3, 1, 1, -3), 1)):
+		y_min, left, right = Renderer._line_spans(shape, *points, width)
+		assert y_min == 0 and left.shape == (0,) and right.shape == (0,)
+		assert left.dtype == int and right.dtype == int
+
+	# Le centre de la ligne est hors cadre, mais son épaisseur touche la première colonne.
+	y_min, left, right = Renderer._line_spans((5, 5), -1, -3, -1, 7, 3)
+	assert y_min == 0
+	np.testing.assert_array_equal(left, [0] * 5)
+	np.testing.assert_array_equal(right, [1] * 5)
+
+	# Certaines lignes de la boîte englobante restent vides : elles ne doivent pas remplir l'image.
+	y_min, left, right = Renderer._line_spans((5, 5), -4, 0, 0, 4)
+	assert y_min == 0
+	assert np.all(left[:4] >= right[:4])
+	assert left[4] == 0 and right[4] == 1
+
+	for width in (-2, 0, 1):
+		y_min, left, right = Renderer._line_spans((5, 5), -2, 2, 7, 2, width)
+		assert y_min == 2
+		np.testing.assert_array_equal(left, [0])
+		np.testing.assert_array_equal(right, [5])
+
+
+##################################################
+def test_line_spans_orientations():
+	"""Compare les empreintes à des points de référence explicites dans les huit octants."""
+	# Segment de référence (0, 0) → (4, 2), avec les décisions d'arrondi de Bresenham.
+	points = np.array([[0, 0], [1, 1], [2, 1], [3, 2], [4, 2]])
+	for swap_axes in (False, True):
+		for sign_x, sign_y in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
+			coords = points[:, ::-1] if swap_axes else points
+			coords = coords * [sign_x, sign_y] + [5, 5]
+			for width in (1, 2, 3, 4):
+				ref = np.zeros((11, 11), dtype=bool)
+				for x, y in coords:
+					ref[max(0, y - (width - 1) // 2):min(11, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(11, x + width // 2 + 1)] = True
+				y_min, left, right = Renderer._line_spans(ref.shape, *coords[0], *coords[-1], width)
+				res = np.zeros_like(ref)
+				for row, (start, end) in enumerate(zip(left, right)):
+					res[y_min + row, start:end] = True
+				np.testing.assert_array_equal(res, ref)
+
+
+##################################################
+def test_draw_line_thick_empty_rows():
+	"""Vérifie que des intervalles vides ne modifient ni l'image ni le masque lors du dessin épais."""
+	img = np.full((5, 5), 20.0)
+	mask = np.zeros((5, 5), dtype=bool)
+	Renderer.draw_line(img, mask, -5, 0, -1, 4, 100, 1, 3, 0.25)
+	ref_mask = np.zeros((5, 5), dtype=bool)
+	ref_mask[3:, 0] = True
+	ref = np.full((5, 5), 20.0)
+	ref[ref_mask] = 40
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(mask, ref_mask)
