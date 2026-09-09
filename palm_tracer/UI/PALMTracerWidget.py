@@ -358,7 +358,7 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == selected_file: return
 		else: self.last_file = selected_file
 
-		# Chargez le fichier TIF sélectionné comme un layer Raw dans le viewer
+		# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer
 		try:
 			self._current_stack = open_tif(selected_file)
 			depth, height, width = self._current_stack.shape

@@ -1,5 +1,6 @@
 """Teste la production des rendus haute résolution."""
 
+import tifffile
 from PIL import Image
 
 from palm_tracer._tests.Utils import *
@@ -1184,6 +1185,25 @@ def test_draw_track_blinks():
 
 
 ##################################################
+def test_draw_track_empty_rows():
+	"""Vérifie que les lignes vides d'une empreinte partiellement hors cadre sont ignorées."""
+	img = np.zeros((3, 5, 5))
+	alpha = np.zeros_like(img)
+	track = np.array([[0, -5, 0], [1, -1, 4]])
+
+	Renderer.draw_track(img, alpha, track, np.array([0, 100]), tail_width=3, tail_length=1, fade_type=1)
+
+	ref = np.zeros_like(img)
+	ref[1:, 3:, 0] = 100
+	np.testing.assert_array_equal(img, ref)
+
+	ref_alpha = np.zeros_like(alpha)
+	ref_alpha[1, 3:, 0] = 1
+	ref_alpha[2, 3:, 0] = 0.5
+	np.testing.assert_array_equal(alpha, ref_alpha)
+
+
+##################################################
 def test_draw_track_short_fade_long_blink():
 	"""Vérifie le fade uniforme d'un segment qui apparaît après huit plans sans observation."""
 	track = np.array([[12, 0, 1], [20, 4, 1]])
@@ -1498,17 +1518,87 @@ def test_track_stack_priority_and_modes():
 
 
 ##################################################
+def test_finalize_track_stack_rgb():
+	"""Vérifie la colormap, le gris, les alphas nul/partiel/opaque et la conservation des entrées."""
+	img = np.array([[[np.inf, 65535, 65535, 0]]])
+	alpha = np.array([[[0, 0.5, 1, 1]]])
+	raw = np.full(img.shape, 2570.0)
+	for cmap in ("viridis", "magma"):
+		with np.errstate(all='raise'):
+			res = Renderer.finalize_track_stack_rgb(img, alpha, raw, cmap)
+		color = FileIO.grayscale_to_color(np.array([[65535]], dtype=np.uint16), cmap)[0, 0]
+		np.testing.assert_array_equal(res[0, 0, 0], [10, 10, 10])
+		np.testing.assert_array_equal(res[0, 0, 1], np.rint(5 + 0.5 * color))
+		np.testing.assert_array_equal(res[0, 0, 2], color)
+		np.testing.assert_array_equal(res[0, 0, 3], [0, 0, 0])
+		assert res.dtype == np.uint8 and res.shape == (1, 1, 4, 3)
+	np.testing.assert_array_equal(img, [[[np.inf, 65535, 65535, 0]]])
+	np.testing.assert_array_equal(alpha, [[[0, 0.5, 1, 1]]])
+	np.testing.assert_array_equal(raw, 2570)
+	with np.testing.assert_raises(ValueError): Renderer.finalize_track_stack_rgb(img, alpha, raw[:, :, :2])
+
+
+##################################################
+def test_track_stack_raw():
+	"""Vérifie la sélection des plans 1-based, l'upscale et les têtes identiques quel que soit color_mode."""
+	r = Renderer()
+	r.set_size(3, 2, 2)
+	raw = np.stack([np.full((2, 3), value, dtype=np.uint16) for value in (257, 2570, 5140, 7710, 65535)])
+	original = raw.copy()
+	tracks = np.array([[1, 2, 0, 0, 65535], [1, 4, 1, 0, 65535]], dtype=float)
+	for upscale in (0, 1):
+		ref = r.track_stack(tracks, raw=raw, tail_length=0, upscale_type=upscale)
+		assert ref.shape == (3, 4, 6, 3) and ref.dtype == np.uint8
+		np.testing.assert_array_equal(ref[:, 3, 5], [[10] * 3, [20] * 3, [30] * 3])
+		color = FileIO.grayscale_to_color(np.array([[65535]], dtype=np.uint16))[0, 0]
+		np.testing.assert_array_equal(ref[0, 0, 0], color)
+		np.testing.assert_array_equal(ref[2, 0, 2], color)
+		for mode in (1, 2):
+			np.testing.assert_array_equal(r.track_stack(tracks, color_mode=mode, raw=raw, tail_length=0, upscale_type=upscale), ref)
+	np.testing.assert_array_equal(raw, original)
+	with np.testing.assert_raises(ValueError): r.track_stack(tracks, raw=raw[:2])
+
+
+##################################################
+def test_track_stack_raw_empty_and_2d():
+	"""Vérifie le retour scalaire sans observation et le rendu RGB sur fond 2D avec une observation."""
+	r = Renderer()
+	r.set_size(2, 2, 1)
+	res = r.track_stack(np.empty((0, 5)), raw=np.zeros((1, 2, 2)), bg_color=2570)
+	np.testing.assert_array_equal(res, np.full((1, 2, 2), 2570, dtype=np.uint16))
+	res = r.track_stack(np.array([[1, 1, 0, 0, 65535]]), raw=np.full((2, 2), 5140))
+	assert res.shape == (1, 2, 2, 3)
+	np.testing.assert_array_equal(res[0, 1, 1], [20, 20, 20])
+
+
+##################################################
+def test_track_stack_raw_fade_and_overlap():
+	"""Vérifie le fade sur raw et la colormap après addition, maximum ou minimum aux croisements."""
+	r = Renderer()
+	r.set_size(5, 5, 1)
+	tracks = np.array([[1, 1, 0, 2, 30000], [1, 2, 4, 2, 30000], [2, 1, 2, 0, 10000], [2, 2, 2, 4, 10000], [3, 3, 0, 0, 1]], dtype=float)
+	raw = np.full((3, 5, 5), 5140, dtype=np.uint16)
+	for mode, intensity in ((0, 40000), (1, 30000), (2, 10000)):
+		color = FileIO.grayscale_to_color(np.array([[intensity]], dtype=np.uint16))[0, 0]
+		res = r.track_stack(tracks, raw=raw, color_mode=mode, tail_length=1, fade_type=1)
+		np.testing.assert_array_equal(res[1, 2, 2], color)
+		np.testing.assert_array_equal(res[2, 2, 2], np.rint(10 + 0.5 * color))
+		np.testing.assert_array_equal(res[:, 4, 4], [[20] * 3] * 3)
+
+
+##################################################
 def test_renderer_track_stack_spiral():
 	"""Exporte une spirale animée pour vérifier visuellement la queue, le fade, la tête et le fond gris foncé."""
 	r = Renderer()
-	r.set_size(192, 192, 1)
+	size = 256
 	n_points = 72
+	r.set_size(size, size, 2)
 	theta = np.linspace(0, 4 * np.pi, n_points)
-	radius = np.linspace(12, 78, n_points)
+	radius = np.linspace(size // 16, size // 2.5, n_points)
 	track = np.column_stack((np.ones(n_points), np.arange(10, 10 + n_points),
-							 96 + radius * np.cos(theta), 96 + radius * np.sin(theta), np.full(n_points, 58000)))
-	res = r.track_stack(track, color_mode=1, bg_color=8000, head_size=9, tail_width=2, tail_length=9, fade_type=1)
-	assert res.shape == (n_points, 192, 192) and res.dtype == np.uint16
+							 size // 2 + radius * np.cos(theta), size // 2 + radius * np.sin(theta), np.full(n_points, 58000)))
+	res = r.track_stack(track, color_mode=1, bg_color=8000, head_size=15, tail_width=2, tail_length=9, fade_type=1)
+	assert res.shape == (n_points, size * 2, size * 2) and res.dtype == np.uint16
 	assert np.all(res[:, 0, 0] == 8000)
 	assert np.any((res[-1] > 8000) & (res[-1] < 58000))
 	assert np.max(res[-1]) == 58000
@@ -1516,3 +1606,37 @@ def test_renderer_track_stack_spiral():
 	# Échelle fixe sur toute l'animation pour préserver visuellement les intensités du fond et du fade.
 	frames = [Image.fromarray((plane / 257).astype(np.uint8)) for plane in res]
 	frames[0].save(OUTPUT_DIR / "track_stack_spiral.gif", save_all=True, append_images=frames[1:], duration=80, loop=0, optimize=False)
+
+
+##################################################
+def test_renderer_track_stack_spiral_raw():
+	"""Exporte une spirale rouge avec fade sur un léger dégradé gris mouvant pour vérification visuelle."""
+	r = Renderer()
+	size = 256
+	r.set_size(size, size, 2)
+	n_points = 72
+	theta = np.linspace(0, 4 * np.pi, n_points)
+	radius = np.linspace(size // 16, size // 2.5, n_points)
+	# La LUT réserve zéro au noir ; son indice un correspond au début de HSV, donc au rouge pur.
+	track = np.column_stack((np.ones(n_points), np.arange(10, 10 + n_points),
+							 size // 2 + radius * np.cos(theta), size // 2 + radius * np.sin(theta), np.ones(n_points)))
+	x = np.linspace(0, 1, size)[None, :]
+	y = np.linspace(0, 1, size)[:, None]
+	# Le raw commence au plan d'acquisition un, tandis que la trajectoire commence au plan dix.
+	raw = np.empty((n_points + 9, size, size), dtype=np.uint16)
+	for plane in range(len(raw)):
+		phase = 2 * np.pi * (plane - 9) / n_points
+		raw[plane] = np.rint(9500 + 2500 * np.sin(2 * np.pi * x - phase) + 1500 * y).astype(np.uint16)
+	res = r.track_stack(track, color_mode=1, raw=raw, color_map="hsv", head_size=15, tail_width=2, tail_length=9, fade_type=1)
+	assert res.shape == (n_points, size * 2, size * 2, 3) and res.dtype == np.uint8
+	background = np.rint(raw[9:, 0, 0] / 257.0).astype(np.uint8)
+	np.testing.assert_array_equal(res[:, 0, 0], np.repeat(background[:, None], 3, axis=1))
+	assert np.ptp(background) > 0  # Le fond doit effectivement évoluer pendant l'animation.
+	assert np.any(np.all(res[-1] == [255, 0, 0], axis=-1))
+	assert np.any((res[-1, :, :, 0] > res[-1, :, :, 1]) & (res[-1, :, :, 1] > 0))  # Mélange rouge/gris dû au fade.
+	# Exporter la séquence RGB avec la même fonction que les volumes scalaires.
+	path = OUTPUT_DIR / "track_stack_spiral_raw.tif"
+	FileIO.save_tif(res, path)
+	np.testing.assert_array_equal(tifffile.imread(path), res)
+	frames = [Image.fromarray(plane) for plane in res]
+	frames[0].save(OUTPUT_DIR / "track_stack_spiral_raw.gif", save_all=True, append_images=frames[1:], duration=80, loop=0, optimize=False)

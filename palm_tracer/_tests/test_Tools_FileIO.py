@@ -164,11 +164,31 @@ def test_save_tif_2d():
 
 
 ##################################################
+def test_save_tif_rgb():
+	"""Vérifie l'export RGB, les métadonnées, la saturation et la conservation de l'entrée."""
+	import tifffile
+
+	stack = np.array([[[[-10, 12.9, 300], [255, 0, 128]]], [[[1, 2, 3], [4, 5, 6]]]], dtype=float)
+	original = stack.copy()
+	path = OUTPUT_DIR / "test_save_stack_rgb.tif"
+	FileIO.save_tif(stack, path)
+	with tifffile.TiffFile(path) as tif:
+		res = tif.asarray()
+		assert tif.series[0].axes == "TYXS"
+		assert tif.pages[0].photometric == tifffile.PHOTOMETRIC.RGB
+	np.testing.assert_array_equal(res, [[[[0, 12, 255], [255, 0, 128]]], [[[1, 2, 3], [4, 5, 6]]]])
+	assert res.dtype == np.uint8 and res.shape == stack.shape
+	np.testing.assert_array_equal(stack, original)
+	# Une séquence à un seul plan doit conserver sa dimension temporelle.
+	FileIO.save_tif(res[:1], path)
+	np.testing.assert_array_equal(tifffile.imread(path), res[:1])
+
+
+##################################################
 def test_save_tif_bad_stack():
-	"""Vérifie la fonction save_tif avec une image 1D."""
-	with pytest.raises(ValueError) as exception_info:
-		FileIO.save_tif(REF_GRADIENT[1, :], f"{OUTPUT_DIR}/test_save_stack_1D.tif")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+	"""Vérifie la fonction save_tif avec une image de dimension incorrecte."""
+	for shape in (1, (1, 2, 3, 4, 3), (2, 3, 4, 2), (2, 3, 4, 4)):
+		with pytest.raises(ValueError): FileIO.save_tif(np.zeros(shape), OUTPUT_DIR / "test_save_stack_invalid.tif")
 
 
 ##################################################

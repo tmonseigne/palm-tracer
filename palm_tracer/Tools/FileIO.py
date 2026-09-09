@@ -231,33 +231,40 @@ def open_json(filename: str | Path) -> dict[str, Any]:
 # ==================================================
 
 # ==================================================
-# region Entrées-sorties TIF
+# region Entrées-sorties TIFF
 # ==================================================
 ##################################################
 def save_tif(stack: np.ndarray, filename: str | Path):
 	"""
-	Sauvegarde un tableau 3D (ou 2D converti en 3D) dans un fichier TIF multi-frame avec tifffile.
+	Sauvegarde une image ou une séquence scalaire ou RGB dans un fichier TIFF.
 
-	:param stack: Tableau contenant l'image ou les frames.
-				  - Si 2D (hauteur x largeur), convertit en pile 3D avec une seule frame.
-				  - Si 3D (frames x hauteur x largeur), sauvegarde les frames en multi-frame.
-	:param filename: Nom du fichier TIF de sortie.
+	Les données scalaires sont saturées dans [0, 65535] puis converties en uint16.
+	Les données RGB sont saturées dans [0, 255] puis converties en uint8, sans normalisation.
+
+	:param stack: Image 2D ``(hauteur, largeur)``, volume scalaire 3D ``(plans, hauteur, largeur)`` ou séquence RGB 4D ``(plans, hauteur, largeur, 3)``.
+		Une image 2D est convertie en volume à un plan.
+	:param filename: Nom du fichier TIFF de sortie.
+	:raises ValueError: Si le tableau n'est ni 2D, ni 3D, ni 4D RGB à trois canaux, notamment s'il est 5D.
 	"""
-	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # .	   Si le tableau est 2D, le transformer en 3D avec une seule frame
-	if stack.ndim != 3:
-		raise ValueError("Le tableau doit être 2D (hauteur, largeur) ou 3D (frames, hauteur, largeur).")
-	stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # .S'assure que les valeurs sont bien entre 0 et MAX_UI_16 et de type uint16
-	tiff.imwrite(filename, stack, photometric="minisblack")  # Sauvegarde la pile avec tifffile
+	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # Si le tableau est 2D, le transformer en 3D avec une seule frame.
+	if stack.ndim == 3:
+		stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # Conserver la conversion scalaire historique.
+		tiff.imwrite(filename, stack, photometric="minisblack")
+	elif stack.ndim == 4 and stack.shape[-1] == 3:
+		stack = np.clip(stack, 0, MAX_UI_8).astype(np.uint8)  # Les trois canaux RGB sont déjà exprimés sur l'échelle 0–255.
+		tiff.imwrite(filename, stack, photometric="rgb", metadata={"axes": "TYXS"})
+	else:
+		raise ValueError("Le tableau doit être 2D, 3D scalaire ou 4D RGB (plans, hauteur, largeur, 3).")
 
 
 ##################################################
 def open_tif(filename: str | Path) -> np.ndarray:
 	"""
-	Ouvre un fichier TIF en tant que pile 3D (frames x hauteur x largeur).
+	Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur).
 	Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D.
 
-	:param filename: Chemin du fichier TIF à ouvrir.
-	:return: Tableau 3D contenant les données TIF.
+	:param filename: Chemin du fichier TIFF à ouvrir.
+	:return: Tableau 3D contenant les données TIFF.
 
 	.. note:: Attention les données doivent rester telle quelle pour le transfert à la DLL. Aucun cast en float ne doit être fait.
 	"""
@@ -268,13 +275,13 @@ def open_tif(filename: str | Path) -> np.ndarray:
 	# --- Normalisation des dimensions ---
 	if res.ndim == 2: res = res[np.newaxis, :, :]  # .					 Cas image unique ⇾ ajout axe frame
 	elif res.ndim == 3: pass  # .										 OK : déjà (frames, H, W)
-	else: raise ValueError(f"Dimension inattendue pour un TIF : {res.ndim}D (attendu 2D ou 3D).")
+	else: raise ValueError(f"Dimension inattendue pour un TIFF : {res.ndim}D (attendu 2D ou 3D).")
 	if not res.flags["C_CONTIGUOUS"]: res = np.ascontiguousarray(res)  # Garantit contiguïté sans copie si déjà C-contiguous
 	return res
 
 
 # ==================================================
-# endregion Entrées-sorties TIF
+# endregion Entrées-sorties TIFF
 # ==================================================
 
 # ==================================================
@@ -286,7 +293,7 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 	Sauvegarde un tableau 2D dans un fichier PNG avec Pillow.
 
 	:param image: Tableau contenant l'image 2D.
-	:param filename: Nom du fichier TIF de sortie.
+	:param filename: Nom du fichier TIFF de sortie.
 	:param normalization: Normalise l'image avant enregistrement.
 	"""
 	if not (2 <= image.ndim <= 3):
