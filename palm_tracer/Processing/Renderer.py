@@ -266,6 +266,74 @@ class Renderer:
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
+	##################################################
+	def track_stack(self, trc: np.ndarray, color_mode: int = 0, bg_color: int = 0, head_size: int = 1, tail_width: int = 1, tail_length: int = -1,
+					fade_type: int = 0, raw: np.ndarray | None = None, upscale_type: int = 0, color_map: str = "viridis") -> np.ndarray:
+		"""
+		Prépare une séquence de trajectoires limitée aux plans contenant des observations.
+
+		Les données sont triées par trajectoire puis par plan. Les plans d'origine commencent à un.
+		La séquence couvre les bornes inclusives du premier au dernier point valide, sans prolongation pour terminer le fade.
+		Les plans sans observation sont conservés : seules les queues déjà apparues peuvent y être visibles.
+
+		Les intensités sont combinées selon ``color_mode``, indépendamment des opacités, fusionnées par maximum.
+		Toutes les queues sont dessinées avant toutes les têtes ; les têtes imposent leur couleur et une opacité de un.
+		Le mélange avec le fond est effectué une seule fois, lors de la finalisation.
+
+		:param trc: Tableau ``(N, 5)`` contenant ``Track, Plane, X, Y, Color``, trié par trajectoire puis par plan.
+		:param color_mode: Combinaison des intensités des queues sans raw : ``0`` addition, ``1`` maximum, ``2`` minimum.
+		:param bg_color: Intensité du fond uniforme sans raw, sur l'échelle uint16.
+		:param head_size: Diamètre entier des têtes circulaires, en pixels du rendu, ramené au minimum à un.
+		:param tail_width: Largeur entière du pinceau carré des segments, en pixels du rendu, ramenée au minimum à un.
+		:param tail_length: Durée de la queue en plans : ``-1`` conserve tout l'historique apparu, ``0`` ne dessine que les têtes.
+			Une durée positive applique la limite d'âge décrite par :meth:`draw_track`.
+		:param fade_type: ``0`` pour une coupure nette, ``1`` pour une décroissance linéaire ; ignoré si la durée vaut -1 ou 0.
+		:param raw: Futur fond brut, déjà recadré spatialement sur la ROI, mais conservant les plans depuis le début de l'acquisition.
+			La branche raw/RGB sera implémentée ultérieurement ; ``color_mode`` y sera ignoré.
+		:param upscale_type: Agrandissement futur du fond brut : ``0`` plus proche voisin, ``1`` Lanczos.
+		:param color_map: Colormap des trajectoires pour la future sortie RGB ; le raw conserve une représentation en gris.
+		:return: Contrat cible : volume ``(plans, hauteur, largeur)`` uint16 sans raw, ou
+			``(plans, hauteur, largeur, 3)`` uint8 avec raw. Une entrée sans point valide donnera un volume de fond à un seul plan.
+		"""
+		# --- 1. Vérification des dimensions de sortie et des entrées. ---
+		# À raccorder : retours anticipés en volume à un plan, uint16 sans raw et RGB uint8 avec raw.
+		# Le prototype conserve provisoirement ses retours historiques tant que la finalisation n'est pas implémentée.
+		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
+		if trc.ndim != 2 or trc.shape[1] != 5: return self.blank_rendering(bg_color, False)
+
+		# --- 2. Préparation des coordonnées entières et filtrage des points hors des dimensions du rendu. ---
+		track_ids, coords, colors, split_idx = self.prepare_tracks(trc)
+		if track_ids.size == 0: return self.blank_rendering(bg_color, False)
+
+		# --- 3. Bornes temporelles inclusives : éviter les plans inutiles en début et fin. ---
+		p_min, p_max = int(np.min(coords[:, 0])), int(np.max(coords[:, 0]))
+		n_planes = p_max - p_min + 1
+		coords[:, 0] -= p_min  # Passage des plans d'acquisition aux indices locaux du volume de sortie.
+		# Garder p_min/p_max d'origine pour le futur raw : raw[p_min - 1:p_max], car les plans commencent à un.
+		# Le dernier point définit le dernier plan, même si certaines queues pourraient encore persister après celui-ci.
+
+		# --- 4. Initialisation : intensités non prémultipliées et masque alpha flottant. ---
+		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)
+		res = np.full((n_planes, self._h, self._w), init_value, dtype=float)
+		alpha_mask = np.zeros_like(res, dtype=float)
+		# L'alpha vaut zéro hors dessin. Ne pas utiliser draw_line tel quel : il mélange déjà la couleur et écrit True dans le masque.
+
+		# --- 5. Dessin des queues, puis des têtes : deux passes sur les trajectoires. ---
+		# Pour chaque tranche split_idx[i]:split_idx[i + 1], passer les vues coords et colors à draw_track.
+		# Les segments apparaissent au plan du point d'arrivée, avec sa couleur ; aucun segment n'est anticipé dans un trou temporel.
+		# Le fade et la longueur utilisent les plans, y compris à l'intérieur des segments qui couvrent plusieurs plans.
+		# Fusionner les intensités par color_mode et les alphas par maximum, sans mélange avec le fond à ce stade.
+		# Deuxième passe : draw_track_heads impose les disques uniquement sur les plans observés, avec alpha = 1.
+		# Ce passage global garantit la priorité des têtes même lorsqu'une autre trajectoire croise leur position.
+
+		# --- 6. Finalisation, à raccorder après validation du pipeline. ---
+		# Sans raw : finalize_track_stack mélange res et bg_color grâce à alpha_mask, puis sature et convertit en uint16.
+		# Remplir directement les pixels d'alpha nul pour ne jamais calculer 0 * inf sur les valeurs initiales min/max.
+		# Avec raw (étape ultérieure) : agrandir raw[p_min - 1:p_max], convertir le fond en gris RGB et les tracés via la colormap,
+		# puis composer les deux couches une seule fois. La normalisation des couleurs restera fixe sur toute la séquence.
+		# Une future finalisation RGB sera distincte ; sa règle de recouvrement ne dépendra pas de color_mode.
+		return res  # Retour temporaire du volume de travail ; ce prototype ne produit pas encore le rendu final.
+
 	# ==================================================
 	# endregion Rendus
 	# ==================================================
@@ -335,6 +403,23 @@ class Renderer:
 		if clip: img = img.clip(0, MAX_UI_16)  # .		Limite les valeurs entre 0 et la valeur maximale possible pour un uint16.
 		else: img = np.remainder(img, MAX_UI_16 + 1)  # Rend cyclique les valeurs entre 0 et la valeur maximale pour un uint16.
 		return img.astype(np.uint16)  # .				Conversion de l'image en np.uint16.
+
+	##################################################
+	@staticmethod
+	def finalize_track_stack(img: np.ndarray, alpha_mask: np.ndarray, bg_color: int = 0) -> np.ndarray:
+		"""
+		Finalise une séquence scalaire avec un masque alpha.
+
+		Les pixels d'alpha nul reçoivent directement le fond, sans multiplier les infinis d'initialisation par zéro.
+		Pour les pixels contribuants, calculer ``(1 - alpha) * bg_color + alpha * img``, puis saturer dans [0, 65535].
+		L'intensité n'est pas prémultipliée par l'alpha en entrée. Le fond raw/RGB aura une finalisation distincte ultérieurement.
+
+		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, modifiable sur place.
+		:param alpha_mask: Opacités de même forme, comprises entre zéro et un ; non modifiées.
+		:param bg_color: Intensité du fond uniforme, sur l'échelle uint16.
+		:return: Contrat cible : nouveau volume uint16 de même forme ; le prototype ne retourne encore aucun résultat.
+		"""
+		...
 
 	##################################################
 	def _upscale_raw(self, raw: np.ndarray, upscale_type: int) -> np.ndarray:
@@ -580,6 +665,30 @@ class Renderer:
 	# ==================================================
 	##################################################
 	@staticmethod
+	def _line_spans(shape: tuple[int, int], x0: int, y0: int, x1: int, y1: int, width: int = 1) -> tuple[int, np.ndarray, np.ndarray]:
+		"""
+		Décrit l'empreinte d'un segment épais, sans appliquer de couleur ni d'alpha (prototype, non implémenté).
+
+		Extraire ultérieurement le calcul Bresenham/left/right de :meth:`draw_line` en conservant ses commentaires explicatifs.
+		Chaque ligne Y intersecte l'union des empreintes carrées suivant un intervalle continu : les pixels ne sont donc énumérés qu'une fois.
+		Une largeur paire est décalée d'un demi-pixel vers les axes positifs. Les limites sont recadrées sur l'image.
+		Le chemin direct de draw_line pour width=1 pourra être conservé afin d'éviter des allocations supplémentaires.
+
+		:param shape: Hauteur et largeur de l'image cible.
+		:param x0: Coordonnée X de départ.
+		:param y0: Coordonnée Y de départ.
+		:param x1: Coordonnée X d'arrivée.
+		:param y1: Coordonnée Y d'arrivée.
+		:param width: Largeur entière du pinceau carré, ramenée au minimum à un.
+		:return: Contrat cible : y_min, left et right ; la ligne y_min + i couvre ``left[i]:right[i]``.
+			Un intervalle vide a left >= right ; une empreinte entièrement hors cadre produit deux tableaux vides.
+			Le prototype ne retourne encore aucun résultat.
+		"""
+		...
+		return 0, np.zeros(1), np.zeros(1)
+
+	##################################################
+	@staticmethod
 	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0,
 				  width: int = 1, alpha: float = 1.0):
 		"""
@@ -783,3 +892,67 @@ class Renderer:
 			else: np.minimum(view, patch, out=view, where=patch_mask)
 
 		return img
+
+	##################################################
+	@staticmethod
+	def draw_track(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray,
+				   tail_width: int = 1, tail_length: int = -1, fade_type: int = 0, color_mode: int = 0):
+		"""
+		Dessine les queues d'une trajectoire dans les volumes d'intensité et d'alpha (prototype, non implémenté).
+
+		Relier chaque observation à la précédente avec la couleur du point d'arrivée.
+		Un segment reliant les plans A et B apparaît intégralement à B, jamais avant B, même s'il manque des observations.
+		Exemple 10, 12, 20 : aucun segment à 10/11 ; apparition de 10→12 à 12, puis de 12→20 à 20.
+		Entre ces apparitions, aucune nouvelle géométrie n'est ajoutée, mais la durée et le fade continuent à faire vieillir les queues.
+
+		Pour représenter les points intermédiaires manquants, associer au pixel sa position projetée u dans [0, 1] le long du segment.
+		Son plan théorique est ``p = A + u * (B - A)`` et son âge au plan T est ``T - p``.
+		Tous les pixels de l'épaisseur partagent cette règle, avec projection bornée aux extrémités.
+		Ainsi, une queue courte peut masquer la partie ancienne d'un long segment dès son apparition.
+		Cette convention temporelle est à valider avant implémentation ; il n'y a ni tête interpolée ni tracé en pointillés pour le moment.
+
+		Pour une durée positive L : coupure nette si âge > L, ou fade linéaire ``max(0, 1 - âge / (L + 1))``.
+		Le fade vaut un à l'âge zéro et zéro à L + 1. Une durée -1 conserve les segments apparus sans fade ; zéro supprime les queues.
+		Le traitement s'arrête toujours au dernier plan du volume, sans prolongement après la dernière observation globale.
+
+		Combiner les intensités non prémultipliées par addition/minimum/maximum et les alphas par maximum.
+		Les recouvrements peuvent associer une intensité et un alpha provenant de segments différents : simplification volontaire.
+		Un pixel d'alpha nul ne contribue pas. Ne pas appliquer ici le mélange avec le fond, réservé à la finalisation.
+		Les têtes sont dessinées séparément, après toutes les queues, par :meth:`draw_track_heads`.
+
+		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, modifié sur place.
+		:param alpha_mask: Volume flottant de même forme, modifié sur toute l'empreinte, épaisseur comprise.
+		:param track: Vue ``(N, 3)`` contenant ``Plane, X, Y`` entiers ; plans locaux triés, après soustraction de p_min.
+		:param colors: Vue des N intensités, dans le même ordre que track.
+		:param tail_width: Largeur entière du pinceau carré en pixels du rendu, ramenée au minimum à un.
+		:param tail_length: Durée en plans ; -1 sans effacement, zéro sans queue, positive pour limiter l'historique.
+		:param fade_type: Zéro pour une coupure nette, un pour un fade linéaire.
+		:param color_mode: Combinaison des intensités : zéro addition, un maximum, deux minimum.
+		"""
+		# Pour chaque paire d'observations successives, préparer une seule empreinte via _line_spans.
+		# Projeter les pixels sur le segment pour retrouver leurs plans théoriques, y compris en présence d'un saut temporel.
+		# Pour un segment de longueur spatiale nulle, retenir le plan d'arrivée (éviter la division par zéro).
+		# Parcourir seulement les plans depuis l'arrivée jusqu'à extinction ou fin du volume ; actualiser intensité et alpha sans prémultiplication.
+		# Ne pas transférer le alpha_mask au draw_line actuel : celui-ci écrit un booléen et effectue déjà un mélange.
+		...
+
+	##################################################
+	@staticmethod
+	def draw_track_heads(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray, head_size: int = 1):
+		"""
+		Dessine les têtes observées après toutes les queues (prototype, non implémenté).
+
+		Chaque tête est un disque centré sur son observation, présent uniquement sur le plan de celle-ci.
+		Imposer sa couleur et un alpha de un sur la même empreinte, en recadrant le disque aux limites de l'image.
+		Un diamètre de un produit un pixel ; les diamètres pairs suivent le décalage d'un demi-pixel vers X/Y positifs.
+		En cas de superposition de têtes, la dernière dessinée l'emporte, selon l'ordre des trajectoires.
+
+		:param img: Volume flottant d'intensités, modifié sur place.
+		:param alpha_mask: Volume flottant de même forme, modifié sur les disques entiers.
+		:param track: Vue ``(N, 3)`` contenant les plans locaux et les coordonnées X/Y des observations.
+		:param colors: Vue des intensités associées aux observations.
+		:param head_size: Diamètre entier des disques en pixels du rendu, ramené au minimum à un.
+		"""
+		# Deuxième passe globale du pipeline : aucune queue ne sera dessinée après ces têtes.
+		# Ne créer aucune tête pour les plans sans observation, ni conserver une tête sur les plans suivants.
+		...
