@@ -244,11 +244,11 @@ def save_tif(stack: np.ndarray, filename: str | Path):
 	:param stack: Image 2D ``(hauteur, largeur)``, volume scalaire 3D ``(plans, hauteur, largeur)`` ou séquence RGB 4D ``(plans, hauteur, largeur, 3)``.
 		Une image 2D est convertie en volume à un plan.
 	:param filename: Nom du fichier TIFF de sortie.
-	:raises ValueError: Si le tableau n'est ni 2D, ni 3D, ni 4D RGB à trois canaux, notamment s'il est 5D.
+	:raises ValueError: Si le tableau n'est ni 2D, ni 3D scalaire, ni 4D RGB à trois canaux.
 	"""
 	if stack.ndim == 2: stack = stack[np.newaxis, ...]  # Si le tableau est 2D, le transformer en 3D avec une seule frame.
 	if stack.ndim == 3:
-		stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # Conserver la conversion scalaire historique.
+		stack = np.clip(stack, 0, MAX_UI_16).astype(np.uint16)  # Conversion scalaire sur 16 bits.
 		tiff.imwrite(filename, stack, photometric="minisblack")
 	elif stack.ndim == 4 and stack.shape[-1] == 3:
 		stack = np.clip(stack, 0, MAX_UI_8).astype(np.uint8)  # Les trois canaux RGB sont déjà exprimés sur l'échelle 0–255.
@@ -290,10 +290,10 @@ def open_tif(filename: str | Path) -> np.ndarray:
 ##################################################
 def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True):
 	"""
-	Sauvegarde un tableau 2D dans un fichier PNG avec Pillow.
+	Sauvegarde une image en niveaux de gris ou RGB dans un fichier PNG avec Pillow.
 
-	:param image: Tableau contenant l'image 2D.
-	:param filename: Nom du fichier TIFF de sortie.
+	:param image: Image en niveaux de gris ou RGB.
+	:param filename: Nom du fichier PNG de sortie.
 	:param normalization: Normalise l'image avant enregistrement.
 	"""
 	if not (2 <= image.ndim <= 3):

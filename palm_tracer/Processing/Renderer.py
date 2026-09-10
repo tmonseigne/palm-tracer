@@ -1,4 +1,4 @@
-"""Produit les rendus d'images haute résolution à partir des localisations."""
+"""Produit les rendus haute résolution des localisations et des trajectoires."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ MAX_UI_16 = np.iinfo(np.uint16).max
 @dataclass
 class Renderer:
 	"""
-	Produit les rendus haute résolution à partir des localisations.
+	Produit les rendus haute résolution des localisations et des trajectoires.
 
 	La taille de sortie et le facteur d'agrandissement sont conservés par l'instance afin d'être réutilisés par les différents modes de rendu.
 	"""
@@ -271,15 +271,13 @@ class Renderer:
 	def track_stack(self, trc: np.ndarray, color_mode: int = 0, bg_color: int = 0, head_size: int = 1, tail_width: int = 1, tail_length: int = -1,
 					fade_type: int = 0, raw: np.ndarray | None = None, upscale_type: int = 0, color_map: str = "viridis") -> np.ndarray:
 		"""
-		Construit une séquence de trajectoires limitée aux plans contenant des observations.
+		Construit une séquence de trajectoires entre le premier et le dernier plan observé.
 
-		Les données sont triées par trajectoire puis par plan. Les plans d'origine commencent à un.
-		La séquence couvre les bornes inclusives du premier au dernier point valide, sans prolongation pour terminer le fade.
-		Les plans sans observation sont conservés : seules les queues déjà apparues peuvent y être visibles.
+		Les données doivent être triées par trajectoire puis par plan, avec des plans d'acquisition numérotés à partir de un. La séquence conserve les
+		plans sans observation entre les bornes retenues après filtrage spatial, sans prolonger l'effacement au-delà du dernier plan.
 
-		Les intensités sont combinées selon ``color_mode``, indépendamment des opacités, fusionnées par maximum.
-		Toutes les queues sont dessinées avant toutes les têtes ; les têtes imposent leur couleur et une opacité de un.
-		Le mélange avec le fond est effectué une seule fois, lors de la finalisation.
+		Les queues sont dessinées par :meth:`draw_track`, puis les têtes par :meth:`draw_track_heads`. La finalisation compose une seule fois les
+		intensités et les opacités avec le fond.
 
 		:param trc: Tableau ``(N, 5)`` contenant ``Track, Plane, X, Y, Color``, trié par trajectoire puis par plan.
 		:param color_mode: Combinaison des intensités des queues, avec ou sans raw : ``0`` addition, ``1`` maximum, ``2`` minimum.
@@ -330,7 +328,7 @@ class Renderer:
 		if raw is None: return self.finalize_track_stack(res, alpha_mask, bg_color)
 		if raw.ndim == 2: raw = raw[None, :, :]
 		if raw.ndim != 3 or p_min < 1 or p_max > raw.shape[0]: self.finalize_track_stack(res, alpha_mask, bg_color)  # Retour sans Raw en fond.
-		background = self._upscale_raw(raw[p_min - 1:p_max], upscale_type)  # Les plans d'acquisition commencent à 1 donc décallage de l'interval.
+		background = self._upscale_raw(raw[p_min - 1:p_max], upscale_type)  # Décalage des plans d'acquisition, numérotés à partir de un.
 		return self.finalize_track_stack_rgb(res, alpha_mask, background, color_map)
 
 	# ==================================================
@@ -409,10 +407,9 @@ class Renderer:
 		"""
 		Finalise une séquence scalaire avec un masque alpha.
 
-		Les pixels d'alpha nul reçoivent directement le fond, sans multiplier les infinis d'initialisation par zéro.
-		Pour les pixels contribuants, calculer ``(1 - alpha) * bg_color + alpha * img``, puis saturer dans [0, 65535] si ``clip`` vaut True.
-		Sinon, replier les valeurs par un modulo :math:`2^{16}`, comme dans :meth:`finalize_rendering`.
-		L'intensité n'est pas prémultipliée par l'alpha en entrée. Le fond raw/RGB aura une finalisation distincte ultérieurement.
+		Les intensités non prémultipliées sont mélangées selon ``(1 - alpha) * bg_color + alpha * img``.
+		Les pixels d'alpha nul reçoivent directement le fond pour éviter les calculs sur les infinis d'initialisation.
+		Le résultat est saturé dans ``[0, 65535]`` ou replié modulo :math:`2^{16}` selon ``clip``.
 
 		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, mélangé avec le fond puis saturé ou replié sur place.
 		:param alpha_mask: Opacités de même forme, comprises entre zéro et un ; non modifiées.
@@ -469,7 +466,7 @@ class Renderer:
 		Agrandit les axes Y et X d'un volume sans interpoler entre les plans.
 
 		Le mode Lanczos travaille en float32 dans Pillow et peut dépasser les intensités d'origine.
-		La saturation est laissée à :meth:`finalize_rendering`. Le volume d'entrée reste inchangé.
+		La saturation est laissée à :meth:`finalize_track_stack_rgb`. Le volume d'entrée reste inchangé.
 
 		:param raw: Image ``(hauteur, largeur)`` ou volume ``(plans, hauteur, largeur)``, déjà recadré sur la ROI.
 			Une image 2D produit un volume avec un seul plan.
@@ -772,7 +769,7 @@ class Renderer:
 		Le résultat opaque est calculé selon ``color_mode``, puis mélangé avec le pixel existant :
 		``résultat = (1 - alpha) * fond + alpha * résultat_opaque``.
 		Les valeurs infinies d'initialisation des modes minimum/maximum représentent un fond nul pour ce mélange.
-		Un alpha nul ne modifie ni l'image ni le masque ; un alpha égal à un conserve le comportement opaque historique.
+		Un alpha nul ne modifie ni l'image ni le masque ; un alpha égal à un produit un tracé opaque.
 
 		:param img: Image 2D de travail flottante, modifiée sur place.
 		:param bg_mask: Masque booléen de même forme, positionné à True pour les pixels auxquels la ligne contribue.
@@ -961,24 +958,19 @@ class Renderer:
 		"""
 		Dessine les queues d'une trajectoire dans les volumes d'intensité et d'alpha.
 
-		Relier chaque observation à la précédente avec la couleur du point d'arrivée.
-		Un segment reliant les plans A et B apparaît intégralement à B, jamais avant B, même s'il manque des observations.
-		Exemple 10, 12, 20 : aucun segment à 10/11 ; apparition de 10→12 à 12, puis de 12→20 à 20.
-		Entre ces apparitions, aucune nouvelle géométrie n'est ajoutée, mais la durée et le fade continuent à faire vieillir les queues.
+		Chaque segment apparaît entièrement au plan de son point d'arrivée, avec l'intensité de ce point.
+		Aucune interpolation temporelle n'est effectuée entre les observations.
 
-		Au plan T, l'âge du segment entier vaut ``T - B``, où B est le plan d'arrivée.
-		Un seul alpha s'applique à toute son empreinte, épaisseur comprise, indépendamment de sa longueur spatiale et du plan de départ.
-		Même après un long blink, le segment apparaît entièrement opaque puis s'efface uniformément.
-		Aucun point intermédiaire n'est créé et aucune interpolation temporelle n'est effectuée le long du segment.
+		Au plan ``T``, l'âge du segment vaut ``T - B``, où ``B`` est son plan d'arrivée.
+		Son alpha est uniforme sur toute l'empreinte, indépendamment de sa longueur et des observations manquantes.
 
-		Pour une durée positive L : coupure nette si âge > L, ou fade linéaire ``max(0, 1 - âge / (L + 1))``.
-		Le fade vaut un à l'âge zéro et zéro à L + 1. Une durée -1 conserve les segments apparus sans fade ; zéro supprime les queues.
-		Le traitement s'arrête toujours au dernier plan du volume, sans prolongement après la dernière observation globale.
+		Pour une durée positive ``L``, le segment reste visible jusqu'à l'âge ``L`` inclus : opacité constante ou
+		effacement linéaire ``max(0, 1 - âge / (L + 1))``. Une durée de ``-1`` conserve les segments sans effacement ; ``0`` supprime les queues.
+		Le rendu reste limité aux plans du volume.
 
-		Combiner les intensités non prémultipliées par addition/minimum/maximum et les alphas par maximum.
-		Les recouvrements peuvent associer une intensité et un alpha provenant de segments différents : simplification volontaire.
-		Un pixel d'alpha nul ne contribue pas. Ne pas appliquer ici le mélange avec le fond, réservé à la finalisation.
-		Les têtes sont dessinées séparément, après toutes les queues, par :meth:`draw_track_heads`.
+		Les intensités non prémultipliées sont combinées selon ``color_mode``, les alphas par maximum.
+		Un recouvrement peut donc associer l'intensité et l'alpha de segments différents.
+		Les pixels d'alpha nul ne contribuent pas ; le mélange avec le fond est réservé à la finalisation.
 
 		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, modifié sur place.
 		:param alpha_mask: Volume flottant de même forme, modifié sur toute l'empreinte, épaisseur comprise.
@@ -991,7 +983,7 @@ class Renderer:
 		"""
 		if tail_length == 0 or len(track) < 2: return
 		depth, height, width = img.shape
-		# --- Pour chaque segment de ma trajectoire. ---
+		# --- Parcours des segments. ---
 		for i in range(1, len(track)):
 			x0, y0 = (int(value) for value in track[i - 1, 1:])
 			p1, x1, y1 = (int(value) for value in track[i])
@@ -1014,13 +1006,12 @@ class Renderer:
 				if start >= end: continue
 				y = y_min + row
 				# Remplir tous les plans visibles en une opération, sans calcul de distance ni boucle temporelle.
-				# L'intensité reste non prémultipliée : seul le masque stocke le fade, le fond sera mélangé à la finalisation.
 				view = img[first:last, y, start:end]
 				if color_mode == 0: np.add(view, color, out=view)
 				elif color_mode == 1: np.maximum(view, color, out=view)
 				else: np.minimum(view, color, out=view)
 				alpha_view = alpha_mask[first:last, y, start:end]
-				np.maximum(alpha_view, alpha, out=alpha_view)  # Même empreinte complète que l'intensité, épaisseur comprise.
+				np.maximum(alpha_view, alpha, out=alpha_view)  # .	Même empreinte complète que l'intensité, épaisseur comprise.
 
 	##################################################
 	@staticmethod
@@ -1039,8 +1030,6 @@ class Renderer:
 		:param colors: Vue des intensités associées aux observations.
 		:param head_size: Diamètre extérieur entier des cercles en pixels du rendu, ramené au minimum à un.
 		"""
-		# Deuxième passe globale du pipeline : aucune queue ne sera dessinée après ces têtes.
-		# Ne créer aucune tête pour les plans sans observation, ni conserver une tête sur les plans suivants.
 		head_size = max(1, head_size)
 		if len(track) == 0: return
 		depth, height, width = img.shape

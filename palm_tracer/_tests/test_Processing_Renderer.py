@@ -1467,7 +1467,7 @@ def test_finalize_track_stack_remainder():
 
 ##################################################
 def test_track_stack_timeline():
-	"""Vérifie le recadrage temporel, les blinks, le fade et les têtes sur leurs seuls plans."""
+	"""Vérifie le recadrage temporel, les observations manquantes, l'effacement et les têtes sur les plans observés."""
 	r = Renderer()
 	r.set_size(5, 3, 1)
 	track = np.array([[1, 10, 0, 1, 40], [1, 12, 2, 1, 100], [1, 16, 4, 1, 80]], dtype=float)
@@ -1540,7 +1540,7 @@ def test_finalize_track_stack_rgb():
 
 ##################################################
 def test_track_stack_raw():
-	"""Vérifie la sélection des plans 1-based, l'upscale et les têtes identiques quel que soit color_mode."""
+	"""Vérifie la sélection des plans numérotés à partir de un, l'agrandissement et l'indépendance des têtes vis-à-vis de ``color_mode``."""
 	r = Renderer()
 	r.set_size(3, 2, 2)
 	raw = np.stack([np.full((2, 3), value, dtype=np.uint16) for value in (257, 2570, 5140, 7710, 65535)])
@@ -1573,7 +1573,7 @@ def test_track_stack_raw_empty_and_2d():
 
 ##################################################
 def test_track_stack_raw_fade_and_overlap():
-	"""Vérifie le fade sur raw et la colormap après addition, maximum ou minimum aux croisements."""
+	"""Vérifie l'effacement sur fond brut et les couleurs aux croisements pour les trois modes de combinaison."""
 	r = Renderer()
 	r.set_size(5, 5, 1)
 	tracks = np.array([[1, 1, 0, 2, 30000], [1, 2, 4, 2, 30000], [2, 1, 2, 0, 10000], [2, 2, 2, 4, 10000], [3, 3, 0, 0, 1]], dtype=float)
