@@ -8,6 +8,7 @@ from qtpy.QtWidgets import QFormLayout, QWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import *
+from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
 from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeInt, Combo, SpinFloat, SpinInt
 
 
@@ -323,7 +324,7 @@ def test_hr(qtbot):
 	g["Dimension"].value = 2  # Passage à 3D Rotation
 	g["Dimension"].reset()
 	group_base_test(g, ["Dimension", "Type", "Source", "Scaling", "Color mode", "Background", "Ratio", "Crop", "Remove Beads",
-						"Drift Correction", "Smooth Drift", "Gaussian", "3D"], ButtonGroup, 1, 0)
+						"Drift Correction", "Smooth Drift", "Gaussian", "3D", "T-Stack"], ButtonGroup, 1, 0)
 	assert isinstance(g.gaussian, HRGaussian)
 	assert isinstance(g.hr_3d, HR3D)
 
@@ -338,6 +339,12 @@ def test_hr_gaussian(qtbot):
 def test_hr_3d(qtbot):
 	"""Vérifie la classe HRGaussian (constructeur, getter, setter)."""
 	group_base_test(HR3D(), ["Z Step", "Axis", "Frames"], SpinInt, 10, 20)
+
+
+###################################################
+def test_hr_track_stack(qtbot):
+	"""Vérifie la classe HRGaussian (constructeur, getter, setter)."""
+	group_base_test(HRTrackStack(), ["Head", "Width", "Length", "Fade", "Map", "Background", "Upscale"], SpinInt, 5, 1)
 
 
 ###################################################

@@ -148,7 +148,8 @@ class PALMTracer:
 		suffix_drift = "_corrected" if dft else ""
 		if dim == 0: suffix_dim, ext = "2d", "png"
 		elif dim == 1: suffix_dim, ext = "z_stack", "tif"
-		else: suffix_dim, ext = "3D_rotation", "tif"
+		elif dim == 2: suffix_dim, ext = "3D_rotation", "tif"
+		else: suffix_dim, ext = "track_stack", "tif"
 		suffix_type = "localizations" if typ == 0 else "tracks"
 		name = f"visualization_{suffix_dim}_{suffix_type}{suffix_drift}_x{rat}_{src}"
 		return self._output_name(name, ext=ext, previous=False)
@@ -757,8 +758,7 @@ class PALMTracer:
 		# --- Paramètres ---
 		s = self.settings.hr
 		src = cast(Combo, s["Source"]).current_text
-		upscale = s["Ratio"].value
-		color_scaling = s["Scaling"].value
+		upscale, color_scaling = s["Ratio"].value, s["Scaling"].value
 		color_mode = 0 if src == "Count" else s["Color mode"].value  # .	La source Count impose le mode cumulatif.
 		bg_color = round(s["Background"].value * MAX_UI_16 / 100)  # .		Conversion du pourcentage en intensité uint16.
 		x0, x1, y0, y1 = self.settings.rois.get_roi_limits()
@@ -795,8 +795,7 @@ class PALMTracer:
 					z_step = s.hr_3d["Z Step"].value
 					viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, bg_color, gaussian)
 				else:  # .																								--- Rendu 3D Rotation ---
-					frames = s.hr_3d["Frames"].value
-					axis = s.hr_3d["Axis"].value
+					frames, axis = s.hr_3d["Frames"].value, s.hr_3d["Axis"].value
 					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, bg_color, gaussian)
 
 			return viz, plot_data
@@ -812,7 +811,18 @@ class PALMTracer:
 		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=float)
 		plot_data = df[:, [0, 1, 3, 2]]
 		plot_data[:, [2, 3]] *= upscale
-		viz = self._renderer.tracks(df, color_mode, bg_color)
+		if s["Dimension"].value == 3:
+			st = s.track_stack
+			raw = self._stack[:, y0:y1, x0:x1] if st["Background"].value else None
+			head_size, tail_width, tail_length = st["Head"].value, st["Width"].value, st["Length"].value
+			fade_type, upscale_type, color_map = st["Fade"].value, st["Upscale"].value, cast(Combo, st["Map"]).current_text
+			viz = self._renderer.track_stack(df, color_mode, bg_color, head_size, tail_width, tail_length, fade_type, raw, upscale_type, color_map)
+			# Aligne les trajectoires Napari sur le premier plan retenu par le renderer après arrondi spatial.
+			coords = np.round(plot_data[:, 2:])
+			valid = (coords[:, 0] >= 0) & (coords[:, 0] < n_h * upscale) & (coords[:, 1] >= 0) & (coords[:, 1] < n_w * upscale)
+			plot_data = plot_data[valid]
+			if plot_data.shape[0] > 0: plot_data[:, 1] -= int(plot_data[:, 1].min())
+		else: viz = self._renderer.tracks(df, color_mode, bg_color)
 		return viz, plot_data
 
 	##################################################
@@ -845,12 +855,16 @@ class PALMTracer:
 
 		# --- Masque des pixels non nuls ---
 		mask = img != 0
-		if not np.any(mask): return np.zeros(tuple(1 for _ in range(img.ndim)), dtype=img.dtype)  # Si tout est noir
+		is_rgb = img.ndim == 4 and img.shape[-1] == 3
+		if is_rgb: mask = np.any(mask, axis=-1)  # Les canaux de couleur ne constituent pas un axe spatial.
+		if not np.any(mask):
+			shape = (1,) * mask.ndim + ((3,) if is_rgb else ())
+			return np.zeros(shape, dtype=img.dtype)
 
 		slices = []
-		for axis in range(img.ndim):
+		for axis in range(mask.ndim):
 			# Projection sur tous les axes sauf l'axe courant
-			proj_axes = tuple(i for i in range(img.ndim) if i != axis)
+			proj_axes = tuple(i for i in range(mask.ndim) if i != axis)
 			active = np.any(mask, axis=proj_axes)
 			idx = np.where(active)[0]
 			# Ajout marge (avec clamp pour ne pas dépasser les dimensions initiales)

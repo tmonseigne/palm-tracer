@@ -9,6 +9,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.HR3D import HR3D
 from palm_tracer.Settings.Groups.HRGaussian import HRGaussian
+from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
 from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinFloat, SpinInt
 
 DATA_SRC: dict[str, list] = {
@@ -26,11 +27,12 @@ class HR(BaseSettingGroup):
 
 	Paramètres regroupés :
 
-	- ``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z ou rotation 3D.
+	- ``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z, rotation 3D
+	  ou animation de trajectoires.
 	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
 	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : grandeur utilisée pour colorer ou pondérer les points.
 	- ``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur multiplicatif appliqué à la couleur ; valeur par défaut : ``1``.
-	- ``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur valeur maximale ou minimale.
+	- ``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur valeur maximale/minimale.
 	- ``Background`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : intensité du fond, de ``0`` % pour le noir à ``100`` % pour le blanc ;
 	  valeur par défaut : ``0``.
 	- ``Ratio`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : facteur d'agrandissement ; valeur par défaut : ``4``.
@@ -39,11 +41,12 @@ class HR(BaseSettingGroup):
 	- ``Drift Correction`` et ``Smooth Drift`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : appliquent puis lissent la correction de dérive.
 	- ``Gaussian`` (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`) : paramètres du rendu gaussien.
 	- ``3D`` (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`) : paramètres de la pile ou de la rotation 3D.
+	- ``T-Stack`` (:class:`~palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack`) : paramètres de l'animation des trajectoires.
 	"""
 
 	label: str = "High Resolution"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation"]]],
+	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]]],
 					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 					"Source":           [Combo, ["Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"]]],
 					"Scaling":          [SpinFloat, ["Color scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
@@ -59,7 +62,8 @@ class HR(BaseSettingGroup):
 					"Drift Correction": [CheckBox, ["Drift Correction", "Apply a drift correction (Note: The beads must have been extracted before.)", True]],
 					"Smooth Drift":     [CheckBox, ["Smooth Drift", "Smooth the drift correction.", True]],
 					"Gaussian":         [HRGaussian, []],
-					"3D":               [HR3D, []]
+					"3D":               [HR3D, []],
+					"T-Stack":          [HRTrackStack, []],
 					}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
@@ -74,6 +78,12 @@ class HR(BaseSettingGroup):
 	def hr_3d(self) -> HR3D:
 		"""Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."""
 		return cast(HR3D, self._settings["3D"])
+
+	##################################################
+	@property
+	def track_stack(self) -> HRTrackStack:
+		"""Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."""
+		return cast(HRTrackStack, self._settings["T-Stack"])
 
 	##################################################
 	def initialize(self):
@@ -93,20 +103,30 @@ class HR(BaseSettingGroup):
 
 	##################################################
 	def toggle_dimension(self):
-		"""Désactive les trajectoires pour les rendus 3D et affiche ou masque les options correspondantes."""
-		s = cast(ButtonGroup, self._settings["Type"])
-		if self._settings["Dimension"].value == 0:
+		"""Adapte les types de données et les options au mode de reconstruction."""
+		s = cast(ButtonGroup, self._settings["Type"])  # .	Type Localisations ou trajectoires.
+		if self._settings["Dimension"].value == 0:  # .		--- 2D ---
 			self._settings["3D"].hide()
-			s.active_item(1, True)
-		else:
+			self._settings["T-Stack"].hide()
+			s.active_item(0, True)  # .						Active les localisations.
+			s.active_item(1, True)  # .						Active les trajectoires.
+		elif self._settings["Dimension"].value == 3:  # .	--- Track Stack ---
+			self._settings["3D"].hide()
+			self._settings["T-Stack"].show()
+			s.active_item(0, False)  # .					Désactive les localisations.
+			s.active_item(1, True)  # .						Active les trajectoires.
+			s.value = 1
+		else:  # .											--- 3D ---
 			self._settings["3D"].show()
-			s.active_item(1, False)
+			self._settings["T-Stack"].hide()
+			s.active_item(0, True)  # .						Active les trajectoires.
+			s.active_item(1, False)  # .					Désactive les trajectoires.
 			s.value = 0
-			if self._settings["Dimension"].value == 1:
+			if self._settings["Dimension"].value == 1:  # .	--- Z Stack ---
 				self._settings["3D"]["Z Step"].show()
 				self._settings["3D"]["Axis"].hide()
 				self._settings["3D"]["Frames"].hide()
-			else:
+			else:  # .										--- 3D Rotation ---
 				self._settings["3D"]["Z Step"].hide()
 				self._settings["3D"]["Axis"].show()
 				self._settings["3D"]["Frames"].show()

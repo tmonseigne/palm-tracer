@@ -11,8 +11,8 @@ msgid "Paramètres regroupés :"
 msgstr "Grouped settings:"
 
 #: of palm_tracer.Settings.Groups.HR.HR:5
-msgid "``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z ou rotation 3D."
-msgstr "``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`): reconstruction mode: 2D, Z stack, or 3D rotation."
+msgid "``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de reconstruction 2D, pile Z, rotation 3D ou animation de trajectoires."
+msgstr "``Dimension`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`): 2D rendering, Z-stack, 3D rotation, or track animation."
 
 #: of palm_tracer.Settings.Groups.HR.HR:6
 msgid "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires."
@@ -27,7 +27,7 @@ msgid "``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : 
 msgstr "``Scaling`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): multiplicative factor applied to the color; default value: ``1``."
 
 #: of palm_tracer.Settings.Groups.HR.HR:9
-msgid "``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur valeur maximale ou minimale."
+msgid "``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : additionne les contributions superposées ou conserve leur valeur maximale/minimale."
 msgstr "``Color mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): adds overlapping contributions or retains their maximum or minimum value."
 
 #: of palm_tracer.Settings.Groups.HR.HR:10
@@ -139,9 +139,12 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Settings.Groups.HR.HR.toggle_dimension:1
-msgid "Désactive les trajectoires pour les rendus 3D et affiche ou masque les options correspondantes."
-msgstr "Disables tracks for 3D renderings and shows or hides the corresponding options."
+msgid "Adapte les types de données et les options au mode de reconstruction."
+msgstr "Adjusts data types and options to the rendering mode."
 
 #: of palm_tracer.Settings.Groups.HR.HR.toggle_type:1
 msgid "Adapte la liste des sources au type de reconstruction."
 msgstr "Adjusts the source list to the reconstruction type."
+
+msgid "``T-Stack`` (:class:`~palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack`) : paramètres de l'animation des trajectoires."
+msgstr "``T-Stack`` (:class:`~palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack`): track animation settings."

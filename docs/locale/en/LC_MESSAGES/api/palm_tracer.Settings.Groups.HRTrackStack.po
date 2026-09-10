@@ -1,0 +1,31 @@
+#: ../../api/palm_tracer.Settings.Groups.HRTrackStack.rst:2
+msgid "HRTrackStack"
+msgstr ""
+
+#: of palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack:1
+msgid "Regroupe les paramètres des reconstructions haute résolution pour les animations de trajectoires."
+msgstr "Groups high-resolution rendering settings for track animations."
+
+#: of palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack:3
+msgid "Configure la taille des têtes, la largeur et la durée des queues, leur effacement et le fond brut."
+msgstr "Configures head size, tail width and duration, fading, and the raw background."
+
+#: ../../api/palm_tracer.Settings.Groups.HRTrackStack.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: ../../api/palm_tracer.Settings.Groups.HRTrackStack.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack.label:1
+msgid "Libellé du groupe affiché dans l'interface."
+msgstr "Label of the group displayed in the interface."
+
+#: of palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack.setting_list:1
+msgid "Définition des paramètres du groupe et de leur configuration."
+msgstr "Definition of the group's settings and their configuration."
+
+#: of palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack.mode:1
+msgid "Mode d'affichage du groupe dans l'interface."
+msgstr "Group display mode in the interface."

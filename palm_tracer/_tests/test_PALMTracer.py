@@ -1451,3 +1451,81 @@ def test_get_astigmatism_model():
 
 	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va reussir, dans le chemin donné
 	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
+
+
+##################################################
+@pytest.mark.parametrize("background", [False, True])
+@pytest.mark.parametrize("color_mode", [0, 1, 2])
+def test_hr_track_stack(monkeypatch, background, color_mode):
+	"""Vérifie les options, la ROI et l'alignement temporel du rendu animé avec ou sans fond brut."""
+	pt = PALMTracer()
+	pt._stack = np.full((8, 8, 9), 25700, dtype=np.uint16)
+	pt.settings.rois.set_size(9, 8)
+	monkeypatch.setattr(pt.settings.rois, "get_roi_limits", lambda: (2, 7, 1, 6))
+	pt.results["trc"] = pd.DataFrame([[1, 1, 6.9, 2, 100], [1, 3, 3, 2, 100], [1, 5, 4, 3, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	original = pt.results.tracks.copy(deep=True)
+	s = pt.settings.hr
+	s["Dimension"].value = 3
+	assert s["Type"].value == 1  # .		Vérification, Avec track stack la type est forcément Tracks
+	for key, value in {"Ratio": 2, "Color mode": color_mode, "Background": 20, "Scaling": 2, "Drift Correction": False}.items(): s[key].value = value
+	options = s["T-Stack"]
+	for key, value in {"Head": 3, "Width": 2, "Length": 2, "Fade": 1, "Map": 1, "Background": background, "Upscale": 1}.items(): options[key].value = value
+
+	viz, plot = pt.hr()
+	assert viz.shape == ((3, 10, 10, 3) if background else (3, 10, 10))
+	assert viz.dtype == (np.uint8 if background else np.uint16)
+	np.testing.assert_array_equal(plot, [[1, 0, 2, 2], [1, 2, 4, 4]])
+	# Compare le pipeline à un rendu direct des coordonnées et options attendues.
+	reference = pt._renderer.track_stack(np.array([[1, 1, 4.9, 1, 2], [1, 3, 1, 1, 2], [1, 5, 2, 2, 2]], dtype=float),
+										 color_mode, 13107, 3, 2, 2, 1, pt._stack[:, 1:6, 2:7] if background else None, 1, "magma")
+	np.testing.assert_array_equal(viz, reference)
+	if background: np.testing.assert_array_equal(viz[:, 9, 9], np.full((3, 3), 100, dtype=np.uint8))
+	else: np.testing.assert_array_equal(viz[:, 9, 9], [13107] * 3)
+	pd.testing.assert_frame_equal(pt.results.tracks, original)
+	assert pt.output_viz_name().suffix == ".tif"
+	assert "visualization_track_stack_tracks" in pt.output_viz_name().name
+
+
+##################################################
+def test_hr_track_stack_empty_roi():
+	"""Vérifie une animation sans trajectoire conservée dans la ROI."""
+	pt = PALMTracer()
+	pt._stack = np.zeros((3, 5, 5), dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
+	pt.results["trc"] = pd.DataFrame([[1, 2, 5, 5, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	pt.settings.hr["Dimension"].value = 3
+	pt.settings.hr["Ratio"].value = 1
+	viz, plot = pt.hr()
+	assert viz.shape == (1, 5, 5)
+	assert plot.shape == (0, 4)
+	assert not np.any(viz)
+
+
+##################################################
+def test_crop_track_stack_rgb():
+	"""Préserve les trois canaux RGB, même si un seul canal est non nul ou si le volume est noir."""
+	pt = PALMTracer()
+	img = np.zeros((3, 10, 10, 3), dtype=np.uint8)
+	img[1, 2:4, 6:8, 0] = 255
+	cropped = pt.crop(img, margin=0)
+	assert cropped.shape == (1, 2, 2, 3)
+	np.testing.assert_array_equal(cropped, img[1:2, 2:4, 6:8])
+	assert pt.crop(np.zeros_like(img)).shape == (1, 1, 1, 3)
+
+
+##################################################
+def test_hr_track_stack_dimension_switch(qtbot):
+	"""Vérifie le type sélectionné et la réactivation des localisations en quittant le mode animé."""
+	pt = PALMTracer()
+	s = pt.settings.hr
+	ui = s.get_ui()
+	qtbot.addWidget(ui.widget)
+	s["Dimension"].value = 3
+	assert s["Type"].value == 1
+	assert cast(Combo, s["Source"]).current_text == "Track ID"
+	assert not s["Type"]._uis["default"].boxes[0].isEnabled()
+	for dimension in [0, 1, 2]:
+		s["Dimension"].value = dimension
+		assert s["Type"]._uis["default"].boxes[0].isEnabled()
+		if dimension != 0: assert s["Type"].value == 0
+		s["Dimension"].value = 3
