@@ -43,16 +43,34 @@ def test_make_curve():
 
 
 ##################################################
-@pytest.mark.parametrize("data, kwargs", [(np.arange(2), {"n_component": 0}), (np.arange(2), {"max_iter": 0}), (np.arange(2), {"tolerance": 0}),
-										  (np.arange(2), {"n_init": 0}), (np.empty(0), {"n_component": 2}), (np.arange(2), {"n_component": 3}),
-										  (np.ones(10), {"n_component": 2}), (np.ones(10), {"n_component": 1})])
+@pytest.mark.parametrize(
+		"data, kwargs",
+		[
+				pytest.param(np.arange(2), {"n_component": 0}, id="nombre-composantes-nul"),
+				pytest.param(np.arange(2), {"max_iter": 0}, id="nombre-iterations-nul"),
+				pytest.param(np.arange(2), {"tolerance": 0}, id="tolerance-nulle"),
+				pytest.param(np.arange(2), {"n_init": 0}, id="nombre-initialisations-nul"),
+				pytest.param(np.empty(0), {"n_component": 2}, id="donnees-vides"),
+				pytest.param(np.arange(2), {"n_component": 3}, id="plus-de-composantes-que-de-donnees"),
+				pytest.param(np.ones(10), {"n_component": 2}, id="donnees-constantes-deux-composantes"),
+				pytest.param(np.ones(10), {"n_component": 1}, id="donnees-constantes-une-composante"),
+				],
+		)
 def test_invalid_fit_parameters(data, kwargs):
 	"""Vérifie le rejet des données et paramètres incompatibles avec l'ajustement."""
 	with pytest.raises(ValueError): GaussianMixture.fit(data, **kwargs)
 
 
 ##################################################
-@pytest.mark.parametrize("limits, n_point", [([-1.0, 1.0], 1), ([0.0], 128), ([np.nan, 1.0], 128), ([1.0, 1.0], 128)])
+@pytest.mark.parametrize(
+		"limits, n_point",
+		[
+				pytest.param([-1.0, 1.0], 1, id="nombre-points-insuffisant"),
+				pytest.param([0.0], 128, id="borne-manquante"),
+				pytest.param([np.nan, 1.0], 128, id="borne-nan"),
+				pytest.param([1.0, 1.0], 128, id="bornes-identiques"),
+				],
+		)
 def test_invalid_curve_parameters(limits, n_point):
 	"""Vérifie le rejet des paramètres incompatibles avec la génération d'une courbe."""
 	mixture = GaussianMixture(np.ones(1), np.zeros(1), np.ones(1), 0.0, True, 1)

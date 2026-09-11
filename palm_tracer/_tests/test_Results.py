@@ -86,11 +86,11 @@ def test_active_results(results):
 @pytest.mark.parametrize(
 		("original_count", "filtered_count", "prefix", "expected"),
 		[
-				(0, 0, "", "No"),
-				(2, 0, "", "Yes (2 tracks)"),
-				(2, 2, "", "Yes (2 tracks)"),
-				(2, 1, "", "Yes Filtered (1/2 tracks)"),
-				(2, 1, "Reconnected", "Yes Reconnected Filtered (1/2 tracks)"),
+				pytest.param(0, 0, "", "No", id="aucune-trajectoire"),
+				pytest.param(2, 0, "", "Yes (2 tracks)", id="trajectoires-originales-seules"),
+				pytest.param(2, 2, "", "Yes (2 tracks)", id="toutes-les-trajectoires-conservees"),
+				pytest.param(2, 1, "", "Yes Filtered (1/2 tracks)", id="trajectoires-partiellement-filtrees"),
+				pytest.param(2, 1, "Reconnected", "Yes Reconnected Filtered (1/2 tracks)", id="trajectoires-reconnectees-et-filtrees"),
 				],
 		)
 def test_dataframe_status(original_count, filtered_count, prefix, expected):

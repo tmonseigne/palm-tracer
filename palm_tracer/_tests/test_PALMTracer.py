@@ -1454,8 +1454,8 @@ def test_get_astigmatism_model():
 
 
 ##################################################
-@pytest.mark.parametrize("background", [False, True])
-@pytest.mark.parametrize("color_mode", [0, 1, 2])
+@pytest.mark.parametrize("background", [False, True], ids=["sans-fond", "avec-fond"])
+@pytest.mark.parametrize("color_mode", [0, 1, 2], ids=["addition", "maximum", "minimum"])
 def test_hr_track_stack(monkeypatch, background, color_mode):
 	"""Vérifie les options, la ROI et l'alignement temporel du rendu animé avec ou sans fond brut."""
 	pt = PALMTracer()
