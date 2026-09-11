@@ -1549,7 +1549,7 @@ def test_track_stack_raw():
 	for upscale in (0, 1):
 		ref = r.track_stack(tracks, raw=raw, tail_length=0, upscale_type=upscale)
 		assert ref.shape == (3, 4, 6, 3) and ref.dtype == np.uint8
-		np.testing.assert_array_equal(ref[:, 3, 5], [[10] * 3, [20] * 3, [30] * 3])
+		np.testing.assert_array_equal(ref[:, 3, 5], [[0] * 3, [128] * 3, [255] * 3])
 		color = FileIO.grayscale_to_color(np.array([[65535]], dtype=np.uint16))[0, 0]
 		np.testing.assert_array_equal(ref[0, 0, 0], color)
 		np.testing.assert_array_equal(ref[2, 0, 2], color)
@@ -1610,7 +1610,7 @@ def test_renderer_track_stack_spiral():
 
 ##################################################
 def test_renderer_track_stack_spiral_raw():
-	"""Exporte une spirale rouge avec fade sur un léger dégradé gris mouvant pour vérification visuelle."""
+	"""Exporte une spirale rouge avec fade sur un dégradé gris mouvant au contraste ajusté sur toute la séquence."""
 	r = Renderer()
 	size = 256
 	r.set_size(size, size, 2)
@@ -1629,7 +1629,10 @@ def test_renderer_track_stack_spiral_raw():
 		raw[plane] = np.rint(9500 + 2500 * np.sin(2 * np.pi * x - phase) + 1500 * y).astype(np.uint16)
 	res = r.track_stack(track, color_mode=1, raw=raw, color_map="hsv", head_size=15, tail_width=2, tail_length=9, fade_type=1)
 	assert res.shape == (n_points, size * 2, size * 2, 3) and res.dtype == np.uint8
-	background = np.rint(raw[9:, 0, 0] / 257.0).astype(np.uint8)
+	# Le contraste utilise les extrema communs aux plans rendus ; le plus proche voisin les conserve.
+	rendered_raw = raw[9:]
+	raw_min, raw_max = float(rendered_raw.min()), float(rendered_raw.max())
+	background = np.rint((rendered_raw[:, 0, 0].astype(float) - raw_min) * 255.0 / (raw_max - raw_min)).astype(np.uint8)
 	np.testing.assert_array_equal(res[:, 0, 0], np.repeat(background[:, None], 3, axis=1))
 	assert np.ptp(background) > 0  # Le fond doit effectivement évoluer pendant l'animation.
 	assert np.any(np.all(res[-1] == [255, 0, 0], axis=-1))
@@ -1640,3 +1643,20 @@ def test_renderer_track_stack_spiral_raw():
 	np.testing.assert_array_equal(tifffile.imread(path), res)
 	frames = [Image.fromarray(plane) for plane in res]
 	frames[0].save(OUTPUT_DIR / "track_stack_spiral_raw.gif", save_all=True, append_images=frames[1:], duration=80, loop=0, optimize=False)
+
+
+##################################################
+def test_finalize_track_stack_rgb_global_contrast():
+	"""Étire un brut peu lumineux avec la même échelle sur tous les plans, sans modifier les entrées."""
+	raw = np.array([[[300, 500, 700]], [[500, 700, 1100]]], dtype=np.uint16)
+	original = raw.copy()
+	img = np.zeros(raw.shape)
+	alpha = np.zeros(raw.shape)
+	res = Renderer.finalize_track_stack_rgb(img, alpha, raw)
+	expected = np.array([[[0, 64, 128]], [[64, 128, 255]]], dtype=np.uint8)
+	np.testing.assert_array_equal(res, np.repeat(expected[..., None], 3, axis=-1))
+	np.testing.assert_array_equal(raw, original)
+	assert res[0, 0, 1, 0] == res[1, 0, 0, 0]
+	for value, expected_value in ((0, 0), (25700, 100)):
+		res = Renderer.finalize_track_stack_rgb(img, alpha, np.full(raw.shape, value, dtype=np.uint16))
+		np.testing.assert_array_equal(res, expected_value)

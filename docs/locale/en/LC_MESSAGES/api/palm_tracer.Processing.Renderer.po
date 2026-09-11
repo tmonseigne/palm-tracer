@@ -202,51 +202,51 @@ msgstr "Builds a track sequence from the first to the last observed frame."
 msgid "Les données doivent être triées par trajectoire puis par plan, avec des plans d'acquisition numérotés à partir de un. La séquence conserve les plans sans observation entre les bornes retenues après filtrage spatial, sans prolonger l'effacement au-delà du dernier plan."
 msgstr "Input must be sorted by track and then by frame, with acquisition frames numbered from one. The sequence retains frames without observations between the bounds selected after spatial filtering, without extending the fade beyond the last frame."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:7
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:6
 msgid "Les queues sont dessinées par :meth:`draw_track`, puis les têtes par :meth:`draw_track_heads`. La finalisation compose une seule fois les intensités et les opacités avec le fond."
 msgstr "Tails are drawn by :meth:`draw_track`, followed by heads through :meth:`draw_track_heads`. Finalization blends intensities and opacities with the background once."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:11
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:9
 msgid "Tableau ``(N, 5)`` contenant ``Track, Plane, X, Y, Color``, trié par trajectoire puis par plan."
 msgstr "Array ``(N, 5)`` containing ``Track, Plane, X, Y, Color``, sorted by track and then by frame."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:12
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:10
 msgid "Combinaison des intensités des queues, avec ou sans raw : ``0`` addition, ``1`` maximum, ``2`` minimum."
 msgstr "Tail intensity combination, with or without raw data: ``0`` addition, ``1`` maximum, ``2`` minimum."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:13
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:11
 msgid "Intensité du fond uniforme sans raw, sur l'échelle uint16."
 msgstr "Uniform background intensity without raw data, on the uint16 scale."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:14
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:12
 msgid "Diamètre entier des têtes circulaires, en pixels du rendu, ramené au minimum à un."
 msgstr "Integer diameter of circular heads in rendered pixels, clamped to at least one."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:15
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:13
 msgid "Largeur entière du pinceau carré des segments, en pixels du rendu, ramenée au minimum à un."
 msgstr "Integer width of the square segment brush in rendered pixels, clamped to at least one."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:16
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:14
 msgid "Durée de la queue en plans : ``-1`` conserve tout l'historique apparu, ``0`` ne dessine que les têtes. Une durée positive applique la limite d'âge décrite par :meth:`draw_track`."
 msgstr "Tail duration in frames: ``-1`` retains all segments that have appeared; ``0`` draws heads only. A positive duration uses the age limit described by :meth:`draw_track`."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:18
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:16
 msgid "``0`` pour une coupure nette, ``1`` pour une décroissance linéaire ; ignoré si la durée vaut -1 ou 0."
 msgstr "``0`` for an abrupt cutoff, ``1`` for linear fading; ignored when duration is -1 or 0."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:19
-msgid "Fond brut 3D déjà recadré spatialement sur la ROI, conservant les plans depuis le début de l'acquisition. Une image 2D représente une acquisition à un plan. Les intensités sont interprétées sur l'échelle fixe 0–65535."
-msgstr "3D raw background already cropped spatially to the ROI, retaining frames from the start of acquisition. A 2D image represents a single-frame acquisition. Intensities use the fixed 0–65535 scale."
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:17
+msgid "Fond brut 3D déjà recadré spatialement sur la ROI, conservant les plans depuis le début de l'acquisition. Une image 2D représente une acquisition à un plan. Le contraste du fond est ajusté sur toute la séquence."
+msgstr "3D raw background already cropped spatially to the ROI, retaining frames from the start of acquisition. A 2D image represents a single-frame acquisition. Background contrast is adjusted across the entire sequence."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:21
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:19
 msgid "Agrandissement du fond brut : ``0`` plus proche voisin, ``1`` Lanczos."
 msgstr "Raw background upscaling: ``0`` nearest neighbor, ``1`` Lanczos."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:22
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:20
 msgid "Colormap des trajectoires pour la sortie RGB ; le raw conserve une représentation en gris."
 msgstr "Track color map for RGB output; raw data remains grayscale."
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:23
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:21
 msgid "Volume ``(plans, hauteur, largeur)`` uint16 sans raw, ou ``(plans, hauteur, largeur, 3)`` uint8 avec raw. Sans point valide, un seul plan scalaire uint16 uniforme de bg_color est retourné, même si raw est fourni. L'indice zéro correspond au premier plan d'acquisition retenu après filtrage spatial."
 msgstr "A uint16 volume ``(frames, height, width)`` without raw data, or a uint8 volume ``(frames, height, width, 3)`` with raw data. Without valid points, returns a single uniform scalar uint16 frame filled with bg_color, even when raw data is provided. Index zero corresponds to the first acquisition frame retained after spatial filtering."
 
@@ -254,7 +254,7 @@ msgstr "A uint16 volume ``(frames, height, width)`` without raw data, or a uint8
 msgid "Lève"
 msgstr "Raises"
 
-#: of palm_tracer.Processing.Renderer.Renderer.track_stack:26
+#: of palm_tracer.Processing.Renderer.Renderer.track_stack:24
 msgid "Si le raw n'est ni 2D ni 3D ou ne contient pas les plans retenus."
 msgstr "If raw data is neither 2D nor 3D, or does not contain the selected frames."
 
@@ -348,7 +348,7 @@ msgid "Valeur attribuée aux éléments de fond."
 msgstr "Value assigned to background elements."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_rendering:13
-#: palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:11
+#: palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:10
 msgid "Active la saturation des valeurs au lieu de leur repliement cyclique."
 msgstr "Enables value clipping instead of cyclic wrapping."
 
@@ -365,19 +365,19 @@ msgstr "Finalizes a scalar sequence using an alpha mask."
 msgid "Les intensités non prémultipliées sont mélangées selon ``(1 - alpha) * bg_color + alpha * img``. Les pixels d'alpha nul reçoivent directement le fond pour éviter les calculs sur les infinis d'initialisation. Le résultat est saturé dans ``[0, 65535]`` ou replié modulo :math:`2^{16}` selon ``clip``."
 msgstr "Non-premultiplied intensities are blended using ``(1 - alpha) * bg_color + alpha * img``. Pixels with zero alpha receive the background directly to avoid calculations involving initialization infinities. The result is clipped to ``[0, 65535]`` or wrapped modulo :math:`2^{16}` according to ``clip``."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:8
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:7
 msgid "Volume flottant ``(plans, hauteur, largeur)`` d'intensités, mélangé avec le fond puis saturé ou replié sur place."
 msgstr "Floating-point intensity volume ``(frames, height, width)``, blended with the background and then clipped or wrapped in place."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:9
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:8
 msgid "Opacités de même forme, comprises entre zéro et un ; non modifiées."
 msgstr "Opacities of the same shape, between zero and one; unchanged."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:10
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:9
 msgid "Intensité du fond uniforme, sur l'échelle uint16."
 msgstr "Uniform background intensity on the uint16 scale."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:12
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:11
 msgid "Nouveau volume uint16 de même forme ; les parties fractionnaires sont tronquées lors de la conversion."
 msgstr "New uint16 volume of the same shape; fractional parts are truncated during conversion."
 
@@ -386,30 +386,30 @@ msgid "Compose les trajectoires colorées sur un fond brut en gris, plan par pla
 msgstr "Composites colored tracks over a grayscale raw background, frame by frame."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:3
-msgid "Les intensités sont saturées sur l'échelle fixe 0–65535, sans normalisation par plan. La LUT de :func:`~palm_tracer.Tools.FileIO.grayscale_to_color` donne la couleur des trajectoires (zéro reste noir). Le raw est converti en gris 0–255 sur les trois canaux. Composer ``(1 - alpha) * fond + alpha * couleur`` avant arrondi et conversion uint8. Les entrées ne sont pas modifiées et les temporaires sont limités à un plan."
-msgstr "Intensities are clipped to the fixed 0–65535 scale, without per-frame normalization. The lookup table from :func:`~palm_tracer.Tools.FileIO.grayscale_to_color` supplies track colors (zero remains black). Raw data is converted to grayscale 0–255 on all three channels. Blend ``(1 - alpha) * background + alpha * color`` before rounding and uint8 conversion. Inputs remain unchanged and temporary arrays are limited to one frame."
+msgid "Les intensités des trajectoires sont saturées sur l'échelle fixe 0–65535. La LUT de :func:`~palm_tracer.Tools.FileIO.grayscale_to_color` donne la couleur des trajectoires (zéro reste noir). Le contraste du raw est étiré entre ses extrema globaux vers 0–255, avec une même échelle pour tous les plans. Un fond constant conserve la conversion fixe 0–65535 vers 0–255 pour éviter une division par zéro. Le gris est recopié sur les trois canaux. Composer ``(1 - alpha) * fond + alpha * couleur`` avant arrondi et conversion uint8. Les entrées ne sont pas modifiées et les temporaires sont limités à un plan."
+msgstr "Track intensities are clipped to the fixed 0–65535 scale. The lookup table from :func:`~palm_tracer.Tools.FileIO.grayscale_to_color` supplies track colors (zero remains black). Raw background intensities are stretched from their global minimum and maximum to 0–255, using the same scale for all frames. A constant background retains the fixed conversion from 0–65535 to 0–255 to avoid division by zero. Grayscale values are copied to all three channels. Blend ``(1 - alpha) * background + alpha * color`` before rounding and uint8 conversion. Inputs remain unchanged and temporary arrays are limited to one frame."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:8
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:10
 msgid "Intensités non prémultipliées, de forme ``(plans, hauteur, largeur)``."
 msgstr "Non-premultiplied intensities of shape ``(frames, height, width)``."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:9
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:11
 msgid "Opacités de même forme dans [0, 1]."
 msgstr "Opacities of the same shape in [0, 1]."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:10
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:12
 msgid "Fond déjà recadré temporellement et agrandi, de même forme que img, sur l'échelle uint16."
 msgstr "Background already cropped temporally and upscaled, of the same shape as img, on the uint16 scale."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:11
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:13
 msgid "Nom de colormap reconnu par Matplotlib."
 msgstr "Color map name recognized by Matplotlib."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:12
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:14
 msgid "Nouveau volume RGB uint8 de forme ``(plans, hauteur, largeur, 3)``."
 msgstr "New uint8 RGB volume of shape ``(frames, height, width, 3)``."
 
-#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:13
+#: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:15
 msgid "Si les trois volumes n'ont pas la même forme 3D."
 msgstr "If the three volumes do not have the same 3D shape."
 
@@ -694,47 +694,47 @@ msgstr "Draws a track's tails into the intensity and alpha volumes."
 msgid "Chaque segment apparaît entièrement au plan de son point d'arrivée, avec l'intensité de ce point. Aucune interpolation temporelle n'est effectuée entre les observations."
 msgstr "Each segment appears in full at its endpoint frame, using that point's intensity. No temporal interpolation is performed between observations."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:8
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:6
 msgid "Au plan ``T``, l'âge du segment vaut ``T - B``, où ``B`` est son plan d'arrivée. Son alpha est uniforme sur toute l'empreinte, indépendamment de sa longueur et des observations manquantes."
 msgstr "At frame ``T``, segment age is ``T - B``, where ``B`` is its endpoint frame. Alpha is uniform across the entire footprint, regardless of segment length or missing observations."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:13
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:9
 msgid "Pour une durée positive ``L``, le segment reste visible jusqu'à l'âge ``L`` inclus : opacité constante ou effacement linéaire ``max(0, 1 - âge / (L + 1))``. Une durée de ``-1`` conserve les segments sans effacement ; ``0`` supprime les queues. Le rendu reste limité aux plans du volume."
 msgstr "For a positive duration ``L``, a segment remains visible through age ``L`` inclusive, with constant opacity or linear fading ``max(0, 1 - age / (L + 1))``. A duration of ``-1`` retains segments without fading; ``0`` disables tails. Rendering is limited to the volume's frames."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:17
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:13
 msgid "Les intensités non prémultipliées sont combinées selon ``color_mode``, les alphas par maximum. Un recouvrement peut donc associer l'intensité et l'alpha de segments différents. Les pixels d'alpha nul ne contribuent pas ; le mélange avec le fond est réservé à la finalisation."
 msgstr "Non-premultiplied intensities are combined according to ``color_mode``, and alphas by maximum. An overlap can therefore combine intensity and alpha from different segments. Pixels with zero alpha do not contribute; background blending is deferred to finalization."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:22
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:17
 msgid "Volume flottant ``(plans, hauteur, largeur)`` d'intensités, modifié sur place."
 msgstr "Floating-point intensity volume ``(frames, height, width)``, modified in place."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:23
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:18
 msgid "Volume flottant de même forme, modifié sur toute l'empreinte, épaisseur comprise."
 msgstr "Floating-point volume of the same shape, modified across the entire footprint, including its thickness."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:24
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:19
 msgid "Vue ``(N, 3)`` contenant ``Plane, X, Y`` entiers ; plans locaux triés, après soustraction de p_min."
 msgstr "View ``(N, 3)`` containing integer ``Plane, X, Y``; sorted local frames after subtracting p_min."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:25
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:20
 msgid "Vue des N intensités, dans le même ordre que track."
 msgstr "View of N intensities, in the same order as track."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:26
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:21
 msgid "Largeur entière du pinceau carré en pixels du rendu, ramenée au minimum à un."
 msgstr "Integer square brush width in rendered pixels, clamped to at least one."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:27
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:22
 msgid "Durée en plans ; -1 sans effacement, zéro sans queue, positive pour limiter l'historique."
 msgstr "Duration in frames; -1 disables fading, zero disables tails, and a positive value limits history."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:28
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:23
 msgid "Zéro pour une coupure nette, un pour un fade linéaire."
 msgstr "Zero for an abrupt cutoff, one for linear fading."
 
-#: of palm_tracer.Processing.Renderer.Renderer.draw_track:29
+#: of palm_tracer.Processing.Renderer.Renderer.draw_track:24
 msgid "Combinaison des intensités : zéro addition, un maximum, deux minimum."
 msgstr "Intensity combination: zero addition, one maximum, two minimum."
 

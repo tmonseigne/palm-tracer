@@ -288,10 +288,32 @@ class ViewerHRWidget(QWidget):
 			self._layers[self.LAYERS_NAME[2]].data = plot_data
 			self._layers[self.LAYERS_NAME[2]].blending = "translucent"
 
-		self._layers[self.LAYERS_NAME[0]].data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
+		self._update_visualization_layer()
 		self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
 		self.viewer.reset_view()  # Recentrer et ajuster la vue
+
+
+	##################################################
+	def _update_visualization_layer(self):
+		"""Actualise l'image et recrée le calque lors des transitions scalaire/RGB pour conserver les axes corrects."""
+		name = self.LAYERS_NAME[0]
+		layer = self._layers[name]
+		data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
+		rgb = data.ndim == 4 and data.shape[-1] == 3
+		if layer.rgb == rgb:
+			layer.data = data
+			layer.editable, layer.locked = False, True
+			return
+
+		# Napari configure aussi le visuel à la création : changer uniquement les données ne suffit pas.
+		index = self.viewer.layers.index(layer)
+		opacity, blending, visible = layer.opacity, layer.blending, layer.visible
+		self.viewer.layers.remove(layer)
+		layer = self.viewer.add_image(data, name=name, rgb=rgb, opacity=opacity, blending=blending, visible=visible)
+		self.viewer.layers.move(self.viewer.layers.index(layer), index)
+		layer.editable, layer.locked = False, True
+		self._layers[name] = layer
 
 
 ##################################################

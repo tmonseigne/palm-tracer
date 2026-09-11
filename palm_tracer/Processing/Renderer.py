@@ -288,7 +288,7 @@ class Renderer:
 			Une durée positive applique la limite d'âge décrite par :meth:`draw_track`.
 		:param fade_type: ``0`` pour une coupure nette, ``1`` pour une décroissance linéaire ; ignoré si la durée vaut -1 ou 0.
 		:param raw: Fond brut 3D déjà recadré spatialement sur la ROI, conservant les plans depuis le début de l'acquisition.
-			Une image 2D représente une acquisition à un plan. Les intensités sont interprétées sur l'échelle fixe 0–65535.
+			Une image 2D représente une acquisition à un plan. Le contraste du fond est ajusté sur toute la séquence.
 		:param upscale_type: Agrandissement du fond brut : ``0`` plus proche voisin, ``1`` Lanczos.
 		:param color_map: Colormap des trajectoires pour la sortie RGB ; le raw conserve une représentation en gris.
 		:return: Volume ``(plans, hauteur, largeur)`` uint16 sans raw, ou ``(plans, hauteur, largeur, 3)`` uint8 avec raw.
@@ -435,9 +435,11 @@ class Renderer:
 		"""
 		Compose les trajectoires colorées sur un fond brut en gris, plan par plan.
 
-		Les intensités sont saturées sur l'échelle fixe 0–65535, sans normalisation par plan.
+		Les intensités des trajectoires sont saturées sur l'échelle fixe 0–65535.
 		La LUT de :func:`~palm_tracer.Tools.FileIO.grayscale_to_color` donne la couleur des trajectoires (zéro reste noir).
-		Le raw est converti en gris 0–255 sur les trois canaux. Composer ``(1 - alpha) * fond + alpha * couleur``
+		Le contraste du raw est étiré entre ses extrema globaux vers 0–255, avec une même échelle pour tous les plans.
+		Un fond constant conserve la conversion fixe 0–65535 vers 0–255 pour éviter une division par zéro.
+		Le gris est recopié sur les trois canaux. Composer ``(1 - alpha) * fond + alpha * couleur``
 		avant arrondi et conversion uint8. Les entrées ne sont pas modifiées et les temporaires sont limités à un plan.
 
 		:param img: Intensités non prémultipliées, de forme ``(plans, hauteur, largeur)``.
@@ -450,13 +452,17 @@ class Renderer:
 		if img.ndim != 3 or alpha_mask.shape != img.shape or raw.shape != img.shape:
 			raise ValueError("Les intensités, l'alpha et le fond doivent avoir la même forme 3D.")
 		lut = FileIO.grayscale_to_color(np.arange(MAX_UI_16 + 1, dtype=np.uint16), color_map)  # Une seule correspondance pour tout le volume
+		# Extrema communs à la séquence, sans copie du volume brut.
+		raw_min = float(np.clip(np.min(raw), 0, MAX_UI_16)) if raw.size else 0.0
+		raw_max = float(np.clip(np.max(raw), 0, MAX_UI_16)) if raw.size else 0.0
+		offset, span = (raw_min, raw_max - raw_min) if raw_max > raw_min else (0.0, float(MAX_UI_16))
 		res = np.empty((*img.shape, 3), dtype=np.uint8)
 		for plane in range(img.shape[0]):
 			alpha = alpha_mask[plane, ..., None]
 			# Écarter les valeurs initiales infinies avant conversion, même si leur alpha vaut zéro.
 			indices = np.clip(np.where(alpha_mask[plane] > 0, img[plane], 0), 0, MAX_UI_16).astype(np.uint16)
 			foreground = lut[indices]
-			background = np.clip(raw[plane], 0, MAX_UI_16)[..., None] / 257.0
+			background = (np.clip(raw[plane], 0, MAX_UI_16).astype(float)[..., None] - offset) * 255.0 / span
 			res[plane] = np.rint((1.0 - alpha) * background + alpha * foreground).clip(0, 255).astype(np.uint8)
 		return res
 
