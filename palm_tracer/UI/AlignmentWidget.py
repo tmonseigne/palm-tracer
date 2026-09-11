@@ -185,7 +185,7 @@ class AlignmentWidget(QWidget):
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
-			self._coefs = np.loadtxt(filename, comments="#", dtype=np.float64)
+			self._coefs = np.loadtxt(filename, comments="#", dtype=float)
 		except Exception as e:
 			self._coefs = None
 			Ui.print_error(f"Unable to read the coefficient file: {e}.")

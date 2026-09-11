@@ -9,8 +9,8 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Grapher
 
 SIZE = 1000
-POINTS = rng.normal(loc=1.0, scale=1.0, size=SIZE).astype(np.float32)
-POINTS_2 = rng.normal(loc=2.0, scale=1.0, size=SIZE).astype(np.float32)
+POINTS = rng.normal(loc=1.0, scale=1.0, size=SIZE).astype(float)
+POINTS_2 = rng.normal(loc=2.0, scale=1.0, size=SIZE).astype(float)
 IDX = np.arange(1, SIZE + 1, dtype=POINTS.dtype)
 
 BLANK_FIG = json.loads((REF_DIR / "grapher_blank.json").read_text(encoding="utf-8"))
@@ -227,8 +227,8 @@ def test_astigmatism3d():
 	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 
 	# Entrée valide
-	model = np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=np.float64)
-	data = np.array([[0, 0, 0]], dtype=np.float64)
+	model = np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float)
+	data = np.array([[0, 0, 0]], dtype=float)
 
 	# Courbe simple
 	res = g.astigmatism3d(model, None, "Astigmatism 3D", pixel_size=100, z_max=100, mode="curve", n_points=100)

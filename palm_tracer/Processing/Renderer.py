@@ -1,4 +1,4 @@
-"""Produit les rendus d'images haute résolution à partir des localisations."""
+"""Produit les rendus haute résolution des localisations et des trajectoires."""
 
 from __future__ import annotations
 
@@ -7,8 +7,11 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 from palm_tracer.Processing import Parsing
+from palm_tracer.Tools import FileIO
+from palm_tracer.Tools.Ui import print_warning
 
 MAX_UI_16 = np.iinfo(np.uint16).max
 
@@ -17,7 +20,7 @@ MAX_UI_16 = np.iinfo(np.uint16).max
 @dataclass
 class Renderer:
 	"""
-	Produit les rendus haute résolution à partir des localisations.
+	Produit les rendus haute résolution des localisations et des trajectoires.
 
 	La taille de sortie et le facteur d'agrandissement sont conservés par l'instance afin d'être réutilisés par les différents modes de rendu.
 	"""
@@ -112,24 +115,24 @@ class Renderer:
 
 		Les pixels auxquels aucune trajectoire ne contribue reçoivent ``bg_color``.
 
-		:param trc: Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'identifiant de la trajectoire, la coordonnée X, la coordonnée Y et l'intensité.
+		:param trc: Tableau 2D de forme ``(N, 5)`` contenant les colonnes ``Track, Plane, X, Y, Color``.
 		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
 		:param bg_color: Valeur attribuée aux pixels de fond.
 		:return: Nouvelle image de forme ``(height * ratio, width * ratio)`` et de type :class:`~numpy.uint16`.
 		"""
 		# Vérification des dimensions de sortie et des entrées
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
-		if trc.ndim != 2 or trc.shape[1] != 4: return self.blank_rendering(bg_color, False)
+		if trc.ndim != 2 or trc.shape[1] != 5: return self.blank_rendering(bg_color, False)
 
 		# Préparation des coordonnées entières et filtrage des points hors des dimensions du rendu.
-		track_ids, x, y, colors = self.prepare_tracks(trc)
+		track_ids, coords, colors, split_idx = self.prepare_tracks(trc)
 		if track_ids.size == 0: return self.blank_rendering(bg_color, False)
 
 		# Initialisation
 		res, bg_mask = self.init_rendering(color_mode, self._h, self._w)
 
-		# Délimitation des groupes de trajectoires consécutives.
-		split_idx = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size]
+		# Vues sur les coordonnées spatiales ; les plans ne sont pas utilisés pour le rendu 2D.
+		x, y = coords[:, 1], coords[:, 2]
 
 		# Pour chaque trajectoire, couleur unique
 		for g in range(len(split_idx) - 1):
@@ -264,12 +267,76 @@ class Renderer:
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
+	##################################################
+	def track_stack(self, trc: np.ndarray, color_mode: int = 0, bg_color: int = 0, head_size: int = 1, tail_width: int = 1, tail_length: int = -1,
+					fade_type: int = 0, raw: np.ndarray | None = None, upscale_type: int = 0, color_map: str = "viridis") -> np.ndarray:
+		"""
+		Construit une séquence de trajectoires entre le premier et le dernier plan observé.
+
+		Les données doivent être triées par trajectoire puis par plan, avec des plans d'acquisition numérotés à partir de un. La séquence conserve les
+		plans sans observation entre les bornes retenues après filtrage spatial, sans prolonger l'effacement au-delà du dernier plan.
+
+		Les queues sont dessinées par :meth:`draw_track`, puis les têtes par :meth:`draw_track_heads`. La finalisation compose une seule fois les
+		intensités et les opacités avec le fond.
+
+		:param trc: Tableau ``(N, 5)`` contenant ``Track, Plane, X, Y, Color``, trié par trajectoire puis par plan.
+		:param color_mode: Combinaison des intensités des queues, avec ou sans raw : ``0`` addition, ``1`` maximum, ``2`` minimum.
+		:param bg_color: Intensité du fond uniforme sans raw, sur l'échelle uint16.
+		:param head_size: Diamètre entier des têtes circulaires, en pixels du rendu, ramené au minimum à un.
+		:param tail_width: Largeur entière du pinceau carré des segments, en pixels du rendu, ramenée au minimum à un.
+		:param tail_length: Durée de la queue en plans : ``-1`` conserve tout l'historique apparu, ``0`` ne dessine que les têtes.
+			Une durée positive applique la limite d'âge décrite par :meth:`draw_track`.
+		:param fade_type: ``0`` pour une coupure nette, ``1`` pour une décroissance linéaire ; ignoré si la durée vaut -1 ou 0.
+		:param raw: Fond brut 3D déjà recadré spatialement sur la ROI, conservant les plans depuis le début de l'acquisition.
+			Une image 2D représente une acquisition à un plan. Le contraste du fond est ajusté sur toute la séquence.
+		:param upscale_type: Agrandissement du fond brut : ``0`` plus proche voisin, ``1`` Lanczos.
+		:param color_map: Colormap des trajectoires pour la sortie RGB ; le raw conserve une représentation en gris.
+		:return: Volume ``(plans, hauteur, largeur)`` uint16 sans raw, ou ``(plans, hauteur, largeur, 3)`` uint8 avec raw.
+			Sans point valide, un seul plan scalaire uint16 uniforme de bg_color est retourné, même si raw est fourni.
+			L'indice zéro correspond au premier plan d'acquisition retenu après filtrage spatial.
+		:raises ValueError: Si le raw n'est ni 2D ni 3D ou ne contient pas les plans retenus.
+		"""
+		# --- Vérification des dimensions de sortie et des entrées. ---
+		background = int(np.clip(bg_color, 0, MAX_UI_16))
+		if self._h < 1 or self._w < 1: return self.blank_rendering(background, True)
+		if trc.ndim != 2 or trc.shape[1] != 5: return self.blank_rendering(background, True)
+
+		# --- Préparation des coordonnées entières et filtrage des points hors des dimensions du rendu. ---
+		track_ids, coords, colors, split_idx = self.prepare_tracks(trc)
+		if track_ids.size == 0: return self.blank_rendering(background, True)
+
+		# --- Bornes temporelles inclusives : éviter les plans inutiles en début et fin. ---
+		p_min, p_max = int(np.min(coords[:, 0])), int(np.max(coords[:, 0]))
+		n_planes = p_max - p_min + 1
+		coords[:, 0] -= p_min  # Passage des plans d'acquisition aux indices locaux du volume de sortie.
+
+		# --- Initialisation : intensités non prémultipliées et masque alpha flottant. ---
+		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)
+		res = np.full((n_planes, self._h, self._w), init_value, dtype=float)
+		alpha_mask = np.zeros_like(res, dtype=float)
+		# L'alpha vaut zéro hors dessin. Ne pas utiliser draw_line tel quel : il mélange déjà la couleur et écrit True dans le masque.
+
+		# --- Dessin des queues, puis des têtes : deux passes sur les trajectoires. ---
+		for i in range(track_ids.size):
+			start, end = split_idx[i], split_idx[i + 1]
+			self.draw_track(res, alpha_mask, coords[start:end], colors[start:end], tail_width, tail_length, fade_type, color_mode)
+		for i in range(track_ids.size):
+			start, end = split_idx[i], split_idx[i + 1]
+			self.draw_track_heads(res, alpha_mask, coords[start:end], colors[start:end], head_size)
+
+		# --- Finalisation : une seule composition avec le fond. ---
+		if raw is None: return self.finalize_track_stack(res, alpha_mask, bg_color)
+		if raw.ndim == 2: raw = raw[None, :, :]
+		if raw.ndim != 3 or p_min < 1 or p_max > raw.shape[0]: self.finalize_track_stack(res, alpha_mask, bg_color)  # Retour sans Raw en fond.
+		background = self._upscale_raw(raw[p_min - 1:p_max], upscale_type)  # Décalage des plans d'acquisition, numérotés à partir de un.
+		return self.finalize_track_stack_rgb(res, alpha_mask, background, color_map)
+
 	# ==================================================
 	# endregion Rendus
 	# ==================================================
 
 	# ==================================================
-	# region Préparation et dessin
+	# region Manipulation du résultat
 	# ==================================================
 	##################################################
 	def blank_rendering(self, bg_color: int = 0, is_3d: bool = False):
@@ -306,7 +373,7 @@ class Renderer:
 		"""
 		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)  # Valeur initiale du fond.
 		shape = (depth, height, width) if depth > 0 else (height, width)  # .				 Forme du Tableau (2D ou 3D).
-		img = np.full(shape, init_value, dtype=np.float64)  # .								 Tableau de résultat.
+		img = np.full(shape, init_value, dtype=float)  # .									 Tableau de résultat.
 		mask = np.zeros_like(img, dtype=bool)  # .											 Masque pour le fond.
 		return img, mask
 
@@ -336,6 +403,106 @@ class Renderer:
 
 	##################################################
 	@staticmethod
+	def finalize_track_stack(img: np.ndarray, alpha_mask: np.ndarray, bg_color: int = 0, clip: bool = True) -> np.ndarray:
+		"""
+		Finalise une séquence scalaire avec un masque alpha.
+
+		Les intensités non prémultipliées sont mélangées selon ``(1 - alpha) * bg_color + alpha * img``.
+		Les pixels d'alpha nul reçoivent directement le fond pour éviter les calculs sur les infinis d'initialisation.
+		Le résultat est saturé dans ``[0, 65535]`` ou replié modulo :math:`2^{16}` selon ``clip``.
+
+		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, mélangé avec le fond puis saturé ou replié sur place.
+		:param alpha_mask: Opacités de même forme, comprises entre zéro et un ; non modifiées.
+		:param bg_color: Intensité du fond uniforme, sur l'échelle uint16.
+		:param clip: Active la saturation des valeurs au lieu de leur repliement cyclique.
+		:return: Nouveau volume uint16 de même forme ; les parties fractionnaires sont tronquées lors de la conversion.
+		"""
+		res = np.empty(img.shape, dtype=np.uint16)
+		# Traiter les plans séparément pour limiter les masques et les copies temporaires à une image 2D.
+		for plane, (view, alpha) in enumerate(zip(img, alpha_mask)):
+			valid = alpha > 0.0
+			view[~valid] = bg_color  # .							Remplace les éléments identifiés comme fond par la couleur choisie.
+			# L'intensité des tracés n'est pas prémultipliée : appliquer l'alpha exactement une fois.
+			view[valid] = (1.0 - alpha[valid]) * bg_color + alpha[valid] * view[valid]
+			if clip: np.clip(view, 0, MAX_UI_16, out=view)  # .		Saturer après mélange, comme les autres rendus.
+			else: np.remainder(view, MAX_UI_16 + 1, out=view)  # .	Replier cycliquement avant la conversion en uint16.
+			res[plane] = view  # .									Conversion en uint16 avec troncature, sans modifier le masque alpha.
+		return res
+
+	##################################################
+	@staticmethod
+	def finalize_track_stack_rgb(img: np.ndarray, alpha_mask: np.ndarray, raw: np.ndarray, color_map: str = "viridis") -> np.ndarray:
+		"""
+		Compose les trajectoires colorées sur un fond brut en gris, plan par plan.
+
+		Les intensités des trajectoires sont saturées sur l'échelle fixe 0–65535.
+		La LUT de :func:`~palm_tracer.Tools.FileIO.grayscale_to_color` donne la couleur des trajectoires (zéro reste noir).
+		Le contraste du raw est étiré entre ses extrema globaux vers 0–255, avec une même échelle pour tous les plans.
+		Un fond constant conserve la conversion fixe 0–65535 vers 0–255 pour éviter une division par zéro.
+		Le gris est recopié sur les trois canaux. Composer ``(1 - alpha) * fond + alpha * couleur``
+		avant arrondi et conversion uint8. Les entrées ne sont pas modifiées et les temporaires sont limités à un plan.
+
+		:param img: Intensités non prémultipliées, de forme ``(plans, hauteur, largeur)``.
+		:param alpha_mask: Opacités de même forme dans [0, 1].
+		:param raw: Fond déjà recadré temporellement et agrandi, de même forme que img, sur l'échelle uint16.
+		:param color_map: Nom de colormap reconnu par Matplotlib.
+		:return: Nouveau volume RGB uint8 de forme ``(plans, hauteur, largeur, 3)``.
+		:raises ValueError: Si les trois volumes n'ont pas la même forme 3D.
+		"""
+		if img.ndim != 3 or alpha_mask.shape != img.shape or raw.shape != img.shape:
+			raise ValueError("Les intensités, l'alpha et le fond doivent avoir la même forme 3D.")
+		lut = FileIO.grayscale_to_color(np.arange(MAX_UI_16 + 1, dtype=np.uint16), color_map)  # Une seule correspondance pour tout le volume
+		# Extrema communs à la séquence, sans copie du volume brut.
+		raw_min = float(np.clip(np.min(raw), 0, MAX_UI_16)) if raw.size else 0.0
+		raw_max = float(np.clip(np.max(raw), 0, MAX_UI_16)) if raw.size else 0.0
+		offset, span = (raw_min, raw_max - raw_min) if raw_max > raw_min else (0.0, float(MAX_UI_16))
+		res = np.empty((*img.shape, 3), dtype=np.uint8)
+		for plane in range(img.shape[0]):
+			alpha = alpha_mask[plane, ..., None]
+			# Écarter les valeurs initiales infinies avant conversion, même si leur alpha vaut zéro.
+			indices = np.clip(np.where(alpha_mask[plane] > 0, img[plane], 0), 0, MAX_UI_16).astype(np.uint16)
+			foreground = lut[indices]
+			background = (np.clip(raw[plane], 0, MAX_UI_16).astype(float)[..., None] - offset) * 255.0 / span
+			res[plane] = np.rint((1.0 - alpha) * background + alpha * foreground).clip(0, 255).astype(np.uint8)
+		return res
+
+	##################################################
+	def _upscale_raw(self, raw: np.ndarray, upscale_type: int) -> np.ndarray:
+		"""
+		Agrandit les axes Y et X d'un volume sans interpoler entre les plans.
+
+		Le mode Lanczos travaille en float32 dans Pillow et peut dépasser les intensités d'origine.
+		La saturation est laissée à :meth:`finalize_track_stack_rgb`. Le volume d'entrée reste inchangé.
+
+		:param raw: Image ``(hauteur, largeur)`` ou volume ``(plans, hauteur, largeur)``, déjà recadré sur la ROI.
+			Une image 2D produit un volume avec un seul plan.
+		:param upscale_type: ``0`` pour la duplication des pixels ; ``1`` pour Lanczos, plan par plan.
+		:return: Nouveau volume float64 aux dimensions du rendu ; rempli de zéros si la taille spatiale est incompatible.
+		"""
+		if raw.ndim == 2: raw = raw[None, :, :]
+		planes, height, width = raw.shape
+		if height * self._r != self._h or width * self._r != self._w:
+			print_warning("Raw shape doesn't have expected dimensions for output background will be 0.")
+			return np.zeros((planes, self._h, self._w), dtype=float)
+
+		res = np.empty((planes, self._h, self._w), dtype=float)
+		# La diffusion remplit les blocs sans allouer de volume intermédiaire répété.
+		if upscale_type == 0 or self._r == 1: res.reshape(planes, height, self._r, width, self._r)[:] = raw[:, :, None, :, None]
+		else:
+			for i, plane in enumerate(raw):
+				img = Image.fromarray(plane.astype(float))
+				res[i] = np.asarray(img.resize((self._w, self._h), resample=Image.Resampling.LANCZOS))
+		return res
+
+	# ==================================================
+	# endregion Manipulation du résultat
+	# ==================================================
+
+	# ==================================================
+	# region Préparation des données
+	# ==================================================
+	##################################################
+	@staticmethod
 	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
 		Ajoute au DataFrame des localisations une composante ``Color`` utilisée comme intensité ou couleur.
@@ -360,15 +527,15 @@ class Renderer:
 		if loc.empty: return loc
 
 		# Extraction directe en numpy pour éviter les copies/alignements pandas inutiles.
-		if col in loc.columns: colors = loc[col].to_numpy(dtype=np.float64, copy=True)
-		else: colors = np.ones(len(loc), dtype=np.float64)
+		if col in loc.columns: colors = loc[col].to_numpy(dtype=float, copy=True)
+		else: colors = np.ones(len(loc), dtype=float)
 
 		# Post-traitement des couleurs.
 		color_min = np.min(colors)
-		if color_min < 0.0: colors -= color_min  # .						 Décalage pour garantir un minimum nul.
+		if color_min < 0.0: colors -= color_min  # .					Décalage pour garantir un minimum nul.
 		color_max = np.max(colors)
-		if color_max <= 0.0: colors = np.ones(len(loc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
-		elif max_value > 0.0: colors *= max_value / color_max  # .			 Normalisation éventuelle.
+		if color_max <= 0.0: colors = np.ones(len(loc), dtype=float)  # Si l'on n'a que des 0, passe tout à 1.
+		elif max_value > 0.0: colors *= max_value / color_max  # .		Normalisation éventuelle.
 
 		loc["Color"] = colors
 
@@ -407,44 +574,44 @@ class Renderer:
 
 		# --- Définition de la couleur selon la source ---
 		# Numéro de la trajectoire.
-		if source == "Track ID": data["Color"] = data["Track"].to_numpy(dtype=np.float64)
+		if source == "Track ID": data["Color"] = data["Track"].to_numpy(dtype=float)
 		# Plan de chaque point.
-		elif source == "Plane Number": data["Color"] = data["Plane"].to_numpy(dtype=np.float64)
+		elif source == "Plane Number": data["Color"] = data["Plane"].to_numpy(dtype=float)
 
 		# Somme des intensités intégrées par trajectoire, recopiée sur tous les points de la trajectoire.
-		elif source == "Track Intensity": data["Color"] = data.groupby("Track")["Integrated Intensity"].transform("sum").to_numpy(dtype=np.float64)
+		elif source == "Track Intensity": data["Color"] = data.groupby("Track")["Integrated Intensity"].transform("sum").to_numpy(dtype=float)
 
 		# Longueur totale de la trajectoire
 		elif source == "Track Length":
 			# Somme des distances euclidiennes entre points successifs d'une même trajectoire.
-			dx = data.groupby("Track")["X"].diff().to_numpy(dtype=np.float64)
-			dy = data.groupby("Track")["Y"].diff().to_numpy(dtype=np.float64)
+			dx = data.groupby("Track")["X"].diff().to_numpy(dtype=float)
+			dy = data.groupby("Track")["Y"].diff().to_numpy(dtype=float)
 			# Les premières valeurs de chaque trajectoire valent NaN : elles ne contribuent pas à la longueur.
 			segment_lengths = np.sqrt(np.square(dx) + np.square(dy))
 			segment_lengths = np.nan_to_num(segment_lengths, nan=0.0)
 			data["SegmentLength"] = segment_lengths
-			data["Color"] = data.groupby("Track")["SegmentLength"].transform("sum").to_numpy(dtype=np.float64)
+			data["Color"] = data.groupby("Track")["SegmentLength"].transform("sum").to_numpy(dtype=float)
 			data.drop(columns="SegmentLength", inplace=True)
 
 		# Numéro du plan relatif au début de chaque trajectoire, en commençant à 1.
 		elif source == "Relative Plane":
-			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
-			data["Color"] = data["Plane"].to_numpy(dtype=np.float64) - first_plane + 1
+			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=float)
+			data["Color"] = data["Plane"].to_numpy(dtype=float) - first_plane + 1
 
 		# Durée totale de la trajectoire en nombre de plans couverts.
 		elif source == "Track Duration":
-			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=np.float64)
-			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=np.float64)
+			first_plane = data.groupby("Track")["Plane"].transform("min").to_numpy(dtype=float)
+			last_plane = data.groupby("Track")["Plane"].transform("max").to_numpy(dtype=float)
 			data["Color"] = last_plane - first_plane + 1  # +1 pour inclure les deux bornes.
 		# Autre source.
 		else:
-			data["Color"] = np.ones(len(trc), dtype=np.float64)
+			data["Color"] = np.ones(len(trc), dtype=float)
 
 		# --- Post-traitement des couleurs. ---
 		color_min = data["Color"].min()
 		if color_min < 0.0:  data["Color"] -= color_min  # .						Décalage pour garantir un minimum nul.
 		color_max = data["Color"].max()
-		if color_max <= 0.0: data["Color"] = np.ones(len(trc), dtype=np.float64)  # Si l'on n'a que des 0, passe tout à 1.
+		if color_max <= 0.0: data["Color"] = np.ones(len(trc), dtype=float)  # Si l'on n'a que des 0, passe tout à 1.
 		elif max_value > 0.0: data["Color"] *= max_value / color_max  # .			Normalisation éventuelle.
 
 		return data[["Track", "Plane", "X", "Y", "Color"]]
@@ -509,64 +676,163 @@ class Renderer:
 	##################################################
 	def prepare_tracks(self, data: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 		"""
-		Prépare les données utilisées pour le rendu des trajectoires.
+		Prépare et délimite les trajectoires pour les rendus 2D et les séquences.
 
-		Les coordonnées X et Y sont multipliées par le facteur d'agrandissement, arrondies au pixel le plus proche puis converties en indices entiers.
+		Les coordonnées X et Y sont agrandies puis arrondies au pixel le plus proche.
+		Les points hors du rendu sont supprimés après arrondi. Les plans restent inchangés.
+		L'entrée doit être triée par trajectoire puis par plan, comme la sortie de :meth:`add_colors_to_tracks`.
+		L'ordre des points est conservé et l'entrée n'est pas modifiée.
 
-		Les points situés hors des dimensions du rendu sont supprimés.
-
-		:param data: Tableau 2D de forme ``(N, 4)`` contenant, dans l'ordre, l'identifiant de la trajectoire, la coordonnée X, la coordonnée Y et l'intensité.
-		:return: Quatre tableaux contenant respectivement les identifiants des trajectoires, les coordonnées X, les coordonnées Y et les intensités.
+		:param data: Tableau de forme ``(N, 5)`` contenant ``Track, Plane, X, Y, Color``.
+		:return: Identifiants int64 des K trajectoires, coordonnées int64 ``(N valide, 3)`` dans l'ordre ``Plane, X, Y``,
+			couleurs et bornes int64 de taille K + 1. La trajectoire i occupe la tranche ``bornes[i]:bornes[i + 1]``
+			des coordonnées et des couleurs, accessible sans copie. Sans point valide, les bornes valent ``[0]``.
 		"""
-		track_ids = data[:, 0].astype(np.int64)
-		coords = np.round(data[:, 1:3] * self._r).astype(np.intp)
-		x, y = coords[:, 0], coords[:, 1]
-		colors = data[:, 3]
+		coords = np.empty((data.shape[0], 3), dtype=int)
+		coords[:, 0] = data[:, 1]  # .									Plans
+		coords[:, 1:] = np.round(data[:, 2:4] * self._r).astype(int)  # X, Y
+		x, y = coords[:, 1], coords[:, 2]
+		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)  # .Suppression des éléments hors cadre
+		track_ids = data[valid, 0].astype(int)
+		coords, colors = coords[valid], data[valid, 4]
 
-		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)
+		# Une seule délimitation pour les deux rendus ; aucune allocation par trajectoire.
+		if track_ids.size == 0: return track_ids, coords, colors, np.array([0], dtype=int)
+		bounds = np.r_[0, 1 + np.flatnonzero(track_ids[1:] != track_ids[:-1]), track_ids.size].astype(int)
+		return track_ids[bounds[:-1]], coords, colors, bounds
 
-		return track_ids[valid], x[valid], y[valid], colors[valid]
+	# ==================================================
+	# endregion Préparation des données
+	# ==================================================
+
+	# ==================================================
+	# region Dessin
+	# ==================================================
+	##################################################
+	@staticmethod
+	def _line_spans(shape: tuple[int, int], x0: int, y0: int, x1: int, y1: int, width: int = 1) -> tuple[int, np.ndarray, np.ndarray]:
+		"""
+		Décrit l'empreinte d'un segment, sans appliquer de couleur ni d'alpha.
+
+		Chaque pixel de Bresenham porte un pinceau carré. Leur union forme un intervalle continu sur chaque ligne Y.
+		Une largeur paire est décalée d'un demi-pixel vers les axes positifs. Les limites sont recadrées sur l'image.
+		Deux tableaux de bornes suffisent : la mémoire temporaire est proportionnelle à la hauteur concernée, pas à l'aire.
+		Le parcours conserve les pixels du segment d'origine, même lorsque ses extrémités sont hors cadre.
+
+		:param shape: Hauteur et largeur de l'image cible.
+		:param x0: Coordonnée X de départ.
+		:param y0: Coordonnée Y de départ.
+		:param x1: Coordonnée X d'arrivée.
+		:param y1: Coordonnée Y d'arrivée.
+		:param width: Largeur entière du pinceau carré, ramenée au minimum à un.
+		:return: y_min, left et right (tableaux d'entiers) ; la ligne y_min + i couvre ``left[i]:right[i]``.
+			Un intervalle vide a left >= right ; une empreinte entièrement hors cadre ou une image vide renvoie zéro et deux tableaux vides.
+		"""
+		width = max(1, width)
+		h_max, w_max = shape
+		before, after = (width - 1) // 2, width // 2  # .		Répartition du pinceau autour du pixel central.
+		y_min, y_max = max(0, min(y0, y1) - before), min(h_max, max(y0, y1) + after + 1)
+		if h_max <= 0 or w_max <= 0 or y_min >= y_max or max(x0, x1) + after < 0 or min(x0, x1) - before >= w_max:
+			return 0, np.empty(0, dtype=int), np.empty(0, dtype=int)
+
+		# Un intervalle initialement vide par ligne ; les empreintes successives élargissent ses bornes X.
+		left, right = np.full(y_max - y_min, w_max, dtype=int), np.zeros(y_max - y_min, dtype=int)
+		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .				Distance maximale sur chaque axe (dy est négatif).
+		sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # .Orientation du parcours sur chaque axe.
+		err = dx + dy  # Erreur accumulée entre la ligne idéale et les pixels parcourus.
+		while True:
+			# Union des empreintes du pinceau : conserver les extrémités de chaque ligne, sans dessiner plusieurs fois les recouvrements.
+			# start:end désigne les lignes Y, tandis que x_min:x_max délimite les pixels X de l'empreinte courante.
+			start, end = max(y_min, y0 - before) - y_min, min(y_max, y0 + after + 1) - y_min
+			x_min, x_max = max(0, x0 - before), min(w_max, x0 + after + 1)
+			if start < end and x_min < x_max:
+				np.minimum(left[start:end], x_min, out=left[start:end])
+				np.maximum(right[start:end], x_max, out=right[start:end])
+			if x0 == x1 and y0 == y1: break  # .				Condition d'arrêt : le dernier pixel a été traité.
+			e2 = err << 1  # .									2*err pour décider dans quelle direction avancer.
+			if e2 >= dy:  # .									On avance en X si l'erreur le permet.
+				err += dy
+				x0 += sx
+			if e2 <= dx:  # .									On avance en Y si nécessaire (les deux axes peuvent avancer pour une diagonale).
+				err += dx
+				y0 += sy
+
+		# La boîte englobante peut toucher l'image alors que le segment lui-même passe à côté.
+		if not np.any(left < right): return 0, np.empty(0, dtype=int), np.empty(0, dtype=int)
+		return y_min, left, right
 
 	##################################################
 	@staticmethod
-	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0):
+	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0,
+				  width: int = 1, alpha: float = 1.0):
 		"""
-		Trace une ligne discrète entre deux points avec l'algorithme de Bresenham.
+		Trace une ligne de Bresenham avec une épaisseur et une transparence optionnelles.
 
-		La ligne est rastérisée uniquement avec des opérations entières et prend en charge toutes les orientations.
-		Pour chaque pixel visité dans les limites de l'image, l'intensité est combinée à la valeur existante selon ``color_mode``.
+		L'épaisseur est celle d'un pinceau carré appliqué aux pixels du tracé, sans anticrénelage.
+		Une largeur impaire est centrée ; une largeur paire est décalée d'un demi-pixel vers X et Y positifs.
+		Chaque pixel couvert est traité une seule fois par appel, même lorsque les empreintes du pinceau se recouvrent.
 
-		L'image et le masque sont modifiés sur place. Le masque est positionné à ``True`` pour chaque pixel valide traversé par la ligne.
+		Le résultat opaque est calculé selon ``color_mode``, puis mélangé avec le pixel existant :
+		``résultat = (1 - alpha) * fond + alpha * résultat_opaque``.
+		Les valeurs infinies d'initialisation des modes minimum/maximum représentent un fond nul pour ce mélange.
+		Un alpha nul ne modifie ni l'image ni le masque ; un alpha égal à un produit un tracé opaque.
 
-		:param img: Image 2D modifiée sur place.
-		:param bg_mask: Masque booléen de même forme que ``img``, modifié sur place. Une valeur vraie indique qu'au moins une ligne traverse le pixel.
+		:param img: Image 2D de travail flottante, modifiée sur place.
+		:param bg_mask: Masque booléen de même forme, positionné à True pour les pixels auxquels la ligne contribue.
 		:param x0: Coordonnée X du point de départ.
 		:param y0: Coordonnée Y du point de départ.
 		:param x1: Coordonnée X du point d'arrivée.
 		:param y1: Coordonnée Y du point d'arrivée.
-		:param color: Intensité de la ligne.
-		:param color_mode: Méthode de combinaison des valeurs superposées : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
+		:param color: Intensité de la ligne avant mélange.
+		:param color_mode: Combinaison opaque : ``0`` pour l'addition, ``1`` pour le maximum et ``2`` pour le minimum.
+		:param width: Largeur entière du pinceau en pixels du rendu, ramenée à un si elle est inférieure à un.
+		:param alpha: Opacité bornée entre zéro et un.
 		"""
-		h_max, w_max = img.shape[0], img.shape[1]
-		dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .			   Distance maximale
-		sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # Orientation
-		err = dx + dy  # .									   Erreur accumulée (dy est négatif)
-		while True:
-			if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .	   Vérification des limites de l'image
-				bg_mask[y0, x0] = True
-				if color_mode == 0: img[y0, x0] += color  # Addition de l'intensité à la valeur courante.
-				elif color_mode == 1:
-					if color > img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus élevée que la couleur courante.
-				else:
-					if color < img[y0, x0]: img[y0, x0] = color  # Changement de couleur si elle est plus petite que la couleur courante.
-			if x0 == x1 and y0 == y1: break  # .			   Condition d'arrêt
-			e2 = err << 1  # .								   2*err pour décider dans quelle direction avancer.
-			if e2 >= dy:  # .								   On avance en X si l’erreur le permet
-				err += dy
-				x0 += sx
-			if e2 <= dx:  # .								   On avance en Y si nécessaire
-				err += dx
-				y0 += sy
+		# Bornage des paramètres.
+		width, alpha = max(1, width), float(np.clip(alpha, 0.0, 1.0))
+		if alpha == 0.0: return
+		# --- Chemin direct sans allocation d'empreinte pour les lignes fines. ---
+		if width == 1:
+			h_max, w_max = img.shape
+			if min(y0, y1) >= h_max or max(y0, y1) < 0 or min(x0, x1) >= w_max or max(x0, x1) < 0: return
+			dx, dy = abs(x1 - x0), -abs(y1 - y0)  # .					 Distance maximale sur chaque axe (dy est négatif).
+			sx, sy = 1 if x0 < x1 else -1, 1 if y0 < y1 else -1  # .	 Orientation du parcours sur chaque axe.
+			err = dx + dy  # .											 Erreur accumulée entre la ligne idéale et les pixels parcourus.
+			while True:
+				if 0 <= x0 < w_max and 0 <= y0 < h_max:  # .			 Vérification des limites de l'image.
+					old = img[y0, x0]
+					if color_mode == 0: value = old + color  # .	 	 Addition de l'intensité à la valeur courante.
+					elif color_mode == 1: value = max(old, color)  # .	 Conservation de la couleur la plus élevée.
+					else: value = min(old, color)  # .				 	 Conservation de la couleur la plus petite.
+					if alpha < 1.0:  # .							 	 Mélange avec l'existant, les infinis des modes min/max représentent un fond nul.
+						background = old if np.isfinite(old) else 0.0
+						value = (1.0 - alpha) * background + alpha * value
+					img[y0, x0] = value
+					bg_mask[y0, x0] = True
+				if x0 == x1 and y0 == y1: break  # .					 Condition d'arrêt : le dernier pixel a été traité.
+				e2 = err << 1  # .										 2*err pour décider dans quelle direction avancer.
+				if e2 >= dy:  # .										 On avance en X si l'erreur le permet.
+					err += dy
+					x0 += sx
+				if e2 <= dx:  # .										 On avance en Y si nécessaire (les deux axes peuvent avancer pour une diagonale).
+					err += dx
+					y0 += sy
+			return
+
+		# --- Epaisseur différente de 1. ---
+		y_min, left, right = Renderer._line_spans(img.shape, x0, y0, x1, y1, width)
+		# Appliquer couleur et alpha une seule fois à chaque pixel de l'épaisseur, puis marquer exactement la même zone dans le masque.
+		for row, (start, end) in enumerate(zip(left, right)):
+			if start >= end: continue
+			view = img[y_min + row, start:end]
+			if color_mode == 0: value = view + color
+			elif color_mode == 1: value = np.maximum(view, color)
+			else: value = np.minimum(view, color)
+			if alpha < 1.0:
+				background = np.where(np.isfinite(view), view, 0.0)
+				value = (1.0 - alpha) * background + alpha * value
+			view[:] = value
+			bg_mask[y_min + row, start:end] = True
 
 	##################################################
 	@staticmethod
@@ -609,7 +875,7 @@ class Renderer:
 
 			if x_min > x_max or y_min > y_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
 
-			x_grid, y_grid = np.arange(x_min, x_max + 1, dtype=np.float64), np.arange(y_min, y_max + 1, dtype=np.float64)
+			x_grid, y_grid = np.arange(x_min, x_max + 1, dtype=float), np.arange(y_min, y_max + 1, dtype=float)
 			xx, yy = np.meshgrid(x_grid, y_grid)
 
 			dx, dy = xx - xc, yy - yc
@@ -671,9 +937,9 @@ class Renderer:
 
 			if x_min > x_max or y_min > y_max or z_min > z_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
 
-			x_grid = np.arange(x_min, x_max + 1, dtype=np.float64)
-			y_grid = np.arange(y_min, y_max + 1, dtype=np.float64)
-			z_grid = np.arange(z_min, z_max + 1, dtype=np.float64)
+			x_grid = np.arange(x_min, x_max + 1, dtype=float)
+			y_grid = np.arange(y_min, y_max + 1, dtype=float)
+			z_grid = np.arange(z_min, z_max + 1, dtype=float)
 			zz, yy, xx = np.meshgrid(z_grid, y_grid, x_grid, indexing="ij")
 
 			dx, dy, dz = xx - xc, yy - yc, zz - zc
@@ -690,3 +956,107 @@ class Renderer:
 			else: np.minimum(view, patch, out=view, where=patch_mask)
 
 		return img
+
+	##################################################
+	@staticmethod
+	def draw_track(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray,
+				   tail_width: int = 1, tail_length: int = -1, fade_type: int = 0, color_mode: int = 0):
+		"""
+		Dessine les queues d'une trajectoire dans les volumes d'intensité et d'alpha.
+
+		Chaque segment apparaît entièrement au plan de son point d'arrivée, avec l'intensité de ce point.
+		Aucune interpolation temporelle n'est effectuée entre les observations.
+
+		Au plan ``T``, l'âge du segment vaut ``T - B``, où ``B`` est son plan d'arrivée.
+		Son alpha est uniforme sur toute l'empreinte, indépendamment de sa longueur et des observations manquantes.
+
+		Pour une durée positive ``L``, le segment reste visible jusqu'à l'âge ``L`` inclus : opacité constante ou
+		effacement linéaire ``max(0, 1 - âge / (L + 1))``. Une durée de ``-1`` conserve les segments sans effacement ; ``0`` supprime les queues.
+		Le rendu reste limité aux plans du volume.
+
+		Les intensités non prémultipliées sont combinées selon ``color_mode``, les alphas par maximum.
+		Un recouvrement peut donc associer l'intensité et l'alpha de segments différents.
+		Les pixels d'alpha nul ne contribuent pas ; le mélange avec le fond est réservé à la finalisation.
+
+		:param img: Volume flottant ``(plans, hauteur, largeur)`` d'intensités, modifié sur place.
+		:param alpha_mask: Volume flottant de même forme, modifié sur toute l'empreinte, épaisseur comprise.
+		:param track: Vue ``(N, 3)`` contenant ``Plane, X, Y`` entiers ; plans locaux triés, après soustraction de p_min.
+		:param colors: Vue des N intensités, dans le même ordre que track.
+		:param tail_width: Largeur entière du pinceau carré en pixels du rendu, ramenée au minimum à un.
+		:param tail_length: Durée en plans ; -1 sans effacement, zéro sans queue, positive pour limiter l'historique.
+		:param fade_type: Zéro pour une coupure nette, un pour un fade linéaire.
+		:param color_mode: Combinaison des intensités : zéro addition, un maximum, deux minimum.
+		"""
+		if tail_length == 0 or len(track) < 2: return
+		depth, height, width = img.shape
+		# --- Parcours des segments. ---
+		for i in range(1, len(track)):
+			x0, y0 = (int(value) for value in track[i - 1, 1:])
+			p1, x1, y1 = (int(value) for value in track[i])
+
+			# --- Plans nécessitant l'affichage de ce segment. ---
+			first = max(0, p1)  # .									Le segment n'apparaît qu'à l'arrivée ; aucun indice négatif dans le volume.
+			last = depth if tail_length < 0 else min(depth, p1 + tail_length + 1)  # Borne exclusive des plans affichant le segment.
+			if first >= last: continue  # .							Segment pas encore apparu ou déjà entièrement effacé dans le volume demandé.
+
+			# --- Un alpha par plan, commun à toute l'empreinte du segment. ---
+			if tail_length < 0 or fade_type == 0: alpha = 1.0  # .	Historique illimité ou coupure nette : tous les plans de first:last sont opaques.
+			else:
+				age = np.arange(first, last, dtype=float) - p1
+				alpha = (1.0 - age / (tail_length + 1))[:, None]  # Colonne temporelle diffusée sur tous les pixels X.
+
+			# --- Préparer une seule empreinte par segment, puis la réutiliser sur ses plans visibles. ---
+			y_min, left, right = Renderer._line_spans((height, width), x0, y0, x1, y1, tail_width)
+			color = colors[i]  # .			Couleur de l'observation d'arrivée, indépendante du fade.
+			for row, (start, end) in enumerate(zip(left, right)):
+				if start >= end: continue
+				y = y_min + row
+				# Remplir tous les plans visibles en une opération, sans calcul de distance ni boucle temporelle.
+				view = img[first:last, y, start:end]
+				if color_mode == 0: np.add(view, color, out=view)
+				elif color_mode == 1: np.maximum(view, color, out=view)
+				else: np.minimum(view, color, out=view)
+				alpha_view = alpha_mask[first:last, y, start:end]
+				np.maximum(alpha_view, alpha, out=alpha_view)  # .	Même empreinte complète que l'intensité, épaisseur comprise.
+
+	##################################################
+	@staticmethod
+	def draw_track_heads(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray, head_size: int = 1):
+		"""
+		Dessine les têtes observées après toutes les queues, sans persistance ni fade.
+
+		Chaque tête est un contour de cercle d'épaisseur radiale un pixel, présent uniquement sur le plan de son observation.
+		Imposer sa couleur et un alpha de un sur la même empreinte, en recadrant le contour aux limites de l'image.
+		Les diamètres un et deux produisent respectivement un et quatre pixels ; les diamètres pairs suivent le décalage d'un demi-pixel vers X/Y positifs.
+		En cas de superposition de têtes, la dernière dessinée l'emporte, selon l'ordre des trajectoires.
+
+		:param img: Volume flottant d'intensités, modifié sur place.
+		:param alpha_mask: Volume flottant de même forme, modifié uniquement sur les contours.
+		:param track: Vue ``(N, 3)`` contenant les plans locaux et les coordonnées X/Y des observations.
+		:param colors: Vue des intensités associées aux observations.
+		:param head_size: Diamètre extérieur entier des cercles en pixels du rendu, ramené au minimum à un.
+		"""
+		head_size = max(1, head_size)
+		if len(track) == 0: return
+		depth, height, width = img.shape
+		before, after = (head_size - 1) // 2, head_size // 2
+		# Construire une seule empreinte par appel : une couronne entre les rayons diamètre/2 - 1 et diamètre/2.
+		# Les petits diamètres conservent leurs pixels minimaux ; pour les autres, ne toucher ni à l'intensité ni à l'alpha à l'intérieur.
+		# Le centre vaut 0 pour un diamètre impair, 0.5 pour un diamètre pair (même convention que les lignes épaisses).
+		center = 0.5 if head_size % 2 == 0 else 0.0
+		offsets = np.arange(-before, after + 1, dtype=float) - center
+		distance_squared = offsets[:, None] ** 2 + offsets[None, :] ** 2
+		radius = head_size / 2.0
+		ring = (distance_squared <= radius ** 2) & (distance_squared >= max(0.0, radius - 1.0) ** 2)
+		for i, point in enumerate(track):
+			plane, x, y = (int(value) for value in point)
+			if plane < 0 or plane >= depth: continue  # .		Les plans sont déjà locaux ; ne jamais écrire via un indice négatif.
+			x_min, x_max = max(0, x - before), min(width, x + after + 1)
+			y_min, y_max = max(0, y - before), min(height, y + after + 1)
+			if x_min >= x_max or y_min >= y_max: continue  # .	Cercle entièrement hors cadre.
+			# Recadrer l'empreinte avec les mêmes décalages que l'image, sans déplacer le centre au voisinage d'un bord.
+			patch = ring[y_min - y + before:y_max - y + before, x_min - x + before:x_max - x + before]
+			view = img[plane, y_min:y_max, x_min:x_max]
+			alpha_view = alpha_mask[plane, y_min:y_max, x_min:x_max]
+			view[patch] = colors[i]  # .						La tête impose sa couleur, même si elle est plus faible que celle de la queue.
+			alpha_view[patch] = 1.0  # .						Opacité totale sur exactement le même contour, uniquement sur le plan observé.

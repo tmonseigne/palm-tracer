@@ -1302,23 +1302,23 @@ def test_hr_stress():
 	s["Drift Correction"].value = False
 
 	# Bille qui part en diagonale du haut à droite vers le bas à gauche
-	bead_x, bead_y = np.linspace(n_x - 0.5, 0, n_p, dtype=np.float32), np.linspace(0, n_y - 0.5, n_p, dtype=np.float32)
+	bead_x, bead_y = np.linspace(n_x - 0.5, 0, n_p, dtype=float), np.linspace(0, n_y - 0.5, n_p, dtype=float)
 
-	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=np.int32),
-						  "Plane": np.arange(1, n_p + 1, dtype=np.int32),
+	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=int),
+						  "Plane": np.arange(1, n_p + 1, dtype=int),
 						  "X":     bead_x,
 						  "Y":     bead_y,
-						  "Z":     np.zeros(n_p, dtype=np.float32)})
+						  "Z":     np.zeros(n_p, dtype=float)})
 
 	# Loclaisation au centre
-	loc = pd.DataFrame({"Plane":                np.arange(1, n_p + 1, dtype=np.int32),
-						"X":                    np.full(n_p, n_x / 2.0, dtype=np.float32),
-						"Y":                    np.full(n_p, n_y / 2.0, dtype=np.float32),
-						"Z":                    np.zeros(n_p, dtype=np.float32),
-						"Integrated Intensity": np.full(n_p, 1, dtype=np.float32),
-						"Sigma X":              np.ones(n_p, dtype=np.float32),
-						"Sigma Y":              np.ones(n_p, dtype=np.float32),
-						"Theta":                np.zeros(n_p, dtype=np.float32)})
+	loc = pd.DataFrame({"Plane":                np.arange(1, n_p + 1, dtype=int),
+						"X":                    np.full(n_p, n_x / 2.0, dtype=float),
+						"Y":                    np.full(n_p, n_y / 2.0, dtype=float),
+						"Z":                    np.zeros(n_p, dtype=float),
+						"Integrated Intensity": np.full(n_p, 1, dtype=float),
+						"Sigma X":              np.ones(n_p, dtype=float),
+						"Sigma Y":              np.ones(n_p, dtype=float),
+						"Theta":                np.zeros(n_p, dtype=float)})
 
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
 
@@ -1351,11 +1351,11 @@ def test_hr_stress():
 	np.testing.assert_array_equal(viz, ref)
 
 	# Seconde bille qui descend comme la précédente, mais ne va pas vers la gauche donc la pente initiale sera divisé par 2.
-	beads2 = pd.DataFrame({"Bead":  np.full(n_p, 2, dtype=np.int32),
-						   "Plane": np.arange(1, n_p + 1, dtype=np.int32),
-						   "X":     np.zeros_like(bead_x, dtype=np.float32),
+	beads2 = pd.DataFrame({"Bead":  np.full(n_p, 2, dtype=int),
+						   "Plane": np.arange(1, n_p + 1, dtype=int),
+						   "X":     np.zeros_like(bead_x, dtype=float),
 						   "Y":     bead_y,
-						   "Z":     np.zeros(n_p, dtype=np.float32)})
+						   "Z":     np.zeros(n_p, dtype=float)})
 
 	pt.results["bds"] = pd.concat([beads, beads2], ignore_index=True)
 	viz, _ = pt.hr()
@@ -1366,14 +1366,14 @@ def test_hr_stress():
 	# On ajoute nos 2 billes à la localisation et on enlève le drift, tout doit être affiché
 	s["Drift Correction"].value = False
 	size = 3 * n_p
-	loc2 = pd.DataFrame({"Plane":                np.tile(np.arange(1, n_p + 1, dtype=np.int32), 3),
-						 "X":                    np.full(size, n_x / 2.0, dtype=np.float32),
-						 "Y":                    np.full(size, n_y / 2.0, dtype=np.float32),
-						 "Z":                    np.zeros(size, dtype=np.float32),
-						 "Integrated Intensity": np.full(size, 1, dtype=np.float32),
-						 "Sigma X":              np.ones(size, dtype=np.float32),
-						 "Sigma Y":              np.ones(size, dtype=np.float32),
-						 "Theta":                np.zeros(size, dtype=np.float32)})
+	loc2 = pd.DataFrame({"Plane":                np.tile(np.arange(1, n_p + 1, dtype=int), 3),
+						 "X":                    np.full(size, n_x / 2.0, dtype=float),
+						 "Y":                    np.full(size, n_y / 2.0, dtype=float),
+						 "Z":                    np.zeros(size, dtype=float),
+						 "Integrated Intensity": np.full(size, 1, dtype=float),
+						 "Sigma X":              np.ones(size, dtype=float),
+						 "Sigma Y":              np.ones(size, dtype=float),
+						 "Theta":                np.zeros(size, dtype=float)})
 	loc2.loc[n_p:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
 
 	pt.results["loc"] = loc2.copy()
@@ -1395,8 +1395,8 @@ def test_hr_stress():
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = True
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
-	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=np.float32)  # Aléatoire autour du centre.
-	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=np.float32)  # Aléatoire autour du centre.
+	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=float)  # Aléatoire autour du centre.
+	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=float)  # Aléatoire autour du centre.
 	viz, _ = pt.hr()
 	ref = ref_viz0.copy()
 	# Position au centre puis résultat du random dans tous les sens ATTENTION LE DRIFT EST LISSÉ.
@@ -1451,3 +1451,81 @@ def test_get_astigmatism_model():
 
 	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va reussir, dans le chemin donné
 	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
+
+
+##################################################
+@pytest.mark.parametrize("background", [False, True])
+@pytest.mark.parametrize("color_mode", [0, 1, 2])
+def test_hr_track_stack(monkeypatch, background, color_mode):
+	"""Vérifie les options, la ROI et l'alignement temporel du rendu animé avec ou sans fond brut."""
+	pt = PALMTracer()
+	pt._stack = np.full((8, 8, 9), 25700, dtype=np.uint16)
+	pt.settings.rois.set_size(9, 8)
+	monkeypatch.setattr(pt.settings.rois, "get_roi_limits", lambda: (2, 7, 1, 6))
+	pt.results["trc"] = pd.DataFrame([[1, 1, 6.9, 2, 100], [1, 3, 3, 2, 100], [1, 5, 4, 3, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	original = pt.results.tracks.copy(deep=True)
+	s = pt.settings.hr
+	s["Dimension"].value = 3
+	assert s["Type"].value == 1  # .		Vérification, Avec track stack la type est forcément Tracks
+	for key, value in {"Ratio": 2, "Color mode": color_mode, "Background": 20, "Scaling": 2, "Drift Correction": False}.items(): s[key].value = value
+	options = s["T-Stack"]
+	for key, value in {"Head": 3, "Width": 2, "Length": 2, "Fade": 1, "Map": 1, "Background": background, "Upscale": 1}.items(): options[key].value = value
+
+	viz, plot = pt.hr()
+	assert viz.shape == ((3, 10, 10, 3) if background else (3, 10, 10))
+	assert viz.dtype == (np.uint8 if background else np.uint16)
+	np.testing.assert_array_equal(plot, [[1, 0, 2, 2], [1, 2, 4, 4]])
+	# Compare le pipeline à un rendu direct des coordonnées et options attendues.
+	reference = pt._renderer.track_stack(np.array([[1, 1, 4.9, 1, 2], [1, 3, 1, 1, 2], [1, 5, 2, 2, 2]], dtype=float),
+										 color_mode, 13107, 3, 2, 2, 1, pt._stack[:, 1:6, 2:7] if background else None, 1, "magma")
+	np.testing.assert_array_equal(viz, reference)
+	if background: np.testing.assert_array_equal(viz[:, 9, 9], np.full((3, 3), 100, dtype=np.uint8))
+	else: np.testing.assert_array_equal(viz[:, 9, 9], [13107] * 3)
+	pd.testing.assert_frame_equal(pt.results.tracks, original)
+	assert pt.output_viz_name().suffix == ".tif"
+	assert "visualization_track_stack_tracks" in pt.output_viz_name().name
+
+
+##################################################
+def test_hr_track_stack_empty_roi():
+	"""Vérifie une animation sans trajectoire conservée dans la ROI."""
+	pt = PALMTracer()
+	pt._stack = np.zeros((3, 5, 5), dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
+	pt.results["trc"] = pd.DataFrame([[1, 2, 5, 5, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	pt.settings.hr["Dimension"].value = 3
+	pt.settings.hr["Ratio"].value = 1
+	viz, plot = pt.hr()
+	assert viz.shape == (1, 5, 5)
+	assert plot.shape == (0, 4)
+	assert not np.any(viz)
+
+
+##################################################
+def test_crop_track_stack_rgb():
+	"""Préserve les trois canaux RGB, même si un seul canal est non nul ou si le volume est noir."""
+	pt = PALMTracer()
+	img = np.zeros((3, 10, 10, 3), dtype=np.uint8)
+	img[1, 2:4, 6:8, 0] = 255
+	cropped = pt.crop(img, margin=0)
+	assert cropped.shape == (1, 2, 2, 3)
+	np.testing.assert_array_equal(cropped, img[1:2, 2:4, 6:8])
+	assert pt.crop(np.zeros_like(img)).shape == (1, 1, 1, 3)
+
+
+##################################################
+def test_hr_track_stack_dimension_switch(qtbot):
+	"""Vérifie le type sélectionné et la réactivation des localisations en quittant le mode animé."""
+	pt = PALMTracer()
+	s = pt.settings.hr
+	ui = s.get_ui()
+	qtbot.addWidget(ui.widget)
+	s["Dimension"].value = 3
+	assert s["Type"].value == 1
+	assert cast(Combo, s["Source"]).current_text == "Track ID"
+	assert not s["Type"]._uis["default"].boxes[0].isEnabled()
+	for dimension in [0, 1, 2]:
+		s["Dimension"].value = dimension
+		assert s["Type"]._uis["default"].boxes[0].isEnabled()
+		if dimension != 0: assert s["Type"].value == 0
+		s["Dimension"].value = 3

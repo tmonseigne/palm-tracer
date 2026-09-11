@@ -203,7 +203,7 @@ def test_tracks_compute():
 		t_input = pd.read_csv(path)
 		# Test avec ou sans les mises à jour de log et la 3D
 		for p in [True, False]:
-			t_output = palm.tracks_compute(t_input, True, p, p, p, 1, 1, 1, np.array([4], dtype=np.float64))
+			t_output = palm.tracks_compute(t_input, True, p, p, p, 1, 1, 1, np.array([4], dtype=float))
 			for name in ["MSD", "InD", "Fit"]:
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
@@ -217,7 +217,7 @@ def test_tracks_compute():
 
 		# Test sur différents modes d'ajustement.
 		for mode in range(4):
-			t_output = palm.tracks_compute(t_input, False, False, False, False, 1, 1, mode, np.array([4], dtype=np.float64))
+			t_output = palm.tracks_compute(t_input, False, False, False, False, 1, 1, mode, np.array([4], dtype=float))
 			for name in ["MSD", "InD", "Fit"]:
 				if t_output[name].empty: continue
 				if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
@@ -230,10 +230,10 @@ def test_tracks_compute():
 					np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
 
 		# Dernier True/False pour la couverture de code
-		palm.tracks_compute(t_input, False, True, False, False, 1, 1, 1, np.array([4], dtype=np.float64))
+		palm.tracks_compute(t_input, False, True, False, False, 1, 1, 1, np.array([4], dtype=float))
 		df = t_input.iloc[[0]].copy()  # Note : les doubles crochets → DataFrame, pas Series
-		palm.tracks_compute(df, True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
-		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=np.float64))
+		palm.tracks_compute(df, True, True, False, False, 1, 1, 1, np.array([18], dtype=float))
+		palm.tracks_compute(pd.DataFrame(), True, True, False, False, 1, 1, 1, np.array([18], dtype=float))
 	else:
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
@@ -249,7 +249,7 @@ def test_align():
 	z, h, w = stack.shape
 
 	# --- Facteurs de test (identité) ---
-	factors = np.zeros((2, 10), dtype=np.float64)
+	factors = np.zeros((2, 10), dtype=float)
 	factors[0, 7] = 1.0
 	factors[1, 8] = 1.0
 
@@ -269,7 +269,7 @@ def test_align():
 	# On supprime la derniere ligne et colonne car 0 padding en cas de débord dans l'algo original.
 
 	# --- Facteurs de test (transposition) ---
-	factors = np.zeros((2, 10), dtype=np.float64)
+	factors = np.zeros((2, 10), dtype=float)
 	factors[0][8] = 1.0
 	factors[1][7] = 1.0
 

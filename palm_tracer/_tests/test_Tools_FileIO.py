@@ -22,7 +22,7 @@ MAX_UI_8 = np.iinfo(np.uint8).max
 SIZE = 512  # .															 Taille de l'image de test
 NOISE_2D = np.random.rand(SIZE, SIZE) * MAX_UI_8  # .					 Bruit sur une image 2D
 REF_BOOLEAN_MASK = NOISE_2D > 128  # .									 Conversion en booléen
-GRADIENT = np.linspace(0, MAX_UI_8, SIZE, dtype=np.float32)  # .		 Création du dégradé croissant de 0 à 255
+GRADIENT = np.linspace(0, MAX_UI_8, SIZE, dtype=float)  # .				 Création du dégradé croissant de 0 à 255
 REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))  # .						 Répète le dégradé sur toutes les lignes
 REF_STACK = np.stack((REF_GRADIENT, np.fliplr(REF_GRADIENT)), axis=0)  # Empilement du dégradé et son miroir horizontal
 
@@ -164,11 +164,31 @@ def test_save_tif_2d():
 
 
 ##################################################
+def test_save_tif_rgb():
+	"""Vérifie l'export RGB, les métadonnées, la saturation et la conservation de l'entrée."""
+	import tifffile
+
+	stack = np.array([[[[-10, 12.9, 300], [255, 0, 128]]], [[[1, 2, 3], [4, 5, 6]]]], dtype=float)
+	original = stack.copy()
+	path = OUTPUT_DIR / "test_save_stack_rgb.tif"
+	FileIO.save_tif(stack, path)
+	with tifffile.TiffFile(path) as tif:
+		res = tif.asarray()
+		assert tif.series[0].axes == "TYXS"
+		assert tif.pages[0].photometric == tifffile.PHOTOMETRIC.RGB
+	np.testing.assert_array_equal(res, [[[[0, 12, 255], [255, 0, 128]]], [[[1, 2, 3], [4, 5, 6]]]])
+	assert res.dtype == np.uint8 and res.shape == stack.shape
+	np.testing.assert_array_equal(stack, original)
+	# Une séquence à un seul plan doit conserver sa dimension temporelle.
+	FileIO.save_tif(res[:1], path)
+	np.testing.assert_array_equal(tifffile.imread(path), res[:1])
+
+
+##################################################
 def test_save_tif_bad_stack():
-	"""Vérifie la fonction save_tif avec une image 1D."""
-	with pytest.raises(ValueError) as exception_info:
-		FileIO.save_tif(REF_GRADIENT[1, :], f"{OUTPUT_DIR}/test_save_stack_1D.tif")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+	"""Vérifie la fonction save_tif avec une image de dimension incorrecte."""
+	for shape in (1, (1, 2, 3, 4, 3), (2, 3, 4, 2), (2, 3, 4, 4)):
+		with pytest.raises(ValueError): FileIO.save_tif(np.zeros(shape), OUTPUT_DIR / "test_save_stack_invalid.tif")
 
 
 ##################################################

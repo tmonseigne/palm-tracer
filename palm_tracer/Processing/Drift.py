@@ -88,7 +88,7 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 			pairs.append((float(distances[i, j]), i, p_j))  # On ajoute aux propositions, la distance, le suivi et le point.
 
 	# Aucun voisin valide pour aucun suivi (tous les indices == n_points) ⇒ aucune paire candidate.
-	if not pairs: return np.empty((0,), dtype=np.int32), np.empty((0,), dtype=np.int32)
+	if not pairs: return np.empty((0,), dtype=int), np.empty((0,), dtype=int)
 
 	# Appariement glouton : plus petites distances d'abord.
 	pairs.sort(key=lambda x: x[0])
@@ -105,7 +105,7 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 		keep_t.append(i)
 		keep_p.append(p_j)
 
-	return np.asarray(keep_t, dtype=np.int32), np.asarray(keep_p, dtype=np.int32)
+	return np.asarray(keep_t, dtype=int), np.asarray(keep_p, dtype=int)
 
 
 # ==================================================
@@ -168,7 +168,7 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 		:return: DataFrame du plan, position et index des points du plan.
 		"""
 		df = by_plane[plane]
-		return df, df[coord_cols].to_numpy(dtype=np.float64, copy=False), df["_index"].to_numpy(copy=False)
+		return df, df[coord_cols].to_numpy(dtype=float, copy=False), df["_index"].to_numpy(copy=False)
 
 	# Création d'un tableau de possibles trajectoires pour tous les points du plan 1
 	df_0, c_0, i_0 = _get_plane_infos(planes[0])
@@ -177,10 +177,10 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 
 	# ----- Parcours -----
 	p_norm = 2  # NOTE : p=2 ⇒ sphère. Mettre p=np.inf pour un cube (L∞).
-	if not strict: max_distance = np.nextafter(np.float64(max_distance), np.inf)
+	if not strict: max_distance = np.nextafter(float(max_distance), np.inf)
 	for p in planes[1:]:
 		_, c_p, i_p = _get_plane_infos(p)
-		# if df_p.empty or not active_tracks: return pd.DataFrame()  # Plus de points ou plus de suivi ⇒ terminé. Impossible dans ce flux.
+		# if df_p.empty or not active_tracks: return pd.DataFrame()  # .Plus de points ou plus de suivi ⇒ terminé. Impossible dans ce flux.
 		tree = cKDTree(c_p)  # .										KDTree des points du plan actuel.
 		last = np.stack([t.last_pos for t in active_tracks], axis=0)  # Dernier point de chaque suivi (taille N_suivi).
 
@@ -211,7 +211,7 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 		rows.append(df_bead)
 
 	# if not rows: return pd.DataFrame()  # Aucune bille complète ⇒ terminé. Impossible dans ce flux
-	beads = pd.concat(rows, axis=0, ignore_index=False)  # Concaténation en un seul DataFrame
+	beads = pd.concat(rows, axis=0, ignore_index=False)  # .								Concaténation en un seul DataFrame
 	apply_dataframe_type(beads, types)
 	return beads.sort_values(by=["Bead", "Plane"], kind="stable").reset_index(drop=True)  # Tri stable pour lisibilité.
 

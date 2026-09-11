@@ -50,7 +50,7 @@ class PALMTracerWidget(QWidget):
 											 "Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"}
 											 }
 	"""Propriétés graphiques des différents calques de points."""
-	EMPTY_PREVIEW: np.ndarray = np.empty((0, 2), dtype=np.float32)
+	EMPTY_PREVIEW: np.ndarray = np.empty((0, 2), dtype=float)
 	"""Tableau vide utilisé lorsqu'aucun point n'est prévisualisé."""
 	EMPTY_STACK: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
 	"""Pile minimale utilisée lorsqu'aucune image n'est chargée."""
@@ -358,7 +358,7 @@ class PALMTracerWidget(QWidget):
 		if self.last_file == selected_file: return
 		else: self.last_file = selected_file
 
-		# Chargez le fichier TIF sélectionné comme un layer Raw dans le viewer
+		# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer
 		try:
 			self._current_stack = open_tif(selected_file)
 			depth, height, width = self._current_stack.shape
@@ -400,7 +400,7 @@ class PALMTracerWidget(QWidget):
 			roi_shape = self.pt.settings.localization["ROI Shape"].value
 			half_size = roi_size / 2
 			if roi_shape == 0:  # Ellipses : [[y_center, x_center], [y_radius, x_radius]]
-				rois = np.array([[[float(y), float(x)], [float(half_size), float(half_size)]] for y, x in points], dtype=np.float32)
+				rois = np.array([[[y, x], [half_size, half_size]] for y, x in points], dtype=float)
 				s_type = "ellipse"
 			else:  # Rectangles : coins opposés
 				rois = [[[y - half_size, x - half_size], [y + half_size, x + half_size]] for y, x in points]

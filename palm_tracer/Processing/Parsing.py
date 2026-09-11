@@ -227,12 +227,12 @@ def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	"""
 	columns, types = FILES_COLUMNS["Meta"]["columns"], FILES_COLUMNS["Meta"]["types"]
 
-	arr = np.asarray(data).reshape(1, -1)  # Aplatit vers (N,) puis force (1, N)
+	arr = np.asarray(data).reshape(1, -1)  # .				 Aplatit vers (N,) puis force (1, N)
 	if arr.shape[1] != len(columns):
 		raise ValueError(f"Le nombre d'éléments ne correspond pas : {arr.shape[1]} reçus, {len(columns)} attendus.")
 
-	res = pd.DataFrame(arr, columns=columns, dtype=np.float32)  # Transformation en DataFrame
-	apply_dataframe_type(res, types)  # Conversion en entier nullable (préserve les NaN si présents)
+	res = pd.DataFrame(arr, columns=columns, dtype=float)  # Transformation en DataFrame
+	apply_dataframe_type(res, types)  # .					 Conversion en entier nullable (préserve les NaN si présents)
 	return res
 
 

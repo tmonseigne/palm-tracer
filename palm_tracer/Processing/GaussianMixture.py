@@ -92,7 +92,7 @@ class GaussianMixture:
 		:return: Nouvelle instance contenant les paramètres du meilleur ajustement.
 		:raises ValueError: Si un paramètre est invalide, si les données sont insuffisantes ou si leur variance est nulle.
 		"""
-		values = np.asarray(data, dtype=np.float64).ravel()
+		values = np.asarray(data, dtype=float).ravel()
 		values = values[np.isfinite(values)]
 		if n_component < 1:
 			raise ValueError("Le nombre de composantes doit être strictement positif.")
@@ -110,7 +110,7 @@ class GaussianMixture:
 		global_sigma = float(np.std(values))
 		if global_sigma <= 0:
 			raise ValueError("Les données doivent présenter une variance strictement positive.")
-		sigma_min = max(global_sigma * 1e-6, float(np.finfo(np.float64).eps))
+		sigma_min = max(global_sigma * 1e-6, float(np.finfo(float).eps))
 		rng = np.random.default_rng(0)
 		best_result: tuple[np.ndarray, np.ndarray, np.ndarray, float, bool, int] | None = None
 
@@ -151,7 +151,7 @@ class GaussianMixture:
 		:param x: Abscisse scalaire ou tableau d'abscisses auxquelles évaluer le mélange.
 		:return: Densité totale évaluée en chaque abscisse, avec la même forme que ``x``.
 		"""
-		values = np.asarray(x, dtype=np.float64)
+		values = np.asarray(x, dtype=float)
 		standardized = (values[..., np.newaxis] - self.means) / self.sigmas
 		components = np.exp(-0.5 * standardized ** 2) / (self.sigmas * np.sqrt(2.0 * np.pi))
 		return np.sum(self.weights * components, axis=-1)
@@ -180,7 +180,7 @@ class GaussianMixture:
 			raise ValueError("La courbe doit contenir au moins deux points.")
 		if len(limits) != 2 or not np.all(np.isfinite(limits)) or limits[0] >= limits[1]:
 			raise ValueError("Les limites de la courbe doivent être finies et strictement croissantes.")
-		x_grid = np.linspace(limits[0], limits[1], n_point, dtype=np.float64)
+		x_grid = np.linspace(limits[0], limits[1], n_point, dtype=float)
 		return x_grid, self.probability_density(x_grid)
 
 	##################################################
@@ -210,10 +210,10 @@ class GaussianMixture:
 		:return: Centres initiaux, sous forme d'un tableau de taille ``n_component``.
 		"""
 		if init_id == 0:
-			quantiles = (np.arange(n_component, dtype=np.float64) + 0.5) / n_component
-			return np.asarray(np.quantile(data, quantiles), dtype=np.float64)
+			quantiles = (np.arange(n_component, dtype=float) + 0.5) / n_component
+			return np.asarray(np.quantile(data, quantiles), dtype=float)
 
-		centers = np.empty(n_component, dtype=np.float64)
+		centers = np.empty(n_component, dtype=float)
 		centers[0] = data[rng.integers(data.size)]
 		minimum_distances = (data - centers[0]) ** 2
 		for component_id in range(1, n_component):
@@ -274,11 +274,11 @@ class GaussianMixture:
 			centers = updated_centers
 
 		labels = np.argmin(np.abs(data[:, np.newaxis] - centers), axis=1)
-		counts = np.bincount(labels, minlength=centers.size).astype(np.float64)
-		weights = np.maximum(counts / data.size, np.finfo(np.float64).eps)
+		counts = np.bincount(labels, minlength=centers.size).astype(float)
+		weights = np.maximum(counts / data.size, np.finfo(float).eps)
 		weights /= np.sum(weights)
 		means = centers.copy()
-		sigmas = np.full(centers.size, global_sigma, dtype=np.float64)
+		sigmas = np.full(centers.size, global_sigma, dtype=float)
 		for component_id in range(centers.size):
 			component = data[labels == component_id]
 			if component.size > 1: sigmas[component_id] = max(float(np.std(component)), sigma_min)

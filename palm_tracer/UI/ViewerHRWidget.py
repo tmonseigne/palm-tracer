@@ -78,9 +78,9 @@ class ViewerHRWidget(QWidget):
 		self.visualization: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
 
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
-						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=np.float32), name=self.LAYERS_NAME[1],
+						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[1],
 																	size=1, face_color="lime", visible=False),
-						self.LAYERS_NAME[2]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=np.float32), name=self.LAYERS_NAME[2],
+						self.LAYERS_NAME[2]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=float), name=self.LAYERS_NAME[2],
 																	blending="translucent", visible=False),
 						self.LAYERS_NAME[3]: self.viewer.add_shapes([], name=self.LAYERS_NAME[3], shape_type="polygon", edge_color="red",
 																	edge_width=0.5, face_color="transparent")}
@@ -211,7 +211,7 @@ class ViewerHRWidget(QWidget):
 	def _add_stack(self):
 		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
 		cast(FileList, self._pt.settings.batch["Files"]).add_file()
-		self._pt.load()  # .	Chargement des derniers résultats
+		self._pt.load()  # . Chargement des derniers résultats
 		self._actualize()  # Actualisation des statuts
 
 	##################################################
@@ -288,10 +288,32 @@ class ViewerHRWidget(QWidget):
 			self._layers[self.LAYERS_NAME[2]].data = plot_data
 			self._layers[self.LAYERS_NAME[2]].blending = "translucent"
 
-		self._layers[self.LAYERS_NAME[0]].data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
+		self._update_visualization_layer()
 		self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
 		self.viewer.reset_view()  # Recentrer et ajuster la vue
+
+
+	##################################################
+	def _update_visualization_layer(self):
+		"""Actualise l'image et recrée le calque lors des transitions scalaire/RGB pour conserver les axes corrects."""
+		name = self.LAYERS_NAME[0]
+		layer = self._layers[name]
+		data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
+		rgb = data.ndim == 4 and data.shape[-1] == 3
+		if layer.rgb == rgb:
+			layer.data = data
+			layer.editable, layer.locked = False, True
+			return
+
+		# Napari configure aussi le visuel à la création : changer uniquement les données ne suffit pas.
+		index = self.viewer.layers.index(layer)
+		opacity, blending, visible = layer.opacity, layer.blending, layer.visible
+		self.viewer.layers.remove(layer)
+		layer = self.viewer.add_image(data, name=name, rgb=rgb, opacity=opacity, blending=blending, visible=visible)
+		self.viewer.layers.move(self.viewer.layers.index(layer), index)
+		layer.editable, layer.locked = False, True
+		self._layers[name] = layer
 
 
 ##################################################

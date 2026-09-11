@@ -145,40 +145,52 @@ msgid "Dictionnaire contenu dans le JSON."
 msgstr "Dictionary contained in the JSON."
 
 #: of palm_tracer.Tools.FileIO.save_tif:1
-msgid "Sauvegarde un tableau 3D (ou 2D converti en 3D) dans un fichier TIF multi-frame avec tifffile."
-msgstr "Saves a 3D image (or a 2D image converted to 3D) to a multi-frame TIF file using tifffile."
+msgid "Sauvegarde une image ou une séquence scalaire ou RGB dans un fichier TIFF."
+msgstr "Saves a scalar or RGB image or sequence to a TIFF file."
 
 #: of palm_tracer.Tools.FileIO.save_tif:3
-msgid "Tableau contenant l'image ou les frames. - Si 2D (hauteur x largeur), convertit en pile 3D avec une seule frame. - Si 3D (frames x hauteur x largeur), sauvegarde les frames en multi-frame."
-msgstr "Array containing the image or frames. - If 2D (height x width), converts it to a 3D stack with a single frame. - If 3D (frames x height x width), saves the frames as a multi-frame file."
+msgid "Les données scalaires sont saturées dans [0, 65535] puis converties en uint16. Les données RGB sont saturées dans [0, 255] puis converties en uint8, sans normalisation."
+msgstr "Scalar data is clipped to [0, 65535] and converted to uint16. RGB data is clipped to [0, 255] and converted to uint8, without normalization."
 
-#: of palm_tracer.Tools.FileIO.save_png:4 palm_tracer.Tools.FileIO.save_tif:6
-msgid "Nom du fichier TIF de sortie."
-msgstr "Name of the output TIF file."
+#: of palm_tracer.Tools.FileIO.save_tif:6
+msgid "Image 2D ``(hauteur, largeur)``, volume scalaire 3D ``(plans, hauteur, largeur)`` ou séquence RGB 4D ``(plans, hauteur, largeur, 3)``. Une image 2D est convertie en volume à un plan."
+msgstr "2D image ``(height, width)``, 3D scalar volume ``(frames, height, width)``, or 4D RGB sequence ``(frames, height, width, 3)``. A 2D image is converted to a single-frame volume."
+
+#: of palm_tracer.Tools.FileIO.save_tif:8
+msgid "Nom du fichier TIFF de sortie."
+msgstr "Name of the output TIFF file."
+
+#: ../../api/palm_tracer.Tools.FileIO.rst
+msgid "Lève"
+msgstr "Raises"
+
+#: of palm_tracer.Tools.FileIO.save_tif:9
+msgid "Si le tableau n'est ni 2D, ni 3D scalaire, ni 4D RGB à trois canaux."
+msgstr "If the array is neither 2D, 3D scalar, nor 4D RGB with three channels."
 
 #: of palm_tracer.Tools.FileIO.open_tif:1
-msgid "Ouvre un fichier TIF en tant que pile 3D (frames x hauteur x largeur). Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D."
-msgstr "Opens a TIF file as a 3D stack (frames x height x width). If the file contains a single 2D image, adds a dimension to make it a 3D stack."
+msgid "Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur). Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D."
+msgstr "Opens a TIFF file as a 3D stack (frames x height x width). If the file contains a single 2D image, adds an axis to make a 3D stack."
 
 #: of palm_tracer.Tools.FileIO.open_tif:4
-msgid "Chemin du fichier TIF à ouvrir."
-msgstr "Path to the TIF file to open."
+msgid "Chemin du fichier TIFF à ouvrir."
+msgstr "Path to the TIFF file to open."
 
 #: of palm_tracer.Tools.FileIO.open_tif:5
-msgid "Tableau 3D contenant les données TIF."
-msgstr "3D array containing the TIF data."
+msgid "Tableau 3D contenant les données TIFF."
+msgstr "3D array containing TIFF data."
 
 #: of palm_tracer.Tools.FileIO.open_tif:7
 msgid "Attention les données doivent rester telle quelle pour le transfert à la DLL. Aucun cast en float ne doit être fait."
 msgstr "Note: the data must remain unchanged for transfer to the DLL. No casting to float should be performed."
 
 #: of palm_tracer.Tools.FileIO.save_png:1
-msgid "Sauvegarde un tableau 2D dans un fichier PNG avec Pillow."
-msgstr "Saves a 2D array to a PNG file using Pillow."
+msgid "Sauvegarde une image en niveaux de gris ou RGB dans un fichier PNG avec Pillow."
+msgstr "Saves a grayscale or RGB image to a PNG file using Pillow."
 
 #: of palm_tracer.Tools.FileIO.save_png:3
-msgid "Tableau contenant l'image 2D."
-msgstr "Array containing the 2D image."
+msgid "Image en niveaux de gris ou RGB."
+msgstr "Grayscale or RGB image."
 
 #: of palm_tracer.Tools.FileIO.save_png:5
 msgid "Normalise l'image avant enregistrement."
@@ -211,3 +223,6 @@ msgstr "Name of the input MAT file."
 #: of palm_tracer.Tools.FileIO.open_calibration_mat:4
 msgid "Dictionnaire contenant les éléments utiles."
 msgstr "Dictionary containing useful elements."
+
+msgid "Nom du fichier PNG de sortie."
+msgstr "Name of the output PNG file."
