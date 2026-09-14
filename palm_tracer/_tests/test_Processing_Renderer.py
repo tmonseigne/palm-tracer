@@ -1,5 +1,6 @@
 """Teste la production des rendus haute résolution."""
 
+import pytest
 import tifffile
 from PIL import Image
 
@@ -7,6 +8,9 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Renderer
 
 
+# ==================================================
+# region Configuration
+# ==================================================
 ##################################################
 def test_set_size():
 	"""Vérifie le calcul de la taille d'une reconstruction."""
@@ -16,415 +20,13 @@ def test_set_size():
 	assert r._w == 1000 and r._h == 2000 and r._r == 10
 
 
-##################################################
-def test_finalize_rendering():
-	"""Vérifie la saturation et le repliement cyclique d'un rendu en uint16."""
-	img = np.array([[-1, 0, 1.9, 65535, 65536, 65537, 131073]], dtype=float)
-	mask = np.ones(img.shape, dtype=bool)
-	res = Renderer.finalize_rendering(img, mask)
-	ref = np.array([[0, 0, 1, 65535, 65535, 65535, 65535]], dtype=np.uint16)
-	np.testing.assert_array_equal(res, ref)
-
-	res = Renderer.finalize_rendering(img, mask, clip=False)
-	ref = np.array([[65535, 0, 1, 65535, 0, 1, 1]], dtype=np.uint16)
-	np.testing.assert_array_equal(res, ref)
-	assert res.dtype == np.uint16
-	np.testing.assert_array_equal(img, [[-1, 0, 1.9, 65535, 65536, 65537, 131073]])
-
-	mask = np.zeros(img.shape, dtype=bool)
-	res = Renderer.finalize_rendering(img, mask, bg_color=0)
-	np.testing.assert_array_equal(res, 0)
-
-
-##################################################
-def test_get_localization_colors():
-	# DataFrame vide
-	"""Vérifie la génération des couleurs des localisations."""
-	loc = pd.DataFrame(columns=["X", "Y", "Intensity"])
-	res = Renderer.add_colors_to_localizations(loc, "Intensity")
-	assert res.shape == (0, 3)
-
-	# No Column selected
-	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [10, 20]})
-	res = Renderer.add_colors_to_localizations(loc)
-	ref = np.array([[1, 3, 10, 1], [2, 4, 20, 1]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Selected columns
-	res = Renderer.add_colors_to_localizations(loc, "Intensity")
-	ref = np.array([[1, 3, 10, 10], [2, 4, 20, 20]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# With negatives values
-	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [-2, 3]})
-	res = Renderer.add_colors_to_localizations(loc, "Intensity")
-	ref = np.array([[1, 3, -2, 0], [2, 4, 3, 5]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# With normalization
-	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [2, 4]})
-	res = Renderer.add_colors_to_localizations(loc, "Intensity", max_value=100)
-	ref = np.array([[1, 3, 2, 50], [2, 4, 4, 100], ], dtype=float)
-	np.testing.assert_allclose(res, ref)
-
-	# With 0 in colors
-	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [0, 0]})
-	res = Renderer.add_colors_to_localizations(loc, "Intensity")
-	ref = np.array([[1, 3, 0, 1], [2, 4, 0, 1]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-
-##################################################
-def test_get_tracks_colors():
-	# DataFrame vide
-	"""Vérifie la génération des couleurs des trajectoires."""
-	trc = pd.DataFrame(columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
-	res = Renderer.add_colors_to_tracks(trc, "Track ID")
-	assert res.shape == (0, 5)
-
-	# No Column selected (and sorting)
-	trc = pd.DataFrame({"Track": [2, 1, 1], "Plane": [5, 6, 3], "X": [2, 0, 0], "Y": [2, 1, 0], "Integrated Intensity": [7, 6, 5]})
-	res = Renderer.add_colors_to_tracks(trc)
-	ref = np.array([[1, 3, 0, 0, 1], [1, 6, 0, 1, 1], [2, 5, 2, 2, 1]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Numéro de trajectoire
-	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [7, 3, 5]})
-	res = Renderer.add_colors_to_tracks(trc, "Track ID")
-	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 2]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Numéro de plan
-	res = Renderer.add_colors_to_tracks(trc, "Plane Number")
-	ref = np.array([[1, 5, 0, 0, 5], [1, 6, 0, 1, 6], [2, 3, 2, 2, 3]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Intensité de la trajectoire
-	res = Renderer.add_colors_to_tracks(trc, "Track Intensity")
-	ref = np.array([[1, 5, 0, 0, 10], [1, 6, 0, 1, 10], [2, 3, 2, 2, 5]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Longueur de la trajectoire
-	res = Renderer.add_colors_to_tracks(trc, "Track Length")
-	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 0]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Numéro de plan relatif
-	res = Renderer.add_colors_to_tracks(trc, "Relative Plane")
-	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 2], [2, 3, 2, 2, 1]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Durée totale de la trajectoire
-	res = Renderer.add_colors_to_tracks(trc, "Track Duration")
-	ref = np.array([[1, 5, 0, 0, 2], [1, 6, 0, 1, 2], [2, 3, 2, 2, 1]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Normalization
-	res = Renderer.add_colors_to_tracks(trc, "Track Intensity", max_value=100)
-	ref = np.array([[1, 5, 0, 0, 100], [1, 6, 0, 1, 100], [2, 3, 2, 2, 50]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-	# Negative and 0
-	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [-1, 0, -1]})
-	res = Renderer.add_colors_to_tracks(trc, "Track Intensity")
-	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 1]], dtype=float)
-	np.testing.assert_array_equal(res, ref)
-
-
-##################################################
-def test_init_rendering():
-	"""Vérifie les valeurs neutres et le masque initial des rendus."""
-	for color_mode, init_value in ((0, 0.0), (1, -np.inf), (2, np.inf)):
-		img, mask = Renderer.init_rendering(color_mode, 3, 4)
-
-		assert img.shape == (3, 4)
-		assert img.dtype == float
-		np.testing.assert_array_equal(img, init_value)
-
-		assert mask.shape == img.shape
-		assert mask.dtype == bool
-		assert not np.any(mask)
-
-	volume, mask = Renderer.init_rendering(0, 3, 4, 2)
-	assert volume.shape == (2, 3, 4)
-	assert mask.shape == volume.shape
-	assert not np.any(mask)
-
-
-##################################################
-def test_prepare_localizations():
-	"""Vérifie la préparation des localisations de rendu."""
-	r = Renderer()
-	r.set_size(5, 10, 2)
-
-	loc = np.array([[0, 1, 2, 3, 4, 5, 6],
-					[1, 2, 3, 4, 5, 6, 7],
-					[10, 10, 4, 5, 6, 7, 8],
-					[3, 4, 5, 6, 7, 8, 9],
-					[4, 5, 6, 7, 8, 9, 10]], dtype=float)
-
-	# L'intensité reste inchangée avec r² / Intensity = 4 / 4 = 1.
-	gaussian = {"Shape": 2, "Fixed Intensity": False, "Intensity": 4, }
-
-	# Localisations 2D non gaussiennes.
-	res = r.prepare_localizations(loc, False)
-	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
-					[2, 4, 3, 4, 5, 6, 7],
-					[6, 8, 5, 6, 7, 8, 9],
-					[8, 10, 6, 7, 8, 9, 10]], dtype=float)
-	np.testing.assert_array_almost_equal(res, ref)
-
-	# Localisations 2D gaussiennes.
-	res = r.prepare_localizations(loc, False, gaussian)
-	ref = np.array([[0, 2, 2, 6, 8, 0.08726646, 6],
-					[2, 4, 3, 8, 10, 0.10471976, 7],
-					[6, 8, 5, 12, 14, 0.13962634, 9],
-					[8, 10, 6, 14, 16, 0.15707963, 10]], dtype=float)
-	np.testing.assert_array_almost_equal(res, ref)
-
-	# Localisations 3D non gaussiennes.
-	res = r.prepare_localizations(loc, True)
-	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
-					[2, 4, 3, 4, 5, 6, 7],
-					[6, 8, 5, 6, 7, 8, 9],
-					[8, 10, 6, 7, 8, 9, 10]], dtype=float)
-	np.testing.assert_array_almost_equal(res, ref)
-
-	# Localisations 3D gaussiennes.
-	res = r.prepare_localizations(loc, True, gaussian)
-	ref = np.array([[0, 2, 2, 3, 8, 10, 0.10471976],
-					[2, 4, 3, 4, 10, 12, 0.12217305],
-					[6, 8, 5, 6, 14, 16, 0.15707963],
-					[8, 10, 6, 7, 16, 18, 0.17453293]], dtype=float)
-	np.testing.assert_array_almost_equal(res, ref)
-
-
-##################################################
-def test_prepare_tracks():
-	"""Vérifie les plans, les arrondis, le filtrage et les tranches de trajectoires sans copie."""
-	r = Renderer()
-	r.set_size(5, 10, 2)
-	tracks = np.array([[1, 3, 1.2, 2.6, 10.5], [1, 7, 4.0, 3.0, 20.5],
-					   [2, 1, -1.0, 2.0, 30.5], [2, 2, 3.0, 11.0, 40.5],
-					   [3, 4, 4.9, 1.0, 50.5], [3, 8, 0.0, 0.0, 60.5],
-					   [4, 2, 2.0, 1.0, 70.5], [4, 5, 3.0, 2.0, 80.5]], dtype=float)
-	original = tracks.copy()
-	track_ids, coords, colors, bounds = r.prepare_tracks(tracks)
-	np.testing.assert_array_equal(track_ids, [1, 3, 4])
-	np.testing.assert_array_equal(coords, [[3, 2, 5], [7, 8, 6], [8, 0, 0], [2, 4, 2], [5, 6, 4]])
-	np.testing.assert_array_equal(colors, [10.5, 20.5, 60.5, 70.5, 80.5])
-	np.testing.assert_array_equal(bounds, [0, 2, 3, 5])
-	np.testing.assert_array_equal(tracks, original)
-	assert track_ids.dtype == int
-	assert coords.dtype == int and bounds.dtype == int
-	assert np.issubdtype(colors.dtype, float)
-	assert np.shares_memory(coords[bounds[0]:bounds[1]], coords)
-	assert not np.shares_memory(coords, tracks)
-	assert not np.shares_memory(colors, tracks)
-
-
-##################################################
-def test_prepare_tracks_empty():
-	"""Vérifie les entrées vides, entièrement filtrées et de forme invalide."""
-	r = Renderer()
-	r.set_size(5, 10, 2)
-	for data in (np.empty((0, 5)), np.array([[1, 3, -1, 0, 10]])):
-		track_ids, coords, colors, bounds = r.prepare_tracks(data)
-		assert track_ids.shape == (0,) and coords.shape == (0, 3) and colors.shape == (0,)
-		np.testing.assert_array_equal(bounds, [0])
-
-
-##################################################
-def test_draw_line():
-	"""Vérifie le tracé d'une ligne et la mise à jour de son masque."""
-	# Point unique
-	img = np.zeros((5, 5), dtype=float)
-	mask = np.zeros(img.shape, dtype=bool)
-	Renderer.draw_line(img, mask, 2, 3, 2, 3, 123.0)
-
-	ref = np.zeros((5, 5), dtype=float)
-	ref[3, 2] = 123.0
-	np.testing.assert_array_equal(img, ref)
-
-	ref_mask = np.zeros((5, 5), dtype=bool)
-	ref_mask[3, 2] = True
-	np.testing.assert_array_equal(mask, ref_mask)
-
-	# Ligne horizontale
-	img.fill(0.0)
-	mask.fill(False)
-	Renderer.draw_line(img, mask, 1, 2, 4, 2, 10.0)
-
-	ref.fill(0.0)
-	ref[2, 1:5] = 10.0
-	np.testing.assert_array_equal(img, ref)
-
-	ref_mask.fill(False)
-	ref_mask[2, 1:5] = True
-	np.testing.assert_array_equal(mask, ref_mask)
-
-	# Ligne verticale
-	img.fill(0.0)
-	mask.fill(False)
-	Renderer.draw_line(img, mask, 3, 1, 3, 4, 20.0)
-
-	ref.fill(0.0)
-	ref[1:5, 3] = 20.0
-	np.testing.assert_array_equal(img, ref)
-
-	ref_mask.fill(False)
-	ref_mask[1:5, 3] = True
-	np.testing.assert_array_equal(mask, ref_mask)
-
-	# Ligne diagonale
-	img.fill(0.0)
-	mask.fill(False)
-	Renderer.draw_line(img, mask, 0, 0, 4, 4, 7.0)
-
-	ref.fill(0.0)
-	np.fill_diagonal(ref, 7.0)
-	np.testing.assert_array_equal(img, ref)
-	np.testing.assert_array_equal(mask, np.eye(5, dtype=bool))
-
-	# Ligne partiellement hors de l'image
-	img.fill(0.0)
-	mask.fill(False)
-	Renderer.draw_line(img, mask, -2, -2, 2, 2, 30.0)
-
-	ref.fill(0.0)
-	ref[0, 0] = ref[1, 1] = ref[2, 2] = 30.0
-	np.testing.assert_array_equal(img, ref)
-
-	ref_mask.fill(False)
-	ref_mask[0, 0] = ref_mask[1, 1] = ref_mask[2, 2] = True
-	np.testing.assert_array_equal(mask, ref_mask)
-
-	# Ligne entièrement hors de l'image
-	img.fill(0.0)
-	mask.fill(False)
-	Renderer.draw_line(img, mask, -4, -4, -1, -1, 50.0)
-
-	np.testing.assert_array_equal(img, 0.0)
-	assert not np.any(mask)
-
-	# Croisement de deux lignes pour les trois modes
-	for color_mode, init_value, crossing_value in ((0, 0.0, 30.0), (1, -np.inf, 20.0), (2, np.inf, 10.0)):
-		img = np.full((5, 5), init_value, dtype=float)
-		mask = np.zeros(img.shape, dtype=bool)
-
-		Renderer.draw_line(img, mask, 0, 2, 4, 2, 10.0, color_mode)
-		Renderer.draw_line(img, mask, 2, 0, 2, 4, 20.0, color_mode)
-
-		ref = np.full((5, 5), init_value, dtype=float)
-		ref[2, :] = 10.0
-		ref[:, 2] = 20.0
-		ref[2, 2] = crossing_value
-		np.testing.assert_array_equal(img, ref)
-
-		ref_mask = np.zeros((5, 5), dtype=bool)
-		ref_mask[2, :] = True
-		ref_mask[:, 2] = True
-		np.testing.assert_array_equal(mask, ref_mask)
-
-
-##################################################
-def test_draw_gaussian():
-	"""Vérifie le rendu gaussien 2D, son masque et ses modes."""
-	x, y, color, sx, sy, theta = 2, 2, 100.0, 1.0, 2.0, 0.0
-	ref = np.array([[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166],
-					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
-					[4.82661763, 7.02268722, 7.95774715, 7.02268722, 4.82661763],
-					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
-					[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166]])
-
-	# Gaussienne unique avec le mode maximum
-	img, mask = Renderer.init_rendering(1, 5, 5)
-	res = Renderer.draw_gaussian_2d(img, mask, x, y, color, sx, sy, theta, 1)
-	assert res is img
-	np.testing.assert_array_almost_equal(res, ref)
-	np.testing.assert_array_equal(mask, True)
-
-	# Angle de 90 degrés
-	img, mask = Renderer.init_rendering(1, 5, 5)
-	Renderer.draw_gaussian_2d(img, mask, x, y, color, sx, sy, np.pi / 2.0, 1)
-	np.testing.assert_array_almost_equal(img, ref.transpose())
-	np.testing.assert_array_equal(mask, True)
-
-	# Superposition pour les trois modes
-	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
-		img, mask = Renderer.init_rendering(color_mode, 5, 5)
-
-		Renderer.draw_gaussian_2d(img, mask, x, y, 100.0, sx, sy, theta, color_mode)
-		np.testing.assert_array_equal(mask, True)
-
-		Renderer.draw_gaussian_2d(img, mask, x, y, 50.0, sx, sy, theta, color_mode)
-		np.testing.assert_array_almost_equal(img, expected)
-		np.testing.assert_array_equal(mask, True)
-
-	# Gaussienne entièrement hors dimensions
-	img = np.zeros((5, 5), dtype=float)
-	mask = np.zeros(img.shape, dtype=bool)
-	Renderer.draw_gaussian_2d(img, mask, -10, -10, color, sx, sy, theta, 0)
-	np.testing.assert_array_equal(img, 0.0)
-	assert not np.any(mask)
-
-	# Sigma invalide
-	img.fill(0.0)
-	mask.fill(False)
-	Renderer.draw_gaussian_2d(img, mask, x, y, color, -1.0, sy, theta, 0)
-	np.testing.assert_array_equal(img, 0.0)
-	assert not np.any(mask)
-
-
-##################################################
-def test_draw_gaussian_3d():
-	"""Vérifie le rendu gaussien en 3D."""
-	x, y, z, color, s = 1.5, 1.5, 1.5, 100, 1
-	ref = np.array([[[0.21726327, 0.59058281, 0.59058281],
-					 [0.59058281, 1.60537052, 1.60537052],
-					 [0.59058281, 1.60537052, 1.60537052]],
-
-					[[0.59058281, 1.60537052, 1.60537052],
-					 [1.60537052, 4.36384952, 4.36384952],
-					 [1.60537052, 4.36384952, 4.36384952]],
-
-					[[0.59058281, 1.60537052, 1.60537052],
-					 [1.60537052, 4.36384952, 4.36384952],
-					 [1.60537052, 4.36384952, 4.36384952]]])
-
-	# Gaussienne unique avec le mode maximum
-	img, mask = Renderer.init_rendering(1, 3, 3, 3)
-	res = Renderer.draw_gaussian_3d(img, mask, x, y, z, color, s, 1)
-	assert res is img
-	np.testing.assert_array_almost_equal(res, ref)
-	np.testing.assert_array_equal(mask, True)
-
-	# Superposition pour les trois modes
-	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
-		img, mask = Renderer.init_rendering(color_mode, 3, 3, 3)
-
-		Renderer.draw_gaussian_3d(img, mask, x, y, z, 100.0, s, color_mode)
-		np.testing.assert_array_equal(mask, True)
-
-		Renderer.draw_gaussian_3d(img, mask, x, y, z, 50.0, s, color_mode)
-		np.testing.assert_array_almost_equal(img, expected)
-		np.testing.assert_array_equal(mask, True)
-
-	# Gaussienne entièrement hors dimensions
-	img = np.zeros((5, 5, 5), dtype=float)
-	mask = np.zeros(img.shape, dtype=bool)
-	Renderer.draw_gaussian_3d(img, mask, -10, -10, -10, color, s, 0)
-	np.testing.assert_array_equal(img, 0.0)
-	assert not np.any(mask)
-
-	# Sigma invalide
-	img.fill(0.0)
-	mask.fill(False)
-	Renderer.draw_gaussian_3d(img, mask, x, y, z, color, -1.0, 0)
-	np.testing.assert_array_equal(img, 0.0)
-	assert not np.any(mask)
-
-
+# ==================================================
+# endregion Configuration
+# ==================================================
+
+# ==================================================
+# region Rendus
+# ==================================================
 ##################################################
 def test_localizations():
 	"""Vérifie le rendu des localisations."""
@@ -877,43 +479,297 @@ def test_rotation_gaussian():
 
 
 ##################################################
-def test_renderer_atom():
-	"""Vérifie le rendu d'une localisation isolée."""
+def test_track_stack_timeline():
+	"""Vérifie le recadrage temporel, les observations manquantes, l'effacement et les têtes sur les plans observés."""
 	r = Renderer()
-	r.set_size(700, 500, 2)
-	loc = pd.read_csv(INPUT_DIR / "atoms_sphere_motion.csv").to_numpy()
-	loc[:, 0] += 3.5  # Les positions vont de -3 à +3
-	loc[:, 1] += 2.5  # Les positions vont de -2 à +2
-	loc[:, 0:3] *= 100  # Passsage en gros à des pixel
-	loc = np.hstack((loc, np.zeros((loc.shape[0], 3))))  # Ajout de SigmaX,SigmaY et Theta
-	loc[:, 4] = 1  # Sigma X
-	loc[:, 5] = 2  # Sigma Y
-	gaussian = {"Intensity": 1000, "Fixed Intensity": True, "Shape": 2, "Size": 1}
+	r.set_size(5, 3, 1)
+	track = np.array([[1, 10, 0, 1, 40], [1, 12, 2, 1, 100], [1, 16, 4, 1, 80]], dtype=float)
+	original = track.copy()
+	res = r.track_stack(track, bg_color=20, tail_length=1, fade_type=1)
+	ref = np.full((7, 3, 5), 20, dtype=np.uint16)
+	ref[0, 1, 0] = 40
+	ref[2, 1, :3] = 100
+	ref[3, 1, :3] = 60
+	ref[6, 1, 2:] = 80
+	np.testing.assert_array_equal(res, ref)
+	np.testing.assert_array_equal(track, original)
+	assert res.dtype == np.uint16
 
-	loc_2d = np.delete(loc, 2, axis=1)
-	res = r.localizations(loc_2d)
-	assert np.count_nonzero(res) != 0
-	FileIO.save_png(res, OUTPUT_DIR / "atoms_sphere_motion_loc.png")
 
-	res = r.localizations(loc_2d, gaussian=gaussian)
-	assert np.count_nonzero(res) != 0
-	FileIO.save_png(res, OUTPUT_DIR / "atoms_sphere_motion_loc_gaussian.png")
+##################################################
+@pytest.mark.parametrize("data", (np.empty((0, 5)), np.zeros(5), np.zeros((1, 4)), np.array([[1, 4, -5, -5, 20]])),
+						 ids=['empty', '1d-array', 'missing-column', 'out-of-bounds'])
+def test_track_stack_empty_and_scale(data):
+	"""Vérifie les sorties anticipées 3D et la mise à l'échelle des coordonnées."""
+	r = Renderer()
+	r.set_size(3, 2, 2)
+	res = r.track_stack(data, bg_color=17)
+	np.testing.assert_array_equal(res, np.full((1, 4, 6), 17, dtype=np.uint16))
 
-	res = r.z_stack(loc)
-	assert np.count_nonzero(res) != 0
-	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_Zstack.tif")
 
-	res = r.z_stack(loc, gaussian=gaussian)
-	assert np.count_nonzero(res) != 0
-	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_Zstack_gaussian.tif")
+##################################################
+def test_track_stack_scale():
+	"""Vérifie l’échelle des coordonnées et le bornage de la taille."""
+	r = Renderer()
+	r.set_size(3, 2, 2)
+	res = r.track_stack(np.array([[1, 50, 1, 1, 90]]), bg_color=17, tail_length=0)
+	ref = np.full((1, 4, 6), 17, dtype=np.uint16)
+	ref[0, 2, 2] = 90
+	np.testing.assert_array_equal(res, ref)
+	r.set_size(0, -1, 1)
+	np.testing.assert_array_equal(r.track_stack(np.empty((0, 5)), bg_color=17), [[[17]]])
 
-	res = r.rotation_3d(loc, z_step=1)
-	assert np.count_nonzero(res) != 0
-	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D.tif")
 
-	res = r.rotation_3d(loc, z_step=1, gaussian=gaussian)
-	assert np.count_nonzero(res) != 0
-	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D_gaussian.tif")
+##################################################
+@pytest.mark.parametrize("mode, expected", ((0, 30), (1, 20), (2, 10)), ids=['sum', 'maximum', 'minimum'])
+def test_track_stack_priority_and_modes(mode, expected):
+	"""Vérifie les croisements, les queues illimitées et la priorité globale des têtes."""
+	r = Renderer()
+	r.set_size(5, 5, 1)
+	tracks = np.array([[1, 10, 0, 2, 10], [1, 11, 4, 2, 10], [2, 10, 2, 0, 20], [2, 11, 2, 4, 20],
+					   [3, 12, 0, 0, 5]], dtype=float)
+	res = r.track_stack(tracks, color_mode=mode, bg_color=7)
+	assert res.shape == (3, 5, 5)
+	assert res[0, 2, 2] == 7
+	assert res[1, 2, 2] == expected and res[2, 2, 2] == expected
+
+
+##################################################
+def test_track_stack_head_priority():
+	"""Vérifie la priorité globale des têtes sur les queues."""
+	r = Renderer()
+	r.set_size(5, 5, 1)
+	# La tête de la première trajectoire doit rester visible même si la queue suivante la traverse.
+	tracks = np.array([[1, 11, 2, 2, 3], [2, 10, 0, 2, 100], [2, 11, 4, 2, 100]], dtype=float)
+	res = r.track_stack(tracks, color_mode=1, bg_color=7)
+	assert res[1, 2, 2] == 3 and res[1, 2, 1] == 100
+
+
+##################################################
+@pytest.mark.parametrize("upscale", (0, 1), ids=['nearest-neighbor', 'lanczos'])
+@pytest.mark.parametrize("mode", (1, 2), ids=['maximum', 'minimum'])
+def test_track_stack_raw(upscale, mode):
+	"""Vérifie la sélection des plans numérotés à partir de un, l'agrandissement et l'indépendance des têtes vis-à-vis de ``color_mode``."""
+	r = Renderer()
+	r.set_size(3, 2, 2)
+	raw = np.stack([np.full((2, 3), value, dtype=np.uint16) for value in (257, 2570, 5140, 7710, 65535)])
+	original = raw.copy()
+	tracks = np.array([[1, 2, 0, 0, 65535], [1, 4, 1, 0, 65535]], dtype=float)
+	ref = r.track_stack(tracks, raw=raw, tail_length=0, upscale_type=upscale)
+	assert ref.shape == (3, 4, 6, 3) and ref.dtype == np.uint8
+	np.testing.assert_array_equal(ref[:, 3, 5], [[0] * 3, [128] * 3, [255] * 3])
+	color = FileIO.grayscale_to_color(np.array([[65535]], dtype=np.uint16))[0, 0]
+	np.testing.assert_array_equal(ref[0, 0, 0], color)
+	np.testing.assert_array_equal(ref[2, 0, 2], color)
+	np.testing.assert_array_equal(r.track_stack(tracks, color_mode=mode, raw=raw, tail_length=0, upscale_type=upscale), ref)
+	np.testing.assert_array_equal(raw, original)
+	with np.testing.assert_raises(ValueError): r.track_stack(tracks, raw=raw[:2])
+
+
+##################################################
+def test_track_stack_raw_empty_and_2d():
+	"""Vérifie le retour scalaire sans observation et le rendu RGB sur fond 2D avec une observation."""
+	r = Renderer()
+	r.set_size(2, 2, 1)
+	res = r.track_stack(np.empty((0, 5)), raw=np.zeros((1, 2, 2)), bg_color=2570)
+	np.testing.assert_array_equal(res, np.full((1, 2, 2), 2570, dtype=np.uint16))
+	res = r.track_stack(np.array([[1, 1, 0, 0, 65535]]), raw=np.full((2, 2), 5140))
+	assert res.shape == (1, 2, 2, 3)
+	np.testing.assert_array_equal(res[0, 1, 1], [20, 20, 20])
+
+
+##################################################
+@pytest.mark.parametrize("mode, intensity", ((0, 40000), (1, 30000), (2, 10000)), ids=['sum', 'maximum', 'minimum'])
+def test_track_stack_raw_fade_and_overlap(mode, intensity):
+	"""Vérifie l'effacement sur fond brut et les couleurs aux croisements pour les trois modes de combinaison."""
+	r = Renderer()
+	r.set_size(5, 5, 1)
+	tracks = np.array([[1, 1, 0, 2, 30000], [1, 2, 4, 2, 30000], [2, 1, 2, 0, 10000], [2, 2, 2, 4, 10000], [3, 3, 0, 0, 1]], dtype=float)
+	raw = np.full((3, 5, 5), 5140, dtype=np.uint16)
+	color = FileIO.grayscale_to_color(np.array([[intensity]], dtype=np.uint16))[0, 0]
+	res = r.track_stack(tracks, raw=raw, color_mode=mode, tail_length=1, fade_type=1)
+	np.testing.assert_array_equal(res[1, 2, 2], color)
+	np.testing.assert_array_equal(res[2, 2, 2], np.rint(10 + 0.5 * color))
+	np.testing.assert_array_equal(res[:, 4, 4], [[20] * 3] * 3)
+
+
+# ==================================================
+# endregion Rendus
+# ==================================================
+
+# ==================================================
+# region Manipulation du résultat
+# ==================================================
+##################################################
+@pytest.mark.parametrize("color_mode, init_value", ((0, 0.0), (1, -np.inf), (2, np.inf)), ids=['sum', 'maximum', 'minimum'])
+def test_init_rendering(color_mode, init_value):
+	"""Vérifie les valeurs neutres et le masque initial des rendus."""
+	img, mask = Renderer.init_rendering(color_mode, 3, 4)
+
+	assert img.shape == (3, 4)
+	assert img.dtype == float
+	np.testing.assert_array_equal(img, init_value)
+
+	assert mask.shape == img.shape
+	assert mask.dtype == bool
+	assert not np.any(mask)
+
+
+##################################################
+def test_init_rendering_volume():
+	"""Vérifie les dimensions et le masque initial d’un volume."""
+	volume, mask = Renderer.init_rendering(0, 3, 4, 2)
+	assert volume.shape == (2, 3, 4)
+	assert mask.shape == volume.shape
+	assert not np.any(mask)
+
+
+##################################################
+def test_finalize_rendering():
+	"""Vérifie la saturation et le repliement cyclique d'un rendu en uint16."""
+	img = np.array([[-1, 0, 1.9, 65535, 65536, 65537, 131073]], dtype=float)
+	mask = np.ones(img.shape, dtype=bool)
+	res = Renderer.finalize_rendering(img, mask)
+	ref = np.array([[0, 0, 1, 65535, 65535, 65535, 65535]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+
+	res = Renderer.finalize_rendering(img, mask, clip=False)
+	ref = np.array([[65535, 0, 1, 65535, 0, 1, 1]], dtype=np.uint16)
+	np.testing.assert_array_equal(res, ref)
+	assert res.dtype == np.uint16
+	np.testing.assert_array_equal(img, [[-1, 0, 1.9, 65535, 65536, 65537, 131073]])
+
+	mask = np.zeros(img.shape, dtype=bool)
+	res = Renderer.finalize_rendering(img, mask, bg_color=0)
+	np.testing.assert_array_equal(res, 0)
+
+
+##################################################
+def test_finalize_track_stack():
+	"""Vérifie le mélange unique avec le fond, la saturation après mélange et la troncature."""
+	img = np.array([[[100, 100, 100, 1.9, -100, 70000, 70000]]], dtype=float)
+	alpha = np.array([[[0, 0.25, 1, 1, 1, 1, 0.5]]], dtype=float)
+	original_alpha = alpha.copy()
+	res = Renderer.finalize_track_stack(img, alpha, bg_color=20)
+	np.testing.assert_array_equal(res, [[[20, 40, 100, 1, 0, 65535, 35010]]])
+	np.testing.assert_array_equal(img, [[[20, 40, 100, 1.9, 0, 65535, 35010]]])
+	np.testing.assert_array_equal(alpha, original_alpha)
+	assert res.dtype == np.uint16 and res.shape == img.shape
+	assert not np.shares_memory(res, img)
+
+
+##################################################
+@pytest.mark.parametrize("initial", (0, -np.inf, np.inf), ids=['zero-background', 'negative-infinite-background', 'positive-infinite-background'])
+@pytest.mark.parametrize("background, expected", ((0, 0), (42, 42), (-10, 0), (70000, 65535)), ids=['black', 'gray', 'lower-clipping', 'upper-clipping'])
+def test_finalize_track_stack_empty_background(initial, background, expected):
+	"""Vérifie les fonds sans contribution et l'absence de calcul invalide avec les infinis d'initialisation."""
+	img = np.full((2, 3, 4), initial, dtype=float)
+	alpha = np.zeros_like(img)
+	with np.errstate(all='raise'):
+		res = Renderer.finalize_track_stack(img, alpha, background)
+	np.testing.assert_array_equal(res, np.full(img.shape, expected, dtype=np.uint16))
+	np.testing.assert_array_equal(alpha, 0)
+
+
+##################################################
+@pytest.mark.parametrize("shape", ((0, 3, 4), (2, 0, 4), (2, 3, 0)), ids=['no-planes', 'no-rows', 'no-columns'])
+def test_finalize_track_stack_empty_dimensions(shape):
+	"""Vérifie les volumes dont une dimension est nulle."""
+	res = Renderer.finalize_track_stack(np.empty(shape), np.empty(shape))
+	assert res.shape == shape and res.dtype == np.uint16
+
+
+##################################################
+def test_finalize_track_stack_strided():
+	"""Vérifie la finalisation d'une vue non contiguë sans modifier les pixels voisins ni l'alpha."""
+	base = np.full((2, 3, 8), 100.0)
+	view = base[:, :, ::2]
+	alpha = np.full(view.shape, 0.5)
+	res = Renderer.finalize_track_stack(view, alpha, 20)
+	np.testing.assert_array_equal(res, np.full(view.shape, 60, dtype=np.uint16))
+	np.testing.assert_array_equal(base[:, :, ::2], 60)
+	np.testing.assert_array_equal(base[:, :, 1::2], 100)
+	np.testing.assert_array_equal(alpha, 0.5)
+
+
+##################################################
+@pytest.mark.parametrize("mode, initial", ((0, 0), (1, -np.inf), (2, np.inf)), ids=['sum', 'maximum', 'minimum'])
+def test_finalize_track_stack_drawing(mode, initial):
+	"""Vérifie le fade d'une queue sur fond non nul et la tête opaque sur son seul plan, pour les trois modes."""
+	img = np.full((5, 3, 5), initial, dtype=float)
+	alpha = np.zeros_like(img)
+	track = np.array([[0, 1, 1], [1, 3, 1]])
+	colors = np.array([40, 100])
+	Renderer.draw_track(img, alpha, track, colors, tail_length=1, fade_type=1, color_mode=mode)
+	Renderer.draw_track_heads(img, alpha, track, colors)
+	with np.errstate(all='raise'):
+		res = Renderer.finalize_track_stack(img, alpha, 20)
+	ref = np.full(img.shape, 20, dtype=np.uint16)
+	ref[0, 1, 1] = 40
+	ref[1, 1, 1:4] = 100
+	ref[2, 1, 1:4] = 60
+	np.testing.assert_array_equal(res, ref)
+
+
+##################################################
+def test_finalize_track_stack_remainder():
+	"""Vérifie le modulo après mélange, les valeurs négatives, les tours multiples et la troncature."""
+	img = np.array([[[-1, -1.5, 65536, 65537, 131073, 70000, -np.inf, np.inf]]], dtype=float)
+	alpha = np.array([[[1, 1, 1, 1, 1, 0.5, 0, 0]]], dtype=float)
+	original_alpha = alpha.copy()
+	with np.errstate(all='raise'):
+		res = Renderer.finalize_track_stack(img, alpha, bg_color=20, clip=False)
+	np.testing.assert_array_equal(res, [[[65535, 65534, 0, 1, 1, 35010, 20, 20]]])
+	np.testing.assert_array_equal(img, [[[65535, 65534.5, 0, 1, 1, 35010, 20, 20]]])
+	np.testing.assert_array_equal(alpha, original_alpha)
+	assert res.dtype == np.uint16
+
+
+##################################################
+@pytest.mark.parametrize("background, expected", ((-1, 65535), (65536, 0), (131073, 1)), ids=['negative-background', 'one-wrap', 'two-wraps'])
+def test_finalize_track_stack_background_remainder(background, expected):
+	"""Vérifie le repliement du fond lorsque l’opacité est nulle."""
+	# Le fond est également replié lorsque l'alpha est nul.
+	res = Renderer.finalize_track_stack(np.full((1, 1, 1), np.inf), np.zeros((1, 1, 1)), background, clip=False)
+	np.testing.assert_array_equal(res, [[[expected]]])
+
+
+##################################################
+@pytest.mark.parametrize("cmap", ("viridis", "magma"), ids=['viridis', 'magma'])
+def test_finalize_track_stack_rgb(cmap):
+	"""Vérifie la colormap, le gris, les alphas nul/partiel/opaque et la conservation des entrées."""
+	img = np.array([[[np.inf, 65535, 65535, 0]]])
+	alpha = np.array([[[0, 0.5, 1, 1]]])
+	raw = np.full(img.shape, 2570.0)
+	with np.errstate(all='raise'):
+		res = Renderer.finalize_track_stack_rgb(img, alpha, raw, cmap)
+	color = FileIO.grayscale_to_color(np.array([[65535]], dtype=np.uint16), cmap)[0, 0]
+	np.testing.assert_array_equal(res[0, 0, 0], [10, 10, 10])
+	np.testing.assert_array_equal(res[0, 0, 1], np.rint(5 + 0.5 * color))
+	np.testing.assert_array_equal(res[0, 0, 2], color)
+	np.testing.assert_array_equal(res[0, 0, 3], [0, 0, 0])
+	assert res.dtype == np.uint8 and res.shape == (1, 1, 4, 3)
+	np.testing.assert_array_equal(img, [[[np.inf, 65535, 65535, 0]]])
+	np.testing.assert_array_equal(alpha, [[[0, 0.5, 1, 1]]])
+	np.testing.assert_array_equal(raw, 2570)
+	with np.testing.assert_raises(ValueError): Renderer.finalize_track_stack_rgb(img, alpha, raw[:, :, :2])
+
+
+##################################################
+@pytest.mark.parametrize("value, expected_value", ((0, 0), (25700, 100)), ids=['black', 'gray'])
+def test_finalize_track_stack_rgb_global_contrast(value, expected_value):
+	"""Étire un brut peu lumineux avec la même échelle sur tous les plans, sans modifier les entrées."""
+	raw = np.array([[[300, 500, 700]], [[500, 700, 1100]]], dtype=np.uint16)
+	original = raw.copy()
+	img = np.zeros(raw.shape)
+	alpha = np.zeros(raw.shape)
+	res = Renderer.finalize_track_stack_rgb(img, alpha, raw)
+	expected = np.array([[[0, 64, 128]], [[64, 128, 255]]], dtype=np.uint8)
+	np.testing.assert_array_equal(res, np.repeat(expected[..., None], 3, axis=-1))
+	np.testing.assert_array_equal(raw, original)
+	assert res[0, 0, 1, 0] == res[1, 0, 0, 0]
+	res = Renderer.finalize_track_stack_rgb(img, alpha, np.full(raw.shape, value, dtype=np.uint16))
+	np.testing.assert_array_equal(res, expected_value)
 
 
 ##################################################
@@ -952,155 +808,253 @@ def test_upscale_raw_lanczos():
 
 
 ##################################################
-def test_upscale_raw_edge_cases():
+@pytest.mark.parametrize("mode", (0, 1), ids=['nearest-neighbor', 'lanczos'])
+def test_upscale_raw_edge_cases(mode):
 	"""Vérifie le ratio un, les volumes vides, les dimensions incompatibles et les paramètres invalides."""
 	r = Renderer()
-	for mode in (0, 1):
-		r.set_size(3, 2, 1)
-		raw = np.arange(6, dtype=float).reshape(1, 2, 3) + 0.123456789
-		res = r._upscale_raw(raw, mode)
-		np.testing.assert_array_equal(res, raw)
-		assert not np.shares_memory(res, raw)
-		r.set_size(3, 2, 2)
-		assert r._upscale_raw(np.empty((0, 2, 3)), mode).shape == (0, 4, 6)
-		res = r._upscale_raw(np.ones((2, 1, 3)), mode)
-		assert res.shape == (2, 4, 6)
-		np.testing.assert_array_equal(res, 0)
+	r.set_size(3, 2, 1)
+	raw = np.arange(6, dtype=float).reshape(1, 2, 3) + 0.123456789
+	res = r._upscale_raw(raw, mode)
+	np.testing.assert_array_equal(res, raw)
+	assert not np.shares_memory(res, raw)
+	r.set_size(3, 2, 2)
+	assert r._upscale_raw(np.empty((0, 2, 3)), mode).shape == (0, 4, 6)
+	res = r._upscale_raw(np.ones((2, 1, 3)), mode)
+	assert res.shape == (2, 4, 6)
+	np.testing.assert_array_equal(res, 0)
 
 
 ##################################################
-def test_upscale_raw_2d():
+@pytest.mark.parametrize("ratio", (1, 2), ids=['ratio-1', 'ratio-2'])
+@pytest.mark.parametrize("mode", (0, 1), ids=['nearest-neighbor', 'lanczos'])
+def test_upscale_raw_2d(ratio, mode):
 	"""Vérifie qu'une image 2D produit un volume à un plan dans les deux modes."""
 	r = Renderer()
 	raw = np.array([[0, 1000, 2000], [3000, 4000, 5000]], dtype=np.uint16)
 	original = raw.copy()
-	for ratio in (1, 2):
-		r.set_size(3, 2, ratio)
-		for mode in (0, 1):
-			res = r._upscale_raw(raw, mode)
-			assert res.shape == (1, 2 * ratio, 3 * ratio)
-			assert res.dtype == float
-			np.testing.assert_array_equal(res, r._upscale_raw(raw[None, :, :], mode))
-			assert not np.shares_memory(res, raw)
-			np.testing.assert_array_equal(raw, original)
+	r.set_size(3, 2, ratio)
+	res = r._upscale_raw(raw, mode)
+	assert res.shape == (1, 2 * ratio, 3 * ratio)
+	assert res.dtype == float
+	np.testing.assert_array_equal(res, r._upscale_raw(raw[None, :, :], mode))
+	assert not np.shares_memory(res, raw)
+	np.testing.assert_array_equal(raw, original)
+
+
+# ==================================================
+# endregion Manipulation du résultat
+# ==================================================
+
+# ==================================================
+# region Préparation des données
+# ==================================================
+##################################################
+def test_get_localization_colors():
+	# DataFrame vide
+	"""Vérifie la génération des couleurs des localisations."""
+	loc = pd.DataFrame(columns=["X", "Y", "Intensity"])
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
+	assert res.shape == (0, 3)
+
+	# No Column selected
+	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [10, 20]})
+	res = Renderer.add_colors_to_localizations(loc)
+	ref = np.array([[1, 3, 10, 1], [2, 4, 20, 1]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
+
+	# Selected columns
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
+	ref = np.array([[1, 3, 10, 10], [2, 4, 20, 20]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
+
+	# With negatives values
+	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [-2, 3]})
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
+	ref = np.array([[1, 3, -2, 0], [2, 4, 3, 5]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
+
+	# With normalization
+	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [2, 4]})
+	res = Renderer.add_colors_to_localizations(loc, "Intensity", max_value=100)
+	ref = np.array([[1, 3, 2, 50], [2, 4, 4, 100], ], dtype=float)
+	np.testing.assert_allclose(res, ref)
+
+	# With 0 in colors
+	loc = pd.DataFrame({"X": [1, 2], "Y": [3, 4], "Intensity": [0, 0]})
+	res = Renderer.add_colors_to_localizations(loc, "Intensity")
+	ref = np.array([[1, 3, 0, 1], [2, 4, 0, 1]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
 
 
 ##################################################
-def test_draw_line_width():
-	"""Vérifie les largeurs paires et impaires, les points, les bords et l'absence de cumul interne."""
-	for width, first, last in ((1, 3, 4), (2, 3, 5), (3, 2, 5), (4, 2, 6)):
-		for mode in (0, 1, 2):
-			img, mask = Renderer.init_rendering(mode, 8, 8)
-			Renderer.draw_line(img, mask, 2, 3, 5, 3, 10, mode, width=width)
-			ref_mask = np.zeros((8, 8), dtype=bool)
-			ref_mask[first:last, 2 - (width - 1) // 2:6 + width // 2] = True
-			np.testing.assert_array_equal(mask, ref_mask)
-			np.testing.assert_array_equal(img[mask], 10)
-		# Un point isolé produit une empreinte carrée.
-		img, mask = Renderer.init_rendering(0, 8, 8)
-		Renderer.draw_line(img, mask, 3, 3, 3, 3, 10, width=width)
-		ref = np.zeros((8, 8))
-		ref[first:last, first:last] = 10
-		np.testing.assert_array_equal(img, ref)
+def test_get_tracks_colors():
+	# DataFrame vide
+	"""Vérifie la génération des couleurs des trajectoires."""
+	trc = pd.DataFrame(columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	res = Renderer.add_colors_to_tracks(trc, "Track ID")
+	assert res.shape == (0, 5)
 
-	# Une ligne dont le centre est hors de l'image peut encore toucher le bord.
-	img, mask = Renderer.init_rendering(0, 5, 5)
-	Renderer.draw_line(img, mask, -1, 0, -1, 4, 10, width=3)
-	ref = np.zeros((5, 5))
-	ref[:, 0] = 10
-	np.testing.assert_array_equal(img, ref)
-	np.testing.assert_array_equal(mask, ref > 0)
+	# No Column selected (and sorting)
+	trc = pd.DataFrame({"Track": [2, 1, 1], "Plane": [5, 6, 3], "X": [2, 0, 0], "Y": [2, 1, 0], "Integrated Intensity": [7, 6, 5]})
+	res = Renderer.add_colors_to_tracks(trc)
+	ref = np.array([[1, 3, 0, 0, 1], [1, 6, 0, 1, 1], [2, 5, 2, 2, 1]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
 
+	# Numéro de trajectoire
+	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [7, 3, 5]})
+	res = Renderer.add_colors_to_tracks(trc, "Track ID")
+	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 2]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
 
-##################################################
-def test_draw_line_width_orientations():
-	"""Vérifie les diagonales, les pentes variées et le sens du tracé avec une référence par empreintes."""
-	for x1, y1 in ((7, 7), (7, 4), (4, 7), (1, 7), (7, 1), (3, 7), (7, 3)):
-		for reverse in (False, True):
-			x0, y0, xe, ye = (x1, y1, 3, 3) if reverse else (3, 3, x1, y1)
-			thin, thin_mask = Renderer.init_rendering(0, 10, 10)
-			Renderer.draw_line(thin, thin_mask, x0, y0, xe, ye, 1)
-			for width in (2, 3, 4):
-				ref_mask = np.zeros((10, 10), dtype=bool)
-				for y, x in np.argwhere(thin_mask):
-					ref_mask[max(0, y - (width - 1) // 2):min(10, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(10, x + width // 2 + 1)] = True
-				img = np.full((10, 10), 20.0)
-				mask = np.zeros((10, 10), dtype=bool)
-				Renderer.draw_line(img, mask, x0, y0, xe, ye, 100, 1, width, 0.25)
-				ref = np.full((10, 10), 20.0)
-				ref[ref_mask] = 40.0
-				np.testing.assert_array_equal(img, ref)
-				np.testing.assert_array_equal(mask, ref_mask)
+	# Numéro de plan
+	res = Renderer.add_colors_to_tracks(trc, "Plane Number")
+	ref = np.array([[1, 5, 0, 0, 5], [1, 6, 0, 1, 6], [2, 3, 2, 2, 3]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
 
+	# Intensité de la trajectoire
+	res = Renderer.add_colors_to_tracks(trc, "Track Intensity")
+	ref = np.array([[1, 5, 0, 0, 10], [1, 6, 0, 1, 10], [2, 3, 2, 2, 5]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
 
-##################################################
-def test_draw_line_alpha():
-	"""Vérifie la transparence sur fond non nul pour les trois modes et les fonds d'initialisation infinis."""
-	for width in (1, 3):
-		for mode, color, expected in ((0, 100, 45), (1, 100, 40), (1, 10, 20), (2, 100, 20), (2, 4, 16)):
-			img = np.full((7, 7), 20.0)
-			mask = np.zeros((7, 7), dtype=bool)
-			Renderer.draw_line(img, mask, 1, 3, 5, 3, color, mode, width, 0.25)
-			assert mask.any()
-			np.testing.assert_array_equal(img[mask], expected)
-			np.testing.assert_array_equal(img[~mask], 20)
-		for mode in (0, 1, 2):
-			img, mask = Renderer.init_rendering(mode, 7, 7)
-			original = img.copy()
-			Renderer.draw_line(img, mask, 1, 3, 5, 3, 100, mode, width, 0)
-			np.testing.assert_array_equal(img, original)
-			assert not mask.any()
-			Renderer.draw_line(img, mask, 1, 3, 5, 3, 100, mode, width, 0.25)
-			np.testing.assert_array_equal(img[mask], 25)
-			np.testing.assert_array_equal(img[~mask], original[~mask])
+	# Longueur de la trajectoire
+	res = Renderer.add_colors_to_tracks(trc, "Track Length")
+	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 0]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
+
+	# Numéro de plan relatif
+	res = Renderer.add_colors_to_tracks(trc, "Relative Plane")
+	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 2], [2, 3, 2, 2, 1]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
+
+	# Durée totale de la trajectoire
+	res = Renderer.add_colors_to_tracks(trc, "Track Duration")
+	ref = np.array([[1, 5, 0, 0, 2], [1, 6, 0, 1, 2], [2, 3, 2, 2, 1]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
+
+	# Normalization
+	res = Renderer.add_colors_to_tracks(trc, "Track Intensity", max_value=100)
+	ref = np.array([[1, 5, 0, 0, 100], [1, 6, 0, 1, 100], [2, 3, 2, 2, 50]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
+
+	# Negative and 0
+	trc = pd.DataFrame({"Track": [1, 1, 2], "Plane": [5, 6, 3], "X": [0, 0, 2], "Y": [0, 1, 2], "Integrated Intensity": [-1, 0, -1]})
+	res = Renderer.add_colors_to_tracks(trc, "Track Intensity")
+	ref = np.array([[1, 5, 0, 0, 1], [1, 6, 0, 1, 1], [2, 3, 2, 2, 1]], dtype=float)
+	np.testing.assert_array_equal(res, ref)
 
 
 ##################################################
-def test_draw_line_clamped_parameters():
-	"""Vérifie le bornage de la largeur et de l'opacité, sans exception ni contamination par NaN."""
-	for width in (-5, 0, 1):
-		for alpha, expected_alpha in ((-0.1, 0), (0.25, 0.25), (1.1, 1)):
-			img, mask = Renderer.init_rendering(0, 5, 5)
-			Renderer.draw_line(img, mask, 0, 0, 4, 4, 100, width=width, alpha=alpha)
-			ref = np.eye(5) * (100 * expected_alpha)
-			np.testing.assert_array_equal(img, ref)
-			np.testing.assert_array_equal(mask, ref > 0)
+def test_prepare_localizations():
+	"""Vérifie la préparation des localisations de rendu."""
+	r = Renderer()
+	r.set_size(5, 10, 2)
+
+	loc = np.array([[0, 1, 2, 3, 4, 5, 6],
+					[1, 2, 3, 4, 5, 6, 7],
+					[10, 10, 4, 5, 6, 7, 8],
+					[3, 4, 5, 6, 7, 8, 9],
+					[4, 5, 6, 7, 8, 9, 10]], dtype=float)
+
+	# L'intensité reste inchangée avec r² / Intensity = 4 / 4 = 1.
+	gaussian = {"Shape": 2, "Fixed Intensity": False, "Intensity": 4, }
+
+	# Localisations 2D non gaussiennes.
+	res = r.prepare_localizations(loc, False)
+	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
+					[2, 4, 3, 4, 5, 6, 7],
+					[6, 8, 5, 6, 7, 8, 9],
+					[8, 10, 6, 7, 8, 9, 10]], dtype=float)
+	np.testing.assert_array_almost_equal(res, ref)
+
+	# Localisations 2D gaussiennes.
+	res = r.prepare_localizations(loc, False, gaussian)
+	ref = np.array([[0, 2, 2, 6, 8, 0.08726646, 6],
+					[2, 4, 3, 8, 10, 0.10471976, 7],
+					[6, 8, 5, 12, 14, 0.13962634, 9],
+					[8, 10, 6, 14, 16, 0.15707963, 10]], dtype=float)
+	np.testing.assert_array_almost_equal(res, ref)
+
+	# Localisations 3D non gaussiennes.
+	res = r.prepare_localizations(loc, True)
+	ref = np.array([[0, 2, 2, 3, 4, 5, 6],
+					[2, 4, 3, 4, 5, 6, 7],
+					[6, 8, 5, 6, 7, 8, 9],
+					[8, 10, 6, 7, 8, 9, 10]], dtype=float)
+	np.testing.assert_array_almost_equal(res, ref)
+
+	# Localisations 3D gaussiennes.
+	res = r.prepare_localizations(loc, True, gaussian)
+	ref = np.array([[0, 2, 2, 3, 8, 10, 0.10471976],
+					[2, 4, 3, 4, 10, 12, 0.12217305],
+					[6, 8, 5, 6, 14, 16, 0.15707963],
+					[8, 10, 6, 7, 16, 18, 0.17453293]], dtype=float)
+	np.testing.assert_array_almost_equal(res, ref)
 
 
 ##################################################
-def test_draw_line_width_finalize():
-	"""Vérifie que la finalisation conserve toute l'épaisseur grâce au masque de contribution."""
-	for mode in (0, 1, 2):
-		for width in (2, 3, 4):
-			img, mask = Renderer.init_rendering(mode, 9, 9)
-			Renderer.draw_line(img, mask, 2, 4, 6, 4, 100, mode, width, 0.5)
-			res = Renderer.finalize_rendering(img, mask, bg_color=7)
-			ref = np.full((9, 9), 7, dtype=np.uint16)
-			ref[4 - (width - 1) // 2:5 + width // 2, 2 - (width - 1) // 2:7 + width // 2] = 50
-			np.testing.assert_array_equal(res, ref)
-			np.testing.assert_array_equal(mask, ref == 50)
+def test_prepare_tracks():
+	"""Vérifie les plans, les arrondis, le filtrage et les tranches de trajectoires sans copie."""
+	r = Renderer()
+	r.set_size(5, 10, 2)
+	tracks = np.array([[1, 3, 1.2, 2.6, 10.5], [1, 7, 4.0, 3.0, 20.5],
+					   [2, 1, -1.0, 2.0, 30.5], [2, 2, 3.0, 11.0, 40.5],
+					   [3, 4, 4.9, 1.0, 50.5], [3, 8, 0.0, 0.0, 60.5],
+					   [4, 2, 2.0, 1.0, 70.5], [4, 5, 3.0, 2.0, 80.5]], dtype=float)
+	original = tracks.copy()
+	track_ids, coords, colors, bounds = r.prepare_tracks(tracks)
+	np.testing.assert_array_equal(track_ids, [1, 3, 4])
+	np.testing.assert_array_equal(coords, [[3, 2, 5], [7, 8, 6], [8, 0, 0], [2, 4, 2], [5, 6, 4]])
+	np.testing.assert_array_equal(colors, [10.5, 20.5, 60.5, 70.5, 80.5])
+	np.testing.assert_array_equal(bounds, [0, 2, 3, 5])
+	np.testing.assert_array_equal(tracks, original)
+	assert track_ids.dtype == int
+	assert coords.dtype == int and bounds.dtype == int
+	assert np.issubdtype(colors.dtype, float)
+	assert np.shares_memory(coords[bounds[0]:bounds[1]], coords)
+	assert not np.shares_memory(coords, tracks)
+	assert not np.shares_memory(colors, tracks)
 
 
 ##################################################
-def test_line_spans():
-	"""Vérifie directement les bornes inclusives/exclusives des lignes fines, épaisses et des points."""
-	cases = [((1, 2, 4, 2, 1), 2, [1], [5]),
-			 ((3, 1, 3, 4, 1), 1, [3, 3, 3, 3], [4, 4, 4, 4]),
-			 ((0, 0, 4, 4, 1), 0, [0, 1, 2, 3, 4], [1, 2, 3, 4, 5]),
-			 ((4, 0, 0, 4, 1), 0, [4, 3, 2, 1, 0], [5, 4, 3, 2, 1]),
-			 ((2, 3, 5, 3, 3), 2, [1, 1, 1], [7, 7, 7]),
-			 ((2, 3, 5, 3, 2), 3, [2, 2], [7, 7]),
-			 ((3, 3, 3, 3, 3), 2, [2, 2, 2], [5, 5, 5]),
-			 ((3, 3, 3, 3, 4), 2, [2, 2, 2, 2], [6, 6, 6, 6]), ]
-	for args, expected_y, expected_left, expected_right in cases:
-		for reverse in (False, True):
-			x0, y0, x1, y1, width = args
-			if reverse: x0, y0, x1, y1 = x1, y1, x0, y0
-			y_min, left, right = Renderer._line_spans((8, 8), x0, y0, x1, y1, width)
-			assert y_min == expected_y
-			np.testing.assert_array_equal(left, expected_left)
-			np.testing.assert_array_equal(right, expected_right)
-			assert left.dtype == int and right.dtype == int
+@pytest.mark.parametrize("data", (np.empty((0, 5)), np.array([[1, 3, -1, 0, 10]])), ids=['empty-data', 'out-of-bounds'])
+def test_prepare_tracks_empty(data):
+	"""Vérifie les entrées vides, entièrement filtrées et de forme invalide."""
+	r = Renderer()
+	r.set_size(5, 10, 2)
+	track_ids, coords, colors, bounds = r.prepare_tracks(data)
+	assert track_ids.shape == (0,) and coords.shape == (0, 3) and colors.shape == (0,)
+	np.testing.assert_array_equal(bounds, [0])
+
+
+# ==================================================
+# endregion Préparation des données
+# ==================================================
+
+# ==================================================
+# region Dessin
+# ==================================================
+##################################################
+@pytest.mark.parametrize("args, expected_y, expected_left, expected_right",
+						 [((1, 2, 4, 2, 1), 2, [1], [5]),
+						  ((3, 1, 3, 4, 1), 1, [3, 3, 3, 3], [4, 4, 4, 4]),
+						  ((0, 0, 4, 4, 1), 0, [0, 1, 2, 3, 4], [1, 2, 3, 4, 5]),
+						  ((4, 0, 0, 4, 1), 0, [4, 3, 2, 1, 0], [5, 4, 3, 2, 1]),
+						  ((2, 3, 5, 3, 3), 2, [1, 1, 1], [7, 7, 7]),
+						  ((2, 3, 5, 3, 2), 3, [2, 2], [7, 7]),
+						  ((3, 3, 3, 3, 3), 2, [2, 2, 2], [5, 5, 5]),
+						  ((3, 3, 3, 3, 4), 2, [2, 2, 2, 2], [6, 6, 6, 6]), ],
+						 ids=["horizontal", "vertical", "descending-diagonal", "ascending-diagonal", "line-width-3", "line-width-2",
+							  "point-width-3", "point-width-4"])
+@pytest.mark.parametrize("reverse", [False, True], ids=["forward", "reverse"])
+def test_line_spans(args, expected_y, expected_left, expected_right, reverse):
+	"""Vérifie les bornes de chaque géométrie dans les deux sens du tracé."""
+	x0, y0, x1, y1, width = args
+	if reverse: x0, y0, x1, y1 = x1, y1, x0, y0
+	y_min, left, right = Renderer._line_spans((8, 8), x0, y0, x1, y1, width)
+	assert y_min == expected_y
+	np.testing.assert_array_equal(left, expected_left)
+	np.testing.assert_array_equal(right, expected_right)
+	assert left.dtype == int and right.dtype == int
 
 
 ##################################################
@@ -1133,23 +1087,234 @@ def test_line_spans_clipping():
 
 
 ##################################################
-def test_line_spans_orientations():
+@pytest.mark.parametrize("swap_axes", (False, True), ids=['original-axes', 'swapped-axes'])
+@pytest.mark.parametrize("sign_x, sign_y", ((1, 1), (1, -1), (-1, 1), (-1, -1)), ids=['right-down', 'right-up', 'left-down', 'left-up'])
+@pytest.mark.parametrize("width", (1, 2, 3, 4), ids=['width-1', 'width-2', 'width-3', 'width-4'])
+def test_line_spans_orientations(swap_axes, sign_x, sign_y, width):
 	"""Compare les empreintes à des points de référence explicites dans les huit octants."""
 	# Segment de référence (0, 0) → (4, 2), avec les décisions d'arrondi de Bresenham.
 	points = np.array([[0, 0], [1, 1], [2, 1], [3, 2], [4, 2]])
-	for swap_axes in (False, True):
-		for sign_x, sign_y in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
-			coords = points[:, ::-1] if swap_axes else points
-			coords = coords * [sign_x, sign_y] + [5, 5]
-			for width in (1, 2, 3, 4):
-				ref = np.zeros((11, 11), dtype=bool)
-				for x, y in coords:
-					ref[max(0, y - (width - 1) // 2):min(11, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(11, x + width // 2 + 1)] = True
-				y_min, left, right = Renderer._line_spans(ref.shape, *coords[0], *coords[-1], width)
-				res = np.zeros_like(ref)
-				for row, (start, end) in enumerate(zip(left, right)):
-					res[y_min + row, start:end] = True
-				np.testing.assert_array_equal(res, ref)
+	coords = points[:, ::-1] if swap_axes else points
+	coords = coords * [sign_x, sign_y] + [5, 5]
+	ref = np.zeros((11, 11), dtype=bool)
+	for x, y in coords:
+		ref[max(0, y - (width - 1) // 2):min(11, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(11, x + width // 2 + 1)] = True
+	y_min, left, right = Renderer._line_spans(ref.shape, *coords[0], *coords[-1], width)
+	res = np.zeros_like(ref)
+	for row, (start, end) in enumerate(zip(left, right)):
+		res[y_min + row, start:end] = True
+	np.testing.assert_array_equal(res, ref)
+
+
+##################################################
+def test_draw_line():
+	"""Vérifie le tracé d'une ligne et la mise à jour de son masque."""
+	# Point unique
+	img = np.zeros((5, 5), dtype=float)
+	mask = np.zeros(img.shape, dtype=bool)
+	Renderer.draw_line(img, mask, 2, 3, 2, 3, 123.0)
+
+	ref = np.zeros((5, 5), dtype=float)
+	ref[3, 2] = 123.0
+	np.testing.assert_array_equal(img, ref)
+
+	ref_mask = np.zeros((5, 5), dtype=bool)
+	ref_mask[3, 2] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+	# Ligne horizontale
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, 1, 2, 4, 2, 10.0)
+
+	ref.fill(0.0)
+	ref[2, 1:5] = 10.0
+	np.testing.assert_array_equal(img, ref)
+
+	ref_mask.fill(False)
+	ref_mask[2, 1:5] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+	# Ligne verticale
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, 3, 1, 3, 4, 20.0)
+
+	ref.fill(0.0)
+	ref[1:5, 3] = 20.0
+	np.testing.assert_array_equal(img, ref)
+
+	ref_mask.fill(False)
+	ref_mask[1:5, 3] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+	# Ligne diagonale
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, 0, 0, 4, 4, 7.0)
+
+	ref.fill(0.0)
+	np.fill_diagonal(ref, 7.0)
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(mask, np.eye(5, dtype=bool))
+
+	# Ligne partiellement hors de l'image
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, -2, -2, 2, 2, 30.0)
+
+	ref.fill(0.0)
+	ref[0, 0] = ref[1, 1] = ref[2, 2] = 30.0
+	np.testing.assert_array_equal(img, ref)
+
+	ref_mask.fill(False)
+	ref_mask[0, 0] = ref_mask[1, 1] = ref_mask[2, 2] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+	# Ligne entièrement hors de l'image
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_line(img, mask, -4, -4, -1, -1, 50.0)
+
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
+
+
+##################################################
+@pytest.mark.parametrize("color_mode, init_value, crossing_value", ((0, 0.0, 30.0), (1, -np.inf, 20.0), (2, np.inf, 10.0)), ids=['sum', 'maximum', 'minimum'])
+def test_draw_line_crossing(color_mode, init_value, crossing_value):
+	"""Vérifie la combinaison de deux lignes qui se croisent."""
+	# Croisement de deux lignes pour les trois modes
+	img = np.full((5, 5), init_value, dtype=float)
+	mask = np.zeros(img.shape, dtype=bool)
+
+	Renderer.draw_line(img, mask, 0, 2, 4, 2, 10.0, color_mode)
+	Renderer.draw_line(img, mask, 2, 0, 2, 4, 20.0, color_mode)
+
+	ref = np.full((5, 5), init_value, dtype=float)
+	ref[2, :] = 10.0
+	ref[:, 2] = 20.0
+	ref[2, 2] = crossing_value
+	np.testing.assert_array_equal(img, ref)
+
+	ref_mask = np.zeros((5, 5), dtype=bool)
+	ref_mask[2, :] = True
+	ref_mask[:, 2] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+
+
+##################################################
+@pytest.mark.parametrize("width, first, last", ((1, 3, 4), (2, 3, 5), (3, 2, 5), (4, 2, 6)), ids=['width-1', 'width-2', 'width-3', 'width-4'])
+@pytest.mark.parametrize("mode", (0, 1, 2), ids=['sum', 'maximum', 'minimum'])
+def test_draw_line_width(width, first, last, mode):
+	"""Vérifie les largeurs paires et impaires, les points, les bords et l'absence de cumul interne."""
+	img, mask = Renderer.init_rendering(mode, 8, 8)
+	Renderer.draw_line(img, mask, 2, 3, 5, 3, 10, mode, width=width)
+	ref_mask = np.zeros((8, 8), dtype=bool)
+	ref_mask[first:last, 2 - (width - 1) // 2:6 + width // 2] = True
+	np.testing.assert_array_equal(mask, ref_mask)
+	np.testing.assert_array_equal(img[mask], 10)
+
+
+##################################################
+@pytest.mark.parametrize("width, first, last", ((1, 3, 4), (2, 3, 5), (3, 2, 5), (4, 2, 6)), ids=['width-1', 'width-2', 'width-3', 'width-4'])
+def test_draw_line_point_width(width, first, last):
+	"""Vérifie l’empreinte carrée d’un point pour les largeurs paires et impaires."""
+	# Un point isolé produit une empreinte carrée.
+	img, mask = Renderer.init_rendering(0, 8, 8)
+	Renderer.draw_line(img, mask, 3, 3, 3, 3, 10, width=width)
+	ref = np.zeros((8, 8))
+	ref[first:last, first:last] = 10
+	np.testing.assert_array_equal(img, ref)
+
+
+##################################################
+def test_draw_line_width_border():
+	"""Vérifie qu’une ligne épaisse hors cadre peut toucher le bord."""
+	# Une ligne dont le centre est hors de l'image peut encore toucher le bord.
+	img, mask = Renderer.init_rendering(0, 5, 5)
+	Renderer.draw_line(img, mask, -1, 0, -1, 4, 10, width=3)
+	ref = np.zeros((5, 5))
+	ref[:, 0] = 10
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(mask, ref > 0)
+
+
+##################################################
+@pytest.mark.parametrize("x1, y1", ((7, 7), (7, 4), (4, 7), (1, 7), (7, 1), (3, 7), (7, 3)),
+						 ids=['diagonal', 'shallow-slope', 'steep-slope', 'left', 'up', 'vertical', 'horizontal'])
+@pytest.mark.parametrize("reverse", (False, True), ids=['forward', 'reverse'])
+@pytest.mark.parametrize("width", (2, 3, 4), ids=['width-2', 'width-3', 'width-4'])
+def test_draw_line_width_orientations(x1, y1, reverse, width):
+	"""Vérifie les diagonales, les pentes variées et le sens du tracé avec une référence par empreintes."""
+	x0, y0, xe, ye = (x1, y1, 3, 3) if reverse else (3, 3, x1, y1)
+	thin, thin_mask = Renderer.init_rendering(0, 10, 10)
+	Renderer.draw_line(thin, thin_mask, x0, y0, xe, ye, 1)
+	ref_mask = np.zeros((10, 10), dtype=bool)
+	for y, x in np.argwhere(thin_mask):
+		ref_mask[max(0, y - (width - 1) // 2):min(10, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(10, x + width // 2 + 1)] = True
+	img = np.full((10, 10), 20.0)
+	mask = np.zeros((10, 10), dtype=bool)
+	Renderer.draw_line(img, mask, x0, y0, xe, ye, 100, 1, width, 0.25)
+	ref = np.full((10, 10), 20.0)
+	ref[ref_mask] = 40.0
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(mask, ref_mask)
+
+
+##################################################
+@pytest.mark.parametrize("width", (1, 3), ids=['width-1', 'width-3'])
+@pytest.mark.parametrize("mode, color, expected", ((0, 100, 45), (1, 100, 40), (1, 10, 20), (2, 100, 20), (2, 4, 16)),
+						 ids=['sum', 'maximum-higher-value', 'maximum-lower-value', 'minimum-higher-value', 'minimum-lower-value'])
+def test_draw_line_alpha(width, mode, color, expected):
+	"""Vérifie la transparence sur fond non nul pour les trois modes et les fonds d'initialisation infinis."""
+	img = np.full((7, 7), 20.0)
+	mask = np.zeros((7, 7), dtype=bool)
+	Renderer.draw_line(img, mask, 1, 3, 5, 3, color, mode, width, 0.25)
+	assert mask.any()
+	np.testing.assert_array_equal(img[mask], expected)
+	np.testing.assert_array_equal(img[~mask], 20)
+
+
+##################################################
+@pytest.mark.parametrize("width", (1, 3), ids=['width-1', 'width-3'])
+@pytest.mark.parametrize("mode", (0, 1, 2), ids=['sum', 'maximum', 'minimum'])
+def test_draw_line_alpha_initial_background(width, mode):
+	"""Vérifie l’opacité nulle puis partielle sur les fonds d’initialisation."""
+	img, mask = Renderer.init_rendering(mode, 7, 7)
+	original = img.copy()
+	Renderer.draw_line(img, mask, 1, 3, 5, 3, 100, mode, width, 0)
+	np.testing.assert_array_equal(img, original)
+	assert not mask.any()
+	Renderer.draw_line(img, mask, 1, 3, 5, 3, 100, mode, width, 0.25)
+	np.testing.assert_array_equal(img[mask], 25)
+	np.testing.assert_array_equal(img[~mask], original[~mask])
+
+
+##################################################
+@pytest.mark.parametrize("width", (-5, 0, 1), ids=['negative-width', 'zero-width', 'width-1'])
+@pytest.mark.parametrize("alpha, expected_alpha", ((-0.1, 0), (0.25, 0.25), (1.1, 1)), ids=['negative-alpha', 'partial-alpha', 'alpha-above-one'])
+def test_draw_line_clamped_parameters(width, alpha, expected_alpha):
+	"""Vérifie le bornage de la largeur et de l'opacité, sans exception ni contamination par NaN."""
+	img, mask = Renderer.init_rendering(0, 5, 5)
+	Renderer.draw_line(img, mask, 0, 0, 4, 4, 100, width=width, alpha=alpha)
+	ref = np.eye(5) * (100 * expected_alpha)
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(mask, ref > 0)
+
+
+##################################################
+@pytest.mark.parametrize("mode", (0, 1, 2), ids=['sum', 'maximum', 'minimum'])
+@pytest.mark.parametrize("width", (2, 3, 4), ids=['width-2', 'width-3', 'width-4'])
+def test_draw_line_width_finalize(mode, width):
+	"""Vérifie que la finalisation conserve toute l'épaisseur grâce au masque de contribution."""
+	img, mask = Renderer.init_rendering(mode, 9, 9)
+	Renderer.draw_line(img, mask, 2, 4, 6, 4, 100, mode, width, 0.5)
+	res = Renderer.finalize_rendering(img, mask, bg_color=7)
+	ref = np.full((9, 9), 7, dtype=np.uint16)
+	ref[4 - (width - 1) // 2:5 + width // 2, 2 - (width - 1) // 2:7 + width // 2] = 50
+	np.testing.assert_array_equal(res, ref)
+	np.testing.assert_array_equal(mask, ref == 50)
 
 
 ##################################################
@@ -1164,6 +1329,104 @@ def test_draw_line_thick_empty_rows():
 	ref[ref_mask] = 40
 	np.testing.assert_array_equal(img, ref)
 	np.testing.assert_array_equal(mask, ref_mask)
+
+
+##################################################
+def test_draw_gaussian():
+	"""Vérifie le rendu gaussien 2D, son masque et ses modes."""
+	x, y, color, sx, sy, theta = 2, 2, 100.0, 1.0, 2.0, 0.0
+	ref = np.array([[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166],
+					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
+					[4.82661763, 7.02268722, 7.95774715, 7.02268722, 4.82661763],
+					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
+					[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166]])
+
+	# Gaussienne unique avec le mode maximum
+	img, mask = Renderer.init_rendering(1, 5, 5)
+	res = Renderer.draw_gaussian_2d(img, mask, x, y, color, sx, sy, theta, 1)
+	assert res is img
+	np.testing.assert_array_almost_equal(res, ref)
+	np.testing.assert_array_equal(mask, True)
+
+	# Angle de 90 degrés
+	img, mask = Renderer.init_rendering(1, 5, 5)
+	Renderer.draw_gaussian_2d(img, mask, x, y, color, sx, sy, np.pi / 2.0, 1)
+	np.testing.assert_array_almost_equal(img, ref.transpose())
+	np.testing.assert_array_equal(mask, True)
+
+	# Superposition pour les trois modes
+	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
+		img, mask = Renderer.init_rendering(color_mode, 5, 5)
+
+		Renderer.draw_gaussian_2d(img, mask, x, y, 100.0, sx, sy, theta, color_mode)
+		np.testing.assert_array_equal(mask, True)
+
+		Renderer.draw_gaussian_2d(img, mask, x, y, 50.0, sx, sy, theta, color_mode)
+		np.testing.assert_array_almost_equal(img, expected)
+		np.testing.assert_array_equal(mask, True)
+
+	# Gaussienne entièrement hors dimensions
+	img = np.zeros((5, 5), dtype=float)
+	mask = np.zeros(img.shape, dtype=bool)
+	Renderer.draw_gaussian_2d(img, mask, -10, -10, color, sx, sy, theta, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
+
+	# Sigma invalide
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_gaussian_2d(img, mask, x, y, color, -1.0, sy, theta, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
+
+
+##################################################
+def test_draw_gaussian_3d():
+	"""Vérifie le rendu gaussien en 3D."""
+	x, y, z, color, s = 1.5, 1.5, 1.5, 100, 1
+	ref = np.array([[[0.21726327, 0.59058281, 0.59058281],
+					 [0.59058281, 1.60537052, 1.60537052],
+					 [0.59058281, 1.60537052, 1.60537052]],
+
+					[[0.59058281, 1.60537052, 1.60537052],
+					 [1.60537052, 4.36384952, 4.36384952],
+					 [1.60537052, 4.36384952, 4.36384952]],
+
+					[[0.59058281, 1.60537052, 1.60537052],
+					 [1.60537052, 4.36384952, 4.36384952],
+					 [1.60537052, 4.36384952, 4.36384952]]])
+
+	# Gaussienne unique avec le mode maximum
+	img, mask = Renderer.init_rendering(1, 3, 3, 3)
+	res = Renderer.draw_gaussian_3d(img, mask, x, y, z, color, s, 1)
+	assert res is img
+	np.testing.assert_array_almost_equal(res, ref)
+	np.testing.assert_array_equal(mask, True)
+
+	# Superposition pour les trois modes
+	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
+		img, mask = Renderer.init_rendering(color_mode, 3, 3, 3)
+
+		Renderer.draw_gaussian_3d(img, mask, x, y, z, 100.0, s, color_mode)
+		np.testing.assert_array_equal(mask, True)
+
+		Renderer.draw_gaussian_3d(img, mask, x, y, z, 50.0, s, color_mode)
+		np.testing.assert_array_almost_equal(img, expected)
+		np.testing.assert_array_equal(mask, True)
+
+	# Gaussienne entièrement hors dimensions
+	img = np.zeros((5, 5, 5), dtype=float)
+	mask = np.zeros(img.shape, dtype=bool)
+	Renderer.draw_gaussian_3d(img, mask, -10, -10, -10, color, s, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
+
+	# Sigma invalide
+	img.fill(0.0)
+	mask.fill(False)
+	Renderer.draw_gaussian_3d(img, mask, x, y, z, color, -1.0, 0)
+	np.testing.assert_array_equal(img, 0.0)
+	assert not np.any(mask)
 
 
 ##################################################
@@ -1233,34 +1496,34 @@ def test_draw_track_hard_cutoff():
 
 
 ##################################################
-def test_draw_track_overlap():
+@pytest.mark.parametrize("mode, initial, expected", ((0, 0, 120), (1, -np.inf, 100), (2, np.inf, 20)), ids=['sum', 'maximum', 'minimum'])
+def test_draw_track_overlap(mode, initial, expected):
 	"""Vérifie la combinaison indépendante des intensités et le maximum des opacités."""
-	for mode, initial, expected in ((0, 0, 120), (1, -np.inf, 100), (2, np.inf, 20)):
-		img = np.full((5, 5, 5), initial, dtype=float)
-		alpha = np.zeros_like(img)
-		# Au plan 3, l'horizontale a un âge de 1 ; la verticale vient d'apparaître et impose alpha = 1.
-		Renderer.draw_track(img, alpha, np.array([[0, 0, 2], [2, 4, 2]]), np.array([0, 100]), tail_length=3, fade_type=1, color_mode=mode)
-		Renderer.draw_track(img, alpha, np.array([[1, 2, 0], [3, 2, 4]]), np.array([0, 20]), tail_length=3, fade_type=1, color_mode=mode)
-		assert img[3, 2, 2] == expected
-		assert alpha[3, 2, 2] == 1
-		assert alpha[4, 2, 2] == 0.75
-		assert img[0, 0, 0] == initial and alpha[0, 0, 0] == 0
+	img = np.full((5, 5, 5), initial, dtype=float)
+	alpha = np.zeros_like(img)
+	# Au plan 3, l'horizontale a un âge de 1 ; la verticale vient d'apparaître et impose alpha = 1.
+	Renderer.draw_track(img, alpha, np.array([[0, 0, 2], [2, 4, 2]]), np.array([0, 100]), tail_length=3, fade_type=1, color_mode=mode)
+	Renderer.draw_track(img, alpha, np.array([[1, 2, 0], [3, 2, 4]]), np.array([0, 20]), tail_length=3, fade_type=1, color_mode=mode)
+	assert img[3, 2, 2] == expected
+	assert alpha[3, 2, 2] == 1
+	assert alpha[4, 2, 2] == 0.75
+	assert img[0, 0, 0] == initial and alpha[0, 0, 0] == 0
 
 
 ##################################################
-def test_draw_track_thickness():
+@pytest.mark.parametrize("mode, initial", ((0, 0), (1, -np.inf), (2, np.inf)), ids=['sum', 'maximum', 'minimum'])
+def test_draw_track_thickness(mode, initial):
 	"""Vérifie l'opacité uniforme sur toute l'épaisseur et l'absence de cumul interne."""
 	track = np.array([[0, 2, 3], [2, 4, 3]])
-	for mode, initial in ((0, 0), (1, -np.inf), (2, np.inf)):
-		img = np.full((5, 7, 7), initial, dtype=float)
-		alpha = np.zeros_like(img)
-		Renderer.draw_track(img, alpha, track, np.array([0, 80]), tail_width=3, tail_length=2, fade_type=1, color_mode=mode)
-		ref = np.zeros_like(alpha)
-		ref[2, 2:5, 1:6] = 1
-		ref[3, 2:5, 1:6] = 2 / 3
-		ref[4, 2:5, 1:6] = 1 / 3
-		np.testing.assert_allclose(alpha, ref)
-		np.testing.assert_array_equal(img, np.where(ref > 0, 80, initial))
+	img = np.full((5, 7, 7), initial, dtype=float)
+	alpha = np.zeros_like(img)
+	Renderer.draw_track(img, alpha, track, np.array([0, 80]), tail_width=3, tail_length=2, fade_type=1, color_mode=mode)
+	ref = np.zeros_like(alpha)
+	ref[2, 2:5, 1:6] = 1
+	ref[3, 2:5, 1:6] = 2 / 3
+	ref[4, 2:5, 1:6] = 1 / 3
+	np.testing.assert_allclose(alpha, ref)
+	np.testing.assert_array_equal(img, np.where(ref > 0, 80, initial))
 
 
 ##################################################
@@ -1290,55 +1553,56 @@ def test_draw_track_stationary_and_clipping():
 
 
 ##################################################
-def test_draw_track_alpha_independent_of_geometry():
+@pytest.mark.parametrize("departure", (0, 9), ids=['departure-0', 'departure-9'])
+@pytest.mark.parametrize("endpoint", ((1, 1), (8, 1), (8, 8)), ids=['stationary', 'horizontal', 'diagonal'])
+def test_draw_track_alpha_independent_of_geometry(departure, endpoint):
 	"""Vérifie que seul le plan d'arrivée détermine l'alpha, quels que soient le départ et la longueur spatiale."""
-	for departure in (0, 9):
-		for endpoint in ((1, 1), (8, 1), (8, 8)):
-			track = np.array([[departure, 1, 1], [10, *endpoint]])
-			img = np.zeros((14, 10, 10))
-			alpha = np.zeros_like(img)
-			Renderer.draw_track(img, alpha, track, np.array([1, 50]), tail_length=2, fade_type=1)
-			mask = img[10] > 0
-			assert mask.any()
-			for plane, expected in ((10, 1), (11, 2 / 3), (12, 1 / 3)):
-				np.testing.assert_allclose(alpha[plane, mask], expected)
-				np.testing.assert_array_equal(alpha[plane, ~mask], 0)
-			np.testing.assert_array_equal(alpha[:10], 0)
-			np.testing.assert_array_equal(alpha[13:], 0)
+	track = np.array([[departure, 1, 1], [10, *endpoint]])
+	img = np.zeros((14, 10, 10))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track(img, alpha, track, np.array([1, 50]), tail_length=2, fade_type=1)
+	mask = img[10] > 0
+	assert mask.any()
+	for plane, expected in ((10, 1), (11, 2 / 3), (12, 1 / 3)):
+		np.testing.assert_allclose(alpha[plane, mask], expected)
+		np.testing.assert_array_equal(alpha[plane, ~mask], 0)
+	np.testing.assert_array_equal(alpha[:10], 0)
+	np.testing.assert_array_equal(alpha[13:], 0)
 
 
 ##################################################
-def test_draw_track_heads_planes():
+@pytest.mark.parametrize("size", (-2, 0, 1), ids=['negative-diameter', 'zero-diameter', 'diameter-1'])
+def test_draw_track_heads_planes(size):
 	"""Vérifie les plans observés uniquement, le diamètre minimal et la conservation des entrées."""
 	track = np.array([[1, 2, 1], [4, 3, 2]])
 	colors = np.array([20.0, 70.0])
 	original = track.copy()
-	for size in (-2, 0, 1):
-		img = np.zeros((6, 4, 5))
-		alpha = np.zeros_like(img)
-		Renderer.draw_track_heads(img, alpha, track, colors, size)
-		ref = np.zeros_like(img)
-		ref[1, 1, 2], ref[4, 2, 3] = colors
-		np.testing.assert_array_equal(img, ref)
-		np.testing.assert_array_equal(alpha, ref > 0)
+	img = np.zeros((6, 4, 5))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track_heads(img, alpha, track, colors, size)
+	ref = np.zeros_like(img)
+	ref[1, 1, 2], ref[4, 2, 3] = colors
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(alpha, ref > 0)
 	np.testing.assert_array_equal(track, original)
 	np.testing.assert_array_equal(colors, [20, 70])
 
 
 ##################################################
-def test_draw_track_heads_circles():
+@pytest.mark.parametrize("size, pattern", ((2, [[1, 1], [1, 1]]),
+										   (4, [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]]),
+										   (5, [[0, 1, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 1, 1, 0]])),
+						 ids=['diameter-2', 'diameter-4', 'diameter-5'])
+def test_draw_track_heads_circles(size, pattern):
 	"""Vérifie les contours de diamètres pairs et impairs et les pixels minimaux du diamètre deux."""
-	for size, pattern in ((2, [[1, 1], [1, 1]]),
-						  (4, [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]]),
-						  (5, [[0, 1, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 1, 1, 0]])):
-		img = np.zeros((3, 9, 9))
-		alpha = np.zeros_like(img)
-		Renderer.draw_track_heads(img, alpha, np.array([[1, 4, 4]]), np.array([80]), size)
-		ref = np.zeros_like(img)
-		start = 4 - (size - 1) // 2
-		ref[1, start:start + size, start:start + size] = pattern
-		np.testing.assert_array_equal(alpha, ref)
-		np.testing.assert_array_equal(img, ref * 80)
+	img = np.zeros((3, 9, 9))
+	alpha = np.zeros_like(img)
+	Renderer.draw_track_heads(img, alpha, np.array([[1, 4, 4]]), np.array([80]), size)
+	ref = np.zeros_like(img)
+	start = 4 - (size - 1) // 2
+	ref[1, start:start + size, start:start + size] = pattern
+	np.testing.assert_array_equal(alpha, ref)
+	np.testing.assert_array_equal(img, ref * 80)
 
 
 ##################################################
@@ -1385,218 +1649,63 @@ def test_draw_track_heads_preserve_interior():
 	np.testing.assert_array_equal(alpha, np.where(mask, 1, 0.25))
 
 
+# ==================================================
+# endregion Dessin
+# ==================================================
+
+# ==================================================
+# region Rendus spéciaux
+# ==================================================
 ##################################################
-def test_finalize_track_stack():
-	"""Vérifie le mélange unique avec le fond, la saturation après mélange et la troncature."""
-	img = np.array([[[100, 100, 100, 1.9, -100, 70000, 70000]]], dtype=float)
-	alpha = np.array([[[0, 0.25, 1, 1, 1, 1, 0.5]]], dtype=float)
-	original_alpha = alpha.copy()
-	res = Renderer.finalize_track_stack(img, alpha, bg_color=20)
-	np.testing.assert_array_equal(res, [[[20, 40, 100, 1, 0, 65535, 35010]]])
-	np.testing.assert_array_equal(img, [[[20, 40, 100, 1.9, 0, 65535, 35010]]])
-	np.testing.assert_array_equal(alpha, original_alpha)
-	assert res.dtype == np.uint16 and res.shape == img.shape
-	assert not np.shares_memory(res, img)
-
-
-##################################################
-def test_finalize_track_stack_empty_background():
-	"""Vérifie les fonds sans contribution et l'absence de calcul invalide avec les infinis d'initialisation."""
-	for initial in (0, -np.inf, np.inf):
-		for background, expected in ((0, 0), (42, 42), (-10, 0), (70000, 65535)):
-			img = np.full((2, 3, 4), initial, dtype=float)
-			alpha = np.zeros_like(img)
-			with np.errstate(all='raise'):
-				res = Renderer.finalize_track_stack(img, alpha, background)
-			np.testing.assert_array_equal(res, np.full(img.shape, expected, dtype=np.uint16))
-			np.testing.assert_array_equal(alpha, 0)
-	for shape in ((0, 3, 4), (2, 0, 4), (2, 3, 0)):
-		res = Renderer.finalize_track_stack(np.empty(shape), np.empty(shape))
-		assert res.shape == shape and res.dtype == np.uint16
-
-
-##################################################
-def test_finalize_track_stack_strided():
-	"""Vérifie la finalisation d'une vue non contiguë sans modifier les pixels voisins ni l'alpha."""
-	base = np.full((2, 3, 8), 100.0)
-	view = base[:, :, ::2]
-	alpha = np.full(view.shape, 0.5)
-	res = Renderer.finalize_track_stack(view, alpha, 20)
-	np.testing.assert_array_equal(res, np.full(view.shape, 60, dtype=np.uint16))
-	np.testing.assert_array_equal(base[:, :, ::2], 60)
-	np.testing.assert_array_equal(base[:, :, 1::2], 100)
-	np.testing.assert_array_equal(alpha, 0.5)
-
-
-##################################################
-def test_finalize_track_stack_drawing():
-	"""Vérifie le fade d'une queue sur fond non nul et la tête opaque sur son seul plan, pour les trois modes."""
-	for mode, initial in ((0, 0), (1, -np.inf), (2, np.inf)):
-		img = np.full((5, 3, 5), initial, dtype=float)
-		alpha = np.zeros_like(img)
-		track = np.array([[0, 1, 1], [1, 3, 1]])
-		colors = np.array([40, 100])
-		Renderer.draw_track(img, alpha, track, colors, tail_length=1, fade_type=1, color_mode=mode)
-		Renderer.draw_track_heads(img, alpha, track, colors)
-		with np.errstate(all='raise'):
-			res = Renderer.finalize_track_stack(img, alpha, 20)
-		ref = np.full(img.shape, 20, dtype=np.uint16)
-		ref[0, 1, 1] = 40
-		ref[1, 1, 1:4] = 100
-		ref[2, 1, 1:4] = 60
-		np.testing.assert_array_equal(res, ref)
-
-
-##################################################
-def test_finalize_track_stack_remainder():
-	"""Vérifie le modulo après mélange, les valeurs négatives, les tours multiples et la troncature."""
-	img = np.array([[[-1, -1.5, 65536, 65537, 131073, 70000, -np.inf, np.inf]]], dtype=float)
-	alpha = np.array([[[1, 1, 1, 1, 1, 0.5, 0, 0]]], dtype=float)
-	original_alpha = alpha.copy()
-	with np.errstate(all='raise'):
-		res = Renderer.finalize_track_stack(img, alpha, bg_color=20, clip=False)
-	np.testing.assert_array_equal(res, [[[65535, 65534, 0, 1, 1, 35010, 20, 20]]])
-	np.testing.assert_array_equal(img, [[[65535, 65534.5, 0, 1, 1, 35010, 20, 20]]])
-	np.testing.assert_array_equal(alpha, original_alpha)
-	assert res.dtype == np.uint16
-	# Le fond est également replié lorsque l'alpha est nul.
-	for background, expected in ((-1, 65535), (65536, 0), (131073, 1)):
-		res = Renderer.finalize_track_stack(np.full((1, 1, 1), np.inf), np.zeros((1, 1, 1)), background, clip=False)
-		np.testing.assert_array_equal(res, [[[expected]]])
-
-
-##################################################
-def test_track_stack_timeline():
-	"""Vérifie le recadrage temporel, les observations manquantes, l'effacement et les têtes sur les plans observés."""
+def test_renderer_atom():
+	"""Vérifie le rendu d'une localisation isolée."""
 	r = Renderer()
-	r.set_size(5, 3, 1)
-	track = np.array([[1, 10, 0, 1, 40], [1, 12, 2, 1, 100], [1, 16, 4, 1, 80]], dtype=float)
-	original = track.copy()
-	res = r.track_stack(track, bg_color=20, tail_length=1, fade_type=1)
-	ref = np.full((7, 3, 5), 20, dtype=np.uint16)
-	ref[0, 1, 0] = 40
-	ref[2, 1, :3] = 100
-	ref[3, 1, :3] = 60
-	ref[6, 1, 2:] = 80
-	np.testing.assert_array_equal(res, ref)
-	np.testing.assert_array_equal(track, original)
-	assert res.dtype == np.uint16
+	r.set_size(700, 500, 2)
+	loc = pd.read_csv(INPUT_DIR / "atoms_sphere_motion.csv").to_numpy()
+	loc[:, 0] += 3.5  # Les positions vont de -3 à +3
+	loc[:, 1] += 2.5  # Les positions vont de -2 à +2
+	loc[:, 0:3] *= 100  # Passsage en gros à des pixel
+	loc = np.hstack((loc, np.zeros((loc.shape[0], 3))))  # Ajout de SigmaX,SigmaY et Theta
+	loc[:, 4] = 1  # Sigma X
+	loc[:, 5] = 2  # Sigma Y
+	gaussian = {"Intensity": 1000, "Fixed Intensity": True, "Shape": 2, "Size": 1}
 
+	loc_2d = np.delete(loc, 2, axis=1)
+	res = r.localizations(loc_2d)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_png(res, OUTPUT_DIR / "atoms_sphere_motion_loc.png")
 
-##################################################
-def test_track_stack_empty_and_scale():
-	"""Vérifie les sorties anticipées 3D et la mise à l'échelle des coordonnées."""
-	r = Renderer()
-	r.set_size(3, 2, 2)
-	for data in (np.empty((0, 5)), np.zeros(5), np.zeros((1, 4)), np.array([[1, 4, -5, -5, 20]])):
-		res = r.track_stack(data, bg_color=17)
-		np.testing.assert_array_equal(res, np.full((1, 4, 6), 17, dtype=np.uint16))
-	res = r.track_stack(np.array([[1, 50, 1, 1, 90]]), bg_color=17, tail_length=0)
-	ref = np.full((1, 4, 6), 17, dtype=np.uint16)
-	ref[0, 2, 2] = 90
-	np.testing.assert_array_equal(res, ref)
-	r.set_size(0, -1, 1)
-	np.testing.assert_array_equal(r.track_stack(np.empty((0, 5)), bg_color=17), [[[17]]])
+	res = r.localizations(loc_2d, gaussian=gaussian)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_png(res, OUTPUT_DIR / "atoms_sphere_motion_loc_gaussian.png")
 
+	res = r.z_stack(loc)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_Zstack.tif")
 
-##################################################
-def test_track_stack_priority_and_modes():
-	"""Vérifie les croisements, les queues illimitées et la priorité globale des têtes."""
-	r = Renderer()
-	r.set_size(5, 5, 1)
-	tracks = np.array([[1, 10, 0, 2, 10], [1, 11, 4, 2, 10], [2, 10, 2, 0, 20], [2, 11, 2, 4, 20],
-					   [3, 12, 0, 0, 5]], dtype=float)
-	for mode, expected in ((0, 30), (1, 20), (2, 10)):
-		res = r.track_stack(tracks, color_mode=mode, bg_color=7)
-		assert res.shape == (3, 5, 5)
-		assert res[0, 2, 2] == 7
-		assert res[1, 2, 2] == expected and res[2, 2, 2] == expected
-	# La tête de la première trajectoire doit rester visible même si la queue suivante la traverse.
-	tracks = np.array([[1, 11, 2, 2, 3], [2, 10, 0, 2, 100], [2, 11, 4, 2, 100]], dtype=float)
-	res = r.track_stack(tracks, color_mode=1, bg_color=7)
-	assert res[1, 2, 2] == 3 and res[1, 2, 1] == 100
+	res = r.z_stack(loc, gaussian=gaussian)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_Zstack_gaussian.tif")
 
+	res = r.rotation_3d(loc, z_step=1)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D.tif")
 
-##################################################
-def test_finalize_track_stack_rgb():
-	"""Vérifie la colormap, le gris, les alphas nul/partiel/opaque et la conservation des entrées."""
-	img = np.array([[[np.inf, 65535, 65535, 0]]])
-	alpha = np.array([[[0, 0.5, 1, 1]]])
-	raw = np.full(img.shape, 2570.0)
-	for cmap in ("viridis", "magma"):
-		with np.errstate(all='raise'):
-			res = Renderer.finalize_track_stack_rgb(img, alpha, raw, cmap)
-		color = FileIO.grayscale_to_color(np.array([[65535]], dtype=np.uint16), cmap)[0, 0]
-		np.testing.assert_array_equal(res[0, 0, 0], [10, 10, 10])
-		np.testing.assert_array_equal(res[0, 0, 1], np.rint(5 + 0.5 * color))
-		np.testing.assert_array_equal(res[0, 0, 2], color)
-		np.testing.assert_array_equal(res[0, 0, 3], [0, 0, 0])
-		assert res.dtype == np.uint8 and res.shape == (1, 1, 4, 3)
-	np.testing.assert_array_equal(img, [[[np.inf, 65535, 65535, 0]]])
-	np.testing.assert_array_equal(alpha, [[[0, 0.5, 1, 1]]])
-	np.testing.assert_array_equal(raw, 2570)
-	with np.testing.assert_raises(ValueError): Renderer.finalize_track_stack_rgb(img, alpha, raw[:, :, :2])
-
-
-##################################################
-def test_track_stack_raw():
-	"""Vérifie la sélection des plans numérotés à partir de un, l'agrandissement et l'indépendance des têtes vis-à-vis de ``color_mode``."""
-	r = Renderer()
-	r.set_size(3, 2, 2)
-	raw = np.stack([np.full((2, 3), value, dtype=np.uint16) for value in (257, 2570, 5140, 7710, 65535)])
-	original = raw.copy()
-	tracks = np.array([[1, 2, 0, 0, 65535], [1, 4, 1, 0, 65535]], dtype=float)
-	for upscale in (0, 1):
-		ref = r.track_stack(tracks, raw=raw, tail_length=0, upscale_type=upscale)
-		assert ref.shape == (3, 4, 6, 3) and ref.dtype == np.uint8
-		np.testing.assert_array_equal(ref[:, 3, 5], [[0] * 3, [128] * 3, [255] * 3])
-		color = FileIO.grayscale_to_color(np.array([[65535]], dtype=np.uint16))[0, 0]
-		np.testing.assert_array_equal(ref[0, 0, 0], color)
-		np.testing.assert_array_equal(ref[2, 0, 2], color)
-		for mode in (1, 2):
-			np.testing.assert_array_equal(r.track_stack(tracks, color_mode=mode, raw=raw, tail_length=0, upscale_type=upscale), ref)
-	np.testing.assert_array_equal(raw, original)
-	with np.testing.assert_raises(ValueError): r.track_stack(tracks, raw=raw[:2])
-
-
-##################################################
-def test_track_stack_raw_empty_and_2d():
-	"""Vérifie le retour scalaire sans observation et le rendu RGB sur fond 2D avec une observation."""
-	r = Renderer()
-	r.set_size(2, 2, 1)
-	res = r.track_stack(np.empty((0, 5)), raw=np.zeros((1, 2, 2)), bg_color=2570)
-	np.testing.assert_array_equal(res, np.full((1, 2, 2), 2570, dtype=np.uint16))
-	res = r.track_stack(np.array([[1, 1, 0, 0, 65535]]), raw=np.full((2, 2), 5140))
-	assert res.shape == (1, 2, 2, 3)
-	np.testing.assert_array_equal(res[0, 1, 1], [20, 20, 20])
-
-
-##################################################
-def test_track_stack_raw_fade_and_overlap():
-	"""Vérifie l'effacement sur fond brut et les couleurs aux croisements pour les trois modes de combinaison."""
-	r = Renderer()
-	r.set_size(5, 5, 1)
-	tracks = np.array([[1, 1, 0, 2, 30000], [1, 2, 4, 2, 30000], [2, 1, 2, 0, 10000], [2, 2, 2, 4, 10000], [3, 3, 0, 0, 1]], dtype=float)
-	raw = np.full((3, 5, 5), 5140, dtype=np.uint16)
-	for mode, intensity in ((0, 40000), (1, 30000), (2, 10000)):
-		color = FileIO.grayscale_to_color(np.array([[intensity]], dtype=np.uint16))[0, 0]
-		res = r.track_stack(tracks, raw=raw, color_mode=mode, tail_length=1, fade_type=1)
-		np.testing.assert_array_equal(res[1, 2, 2], color)
-		np.testing.assert_array_equal(res[2, 2, 2], np.rint(10 + 0.5 * color))
-		np.testing.assert_array_equal(res[:, 4, 4], [[20] * 3] * 3)
+	res = r.rotation_3d(loc, z_step=1, gaussian=gaussian)
+	assert np.count_nonzero(res) != 0
+	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D_gaussian.tif")
 
 
 ##################################################
 def test_renderer_track_stack_spiral():
 	"""Exporte une spirale animée pour vérifier visuellement la queue, le fade, la tête et le fond gris foncé."""
 	r = Renderer()
-	size = 256
-	n_points = 72
-	r.set_size(size, size, 2)
-	theta = np.linspace(0, 4 * np.pi, n_points)
-	radius = np.linspace(size // 16, size // 2.5, n_points)
+	size, n_points = 256, 72
+	theta, radius = np.linspace(0, 4 * np.pi, n_points), np.linspace(size // 16, size // 2.5, n_points)
 	track = np.column_stack((np.ones(n_points), np.arange(10, 10 + n_points),
 							 size // 2 + radius * np.cos(theta), size // 2 + radius * np.sin(theta), np.full(n_points, 58000)))
+
+	r.set_size(size, size, 2)
 	res = r.track_stack(track, color_mode=1, bg_color=8000, head_size=15, tail_width=2, tail_length=9, fade_type=1)
 	assert res.shape == (n_points, size * 2, size * 2) and res.dtype == np.uint16
 	assert np.all(res[:, 0, 0] == 8000)
@@ -1612,11 +1721,8 @@ def test_renderer_track_stack_spiral():
 def test_renderer_track_stack_spiral_raw():
 	"""Exporte une spirale rouge avec fade sur un dégradé gris mouvant au contraste ajusté sur toute la séquence."""
 	r = Renderer()
-	size = 256
-	r.set_size(size, size, 2)
-	n_points = 72
-	theta = np.linspace(0, 4 * np.pi, n_points)
-	radius = np.linspace(size // 16, size // 2.5, n_points)
+	size, n_points = 256, 72
+	theta, radius = np.linspace(0, 4 * np.pi, n_points), np.linspace(size // 16, size // 2.5, n_points)
 	# La LUT réserve zéro au noir ; son indice un correspond au début de HSV, donc au rouge pur.
 	track = np.column_stack((np.ones(n_points), np.arange(10, 10 + n_points),
 							 size // 2 + radius * np.cos(theta), size // 2 + radius * np.sin(theta), np.ones(n_points)))
@@ -1627,6 +1733,8 @@ def test_renderer_track_stack_spiral_raw():
 	for plane in range(len(raw)):
 		phase = 2 * np.pi * (plane - 9) / n_points
 		raw[plane] = np.rint(9500 + 2500 * np.sin(2 * np.pi * x - phase) + 1500 * y).astype(np.uint16)
+
+	r.set_size(size, size, 2)
 	res = r.track_stack(track, color_mode=1, raw=raw, color_map="hsv", head_size=15, tail_width=2, tail_length=9, fade_type=1)
 	assert res.shape == (n_points, size * 2, size * 2, 3) and res.dtype == np.uint8
 	# Le contraste utilise les extrema communs aux plans rendus ; le plus proche voisin les conserve.
@@ -1644,19 +1752,6 @@ def test_renderer_track_stack_spiral_raw():
 	frames = [Image.fromarray(plane) for plane in res]
 	frames[0].save(OUTPUT_DIR / "track_stack_spiral_raw.gif", save_all=True, append_images=frames[1:], duration=80, loop=0, optimize=False)
 
-
-##################################################
-def test_finalize_track_stack_rgb_global_contrast():
-	"""Étire un brut peu lumineux avec la même échelle sur tous les plans, sans modifier les entrées."""
-	raw = np.array([[[300, 500, 700]], [[500, 700, 1100]]], dtype=np.uint16)
-	original = raw.copy()
-	img = np.zeros(raw.shape)
-	alpha = np.zeros(raw.shape)
-	res = Renderer.finalize_track_stack_rgb(img, alpha, raw)
-	expected = np.array([[[0, 64, 128]], [[64, 128, 255]]], dtype=np.uint8)
-	np.testing.assert_array_equal(res, np.repeat(expected[..., None], 3, axis=-1))
-	np.testing.assert_array_equal(raw, original)
-	assert res[0, 0, 1, 0] == res[1, 0, 0, 0]
-	for value, expected_value in ((0, 0), (25700, 100)):
-		res = Renderer.finalize_track_stack_rgb(img, alpha, np.full(raw.shape, value, dtype=np.uint16))
-		np.testing.assert_array_equal(res, expected_value)
+# ==================================================
+# endregion Rendus spéciaux
+# ==================================================

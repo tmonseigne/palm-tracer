@@ -19,10 +19,13 @@ def flush_qt_delete_events():
 	QCoreApplication.processEvents()
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_widget_creation(make_napari_viewer, patched_napari_viewer):
 	"""Vérifie la création du widget."""
-	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 	_ = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
 
@@ -42,10 +45,11 @@ def test_results_status_automatic_update(make_napari_viewer, patched_napari_view
 
 ##################################################
 def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Vérifie Permettant de gérer la création en doublon de la même UI."""
-
-	"""Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++."""
-	viewer = make_napari_viewer()  # .		Créer un viewer à l'aide de la fixture.
+	"""
+	Vérifie Permettant de gérer la création en doublon de la même UI.
+	Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++.
+	"""
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 	pt = get_fake_pt()
 
 	w = ViewerHRWidget(viewer, pt)
@@ -67,13 +71,34 @@ def test_widget_double_creation(make_napari_viewer, patched_napari_viewer, qtbot
 	flush_qt_delete_events()
 
 
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Liaison avec PALMTracer
+# ==================================================
+##################################################
+def test_check_beads(make_napari_viewer, patched_napari_viewer):
+	"""Vérifie le widget."""
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # .	Créer notre widget, en passant par le viewer.
+
+	ui: BaseUIType = w._pt.settings.hr["Remove Beads"].get_ui(w.UI_NAME)
+	w._check_beads()  # False
+	assert ui.boxes[0].isHidden()
+	w._pt.results["bds"] = w._pt.results["loc"].copy()
+	w._check_beads()  # True
+	assert not ui.boxes[0].isHidden()
+
+
 ##################################################
 def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie le widget."""
-	viewer = make_napari_viewer()  # .	Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
-	w = ViewerHRWidget(viewer, pt)  # Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, pt)  # .				Créer notre widget, en passant par le viewer.
 	lines = get_lines_output(capsys)
 	assert "WARNING: No stack processed loaded." in lines[0]
 
@@ -84,22 +109,9 @@ def test_add_stack(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mon
 
 
 ##################################################
-def test_change_type(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
-	"""Vérifie le widget."""
-	viewer = make_napari_viewer()  # .			 Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
-
-	ui: BaseUIType = cast(ButtonGroup, w._pt.settings.hr["Type"]).get_ui(w.UI_NAME)
-	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
-	assert w._pt.settings.hr["Type"].value == 0
-	qtbot.mouseClick(ui.boxes[1], Qt.MouseButton.LeftButton)  # Appuie sur Tracks
-	assert w._pt.settings.hr["Type"].value == 1
-
-
-##################################################
 def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Vérifie le widget."""
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, PALMTracer())  # .	Créer notre widget, en passant par le viewer.
 
 	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
@@ -111,12 +123,11 @@ def test_actualize(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 ##################################################
 def test_save(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Vérifie la création du widget."""
-	res_2d = OUTPUT_DIR / "HR.png"
-	res_3d = OUTPUT_DIR / "HR.tif"
+	res_2d, res_3d = OUTPUT_DIR / "HR.png", OUTPUT_DIR / "HR.tif"
 	res_2d.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
 	res_3d.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
 
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 	w = ViewerHRWidget(viewer, get_fake_pt())  # .	Créer notre widget, en passant par le viewer.
 
 	w._filename = ""
@@ -139,7 +150,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mo
 	"""Vérifie la création du widget."""
 	res = OUTPUT_DIR / "HR.png"
 	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 	fake_napari_layers(viewer)
 
 	# --- Mock screenshot ---
@@ -162,23 +173,29 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, capsys, mo
 
 
 ##################################################
-def test_check_beads(make_napari_viewer, patched_napari_viewer):
+def test_change_type(make_napari_viewer, patched_napari_viewer, qtbot, capsys):
 	"""Vérifie le widget."""
 	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
-	w = ViewerHRWidget(viewer, get_fake_pt())  # .	Créer notre widget, en passant par le viewer.
+	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 
-	ui: BaseUIType = w._pt.settings.hr["Remove Beads"].get_ui(w.UI_NAME)
-	w._check_beads()  # False
-	assert ui.boxes[0].isHidden()
-	w._pt.results["bds"] = w._pt.results["loc"].copy()
-	w._check_beads()  # True
-	assert not ui.boxes[0].isHidden()
+	ui: BaseUIType = cast(ButtonGroup, w._pt.settings.hr["Type"]).get_ui(w.UI_NAME)
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
+	assert w._pt.settings.hr["Type"].value == 0
+	qtbot.mouseClick(ui.boxes[1], Qt.MouseButton.LeftButton)  # Appuie sur Tracks
+	assert w._pt.settings.hr["Type"].value == 1
 
 
+# ==================================================
+# endregion Liaison avec PALMTracer
+# ==================================================
+
+# ==================================================
+# region Dessin
+# ==================================================
 ##################################################
 def test_generate_bad(make_napari_viewer, patched_napari_viewer, qtbot, capsys, monkeypatch, fake_qfiledialog, fake_napari_layers):
 	"""Vérifie le widget."""
-	viewer = make_napari_viewer()  # .				Créer un viewer à l'aide de la fixture.
+	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)  # .				Créer notre widget, en passant par le viewer.
@@ -247,6 +264,7 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 def test_visualization_layer_rgb_transitions():
 	"""Vérifie les dimensions et l'ordre des calques lors des transitions scalaire/RGB, sans fenêtre ni OpenGL."""
 	from types import SimpleNamespace
+
 	from napari.components import ViewerModel
 
 	viewer = ViewerModel()
@@ -264,3 +282,7 @@ def test_visualization_layer_rgb_transitions():
 		assert len(viewer.layers) == 2
 		assert not layer.editable and layer.locked
 		np.testing.assert_array_equal(layer.data, state.visualization[None] if len(shape) == 2 else state.visualization)
+
+# ==================================================
+# endregion Dessin
+# ==================================================

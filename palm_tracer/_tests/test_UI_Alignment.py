@@ -11,6 +11,9 @@ rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce 
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
@@ -22,6 +25,13 @@ def test_widget_creation(qtbot):
 	w.close()
 
 
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Fonctions de rappel
+# ==================================================
 ##################################################
 def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
@@ -183,3 +193,7 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	output = Path(w._output_filename)
 	output.unlink(missing_ok=True)
 	w.close()
+
+# ==================================================
+# endregion Fonctions de rappel
+# ==================================================

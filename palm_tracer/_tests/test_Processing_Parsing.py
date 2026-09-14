@@ -5,26 +5,26 @@ import pytest
 from palm_tracer.Processing.Parsing import *
 
 
+# ==================================================
+# region Manipulation de DataFrame
+# ==================================================
 ##################################################
-def test_get_meta():
-	"""Vérifie get_meta."""
-
-	with pytest.raises(ValueError) as exception_info: get_meta([])
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-	get_meta(np.zeros(shape=(1, N_COL_META)))
-
-
-##################################################
-def test_rearrange_dataframe_columns():
-	"""Vérifie la fonction rearrange_DataFrame_columns."""
+@pytest.mark.parametrize("keep_others, expected", [
+		pytest.param(True, ["Y", "X", "Z"], id="other-columns-preserved"),
+		pytest.param(False, ["Y"], id="selection-only")])
+def test_rearrange_dataframe_columns(keep_others, expected):
+	"""Vérifie la sélection, l'ordre des colonnes et l'idempotence du réarrangement."""
 	df = pd.DataFrame({"X": [1, 2, 3], "Y": [4, 5, 6], "Z": [7, 8, 9]})
-	res = rearrange_dataframe_columns(df, ["Y"], True)
-	assert res.columns.tolist() == ["Y", "X", "Z"], "Erreur dans la fonction rearrange_dataframe_columns."
-	res = rearrange_dataframe_columns(res, ["Y"], True)
-	assert res.columns.tolist() == ["Y", "X", "Z"], "Erreur dans la fonction rearrange_dataframe_columns."
-	res = rearrange_dataframe_columns(df, ["Y"], False)
-	assert res.columns.tolist() == ["Y"], "Erreur dans la fonction rearrange_dataframe_columns."
-	assert pytest.raises(ValueError, rearrange_dataframe_columns, df, ["Alpha"], True)
+	res = rearrange_dataframe_columns(df, ["Y"], keep_others)
+	assert res.columns.tolist() == expected
+	assert rearrange_dataframe_columns(res, ["Y"], keep_others).columns.tolist() == expected
+
+
+##################################################
+def test_rearrange_dataframe_columns_missing():
+	"""Vérifie le rejet d'une colonne sélectionnée absente."""
+	df = pd.DataFrame({"X": [1], "Y": [2], "Z": [3]})
+	with pytest.raises(ValueError): rearrange_dataframe_columns(df, ["Alpha"], True)
 
 
 ##################################################
@@ -36,6 +36,13 @@ def test_log10_dataframe():
 	assert np.allclose(res, ref, atol=0, rtol=0, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
+# ==================================================
+# endregion Manipulation de DataFrame
+# ==================================================
+
+# ==================================================
+# region Gestion des angles
+# ==================================================
 ##################################################
 def test_degrees_to_radians():
 	"""Vérifie degrees_to_radians."""
@@ -89,78 +96,83 @@ def test_manage_theta():
 	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
-def test_parse_irregular_array():
-	"""Vérifie la fonction parse_irregular_array."""
-	data = np.array([2, 1, 2, 2, 3, 4])
-	res = parse_irregular_array(data)
-	ref = np.array([[1, 2], [3, 4]])
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+# ==================================================
+# endregion Gestion des angles
+# ==================================================
 
-	data = np.array([[2, 1, 2, 2, 3, 4]])
-	assert pytest.raises(ValueError, parse_irregular_array, data)
-	data = np.array(["hey", 1, 2, 2, 3, 4])
-	assert pytest.raises(ValueError, parse_irregular_array, data)
-	data = np.array([2, 1, 2, 2, 3])
-	assert pytest.raises(ValueError, parse_irregular_array, data)
-	data = np.array([])
-	res = parse_irregular_array(data)
-	assert res.empty
-	data = np.array([0])
-	res = parse_irregular_array(data)
-	assert res.empty
+# ==================================================
+# region Analyse
+# ==================================================
+##################################################
+def test_get_meta():
+	"""Vérifie la lecture de métadonnées de dimensions valides."""
+	get_meta(np.zeros(shape=(1, N_COL_META)))
+
+
+##################################################
+def test_get_meta_invalid():
+	"""Vérifie le rejet de métadonnées vides."""
+	with pytest.raises(ValueError): get_meta([])
 
 
 ##################################################
-def test_parse_result():
-	"""Vérifie parse_result."""
-	data = np.arange(20)
-	res = parse_result(data, "Localization")
-	ref = np.arange(18)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+def test_parse_irregular_array():
+	"""Vérifie la reconstruction d'un tableau avec longueurs de lignes intégrées."""
+	res = parse_irregular_array(np.array([2, 1, 2, 2, 3, 4]))
+	np.testing.assert_array_equal(res, [[1, 2], [3, 4]])
 
-	res = parse_result(np.array([]), "Localization")
-	assert res.empty, "Le dataframe devrait être vide."
 
-	res = parse_result(data, "Tracking")
-	ref = np.arange(16).reshape(2, 8)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("data", [
+		pytest.param(np.array([[2, 1, 2, 2, 3, 4]]), id="2d-array"),
+		pytest.param(np.array(["hey", 1, 2, 2, 3, 4]), id="non-numeric-data"),
+		pytest.param(np.array([2, 1, 2, 2, 3]), id="truncated-row")])
+def test_parse_irregular_array_invalid(data):
+	"""Vérifie chaque forme de tableau irrégulier invalide."""
+	with pytest.raises(ValueError): parse_irregular_array(data)
 
-	res = parse_result(np.array([]), "Tracking")
-	assert res.empty, "Le dataframe devrait être vide."
 
-	data = np.arange(10).reshape((2, 5))
-	res = parse_result(data, "Astigmatism 3D Model")
-	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("data", [
+		pytest.param(np.array([]), id="empty-array"), pytest.param(np.array([0]), id="empty-row")])
+def test_parse_irregular_array_empty(data):
+	"""Vérifie les entrées sans valeur à reconstruire."""
+	assert parse_irregular_array(data).empty
 
-	data = np.array([2, 1, 2, 2, 3, 4])
-	res = parse_result(data, "MSD")
-	ref = [[1, 2], [3, 4]]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	res = parse_result(data, "Instant Diffusion")
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("data, result_type, is_log, fit_mode, expected", [
+		pytest.param(np.arange(20), "Localization", False, 0, np.arange(18), id="localizations"),
+		pytest.param(np.arange(20), "Tracking", False, 0, np.arange(16).reshape(2, 8), id="tracks"),
+		pytest.param(np.arange(10).reshape(2, 5), "Astigmatism 3D Model", False, 0, np.arange(10).reshape(2, 5), id="astigmatism-model"),
+		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "MSD", False, 0, [[1, 2], [3, 4]], id="msd"),
+		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "Instant Diffusion", False, 0, [[1, 2], [3, 4]], id="instant-diffusion"),
+		pytest.param(np.array([9] + [1] * 9), "Fit", True, 1, [[1, 1, 0, 0, 0, 0, 0, 0, 0]], id="linear-fit-log"),
+		pytest.param(np.array([10] + [1] * 10), "Fit", False, 2, np.ones(10), id="power-fit"),
+		pytest.param(np.array([11] + [1] * 11), "Fit", False, 3, np.ones(11), id="exponential-fit")])
+def test_parse_result(data, result_type, is_log, fit_mode, expected):
+	"""Vérifie la conversion de chaque format de résultat valide."""
+	res = parse_result(data, result_type, is_log=is_log, fit_mode=fit_mode)
+	assert np.allclose(res, expected, atol=0, rtol=0)
 
-	with pytest.raises(ValueError) as exception_info: parse_result(data, "Fit")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
 
-	data = np.array([9, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-	res = parse_result(data, "Fit", is_log=True, fit_mode=1)
-	ref = [[1, 1, 0, 0, 0, 0, 0, 0, 0]]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("result_type", [
+		pytest.param("Localization", id="localizations"), pytest.param("Tracking", id="tracks"),
+		pytest.param("Fit", id="fit")])
+def test_parse_result_empty(result_type):
+	"""Vérifie la conversion des résultats vides."""
+	assert parse_result(np.array([]), result_type).empty
 
-	data = np.array([10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-	res = parse_result(data, "Fit", fit_mode=2)
-	ref = np.ones(10)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	data = np.array([11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-	res = parse_result(data, "Fit", fit_mode=3)
-	ref = np.ones(11)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("data, result_type", [
+		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "Fit", id="invalid-fit"),
+		pytest.param(np.array([11] + [1] * 11), "mon type", id="unknown-type")])
+def test_parse_result_invalid(data, result_type):
+	"""Vérifie les formats de résultats incompatibles ou inconnus."""
+	with pytest.raises(ValueError): parse_result(data, result_type)
 
-	res = parse_result(np.array([]), "Fit")
-	assert res.empty, "Le dataframe devrait être vide."
-
-	with pytest.raises(ValueError) as exception_info: parse_result(data, "mon type")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+# ==================================================
+# endregion Analyse
+# ==================================================

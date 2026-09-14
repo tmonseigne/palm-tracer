@@ -13,6 +13,9 @@ MODEL_FILE = "astigmatism_3d_model.csv"
 PNG_FILE = "astigmatism_3d_model.png"
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
@@ -21,6 +24,81 @@ def test_widget_creation(qtbot):
 	w.resize(1000, 600)
 	w.show()
 	qtbot.waitExposed(w)
+	w.close()
+
+
+##################################################
+def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Vérifie vérification de lien entre les spins pixel size."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+
+	init = w._spin_z_compute.value()
+	w._spin_z_compute.setValue(init + 1)
+	assert w._spin_z_estimate.value() == init + 1, "Mise à jour du spin sur Z invalide"
+
+	init = w._spin_px_compute.value()
+	w._spin_px_compute.setValue(init + 0.1)
+	assert w._spin_px_estimate.value() == init + 0.1, "Mise à jour du spin sur Pixel Size invalide"
+
+	w.close()
+
+
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Fonctions de rappel
+# ==================================================
+##################################################
+def test_check_loc(qtbot, capsys):
+	"""Vérifie le lancement de la calibration sans fichier chargé."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Chargement du fichier de localisation
+	w._loc = pd.read_csv(LOC_FILE)
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and 2 beads in file." in lines[0]
+
+	w._loc.drop(columns=["Bead"], inplace=True)
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and at least two localizations per plane. The 'Only one bead' option can't be used." in lines[0]
+
+	w._loc = w._loc.iloc[:-10]
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and some planes contain multiple localizations. It is recommended to use the 'Only one bead' option." in lines[0]
+
+	w._loc = w._loc.iloc[:-37]
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and only one bead." in lines[0]
+
+	w._loc.drop(columns=["Plane"], inplace=True)
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "No 'Plane' Column in file. 'Get Z from plane' and 'Only one bead' options can't be used." in lines[0]
+
+	w._loc = pd.read_csv(LOC_FILE)
+	w._loc["Z"] = 0
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and 2 beads in file." in lines[0]
+
+	w._loc.drop(columns=["Z"], inplace=True)
+	w._check_loc()
+	lines = get_lines_output(capsys)
+	assert "There are 47 planes and 2 beads in file." in lines[0]
 	w.close()
 
 
@@ -127,54 +205,6 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Can't Compute model without correct file loaded." in lines[0]
-	w.close()
-
-
-##################################################
-def test_check_loc(qtbot, capsys):
-	"""Vérifie le lancement de la calibration sans fichier chargé."""
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	w._loc = pd.read_csv(LOC_FILE)
-	w._check_loc()
-	lines = get_lines_output(capsys)
-	assert "There are 47 planes and 2 beads in file." in lines[0]
-
-	w._loc.drop(columns=["Bead"], inplace=True)
-	w._check_loc()
-	lines = get_lines_output(capsys)
-	assert "There are 47 planes and at least two localizations per plane. The 'Only one bead' option can't be used." in lines[0]
-
-	w._loc = w._loc.iloc[:-10]
-	w._check_loc()
-	lines = get_lines_output(capsys)
-	assert "There are 47 planes and some planes contain multiple localizations. It is recommended to use the 'Only one bead' option." in lines[0]
-
-	w._loc = w._loc.iloc[:-37]
-	w._check_loc()
-	lines = get_lines_output(capsys)
-	assert "There are 47 planes and only one bead." in lines[0]
-
-	w._loc.drop(columns=["Plane"], inplace=True)
-	w._check_loc()
-	lines = get_lines_output(capsys)
-	assert "No 'Plane' Column in file. 'Get Z from plane' and 'Only one bead' options can't be used." in lines[0]
-
-	w._loc = pd.read_csv(LOC_FILE)
-	w._loc["Z"] = 0
-	w._check_loc()
-	lines = get_lines_output(capsys)
-	assert "There are 47 planes and 2 beads in file." in lines[0]
-
-	w._loc.drop(columns=["Z"], inplace=True)
-	w._check_loc()
-	lines = get_lines_output(capsys)
-	assert "There are 47 planes and 2 beads in file." in lines[0]
 	w.close()
 
 
@@ -548,26 +578,13 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path)
 	w.close()
 
 
-##################################################
-def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie vérification de lien entre les spins pixel size."""
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
+# ==================================================
+# endregion Fonctions de rappel
+# ==================================================
 
-	init = w._spin_z_compute.value()
-	w._spin_z_compute.setValue(init + 1)
-	assert w._spin_z_estimate.value() == init + 1, "Mise à jour du spin sur Z invalide"
-
-	init = w._spin_px_compute.value()
-	w._spin_px_compute.setValue(init + 0.1)
-	assert w._spin_px_estimate.value() == init + 0.1, "Mise à jour du spin sur Pixel Size invalide"
-
-	w.close()
-
-
+# ==================================================
+# region Export Plotly hérité
+# ==================================================
 ##################################################
 def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie le callback de téléchargement du graphique."""
@@ -602,3 +619,7 @@ def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert dl.filename == target.name
 
 	w.close()
+
+# ==================================================
+# endregion Export Plotly hérité
+# ==================================================

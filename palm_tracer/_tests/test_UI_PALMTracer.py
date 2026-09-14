@@ -16,6 +16,9 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_creation(make_napari_viewer, patched_napari_viewer):
 	"""Vérifie la création du widget."""
@@ -24,6 +27,92 @@ def test_creation(make_napari_viewer, patched_napari_viewer):
 	_ = PALMTracerWidget(viewer)  # .		 Créer notre widget, en passant par le viewer.
 
 
+##################################################
+def test_filters_button(make_napari_viewer, patched_napari_viewer, qtbot):
+	"""Vérifie le comportement du bouton de filtrage."""
+	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+	SETTINGS_FILE.unlink(missing_ok=True)
+	viewer = make_napari_viewer()
+	w = PALMTracerWidget(viewer)
+
+	qtbot.addWidget(w)
+	w.show()
+
+	add_basic_file(w.pt)  # .									Ajout d'une entrée
+	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
+
+	# Activation d'un process
+	w.pt.settings.localization.active = True
+	qtbot.mouseClick(w.btn_process, Qt.MouseButton.LeftButton)
+	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
+	assert len(w.pt.results["loc"]) == 455
+	assert len(w.pt.results["f_loc"]) == 0
+
+	qtbot.mouseClick(w.btn_process, Qt.MouseButton.LeftButton)
+
+	f = w.pt.settings.filters
+	f.active = True
+	ui_buttons = f.buttons[w.UI_NAME]
+	print(ui_buttons)
+	f["Plane"].active = True
+	f["Plane"].max = 5
+	print(f)
+
+	tabs = w.findChild(QTabWidget)
+	assert tabs is not None
+	tabs.setCurrentIndex(2)  # Filtering
+	qtbot.waitUntil(lambda: ui_buttons["update"].isVisible() and ui_buttons["update"].isEnabled(), timeout=5000)  # Attente : que l'onglet soit et actif
+
+	qtbot.mouseClick(ui_buttons["update"], Qt.MouseButton.LeftButton)
+	assert len(w.pt.results["loc"]) == 455
+	assert len(w.pt.results["f_loc"]) == 242
+
+	qtbot.mouseClick(ui_buttons["save"], Qt.MouseButton.LeftButton)
+	f = FileIO.get_last_file(OUTPUT_FOLDER, "localizations_filtered")
+	assert f
+
+	qtbot.mouseClick(ui_buttons["reset"], Qt.MouseButton.LeftButton)
+	assert len(w.pt.results["f_loc"]) == 0
+
+
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Threads
+# ==================================================
+##################################################
+def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
+	"""Vérifie le clic sur le bouton process."""
+	SETTINGS_FILE.unlink(missing_ok=True)
+	viewer = make_napari_viewer()
+	w = PALMTracerWidget(viewer)
+
+	w._thread_process(w._auto_threshold)
+	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
+
+	# Appel avec un traitement en cours
+	w._processing = True
+	w._thread_process(w._auto_threshold)
+	w._processing = False
+
+	# Ajout d'une entrée
+	add_basic_file(w.pt)  # .									Ajout d'une entrée
+	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
+	w._thread_process(w.pt.process)  # .						Appel de la méthode process
+	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
+	w._thread_process(w._auto_threshold)  # .					Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
+	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
+
+
+# ==================================================
+# endregion Threads
+# ==================================================
+
+# ==================================================
+# region Fonctions de rappel des paramètres
+# ==================================================
 ##################################################
 def test_on_load_setting(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la remise à zéro des calques."""
@@ -47,6 +136,13 @@ def test_reset_setting(make_napari_viewer, patched_napari_viewer):
 	w._on_reset_setting_btn()
 
 
+# ==================================================
+# endregion Fonctions de rappel des paramètres
+# ==================================================
+
+# ==================================================
+# region Fonctions de rappel des calques
+# ==================================================
 ##################################################
 def test_clean_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Vérifie le nettoyage des calques."""
@@ -73,20 +169,6 @@ def test_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	assert "No valid settings file to load." == lines[0]
 	assert "INFO: Loaded" in lines[1]
 	w._reset_layer()  # .											   Remise à 0 des calques sans changement.
-
-
-##################################################
-def test_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Vérifie la récupération d'image."""
-	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
-	w = PALMTracerWidget(viewer)
-
-	add_basic_file(w.pt)  # .															 Ajout d'une entrée
-	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # .				 Attente : qu'il ait mis une image
-	assert w._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupéraiton de l'image
-	assert w._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
-	assert w._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # .Récupération d'une image hors limite
 
 
 ##################################################
@@ -125,6 +207,20 @@ def test_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
 	w._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS}
 	w._add_preview_layers()
 	assert len(w._layers["Points Future"].data) == 707
+
+
+##################################################
+def test_get_actual_image(make_napari_viewer, patched_napari_viewer, qtbot):
+	"""Vérifie la récupération d'image."""
+	SETTINGS_FILE.unlink(missing_ok=True)
+	viewer = make_napari_viewer()
+	w = PALMTracerWidget(viewer)
+
+	add_basic_file(w.pt)  # .															 Ajout d'une entrée
+	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # .				 Attente : qu'il ait mis une image
+	assert w._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupéraiton de l'image
+	assert w._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
+	assert w._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # .Récupération d'une image hors limite
 
 
 ##################################################
@@ -172,74 +268,6 @@ def test_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot
 	lines = get_lines_output(capsys)
 	assert "Auto Threshold: 63.95" in lines[-1]
 
-
-##################################################
-def test_thread_process(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Vérifie le clic sur le bouton process."""
-	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
-	w = PALMTracerWidget(viewer)
-
-	w._thread_process(w._auto_threshold)
-	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-
-	# Appel avec un traitement en cours
-	w._processing = True
-	w._thread_process(w._auto_threshold)
-	w._processing = False
-
-	# Ajout d'une entrée
-	add_basic_file(w.pt)  # .									Ajout d'une entrée
-	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-	w._thread_process(w.pt.process)  # .						Appel de la méthode process
-	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-	w._thread_process(w._auto_threshold)  # .					Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
-	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-
-
-##################################################
-def test_filters_button(make_napari_viewer, patched_napari_viewer, qtbot):
-	"""Vérifie le comportement du bouton de filtrage."""
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
-	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
-	w = PALMTracerWidget(viewer)
-
-	qtbot.addWidget(w)
-	w.show()
-
-	add_basic_file(w.pt)  # .										   Ajout d'une entrée
-	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-
-	# Activation d'un process
-	w.pt.settings.localization.active = True
-	qtbot.mouseClick(w.btn_process, Qt.MouseButton.LeftButton)
-	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-	assert len(w.pt.results["loc"]) == 455
-	assert len(w.pt.results["f_loc"]) == 0
-
-	qtbot.mouseClick(w.btn_process, Qt.MouseButton.LeftButton)
-
-	f = w.pt.settings.filters
-	f.active = True
-	ui_buttons = f.buttons[w.UI_NAME]
-	print(ui_buttons)
-	f["Plane"].active = True
-	f["Plane"].max = 5
-	print(f)
-
-	tabs = w.findChild(QTabWidget)
-	assert tabs is not None
-	tabs.setCurrentIndex(2)  # Filtering
-	qtbot.waitUntil(lambda: ui_buttons["update"].isVisible() and ui_buttons["update"].isEnabled(), timeout=5000)  # Attente : que l'onglet soit et actif
-
-	qtbot.mouseClick(ui_buttons["update"], Qt.MouseButton.LeftButton)
-	assert len(w.pt.results["loc"]) == 455
-	assert len(w.pt.results["f_loc"]) == 242
-
-	qtbot.mouseClick(ui_buttons["save"], Qt.MouseButton.LeftButton)
-	f = FileIO.get_last_file(OUTPUT_FOLDER, "localizations_filtered")
-	assert f
-
-	qtbot.mouseClick(ui_buttons["reset"], Qt.MouseButton.LeftButton)
-	assert len(w.pt.results["f_loc"]) == 0
+# ==================================================
+# endregion Fonctions de rappel des calques
+# ==================================================

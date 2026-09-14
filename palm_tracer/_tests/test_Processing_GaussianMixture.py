@@ -45,34 +45,26 @@ def test_make_curve():
 
 
 ##################################################
-@pytest.mark.parametrize(
-		"data, kwargs",
-		[
-				pytest.param(np.arange(2), {"n_component": 0}, id="nombre-composantes-nul"),
-				pytest.param(np.arange(2), {"max_iter": 0}, id="nombre-iterations-nul"),
-				pytest.param(np.arange(2), {"tolerance": 0}, id="tolerance-nulle"),
-				pytest.param(np.arange(2), {"n_init": 0}, id="nombre-initialisations-nul"),
-				pytest.param(np.empty(0), {"n_component": 2}, id="donnees-vides"),
-				pytest.param(np.arange(2), {"n_component": 3}, id="plus-de-composantes-que-de-donnees"),
-				pytest.param(np.ones(10), {"n_component": 2}, id="donnees-constantes-deux-composantes"),
-				pytest.param(np.ones(10), {"n_component": 1}, id="donnees-constantes-une-composante"),
-				],
-		)
+@pytest.mark.parametrize("data, kwargs", [
+		pytest.param(np.arange(2), {"n_component": 0}, id="zero-components"),
+		pytest.param(np.arange(2), {"max_iter": 0}, id="zero-iterations"),
+		pytest.param(np.arange(2), {"tolerance": 0}, id="zero-tolerance"),
+		pytest.param(np.arange(2), {"n_init": 0}, id="zero-initializations"),
+		pytest.param(np.empty(0), {"n_component": 2}, id="empty-data"),
+		pytest.param(np.arange(2), {"n_component": 3}, id="more-components-than-samples"),
+		pytest.param(np.ones(10), {"n_component": 2}, id="constant-data-two-components"),
+		pytest.param(np.ones(10), {"n_component": 1}, id="constant-data-one-component")])
 def test_invalid_fit_parameters(data, kwargs):
 	"""Vérifie le rejet des données et paramètres incompatibles avec l'ajustement."""
 	with pytest.raises(ValueError): GaussianMixture.fit(data, **kwargs)
 
 
 ##################################################
-@pytest.mark.parametrize(
-		"limits, n_point",
-		[
-				pytest.param([-1.0, 1.0], 1, id="nombre-points-insuffisant"),
-				pytest.param([0.0], 128, id="borne-manquante"),
-				pytest.param([np.nan, 1.0], 128, id="borne-nan"),
-				pytest.param([1.0, 1.0], 128, id="bornes-identiques"),
-				],
-		)
+@pytest.mark.parametrize("limits, n_point", [
+		pytest.param([-1.0, 1.0], 1, id="insufficient-points"),
+		pytest.param([0.0], 128, id="missing-bound"),
+		pytest.param([np.nan, 1.0], 128, id="nan-bound"),
+		pytest.param([1.0, 1.0], 128, id="equal-bounds")])
 def test_invalid_curve_parameters(limits, n_point):
 	"""Vérifie le rejet des paramètres incompatibles avec la génération d'une courbe."""
 	mixture = GaussianMixture(np.ones(1), np.zeros(1), np.ones(1), 0.0, True, 1)
