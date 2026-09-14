@@ -83,16 +83,12 @@ def test_active_results(results):
 
 
 ##################################################
-@pytest.mark.parametrize(
-		("original_count", "filtered_count", "prefix", "expected"),
-		[
-				(0, 0, "", "No"),
-				(2, 0, "", "Yes (2 tracks)"),
-				(2, 2, "", "Yes (2 tracks)"),
-				(2, 1, "", "Yes Filtered (1/2 tracks)"),
-				(2, 1, "Reconnected", "Yes Reconnected Filtered (1/2 tracks)"),
-				],
-		)
+@pytest.mark.parametrize(("original_count", "filtered_count", "prefix", "expected"), [
+		pytest.param(0, 0, "", "No", id="no-tracks"),
+		pytest.param(2, 0, "", "Yes (2 tracks)", id="original-tracks-only"),
+		pytest.param(2, 2, "", "Yes (2 tracks)", id="all-tracks-preserved"),
+		pytest.param(2, 1, "", "Yes Filtered (1/2 tracks)", id="partially-filtered-tracks"),
+		pytest.param(2, 1, "Reconnected", "Yes Reconnected Filtered (1/2 tracks)", id="reconnected-filtered-tracks")])
 def test_dataframe_status(original_count, filtered_count, prefix, expected):
 	"""Vérifie chaque forme de statut individuel."""
 	status = Results.get_df_status(make_dataframe(original_count), make_dataframe(filtered_count), "tracks", prefix)
@@ -102,15 +98,13 @@ def test_dataframe_status(original_count, filtered_count, prefix, expected):
 ##################################################
 def test_status(results):
 	"""Vérifie exactement l'ensemble des statuts dans chaque configuration."""
-	expected = {
-			"File":          "No File",
-			"Localizations": "No",
-			"Beads":         "No",
-			"Tracks":        "No",
-			"MSD":           "No",
-			"Instant D":     "No",
-			"MSD Fit":       "No",
-			}
+	expected = {"File":          "No File",
+				"Localizations": "No",
+				"Beads":         "No",
+				"Tracks":        "No",
+				"MSD":           "No",
+				"Instant D":     "No",
+				"MSD Fit":       "No"}
 	assert results.get_status() == expected
 
 	results._stack_name = "stack.tif"
@@ -119,15 +113,13 @@ def test_status(results):
 	for key in ("f_loc", "f_trc", "f_blk", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = make_dataframe(2)
 
-	expected = {
-			"File":          "stack.tif",
-			"Localizations": "Yes Filtered (2/1 localizations)",
-			"Beads":         "Yes (1 localizations)",
-			"Tracks":        "Yes Reconnected Filtered (2/1 tracks)",
-			"MSD":           "Yes Filtered (2/1 tracks)",
-			"Instant D":     "Yes Filtered (2/1 tracks)",
-			"MSD Fit":       "Yes Filtered (2/1 tracks)",
-			}
+	expected = {"File":          "stack.tif",
+				"Localizations": "Yes Filtered (2/1 localizations)",
+				"Beads":         "Yes (1 localizations)",
+				"Tracks":        "Yes Reconnected Filtered (2/1 tracks)",
+				"MSD":           "Yes Filtered (2/1 tracks)",
+				"Instant D":     "Yes Filtered (2/1 tracks)",
+				"MSD Fit":       "Yes Filtered (2/1 tracks)"}
 	assert results.get_status() == expected
 
 	results._data["f_blk"] = pd.DataFrame()
@@ -137,15 +129,13 @@ def test_status(results):
 	for key in ("f_loc", "f_trc", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = pd.DataFrame()
 	results._data["blk"] = pd.DataFrame()
-	expected = {
-			"File":          "stack.tif",
-			"Localizations": "Yes (1 localizations)",
-			"Beads":         "Yes (1 localizations)",
-			"Tracks":        "Yes (1 tracks)",
-			"MSD":           "Yes (1 tracks)",
-			"Instant D":     "Yes (1 tracks)",
-			"MSD Fit":       "Yes (1 tracks)",
-			}
+	expected = {"File":          "stack.tif",
+				"Localizations": "Yes (1 localizations)",
+				"Beads":         "Yes (1 localizations)",
+				"Tracks":        "Yes (1 tracks)",
+				"MSD":           "Yes (1 tracks)",
+				"Instant D":     "Yes (1 tracks)",
+				"MSD Fit":       "Yes (1 tracks)"}
 	assert results.get_status() == expected
 
 

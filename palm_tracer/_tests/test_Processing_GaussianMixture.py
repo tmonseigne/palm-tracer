@@ -3,13 +3,13 @@
 import numpy as np
 import pytest
 
-from palm_tracer._tests.Utils import rng
 from palm_tracer.Processing import GaussianMixture
 
 
 ##################################################
 def test_fit_two_components():
 	"""Vérifie l'estimation des paramètres d'un mélange de deux gaussiennes."""
+	rng = np.random.default_rng(42)
 	data = np.concatenate((rng.normal(-2.0, 0.5, 3500), rng.normal(3.0, 0.8, 6500)))
 	mixture = GaussianMixture.fit(data, n_component=2)
 
@@ -23,6 +23,7 @@ def test_fit_two_components():
 ##################################################
 def test_fit_is_generic():
 	"""Vérifie que l'ajustement accepte plus de deux composantes."""
+	rng = np.random.default_rng(42)
 	data = np.concatenate((rng.normal(-4.0, 0.3, 2000), rng.normal(0.0, 0.5, 3000), rng.normal(5.0, 0.7, 5000)))
 	mixture = GaussianMixture.fit(data, n_component=3)
 
@@ -34,6 +35,7 @@ def test_fit_is_generic():
 ##################################################
 def test_make_curve():
 	"""Vérifie la génération de la courbe de densité du mélange."""
+	rng = np.random.default_rng(42)
 	mixture = GaussianMixture.fit(np.concatenate((rng.normal(-2.0, 0.5, 2000), rng.normal(2.0, 0.5, 2000))))
 	x_grid, density = mixture.make_curve([-6.0, 6.0], n_point=1000)
 
@@ -43,16 +45,26 @@ def test_make_curve():
 
 
 ##################################################
-@pytest.mark.parametrize("data, kwargs", [(np.arange(2), {"n_component": 0}), (np.arange(2), {"max_iter": 0}), (np.arange(2), {"tolerance": 0}),
-										  (np.arange(2), {"n_init": 0}), (np.empty(0), {"n_component": 2}), (np.arange(2), {"n_component": 3}),
-										  (np.ones(10), {"n_component": 2}), (np.ones(10), {"n_component": 1})])
+@pytest.mark.parametrize("data, kwargs", [
+		pytest.param(np.arange(2), {"n_component": 0}, id="zero-components"),
+		pytest.param(np.arange(2), {"max_iter": 0}, id="zero-iterations"),
+		pytest.param(np.arange(2), {"tolerance": 0}, id="zero-tolerance"),
+		pytest.param(np.arange(2), {"n_init": 0}, id="zero-initializations"),
+		pytest.param(np.empty(0), {"n_component": 2}, id="empty-data"),
+		pytest.param(np.arange(2), {"n_component": 3}, id="more-components-than-samples"),
+		pytest.param(np.ones(10), {"n_component": 2}, id="constant-data-two-components"),
+		pytest.param(np.ones(10), {"n_component": 1}, id="constant-data-one-component")])
 def test_invalid_fit_parameters(data, kwargs):
 	"""Vérifie le rejet des données et paramètres incompatibles avec l'ajustement."""
 	with pytest.raises(ValueError): GaussianMixture.fit(data, **kwargs)
 
 
 ##################################################
-@pytest.mark.parametrize("limits, n_point", [([-1.0, 1.0], 1), ([0.0], 128), ([np.nan, 1.0], 128), ([1.0, 1.0], 128)])
+@pytest.mark.parametrize("limits, n_point", [
+		pytest.param([-1.0, 1.0], 1, id="insufficient-points"),
+		pytest.param([0.0], 128, id="missing-bound"),
+		pytest.param([np.nan, 1.0], 128, id="nan-bound"),
+		pytest.param([1.0, 1.0], 128, id="equal-bounds")])
 def test_invalid_curve_parameters(limits, n_point):
 	"""Vérifie le rejet des paramètres incompatibles avec la génération d'une courbe."""
 	mixture = GaussianMixture(np.ones(1), np.zeros(1), np.ones(1), 0.0, True, 1)
@@ -84,6 +96,7 @@ def test_kmeans_iteration_limit(monkeypatch):
 ##################################################
 def test_em_iteration_limit():
 	"""Vérifie l'état retourné lorsqu'EM atteint sa limite d'itérations avant de converger."""
+	rng = np.random.default_rng(42)
 	data = np.concatenate((rng.normal(-1.0, 0.5, 100), rng.normal(1.0, 0.5, 100)))
 	mixture = GaussianMixture.fit(data, max_iter=1, n_init=1)
 

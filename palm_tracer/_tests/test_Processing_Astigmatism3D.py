@@ -1,10 +1,13 @@
 """Teste les fonctions de calibration et d'estimation axiale par astigmatisme 3D."""
 
+import pytest
+
 from palm_tracer.Processing.Astigmatism3D import *
 
 Z_MAX, N_POINTS, PIXEL_SIZE, SAMPLING = 500, 5000, 160, 1
 REF_MODEL = np.array([[300, 450, -0.70, -0.30, 240], [-300, 600, 1.40, 0.04, 240]], dtype=float)
 REF_MODEL2 = np.array([[-200, 100, 0, 0, 32], [200, 100, 0, 0, 32]], dtype=float)
+LOC_COLS = ["Plane", "X", "Y", "Sigma X", "Sigma Y", "Z"]
 
 
 ##################################################
@@ -32,85 +35,56 @@ def get_dataset(model: np.ndarray = REF_MODEL, z_max: float = Z_MAX, n: int = N_
 DATASET = get_dataset()
 
 
+# ==================================================
+# region Préparation des données
+# ==================================================
 ##################################################
-def test_get_z_from_planes():
-	"""Vérifie le comportement de get_z_from_planes."""
-	planes = np.array([0, 1, 2, 3, 4])
-
-	res = z_from_planes(planes, z_min=-10, z_max=10)
-	ref = [-10, -5, 0, 5, 10]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = z_from_planes(planes, z_min=-10, z_max=0)
-	ref = [-10, -7.5, -5, -2.5, 0]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = z_from_planes(planes, z_min=0, z_max=10)
-	ref = [0, 2.5, 5, 7.5, 10]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = z_from_planes(planes, z_min=1, z_max=1)
-	ref = np.ones(5)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = z_from_planes(np.ones(5), z_min=-10, z_max=10)
-	ref = np.zeros(5)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+@pytest.mark.parametrize("planes, z_min, z_max, expected", [
+		pytest.param(np.arange(5), -10, 10, [-10, -5, 0, 5, 10], id="symmetric-range"),
+		pytest.param(np.arange(5), -10, 0, [-10, -7.5, -5, -2.5, 0], id="negative-range"),
+		pytest.param(np.arange(5), 0, 10, [0, 2.5, 5, 7.5, 10], id="positive-range"),
+		pytest.param(np.arange(5), 1, 1, np.ones(5), id="equal-bounds"),
+		pytest.param(np.ones(5), -10, 10, np.zeros(5), id="identical-planes")])
+def test_get_z_from_planes(planes, z_min, z_max, expected):
+	"""Vérifie la conversion des numéros de plans selon la plage axiale."""
+	np.testing.assert_array_equal(z_from_planes(planes, z_min, z_max), expected)
 
 
 ##################################################
-def test_get_z_from_step():
-	"""Vérifie le comportement de get_z_from_step."""
-	res = z_from_step(5, 1)
-	ref = [-2, -1, 0, 1, 2.]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = z_from_step(4, 1)
-	ref = [-1.5, -0.5, 0.5, 1.5]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = z_from_step(5, 1, False)
-	ref = [0, 1, 2, 3, 4.]
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+@pytest.mark.parametrize("count, centered, expected", [
+		pytest.param(5, True, [-2, -1, 0, 1, 2], id="centered-odd-count"),
+		pytest.param(4, True, [-1.5, -0.5, 0.5, 1.5], id="centered-even-count"),
+		pytest.param(5, False, [0, 1, 2, 3, 4], id="no-centering")])
+def test_get_z_from_step(count, centered, expected):
+	"""Vérifie les positions axiales pour un pas unitaire."""
+	np.testing.assert_array_equal(z_from_step(count, 1, centered), expected)
 
 
 ##################################################
-def test_remove_multi_loc():
-	"""Vérifie le comportement de remove_multi_loc."""
-	columns = ["Plane", "X", "Y", "Sigma X", "Sigma Y", "Z"]
-	# DataFrame vide
-	data = pd.DataFrame([], columns=columns)
-	res = remove_multi_beads(data)
-	assert res.empty
-
-	# DataFrame sans la colonne "Plane".
-	data = pd.DataFrame([[0, 0, 0, 0, 0]], columns=columns[1:])
-	res = remove_multi_beads(data)
-	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
-
-	# DataFrame avec déjà un seul point par plan.
-	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0], [3, 5, 5, 1, 1, 0]], columns=columns)
-	res = remove_multi_beads(data)
-	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
-
-	# DataFrame dont aucun plan ne contient une seule localisation.
-	data = pd.DataFrame([[1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0]], columns=columns)
-	res = remove_multi_beads(data)
-	assert np.allclose(res, data, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {data}\nObtenu : {res}"
-
-	# DataFrame cohérent.
-	data = pd.DataFrame([[1, 3, 3, 1, 1, 0], [1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
-	res = remove_multi_beads(data)
-	ref = pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=columns)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# DataFrame avec une colonne Bead.
-	data = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0], [2, 1, 5, 5, 1, 1, 0], [2, 2, 5, 5, 1, 1, 0]], columns=["Bead"] + columns)
-	res = remove_multi_beads(data)
-	ref = pd.DataFrame([[1, 1, 3, 3, 1, 1, 0]], columns=["Bead"] + columns)
-	assert np.allclose(res, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+@pytest.mark.parametrize("data, expected", [
+		pytest.param(pd.DataFrame([], columns=LOC_COLS), pd.DataFrame([], columns=LOC_COLS), id="empty"),
+		pytest.param(pd.DataFrame([[0, 0, 0, 0, 0]], columns=LOC_COLS[1:]), pd.DataFrame([[0, 0, 0, 0, 0]], columns=LOC_COLS[1:]), id="missing-plane-column"),
+		pytest.param(pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0], [3, 5, 5, 1, 1, 0]], columns=LOC_COLS),
+					 pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0], [3, 5, 5, 1, 1, 0]], columns=LOC_COLS), id="single-point-per-plane"),
+		pytest.param(pd.DataFrame([[1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0]], columns=LOC_COLS),
+					 pd.DataFrame([[1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0], [1, 5, 5, 1, 1, 0]], columns=LOC_COLS), id="no-single-localization-plane"),
+		pytest.param(pd.DataFrame([[1, 3, 3, 1, 1, 0], [1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=LOC_COLS),
+					 pd.DataFrame([[1, 5, 5, 1, 1, 0], [2, 5, 5, 1, 1, 0]], columns=LOC_COLS), id="spatial-selection"),
+		pytest.param(pd.DataFrame([[1, 1, 3, 3, 1, 1, 0], [2, 1, 5, 5, 1, 1, 0], [2, 2, 5, 5, 1, 1, 0]], columns=["Bead"] + LOC_COLS),
+					 pd.DataFrame([[1, 1, 3, 3, 1, 1, 0]], columns=["Bead"] + LOC_COLS), id="bead-column")])
+def test_remove_multi_loc(data, expected):
+	"""Vérifie la sélection des billes dans chaque configuration de localisation."""
+	res = remove_multi_beads(data.copy())
+	pd.testing.assert_frame_equal(res, expected)
 
 
+# ==================================================
+# endregion Préparation des données
+# ==================================================
+
+# ==================================================
+# region Modèle et validation
+# ==================================================
 ##################################################
 def test_sigma_model():
 	"""Vérifie le comportement de sigma_model."""
@@ -122,49 +96,41 @@ def test_sigma_model():
 
 
 ##################################################
-def test_model_validity():
-	"""Vérifie le comportement de model_validity."""
-	# Vérification des métriques pour le bon modèle.
-	# J'ai un bruit de 0.02 donc rmse environ 0.02 et mae légèrement inférieur, R² très proche de 1 (supérieur à 99% de variance expliquée).
-	res = model_validity(DATASET, REF_MODEL, PIXEL_SIZE, SAMPLING)
-	ref = {'rmse_x': 0.02, 'rmse_y': 0.02, 'rmse_xy': 0.02, 'mae_x': 0.02, 'mae_y': 0.02, 'r2_x': 1, 'r2_y': 1}
-	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Vérification des métriques pour un modèle avec axe inversé, attendu rmse et mae élevé (supérieur à 1) et R2 négatif.
-	res = model_validity(DATASET, REF_MODEL[::-1], PIXEL_SIZE, SAMPLING)
-	ref = {'rmse_x': 1.21, 'rmse_y': 1.21, 'rmse_xy': 1.21, 'mae_x': 1.06, 'mae_y': 1.06, 'r2_x': -2.87, 'r2_y': -2.21}
-	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Vérification des métriques pour un modèle différent (mais un minimum cohérent avec l'astigmatisme). Attendu : Erreurs encore plus importantes.
-	res = model_validity(DATASET, REF_MODEL2, PIXEL_SIZE, SAMPLING)
-	ref = {'rmse_x': 1.73, 'rmse_y': 1.73, 'rmse_xy': 1.73, 'mae_x': 1.48, 'mae_y': 1.47, 'r2_x': -6.92, 'r2_y': -5.62}
-	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
+@pytest.mark.parametrize("model, expected", [
+		pytest.param(REF_MODEL, {'rmse_x': 0.02, 'rmse_y': 0.02, 'rmse_xy': 0.02, 'mae_x': 0.02, 'mae_y': 0.02, 'r2_x': 1, 'r2_y': 1}, id="correct-model"),
+		pytest.param(REF_MODEL[::-1], {'rmse_x': 1.21, 'rmse_y': 1.21, 'rmse_xy': 1.21, 'mae_x': 1.06, 'mae_y': 1.06, 'r2_x': -2.87, 'r2_y': -2.21},
+					 id="reversed-axes"),
+		pytest.param(REF_MODEL2, {'rmse_x': 1.73, 'rmse_y': 1.73, 'rmse_xy': 1.73, 'mae_x': 1.48, 'mae_y': 1.47, 'r2_x': -6.92, 'r2_y': -5.62},
+					 id="different-model")])
+def test_model_validity(model, expected):
+	"""Vérifie les métriques pour chaque modèle de calibration indépendamment."""
+	res = model_validity(DATASET, model, PIXEL_SIZE, SAMPLING)
+	for key, value in expected.items():
+		assert np.isclose(res[key], value, atol=0.1), f"Métrique {key} : {res[key]} au lieu de {value}."
 
 
 ##################################################
-def test_model_projection_validity():
-	"""Vérifie le comportement de model_projection_validity."""
-	# Vérification des métriques pour le bon modèle. Le bruit de 0.02 (et son carré) est retrouvé dans les deux derniers éléments du dictionnaire
-	res = model_projection_validity(DATASET, REF_MODEL, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
-	print(res)
-	ref = {'rmse_z': 5.78, 'mae_z': 4.58, 'p95_abs_z': 11.40, 'bias_z': 0.03, 'std_z': 5.78, 'mean_dist': 0.02, 'p95_dist': 0.04, "slope_mean": 0.004}
-	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Vérification des métriques pour un modèle avec axe inversé,
-	# RMSE et MAE attendues élevées (du même ordre de grandeur que Z_MAX), mais distances en pixels faibles : signature d'une inversion du Z.
-	# Le biais faible en est une conséquence (les erreurs s'annulent presque du fait que la courbe est PRESQUE symétrique).
-	res = model_projection_validity(DATASET, REF_MODEL[::-1], Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
-	ref = {'rmse_z': 577.31, 'mae_z': 499.94, 'p95_abs_z': 950, 'bias_z': 7.4, 'std_z': 577.27, 'mean_dist': 0.03, 'p95_dist': 0.1, "slope_mean": 0.004}
-	print(res)
-	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Vérification des métriques pour un modèle différent (mais un minimum cohérent avec l'astigmatisme), attendu erreurs importantes partout.
-	res = model_projection_validity(DATASET, REF_MODEL2, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
-	ref = {'rmse_z': 763.52, 'mae_z': 749.6, 'p95_abs_z': 975.01, 'bias_z': 20.6, 'std_z': 763.24, 'mean_dist': 1.59, 'p95_dist': 2.27, "slope_mean": 0.0015}
-	print(res)
-	for key in ref: assert np.isclose(res[key], ref[key], atol=0.1), f"Résultat incorrect pour la clé {key}.\nAttendu : {ref}\nObtenu : {res}"
+@pytest.mark.parametrize("model, expected", [
+		pytest.param(REF_MODEL, {'rmse_z':     5.78, 'mae_z': 4.58, 'p95_abs_z': 11.40, 'bias_z': 0.03, 'std_z': 5.78, 'mean_dist': 0.02, 'p95_dist': 0.04,
+								 "slope_mean": 0.004}, id="correct-model"),
+		pytest.param(REF_MODEL[::-1], {'rmse_z':   577.31, 'mae_z': 499.94, 'p95_abs_z': 950, 'bias_z': 7.4, 'std_z': 577.27, 'mean_dist': 0.03,
+									   'p95_dist': 0.1, "slope_mean": 0.004}, id="reversed-axes"),
+		pytest.param(REF_MODEL2, {'rmse_z':   763.52, 'mae_z': 749.6, 'p95_abs_z': 975.01, 'bias_z': 20.6, 'std_z': 763.24, 'mean_dist': 1.59,
+								  'p95_dist': 2.27, "slope_mean": 0.0015}, id="different-model")])
+def test_model_projection_validity(model, expected):
+	"""Vérifie les métriques pour chaque modèle de calibration indépendamment."""
+	res = model_projection_validity(DATASET, model, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
+	for key, value in expected.items():
+		assert np.isclose(res[key], value, atol=0.1), f"Métrique {key} : {res[key]} au lieu de {value}."
 
 
+# ==================================================
+# endregion Modèle et validation
+# ==================================================
+
+# ==================================================
+# region Recherche du centre
+# ==================================================
 ##################################################
 def test_find_model_center():
 	"""Vérifie le comportement de find_model_center."""
@@ -191,3 +157,7 @@ def test_find_model_center():
 	res = find_model_center(model_bisection_no_exact_zero, 100, 1)
 	ref = 29.2051458
 	assert np.isclose(res, ref, 1e-6)
+
+# ==================================================
+# endregion Recherche du centre
+# ==================================================

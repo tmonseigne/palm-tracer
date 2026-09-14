@@ -5,6 +5,9 @@ from palm_tracer._tests.Utils import _FakeDownload
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # Classe
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_creation(qtbot):
 	"""Vérifie la création du widget."""
@@ -16,6 +19,13 @@ def test_creation(qtbot):
 	w.close()
 
 
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Widget Web Plotly
+# ==================================================
 ##################################################
 def test_update_plotly(qtbot):
 	"""Vérifie gestion de plotly."""
@@ -74,6 +84,13 @@ def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
+# ==================================================
+# endregion Widget Web Plotly
+# ==================================================
+
+# ==================================================
+# region Export Plotly
+# ==================================================
 ##################################################
 def test_export_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	"""Vérifie gestion de plotly."""
@@ -117,3 +134,7 @@ def test_export_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	w._on_export()
 
 	w.close()
+
+# ==================================================
+# endregion Export Plotly
+# ==================================================

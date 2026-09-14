@@ -2,85 +2,174 @@
 
 from pathlib import Path
 
+import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QLabel, QScrollArea, QSpinBox, QVBoxLayout, QWidget
 
 from palm_tracer.Tools import Ui
 
 
+# ==================================================
+# region Construction de l'interface
+# ==================================================
 ##################################################
-def test_builders(qtbot):
-	"""Vérifie les fonctions de build."""
-	main_widget = QWidget()
-	tab, layout = Ui.make_tab(main_widget)  # Création d'un onglet
-	assert isinstance(tab, QWidget)
-	assert isinstance(layout, QVBoxLayout)
-
-	Ui.init_layout(layout)  # Initialisation d'un calque
-
-	group, layout = Ui.make_group(main_widget)  # Création d'un groupe
-	assert isinstance(group, QGroupBox)
-	assert isinstance(layout, QVBoxLayout)
-
-	form = Ui.make_form(main_widget)  # Création d'un formulaire
+def test_add_setting_row(qtbot):
+	"""Vérifie l'ajout d'un paramètre dans un formulaire."""
+	parent = QWidget()
+	qtbot.addWidget(parent)
+	form = Ui.make_form(parent)
 	assert isinstance(form, QFormLayout)
-
-	Ui.add_setting_row(form, "my setting", QWidget())  # Ajout d'un paramètre au formulaire
-	assert form.rowCount() == 1  # Il a maintenant 1 ligne
-
-	label = Ui.make_path_label("my path", main_widget)  # Création d'un Qlabel d'information
-	assert isinstance(label, QLabel)
-
-	Ui.update_path_label(label, "my/path/file.txt")
-	Ui.update_path_label(label, Path("my/path/file.txt"))
-
-	separator = Ui.make_horizontal_separator()  # Création d'un séparateur horizontal
-	assert isinstance(separator, QFrame)
-	separator = Ui.make_vertical_separator("#000000")  # Création d'un séparateur vertival (noir)
-	assert isinstance(separator, QFrame)
-
-	scroll = Ui.make_vertical_scroll(QWidget())  # Création d'une zone scrollable vertivale
-	assert isinstance(scroll, QScrollArea)
-
-	elements = {"1": {"label": QLabel("1"), "value": QLabel("-")}, "2": {"label": QLabel("2"), "value": QLabel("-")}}
-
-	grid = Ui.make_info_grid(elements, "title")  # Création d'un groupe
-	assert isinstance(grid, QGridLayout)
-
-	elements = {"1": {"label": QLabel("1"), "value": QLabel("-"), "unit": QLabel("unit"), "tips": "tooltips"},
-				"2": {"label": QLabel("2"), "value": QLabel("-"), "unit": QLabel("unit"), "tips": ""}}
-	grid = Ui.make_info_grid(elements, "title", 3)  # Création d'un groupe
-	assert isinstance(grid, QGridLayout)
-
-	grp, status = Ui.make_file_info_group()
-	assert isinstance(grp, QGroupBox)
+	value = QWidget()
+	Ui.add_setting_row(form, "my setting", value)
+	assert form.rowCount() == 1
+	assert form.itemAt(0, QFormLayout.ItemRole.FieldRole).layout().itemAt(0).widget() is value
 
 
 ##################################################
-def test_builders_spin(qtbot):
-	"""Vérifie les fonctions de build."""
-	main_widget = QWidget()
+def test_init_layout(qtbot):
+	"""Vérifie les espacements et marges demandés pour un calque."""
+	parent = QWidget()
+	qtbot.addWidget(parent)
+	layout = QVBoxLayout(parent)
+	Ui.init_layout(layout, space=3, margin=5)
+	assert layout.spacing() == 3
+	margins = layout.contentsMargins()
+	assert (margins.left(), margins.top(), margins.right(), margins.bottom()) == (5, 5, 5, 5)
 
-	spin_1 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
-	assert isinstance(spin_1, QSpinBox)
-	spin_2 = Ui.make_spin(main_widget, -100, 100, 10, 0, 2, False)
-	assert isinstance(spin_2, QDoubleSpinBox)
-	Ui.set_spin_width(spin_1)
-	Ui.set_spin_width(spin_2)
 
-	Ui.update_spin_limits(spin_1)  # Aucune mise à jour
-	Ui.update_spin_limits(spin_1, 0, None)  # Mise à jour du min
-	Ui.update_spin_limits(spin_1, None, 10)  # Mise à jour du max
-	Ui.update_spin_limits(spin_1, 1, 9)  # Mise à jour des deux
+##################################################
+@pytest.mark.parametrize("builder, widget_type", [pytest.param(Ui.make_tab, QWidget, id="tab"), pytest.param(Ui.make_group, QGroupBox, id="group")])
+def test_make_container(qtbot, builder, widget_type):
+	"""Vérifie la construction d'un conteneur et de son calque vertical."""
+	widget, layout = builder()
+	qtbot.addWidget(widget)
+	assert isinstance(widget, widget_type)
+	assert isinstance(layout, QVBoxLayout)
+	assert widget.layout() is layout
 
-	spin_2 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
-	assert isinstance(spin_2, QSpinBox)
+
+##################################################
+@pytest.mark.parametrize("with_units", [pytest.param(False, id="no-units"), pytest.param(True, id="with-units-and-tooltips")])
+def test_make_info_grid(qtbot, with_units):
+	"""Vérifie la construction de la grille avec ou sans unités et infobulles."""
+	parent = QWidget()
+	qtbot.addWidget(parent)
+	elements = {"1": {"label": QLabel("1"), "value": QLabel("-")},
+				"2": {"label": QLabel("2"), "value": QLabel("-")}}
+	if with_units:
+		elements["1"].update(unit=QLabel("unit"), tips="tooltips")
+		elements["2"].update(unit=QLabel("unit"), tips="")
+	grid = Ui.make_info_grid(elements, "title", 3 if with_units else 2, parent)
+	assert isinstance(grid, QGridLayout)
+
+
+##################################################
+def test_make_file_info_group(qtbot):
+	"""Vérifie la construction du groupe d'informations d'un fichier."""
+	group, status = Ui.make_file_info_group()
+	qtbot.addWidget(group)
+	assert isinstance(group, QGroupBox)
+	assert status
+
+
+##################################################
+def test_make_path_label(qtbot):
+	"""Vérifie le texte initial du label de chemin."""
+	label = Ui.make_path_label("my path")
+	qtbot.addWidget(label)
+	assert isinstance(label, QLabel)
+	assert label.text() == "my path"
+
+
+##################################################
+@pytest.mark.parametrize("path", [pytest.param("my/path/file.txt", id="string"), pytest.param(Path("my/path/file.txt"), id="path-object")])
+def test_update_path_label(qtbot, path):
+	"""Vérifie le nom affiché et le chemin complet dans l'infobulle."""
+	label = Ui.make_path_label()
+	qtbot.addWidget(label)
+	Ui.update_path_label(label, path)
+	assert label.text() == "file.txt"
+	assert label.toolTip() == str(Path(path))
+
+
+##################################################
+def test_make_vertical_scroll(qtbot):
+	"""Vérifie que la zone de défilement contient le widget demandé."""
+	content = QWidget()
+	scroll = Ui.make_vertical_scroll(content)
+	qtbot.addWidget(scroll)
+	assert isinstance(scroll, QScrollArea)
+	assert scroll.widget() is content
+	assert scroll.widgetResizable()
+
+
+##################################################
+@pytest.mark.parametrize("builder, shape, color", [
+		pytest.param(Ui.make_vertical_separator, QFrame.Shape.VLine, "#000000", id="vertical"),
+		pytest.param(Ui.make_horizontal_separator, QFrame.Shape.HLine, "#B0B0B0", id="horizontal")])
+def test_make_separator(qtbot, builder, shape, color):
+	"""Vérifie l'orientation et la couleur du séparateur."""
+	separator = builder(color)
+	qtbot.addWidget(separator)
+	assert separator.frameShape() == shape
+	assert color in separator.styleSheet()
+
+
+##################################################
+@pytest.mark.parametrize("decimals, buttons, spin_type", [
+		pytest.param(0, True, QSpinBox, id="integer-with-buttons"),
+		pytest.param(2, False, QDoubleSpinBox, id="decimal-without-buttons")])
+def test_make_spin(qtbot, decimals, buttons, spin_type):
+	"""Vérifie le type et les paramètres du champ numérique."""
+	spin = Ui.make_spin(None, -100, 100, 10, 0, decimals, buttons)
+	qtbot.addWidget(spin)
+	assert isinstance(spin, spin_type)
+	assert (spin.minimum(), spin.maximum(), spin.singleStep(), spin.value()) == (-100, 100, 10, 0)
+	assert (spin.buttonSymbols() != QSpinBox.ButtonSymbols.NoButtons) == buttons
+	if decimals: assert spin.decimals() == decimals
+	Ui.set_spin_width(spin)
+	assert spin.minimumWidth() == spin.maximumWidth() > 0
+
+
+# ==================================================
+# endregion Construction de l'interface
+# ==================================================
+
+# ==================================================
+# region Fonctions de rappel
+# ==================================================
+##################################################
+def test_sync_button_group(qtbot):
+	"""Vérifie les fonctions de synchronisation."""
+
+	layout_1, grp_1, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
+	assert isinstance(grp_1, QButtonGroup)
+	layout_2, grp_2, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
+	assert isinstance(grp_2, QButtonGroup)
+
+	parents = []  # Conserve les deux conteneurs pendant les clics et assertions.
+	for layout in (layout_1, layout_2):
+		parent = QWidget()
+		parents.append(parent)
+		parent.setLayout(layout)
+		qtbot.addWidget(parent)
+
+	# Synchronisation
+	grp_1.idClicked.connect(lambda v: Ui.sync_button_group(grp_2, v))
+	grp_2.idClicked.connect(lambda v: Ui.sync_button_group(grp_1, v))
+
+	qtbot.mouseClick(grp_1.button(2), Qt.MouseButton.LeftButton)
+	assert grp_2.checkedId() == 2
+
+	qtbot.mouseClick(grp_2.button(0), Qt.MouseButton.LeftButton)
+	assert grp_1.checkedId() == 0
 
 
 ##################################################
 def test_sync_spin(qtbot):
 	"""Vérifie les fonctions de synchronisation."""
 	main_widget = QWidget()
+	qtbot.addWidget(main_widget)
 
 	spin_1 = Ui.make_spin(main_widget, -100, 100, 10, 0, 0, True)
 	assert isinstance(spin_1, QSpinBox)
@@ -99,45 +188,50 @@ def test_sync_spin(qtbot):
 
 
 ##################################################
-def test_sync_button_group(qtbot):
-	"""Vérifie les fonctions de synchronisation."""
-	_ = QWidget()
+@pytest.mark.parametrize("minimum, maximum, expected", [
+		pytest.param(None, None, (-100, 100), id="no-change"),
+		pytest.param(0, None, (0, 100), id="minimum-only"),
+		pytest.param(None, 10, (-100, 10), id="maximum-only"),
+		pytest.param(1, 9, (1, 9), id="both-bounds")])
+def test_update_spin_limits(qtbot, minimum, maximum, expected):
+	"""Vérifie chaque combinaison de mise à jour des bornes indépendamment."""
+	spin = Ui.make_spin(None, -100, 100)
+	qtbot.addWidget(spin)
+	Ui.update_spin_limits(spin, minimum, maximum)
+	assert (spin.minimum(), spin.maximum()) == expected
 
-	_, grp_1, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
-	assert isinstance(grp_1, QButtonGroup)
-	_, grp_2, _ = Ui.make_exclusive_btn_group(["1", "2", "3"])
-	assert isinstance(grp_2, QButtonGroup)
 
-	# Synchronisation
-	grp_1.idClicked.connect(lambda v: Ui.sync_button_group(grp_2, v))
-	grp_2.idClicked.connect(lambda v: Ui.sync_button_group(grp_1, v))
+# ==================================================
+# endregion Fonctions de rappel
+# ==================================================
 
-	qtbot.mouseClick(grp_1.button(2), Qt.MouseButton.LeftButton)
-	assert grp_2.checkedId() == 2
-
-	qtbot.mouseClick(grp_2.button(0), Qt.MouseButton.LeftButton)
-	assert grp_1.checkedId() == 0
+# ==================================================
+# region Affichages
+# ==================================================
+##################################################
+@pytest.mark.parametrize("printer, message", [
+		pytest.param(Ui.print_error, "Message d'erreur", id="error"),
+		pytest.param(Ui.print_warning, "Message d'avertissement", id="warning"),
+		pytest.param(Ui.print_success, "Message de succès", id="success")])
+def test_print_message(capsys, printer, message):
+	"""Vérifie que chaque fonction affiche le message demandé."""
+	printer(message)
+	captured = capsys.readouterr()
+	assert message in captured.out
+	assert captured.out.endswith("\n")
+	assert captured.err == ""
 
 
 ##################################################
-def test_print_error():
-	"""Vérifie la fonction print error."""
-	Ui.print_error("Message d'erreur"), "L'affichage n'a pas pu être effectué"
+@pytest.mark.parametrize("seconds, expected", [
+		pytest.param(0, "00:00:00", id="zero-duration"),
+		pytest.param(59, "00:00:59", id="seconds"),
+		pytest.param(60, "00:01:00", id="minute-boundary"),
+		pytest.param(3666, "01:01:06", id="hours-minutes-seconds")])
+def test_format_time(seconds, expected):
+	"""Vérifie le format heures, minutes et secondes de la durée."""
+	assert Ui.format_time(seconds) == expected
 
-
-##################################################
-def test_print_warning():
-	"""Vérifie la fonction print warning."""
-	Ui.print_warning("Message d'avertissement"), "L'affichage n'a pas pu être effectué"
-
-
-##################################################
-def test_print_success():
-	"""Vérifie la fonction print warning."""
-	Ui.print_success("Message de succes"), "L'affichage n'a pas pu être effectué"
-
-
-##################################################
-def test_format_time():
-	"""Vérifie la fonction print warning."""
-	assert Ui.format_time(3666) == "01:01:06", "L'affichage n'a pas pu être effectué"
+# ==================================================
+# endregion Affichages
+# ==================================================

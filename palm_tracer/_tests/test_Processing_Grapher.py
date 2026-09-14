@@ -9,6 +9,7 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Grapher
 
 SIZE = 1000
+rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = rng.normal(loc=1.0, scale=1.0, size=SIZE).astype(float)
 POINTS_2 = rng.normal(loc=2.0, scale=1.0, size=SIZE).astype(float)
 IDX = np.arange(1, SIZE + 1, dtype=POINTS.dtype)
@@ -32,6 +33,9 @@ def _save_output(res: go.Figure, path: Path):
 	return data
 
 
+# ==================================================
+# region Figures statistiques
+# ==================================================
 ##################################################
 def test_blank():
 	"""Vérifie la création d'une figure vide."""
@@ -42,226 +46,188 @@ def test_blank():
 
 
 ##################################################
-def test_histogram():
-	"""Vérifie la génération des histogrammes."""
-	g = Grapher()
-	# Entrée Vide
-	res = g.histogram(np.empty(0), "blank")
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_0.json")
-	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
-
-	# Entrée 1D sans aucune option à part les Bins fixés
-	res = g.histogram(POINTS, "Histogram", "", "", False, False, False, False, False, False, False, False, bins=20)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_1.json")
-	ref = json.loads((REF_DIR / "grapher_Histogram_1.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 1D avec toutes les options à True
-	res = g.histogram(POINTS, "Histogram", "", "", True, True, True, True, True, True, True, True, True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_2.json")
-	# Attention, le Calcul du KDE diffère entre les OS et version de scipy...
-	# ref = json.loads((REF_DIR / "grapher_Histogram_2.json").read_text(encoding="utf-8"))
-	# if platform.system() == "Windows": assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Histogramme avec valeurs entières
-	res = g.histogram(np.array([1, 2, 2, 4]), bins=-1)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_integer.json")
-	ref = json.loads((REF_DIR / "grapher_Histogram_integer.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 1D avec courbes densité et non cumulatif
-	res = g.histogram(POINTS, "Histogram", "", "", kde=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_kde.json")
-	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_gaussian.json")
-	res = g.histogram(np.concatenate((POINTS - 2.0, POINTS + 2.0)), "Histogram", gaussian_mixture=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_gaussian_mix.json")
-	res = g.histogram(POINTS, "Histogram", "", "", poissonian=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_poissonian.json")
-	res = g.histogram(POINTS, "Histogram", "", "", exponential=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_exponential.json")
-	# Attention, le Calcul du KDE, gaussian, poisson... diffère entre les OS et version de scipy...
-	# ref = json.loads((REF_DIR / "grapher_Histogram_3_kde.json").read_text(encoding="utf-8"))
-	# assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Gaussienne count
-	res = g.histogram(POINTS, "Histogram", "", "", gaussian=True, density=False)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_Histogram_3_count.json")
-
-
-	# Entrée 2D
-	res = g.histogram(np.stack((IDX, POINTS), axis=0), "Histogram", limit=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_4.json")
-	ref = json.loads((REF_DIR / "grapher_Histogram_4.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D (transposé identique au précédent)
-	res = g.histogram(np.stack((IDX, POINTS), axis=1), "Histogram", limit=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_4b.json")
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D, mais avec plus de 2 lignes ou colonnes (il compacte tout)
-	res = g.histogram(np.zeros((3, 3)), "Histogram")
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_5.json")
-	ref = json.loads((REF_DIR / "grapher_Histogram_5.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 3D (il compacte tout)
-	res = g.histogram(np.zeros((3, 3, 3)), "Histogram")
-	res = _save_output(res, OUTPUT_DIR / "grapher_Histogram_6.json")
-	ref = json.loads((REF_DIR / "grapher_Histogram_6.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+@pytest.mark.parametrize("args, kwargs, filename, reference", [
+		pytest.param((np.empty(0), 'blank',), {}, 'grapher_Histogram_0.json', 'grapher_blank.json', id="empty"),
+		pytest.param((POINTS, 'Histogram', '', '', False, False, False, False, False, False, False, False,), {'bins': 20}, 'grapher_Histogram_1.json',
+					 'grapher_Histogram_1.json', id="fixed-bins"),
+		pytest.param((np.array([1, 2, 2, 4]),), {'bins': -1}, 'grapher_Histogram_integer.json', 'grapher_Histogram_integer.json', id="integer-values"),
+		pytest.param((np.stack((IDX, POINTS), axis=0), 'Histogram',), {'limit': True}, 'grapher_Histogram_4.json', 'grapher_Histogram_4.json',
+					 id="two-rows"),
+		pytest.param((np.stack((IDX, POINTS), axis=1), 'Histogram',), {'limit': True}, 'grapher_Histogram_4b.json', 'grapher_Histogram_4.json',
+					 id="two-columns"),
+		pytest.param((np.zeros((3, 3)), 'Histogram',), {}, 'grapher_Histogram_5.json', 'grapher_Histogram_5.json', id="flattened-matrix"),
+		pytest.param((np.zeros((3, 3, 3)), 'Histogram',), {}, 'grapher_Histogram_6.json', 'grapher_Histogram_6.json', id="flattened-volume")])
+def test_histogram(args, kwargs, filename, reference):
+	"""Vérifie chaque configuration du graphique indépendamment."""
+	figure = Grapher().histogram(*args, **kwargs)
+	res = _save_output(figure, OUTPUT_DIR / filename)
+	ref = json.loads((REF_DIR / reference).read_text(encoding="utf-8"))
+	assert res == ref
 
 
 ##################################################
-def test_scatter():
-	"""Vérifie la génération des nuages de points."""
-	g = Grapher()
-	# Entrée Vide
-	res = g.scatter(np.empty(0), "blank")
-	res = _save_output(res, OUTPUT_DIR / "grapher_scatter_0.json")
-	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
-
-	# Entrée 1D
-	res = g.scatter(POINTS, "scatter")
-	res = _save_output(res, OUTPUT_DIR / "grapher_scatter_1.json")
-	ref = json.loads((REF_DIR / "grapher_scatter_1.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D
-	res = g.scatter(np.stack((IDX, POINTS), axis=0), "scatter")
-	res = _save_output(res, OUTPUT_DIR / "grapher_scatter_2.json")
-	ref = json.loads((REF_DIR / "grapher_scatter_2.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D (transposé) avec limitation
-	res = g.scatter(np.stack((IDX, POINTS), axis=1), "scatter", limit=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_scatter_3.json")
-	ref = json.loads((REF_DIR / "grapher_scatter_3.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D (transposé) avec affichage des mu et sigma
-	res = g.scatter(np.stack((IDX, POINTS), axis=1), "scatter", show_sigma=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_scatter_4.json")
-	ref = json.loads((REF_DIR / "grapher_scatter_4.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D, mais avec plus de 2 lignes ou colonnes
-	with pytest.raises(ValueError) as exception_info: g.scatter(np.zeros((3, 3)), "scatter fail")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-
-	# Entrée 3D
-	with pytest.raises(ValueError) as exception_info: g.scatter(np.zeros((3, 3, 3)), "scatter fail")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+@pytest.mark.parametrize("args, kwargs, filename", [
+		pytest.param((POINTS, 'Histogram', '', '', True, True, True, True, True, True, True, True, True,), {}, 'grapher_Histogram_2.json',
+					 id="all-options"),
+		pytest.param((POINTS, 'Histogram', '', '',), {'kde': True}, 'grapher_Histogram_3_kde.json', id="kde"),
+		pytest.param((POINTS, 'Histogram', '', '',), {'gaussian': True}, 'grapher_Histogram_3_gaussian.json', id="gaussian"),
+		pytest.param((np.concatenate((POINTS - 2.0, POINTS + 2.0)), 'Histogram',), {'gaussian_mixture': True}, 'grapher_Histogram_3_gaussian_mix.json',
+					 id="gaussian-mixture"),
+		pytest.param((POINTS, 'Histogram', '', '',), {'poissonian': True}, 'grapher_Histogram_3_poissonian.json', id="poisson"),
+		pytest.param((POINTS, 'Histogram', '', '',), {'exponential': True}, 'grapher_Histogram_3_exponential.json', id="exponential"),
+		pytest.param((POINTS, 'Histogram', '', '',), {'gaussian': True, 'density': False}, 'grapher_Histogram_3_count.json', id="gaussian-counts")])
+def test_histogram_curves(args, kwargs, filename):
+	"""Vérifie chaque configuration du graphique indépendamment."""
+	figure = Grapher().histogram(*args, **kwargs)
+	# Les courbes ajustées peuvent varier selon les versions de SciPy et le système.
+	assert isinstance(figure, go.Figure)
+	_save_output(figure, OUTPUT_DIR / filename)
 
 
 ##################################################
-def test_cloud():
-	"""Vérifie la génération des graphiques de densité."""
-	g = Grapher()
-	# Entrée Vide
-	res = g.cloud(np.empty(0), "blank")
-	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_0.json")
-	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
-
-	res = g.cloud(np.zeros((2, 2)) + np.inf, "blank")
-	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_1.json")
-	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
-
-	# Entrée 2D
-	stack = np.stack((POINTS, POINTS_2), axis=0)
-	res = g.cloud(stack, "cloud")
-	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_2.json")
-	ref = json.loads((REF_DIR / "grapher_cloud_2.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D (transposé) avec limitation
-	res = g.cloud(np.stack((POINTS, POINTS_2), axis=1), "cloud", limit=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_3.json")
-	ref = json.loads((REF_DIR / "grapher_cloud_3.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D (transposé) avec affichage des mu et sigma
-	res = g.cloud(stack, "cloud", show_sigma=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_sigma.json")
-	ref = json.loads((REF_DIR / "grapher_cloud_4_sigma.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	res = g.cloud(stack, "cloud", kde=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_kde.json")
-	res = g.cloud(stack, "cloud", gaussian=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_gaussian.json")
-	res = g.cloud(stack, "cloud", poissonian=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_poissonian.json")
-	res = g.cloud(stack, "cloud", exponential=True)
-	_ = _save_output(res, OUTPUT_DIR / "grapher_cloud_4_exponential.json")
-	# Map complexe et suivant la version de python et l'OS les résultats peuvent légèrement différer
-	# ref = json.loads((REF_DIR / "grapher_cloud_4_kde.json").read_text(encoding="utf-8"))
-	# assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 2D avec des données constantes
-	res = g.cloud(np.ones((2, 2)), "cloud", show_sigma=True, kde=True, gaussian=True)
-	res = _save_output(res, OUTPUT_DIR / "grapher_cloud_5.json")
-	ref = json.loads((REF_DIR / "grapher_cloud_5.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
-
-	# Entrée 1D
-	with pytest.raises(ValueError) as exception_info: g.cloud(np.zeros(3), "cloud fail")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-
-	# Entrée 2D, mais avec plus de 2 lignes ou colonnes
-	with pytest.raises(ValueError) as exception_info: g.cloud(np.zeros((3, 3)), "cloud fail")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
-
-	# Entrée 3D
-	with pytest.raises(ValueError) as exception_info: g.cloud(np.zeros((3, 3, 3)), "cloud fail")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+@pytest.mark.parametrize("args, kwargs, filename, reference", [
+		pytest.param((np.empty(0), 'blank',), {}, 'grapher_scatter_0.json', 'grapher_blank.json', id="empty"),
+		pytest.param((POINTS, 'scatter',), {}, 'grapher_scatter_1.json', 'grapher_scatter_1.json', id="1d-data"),
+		pytest.param((np.stack((IDX, POINTS), axis=0), 'scatter',), {}, 'grapher_scatter_2.json', 'grapher_scatter_2.json', id="two-rows"),
+		pytest.param((np.stack((IDX, POINTS), axis=1), 'scatter',), {'limit': True}, 'grapher_scatter_3.json', 'grapher_scatter_3.json',
+					 id="two-columns-with-limits"),
+		pytest.param((np.stack((IDX, POINTS), axis=1), 'scatter',), {'show_sigma': True}, 'grapher_scatter_4.json', 'grapher_scatter_4.json',
+					 id="mean-and-sigma")])
+def test_scatter(args, kwargs, filename, reference):
+	"""Vérifie chaque configuration du graphique indépendamment."""
+	figure = Grapher().scatter(*args, **kwargs)
+	res = _save_output(figure, OUTPUT_DIR / filename)
+	ref = json.loads((REF_DIR / reference).read_text(encoding="utf-8"))
+	assert res == ref
 
 
 ##################################################
-def test_astigmatism3d():
-	"""Vérifie la génération du graphique d'astigmatisme 3D."""
-	g = Grapher()
-	# Entrée invalide
-	with pytest.raises(ValueError) as exception_info: g.astigmatism3d(np.zeros((3, 3)), None, "blank")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+@pytest.mark.parametrize("args, kwargs", [
+		pytest.param((np.zeros((3, 3)), 'scatter fail',), {}, id="invalid-matrix"),
+		pytest.param((np.zeros((3, 3, 3)), 'scatter fail',), {}, id="3d-volume")])
+def test_scatter_invalid(args, kwargs):
+	"""Vérifie le rejet des dimensions incompatibles avec ce graphique."""
+	with pytest.raises(ValueError): Grapher().scatter(*args, **kwargs)
 
-	# Entrée valide
-	model = np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float)
-	data = np.array([[0, 0, 0]], dtype=float)
 
-	# Courbe simple
-	res = g.astigmatism3d(model, None, "Astigmatism 3D", pixel_size=100, z_max=100, mode="curve", n_points=100)
-	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_curve.json")
-	ref = json.loads((REF_DIR / "grapher_astigmatism3d_curve.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("args, kwargs, filename, reference", [
+		pytest.param((np.empty(0), 'blank',), {}, 'grapher_cloud_0.json', 'grapher_blank.json', id="empty"),
+		pytest.param((np.zeros((2, 2)) + np.inf, 'blank',), {}, 'grapher_cloud_1.json', 'grapher_blank.json', id="infinite-values"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {}, 'grapher_cloud_2.json', 'grapher_cloud_2.json', id="two-rows"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=1), 'cloud',), {'limit': True}, 'grapher_cloud_3.json', 'grapher_cloud_3.json',
+					 id="two-columns-with-limits"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'show_sigma': True}, 'grapher_cloud_4_sigma.json', 'grapher_cloud_4_sigma.json',
+					 id="mean-and-sigma"),
+		pytest.param((np.ones((2, 2)), 'cloud',), {'show_sigma': True, 'kde': True, 'gaussian': True}, 'grapher_cloud_5.json', 'grapher_cloud_5.json',
+					 id="constant-data")])
+def test_cloud(args, kwargs, filename, reference):
+	"""Vérifie chaque configuration du graphique indépendamment."""
+	figure = Grapher().cloud(*args, **kwargs)
+	res = _save_output(figure, OUTPUT_DIR / filename)
+	ref = json.loads((REF_DIR / reference).read_text(encoding="utf-8"))
+	assert res == ref
 
-	# Courbe Cross sans data
-	res = g.astigmatism3d(model, None, "Astigmatism 3D", pixel_size=100, z_max=100, mode="cross", n_points=100)
-	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_cross_1.json")
-	ref = json.loads((REF_DIR / "grapher_astigmatism3d_cross_1.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Courbe Cross avec data
-	res = g.astigmatism3d(model, data, "Astigmatism 3D", pixel_size=100, z_max=100, mode="cross", n_points=100)
-	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_cross_2.json")
-	ref = json.loads((REF_DIR / "grapher_astigmatism3d_cross_2.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("args, kwargs, filename", [
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'kde': True}, 'grapher_cloud_4_kde.json', id="kde"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'gaussian': True}, 'grapher_cloud_4_gaussian.json', id="gaussian"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'poissonian': True}, 'grapher_cloud_4_poissonian.json', id="poisson"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'exponential': True}, 'grapher_cloud_4_exponential.json', id="exponential")])
+def test_cloud_curves(args, kwargs, filename):
+	"""Vérifie chaque configuration du graphique indépendamment."""
+	figure = Grapher().cloud(*args, **kwargs)
+	# Les courbes ajustées peuvent varier selon les versions de SciPy et le système.
+	assert isinstance(figure, go.Figure)
+	_save_output(figure, OUTPUT_DIR / filename)
 
-	# Courbe Slope sans data
-	res = g.astigmatism3d(model, None, "Astigmatism 3D", pixel_size=100, z_max=100, mode="slope", n_points=100)
-	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_slope_1.json")
-	ref = json.loads((REF_DIR / "grapher_astigmatism3d_slope_1.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
-	# Courbe Slope avec data
-	res = g.astigmatism3d(model, data, "Astigmatism 3D", pixel_size=100, z_max=100, mode="slope", n_points=100)
-	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_slope_2.json")
-	ref = json.loads((REF_DIR / "grapher_astigmatism3d_slope_2.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+##################################################
+@pytest.mark.parametrize("args, kwargs", [
+		pytest.param((np.zeros(3), 'cloud fail',), {}, id="1d-data"),
+		pytest.param((np.zeros((3, 3)), 'cloud fail',), {}, id="invalid-matrix"),
+		pytest.param((np.zeros((3, 3, 3)), 'cloud fail',), {}, id="3d-volume")])
+def test_cloud_invalid(args, kwargs):
+	"""Vérifie le rejet des dimensions incompatibles avec ce graphique."""
+	with pytest.raises(ValueError): Grapher().cloud(*args, **kwargs)
 
-	# Courbe un mauvais mode (mais l'IDE averti qu'il y a un problème)
-	res = g.astigmatism3d(model, data, "Astigmatism 3D", pixel_size=100, z_max=100, mode="any", n_points=100)
-	res = _save_output(res, OUTPUT_DIR / "grapher_astigmatism3d_bad.json")
-	ref = json.loads((REF_DIR / "grapher_astigmatism3d_bad.json").read_text(encoding="utf-8"))
-	assert ref == res, f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+
+# ==================================================
+# endregion Figures statistiques
+# ==================================================
+
+# ==================================================
+# region Figure d'astigmatisme
+# ==================================================
+##################################################
+@pytest.mark.parametrize("args, kwargs, filename, reference", [
+		pytest.param((np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float), None, 'Astigmatism 3D',),
+					 {'pixel_size': 100, 'z_max': 100, 'mode': 'curve', 'n_points': 100}, 'grapher_astigmatism3d_curve.json',
+					 'grapher_astigmatism3d_curve.json', id="curve"),
+		pytest.param((np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float), None, 'Astigmatism 3D',),
+					 {'pixel_size': 100, 'z_max': 100, 'mode': 'cross', 'n_points': 100}, 'grapher_astigmatism3d_cross_1.json',
+					 'grapher_astigmatism3d_cross_1.json', id="cross-without-points"),
+		pytest.param((np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float), np.array([[0, 0, 0]], dtype=float), 'Astigmatism 3D',),
+					 {'pixel_size': 100, 'z_max': 100, 'mode': 'cross', 'n_points': 100}, 'grapher_astigmatism3d_cross_2.json',
+					 'grapher_astigmatism3d_cross_2.json', id="cross-with-points"),
+		pytest.param((np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float), None, 'Astigmatism 3D',),
+					 {'pixel_size': 100, 'z_max': 100, 'mode': 'slope', 'n_points': 100}, 'grapher_astigmatism3d_slope_1.json',
+					 'grapher_astigmatism3d_slope_1.json', id="slope-without-points"),
+		pytest.param((np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float), np.array([[0, 0, 0]], dtype=float), 'Astigmatism 3D',),
+					 {'pixel_size': 100, 'z_max': 100, 'mode': 'slope', 'n_points': 100}, 'grapher_astigmatism3d_slope_2.json',
+					 'grapher_astigmatism3d_slope_2.json', id="slope-with-points"),
+		pytest.param((np.array([[-100, 100, 0, 0, 30], [100, 100, 0, 0, 30]], dtype=float), np.array([[0, 0, 0]], dtype=float), 'Astigmatism 3D',),
+					 {'pixel_size': 100, 'z_max': 100, 'mode': 'any', 'n_points': 100}, 'grapher_astigmatism3d_bad.json', 'grapher_astigmatism3d_bad.json',
+					 id="unknown-mode")])
+def test_astigmatism3d(args, kwargs, filename, reference):
+	"""Vérifie chaque configuration du graphique indépendamment."""
+	figure = Grapher().astigmatism3d(*args, **kwargs)
+	res = _save_output(figure, OUTPUT_DIR / filename)
+	ref = json.loads((REF_DIR / reference).read_text(encoding="utf-8"))
+	assert res == ref
+
+
+##################################################
+@pytest.mark.parametrize("args, kwargs", [pytest.param((np.zeros((3, 3)), None, 'blank',), {}, id="invalid-model")])
+def test_astigmatism3d_invalid(args, kwargs):
+	"""Vérifie le rejet des dimensions incompatibles avec ce graphique."""
+	with pytest.raises(ValueError): Grapher().astigmatism3d(*args, **kwargs)
+
+# ==================================================
+# endregion Figure d'astigmatisme
+# ==================================================
+
+
+# ==================================================
+# region Rendus spéciaux
+# ==================================================
+##################################################
+def test_histogram_poisson_distribution():
+	"""Exporte une distribution de Poisson et sa courbe ajustée pour comparaison visuelle."""
+	# Des classes centrées sur les entiers permettent de comparer les barres aux probabilités de Poisson.
+	points = rng.poisson(lam=4.0, size=10000)
+	figure = Grapher().histogram(points, "Poisson distribution (lambda = 4)", poissonian=True, density=True, bins=-1)
+	_save_output(figure, OUTPUT_DIR / "grapher_visual_poisson.json")
+
+
+##################################################
+def test_histogram_exponential_distribution():
+	"""Exporte une exponentielle décroissante et sa courbe ajustée pour comparaison visuelle."""
+	# La courbe du Grapher estime la moyenne d'une loi exponentielle non décalée, définie à partir de zéro.
+	points = rng.exponential(scale=2.0, size=10000)
+	figure = Grapher().histogram(points, "Exponential distribution (mean = 2)", exponential=True, density=True, bins=80)
+	_save_output(figure, OUTPUT_DIR / "grapher_visual_exponential.json")
+
+
+##################################################
+def test_histogram_gaussian_mixture_distribution():
+	"""Exporte un mélange de deux gaussiennes et sa courbe ajustée pour comparaison visuelle."""
+	# Les poids, moyennes et écarts-types distincts rendent les deux composantes visibles.
+	points = np.concatenate((rng.normal(-2.0, 0.5, 3500), rng.normal(3.0, 0.8, 6500)))
+	figure = Grapher().histogram(points, "Gaussian mixture (35% / 65%)", gaussian_mixture=True, density=True, bins=80)
+	_save_output(figure, OUTPUT_DIR / "grapher_visual_gaussian_mixture.json")
+
+# ==================================================
+# endregion Rendus spéciaux
+# ==================================================

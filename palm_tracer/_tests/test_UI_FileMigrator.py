@@ -11,6 +11,9 @@ INPUT_FOLDER = INPUT_DIR / "stack.PT"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
@@ -22,6 +25,13 @@ def test_widget_creation(qtbot):
 	w.close()
 
 
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Fonctions de rappel
+# ==================================================
 ##################################################
 def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
@@ -70,3 +80,7 @@ def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 
 	w.close()
+
+# ==================================================
+# endregion Fonctions de rappel
+# ==================================================

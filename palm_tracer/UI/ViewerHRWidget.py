@@ -19,9 +19,6 @@ from palm_tracer.Settings.Groups import HR
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
 
-# ==================================================
-# region Constantes
-# ==================================================
 TIPS = {
 		"Add Stack":  "Add a stack to the batch and load the latest results for it.\n"
 					  "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
@@ -33,11 +30,7 @@ TIPS = {
 		}
 
 
-# ==================================================
-# endregion Constantes
-# ==================================================
-
-
+##################################################
 class ViewerHRWidget(QWidget):
 	"""
 	Affiche les résultats PALM en haute résolution dans Napari.
@@ -96,7 +89,6 @@ class ViewerHRWidget(QWidget):
 		self._generate()
 
 	##################################################
-
 	def _init_ui(self):
 		"""Construit l'interface utilisateur."""
 		self._pt.clean_ui(self.UI_NAME)
@@ -292,7 +284,6 @@ class ViewerHRWidget(QWidget):
 		self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
 		self.viewer.reset_view()  # Recentrer et ajuster la vue
-
 
 	##################################################
 	def _update_visualization_layer(self):

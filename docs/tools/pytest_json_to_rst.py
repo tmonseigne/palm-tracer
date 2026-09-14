@@ -6,6 +6,7 @@ import datetime
 import json
 import re
 import sys
+from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -154,6 +155,31 @@ def get_monitoring(file: str) -> str:
 
 
 ##################################################
+def get_test_name(nodeid: str) -> str:
+	"""
+	Formate le nom du test en conservant la casse de ses paramètres.
+
+	:param nodeid: Identifiant complet fourni par pytest.
+	:return: Nom lisible, précédé des classes éventuelles.
+	"""
+	base, separator, parameters = nodeid.partition("[")
+	parts = base.split("::")[1:]
+	name = " / ".join(to_title_case(part.removeprefix("test_")) for part in parts)
+	return f"{name} [{parameters}" if separator else name
+
+
+##################################################
+def get_test_duration(test: dict) -> float:
+	"""
+	Additionne les durées des phases présentes dans le résultat.
+
+	:param test: Résultat d'un cas de test.
+	:return: Durée totale en secondes.
+	"""
+	return sum(test.get(phase, {}).get("duration", 0) for phase in ("setup", "call", "teardown"))
+
+
+##################################################
 def get_tests(tests: list) -> str:
 	"""
 	Génère une section reStructuredText pour afficher les résultats des tests.
@@ -177,30 +203,33 @@ def get_tests(tests: list) -> str:
 		underline = "^" * len(title)
 		res += f"{title}\n{underline}\n\n"
 
-		# Ajouter le tableau
-		res += (".. list-table::\n"
-				"   :header-rows: 1\n\n"
-				"   * - Test Name\n"
-				"     - Status\n"
-				"     - Duration\n")
-
+		# Conserver le fichier et les classes dans la clé de regroupement.
+		groups: dict[str, list] = {}
 		for test in file_tests:
-			test_name = to_title_case(test["nodeid"].split("::")[1][5:])  # Nom du test sans "test_"
-			outcome = test["outcome"]
-			durations = [test.get("setup", {}).get("duration", 0),
-						 test.get("call", {}).get("duration", 0),
-						 test.get("teardown", {}).get("duration", 0)]
+			groups.setdefault(test["nodeid"].partition("[")[0], []).append(test)
 
-			res += (f"   * - {test_name}\n"
-					f"     - {get_outcome_icon(outcome)}\n"
-					f"     - {format_duration(sum(durations))}\n")
-
-		res += "\n"
+		res += ('.. raw:: html\n\n   <table class="docutils align-default test-results">\n'
+				'   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>\n   <tbody>\n')
+		for nodeid, cases in groups.items():
+			parametrized = "[" in cases[0]["nodeid"]
+			if parametrized:
+				passed = sum(case["outcome"] == "passed" for case in cases)
+				duration = format_duration(sum(get_test_duration(case) for case in cases))
+				res += (f'   <tr class="test-group"><td><button type="button" aria-expanded="true">'
+						f'{escape(get_test_name(nodeid))} — {len(cases)} cas</button></td>'
+						f'<td>✅ {passed}/{len(cases)}</td><td>{duration}</td></tr>\n')
+			for test in cases:
+				name = f'[{test["nodeid"].partition("[")[2]}' if parametrized else get_test_name(test["nodeid"])
+				row_class = ' class="test-variant"' if parametrized else ""
+				res += (f'   <tr{row_class}><td>{escape(name)}</td>'
+						f'<td>{get_outcome_icon(test["outcome"])}</td>'
+						f'<td>{format_duration(get_test_duration(test))}</td></tr>\n')
+		res += "   </tbody>\n   </table>\n\n"
 
 		# Ajouter un lien vers le stdout
 		for test in file_tests:
 			if "call" not in test: continue  # .							Pas de log possible pour skipped, xfailed...
-			test_name = to_title_case(test["nodeid"].split("::")[1][5:])  # Nom du test sans "test_"
+			test_name = escape(get_test_name(test["nodeid"]))
 			stdout = test["call"].get("stdout", "")
 			stdout = conv.convert(stdout, full=False)  # .					Convertir ANSI en HTML
 			stdout = stdout.replace("\n", "<br>")  # .						Remplacer les sauts de ligne par <br> pour un bon affichage en HTML
@@ -213,7 +242,56 @@ def get_tests(tests: list) -> str:
 				res += f"      <pre>{stdout}</pre>\n"
 				res += f"   </details>\n\n"
 
-	res += ".. raw:: html\n\n   </div>\n\n"
+	# Tout reste visible sans JavaScript ; les boutons fonctionnent aussi au clavier.
+	res += '''.. raw:: html
+
+   <style>
+   .test-results .test-group button {
+       font: inherit; font-weight: bold; color: inherit; background: transparent;
+       border: 0; padding: 0; cursor: pointer; text-align: left;
+   }
+   .test-results .test-group button::before { content: "▶ "; }
+   .test-results .test-group button[aria-expanded="true"]::before { content: "▼ "; }
+   .test-results .test-variant td:first-child { padding-left: 2em; }
+   .test-results tr[hidden] { display: none; }
+   .test-page table.docutils.test-results tbody > tr > td { background-color: white; }
+   .test-page table.docutils.test-results tbody > tr.test-row-odd > td { background-color: #f3f6f6; }
+   </style>
+   <script>
+   (() => {
+       const page = document.currentScript.closest('.test-page');
+       // Recalculer l'alternance uniquement sur les lignes visibles.
+       const stripeTable = table => {
+           let index = 0;
+           table.querySelectorAll('tbody > tr').forEach(row => {
+               row.classList.toggle('test-row-odd', !row.hidden && index % 2 === 0);
+               if (!row.hidden) { index += 1; }
+           });
+       };
+       page.querySelectorAll('.test-group button').forEach(button => {
+           const rows = [];
+           let next = button.closest('tr').nextElementSibling;
+           while (next && next.classList.contains('test-variant')) {
+               rows.push(next);
+               next = next.nextElementSibling;
+           }
+           const setExpanded = expanded => {
+               button.setAttribute('aria-expanded', String(expanded));
+               rows.forEach(row => { row.hidden = !expanded; });
+           };
+           setExpanded(false);
+           button.addEventListener('click', () => {
+               setExpanded(button.getAttribute('aria-expanded') !== 'true');
+               stripeTable(button.closest('table'));
+           });
+       });
+       page.querySelectorAll('.test-results').forEach(stripeTable);
+   })();
+   </script>
+   </div>
+
+'''
+
 	return res
 
 

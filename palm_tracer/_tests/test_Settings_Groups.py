@@ -92,68 +92,43 @@ def test_batch(qtbot):
 
 
 ###################################################
-def test_batch_get_path(qtbot):
-	"""Vérifie le get_paths de la classe Batch."""
+@pytest.mark.parametrize("files, selected, mode, expected", [
+		pytest.param([], 0, 0, ["_PALM_Tracer"], id="no-files"),
+		pytest.param(["output/File 1.tif", "output/File 2.tif"], 0, 0, ["output/File 1_PALM_Tracer"], id="first-file"),
+		pytest.param(["output/File 1.tif", "output/File 2.tif"], 1, 0, ["output/File 2_PALM_Tracer"], id="second-file"),
+		pytest.param(["output/File 1.tif", "output/File 2.tif"], 1, 1, ["output/File 1_PALM_Tracer", "output/File 2_PALM_Tracer"], id="all-files"),
+		pytest.param(["output/File 1.tif", "output/File 2.tif"], 1, 2, ["output/File 1_PALM_Tracer"], id="merged-files")])
+def test_batch_get_path(qtbot, files, selected, mode, expected):
+	"""Vérifie les dossiers de sortie pour chaque mode de traitement du lot."""
 	batch = Batch()
-
-	path = batch.get_paths()
-	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
-	assert path[0].endswith("_PALM_Tracer"), "Le nom du dossier ne correspond pas."
-
-	file_list = cast(FileList, batch["Files"])
-	file_list.items = ["output/File 1.tif", "output/File 2.tif"]
-
-	path = batch.get_paths()
-	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
-	assert path[0] == str(Path("output/File 1_PALM_Tracer")), "Le nom du dossier ne correspond pas."
-
-	file_list.value = 1
-	path = batch.get_paths()
-	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
-	assert path[0] == str(Path("output/File 2_PALM_Tracer")), "Le nom du dossier ne correspond pas."
-
-	batch["Mode"].value = 1
-	path = batch.get_paths()
-	assert len(path) == 2, "Il devrait y avoir deux dossiers."
-	assert path[0] == str(Path("output/File 1_PALM_Tracer")), "Le nom du dossier ne correspond pas."
-	assert path[1] == str(Path("output/File 2_PALM_Tracer")), "Le nom du dossier ne correspond pas."
-
-	batch["Mode"].value = 2
-	path = batch.get_paths()
-	assert len(path) == 1, "Il ne devrait y avoir qu'un seul dossier."
-	assert path[0] == str(Path("output/File 1_PALM_Tracer")), "Le nom du dossier ne correspond pas."
+	if files:
+		batch["Files"].items = files.copy()
+		batch["Files"].value = selected
+	batch["Mode"].value = mode
+	paths = batch.get_paths()
+	assert len(paths) == len(expected)
+	if not files:
+		assert paths[0].endswith(expected[0])
+	else:
+		assert paths == [str(Path(path)) for path in expected]
 
 
 ###################################################
-def test_batch_get_stacks(qtbot):
-	"""Vérifie le get_stacks de la classe Batch."""
+@pytest.mark.parametrize("files, mode, expected_count, expected_shape", [
+		pytest.param([], 0, 0, None, id="no-stacks"),
+		pytest.param(["stack.tif"] * 3, 0, 1, (10, 128, 256), id="selected-stack"),
+		pytest.param(["stack.tif"] * 3, 1, 3, (10, 128, 256), id="separate-stacks"),
+		pytest.param(["stack.tif"] * 3, 2, 1, (30, 128, 256), id="compatible-merge"),
+		pytest.param(["stack.tif", "stack_quadrant.tif", "stack.tif"], 2, 3, (10, 128, 256), id="invalid-dimensions")])
+def test_batch_get_stacks(qtbot, files, mode, expected_count, expected_shape):
+	"""Vérifie les piles retournées selon le mode et la compatibilité de leurs dimensions."""
 	batch = Batch()
+	if files: batch["Files"].items = [str(INPUT_DIR / name) for name in files]
+	batch["Mode"].value = mode
 	stacks = batch.get_stacks()
-	assert len(stacks) == 0, "Nombre de pile invalide"
-
-	file_list = cast(FileList, batch["Files"])
-	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack.tif"]
-
-	batch["Mode"].value = 0
-	stacks = batch.get_stacks()
-	assert len(stacks) == 1, "Nombre de pile invalide"
-	assert stacks[0].shape == (10, 128, 256), "Taille de la pile non valide"
-
-	batch["Mode"].value = 1
-	stacks = batch.get_stacks()
-	assert len(stacks) == 3, "Nombre de pile invalide"
-	assert stacks[0].shape == (10, 128, 256), "Taille de la pile non valide"
-
-	batch["Mode"].value = 2
-	stacks = batch.get_stacks()
-	assert len(stacks) == 1, "Nombre de pile invalide"
-	assert stacks[0].shape == (30, 128, 256), "Taille de la pile non valide"
-
-	file_list.items = [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack_quadrant.tif", f"{INPUT_DIR}/stack.tif"]
-	batch["Mode"].value = 2
-	stacks = batch.get_stacks()
-	assert len(stacks) == 3, "Nombre de pile invalide"
-	assert stacks[0].shape == (10, 128, 256), "Taille de la pile non valide"
+	assert len(stacks) == expected_count
+	# La forme de la première pile suffit à distinguer le mode fusion du mode séparé.
+	if stacks: assert stacks[0].shape == expected_shape
 
 
 ###################################################

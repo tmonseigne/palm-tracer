@@ -135,9 +135,9 @@ def test_monitoring_draw_test_section():
 	"""Vérifie l'ajout groupé d'une section de tests à une figure Plotly."""
 	figure = make_subplots(rows=2, cols=1)
 	tests = [
-		{"File": "Monitoring", "Test": "Premier", "Timestamp": 0.0},
-		{"File": "Monitoring", "Test": "Second", "Timestamp": 1.0},
-	]
+			{"File": "Monitoring", "Test": "Premier", "Timestamp": 0.0},
+			{"File": "Monitoring", "Test": "Second", "Timestamp": 1.0},
+			]
 
 	Monitoring.draw_test_section(figure, [0.0, 100.0], tests, {"Monitoring": "blue"}, 2.0, 2)
 
@@ -158,10 +158,7 @@ def test_monitoring_draw():
 	monitoring._gpu = [0.0, 0.0, 0.0]
 	monitoring._memory = [100.0, 110.0, 120.0]
 	monitoring._disk = [0.0, 1.0, 0.5]
-	monitoring._tests_info = [
-		{"File": "Monitoring", "Test": "Premier", "Timestamp": 0.0},
-		{"File": "Monitoring", "Test": "Second", "Timestamp": 1.0},
-	]
+	monitoring._tests_info = [{"File": "Monitoring", "Test": "Premier", "Timestamp": 0.0}, {"File": "Monitoring", "Test": "Second", "Timestamp": 1.0}]
 
 	monitoring._draw()
 
@@ -180,10 +177,7 @@ def test_monitoring_removes_samples_before_first_test(monkeypatch):
 	monitoring._gpu = [1.0, 2.0, 3.0]
 	monitoring._memory = [10 * 1024 * 1024, 20 * 1024 * 1024, 30 * 1024 * 1024]
 	monitoring._disk = [0, 1024 * 1024, 3 * 1024 * 1024]
-	monitoring._tests_info = [
-		{"File": "Monitoring", "Test": "Premier", "Timestamp": 20.0},
-		{"File": "Monitoring", "Test": "Second", "Timestamp": 25.0},
-	]
+	monitoring._tests_info = [{"File": "Monitoring", "Test": "Premier", "Timestamp": 20.0}, {"File": "Monitoring", "Test": "Second", "Timestamp": 25.0}]
 	monkeypatch.setattr(psutil, "cpu_count", lambda logical: 10)
 
 	monitoring._update_array_for_readability()

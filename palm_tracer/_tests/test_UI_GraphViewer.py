@@ -10,6 +10,7 @@ from palm_tracer.UI import BasePlotlyWidget, GraphViewerWidget
 OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
+rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
 
 
@@ -29,6 +30,9 @@ def flush_qt_delete_events():
 	QCoreApplication.processEvents()
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_widget_creation(w: GraphViewerWidget, qtbot):
 	"""Vérifie la création du widget."""
@@ -37,6 +41,7 @@ def test_widget_creation(w: GraphViewerWidget, qtbot):
 	w.show()
 	qtbot.waitExposed(w)
 	w.close()
+
 
 ##################################################
 def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
@@ -49,8 +54,6 @@ def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
 
 	w._pt.results["loc"] = pd.DataFrame(np.zeros((2, 1)))
 	assert results_ui._labels["Localizations"].text() == "Yes (2 localizations)"
-
-
 
 
 ##################################################
@@ -79,20 +82,13 @@ def test_widget_double_creation(qtbot):
 	flush_qt_delete_events()
 
 
-##################################################
-def test_add_stack(w: GraphViewerWidget, qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie l'ajout d'une pile."""
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
+# ==================================================
+# endregion Initialisation
+# ==================================================
 
-	fake_qfiledialog(BasePlotlyWidget, f"{INPUT_DIR / 'stack.tif'}")
-	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
-
-	w.close()
-
-
+# ==================================================
+# region Liaison avec PALMTracer
+# ==================================================
 ##################################################
 def test_change_type(w: GraphViewerWidget, qtbot):
 	"""Vérifie la création du widget."""
@@ -110,7 +106,21 @@ def test_change_type(w: GraphViewerWidget, qtbot):
 	w.close()
 
 
-###################################################
+##################################################
+def test_add_stack(w: GraphViewerWidget, qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Vérifie l'ajout d'une pile."""
+	qtbot.addWidget(w)
+	w.resize(1000, 600)
+	w.show()
+	qtbot.waitExposed(w)
+
+	fake_qfiledialog(BasePlotlyWidget, f"{INPUT_DIR / 'stack.tif'}")
+	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
+
+	w.close()
+
+
+##################################################
 def test_update_plot_localization(w: GraphViewerWidget, qtbot, capsys):
 	"""Vérifie différentes visualizations."""
 	qtbot.addWidget(w)
@@ -133,3 +143,7 @@ def test_update_plot_localization(w: GraphViewerWidget, qtbot, capsys):
 	s["Source B"].value = 2
 
 	w.close()
+
+# ==================================================
+# endregion Liaison avec PALMTracer
+# ==================================================

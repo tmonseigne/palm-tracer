@@ -7,7 +7,7 @@ Environnement
 .. list-table::
 
    * - Python
-     - 3.14.5
+     - 3.14.6
    * - Platform
      - Windows-11-10.0.26200-SP0
    * - JAVA_HOME
@@ -24,7 +24,7 @@ Environnement
 Summary
 -------
 
-270 tests collected, 270 passed ✅, 0 failed ❌, 0 skipped ⏭️ in 0:00:58s on 15/06/2026 at 10:08:48
+864 tests collected, 864 passed ✅, 0 failed ❌, 0 skipped ⏭️ in 0:01:20s on 14/09/2026 at 16:58:56
 
 Monitoring
 ----------
@@ -47,376 +47,635 @@ Test Cases
 Palmtracer
 ^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Reset Result
-     - ✅
-     - 39ms
-   * - Getter Localization
-     - ✅
-     - 13ms
-   * - Getter Beads
-     - ✅
-     - 5ms
-   * - Getter Tracks
-     - ✅
-     - 9ms
-   * - Getter Tracks Compute
-     - ✅
-     - 4ms
-   * - Get Status
-     - ✅
-     - 14ms
-   * - Getter Path
-     - ✅
-     - 3ms
-   * - Getter Stack
-     - ✅
-     - 139ms
-   * - Getter Suffix
-     - ✅
-     - 4ms
-   * - Load Bad Dll
-     - ✅
-     - 8ms
-   * - Load Nothing
-     - ✅
-     - 5ms
-   * - Load
-     - ✅
-     - 102ms
-   * - Process No Input
-     - ✅
-     - 4ms
-   * - Process Nothing
-     - ✅
-     - 286ms
-   * - Process Bad Dll
-     - ✅
-     - 4ms
-   * - Process Multiple Stack
-     - ✅
-     - 39ms
-   * - Process Localization
-     - ✅
-     - 32ms
-   * - Process Localization Z
-     - ✅
-     - 83ms
-   * - Process Localization Spline Bad
-     - ✅
-     - 16ms
-   * - Process Localization Spline
-     - ✅
-     - 35ms
-   * - Process Beads Extraction No Beads
-     - ✅
-     - 49ms
-   * - Process Plane Discontinuous
-     - ✅
-     - 7ms
-   * - Process Beads Extraction
-     - ✅
-     - 49ms
-   * - Process Tracking
-     - ✅
-     - 38ms
-   * - Process Tracking Blinking
-     - ✅
-     - 33ms
-   * - Process Tracks Compute
-     - ✅
-     - 2.14s
-   * - Process Gallery
-     - ✅
-     - 37ms
-   * - Process Visualization Graph
-     - ✅
-     - 82ms
-   * - Process Visualization Hr
-     - ✅
-     - 2.53s
-   * - Process All
-     - ✅
-     - 127ms
-   * - Reset Filtered
-     - ✅
-     - 7ms
-   * - Update Filtered
-     - ✅
-     - 55ms
-   * - Save Filtered
-     - ✅
-     - 11ms
-   * - Connect Filters Button
-     - ✅
-     - 134ms
-   * - Filter Localization
-     - ✅
-     - 1.12s
-   * - Filter Tracks Compute
-     - ✅
-     - 2.18s
-   * - Graph
-     - ✅
-     - 75ms
-   * - Get Graph Data
-     - ✅
-     - 16ms
-   * - Get Graph Data From Src
-     - ✅
-     - 52ms
-   * - Crop
-     - ✅
-     - 17ms
-   * - Hr
-     - ✅
-     - 47ms
-   * - Hr Z Stack
-     - ✅
-     - 7ms
-   * - Hr Rotation
-     - ✅
-     - 7ms
-   * - Hr Stress
-     - ✅
-     - 57ms
-   * - Get Astigmatism Model
-     - ✅
-     - 11ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Reset Result</td><td>✅</td><td>198ms</td></tr>
+   <tr><td>Clean Ui</td><td>✅</td><td>23ms</td></tr>
+   <tr><td>Getter Localization</td><td>✅</td><td>32ms</td></tr>
+   <tr><td>Getter Beads</td><td>✅</td><td>64ms</td></tr>
+   <tr><td>Getter Tracks</td><td>✅</td><td>34ms</td></tr>
+   <tr><td>Getter Tracks Compute</td><td>✅</td><td>29ms</td></tr>
+   <tr><td>Getter Path</td><td>✅</td><td>26ms</td></tr>
+   <tr><td>Getter Stack</td><td>✅</td><td>21ms</td></tr>
+   <tr><td>Getter Suffix</td><td>✅</td><td>22ms</td></tr>
+   <tr><td>Load Bad Dll</td><td>✅</td><td>104ms</td></tr>
+   <tr><td>Load Nothing</td><td>✅</td><td>36ms</td></tr>
+   <tr><td>Load</td><td>✅</td><td>372ms</td></tr>
+   <tr><td>Process No Input</td><td>✅</td><td>15ms</td></tr>
+   <tr><td>Process Nothing</td><td>✅</td><td>1.62s</td></tr>
+   <tr><td>Process Bad Dll</td><td>✅</td><td>8ms</td></tr>
+   <tr><td>Process Multiple Stack</td><td>✅</td><td>73ms</td></tr>
+   <tr><td>Process Localization</td><td>✅</td><td>54ms</td></tr>
+   <tr><td>Process Localization Z</td><td>✅</td><td>140ms</td></tr>
+   <tr><td>Process Localization Spline Bad</td><td>✅</td><td>25ms</td></tr>
+   <tr><td>Process Localization Spline</td><td>✅</td><td>59ms</td></tr>
+   <tr><td>Process Beads Extraction No Beads</td><td>✅</td><td>88ms</td></tr>
+   <tr><td>Process Plane Discontinuous</td><td>✅</td><td>10ms</td></tr>
+   <tr><td>Process Beads Extraction</td><td>✅</td><td>146ms</td></tr>
+   <tr><td>Process Tracking</td><td>✅</td><td>214ms</td></tr>
+   <tr><td>Process Tracking Blinking</td><td>✅</td><td>188ms</td></tr>
+   <tr><td>Process Tracks Compute</td><td>✅</td><td>518ms</td></tr>
+   <tr><td>Process Gallery</td><td>✅</td><td>660ms</td></tr>
+   <tr><td>Process Visualization Graph</td><td>✅</td><td>588ms</td></tr>
+   <tr><td>Process Visualization Hr</td><td>✅</td><td>2.00s</td></tr>
+   <tr><td>Process All</td><td>✅</td><td>510ms</td></tr>
+   <tr><td>Get Astigmatism Model</td><td>✅</td><td>75ms</td></tr>
+   <tr><td>Reset Filtered</td><td>✅</td><td>26ms</td></tr>
+   <tr><td>Update Filtered</td><td>✅</td><td>195ms</td></tr>
+   <tr><td>Save Filtered</td><td>✅</td><td>34ms</td></tr>
+   <tr><td>Connect Filters Button</td><td>✅</td><td>232ms</td></tr>
+   <tr><td>Filter Localization</td><td>✅</td><td>336ms</td></tr>
+   <tr><td>Filter Tracks Compute</td><td>✅</td><td>687ms</td></tr>
+   <tr><td>Graph</td><td>✅</td><td>457ms</td></tr>
+   <tr><td>Get Graph Data</td><td>✅</td><td>40ms</td></tr>
+   <tr><td>Get Graph Data Dual Tracks</td><td>✅</td><td>223ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Get Graph Data From Src — 18 cas</button></td><td>✅ 18/18</td><td>144ms</td></tr>
+   <tr class="test-variant"><td>[localizations-missing-column]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[localizations-x]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[localization-count]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[empty-localizations]</td><td>✅</td><td>10ms</td></tr>
+   <tr class="test-variant"><td>[tracks-missing-column]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[length-scatter]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[lengths]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[on-durations]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[off-durations]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[unknown-length]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[msd-step-5]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[msd-step-9]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[instant-diffusion]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[fit-error]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[empty-tracks]</td><td>✅</td><td>16ms</td></tr>
+   <tr class="test-variant"><td>[empty-msd]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[empty-diffusion]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[empty-fit]</td><td>✅</td><td>7ms</td></tr>
+   <tr><td>Hr</td><td>✅</td><td>33ms</td></tr>
+   <tr><td>Hr Filter</td><td>✅</td><td>12ms</td></tr>
+   <tr><td>Hr Z Stack</td><td>✅</td><td>8ms</td></tr>
+   <tr><td>Hr Rotation</td><td>✅</td><td>9ms</td></tr>
+   <tr><td>Hr Stress</td><td>✅</td><td>65ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Hr Track Stack — 6 cas</button></td><td>✅ 6/6</td><td>71ms</td></tr>
+   <tr class="test-variant"><td>[addition-no-background]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[addition-with-background]</td><td>✅</td><td>14ms</td></tr>
+   <tr class="test-variant"><td>[maximum-no-background]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[maximum-with-background]</td><td>✅</td><td>21ms</td></tr>
+   <tr class="test-variant"><td>[minimum-no-background]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[minimum-with-background]</td><td>✅</td><td>13ms</td></tr>
+   <tr><td>Hr Track Stack Empty Roi</td><td>✅</td><td>7ms</td></tr>
+   <tr><td>Hr Track Stack Dimension Switch</td><td>✅</td><td>83ms</td></tr>
+   <tr><td>Crop</td><td>✅</td><td>8ms</td></tr>
+   <tr><td>Crop Track Stack Rgb</td><td>✅</td><td>4ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Update Filtered</summary>
-      <pre>[15-06-2026 10:08:03] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100803.log<br>[15-06-2026 10:08:03] Start Processing.<br>[15-06-2026 10:08:03] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[15-06-2026 10:08:03] Meta file saved.<br>[15-06-2026 10:08:03] Settings saved.<br>[15-06-2026 10:08:03] Localization load previous result (Timestamp : 20260101_000000).<br>[15-06-2026 10:08:03] 	File 'localizations-20260101_000000.csv' loaded successfully, 451 row(s) found.<br>[15-06-2026 10:08:03] Beads Extraction disabled.<br>[15-06-2026 10:08:03] Tracking disabled.<br>[15-06-2026 10:08:03] Blinking Reconnection disabled.<br>[15-06-2026 10:08:03] Tracks Compute disabled.<br>[15-06-2026 10:08:03] Gallery generation disabled.<br>[15-06-2026 10:08:03] Graphical visualization disabled.<br>[15-06-2026 10:08:03] High-resolution visualization disabled.<br>[15-06-2026 10:08:03] Processing complete.<br>[15-06-2026 10:08:03] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100803.log</pre>
+      <pre>[14-09-2026 16:57:58] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165758.log<br>[14-09-2026 16:57:58] Start Processing.<br>[14-09-2026 16:57:58] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[14-09-2026 16:57:58] Meta file saved.<br>[14-09-2026 16:57:58] Settings saved.<br>[14-09-2026 16:57:58] Localization load previous result (Timestamp : 20260101_000000).<br>[14-09-2026 16:57:58] 	File 'localizations-20260101_000000.csv' loaded successfully, 451 row(s) found.<br>[14-09-2026 16:57:58] Beads Extraction disabled.<br>[14-09-2026 16:57:58] Tracking disabled.<br>[14-09-2026 16:57:58] Blinking Reconnection disabled.<br>[14-09-2026 16:57:58] Tracks Compute disabled.<br>[14-09-2026 16:57:58] Gallery generation disabled.<br>[14-09-2026 16:57:58] Graphical visualization disabled.<br>[14-09-2026 16:57:58] High-resolution visualization disabled.<br>[14-09-2026 16:57:58] Processing complete.<br>[14-09-2026 16:57:58] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165758.log</pre>
    </details>
 
 Processing Astigmatism3D
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Get Z From Planes
-     - ✅
-     - 10ms
-   * - Get Z From Step
-     - ✅
-     - 7ms
-   * - Remove Multi Loc
-     - ✅
-     - 19ms
-   * - Sigma Model
-     - ✅
-     - 3ms
-   * - Model Validity
-     - ✅
-     - 7ms
-   * - Model Projection Validity
-     - ✅
-     - 16ms
-   * - Find Model Center
-     - ✅
-     - 12ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Get Z From Planes — 5 cas</button></td><td>✅ 5/5</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[symmetric-range]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[negative-range]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[positive-range]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[equal-bounds]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[identical-planes]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Get Z From Step — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[centered-odd-count]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[centered-even-count]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[no-centering]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Remove Multi Loc — 6 cas</button></td><td>✅ 6/6</td><td>12ms</td></tr>
+   <tr class="test-variant"><td>[empty]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[missing-plane-column]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[single-point-per-plane]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[no-single-localization-plane]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[spatial-selection]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[bead-column]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Sigma Model</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Model Validity — 3 cas</button></td><td>✅ 3/3</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[correct-model]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reversed-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[different-model]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Model Projection Validity — 3 cas</button></td><td>✅ 3/3</td><td>14ms</td></tr>
+   <tr class="test-variant"><td>[correct-model]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[reversed-axes]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[different-model]</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Find Model Center</td><td>✅</td><td>2ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Remove Multi Loc</summary>
-      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Not all valid columns in localizations. Unable to remove ambiguous localizations reliably.</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">All planes contain multiple localizations. Unable to remove ambiguous localizations reliably.</span><span style="font-weight: bold"></span></pre>
+      <summary>Log Test : Remove Multi Loc [missing-plane-column]</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Not all valid columns in localizations. Unable to remove ambiguous localizations reliably.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Model Projection Validity</summary>
-      <pre>{'rmse_z': 5.777646505663858, 'mae_z': 4.527265453090619, 'p95_abs_z': 11.402280456091262, 'bias_z': 0.034926985397079696, 'std_z': 5.777540934524036, 'mean_dist': 0.015979049334594875, 'p95_dist': 0.03907161488826703, 'slope_mean': 0.003993454737472619}<br>{'rmse_z': 577.3147040352493, 'mae_z': 499.9443888777755, 'p95_abs_z': 950.0000000000001, 'bias_z': 7.395319063812727, 'std_z': 577.2673356004581, 'mean_dist': 0.02749131099862401, 'p95_dist': 0.09899871427527444, 'slope_mean': 0.003993454737472619}<br>{'rmse_z': 763.5196346175319, 'mae_z': 749.5955591118224, 'p95_abs_z': 975.0050010002001, 'bias_z': 20.59999999999995, 'std_z': 763.2416867850505, 'mean_dist': 1.592075248599287, 'p95_dist': 2.2654090960555444, 'slope_mean': 0.00156321987547227}</pre>
+      <summary>Log Test : Remove Multi Loc [no-single-localization-plane]</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">All planes contain multiple localizations. Unable to remove ambiguous localizations reliably.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 Processing Drift
 ^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Extract Bead Bad Input
-     - ✅
-     - 16ms
-   * - Extract Beads No Match Returns Empty
-     - ✅
-     - 3ms
-   * - Assign Tracks No Pairs
-     - ✅
-     - 3ms
-   * - Assign Tracks Skip Used Track
-     - ✅
-     - 3ms
-   * - Extract Beads
-     - ✅
-     - 45ms
-   * - Remove Beads
-     - ✅
-     - 7ms
-   * - Get Drift Bad Input
-     - ✅
-     - 15ms
-   * - Get Drift
-     - ✅
-     - 25ms
-   * - Apply Drift Bad Input
-     - ✅
-     - 8ms
-   * - Remove Drift
-     - ✅
-     - 12ms
-   * - Chain Drift
-     - ✅
-     - 13ms
-   * - Drift Correction
-     - ✅
-     - 18ms
-   * - Median Filter Centered
-     - ✅
-     - 9ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Empty Data — 2 cas</button></td><td>✅ 2/2</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[bead-extraction]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[drift-computation]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Assign Tracks No Pairs</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Assign Tracks Skip Used Track</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Extract Bead Bad Input — 4 cas</button></td><td>✅ 4/4</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[negative-distance]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[missing-columns]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[non-consecutive-planes]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[single-plane]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Extract Beads No Match Returns Empty</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Extract Beads</td><td>✅</td><td>39ms</td></tr>
+   <tr><td>Remove Beads</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Get Drift Bad Input — 3 cas</button></td><td>✅ 3/3</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[missing-columns]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[non-consecutive-planes]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[single-plane]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Get Drift</td><td>✅</td><td>11ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Apply Drift Bad Input — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[incomplete-localizations]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[incomplete-drift]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Remove Drift</td><td>✅</td><td>8ms</td></tr>
+   <tr><td>Remove Drift Empty</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Chain Drift</td><td>✅</td><td>11ms</td></tr>
+   <tr><td>Drift Correction</td><td>✅</td><td>25ms</td></tr>
+   <tr><td>Median Filter Centered</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Median Filter Invalid — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[even-window]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[3d-array]</td><td>✅</td><td>1ms</td></tr>
+   </tbody>
+   </table>
 
 Processing Filtering
 ^^^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Filter Bad
-     - ✅
-     - 34ms
-   * - Localization
-     - ✅
-     - 12ms
-   * - Tracking
-     - ✅
-     - 22ms
-   * - Tracks Compute
-     - ✅
-     - 86ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Filter Bad — 3 cas</button></td><td>✅ 3/3</td><td>88ms</td></tr>
+   <tr class="test-variant"><td>[localizations]</td><td>✅</td><td>85ms</td></tr>
+   <tr class="test-variant"><td>[tracks]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[track-computations]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Localization</td><td>✅</td><td>11ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Tracking — 4 cas</button></td><td>✅ 4/4</td><td>13ms</td></tr>
+   <tr class="test-variant"><td>[track-ids]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[length]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[track-ids-and-length]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[filters-disabled]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Tracks Compute — 8 cas</button></td><td>✅ 8/8</td><td>54ms</td></tr>
+   <tr class="test-variant"><td>[intersection-without-criteria]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[active-criteria]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[missing-msd]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[missing-instant-diffusion]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[missing-fit]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[overly-restrictive-length]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[no-common-tracks]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[filters-disabled]</td><td>✅</td><td>13ms</td></tr>
+   </tbody>
+   </table>
 
 Processing Gallery
 ^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Make Gallery
-     - ✅
-     - 49ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Make Gallery</td><td>✅</td><td>6ms</td></tr>
+   </tbody>
+   </table>
+
+Processing Gaussianmixture
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Fit Two Components</td><td>✅</td><td>17ms</td></tr>
+   <tr><td>Fit Is Generic</td><td>✅</td><td>11ms</td></tr>
+   <tr><td>Make Curve</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Invalid Fit Parameters — 8 cas</button></td><td>✅ 8/8</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[zero-components]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[zero-iterations]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[zero-tolerance]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[zero-initializations]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[empty-data]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[more-components-than-samples]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[constant-data-two-components]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[constant-data-one-component]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Invalid Curve Parameters — 4 cas</button></td><td>✅ 4/4</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[insufficient-points]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[missing-bound]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[nan-bound]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[equal-bounds]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Initialize Centers Fallback</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Kmeans Iteration Limit</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Em Iteration Limit</td><td>✅</td><td>1ms</td></tr>
+   </tbody>
+   </table>
 
 Processing Grapher
 ^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Blank
-     - ✅
-     - 28ms
-   * - Histogram
-     - ✅
-     - 381ms
-   * - Scatter
-     - ✅
-     - 193ms
-   * - Cloud
-     - ✅
-     - 706ms
-   * - Astigmatism3D
-     - ✅
-     - 163ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Blank</td><td>✅</td><td>25ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Histogram — 7 cas</button></td><td>✅ 7/7</td><td>200ms</td></tr>
+   <tr class="test-variant"><td>[empty]</td><td>✅</td><td>24ms</td></tr>
+   <tr class="test-variant"><td>[fixed-bins]</td><td>✅</td><td>29ms</td></tr>
+   <tr class="test-variant"><td>[integer-values]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[two-rows]</td><td>✅</td><td>37ms</td></tr>
+   <tr class="test-variant"><td>[two-columns]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[flattened-matrix]</td><td>✅</td><td>27ms</td></tr>
+   <tr class="test-variant"><td>[flattened-volume]</td><td>✅</td><td>27ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Histogram Curves — 7 cas</button></td><td>✅ 7/7</td><td>238ms</td></tr>
+   <tr class="test-variant"><td>[all-options]</td><td>✅</td><td>63ms</td></tr>
+   <tr class="test-variant"><td>[kde]</td><td>✅</td><td>29ms</td></tr>
+   <tr class="test-variant"><td>[gaussian]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-mixture]</td><td>✅</td><td>33ms</td></tr>
+   <tr class="test-variant"><td>[poisson]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[exponential]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-counts]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Scatter — 5 cas</button></td><td>✅ 5/5</td><td>171ms</td></tr>
+   <tr class="test-variant"><td>[empty]</td><td>✅</td><td>25ms</td></tr>
+   <tr class="test-variant"><td>[1d-data]</td><td>✅</td><td>27ms</td></tr>
+   <tr class="test-variant"><td>[two-rows]</td><td>✅</td><td>26ms</td></tr>
+   <tr class="test-variant"><td>[two-columns-with-limits]</td><td>✅</td><td>36ms</td></tr>
+   <tr class="test-variant"><td>[mean-and-sigma]</td><td>✅</td><td>57ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Scatter Invalid — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[invalid-matrix]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[3d-volume]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Cloud — 6 cas</button></td><td>✅ 6/6</td><td>251ms</td></tr>
+   <tr class="test-variant"><td>[empty]</td><td>✅</td><td>24ms</td></tr>
+   <tr class="test-variant"><td>[infinite-values]</td><td>✅</td><td>23ms</td></tr>
+   <tr class="test-variant"><td>[two-rows]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[two-columns-with-limits]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[mean-and-sigma]</td><td>✅</td><td>120ms</td></tr>
+   <tr class="test-variant"><td>[constant-data]</td><td>✅</td><td>28ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Cloud Curves — 4 cas</button></td><td>✅ 4/4</td><td>234ms</td></tr>
+   <tr class="test-variant"><td>[kde]</td><td>✅</td><td>132ms</td></tr>
+   <tr class="test-variant"><td>[gaussian]</td><td>✅</td><td>40ms</td></tr>
+   <tr class="test-variant"><td>[poisson]</td><td>✅</td><td>31ms</td></tr>
+   <tr class="test-variant"><td>[exponential]</td><td>✅</td><td>30ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Cloud Invalid — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[1d-data]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[invalid-matrix]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[3d-volume]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Astigmatism3D — 6 cas</button></td><td>✅ 6/6</td><td>170ms</td></tr>
+   <tr class="test-variant"><td>[curve]</td><td>✅</td><td>29ms</td></tr>
+   <tr class="test-variant"><td>[cross-without-points]</td><td>✅</td><td>34ms</td></tr>
+   <tr class="test-variant"><td>[cross-with-points]</td><td>✅</td><td>32ms</td></tr>
+   <tr class="test-variant"><td>[slope-without-points]</td><td>✅</td><td>29ms</td></tr>
+   <tr class="test-variant"><td>[slope-with-points]</td><td>✅</td><td>26ms</td></tr>
+   <tr class="test-variant"><td>[unknown-mode]</td><td>✅</td><td>21ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Astigmatism3D Invalid — 1 cas</button></td><td>✅ 1/1</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[invalid-model]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Histogram Poisson Distribution</td><td>✅</td><td>25ms</td></tr>
+   <tr><td>Histogram Exponential Distribution</td><td>✅</td><td>28ms</td></tr>
+   <tr><td>Histogram Gaussian Mixture Distribution</td><td>✅</td><td>49ms</td></tr>
+   </tbody>
+   </table>
 
 Processing Palm
 ^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Palm Dll Valid
-     - ✅
-     - 2ms
-   * - Palm Cpu Empty Result
-     - ✅
-     - 4ms
-   * - Palm Cpu Image
-     - ✅
-     - 905ms
-   * - Palm Cpu Stack
-     - ✅
-     - 1.61s
-   * - Palm Cpu Stack Plane Selection
-     - ✅
-     - 92ms
-   * - Palm Cpu Stack Dll Check Quadrant
-     - ✅
-     - 228ms
-   * - Cpu Auto Threshold
-     - ✅
-     - 37ms
-   * - Tracking
-     - ✅
-     - 4.97s
-   * - Tracking Discontinuous
-     - ✅
-     - 33ms
-   * - Blinking Reconnection
-     - ✅
-     - 152ms
-   * - Tracks Compute
-     - ✅
-     - 35ms
-   * - Align
-     - ✅
-     - 635ms
-   * - Wavelett
-     - ✅
-     - 30ms
-   * - Astigmatism 3D Calibration
-     - ✅
-     - 11ms
-   * - Astigmatism 3D Estimation
-     - ✅
-     - 8ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Palm Dll Valid</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Palm Cpu Empty Result</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Palm Cpu Image — 60 cas</button></td><td>✅ 60/60</td><td>611ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-1]</td><td>✅</td><td>23ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-2]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-3]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-4]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-5]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-6]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-7]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-8]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-9]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-plane-10]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-1]</td><td>✅</td><td>23ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-2]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-3]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-4]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-5]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-6]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-7]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-8]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-9]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-plane-10]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-1]</td><td>✅</td><td>33ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-2]</td><td>✅</td><td>10ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-3]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-4]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-5]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-6]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-7]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-8]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-9]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-plane-10]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-1]</td><td>✅</td><td>25ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-2]</td><td>✅</td><td>10ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-3]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-4]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-5]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-6]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-7]</td><td>✅</td><td>10ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-8]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-9]</td><td>✅</td><td>15ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-plane-10]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-1]</td><td>✅</td><td>30ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-2]</td><td>✅</td><td>14ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-3]</td><td>✅</td><td>12ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-4]</td><td>✅</td><td>13ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-5]</td><td>✅</td><td>12ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-6]</td><td>✅</td><td>13ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-7]</td><td>✅</td><td>13ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-8]</td><td>✅</td><td>11ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-9]</td><td>✅</td><td>12ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-plane-10]</td><td>✅</td><td>12ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-1]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-2]</td><td>✅</td><td>11ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-3]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-4]</td><td>✅</td><td>17ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-5]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-6]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-7]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-8]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-9]</td><td>✅</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[spline-plane-10]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Palm Cpu Stack — 12 cas</button></td><td>✅ 12/12</td><td>1.42s</td></tr>
+   <tr class="test-variant"><td>[no-fit-with-watershed]</td><td>✅</td><td>132ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-no-watershed]</td><td>✅</td><td>131ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-with-watershed]</td><td>✅</td><td>143ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-no-watershed]</td><td>✅</td><td>128ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-with-watershed]</td><td>✅</td><td>142ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-no-watershed]</td><td>✅</td><td>128ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-with-watershed]</td><td>✅</td><td>153ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-no-watershed]</td><td>✅</td><td>140ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-with-watershed]</td><td>✅</td><td>154ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-no-watershed]</td><td>✅</td><td>135ms</td></tr>
+   <tr class="test-variant"><td>[spline-with-watershed]</td><td>✅</td><td>15ms</td></tr>
+   <tr class="test-variant"><td>[spline-no-watershed]</td><td>✅</td><td>15ms</td></tr>
+   <tr><td>Palm Cpu Stack Plane Selection</td><td>✅</td><td>86ms</td></tr>
+   <tr><td>Palm Cpu Stack Dll Check Quadrant</td><td>✅</td><td>102ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Cpu Auto Threshold — 10 cas</button></td><td>✅ 10/10</td><td>43ms</td></tr>
+   <tr class="test-variant"><td>[plane-1]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[plane-2]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[plane-3]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[plane-4]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[plane-5]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[plane-6]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[plane-7]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[plane-8]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[plane-9]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[plane-10]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Tracking — 12 cas</button></td><td>✅ 12/12</td><td>4.72s</td></tr>
+   <tr class="test-variant"><td>[no-fit-with-watershed]</td><td>✅</td><td>489ms</td></tr>
+   <tr class="test-variant"><td>[no-fit-no-watershed]</td><td>✅</td><td>492ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-with-watershed]</td><td>✅</td><td>486ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-xy-no-watershed]</td><td>✅</td><td>485ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-with-watershed]</td><td>✅</td><td>483ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-no-watershed]</td><td>✅</td><td>454ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-with-watershed]</td><td>✅</td><td>475ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-sigma-xy-no-watershed]</td><td>✅</td><td>447ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-with-watershed]</td><td>✅</td><td>458ms</td></tr>
+   <tr class="test-variant"><td>[gaussian-theta-no-watershed]</td><td>✅</td><td>452ms</td></tr>
+   <tr class="test-variant"><td>[spline-with-watershed]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[spline-no-watershed]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Tracking Empty</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Tracking Discontinuous</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Blinking Reconnection — 3 cas</button></td><td>✅ 3/3</td><td>89ms</td></tr>
+   <tr class="test-variant"><td>[stationary]</td><td>✅</td><td>32ms</td></tr>
+   <tr class="test-variant"><td>[diffusion]</td><td>✅</td><td>29ms</td></tr>
+   <tr class="test-variant"><td>[linear]</td><td>✅</td><td>28ms</td></tr>
+   <tr><td>Blinking Reconnection Empty</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Tracks Compute — 2 cas</button></td><td>✅ 2/2</td><td>18ms</td></tr>
+   <tr class="test-variant"><td>[ind-3d-log-enabled]</td><td>✅</td><td>11ms</td></tr>
+   <tr class="test-variant"><td>[ind-3d-log-disabled]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Tracks Compute Fit Modes — 4 cas</button></td><td>✅ 4/4</td><td>14ms</td></tr>
+   <tr class="test-variant"><td>[no-fit]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[linear]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[power]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[exponential]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Tracks Compute Small Inputs — 3 cas</button></td><td>✅ 3/3</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[diffusion-without-msd]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[single-observation]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[no-observations]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Align</td><td>✅</td><td>550ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Wavelett — 5 cas</button></td><td>✅ 5/5</td><td>28ms</td></tr>
+   <tr class="test-variant"><td>[level-0]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[level-1]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[level-2]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[level-3]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[level-4]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Astigmatism 3D Calibration — 2 cas</button></td><td>✅ 2/2</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[no-centering]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[centered-model]</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Astigmatism 3D Estimation</td><td>✅</td><td>3ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Palm Cpu Image</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Theta mean: 4.11°, Theta median (robust) : 0.52°, Concentration R: 0.923<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Theta mean: -5.05°, Theta median (robust) : -1.63°, Concentration R: 0.892<br>Theta mean: -7.82°, Theta median (robust) : -0.76°, Concentration R: 0.858<br>Theta mean: 3.99°, Theta median (robust) : -0.59°, Concentration R: 0.900<br>Theta mean: 1.57°, Theta median (robust) : -0.23°, Concentration R: 0.851<br>Theta mean: -0.87°, Theta median (robust) : 0.07°, Concentration R: 0.848<br>Theta mean: -1.38°, Theta median (robust) : 0.78°, Concentration R: 0.933<br>Theta mean: 3.27°, Theta median (robust) : 0.13°, Concentration R: 0.813<br>Theta mean: 1.46°, Theta median (robust) : 0.43°, Concentration R: 0.917<br>Theta mean: 0.58°, Theta median (robust) : 0.03°, Concentration R: 0.896</pre>
+      <summary>Log Test : Palm Cpu Image [no-fit-plane-1]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Palm Cpu Stack</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Theta mean: 0.04°, Theta median (robust) : 0.07°, Concentration R: 0.884<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Theta mean: -0.33°, Theta median (robust) : -0.04°, Concentration R: 0.887<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+      <summary>Log Test : Palm Cpu Image [gaussian-xy-plane-1]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-sigma-plane-1]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-sigma-xy-plane-1]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-1]</summary>
+      <pre>Theta mean: 4.11°, Theta median (robust) : 0.52°, Concentration R: 0.923<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-0_103.6_True_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 51 Points comparés, 51 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-2]</summary>
+      <pre>Theta mean: -5.05°, Theta median (robust) : -1.63°, Concentration R: 0.892</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-3]</summary>
+      <pre>Theta mean: -7.82°, Theta median (robust) : -0.76°, Concentration R: 0.858</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-4]</summary>
+      <pre>Theta mean: 3.99°, Theta median (robust) : -0.59°, Concentration R: 0.900</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-5]</summary>
+      <pre>Theta mean: 1.57°, Theta median (robust) : -0.23°, Concentration R: 0.851</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-6]</summary>
+      <pre>Theta mean: -0.87°, Theta median (robust) : 0.07°, Concentration R: 0.848</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-7]</summary>
+      <pre>Theta mean: -1.38°, Theta median (robust) : 0.78°, Concentration R: 0.933</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-8]</summary>
+      <pre>Theta mean: 3.27°, Theta median (robust) : 0.13°, Concentration R: 0.813</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-9]</summary>
+      <pre>Theta mean: 1.46°, Theta median (robust) : 0.43°, Concentration R: 0.917</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Image [gaussian-theta-plane-10]</summary>
+      <pre>Theta mean: 0.58°, Theta median (robust) : 0.03°, Concentration R: 0.896</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [no-fit-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [no-fit-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_0_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-xy-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-xy-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_1_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-sigma-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-sigma-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_2_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-sigma-xy-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-sigma-xy-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_3_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-theta-with-watershed]</summary>
+      <pre>Theta mean: 0.04°, Theta median (robust) : 0.07°, Concentration R: 0.884<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Palm Cpu Stack [gaussian-theta-no-watershed]</summary>
+      <pre>Theta mean: -0.33°, Theta median (robust) : -0.04°, Concentration R: 0.887<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_4_1.0_0.0_7.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
@@ -436,60 +695,188 @@ Processing Palm
 .. raw:: html
 
    <details>
-      <summary>Log Test : Tracking</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_0_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_1_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_2_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_3_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_4_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 435 Points comparés, 435 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Fichier de localisations 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_5_1.0_0.0_7.csv' indisponible.</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_0_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_1_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_2_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 426 Points comparés, 426 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_3_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 428 Points comparés, 428 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_4_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 416 Points comparés, 416 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Fichier de localisations 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_5_1.0_0.0_7.csv' indisponible.</span><span style="font-weight: bold"></span></pre>
+      <summary>Log Test : Tracking [no-fit-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_0_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Blinking Reconnection</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking-blinking-0.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 18 Points comparés, 18 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking-blinking-1.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 18 Points comparés, 18 Points identiques (100.00%)</span><span style="font-weight: bold"></span><br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking-blinking-2.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 18 Points comparés, 18 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+      <summary>Log Test : Tracking [no-fit-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_0_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
    </details>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Tracks Compute</summary>
-      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-MSD-True.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-True.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-MSD-False.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-False.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-1.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-2.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-3.csv'</pre>
+      <summary>Log Test : Tracking [gaussian-xy-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_1_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [gaussian-xy-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_1_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 429 Points comparés, 429 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [gaussian-sigma-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_2_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [gaussian-sigma-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_2_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 426 Points comparés, 426 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [gaussian-sigma-xy-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_3_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 451 Points comparés, 451 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [gaussian-sigma-xy-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_3_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 428 Points comparés, 428 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [gaussian-theta-with-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_True_4_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 435 Points comparés, 435 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [gaussian-theta-no-watershed]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-tracking-103.6_False_4_1.0_0.0_7-5.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 416 Points comparés, 416 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [spline-with-watershed]</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Fichier de localisations 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_True_5_1.0_0.0_7.csv' indisponible.</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracking [spline-no-watershed]</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Fichier de localisations 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\stack-localizations-103.6_False_5_1.0_0.0_7.csv' indisponible.</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Blinking Reconnection [stationary]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking-blinking-0.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 18 Points comparés, 18 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Blinking Reconnection [diffusion]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking-blinking-1.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 18 Points comparés, 18 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Blinking Reconnection [linear]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking-blinking-2.csv'<br><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Comparaison terminée : 18 Points comparés, 18 Points identiques (100.00%)</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracks Compute [ind-3d-log-enabled]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-MSD-True.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-True.csv'</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracks Compute [ind-3d-log-disabled]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-MSD-False.csv'<br>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-False.csv'</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracks Compute Fit Modes [linear]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-1.csv'</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracks Compute Fit Modes [power]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-2.csv'</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Tracks Compute Fit Modes [exponential]</summary>
+      <pre>Comparaison avec : 'C:\Git\palm-tracer\palm_tracer\_tests\input\ref\tracking2-Fit-3.csv'</pre>
    </details>
 
 Processing Parsing
 ^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Get Meta
-     - ✅
-     - 3ms
-   * - Rearrange Dataframe Columns
-     - ✅
-     - 10ms
-   * - Log10 Dataframe
-     - ✅
-     - 4ms
-   * - Degrees To Radians
-     - ✅
-     - 5ms
-   * - Radians To Degrees
-     - ✅
-     - 5ms
-   * - Wrap Angle
-     - ✅
-     - 4ms
-   * - Manage Theta
-     - ✅
-     - 3ms
-   * - Parse Irregular Array
-     - ✅
-     - 9ms
-   * - Parse Result
-     - ✅
-     - 27ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Rearrange Dataframe Columns — 2 cas</button></td><td>✅ 2/2</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[other-columns-preserved]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[selection-only]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Rearrange Dataframe Columns Missing</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Log10 Dataframe</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Degrees To Radians</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Radians To Degrees</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Wrap Angle</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Manage Theta</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Get Meta</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Get Meta Invalid</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Parse Irregular Array</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Parse Irregular Array Invalid — 3 cas</button></td><td>✅ 3/3</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[2d-array]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[non-numeric-data]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[truncated-row]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Parse Irregular Array Empty — 2 cas</button></td><td>✅ 2/2</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[empty-array]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[empty-row]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Parse Result — 8 cas</button></td><td>✅ 8/8</td><td>15ms</td></tr>
+   <tr class="test-variant"><td>[localizations]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[tracks]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[astigmatism-model]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[msd]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[instant-diffusion]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[linear-fit-log]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[power-fit]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[exponential-fit]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Parse Result Empty — 3 cas</button></td><td>✅ 3/3</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[localizations]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[tracks]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[fit]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Parse Result Invalid — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[invalid-fit]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[unknown-type]</td><td>✅</td><td>1ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
@@ -501,162 +888,406 @@ Processing Parsing
 Processing Renderer
 ^^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Set Size
-     - ✅
-     - 7ms
-   * - Get Localization Colors
-     - ✅
-     - 5ms
-   * - Get Tracks Colors
-     - ✅
-     - 17ms
-   * - Prepare Data
-     - ✅
-     - 1ms
-   * - Draw Line
-     - ✅
-     - 7ms
-   * - Draw Gaussian
-     - ✅
-     - 4ms
-   * - Draw Gaussian 3D
-     - ✅
-     - 4ms
-   * - Localizations
-     - ✅
-     - 18ms
-   * - Localizations Gaussian
-     - ✅
-     - 10ms
-   * - Tracks
-     - ✅
-     - 13ms
-   * - Z Stack
-     - ✅
-     - 16ms
-   * - Z Stack Gaussian
-     - ✅
-     - 9ms
-   * - Rotation
-     - ✅
-     - 14ms
-   * - Rotation Gaussian
-     - ✅
-     - 6ms
-   * - Renderer Atom
-     - ✅
-     - 2.20s
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Set Size</td><td>✅</td><td>10ms</td></tr>
+   <tr><td>Localizations</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Localizations Gaussian</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Tracks</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Z Stack</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Z Stack Gaussian</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Rotation</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Rotation Gaussian</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Track Stack Timeline</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Track Stack Empty And Scale — 4 cas</button></td><td>✅ 4/4</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[empty]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[1d-array]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[missing-column]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[out-of-bounds]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Track Stack Scale</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Track Stack Priority And Modes — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Track Stack Head Priority</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Track Stack Raw — 4 cas</button></td><td>✅ 4/4</td><td>38ms</td></tr>
+   <tr class="test-variant"><td>[maximum-nearest-neighbor]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[maximum-lanczos]</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[minimum-nearest-neighbor]</td><td>✅</td><td>16ms</td></tr>
+   <tr class="test-variant"><td>[minimum-lanczos]</td><td>✅</td><td>7ms</td></tr>
+   <tr><td>Track Stack Raw Empty And 2D</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Track Stack Raw Fade And Overlap — 3 cas</button></td><td>✅ 3/3</td><td>14ms</td></tr>
+   <tr class="test-variant"><td>[sum]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[maximum]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[minimum]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Init Rendering — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Init Rendering Volume</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Finalize Rendering</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Finalize Track Stack</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Finalize Track Stack Empty Background — 12 cas</button></td><td>✅ 12/12</td><td>11ms</td></tr>
+   <tr class="test-variant"><td>[black-zero-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[black-negative-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[black-positive-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[gray-zero-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[gray-negative-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[gray-positive-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[lower-clipping-zero-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[lower-clipping-negative-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[lower-clipping-positive-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[upper-clipping-zero-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[upper-clipping-negative-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[upper-clipping-positive-infinite-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Finalize Track Stack Empty Dimensions — 3 cas</button></td><td>✅ 3/3</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[no-planes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[no-rows]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[no-columns]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Finalize Track Stack Strided</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Finalize Track Stack Drawing — 3 cas</button></td><td>✅ 3/3</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Finalize Track Stack Remainder</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Finalize Track Stack Background Remainder — 3 cas</button></td><td>✅ 3/3</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[negative-background]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[one-wrap]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[two-wraps]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Finalize Track Stack Rgb — 2 cas</button></td><td>✅ 2/2</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[viridis]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[magma]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Finalize Track Stack Rgb Global Contrast — 2 cas</button></td><td>✅ 2/2</td><td>11ms</td></tr>
+   <tr class="test-variant"><td>[black]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[gray]</td><td>✅</td><td>5ms</td></tr>
+   <tr><td>Upscale Raw</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Upscale Raw Lanczos</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Upscale Raw Edge Cases — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[nearest-neighbor]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[lanczos]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Upscale Raw 2D — 4 cas</button></td><td>✅ 4/4</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[nearest-neighbor-ratio-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[nearest-neighbor-ratio-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[lanczos-ratio-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[lanczos-ratio-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Get Localization Colors</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Get Tracks Colors</td><td>✅</td><td>11ms</td></tr>
+   <tr><td>Prepare Localizations</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Prepare Tracks</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Prepare Tracks Empty — 2 cas</button></td><td>✅ 2/2</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[empty-data]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[out-of-bounds]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Line Spans — 16 cas</button></td><td>✅ 16/16</td><td>14ms</td></tr>
+   <tr class="test-variant"><td>[forward-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[forward-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[forward-descending-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[forward-ascending-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[forward-line-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[forward-line-width-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[forward-point-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[forward-point-width-4]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-descending-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-ascending-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-line-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-line-width-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-point-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reverse-point-width-4]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Line Spans Clipping</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Line Spans Orientations — 32 cas</button></td><td>✅ 32/32</td><td>27ms</td></tr>
+   <tr class="test-variant"><td>[width-1-right-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-1-right-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-1-right-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-1-right-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-1-left-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-1-left-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-1-left-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-1-left-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-right-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-right-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-right-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-right-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-left-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-left-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-left-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-left-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-right-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-right-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-right-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-right-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-left-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-left-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-left-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-left-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-right-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-right-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-right-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-right-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-left-down-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-left-down-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-left-up-original-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-left-up-swapped-axes]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Line</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Crossing — 3 cas</button></td><td>✅ 3/3</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Width — 12 cas</button></td><td>✅ 12/12</td><td>10ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-4]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-width-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-width-4]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-width-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-width-4]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Point Width — 4 cas</button></td><td>✅ 4/4</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Draw Line Width Border</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Width Orientations — 42 cas</button></td><td>✅ 42/42</td><td>39ms</td></tr>
+   <tr class="test-variant"><td>[width-2-forward-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-forward-shallow-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-forward-steep-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-forward-left]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-forward-up]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-forward-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-forward-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-reverse-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-reverse-shallow-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-reverse-steep-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-reverse-left]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[width-2-reverse-up]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-reverse-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-reverse-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-forward-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-forward-shallow-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-forward-steep-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-forward-left]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-forward-up]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-forward-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-forward-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-reverse-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-reverse-shallow-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-reverse-steep-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-reverse-left]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-reverse-up]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-reverse-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-reverse-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-forward-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-forward-shallow-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-forward-steep-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-forward-left]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-forward-up]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-forward-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-forward-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-reverse-diagonal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-reverse-shallow-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-reverse-steep-slope]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-reverse-left]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-reverse-up]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-reverse-vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-reverse-horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Alpha — 10 cas</button></td><td>✅ 10/10</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-higher-value-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-higher-value-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-lower-value-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-lower-value-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-higher-value-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-higher-value-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-lower-value-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-lower-value-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Alpha Initial Background — 6 cas</button></td><td>✅ 6/6</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[sum-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-width-3]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Clamped Parameters — 9 cas</button></td><td>✅ 9/9</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[negative-alpha-negative-width]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[negative-alpha-zero-width]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[negative-alpha-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[partial-alpha-negative-width]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[partial-alpha-zero-width]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[partial-alpha-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[alpha-above-one-negative-width]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[alpha-above-one-zero-width]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[alpha-above-one-width-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Line Width Finalize — 9 cas</button></td><td>✅ 9/9</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[width-2-sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-2-minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-3-minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[width-4-minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Line Thick Empty Rows</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Gaussian</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Gaussian 3D</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Draw Track Blinks</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Track Empty Rows</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Track Short Fade Long Blink</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Track Hard Cutoff</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Track Overlap — 3 cas</button></td><td>✅ 3/3</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Track Thickness — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[sum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Track Stationary And Clipping</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Track Alpha Independent Of Geometry — 6 cas</button></td><td>✅ 6/6</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[stationary-departure-0]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[stationary-departure-9]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[horizontal-departure-0]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[horizontal-departure-9]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[diagonal-departure-0]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[diagonal-departure-9]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Track Heads Planes — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[negative-diameter]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[zero-diameter]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[diameter-1]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Draw Track Heads Circles — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[diameter-2]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[diameter-4]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[diameter-5]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Track Heads Clipping</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Track Heads Priority</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Draw Track Heads Preserve Interior</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Renderer Atom</td><td>✅</td><td>2.94s</td></tr>
+   <tr><td>Renderer Track Stack Spiral</td><td>✅</td><td>357ms</td></tr>
+   <tr><td>Renderer Track Stack Spiral Raw</td><td>✅</td><td>3.40s</td></tr>
+   </tbody>
+   </table>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Upscale Raw Edge Cases [nearest-neighbor]</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Raw shape doesn't have expected dimensions for output background will be 0.</span><span style="font-weight: bold"></span></pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Upscale Raw Edge Cases [lanczos]</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Raw shape doesn't have expected dimensions for output background will be 0.</span><span style="font-weight: bold"></span></pre>
+   </details>
 
 Processing Step
 ^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Object Creation
-     - ✅
-     - 1ms
-   * - Prepare Action
-     - ✅
-     - 21ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Object Creation</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Prepare Action — 9 cas</button></td><td>✅ 9/9</td><td>68ms</td></tr>
+   <tr class="test-variant"><td>[inactive-without-previous]</td><td>✅</td><td>46ms</td></tr>
+   <tr class="test-variant"><td>[active-without-previous]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[dirty-pipeline]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[inactive-with-dirty-pipeline]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[reactivation-through-reuse]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[both-groups-inactive]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[activation-without-previous-result]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[identical-parameters]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[different-parameters]</td><td>✅</td><td>10ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Object Creation</summary>
-      <pre>Step : Step(group_name='name', keys=['key'], process_func=&lt;function test_object_creation.&lt;locals&gt;.f at 0x0000020E87C09220&gt;, filter_func=&lt;function test_object_creation.&lt;locals&gt;.f at 0x0000020E87C09220&gt;, allow_dirty=False, apply_filter=True)<br>Actions : StepAction.Compute,StepAction.Reuse,StepAction.Skip</pre>
+      <pre>Step : Step(group_name='name', keys=['key'], process_func=&lt;function test_object_creation.&lt;locals&gt;.f at 0x000001ED88FFEB90&gt;, filter_func=&lt;function test_object_creation.&lt;locals&gt;.f at 0x000001ED88FFEB90&gt;, allow_dirty=False, apply_filter=True)<br>Actions : StepAction.Compute,StepAction.Reuse,StepAction.Skip</pre>
    </details>
+
+Results
+^^^^^^^
+
+.. raw:: html
+
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Accessors</td><td>✅</td><td>22ms</td></tr>
+   <tr><td>Active Results</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Dataframe Status — 5 cas</button></td><td>✅ 5/5</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[no-tracks]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[original-tracks-only]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[all-tracks-preserved]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[partially-filtered-tracks]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[reconnected-filtered-tracks]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Status</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Reset</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Load</td><td>✅</td><td>6ms</td></tr>
+   <tr><td>Save</td><td>✅</td><td>8ms</td></tr>
+   <tr><td>Interfaces</td><td>✅</td><td>47ms</td></tr>
+   </tbody>
+   </table>
 
 Settings Groups
 ^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Base Group
-     - ✅
-     - 3ms
-   * - Batch
-     - ✅
-     - 15ms
-   * - Batch Get Path
-     - ✅
-     - 16ms
-   * - Batch Get Stacks
-     - ✅
-     - 19ms
-   * - Calibration
-     - ✅
-     - 3ms
-   * - Localization
-     - ✅
-     - 14ms
-   * - Localization Fit
-     - ✅
-     - 7ms
-   * - Gaussian Fit
-     - ✅
-     - 5ms
-   * - Gaussian Fit Z
-     - ✅
-     - 6ms
-   * - Spline Fit
-     - ✅
-     - 3ms
-   * - Beads
-     - ✅
-     - 2ms
-   * - Tracking
-     - ✅
-     - 4ms
-   * - Tracks Blinking Reconnection
-     - ✅
-     - 3ms
-   * - Tracks Computes
-     - ✅
-     - 3ms
-   * - Filters
-     - ✅
-     - 25ms
-   * - Filters L
-     - ✅
-     - 8ms
-   * - Filters T
-     - ✅
-     - 5ms
-   * - Gallery
-     - ✅
-     - 3ms
-   * - Graph
-     - ✅
-     - 7ms
-   * - Graph Display
-     - ✅
-     - 2ms
-   * - Hr
-     - ✅
-     - 11ms
-   * - Hr Gaussian
-     - ✅
-     - 3ms
-   * - Hr 3D
-     - ✅
-     - 3ms
-   * - Visualization 3D
-     - ✅
-     - 3ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Base Group</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Batch</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Batch Get Path — 5 cas</button></td><td>✅ 5/5</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[no-files]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[first-file]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[second-file]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[all-files]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[merged-files]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Batch Get Stacks — 5 cas</button></td><td>✅ 5/5</td><td>14ms</td></tr>
+   <tr class="test-variant"><td>[no-stacks]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[selected-stack]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[separate-stacks]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[compatible-merge]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[invalid-dimensions]</td><td>✅</td><td>5ms</td></tr>
+   <tr><td>Calibration</td><td>✅</td><td>4ms</td></tr>
+   <tr><td>Localization</td><td>✅</td><td>7ms</td></tr>
+   <tr><td>Localization Fit</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Gaussian Fit</td><td>✅</td><td>4ms</td></tr>
+   <tr><td>Gaussian Fit Z</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Spline Fit</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Beads</td><td>✅</td><td>4ms</td></tr>
+   <tr><td>Tracking</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Tracks Blinking Reconnection</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Tracks Computes</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Filters</td><td>✅</td><td>22ms</td></tr>
+   <tr><td>Filters L</td><td>✅</td><td>6ms</td></tr>
+   <tr><td>Filters T</td><td>✅</td><td>7ms</td></tr>
+   <tr><td>Gallery</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Graph</td><td>✅</td><td>8ms</td></tr>
+   <tr><td>Graph Display</td><td>✅</td><td>4ms</td></tr>
+   <tr><td>Hr</td><td>✅</td><td>9ms</td></tr>
+   <tr><td>Hr Gaussian</td><td>✅</td><td>6ms</td></tr>
+   <tr><td>Hr 3D</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Hr Track Stack</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Visualization 3D</td><td>✅</td><td>12ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
@@ -668,7 +1299,7 @@ Settings Groups
 .. raw:: html
 
    <details>
-      <summary>Log Test : Batch Get Stacks</summary>
+      <summary>Log Test : Batch Get Stacks [invalid-dimensions]</summary>
       <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Error when concatenating stacks (they will be processed independently):<br>ValueError: all the input array dimensions except for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 256</span><span style="font-weight: bold"></span></pre>
    </details>
 
@@ -732,21 +1363,21 @@ Settings Groups
 
    <details>
       <summary>Log Test : Filters</summary>
-      <pre>- Activate : True<br>- Save : True<br>- Plane : Deactivate [1, 100000]<br>- Localization :<br>  - Activate : True<br>  - X : Deactivate [0, 100000]<br>  - Y : Deactivate [0, 100000]<br>  - Z : Deactivate [-2000, 2000]<br>  - Intensity : Deactivate [0, 10000000]<br>  - Sigma X : Deactivate [0, 10]<br>  - Sigma Y : Deactivate [0, 10]<br>  - Circularity : Deactivate [0, 1.0]<br>  - Theta : Deactivate [-90, 90]<br>  - MSE XY : Deactivate [0, 1.0]<br>  - MSE Z : Deactivate [0, 1.0]<br>- Tracks :<br>  - Activate : True<br>  - Length : Deactivate [1, 10000]<br>  - Instant D : Deactivate [-5, 5]<br>  - D Coeff : Deactivate [-5, 5]<br>  - Alpha : Deactivate [-10, 10]<br>  - Speed : Deactivate [0, 1.0]<br>  - Confinement : Deactivate [-10, 10]<br><br>{'Save': True, 'Plane': [1, 100000], 'Localization X': [0, 100000], 'Localization Y': [0, 100000], 'Localization Z': [-2000, 2000], 'Localization Intensity': [0, 10000000], 'Localization Sigma X': [0, 10], 'Localization Sigma Y': [0, 10], 'Localization Circularity': [0, 1.0], 'Localization Theta': [-90, 90], 'Localization MSE XY': [0, 1.0], 'Localization MSE Z': [0, 1.0], 'Tracks Length': [1, 10000], 'Tracks Instant D': [-5, 5], 'Tracks D Coeff': [-5, 5], 'Tracks Alpha': [-10, 10], 'Tracks Speed': [0, 1.0], 'Tracks Confinement': [-10, 10]}</pre>
+      <pre>- Activate : True<br>- Save : True<br>- Plane : Deactivate [1, 100000]<br>- ROI : 1<br>- Localization :<br>  - Activate : True<br>  - Z : Deactivate [-2000, 2000]<br>  - Intensity : Deactivate [0, 10000000]<br>  - Sigma X : Deactivate [0, 10]<br>  - Sigma Y : Deactivate [0, 10]<br>  - Circularity : Deactivate [0, 1.0]<br>  - Theta : Deactivate [-90, 90]<br>  - MSE XY : Deactivate [0, 1.0]<br>  - MSE Z : Deactivate [0, 1.0]<br>- Tracks :<br>  - Activate : True<br>  - Track : <br>  - Length : Deactivate [1, 10000]<br>  - Instant D : Deactivate [-5, 5]<br>  - D Coeff : Deactivate [-5, 5]<br>  - Alpha : Deactivate [-10, 10]<br>  - Speed : Deactivate [0, 1.0]<br>  - Confinement : Deactivate [-10, 10]<br><br>{'Save': True, 'Plane': [1, 100000], 'ROI': 1, 'Localization Z': [-2000, 2000], 'Localization Intensity': [0, 10000000], 'Localization Sigma X': [0, 10], 'Localization Sigma Y': [0, 10], 'Localization Circularity': [0, 1.0], 'Localization Theta': [-90, 90], 'Localization MSE XY': [0, 1.0], 'Localization MSE Z': [0, 1.0], 'Tracks Track': '', 'Tracks Length': [1, 10000], 'Tracks Instant D': [-5, 5], 'Tracks D Coeff': [-5, 5], 'Tracks Alpha': [-10, 10], 'Tracks Speed': [0, 1.0], 'Tracks Confinement': [-10, 10]}</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Filters L</summary>
-      <pre>- Activate : True<br>- X : Deactivate [2, 9]<br>- Y : Deactivate [0, 100000]<br>- Z : Deactivate [-2000, 2000]<br>- Intensity : Deactivate [0, 10000000]<br>- Sigma X : Deactivate [0, 10]<br>- Sigma Y : Deactivate [0, 10]<br>- Circularity : Deactivate [0, 1.0]<br>- Theta : Deactivate [-90, 90]<br>- MSE XY : Deactivate [0, 1.0]<br>- MSE Z : Deactivate [0, 1.0]<br><br>{'X': [2, 9], 'Y': [0, 100000], 'Z': [-2000, 2000], 'Intensity': [0, 10000000], 'Sigma X': [0, 10], 'Sigma Y': [0, 10], 'Circularity': [0, 1.0], 'Theta': [-90, 90], 'MSE XY': [0, 1.0], 'MSE Z': [0, 1.0]}</pre>
+      <pre>- Activate : True<br>- Z : Deactivate [2, 9]<br>- Intensity : Deactivate [0, 10000000]<br>- Sigma X : Deactivate [0, 10]<br>- Sigma Y : Deactivate [0, 10]<br>- Circularity : Deactivate [0, 1.0]<br>- Theta : Deactivate [-90, 90]<br>- MSE XY : Deactivate [0, 1.0]<br>- MSE Z : Deactivate [0, 1.0]<br><br>{'Z': [2, 9], 'Intensity': [0, 10000000], 'Sigma X': [0, 10], 'Sigma Y': [0, 10], 'Circularity': [0, 1.0], 'Theta': [-90, 90], 'MSE XY': [0, 1.0], 'MSE Z': [0, 1.0]}</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Filters T</summary>
-      <pre>- Activate : True<br>- Length : Deactivate [2, 3]<br>- Instant D : Deactivate [-5, 5]<br>- D Coeff : Deactivate [-5, 5]<br>- Alpha : Deactivate [-10, 10]<br>- Speed : Deactivate [0, 1.0]<br>- Confinement : Deactivate [-10, 10]<br><br>{'Length': [2, 3], 'Instant D': [-5, 5], 'D Coeff': [-5, 5], 'Alpha': [-10, 10], 'Speed': [0, 1.0], 'Confinement': [-10, 10]}</pre>
+      <pre>- Activate : True<br>- Track : 1;3-4<br>- Length : Deactivate [1, 10000]<br>- Instant D : Deactivate [-5, 5]<br>- D Coeff : Deactivate [-5, 5]<br>- Alpha : Deactivate [-10, 10]<br>- Speed : Deactivate [0, 1.0]<br>- Confinement : Deactivate [-10, 10]<br><br>{'Track': '1;3-4', 'Length': [1, 10000], 'Instant D': [-5, 5], 'D Coeff': [-5, 5], 'Alpha': [-10, 10], 'Speed': [0, 1.0], 'Confinement': [-10, 10]}</pre>
    </details>
 
 .. raw:: html
@@ -760,21 +1391,21 @@ Settings Groups
 
    <details>
       <summary>Log Test : Graph</summary>
-      <pre>- Activate : True<br>- Type : 1<br>- Source : 0<br>- Dual : False<br>- Source B : 0<br>- MSD Step : 1<br>- Display :<br>  - Activate : True<br>  - Limits : True<br>  - Sigma : False<br>  - Gauss : False<br>  - KDE : False<br>  - Cumul : False<br>  - Log Scale : False<br><br>{'Type': 1, 'Source': 0, 'Dual': False, 'Source B': 0, 'MSD Step': 1, 'Display Limits': True, 'Display Sigma': False, 'Display Gauss': False, 'Display KDE': False, 'Display Cumul': False, 'Display Log Scale': False}</pre>
+      <pre>- Activate : True<br>- Type : 1<br>- Source : 0<br>- Dual : False<br>- Source B : 0<br>- MSD Step : 1<br>- Display :<br>  - Activate : True<br>  - Limits : True<br>  - Sigma : False<br>  - Gauss : False<br>  - Gauss Mix : False<br>  - KDE : False<br>  - Poiss : False<br>  - Exp : False<br>  - Cumul : False<br>  - Log Scale : False<br>  - Count : False<br>  - Bins : 0<br><br>{'Type': 1, 'Source': 0, 'Dual': False, 'Source B': 0, 'MSD Step': 1, 'Display Limits': True, 'Display Sigma': False, 'Display Gauss': False, 'Display Gauss Mix': False, 'Display KDE': False, 'Display Poiss': False, 'Display Exp': False, 'Display Cumul': False, 'Display Log Scale': False, 'Display Count': False, 'Display Bins': 0}</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Graph Display</summary>
-      <pre>- Activate : True<br>- Limits : False<br>- Sigma : False<br>- Gauss : False<br>- KDE : False<br>- Cumul : False<br>- Log Scale : False<br><br>{'Limits': False, 'Sigma': False, 'Gauss': False, 'KDE': False, 'Cumul': False, 'Log Scale': False}</pre>
+      <pre>- Activate : True<br>- Limits : False<br>- Sigma : False<br>- Gauss : False<br>- Gauss Mix : False<br>- KDE : False<br>- Poiss : False<br>- Exp : False<br>- Cumul : False<br>- Log Scale : False<br>- Count : False<br>- Bins : 0<br><br>{'Limits': False, 'Sigma': False, 'Gauss': False, 'Gauss Mix': False, 'KDE': False, 'Poiss': False, 'Exp': False, 'Cumul': False, 'Log Scale': False, 'Count': False, 'Bins': 0}</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Hr</summary>
-      <pre>- Activate : True<br>- Dimension : 1<br>- Type : 0<br>- Source : 0<br>- Color mode : 0<br>- Ratio : 4<br>- Crop : True<br>- Remove Beads : True<br>- Drift Correction : True<br>- Smooth Drift : True<br>- Gaussian :<br>  - Activate : False<br>  - Intensity : 100<br>  - Fixed Intensity : False<br>  - Shape : 0<br>  - Size : 1<br>- 3D :<br>  - Activate : True<br>  - Z Step : 20<br>  - Axis : 1<br>  - Frames : 36<br><br>{'Dimension': 1, 'Type': 0, 'Source': 0, 'Color mode': 0, 'Ratio': 4, 'Crop': True, 'Remove Beads': True, 'Drift Correction': True, 'Smooth Drift': True, 'Gaussian Intensity': 100, 'Gaussian Fixed Intensity': False, 'Gaussian Shape': 0, 'Gaussian Size': 1, '3D Z Step': 20, '3D Axis': 1, '3D Frames': 36}</pre>
+      <pre>- Activate : True<br>- Dimension : 1<br>- Type : 0<br>- Source : 0<br>- Scaling : 1<br>- Color mode : 0<br>- Background : 0<br>- Ratio : 4<br>- Crop : True<br>- Remove Beads : True<br>- Drift Correction : True<br>- Smooth Drift : True<br>- Gaussian :<br>  - Activate : False<br>  - Intensity : 100<br>  - Fixed Intensity : False<br>  - Shape : 0<br>  - Size : 1<br>- 3D :<br>  - Activate : True<br>  - Z Step : 20<br>  - Axis : 1<br>  - Frames : 36<br>- T-Stack :<br>  - Activate : True<br>  - Head : 1<br>  - Width : 1<br>  - Length : -1<br>  - Fade : 0<br>  - Map : 0<br>  - Background : True<br>  - Upscale : 0<br><br>{'Dimension': 1, 'Type': 0, 'Source': 0, 'Scaling': 1, 'Color mode': 0, 'Background': 0, 'Ratio': 4, 'Crop': True, 'Remove Beads': True, 'Drift Correction': True, 'Smooth Drift': True, 'Gaussian Intensity': 100, 'Gaussian Fixed Intensity': False, 'Gaussian Shape': 0, 'Gaussian Size': 1, '3D Z Step': 20, '3D Axis': 1, '3D Frames': 36, 'T-Stack Head': 1, 'T-Stack Width': 1, 'T-Stack Length': -1, 'T-Stack Fade': 0, 'T-Stack Map': 0, 'T-Stack Background': True, 'T-Stack Upscale': 0}</pre>
    </details>
 
 .. raw:: html
@@ -794,248 +1425,220 @@ Settings Groups
 .. raw:: html
 
    <details>
+      <summary>Log Test : Hr Track Stack</summary>
+      <pre>- Activate : True<br>- Head : 5<br>- Width : 1<br>- Length : -1<br>- Fade : 0<br>- Map : 0<br>- Background : True<br>- Upscale : 0<br><br>{'Head': 5, 'Width': 1, 'Length': -1, 'Fade': 0, 'Map': 0, 'Background': True, 'Upscale': 0}</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
       <summary>Log Test : Visualization 3D</summary>
       <pre>- Activate : True<br>- Point Size : 2<br>- Pixel Size : 160<br>- XY Scale : 1.0<br>- Z Scale : 1.0<br>- Remove Outliers : False<br><br>{'Point Size': 2, 'Pixel Size': 160, 'XY Scale': 1.0, 'Z Scale': 1.0, 'Remove Outliers': False}</pre>
+   </details>
+
+Settings Roimanager
+^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Rois</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Set Xy Roi</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Layer</td><td>✅</td><td>384ms</td></tr>
+   <tr><td>Update Main</td><td>✅</td><td>42ms</td></tr>
+   <tr><td>Update Hr</td><td>✅</td><td>9ms</td></tr>
+   <tr><td>Update Roi Selection</td><td>✅</td><td>14ms</td></tr>
+   <tr><td>Dict</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Roi Limits</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Hr Box</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Filtering Dataframe</td><td>✅</td><td>5ms</td></tr>
+   <tr><td>Filtering Dataframe Concave Cross</td><td>✅</td><td>2ms</td></tr>
+   </tbody>
+   </table>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Filtering Dataframe</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">ROI type 'line' does not define an area compatible with strict filtering.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 Settings Settings
 ^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Settings
-     - ✅
-     - 25ms
-   * - Settings Group Getter
-     - ✅
-     - 14ms
-   * - Settings Signal
-     - ✅
-     - 10ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Settings</td><td>✅</td><td>102ms</td></tr>
+   <tr><td>Settings Group Getter</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Settings Signal</td><td>✅</td><td>11ms</td></tr>
+   </tbody>
+   </table>
 
 Settings Types
 ^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Base Setting
-     - ✅
-     - 2ms
-   * - Base Ui
-     - ✅
-     - 99ms
-   * - Base Ui No Label
-     - ✅
-     - 1ms
-   * - Spin Int
-     - ✅
-     - 8ms
-   * - Spin Float
-     - ✅
-     - 1ms
-   * - Check Box
-     - ✅
-     - 3ms
-   * - Combo
-     - ✅
-     - 3ms
-   * - Browse File
-     - ✅
-     - 5ms
-   * - File List
-     - ✅
-     - 10ms
-   * - Check Range Int
-     - ✅
-     - 13ms
-   * - Check Range Float
-     - ✅
-     - 12ms
-   * - Button
-     - ✅
-     - 3ms
-   * - Button Group
-     - ✅
-     - 3ms
-   * - Sync
-     - ✅
-     - 10ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Base Setting</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Base Check Setting — 4 cas</button></td><td>✅ 4/4</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[CheckInt]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[CheckIntSelection]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[CheckRangeFloat]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[CheckRangeInt]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Base Ui</td><td>✅</td><td>94ms</td></tr>
+   <tr><td>Base Ui No Label</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Spin Int</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Spin Float</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Check Box</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Combo</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Browse File</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>File List</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Check Int</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Check Range Int</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Check Range Float</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Check Int Selection</td><td>✅</td><td>5ms</td></tr>
+   <tr><td>Button</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Button Group</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Sync</td><td>✅</td><td>10ms</td></tr>
+   </tbody>
+   </table>
 
 Settings Types Signal
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Connect And Emit Direct
-     - ✅
-     - 2ms
-   * - Disconnect
-     - ✅
-     - 6ms
-   * - Block Simple Coalescence Last Value
-     - ✅
-     - 2ms
-   * - Block Without Emits No Output
-     - ✅
-     - 2ms
-   * - Nested Blocks Emit Once At Outer Exit
-     - ✅
-     - 3ms
-   * - Emit Default None Coalesced
-     - ✅
-     - 2ms
-   * - Block Flags Reset After Flush
-     - ✅
-     - 3ms
-   * - Block Without Emit
-     - ✅
-     - 4ms
-   * - Blocked Returns Context Manager Instance
-     - ✅
-     - 2ms
-   * - Internal Block Begin End Paths
-     - ✅
-     - 2ms
-   * - Coalescence Overwrite Multiple Times
-     - ✅
-     - 2ms
-   * - Emit Direct After Previous Block
-     - ✅
-     - 3ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Connect And Emit Direct</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Disconnect</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Block Simple Coalescence Last Value</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Block Without Emits No Output</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Nested Blocks Emit Once At Outer Exit</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Emit Default None Coalesced</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Block Flags Reset After Flush</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Block Without Emit</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Blocked Returns Context Manager Instance</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Internal Block Begin End Paths</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Coalescence Overwrite Multiple Times</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Emit Direct After Previous Block</td><td>✅</td><td>1ms</td></tr>
+   </tbody>
+   </table>
 
 Tools Fileio
 ^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Add Extension
-     - ✅
-     - 5ms
-   * - Add Suffix
-     - ✅
-     - 3ms
-   * - Get Timestamp For Files
-     - ✅
-     - 2ms
-   * - Get Last File
-     - ✅
-     - 3ms
-   * - Extract Suffix
-     - ✅
-     - 9ms
-   * - Cleanup Process
-     - ✅
-     - 2ms
-   * - Load Dll
-     - ✅
-     - 4ms
-   * - Save Json
-     - ✅
-     - 2ms
-   * - Open Json
-     - ✅
-     - 21ms
-   * - Open Json Bad File
-     - ✅
-     - 2ms
-   * - Save Tif
-     - ✅
-     - 3ms
-   * - Save Tif 2D
-     - ✅
-     - 2ms
-   * - Save Tif Bad Stack
-     - ✅
-     - 2ms
-   * - Open Tif
-     - ✅
-     - 58ms
-   * - Open Tif Bad File
-     - ✅
-     - 5ms
-   * - Save Png
-     - ✅
-     - 4ms
-   * - Save Png Color
-     - ✅
-     - 9ms
-   * - Save Png Bad Sample
-     - ✅
-     - 2ms
-   * - Open Calibration Mat Bad File
-     - ✅
-     - 2ms
-   * - Open Calibration Mat
-     - ✅
-     - 3ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Add Extension — 6 cas</button></td><td>✅ 6/6</td><td>13ms</td></tr>
+   <tr class="test-variant"><td>[existing-extension]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[no-extension]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[multiple-dots]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[with-directories]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[extension-already-present]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[extension-with-dot]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Add Suffix — 2 cas</button></td><td>✅ 2/2</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[with-extension]</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-variant"><td>[no-extension]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Get Timestamp For Files — 2 cas</button></td><td>✅ 2/2</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[with-time]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[date-only]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Get Last File — 2 cas</button></td><td>✅ 2/2</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[alphabetical-order]</td><td>✅</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[modification-time]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Get Last File Not Found — 2 cas</button></td><td>✅ 2/2</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[missing-directory]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[no-match]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Extract Suffix — 5 cas</button></td><td>✅ 5/5</td><td>7ms</td></tr>
+   <tr class="test-variant"><td>[empty-name]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[no-extension]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[no-suffix]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[single-suffix]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[last-suffix]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Cleanup Process — 4 cas</button></td><td>✅ 4/4</td><td>264ms</td></tr>
+   <tr class="test-variant"><td>[empty-directory]</td><td>✅</td><td>19ms</td></tr>
+   <tr class="test-variant"><td>[administrative-files-only]</td><td>✅</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[result-still-present]</td><td>✅</td><td>234ms</td></tr>
+   <tr class="test-variant"><td>[other-timestamp-preserved]</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Cleanup Process Missing Folder</td><td>✅</td><td>13ms</td></tr>
+   <tr><td>Load Dll</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Load Dll Missing</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Json Roundtrip</td><td>✅</td><td>4ms</td></tr>
+   <tr><td>Open Json Bad File</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Tif Roundtrip — 2 cas</button></td><td>✅ 2/2</td><td>60ms</td></tr>
+   <tr class="test-variant"><td>[stack]</td><td>✅</td><td>44ms</td></tr>
+   <tr class="test-variant"><td>[2d-image]</td><td>✅</td><td>16ms</td></tr>
+   <tr><td>Save Tif Rgb</td><td>✅</td><td>7ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Save Tif Bad Stack — 4 cas</button></td><td>✅ 4/4</td><td>9ms</td></tr>
+   <tr class="test-variant"><td>[1d-array]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[5d-array]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[two-channels]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[four-channels]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Open Tif</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Open Tif Bad File — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[missing-file]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[invalid-dimensions]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Save Png — 3 cas</button></td><td>✅ 3/3</td><td>483ms</td></tr>
+   <tr class="test-variant"><td>[normalization]</td><td>✅</td><td>285ms</td></tr>
+   <tr class="test-variant"><td>[no-normalization]</td><td>✅</td><td>166ms</td></tr>
+   <tr class="test-variant"><td>[black-image]</td><td>✅</td><td>32ms</td></tr>
+   <tr><td>Save Png Color</td><td>✅</td><td>11ms</td></tr>
+   <tr><td>Save Png Bad Sample</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Open Calibration Mat Bad File</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Open Calibration Mat</td><td>✅</td><td>4ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
    <details>
-      <summary>Log Test : Get Timestamp For Files</summary>
-      <pre>Timestamp with hour : 20260615_100820<br>Timestamp without hour : 20260615</pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Get Last File</summary>
-      <pre>C:\Git\palm-tracer\palm_tracer\_tests\input\File-03.txt<br>C:\Git\palm-tracer\palm_tracer\_tests\input\File-03.txt</pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Load Dll</summary>
+      <summary>Log Test : Load Dll Missing</summary>
       <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Unable to load the DLL 'PALMTracer_File.dll':<br>	Could not find module 'C:\Git\palm-tracer\palm_tracer\DLL\PALMTracer_File.dll' (or one of its dependencies). Try using the full path with constructor syntax.</span><span style="font-weight: bold"></span></pre>
    </details>
 
 Tools Filemigrator
 ^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Open
-     - ✅
-     - 13ms
-   * - Update Meta
-     - ✅
-     - 11ms
-   * - Open Old File
-     - ✅
-     - 34ms
-   * - Open Old Irregular File
-     - ✅
-     - 25ms
-   * - Column Migrator
-     - ✅
-     - 4ms
-   * - Analyze
-     - ✅
-     - 9ms
-   * - Migrate
-     - ✅
-     - 247ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Open</td><td>✅</td><td>6ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Open Invalid — 3 cas</button></td><td>✅ 3/3</td><td>8ms</td></tr>
+   <tr class="test-variant"><td>[directory-without-results]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[file-instead-of-directory]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[missing-directory]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Analyze</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Analyze Invalid — 1 cas</button></td><td>✅ 1/1</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[no-directory]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Migrate</td><td>✅</td><td>218ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Migrate Invalid — 1 cas</button></td><td>✅ 1/1</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[no-directory]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Update Meta</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Open Old File</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Open Old File Invalid — 2 cas</button></td><td>✅ 2/2</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[directory-instead-of-file]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[invalid-content]</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Open Old Irregular File</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Open Old Irregular File Invalid — 2 cas</button></td><td>✅ 2/2</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[directory-instead-of-file]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[invalid-content]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Column Migrator</td><td>✅</td><td>1ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
@@ -1047,43 +1650,38 @@ Tools Filemigrator
 Tools Logger
 ^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Logger
-     - ✅
-     - 11ms
-   * - Logger Bad Use
-     - ✅
-     - 5ms
-   * - Logger With Use
-     - ✅
-     - 9ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Logger</td><td>✅</td><td>26ms</td></tr>
+   <tr><td>Logger Bad Use</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Logger With Use</td><td>✅</td><td>2ms</td></tr>
+   </tbody>
+   </table>
 
 Tools Monitoring
 ^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Monitoring
-     - ✅
-     - 3.09s
-   * - Monitoring Save
-     - ✅
-     - 6.21s
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Monitoring</td><td>✅</td><td>3.08s</td></tr>
+   <tr><td>Monitoring Draw Test Section</td><td>✅</td><td>13ms</td></tr>
+   <tr><td>Monitoring Draw</td><td>✅</td><td>32ms</td></tr>
+   <tr><td>Monitoring Removes Samples Before First Test</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Monitoring Save</td><td>✅</td><td>6.27s</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Monitoring</summary>
-      <pre>10 entrées.<br>Timestamps : [0.0, 0.21, 0.41, 0.63, 0.84, 2.01, 2.22, 2.43, 2.64, 2.85]<br>CPU Usage : [0.4875, 0.0, 0.0, 0.4875, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]<br>GPU Usage : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]<br>Memory Usage : [780.7734375, 780.77734375, 780.77734375, 780.77734375, 780.78125, 780.7890625, 780.7890625, 780.7890625, 780.7890625, 780.7890625]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
+      <pre>10 entrées.<br>Timestamps : [0.0, 0.21, 0.42, 0.63, 0.85, 2.02, 2.23, 2.44, 2.65, 2.86]<br>CPU Usage : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.484375, 0.484375, 0.0, 0.484375]<br>GPU Usage : [16, 16, 16, 3, 3, 0, 0, 0, 0, 0]<br>Memory Usage : [773.21484375, 773.21484375, 773.21484375, 773.21875, 773.21875, 773.22265625, 773.22265625, 773.22265625, 773.22265625, 773.22265625]<br>Disk Usage : [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]</pre>
    </details>
 
 .. raw:: html
@@ -1096,149 +1694,95 @@ Tools Monitoring
 Tools Ui
 ^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Builders
-     - ✅
-     - 23ms
-   * - Builders Spin
-     - ✅
-     - 7ms
-   * - Sync Spin
-     - ✅
-     - 7ms
-   * - Sync Button Group
-     - ✅
-     - 14ms
-   * - Print Error
-     - ✅
-     - 1ms
-   * - Print Warning
-     - ✅
-     - 1ms
-   * - Print Success
-     - ✅
-     - 1ms
-   * - Format Time
-     - ✅
-     - 2ms
-
 .. raw:: html
 
-   <details>
-      <summary>Log Test : Print Error</summary>
-      <pre><span style="color: #aa0000"></span><span style="font-weight: bold; color: #aa0000">Message d'erreur</span><span style="font-weight: bold"></span></pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Print Warning</summary>
-      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">Message d'avertissement</span><span style="font-weight: bold"></span></pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Print Success</summary>
-      <pre><span style="color: #00aa00"></span><span style="font-weight: bold; color: #00aa00">Message de succes</span><span style="font-weight: bold"></span></pre>
-   </details>
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Add Setting Row</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Init Layout</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Make Container — 2 cas</button></td><td>✅ 2/2</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[tab]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[group]</td><td>✅</td><td>3ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Make Info Grid — 2 cas</button></td><td>✅ 2/2</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[no-units]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[with-units-and-tooltips]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Make File Info Group</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Make Path Label</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Update Path Label — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[string]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[path-object]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Make Vertical Scroll</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Make Separator — 2 cas</button></td><td>✅ 2/2</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[vertical]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[horizontal]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Make Spin — 2 cas</button></td><td>✅ 2/2</td><td>5ms</td></tr>
+   <tr class="test-variant"><td>[integer-with-buttons]</td><td>✅</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[decimal-without-buttons]</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Sync Button Group</td><td>✅</td><td>1ms</td></tr>
+   <tr><td>Sync Spin</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Update Spin Limits — 4 cas</button></td><td>✅ 4/4</td><td>16ms</td></tr>
+   <tr class="test-variant"><td>[no-change]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minimum-only]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[maximum-only]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[both-bounds]</td><td>✅</td><td>11ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Print Message — 3 cas</button></td><td>✅ 3/3</td><td>3ms</td></tr>
+   <tr class="test-variant"><td>[error]</td><td>✅</td><td>2ms</td></tr>
+   <tr class="test-variant"><td>[warning]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[success]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-group"><td><button type="button" aria-expanded="true">Format Time — 4 cas</button></td><td>✅ 4/4</td><td>4ms</td></tr>
+   <tr class="test-variant"><td>[zero-duration]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[seconds]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[minute-boundary]</td><td>✅</td><td>1ms</td></tr>
+   <tr class="test-variant"><td>[hours-minutes-seconds]</td><td>✅</td><td>1ms</td></tr>
+   </tbody>
+   </table>
 
 Ui Alignment
 ^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Widget Creation
-     - ✅
-     - 97ms
-   * - Bad Load Tif
-     - ✅
-     - 7ms
-   * - Bad Load Coef
-     - ✅
-     - 12ms
-   * - Bad Compute
-     - ✅
-     - 4ms
-   * - Compute
-     - ✅
-     - 8ms
-   * - Bad Align
-     - ✅
-     - 8ms
-   * - Align
-     - ✅
-     - 183ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Widget Creation</td><td>✅</td><td>95ms</td></tr>
+   <tr><td>Bad Load Tif</td><td>✅</td><td>5ms</td></tr>
+   <tr><td>Bad Load Coef</td><td>✅</td><td>6ms</td></tr>
+   <tr><td>Bad Compute</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Compute</td><td>✅</td><td>4ms</td></tr>
+   <tr><td>Bad Align</td><td>✅</td><td>5ms</td></tr>
+   <tr><td>Align</td><td>✅</td><td>169ms</td></tr>
+   </tbody>
+   </table>
 
 Ui Astigmatism3D
 ^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Widget Creation
-     - ✅
-     - 208ms
-   * - Bad Load Loc
-     - ✅
-     - 256ms
-   * - Bad Load Model
-     - ✅
-     - 54ms
-   * - Bad Compute
-     - ✅
-     - 49ms
-   * - Check Loc
-     - ✅
-     - 67ms
-   * - Compute
-     - ✅
-     - 125ms
-   * - Compute Mean Beads
-     - ✅
-     - 120ms
-   * - Compute Remove Bead Col
-     - ✅
-     - 111ms
-   * - Compute Remove Multi
-     - ✅
-     - 109ms
-   * - Compute Z
-     - ✅
-     - 117ms
-   * - Compute Center Z
-     - ✅
-     - 116ms
-   * - Compute Bad Model
-     - ✅
-     - 120ms
-   * - Bad Estimate
-     - ✅
-     - 57ms
-   * - Estimate
-     - ✅
-     - 84ms
-   * - Estimate Backup
-     - ✅
-     - 423ms
-   * - Sync Spin
-     - ✅
-     - 268ms
-   * - Download
-     - ✅
-     - 77ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Widget Creation</td><td>✅</td><td>316ms</td></tr>
+   <tr><td>Sync Spin</td><td>✅</td><td>64ms</td></tr>
+   <tr><td>Check Loc</td><td>✅</td><td>69ms</td></tr>
+   <tr><td>Bad Load Loc</td><td>✅</td><td>51ms</td></tr>
+   <tr><td>Bad Load Model</td><td>✅</td><td>51ms</td></tr>
+   <tr><td>Bad Compute</td><td>✅</td><td>45ms</td></tr>
+   <tr><td>Compute</td><td>✅</td><td>120ms</td></tr>
+   <tr><td>Compute Mean Beads</td><td>✅</td><td>118ms</td></tr>
+   <tr><td>Compute Remove Bead Col</td><td>✅</td><td>106ms</td></tr>
+   <tr><td>Compute Remove Multi</td><td>✅</td><td>109ms</td></tr>
+   <tr><td>Compute Z</td><td>✅</td><td>114ms</td></tr>
+   <tr><td>Compute Center Z</td><td>✅</td><td>296ms</td></tr>
+   <tr><td>Compute Bad Model</td><td>✅</td><td>118ms</td></tr>
+   <tr><td>Bad Estimate</td><td>✅</td><td>46ms</td></tr>
+   <tr><td>Estimate</td><td>✅</td><td>76ms</td></tr>
+   <tr><td>Estimate Backup</td><td>✅</td><td>95ms</td></tr>
+   <tr><td>Download</td><td>✅</td><td>65ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
@@ -1250,27 +1794,18 @@ Ui Astigmatism3D
 Ui Baseplotlywidget
 ^^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Creation
-     - ✅
-     - 14ms
-   * - Update Plotly
-     - ✅
-     - 18ms
-   * - Update Plotly No Js
-     - ✅
-     - 19ms
-   * - Download Plotly
-     - ✅
-     - 19ms
-   * - Export Plotly
-     - ✅
-     - 21ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Creation</td><td>✅</td><td>14ms</td></tr>
+   <tr><td>Update Plotly</td><td>✅</td><td>18ms</td></tr>
+   <tr><td>Update Plotly No Js</td><td>✅</td><td>17ms</td></tr>
+   <tr><td>Download Plotly</td><td>✅</td><td>20ms</td></tr>
+   <tr><td>Export Plotly</td><td>✅</td><td>19ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
@@ -1289,46 +1824,33 @@ Ui Baseplotlywidget
 Ui Filemigrator
 ^^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Widget Creation
-     - ✅
-     - 3ms
-   * - Bad Load
-     - ✅
-     - 6ms
-   * - Mirgate
-     - ✅
-     - 34ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Widget Creation</td><td>✅</td><td>3ms</td></tr>
+   <tr><td>Bad Load</td><td>✅</td><td>4ms</td></tr>
+   <tr><td>Mirgate</td><td>✅</td><td>36ms</td></tr>
+   </tbody>
+   </table>
 
 Ui Graphviewer
 ^^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Widget Creation
-     - ✅
-     - 58ms
-   * - Widget Double Creation
-     - ✅
-     - 94ms
-   * - Add Stack
-     - ✅
-     - 73ms
-   * - Change Type
-     - ✅
-     - 76ms
-   * - Update Plot Localization
-     - ✅
-     - 155ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Widget Creation</td><td>✅</td><td>79ms</td></tr>
+   <tr><td>Results Status Automatic Update</td><td>✅</td><td>72ms</td></tr>
+   <tr><td>Widget Double Creation</td><td>✅</td><td>125ms</td></tr>
+   <tr><td>Change Type</td><td>✅</td><td>85ms</td></tr>
+   <tr><td>Add Stack</td><td>✅</td><td>85ms</td></tr>
+   <tr><td>Update Plot Localization</td><td>✅</td><td>157ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
@@ -1340,99 +1862,78 @@ Ui Graphviewer
 Ui Palmtracer
 ^^^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
-
-   * - Test Name
-     - Status
-     - Duration
-   * - Widget Creation
-     - ✅
-     - 922ms
-   * - Widget On Load Setting
-     - ✅
-     - 445ms
-   * - Widget Reset Setting
-     - ✅
-     - 450ms
-   * - Widget Reset Layer
-     - ✅
-     - 824ms
-   * - Widget Get Actual Image
-     - ✅
-     - 516ms
-   * - Widget Add Detection Layers
-     - ✅
-     - 1.48s
-   * - Widget Preview
-     - ✅
-     - 615ms
-   * - Widget Roi Filter Layer
-     - ✅
-     - 713ms
-   * - Widget Auto Threshold
-     - ✅
-     - 553ms
-   * - Widget Thread Process
-     - ✅
-     - 600ms
-   * - Widget Keyblocker
-     - ✅
-     - 841ms
-   * - Filters Button
-     - ✅
-     - 702ms
-
 .. raw:: html
 
-   <details>
-      <summary>Log Test : Widget Get Actual Image</summary>
-      <pre>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif into Napari viewer.</pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Widget Roi Filter Layer</summary>
-      <pre>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif into Napari viewer.</pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Widget Thread Process</summary>
-      <pre>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif into Napari viewer.<br>[15-06-2026 10:08:41] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100841.log<br>[15-06-2026 10:08:41] Start Processing.<br>[15-06-2026 10:08:41] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[15-06-2026 10:08:41] Meta file saved.<br>[15-06-2026 10:08:41] Settings saved.<br>[15-06-2026 10:08:41] Localization disabled.<br>[15-06-2026 10:08:41] Beads Extraction disabled.<br>[15-06-2026 10:08:41] Tracking disabled.<br>[15-06-2026 10:08:41] Blinking Reconnection disabled.<br>[15-06-2026 10:08:41] Tracks Compute disabled.<br>[15-06-2026 10:08:41] Gallery generation disabled.<br>[15-06-2026 10:08:41] Graphical visualization disabled.<br>[15-06-2026 10:08:41] High-resolution visualization disabled.<br>[15-06-2026 10:08:41] Processing complete.<br>[15-06-2026 10:08:41] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100841.log<br>Auto Threshold: 63.95</pre>
-   </details>
-
-.. raw:: html
-
-   <details>
-      <summary>Log Test : Widget Keyblocker</summary>
-      <pre>INFO: Loading the setting file 'C:\Users\tmonseigne\.palm_tracer\settings.json'.<br>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif into Napari viewer.</pre>
-   </details>
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Creation</td><td>✅</td><td>968ms</td></tr>
+   <tr><td>Filters Button</td><td>✅</td><td>1.06s</td></tr>
+   <tr><td>Thread Process</td><td>✅</td><td>941ms</td></tr>
+   <tr><td>On Load Setting</td><td>✅</td><td>1.58s</td></tr>
+   <tr><td>Reset Setting</td><td>✅</td><td>1.53s</td></tr>
+   <tr><td>Clean Layer</td><td>✅</td><td>1.05s</td></tr>
+   <tr><td>Reset Layer</td><td>✅</td><td>948ms</td></tr>
+   <tr><td>Add Detection Layers</td><td>✅</td><td>1.67s</td></tr>
+   <tr><td>Get Actual Image</td><td>✅</td><td>1.15s</td></tr>
+   <tr><td>Preview</td><td>✅</td><td>1.08s</td></tr>
+   <tr><td>Auto Threshold</td><td>✅</td><td>878ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Filters Button</summary>
-      <pre>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif into Napari viewer.<br>[15-06-2026 10:08:42] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100842.log<br>[15-06-2026 10:08:42] Start Processing.<br>[15-06-2026 10:08:42] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[15-06-2026 10:08:42] Meta file saved.<br>[15-06-2026 10:08:42] Settings saved.<br>[15-06-2026 10:08:42] Localization enabled.<br>[15-06-2026 10:08:42] 	Saving the localization file (455 localization(s) found).<br>[15-06-2026 10:08:42] Beads Extraction disabled.<br>[15-06-2026 10:08:42] Tracking disabled.<br>[15-06-2026 10:08:42] Blinking Reconnection disabled.<br>[15-06-2026 10:08:42] Tracks Compute disabled.<br>[15-06-2026 10:08:42] Gallery generation disabled.<br>[15-06-2026 10:08:42] Graphical visualization disabled.<br>[15-06-2026 10:08:42] High-resolution visualization disabled.<br>[15-06-2026 10:08:42] Processing complete.<br>[15-06-2026 10:08:42] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100842.log<br>{'reset': &lt;PySide6.QtWidgets.QPushButton(0x20ea9a1c3f0) at 0x0000020E91E09D80&gt;, 'update': &lt;PySide6.QtWidgets.QPushButton(0x20ea9a1ea00) at 0x0000020E91E09E80&gt;, 'save': &lt;PySide6.QtWidgets.QPushButton(0x20ea9a1e0f0) at 0x0000020E91E09C00&gt;}<br>[15-06-2026 10:08:42] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100842.log<br>[15-06-2026 10:08:42] Start Processing.<br>- Activate : True<br>- Save : False<br>- Plane : Activate [1, 5]<br>- Localization :<br>  - Activate : True<br>  - X : Deactivate [0, 256]<br>  - Y : Deactivate [0, 128]<br>  - Z : Deactivate [-2000, 2000]<br>  - Intensity : Deactivate [0, 10000000]<br>  - Sigma X : Deactivate [0, 10]<br>  - Sigma Y : Deactivate [0, 10]<br>  - Circularity : Deactivate [0, 1.0]<br>  - Theta : Deactivate [-90, 90]<br>  - MSE XY : Deactivate [0, 1.0]<br>  - MSE Z : Deactivate [0, 1.0]<br>- Tracks :<br>  - Activate : True<br>  - Length : Deactivate [1, 10]<br>  - Instant D : Deactivate [-5, 5]<br>  - D Coeff : Deactivate [-5, 5]<br>  - Alpha : Deactivate [-10, 10]<br>  - Speed : Deactivate [0, 1.0]<br>  - Confinement : Deactivate [-10, 10]<br><br>[15-06-2026 10:08:42] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[15-06-2026 10:08:42] Meta file saved.<br>[15-06-2026 10:08:42] Settings saved.<br>[15-06-2026 10:08:42] Localization load previous result (Timestamp : 20260615_100842).<br>[15-06-2026 10:08:42] 	File 'localizations-20260615_100842.csv' loaded successfully, 455 row(s) found.<br>[15-06-2026 10:08:42] 		Filtering of file 242 row(s) instead of 455: 213 deletion(s).<br>[15-06-2026 10:08:42] Beads Extraction disabled.<br>[15-06-2026 10:08:42] Tracking disabled.<br>[15-06-2026 10:08:42] Blinking Reconnection disabled.<br>[15-06-2026 10:08:42] Tracks Compute disabled.<br>[15-06-2026 10:08:42] Gallery generation disabled.<br>[15-06-2026 10:08:42] Graphical visualization disabled.<br>[15-06-2026 10:08:42] High-resolution visualization disabled.<br>[15-06-2026 10:08:42] Processing complete.<br>[15-06-2026 10:08:42] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260615_100842.log</pre>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">No valid settings file to load.</span><span style="font-weight: bold"></span><br>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif (10, 128, 256) into Napari viewer.<br>[14-09-2026 16:58:35] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165835.log<br>[14-09-2026 16:58:35] Start Processing.<br>[14-09-2026 16:58:35] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[14-09-2026 16:58:35] Meta file saved.<br>[14-09-2026 16:58:35] Settings saved.<br>[14-09-2026 16:58:35] Localization enabled.<br>[14-09-2026 16:58:35] 	Saving the localization file (455 localization(s) found).<br>[14-09-2026 16:58:35] Beads Extraction disabled.<br>[14-09-2026 16:58:35] Tracking disabled.<br>[14-09-2026 16:58:35] Blinking Reconnection disabled.<br>[14-09-2026 16:58:35] Tracks Compute disabled.<br>[14-09-2026 16:58:35] Gallery generation disabled.<br>[14-09-2026 16:58:35] Graphical visualization disabled.<br>[14-09-2026 16:58:35] High-resolution visualization disabled.<br>[14-09-2026 16:58:35] Processing complete.<br>[14-09-2026 16:58:35] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165835.log<br>{'reset': &lt;PySide6.QtWidgets.QPushButton(0x1ed99da3ab0) at 0x000001ED8DCAEB00&gt;, 'update': &lt;PySide6.QtWidgets.QPushButton(0x1ed99da1a10) at 0x000001ED8DCAEAC0&gt;, 'save': &lt;PySide6.QtWidgets.QPushButton(0x1ed99da3c80) at 0x000001ED8DCAEA00&gt;}<br>- Activate : True<br>- Save : False<br>- Plane : Activate [1, 5]<br>- ROI : 1<br>- Localization :<br>  - Activate : True<br>  - Z : Deactivate [-2000, 2000]<br>  - Intensity : Deactivate [0, 10000000]<br>  - Sigma X : Deactivate [0, 10]<br>  - Sigma Y : Deactivate [0, 10]<br>  - Circularity : Deactivate [0, 1.0]<br>  - Theta : Deactivate [-90, 90]<br>  - MSE XY : Deactivate [0, 1.0]<br>  - MSE Z : Deactivate [0, 1.0]<br>- Tracks :<br>  - Activate : True<br>  - Track : <br>  - Length : Deactivate [1, 10]<br>  - Instant D : Deactivate [-5, 5]<br>  - D Coeff : Deactivate [-5, 5]<br>  - Alpha : Deactivate [-10, 10]<br>  - Speed : Deactivate [0, 1.0]<br>  - Confinement : Deactivate [-10, 10]<br><br>[14-09-2026 16:58:35] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165835.log<br>[14-09-2026 16:58:35] Start Processing.<br>[14-09-2026 16:58:35] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[14-09-2026 16:58:35] Meta file saved.<br>[14-09-2026 16:58:35] Settings saved.<br>[14-09-2026 16:58:35] Localization load previous result (Timestamp : 20260914_165835).<br>[14-09-2026 16:58:35] 	File 'localizations-20260914_165835.csv' loaded successfully, 455 row(s) found.<br>[14-09-2026 16:58:35] 		Filtering of file 242 row(s) instead of 455: 213 deletion(s).<br>[14-09-2026 16:58:35] Beads Extraction disabled.<br>[14-09-2026 16:58:35] Tracking disabled.<br>[14-09-2026 16:58:35] Blinking Reconnection disabled.<br>[14-09-2026 16:58:35] Tracks Compute disabled.<br>[14-09-2026 16:58:35] Gallery generation disabled.<br>[14-09-2026 16:58:35] Graphical visualization disabled.<br>[14-09-2026 16:58:35] High-resolution visualization disabled.<br>[14-09-2026 16:58:35] Processing complete.<br>[14-09-2026 16:58:35] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165835.log</pre>
    </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Thread Process</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">No valid settings file to load.</span><span style="font-weight: bold"></span><br>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif (10, 128, 256) into Napari viewer.<br>[14-09-2026 16:58:36] Log opened : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165836.log<br>[14-09-2026 16:58:36] Start Processing.<br>[14-09-2026 16:58:36] Output folder: C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer<br>[14-09-2026 16:58:36] Meta file saved.<br>[14-09-2026 16:58:36] Settings saved.<br>[14-09-2026 16:58:36] Localization load previous result (Timestamp : 20260914_165835).<br>[14-09-2026 16:58:36] 	File 'localizations-20260914_165835.csv' loaded successfully, 455 row(s) found.<br>[14-09-2026 16:58:36] Beads Extraction disabled.<br>[14-09-2026 16:58:36] Tracking disabled.<br>[14-09-2026 16:58:36] Blinking Reconnection disabled.<br>[14-09-2026 16:58:36] Tracks Compute disabled.<br>[14-09-2026 16:58:36] Gallery generation disabled.<br>[14-09-2026 16:58:36] Graphical visualization disabled.<br>[14-09-2026 16:58:36] High-resolution visualization disabled.<br>[14-09-2026 16:58:36] Processing complete.<br>[14-09-2026 16:58:36] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\stack_PALM_Tracer\log-20260914_165836.log<br>Auto Threshold: 63.95</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Get Actual Image</summary>
+      <pre><span style="color: #aa5500"></span><span style="font-weight: bold; color: #aa5500">No valid settings file to load.</span><span style="font-weight: bold"></span><br>INFO: Loaded C:\Git\palm-tracer\palm_tracer\_tests\input\stack.tif (10, 128, 256) into Napari viewer.</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Preview</summary>
+      <pre>Preview of plane 4 : 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame).</pre>
+   </details>
+
+Ui Resultsui
+^^^^^^^^^^^^
+
+.. raw:: html
+
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Creation</td><td>✅</td><td>2ms</td></tr>
+   <tr><td>Update Status</td><td>✅</td><td>1ms</td></tr>
+   </tbody>
+   </table>
 
 Ui Viewer3D
 ^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Widget Creation
-     - ✅
-     - 344ms
-   * - Viewer3D
-     - ✅
-     - 537ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Widget Creation</td><td>✅</td><td>474ms</td></tr>
+   <tr><td>Viewer3D</td><td>✅</td><td>492ms</td></tr>
+   </tbody>
+   </table>
 
 .. raw:: html
 
@@ -1444,57 +1945,125 @@ Ui Viewer3D
 Ui Viewerhr
 ^^^^^^^^^^^
 
-.. list-table::
-   :header-rows: 1
+.. raw:: html
 
-   * - Test Name
-     - Status
-     - Duration
-   * - Widget Creation
-     - ✅
-     - 378ms
-   * - Widget Double Creation
-     - ✅
-     - 78ms
-   * - Add Stack
-     - ✅
-     - 363ms
-   * - Change Type
-     - ✅
-     - 362ms
-   * - Actualize
-     - ✅
-     - 357ms
-   * - Save
-     - ✅
-     - 367ms
-   * - Screenshot
-     - ✅
-     - 375ms
-   * - Check Beads
-     - ✅
-     - 365ms
-   * - Generate Bad
-     - ✅
-     - 656ms
-   * - Generate
-     - ✅
-     - 437ms
+   <table class="docutils align-default test-results">
+   <thead><tr><th>Test Name / Parameters</th><th>Status</th><th>Duration</th></tr></thead>
+   <tbody>
+   <tr><td>Widget Creation</td><td>✅</td><td>647ms</td></tr>
+   <tr><td>Results Status Automatic Update</td><td>✅</td><td>671ms</td></tr>
+   <tr><td>Widget Double Creation</td><td>✅</td><td>1.14s</td></tr>
+   <tr><td>Check Beads</td><td>✅</td><td>619ms</td></tr>
+   <tr><td>Add Stack</td><td>✅</td><td>673ms</td></tr>
+   <tr><td>Actualize</td><td>✅</td><td>663ms</td></tr>
+   <tr><td>Save</td><td>✅</td><td>628ms</td></tr>
+   <tr><td>Screenshot</td><td>✅</td><td>470ms</td></tr>
+   <tr><td>Change Type</td><td>✅</td><td>657ms</td></tr>
+   <tr><td>Generate Bad</td><td>✅</td><td>654ms</td></tr>
+   <tr><td>Generate</td><td>✅</td><td>756ms</td></tr>
+   <tr><td>Visualization Layer Rgb Transitions</td><td>✅</td><td>67ms</td></tr>
+   </tbody>
+   </table>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Widget Creation</summary>
+      <pre>WARNING: No stack processed loaded.</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Results Status Automatic Update</summary>
+      <pre>WARNING: No stack processed loaded.</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Widget Double Creation</summary>
+      <pre>WARNING: No stack processed loaded.<br>WARNING: No stack processed loaded.</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Check Beads</summary>
+      <pre>WARNING: No stack processed loaded.</pre>
+   </details>
+
+.. raw:: html
+
+   <details>
+      <summary>Log Test : Actualize</summary>
+      <pre>WARNING: No stack processed loaded.</pre>
+   </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Save</summary>
-      <pre>INFO: Image file saved successfully.</pre>
+      <pre>WARNING: No stack processed loaded.<br>INFO: Image file saved successfully.<br>INFO: Image file saved successfully.</pre>
    </details>
 
 .. raw:: html
 
    <details>
       <summary>Log Test : Screenshot</summary>
-      <pre>INFO: Screenshot saved successfully.</pre>
+      <pre>WARNING: No stack processed loaded.<br>INFO: Screenshot saved successfully.</pre>
    </details>
 
 .. raw:: html
 
+   <details>
+      <summary>Log Test : Change Type</summary>
+      <pre>WARNING: No stack processed loaded.</pre>
+   </details>
+
+.. raw:: html
+
+   <style>
+   .test-results .test-group button {
+       font: inherit; font-weight: bold; color: inherit; background: transparent;
+       border: 0; padding: 0; cursor: pointer; text-align: left;
+   }
+   .test-results .test-group button::before { content: "▶ "; }
+   .test-results .test-group button[aria-expanded="true"]::before { content: "▼ "; }
+   .test-results .test-variant td:first-child { padding-left: 2em; }
+   .test-results tr[hidden] { display: none; }
+   .test-page table.docutils.test-results tbody > tr > td { background-color: white; }
+   .test-page table.docutils.test-results tbody > tr.test-row-odd > td { background-color: #f3f6f6; }
+   </style>
+   <script>
+   (() => {
+       const page = document.currentScript.closest('.test-page');
+       // Recalculer l'alternance uniquement sur les lignes visibles.
+       const stripeTable = table => {
+           let index = 0;
+           table.querySelectorAll('tbody > tr').forEach(row => {
+               row.classList.toggle('test-row-odd', !row.hidden && index % 2 === 0);
+               if (!row.hidden) { index += 1; }
+           });
+       };
+       page.querySelectorAll('.test-group button').forEach(button => {
+           const rows = [];
+           let next = button.closest('tr').nextElementSibling;
+           while (next && next.classList.contains('test-variant')) {
+               rows.push(next);
+               next = next.nextElementSibling;
+           }
+           const setExpanded = expanded => {
+               button.setAttribute('aria-expanded', String(expanded));
+               rows.forEach(row => { row.hidden = !expanded; });
+           };
+           setExpanded(false);
+           button.addEventListener('click', () => {
+               setExpanded(button.getAttribute('aria-expanded') !== 'true');
+               stripeTable(button.closest('table'));
+           });
+       });
+       page.querySelectorAll('.test-results').forEach(stripeTable);
+   })();
+   </script>
    </div>

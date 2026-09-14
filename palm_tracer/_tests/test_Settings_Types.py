@@ -76,8 +76,10 @@ def test_base_check_setting(setting_type):
 	"""Vérifie le contrat commun des paramètres activables."""
 	setting = setting_type()
 	assert isinstance(setting, BaseCheckSetting)
+	assert not setting.active
 
 	setting.active = True
+	assert setting.active
 	data = copy.deepcopy(setting.to_compact_dict())
 	setting.reset()
 	assert not setting.active
@@ -219,7 +221,6 @@ def test_check_int(qtbot):
 	ui = setting.get_ui("new")
 
 	setting.active = True
-	assert setting.active, "Le paramètre doit être activés."
 
 	setting.limits = [4, 6]
 	assert setting.value == 4, "Valeur non valide."
@@ -254,7 +255,6 @@ def test_check_range_int(qtbot):
 	assert setting.value == [3, 3], "Valeur non valide."
 
 	setting.active = True
-	assert setting.active, "Le paramètre doit être activés."
 
 	setting.max = 10
 	assert setting.value == [3, 10], "Valeur non valide."
@@ -293,7 +293,6 @@ def test_check_range_float(qtbot):
 	assert setting.value == [3, 3], "Valeur non valide."
 
 	setting.active = True
-	assert setting.active, "Le paramètre doit être activés."
 
 	setting.max = 10
 	assert setting.value == [3, 10], "Valeur non valide."
@@ -324,7 +323,6 @@ def test_check_int_selection(qtbot):
 	ui = setting.get_ui("new")
 
 	setting.active = True
-	assert setting.active, "Le paramètre doit être activés."
 
 	assert setting.value == "", "Valeur non valide."
 	assert setting.ranges == [], "Valeur non valide."

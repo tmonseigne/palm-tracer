@@ -22,14 +22,16 @@ def f() -> Filtering:
 
 
 ##################################################
-def test_filter_bad(qtbot, f):
-	"""Vérifie le filtrage complet."""
-	res = f.localization(pd.DataFrame())
-	assert res.empty, "Un dataframe vide doit être retourné."
-	res = f.tracking(pd.DataFrame())
-	assert res.empty, "Un dataframe vide doit être retourné."
-	res = f.tracks_compute(pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
-	for r in res: assert r.empty, "Un dataframe vide doit être retourné."
+@pytest.mark.parametrize("method", [
+		pytest.param("localization", id="localizations"), pytest.param("tracking", id="tracks"),
+		pytest.param("tracks_compute", id="track-computations")])
+def test_filter_bad(qtbot, f, method):
+	"""Vérifie le retour vide pour chaque type de résultat sans données."""
+	if method == "tracks_compute":
+		res = f.tracks_compute(pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
+		assert all(frame.empty for frame in res)
+	else:
+		assert getattr(f, method)(pd.DataFrame()).empty
 
 
 ##################################################
@@ -78,96 +80,58 @@ def test_localization(qtbot, f):
 
 
 ##################################################
-def test_tracking(qtbot, f):
-	"""Vérifie le filtrage des plans."""
+@pytest.mark.parametrize("select_tracks, select_length, active, expected", [
+		pytest.param(True, False, True, 66, id="track-ids"),
+		pytest.param(False, True, True, 166, id="length"),
+		pytest.param(True, True, True, 9, id="track-ids-and-length"),
+		pytest.param(True, True, False, 435, id="filters-disabled")])
+def test_tracking(qtbot, f, select_tracks, select_length, active, expected):
+	"""Vérifie les critères séparés, leur intersection et la désactivation du filtrage."""
 	src = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
 	filters = f.filters
-
-	filters.tracking["Track"].active = True
-	filters.tracking["Track"].value = "1-9;200-250"  # 66/435 : 269 suppression(s)
-
-	res = f.tracking(src)
-	res, ref = len(res), 66
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
-
-	filters.tracking["Track"].active = False
-	filters.tracking["Length"].active = True
-	filters.tracking["Length"].value = [3, 10000]  # 166/435 : 269 suppression(s)
-
-	res = f.tracking(src)
-	res, ref = len(res), 166
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
-
-	filters.tracking["Track"].active = True
-
-	res = f.tracking(src)
-	res, ref = len(res), 9
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
-
-	f.filters.active = False
-	res = f.tracking(src)
-	res, ref = len(res), len(src)
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+	filters.tracking["Track"].active = select_tracks
+	filters.tracking["Track"].value = "1-9;200-250"
+	filters.tracking["Length"].active = select_length
+	filters.tracking["Length"].value = [3, 10000]
+	filters.active = active
+	assert len(f.tracking(src)) == expected
 
 
 ##################################################
-def test_tracks_compute(qtbot, f):
-	"""Vérifie le filtrage des plans."""
+@pytest.mark.parametrize("scenario, expected", [
+		pytest.param("intersection", [47, 9, 9, 9], id="intersection-without-criteria"),
+		pytest.param("filtered", [16, 3, 3, 3], id="active-criteria"),
+		pytest.param("no_msd", [16, 0, 3, 3], id="missing-msd"),
+		pytest.param("no_ind", [16, 3, 0, 3], id="missing-instant-diffusion"),
+		pytest.param("no_fit", [21, 4, 4, 0], id="missing-fit"),
+		pytest.param("restrictive", [0, 0, 0, 0], id="overly-restrictive-length"),
+		pytest.param("disjoint", [0, 0, 0, 0], id="no-common-tracks"),
+		pytest.param("disabled", [435, 111, 11, 13], id="filters-disabled")])
+def test_tracks_compute(qtbot, f, scenario, expected):
+	"""Vérifie l'intersection des résultats selon les filtres et les données disponibles."""
 	tracks = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
 	fit = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-Fit.csv")
 	instant_d = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-InD.csv")
 	msd = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-MSD.csv")
-
+	if scenario != "intersection":
+		ft = f.filters.tracking
+		ft["Length"].active = True
+		ft["Length"].value = [42 if scenario == "restrictive" else 3, 10000]
+		ft["Instant D"].active = True
+		ft["Instant D"].value = [0.01, 5]
+		ft["D Coeff"].active = True
+		ft["D Coeff"].value = [1, 5]
+		ft["Speed"].active = True
+		ft["Speed"].value = [-10, 10]
+		ft["Alpha"].active = True
+		ft["Confinement"].value = [-10, 10]
+	if scenario == "no_msd": msd = pd.DataFrame()
+	if scenario == "no_ind": instant_d = pd.DataFrame()
+	if scenario == "no_fit": fit = pd.DataFrame()
+	if scenario in ("disjoint", "disabled"):
+		msd.loc[:, "Track"] += 1000
+		instant_d.loc[:, "Track"] += 2000
+		fit.loc[:, "Track"] += 3000
+	f.filters.active = scenario != "disabled"
 	res = f.tracks_compute(tracks, msd, instant_d, fit)
-	ref = [47, 9, 9, 9]  # Même sans filtre, il ne conserve que l'intersection (36, 46, 57, 71, 75, 87, 89, 138, 154).
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
-
-	ft = f.filters.tracking
-	ft["Length"].active = True
-	ft["Length"].value = [3, 10000]
-	ft["Instant D"].active = True
-	ft["Instant D"].value = [0.01, 5]
-	ft["D Coeff"].active = True
-	ft["D Coeff"].value = [1, 5]
-	ft["Speed"].active = True
-	ft["Speed"].value = [-10, 10]
-	ft["Alpha"].active = True
-	ft["Confinement"].value = [-10, 10]
-	res = f.tracks_compute(tracks, msd, instant_d, fit)
-	ref = [16, 3, 3, 3]
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
-
-	# Lancement avec des éléments vides
-	res = f.tracks_compute(tracks, pd.DataFrame(), instant_d, fit)
-	ref = [16, 0, 3, 3]
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
-
-	res = f.tracks_compute(tracks, msd, pd.DataFrame(), fit)
-	ref = [16, 3, 0, 3]
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
-
-	res = f.tracks_compute(tracks, msd, instant_d, pd.DataFrame())
-	ref = [21, 4, 4, 0]
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
-
-	# Filtres trop restrictifs
-	ft["Length"].value = [42, 10000]
-	res = f.tracks_compute(tracks, msd, instant_d, fit)
-	ref = [0, 0, 0, 0]
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
-
-	# Cas dégénéré, les tableaux n'ont aucune trajectoire commune.
-	ft["Length"].value = [3, 10000]
-	msd.loc[:, "Track"] += 1000
-	instant_d.loc[:, "Track"] += 2000
-	fit.loc[:, "Track"] += 3000
-
-	res = f.tracks_compute(tracks, msd, instant_d, fit)
-	ref = [0, 0, 0, 0]
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
-
-	# Filtre désactivé
-	f.filters.active = False
-	res = f.tracks_compute(tracks, msd, instant_d, fit)
-	ref = [435, 111, 11, 13]  # Si le filtrage est completement désactivé, il ne fait rien du tout
-	for i in range(len(ref)): assert len(res[i]) == ref[i], f"Résultat incorrect pour {i}.\tAttendu : {ref}\tObtenu : {len(res[i])}"
+	assert [len(frame) for frame in res] == expected

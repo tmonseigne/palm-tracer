@@ -5,7 +5,8 @@ Teste l'orchestration complète des traitements par la classe :class:`PALMTracer
 """
 
 import shutil
-from time import sleep
+from datetime import datetime, timedelta
+from itertools import count
 
 import pytest
 
@@ -18,6 +19,7 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
 
 
+##################################################
 @pytest.fixture
 def pt():
 	"""fixture interne."""
@@ -25,6 +27,26 @@ def pt():
 	yield obj
 	try: obj._logger.close()
 	except Exception: pass
+
+
+##################################################
+@pytest.fixture
+def sequential_timestamps(monkeypatch):
+	"""Fournit un timestamp croissant par appel pour tester la réutilisation sans attente réelle."""
+	start = datetime(2026, 1, 2)
+	seconds = count()
+
+	def next_timestamp(with_hour: bool = True) -> str:
+		"""
+		Avance l'horodatage simulé d'une seconde.
+
+		:param with_hour: Inclut l'heure dans le nom de fichier.
+		:return: Horodatage déterministe au format utilisé par le pipeline.
+		"""
+		current = start + timedelta(seconds=next(seconds))
+		return current.strftime("%Y%m%d_%H%M%S" if with_hour else "%Y%m%d")
+
+	monkeypatch.setattr(FileIO, "get_timestamp_for_files", next_timestamp)
 
 
 ##################################################
@@ -95,6 +117,9 @@ def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 	FileIO.save_json(OUTPUT_FOLDER / f"settings-{timestamp}.json", pt.settings.to_compact_dict())
 
 
+# ==================================================
+# region Initialisation
+# ==================================================
 ##################################################
 def test_reset_result(pt):
 	"""Vérifie le process sans fichiers en entrée."""
@@ -132,6 +157,10 @@ def test_clean_ui(monkeypatch, pt):
 	assert results_names == ["viewer"]
 	assert settings_names == ["viewer"]
 
+
+# ==================================================
+# endregion Initialisation
+# ==================================================
 
 # ==================================================
 # region Accesseurs
@@ -537,7 +566,7 @@ def test_process_tracking_blinking(capsys, pt):
 
 
 ##################################################
-def test_process_tracks_compute(capsys, pt):
+def test_process_tracks_compute(capsys, pt, sequential_timestamps):
 	"""Vérifie le process de tracking."""
 	clean_output()
 
@@ -553,7 +582,6 @@ def test_process_tracks_compute(capsys, pt):
 	check_capsys(capsys, 17, [5, 6, 7, 9, 10, 12, 13, 14])
 
 	tc["MSD"].value = True
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	assert len(pt.results["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
 	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
@@ -564,7 +592,6 @@ def test_process_tracks_compute(capsys, pt):
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
 	tc["Fit"].value = 1
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	assert len(pt.results["MSD"]) == 0  # MSD désactivé, il est conservé
 	assert len(pt.results["InD"]) == 3  # Seules 3 trajectoires sont éligibles
@@ -606,8 +633,8 @@ def test_process_visualization_graph(capsys, pt):
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 15])
 
 
-#################################################
-def test_process_visualization_hr(capsys, pt):
+##################################################
+def test_process_visualization_hr(capsys, pt, sequential_timestamps):
 	"""Vérifie le process de visualization HR."""
 	clean_output()
 
@@ -622,14 +649,12 @@ def test_process_visualization_hr(capsys, pt):
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
 
 	pt.settings.hr["Dimension"].value = 1  # Génération de Z-stack
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[2], json=[2], png=[1], tif=[1], clean=False)
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
 
 	pt.settings.hr["Dimension"].value = 2  # Génération de la rotation 3D
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[3], json=[3], png=[1], tif=[2])
@@ -661,6 +686,35 @@ def test_process_all(capsys, pt):
 
 	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[1], html=[1])
 	check_capsys(capsys, 27, [5, 8, 10, 12, 14, 19, 21, 23])
+
+
+##################################################
+def test_get_astigmatism_model():
+	"""Vérifie la récupération du modèle d'astigmatisme."""
+	pt = PALMTracer()
+	tmp_output = OUTPUT_DIR / "Model"
+	shutil.rmtree(tmp_output, ignore_errors=True)
+	tmp_output.mkdir(parents=True, exist_ok=True)
+	model_file = "astigmatism_3d_model.csv"
+	ref = pd.read_csv(REF_DIR / model_file, index_col=0)
+	(tmp_output / model_file).unlink(missing_ok=True)
+	(tmp_output.parent / model_file).unlink(missing_ok=True)
+
+	pt._path = tmp_output
+
+	model = pt._get_astigmatism_model(Path(""))  # Il ne va pas reussir, il n'a aucun fichier
+	assert model.empty
+
+	shutil.copy2(REF_DIR / model_file, tmp_output.parent / model_file)
+	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le dernier dossier par défaut
+	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
+
+	shutil.copy2(REF_DIR / model_file, tmp_output / model_file)
+	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le premier dossier par défaut
+	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
+
+	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va reussir, dans le chemin donné
+	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
 
 
 # ==================================================
@@ -699,15 +753,15 @@ def test_reset_filtered(capsys, pt):
 def test_update_filtered(capsys, pt):
 	"""Vérifie la mise à jour des tableaux filtrés."""
 	clean_output()
-	pt.update_filtered()  # Tout est vide
+	pt.update_filtered()  # .			Tout est vide
 	pt.settings.filters["Save"].value = True
-	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
+	pt.update_filtered()  # .			Tout est vide, mais je demande à enregistrer
 
 	add_basic_file(pt)
 	add_fakeprocess(pt, True, False)  # Ajout d'un fichier de localisations et de tracking
 
 	pt.process()
-	pt.update_filtered()  # Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
+	pt.update_filtered()  # .			Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])  # Il n'a rien enregistré, car les filtres n'ont pas fait de changement.
 
 
@@ -716,17 +770,17 @@ def test_save_filtered(capsys, pt):
 	"""Vérifie la mise à jour des tableaux filtrés."""
 	clean_output()
 	pt._path = OUTPUT_DIR
-	pt.update_filtered()  # Tout est vide
+	pt.update_filtered()  # .				Tout est vide
 	pt.settings.filters["Save"].value = True
-	pt.update_filtered()  # Tout est vide, mais je demande à enregistrer
+	pt.update_filtered()  # .				Tout est vide, mais je demande à enregistrer
 
 	add_basic_file(pt)
-	add_fakeprocess(pt, True, False)  # Ajout d'un fichier de localisations et de tracking
+	add_fakeprocess(pt, True, False)  # .	Ajout d'un fichier de localisations et de tracking
 
 	pt.results["loc"] = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
 	pt.settings.filters["Plane"].active = True
 	pt.settings.filters["Plane"].value = [2, 3]
-	pt.update_filtered()  # Il va recalculer les filtres.
+	pt.update_filtered()  # .				Il va recalculer les filtres.
 	check_output(OUTPUT_FOLDER, csv=[1])  # Il a enregistré la version filtrée.
 
 
@@ -738,12 +792,12 @@ def test_connect_filters_button(qtbot, capsys, pt):
 
 
 ##################################################
-def test_filter_localization(capsys, pt):
+def test_filter_localization(capsys, pt, sequential_timestamps):
 	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
 
 	add_basic_file(pt)
-	add_fakeprocess(pt, True, False)  # Ajout d'un fichier de localisations et de tracking
+	add_fakeprocess(pt, True, False)  # .	Ajout d'un fichier de localisations et de tracking
 
 	f = pt.settings.filters
 	fl = f.localization
@@ -766,14 +820,13 @@ def test_filter_localization(capsys, pt):
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
 
 	pt.settings.filters["Save"].value = True
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()  # Second passage avec enregistrement
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 18, [5, 9, 10, 11, 12, 13, 14, 15])
 
 
 ##################################################
-def test_filter_tracks_compute(capsys, pt):
+def test_filter_tracks_compute(capsys, pt, sequential_timestamps):
 	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
 
@@ -803,7 +856,6 @@ def test_filter_tracks_compute(capsys, pt):
 	check_capsys(capsys, 21, [5, 6, 7, 10, 11, 16, 17, 18])
 
 	pt.settings.filters["Save"].value = True
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	# Vérification manuelle à l'heure actuelle
 	assert len(pt.results.tracks) == 26, f"Il reste {len(pt.results.tracks)} points au lieu de 26 sur les trajectoires."
@@ -814,7 +866,6 @@ def test_filter_tracks_compute(capsys, pt):
 
 	# Filtre massif plus rien à la sortie
 	pt.settings.filters["Tracks"]["Length"].value = [42, 10000]
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	assert len(pt.results["f_trc"]) == 0, f"Il reste {len(pt.results.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.results["f_MSD"]) == 0, f"Il reste {len(pt.results.tracks_compute['MSD'])} trajectoires au lieu de 0."
@@ -829,7 +880,7 @@ def test_filter_tracks_compute(capsys, pt):
 # ==================================================
 # region Visualisation
 # ==================================================
-###################################################
+##################################################
 def test_graph():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -861,7 +912,7 @@ def test_graph():
 	assert fig.data[0].type == "scattergl"
 
 
-###################################################
+##################################################
 def test_get_graph_data():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -899,7 +950,7 @@ def test_get_graph_data():
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 
 
-###################################################
+##################################################
 def test_get_graph_data_dual_tracks():
 	"""Vérifie la mise en correspondance des données par identifiant de trajectoire."""
 	pt = get_fake_pt()
@@ -937,173 +988,43 @@ def test_get_graph_data_dual_tracks():
 	assert data.shape == (0, 2)
 
 
-###################################################
-def test_get_graph_data_from_src():
-	"""Vérifie différentes récupérations de données."""
+##################################################
+@pytest.mark.parametrize("source, column, empty, msd_step, expected_title, expected_shape, expected_data", [
+		pytest.param(0, 'no column', False, 5, "Localizations no column", (0,), [], id="localizations-missing-column"),
+		pytest.param(0, 'X', False, 5, "Localizations X", (6,), [1, 2, 3, 4, 1, 2], id="localizations-x"),
+		pytest.param(0, 'Localizations Count', False, 5, "Localizations Count", (2, 2), [[1, 4], [2, 2]], id="localization-count"),
+		pytest.param(0, 'X', True, 5, "Localizations X", (0,), [], id="empty-localizations"),
+		pytest.param(1, 'no column', False, 5, "Tracks no column", (0,), [], id="tracks-missing-column"),
+		pytest.param(1, 'Length Scatter', False, 5, "Tracks Length Scatter", (9, 2), [[1, 99], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2]],
+					 id="length-scatter"),
+		pytest.param(1, 'Length', False, 5, "Tracks Length", (9,), [99, 2, 2, 2, 2, 2, 2, 2, 2], id="lengths"),
+		pytest.param(1, 'Length On', False, 5, "Tracks Length On", (10,), [1, 1, 2, 2, 2, 2, 2, 2, 2, 2], id="on-durations"),
+		pytest.param(1, 'Length Off', False, 5, "Tracks Length Off", (1,), [98], id="off-durations"),
+		pytest.param(1, 'Length New', False, 5, "Tracks Length New", (0,), [], id="unknown-length"),
+		pytest.param(1, 'MSD', False, 5, "Tracks MSD Step 5", (1, 2), [[81, 0.14]], id="msd-step-5"),
+		pytest.param(1, 'MSD', False, 9, "Tracks MSD Step 9", (0,), [], id="msd-step-9"),
+		pytest.param(1, 'Instant D', False, 9, "Tracks Instant D", (27,), [4.51, 1.37, 3.04, 1.13, 1e-06, 1.99, 1e-06, 2.34, 0.81, 4.02,
+																		   4.26, 1.31, 6.37, 0.60, 2.22, 4.83, 0.27, 0.96, 5.41, 9.19,
+																		   0.60, 1.24, 0.54, 2.43, 2.23, 1.61, 3.05],
+					 id="instant-diffusion"),
+		pytest.param(1, 'MSE(0)', False, 9, "Tracks MSE(0)", (14, 2), [[35, 1], [37, 1], [66, 1], [75, 1], [81, 1], [83, 1], [102, 1], [114, 1],
+																	   [131, 1], [152, 1], [158, 1], [165, 1], [176, 1], [220, 1]], id="fit-error"),
+		pytest.param(1, 'Length', True, 9, "Tracks Length", (0,), [], id="empty-tracks"),
+		pytest.param(1, 'MSD', True, 9, "Tracks MSD", (0,), [], id="empty-msd"),
+		pytest.param(1, 'Instant D', True, 9, "Tracks Instant D", (0,), [], id="empty-diffusion"),
+		pytest.param(1, 'MSE(0)', True, 9, "Tracks MSE(0)", (0,), [], id="empty-fit")])
+def test_get_graph_data_from_src(source, column, empty, msd_step, expected_title, expected_shape, expected_data):
+	"""Vérifie chaque source graphique avec des résultats préparés indépendamment."""
 	pt = get_fake_pt()
-
-	ref_title: str
-	ref_shape: tuple
-	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
-
-	# Localizations
-	# Colonne inexistante
-	data, title = pt._get_graph_data_from_src(0, "no column")
-	ref_title, ref_shape, ref_data = "Localizations no column", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Classique
-	data, title = pt._get_graph_data_from_src(0, "X")
-	ref_title, ref_shape, ref_data = "Localizations X", (6,), [1, 2, 3, 4, 1, 2]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Count
-	data, title = pt._get_graph_data_from_src(0, "Localizations Count")
-	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Empty
-	for _ in range(4): pt.results.localizations.drop(pt.results.localizations.index, inplace=True)
-	data, title = pt._get_graph_data_from_src(0, "X")
-	ref_title, ref_shape, ref_data = "Localizations X", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-
-	# Tracks
-	# Colonne inexistante
-	data, title = pt._get_graph_data_from_src(1, "no column")
-	ref_title, ref_shape, ref_data = "Tracks no column", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Length Scatter
-	data, title = pt._get_graph_data_from_src(1, "Length Scatter")
-	ref_title, ref_shape, ref_data = "Tracks Length Scatter", (9, 2), [[1, 99], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Length Hist
-	data, title = pt._get_graph_data_from_src(1, "Length")
-	ref_title, ref_shape, ref_data = "Tracks Length", (9,), [99, 2, 2, 2, 2, 2, 2, 2, 2]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Length On
-	data, title = pt._get_graph_data_from_src(1, "Length On")
-	ref_title, ref_shape, ref_data = "Tracks Length On", (10,), [1, 1, 2, 2, 2, 2, 2, 2, 2, 2]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Length Off
-	data, title = pt._get_graph_data_from_src(1, "Length Off")
-	ref_title, ref_shape, ref_data = "Tracks Length Off", (1,), [98]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Length bad
-	data, title = pt._get_graph_data_from_src(1, "Length New")
-	ref_title, ref_shape, ref_data = "Tracks Length New", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# MSD
-	pt.settings.graph["MSD Step"].value = 5
-	data, title = pt._get_graph_data_from_src(1, "MSD")
-	ref_title, ref_shape, ref_data = "Tracks MSD Step 5", (1, 2), [[81, 0.14]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	pt.settings.graph["MSD Step"].value = 9
-	data, title = pt._get_graph_data_from_src(1, "MSD")
-	ref_title, ref_shape, ref_data = "Tracks MSD Step 9", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Instant D
-	data, title = pt._get_graph_data_from_src(1, "Instant D")
-	ref_title, ref_shape, ref_data = "Tracks Instant D", (27,), [4.51, 1.37, 3.04, 1.13, 1e-06, 1.99, 1e-06, 2.34, 0.81, 4.02, 4.26, 1.31, 6.37, 0.60,
-																 2.22, 4.83, 0.27, 0.96, 5.41, 9.19, 0.60, 1.24, 0.54, 2.43, 2.23, 1.61, 3.05, ]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Fit
-	data, title = pt._get_graph_data_from_src(1, "MSE(0)")
-	ref_title, ref_shape, ref_data = "Tracks MSE(0)", (14, 2), [[35, 1], [37, 1], [66, 1], [75, 1], [81, 1], [83, 1], [102, 1], [114, 1],
-																[131, 1], [152, 1], [158, 1], [165, 1], [176, 1], [220, 1]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# --- Empty ---
-	for _ in range(4): pt.results.tracks.drop(pt.results.tracks.index, inplace=True)
-	for _ in range(2):
-		df = pt.results.tracks_compute
-		for d in df.values(): d.drop(d.index, inplace=True)
-
-	data, title = pt._get_graph_data_from_src(1, "Length")
-	ref_title, ref_shape, ref_data = "Tracks Length", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	data, title = pt._get_graph_data_from_src(1, "MSD")
-	ref_title, ref_shape, ref_data = "Tracks MSD", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	data, title = pt._get_graph_data_from_src(1, "Instant D")
-	ref_title, ref_shape, ref_data = "Tracks Instant D", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	data, title = pt._get_graph_data_from_src(1, "MSE(0)")
-	ref_title, ref_shape, ref_data = "Tracks MSE(0)", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
+	pt.settings.graph["MSD Step"].value = msd_step
+	if empty: pt.results.reset()
+	data, title = pt._get_graph_data_from_src(source, column)
+	assert title == expected_title
+	assert data.shape == expected_shape
+	np.testing.assert_array_equal(data, expected_data)
 
 
 ##################################################
-def test_crop():
-	"""Vérifie la création du widget."""
-
-	pt = get_fake_pt()
-	img = np.zeros((1, 1), dtype=np.uint16)
-	res = pt.crop(img)  # .										Crop à True, image noire
-	assert np.allclose(img, res)  # .							Crop à True, avec un carré à 1 et une marge (par défaut) de 5
-
-	img = np.zeros((10, 10), dtype=np.uint16)
-	img[2:4, 6:] = 1  # Carré de 1.
-	ref = img[:-1, 1:].copy()  # .								Le crop avec une marge de 5 va très peu recadrer
-	assert np.allclose(pt.crop(img), ref)  # .					Crop à True, avec un carré à 1 et une marge (par défaut) de 5
-	assert np.allclose(pt.crop(img, 0), np.ones((2, 4)))  # .	Crop à True, avec aucune marge donc uniquement les points à 1
-
-	vol = np.zeros((10, 10, 10), dtype=np.uint16)
-	vol[0, 2:4, 6:] = 1
-	assert np.allclose(pt.crop(vol, 0), np.ones((1, 2, 4)))  # .Crop à True, avec aucune marge donc uniquement les points à 1
-
-	pt.settings.hr["Crop"].value = False
-	assert np.allclose(pt.crop(img), img)  # .					Crop à False, aucun changement dans l'image
-
-
-###################################################
 def test_hr():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1198,7 +1119,7 @@ def test_hr():
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
 
 
-###################################################
+##################################################
 def test_hr_filter():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1242,7 +1163,7 @@ def test_hr_filter():
 	np.testing.assert_array_equal(plot, ref_plot)
 
 
-###################################################
+##################################################
 def test_hr_z_stack():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1263,7 +1184,7 @@ def test_hr_z_stack():
 	np.testing.assert_array_equal(plot, ref_plot)
 
 
-###################################################
+##################################################
 def test_hr_rotation():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1420,42 +1341,9 @@ def test_hr_stress():
 	np.testing.assert_array_equal(viz, ref)
 
 
-# ==================================================
-# endregion Visualisation
-# ==================================================
-
 ##################################################
-def test_get_astigmatism_model():
-	"""Vérifie la récupération du modèle d'astigmatisme."""
-	pt = PALMTracer()
-	tmp_output = OUTPUT_DIR / "Model"
-	shutil.rmtree(tmp_output, ignore_errors=True)
-	tmp_output.mkdir(parents=True, exist_ok=True)
-	model_file = "astigmatism_3d_model.csv"
-	ref = pd.read_csv(REF_DIR / model_file, index_col=0)
-	(tmp_output / model_file).unlink(missing_ok=True)
-	(tmp_output.parent / model_file).unlink(missing_ok=True)
-
-	pt._path = tmp_output
-
-	model = pt._get_astigmatism_model(Path(""))  # Il ne va pas reussir, il n'a aucun fichier
-	assert model.empty
-
-	shutil.copy2(REF_DIR / model_file, tmp_output.parent / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le dernier dossier par défaut
-	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
-
-	shutil.copy2(REF_DIR / model_file, tmp_output / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le premier dossier par défaut
-	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
-
-	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va reussir, dans le chemin donné
-	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
-
-
-##################################################
-@pytest.mark.parametrize("background", [False, True])
-@pytest.mark.parametrize("color_mode", [0, 1, 2])
+@pytest.mark.parametrize("background", [False, True], ids=["no-background", "with-background"])
+@pytest.mark.parametrize("color_mode", [0, 1, 2], ids=["addition", "maximum", "minimum"])
 def test_hr_track_stack(monkeypatch, background, color_mode):
 	"""Vérifie les options, la ROI et l'alignement temporel du rendu animé avec ou sans fond brut."""
 	pt = PALMTracer()
@@ -1502,18 +1390,6 @@ def test_hr_track_stack_empty_roi():
 
 
 ##################################################
-def test_crop_track_stack_rgb():
-	"""Préserve les trois canaux RGB, même si un seul canal est non nul ou si le volume est noir."""
-	pt = PALMTracer()
-	img = np.zeros((3, 10, 10, 3), dtype=np.uint8)
-	img[1, 2:4, 6:8, 0] = 255
-	cropped = pt.crop(img, margin=0)
-	assert cropped.shape == (1, 2, 2, 3)
-	np.testing.assert_array_equal(cropped, img[1:2, 2:4, 6:8])
-	assert pt.crop(np.zeros_like(img)).shape == (1, 1, 1, 3)
-
-
-##################################################
 def test_hr_track_stack_dimension_switch(qtbot):
 	"""Vérifie le type sélectionné et la réactivation des localisations en quittant le mode animé."""
 	pt = PALMTracer()
@@ -1529,3 +1405,42 @@ def test_hr_track_stack_dimension_switch(qtbot):
 		assert s["Type"]._uis["default"].boxes[0].isEnabled()
 		if dimension != 0: assert s["Type"].value == 0
 		s["Dimension"].value = 3
+
+
+##################################################
+def test_crop():
+	"""Vérifie la création du widget."""
+
+	pt = get_fake_pt()
+	img = np.zeros((1, 1), dtype=np.uint16)
+	res = pt.crop(img)  # .										Crop à True, image noire
+	assert np.allclose(img, res)  # .							Crop à True, avec un carré à 1 et une marge (par défaut) de 5
+
+	img = np.zeros((10, 10), dtype=np.uint16)
+	img[2:4, 6:] = 1  # Carré de 1.
+	ref = img[:-1, 1:].copy()  # .								Le crop avec une marge de 5 va très peu recadrer
+	assert np.allclose(pt.crop(img), ref)  # .					Crop à True, avec un carré à 1 et une marge (par défaut) de 5
+	assert np.allclose(pt.crop(img, 0), np.ones((2, 4)))  # .	Crop à True, avec aucune marge donc uniquement les points à 1
+
+	vol = np.zeros((10, 10, 10), dtype=np.uint16)
+	vol[0, 2:4, 6:] = 1
+	assert np.allclose(pt.crop(vol, 0), np.ones((1, 2, 4)))  # .Crop à True, avec aucune marge donc uniquement les points à 1
+
+	pt.settings.hr["Crop"].value = False
+	assert np.allclose(pt.crop(img), img)  # .					Crop à False, aucun changement dans l'image
+
+
+##################################################
+def test_crop_track_stack_rgb():
+	"""Préserve les trois canaux RGB, même si un seul canal est non nul ou si le volume est noir."""
+	pt = PALMTracer()
+	img = np.zeros((3, 10, 10, 3), dtype=np.uint8)
+	img[1, 2:4, 6:8, 0] = 255
+	cropped = pt.crop(img, margin=0)
+	assert cropped.shape == (1, 2, 2, 3)
+	np.testing.assert_array_equal(cropped, img[1:2, 2:4, 6:8])
+	assert pt.crop(np.zeros_like(img)).shape == (1, 1, 1, 3)
+
+# ==================================================
+# endregion Visualisation
+# ==================================================

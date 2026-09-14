@@ -6,38 +6,14 @@ from palm_tracer.Processing.Drift import *
 from palm_tracer.Processing.Drift import _assign_tracks_to_points_greedy  # Certains cas bizarres sont vérifiés directement et non en intégration.
 
 
+# ==================================================
+# region Validation et appariement
+# ==================================================
 ##################################################
-def test_extract_bead_bad_input():
-	"""Vérifie la génération de l'extraction des billes avec des entrées incorrectes."""
-	with pytest.raises(ValueError) as exception_info: extract_beads(pd.DataFrame(), max_distance=-1)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "max_distance must be strictly positive."
-
-	df = pd.DataFrame([[1, 2], [3, 4]])
-	with pytest.raises(ValueError) as exception_info: extract_beads(df)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "Missing columns in data: ['Plane', 'X', 'Y', 'Z']."
-
-	df = pd.DataFrame([[1, 2, 3, 4], [5, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z'])
-	with pytest.raises(ValueError) as exception_info: extract_beads(df, is_3d=False)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "The planes are not consecutive: [1 5]."
-
-	df = pd.DataFrame([[1, 2, 3, 4], [1, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z'])
-	with pytest.raises(ValueError) as exception_info: extract_beads(df)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "We need at least 2 planes."
-
-	res = extract_beads(pd.DataFrame())
-	assert res.empty
-
-
-##################################################
-def test_extract_beads_no_match_returns_empty():
-	"""Vérifie qu'aucun match directement."""
-	df = pd.DataFrame([[1, 0, 0, 0], [2, 10, 10, 0], ], columns=["Plane", "X", "Y", "Z"], dtype="int32")
-	res = extract_beads(df, max_distance=1, is_3d=False, strict=True)
-	assert res.empty
+@pytest.mark.parametrize("function", [pytest.param(extract_beads, id="bead-extraction"), pytest.param(get_drift, id="drift-computation")])
+def test_empty_data(function):
+	"""Vérifie les retours vides sans erreur pour une entrée vide."""
+	assert function(pd.DataFrame()).empty
 
 
 ##################################################
@@ -58,6 +34,35 @@ def test_assign_tracks_skip_used_track():
 	keep_t, keep_p = _assign_tracks_to_points_greedy(ind, dist, n_points=2)
 	assert keep_t.tolist() == [0]
 	assert keep_p.tolist() == [0]
+
+
+# ==================================================
+# endregion Validation et appariement
+# ==================================================
+
+# ==================================================
+# region Extraction des billes
+# ==================================================
+##################################################
+@pytest.mark.parametrize("data, kwargs, message", [
+		pytest.param(pd.DataFrame(), {'max_distance': -1}, "max_distance must be strictly positive.", id="negative-distance"),
+		pytest.param(pd.DataFrame([[1, 2], [3, 4]]), {}, "Missing columns in data: ['Plane', 'X', 'Y', 'Z'].", id="missing-columns"),
+		pytest.param(pd.DataFrame([[1, 2, 3, 4], [5, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z']), {'is_3d': False}, "The planes are not consecutive: [1 5].",
+					 id="non-consecutive-planes"),
+		pytest.param(pd.DataFrame([[1, 2, 3, 4], [1, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z']), {}, "We need at least 2 planes.", id="single-plane")])
+def test_extract_bead_bad_input(data, kwargs, message):
+	"""Vérifie le rejet de chaque entrée incorrecte et son message précis."""
+	with pytest.raises(ValueError) as exception_info:
+		extract_beads(data, **kwargs)
+	assert str(exception_info.value) == message
+
+
+##################################################
+def test_extract_beads_no_match_returns_empty():
+	"""Vérifie qu'aucun match directement."""
+	df = pd.DataFrame([[1, 0, 0, 0], [2, 10, 10, 0], ], columns=["Plane", "X", "Y", "Z"], dtype="int32")
+	res = extract_beads(df, max_distance=1, is_3d=False, strict=True)
+	assert res.empty
 
 
 ##################################################
@@ -136,26 +141,25 @@ def test_remove_beads():
 	assert res.empty
 
 
+# ==================================================
+# endregion Extraction des billes
+# ==================================================
+
+# ==================================================
+# region Correction de la dérive
+# ==================================================
 ##################################################
-def test_get_drift_bad_input():
-	"""Vérifie la récupération du déplacement avec des entrées incorrectes."""
-	res = get_drift(pd.DataFrame())
-	assert res.empty
-
-	df = pd.DataFrame([[1, 2], [3, 4]])
-	with pytest.raises(ValueError) as exception_info: get_drift(df)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "Missing columns in data: ['Bead', 'Plane', 'X', 'Y', 'Z']."
-
-	df = pd.DataFrame([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'])
-	with pytest.raises(ValueError) as exception_info: get_drift(df)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "The planes are not consecutive: [2 7]."
-
-	df = pd.DataFrame([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'])
-	with pytest.raises(ValueError) as exception_info: get_drift(df)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "We need at least 2 planes."
+@pytest.mark.parametrize("data, kwargs, message", [
+		pytest.param(pd.DataFrame([[1, 2], [3, 4]]), {}, "Missing columns in data: ['Bead', 'Plane', 'X', 'Y', 'Z'].", id="missing-columns"),
+		pytest.param(pd.DataFrame([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]], columns=['Bead', 'Plane', 'X', 'Y', 'Z']), {}, "The planes are not consecutive: [2 7].",
+					 id="non-consecutive-planes"),
+		pytest.param(pd.DataFrame([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]], columns=['Bead', 'Plane', 'X', 'Y', 'Z']), {}, "We need at least 2 planes.",
+					 id="single-plane")])
+def test_get_drift_bad_input(data, kwargs, message):
+	"""Vérifie le rejet de chaque entrée incorrecte et son message précis."""
+	with pytest.raises(ValueError) as exception_info:
+		get_drift(data, **kwargs)
+	assert str(exception_info.value) == message
 
 
 ##################################################
@@ -187,20 +191,16 @@ def test_get_drift():
 
 
 ##################################################
-def test_apply_drift_bad_input():
-	"""Vérifie la récupération du déplacement avec des entrées incorrectes."""
-	res = remove_drift(pd.DataFrame(), pd.DataFrame())
-	assert res.empty
-
-	df = pd.DataFrame([[1, 2], [3, 4]])
-	with pytest.raises(ValueError) as exception_info: remove_drift(df, df)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "Missing columns in data: ['Plane', 'X', 'Y', 'Z']."
-
-	df2 = pd.DataFrame([[1, 2, 3, 4], [5, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z'])
-	with pytest.raises(ValueError) as exception_info: remove_drift(df2, df)
-	assert exception_info.type == ValueError
-	assert str(exception_info.value) == "Missing columns in data: ['Plane', 'X', 'Y', 'Z']."
+@pytest.mark.parametrize("data, drift, kwargs, message", [
+		pytest.param(pd.DataFrame([[1, 2], [3, 4]]), pd.DataFrame([[1, 2], [3, 4]]), {}, "Missing columns in data: ['Plane', 'X', 'Y', 'Z'].",
+					 id="incomplete-localizations"),
+		pytest.param(pd.DataFrame([[1, 2, 3, 4], [5, 6, 7, 8]], columns=['Plane', 'X', 'Y', 'Z']), pd.DataFrame([[1, 2], [3, 4]]), {},
+					 "Missing columns in data: ['Plane', 'X', 'Y', 'Z'].", id="incomplete-drift")])
+def test_apply_drift_bad_input(data, drift, kwargs, message):
+	"""Vérifie le rejet de chaque entrée incorrecte et son message précis."""
+	with pytest.raises(ValueError) as exception_info:
+		remove_drift(data, drift, **kwargs)
+	assert str(exception_info.value) == message
 
 
 ##################################################
@@ -228,6 +228,12 @@ def test_remove_drift():
 						[4, 1, 0, 0], [4, 3, -1, 0], [4, 0, 2, 0], [4, 0, -1, 0]],
 					   columns=['Plane', 'X', 'Y', 'Z'], dtype=float)
 	assert res.astype(float).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+##################################################
+def test_remove_drift_empty():
+	"""Vérifie la correction sans localisation ni dérive."""
+	assert remove_drift(pd.DataFrame(), pd.DataFrame()).empty
 
 
 ##################################################
@@ -260,6 +266,13 @@ def test_drift_correction():
 	assert res.astype(float).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
+# ==================================================
+# endregion Correction de la dérive
+# ==================================================
+
+# ==================================================
+# region Filtrage
+# ==================================================
 ##################################################
 def test_median_filter_centered():
 	"""Vérifie le lissage d'un drift."""
@@ -280,10 +293,15 @@ def test_median_filter_centered():
 	res = median_filter_centered(df)
 	assert np.allclose(res, df, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
 
-	# Mauvaise taille de médiane
-	df = np.ones((2, 2))
-	with pytest.raises(ValueError) as exception_info: median_filter_centered(df, 4)
 
-	# Tableau 3D
-	df = np.ones((2, 2, 2))
-	with pytest.raises(ValueError) as exception_info: median_filter_centered(df)
+##################################################
+@pytest.mark.parametrize("data, size", [
+		pytest.param(np.ones((2, 2)), 4, id="even-window"),
+		pytest.param(np.ones((2, 2, 2)), 5, id="3d-array")])
+def test_median_filter_invalid(data, size):
+	"""Vérifie le rejet d'une fenêtre paire ou d'un tableau de dimension incompatible."""
+	with pytest.raises(ValueError): median_filter_centered(data, size)
+
+# ==================================================
+# endregion Filtrage
+# ==================================================
