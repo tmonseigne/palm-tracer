@@ -131,16 +131,11 @@ def test_load_dll():
 
 
 ##################################################
-def test_save_json():
-	"""Vérifie la fonction save_json."""
-	FileIO.save_json(f"{OUTPUT_DIR}/test_save_json.json", REF_DICT)
-
-
-##################################################
-def test_open_json():
-	"""Vérifie la fonction open_json."""
-	dictionary = FileIO.open_json(f"{OUTPUT_DIR}/test_save_json.json")
-	assert dictionary == REF_DICT, "Le dictionnaire devrait correspondre à la référence."
+def test_json_roundtrip(tmp_path):
+	"""Vérifie que le fichier JSON écrit restitue intégralement le dictionnaire initial."""
+	path = tmp_path / "settings.json"
+	FileIO.save_json(path, REF_DICT)
+	assert FileIO.open_json(path) == REF_DICT, "Le dictionnaire relu doit correspondre à l'entrée."
 
 
 ##################################################
@@ -152,15 +147,18 @@ def test_open_json_bad_file():
 
 
 ##################################################
-def test_save_tif():
-	"""Vérifie la fonction save_tif."""
-	FileIO.save_tif(REF_STACK, f"{OUTPUT_DIR}/test_save_stack.tif")
-
-
-##################################################
-def test_save_tif_2d():
-	"""Vérifie la fonction save_tif avec une image 2D."""
-	FileIO.save_tif(REF_GRADIENT, f"{OUTPUT_DIR}/test_save_stack_2D.tif")
+@pytest.mark.parametrize("image", [pytest.param(REF_STACK, id="pile"), pytest.param(REF_GRADIENT, id="image-2d")])
+def test_tif_roundtrip(image, tmp_path):
+	"""Vérifie les pixels, le type et les dimensions du TIFF écrit puis relu."""
+	path = tmp_path / "image.tif"
+	original = image.copy()
+	FileIO.save_tif(image, path)
+	result = FileIO.open_tif(path)
+	expected = image if image.ndim == 3 else image[None]
+	assert result.shape == expected.shape
+	assert result.dtype == np.uint16
+	np.testing.assert_allclose(result, expected, atol=1, rtol=0)
+	np.testing.assert_array_equal(image, original)
 
 
 ##################################################
@@ -194,9 +192,6 @@ def test_save_tif_bad_stack():
 ##################################################
 def test_open_tif():
 	"""Vérifie la fonction open_tif."""
-	stack = FileIO.open_tif(f"{OUTPUT_DIR}/test_save_stack.tif")
-	assert np.allclose(REF_STACK, stack, atol=1), "L'échantillon devrait correspondre à la référence avec une tolérance d'erreur (passage en entier)."
-
 	stack = FileIO.open_tif(f"{INPUT_DIR}/stack2D.tif")
 	assert stack.shape == (1, 128, 128)
 

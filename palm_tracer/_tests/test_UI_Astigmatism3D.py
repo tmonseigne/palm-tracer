@@ -11,7 +11,6 @@ from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # Classe
 LOC_FILE = INPUT_DIR / "astigmatism_3d_calibration.csv"
 MODEL_FILE = "astigmatism_3d_model.csv"
 PNG_FILE = "astigmatism_3d_model.png"
-BACKUP_DIR = INPUT_DIR / "backup"
 
 
 ##################################################
@@ -461,7 +460,7 @@ def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
+def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path):
 	"""Vérifie le lancement de l'estimation."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
@@ -469,11 +468,12 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.show()
 	qtbot.waitExposed(w)
 
-	backup_file = f"{LOC_FILE}.tmp"
-	shutil.copy2(LOC_FILE, backup_file)
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	backup_dir = tmp_path / "backup"
 
 	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Selected file: " in lines[0]
@@ -491,17 +491,13 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert f"Backup done at" in lines[0]
-	assert (BACKUP_DIR / "astigmatism_3d_calibration.csv").is_file()
-
-	shutil.copy2(backup_file, LOC_FILE)
-	Path(backup_file).unlink(missing_ok=True)
-	shutil.rmtree(BACKUP_DIR, ignore_errors=True)
+	assert (backup_dir / "astigmatism_3d_calibration.csv").is_file()
 
 	w.close()
 
 
 ##################################################
-def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
+def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path):
 	"""Vérifie le lancement de l'estimation."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
@@ -509,11 +505,12 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.show()
 	qtbot.waitExposed(w)
 
-	backup_file = f"{LOC_FILE}.tmp"
-	shutil.copy2(LOC_FILE, backup_file)
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	backup_dir = tmp_path / "backup"
 
 	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Selected file: " in lines[0]
@@ -531,26 +528,22 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert f"Backup done at" in lines[0]
-	assert (BACKUP_DIR / "astigmatism_3d_calibration.csv").is_file()
+	assert (backup_dir / "astigmatism_3d_calibration.csv").is_file()
 
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)  # Test de multiple backup
 	lines = get_lines_output(capsys)
 	assert f"Backup done at" in lines[0]
-	assert (BACKUP_DIR / "astigmatism_3d_calibration_1.csv").is_file()
+	assert (backup_dir / "astigmatism_3d_calibration_1.csv").is_file()
 
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)  # Test de multiple backup
 	lines = get_lines_output(capsys)
 	assert f"Backup done at" in lines[0]
-	assert (BACKUP_DIR / "astigmatism_3d_calibration_2.csv").is_file()
+	assert (backup_dir / "astigmatism_3d_calibration_2.csv").is_file()
 
 	w._check_b_estimate.setChecked(False)  # On recommence sans le backup
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert f"Localization file with estimation saved successfully." in lines[0]
-
-	shutil.copy2(backup_file, LOC_FILE)
-	Path(backup_file).unlink(missing_ok=True)
-	shutil.rmtree(BACKUP_DIR, ignore_errors=True)
 
 	w.close()
 

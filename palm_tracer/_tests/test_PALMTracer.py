@@ -5,7 +5,8 @@ Teste l'orchestration complète des traitements par la classe :class:`PALMTracer
 """
 
 import shutil
-from time import sleep
+from datetime import datetime, timedelta
+from itertools import count
 
 import pytest
 
@@ -25,6 +26,26 @@ def pt():
 	yield obj
 	try: obj._logger.close()
 	except Exception: pass
+
+
+##################################################
+@pytest.fixture
+def sequential_timestamps(monkeypatch):
+	"""Fournit un timestamp croissant par appel pour tester la réutilisation sans attente réelle."""
+	start = datetime(2026, 1, 2)
+	seconds = count()
+
+	def next_timestamp(with_hour: bool = True) -> str:
+		"""
+		Avance l'horodatage simulé d'une seconde.
+
+		:param with_hour: Inclut l'heure dans le nom de fichier.
+		:return: Horodatage déterministe au format utilisé par le pipeline.
+		"""
+		current = start + timedelta(seconds=next(seconds))
+		return current.strftime("%Y%m%d_%H%M%S" if with_hour else "%Y%m%d")
+
+	monkeypatch.setattr(FileIO, "get_timestamp_for_files", next_timestamp)
 
 
 ##################################################
@@ -537,7 +558,7 @@ def test_process_tracking_blinking(capsys, pt):
 
 
 ##################################################
-def test_process_tracks_compute(capsys, pt):
+def test_process_tracks_compute(capsys, pt, sequential_timestamps):
 	"""Vérifie le process de tracking."""
 	clean_output()
 
@@ -553,7 +574,6 @@ def test_process_tracks_compute(capsys, pt):
 	check_capsys(capsys, 17, [5, 6, 7, 9, 10, 12, 13, 14])
 
 	tc["MSD"].value = True
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	assert len(pt.results["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
 	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
@@ -564,7 +584,6 @@ def test_process_tracks_compute(capsys, pt):
 	tc["MSD"].value = False
 	tc["Instant Diffusion"].value = True
 	tc["Fit"].value = 1
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	assert len(pt.results["MSD"]) == 0  # MSD désactivé, il est conservé
 	assert len(pt.results["InD"]) == 3  # Seules 3 trajectoires sont éligibles
@@ -607,7 +626,7 @@ def test_process_visualization_graph(capsys, pt):
 
 
 #################################################
-def test_process_visualization_hr(capsys, pt):
+def test_process_visualization_hr(capsys, pt, sequential_timestamps):
 	"""Vérifie le process de visualization HR."""
 	clean_output()
 
@@ -622,14 +641,12 @@ def test_process_visualization_hr(capsys, pt):
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
 
 	pt.settings.hr["Dimension"].value = 1  # Génération de Z-stack
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[2], json=[2], png=[1], tif=[1], clean=False)
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
 
 	pt.settings.hr["Dimension"].value = 2  # Génération de la rotation 3D
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[3], log=[3], json=[3], png=[1], tif=[2])
@@ -738,7 +755,7 @@ def test_connect_filters_button(qtbot, capsys, pt):
 
 
 ##################################################
-def test_filter_localization(capsys, pt):
+def test_filter_localization(capsys, pt, sequential_timestamps):
 	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
 
@@ -766,14 +783,13 @@ def test_filter_localization(capsys, pt):
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
 
 	pt.settings.filters["Save"].value = True
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()  # Second passage avec enregistrement
 	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 18, [5, 9, 10, 11, 12, 13, 14, 15])
 
 
 ##################################################
-def test_filter_tracks_compute(capsys, pt):
+def test_filter_tracks_compute(capsys, pt, sequential_timestamps):
 	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
 
@@ -803,7 +819,6 @@ def test_filter_tracks_compute(capsys, pt):
 	check_capsys(capsys, 21, [5, 6, 7, 10, 11, 16, 17, 18])
 
 	pt.settings.filters["Save"].value = True
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	# Vérification manuelle à l'heure actuelle
 	assert len(pt.results.tracks) == 26, f"Il reste {len(pt.results.tracks)} points au lieu de 26 sur les trajectoires."
@@ -814,7 +829,6 @@ def test_filter_tracks_compute(capsys, pt):
 
 	# Filtre massif plus rien à la sortie
 	pt.settings.filters["Tracks"]["Length"].value = [42, 10000]
-	sleep(1)  # Force un timestamp différent pour le Reuse
 	pt.process()
 	assert len(pt.results["f_trc"]) == 0, f"Il reste {len(pt.results.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.results["f_MSD"]) == 0, f"Il reste {len(pt.results.tracks_compute['MSD'])} trajectoires au lieu de 0."
