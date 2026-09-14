@@ -11,6 +11,7 @@ from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
+rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 

@@ -414,6 +414,7 @@ def test_compute_bad_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
 	assert not w._loc.empty
 
+	rng = np.random.default_rng(42)
 	w._loc["Sigma X"] = rng.normal(loc=1.0, scale=1.0, size=len(w._loc))
 	w._loc["Sigma Y"] = rng.normal(loc=1.0, scale=1.0, size=len(w._loc))
 

@@ -3,13 +3,13 @@
 import numpy as np
 import pytest
 
-from palm_tracer._tests.Utils import rng
 from palm_tracer.Processing import GaussianMixture
 
 
 ##################################################
 def test_fit_two_components():
 	"""Vérifie l'estimation des paramètres d'un mélange de deux gaussiennes."""
+	rng = np.random.default_rng(42)
 	data = np.concatenate((rng.normal(-2.0, 0.5, 3500), rng.normal(3.0, 0.8, 6500)))
 	mixture = GaussianMixture.fit(data, n_component=2)
 
@@ -23,6 +23,7 @@ def test_fit_two_components():
 ##################################################
 def test_fit_is_generic():
 	"""Vérifie que l'ajustement accepte plus de deux composantes."""
+	rng = np.random.default_rng(42)
 	data = np.concatenate((rng.normal(-4.0, 0.3, 2000), rng.normal(0.0, 0.5, 3000), rng.normal(5.0, 0.7, 5000)))
 	mixture = GaussianMixture.fit(data, n_component=3)
 
@@ -34,6 +35,7 @@ def test_fit_is_generic():
 ##################################################
 def test_make_curve():
 	"""Vérifie la génération de la courbe de densité du mélange."""
+	rng = np.random.default_rng(42)
 	mixture = GaussianMixture.fit(np.concatenate((rng.normal(-2.0, 0.5, 2000), rng.normal(2.0, 0.5, 2000))))
 	x_grid, density = mixture.make_curve([-6.0, 6.0], n_point=1000)
 
@@ -102,6 +104,7 @@ def test_kmeans_iteration_limit(monkeypatch):
 ##################################################
 def test_em_iteration_limit():
 	"""Vérifie l'état retourné lorsqu'EM atteint sa limite d'itérations avant de converger."""
+	rng = np.random.default_rng(42)
 	data = np.concatenate((rng.normal(-1.0, 0.5, 100), rng.normal(1.0, 0.5, 100)))
 	mixture = GaussianMixture.fit(data, max_iter=1, n_init=1)
 

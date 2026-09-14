@@ -23,7 +23,6 @@ IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 TS_PATTERN = r"\[\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}\]"  # Regex timestamp : [16-02-2026 10:06:08]
 
-rng = np.random.default_rng(42)  # Initialisation du générateur avec une seed
 default_threshold, default_watershed, default_sigma, default_theta, default_roi = 103.6, True, 1.0, 0.0, 7
 max_distance, min_life, decrease, cost_birth = 5, 2, 10, 0.5
 default_fit = 4

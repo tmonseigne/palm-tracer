@@ -9,6 +9,7 @@ from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Grapher
 
 SIZE = 1000
+rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = rng.normal(loc=1.0, scale=1.0, size=SIZE).astype(float)
 POINTS_2 = rng.normal(loc=2.0, scale=1.0, size=SIZE).astype(float)
 IDX = np.arange(1, SIZE + 1, dtype=POINTS.dtype)

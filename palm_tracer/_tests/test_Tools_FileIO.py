@@ -20,7 +20,7 @@ MAX_UI_16 = np.iinfo(np.uint16).max
 MAX_UI_8 = np.iinfo(np.uint8).max
 
 SIZE = 512  # .															 Taille de l'image de test
-NOISE_2D = np.random.rand(SIZE, SIZE) * MAX_UI_8  # .					 Bruit sur une image 2D
+NOISE_2D = np.random.default_rng(42).random((SIZE, SIZE)) * MAX_UI_8  # .Bruit sur une image 2D
 REF_BOOLEAN_MASK = NOISE_2D > 128  # .									 Conversion en booléen
 GRADIENT = np.linspace(0, MAX_UI_8, SIZE, dtype=float)  # .				 Création du dégradé croissant de 0 à 255
 REF_GRADIENT = np.tile(GRADIENT, (SIZE, 1))  # .						 Répète le dégradé sur toutes les lignes
