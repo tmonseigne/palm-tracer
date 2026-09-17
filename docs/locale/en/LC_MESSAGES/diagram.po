@@ -1,11 +1,39 @@
-#: ../../diagram.rst:2 ../../diagram.rst:7
+#: ../../diagram.rst:2 ../../diagram.rst:15
 msgid "Diagramme de classe PALM Tracer"
 msgstr "PALM Tracer Class Diagram"
 
-#: ../../diagram.rst:13
-msgid "Diagramme de classe PALM Tracer Settings Groups"
-msgstr "PALM Tracer Settings Groups class diagram"
+#: ../../diagram.rst:4
+msgid "Ces diagrammes présentent les principales classes et leurs relations. Les attributs et les méthodes sont volontairement masqués afin de privilégier une vue synthétique de l'architecture."
+msgstr "These diagrams present the main classes and their relationships. Attributes and methods are intentionally hidden to provide a concise overview of the architecture."
 
-#: ../../diagram.rst:19
-msgid "Diagramme de classe PALM Tracer Settings Types"
-msgstr "PALM Tracer Settings Types class diagram"
+#: ../../diagram.rst:10
+msgid "Cœur applicatif"
+msgstr "Application Core"
+
+#: ../../diagram.rst:12
+msgid "Le premier diagramme regroupe l'orchestration, les traitements, les résultats, les outils et les interfaces graphiques de PALM Tracer."
+msgstr "The first diagram groups PALM Tracer's orchestration, processing, results, tools, and graphical user interfaces."
+
+#: ../../diagram.rst:22
+msgid "Groupes de paramètres"
+msgstr "Setting Groups"
+
+#: ../../diagram.rst:24
+msgid "Le deuxième diagramme présente la hiérarchie des groupes qui structurent la configuration des différentes étapes du traitement."
+msgstr "The second diagram presents the hierarchy of groups that structure the configuration of the different processing steps."
+
+#: ../../diagram.rst:27
+msgid "Diagramme des groupes de paramètres PALM Tracer"
+msgstr "PALM Tracer Setting Groups Diagram"
+
+#: ../../diagram.rst:34
+msgid "Types de paramètres"
+msgstr "Setting Types"
+
+#: ../../diagram.rst:36
+msgid "Le dernier diagramme présente les types de paramètres réutilisables et leur hiérarchie."
+msgstr "The last diagram presents the reusable setting types and their hierarchy."
+
+#: ../../diagram.rst:39
+msgid "Diagramme des types de paramètres PALM Tracer"
+msgstr "PALM Tracer Setting Types Diagram"

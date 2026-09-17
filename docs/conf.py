@@ -37,6 +37,7 @@ extensions = [
 		]
 
 autodoc_typehints = "both"
+graphviz_output_format = "svg"
 
 intersphinx_mapping = {
 		"python":       ("https://docs.python.org/3", None),

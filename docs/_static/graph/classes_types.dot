@@ -1,29 +1,38 @@
-digraph "classes_palm_tracer" {
-rankdir=BT
-charset="utf-8"
-"palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [color="black", fontcolor="black", label=<{BaseSettingType|default : Optional[Any]<br ALIGN="LEFT"/>label : str<br ALIGN="LEFT"/>tooltip : str<br ALIGN="LEFT"/>value : Any<br ALIGN="LEFT"/>|attach_to_form(ui_name: str, form: QFormLayout)<br ALIGN="LEFT"/>clean_ui(name: str)<br ALIGN="LEFT"/>connect(f: Any)<br ALIGN="LEFT"/>connect_button(f: Any, ui_name: str, n: int)<br ALIGN="LEFT"/>disconnect(f: Optional[Any]): int<br ALIGN="LEFT"/>emit(value: Any)<br ALIGN="LEFT"/><I>get_ui</I>(name: str): BaseUIType<br ALIGN="LEFT"/>hide()<br ALIGN="LEFT"/>reset()<br ALIGN="LEFT"/>set_value_from_ui(value: Any)<br ALIGN="LEFT"/>show()<br ALIGN="LEFT"/>signal_blocked(emit_last: bool): SignalWrapper.BlockCtx<br ALIGN="LEFT"/>sync(other: 'BaseSettingType')<br ALIGN="LEFT"/>to_compact_dict(): dict[str, Any]<br ALIGN="LEFT"/>update_from_compact_dict(data: dict[str, Any])<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.BaseUIType.BaseUIType" [color="black", fontcolor="black", label=<{BaseUIType|boxes : list[QWidget]<br ALIGN="LEFT"/>form : QFormLayout \| None<br ALIGN="LEFT"/>label : QLabel \| None<br ALIGN="LEFT"/>layout : QHBoxLayout \| QVBoxLayout<br ALIGN="LEFT"/>row : int<br ALIGN="LEFT"/>|attach_to_form(form: QFormLayout)<br ALIGN="LEFT"/>hide()<br ALIGN="LEFT"/>set_tooltip(tooltip: str)<br ALIGN="LEFT"/>show()<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.BrowseFile.BrowseFile" [color="black", fontcolor="black", label=<{BrowseFile|default : str<br ALIGN="LEFT"/>value : str<br ALIGN="LEFT"/>|browse_file()<br ALIGN="LEFT"/>get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.Button.Button" [color="black", fontcolor="black", label=<{Button|<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/><I>reset</I>()<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.ButtonGroup.ButtonGroup" [color="black", fontcolor="black", label=<{ButtonGroup|current_text : str<br ALIGN="LEFT"/>default : int<br ALIGN="LEFT"/>group : dict[str, QButtonGroup]<br ALIGN="LEFT"/>value : int<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.CheckBox.CheckBox" [color="black", fontcolor="black", label=<{CheckBox|default : bool<br ALIGN="LEFT"/>value : bool<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat" [color="black", fontcolor="black", label=<{CheckRangeFloat|active : bool<br ALIGN="LEFT"/>default : list[float]<br ALIGN="LEFT"/>limits : list[float]<br ALIGN="LEFT"/>max : float<br ALIGN="LEFT"/>min : float<br ALIGN="LEFT"/>precision : int<br ALIGN="LEFT"/>step : float<br ALIGN="LEFT"/>value : list[float]<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>reset()<br ALIGN="LEFT"/>set_active(state: int)<br ALIGN="LEFT"/>set_max(value: float)<br ALIGN="LEFT"/>set_min(value: float)<br ALIGN="LEFT"/>to_compact_dict(): dict[str, Any]<br ALIGN="LEFT"/>update_from_compact_dict(data: dict[str, Any])<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt" [color="black", fontcolor="black", label=<{CheckRangeInt|active : bool<br ALIGN="LEFT"/>default : list[int]<br ALIGN="LEFT"/>limits : list[int]<br ALIGN="LEFT"/>max : int<br ALIGN="LEFT"/>min : int<br ALIGN="LEFT"/>step : int<br ALIGN="LEFT"/>value : list[int]<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>reset()<br ALIGN="LEFT"/>set_active(state: int)<br ALIGN="LEFT"/>set_max(value: int)<br ALIGN="LEFT"/>set_min(value: int)<br ALIGN="LEFT"/>to_compact_dict(): dict[str, Any]<br ALIGN="LEFT"/>update_from_compact_dict(data: dict[str, Any])<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.Combo.Combo" [color="black", fontcolor="black", label=<{Combo|current_text : str<br ALIGN="LEFT"/>default : int<br ALIGN="LEFT"/>items : list[str]<br ALIGN="LEFT"/>value : int<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>to_compact_dict(): dict[str, Any]<br ALIGN="LEFT"/>update_from_compact_dict(data: dict[str, Any])<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.FileList.FileList" [color="black", fontcolor="black", label=<{FileList|current_text : str<br ALIGN="LEFT"/>default : int<br ALIGN="LEFT"/>items : list[str]<br ALIGN="LEFT"/>value : int<br ALIGN="LEFT"/>|add_file()<br ALIGN="LEFT"/>clear_files()<br ALIGN="LEFT"/>get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>remove_file()<br ALIGN="LEFT"/>reset()<br ALIGN="LEFT"/>to_compact_dict(): dict[str, Any]<br ALIGN="LEFT"/>update_from_compact_dict(data: dict[str, Any])<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.SignalWrapper.SignalWrapper" [color="black", fontcolor="black", label=<{SignalWrapper|<br ALIGN="LEFT"/>|blocked(emit_last: bool): 'BlockCtx'<br ALIGN="LEFT"/>connect(f: Callable[[Any], None])<br ALIGN="LEFT"/>disconnect(f: Optional[Callable[[Any], None]]): int<br ALIGN="LEFT"/>emit(value: Any)<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.SpinFloat.SpinFloat" [color="black", fontcolor="black", label=<{SpinFloat|default : float<br ALIGN="LEFT"/>limits : list[float]<br ALIGN="LEFT"/>precision : int<br ALIGN="LEFT"/>step : float<br ALIGN="LEFT"/>value : float<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.SpinInt.SpinInt" [color="black", fontcolor="black", label=<{SpinInt|default : int<br ALIGN="LEFT"/>limits : list[int]<br ALIGN="LEFT"/>step : int<br ALIGN="LEFT"/>value : int<br ALIGN="LEFT"/>|get_ui(name: str): BaseUIType<br ALIGN="LEFT"/>}>, shape="record", style="filled", fillcolor="#acace6"];
+digraph "classes_types" {
+graph [bgcolor="transparent", nodesep="0.35", pad="0.2", rankdir="BT", ranksep="0.7"];
+node [color="#4a4a4a", fillcolor="#acace6", fontcolor="black", fontname="Helvetica", fontsize="10", shape="box", style="filled,rounded"];
+edge [color="#666666", fontcolor="#006400", fontname="Helvetica", fontsize="9"];
 
-"palm_tracer.Settings.Types.BrowseFile.BrowseFile" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.Button.Button" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.ButtonGroup.ButtonGroup" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.CheckBox.CheckBox" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.Combo.Combo" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.FileList.FileList" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.SpinFloat.SpinFloat" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.SpinInt.SpinInt" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", style="filled", fillcolor="#acace6"];
-"palm_tracer.Settings.Types.SignalWrapper.SignalWrapper" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_signal", style="filled", fillcolor="#acace6"];
+"palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting" [label="BaseCheckSetting"];
+"palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [label="BaseSettingType"];
+"palm_tracer.Settings.Types.BaseUIType.BaseUIType" [label="BaseUIType"];
+"palm_tracer.Settings.Types.BrowseFile.BrowseFile" [label="BrowseFile"];
+"palm_tracer.Settings.Types.Button.Button" [label="Button"];
+"palm_tracer.Settings.Types.ButtonGroup.ButtonGroup" [label="ButtonGroup"];
+"palm_tracer.Settings.Types.CheckBox.CheckBox" [label="CheckBox"];
+"palm_tracer.Settings.Types.CheckInt.CheckInt" [label="CheckInt"];
+"palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection" [label="CheckIntSelection"];
+"palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat" [label="CheckRangeFloat"];
+"palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt" [label="CheckRangeInt"];
+"palm_tracer.Settings.Types.Combo.Combo" [label="Combo"];
+"palm_tracer.Settings.Types.FileList.FileList" [label="FileList"];
+"palm_tracer.Settings.Types.SignalWrapper.SignalWrapper" [label="SignalWrapper"];
+"palm_tracer.Settings.Types.SpinFloat.SpinFloat" [label="SpinFloat"];
+"palm_tracer.Settings.Types.SpinInt.SpinInt" [label="SpinInt"];
+
+"palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="1"];
+"palm_tracer.Settings.Types.BaseUIType.BaseUIType" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_uis", minlen="2"];
+"palm_tracer.Settings.Types.BrowseFile.BrowseFile" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="3"];
+"palm_tracer.Settings.Types.Button.Button" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="4"];
+"palm_tracer.Settings.Types.ButtonGroup.ButtonGroup" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="1"];
+"palm_tracer.Settings.Types.CheckBox.CheckBox" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="2"];
+"palm_tracer.Settings.Types.CheckInt.CheckInt" -> "palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting" [arrowhead="empty", arrowtail="none", minlen="3"];
+"palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection" -> "palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting" [arrowhead="empty", arrowtail="none", minlen="4"];
+"palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat" -> "palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting" [arrowhead="empty", arrowtail="none", minlen="1"];
+"palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt" -> "palm_tracer.Settings.Types.BaseCheckSetting.BaseCheckSetting" [arrowhead="empty", arrowtail="none", minlen="2"];
+"palm_tracer.Settings.Types.Combo.Combo" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="3"];
+"palm_tracer.Settings.Types.FileList.FileList" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="4"];
+"palm_tracer.Settings.Types.SignalWrapper.SignalWrapper" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_signal", minlen="1"];
+"palm_tracer.Settings.Types.SpinFloat.SpinFloat" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="2"];
+"palm_tracer.Settings.Types.SpinInt.SpinInt" -> "palm_tracer.Settings.Types.BaseSettingType.BaseSettingType" [arrowhead="empty", arrowtail="none", minlen="3"];
 }
