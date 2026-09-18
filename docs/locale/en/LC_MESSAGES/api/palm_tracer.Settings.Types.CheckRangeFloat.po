@@ -102,13 +102,11 @@ msgstr "Return type"
 msgid "Sérialisation"
 msgstr "Serialization"
 
-#: of
-#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.to_compact_dict:1
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.to_compact_dict:1
 msgid "Renvoie la valeur, les limites et l'état actif du paramètre."
 msgstr "Returns the value, limits, and active state of the setting."
 
-#: of
-#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.update_from_compact_dict:1
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.update_from_compact_dict:1
 msgid "Met à jour les limites, la valeur et l'état actif depuis un dictionnaire minimal."
 msgstr "Updates the limits, value, and active state from a minimal dictionary."
 

@@ -93,8 +93,8 @@ msgid "Fonctions de rappel"
 msgstr "Callbacks"
 
 #: of palm_tracer.Settings.Types.FileList.FileList.add_file:1
-msgid "Ajoute un fichier à la liste via un :class:`QFileDialog`."
-msgstr "Adds a file to the list using a :class:`QFileDialog`."
+msgid "Ajoute des fichiers à la liste via un :class:`QFileDialog`."
+msgstr "Adds one or more files to the list using a :class:`QFileDialog`."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.remove_file:1
 msgid "Supprime le fichier actuellement sélectionné dans la :class:`QComboBox`."

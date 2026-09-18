@@ -151,10 +151,32 @@ class GaussianMixture:
 		:param x: Abscisse scalaire ou tableau d'abscisses auxquelles évaluer le mélange.
 		:return: Densité totale évaluée en chaque abscisse, avec la même forme que ``x``.
 		"""
+		return np.sum(self.component_probability_densities(x), axis=-1)
+
+	##################################################
+	def component_probability_densities(self, x: np.ndarray) -> np.ndarray:
+		"""
+		Évalue séparément la contribution pondérée de chaque composante à la densité du mélange.
+
+		Pour chaque composante :math:`k`, la contribution retournée est :
+
+		.. math::
+
+			p_k(x) = \\pi_k
+			\\frac{\\exp\\!\\left[-\\frac{1}{2}\\left(\\frac{x-\\mu_k}{\\sigma_k}\\right)^2\\right]}
+			{\\sigma_k\\sqrt{2\\pi}}.
+
+		L'intégrale de :math:`p_k` sur la droite vaut donc :math:`\\pi_k`, et la somme des contributions selon leur dernier axe
+		est exactement égale à :meth:`probability_density`.
+		Les opérations utilisent la diffusion NumPy afin d'évaluer toutes les composantes sans boucle Python.
+
+		:param x: Abscisse scalaire ou tableau d'abscisses auxquelles évaluer les composantes.
+		:return: Contributions pondérées, avec la forme de ``x`` complétée par un dernier axe contenant les composantes.
+		"""
 		values = np.asarray(x, dtype=float)
 		standardized = (values[..., np.newaxis] - self.means) / self.sigmas
 		components = np.exp(-0.5 * standardized ** 2) / (self.sigmas * np.sqrt(2.0 * np.pi))
-		return np.sum(self.weights * components, axis=-1)
+		return self.weights * components
 
 	##################################################
 	def make_curve(self, limits: tuple[float, float] | list[float], n_point: int = 128) -> tuple[np.ndarray, np.ndarray]:

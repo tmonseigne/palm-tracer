@@ -32,27 +32,33 @@ msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Processing.GaussianMixture.GaussianMixture:22
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.weights:1
 msgid "Proportions :math:`\\pi_k` des composantes, sous forme d'un tableau de taille :math:`K` dont la somme vaut un."
 msgstr "Component proportions :math:`\\pi_k`, as an array of size :math:`K` whose sum equals one."
 
 #: of palm_tracer.Processing.GaussianMixture.GaussianMixture:23
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.means:1
 msgid "Moyennes :math:`\\mu_k` des composantes, triées par ordre croissant dans un tableau de taille :math:`K`."
 msgstr "Component means :math:`\\mu_k`, sorted in increasing order in an array of size :math:`K`."
 
 #: of palm_tracer.Processing.GaussianMixture.GaussianMixture:24
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.sigmas:1
 msgid "Écarts-types :math:`\\sigma_k` strictement positifs des composantes, dans un tableau de taille :math:`K`."
 msgstr "Strictly positive component standard deviations :math:`\\sigma_k`, in an array of size :math:`K`."
 
 #: of palm_tracer.Processing.GaussianMixture.GaussianMixture:25
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.log_likelihood:1
 #, python-brace-format
 msgid "Log-vraisemblance finale :math:`\\mathcal{L}(\\Theta)` du modèle retenu."
 msgstr "Final log-likelihood :math:`\\mathcal{L}(\\Theta)` of the selected model."
 
 #: of palm_tracer.Processing.GaussianMixture.GaussianMixture:26
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.converged:1
 msgid "Indique si le critère de convergence a été atteint avant le nombre maximal d'itérations."
 msgstr "Indicates whether the convergence criterion was reached before the maximum number of iterations."
 
 #: of palm_tracer.Processing.GaussianMixture.GaussianMixture:27
+#: palm_tracer.Processing.GaussianMixture.GaussianMixture.n_iter:1
 msgid "Nombre d'itérations exécutées par l'initialisation retenue."
 msgstr "Number of iterations performed by the selected initialization."
 
@@ -150,13 +156,11 @@ msgstr "If a parameter is invalid, the data are insufficient, or their variance 
 msgid "Type renvoyé"
 msgstr "Return type"
 
-#: of
-#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:1
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:1
 msgid "Évalue la densité de probabilité totale du mélange."
 msgstr "Evaluates the total probability density of the mixture."
 
-#: of
-#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:3
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:3
 msgid "Chaque abscisse est d'abord standardisée séparément pour chacune des :math:`K` composantes :"
 msgstr "Each input value is first standardized separately for each of the :math:`K` components:"
 
@@ -166,30 +170,49 @@ msgstr "Each input value is first standardized separately for each of the :math:
 msgid "z_k(x) = \\frac{x-\\mu_k}{\\sigma_k}."
 msgstr ""
 
-#: of
-#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:9
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:9
 msgid "La méthode évalue ensuite les densités normales et calcule leur somme pondérée :"
 msgstr "The method then evaluates the normal densities and computes their weighted sum:"
 
-#: of
-#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:11
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:11
 msgid "p(x) = \\sum_{k=1}^{K}\\pi_k\n\\frac{\\exp\\!\\left[-z_k(x)^2/2\\right]}{\\sigma_k\\sqrt{2\\pi}}."
 msgstr ""
 
-#: of
-#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:16
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:16
 msgid "Les opérations utilisent la diffusion NumPy : un axe final de taille :math:`K` est temporairement ajouté à ``x`` pour évaluer toutes les composantes sans boucle Python. La somme sur cet axe restitue ensuite exactement la forme initiale de ``x``. Lorsque les poids sont normalisés, l'intégrale de la densité sur l'ensemble de la droite vaut un."
 msgstr "The operations use NumPy broadcasting: a final axis of size :math:`K` is temporarily added to ``x`` to evaluate all components without a Python loop. Summing along this axis then restores the exact original shape of ``x``. When the weights are normalized, the integral of the density over the entire real line equals one."
 
-#: of
-#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:20
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:20
 msgid "Abscisse scalaire ou tableau d'abscisses auxquelles évaluer le mélange."
 msgstr "Scalar input value or array of input values at which to evaluate the mixture."
 
-#: of
-#: palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:21
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.probability_density:21
 msgid "Densité totale évaluée en chaque abscisse, avec la même forme que ``x``."
 msgstr "Total density evaluated at each input value, with the same shape as ``x``."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.component_probability_densities:1
+msgid "Évalue séparément la contribution pondérée de chaque composante à la densité du mélange."
+msgstr "Evaluates the weighted contribution of each component to the mixture density separately."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.component_probability_densities:3
+msgid "Pour chaque composante :math:`k`, la contribution retournée est :"
+msgstr "For each component :math:`k`, the returned contribution is:"
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.component_probability_densities:5
+msgid "p_k(x) = \\pi_k\n\\frac{\\exp\\!\\left[-\\frac{1}{2}\\left(\\frac{x-\\mu_k}{\\sigma_k}\\right)^2\\right]}\n{\\sigma_k\\sqrt{2\\pi}}."
+msgstr ""
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.component_probability_densities:11
+msgid "L'intégrale de :math:`p_k` sur la droite vaut donc :math:`\\pi_k`, et la somme des contributions selon leur dernier axe est exactement égale à :meth:`probability_density`. Les opérations utilisent la diffusion NumPy afin d'évaluer toutes les composantes sans boucle Python."
+msgstr "The integral of :math:`p_k` over the real line is therefore :math:`\\pi_k`, and the sum of the contributions along their last axis is exactly equal to :meth:`probability_density`. The operations use NumPy broadcasting to evaluate all components without a Python loop."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.component_probability_densities:15
+msgid "Abscisse scalaire ou tableau d'abscisses auxquelles évaluer les composantes."
+msgstr "Scalar input value or array of input values at which to evaluate the components."
+
+#: of palm_tracer.Processing.GaussianMixture.GaussianMixture.component_probability_densities:16
+msgid "Contributions pondérées, avec la forme de ``x`` complétée par un dernier axe contenant les composantes."
+msgstr "Weighted contributions, with the shape of ``x`` extended by a final axis containing the components."
 
 #: of palm_tracer.Processing.GaussianMixture.GaussianMixture.make_curve:1
 msgid "Construit une courbe régulière représentant la densité du mélange."

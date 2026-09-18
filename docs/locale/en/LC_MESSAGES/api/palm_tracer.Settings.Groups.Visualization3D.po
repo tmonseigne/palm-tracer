@@ -42,8 +42,7 @@ msgstr "Attributes"
 msgid "Libellé du groupe affiché dans l'interface."
 msgstr "Label of the group displayed in the interface."
 
-#: of
-#: palm_tracer.Settings.Groups.Visualization3D.Visualization3D.setting_list:1
+#: of palm_tracer.Settings.Groups.Visualization3D.Visualization3D.setting_list:1
 msgid "Définition des paramètres du groupe et de leur configuration."
 msgstr "Definition of the group's settings and their configuration."
 

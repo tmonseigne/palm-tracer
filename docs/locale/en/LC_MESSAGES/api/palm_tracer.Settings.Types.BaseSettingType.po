@@ -86,8 +86,7 @@ msgstr "Return type"
 msgid "Supprime l'interface Qt associée au nom donné."
 msgstr "Removes the Qt interface associated with the specified name."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.set_value_from_ui:1
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.set_value_from_ui:1
 msgid "Met à jour la valeur à chaque modification de l'UI (appelle le setter)."
 msgstr "Updates the value whenever the UI changes (calls the setter)."
 
@@ -115,8 +114,7 @@ msgstr "Connects a button directly rather than the setting itself."
 msgid "Nom de l'interface à connecter."
 msgstr "Name of the interface to connect."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:4
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:4
 msgid "Formulaire qui va recevoir le widget."
 msgstr "Form that will receive the widget."
 
@@ -124,13 +122,11 @@ msgstr "Form that will receive the widget."
 msgid "Sérialisation"
 msgstr "Serialization"
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.to_compact_dict:1
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.to_compact_dict:1
 msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
 msgstr "Returns a minimal dictionary containing the setting's value."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.update_from_compact_dict:1
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.update_from_compact_dict:1
 msgid "Met à jour la classe à partir d'un dictionnaire minimal."
 msgstr "Updates the class from a minimal dictionary."
 
@@ -143,8 +139,7 @@ msgstr "Signals and synchronization"
 msgid "Fonction ou slot à connecter."
 msgstr "Function or slot to connect."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:5
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:5
 msgid "Numéro de la boîte contenant le bouton."
 msgstr "Number of the box containing the button."
 
@@ -176,18 +171,15 @@ msgstr "Used to notify parts of the application subscribed to the signal."
 msgid "Valeur à émettre."
 msgstr "Value to emit."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:1
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:1
 msgid "Contexte de blocage des signaux de ce paramètre."
 msgstr "Blocking context for signals on this setting."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:3
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:3
 msgid "Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage."
 msgstr "If ``True``, emits the last value at the end of the block. If ``False``, ignores all emissions received during the block."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:5
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.signal_blocked:5
 msgid "Gestionnaire de contexte contrôlant le blocage des signaux."
 msgstr "Context manager controlling signal blocking."
 

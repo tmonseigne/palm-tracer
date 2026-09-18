@@ -85,6 +85,20 @@ def test_histogram_curves(args, kwargs, filename):
 
 
 ##################################################
+@pytest.mark.parametrize("cumulative", [
+		pytest.param(False, id="density"),
+		pytest.param(True, id="cumulative")])
+def test_histogram_gaussian_mixture_components(cumulative):
+	"""Vérifie le tracé séparé et additif des deux composantes gaussiennes."""
+	points = np.concatenate((POINTS - 2.0, POINTS + 2.0))
+	figure = Grapher().histogram(points, gaussian_mixture=True, density=True, cumulative=cumulative)
+	component_1, component_2, mixture = figure.data[1:]
+
+	assert [trace.name for trace in figure.data[1:]] == ["Gaussian component 1", "Gaussian component 2", "Gaussian mixture"]
+	assert np.allclose(np.asarray(component_1.y) + np.asarray(component_2.y), np.asarray(mixture.y))
+
+
+##################################################
 @pytest.mark.parametrize("args, kwargs, filename, reference", [
 		pytest.param((np.empty(0), 'blank',), {}, 'grapher_scatter_0.json', 'grapher_blank.json', id="empty"),
 		pytest.param((POINTS, 'scatter',), {}, 'grapher_scatter_1.json', 'grapher_scatter_1.json', id="1d-data"),
@@ -193,6 +207,7 @@ def test_astigmatism3d(args, kwargs, filename, reference):
 def test_astigmatism3d_invalid(args, kwargs):
 	"""Vérifie le rejet des dimensions incompatibles avec ce graphique."""
 	with pytest.raises(ValueError): Grapher().astigmatism3d(*args, **kwargs)
+
 
 # ==================================================
 # endregion Figure d'astigmatisme

@@ -358,6 +358,30 @@ msgstr "The width is estimated based on the maximum number of characters require
 msgid "Spinbox à ajuster."
 msgstr "Spinbox to adjust."
 
+#: of palm_tracer.Tools.Ui.update_layer:1
+msgid "Met à jour un calque Napari en le rendant temporairement visible."
+msgstr "Updates a Napari layer by making it temporarily visible."
+
+#: of palm_tracer.Tools.Ui.update_layer:3
+msgid "Ce contournement évite les erreurs de rendu pouvant survenir lors de la modification d'un calque masqué. Les données sont affectées avant les propriétés supplémentaires. À la fin de la mise à jour, la visibilité initiale est restaurée si le paramètre de visibilité vaut :obj:`None`, sinon l'état demandé est appliqué."
+msgstr "This workaround prevents rendering errors that may occur when modifying a hidden layer. The data are assigned before the additional properties. At the end of the update, the initial visibility is restored if the visibility parameter is :obj:`None`; otherwise, the requested state is applied."
+
+#: of palm_tracer.Tools.Ui.update_layer:7
+msgid "Calque Napari à mettre à jour."
+msgstr "Napari layer to update."
+
+#: of palm_tracer.Tools.Ui.update_layer:8
+msgid "Nouvelles données du calque."
+msgstr "New layer data."
+
+#: of palm_tracer.Tools.Ui.update_layer:9
+msgid "Visibilité finale, ou :obj:`None` pour conserver l'état initial."
+msgstr "Final visibility, or :obj:`None` to preserve the initial state."
+
+#: of palm_tracer.Tools.Ui.update_layer:10
+msgid "Propriétés supplémentaires à affecter après les données."
+msgstr "Additional properties to assign after the data."
+
 #: of palm_tracer.Tools.Ui.sync_button_group:1
 msgid "Synchronise un groupe de boutons exclusif avec un autre via son id."
 msgstr "Synchronizes one exclusive button group with another via its ID."

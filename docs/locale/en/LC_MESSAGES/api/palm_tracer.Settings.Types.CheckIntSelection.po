@@ -10,13 +10,11 @@ msgstr "Defines a setting for selecting integer values and ranges."
 msgid "Valide la syntaxe d'une sélection de valeurs entières et d'intervalles."
 msgstr "Qt validator for selecting integer values and ranges."
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:1
+#: of palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:1
 msgid "Valide la syntaxe d'une sélection entière."
 msgstr "Validates the syntax of an integer selection."
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:3
+#: of palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:3
 msgid "Les valeurs individuelles et les intervalles sont séparés par ``;``. Un intervalle est défini avec ``-``."
 msgstr "Individual values and ranges are separated by ``;``. A range is defined using ``-``."
 
@@ -24,13 +22,11 @@ msgstr "Individual values and ranges are separated by ``;``. A range is defined 
 msgid "Paramètres"
 msgstr "Parameters"
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:6
+#: of palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:6
 msgid "Texte à valider."
 msgstr "Text to validate."
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:7
+#: of palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:7
 msgid "Position actuelle du curseur."
 msgstr "Current cursor position."
 
@@ -38,8 +34,7 @@ msgstr "Current cursor position."
 msgid "Renvoie"
 msgstr "Returns"
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:8
+#: of palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator.validate:8
 msgid "État de validation, texte et position du curseur."
 msgstr "Validation status, text, and cursor position."
 
@@ -103,18 +98,15 @@ msgstr "Selection to convert, for example, ``\"1-10;15;20-25\"``."
 msgid "Liste d'intervalles inclusifs sous la forme ``[(min, max), ...]``."
 msgstr "A list of inclusive intervals in the form ``[(min, max), ...]``."
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.normalize:1
+#: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.normalize:1
 msgid "Normalise la représentation textuelle d'une sélection."
 msgstr "Normalizes the textual representation of a selection."
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.normalize:3
+#: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.normalize:3
 msgid "Sélection à normaliser."
 msgstr "Selection to be normalized."
 
-#: of
-#: palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.normalize:4
+#: of palm_tracer.Settings.Types.CheckIntSelection.CheckIntSelection.normalize:4
 msgid "Sélection normalisée sans espaces superflus."
 msgstr "Standardized selection without unnecessary spaces."
 

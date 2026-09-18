@@ -45,6 +45,19 @@ def test_make_curve():
 
 
 ##################################################
+def test_component_probability_densities():
+	"""Vérifie les contributions pondérées des composantes à la densité du mélange."""
+	mixture = GaussianMixture(np.array([0.35, 0.65]), np.array([-2.0, 3.0]), np.array([0.5, 0.8]), 0.0, True, 1)
+	x_grid = np.linspace(-8.0, 10.0, 2000)
+	components = mixture.component_probability_densities(x_grid)
+
+	assert components.shape == (x_grid.size, 2)
+	assert np.all(components >= 0)
+	assert np.allclose(np.sum(components, axis=1), mixture.probability_density(x_grid))
+	assert np.allclose(np.trapezoid(components, x_grid, axis=0), mixture.weights, atol=1e-6)
+
+
+##################################################
 @pytest.mark.parametrize("data, kwargs", [
 		pytest.param(np.arange(2), {"n_component": 0}, id="zero-components"),
 		pytest.param(np.arange(2), {"max_iter": 0}, id="zero-iterations"),

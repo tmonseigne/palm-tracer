@@ -100,7 +100,7 @@ class Grapher:
 						  cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
 						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
-		# KDE
+		# Courbes
 		if x.size > 1 and sigma > 0:
 			x_grid = np.linspace(limits[0], limits[1], MESH_SIZE)  # Grille régulière sur l'intervalle affiché
 
@@ -123,6 +123,12 @@ class Grapher:
 			if gaussian_mixture and np.unique(x).size >= 2:
 				mixture = GaussianMixture.fit(x, n_component=2)
 				x_mixture, y_pdf = mixture.make_curve(limits, MESH_SIZE)
+				component_pdfs = mixture.component_probability_densities(x_mixture)
+				component_curves = self._scale_curve(x_mixture, component_pdfs, x.size, bin_width, density, cumulative)
+				for component_id in range(component_curves.shape[1]):
+					fig.add_trace(go.Scatter(x=x_mixture, y=component_curves[:, component_id], mode="lines",
+											 line=dict(dash="dot", color=_SEABORN_DEEP[3 + component_id]),
+											 name=f"Gaussian component {component_id + 1}", hoverinfo="skip", hovertemplate=None))
 				y = self._scale_curve(x_mixture, y_pdf, x.size, bin_width, density, cumulative)
 				fig.add_trace(go.Scatter(x=x_mixture, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[5]),
 										 name="Gaussian mixture", hoverinfo="skip", hovertemplate=None))
@@ -132,7 +138,7 @@ class Grapher:
 				x_poisson = np.arange(max(0, int(np.floor(limits[0]))), int(np.ceil(limits[1])) + 1)
 				y_pdf = poisson.pmf(x_poisson, mu)
 				y = self._scale_curve(x_poisson, y_pdf, x.size, bin_width, density, cumulative, discrete=True)
-				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[3]),
+				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[6]),
 										 name="Poisson", hoverinfo="skip", hovertemplate=None))
 
 			# Exponentielle
@@ -140,7 +146,7 @@ class Grapher:
 				x_exponential = x_grid[x_grid >= 0]
 				y_pdf = expon.pdf(x_exponential, scale=mu)
 				y = self._scale_curve(x_exponential, y_pdf, x.size, bin_width, density, cumulative)
-				fig.add_trace(go.Scatter(x=x_exponential, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[4]),
+				fig.add_trace(go.Scatter(x=x_exponential, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[7]),
 										 name="Exponential", hoverinfo="skip", hovertemplate=None))
 
 		# Mu et Sigmas
@@ -414,7 +420,8 @@ class Grapher:
 		Adapte une courbe PDF pour l'affichage selon les modes densité / comptes et normal / cumulé.
 
 		:param x_grid: Abscisses régulières.
-		:param y_pdf: Densité (PDF) ou masse de probabilité (PMF) à convertir.
+		:param y_pdf: Densité (PDF) ou masse de probabilité (PMF) à convertir. Pour plusieurs courbes, la première dimension doit
+			correspondre aux abscisses et les dimensions suivantes aux différentes contributions d'une même distribution.
 		:param n: Nombre de données.
 		:param bin_width: Largeur d'une bin de l'histogramme.
 		:param density: Affiche l'histogramme en densité (``True``) ou en compte (``False``).
@@ -423,13 +430,14 @@ class Grapher:
 		:return: Courbe prête à être affichée.
 		"""
 		if cumulative:
-			if discrete: y = np.cumsum(y_pdf)
+			if discrete: y = np.cumsum(y_pdf, axis=0)
 			else:
 				dx = float(x_grid[1] - x_grid[0])
-				y = np.cumsum(y_pdf) * dx
+				y = np.cumsum(y_pdf, axis=0) * dx
 
-			# Protection contre les erreurs numériques et la troncature de la plage.
-			if y.size > 0 and y[-1] > 0: y /= y[-1]
+			# La normalisation commune conserve l'additivité des contributions d'un mélange.
+			normalizer = float(np.sum(y[-1])) if y.size > 0 else 0.0
+			if normalizer > 0: y /= normalizer
 			y = np.clip(y, 0.0, 1.0)
 
 			return y if density else y * n  # Conversion densité ⇾ comptes approximatifs.
