@@ -18,7 +18,7 @@ from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Par
 from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
 from palm_tracer.Results import Results
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Types import Combo, FileList
+from palm_tracer.Settings.Types import ColorMap, Combo, FileList
 from palm_tracer.Tools import FileIO, Logger, Ui
 
 MAX_UI_16 = np.iinfo(np.uint16).max
@@ -815,8 +815,8 @@ class PALMTracer:
 			st = s.track_stack
 			raw = self._stack[:, y0:y1, x0:x1] if st["Background"].value else None
 			head_size, tail_width, tail_length = st["Head"].value, st["Width"].value, st["Length"].value
-			fade_type, upscale_type, color_map = st["Fade"].value, st["Upscale"].value, cast(Combo, st["Map"]).current_text
-			viz = self._renderer.track_stack(df, color_mode, bg_color, head_size, tail_width, tail_length, fade_type, raw, upscale_type, color_map)
+			fade_type, upscale_type, color_lut = st["Fade"].value, st["Upscale"].value, cast(ColorMap, st["Map"]).get_lut()
+			viz = self._renderer.track_stack(df, color_mode, bg_color, head_size, tail_width, tail_length, fade_type, raw, upscale_type, color_lut)
 			# Aligne les trajectoires Napari sur le premier plan retenu par le renderer après arrondi spatial.
 			coords = np.round(plot_data[:, 2:])
 			valid = (coords[:, 0] >= 0) & (coords[:, 0] < n_h * upscale) & (coords[:, 1] >= 0) & (coords[:, 1] < n_w * upscale)

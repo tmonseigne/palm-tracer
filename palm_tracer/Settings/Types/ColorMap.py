@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import ClassVar, cast
 
+import numpy as np
 from matplotlib import colormaps
 from qtpy.QtCore import QSignalBlocker, QSize
 from qtpy.QtGui import QBrush, QColor, QIcon, QLinearGradient, QPainter, QPixmap
@@ -12,6 +13,9 @@ from qtpy.QtWidgets import QComboBox
 
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Settings.Types.Combo import Combo
+
+MAX_UI_8 = np.iinfo(np.uint8).max
+MAX_UI_16 = np.iinfo(np.uint16).max
 
 
 ##################################################
@@ -81,6 +85,29 @@ class ColorMap(Combo):
 			with QSignalBlocker(box):
 				self._populate_box(box)
 		self.value = 0
+
+	##################################################
+	def get_lut(self, max_value: int = MAX_UI_16) -> np.ndarray:
+		"""
+		Construit la table de correspondance RGB de la colormap sélectionnée.
+
+		L'indice zéro reste noir. Les indices suivants échantillonnent uniformément toute la colormap, de sorte que l'indice ``max_value`` corresponde à
+		sa dernière couleur.
+
+		:param max_value: Plus grand indice de la table, inclus.
+		:return: Table RGB de forme ``(max_value + 1, 3)`` et de type :class:`numpy.uint8`.
+		:raises ValueError: Si ``max_value`` est négatif.
+		"""
+		if max_value < 0:
+			raise ValueError("La valeur maximale de la LUT doit être positive ou nulle.")
+
+		lut = np.zeros((max_value + 1, 3), dtype=np.uint8)
+		if max_value == 0: return lut
+
+		positions = np.linspace(0.0, 1.0, max_value, dtype=float)
+		rgb = colormaps.get_cmap(self.current_text)(positions, bytes=False)[:, :3]
+		lut[1:] = np.rint(rgb * MAX_UI_8).astype(np.uint8)
+		return lut
 
 	# ==================================================
 	# endregion Accesseurs

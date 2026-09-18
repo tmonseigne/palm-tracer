@@ -3,6 +3,7 @@
 import copy
 from typing import Any, cast, List
 
+import numpy as np
 import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QSpinBox, QWidget
@@ -179,6 +180,28 @@ def test_color_map(qtbot):
 	setting.items = ["viridis", "unknown"]
 	assert not box.itemIcon(0).isNull()
 	assert box.itemIcon(1).isNull()
+
+
+###################################################
+@pytest.mark.parametrize("max_value", [None, 0, 255], ids=["default-uint16", "zero", "custom-uint8"])
+def test_color_map_get_lut(max_value):
+	"""Vérifie les dimensions, le type et l'origine noire de la LUT."""
+	setting = ColorMap("Test", "", 0)
+	expected_max = np.iinfo(np.uint16).max if max_value is None else max_value
+	lut = setting.get_lut() if max_value is None else setting.get_lut(max_value)
+
+	assert lut.shape == (expected_max + 1, 3)
+	assert lut.dtype == np.uint8
+	np.testing.assert_array_equal(lut[0], 0)
+	if max_value != 0:
+		assert np.any(lut[1:])
+
+
+###################################################
+def test_color_map_get_lut_rejects_negative_maximum():
+	"""Vérifie le rejet d'une borne maximale négative."""
+	with pytest.raises(ValueError, match="positive ou nulle"):
+		ColorMap().get_lut(-1)
 
 
 ###################################################
