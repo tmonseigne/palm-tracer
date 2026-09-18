@@ -243,14 +243,14 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 	fake_napari_layers(viewer)
 	_ = get_lines_output(capsys)
 
-	w._layers[w.LAYERS_NAME[1]].visible = True  # Etat initial à True
+	w._layers[w.LAYERS_NAME[1]].visible = False  # État initial masqué
 	w._generate()
-	assert w._layers[w.LAYERS_NAME[1]].visible
+	assert not w._layers[w.LAYERS_NAME[1]].visible
 	assert not w._layers[w.LAYERS_NAME[2]].visible
 	w._pt.settings.hr["Type"].value = 1
 	w._generate()
 	assert not w._layers[w.LAYERS_NAME[1]].visible
-	assert w._layers[w.LAYERS_NAME[2]].visible
+	assert not w._layers[w.LAYERS_NAME[2]].visible
 	assert viewer.dims.range[0].stop == np.max(w._layers[w.LAYERS_NAME[2]].data[:, 1])
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0

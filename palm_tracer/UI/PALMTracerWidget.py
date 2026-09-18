@@ -332,14 +332,14 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _clean_layer(self, raw: bool = True, preview: bool = True, roi: bool = True):
 		"""Vide les calques sans les supprimer."""
-		if raw: self._layers[self.LAYERS_NAME[0]].data = self._current_stack
+		if raw: Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
 		if preview:
-			self._layers[self.LAYERS_NAME[1]].data = self.EMPTY_PREVIEW
-			self._layers[self.LAYERS_NAME[2]].data = []
-			self._layers[self.LAYERS_NAME[3]].data = self.EMPTY_PREVIEW
-			self._layers[self.LAYERS_NAME[4]].data = self.EMPTY_PREVIEW
-			self._layers[self.LAYERS_NAME[5]].data = self.EMPTY_PREVIEW
-		if roi: self._layers[self.LAYERS_NAME[6]].data = []
+			Ui.update_layer(self._layers[self.LAYERS_NAME[1]], self.EMPTY_PREVIEW)
+			Ui.update_layer(self._layers[self.LAYERS_NAME[2]], [])
+			Ui.update_layer(self._layers[self.LAYERS_NAME[3]], self.EMPTY_PREVIEW)
+			Ui.update_layer(self._layers[self.LAYERS_NAME[4]], self.EMPTY_PREVIEW)
+			Ui.update_layer(self._layers[self.LAYERS_NAME[5]], self.EMPTY_PREVIEW)
+		if roi: Ui.update_layer(self._layers[self.LAYERS_NAME[6]], [])
 
 	##################################################
 	def _reset_layer(self):
@@ -364,7 +364,7 @@ class PALMTracerWidget(QWidget):
 			depth, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
 			self.pt.settings.filters.update_limits(depth)  # Update Max
-			self._layers[self.LAYERS_NAME[0]].data = self._current_stack
+			Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
 			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
 			self.viewer.reset_view()  # .  Recentrer et ajuster la vue
 			self.pt.load(selected_file)  # Ajout du chargement du dernier lancement pour ce fichier. Alternative à juste un reset des éléments.
@@ -389,10 +389,9 @@ class PALMTracerWidget(QWidget):
 			# Points
 			n_points = len(points)
 			layer = self._layers[f"Points {state}"]
-			layer.data = points  # Remplace tous les points
 			# Remets les différents arguments en cas de nombre de points différents
-			layer.size, layer.face_color = np.full(n_points, 1.0), [args["face"]] * n_points
-			layer.border_color, layer.border_width = [args["color"]] * n_points, np.full(n_points, args["border"])
+			Ui.update_layer(layer, points, size=np.full(n_points, 1.0), face_color=[args["face"]] * n_points,
+							border_color=[args["color"]] * n_points, border_width=np.full(n_points, args["border"]))
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
@@ -408,9 +407,9 @@ class PALMTracerWidget(QWidget):
 
 			n_rois = len(rois)
 			layer = self._layers[f"ROI {state}"]
-			layer.data = (rois, [s_type] * n_rois)  # Remplace toutes les formes
-			# Remets les différents arguments en cas de nombre de ROIs différents
-			layer.edge_color, layer.edge_width, layer.face_color = [args["color"]] * n_rois, [args["edge"]] * n_rois, ["transparent"] * n_rois
+			# Remets les différents arguments en cas de nombre de points différents
+			Ui.update_layer(layer, (rois, [s_type] * n_rois), edge_color=[args["color"]] * n_rois,
+							edge_width=[args["edge"]] * n_rois, face_color=["transparent"] * n_rois)
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
@@ -429,7 +428,10 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
-		if not self.pt.settings.localization["Preview"].value: return
+		if not self.pt.settings.localization["Preview"].value:
+			self._preview_locs = {state: self.EMPTY_PREVIEW for state in self.LAYER_ARGS}
+			self._clean_layer(False, True, False)
+			return
 
 		past, present, future = self._get_actual_image(-1), self._get_actual_image(), self._get_actual_image(1)
 		if present is None: return

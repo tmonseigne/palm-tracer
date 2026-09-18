@@ -9,6 +9,29 @@ from qtpy.QtWidgets import QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QG
 from palm_tracer.Tools import Ui
 
 
+##################################################
+class _DummyLayer:
+	"""Simule un calque et mémorise sa visibilité lors des affectations."""
+
+	def __init__(self, visible: bool, invalid_property: str = ""):
+		"""
+		Initialise le calque avec l'état demandé.
+
+		:param visible: Visibilité initiale du calque.
+		:param invalid_property: Nom de la propriété dont l'affectation doit échouer.
+		"""
+		object.__setattr__(self, "visible", visible)
+		object.__setattr__(self, "data", "old-data")
+		object.__setattr__(self, "invalid_property", invalid_property)
+		object.__setattr__(self, "updates_visibility", [])
+
+	def __setattr__(self, name, value):
+		"""Mémorise la visibilité courante ou refuse la propriété utilisée pour simuler une erreur."""
+		if name == self.invalid_property: raise ValueError("Invalid property")
+		if name != "visible": self.updates_visibility.append(self.visible)
+		object.__setattr__(self, name, value)
+
+
 # ==================================================
 # region Construction de l'interface
 # ==================================================
@@ -138,6 +161,32 @@ def test_make_spin(qtbot, decimals, buttons, spin_type):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
+##################################################
+@pytest.mark.parametrize("initial_visibility, visible, expected_visibility", [
+		pytest.param(False, None, False, id="preserve-hidden"),
+		pytest.param(True, None, True, id="preserve-visible"),
+		pytest.param(False, True, True, id="force-visible"),
+		pytest.param(True, False, False, id="force-hidden")])
+def test_update_layer(initial_visibility, visible, expected_visibility):
+	"""Vérifie la mise à jour du calque et les différentes politiques de visibilité."""
+	layer = _DummyLayer(initial_visibility)
+	Ui.update_layer(layer, "new-data", visible, face_color="lime", blending="translucent")
+
+	assert layer.data == "new-data"
+	assert layer.face_color == "lime"
+	assert layer.blending == "translucent"
+	assert layer.updates_visibility == [True, True, True]
+	assert layer.visible is expected_visibility
+
+
+##################################################
+def test_update_layer_restores_visibility_on_error():
+	"""Vérifie la restauration de la visibilité lorsqu'une propriété ne peut pas être affectée."""
+	layer = _DummyLayer(False, "invalid")
+	with pytest.raises(ValueError, match="Invalid property"): Ui.update_layer(layer, "new-data", invalid=True)
+	assert layer.visible is False
+
+
 ##################################################
 def test_sync_button_group(qtbot):
 	"""Vérifie les fonctions de synchronisation."""

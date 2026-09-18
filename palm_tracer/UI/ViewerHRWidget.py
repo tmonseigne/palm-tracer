@@ -266,19 +266,15 @@ class ViewerHRWidget(QWidget):
 		# Mise à jour de la ROI qui a été utilisé
 		self._pt.settings.rois.update_hr_box()
 
-		point_layer_state = self._layers[self.LAYERS_NAME[1]].visible
+		point_layer = self._layers[self.LAYERS_NAME[1]]
+		tracks_layer = self._layers[self.LAYERS_NAME[2]]
 
 		if self._hr_settings["Type"].value == 0:  # Localisations
-			self._layers[self.LAYERS_NAME[2]].visible = False
-			self._layers[self.LAYERS_NAME[1]].visible = True
-			self._layers[self.LAYERS_NAME[1]].data = plot_data
-			self._layers[self.LAYERS_NAME[1]].face_color = "lime"
-			self._layers[self.LAYERS_NAME[1]].visible = point_layer_state  # En cas de trop nombreux points, ce calque peut devenir génant, .
+			tracks_layer.visible = False
+			Ui.update_layer(point_layer, plot_data, face_color="lime")
 		else:  # Trajectoires
-			self._layers[self.LAYERS_NAME[1]].visible = False
-			self._layers[self.LAYERS_NAME[2]].visible = True
-			self._layers[self.LAYERS_NAME[2]].data = plot_data
-			self._layers[self.LAYERS_NAME[2]].blending = "translucent"
+			point_layer.visible = False
+			Ui.update_layer(tracks_layer, plot_data, blending="translucent")
 
 		self._update_visualization_layer()
 		self._layers[self.LAYERS_NAME[0]].visible = True
@@ -293,8 +289,7 @@ class ViewerHRWidget(QWidget):
 		data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
 		rgb = data.ndim == 4 and data.shape[-1] == 3
 		if layer.rgb == rgb:
-			layer.data = data
-			layer.editable, layer.locked = False, True
+			Ui.update_layer(layer, data, editable=False, locked=True)
 			return
 
 		# Napari configure aussi le visuel à la création : changer uniquement les données ne suffit pas.

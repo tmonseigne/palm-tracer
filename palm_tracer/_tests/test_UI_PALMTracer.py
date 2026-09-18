@@ -150,7 +150,9 @@ def test_clean_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	viewer = make_napari_viewer()
 	w = PALMTracerWidget(viewer)
 
+	w._layers["Points Present"].visible = False
 	w._clean_layer()
+	assert not w._layers["Points Present"].visible
 	w._clean_layer(False, False, False)
 
 
@@ -162,8 +164,10 @@ def test_reset_layer(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	w = PALMTracerWidget(viewer)
 
 	w._reset_layer()  # .											   Remise à 0 des calques sans fichier dans le batch.
+	w._layers["Raw"].visible = False
 	add_basic_file(w.pt)  # .										   Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
+	assert not w._layers["Raw"].visible
 	lines = get_lines_output(capsys)
 	assert len(lines) == 2
 	assert "No valid settings file to load." == lines[0]
@@ -187,10 +191,14 @@ def test_add_detection_layers(make_napari_viewer, patched_napari_viewer, qtbot):
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)
 
 	# Ajout avec des tableaux normaux.
+	w._layers["Points Present"].visible = False
+	w._layers["ROI Present"].visible = False
 	w._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": POINTS, "Filtered": POINTS}
 	w._add_preview_layers()
 	qtbot.waitUntil(lambda: "Points Present" in layers, timeout=5000)
 	assert len(w._layers["Points Past"].data) == 707
+	assert not w._layers["Points Present"].visible
+	assert not w._layers["ROI Present"].visible
 	# Ajout avec des calques existants et un futur vide.
 	w._preview_locs = {"Past": POINTS, "Present": POINTS, "Future": np.empty(0), "Filtered": np.empty(0)}
 	w._add_preview_layers()
@@ -249,6 +257,11 @@ def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 		w._preview()  # .										Preview simple
 		lines = get_lines_output(capsys)
 		assert "Preview of plane 4 : 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in lines[-1]
+		setting["Preview"].value = False
+		w._preview()
+
+	assert all(points.size == 0 for points in w._preview_locs.values())
+	assert all(len(w._layers[name].data) == 0 for name in w.LAYERS_NAME[1:6])
 
 
 ##################################################
