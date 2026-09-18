@@ -5,7 +5,7 @@ from typing import Any, cast, List
 
 import pytest
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QSpinBox, QWidget
+from qtpy.QtWidgets import QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QSpinBox, QWidget
 
 from palm_tracer._tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
@@ -163,6 +163,22 @@ def test_combo(qtbot):
 	# Modification des éléments après la création de l'interface
 	setting.items = ["1", "2"]
 	assert setting.items == ["1", "2"]
+
+
+###################################################
+def test_color_map(qtbot):
+	"""Vérifie la liste centralisée et les aperçus du paramètre de colormap."""
+	setting = ColorMap("Test", "", 0)
+	setting_base_test(setting, 1, 0)
+	assert setting.items == list(ColorMap.AVAILABLE_MAPS)
+
+	box = cast(QComboBox, setting.get_ui("default").boxes[0])
+	assert box.iconSize() == ColorMap.ICON_SIZE
+	assert all(not box.itemIcon(i).isNull() for i in range(box.count()))
+
+	setting.items = ["viridis", "unknown"]
+	assert not box.itemIcon(0).isNull()
+	assert box.itemIcon(1).isNull()
 
 
 ###################################################

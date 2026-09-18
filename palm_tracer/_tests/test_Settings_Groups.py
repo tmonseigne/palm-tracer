@@ -9,7 +9,7 @@ from qtpy.QtWidgets import QFormLayout, QWidget
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
-from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeInt, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeInt, ColorMap, Combo, SpinFloat, SpinInt
 
 
 ###################################################
@@ -318,8 +318,11 @@ def test_hr_3d(qtbot):
 
 ###################################################
 def test_hr_track_stack(qtbot):
-	"""Vérifie la classe HRGaussian (constructeur, getter, setter)."""
-	group_base_test(HRTrackStack(), ["Head", "Width", "Length", "Fade", "Map", "Background", "Upscale"], SpinInt, 5, 1)
+	"""Vérifie le groupe de paramètres du rendu des trajectoires."""
+	group = HRTrackStack()
+	group_base_test(group, ["Head", "Width", "Length", "Fade", "Map", "Background", "Upscale"], SpinInt, 5, 1)
+	assert isinstance(group["Map"], ColorMap)
+	assert group["Map"].current_text == "viridis"
 
 
 ###################################################

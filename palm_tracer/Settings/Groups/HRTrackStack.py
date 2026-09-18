@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckBox, Combo, SpinInt
+from palm_tracer.Settings.Types import CheckBox, ColorMap, Combo, SpinInt
 
 
 ##################################################
@@ -27,8 +27,7 @@ class HRTrackStack(BaseSettingGroup):
 					"Fade":       [Combo, ["Fade",
 										   "Remove tail segments abruptly or fade them linearly over their lifetime.",
 										   0, ["Abrupt", "Fade"]]],
-					"Map":        [Combo, ["Color Map", "Track color map when the raw background is enabled.", 0,
-										   ["viridis", "magma", "plasma", "inferno", "cividis", "turbo", "hsv"]]],
+					"Map":        [ColorMap, ["Color Map", "Track color map when the raw background is enabled.", 0]],
 					"Background": [CheckBox, ["Raw in Background", "Show the raw acquisition in the background.", True]],
 					"Upscale":    [Combo, ["Background Upscale",
 										   "Method used to enlarge the raw background.",
