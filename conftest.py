@@ -32,7 +32,7 @@ all_tests_monitoring = Monitoring()
 @pytest.fixture
 def fake_qfiledialog(monkeypatch):
 	"""
-	Fixture générique pour simuler QFileDialog.getOpenFileName et QFileDialog.getExistingDirectory sur n'importe quel module Qt qui a importé QFileDialog.
+	Fixture générique pour simuler les principaux sélecteurs de :class:`QFileDialog` sur n'importe quel module Qt qui l'a importé.
 
 	Usage dans un test :
 
@@ -49,12 +49,12 @@ def fake_qfiledialog(monkeypatch):
 	:return: Fabrique configurant les réponses simulées d'un :class:`QFileDialog`.
 	"""
 
-	def _factory(target, filename: str | None, filter_str: str = "TIFF images (*.tif *.tiff)"):
+	def _factory(target, filename: str | list[str] | None, filter_str: str = "TIFF images (*.tif *.tiff)"):
 		"""
 		Configure un faux QFileDialog.<method> dans le module donné.
 
 		:param target: Module Python qui contient le symbole QFileDialog (ex. ``palm_tracer.UI.AlignmentWidget``).
-		:param filename: Chemin complet du fichier à renvoyer. Mettre :obj:`None` pour simuler l'annulation.
+		:param filename: Chemin complet du fichier à renvoyer, liste de chemins pour une sélection multiple ou :obj:`None` pour simuler l'annulation.
 		:param filter_str: Chaîne de filtre à renvoyer avec le filename (optionnel).
 		"""
 
@@ -78,6 +78,20 @@ def fake_qfiledialog(monkeypatch):
 			"""
 			if filename is None: return "", ""  # Cas où l'utilisateur clique sur "Annuler"
 			return filename, filter_str
+
+		def _fake_get_open_file_names(parent=None, caption="", directory="", *args, **kwargs):
+			"""
+			Simule la sélection de plusieurs fichiers à ouvrir.
+
+			:param parent: Widget parent.
+			:param caption: Titre de la boîte de dialogue.
+			:param directory: Dossier initial de la boîte de dialogue.
+			:param args: Arguments positionnels ignorés par le substitut.
+			:param kwargs: Arguments nommés utilisés pour configurer le substitut.
+			:return: Liste des noms de fichiers et filtre simulés.
+			"""
+			if filename is None: return [], ""  # Cas où l'utilisateur clique sur "Annuler"
+			return ([filename] if isinstance(filename, str) else filename), filter_str
 
 		def _fake_get_existing_directory(parent=None, caption="", directory="", *args, **kwargs):
 			"""
@@ -107,8 +121,9 @@ def fake_qfiledialog(monkeypatch):
 			if filename is None: return "", ""  # Cas où l'utilisateur clique sur "Annuler"
 			return filename, filter_str
 
-		# PATCH : on remplace les méthodes getOpenFileName et getExistingDirectory utilisées par ce module
+		# PATCH : on remplace les méthodes de QFileDialog utilisées par ce module
 		monkeypatch.setattr(module.QFileDialog, "getOpenFileName", _fake_get_open_file_name)
+		monkeypatch.setattr(module.QFileDialog, "getOpenFileNames", _fake_get_open_file_names)
 		monkeypatch.setattr(module.QFileDialog, "getSaveFileName", _fake_get_save_file_name)
 		monkeypatch.setattr(module.QFileDialog, "getExistingDirectory", _fake_get_existing_directory)
 

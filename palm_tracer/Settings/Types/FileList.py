@@ -44,7 +44,7 @@ class FileList(BaseSettingType):
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
-		btn_add, btn_rem, btn_clr = QPushButton("+"), QPushButton("-"), QPushButton("Clear")
+		btn_add, btn_rem, btn_clr = QPushButton("Add"), QPushButton("Remove"), QPushButton("Clear")
 		combo: QComboBox = QComboBox()
 
 		ui = BaseUIType(layout=QVBoxLayout(), label=QLabel(self.label), boxes=[btn_add, btn_rem, btn_clr, combo])
@@ -137,12 +137,13 @@ class FileList(BaseSettingType):
 
 	##################################################
 	def add_file(self):
-		"""Ajoute un fichier à la liste via un :class:`QFileDialog`."""
+		"""Ajoute des fichiers à la liste via un :class:`QFileDialog`."""
 		# Déterminer le répertoire initial pour la boîte de dialogue
 		initial_dir = (self._items[-1] if self._items else ".")  # Utiliser le dernier fichier ou le répertoire courant
-		path, _ = QFileDialog.getOpenFileName(None, "Select a file", initial_dir, "All files (*)")
-		if path and Path(path).is_file():
-			self._items.append(path)
+		paths, _ = QFileDialog.getOpenFileNames(None, "Select files", initial_dir, "All files (*)")
+		valid_paths = sorted((path for path in paths if Path(path).is_file()), key=str.casefold)
+		if valid_paths:
+			self._items.extend(valid_paths)
 			self.items = None
 			self.value = len(self._items) - 1
 

@@ -214,6 +214,22 @@ def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
 
 
 ###################################################
+def test_file_list_adds_sorted_batch_without_reordering_existing_items(fake_qfiledialog):
+	"""Vérifie que seul le nouveau lot de fichiers est trié avant son ajout."""
+	existing_items = ["File2", "File1"]
+	selected_paths = [str(INPUT_DIR / "File-02.txt"), str(INPUT_DIR / "File-01.txt")]
+	setting = FileList("Test")
+	setting.items = existing_items.copy()
+
+	fake_qfiledialog(FileList, selected_paths)
+	setting.add_file()
+
+	assert setting.items == [existing_items[0], existing_items[1], selected_paths[1], selected_paths[0]]
+	assert setting.value == len(setting.items) - 1
+	assert setting.current_text == selected_paths[0]
+
+
+###################################################
 def test_check_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckInt("Test", "", 1, [1, 10])
