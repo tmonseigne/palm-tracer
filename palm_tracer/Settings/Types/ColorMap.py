@@ -144,7 +144,7 @@ class ColorMap(Combo):
 		sa dernière couleur.
 
 		:param max_value: Plus grand indice de la table, inclus.
-		:return: Table RGB de forme ``(max_value + 1, 3)`` et de type :class:`numpy.uint8`.
+		:return: Table RGB de forme ``(max_value + 1, 3)`` et de type :class:`~numpy.uint8`.
 		:raises ValueError: Si ``max_value`` est négatif.
 		"""
 		if max_value < 0:
@@ -170,7 +170,11 @@ class ColorMap(Combo):
 	# ==================================================
 	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
-		"""Renvoie le paramètre sans inclure la colormap personnalisée temporaire."""
+		"""
+		Renvoie le paramètre sans inclure la colormap personnalisée temporaire.
+
+		:return: Dictionnaire sérialisable sans la colormap personnalisée temporaire.
+		"""
 		if self._custom_color is None: return super().to_compact_dict()
 
 		custom_index = len(self._items) - 1
