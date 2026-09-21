@@ -98,6 +98,31 @@ def test_tracking(qtbot, f, select_tracks, select_length, active, expected):
 
 
 ##################################################
+@pytest.mark.parametrize("roi_active, limits, expected_tracks", [
+		pytest.param(True, [0, 0], {1}, id="fully-outside"),
+		pytest.param(True, [100, 100], {4}, id="fully-inside"),
+		pytest.param(True, [0, 100], {1, 2, 3, 4}, id="any-occupancy"),
+		pytest.param(True, [20, 80], {2, 3}, id="partially-inside"),
+		pytest.param(True, [0, 99], {1, 2, 3}, id="not-fully-inside"),
+		pytest.param(False, [100, 100], {1, 2, 3, 4}, id="roi-disabled")])
+def test_tracking_time_inside_roi(qtbot, f, roi_active, limits, expected_tracks):
+	"""Vérifie le filtrage des trajectoires selon leur pourcentage de points dans la ROI."""
+	inside = [[5, 5]] * 4
+	outside = [[20, 20]] * 4
+	coordinates = outside + inside[:1] + outside[:3] + inside[:2] + outside[:2] + inside
+	src = pd.DataFrame({"Track": np.repeat([1, 2, 3, 4], 4), "X": [point[0] for point in coordinates], "Y": [point[1] for point in coordinates]})
+	f.rois.set_xy_roi(0, 10, 0, 10, add=False)
+	f.filters["ROI"].active = roi_active
+	f.filters.tracking["Time Inside ROI"].active = True
+	f.filters.tracking["Time Inside ROI"].value = limits
+
+	res = f.tracking(src)
+
+	assert set(res["Track"].unique()) == expected_tracks
+	assert len(res) == 4 * len(expected_tracks)
+
+
+##################################################
 @pytest.mark.parametrize("scenario, expected", [
 		pytest.param("intersection", [47, 9, 9, 9], id="intersection-without-criteria"),
 		pytest.param("filtered", [16, 3, 3, 3], id="active-criteria"),
