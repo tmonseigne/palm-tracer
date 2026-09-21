@@ -1,12 +1,13 @@
 """Teste les différents types de paramètres et leurs interfaces Qt."""
 
 import copy
-from typing import Any, cast, List
+from typing import Any, List, cast
 
 import numpy as np
 import pytest
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QSpinBox, QWidget
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QCheckBox, QColorDialog, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QWidget
 
 from palm_tracer._tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
@@ -173,13 +174,89 @@ def test_color_map(qtbot):
 	setting_base_test(setting, 1, 0)
 	assert setting.items == list(ColorMap.AVAILABLE_MAPS)
 
-	box = cast(QComboBox, setting.get_ui("default").boxes[0])
+	ui = setting.get_ui("default")
+	box = cast(QComboBox, ui.boxes[0])
 	assert box.iconSize() == ColorMap.ICON_SIZE
 	assert all(not box.itemIcon(i).isNull() for i in range(box.count()))
+	assert isinstance(ui.boxes[1], QPushButton)
+	assert not cast(QPushButton, ui.boxes[1]).icon().isNull()
 
 	setting.items = ["viridis", "unknown"]
 	assert not box.itemIcon(0).isNull()
 	assert box.itemIcon(1).isNull()
+	setting.value = 1
+	setting.items = None
+	assert setting.items == ["viridis", "unknown"]
+	assert setting.value == 0
+	assert box.currentIndex() == 0
+
+
+###################################################
+def test_color_map_picker_replaces_temporary_entry(qtbot, monkeypatch):
+	"""Vérifie la création, le remplacement et la non-sérialisation de la colormap personnalisée."""
+	setting = ColorMap("Test", "", 0)
+	ui = setting.get_ui()
+	box = cast(QComboBox, ui.boxes[0])
+	button = cast(QPushButton, ui.boxes[1])
+	colors = iter((QColor(10, 20, 30), QColor(40, 50, 60)))
+	monkeypatch.setattr(QColorDialog, "getColor", staticmethod(lambda *_args, **_kwargs: next(colors)))
+	received: list[int] = []
+	setting.connect(received.append)
+	original_count = len(setting.items)
+
+	button.click()
+	custom_index = original_count
+	assert len(setting.items) == original_count + 1
+	assert setting.value == custom_index
+	assert setting.current_text == "Custom (#0a141e)"
+	assert box.count() == len(setting.items)
+	assert not box.itemIcon(custom_index).isNull()
+	np.testing.assert_array_equal(setting.get_lut(255)[-1], [10, 20, 30])
+
+	button.click()
+	assert len(setting.items) == original_count + 1
+	assert setting.value == custom_index
+	assert setting.current_text == "Custom (#28323c)"
+	np.testing.assert_array_equal(setting.get_lut(255)[-1], [40, 50, 60])
+	assert received == [custom_index, custom_index]
+	assert setting.to_compact_dict() == {"value": setting.default, "items": list(ColorMap.AVAILABLE_MAPS)}
+
+
+###################################################
+def test_color_map_rejects_invalid_custom_color():
+	"""Vérifie qu'une couleur invalide ne crée pas d'entrée personnalisée."""
+	setting = ColorMap()
+	original_items = setting.items.copy()
+
+	setting.set_custom_color(QColor())
+
+	assert setting.items == original_items
+	assert setting.value == setting.default
+
+
+###################################################
+def test_color_map_picker_cancel(qtbot, monkeypatch):
+	"""Vérifie que l'annulation du sélecteur ne modifie pas le paramètre."""
+	setting = ColorMap()
+	button = cast(QPushButton, setting.get_ui().boxes[1])
+	monkeypatch.setattr(QColorDialog, "getColor", staticmethod(lambda *_args, **_kwargs: QColor()))
+	original_items = setting.items.copy()
+
+	button.click()
+
+	assert setting.items == original_items
+	assert setting.value == setting.default
+
+
+###################################################
+def test_color_map_updates_picker_without_button():
+	"""Vérifie la mise à jour défensive d'une interface ne contenant que la liste."""
+	setting = ColorMap()
+	ui = BaseUIType(layout=QHBoxLayout(), boxes=[QComboBox()])
+
+	setting._update_picker_button(ui)
+
+	assert len(ui.boxes) == 1
 
 
 ###################################################
@@ -193,8 +270,7 @@ def test_color_map_get_lut(max_value):
 	assert lut.shape == (expected_max + 1, 3)
 	assert lut.dtype == np.uint8
 	np.testing.assert_array_equal(lut[0], 0)
-	if max_value != 0:
-		assert np.any(lut[1:])
+	if max_value != 0: assert np.any(lut[1:])
 
 
 ###################################################

@@ -756,6 +756,16 @@ def test_finalize_track_stack_rgb(cmap):
 
 
 ##################################################
+def test_finalize_track_stack_rgb_rejects_short_lut():
+	"""Vérifie le rejet d'une LUT qui ne couvre pas toute l'échelle uint16."""
+	volume = np.zeros((1, 1, 1))
+	lut = np.zeros((np.iinfo(np.uint16).max, 3), dtype=np.uint8)
+
+	with pytest.raises(ValueError, match="au moins 65536 couleurs RGB"):
+		Renderer.finalize_track_stack_rgb(volume, volume, volume, lut)
+
+
+##################################################
 @pytest.mark.parametrize("value, expected_value", ((0, 0), (25700, 100)), ids=['black', 'gray'])
 def test_finalize_track_stack_rgb_global_contrast(value, expected_value):
 	"""Étire un brut peu lumineux avec la même échelle sur tous les plans, sans modifier les entrées."""
