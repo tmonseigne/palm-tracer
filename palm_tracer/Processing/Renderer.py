@@ -269,7 +269,7 @@ class Renderer:
 
 	##################################################
 	def track_stack(self, trc: np.ndarray, color_mode: int = 0, bg_color: int = 0, head_size: int = 1, tail_width: int = 1, tail_length: int = -1,
-					fade_type: int = 0, raw: np.ndarray | None = None, upscale_type: int = 0, color_map: str = "viridis") -> np.ndarray:
+					fade_type: int = 0, raw: np.ndarray | None = None, upscale_type: int = 0, color_map: str | np.ndarray = "viridis") -> np.ndarray:
 		"""
 		Construit une séquence de trajectoires entre le premier et le dernier plan observé.
 
@@ -290,7 +290,7 @@ class Renderer:
 		:param raw: Fond brut 3D déjà recadré spatialement sur la ROI, conservant les plans depuis le début de l'acquisition.
 			Une image 2D représente une acquisition à un plan. Le contraste du fond est ajusté sur toute la séquence.
 		:param upscale_type: Agrandissement du fond brut : ``0`` plus proche voisin, ``1`` Lanczos.
-		:param color_map: Colormap des trajectoires pour la sortie RGB ; le raw conserve une représentation en gris.
+		:param color_map: Nom de la colormap ou LUT RGB des trajectoires pour la sortie RGB ; le raw conserve une représentation en gris.
 		:return: Volume ``(plans, hauteur, largeur)`` uint16 sans raw, ou ``(plans, hauteur, largeur, 3)`` uint8 avec raw.
 			Sans point valide, un seul plan scalaire uint16 uniforme de bg_color est retourné, même si raw est fourni.
 			L'indice zéro correspond au premier plan d'acquisition retenu après filtrage spatial.
@@ -431,12 +431,12 @@ class Renderer:
 
 	##################################################
 	@staticmethod
-	def finalize_track_stack_rgb(img: np.ndarray, alpha_mask: np.ndarray, raw: np.ndarray, color_map: str = "viridis") -> np.ndarray:
+	def finalize_track_stack_rgb(img: np.ndarray, alpha_mask: np.ndarray, raw: np.ndarray, color_map: str | np.ndarray = "viridis") -> np.ndarray:
 		"""
 		Compose les trajectoires colorées sur un fond brut en gris, plan par plan.
 
 		Les intensités des trajectoires sont saturées sur l'échelle fixe 0–65535.
-		La LUT de :func:`~palm_tracer.Tools.FileIO.grayscale_to_color` donne la couleur des trajectoires (zéro reste noir).
+		La LUT fournie donne la couleur des trajectoires (zéro reste noir). Un nom de colormap reste accepté et génère la LUT correspondante.
 		Le contraste du raw est étiré entre ses extrema globaux vers 0–255, avec une même échelle pour tous les plans.
 		Un fond constant conserve la conversion fixe 0–65535 vers 0–255 pour éviter une division par zéro.
 		Le gris est recopié sur les trois canaux. Composer ``(1 - alpha) * fond + alpha * couleur``
@@ -445,13 +445,15 @@ class Renderer:
 		:param img: Intensités non prémultipliées, de forme ``(plans, hauteur, largeur)``.
 		:param alpha_mask: Opacités de même forme dans [0, 1].
 		:param raw: Fond déjà recadré temporellement et agrandi, de même forme que img, sur l'échelle uint16.
-		:param color_map: Nom de colormap reconnu par Matplotlib.
+		:param color_map: LUT RGB indexée par l'intensité, ou nom de colormap reconnu par Matplotlib pour compatibilité.
 		:return: Nouveau volume RGB uint8 de forme ``(plans, hauteur, largeur, 3)``.
-		:raises ValueError: Si les trois volumes n'ont pas la même forme 3D.
+		:raises ValueError: Si les trois volumes n'ont pas la même forme 3D ou si la LUT ne couvre pas l'échelle uint16.
 		"""
 		if img.ndim != 3 or alpha_mask.shape != img.shape or raw.shape != img.shape:
 			raise ValueError("Les intensités, l'alpha et le fond doivent avoir la même forme 3D.")
-		lut = FileIO.grayscale_to_color(np.arange(MAX_UI_16 + 1, dtype=np.uint16), color_map)  # Une seule correspondance pour tout le volume
+		lut = FileIO.grayscale_to_color(np.arange(MAX_UI_16 + 1, dtype=np.uint16), color_map) if isinstance(color_map, str) else color_map
+		if lut.ndim != 2 or lut.shape[0] <= MAX_UI_16 or lut.shape[1] != 3:
+			raise ValueError("La LUT doit contenir au moins 65536 couleurs RGB.")
 		# Extrema communs à la séquence, sans copie du volume brut.
 		raw_min = float(np.clip(np.min(raw), 0, MAX_UI_16)) if raw.size else 0.0
 		raw_max = float(np.clip(np.max(raw), 0, MAX_UI_16)) if raw.size else 0.0

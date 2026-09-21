@@ -1,0 +1,138 @@
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst:2
+msgid "ColorMap"
+msgstr ""
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap:1
+msgid "Représente une colormap sélectionnée dans une liste déroulante avec aperçu."
+msgstr "Represents a colormap selected from a drop-down list with a preview."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap:3
+msgid "La liste proposée par défaut centralise les colormaps utilisées par PALM Tracer. Chaque entrée valide pour Matplotlib est accompagnée d'une icône représentant son dégradé."
+msgstr "The default list centralizes the colormaps used by PALM Tracer. Each entry recognized by Matplotlib includes an icon representing its gradient."
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap:6
+msgid "Libellé affiché dans l'interface."
+msgstr "Label displayed in the interface."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap:7
+msgid "Description affichée dans l'infobulle."
+msgstr "Description displayed in the tooltip."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap:8
+msgid "Indice sélectionné par défaut."
+msgstr "Default selected index."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap:9
+msgid "Noms des colormaps proposées."
+msgstr "Names of the available colormaps."
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.AVAILABLE_MAPS:1
+msgid "Colormaps proposées par défaut."
+msgstr "Colormaps available by default."
+
+#: ../../../docstring of
+#: palm_tracer.Settings.Types.ColorMap.ColorMap.ICON_SIZE:1
+msgid "Dimensions de l'aperçu affiché dans la liste."
+msgstr "Dimensions of the preview displayed in the list."
+
+#: ../../../docstring of
+#: palm_tracer.Settings.Types.ColorMap.ColorMap.PICKER_ICON_SIZE:1
+msgid "Dimensions de l'aperçu affiché sur le bouton du sélecteur de couleur."
+msgstr "Dimensions of the preview displayed on the color picker button."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.GRADIENT_STOPS:1
+msgid "Nombre de couleurs échantillonnées pour dessiner un aperçu."
+msgstr "Number of sampled colors used to draw a preview."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.CUSTOM_LABEL:1
+msgid "Préfixe de l'entrée temporaire créée par le sélecteur de couleur."
+msgstr "Prefix of the temporary entry created by the color picker."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.items:1
+msgid "Récupère la liste des éléments."
+msgstr "Returns the list of items."
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst:19
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst:22
+msgid "Accesseurs"
+msgstr "Accessors"
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_ui:1
+msgid "Renvoie une interface existante ou crée une liste déroulante avec les aperçus."
+msgstr "Returns an existing interface or creates a drop-down list with previews."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_ui:3
+msgid "Nom de l'interface dans le dictionnaire."
+msgstr "Interface name in the dictionary."
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_ui:4
+msgid "Interface du paramètre."
+msgstr "Parameter interface."
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst of
+#: palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.set_custom_color:1
+msgid "Crée ou remplace la colormap temporaire allant du noir à la couleur choisie."
+msgstr "Creates or replaces the temporary colormap ranging from black to the selected color."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.set_custom_color:3
+msgid "La colormap est ajoutée en dernière position et immédiatement sélectionnée. Une modification ultérieure remplace cette même entrée sans agrandir la liste."
+msgstr "The colormap is added in the last position and immediately selected. A subsequent change replaces this same entry without extending the list."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.set_custom_color:6
+msgid "Couleur finale du dégradé."
+msgstr "Final gradient color."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_lut:1
+msgid "Construit la table de correspondance RGB de la colormap sélectionnée."
+msgstr "Builds the RGB lookup table for the selected colormap."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_lut:3
+msgid "L'indice zéro reste noir. Les indices suivants échantillonnent uniformément toute la colormap, de sorte que l'indice ``max_value`` corresponde à sa dernière couleur."
+msgstr "Index zero remains black. Subsequent indices uniformly sample the entire colormap, so that index ``max_value`` corresponds to its last color."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_lut:6
+msgid "Plus grand indice de la table, inclus."
+msgstr "Largest table index, inclusive."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_lut:7
+msgid "Table RGB de forme ``(max_value + 1, 3)`` et de type :class:`~numpy.uint8`."
+msgstr "RGB table with shape ``(max_value + 1, 3)`` and type :class:`~numpy.uint8`."
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst
+msgid "Lève"
+msgstr "Raises"
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.get_lut:8
+msgid "Si ``max_value`` est négatif."
+msgstr "If ``max_value`` is negative."
+
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst:29
+msgid "Sérialisation"
+msgstr "Serialization"
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict:1
+msgid "Renvoie le paramètre sans inclure la colormap personnalisée temporaire."
+msgstr "Returns the parameter without including the temporary custom colormap."
+
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict:5
+msgid "Dictionnaire sérialisable sans la colormap personnalisée temporaire."
+msgstr "Serializable dictionary without the temporary custom colormap."

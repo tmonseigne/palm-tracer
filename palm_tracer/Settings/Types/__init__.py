@@ -12,6 +12,7 @@ from .CheckInt import CheckInt
 from .CheckIntSelection import CheckIntSelection
 from .CheckRangeFloat import CheckRangeFloat
 from .CheckRangeInt import CheckRangeInt
+from .ColorMap import ColorMap
 from .Combo import Combo
 from .FileList import FileList
 from .SignalWrapper import SignalWrapper
@@ -20,5 +21,5 @@ from .SpinInt import SpinInt
 
 # Liste des symboles exportés
 __all__ = ["BaseSettingType", "BaseCheckSetting", "BaseUIType", "SignalWrapper",
-		   "BrowseFile", "Button", "ButtonGroup", "CheckBox", "Combo", "FileList", "SpinFloat", "SpinInt",
+		   "BrowseFile", "Button", "ButtonGroup", "CheckBox", "ColorMap", "Combo", "FileList", "SpinFloat", "SpinInt",
 		   "CheckInt", "CheckIntSelection", "CheckRangeFloat", "CheckRangeInt"]
