@@ -459,6 +459,24 @@ class PALMTracerWidget(QWidget):
 			  f"{f'+ {l_filt} filtered ' if l_filt > 0 else ''}"
 			  f"({l_present} on the current frame, {l_past} on the previous frame, {l_future} on the next frame).")
 
+		valid_loc = pres_loc.loc[pres_loc["Integrated Intensity"] > 0]
+		if not valid_loc.empty:
+			if f >= 2:
+				sigma_x = valid_loc["Sigma X"]
+				print(f"Sigma X mean: {sigma_x.mean():.2f}, Sigma X median (robust): {sigma_x.median():.2f}")
+			if f >= 3:
+				sigma_y = valid_loc["Sigma Y"]
+				print(f"Sigma Y mean: {sigma_y.mean():.2f}, Sigma Y median (robust): {sigma_y.median():.2f}")
+			if f == 4:
+				theta = np.deg2rad(valid_loc["Theta"])
+				cos_theta, sin_theta = np.cos(theta), np.sin(theta)
+				cos_mean, sin_mean = np.mean(cos_theta), np.mean(sin_theta)
+				theta_mean = np.rad2deg(np.arctan2(sin_mean, cos_mean))
+				cos_median, sin_median = np.median(cos_theta), np.median(sin_theta)
+				theta_median = np.rad2deg(np.arctan2(sin_median, cos_median))
+				concentration = np.sqrt(sin_mean ** 2 + cos_mean ** 2)
+				print(f"Theta mean: {theta_mean:.2f}°, Theta median (robust): {theta_median:.2f}°, Concentration R: {concentration:.3f}")
+
 		self._add_preview_layers()
 
 	##################################################

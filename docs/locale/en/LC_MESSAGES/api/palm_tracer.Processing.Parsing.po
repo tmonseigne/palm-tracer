@@ -115,7 +115,7 @@ msgstr "Constrains angles within a selected interval, for example with :math:`le
 msgid "\\theta' \\in [-\\frac{\\pi}{2}, \\frac{\\pi}{2}[ \\quad\\quad \\text{and} \\quad\\quad\n\\theta' = (\\theta + \\frac{\\pi}{2}) \\bmod (\\pi) - \\frac{\\pi}{2}\n\n"
 msgstr ""
 
-#: of palm_tracer.Processing.Parsing.manage_theta:8
+#: of palm_tracer.Processing.Parsing.manage_theta:4
 #: palm_tracer.Processing.Parsing.wrap_angle:7
 msgid "Angles en radians."
 msgstr "Angles in radians."
@@ -139,11 +139,7 @@ msgstr "Normalized angles in :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2} [`."
 msgid "Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`). Puis passe des radians aux degrés pour faciliter la lisibilité."
 msgstr "Constrains angles in radians to the interval :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`). Then converts radians to degrees for readability."
 
-#: of palm_tracer.Processing.Parsing.manage_theta:4
-msgid "Définit un theta commun possible en degré de deux méthodes différentes (moyenne et médiane circulaire) ainsi qu'une mesure de la dispersion. Une dispersion R > 0.8 indique une bonne fiabilité de l'orientation, R < 0.5 indique une orientation mal définit."
-msgstr "Defines a possible common theta angle in degrees from two different methods (mean and circular median) as well as a measure of dispersion. A dispersion of R > 0.8 indicates good orientation reliability; R < 0.5 indicates a poorly defined orientation."
-
-#: of palm_tracer.Processing.Parsing.manage_theta:9
+#: of palm_tracer.Processing.Parsing.manage_theta:5
 #, python-brace-format
 msgid "Theta dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[`."
 msgstr "Theta in the interval :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2} [`."

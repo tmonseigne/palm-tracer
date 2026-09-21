@@ -207,7 +207,7 @@ class Palm:
 			res["Id"] = res.index + 1  # .												 1-based comme attendu
 			if fit == 4:  # .															 Ajustement gaussien avec Theta
 				mask = res["Integrated Intensity"] > 0
-				res.loc[mask, "Theta"] = Parsing.manage_theta(res.loc[mask, "Theta"])  # Normalisation de Theta et affichage des statistiques
+				res.loc[mask, "Theta"] = Parsing.manage_theta(res.loc[mask, "Theta"])  # Normalisation de Theta
 
 		return res
 

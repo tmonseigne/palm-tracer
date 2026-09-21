@@ -257,6 +257,30 @@ def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 		w._preview()  # .										Preview simple
 		lines = get_lines_output(capsys)
 		assert "Preview of plane 4 : 142 detected points (46 on the current frame, 48 on the previous frame, 48 on the next frame)." in lines[-1]
+
+		setting["Fit"].value = 1
+		setting["Gaussian Fit"]["Mode"].value = 3
+		w._preview()
+		lines = get_lines_output(capsys)
+		assert lines[-4].startswith("Preview of plane 4 :")
+		assert lines[-3].startswith("Sigma X mean:")
+		assert "Sigma X median (robust):" in lines[-3]
+		assert lines[-2].startswith("Sigma Y mean:")
+		assert "Sigma Y median (robust):" in lines[-2]
+		assert lines[-1].startswith("Theta mean:")
+		assert "Theta median (robust):" in lines[-1]
+		assert "Concentration R:" in lines[-1]
+
+		setting["Gaussian Fit"]["Mode"].value = 0
+		w._preview()
+		lines = get_lines_output(capsys)
+		assert lines[-1].startswith("Preview of plane 4 :")
+
+		setting["Threshold"].value = 1000  # Plus aucune détection
+		w._preview()
+		lines = get_lines_output(capsys)
+		assert lines[-1].startswith("Preview of plane 4 :")
+
 		setting["Preview"].value = False
 		w._preview()
 
