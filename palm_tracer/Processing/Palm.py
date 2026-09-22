@@ -283,7 +283,7 @@ class Palm:
 		return Parsing.parse_result(out[:count], "Tracking")
 
 	##################################################
-	def tracks_compute(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool, is_log: bool,
+	def tracks_compute(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool,
 					   pixel_size: float, exposure_time: float, fit_mode: int, fit_params: np.ndarray) -> dict[str, pd.DataFrame]:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
@@ -292,7 +292,6 @@ class Palm:
 		:param is_msd: Calcul MSD.
 		:param is_ind: Calcul de la diffusion instantanée.
 		:param is_3d: Calcul sur la 3D.
-		:param is_log: Applique un logarithme sur le résultat.
 		:param pixel_size: Taille des pixels en micromètre.
 		:param exposure_time: Calibration temporelle utile pour les calculs.
 		:param fit_mode: Mode d'ajustement.
@@ -323,9 +322,9 @@ class Palm:
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
 								C_UINT(fit_mode), params.ctypes.data_as(C_TAB_DBL))
 
-		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD", is_log)
-		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion", is_log)
-		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", is_log, fit_mode)
+		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD")
+		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion")
+		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", fit_mode)
 		return res
 
 	##################################################

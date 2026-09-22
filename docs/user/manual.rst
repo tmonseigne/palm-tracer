@@ -244,7 +244,6 @@ Cette section permet d'appliquer différents calculs sur les trajectoires recons
    - **Instant Diffusion** : Calcul de la diffusion instantanée par trajectoire et par plans successifs.
    - **Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée.
    - **3D** : Utilisation ou non de la coordonnée Z dans les calculs.
-   - **Log Scale** : Utilisation ou non d'une échelle logarithmique pour les résultats.
    - **Fit** : Méthode d'ajustement du mouvement de la trajectoire.
 
 

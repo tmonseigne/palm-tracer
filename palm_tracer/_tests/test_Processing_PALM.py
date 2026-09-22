@@ -216,16 +216,16 @@ def test_blinking_reconnection_empty():
 
 
 ##################################################
-@pytest.mark.parametrize("p", [True, False], ids=['ind-3d-log-enabled', 'ind-3d-log-disabled'])
+@pytest.mark.parametrize("p", [True, False], ids=['ind-3d-enabled', 'ind-3d-disabled'])
 def test_tracks_compute(p):
-	"""Vérifie les calculs de trajectoires avec ou sans diffusion instantanée, 3D et logarithme."""
+	"""Vérifie les calculs de trajectoires avec ou sans diffusion instantanée et 3D."""
 	palm = Palm()
 	file = "tracking2"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
-		# Test avec ou sans les mises à jour de log et la 3D
-		t_output = palm.tracks_compute(t_input, True, p, p, p, 1, 1, 1, np.array([4], dtype=float))
+		# Test avec ou sans diffusion instantanée et prise en compte de la 3D.
+		t_output = palm.tracks_compute(t_input, True, p, p, 1, 1, 1, np.array([4], dtype=float))
 		for name in ["MSD", "InD", "Fit"]:
 			if t_output[name].empty: continue
 			if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
@@ -250,7 +250,7 @@ def test_tracks_compute_fit_modes(mode):
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
 		# Test sur différents modes d'ajustement.
-		t_output = palm.tracks_compute(t_input, False, False, False, False, 1, 1, mode, np.array([4], dtype=float))
+		t_output = palm.tracks_compute(t_input, False, False, False, 1, 1, mode, np.array([4], dtype=float))
 		for name in ["MSD", "InD", "Fit"]:
 			if t_output[name].empty: continue
 			if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
@@ -278,7 +278,7 @@ def test_tracks_compute_small_inputs(selection, is_msd, fit_length):
 		tracks = pd.read_csv(path)
 		if selection == "first": tracks = tracks.iloc[[0]].copy()
 		if selection == "empty": tracks = pd.DataFrame()
-		palm.tracks_compute(tracks, is_msd, True, False, False, 1, 1, 1, np.array([fit_length], dtype=float))
+		palm.tracks_compute(tracks, is_msd, True, False, 1, 1, 1, np.array([fit_length], dtype=float))
 	else:
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 

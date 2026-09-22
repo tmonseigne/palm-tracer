@@ -272,7 +272,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 
 
 ##################################################
-def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool = False, fit_mode: int = 0) -> pd.DataFrame:
+def parse_result(data: np.ndarray, file_type: str = "Localization", fit_mode: int = 0) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
 
@@ -286,7 +286,6 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 
 	:param data: Données en entrée récupérées depuis la DLL PALM.
 	:param file_type: Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, MSD, Instant diffusion, Fit).
-	:param is_log: Applique un logarithme sur le résultat (si nécessaire, pour les calculs sur trajectoires).
 	:param fit_mode: Mode d'ajustement (si nécessaire, pour les calculs sur trajectoires).
 	:return: :class:`DataFrame <pandas.DataFrame>` parsé.
 	"""
@@ -295,7 +294,6 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 		raise ValueError(f"file_type incorrect.")
 	columns, types = FILES_COLUMNS[file_type]["columns"], FILES_COLUMNS[file_type]["types"]
 	n_columns = len(columns)
-	log_col = []
 
 	if file_type == "Localization" or file_type == "Tracking":
 		# Manipulation du tableau 1D.
@@ -310,18 +308,13 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", is_log: bool
 		res[(res > 0) & (res < TRACKS_COMPUTE_MIN)] = TRACKS_COMPUTE_MIN  # Ramène les petites valeurs positives au minimum autorisé (en conservant les -1).
 		ncols = res.shape[1]
 		if ncols == 0: return pd.DataFrame()
-		if file_type == "MSD" or file_type == "Instant Diffusion":
-			log_col = [f"{columns[1]} {i}" for i in range(1, ncols)]
-			res.columns = [columns[0]] + log_col
+		if file_type == "MSD" or file_type == "Instant Diffusion": res.columns = [columns[0]] + [f"{columns[1]} {i}" for i in range(1, ncols)]
 		else:
 			# Les colonnes dépendent de l'ajustement.
-			log_col = columns[2:]
 			if not 1 <= fit_mode <= 3:
 				raise ValueError(f"fit_mode doit être entre 1 et 3 : reçu {fit_mode}.")
-			log_col += FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
-			res.columns = columns[:2] + log_col
+			res.columns = columns + FILES_COLUMNS[f"Fit_{fit_mode}"]["columns"]
 
-	if is_log and log_col: res = log10_dataframe(res, log_col)  # Mise à jour en fonction de la mise à l'échelle du Log.
 	apply_dataframe_type(res, types)
 	return res
 # ==================================================

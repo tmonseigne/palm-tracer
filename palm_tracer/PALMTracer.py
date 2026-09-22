@@ -500,7 +500,7 @@ class PALMTracer:
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
+		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
