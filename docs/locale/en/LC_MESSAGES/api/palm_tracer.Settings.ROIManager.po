@@ -174,6 +174,22 @@ msgstr "Positions x_min, x_max, y_min, y_max."
 msgid "Type renvoyé"
 msgstr "Return type"
 
+#: of palm_tracer.Settings.ROIManager.ROIManager.get_hr_limits:1
+msgid "Détermine le cadre spatial du rendu haute résolution."
+msgstr "Determines the spatial bounds of the high-resolution rendering."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.get_hr_limits:3
+msgid "Une absence de filtre correspond au rendu des localisations. Pour les trajectoires, seule la sélection ``[0, 0]`` représente une ROI d'exclusion et impose le champ complet. Les autres plages restent cadrées sur la ROI ; les portions extérieures des trajectoires traversantes sont recadrées par le renderer."
+msgstr "No filter corresponds to localization rendering. For tracks, only the ``[0, 0]`` selection represents an exclusion ROI and requires the full field of view. Other ranges remain framed to the ROI; portions of crossing tracks that lie outside it are clipped by the renderer."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.get_hr_limits:7
+msgid "Filtre du pourcentage de temps passé dans la ROI, ou ``None`` pour les localisations."
+msgstr "Filter for the percentage of time spent inside the ROI, or ``None`` for localizations."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.get_hr_limits:8
+msgid "Limites ``x_min, x_max, y_min, y_max`` du rendu."
+msgstr "Rendering bounds ``x_min, x_max, y_min, y_max``."
+
 #: of palm_tracer.Settings.ROIManager.ROIManager.update_hr_box:1
 msgid "Met à jour la bounding box actuelle de la génération Haute résolution."
 msgstr "Updates the current bounding box for high-resolution generation."

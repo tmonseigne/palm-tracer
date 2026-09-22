@@ -8,17 +8,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import cast, Optional
+from typing import Optional, cast
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
 from palm_tracer.Processing import Drift, Filtering, Gallery, Grapher, Palm, Parsing, Renderer
-from palm_tracer.Processing.Step import prepare_step_action, Step, StepAction
+from palm_tracer.Processing.Step import Step, StepAction, prepare_step_action
 from palm_tracer.Results import Results
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Types import ColorMap, Combo, FileList
+from palm_tracer.Settings.Types import CheckRangeInt, ColorMap, Combo, FileList
 from palm_tracer.Tools import FileIO, Logger, Ui
 
 MAX_UI_16 = np.iinfo(np.uint16).max
@@ -761,69 +761,110 @@ class PALMTracer:
 		upscale, color_scaling = s["Ratio"].value, s["Scaling"].value
 		color_mode = 0 if src == "Count" else s["Color mode"].value  # .	La source Count impose le mode cumulatif.
 		bg_color = round(s["Background"].value * MAX_UI_16 / 100)  # .		Conversion du pourcentage en intensité uint16.
-		x0, x1, y0, y1 = self.settings.rois.get_roi_limits()
+		dimension, tracks = s["Dimension"].value, s["Type"].value == 1
+		time_filter = cast(CheckRangeInt, self.settings.filters.tracking["Time Inside ROI"]) if tracks else None
+		limits = self.settings.rois.get_hr_limits(time_filter)
+		x0, x1, y0, y1 = limits
 		n_w, n_h = x1 - x0, y1 - y0
 		self._renderer.set_size(n_w, n_h, upscale)
 
+		viz_data, plot_data, uniform_z_step = self._prepare_hr_data(tracks, dimension, src, color_scaling, upscale, limits)
+		if viz_data is None: return viz, plot_data
+
 		# --- Localisations ---
-		if s["Type"].value == 0:
-			df = self.results.localizations.copy()
-			if s["Remove Beads"].value: df = Drift.remove_beads(df, self.results.beads)
-			df = self._correct_drift(df)
-			if df.empty: return viz, plot_data
-			df = self._renderer.add_colors_to_localizations(df, src)
-			df["Color"] *= color_scaling  # .								Mise à l'echelle de l'intensité de la couleur.
+		if not tracks:
 			gaussian = s.gaussian.settings if s.gaussian.active else None
-			df["X"] -= x0  # .												Ajustement à la ROI sur X
-			df["Y"] -= y0  # .												Ajustement à la ROI sur Y
-			df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # .	Sélection dans les bornes
-
-			if s["Dimension"].value == 0:  # .																			--- Rendu 2D ---
-				viz_data = df[["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=float)  # .			Récupération
-				plot_data = df[["Y", "X"]].to_numpy() * upscale  # .													Mise à l'échelle des X et Y.
-				plot_data = np.column_stack((np.zeros((plot_data.shape[0], 1), dtype=plot_data.dtype), plot_data))
+			if dimension == 0:  # .	-- Rendu 2D --
 				viz = self._renderer.localizations(viz_data, color_mode, bg_color, gaussian)
-			else:  # .																									--- Rendu 3D ---
-				viz_data = df[["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]].to_numpy(dtype=float)  # .		Récupération
-				uniform_z_step = self._get_uniform_z_step()
-				plot_data = df[["Z", "Y", "X"]].to_numpy(copy=True)
-				z_min = np.nanmin(plot_data[:, 0])
-				# On n'a pas besoin de les caster en entier, Napari n'est pas trop bête et si l'utilisateur passe en vue 3D, il aura les Z flottants.
-				plot_data[:, 0] = (plot_data[:, 0] - z_min) / uniform_z_step
-				plot_data[:, 1:] *= upscale  # .																		Mise à l'échelle des X et Y.
-				if s["Dimension"].value == 1:  # .																		--- Rendu Z Stack ---
-					z_step = s.hr_3d["Z Step"].value
-					viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, bg_color, gaussian)
-				else:  # .																								--- Rendu 3D Rotation ---
-					frames, axis = s.hr_3d["Frames"].value, s.hr_3d["Axis"].value
-					viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, bg_color, gaussian)
-
+			elif dimension == 1:  # -- Rendu Z Stack --
+				z_step = s.hr_3d["Z Step"].value
+				viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, bg_color, gaussian)
+			else:  # .				-- Rendu 3D Rotation --
+				frames, axis = s.hr_3d["Frames"].value, s.hr_3d["Axis"].value
+				viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, bg_color, gaussian)
 			return viz, plot_data
 
 		# --- Tracks ---
-		df = self._correct_drift(self.results.tracks.copy())
-		if df.empty: return viz, plot_data
-		df = self._renderer.add_colors_to_tracks(df, src)
-		df["Color"] *= color_scaling  # .							  Mise à l'echelle de l'intensité de la couleur.
-		df["X"] -= x0  # Ajustement à la ROI sur X
-		df["Y"] -= y0  # Ajustement à la ROI sur Y
-		df = df[df["X"].between(0, n_w) & df["Y"].between(0, n_h)]  # Sélection dans les bornes
-		df = df[["Track", "Plane", "X", "Y", "Color"]].to_numpy(dtype=float)
-		plot_data = df[:, [0, 1, 3, 2]]
-		plot_data[:, [2, 3]] *= upscale
-		if s["Dimension"].value == 3:
+		if dimension == 3:
+			first_plane = int(np.min(viz_data[:, 1]))
 			st = s.track_stack
 			raw = self._stack[:, y0:y1, x0:x1] if st["Background"].value else None
 			head_size, tail_width, tail_length = st["Head"].value, st["Width"].value, st["Length"].value
 			fade_type, upscale_type, color_lut = st["Fade"].value, st["Upscale"].value, cast(ColorMap, st["Map"]).get_lut()
-			viz = self._renderer.track_stack(df, color_mode, bg_color, head_size, tail_width, tail_length, fade_type, raw, upscale_type, color_lut)
-			# Aligne les trajectoires Napari sur le premier plan retenu par le renderer après arrondi spatial.
-			coords = np.round(plot_data[:, 2:])
-			valid = (coords[:, 0] >= 0) & (coords[:, 0] < n_h * upscale) & (coords[:, 1] >= 0) & (coords[:, 1] < n_w * upscale)
+			viz = self._renderer.track_stack(viz_data, color_mode, bg_color, head_size, tail_width, tail_length, fade_type, raw, upscale_type, color_lut)
+			# Aligne les trajectoires Napari sur le premier plan retenu par le renderer.
+			if plot_data.shape[0] > 0: plot_data[:, 1] -= first_plane
+			return viz, plot_data
+
+		return self._renderer.tracks(viz_data, color_mode, bg_color), plot_data
+
+	##################################################
+	def _prepare_hr_data(self, tracks: bool, dimension: int, source: str, color_scaling: float, upscale: float,
+						 limits: tuple[int, int, int, int]) -> tuple[Optional[np.ndarray], np.ndarray, float]:
+		"""
+		Prépare les données du rendu et du calque Napari haute résolution.
+
+		Les trajectoires conservent leurs points extérieurs dans les données de rendu afin que les segments traversant la ROI soient correctement recadrés.
+		Seules les coordonnées transmises au calque Napari sont limitées à la zone affichée.
+
+		:param tracks: True pour préparer des trajectoires, False pour préparer des localisations.
+		:param dimension: Type de rendu demandé.
+		:param source: Source utilisée pour calculer la couleur.
+		:param color_scaling: Facteur appliqué à l'intensité de la couleur.
+		:param upscale: Facteur d'agrandissement spatial.
+		:param limits: Limites du rendu sous la forme ``(x_min, x_max, y_min, y_max)``.
+		:return: Données éventuelles du renderer, données du calque Napari et pas uniforme sur Z.
+		"""
+		# Initialisation du dataframe.
+		df = self.results.tracks.copy() if tracks else self.results.localizations.copy()
+		if self.settings.hr["Remove Beads"].value: df = Drift.remove_beads(df, self.results.beads)
+		df = self._correct_drift(df)
+		if df.empty: return None, np.zeros((1, 1), dtype=float), 0.0
+
+		# Ajout de la couleur.
+		if tracks: df = self._renderer.add_colors_to_tracks(df, source)
+		else: df = self._renderer.add_colors_to_localizations(df, source)
+		df["Color"] *= color_scaling
+
+		# Ajustement à la ROI
+		x0, x1, y0, y1 = limits
+		width, height = x1 - x0, y1 - y0
+		df["X"] -= x0
+		df["Y"] -= y0
+		if not tracks: df = df[df["X"].between(0, width) & df["Y"].between(0, height)]
+
+		# Définition des éléments à récupérer.
+		uniform_z_step = 0.0
+		if tracks:  # .			-- Rendu de Trajectoires (2D et Track Stack). --
+			viz_columns = ["Track", "Plane", "X", "Y", "Color"]
+			plot_columns = ["Track", "Plane", "Y", "X"]
+		elif dimension == 0:  # -- Rendu 2D. --
+			viz_columns = ["X", "Y", "Color", "Sigma X", "Sigma Y", "Theta"]
+			plot_columns = ["Y", "X"]
+		else:  # .				-- Rendu 3D (Z Stack et 3D Rotation). --
+			viz_columns = ["X", "Y", "Z", "Color", "Sigma X", "Sigma Y", "Theta"]
+			plot_columns = ["Z", "Y", "X"]
+			uniform_z_step = self._get_uniform_z_step()
+
+		# Récupération des éléments.
+		viz_data = df[viz_columns].to_numpy(dtype=float)
+		plot_data = df[plot_columns].to_numpy(dtype=float, copy=True)
+		y_index, x_index = plot_columns.index("Y"), plot_columns.index("X")
+		plot_data[:, [y_index, x_index]] *= upscale
+
+		# Mise à jour pour l'affichage Napari.
+		if tracks:
+			# Le renderer conserve les extrémités extérieures, tandis que le calque Napari reste limité à l'image affichée.
+			coords = np.round(plot_data[:, [y_index, x_index]])
+			valid = (coords[:, 0] >= 0) & (coords[:, 0] <= height * upscale) & (coords[:, 1] >= 0) & (coords[:, 1] <= width * upscale)
 			plot_data = plot_data[valid]
-			if plot_data.shape[0] > 0: plot_data[:, 1] -= int(plot_data[:, 1].min())
-		else: viz = self._renderer.tracks(df, color_mode, bg_color)
-		return viz, plot_data
+		elif dimension == 0:
+			plot_data = np.column_stack((np.zeros(plot_data.shape[0], dtype=plot_data.dtype), plot_data))
+		elif plot_data.shape[0] > 0:
+			z_index = plot_columns.index("Z")
+			plot_data[:, z_index] = (plot_data[:, z_index] - np.nanmin(plot_data[:, z_index])) / uniform_z_step
+
+		return viz_data, plot_data, uniform_z_step
 
 	##################################################
 	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:

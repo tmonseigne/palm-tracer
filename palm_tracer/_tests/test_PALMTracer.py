@@ -685,7 +685,7 @@ def test_process_all(capsys, pt):
 	pt.process()
 
 	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[1], html=[1])
-	check_capsys(capsys, 27, [5, 8, 10, 12, 14, 19, 21, 23])
+	check_capsys(capsys, 26, [5, 7, 9, 11, 13, 18, 20, 22])
 
 
 ##################################################
@@ -1164,6 +1164,49 @@ def test_hr_filter():
 
 
 ##################################################
+def test_hr_track_crossing_roi():
+	"""Trace depuis le bord de la ROI un segment dont le premier point est extérieur."""
+	pt = PALMTracer()
+	pt._stack = np.zeros((2, 5, 5), dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
+	pt.settings.rois.set_xy_roi(1, 4, 0, 5, add=False)
+	pt.settings.filters["ROI"].active = True
+	pt.results["trc"] = pd.DataFrame([[1, 1, 0, 2, 100], [1, 2, 2, 2, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	s = pt.settings.hr
+	s["Type"].value = 1
+	s["Ratio"].value = 1
+	s["Drift Correction"].value = False
+
+	viz, plot = pt.hr()
+
+	ref = np.zeros((5, 3), dtype=np.uint16)
+	ref[2, 0:2] = 1
+	np.testing.assert_array_equal(viz, ref)
+	np.testing.assert_array_equal(plot, [[1, 2, 2, 1]])
+
+
+##################################################
+def test_hr_empty_roi_3d():
+	"""Génère un volume vide aux dimensions de la ROI lorsqu'elle ne contient aucune localisation."""
+	pt = get_fake_pt()
+	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
+	pt.settings.rois.set_xy_roi(0, 1, 0, 1, add=False)
+	pt.settings.filters["ROI"].active = True
+	s = pt.settings.hr
+	s["Dimension"].value = 1
+	s["Ratio"].value = 2
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+
+	viz, plot = pt.hr()
+
+	assert viz.shape == (1, 2, 2)
+	assert plot.shape == (0, 3)
+	assert not np.any(viz)
+
+
+##################################################
 def test_hr_z_stack():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1360,15 +1403,15 @@ def test_hr_track_stack(monkeypatch, background, color_mode):
 	for key, value in {"Head": 3, "Width": 2, "Length": 2, "Fade": 1, "Map": 1, "Background": background, "Upscale": 1}.items(): options[key].value = value
 
 	viz, plot = pt.hr()
-	assert viz.shape == ((3, 10, 10, 3) if background else (3, 10, 10))
+	assert viz.shape == ((5, 10, 10, 3) if background else (5, 10, 10))
 	assert viz.dtype == (np.uint8 if background else np.uint16)
-	np.testing.assert_array_equal(plot, [[1, 0, 2, 2], [1, 2, 4, 4]])
+	np.testing.assert_array_equal(plot, [[1, 0, 2, 9.8], [1, 2, 2, 2], [1, 4, 4, 4]])
 	# Compare le pipeline à un rendu direct des coordonnées et options attendues.
 	reference = pt._renderer.track_stack(np.array([[1, 1, 4.9, 1, 2], [1, 3, 1, 1, 2], [1, 5, 2, 2, 2]], dtype=float),
 										 color_mode, 13107, 3, 2, 2, 1, pt._stack[:, 1:6, 2:7] if background else None, 1, "magma")
 	np.testing.assert_array_equal(viz, reference)
-	if background: np.testing.assert_array_equal(viz[:, 9, 9], np.full((3, 3), 100, dtype=np.uint8))
-	else: np.testing.assert_array_equal(viz[:, 9, 9], [13107] * 3)
+	if background: np.testing.assert_array_equal(viz[:, 9, 9], np.full((5, 3), 100, dtype=np.uint8))
+	else: np.testing.assert_array_equal(viz[:, 9, 9], [13107] * 5)
 	pd.testing.assert_frame_equal(pt.results.tracks, original)
 	assert pt.output_viz_name().suffix == ".tif"
 	assert "visualization_track_stack_tracks" in pt.output_viz_name().name
@@ -1380,13 +1423,44 @@ def test_hr_track_stack_empty_roi():
 	pt = PALMTracer()
 	pt._stack = np.zeros((3, 5, 5), dtype=np.uint16)
 	pt.settings.rois.set_size(5, 5)
-	pt.results["trc"] = pd.DataFrame([[1, 2, 5, 5, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	pt.results["trc"] = pd.DataFrame([[1, 2, 6, 6, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
 	pt.settings.hr["Dimension"].value = 3
 	pt.settings.hr["Ratio"].value = 1
 	viz, plot = pt.hr()
 	assert viz.shape == (1, 5, 5)
 	assert plot.shape == (0, 4)
 	assert not np.any(viz)
+
+
+##################################################
+@pytest.mark.parametrize("raw_background, background_color, expected_shape", [
+		pytest.param(False, 20, (2, 3, 3), id="uniform-background"),
+		pytest.param(True, 0, (2, 3, 3, 3), id="raw-background"),
+		pytest.param(False, 0, (2, 1, 2), id="black-background")])
+def test_hr_track_stack_crop_background(raw_background, background_color, expected_shape):
+	"""Caractérise l'autocrop d'un track stack déjà recadré sur une ROI, selon son fond."""
+	pt = PALMTracer()
+	pt._stack = np.full((2, 5, 5), 25700, dtype=np.uint16)
+	pt.settings.rois.set_size(5, 5)
+	pt.settings.rois.set_xy_roi(1, 4, 1, 4, add=False)
+	pt.settings.filters["ROI"].active = True
+	pt.results["trc"] = pd.DataFrame([[1, 1, 1, 2, 100], [1, 2, 2, 2, 100]],
+										 columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+	s = pt.settings.hr
+	s["Dimension"].value = 3
+	s["Ratio"].value = 1
+	s["Background"].value = background_color
+	s["Drift Correction"].value = False
+	s.track_stack["Head"].value = 1
+	s.track_stack["Width"].value = 1
+	s.track_stack["Length"].value = -1
+	s.track_stack["Background"].value = raw_background
+
+	viz, _ = pt.hr()
+	cropped = pt.crop(viz, margin=0)
+
+	assert viz.shape == ((2, 3, 3, 3) if raw_background else (2, 3, 3))
+	assert cropped.shape == expected_shape
 
 
 ##################################################
