@@ -96,15 +96,27 @@ def test_dataframe_status(original_count, filtered_count, prefix, expected):
 
 
 ##################################################
+def test_dataframe_status_counts_unique_tracks():
+	"""Vérifie que le statut compte les trajectoires et non leurs points."""
+	original = pd.DataFrame({"Track": [1, 1, 2, 2, 2, 3], "X": [0, 1, 2, 3, 4, 5], "Y": [5, 4, 3, 2, 1, 0]})
+	filtered = pd.DataFrame({"Track": [1, 1, 3], "X": [0, 1, 5], "Y": [5, 4, 0]})
+
+	status = Results.get_df_status(original, filtered, "tracks")
+
+	assert status == "Yes Filtered (2/3 tracks)"
+
+
+##################################################
 def test_status(results):
 	"""Vérifie exactement l'ensemble des statuts dans chaque configuration."""
-	expected = {"File":          "No File",
-				"Localizations": "No",
-				"Beads":         "No",
-				"Tracks":        "No",
-				"MSD":           "No",
-				"Instant D":     "No",
-				"MSD Fit":       "No"}
+	expected = {"File":               "No File",
+				"Localizations":      "No",
+				"Beads":              "No",
+				"Tracks":             "No",
+				"Tracks Reconnected": "No",
+				"MSD":                "No",
+				"Instant D":          "No",
+				"MSD Fit":            "No"}
 	assert results.get_status() == expected
 
 	results._stack_name = "stack.tif"
@@ -113,29 +125,31 @@ def test_status(results):
 	for key in ("f_loc", "f_trc", "f_blk", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = make_dataframe(2)
 
-	expected = {"File":          "stack.tif",
-				"Localizations": "Yes Filtered (2/1 localizations)",
-				"Beads":         "Yes (1 localizations)",
-				"Tracks":        "Yes Reconnected Filtered (2/1 tracks)",
-				"MSD":           "Yes Filtered (2/1 tracks)",
-				"Instant D":     "Yes Filtered (2/1 tracks)",
-				"MSD Fit":       "Yes Filtered (2/1 tracks)"}
+	expected = {"File":               "stack.tif",
+				"Localizations":      "Yes Filtered (2/1 localizations)",
+				"Beads":              "Yes (1 localizations)",
+				"Tracks":             "Yes Filtered (2/1 tracks)",
+				"Tracks Reconnected": "Yes Filtered (2/1 tracks)",
+				"MSD":                "Yes Filtered (2/1 tracks)",
+				"Instant D":          "Yes Filtered (2/1 tracks)",
+				"MSD Fit":            "Yes Filtered (2/1 tracks)"}
 	assert results.get_status() == expected
 
 	results._data["f_blk"] = pd.DataFrame()
-	expected["Tracks"] = "Yes Reconnected (1 tracks)"
+	expected["Tracks Reconnected"] = "Yes (1 tracks)"
 	assert results.get_status() == expected
 
 	for key in ("f_loc", "f_trc", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = pd.DataFrame()
 	results._data["blk"] = pd.DataFrame()
-	expected = {"File":          "stack.tif",
-				"Localizations": "Yes (1 localizations)",
-				"Beads":         "Yes (1 localizations)",
-				"Tracks":        "Yes (1 tracks)",
-				"MSD":           "Yes (1 tracks)",
-				"Instant D":     "Yes (1 tracks)",
-				"MSD Fit":       "Yes (1 tracks)"}
+	expected = {"File":               "stack.tif",
+				"Localizations":      "Yes (1 localizations)",
+				"Beads":              "Yes (1 localizations)",
+				"Tracks":             "Yes (1 tracks)",
+				"Tracks Reconnected": "No",
+				"MSD":                "Yes (1 tracks)",
+				"Instant D":          "Yes (1 tracks)",
+				"MSD Fit":            "Yes (1 tracks)"}
 	assert results.get_status() == expected
 
 
@@ -226,9 +240,13 @@ def test_interfaces(results, qtbot):
 
 	results.stack_name = "stack.tif"
 	results["loc"] = make_dataframe(2)
+	results["trc"] = pd.DataFrame({"Track": [1, 1, 2]})
+	results["blk"] = pd.DataFrame({"Track": [1, 1]})
 	for ui in (first_ui, second_ui):
 		assert ui._labels["File"].text() == "stack.tif"
 		assert ui._labels["Localizations"].text() == "Yes (2 localizations)"
+		assert ui._labels["Tracks"].text() == "Yes (2 tracks)"
+		assert ui._labels["Tracks Reconnected"].text() == "Yes (1 tracks)"
 
 	results.clean_ui("first")
 	results.clean_ui("unknown")

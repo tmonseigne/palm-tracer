@@ -217,17 +217,14 @@ class Results:
 
 		:return: Statuts indexés par catégorie de résultat.
 		"""
-		res = {"File":          self.stack_name if self._stack_name else "No File",
-			   "Localizations": self.get_df_status(self._data["loc"], self._data["f_loc"], "localizations"),
-			   "Beads":         self.get_df_status(self._data["bds"], self._data["bds"], "localizations"),
-			   "Tracks":        self.get_df_status(self._data["trc"], self._data["f_trc"], "tracks"),
-			   "MSD":           self.get_df_status(self._data["MSD"], self._data["f_MSD"], "tracks"),
-			   "Instant D":     self.get_df_status(self._data["InD"], self._data["f_InD"], "tracks"),
-			   "MSD Fit":       self.get_df_status(self._data["Fit"], self._data["f_Fit"], "tracks")}
-
-		# Remplace le statut des trajectoires lorsqu'une version reconnectée est disponible.
-		blk = self.get_df_status(self._data["blk"], self._data["f_blk"], "tracks", "Reconnected")
-		if blk != "No": res["Tracks"] = blk
+		res = {"File":               self.stack_name if self._stack_name else "No File",
+			   "Localizations":      self.get_df_status(self._data["loc"], self._data["f_loc"], "localizations"),
+			   "Beads":              self.get_df_status(self._data["bds"], self._data["bds"], "localizations"),
+			   "Tracks":             self.get_df_status(self._data["trc"], self._data["f_trc"], "tracks"),
+			   "Tracks Reconnected": self.get_df_status(self._data["blk"], self._data["f_blk"], "tracks"),
+			   "MSD":                self.get_df_status(self._data["MSD"], self._data["f_MSD"], "tracks"),
+			   "Instant D":          self.get_df_status(self._data["InD"], self._data["f_InD"], "tracks"),
+			   "MSD Fit":            self.get_df_status(self._data["Fit"], self._data["f_Fit"], "tracks")}
 
 		return res
 
@@ -237,13 +234,17 @@ class Results:
 		"""
 		Construit le statut d'un résultat à partir de ses versions initiale et filtrée.
 
+		En présence d'une colonne ``Track``, les identifiants de trajectoire distincts et non nuls sont comptés ;
+		sinon, le nombre de lignes est utilisé.
+
 		:param original: DataFrame initial.
 		:param filtered: DataFrame filtré.
 		:param name: Nom du type de données, par exemple ``localizations`` ou ``tracks``.
 		:param pre: Qualificatif ajouté au statut, par exemple ``Reconnected``.
 		:return: Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage.
 		"""
-		n_init, n_filt = len(original), len(filtered)
+		n_init = original["Track"].nunique() if "Track" in original.columns else len(original)
+		n_filt = filtered["Track"].nunique() if "Track" in filtered.columns else len(filtered)
 		yes = f"Yes {pre}" if pre else "Yes"
 
 		if n_init == 0: return "No"
