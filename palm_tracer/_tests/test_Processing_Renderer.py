@@ -193,10 +193,21 @@ def test_tracks():
 	res = r.tracks(trc)
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
 
-	# Points hors limites
-	trc = np.array([[1, 1, 10, 2, 100], [1, 2, 2, 10, 100], ], dtype=float)
+	# Tableau vide de forme valide
+	res = r.tracks(np.empty((0, 5)), bg_color=17)
+	np.testing.assert_array_equal(res, np.full((20, 10), 17, dtype=np.uint16))
+
+	# Segment entièrement hors limites
+	trc = np.array([[1, 1, 10, 2, 100], [1, 2, 11, 10, 100]], dtype=float)
 	res = r.tracks(trc)
 	assert res.shape == (20, 10) and np.count_nonzero(res) == 0
+
+	# Segment traversant le rendu avec deux extrémités hors limites
+	trc = np.array([[1, 1, -1, 5, 100], [1, 2, 6, 5, 100]], dtype=float)
+	res = r.tracks(trc)
+	ref = np.zeros((20, 10), dtype=np.uint16)
+	ref[10, :] = 100
+	np.testing.assert_array_equal(res, ref)
 
 	# Single point
 	trc = np.array([[1, 7, 2, 3, 50], ], dtype=float)
@@ -270,13 +281,12 @@ def test_z_stack():
 	np.testing.assert_array_equal(res, ref)
 
 	# Z dans [-40 ; +40]
-	loc = np.array([
-			[1, 1, -40, 10],  # Plan 0
-			[2, 1, -20, 20],  # Plan 1
-			[3, 1, +00, 30],  # Plan 2
-			[4, 1, +20, 40],  # Plan 3
-			[1, 2, +40, 50],  # Plan 4
-			], dtype=float)
+	loc = np.array([[1, 1, -40, 10],  # Plan 0
+					[2, 1, -20, 20],  # Plan 1
+					[3, 1, +00, 30],  # Plan 2
+					[4, 1, +20, 40],  # Plan 3
+					[1, 2, +40, 50],  # Plan 4
+					], dtype=float)
 
 	res = r.z_stack(loc, color_mode=0, z_step=20)
 	ref = np.zeros((5, 20, 10), dtype=np.uint16)
@@ -497,6 +507,20 @@ def test_track_stack_timeline():
 
 
 ##################################################
+def test_track_stack_crossing_bounds():
+	"""Conserve et recadre un segment animé dont les deux extrémités sont hors du rendu."""
+	r = Renderer()
+	r.set_size(5, 3, 1)
+	track = np.array([[1, 10, -2, 1, 100], [1, 11, 7, 1, 100]], dtype=float)
+
+	res = r.track_stack(track, bg_color=20, tail_length=-1)
+
+	ref = np.full((2, 3, 5), 20, dtype=np.uint16)
+	ref[1, 1, :] = 100
+	np.testing.assert_array_equal(res, ref)
+
+
+##################################################
 @pytest.mark.parametrize("data", (np.empty((0, 5)), np.zeros(5), np.zeros((1, 4)), np.array([[1, 4, -5, -5, 20]])),
 						 ids=['empty', '1d-array', 'missing-column', 'out-of-bounds'])
 def test_track_stack_empty_and_scale(data):
@@ -665,8 +689,7 @@ def test_finalize_track_stack_empty_background(initial, background, expected):
 	"""Vérifie les fonds sans contribution et l'absence de calcul invalide avec les infinis d'initialisation."""
 	img = np.full((2, 3, 4), initial, dtype=float)
 	alpha = np.zeros_like(img)
-	with np.errstate(all='raise'):
-		res = Renderer.finalize_track_stack(img, alpha, background)
+	with np.errstate(all='raise'): res = Renderer.finalize_track_stack(img, alpha, background)
 	np.testing.assert_array_equal(res, np.full(img.shape, expected, dtype=np.uint16))
 	np.testing.assert_array_equal(alpha, 0)
 
@@ -1003,7 +1026,7 @@ def test_prepare_localizations():
 
 ##################################################
 def test_prepare_tracks():
-	"""Vérifie les plans, les arrondis, le filtrage et les tranches de trajectoires sans copie."""
+	"""Vérifie les plans, les arrondis, la conservation des points extérieurs et les tranches de trajectoires sans copie."""
 	r = Renderer()
 	r.set_size(5, 10, 2)
 	tracks = np.array([[1, 3, 1.2, 2.6, 10.5], [1, 7, 4.0, 3.0, 20.5],
@@ -1012,10 +1035,10 @@ def test_prepare_tracks():
 					   [4, 2, 2.0, 1.0, 70.5], [4, 5, 3.0, 2.0, 80.5]], dtype=float)
 	original = tracks.copy()
 	track_ids, coords, colors, bounds = r.prepare_tracks(tracks)
-	np.testing.assert_array_equal(track_ids, [1, 3, 4])
-	np.testing.assert_array_equal(coords, [[3, 2, 5], [7, 8, 6], [8, 0, 0], [2, 4, 2], [5, 6, 4]])
-	np.testing.assert_array_equal(colors, [10.5, 20.5, 60.5, 70.5, 80.5])
-	np.testing.assert_array_equal(bounds, [0, 2, 3, 5])
+	np.testing.assert_array_equal(track_ids, [1, 2, 3, 4])
+	np.testing.assert_array_equal(coords, [[3, 2, 5], [7, 8, 6], [1, -2, 4], [2, 6, 22], [4, 10, 2], [8, 0, 0], [2, 4, 2], [5, 6, 4]])
+	np.testing.assert_array_equal(colors, [10.5, 20.5, 30.5, 40.5, 50.5, 60.5, 70.5, 80.5])
+	np.testing.assert_array_equal(bounds, [0, 2, 4, 6, 8])
 	np.testing.assert_array_equal(tracks, original)
 	assert track_ids.dtype == int
 	assert coords.dtype == int and bounds.dtype == int
@@ -1026,12 +1049,11 @@ def test_prepare_tracks():
 
 
 ##################################################
-@pytest.mark.parametrize("data", (np.empty((0, 5)), np.array([[1, 3, -1, 0, 10]])), ids=['empty-data', 'out-of-bounds'])
-def test_prepare_tracks_empty(data):
-	"""Vérifie les entrées vides, entièrement filtrées et de forme invalide."""
+def test_prepare_tracks_empty():
+	"""Vérifie une entrée vide."""
 	r = Renderer()
 	r.set_size(5, 10, 2)
-	track_ids, coords, colors, bounds = r.prepare_tracks(data)
+	track_ids, coords, colors, bounds = r.prepare_tracks(np.empty((0, 5)))
 	assert track_ids.shape == (0,) and coords.shape == (0, 3) and colors.shape == (0,)
 	np.testing.assert_array_equal(bounds, [0])
 
@@ -1666,6 +1688,27 @@ def test_draw_track_heads_preserve_interior():
 # ==================================================
 # region Rendus spéciaux
 # ==================================================
+##################################################
+def test_renderer_track_crossing_roi_diamond():
+	"""Exporte une trajectoire en losange dont les quatre segments traversent les bords d'une ROI carrée."""
+	r = Renderer()
+	r.set_size(10, 10, 1)
+	# Quatre sommets extérieurs à la ROI [10, 20] × [10, 20]. Le premier est répété pour fermer le losange.
+	points = np.array([[15, 9], [21, 15], [15, 21], [9, 15], [15, 9]], dtype=float)
+	points -= 10.0  # Translation dans le repère local de la ROI.
+	track = np.column_stack((np.ones(5), np.arange(1, 6), points, np.full(5, 50000)))
+
+	res = r.tracks(track, bg_color=0)
+
+	ref = np.zeros((10, 10), dtype=np.uint16)
+	ref[[0, 1, 2, 3], [6, 7, 8, 9]] = 50000  # Segment supérieur droit.
+	ref[[7, 8, 9], [9, 8, 7]] = 50000  # Segment inférieur droit.
+	ref[[9, 8, 7, 6], [3, 2, 1, 0]] = 50000  # Segment inférieur gauche.
+	ref[[4, 3, 2, 1, 0], [0, 1, 2, 3, 4]] = 50000  # Segment supérieur gauche.
+	np.testing.assert_array_equal(res, ref)
+	FileIO.save_png(res, OUTPUT_DIR / "track_crossing_roi_diamond.png")
+
+
 ##################################################
 def test_renderer_atom():
 	"""Vérifie le rendu d'une localisation isolée."""

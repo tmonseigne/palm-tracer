@@ -8,7 +8,7 @@ import pytest
 from napari.layers import Shapes
 
 from palm_tracer.Settings import ROI, ROIManager
-from palm_tracer.Settings.Types import CheckInt, SpinInt
+from palm_tracer.Settings.Types import CheckInt, CheckRangeInt, SpinInt
 
 
 @pytest.fixture
@@ -138,6 +138,28 @@ def test_roi_limits(manager: ROIManager):
 	assert manager.get_roi_limits() == (0, 100, 0, 80)
 	manager.roi_selection.value = 1
 	assert manager.get_roi_limits() == (0, 100, 0, 80)
+
+	manager.set_xy_roi(20, 40, 10, 30, add=False)
+	manager.roi_selection.active = True
+	assert manager.get_roi_limits() == (20, 40, 10, 30)
+
+
+##################################################
+@pytest.mark.parametrize("limits, expected", [
+		pytest.param([0, 0], (0, 100, 0, 80), id="outside"),
+		pytest.param([20, 80], (20, 40, 10, 30), id="crossing"),
+		pytest.param([0, 99], (20, 40, 10, 30), id="not-fully-inside"),
+		pytest.param([100, 100], (20, 40, 10, 30), id="fully-inside")])
+def test_hr_limits(manager: ROIManager, limits: list[int], expected: tuple[int, int, int, int]):
+	"""Adapte le cadre HR selon la présence possible de points de trajectoire hors de la ROI."""
+	manager.set_size(100, 80)
+	manager.set_xy_roi(20, 40, 10, 30, add=False)
+	manager.roi_selection.active = True
+	time_filter = CheckRangeInt("Time Inside ROI", "", limits, [0, 100])
+	time_filter.active = True
+
+	assert manager.get_hr_limits(time_filter) == expected
+	assert manager.get_hr_limits(None) == (20, 40, 10, 30)
 
 
 ##################################################

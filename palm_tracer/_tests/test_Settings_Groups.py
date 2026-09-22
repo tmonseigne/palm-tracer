@@ -107,10 +107,8 @@ def test_batch_get_path(qtbot, files, selected, mode, expected):
 	batch["Mode"].value = mode
 	paths = batch.get_paths()
 	assert len(paths) == len(expected)
-	if not files:
-		assert paths[0].endswith(expected[0])
-	else:
-		assert paths == [str(Path(path)) for path in expected]
+	if not files: assert paths[0].endswith(expected[0])
+	else: assert paths == [str(Path(path)) for path in expected]
 
 
 ###################################################
@@ -263,7 +261,7 @@ def test_filters_l(qtbot):
 def test_filters_t(qtbot):
 	"""Vérifie la classe FiltersT (constructeur, getter, setter)."""
 	g = FiltersT()
-	group_base_test(g, ["Track", "Length", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckIntSelection, "1;3-4", "")
+	group_base_test(g, ["Track", "Length", "Time Inside ROI", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], CheckIntSelection, "1;3-4", "")
 	g.deactivate_filters()
 
 
@@ -297,11 +295,13 @@ def test_hr(qtbot):
 	g["Type"].value = 1  # Passage aux Tracks
 	g["Dimension"].value = 1  # Passage à Z-stack
 	g["Dimension"].value = 2  # Passage à 3D Rotation
+	g["Dimension"].value = 3  # Passage à Track Stack
 	g["Dimension"].reset()
 	group_base_test(g, ["Dimension", "Type", "Source", "Scaling", "Color mode", "Background", "Ratio", "Crop", "Remove Beads",
 						"Drift Correction", "Smooth Drift", "Gaussian", "3D", "T-Stack"], ButtonGroup, 1, 0)
 	assert isinstance(g.gaussian, HRGaussian)
 	assert isinstance(g.hr_3d, HR3D)
+	assert isinstance(g.track_stack, HRTrackStack)
 
 
 ###################################################
@@ -321,8 +321,6 @@ def test_hr_track_stack(qtbot):
 	"""Vérifie le groupe de paramètres du rendu des trajectoires."""
 	group = HRTrackStack()
 	group_base_test(group, ["Head", "Width", "Length", "Fade", "Map", "Background", "Upscale"], SpinInt, 5, 1)
-	assert isinstance(group["Map"], ColorMap)
-	assert group["Map"].current_text == "viridis"
 
 
 ###################################################

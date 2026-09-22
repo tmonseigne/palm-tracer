@@ -73,21 +73,33 @@ class Filtering:
 		if datas.empty or not self.filters.active: return datas
 		track_filter = cast(CheckIntSelection, self.filters.tracking["Track"])
 		length_filter = cast(CheckRangeInt, self.filters.tracking["Length"])
-		if not track_filter.active and not length_filter.active: return datas  # Aucun filtre de base
+		time_filter = cast(CheckRangeInt, self.filters.tracking["Time Inside ROI"])
+		if not track_filter.active and not length_filter.active and not time_filter.active: return datas  # Aucun filtre de base
 
 		# Filtre sur les identifiants de trajectoire
 		res = datas
-		if track_filter.active:
+		if track_filter.active and not res.empty:
 			mask = np.zeros(len(res), dtype=bool)
 			for minimum, maximum in track_filter.ranges: mask |= res["Track"].between(minimum, maximum).to_numpy()
 			res = res[mask]
 
 		# Length Filter
-		if not length_filter.active: return res
-		limits = length_filter.value
-		counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
-		keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
-		res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
+		if length_filter.active and not res.empty:
+			limits = length_filter.value
+			counts = res.groupby("Track").size()  # .								  Comptage par trajectoire
+			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
+			res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
+
+		# Filtre sur le pourcentage de temps passé dans la ROI sélectionnée.
+		if not time_filter.active or res.empty: return res
+		points = res.reset_index(drop=True)
+		inside = self.rois.filtering_dataframe(points)  # .									  Liste des points à l'intérieur de la ROI
+		counts = points.groupby("Track").size()  # .										  Nombre de points par trajectoires
+		inside_counts = inside.groupby("Track").size().reindex(counts.index, fill_value=0)  # Nombre de points par trajectoires dans la ROI
+		percentages = inside_counts.mul(100.0).div(counts)  # .								  Pourcentage à l'intérieur
+		limits = time_filter.value
+		keep_ids = percentages.index[percentages.between(limits[0], limits[1])]
+		res = res[res["Track"].isin(keep_ids)]
 		return res
 
 	##################################################

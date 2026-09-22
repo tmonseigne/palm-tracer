@@ -124,7 +124,7 @@ class Renderer:
 		if self._h < 1 or self._w < 1: return self.blank_rendering(bg_color, False)
 		if trc.ndim != 2 or trc.shape[1] != 5: return self.blank_rendering(bg_color, False)
 
-		# Préparation des coordonnées entières et filtrage des points hors des dimensions du rendu.
+		# Préparation des coordonnées entières. Les extrémités hors cadre sont conservées afin que les segments traversants soient recadrés au dessin.
 		track_ids, coords, colors, split_idx = self.prepare_tracks(trc)
 		if track_ids.size == 0: return self.blank_rendering(bg_color, False)
 
@@ -323,6 +323,7 @@ class Renderer:
 		for i in range(track_ids.size):
 			start, end = split_idx[i], split_idx[i + 1]
 			self.draw_track_heads(res, alpha_mask, coords[start:end], colors[start:end], head_size)
+		if not np.any(alpha_mask): return self.blank_rendering(background, True)
 
 		# --- Finalisation : une seule composition avec le fond. ---
 		if raw is None: return self.finalize_track_stack(res, alpha_mask, bg_color)
@@ -681,7 +682,8 @@ class Renderer:
 		Prépare et délimite les trajectoires pour les rendus 2D et les séquences.
 
 		Les coordonnées X et Y sont agrandies puis arrondies au pixel le plus proche.
-		Les points hors du rendu sont supprimés après arrondi. Les plans restent inchangés.
+		Les points hors du rendu sont conservés afin que les méthodes de dessin puissent recadrer les segments traversant les limites.
+		Les plans restent inchangés.
 		L'entrée doit être triée par trajectoire puis par plan, comme la sortie de :meth:`add_colors_to_tracks`.
 		L'ordre des points est conservé et l'entrée n'est pas modifiée.
 
@@ -693,10 +695,8 @@ class Renderer:
 		coords = np.empty((data.shape[0], 3), dtype=int)
 		coords[:, 0] = data[:, 1]  # .									Plans
 		coords[:, 1:] = np.round(data[:, 2:4] * self._r).astype(int)  # X, Y
-		x, y = coords[:, 1], coords[:, 2]
-		valid = (x >= 0) & (x < self._w) & (y >= 0) & (y < self._h)  # .Suppression des éléments hors cadre
-		track_ids = data[valid, 0].astype(int)
-		coords, colors = coords[valid], data[valid, 4]
+		track_ids = data[:, 0].astype(int)
+		colors = data[:, 4].copy()
 
 		# Une seule délimitation pour les deux rendus ; aucune allocation par trajectoire.
 		if track_ids.size == 0: return track_ids, coords, colors, np.array([0], dtype=int)

@@ -11,7 +11,7 @@ from matplotlib.path import Path as MatplotlibPath
 from napari.layers import Shapes
 
 from palm_tracer.Settings.ROI import ROI
-from palm_tracer.Settings.Types import CheckInt, SpinInt
+from palm_tracer.Settings.Types import CheckInt, CheckRangeInt, SpinInt
 from palm_tracer.Tools.Ui import print_warning
 
 
@@ -320,6 +320,21 @@ class ROIManager:
 
 		# Limitation aux dimensions de l'image.
 		return max(0, x0), min(self.width, x1), max(0, y0), min(self.height, y1)
+
+	##################################################
+	def get_hr_limits(self, time_filter: CheckRangeInt | None = None) -> tuple[int, int, int, int]:
+		"""
+		Détermine le cadre spatial du rendu haute résolution.
+
+		Une absence de filtre correspond au rendu des localisations. Pour les trajectoires, seule la sélection ``[0, 0]`` représente une ROI d'exclusion
+		et impose le champ complet. Les autres plages restent cadrées sur la ROI ; les portions extérieures des trajectoires traversantes sont recadrées
+		par le renderer.
+
+		:param time_filter: Filtre du pourcentage de temps passé dans la ROI, ou ``None`` pour les localisations.
+		:return: Limites ``x_min, x_max, y_min, y_max`` du rendu.
+		"""
+		if time_filter is not None and time_filter.active and time_filter.max == 0: return 0, self.width, 0, self.height
+		return self.get_roi_limits()
 
 	##################################################
 	def update_hr_box(self):

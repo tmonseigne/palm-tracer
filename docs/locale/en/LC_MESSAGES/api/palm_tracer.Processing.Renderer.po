@@ -531,14 +531,14 @@ msgid "Prépare et délimite les trajectoires pour les rendus 2D et les séquenc
 msgstr "Prepares and delimits tracks for 2D renderings and sequences."
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:3
-msgid "Les coordonnées X et Y sont agrandies puis arrondies au pixel le plus proche. Les points hors du rendu sont supprimés après arrondi. Les plans restent inchangés. L'entrée doit être triée par trajectoire puis par plan, comme la sortie de :meth:`add_colors_to_tracks`. L'ordre des points est conservé et l'entrée n'est pas modifiée."
-msgstr "X and Y coordinates are upscaled and rounded to the nearest pixel. Points outside the rendering area are removed after rounding. Frame numbers remain unchanged. Input must be sorted by track and then by frame, as returned by :meth:`add_colors_to_tracks`. Point order is preserved and input is not modified."
+msgid "Les coordonnées X et Y sont agrandies puis arrondies au pixel le plus proche. Les points hors du rendu sont conservés afin que les méthodes de dessin puissent recadrer les segments traversant les limites. Les plans restent inchangés. L'entrée doit être triée par trajectoire puis par plan, comme la sortie de :meth:`add_colors_to_tracks`. L'ordre des points est conservé et l'entrée n'est pas modifiée."
+msgstr "X and Y coordinates are upscaled and rounded to the nearest pixel. Points outside the rendering area are retained so that the drawing methods can clip segments crossing the boundaries. Frame numbers remain unchanged. Input must be sorted by track and then by frame, as returned by :meth:`add_colors_to_tracks`. Point order is preserved and input is not modified."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:8
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:9
 msgid "Tableau de forme ``(N, 5)`` contenant ``Track, Plane, X, Y, Color``."
 msgstr "Array of shape ``(N, 5)`` containing ``Track, Plane, X, Y, Color``."
 
-#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:9
+#: of palm_tracer.Processing.Renderer.Renderer.prepare_tracks:10
 msgid "Identifiants int64 des K trajectoires, coordonnées int64 ``(N valide, 3)`` dans l'ordre ``Plane, X, Y``, couleurs et bornes int64 de taille K + 1. La trajectoire i occupe la tranche ``bornes[i]:bornes[i + 1]`` des coordonnées et des couleurs, accessible sans copie. Sans point valide, les bornes valent ``[0]``."
 msgstr "Int64 identifiers for K tracks, int64 coordinates ``(N valid, 3)`` in ``Plane, X, Y`` order, colors, and K + 1 int64 bounds. Track i occupies the ``bounds[i]:bounds[i + 1]`` slice of coordinates and colors, accessible without copying. Without valid points, bounds are ``[0]``."
 
