@@ -44,7 +44,7 @@ class Localization(BaseSettingGroup):
 			"ROI Shape":      [Combo, ["ROI Shape", "", 0, ["Circle", "Square"]]],
 			"ROI Size":       [SpinInt, ["ROI Size", "", 7, [3, 50], 1]],
 			"Watershed":      [CheckBox, ["Watershed", "Use Watershed algorithm to separate nearby points.", True]],
-			"Fit":            [Combo, ["Fit", "", 0, ["Nothing", "Gaussian Fit", "Spline"]]],
+			"Fit":            [Combo, ["Fit", "", 0, ["Nothing", "Gaussian Fit"]]],  # ["Nothing", "Gaussian Fit", "Spline Fit"]
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}
@@ -120,6 +120,7 @@ class Localization(BaseSettingGroup):
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)
