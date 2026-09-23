@@ -704,7 +704,7 @@ class PALMTracer:
 
 				# Récupère la longueur des segments continus des trajectoires.
 				if src == "Length On": track_lengths = np.diff(np.concatenate(([-1], breaks, [planes_array.size - 1],)))
-				elif src == "Length Off": track_lengths = diffs[breaks]  # Récupère la longueur des blancs dans les trajectoires.
+				elif src == "Length Off": track_lengths = diffs[breaks] - 1  # Nombre de plans absents entre deux segments.
 				else: continue
 
 				lengths.extend(track_lengths.tolist())

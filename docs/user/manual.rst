@@ -229,7 +229,7 @@ Les paramètres peuvent inclure :
    - **Max Distance** : Distance maximale en pixel entre deux plans.
    - **Blinking Reconnection** :  Paramètres de reconnexion en cas de scintillement.
       - **Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire).
-      - **Max Duration** : Durée maximale du scintillement en nombre de plans.
+      - **Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire.
       - **Max Speed** : Vitesse maximale du point en μm/plan.
 
 .. note::

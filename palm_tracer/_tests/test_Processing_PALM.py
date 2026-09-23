@@ -187,13 +187,13 @@ def test_tracking_discontinuous():
 ##################################################
 @pytest.mark.parametrize("i", range(3), ids=['stationary', 'diffusion', 'linear'])
 def test_blinking_reconnection(i):
-	"""Vérifie le tracking."""
+	"""Vérifie la reconnexion et la conversion du nombre de plans manquants en écart entre plans."""
 	palm = Palm()
 	file = "tracking"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
-		t_output = palm.blinking_reconnection(t_input, 1, i, 4, 2)
+		t_output = palm.blinking_reconnection(t_input, 1, i, 3, 2)
 		if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{i}.csv", index=False)
 
 		assert len(t_output) > 0, "Aucun Tracking trouvé"

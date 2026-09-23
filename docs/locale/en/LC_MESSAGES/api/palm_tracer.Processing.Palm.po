@@ -150,8 +150,8 @@ msgid "Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire)."
 msgstr "Point dispersion mode (0: stationary, 1: diffuse, 2: linear)."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:6
-msgid "Durée maximale d'un scintillement."
-msgstr "Maximum duration of a flicker."
+msgid "Nombre maximal de plans manquants pendant un scintillement. La DLL utilise l'écart entre les deux plans encadrant l'interruption, soit le nombre de plans manquants augmenté de un."
+msgstr "Maximum number of missing frames during blinking. The DLL uses the gap between the two frames surrounding the interruption, which is the number of missing frames plus one."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:7
 msgid "Vitesse maximale d'un point entre deux plans (en pixel)."
