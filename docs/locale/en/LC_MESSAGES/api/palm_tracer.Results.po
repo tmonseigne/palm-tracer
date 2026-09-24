@@ -146,22 +146,26 @@ msgid "Construit le statut d'un résultat à partir de ses versions initiale et 
 msgstr "Builds the status of a result from its initial and filtered versions."
 
 #: of palm_tracer.Results.Results.get_df_status:3
+msgid "En présence d'une colonne ``Track``, les identifiants de trajectoire distincts et non nuls sont comptés ; sinon, le nombre de lignes est utilisé."
+msgstr "If a “Track” column is present, the number of distinct, non-zero track IDs is counted; otherwise, the number of rows is used."
+
+#: of palm_tracer.Results.Results.get_df_status:6
 msgid "DataFrame initial."
 msgstr "Initial DataFrame."
 
-#: of palm_tracer.Results.Results.get_df_status:4
+#: of palm_tracer.Results.Results.get_df_status:7
 msgid "DataFrame filtré."
 msgstr "Filtered DataFrame."
 
-#: of palm_tracer.Results.Results.get_df_status:5
+#: of palm_tracer.Results.Results.get_df_status:8
 msgid "Nom du type de données, par exemple ``localizations`` ou ``tracks``."
 msgstr "Data type name, for example ``localizations`` or ``tracks``."
 
-#: of palm_tracer.Results.Results.get_df_status:6
+#: of palm_tracer.Results.Results.get_df_status:9
 msgid "Qualificatif ajouté au statut, par exemple ``Reconnected``."
 msgstr "Qualifier added to the status, for example ``Reconnected``."
 
-#: of palm_tracer.Results.Results.get_df_status:7
+#: of palm_tracer.Results.Results.get_df_status:10
 msgid "Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage."
 msgstr "Status with the number of elements before and, if applicable, after filtering."
 

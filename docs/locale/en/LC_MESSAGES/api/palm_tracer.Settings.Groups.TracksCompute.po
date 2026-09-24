@@ -27,10 +27,6 @@ msgid "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend e
 msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): includes the Z coordinate."
 
 #: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:9
-msgid "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : transforme les résultats en échelle logarithmique avant leur sauvegarde."
-msgstr "``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): converts results to a logarithmic scale before saving them."
-
-#: of palm_tracer.Settings.Groups.TracksCompute.TracksCompute:10
 msgid "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de mouvement utilisé pour l'ajustement."
 msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): motion model used for fitting."
 

@@ -964,7 +964,7 @@ def test_get_graph_data_dual_tracks():
 	source_b = cast(Combo, s["Source B"])
 	source_b.value = source_b.items.index("MSE(0)")
 
-	for source, expected in (("Length", [[7.0, 10.0], [11.0, 20.0]]), ("Length On", [[2.5, 10.0], [1.0, 20.0]]), ("Length Off", [[3.0, 10.0], [5.0, 20.0]]),):
+	for source, expected in (("Length", [[7.0, 10.0], [11.0, 20.0]]), ("Length On", [[2.5, 10.0], [1.0, 20.0]]), ("Length Off", [[2.0, 10.0], [4.0, 20.0]]),):
 		source_a.value = source_a.items.index(source)
 		data, title = pt._get_graph_data()
 		assert title == f"Tracks {source} / MSE(0)"
@@ -999,7 +999,7 @@ def test_get_graph_data_dual_tracks():
 					 id="length-scatter"),
 		pytest.param(1, 'Length', False, 5, "Tracks Length", (9,), [99, 2, 2, 2, 2, 2, 2, 2, 2], id="lengths"),
 		pytest.param(1, 'Length On', False, 5, "Tracks Length On", (10,), [1, 1, 2, 2, 2, 2, 2, 2, 2, 2], id="on-durations"),
-		pytest.param(1, 'Length Off', False, 5, "Tracks Length Off", (1,), [98], id="off-durations"),
+		pytest.param(1, 'Length Off', False, 5, "Tracks Length Off", (1,), [97], id="off-durations"),
 		pytest.param(1, 'Length New', False, 5, "Tracks Length New", (0,), [], id="unknown-length"),
 		pytest.param(1, 'MSD', False, 5, "Tracks MSD Step 5", (1, 2), [[81, 0.14]], id="msd-step-5"),
 		pytest.param(1, 'MSD', False, 9, "Tracks MSD Step 9", (0,), [], id="msd-step-9"),

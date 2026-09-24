@@ -500,7 +500,7 @@ class PALMTracer:
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
+		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
@@ -704,7 +704,7 @@ class PALMTracer:
 
 				# Récupère la longueur des segments continus des trajectoires.
 				if src == "Length On": track_lengths = np.diff(np.concatenate(([-1], breaks, [planes_array.size - 1],)))
-				elif src == "Length Off": track_lengths = diffs[breaks]  # Récupère la longueur des blancs dans les trajectoires.
+				elif src == "Length Off": track_lengths = diffs[breaks] - 1  # Nombre de plans absents entre deux segments.
 				else: continue
 
 				lengths.extend(track_lengths.tolist())

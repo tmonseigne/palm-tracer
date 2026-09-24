@@ -263,7 +263,8 @@ class Palm:
 		:param pixel_size: Taille des pixels en nanomètres.
 		:param tracks: Liste des points déjà suivis sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param mode: Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire).
-		:param max_duration: Durée maximale d'un scintillement.
+		:param max_duration: Nombre maximal de plans manquants pendant un scintillement. La DLL utilise l'écart entre les deux plans
+		                     encadrant l'interruption, soit le nombre de plans manquants augmenté de un.
 		:param max_speed: Vitesse maximale d'un point entre deux plans (en pixel).
 		:return: :class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées.
 		"""
@@ -276,14 +277,15 @@ class Palm:
 		n = len(tracks)
 		track_size = n * Parsing.N_COL_TRC
 		out = np.empty((track_size,), dtype=float, order="C")
+		max_plane_delta = max_duration + 1  # La DLL attend l'écart entre les plans, et non le nombre de plans manquants.
 
 		count = self._dll.BlinkingReconnection(in_tracks.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size),
-											   C_UINT(mode), C_UINT(max_duration), C_DBL(max_speed))
+											   C_UINT(mode), C_UINT(max_plane_delta), C_DBL(max_speed))
 
 		return Parsing.parse_result(out[:count], "Tracking")
 
 	##################################################
-	def tracks_compute(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool, is_log: bool,
+	def tracks_compute(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool,
 					   pixel_size: float, exposure_time: float, fit_mode: int, fit_params: np.ndarray) -> dict[str, pd.DataFrame]:
 		"""
 		Exécute l'algorithme de calcul sur les trajectoires.
@@ -292,7 +294,6 @@ class Palm:
 		:param is_msd: Calcul MSD.
 		:param is_ind: Calcul de la diffusion instantanée.
 		:param is_3d: Calcul sur la 3D.
-		:param is_log: Applique un logarithme sur le résultat.
 		:param pixel_size: Taille des pixels en micromètre.
 		:param exposure_time: Calibration temporelle utile pour les calculs.
 		:param fit_mode: Mode d'ajustement.
@@ -323,9 +324,9 @@ class Palm:
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
 								C_UINT(fit_mode), params.ctypes.data_as(C_TAB_DBL))
 
-		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD", is_log)
-		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion", is_log)
-		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", is_log, fit_mode)
+		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD")
+		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion")
+		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", fit_mode)
 		return res
 
 	##################################################

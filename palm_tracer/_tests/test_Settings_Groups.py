@@ -227,7 +227,7 @@ def test_tracks_blinking_reconnection(qtbot):
 ###################################################
 def test_tracks_computes(qtbot):
 	"""Vérifie la classe TracksCompute (constructeur, getter, setter)."""
-	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Log Scale", "Fit"], CheckBox, True, False)
+	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Fit"], CheckBox, True, False)
 
 
 ###################################################

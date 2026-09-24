@@ -126,7 +126,7 @@ msgstr "Maximum allowed distance between two points to connect them across two s
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:8
 #: palm_tracer.Processing.Palm.Palm.tracking:8
-#: palm_tracer.Processing.Palm.Palm.tracks_compute:12
+#: palm_tracer.Processing.Palm.Palm.tracks_compute:11
 msgid ":class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées."
 msgstr ":class:`DataFrame <pandas.DataFrame>` containing the detected tracks."
 
@@ -150,8 +150,8 @@ msgid "Mode de dispersion des points (0: immobile, 1: diffus, 2: linéaire)."
 msgstr "Point dispersion mode (0: stationary, 1: diffuse, 2: linear)."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:6
-msgid "Durée maximale d'un scintillement."
-msgstr "Maximum duration of a flicker."
+msgid "Nombre maximal de plans manquants pendant un scintillement. La DLL utilise l'écart entre les deux plans encadrant l'interruption, soit le nombre de plans manquants augmenté de un."
+msgstr "Maximum number of missing frames during blinking. The DLL uses the gap between the two frames surrounding the interruption, which is the number of missing frames plus one."
 
 #: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:7
 msgid "Vitesse maximale d'un point entre deux plans (en pixel)."
@@ -174,26 +174,22 @@ msgid "Calcul sur la 3D."
 msgstr "3D calculation."
 
 #: of palm_tracer.Processing.Palm.Palm.tracks_compute:7
-msgid "Applique un logarithme sur le résultat."
-msgstr "Applies a logarithm to the result."
-
-#: of palm_tracer.Processing.Palm.Palm.tracks_compute:8
 msgid "Taille des pixels en micromètre."
 msgstr "Pixel size in micrometers."
 
-#: of palm_tracer.Processing.Palm.Palm.tracks_compute:9
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:8
 msgid "Calibration temporelle utile pour les calculs."
 msgstr "Time calibration useful for computes."
 
-#: of palm_tracer.Processing.Palm.Palm.tracks_compute:10
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:9
 msgid "Mode d'ajustement."
 msgstr "Fitting mode."
 
-#: of palm_tracer.Processing.Palm.Palm.tracks_compute:11
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:10
 msgid "Paramètres de l'ajustement (pour le moment uniquement fit length)."
 msgstr "Fitting settings (currently only fit length)."
 
-#: of palm_tracer.Processing.Palm.Palm.tracks_compute:14
+#: of palm_tracer.Processing.Palm.Palm.tracks_compute:13
 msgid "Pour obtenir des valeurs de diffusion en **µm²**, le paramètre ``pixel_size`` doit être exprimé en micromètres par pixel (µm/px)."
 msgstr "To obtain diffusion values in **µm²**, the ``pixel_size`` parameter must be expressed in micrometers per pixel (µm/px)."
 

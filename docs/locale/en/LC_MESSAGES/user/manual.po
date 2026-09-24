@@ -443,8 +443,8 @@ msgid "**Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire
 msgstr "**Mode**: point motion model (immobile, diffusive, linear)."
 
 #: ../../user/manual.rst:230
-msgid "**Max Duration** : Durée maximale du scintillement en nombre de plans."
-msgstr "**Max Duration**: maximum blinking duration in number of frames."
+msgid "**Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire."
+msgstr "**Max Duration**: maximum number of missing frames between two track segments."
 
 #: ../../user/manual.rst:231
 msgid "**Max Speed** : Vitesse maximale du point en μm/plan."
@@ -479,10 +479,6 @@ msgid "**3D** : Utilisation ou non de la coordonnée Z dans les calculs."
 msgstr "**3D**: whether or not to use the Z coordinate in computations."
 
 #: ../../user/manual.rst:245
-msgid "**Log Scale** : Utilisation ou non d'une échelle logarithmique pour les résultats."
-msgstr "**Log Scale**: whether or not to use a logarithmic scale for results."
-
-#: ../../user/manual.rst:246
 msgid "**Fit** : Méthode d'ajustement du mouvement de la trajectoire."
 msgstr "**Fit**: fitting method for the track motion."
 

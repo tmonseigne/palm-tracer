@@ -10,13 +10,14 @@ from qtpy.QtWidgets import QFormLayout, QGroupBox, QLabel
 from palm_tracer.Tools import Ui
 
 _STATUS_TOOLTIPS = {
-		"File":          "Current stack.",
-		"Localizations": "Localizations on the current stack.",
-		"Beads":         "Beads on the current stack.",
-		"Tracks":        "Tracking on the current stack.",
-		"MSD":           "Mean Square Displacement of tracks on the current stack.",
-		"Instant D":     "Instant Diffusion of tracks on the current stack.",
-		"MSD Fit":       "Fit of tracks on the current stack.",
+		"File":               "Current stack.",
+		"Localizations":      "Localizations on the current stack.",
+		"Beads":              "Beads on the current stack.",
+		"Tracks":             "Tracking on the current stack.",
+		"Tracks Reconnected": "Tracking after blinking reconnection on the current stack.",
+		"MSD":                "Mean Square Displacement of tracks on the current stack.",
+		"Instant D":          "Instant Diffusion of tracks on the current stack.",
+		"MSD Fit":            "Fit of tracks on the current stack.",
 		}
 
 
@@ -78,6 +79,7 @@ class ResultsUI:
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

@@ -235,13 +235,9 @@ msgid "Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, 
 msgstr "File type to parse (Localization, Tracking, 3D Astigmatism Model, MSD, Instant Diffusion, Fit)."
 
 #: of palm_tracer.Processing.Parsing.parse_result:13
-msgid "Applique un logarithme sur le résultat (si nécessaire, pour les calculs sur trajectoires)."
-msgstr "Applies a logarithm to the result (if necessary, for tracks calculations)."
-
-#: of palm_tracer.Processing.Parsing.parse_result:14
 msgid "Mode d'ajustement (si nécessaire, pour les calculs sur trajectoires)."
 msgstr "Fitting mode (if necessary, for tracks calculations)."
 
-#: of palm_tracer.Processing.Parsing.parse_result:15
+#: of palm_tracer.Processing.Parsing.parse_result:14
 msgid ":class:`DataFrame <pandas.DataFrame>` parsé."
 msgstr "Parsed :class:`DataFrame <pandas.DataFrame>`."

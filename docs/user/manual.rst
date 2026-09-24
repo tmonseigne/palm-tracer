@@ -229,7 +229,7 @@ Les paramètres peuvent inclure :
    - **Max Distance** : Distance maximale en pixel entre deux plans.
    - **Blinking Reconnection** :  Paramètres de reconnexion en cas de scintillement.
       - **Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire).
-      - **Max Duration** : Durée maximale du scintillement en nombre de plans.
+      - **Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire.
       - **Max Speed** : Vitesse maximale du point en μm/plan.
 
 .. note::
@@ -244,7 +244,6 @@ Cette section permet d'appliquer différents calculs sur les trajectoires recons
    - **Instant Diffusion** : Calcul de la diffusion instantanée par trajectoire et par plans successifs.
    - **Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée.
    - **3D** : Utilisation ou non de la coordonnée Z dans les calculs.
-   - **Log Scale** : Utilisation ou non d'une échelle logarithmique pour les résultats.
    - **Fit** : Méthode d'ajustement du mouvement de la trajectoire.
 
 
