@@ -44,8 +44,8 @@ def test_settings_group_getter(qtbot):
 	assert isinstance(s, Tracking), "Récupération du groupe incorrecte."
 	s = settings.blinking
 	assert isinstance(s, BlinkingReconnection), "Récupération du groupe incorrecte."
-	s = settings.tracks_compute
-	assert isinstance(s, TracksCompute), "Récupération du groupe incorrecte."
+	s = settings.track_analysis
+	assert isinstance(s, TrackAnalysis), "Récupération du groupe incorrecte."
 	s = settings.gallery
 	assert isinstance(s, Gallery), "Récupération du groupe incorrecte."
 	s = settings.graph

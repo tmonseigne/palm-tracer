@@ -20,7 +20,7 @@ from .HRGaussian import HRGaussian
 from .Localization import Localization
 from .SplineFit import SplineFit
 from .Tracking import Tracking
-from .TracksCompute import TracksCompute
+from .TrackAnalysis import TrackAnalysis
 from .Visualization3D import Visualization3D
 
 # Définir la liste des symboles exportés
@@ -28,5 +28,5 @@ __all__ = ["BaseSettingGroup", "BaseUIGroup",
 		   "Batch", "Calibration",
 		   "Filters", "FiltersL", "FiltersT",
 		   "Localization", "GaussianFit", "SplineFit", "BeadsExtraction",
-		   "Tracking", "BlinkingReconnection", "TracksCompute",
+		   "Tracking", "BlinkingReconnection", "TrackAnalysis",
 		   "Gallery", "Graph", "GraphDisplay", "HR", "HRGaussian", "HR3D", "Visualization3D"]

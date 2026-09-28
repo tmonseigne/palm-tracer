@@ -9,7 +9,7 @@ Pipeline des traitements
 .. role:: console(code)
    :language: console
 
-Récupération des données, localisation, suivi, calculs sur les trajectoires, visualisation haute résolution, visualisation de graphiques et génération de galeries sont les étapes principales du pipeline de traitement de PALM.
+Récupération des données, localisation, suivi, analyses des trajectoires, visualisation haute résolution, visualisation de graphiques et génération de galeries sont les étapes principales du pipeline de traitement de PALM.
 Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface.
 
 Étape 1 : Récupération des piles
@@ -69,11 +69,11 @@ Si l'option :console:`save filtered` est sélectionné, le suivi reconnecté et 
 .. note:: Le chargement d'un suivi précalculé s'effectue toujours sur la version non filtrée la plus récente et reconnectée si elle existe.
 
 
-Étape 5 : Calculs sur les trajectoires
+Étape 5 : Analyses des trajectoires
 --------------------------------------
 
-Des calculs peuvent être effectués sur les trajectoires pour en extraire des informations (MSD, diffusion instantanée, ajustement vers un modèle).
-Ces calculs sont lancés selon les paramètres de l'interface.
+Des analyses peuvent être effectuées sur les trajectoires pour en extraire des informations (MSD, diffusion instantanée, ajustement vers un modèle).
+Ces analyses sont lancées selon les paramètres de l'interface.
 
 Les calculs utilisent en entrée la version filtrée et reconnectée du suivi précédent (calculée ou chargée).
 S'il n'y a pas de version filtrée ou reconnectée ou si les filtres ont éliminé l'intégralité des trajectoires, la version non filtrée est utilisée.

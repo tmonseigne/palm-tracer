@@ -79,7 +79,7 @@ msgid "Fichier de trajectoires : ``trcPALMTracer.txt``"
 msgstr "Tracks file: ``trcPALMTracer.txt``"
 
 #: ../../user/tool_fm.rst:71
-msgid "Fichiers de calculs sur les trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
+msgid "Fichiers d'analyses des trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
 msgstr "Tracks computation files: ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
 
 #: ../../user/tool_fm.rst:72

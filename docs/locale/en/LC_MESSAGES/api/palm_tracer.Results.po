@@ -30,8 +30,8 @@ msgstr "Detected beads (:class:`~pandas.DataFrame`)."
 msgid "Trajectoires actives (:class:`~pandas.DataFrame`), éventuellement filtrées et reconnectées."
 msgstr "Active tracks (:class:`~pandas.DataFrame`), possibly filtered and reconnected."
 
-#: of palm_tracer.Results.Results.tracks_compute:1
-msgid "Calculs actifs sur les trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."
+#: of palm_tracer.Results.Results.track_analysis:1
+msgid "Analyses actives des trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."
 msgstr "Active track computations, possibly filtered (:class:`~pandas.DataFrame`)."
 
 #: ../../api/palm_tracer.Results.rst:19
@@ -80,7 +80,7 @@ msgstr "Full path to the file."
 
 #: ../../api/palm_tracer.Results.rst of
 #: palm_tracer.Results.Results.get_localization_key
-#: palm_tracer.Results.Results.get_tracks_compute_key
+#: palm_tracer.Results.Results.get_track_analysis_key
 #: palm_tracer.Results.Results.get_tracks_key
 msgid "Type renvoyé"
 msgstr "Return type"
@@ -129,8 +129,8 @@ msgstr "Key for active localizations, prioritizing filtered and corrected varian
 msgid "Clé des trajectoires actives, en privilégiant les variantes filtrées et reconnectées."
 msgstr "Key for active tracks, prioritizing filtered and reconnected variants."
 
-#: of palm_tracer.Results.Results.get_tracks_compute_key:1
-msgid "Clés des calculs sur les trajectoires, en privilégiant leurs variantes filtrées."
+#: of palm_tracer.Results.Results.get_track_analysis_key:1
+msgid "Clés des analyses des trajectoires, en privilégiant leurs variantes filtrées."
 msgstr "Keys for track computations, prioritizing their filtered variants."
 
 #: of palm_tracer.Results.Results.get_status:1

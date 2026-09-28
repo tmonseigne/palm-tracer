@@ -23,7 +23,7 @@ edge [color="#666666", fontcolor="#006400", fontname="Helvetica", fontsize="9"];
 "palm_tracer.Settings.Groups.Localization.Localization" [label="Localization"];
 "palm_tracer.Settings.Groups.SplineFit.SplineFit" [label="SplineFit"];
 "palm_tracer.Settings.Groups.Tracking.Tracking" [label="Tracking"];
-"palm_tracer.Settings.Groups.TracksCompute.TracksCompute" [label="TracksCompute"];
+"palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis" [label="TrackAnalysis"];
 "palm_tracer.Settings.Groups.Visualization3D.Visualization3D" [label="Visualization3D"];
 
 "palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup" -> "palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_uis", minlen="1"];
@@ -53,6 +53,6 @@ edge [color="#666666", fontcolor="#006400", fontname="Helvetica", fontsize="9"];
 "palm_tracer.Settings.Groups.SplineFit.SplineFit" -> "palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup" [arrowhead="empty", arrowtail="none", minlen="1"];
 "palm_tracer.Settings.Groups.SplineFit.SplineFit" -> "palm_tracer.Settings.Groups.Localization.Localization" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="spline", minlen="2"];
 "palm_tracer.Settings.Groups.Tracking.Tracking" -> "palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup" [arrowhead="empty", arrowtail="none", minlen="3"];
-"palm_tracer.Settings.Groups.TracksCompute.TracksCompute" -> "palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup" [arrowhead="empty", arrowtail="none", minlen="4"];
+"palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis" -> "palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup" [arrowhead="empty", arrowtail="none", minlen="4"];
 "palm_tracer.Settings.Groups.Visualization3D.Visualization3D" -> "palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup" [arrowhead="empty", arrowtail="none", minlen="1"];
 }

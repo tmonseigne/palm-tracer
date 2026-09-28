@@ -285,10 +285,10 @@ class Palm:
 		return Parsing.parse_result(out[:count], "Tracking")
 
 	##################################################
-	def tracks_compute(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool,
+	def track_analysis(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool,
 					   pixel_size: float, exposure_time: float, fit_mode: int, fit_params: np.ndarray) -> dict[str, pd.DataFrame]:
 		"""
-		Exécute l'algorithme de calcul sur les trajectoires.
+		Exécute l'algorithme d'analyse des trajectoires.
 
 		:param tracks: Liste des points déjà suivis sous forme de DataFrame contenant toutes les informations reçues de la DLL.
 		:param is_msd: Calcul MSD.

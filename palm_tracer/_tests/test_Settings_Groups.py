@@ -219,15 +219,15 @@ def test_tracking(qtbot):
 
 
 ###################################################
-def test_tracks_blinking_reconnection(qtbot):
+def test_blinking_reconnection(qtbot):
 	"""Vérifie la classe BlinkingReconnection (constructeur, getter, setter)."""
 	group_base_test(BlinkingReconnection(), ["Mode", "Max Duration", "Max Distance"], Combo, 1, 0)
 
 
 ###################################################
-def test_tracks_computes(qtbot):
-	"""Vérifie la classe TracksCompute (constructeur, getter, setter)."""
-	group_base_test(TracksCompute(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Fit"], CheckBox, True, False)
+def test_track_analysis(qtbot):
+	"""Vérifie la classe TrackAnalysis (constructeur, getter, setter)."""
+	group_base_test(TrackAnalysis(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Fit"], CheckBox, True, False)
 
 
 ###################################################

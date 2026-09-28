@@ -75,7 +75,7 @@ class PALMTracer:
 				Step("beads", ["bds"], self._beads_extraction, lambda x: x, allow_dirty=True, apply_filter=False),
 				Step("tracking", ["trc"], self._tracking, self.filtering.tracking),
 				Step("blinking", ["blk"], self._blinking_reconnection, self.filtering.tracking),
-				Step("tracks_compute", ["MSD", "InD", "Fit"], self._tracks_compute, self.filtering.tracks_compute),
+				Step("track_analysis", ["MSD", "InD", "Fit"], self._track_analysis, self.filtering.track_analysis),
 				# Step("gallery", "gallery", ["gallery"], self._gallery),
 				# Step("graphical visualization", "visualization_graph", ["graph"], self._visualization_graph),
 				# Step("high-resolution visualization", "visualization_hr", ["hr"], self._visualization_hr),
@@ -342,7 +342,7 @@ class PALMTracer:
 					self.results.save(f_key, self._path, self._timestamp)
 			else:
 				self.results[f_key] = pd.DataFrame()
-		# Cas spécial des tracks_compute qui modifient beaucoup de choses en même temps
+		# Cas spécial de l'analyse des trajectoires, qui modifie plusieurs résultats simultanément
 		else:
 			n_init = len(self.results["MSD"])
 			o_name = self.results.get_tracks_key()
@@ -482,25 +482,25 @@ class PALMTracer:
 		self.results.save("blk", self._path, self._timestamp)
 
 	##################################################
-	def _tracks_compute(self):
-		"""Lance les calculs sur les trajectoires à partir des paramètres de l'interface."""
+	def _track_analysis(self):
+		"""Lance les analyses des trajectoires à partir des paramètres de l'interface."""
 		df = self.results.tracks  # Récupère automatiquement le "bon" DataFrame (blinking et filtré ou non)
 		if df.empty:
-			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
+			self._logger.add("\tNo tracking data available, no track analysis can be performed.")
 			return
 
 		# Parse settings
 		sc = self.settings.calibration.settings
-		s = self.settings.tracks_compute.settings
+		s = self.settings.track_analysis.settings
 
 		if not s["MSD"] and not s["Instant Diffusion"] and s["Fit"] == 0:
-			self._logger.add("\tNo metrics selected, no additional calculations can be performed.")
+			self._logger.add("\tNo metrics selected, no track analysis can be performed.")
 			return
 
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"],
+		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
@@ -540,7 +540,7 @@ class PALMTracer:
 
 		o_name = "f_trc" if self.results["f_blk"].empty else "f_blk"
 		self.results[o_name], self.results["f_MSD"], self.results["f_InD"], self.results["f_Fit"] \
-			= self.filtering.tracks_compute(self.results.tracks, df["MSD"], df["InD"], df["Fit"])
+			= self.filtering.track_analysis(self.results.tracks, df["MSD"], df["InD"], df["Fit"])
 
 		for key in ["loc", "dft", "trc", "blk"]:
 			f_key = f"f_{key}"
@@ -715,7 +715,7 @@ class PALMTracer:
 				return np.asarray(lengths_by_track), title
 			return np.asarray(lengths, dtype=int), title
 
-		df = self.results.tracks_compute
+		df = self.results.track_analysis
 		if src == "MSD":
 			df = df["MSD"]
 			if df.empty: return np.empty(0), title

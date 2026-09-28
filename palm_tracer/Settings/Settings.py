@@ -18,7 +18,7 @@ from palm_tracer.Settings.Groups.Graph import Graph
 from palm_tracer.Settings.Groups.HR import HR
 from palm_tracer.Settings.Groups.Localization import Localization
 from palm_tracer.Settings.Groups.Tracking import Tracking
-from palm_tracer.Settings.Groups.TracksCompute import TracksCompute
+from palm_tracer.Settings.Groups.TrackAnalysis import TrackAnalysis
 from palm_tracer.Settings.ROIManager import ROIManager
 from palm_tracer.Settings.Types import CheckInt, SpinInt
 
@@ -46,7 +46,7 @@ class Settings:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
-		list_settings = [Batch, Calibration, Localization, BeadsExtraction, Tracking, BlinkingReconnection, TracksCompute,
+		list_settings = [Batch, Calibration, Localization, BeadsExtraction, Tracking, BlinkingReconnection, TrackAnalysis,
 						 Gallery, Graph, HR, Filters]
 		for setting in list_settings: self._settings[setting.__name__] = setting()
 		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
@@ -124,9 +124,9 @@ class Settings:
 
 	##################################################
 	@property
-	def tracks_compute(self) -> TracksCompute:
-		"""Groupe de paramètres liés aux calculs sur trajectoires (:class:`~palm_tracer.Settings.Groups.TracksCompute.TracksCompute`)."""
-		return cast(TracksCompute, self._settings["TracksCompute"])
+	def track_analysis(self) -> TrackAnalysis:
+		"""Groupe de paramètres liés aux analyses des trajectoires (:class:`~palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis`)."""
+		return cast(TrackAnalysis, self._settings["TrackAnalysis"])
 
 	##################################################
 	@property

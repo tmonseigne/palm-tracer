@@ -86,7 +86,7 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 	lines = get_lines_output(capsys)
 	# for i in range(len(lines)): print(f"{i}: {lines[i]}")
 	assert len(lines) == n_lines
-	step_name = ["Localization", "Beads Extraction", "Tracking", "Blinking Reconnection", "Tracks Compute", "Gallery generation",
+	step_name = ["Localization", "Beads Extraction", "Tracking", "Blinking Reconnection", "Track Analysis", "Gallery generation",
 				 "Graphical visualization", "High-resolution visualization"]
 	for i in range(8): assert step_name[i] in lines[steps[i]]
 
@@ -221,13 +221,13 @@ def test_getter_tracks(pt):
 
 
 ##################################################
-def test_getter_tracks_compute(pt):
+def test_getter_track_analysis(pt):
 	"""Vérifie le process sans fichiers en entrée."""
-	df = pt.results.tracks_compute
+	df = pt.results.track_analysis
 	assert df["MSD"].empty, "Le Dataframe devrait être vide."
 	ref1 = pd.DataFrame([1, 2])
 	pt.results["f_MSD"] = ref1
-	df = pt.results.tracks_compute
+	df = pt.results.track_analysis
 	assert df["MSD"].equals(ref1), "Le Dataframe devrait non vide."
 
 
@@ -346,25 +346,25 @@ def test_process_nothing(capsys, pt):
 	check_capsys(capsys, 18, [5, 6, 7, 8, 9, 10, 12, 14])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
-	# Test d'un calcul sur trajectoires sans données.
+	# Test d'une analyse des trajectoires sans données.
 	pt.settings.gallery.active = False
 	pt.settings.graph.active = False
 	pt.settings.hr.active = False
-	pt.settings.tracks_compute.active = True
+	pt.settings.track_analysis.active = True
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 8, 9, 11, 12, 13])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul de reconnexion de trajectoires sans données.
-	pt.settings.tracks_compute.active = False
+	pt.settings.track_analysis.active = False
 	pt.settings.blinking.active = True
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 8, 10, 11, 12, 13])
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
-	# Test d'un calcul de trajectoires sans données.
+	# Test d'une analyse des trajectoires sans données.
 	pt.settings.blinking.active = False
 	pt.settings.tracking.active = True
 	pt.process()
@@ -566,22 +566,22 @@ def test_process_tracking_blinking(capsys, pt):
 
 
 ##################################################
-def test_process_tracks_compute(capsys, pt, sequential_timestamps):
+def test_process_track_analysis(capsys, pt, sequential_timestamps):
 	"""Vérifie le process de tracking."""
 	clean_output()
 
 	add_basic_file(pt)
 	add_fakeprocess(pt, False, True)  # Ajout d'un fichier de Tracking
 
-	tc = pt.settings.tracks_compute
-	tc.active = True
+	ta = pt.settings.track_analysis
+	ta.active = True
 	pt.process()
 
 	# Aucun fichier Ajouté juste meta et le tracking copié
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
 	check_capsys(capsys, 17, [5, 6, 7, 9, 10, 12, 13, 14])
 
-	tc["MSD"].value = True
+	ta["MSD"].value = True
 	pt.process()
 	assert len(pt.results["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
 	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
@@ -589,9 +589,9 @@ def test_process_tracks_compute(capsys, pt, sequential_timestamps):
 	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1], clean=False)
 	check_capsys(capsys, 19, [5, 6, 7, 9, 10, 14, 15, 16])
 
-	tc["MSD"].value = False
-	tc["Instant Diffusion"].value = True
-	tc["Fit"].value = 1
+	ta["MSD"].value = False
+	ta["Instant Diffusion"].value = True
+	ta["Fit"].value = 1
 	pt.process()
 	assert len(pt.results["MSD"]) == 0  # MSD désactivé, il est conservé
 	assert len(pt.results["InD"]) == 3  # Seules 3 trajectoires sont éligibles
@@ -674,10 +674,10 @@ def test_process_all(capsys, pt):
 	pt.settings.tracking["Max Distance"].value = 4
 	pt.settings.blinking.active = True
 	pt.settings.blinking["Max Duration"].value = 4
-	pt.settings.tracks_compute.active = True
-	pt.settings.tracks_compute["MSD"].value = True
-	pt.settings.tracks_compute["Instant Diffusion"].value = True
-	pt.settings.tracks_compute["Fit"].value = 1
+	pt.settings.track_analysis.active = True
+	pt.settings.track_analysis["MSD"].value = True
+	pt.settings.track_analysis["Instant Diffusion"].value = True
+	pt.settings.track_analysis["Fit"].value = 1
 	pt.settings.gallery.active = True
 	pt.settings.graph.active = True
 	pt.settings.hr.active = True
@@ -826,18 +826,18 @@ def test_filter_localization(capsys, pt, sequential_timestamps):
 
 
 ##################################################
-def test_filter_tracks_compute(capsys, pt, sequential_timestamps):
+def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
 
 	add_basic_file(pt)
 	add_fakeprocess(pt, False, True)  # Ajout d'un fichier de tracking
 
-	pt.settings.tracks_compute.active = True
-	pt.settings.tracks_compute["MSD"].value = True
-	pt.settings.tracks_compute["Instant Diffusion"].value = True
-	pt.settings.tracks_compute["Fit"].value = 1
-	pt.settings.tracks_compute["Fit Length"].value = 2
+	pt.settings.track_analysis.active = True
+	pt.settings.track_analysis["MSD"].value = True
+	pt.settings.track_analysis["Instant Diffusion"].value = True
+	pt.settings.track_analysis["Fit"].value = 1
+	pt.settings.track_analysis["Fit Length"].value = 2
 
 	ft = pt.settings.filters.tracking
 	ft["Length"].active = True
@@ -859,16 +859,16 @@ def test_filter_tracks_compute(capsys, pt, sequential_timestamps):
 	pt.process()
 	# Vérification manuelle à l'heure actuelle
 	assert len(pt.results.tracks) == 26, f"Il reste {len(pt.results.tracks)} points au lieu de 26 sur les trajectoires."
-	assert len(pt.results.tracks_compute["MSD"]) == 6, f"Il reste {len(pt.results.tracks_compute['MSD'])} trajectoires au lieu de 14."
+	assert len(pt.results.track_analysis["MSD"]) == 6, f"Il reste {len(pt.results.track_analysis['MSD'])} trajectoires au lieu de 14."
 
-	check_output(OUTPUT_FOLDER, csv=[9], log=[1], json=[1], clean=False)  # Track + 2 tracks computes, leurs versions filtrées et le meta = 9
+	check_output(OUTPUT_FOLDER, csv=[9], log=[1], json=[1], clean=False)  # Track + 2 analyses de trajectoires, leurs versions filtrées et le meta = 9
 	check_capsys(capsys, 26, [5, 6, 7, 11, 12, 21, 22, 23])
 
 	# Filtre massif plus rien à la sortie
 	pt.settings.filters["Tracks"]["Length"].value = [42, 10000]
 	pt.process()
 	assert len(pt.results["f_trc"]) == 0, f"Il reste {len(pt.results.tracks)} points au lieu de 0 sur les trajectoires."
-	assert len(pt.results["f_MSD"]) == 0, f"Il reste {len(pt.results.tracks_compute['MSD'])} trajectoires au lieu de 0."
+	assert len(pt.results["f_MSD"]) == 0, f"Il reste {len(pt.results.track_analysis['MSD'])} trajectoires au lieu de 0."
 	check_output(OUTPUT_FOLDER, csv=[9], log=[2], json=[2])  # Il ne va pas réenregistrer les éléments filtrés
 	check_capsys(capsys, 21, [5, 6, 7, 10, 11, 16, 17, 18])
 

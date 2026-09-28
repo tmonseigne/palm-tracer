@@ -22,10 +22,10 @@ class Results:
 	_data: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
 			"loc":   pd.DataFrame(), "dft": pd.DataFrame(), "bds": pd.DataFrame(),  # .	   Localisations.
 			"trc":   pd.DataFrame(), "blk": pd.DataFrame(),  # .						   Trajectoires.
-			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),  # .	   Calculs sur les trajectoires.
+			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),  # .	   Analyses des trajectoires.
 			"f_loc": pd.DataFrame(), "f_dft": pd.DataFrame(),  # .						   Localisations filtrées.
 			"f_trc": pd.DataFrame(), "f_blk": pd.DataFrame(),  # .						   Trajectoires filtrées.
-			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Calculs sur les trajectoires filtrées.
+			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Analyses des trajectoires filtrées.
 	"""Résultats des différents calculs."""
 
 	_uis: dict[str, "ResultsUI"] = field(init=False, default_factory=dict)
@@ -181,8 +181,8 @@ class Results:
 		return self._get_active_key(("trc", "f_trc", "blk", "f_blk"))
 
 	##################################################
-	def get_tracks_compute_key(self) -> list[str]:
-		"""Clés des calculs sur les trajectoires, en privilégiant leurs variantes filtrées."""
+	def get_track_analysis_key(self) -> list[str]:
+		"""Clés des analyses des trajectoires, en privilégiant leurs variantes filtrées."""
 		return [self._get_active_key(("MSD", "f_MSD")), self._get_active_key(("InD", "f_InD")), self._get_active_key(("Fit", "f_Fit"))]
 
 	##################################################
@@ -205,9 +205,9 @@ class Results:
 
 	##################################################
 	@property
-	def tracks_compute(self) -> dict[str, pd.DataFrame]:
-		"""Calculs actifs sur les trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."""
-		keys = self.get_tracks_compute_key()
+	def track_analysis(self) -> dict[str, pd.DataFrame]:
+		"""Analyses actives des trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."""
+		keys = self.get_track_analysis_key()
 		return {"MSD": self._data[keys[0]], "InD": self._data[keys[1]], "Fit": self._data[keys[2]]}
 
 	##################################################

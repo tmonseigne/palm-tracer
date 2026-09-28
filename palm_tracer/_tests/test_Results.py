@@ -68,11 +68,11 @@ def test_active_results(results):
 		assert results.get_tracks_key() == key, f"La clé de trajectoires active devrait être '{key}'."
 		assert results.tracks is results[key]
 
-	assert results.get_tracks_compute_key() == ["MSD", "InD", "Fit"]
+	assert results.get_track_analysis_key() == ["MSD", "InD", "Fit"]
 	results._data["f_MSD"] = make_dataframe(1)
 	results._data["f_Fit"] = make_dataframe(1)
-	assert results.get_tracks_compute_key() == ["f_MSD", "InD", "f_Fit"]
-	assert results.tracks_compute == {
+	assert results.get_track_analysis_key() == ["f_MSD", "InD", "f_Fit"]
+	assert results.track_analysis == {
 			"MSD": results["f_MSD"],
 			"InD": results["InD"],
 			"Fit": results["f_Fit"],

@@ -400,7 +400,7 @@ Les éléments suivants sont utilisés :
 
 - Les localisations (filtrées ou non)
 - Les trajectoires (reconnectées si elles l'ont été et filtré ou non)
-- Les calculs sur trajectoires : MSD, Diffusion instantanée, Ajustements (filtrés ou non)
+- Les analyses des trajectoires : MSD, Diffusion instantanée, Ajustements (filtrés ou non)
 
 Plusieurs éléments permettent une communication bidirectionnelle entre les deux interfaces :
 

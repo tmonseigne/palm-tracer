@@ -203,7 +203,7 @@ msgid "Paramètres de tracking"
 msgstr "Tracking settings"
 
 #: ../../user/manual.rst:115
-msgid "Paramètres de calcul sur les trajectoires"
+msgid "Paramètres d'analyse des trajectoires"
 msgstr "Tracks computation settings"
 
 #: ../../user/manual.rst:116
@@ -351,7 +351,7 @@ msgid "Onglet Processing"
 msgstr "Processing tab"
 
 #: ../../user/manual.rst:189
-msgid "L'onglet :guilabel:`Processing` regroupe l'ensemble des paramètres liés au traitement principal : la localisation et l'éventuel suivi des molécules (tracking), puis les calculs sur les trajectoires."
+msgid "L'onglet :guilabel:`Processing` regroupe l'ensemble des paramètres liés au traitement principal : la localisation et l'éventuel suivi des molécules (tracking), puis les analyses des trajectoires."
 msgstr "The :guilabel:`Processing` tab groups all settings related to the main processing: localization and optional molecule tracking, followed by computations on tracks."
 
 #: ../../user/manual.rst:192
@@ -367,8 +367,8 @@ msgid "**Tracking**"
 msgstr "**Tracking**"
 
 #: ../../user/manual.rst:195
-msgid "**Calculs sur les trajectoires**"
-msgstr "**Tracks compute**"
+msgid "**Analyses des trajectoires**"
+msgstr "**Track Analysis**"
 
 #: ../../user/manual.rst:197
 msgid "Onglet Processing du Widget."
@@ -455,11 +455,11 @@ msgid "**Remarque**: Le tracking est réalisé durant le traitement complet, pas
 msgstr "**Note**: tracking is performed during full processing, not during preview."
 
 #: ../../user/manual.rst:238
-msgid "Calculs sur les trajectoires"
-msgstr "Tracks compute"
+msgid "Analyses des trajectoires"
+msgstr "Track Analysis"
 
 #: ../../user/manual.rst:240
-msgid "Cette section permet d'appliquer différents calculs sur les trajectoires reconstruites :"
+msgid "Cette section permet d'appliquer différentes analyses des trajectoires reconstruites :"
 msgstr "This section allows applying different computations to the reconstructed tracks:"
 
 #: ../../user/manual.rst:241

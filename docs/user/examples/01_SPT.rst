@@ -190,7 +190,7 @@ Chaque ligne correspond à une étape du traitement, il est important de les com
    [02-06-2026 11:57:29] Tracking enabled.
    [02-06-2026 11:57:29] 	Saving the tracking file (16582 point(s) found).
    [02-06-2026 11:57:29] Blinking Reconnection disabled.
-   [02-06-2026 11:57:29] Tracks Compute disabled.
+   [02-06-2026 11:57:29] Track Analysis disabled.
    [02-06-2026 11:57:29] Gallery generation disabled.
    [02-06-2026 11:57:29] Graphical visualization disabled.
    [02-06-2026 11:57:29] High-resolution visualization disabled.
