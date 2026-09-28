@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import cast
 
@@ -35,6 +35,8 @@ class Batch(BaseSettingGroup):
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
 	"""Mode d'affichage du groupe dans l'interface."""
+	_plane_cache: dict[str, tuple[int, int, int]] = field(init=False, default_factory=dict)
+	"""Profondeur TIFF indexée par chemin, taille et date de modification du fichier."""
 
 	##################################################
 	def get_paths(self, suffix: str = "_PALM_Tracer") -> list[str]:
@@ -84,10 +86,33 @@ class Batch(BaseSettingGroup):
 
 		return res
 
+	##################################################
+	def get_plane_count(self) -> int | None:
+		"""Retourne le nombre de plans du fichier courant ou de l'acquisition concaténée.
+
+		:return: Nombre de plans, ou ``None`` si aucun fichier n'est sélectionné.
+		"""
+		file_list = cast(FileList, self._settings["Files"])
+		for path in self._plane_cache.keys() - set(file_list.items): del self._plane_cache[path]  # Si la liste a été réduite, le cache doit être revu.
+		files = file_list.items if self._settings["Mode"].value != 0 else [file_list.current_text]  # Mode All in one ou only one
+		if not files or not files[0]: return None  # Aucun Fichier
+
+		plane_count = 0
+		for file in files:
+			stat = Path(file).stat()
+			cached = self._plane_cache.get(file)
+			if cached is None or cached[:2] != (stat.st_size, stat.st_mtime_ns):  # Si le fichier a évolué ou n'a jamais été évalué.
+				cached = (stat.st_size, stat.st_mtime_ns, FileIO.read_tif_shape(file)[0])  # Taille, date, profondeur
+				self._plane_cache[file] = cached
+			if self._settings["Mode"].value == 2: plane_count += cached[2]
+			else: plane_count = max(plane_count, cached[2])
+		return plane_count
+
 
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

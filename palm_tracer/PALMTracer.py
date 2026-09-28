@@ -90,6 +90,7 @@ class PALMTracer:
 		"""
 		return self.palm.is_valid()
 
+	##################################################
 	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime l'interface Qt associée au nom donné pour les résultats et les paramètres.

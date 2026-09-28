@@ -252,6 +252,23 @@ def test_getter_suffix(pt):
 	assert res == ""
 
 
+##################################################
+@pytest.mark.parametrize("group_name", [pytest.param("HR", id="hr"), pytest.param("Filters", id="filters")])
+def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name):
+	"""Ignore un fichier de paramètres supprimé après l'initialisation du traitement."""
+	pt._path = str(tmp_path)
+	pt._timestamp = "20260101_000000"
+	settings_filename = pt._output_name("settings", "json")
+	settings_filename.touch()
+	settings_filename.unlink()
+	monkeypatch.setattr(FileIO, "open_json", lambda _: pytest.fail("Le fichier absent ne doit pas être lu."))
+	monkeypatch.setattr(FileIO, "save_json", lambda *_: pytest.fail("Le fichier absent ne doit pas être recréé."))
+
+	pt._save_setting_group(group_name)
+
+	assert not settings_filename.exists()
+
+
 # ==================================================
 # endregion Accesseurs
 # ==================================================

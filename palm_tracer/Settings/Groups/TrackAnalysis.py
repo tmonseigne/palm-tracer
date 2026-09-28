@@ -19,8 +19,8 @@ class TrackAnalysis(BaseSettingGroup):
 	- ``MSD`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule le déplacement quadratique moyen.
 	- ``Instant Diffusion`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : calcule la diffusion instantanée.
 	- ``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : longueur initiale de la fenêtre d'ajustement ; valeur par défaut : ``4``.
-	- ``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z.
 	- ``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de mouvement utilisé pour l'ajustement.
+	- ``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z.
 	"""
 
 	label: str = "Track Analysis"
@@ -28,8 +28,8 @@ class TrackAnalysis(BaseSettingGroup):
 	setting_list = {"MSD":               [CheckBox, ["MSD", "", False]],
 					"Instant Diffusion": [CheckBox, ["Instant Diffusion", "", False]],
 					"Fit Length":        [SpinInt, ["Fit Length", "", 4, [2, 1000], 1]],
-					"3D":                [CheckBox, ["3D", "Use the Z-axis during track analysis.", False]],
-					"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]]}
+					"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]],
+					"3D":                [CheckBox, ["3D", "Use the Z-axis during track analysis.", False]]}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
 

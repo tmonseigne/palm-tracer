@@ -258,6 +258,26 @@ def save_tif(stack: np.ndarray, filename: str | Path):
 
 
 ##################################################
+def read_tif_shape(filename: str | Path) -> tuple[int, int, int]:
+	"""Lit les dimensions d'une pile TIFF sans charger ses pixels.
+
+	Une image 2D est considérée comme une pile d'un seul plan, comme dans :func:`open_tif`.
+
+	:param filename: Chemin du fichier TIFF à examiner.
+	:return: Nombre de plans, hauteur et largeur.
+	:raises OSError: Si le fichier est introuvable.
+	:raises ValueError: Si la série TIFF n'est ni 2D ni 3D.
+	"""
+	path = Path(filename)
+	if not path.is_file():
+		raise OSError(f'Le fichier "{path}" est introuvable.')
+	with tiff.TiffFile(path) as tif: shape = tif.series[0].shape
+	if len(shape) == 2: return 1, shape[0], shape[1]
+	if len(shape) == 3: return shape
+	raise ValueError(f"Dimension inattendue pour un TIFF : {len(shape)}D (attendu 2D ou 3D).")
+
+
+##################################################
 def open_tif(filename: str | Path) -> np.ndarray:
 	"""
 	Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur).
@@ -265,6 +285,8 @@ def open_tif(filename: str | Path) -> np.ndarray:
 
 	:param filename: Chemin du fichier TIFF à ouvrir.
 	:return: Tableau 3D contenant les données TIFF.
+	:raises OSError: Si le fichier est introuvable.
+	:raises ValueError: Si la série TIFF n'est ni 2D ni 3D.
 
 	.. note:: Attention les données doivent rester telle quelle pour le transfert à la DLL. Aucun cast en float ne doit être fait.
 	"""

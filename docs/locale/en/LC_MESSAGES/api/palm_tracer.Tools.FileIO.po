@@ -168,6 +168,32 @@ msgstr "Raises"
 msgid "Si le tableau n'est ni 2D, ni 3D scalaire, ni 4D RGB à trois canaux."
 msgstr "If the array is neither 2D, 3D scalar, nor 4D RGB with three channels."
 
+#: of palm_tracer.Tools.FileIO.read_tif_shape:1
+msgid "Lit les dimensions d'une pile TIFF sans charger ses pixels."
+msgstr "Reads the dimensions of a TIFF stack without loading its pixels."
+
+#: of palm_tracer.Tools.FileIO.read_tif_shape:3
+msgid "Une image 2D est considérée comme une pile d'un seul plan, comme dans :func:`open_tif`."
+msgstr "A 2D image is treated as a single-plane stack, as in :func:`open_tif`."
+
+#: of palm_tracer.Tools.FileIO.read_tif_shape:5
+msgid "Chemin du fichier TIFF à examiner."
+msgstr "Path to the TIFF file to examine."
+
+#: of palm_tracer.Tools.FileIO.read_tif_shape:6
+msgid "Nombre de plans, hauteur et largeur."
+msgstr "Number of planes, height, and width."
+
+#: of palm_tracer.Tools.FileIO.open_tif:6
+#: palm_tracer.Tools.FileIO.read_tif_shape:7
+msgid "Si le fichier est introuvable."
+msgstr "If the file cannot be found."
+
+#: of palm_tracer.Tools.FileIO.open_tif:7
+#: palm_tracer.Tools.FileIO.read_tif_shape:8
+msgid "Si la série TIFF n'est ni 2D ni 3D."
+msgstr "If the TIFF series is neither 2D nor 3D."
+
 #: of palm_tracer.Tools.FileIO.open_tif:1
 msgid "Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur). Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D."
 msgstr "Opens a TIFF file as a 3D stack (frames x height x width). If the file contains a single 2D image, adds an axis to make a 3D stack."
@@ -180,7 +206,7 @@ msgstr "Path to the TIFF file to open."
 msgid "Tableau 3D contenant les données TIFF."
 msgstr "3D array containing TIFF data."
 
-#: of palm_tracer.Tools.FileIO.open_tif:7
+#: of palm_tracer.Tools.FileIO.open_tif:9
 msgid "Attention les données doivent rester telle quelle pour le transfert à la DLL. Aucun cast en float ne doit être fait."
 msgstr "Note: the data must remain unchanged for transfer to the DLL. No casting to float should be performed."
 
@@ -191,6 +217,10 @@ msgstr "Saves a grayscale or RGB image to a PNG file using Pillow."
 #: of palm_tracer.Tools.FileIO.save_png:3
 msgid "Image en niveaux de gris ou RGB."
 msgstr "Grayscale or RGB image."
+
+#: of palm_tracer.Tools.FileIO.save_png:4
+msgid "Nom du fichier PNG de sortie."
+msgstr "Name of the output PNG file."
 
 #: of palm_tracer.Tools.FileIO.save_png:5
 msgid "Normalise l'image avant enregistrement."
@@ -223,6 +253,3 @@ msgstr "Name of the input MAT file."
 #: of palm_tracer.Tools.FileIO.open_calibration_mat:4
 msgid "Dictionnaire contenant les éléments utiles."
 msgstr "Dictionary containing useful elements."
-
-msgid "Nom du fichier PNG de sortie."
-msgstr "Name of the output PNG file."

@@ -177,7 +177,7 @@ def test_localization_fit(qtbot):
 def test_gaussian_fit(qtbot):
 	"""Vérifie la classe GaussianFit (constructeur, getter, setter)."""
 	grp = GaussianFit()
-	group_base_test(grp, ["Mode", "Sigma", "Theta", 'Z', 'Z max', 'Model'], Combo, 2, 0)
+	group_base_test(grp, ["Mode", "Sigma", "Theta", "Z", "Z max", "Model"], Combo, 2, 0)
 
 
 ###################################################
@@ -227,7 +227,7 @@ def test_blinking_reconnection(qtbot):
 ###################################################
 def test_track_analysis(qtbot):
 	"""Vérifie la classe TrackAnalysis (constructeur, getter, setter)."""
-	group_base_test(TrackAnalysis(), ["MSD", "Instant Diffusion", "Fit Length", "3D", "Fit"], CheckBox, True, False)
+	group_base_test(TrackAnalysis(), ["MSD", "Instant Diffusion", "Fit Length", "Fit", "3D"], CheckBox, True, False)
 
 
 ###################################################

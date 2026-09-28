@@ -361,9 +361,8 @@ class PALMTracerWidget(QWidget):
 		# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer
 		try:
 			self._current_stack = open_tif(selected_file)
-			depth, height, width = self._current_stack.shape
+			_, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
-			self.pt.settings.filters.update_limits(depth)  # Update Max
 			Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
 			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
 			self.viewer.reset_view()  # .  Recentrer et ajuster la vue

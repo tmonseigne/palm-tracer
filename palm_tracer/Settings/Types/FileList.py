@@ -103,6 +103,7 @@ class FileList(BaseSettingType):
 	@items.setter
 	def items(self, items: Optional[list[str]] = None):
 		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
+		previous_value = self._value
 		if items is not None: self._items = items
 		for ui in self._uis.values():
 			b = cast(QComboBox, ui.boxes[3])
@@ -110,6 +111,7 @@ class FileList(BaseSettingType):
 				b.clear()
 				b.addItems(self._items)
 		self.value = 0
+		if self._value == previous_value: self.emit(self._value)
 
 	# ==================================================
 	# endregion Accesseurs
@@ -143,26 +145,29 @@ class FileList(BaseSettingType):
 		paths, _ = QFileDialog.getOpenFileNames(None, "Select files", initial_dir, "All files (*)")
 		valid_paths = sorted((path for path in paths if Path(path).is_file()), key=str.casefold)
 		if valid_paths:
-			self._items.extend(valid_paths)
-			self.items = None
-			self.value = len(self._items) - 1
+			with self.signal_blocked():
+				self._items.extend(valid_paths)
+				self.items = None
+				self.value = len(self._items) - 1
 
 	##################################################
 	def remove_file(self):
 		"""Supprime le fichier actuellement sélectionné dans la :class:`QComboBox`."""
 		current_index = self.value
 		if 0 <= current_index < len(self._items):
-			self._items.pop(current_index)
-			self.items = None
-			self.value = 0
+			with self.signal_blocked():
+				self._items.pop(current_index)
+				self.items = None
+				self.value = 0
 
 	##################################################
 	def clear_files(self):
 		"""Vide la liste des fichiers."""
-		self._items.clear()
-		self.items = None
-		self.value = -1
-		self.emit()
+		with self.signal_blocked():
+			self._items.clear()
+			self.items = None
+			self.value = -1
+			self.emit()
 
 
 ##################################################

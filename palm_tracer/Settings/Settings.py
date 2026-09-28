@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
-from typing import Any, Callable, cast, Optional
+from typing import Any, Callable, Optional, cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
@@ -17,10 +17,11 @@ from palm_tracer.Settings.Groups.Gallery import Gallery
 from palm_tracer.Settings.Groups.Graph import Graph
 from palm_tracer.Settings.Groups.HR import HR
 from palm_tracer.Settings.Groups.Localization import Localization
-from palm_tracer.Settings.Groups.Tracking import Tracking
 from palm_tracer.Settings.Groups.TrackAnalysis import TrackAnalysis
+from palm_tracer.Settings.Groups.Tracking import Tracking
 from palm_tracer.Settings.ROIManager import ROIManager
 from palm_tracer.Settings.Types import CheckInt, SpinInt
+from palm_tracer.Tools import Ui
 
 
 ##################################################
@@ -51,6 +52,17 @@ class Settings:
 		for setting in list_settings: self._settings[setting.__name__] = setting()
 		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
 		self.rois = ROIManager(cast(CheckInt, self.filters["ROI"]), cast(SpinInt, self.hr["Ratio"]))
+		self.batch["Files"].connect(self._update_filter_limits)
+		self.batch["Mode"].connect(self._update_filter_limits)
+
+	##################################################
+	def _update_filter_limits(self, _value: Any = None):
+		"""Ajuste les bornes des filtres à la profondeur du lot actif."""
+		try: plane_count = self.batch.get_plane_count()
+		except (OSError, ValueError, IndexError) as error:
+			Ui.print_warning(f"Unable to read batch stack depth: {error}")
+			return
+		self.filters.update_limits(plane_count if plane_count is not None else 100000)
 
 	##################################################
 	def reset(self):
@@ -173,6 +185,7 @@ class Settings:
 		for name, obj in self._settings.items():
 			if name in groups: obj.update_from_compact_dict(groups[name])
 		if "ROIs" in groups: self.rois.from_dict_list(groups["ROIs"])
+		self._update_filter_limits()
 
 	# ==================================================
 	# endregion Sérialisation
@@ -209,7 +222,6 @@ class Settings:
 	# ==================================================
 	# region Signaux
 	# ==================================================
-
 	##################################################
 	def connect(self, f: Any):
 		"""
@@ -245,6 +257,7 @@ class Settings:
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)
