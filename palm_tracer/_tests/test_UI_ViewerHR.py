@@ -271,13 +271,13 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 
 ##################################################
 def test_visualization_layer_rgb_transitions():
-	"""Vérifie les dimensions et l'ordre des calques lors des transitions scalaire/RGB, sans fenêtre ni OpenGL."""
+	"""Vérifie les axes des rendus 2D et 3D lors des transitions, sans fenêtre ni OpenGL."""
 	from types import SimpleNamespace
 
 	from napari.components import ViewerModel
 
 	viewer = ViewerModel()
-	layer = viewer.add_image(np.zeros((1, 1, 1), dtype=np.uint16), name="Visualization")
+	layer = viewer.add_image(np.zeros((1, 1), dtype=np.uint16), name="Visualization")
 	viewer.add_points(np.empty((0, 3)), name="Points")
 	state = SimpleNamespace(viewer=viewer, LAYERS_NAME=ViewerHRWidget.LAYERS_NAME, _layers={"Visualization": layer})
 	for shape in [(2, 5, 7, 3), (3, 5, 7, 3), (2, 5, 7), (5, 7), (2, 5, 7, 3)]:
@@ -285,12 +285,14 @@ def test_visualization_layer_rgb_transitions():
 		ViewerHRWidget._update_visualization_layer(state)
 		layer = state._layers["Visualization"]
 		assert layer.rgb == (len(shape) == 4)
-		assert layer.ndim == 3
+		assert layer.ndim == len(shape) - int(layer.rgb)
 		assert viewer.dims.ndim == 3
 		assert viewer.layers[0] is layer
 		assert len(viewer.layers) == 2
 		assert not layer.editable and layer.locked
-		np.testing.assert_array_equal(layer.data, state.visualization[None] if len(shape) == 2 else state.visualization)
+		np.testing.assert_array_equal(layer.data, state.visualization)
+		viewer.dims.ndisplay = 3
+		assert layer.ndim == len(shape) - int(layer.rgb)
 
 # ==================================================
 # endregion Dessin

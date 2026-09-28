@@ -68,7 +68,7 @@ class ViewerHRWidget(QWidget):
 		self._hr_settings: HR = self._pt.settings.hr
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
-		self.visualization: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
+		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
 						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[1],
@@ -284,12 +284,12 @@ class ViewerHRWidget(QWidget):
 
 	##################################################
 	def _update_visualization_layer(self):
-		"""Actualise l'image et recrée le calque lors des transitions scalaire/RGB pour conserver les axes corrects."""
+		"""Actualise l'image et recrée le calque lorsque ses axes spatiaux ou RGB changent."""
 		name = self.LAYERS_NAME[0]
 		layer = self._layers[name]
-		data = self.visualization[np.newaxis, ...] if self.visualization.ndim == 2 else self.visualization
+		data = self.visualization
 		rgb = data.ndim == 4 and data.shape[-1] == 3
-		if layer.rgb == rgb:
+		if layer.rgb == rgb and layer.ndim == data.ndim - int(rgb):
 			Ui.update_layer(layer, data, editable=False, locked=True)
 			return
 
