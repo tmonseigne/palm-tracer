@@ -750,6 +750,28 @@ def test_reset_filtered(capsys, pt):
 
 
 ##################################################
+def test_reset_filtered_saves_only_filters(pt, tmp_path):
+	"""Vérifie que Reset cible le traitement chargé et conserve les autres groupes."""
+	pt._path = str(tmp_path)
+	pt._timestamp = "20260101_000000"
+	current = pt._output_name("settings", "json")
+	newer = tmp_path / "settings-20260102_000000.json"
+	initial = pt.settings.to_compact_dict()
+	FileIO.save_json(current, initial)
+	FileIO.save_json(newer, initial)
+
+	pt.settings.filters["Plane"].active = True
+	pt.settings.hr["Ratio"].value = 8
+	pt.reset_filtered()
+
+	assert FileIO.open_json(newer) == initial
+	actual = FileIO.open_json(current)
+	assert actual["PALM Tracer Settings"]["Filters"] == pt.settings.filters.to_compact_dict()
+	assert actual["PALM Tracer Settings"]["HR"] == initial["PALM Tracer Settings"]["HR"]
+	assert not pt.settings.filters["Plane"].active
+
+
+##################################################
 def test_update_filtered(capsys, pt):
 	"""Vérifie la mise à jour des tableaux filtrés."""
 	clean_output()
@@ -763,6 +785,26 @@ def test_update_filtered(capsys, pt):
 	pt.process()
 	pt.update_filtered()  # .			Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])  # Il n'a rien enregistré, car les filtres n'ont pas fait de changement.
+
+
+##################################################
+def test_update_filtered_saves_only_filters(pt, tmp_path):
+	"""Vérifie que Update enregistre les filtres sans capturer les autres modifications."""
+	pt._path = str(tmp_path)
+	pt._timestamp = "20260102_000000"
+	settings_file = pt._output_name("settings", "json")
+	initial = pt.settings.to_compact_dict()
+	FileIO.save_json(settings_file, initial)
+
+	pt.settings.filters["Plane"].active = True
+	pt.settings.hr["Ratio"].value = 8
+	pt.settings.calibration["Pixel Size"].value = 0.32
+	pt.update_filtered()
+
+	actual = FileIO.open_json(settings_file)
+	assert actual["PALM Tracer Settings"]["Filters"] == pt.settings.filters.to_compact_dict()
+	assert actual["PALM Tracer Settings"]["HR"] == initial["PALM Tracer Settings"]["HR"]
+	assert actual["PALM Tracer Settings"]["Calibration"] == initial["PALM Tracer Settings"]["Calibration"]
 
 
 ##################################################

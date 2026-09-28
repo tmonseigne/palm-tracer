@@ -6,6 +6,7 @@ from qtpy.QtCore import QCoreApplication, QEvent, Qt
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import BaseUIType, ButtonGroup
+from palm_tracer.Tools import FileIO
 from palm_tracer.UI import ViewerHRWidget
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
@@ -243,8 +244,16 @@ def test_generate(make_napari_viewer, patched_napari_viewer, capsys, monkeypatch
 	fake_napari_layers(viewer)
 	_ = get_lines_output(capsys)
 
+	settings_file = Path(pt.path) / f"settings-{pt.suffix}.json"
+	initial = FileIO.open_json(settings_file)
+	pt.settings.hr["Background"].value = 10
+	pt.settings.gallery.active = True
+
 	w._layers[w.LAYERS_NAME[1]].visible = False  # État initial masqué
 	w._generate()
+	actual = FileIO.open_json(settings_file)["PALM Tracer Settings"]
+	assert actual["HR"] == pt.settings.hr.to_compact_dict()
+	assert actual["Gallery"] == initial["PALM Tracer Settings"]["Gallery"]
 	assert not w._layers[w.LAYERS_NAME[1]].visible
 	assert not w._layers[w.LAYERS_NAME[2]].visible
 	w._pt.settings.hr["Type"].value = 1

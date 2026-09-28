@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, cast
+from typing import Literal, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -135,6 +135,22 @@ class PALMTracer:
 		:return: Nom du fichier.
 		"""
 		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
+
+	##################################################
+	def _save_setting_group(self, group_name: Literal["HR", "Filters"]):
+		"""
+		Met à jour un seul groupe dans le fichier de paramètres du traitement courant.
+
+		:param group_name: Nom du groupe à enregistrer, sans écraser les autres paramètres du fichier.
+		"""
+		if not self._path or not self._timestamp: return
+		settings_filename = self._output_name("settings", "json")
+		if not settings_filename.is_file(): return
+
+		data = FileIO.open_json(settings_filename)
+		group = self.settings.hr if group_name == "HR" else self.settings.filters
+		data["PALM Tracer Settings"][group_name] = group.to_compact_dict()
+		FileIO.save_json(settings_filename, data)
 
 	##################################################
 	def output_viz_name(self) -> Path:
@@ -521,6 +537,7 @@ class PALMTracer:
 		"""Vide entièrement les DataFrames filtrés dans ``df``."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		self.results.reset_filtered()
+		self._save_setting_group("Filters")
 
 	##################################################
 	def update_filtered(self, last: bool = True):
@@ -547,6 +564,7 @@ class PALMTracer:
 			if len(self.results[key]) == len(self.results[f_key]): self.results[f_key] = pd.DataFrame()
 
 		if self.settings.filters["Save"].value: self.save_filtered()
+		self._save_setting_group("Filters")
 
 	##################################################
 	def save_filtered(self):
