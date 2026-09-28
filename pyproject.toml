@@ -73,7 +73,6 @@ documentation = [
 	"sphinx-qt-documentation",
 	"ansi2html", # Utile pour transformer les rapports
 	"sphinx-intl"  # Outil de traduction pour Sphinx
-
 ]
 
 [project.entry-points."napari.manifest"]
