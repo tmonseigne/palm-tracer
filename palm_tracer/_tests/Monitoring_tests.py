@@ -6,7 +6,7 @@ import psutil
 from plotly.subplots import make_subplots
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Tools import Monitoring
+from .Monitoring import Monitoring
 
 try:
 	import torch

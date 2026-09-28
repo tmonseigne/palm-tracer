@@ -62,7 +62,6 @@ EXCLUDED_CLASSES = {
 		"palm_tracer.Settings.Types.CheckIntSelection.IntSelectionValidator",
 		"palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.BlockCtx",
 		"palm_tracer.Tools.FileMigrator.Link",
-		"palm_tracer.Tools.Monitoring.Monitoring",
 		}
 
 # Relations structurelles non détectées ou mal qualifiées par pyreverse.
