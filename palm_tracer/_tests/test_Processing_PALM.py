@@ -187,13 +187,13 @@ def test_tracking_discontinuous():
 ##################################################
 @pytest.mark.parametrize("i", range(3), ids=['stationary', 'diffusion', 'linear'])
 def test_blinking_reconnection(i):
-	"""Vérifie le tracking."""
+	"""Vérifie la reconnexion et la conversion du nombre de plans manquants en écart entre plans."""
 	palm = Palm()
 	file = "tracking"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
-		t_output = palm.blinking_reconnection(t_input, 1, i, 4, 2)
+		t_output = palm.blinking_reconnection(t_input, 1, i, 3, 2)
 		if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{i}.csv", index=False)
 
 		assert len(t_output) > 0, "Aucun Tracking trouvé"
@@ -216,16 +216,16 @@ def test_blinking_reconnection_empty():
 
 
 ##################################################
-@pytest.mark.parametrize("p", [True, False], ids=['ind-3d-log-enabled', 'ind-3d-log-disabled'])
-def test_tracks_compute(p):
-	"""Vérifie les calculs de trajectoires avec ou sans diffusion instantanée, 3D et logarithme."""
+@pytest.mark.parametrize("p", [True, False], ids=['ind-3d-enabled', 'ind-3d-disabled'])
+def test_track_analysis(p):
+	"""Vérifie les analyses des trajectoires avec ou sans diffusion instantanée et 3D."""
 	palm = Palm()
 	file = "tracking2"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
-		# Test avec ou sans les mises à jour de log et la 3D
-		t_output = palm.tracks_compute(t_input, True, p, p, p, 1, 1, 1, np.array([4], dtype=float))
+		# Test avec ou sans diffusion instantanée et prise en compte de la 3D.
+		t_output = palm.track_analysis(t_input, True, p, p, 1, 1, 1, np.array([4], dtype=float))
 		for name in ["MSD", "InD", "Fit"]:
 			if t_output[name].empty: continue
 			if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{p}.csv", index=False)
@@ -242,7 +242,7 @@ def test_tracks_compute(p):
 
 ##################################################
 @pytest.mark.parametrize("mode", range(4), ids=['no-fit', 'linear', 'power', 'exponential'])
-def test_tracks_compute_fit_modes(mode):
+def test_track_analysis_fit_modes(mode):
 	"""Vérifie les quatre modes d’ajustement des trajectoires."""
 	palm = Palm()
 	file = "tracking2"
@@ -250,7 +250,7 @@ def test_tracks_compute_fit_modes(mode):
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
 		# Test sur différents modes d'ajustement.
-		t_output = palm.tracks_compute(t_input, False, False, False, False, 1, 1, mode, np.array([4], dtype=float))
+		t_output = palm.track_analysis(t_input, False, False, False, 1, 1, mode, np.array([4], dtype=float))
 		for name in ["MSD", "InD", "Fit"]:
 			if t_output[name].empty: continue
 			if save_output: t_output[name].round(6).to_csv(f"{OUTPUT_DIR}/{file}-{name}-{mode}.csv", index=False)
@@ -270,7 +270,7 @@ def test_tracks_compute_fit_modes(mode):
 		pytest.param("all", False, 4, id="diffusion-without-msd"),
 		pytest.param("first", True, 18, id="single-observation"),
 		pytest.param("empty", True, 18, id="no-observations")])
-def test_tracks_compute_small_inputs(selection, is_msd, fit_length):
+def test_track_analysis_small_inputs(selection, is_msd, fit_length):
 	"""Vérifie les calculs désactivés et les entrées trop petites pour une trajectoire."""
 	palm = Palm()
 	path = INPUT_DIR / "tracking2.csv"
@@ -278,7 +278,7 @@ def test_tracks_compute_small_inputs(selection, is_msd, fit_length):
 		tracks = pd.read_csv(path)
 		if selection == "first": tracks = tracks.iloc[[0]].copy()
 		if selection == "empty": tracks = pd.DataFrame()
-		palm.tracks_compute(tracks, is_msd, True, False, False, 1, 1, 1, np.array([fit_length], dtype=float))
+		palm.track_analysis(tracks, is_msd, True, False, 1, 1, 1, np.array([fit_length], dtype=float))
 	else:
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 

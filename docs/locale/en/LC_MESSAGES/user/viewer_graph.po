@@ -341,8 +341,8 @@ msgid "Les trajectoires (reconnectées si elles l'ont été et filtré ou non)"
 msgstr "Trajectories (reconnected if they were, and filtered or not)"
 
 #: ../../user/viewer_graph.rst:403
-msgid "Les calculs sur trajectoires : MSD, Diffusion instantanée, Ajustements (filtrés ou non)"
-msgstr "Tracks computes: MSD, instantaneous diffusion, fittings (filtered or not)"
+msgid "Les analyses des trajectoires : MSD, Diffusion instantanée, Ajustements (filtrés ou non)"
+msgstr "Track Analysis: MSD, instantaneous diffusion, fittings (filtered or not)"
 
 #: ../../user/viewer_graph.rst:405
 msgid "Plusieurs éléments permettent une communication bidirectionnelle entre les deux interfaces :"

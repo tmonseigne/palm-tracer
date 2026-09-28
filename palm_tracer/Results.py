@@ -22,10 +22,10 @@ class Results:
 	_data: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
 			"loc":   pd.DataFrame(), "dft": pd.DataFrame(), "bds": pd.DataFrame(),  # .	   Localisations.
 			"trc":   pd.DataFrame(), "blk": pd.DataFrame(),  # .						   Trajectoires.
-			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),  # .	   Calculs sur les trajectoires.
+			"MSD":   pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame(),  # .	   Analyses des trajectoires.
 			"f_loc": pd.DataFrame(), "f_dft": pd.DataFrame(),  # .						   Localisations filtrées.
 			"f_trc": pd.DataFrame(), "f_blk": pd.DataFrame(),  # .						   Trajectoires filtrées.
-			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Calculs sur les trajectoires filtrées.
+			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Analyses des trajectoires filtrées.
 	"""Résultats des différents calculs."""
 
 	_uis: dict[str, "ResultsUI"] = field(init=False, default_factory=dict)
@@ -181,8 +181,8 @@ class Results:
 		return self._get_active_key(("trc", "f_trc", "blk", "f_blk"))
 
 	##################################################
-	def get_tracks_compute_key(self) -> list[str]:
-		"""Clés des calculs sur les trajectoires, en privilégiant leurs variantes filtrées."""
+	def get_track_analysis_key(self) -> list[str]:
+		"""Clés des analyses des trajectoires, en privilégiant leurs variantes filtrées."""
 		return [self._get_active_key(("MSD", "f_MSD")), self._get_active_key(("InD", "f_InD")), self._get_active_key(("Fit", "f_Fit"))]
 
 	##################################################
@@ -205,9 +205,9 @@ class Results:
 
 	##################################################
 	@property
-	def tracks_compute(self) -> dict[str, pd.DataFrame]:
-		"""Calculs actifs sur les trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."""
-		keys = self.get_tracks_compute_key()
+	def track_analysis(self) -> dict[str, pd.DataFrame]:
+		"""Analyses actives des trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."""
+		keys = self.get_track_analysis_key()
 		return {"MSD": self._data[keys[0]], "InD": self._data[keys[1]], "Fit": self._data[keys[2]]}
 
 	##################################################
@@ -217,17 +217,14 @@ class Results:
 
 		:return: Statuts indexés par catégorie de résultat.
 		"""
-		res = {"File":          self.stack_name if self._stack_name else "No File",
-			   "Localizations": self.get_df_status(self._data["loc"], self._data["f_loc"], "localizations"),
-			   "Beads":         self.get_df_status(self._data["bds"], self._data["bds"], "localizations"),
-			   "Tracks":        self.get_df_status(self._data["trc"], self._data["f_trc"], "tracks"),
-			   "MSD":           self.get_df_status(self._data["MSD"], self._data["f_MSD"], "tracks"),
-			   "Instant D":     self.get_df_status(self._data["InD"], self._data["f_InD"], "tracks"),
-			   "MSD Fit":       self.get_df_status(self._data["Fit"], self._data["f_Fit"], "tracks")}
-
-		# Remplace le statut des trajectoires lorsqu'une version reconnectée est disponible.
-		blk = self.get_df_status(self._data["blk"], self._data["f_blk"], "tracks", "Reconnected")
-		if blk != "No": res["Tracks"] = blk
+		res = {"File":               self.stack_name if self._stack_name else "No File",
+			   "Localizations":      self.get_df_status(self._data["loc"], self._data["f_loc"], "localizations"),
+			   "Beads":              self.get_df_status(self._data["bds"], self._data["bds"], "localizations"),
+			   "Tracks":             self.get_df_status(self._data["trc"], self._data["f_trc"], "tracks"),
+			   "Tracks Reconnected": self.get_df_status(self._data["blk"], self._data["f_blk"], "tracks"),
+			   "MSD":                self.get_df_status(self._data["MSD"], self._data["f_MSD"], "tracks"),
+			   "Instant D":          self.get_df_status(self._data["InD"], self._data["f_InD"], "tracks"),
+			   "MSD Fit":            self.get_df_status(self._data["Fit"], self._data["f_Fit"], "tracks")}
 
 		return res
 
@@ -237,13 +234,17 @@ class Results:
 		"""
 		Construit le statut d'un résultat à partir de ses versions initiale et filtrée.
 
+		En présence d'une colonne ``Track``, les identifiants de trajectoire distincts et non nuls sont comptés ;
+		sinon, le nombre de lignes est utilisé.
+
 		:param original: DataFrame initial.
 		:param filtered: DataFrame filtré.
 		:param name: Nom du type de données, par exemple ``localizations`` ou ``tracks``.
 		:param pre: Qualificatif ajouté au statut, par exemple ``Reconnected``.
 		:return: Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage.
 		"""
-		n_init, n_filt = len(original), len(filtered)
+		n_init = original["Track"].nunique() if "Track" in original.columns else len(original)
+		n_filt = filtered["Track"].nunique() if "Track" in filtered.columns else len(filtered)
 		yes = f"Yes {pre}" if pre else "Yes"
 
 		if n_init == 0: return "No"

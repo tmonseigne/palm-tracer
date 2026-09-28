@@ -73,3 +73,11 @@ msgstr "Retrieves the list of stacks based on the settings."
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_stacks:3
 msgid "Une liste de piles en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de piles)."
 msgstr "A list of stacks based on the batch (a single stack, a set of concatenated stacks, or a group of stacks)."
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_plane_count:1
+msgid "Retourne le nombre de plans du fichier courant ou de l'acquisition concaténée."
+msgstr "Returns the number of planes in the current file or the combined acquisition."
+
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_plane_count:3
+msgid "Nombre de plans, ou ``None`` si aucun fichier n'est sélectionné."
+msgstr "Number of planes, or ``None`` if no file is selected."

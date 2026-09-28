@@ -17,7 +17,7 @@ class BlinkingReconnection(BaseSettingGroup):
 	Paramètres regroupés :
 
 	- ``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de déplacement attendu, parmi ``Immobile``, ``Diffuse`` et ``Linear``.
-	- ``Max Duration`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : durée maximale de l'interruption ; valeur par défaut : ``1`` plan.
+	- ``Max Duration`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre maximal de plans manquants entre deux segments ; valeur par défaut : ``1`` plan manquant.
 	- ``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale de reconnexion ; valeur par défaut : ``1.0`` pixel.
 
 	.. note:: Une distance supérieure à celle du suivi initial reste autorisée afin de reconnecter des points éloignés sur deux plans consécutifs.
@@ -26,7 +26,7 @@ class BlinkingReconnection(BaseSettingGroup):
 	label: str = "Blinking Reconnection"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {"Mode":         [Combo, ["Mode", "Expected type of movement of points.", 0, ["Immobile", "Diffuse", "Linear"]]],
-					"Max Duration": [SpinInt, ["Max Duration (plane)", "Maximum blinking duration in number of planes", 1, [1, 1000], 1]],
+					"Max Duration": [SpinInt, ["Max Duration (plane)", "Maximum number of missing planes between two track segments.", 1, [1, 1000], 1]],
 					"Max Distance": [SpinFloat, ["Max Distance (px)", "Maximum distance between two planes for a point.", 1.0, [0.0, 20.0], 1.0, 2]]}
 	"""Définition des paramètres du groupe et de leur configuration."""
 

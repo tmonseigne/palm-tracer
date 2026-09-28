@@ -64,8 +64,8 @@ class Filtering:
 	def tracking(self, datas: pd.DataFrame) -> pd.DataFrame:
 		"""
 		Filtre un DataFrame de trajectoires.
-		Simpliste uniquement sur la longueur, car il faut le calcul des statistiques sur trajectoires pour le reste.
-		Cependant, il peut s'agir d'une première étape avant, justement, ces calculs de statistiques.
+		Simpliste uniquement sur la longueur, car il faut l'analyse statistique des trajectoires pour le reste.
+		Cependant, il peut s'agir d'une première étape avant, justement, cette analyse statistique.
 
 		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
@@ -103,10 +103,10 @@ class Filtering:
 		return res
 
 	##################################################
-	def tracks_compute(self, tracks: pd.DataFrame, msd: pd.DataFrame, instant_d: pd.DataFrame,
+	def track_analysis(self, tracks: pd.DataFrame, msd: pd.DataFrame, instant_d: pd.DataFrame,
 					   fit: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 		"""
-		Filtre un DataFrame de calcul sur les trajectoires.
+		Filtre un DataFrame d'analyse des trajectoires.
 
 		:param tracks: DataFrame de trajectoires.
 		:param msd: DataFrame de calcul des MSD.

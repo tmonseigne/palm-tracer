@@ -141,25 +141,24 @@ def test_parse_irregular_array_empty(data):
 
 
 ##################################################
-@pytest.mark.parametrize("data, result_type, is_log, fit_mode, expected", [
-		pytest.param(np.arange(20), "Localization", False, 0, np.arange(18), id="localizations"),
-		pytest.param(np.arange(20), "Tracking", False, 0, np.arange(16).reshape(2, 8), id="tracks"),
-		pytest.param(np.arange(10).reshape(2, 5), "Astigmatism 3D Model", False, 0, np.arange(10).reshape(2, 5), id="astigmatism-model"),
-		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "MSD", False, 0, [[1, 2], [3, 4]], id="msd"),
-		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "Instant Diffusion", False, 0, [[1, 2], [3, 4]], id="instant-diffusion"),
-		pytest.param(np.array([9] + [1] * 9), "Fit", True, 1, [[1, 1, 0, 0, 0, 0, 0, 0, 0]], id="linear-fit-log"),
-		pytest.param(np.array([10] + [1] * 10), "Fit", False, 2, np.ones(10), id="power-fit"),
-		pytest.param(np.array([11] + [1] * 11), "Fit", False, 3, np.ones(11), id="exponential-fit")])
-def test_parse_result(data, result_type, is_log, fit_mode, expected):
+@pytest.mark.parametrize("data, result_type, fit_mode, expected", [
+		pytest.param(np.arange(20), "Localization",  0, np.arange(18), id="localizations"),
+		pytest.param(np.arange(20), "Tracking", 0, np.arange(16).reshape(2, 8), id="tracks"),
+		pytest.param(np.arange(10).reshape(2, 5), "Astigmatism 3D Model", 0, np.arange(10).reshape(2, 5), id="astigmatism-model"),
+		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "MSD", 0, [[1, 2], [3, 4]], id="msd"),
+		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "Instant Diffusion", 0, [[1, 2], [3, 4]], id="instant-diffusion"),
+		pytest.param(np.array([9] + [1] * 9), "Fit", 1, np.ones(9), id="linear-fit"),
+		pytest.param(np.array([10] + [1] * 10), "Fit", 2, np.ones(10), id="power-fit"),
+		pytest.param(np.array([11] + [1] * 11), "Fit", 3, np.ones(11), id="exponential-fit")])
+def test_parse_result(data, result_type, fit_mode, expected):
 	"""Vérifie la conversion de chaque format de résultat valide."""
-	res = parse_result(data, result_type, is_log=is_log, fit_mode=fit_mode)
+	res = parse_result(data, result_type, fit_mode=fit_mode)
 	assert np.allclose(res, expected, atol=0, rtol=0)
 
 
 ##################################################
 @pytest.mark.parametrize("result_type", [
-		pytest.param("Localization", id="localizations"), pytest.param("Tracking", id="tracks"),
-		pytest.param("Fit", id="fit")])
+		pytest.param("Localization", id="localizations"), pytest.param("Tracking", id="tracks"), pytest.param("Fit", id="fit")])
 def test_parse_result_empty(result_type):
 	"""Vérifie la conversion des résultats vides."""
 	assert parse_result(np.array([]), result_type).empty

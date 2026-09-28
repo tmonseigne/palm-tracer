@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, cast
+from typing import Literal, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -75,7 +75,7 @@ class PALMTracer:
 				Step("beads", ["bds"], self._beads_extraction, lambda x: x, allow_dirty=True, apply_filter=False),
 				Step("tracking", ["trc"], self._tracking, self.filtering.tracking),
 				Step("blinking", ["blk"], self._blinking_reconnection, self.filtering.tracking),
-				Step("tracks_compute", ["MSD", "InD", "Fit"], self._tracks_compute, self.filtering.tracks_compute),
+				Step("track_analysis", ["MSD", "InD", "Fit"], self._track_analysis, self.filtering.track_analysis),
 				# Step("gallery", "gallery", ["gallery"], self._gallery),
 				# Step("graphical visualization", "visualization_graph", ["graph"], self._visualization_graph),
 				# Step("high-resolution visualization", "visualization_hr", ["hr"], self._visualization_hr),
@@ -90,6 +90,7 @@ class PALMTracer:
 		"""
 		return self.palm.is_valid()
 
+	##################################################
 	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime l'interface Qt associée au nom donné pour les résultats et les paramètres.
@@ -135,6 +136,22 @@ class PALMTracer:
 		:return: Nom du fichier.
 		"""
 		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
+
+	##################################################
+	def _save_setting_group(self, group_name: Literal["HR", "Filters"]):
+		"""
+		Met à jour un seul groupe dans le fichier de paramètres du traitement courant.
+
+		:param group_name: Nom du groupe à enregistrer, sans écraser les autres paramètres du fichier.
+		"""
+		if not self._path or not self._timestamp: return
+		settings_filename = self._output_name("settings", "json")
+		if not settings_filename.is_file(): return
+
+		data = FileIO.open_json(settings_filename)
+		group = self.settings.hr if group_name == "HR" else self.settings.filters
+		data["PALM Tracer Settings"][group_name] = group.to_compact_dict()
+		FileIO.save_json(settings_filename, data)
 
 	##################################################
 	def output_viz_name(self) -> Path:
@@ -342,7 +359,7 @@ class PALMTracer:
 					self.results.save(f_key, self._path, self._timestamp)
 			else:
 				self.results[f_key] = pd.DataFrame()
-		# Cas spécial des tracks_compute qui modifient beaucoup de choses en même temps
+		# Cas spécial de l'analyse des trajectoires, qui modifie plusieurs résultats simultanément
 		else:
 			n_init = len(self.results["MSD"])
 			o_name = self.results.get_tracks_key()
@@ -482,25 +499,25 @@ class PALMTracer:
 		self.results.save("blk", self._path, self._timestamp)
 
 	##################################################
-	def _tracks_compute(self):
-		"""Lance les calculs sur les trajectoires à partir des paramètres de l'interface."""
+	def _track_analysis(self):
+		"""Lance les analyses des trajectoires à partir des paramètres de l'interface."""
 		df = self.results.tracks  # Récupère automatiquement le "bon" DataFrame (blinking et filtré ou non)
 		if df.empty:
-			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
+			self._logger.add("\tNo tracking data available, no track analysis can be performed.")
 			return
 
 		# Parse settings
 		sc = self.settings.calibration.settings
-		s = self.settings.tracks_compute.settings
+		s = self.settings.track_analysis.settings
 
 		if not s["MSD"] and not s["Instant Diffusion"] and s["Fit"] == 0:
-			self._logger.add("\tNo metrics selected, no additional calculations can be performed.")
+			self._logger.add("\tNo metrics selected, no track analysis can be performed.")
 			return
 
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.tracks_compute(df, s["MSD"], s["Instant Diffusion"], s["3D"], s["Log Scale"],
+		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"],
 									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
@@ -521,6 +538,7 @@ class PALMTracer:
 		"""Vide entièrement les DataFrames filtrés dans ``df``."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		self.results.reset_filtered()
+		self._save_setting_group("Filters")
 
 	##################################################
 	def update_filtered(self, last: bool = True):
@@ -540,13 +558,14 @@ class PALMTracer:
 
 		o_name = "f_trc" if self.results["f_blk"].empty else "f_blk"
 		self.results[o_name], self.results["f_MSD"], self.results["f_InD"], self.results["f_Fit"] \
-			= self.filtering.tracks_compute(self.results.tracks, df["MSD"], df["InD"], df["Fit"])
+			= self.filtering.track_analysis(self.results.tracks, df["MSD"], df["InD"], df["Fit"])
 
 		for key in ["loc", "dft", "trc", "blk"]:
 			f_key = f"f_{key}"
 			if len(self.results[key]) == len(self.results[f_key]): self.results[f_key] = pd.DataFrame()
 
 		if self.settings.filters["Save"].value: self.save_filtered()
+		self._save_setting_group("Filters")
 
 	##################################################
 	def save_filtered(self):
@@ -704,7 +723,7 @@ class PALMTracer:
 
 				# Récupère la longueur des segments continus des trajectoires.
 				if src == "Length On": track_lengths = np.diff(np.concatenate(([-1], breaks, [planes_array.size - 1],)))
-				elif src == "Length Off": track_lengths = diffs[breaks]  # Récupère la longueur des blancs dans les trajectoires.
+				elif src == "Length Off": track_lengths = diffs[breaks] - 1  # Nombre de plans absents entre deux segments.
 				else: continue
 
 				lengths.extend(track_lengths.tolist())
@@ -715,7 +734,7 @@ class PALMTracer:
 				return np.asarray(lengths_by_track), title
 			return np.asarray(lengths, dtype=int), title
 
-		df = self.results.tracks_compute
+		df = self.results.track_analysis
 		if src == "MSD":
 			df = df["MSD"]
 			if df.empty: return np.empty(0), title

@@ -24,11 +24,11 @@ def f() -> Filtering:
 ##################################################
 @pytest.mark.parametrize("method", [
 		pytest.param("localization", id="localizations"), pytest.param("tracking", id="tracks"),
-		pytest.param("tracks_compute", id="track-computations")])
+		pytest.param("track_analysis", id="track-analysis")])
 def test_filter_bad(qtbot, f, method):
 	"""Vérifie le retour vide pour chaque type de résultat sans données."""
-	if method == "tracks_compute":
-		res = f.tracks_compute(pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
+	if method == "track_analysis":
+		res = f.track_analysis(pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
 		assert all(frame.empty for frame in res)
 	else:
 		assert getattr(f, method)(pd.DataFrame()).empty
@@ -132,7 +132,7 @@ def test_tracking_time_inside_roi(qtbot, f, roi_active, limits, expected_tracks)
 		pytest.param("restrictive", [0, 0, 0, 0], id="overly-restrictive-length"),
 		pytest.param("disjoint", [0, 0, 0, 0], id="no-common-tracks"),
 		pytest.param("disabled", [435, 111, 11, 13], id="filters-disabled")])
-def test_tracks_compute(qtbot, f, scenario, expected):
+def test_track_analysis(qtbot, f, scenario, expected):
 	"""Vérifie l'intersection des résultats selon les filtres et les données disponibles."""
 	tracks = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking.csv")
 	fit = pd.read_csv(INPUT_DIR / "ref" / "stack-blinking-Fit.csv")
@@ -158,5 +158,5 @@ def test_tracks_compute(qtbot, f, scenario, expected):
 		instant_d.loc[:, "Track"] += 2000
 		fit.loc[:, "Track"] += 3000
 	f.filters.active = scenario != "disabled"
-	res = f.tracks_compute(tracks, msd, instant_d, fit)
+	res = f.track_analysis(tracks, msd, instant_d, fit)
 	assert [len(frame) for frame in res] == expected

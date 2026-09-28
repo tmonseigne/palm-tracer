@@ -42,9 +42,9 @@ msgstr "Group of settings related to tracking (:class:`~palm_tracer.Settings.Gro
 msgid "Groupe de paramètres liés à la correction du scintillement (:class:`~palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection`)."
 msgstr "Group of settings related to blinking correction (:class:`~palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection`)."
 
-#: of palm_tracer.Settings.Settings.Settings.tracks_compute:1
-msgid "Groupe de paramètres liés aux calculs sur trajectoires (:class:`~palm_tracer.Settings.Groups.TracksCompute.TracksCompute`)."
-msgstr "Group of settings related to tracks compute (:class:`~palm_tracer.Settings.Groups.TracksCompute.TracksCompute`)."
+#: of palm_tracer.Settings.Settings.Settings.track_analysis:1
+msgid "Groupe de paramètres liés aux analyses des trajectoires (:class:`~palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis`)."
+msgstr "Group of settings related to track analysis (:class:`~palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis`)."
 
 #: of palm_tracer.Settings.Settings.Settings.gallery:1
 msgid "Groupe de paramètres liés à la génération de galerie (:class:`~palm_tracer.Settings.Groups.Gallery.Gallery`)."

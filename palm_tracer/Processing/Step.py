@@ -12,7 +12,7 @@ from palm_tracer.Settings.Groups import BaseSettingGroup
 
 ##################################################
 FilterSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un DataFrame et qui en retourne un.
-FilterTracksCompute: TypeAlias = Callable[  # Fonction spécifique au tracks compute
+FilterTrackAnalysis: TypeAlias = Callable[  # Fonction spécifique à l'analyse des trajectoires
 	[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame], tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]]
 
 

@@ -3,8 +3,8 @@ msgid "Pipeline des traitements"
 msgstr "Processing pipeline"
 
 #: ../../algorithm/pipeline.rst:12
-msgid "Récupération des données, localisation, suivi, calculs sur les trajectoires, visualisation haute résolution, visualisation de graphiques et génération de galeries sont les étapes principales du pipeline de traitement de PALM. Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface."
-msgstr "Data loading, localization, tracking, tracks compute, high-resolution visualization, graph visualization, and gallery generation are the main steps of the PALM processing pipeline. These steps are executed in the :py:meth:`~PALMTracer.process` method according to the interface settings."
+msgid "Récupération des données, localisation, suivi, analyses des trajectoires, visualisation haute résolution, visualisation de graphiques et génération de galeries sont les étapes principales du pipeline de traitement de PALM. Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface."
+msgstr "Data loading, localization, tracking, track analysis, high-resolution visualization, graph visualization, and gallery generation are the main steps of the PALM processing pipeline. These steps are executed in the :py:meth:`~PALMTracer.process` method according to the interface settings."
 
 #: ../../algorithm/pipeline.rst:16
 msgid "Étape 1 : Récupération des piles"
@@ -111,11 +111,11 @@ msgid "Le chargement d'un suivi précalculé s'effectue toujours sur la version 
 msgstr "Loading precomputed tracking is always performed using the most recent unfiltered version, and the reconnected one if it exists."
 
 #: ../../algorithm/pipeline.rst:73
-msgid "Étape 5 : Calculs sur les trajectoires"
-msgstr "Step 5: Tracks compute"
+msgid "Étape 5 : Analyses des trajectoires"
+msgstr "Step 5: Track Analysis"
 
 #: ../../algorithm/pipeline.rst:75
-msgid "Des calculs peuvent être effectués sur les trajectoires pour en extraire des informations (MSD, diffusion instantanée, ajustement vers un modèle). Ces calculs sont lancés selon les paramètres de l'interface."
+msgid "Des analyses peuvent être effectuées sur les trajectoires pour en extraire des informations (MSD, diffusion instantanée, ajustement vers un modèle). Ces analyses sont lancées selon les paramètres de l'interface."
 msgstr "Calculations can be performed on tracks to extract information (MSD, instantaneous diffusion, model fitting). These computations are executed according to the interface settings."
 
 #: ../../algorithm/pipeline.rst:78

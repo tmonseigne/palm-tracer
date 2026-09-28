@@ -49,10 +49,10 @@ class HR(BaseSettingGroup):
 	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]]],
 					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 					"Source":           [Combo, ["Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"]]],
-					"Scaling":          [SpinFloat, ["Color scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
-					"Color mode":       [Combo, ["Color mode", "When contributions overlap, select whether their pixel values are added "
-															   "or only the maximum or minimum value is retained.", 0, ["Addition", "Max", "Min"]]],
-					"Background":       [SpinInt, ["Background Color", "Background intensity as a percentage: 0% produces black and 100% produces white.",
+					"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
+					"Color mode":       [Combo, ["Intensity mode", "When contributions overlap, select whether their pixel values are added "
+																   "or only the maximum or minimum value is retained.", 0, ["Addition", "Max", "Min"]]],
+					"Background":       [SpinInt, ["Background Intensity", "Background intensity as a percentage: 0% produces black and 100% produces white.",
 												   0, [0, 100], 10]],
 					"Ratio":            [SpinInt, ["Upscaling ratio", "Image upscaling ratio.", 4, [1, 256], 2]],
 					"Crop":             [CheckBox, ["Auto Crop",
@@ -148,6 +148,7 @@ class HR(BaseSettingGroup):
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

@@ -61,29 +61,29 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Processing.Filtering.Filtering.tracking:1
-msgid "Filtre un DataFrame de trajectoires. Simpliste uniquement sur la longueur, car il faut le calcul des statistiques sur trajectoires pour le reste. Cependant, il peut s'agir d'une première étape avant, justement, ces calculs de statistiques."
+msgid "Filtre un DataFrame de trajectoires. Simpliste uniquement sur la longueur, car il faut l'analyse statistique des trajectoires pour le reste. Cependant, il peut s'agir d'une première étape avant, justement, cette analyse statistique."
 msgstr "Filters a tracks DataFrame. This is a simplified filter based solely on length, as statistics on tracks must be calculated for the remaining data. However, it can serve as a first step prior to these statistical calculations."
 
-#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:1
-msgid "Filtre un DataFrame de calcul sur les trajectoires."
-msgstr "Filters a tracks compute DataFrame."
+#: of palm_tracer.Processing.Filtering.Filtering.track_analysis:1
+msgid "Filtre un DataFrame d'analyse des trajectoires."
+msgstr "Filters a track analysis DataFrame."
 
-#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:3
+#: of palm_tracer.Processing.Filtering.Filtering.track_analysis:3
 msgid "DataFrame de trajectoires."
 msgstr "Track DataFrame."
 
-#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:4
+#: of palm_tracer.Processing.Filtering.Filtering.track_analysis:4
 msgid "DataFrame de calcul des MSD."
 msgstr "DataFrame containing MSD calculations."
 
-#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:5
+#: of palm_tracer.Processing.Filtering.Filtering.track_analysis:5
 msgid "DataFrame de calcul de la diffusion instantanée."
 msgstr "Instantaneous diffusion compute DataFrame."
 
-#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:6
+#: of palm_tracer.Processing.Filtering.Filtering.track_analysis:6
 msgid "DataFrame de calcul de l'ajustement."
 msgstr "Fit compute DataFrame."
 
-#: of palm_tracer.Processing.Filtering.Filtering.tracks_compute:7
+#: of palm_tracer.Processing.Filtering.Filtering.track_analysis:7
 msgid "DataFrames filtrés."
 msgstr "Filtered DataFrames."

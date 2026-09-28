@@ -114,7 +114,7 @@ Le widget est structuré comme suit :
    - Processing
       - Paramètres de localisation
       - Paramètres de tracking
-      - Paramètres de calcul sur les trajectoires
+      - Paramètres d'analyse des trajectoires
       - Bouton Start Processing (traitement en thread séparé)
    - Visualization
       - Galerie de ROI.
@@ -189,12 +189,12 @@ Onglet Processing
 ----------------------------------
 
 L'onglet :guilabel:`Processing` regroupe l'ensemble des paramètres liés au traitement principal :
-la localisation et l'éventuel suivi des molécules (tracking), puis les calculs sur les trajectoires.
+la localisation et l'éventuel suivi des molécules (tracking), puis les analyses des trajectoires.
 
 Il est constitué de trois modules :
    - **Localisation**
    - **Tracking**
-   - **Calculs sur les trajectoires**
+   - **Analyses des trajectoires**
 
 .. figure:: ../_static/img/manual/Processing_Tab.png
    :figclass: centered-caption
@@ -229,22 +229,21 @@ Les paramètres peuvent inclure :
    - **Max Distance** : Distance maximale en pixel entre deux plans.
    - **Blinking Reconnection** :  Paramètres de reconnexion en cas de scintillement.
       - **Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire).
-      - **Max Duration** : Durée maximale du scintillement en nombre de plans.
+      - **Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire.
       - **Max Speed** : Vitesse maximale du point en μm/plan.
 
 .. note::
 	**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans l'aperçu.
 
 
-Calculs sur les trajectoires
+Analyses des trajectoires
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Cette section permet d'appliquer différents calculs sur les trajectoires reconstruites :
+Cette section permet d'appliquer différentes analyses des trajectoires reconstruites :
    - **MSD** : (Mean Squared Displacement) : Calcul du MSD par trajectoire et par plans successifs.
    - **Instant Diffusion** : Calcul de la diffusion instantanée par trajectoire et par plans successifs.
    - **Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée.
    - **3D** : Utilisation ou non de la coordonnée Z dans les calculs.
-   - **Log Scale** : Utilisation ou non d'une échelle logarithmique pour les résultats.
    - **Fit** : Méthode d'ajustement du mouvement de la trajectoire.
 
 

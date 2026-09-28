@@ -136,7 +136,7 @@ class PALMTracerWidget(QWidget):
 		tabs = QTabWidget()  # Création du QTabWidget
 		tabs.setStyleSheet("""QTabWidget::tab-bar { alignment: left; }""")
 		tabs.addTab(self._create_tab([setting_ui["Localization"].widget, setting_ui["BeadsExtraction"].widget, setting_ui["Tracking"].widget,
-									  setting_ui["BlinkingReconnection"].widget, setting_ui["TracksCompute"].widget]), "Processing")
+									  setting_ui["BlinkingReconnection"].widget, setting_ui["TrackAnalysis"].widget]), "Processing")
 		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget, setting_ui["Graph"].widget, setting_ui["HR"].widget,
 									  self.btn_viewer_gr, self.btn_viewer_hr, self.btn_viewer_3d]), "Visualization")
 		tabs.addTab(self._create_tab([setting_ui["Filters"].widget]), "Filtering")
@@ -361,9 +361,8 @@ class PALMTracerWidget(QWidget):
 		# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer
 		try:
 			self._current_stack = open_tif(selected_file)
-			depth, height, width = self._current_stack.shape
+			_, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
-			self.pt.settings.filters.update_limits(depth)  # Update Max
 			Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
 			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
 			self.viewer.reset_view()  # .  Recentrer et ajuster la vue

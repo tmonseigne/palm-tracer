@@ -5,6 +5,7 @@ from datetime import datetime
 from unittest.mock import Mock
 
 import pytest
+import tifffile
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Tools import FileIO
@@ -205,6 +206,34 @@ def test_save_tif_rgb(tmp_path):
 def test_save_tif_bad_stack(shape, tmp_path):
 	"""Vérifie le rejet des dimensions et nombres de canaux non pris en charge."""
 	with pytest.raises(ValueError): FileIO.save_tif(np.zeros(shape), tmp_path / "invalid.tif")
+
+
+##################################################
+@pytest.mark.parametrize("shape, expected", [
+		pytest.param((4, 5), (1, 4, 5), id="single-image"),
+		pytest.param((3, 4, 5), (3, 4, 5), id="stack")])
+def test_read_tif_shape(shape, expected, tmp_path):
+	"""Vérifie la lecture des dimensions sans décoder les pixels."""
+	path = tmp_path / "image.tif"
+	FileIO.save_tif(np.zeros(shape, dtype=np.uint16), path)
+	assert FileIO.read_tif_shape(path) == expected
+
+
+##################################################
+def test_read_tif_shape_single_image(tmp_path):
+	"""Vérifie la lecture d'une série TIFF réellement 2D."""
+	path = tmp_path / "image.tif"
+	tifffile.imwrite(path, np.zeros((4, 5), dtype=np.uint16))
+	assert FileIO.read_tif_shape(path) == (1, 4, 5)
+
+
+##################################################
+@pytest.mark.parametrize("filename, error", [
+		pytest.param("bad_filename.tif", OSError, id="missing-file"),
+		pytest.param(INPUT_DIR / "stack4D.tif", ValueError, id="invalid-dimensions")])
+def test_read_tif_shape_bad_file(filename, error):
+	"""Vérifie les erreurs de lecture des dimensions TIFF."""
+	with pytest.raises(error): FileIO.read_tif_shape(filename)
 
 
 ##################################################

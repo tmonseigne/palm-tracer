@@ -223,8 +223,8 @@ msgid "On supprime les lignes remplies de 0 et de -1. Un test sur les colonnes X
 msgstr "Rows filled with 0s and -1s are removed. A strictly positive test on the X or Y columns is sufficient (SigmaX and SigmaY can be 0)."
 
 #: of palm_tracer.Processing.Parsing.parse_result:8
-msgid "Pour les calculs sur trajectoire, on a un tableau 1D représentant un tableau 2D irrégulier (avec un nombre de colonnes non constant (:func:`parse_irregular_array`)."
-msgstr "For tracks computes, we have a 1D array representing an irregular 2D array (with a non-constant number of columns (:func:`parse_irregular_array`)."
+msgid "Pour les analyses des trajectoires, on a un tableau 1D représentant un tableau 2D irrégulier (avec un nombre de colonnes non constant (:func:`parse_irregular_array`)."
+msgstr "For track analysis, we have a 1D array representing an irregular 2D array (with a non-constant number of columns (:func:`parse_irregular_array`)."
 
 #: of palm_tracer.Processing.Parsing.parse_result:11
 msgid "Données en entrée récupérées depuis la DLL PALM."
@@ -235,13 +235,9 @@ msgid "Type de fichier à parser (Localization, Tracking, Astigmatism 3D Model, 
 msgstr "File type to parse (Localization, Tracking, 3D Astigmatism Model, MSD, Instant Diffusion, Fit)."
 
 #: of palm_tracer.Processing.Parsing.parse_result:13
-msgid "Applique un logarithme sur le résultat (si nécessaire, pour les calculs sur trajectoires)."
-msgstr "Applies a logarithm to the result (if necessary, for tracks calculations)."
-
-#: of palm_tracer.Processing.Parsing.parse_result:14
-msgid "Mode d'ajustement (si nécessaire, pour les calculs sur trajectoires)."
+msgid "Mode d'ajustement (si nécessaire, pour les analyses des trajectoires)."
 msgstr "Fitting mode (if necessary, for tracks calculations)."
 
-#: of palm_tracer.Processing.Parsing.parse_result:15
+#: of palm_tracer.Processing.Parsing.parse_result:14
 msgid ":class:`DataFrame <pandas.DataFrame>` parsé."
 msgstr "Parsed :class:`DataFrame <pandas.DataFrame>`."

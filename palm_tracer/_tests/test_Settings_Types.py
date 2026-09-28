@@ -345,6 +345,30 @@ def test_file_list_adds_sorted_batch_without_reordering_existing_items(fake_qfil
 
 
 ###################################################
+def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path):
+	"""Vérifie qu'une opération sur la liste n'émet que son état final."""
+	paths = [tmp_path / "first.tif", tmp_path / "second.tif"]
+	for path in paths: path.touch()
+
+	setting = FileList("Test")
+	setting.items = [str(paths[0])]
+	selected = []
+	setting.connect(lambda _value: selected.append(setting.current_text))
+
+	fake_qfiledialog(FileList, str(paths[1]))
+	setting.add_file()
+	assert selected == [str(paths[1])]
+
+	selected.clear()
+	setting.remove_file()
+	assert selected == [str(paths[0])]
+
+	selected.clear()
+	setting.clear_files()
+	assert selected == [""]
+
+
+###################################################
 def test_check_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckInt("Test", "", 1, [1, 10])

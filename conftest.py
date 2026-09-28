@@ -15,7 +15,8 @@ from napari._vispy.canvas import VispyCanvas
 from pytest_metadata.plugin import metadata_key
 from qtpy.QtWidgets import QApplication
 
-from palm_tracer.Tools import Monitoring, Ui
+from palm_tracer.Tools import Ui
+from palm_tracer._tests.Monitoring import Monitoring
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 os.environ["QT_OPENGL"] = "software"

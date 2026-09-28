@@ -280,6 +280,7 @@ class ViewerHRWidget(QWidget):
 		self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
 		self.viewer.reset_view()  # Recentrer et ajuster la vue
+		self._pt._save_setting_group("HR")
 
 	##################################################
 	def _update_visualization_layer(self):

@@ -68,5 +68,5 @@ Règle de nommage : ``mon_experience.PT`` → ``mon_experience_PALM_Tracer``. Le
 Fichiers actuellement pris en charge :
    - Fichier de localisations : ``locPALMTracer.txt``
    - Fichier de trajectoires : ``trcPALMTracer.txt``
-   - Fichiers de calculs sur les trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``
+   - Fichiers d'analyses des trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``
    - Fichier de modèle d'astigmatisme 3D : ``3DFit.txt``
