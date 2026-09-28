@@ -289,6 +289,38 @@ def test_preview(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 
 
 ##################################################
+def test_preview_plane_filter_uses_stack_plane(make_napari_viewer, patched_napari_viewer, qtbot):
+	"""Vérifie que le filtre utilise les numéros réels des plans prévisualisés."""
+	SETTINGS_FILE.unlink(missing_ok=True)
+	viewer = make_napari_viewer()
+	w = PALMTracerWidget(viewer)
+
+	add_basic_file(w.pt)
+	qtbot.waitUntil(lambda: "Raw" in viewer.layers, timeout=5000)
+	qtbot.waitUntil(lambda: not w._processing, timeout=5000)
+	viewer.dims.set_current_step(0, 4)  # Le cinquième plan a pour indice 4 dans Napari.
+
+	setting = w.pt.settings.localization
+	filters = w.pt.settings.filters
+	with setting.signal_blocked(), filters.signal_blocked():
+		setting["Preview"].value = True
+		filters["Plane"].active = True
+		filters["Plane"].value = [5, 5]
+		w._preview()
+		assert len(w._preview_locs["Present"]) > 0
+		assert len(w._preview_locs["Filtered"]) == 0
+		assert len(w._preview_locs["Past"]) == 0
+		assert len(w._preview_locs["Future"]) == 0
+
+		filters["Plane"].value = [4, 6]
+		w._preview()
+		assert len(w._preview_locs["Present"]) > 0
+		assert len(w._preview_locs["Filtered"]) == 0
+		assert len(w._preview_locs["Past"]) > 0
+		assert len(w._preview_locs["Future"]) > 0
+
+
+##################################################
 def test_auto_threshold(make_napari_viewer, patched_napari_viewer, capsys, qtbot):
 	"""Vérifie le clic sur le bouton auto_threshold."""
 	SETTINGS_FILE.unlink(missing_ok=True)

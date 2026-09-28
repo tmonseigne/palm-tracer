@@ -9,6 +9,7 @@ from typing import Any, Callable, cast, Optional
 
 import napari
 import numpy as np
+import pandas as pd
 from napari import Viewer
 from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
@@ -438,17 +439,22 @@ class PALMTracerWidget(QWidget):
 		s = self.pt.settings.localization.settings
 		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
 		except Exception: raise
-		pres_loc = self.pt.palm.localization(present, t, w, f, fp)
-		filt_loc = self.pt.filtering.localization(pres_loc)
+		plane_number = self.viewer.dims.current_step[0] + 1
+
+		def localize_preview(image: np.ndarray, number: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+			"""Renvoie les localisations brutes et filtrées d'un plan de la pile."""
+			locations = self.pt.palm.localization(image, t, w, f, fp)
+			locations["Plane"] = number
+			return locations, self.pt.filtering.localization(locations)
+
+		pres_loc, filt_loc = localize_preview(present, plane_number)
 		remo_loc = pres_loc.loc[~pres_loc.index.isin(filt_loc.index)].copy()
 
 		self._preview_locs = {
 				"Present":  filt_loc[["Y", "X"]].to_numpy(),
 				"Filtered": remo_loc[["Y", "X"]].to_numpy(),
-				"Past":     self.EMPTY_PREVIEW if past is None else self.pt.filtering.localization(
-						self.pt.palm.localization(past, t, w, f, fp))[["Y", "X"]].to_numpy(),
-				"Future":   self.EMPTY_PREVIEW if future is None else self.pt.filtering.localization(
-						self.pt.palm.localization(future, t, w, f, fp))[["Y", "X"]].to_numpy(),
+				"Past":     self.EMPTY_PREVIEW if past is None else localize_preview(past, plane_number - 1)[1][["Y", "X"]].to_numpy(),
+				"Future":   self.EMPTY_PREVIEW if future is None else localize_preview(future, plane_number + 1)[1][["Y", "X"]].to_numpy(),
 				}
 
 		# Affichage console (les notifications posent problème en thread externe)
