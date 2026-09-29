@@ -254,17 +254,18 @@ class ViewerHRWidget(QWidget):
 			show_warning(f"No stack processed loaded.")
 			return
 
-		self.visualization, plot_data = self._pt.hr()
-		if self.visualization.size <= 1:
+		# Conserve le repère de l'image affichée si la génération ne peut pas la remplacer.
+		previous_hr_box = self._pt.settings.rois.hr_box
+		visualization, plot_data = self._pt.hr()
+		if visualization.size <= 1:
+			self._pt.settings.rois.hr_box = previous_hr_box
 			show_warning("No visualization available.")
 			return
+		self.visualization = visualization
 
 		# Changement des noms
 		self._filename = str(self._pt.output_viz_name())
 		self._screenshot_filename = f"{path}/screenshot-{suffix}-{FileIO.get_timestamp_for_files()}.png"
-
-		# Mise à jour de la ROI qui a été utilisé
-		self._pt.settings.rois.update_hr_box()
 
 		point_layer = self._layers[self.LAYERS_NAME[1]]
 		tracks_layer = self._layers[self.LAYERS_NAME[2]]
@@ -274,6 +275,8 @@ class ViewerHRWidget(QWidget):
 			Ui.update_layer(point_layer, plot_data, face_color="lime")
 		else:  # Trajectoires
 			point_layer.visible = False
+			# Napari refuse les trajectoires vides : conserve le calque avec le même point fictif qu'à l'initialisation.
+			if plot_data.shape[0] == 0: plot_data = np.array([[0, 0, 0, 0]], dtype=float)
 			Ui.update_layer(tracks_layer, plot_data, blending="translucent")
 
 		self._update_visualization_layer()

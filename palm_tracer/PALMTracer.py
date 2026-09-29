@@ -781,6 +781,15 @@ class PALMTracer:
 		color_mode = 0 if src == "Count" else s["Color mode"].value  # .	La source Count impose le mode cumulatif.
 		bg_color = round(s["Background"].value * MAX_UI_16 / 100)  # .		Conversion du pourcentage en intensité uint16.
 		dimension, tracks = s["Dimension"].value, s["Type"].value == 1
+
+		# Mise à jour de la zone de travail en fonction des données
+		gaussian = s.gaussian.settings if s.gaussian.active else None
+		# Les positions non corrigées ne bornent pas les déplacements produits par le drift.
+		with_drift = s["Drift Correction"].value and not self.results.beads.empty
+		crop_data = self.results.localizations if s["Crop"].value and not tracks and dimension in (0, 1) and not with_drift else None
+		self.settings.rois.update_data_box(crop_data, gaussian)
+
+		# Mise à jour de la zone de travail avec les régions d'intérêts
 		time_filter = cast(CheckRangeInt, self.settings.filters.tracking["Time Inside ROI"]) if tracks else None
 		limits = self.settings.rois.get_hr_limits(time_filter)
 		x0, x1, y0, y1 = limits
@@ -792,7 +801,6 @@ class PALMTracer:
 
 		# --- Localisations ---
 		if not tracks:
-			gaussian = s.gaussian.settings if s.gaussian.active else None
 			if dimension == 0:  # .	-- Rendu 2D --
 				viz = self._renderer.localizations(viz_data, color_mode, bg_color, gaussian)
 			elif dimension == 1:  # -- Rendu Z Stack --

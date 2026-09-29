@@ -1084,6 +1084,42 @@ def test_get_graph_data_from_src(source, column, empty, msd_step, expected_title
 
 
 ##################################################
+@pytest.mark.parametrize("shape", [
+		pytest.param(None, id="spots"), pytest.param(0, id="fixed-size"),
+		pytest.param(1, id="isotropic"), pytest.param(2, id="anisotropic")])
+@pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
+def test_hr_data_crop(shape, dimension):
+	"""Compare le premier crop au rendu complet et vérifie sa désactivation sur le même objet."""
+	pt = get_fake_pt()
+	pt._stack = np.zeros((1, 100, 100), dtype=np.uint16)
+	pt.settings.rois.set_size(100, 100)
+	s = pt.settings.hr
+	s["Dimension"].value = dimension
+	s["Ratio"].value = 2
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+	s.gaussian.active = shape is not None
+	if shape is not None: s.gaussian["Shape"].value = shape
+	data = pt.results["loc"].copy()
+	data["X"], data["Y"] = 40.25, 50.25
+	data["Sigma X"], data["Sigma Y"] = 1.0, 2.0
+	pt.results["loc"] = data
+	pt.results["f_loc"] = data.copy()
+	s["Crop"].value = False
+	full, full_plot = pt.hr()
+	s["Crop"].value = True
+	cropped, cropped_plot = pt.hr()
+	x0, x1, y0, y1 = pt.settings.rois.hr_box
+	assert cropped.size < full.size
+	np.testing.assert_array_equal(cropped, full[..., y0 * 2:y1 * 2, x0 * 2:x1 * 2])
+	np.testing.assert_allclose(cropped_plot[:, -2:], full_plot[:, -2:] - [y0 * 2, x0 * 2])
+	s["Crop"].value = False
+	restored, _ = pt.hr()
+	np.testing.assert_array_equal(restored, full)
+	assert pt.settings.rois.data_box == (-1, -1, -1, -1)
+
+
+##################################################
 def test_hr():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
