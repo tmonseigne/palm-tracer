@@ -604,7 +604,7 @@ class PALMTracer:
 	def graph(self) -> go.Figure:
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		s = self.settings.graph.settings
-		src_id, dual = s["Type"], s["Dual"]
+		src_id, mode = s["Type"], s["Mode"]
 		src_a = cast(Combo, self.settings.graph["Source"]).current_text
 		limit, sigma = s["Display Limits"], s["Display Sigma"]
 		kde, gauss, gauss_mix = s["Display KDE"], s["Display Gauss"], s["Display Gauss Mix"]
@@ -618,16 +618,17 @@ class PALMTracer:
 		# print(f"{data.shape}, {data.size}, {title}") avec une taille supérieure à 10 M, affiche un avertissement
 
 		# Selection du graphique à afficher
-		if src_id == 0 and src_a == "Localizations Count":
-			return self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
-		if src_id == 1 and src_a == "Length Scatter":
-			return self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
-		if dual:
-			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
-			return self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
-									   poissonian=poiss, exponential=expo)
-		return self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
-									   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix)
+		if mode == 0:  # Histogramme
+			return self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
+										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix)
+		if mode == 1:  # Courbe Scatter plot
+			# Voir le label pour X, get graph data va peut-être devoir être boosté....
+			return self._grapher.scatter(data, title, xlabel="Plane", ylabel=src_a, limit=limit, show_sigma=sigma)
+
+		# Nuage de points
+		src_b = cast(Combo, self.settings.graph["Source B"]).current_text
+		return self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
+								   poissonian=poiss, exponential=expo)
 
 	##################################################
 	@staticmethod
@@ -649,14 +650,14 @@ class PALMTracer:
 		:return: Données préparées pour le graphique et titre associé.
 		"""
 		s = self.settings.graph.settings
-		src_id, dual, log_scale = s["Type"], s["Dual"], s["Display Log Scale"]
+		src_id, mode, log_scale = s["Type"], s["Mode"], s["Display Log Scale"]
 		src_a = cast(Combo, self.settings.graph["Source"]).current_text
 
-		d, t = self._get_graph_data_from_src(src_id, src_a, log_scale, dual)
-		if dual:
+		d, t = self._get_graph_data_from_src(src_id, src_a, log_scale, mode == 2)
+		if mode == 2:
 			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
 			t += f" / {src_b}"
-			d_b, _ = self._get_graph_data_from_src(src_id, src_b, log_scale, dual)
+			d_b, _ = self._get_graph_data_from_src(src_id, src_b, log_scale, mode == 2)
 			if src_id == 1 and d.ndim == 2 and d_b.ndim == 2:
 				source_a = pd.DataFrame(d, columns=["Track", "Source A"])
 				source_b = pd.DataFrame(d_b, columns=["Track", "Source B"])

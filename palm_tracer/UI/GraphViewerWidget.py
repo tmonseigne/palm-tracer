@@ -181,7 +181,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# --- Affiche / masque les éléments en fonction des paramètres initiaux ---
 		self._toggle_type(self._graph_settings["Type"].value)
 		self._graph_settings["Display"]["Limits"].value = True
-		self._graph_settings.toggle_dual(self._graph_settings["Dual"].value)
+		self._graph_settings.toggle_mode(self._graph_settings["Mode"].value)
 		self._graph_settings.toggle_src()
 
 	##################################################

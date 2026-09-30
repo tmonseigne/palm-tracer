@@ -986,14 +986,8 @@ def test_graph():
 	fig = pt.graph()
 	assert fig.data[0].type == "scatter"
 
-	# Tracking Length Scatter
-	s["Type"].value = 1
-	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Length Scatter est un affichage Scatter Plot
-	fig = pt.graph()
-	assert fig.data[0].type == "scatter"
-
-	# Dual
-	s["Dual"].value = True
+	# Dual source
+	s["Mode"].value = 2
 	fig = pt.graph()
 	assert fig.data[0].type == "scattergl"
 
@@ -1020,7 +1014,7 @@ def test_get_graph_data():
 	np.testing.assert_array_equal(data, ref_data)
 
 	# Double vue
-	s["Dual"].value = True
+	s["Mode"].value = 2
 	s["Source"].value = 1
 	s["Source B"].value = 2
 	data, title = pt._get_graph_data()
@@ -1045,7 +1039,7 @@ def test_get_graph_data_dual_tracks():
 
 	s = pt.settings.graph
 	s["Type"].value = 1
-	s["Dual"].value = True
+	s["Mode"].value = 2
 	source_a = cast(Combo, s["Source"])
 	source_b = cast(Combo, s["Source B"])
 	source_b.value = source_b.items.index("MSE(0)")

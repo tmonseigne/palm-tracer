@@ -15,8 +15,12 @@ DATA_SRC: dict[str, list] = {
 						 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Localizations Count"],
 		"Tracking":     ["Length", "Length On", "Length Off", "MSD", "Instant D",
 						 "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE",
-						 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)", "Length Scatter"],
-		"No Dual":      ["Localizations Count", "MSD", "Length Scatter"],
+						 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)"],
+		"No Dual":      ["Localizations Count", "MSD"],
+		# TODO
+		# "Localization Scatter":   ["Localizations Count"],  # Uniquement disponible pour les localizations en scatter plot
+		# "Tracking Scatter":   [MSD Mean],  # Uniquement disponible pour les tracks en scatter plot
+		"No Scatter":   [],  # Il est possible que certains éléments ne soient pas compatible avec un scatter plot, option à envisager..
 		}
 
 
@@ -28,10 +32,10 @@ class Graph(BaseSettingGroup):
 
 	Paramètres regroupés :
 
+	- ``Mode`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : Type de Graphiques....
 	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
 	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée.
-	- ``Dual`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active un nuage de points utilisant deux grandeurs.
-	- ``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque ``Dual`` est actif.
+	- ``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque le mode ``Dual`` est actif.
 	- ``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : décalage temporel sélectionné pour le MSD.
 	- ``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : options de rendu du graphique.
 	"""
@@ -39,9 +43,10 @@ class Graph(BaseSettingGroup):
 	label: str = "Graph"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
+			"Mode":     [ButtonGroup, ["Mode", "Dual Source Allow second source for Graph in a point cloud for source A by source B.",
+									   0, ["Histogram", "Scatter", "Dual Source"]]],
 			"Type":     [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
 			"Source":   [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
-			"Dual":     [CheckBox, ["Dual Source", "Allow second source for Graph in scatter plot source A by source B."]],
 			"Source B": [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
 			"MSD Step": [SpinInt, ["MSD Step", "Step selected for display.", 1, [1, 10000], 1]],
 			"Display":  [GraphDisplay, []]}
@@ -57,16 +62,16 @@ class Graph(BaseSettingGroup):
 	def initialize(self):
 		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
+		self._settings["Mode"].connect(self.toggle_mode)
 		self._settings["Type"].connect(self.toggle_type)
-		self._settings["Dual"].connect(self.toggle_dual)
 		self._settings["Source"].connect(self.toggle_src)
-		self.toggle_dual(self._settings["Dual"].value)
+		self.toggle_mode(self._settings["Mode"].value)
 		self.toggle_src()
 
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
-		self.toggle_dual(self._settings["Dual"].value)
+		self.toggle_mode(self._settings["Mode"].value)
 		self.toggle_src()
 		return ui
 
@@ -83,9 +88,9 @@ class Graph(BaseSettingGroup):
 		else: self._settings["MSD Step"].hide()
 
 	##################################################
-	def toggle_dual(self, value: bool):
+	def toggle_mode(self, value: int):
 		"""Affiche/Masque la seconde source."""
-		self._settings["Source B"].show() if value else self._settings["Source B"].hide()
+		self._settings["Source B"].show() if value == 2 else self._settings["Source B"].hide()
 		self._update_src()
 
 	##################################################
@@ -96,7 +101,7 @@ class Graph(BaseSettingGroup):
 		else: src = DATA_SRC["Tracking"]
 
 		# En cas de Source multiple, suppression de certaines sources
-		if self._settings["Dual"].value: src = [s for s in src if s not in DATA_SRC["No Dual"]]
+		if self._settings["Mode"].value == 2: src = [s for s in src if s not in DATA_SRC["No Dual"]]
 
 		# Attribution aux deux sources
 		cast(Combo, self._settings["Source"]).items = src
@@ -106,6 +111,7 @@ class Graph(BaseSettingGroup):
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)
