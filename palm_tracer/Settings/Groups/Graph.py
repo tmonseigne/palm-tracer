@@ -103,7 +103,7 @@ class Graph(BaseSettingGroup):
 
 	##################################################
 	def _update_src(self):
-		"""Change la liste des sources pour les graphiques."""
+		"""Actualise les sources en conservant les libellés disponibles, sinon sélectionne le premier choix."""
 		# Liste de base
 		if self._settings["Type"].value == 0: src = DATA_SRC["Localization"]
 		else: src = DATA_SRC["Tracking"]
@@ -111,9 +111,15 @@ class Graph(BaseSettingGroup):
 		# En cas de Source multiple, suppression de certaines sources
 		if self._settings["Mode"].value == 2: src = [s for s in src if s not in DATA_SRC["No Dual"]]
 
-		# Attribution aux deux sources
-		cast(Combo, self._settings["Source"]).items = src
-		cast(Combo, self._settings["Source B"]).items = src
+		# Conserve chaque sélection par libellé, même si son indice change dans la nouvelle liste.
+		for key in ("Source", "Source B"):
+			source = cast(Combo, self._settings[key])
+			if source.items == src: continue
+			selected = source.current_text
+			with source.signal_blocked():
+				source.items = src
+				source.value = src.index(selected) if selected in src else 0
+		self.toggle_src()
 
 
 ##################################################
