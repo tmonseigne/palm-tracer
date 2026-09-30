@@ -453,6 +453,33 @@ def test_rotation():
 
 
 ##################################################
+@pytest.mark.parametrize("axis", [0, 1, 2], ids=["x", "y", "z"])
+@pytest.mark.parametrize("shape", [None, 0, 1, 2], ids=["spots", "fixed", "isotropic", "anisotropic"])
+def test_rotation_data_crop(axis, shape):
+	"""Vérifie que le recadrage conserve toute la séquence avec une translation commune à tous les angles."""
+	r = Renderer()
+	r.set_size(128, 96, 2)
+	loc = np.array([[42.2, 38.3, -5, 1000, 1, 2, 20], [56.4, 46.1, 3, 2000, 2, 1, 70],
+					[63.1, 51.7, 9, 3000, 1.5, 2.5, 40]], dtype=float)
+	gaussian = None if shape is None else {"Intensity": 100, "Fixed Intensity": True, "Shape": shape, "Size": 1}
+	full = r.rotation_3d(loc, z_step=1, frames=13, axis=axis, gaussian=gaussian)
+	cropped = r.rotation_3d(loc, z_step=1, frames=13, axis=axis, gaussian=gaussian, crop=True)
+	assert cropped.shape[0] == full.shape[0]
+	assert cropped.shape[1] < full.shape[1] and cropped.shape[2] < full.shape[2]
+	# Le rectangle du signal est calculé sur toute la séquence : une origine différente par plan ferait échouer la comparaison.
+	full_y, full_x = np.nonzero(np.any(full != 0, axis=0))
+	crop_y, crop_x = np.nonzero(np.any(cropped != 0, axis=0))
+	top, left = full_y.min() - crop_y.min(), full_x.min() - crop_x.min()
+	height, width = cropped.shape[1:]
+	np.testing.assert_array_equal(cropped, full[:, top:top + height, left:left + width])
+	assert cropped.sum() == full.sum()
+	assert crop_y.min() >= 10 and crop_x.min() >= 10
+	assert height - 1 - crop_y.max() >= 10 and width - 1 - crop_x.max() >= 10
+	# Le recadrage ne modifie pas la configuration ni le centre des générations suivantes.
+	np.testing.assert_array_equal(r.rotation_3d(loc, z_step=1, frames=13, axis=axis, gaussian=gaussian), full)
+
+
+##################################################
 def test_rotation_gaussian():
 	"""Vérifie le rendu gaussien d'une rotation 3D."""
 	r = Renderer()

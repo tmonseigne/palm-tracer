@@ -68,6 +68,7 @@ class ViewerHRWidget(QWidget):
 		self._hr_settings: HR = self._pt.settings.hr
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
+		self._roi_visibility_before_rotation: bool | None = None
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
@@ -282,6 +283,14 @@ class ViewerHRWidget(QWidget):
 		self._update_visualization_layer()
 		self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
+		# La ROI source n'a pas de repère commun avec les projections tournées.
+		roi_layer = self._layers[self.LAYERS_NAME[3]]
+		if self._hr_settings["Dimension"].value == 2:
+			if self._roi_visibility_before_rotation is None: self._roi_visibility_before_rotation = roi_layer.visible
+			roi_layer.visible = False
+		elif self._roi_visibility_before_rotation is not None:
+			roi_layer.visible = self._roi_visibility_before_rotation
+			self._roi_visibility_before_rotation = None
 		self.viewer.reset_view()  # Recentrer et ajuster la vue
 		self._pt._save_setting_group("HR")
 

@@ -201,7 +201,7 @@ class Renderer:
 
 	##################################################
 	def rotation_3d(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, frames: int = 36, axis: int = 1,
-					bg_color: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
+					bg_color: int = 0, gaussian: dict[str, Any] | None = None, crop: bool = False) -> np.ndarray:
 		"""
 		Construit une séquence de projections haute résolution en rotation 3D.
 
@@ -217,6 +217,7 @@ class Renderer:
 		:param z_step: Distance strictement positive entre deux plans, exprimée dans la même unité que la colonne Z.
 		:param frames: Nombre strictement positif de projections générées sur une rotation complète.
 		:param axis: Axe de rotation : ``0`` pour X, ``1`` pour Y et ``2`` pour Z.
+		:param crop: Réduit le canevas aux projections de la boîte englobante, avec cinq pixels source de marge, sans déplacer le centre de rotation.
 		:param bg_color: Valeur attribuée aux pixels de fond.
 		:param gaussian: Paramètres optionnels du rendu gaussien. Lorsque la valeur est ``None``, les localisations sont rendues sous forme de pixels.
 		:return: Nouvelle séquence de forme ``(frames, output_height, output_width)`` et de type :class:`~numpy.uint16`.
@@ -242,10 +243,24 @@ class Renderer:
 		out_h, out_w = max(self._h, diameter), max(self._w, diameter)
 		# Centre de l'image résultat
 		ox, oy = (out_w - 1) / 2.0, (out_h - 1) / 2.0
+		angles = np.linspace(0.0, 2.0 * np.pi, frames, endpoint=False)
+		left, top = 0, 0
+		if crop:
+			# Une passe sur les points, puis seulement huit sommets par angle, indépendamment du nombre de localisations.
+			bx, by, bz = np.array(np.meshgrid([x0.min(), x0.max()], [y0.min(), y0.max()], [z0.min(), z0.max()])).reshape(3, -1)
+			cos_a, sin_a = np.cos(angles)[:, None], np.sin(angles)[:, None]
+			if axis == 0: xr, yr = bx, cos_a * by - sin_a * bz
+			elif axis == 1: xr, yr = cos_a * bx + sin_a * bz, by
+			else: xr, yr = cos_a * bx - sin_a * by, sin_a * bx + cos_a * by
+			padding = 5 * self._r + (3 * max(sx.max(), sy.max()) if gaussian is not None else 0)
+			left = max(0, int(np.floor(xr.min() + ox - padding)))
+			top = max(0, int(np.floor(yr.min() + oy - padding)))
+			right = min(out_w, int(np.ceil(xr.max() + ox + padding)) + 1)
+			bottom = min(out_h, int(np.ceil(yr.max() + oy + padding)) + 1)
+			out_w, out_h = right - left, bottom - top
 
 		# Initialisation
 		res, bg_mask = self.init_rendering(color_mode, out_h, out_w, frames)
-		angles = np.linspace(0.0, 2.0 * np.pi, frames, endpoint=False)
 
 		for angle_id, angle in enumerate(angles):  # .								--- Pour chaque angle, calcul de la projection ---
 			cos_a, sin_a = np.cos(angle), np.sin(angle)
@@ -256,6 +271,7 @@ class Renderer:
 
 			if gaussian is None:  # .												--- Calcul de l'image en mode Spot ---
 				xi, yi = np.round(xp).astype(int), np.round(yp).astype(int)  # .	Position en pixels
+				xi, yi = xi - left, yi - top
 				valid = (xi >= 0) & (xi < out_w) & (yi >= 0) & (yi < out_h)
 				xi, yi, ci = xi[valid], yi[valid], c[valid]  # .					Avec les arrondis, on revérifie les points hors dimension.
 				bg_mask[angle_id, yi, xi] = True  # .		 						Mise à jour du masque du fond.
@@ -263,7 +279,7 @@ class Renderer:
 				elif color_mode == 1: np.maximum.at(res, (angle_id, yi, xi), ci)  # Conservation de la valeur maximale en cas de superposition.
 				else: np.minimum.at(res, (angle_id, yi, xi), ci)  # .				Conservation de la valeur minimale en cas de superposition.
 			else:  # .																--- Calcul de l'image en mode Gaussien ---
-				self.draw_gaussian_2d(res[angle_id], bg_mask[angle_id], xp, yp, c, sx, sy, theta, color_mode)
+				self.draw_gaussian_2d(res[angle_id], bg_mask[angle_id], xp - left, yp - top, c, sx, sy, theta, color_mode)
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 

@@ -815,7 +815,7 @@ class PALMTracer:
 				viz = self._renderer.z_stack(viz_data, color_mode, z_step if z_step != 0 else uniform_z_step, bg_color, gaussian)
 			else:  # .				-- Rendu 3D Rotation --
 				frames, axis = s.hr_3d["Frames"].value, s.hr_3d["Axis"].value
-				viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, bg_color, gaussian)
+				viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, bg_color, gaussian, crop=s["Crop"].value)
 			return viz, plot_data
 
 		# --- Tracks ---

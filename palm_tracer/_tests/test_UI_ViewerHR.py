@@ -433,6 +433,7 @@ def test_generate_render_and_roi_transitions(qtbot):
 			rois.roi_selection.active = stage in ("mixed-roi", "empty-roi")
 			if track_mode: initial_tracks_layer.visible = True
 			w._generate()
+			assert w._layers[w.LAYERS_NAME[3]].visible == (dimension != 2), context
 			assert w._layers[w.LAYERS_NAME[2]] is initial_tracks_layer, context
 			assert viewer.layers[w.LAYERS_NAME[2]] is initial_tracks_layer, context
 			if track_mode: assert initial_tracks_layer.visible, context
@@ -459,7 +460,10 @@ def test_generate_render_and_roi_transitions(qtbot):
 			spatial_shape = image.shape[-3:-1] if is_rgb else image.shape[-2:]
 			if dimension == 2 and stage != "empty-roi":
 				assert image.shape[0] == 4, context
-				assert spatial_shape[0] >= (y1 - y0) * 2 and spatial_shape[1] >= (x1 - x0) * 2, context
+				# Le canevas tourné est recadré sans modifier le repère source conservé dans hr_box.
+				cx, cy = ((x1 - x0) * 2 - 1) / 2, ((y1 - y0) * 2 - 1) / 2
+				diameter = int(np.ceil(2 * np.sqrt(cx * cx + cy * cy + 1))) + 3
+				assert 0 < spatial_shape[0] < diameter and 0 < spatial_shape[1] < diameter, context
 			else: assert spatial_shape == ((y1 - y0) * 2, (x1 - x0) * 2), context
 			assert bool(np.any(image)) == (stage != "empty-roi"), context
 			if stage == "empty-roi" and dimension != 0: assert image.shape[0] == 1, context
@@ -501,6 +505,24 @@ def test_generate_render_and_roi_transitions(qtbot):
 				np.testing.assert_allclose(rois.layer_hr.data[index], (canonical - [y0, x0]) * 2, err_msg=context)
 			if stage == "auto": initial_render = image.copy()
 			elif stage == "return-auto": np.testing.assert_array_equal(image, initial_render, err_msg=context)
+
+
+##################################################
+def test_rotation_preserves_hidden_roi(generated_widget):
+	"""Conserve une ROI déjà masquée après plusieurs générations en rotation puis un retour en 2D."""
+	_, _, w = generated_widget
+	roi_layer = w._layers[w.LAYERS_NAME[3]]
+	roi_layer.visible = False
+	w._hr_settings["Dimension"].value = 2
+	w._hr_settings.hr_3d["Frames"].value = 4
+	w._generate()
+	assert not roi_layer.visible
+	w._generate()
+	assert not roi_layer.visible
+	w._hr_settings["Dimension"].value = 0
+	w._generate()
+	assert not roi_layer.visible
+	assert w._roi_visibility_before_rotation is None
 
 
 ##################################################
