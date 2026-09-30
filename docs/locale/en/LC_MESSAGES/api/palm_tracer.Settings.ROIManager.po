@@ -47,6 +47,10 @@ msgstr "Height of the reference image, in pixels."
 msgid "Limites de la zone haute résolution sous la forme ``(x_min, x_max, y_min, y_max)``."
 msgstr "Bounds of the high-resolution region as ``(x_min, x_max, y_min, y_max)``."
 
+#: of palm_tracer.Settings.ROIManager.ROIManager.data_box:1
+msgid "Cadre automatique des données en pixels source ; quatre valeurs négatives indiquent son absence."
+msgstr "Automatic data bounds in source pixels; four negative values indicate that no bounds are defined."
+
 #: of palm_tracer.Settings.ROIManager.ROIManager.layer_main:1
 msgid "Calque de l'interface principale."
 msgstr "Main interface layer."
@@ -56,11 +60,11 @@ msgstr "Main interface layer."
 msgid "Calque de l'interface haute résolution."
 msgstr "High Resolution interface layer."
 
-#: ../../api/palm_tracer.Settings.ROIManager.rst:21
+#: ../../api/palm_tracer.Settings.ROIManager.rst:22
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Settings.ROIManager.rst:24
+#: ../../api/palm_tracer.Settings.ROIManager.rst:25
 msgid "Accesseurs"
 msgstr "Accessors"
 
@@ -100,7 +104,7 @@ msgstr "Maximum position on Y."
 msgid "Ajoute la zone aux zones éxistantes si ``True``, sinon remplace les zones par la nouvelle."
 msgstr "Adds the region to existing regions if ``True``, otherwise replaces the regions with the new one."
 
-#: ../../api/palm_tracer.Settings.ROIManager.rst:30
+#: ../../api/palm_tracer.Settings.ROIManager.rst:31
 msgid "Synchronisation"
 msgstr "Synchronization"
 
@@ -134,7 +138,7 @@ msgstr "Handles a change in selection."
 msgid "Événement napari associé au changement."
 msgstr "A Napari event associated with change."
 
-#: ../../api/palm_tracer.Settings.ROIManager.rst:40
+#: ../../api/palm_tracer.Settings.ROIManager.rst:41
 msgid "Entrées-sorties"
 msgstr "Input/output"
 
@@ -150,7 +154,7 @@ msgstr "List retrieved."
 msgid "Exporte une liste de dictionnaires de formes pour le format json."
 msgstr "Exports a list of shape dictionaries to JSON format."
 
-#: ../../api/palm_tracer.Settings.ROIManager.rst:46
+#: ../../api/palm_tracer.Settings.ROIManager.rst:47
 msgid "Divers"
 msgstr "Miscellaneous"
 
@@ -175,8 +179,8 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.get_hr_limits:1
-msgid "Détermine le cadre spatial du rendu haute résolution."
-msgstr "Determines the spatial bounds of the high-resolution rendering."
+msgid "Détermine le cadre spatial du rendu haute résolution et le mémorise dans ``hr_box``."
+msgstr "Determines the spatial bounds of the high-resolution rendering and stores them in ``hr_box``."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.get_hr_limits:3
 msgid "Une absence de filtre correspond au rendu des localisations. Pour les trajectoires, seule la sélection ``[0, 0]`` représente une ROI d'exclusion et impose le champ complet. Les autres plages restent cadrées sur la ROI ; les portions extérieures des trajectoires traversantes sont recadrées par le renderer."
@@ -190,9 +194,25 @@ msgstr "Filter for the percentage of time spent inside the ROI, or ``None`` for 
 msgid "Limites ``x_min, x_max, y_min, y_max`` du rendu."
 msgstr "Rendering bounds ``x_min, x_max, y_min, y_max``."
 
-#: of palm_tracer.Settings.ROIManager.ROIManager.update_hr_box:1
-msgid "Met à jour la bounding box actuelle de la génération Haute résolution."
-msgstr "Updates the current bounding box for high-resolution generation."
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_data_box:1
+msgid "Recalcule un cadre conservateur sans modifier les ROI de filtrage."
+msgstr "Recalculates conservative bounds without modifying the filtering ROIs."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_data_box:3
+msgid "Le support carré des gaussiennes utilise trois fois le plus grand sigma effectif sur les deux axes. Les bornes sont arrondies vers l'extérieur en pixels source ; la marge est exprimée en pixels HR."
+msgstr "The square support of the Gaussians uses three times the largest effective sigma on both axes. Bounds are rounded outwards in source pixels; the margin is expressed in HR pixels."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_data_box:6
+msgid "Localisations sources, ou ``None`` pour désactiver le cadrage automatique."
+msgstr "Source localizations, or ``None`` to disable automatic framing."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_data_box:7
+msgid "Options du rendu gaussien, ou ``None`` pour un rendu ponctuel."
+msgstr "Gaussian-rendering options, or ``None`` to render points."
+
+#: of palm_tracer.Settings.ROIManager.ROIManager.update_data_box:8
+msgid "Marge supplémentaire en pixels HR."
+msgstr "Additional margin in HR pixels."
 
 #: of palm_tracer.Settings.ROIManager.ROIManager.filtering_dataframe:1
 msgid "Filtre un DataFrame selon la ROI sélectionnée."

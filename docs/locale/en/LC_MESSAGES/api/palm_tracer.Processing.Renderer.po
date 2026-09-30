@@ -83,13 +83,13 @@ msgid "Méthode de combinaison des valeurs superposées : ``0`` pour l'addition,
 msgstr "Method used to combine overlapping values: ``0`` for addition, ``1`` for the maximum, and ``2`` for the minimum."
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:17
-#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:15
+#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:16
 #: palm_tracer.Processing.Renderer.Renderer.tracks:13
 msgid "Valeur attribuée aux pixels de fond."
 msgstr "Value assigned to background pixels."
 
 #: of palm_tracer.Processing.Renderer.Renderer.localizations:18
-#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:16
+#: palm_tracer.Processing.Renderer.Renderer.rotation_3d:17
 msgid "Paramètres optionnels du rendu gaussien. Lorsque la valeur est ``None``, les localisations sont rendues sous forme de pixels."
 msgstr "Optional Gaussian-rendering settings. When the value is ``None``, localizations are rendered as pixels."
 
@@ -190,7 +190,11 @@ msgstr "Strictly positive number of projections generated over a complete rotati
 msgid "Axe de rotation : ``0`` pour X, ``1`` pour Y et ``2`` pour Z."
 msgstr "Rotation axis: ``0`` for X, ``1`` for Y, and ``2`` for Z."
 
-#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:17
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:15
+msgid "Réduit le canevas aux projections de la boîte englobante, avec cinq pixels source de marge, sans déplacer le centre de rotation."
+msgstr "Crops the canvas to the bounding-box projections, with a margin of five source pixels, without moving the center of rotation."
+
+#: of palm_tracer.Processing.Renderer.Renderer.rotation_3d:18
 msgid "Nouvelle séquence de forme ``(frames, output_height, output_width)`` et de type :class:`~numpy.uint16`."
 msgstr "New sequence with shape ``(frames, output_height, output_width)`` and type :class:`~numpy.uint16`."
 

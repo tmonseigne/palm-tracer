@@ -98,15 +98,55 @@ def test_tracking(qtbot, f, select_tracks, select_length, active, expected):
 
 
 ##################################################
+@pytest.mark.parametrize("plane_active, filters_active, expected_indices", [
+		pytest.param(True, True, [1, 2, 4], id="inclusive-planes"),
+		pytest.param(False, True, [0, 1, 2, 3, 4], id="plane-disabled"),
+		pytest.param(True, False, [0, 1, 2, 3, 4], id="filters-disabled")])
+def test_tracking_plane(qtbot, f, plane_active, filters_active, expected_indices):
+	"""Vérifie le filtrage des points par plan sans autre critère et la conservation des données originales."""
+	src = pd.DataFrame({"Track": [1, 1, 1, 2, 2], "Plane": [1, 2, 3, 4, 2]})
+	original = src.copy()
+	f.filters["Plane"].active = plane_active
+	f.filters["Plane"].value = [2, 3]
+	f.filters.active = filters_active
+
+	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[expected_indices])
+	pd.testing.assert_frame_equal(src, original)
+
+
+##################################################
+def test_tracking_plane_before_length(qtbot, f):
+	"""Vérifie que la longueur est évaluée sur les points des plans retenus."""
+	src = pd.DataFrame({"Track": [1, 1, 1, 2, 2], "Plane": [1, 2, 3, 1, 2]})
+	f.filters["Plane"].active = True
+	f.filters["Plane"].value = [2, 3]
+	f.filters.tracking["Length"].active = True
+	f.filters.tracking["Length"].value = [2, 2]
+
+	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[[1, 2]])
+
+
+##################################################
+def test_tracking_plane_empty(qtbot, f):
+	"""Vérifie qu'un intervalle sans point produit un résultat vide avec les colonnes originales."""
+	src = pd.DataFrame({"Track": [1, 1], "Plane": [1, 2]})
+	f.filters["Plane"].active = True
+	f.filters["Plane"].value = [3, 4]
+
+	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[:0])
+
+
+##################################################
 @pytest.mark.parametrize("roi_active, limits, expected_tracks", [
 		pytest.param(True, [0, 0], {1}, id="fully-outside"),
 		pytest.param(True, [100, 100], {4}, id="fully-inside"),
 		pytest.param(True, [0, 100], {1, 2, 3, 4}, id="any-occupancy"),
+		pytest.param(True, [1, 100], {2, 3, 4}, id="positive-occupancy"),
 		pytest.param(True, [20, 80], {2, 3}, id="partially-inside"),
 		pytest.param(True, [0, 99], {1, 2, 3}, id="not-fully-inside"),
 		pytest.param(False, [100, 100], {1, 2, 3, 4}, id="roi-disabled")])
 def test_tracking_time_inside_roi(qtbot, f, roi_active, limits, expected_tracks):
-	"""Vérifie le filtrage des trajectoires selon leur pourcentage de points dans la ROI."""
+	"""Vérifie la sélection par pourcentage dans la ROI et la conservation intégrale des trajectoires retenues."""
 	inside = [[5, 5]] * 4
 	outside = [[20, 20]] * 4
 	coordinates = outside + inside[:1] + outside[:3] + inside[:2] + outside[:2] + inside
@@ -119,7 +159,24 @@ def test_tracking_time_inside_roi(qtbot, f, roi_active, limits, expected_tracks)
 	res = f.tracking(src)
 
 	assert set(res["Track"].unique()) == expected_tracks
-	assert len(res) == 4 * len(expected_tracks)
+	pd.testing.assert_frame_equal(res, src[src["Track"].isin(expected_tracks)])
+
+
+##################################################
+@pytest.mark.parametrize("length_active", [
+		pytest.param(False, id="no-other-filter"),
+		pytest.param(True, id="length-active")])
+def test_tracking_ignores_roi_without_percentage(qtbot, f, length_active):
+	"""Vérifie que la ROI active ne retire aucun point lorsque le critère de pourcentage est décoché."""
+	src = pd.DataFrame({"Track": [1, 1, 2, 2], "X": [5, 20, 20, 30], "Y": [5, 20, 20, 30]})
+	f.rois.set_xy_roi(0, 10, 0, 10, add=False)
+	f.filters["ROI"].active = True
+	f.filters.tracking["Time Inside ROI"].active = False
+	f.filters.tracking["Time Inside ROI"].value = [100, 100]
+	f.filters.tracking["Length"].active = length_active
+	f.filters.tracking["Length"].value = [2, 2]
+
+	pd.testing.assert_frame_equal(f.tracking(src), src)
 
 
 ##################################################

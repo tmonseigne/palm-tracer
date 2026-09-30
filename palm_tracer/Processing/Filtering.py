@@ -64,20 +64,28 @@ class Filtering:
 	def tracking(self, datas: pd.DataFrame) -> pd.DataFrame:
 		"""
 		Filtre un DataFrame de trajectoires.
-		Simpliste uniquement sur la longueur, car il faut l'analyse statistique des trajectoires pour le reste.
-		Cependant, il peut s'agir d'une première étape avant, justement, cette analyse statistique.
+		Limite d'abord les points aux plans sélectionnés, puis filtre les trajectoires par identifiant,
+		longueur et pourcentage de points dans la ROI. Ces deux derniers critères portent sur les points retenus.
+		La ROI est ignorée lorsque le critère de pourcentage est désactivé. Sinon, elle sélectionne
+		les trajectoires sans retirer leurs points extérieurs ; le filtre des plans reste indépendant.
 
 		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
 		if datas.empty or not self.filters.active: return datas
+		plane_filter = cast(CheckRangeInt, self.filters["Plane"])
 		track_filter = cast(CheckIntSelection, self.filters.tracking["Track"])
 		length_filter = cast(CheckRangeInt, self.filters.tracking["Length"])
 		time_filter = cast(CheckRangeInt, self.filters.tracking["Time Inside ROI"])
-		if not track_filter.active and not length_filter.active and not time_filter.active: return datas  # Aucun filtre de base
+		if not any((plane_filter.active, track_filter.active, length_filter.active, time_filter.active)): return datas
+
+		res = datas
+		# Filtre sur les plans, avec bornes incluses.
+		if plane_filter.active:
+			limits = plane_filter.value
+			res = res[res["Plane"].between(limits[0], limits[1])]
 
 		# Filtre sur les identifiants de trajectoire
-		res = datas
 		if track_filter.active and not res.empty:
 			mask = np.zeros(len(res), dtype=bool)
 			for minimum, maximum in track_filter.ranges: mask |= res["Track"].between(minimum, maximum).to_numpy()
@@ -90,7 +98,7 @@ class Filtering:
 			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
 			res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
 
-		# Filtre sur le pourcentage de temps passé dans la ROI sélectionnée.
+		# La ROI sélectionne des trajectoires entières, uniquement lorsque le critère de pourcentage est actif.
 		if not time_filter.active or res.empty: return res
 		points = res.reset_index(drop=True)
 		inside = self.rois.filtering_dataframe(points)  # .									  Liste des points à l'intérieur de la ROI
@@ -99,6 +107,7 @@ class Filtering:
 		percentages = inside_counts.mul(100.0).div(counts)  # .								  Pourcentage à l'intérieur
 		limits = time_filter.value
 		keep_ids = percentages.index[percentages.between(limits[0], limits[1])]
+		# Conserve tous les points des trajectoires retenues, y compris ceux à l'extérieur de la ROI.
 		res = res[res["Track"].isin(keep_ids)]
 		return res
 
