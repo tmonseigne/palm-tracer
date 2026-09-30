@@ -64,7 +64,7 @@ N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # .								  Nombre de pa
 N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # .							  Nombre de paramètres pour le tracking (18).
 SHAPE_MODEL = (len(MODEL_ROWS), len(FILES_COLUMNS["Astigmatism 3D Model"]["columns"]))  # Dimensions pour le model d'astigmatisme 3D (2,5).
 
-TRACK_ANALYSIS_MIN = 10e-5  # .															  Valeur minimale au niveau des Analyses des trajectoires.
+TRACK_ANALYSIS_MIN = 1e-5  # .															  Valeur minimale au niveau des Analyses des trajectoires.
 
 
 # ==================================================

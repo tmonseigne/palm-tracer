@@ -618,14 +618,23 @@ class PALMTracer:
 		# print(f"{data.shape}, {data.size}, {title}") avec une taille supérieure à 10 M, affiche un avertissement
 
 		# Selection du graphique à afficher
-		if mode == 0:  # Histogramme
+		if mode == 0:  # --- Histogramme ---
+			# Limite de sélection pour l'ajustement des distributions
+			fit_limit = -np.inf
+			log_scale = s["Display Log Scale"]
+			if src_id == 0 and src_a in {"Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Surface", "MSE XY", "MSE Z"}:
+				if not log_scale: fit_limit = -1.0  # Les échecs à -1 sont déjà supprimés par le logarithme ; zéro reste une valeur admissible.
+			elif src_id == 1:
+				if src_a in {"Instant D", "D(0) (μm²/s)", "A (μm²/s)"}:
+					fit_limit = float(np.log10(Parsing.TRACK_ANALYSIS_MIN)) if log_scale else Parsing.TRACK_ANALYSIS_MIN
+				elif src_a == "MSD" and not log_scale: fit_limit = -1.0
 			return self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
-										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix)
-		if mode == 1:  # Courbe Scatter plot
+										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
+		if mode == 1:  # --- Courbe Scatter plot ---
 			# Voir le label pour X, get graph data va peut-être devoir être boosté....
 			return self._grapher.scatter(data, title, xlabel="Plane", ylabel=src_a, limit=limit, show_sigma=sigma)
 
-		# Nuage de points
+		# --- Nuage de points ---
 		src_b = cast(Combo, self.settings.graph["Source B"]).current_text
 		return self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
 								   poissonian=poiss, exponential=expo)
@@ -682,7 +691,7 @@ class PALMTracer:
 		:return: Données extraites et titre associé au graphique.
 			Pour les localisations, les moyennes et les comptes par plan ont la forme ``(2, N)`` : plans sur la première ligne, valeurs sur la seconde.
 		"""
-		mode =  self.settings.graph["Mode"].value
+		mode = self.settings.graph["Mode"].value
 		# ----- Localizations -----
 		if src_id == 0:
 			title = f"Localizations {src}"
