@@ -42,6 +42,8 @@ class ROIManager:
 	"""Zones d'intérêt actuellement définies."""
 	hr_box: tuple[int, int, int, int] = field(init=False, default=(0, 1, 0, 1))
 	"""Limites de la zone haute résolution sous la forme ``(x_min, x_max, y_min, y_max)``."""
+	data_box: tuple[int, int, int, int] = field(init=False, default=(-1, -1, -1, -1))
+	"""Cadre automatique des données en pixels source ; quatre valeurs négatives indiquent son absence."""
 
 	_layer_main: Optional[Shapes] = field(init=False, default=None)
 	"""Calque principal des zones d'intérêt."""
@@ -135,6 +137,7 @@ class ROIManager:
 		:param height: Hauteur en pixel.
 		"""
 		self.width, self.height = width, height
+		self.data_box = (-1, -1, -1, -1)
 
 	##################################################
 	def set_xy_roi(self, x_min: float, x_max: float, y_min: float, y_max: float, add: bool = True):
@@ -324,7 +327,7 @@ class ROIManager:
 	##################################################
 	def get_hr_limits(self, time_filter: CheckRangeInt | None = None) -> tuple[int, int, int, int]:
 		"""
-		Détermine le cadre spatial du rendu haute résolution.
+		Détermine le cadre spatial du rendu haute résolution et le mémorise dans ``hr_box``.
 
 		Une absence de filtre correspond au rendu des localisations. Pour les trajectoires, seule la sélection ``[0, 0]`` représente une ROI d'exclusion
 		et impose le champ complet. Les autres plages restent cadrées sur la ROI ; les portions extérieures des trajectoires traversantes sont recadrées
@@ -333,13 +336,49 @@ class ROIManager:
 		:param time_filter: Filtre du pourcentage de temps passé dans la ROI, ou ``None`` pour les localisations.
 		:return: Limites ``x_min, x_max, y_min, y_max`` du rendu.
 		"""
-		if time_filter is not None and time_filter.active and time_filter.max == 0: return 0, self.width, 0, self.height
-		return self.get_roi_limits()
+		limits = (0, self.width, 0, self.height) if time_filter is not None and time_filter.active and time_filter.max == 0 else self.get_roi_limits()
+		if min(self.data_box) >= 0:
+			x0, x1, y0, y1 = limits
+			dx0, dx1, dy0, dy1 = self.data_box
+			intersection = max(x0, dx0), min(x1, dx1), max(y0, dy0), min(y1, dy1)
+			# Un cadre disjoint conserve le domaine initial pour laisser le renderer traiter les données vides.
+			if intersection[0] < intersection[1] and intersection[2] < intersection[3]: limits = intersection
+		self.hr_box = limits
+		return limits
 
 	##################################################
-	def update_hr_box(self):
-		"""Met à jour la bounding box actuelle de la génération Haute résolution."""
-		self.hr_box = self.get_roi_limits()
+	def update_data_box(self, data: pd.DataFrame | None, gaussian: dict[str, Any] | None = None, margin: int = 5) -> None:
+		"""
+		Recalcule un cadre conservateur sans modifier les ROI de filtrage.
+
+		Le support carré des gaussiennes utilise trois fois le plus grand sigma effectif sur les deux axes.
+		Les bornes sont arrondies vers l'extérieur en pixels source ; la marge est exprimée en pixels HR.
+
+		:param data: Localisations sources, ou ``None`` pour désactiver le cadrage automatique.
+		:param gaussian: Options du rendu gaussien, ou ``None`` pour un rendu ponctuel.
+		:param margin: Marge supplémentaire en pixels HR.
+		"""
+		self.data_box = (-1, -1, -1, -1)
+		if data is None or data.empty or not {"X", "Y"}.issubset(data.columns): return
+		xy = data[["X", "Y"]].to_numpy(dtype=float)
+		if not np.isfinite(xy).all(): return
+		radius = 0.0
+		if gaussian is not None:
+			if gaussian["Shape"] == 0: radius = 3.0 * gaussian["Size"]
+			else:
+				if not {"Sigma X", "Sigma Y"}.issubset(data.columns): return
+				sigma = data[["Sigma X", "Sigma Y"]].to_numpy(dtype=float)
+				if not np.isfinite(sigma).all(): return
+				if gaussian["Shape"] == 1: sigma = sigma.mean(axis=1)
+				radius = 3.0 * float(np.max(sigma))
+			if not np.isfinite(radius) or radius <= 0: return
+		padding = margin + radius
+		# Un pixel HR supplémentaire couvre la borne supérieure inclusive et les arrondis du renderer.
+		lower = np.floor(xy.min(axis=0) - padding).astype(int)
+		upper = np.ceil(xy.max(axis=0) + padding).astype(int)
+		x0, y0 = np.maximum(lower, 0)
+		x1, y1 = np.minimum(upper, (self.width, self.height))
+		if x0 < x1 and y0 < y1: self.data_box = int(x0), int(x1), int(y0), int(y1)
 
 	##################################################
 	def filtering_dataframe(self, dataframe: pd.DataFrame, strict: bool = True) -> pd.DataFrame:

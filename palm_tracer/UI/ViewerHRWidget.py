@@ -68,6 +68,7 @@ class ViewerHRWidget(QWidget):
 		self._hr_settings: HR = self._pt.settings.hr
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
+		self._roi_visibility_before_rotation: bool | None = None
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
@@ -254,17 +255,18 @@ class ViewerHRWidget(QWidget):
 			show_warning(f"No stack processed loaded.")
 			return
 
-		self.visualization, plot_data = self._pt.hr()
-		if self.visualization.size <= 1:
+		# Conserve le repère de l'image affichée si la génération ne peut pas la remplacer.
+		previous_hr_box = self._pt.settings.rois.hr_box
+		visualization, plot_data = self._pt.hr()
+		if visualization.size <= 1:
+			self._pt.settings.rois.hr_box = previous_hr_box
 			show_warning("No visualization available.")
 			return
+		self.visualization = visualization
 
 		# Changement des noms
 		self._filename = str(self._pt.output_viz_name())
 		self._screenshot_filename = f"{path}/screenshot-{suffix}-{FileIO.get_timestamp_for_files()}.png"
-
-		# Mise à jour de la ROI qui a été utilisé
-		self._pt.settings.rois.update_hr_box()
 
 		point_layer = self._layers[self.LAYERS_NAME[1]]
 		tracks_layer = self._layers[self.LAYERS_NAME[2]]
@@ -274,11 +276,21 @@ class ViewerHRWidget(QWidget):
 			Ui.update_layer(point_layer, plot_data, face_color="lime")
 		else:  # Trajectoires
 			point_layer.visible = False
+			# Napari refuse les trajectoires vides : conserve le calque avec le même point fictif qu'à l'initialisation.
+			if plot_data.shape[0] == 0: plot_data = np.array([[0, 0, 0, 0]], dtype=float)
 			Ui.update_layer(tracks_layer, plot_data, blending="translucent")
 
 		self._update_visualization_layer()
 		self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
+		# La ROI source n'a pas de repère commun avec les projections tournées.
+		roi_layer = self._layers[self.LAYERS_NAME[3]]
+		if self._hr_settings["Dimension"].value == 2:
+			if self._roi_visibility_before_rotation is None: self._roi_visibility_before_rotation = roi_layer.visible
+			roi_layer.visible = False
+		elif self._roi_visibility_before_rotation is not None:
+			roi_layer.visible = self._roi_visibility_before_rotation
+			self._roi_visibility_before_rotation = None
 		self.viewer.reset_view()  # Recentrer et ajuster la vue
 		self._pt._save_setting_group("HR")
 

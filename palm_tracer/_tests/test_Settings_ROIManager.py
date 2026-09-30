@@ -159,7 +159,99 @@ def test_hr_limits(manager: ROIManager, limits: list[int], expected: tuple[int, 
 	time_filter.active = True
 
 	assert manager.get_hr_limits(time_filter) == expected
+	assert manager.hr_box == expected
 	assert manager.get_hr_limits(None) == (20, 40, 10, 30)
+	assert manager.hr_box == (20, 40, 10, 30)
+
+
+##################################################
+@pytest.mark.parametrize("gaussian, expected", [
+		pytest.param(None, (15, 35, 15, 35), id="spots"),
+		pytest.param({"Shape": 0, "Size": 2}, (9, 41, 9, 41), id="fixed-size"),
+		pytest.param({"Shape": 1}, (6, 44, 6, 44), id="isotropic"),
+		pytest.param({"Shape": 2}, (3, 47, 3, 47), id="anisotropic")])
+def test_update_data_box(manager: ROIManager, gaussian, expected):
+	"""Vérifie les supports effectifs et la marge convertie en pixels source."""
+	manager.set_size(100, 80)
+	data = pd.DataFrame({"X": [20, 30], "Y": [20, 30], "Sigma X": [2, 2], "Sigma Y": [4, 4]})
+	manager.update_data_box(data, gaussian)
+	assert manager.data_box == expected
+	assert manager.get_hr_limits() == expected
+	assert manager.get_roi_limits() == (0, 100, 0, 80)
+
+
+##################################################
+@pytest.mark.parametrize("data", [
+		pytest.param(None, id="disabled"),
+		pytest.param(pd.DataFrame(), id="empty-data"),
+		pytest.param(pd.DataFrame({"X": [np.nan], "Y": [2]}), id="nonfinite-data"),
+		pytest.param(pd.DataFrame({"X": [2]}), id="missing-column")])
+def test_update_data_box_reset(manager: ROIManager, data):
+	"""Une entrée inexploitable efface le cadre de la génération précédente."""
+	manager.set_size(100, 80)
+	manager.data_box = (10, 20, 10, 20)
+	manager.update_data_box(data)
+	assert manager.data_box == (-1, -1, -1, -1)
+
+
+##################################################
+@pytest.mark.parametrize("sigmas, gaussian", [
+		pytest.param({"Sigma Y": [1.0]}, {"Shape": 1}, id="missing-sigma-x"),
+		pytest.param({"Sigma X": [1.0]}, {"Shape": 2}, id="missing-sigma-y"),
+		pytest.param({"Sigma X": [np.nan], "Sigma Y": [1.0]}, {"Shape": 1}, id="nan-sigma"),
+		pytest.param({"Sigma X": [1.0], "Sigma Y": [np.inf]}, {"Shape": 2}, id="infinite-sigma"),
+		pytest.param({}, {"Shape": 0, "Size": np.nan}, id="nan-size"),
+		pytest.param({}, {"Shape": 0, "Size": np.inf}, id="infinite-size"),
+		pytest.param({}, {"Shape": 0, "Size": 0.0}, id="zero-size"),
+		pytest.param({}, {"Shape": 0, "Size": -1.0}, id="negative-size"),
+		pytest.param({"Sigma X": [0.0], "Sigma Y": [0.0]}, {"Shape": 1}, id="zero-mean-sigma"),
+		pytest.param({"Sigma X": [-2.0], "Sigma Y": [-1.0]}, {"Shape": 2}, id="negative-max-sigma")])
+def test_update_data_box_invalid_gaussian(manager: ROIManager, sigmas, gaussian):
+	"""Des paramètres gaussiens invalides effacent le cadre précédent sans modifier la ROI utilisateur."""
+	manager.set_size(100, 80)
+	manager.set_xy_roi(10, 50, 10, 50)
+	manager.roi_selection.active = True
+	data = pd.DataFrame({"X": [20.0], "Y": [30.0], **sigmas})
+	manager.update_data_box(data)
+	assert manager.data_box != (-1, -1, -1, -1)
+
+	manager.update_data_box(data, gaussian)
+	assert manager.data_box == (-1, -1, -1, -1)
+	assert manager.get_roi_limits() == (10, 50, 10, 50)
+	assert manager.get_hr_limits() == (10, 50, 10, 50)
+
+
+##################################################
+@pytest.mark.parametrize("data_box, expected", [
+		pytest.param((0, 25, 0, 20), (20, 25, 10, 20), id="image-edge"),
+		pytest.param((60, 70, 60, 70), (20, 40, 10, 30), id="disjoint")])
+def test_hr_data_intersection(manager: ROIManager, data_box, expected):
+	"""Accepte les bords nuls et conserve un domaine valide si les cadres sont disjoints."""
+	manager.set_size(100, 80)
+	manager.set_xy_roi(20, 40, 10, 30)
+	manager.roi_selection.active = True
+	manager.data_box = data_box
+	assert manager.get_hr_limits() == expected
+	assert manager.hr_box == expected
+
+
+##################################################
+def test_data_box_intersection_and_reset(manager: ROIManager):
+	"""Le cadrage HR ne filtre pas les données et disparaît au changement de pile."""
+	manager.set_size(100, 80)
+	manager.set_xy_roi(20, 40, 10, 30)
+	manager.roi_selection.active = True
+	manager.data_box = (25, 50, 0, 25)
+	assert manager.get_hr_limits() == (25, 40, 10, 25)
+	data = pd.DataFrame({"X": [21, 30], "Y": [20, 20]})
+	assert len(manager.filtering_dataframe(data)) == 2
+	manager.update_data_box(None)
+	assert manager.hr_box == (25, 40, 10, 25)
+	assert manager.get_hr_limits() == (20, 40, 10, 30)
+	assert manager.hr_box == (20, 40, 10, 30)
+	manager.data_box = (25, 50, 0, 25)
+	manager.set_size(50, 40)
+	assert manager.data_box == (-1, -1, -1, -1)
 
 
 ##################################################
@@ -168,7 +260,7 @@ def test_hr_box(manager: ROIManager):
 	manager.set_size(100, 80)
 	manager.rois = [ROI("rectangle", np.array([[-5.2, -10.8], [-5.2, 120.4], [90.7, 120.4], [90.7, -10.8]]))]
 	assert manager.hr_box == (0, 1, 0, 1)
-	manager.update_hr_box()
+	assert manager.get_hr_limits() == (0, 100, 0, 80)
 	assert manager.hr_box == (0, 100, 0, 80)
 
 

@@ -133,96 +133,6 @@ def fake_qfiledialog(monkeypatch):
 
 ##################################################
 @pytest.fixture
-def fake_napari_layers(monkeypatch):
-	"""Bypass des méthodes d'ajout de layers Napari qui déclenchent VisPy/OpenGL."""
-
-	class DummyLayer:
-		"""
-		Simule le sous-ensemble minimal d'un calque Napari nécessaire aux tests.
-
-		:param name: Nom du calque simulé.
-		"""
-
-		def __init__(self, name=""):
-			"""
-			Initialise l'instance.
-
-			:param name: Nom de l'interface.
-			"""
-			self.name = name
-			self.editable = True
-			self.visible = True
-
-	def _factory(viewer):
-		"""
-		Installe les substituts nécessaires sur la visionneuse.
-
-		:param viewer: Visionneuse Napari à adapter.
-		:return: Visionneuse après installation des substituts.
-		"""
-
-		def _fake_add_points(self, *args, **kwargs):
-			"""
-			Simule l'ajout d'un calque de points.
-
-			:param args: Arguments positionnels ignorés par le substitut.
-			:param kwargs: Arguments nommés utilisés pour configurer le substitut.
-			:return: Calque de points simulé.
-			"""
-			return DummyLayer(kwargs.get("name", "Localizations"))
-
-		def _fake_add_tracks(self, *args, **kwargs):
-			"""
-			Simule l'ajout d'un calque de trajectoires.
-
-			:param args: Arguments positionnels ignorés par le substitut.
-			:param kwargs: Arguments nommés utilisés pour configurer le substitut.
-			:return: Calque de trajectoires simulé.
-			"""
-			return DummyLayer(kwargs.get("name", "Tracks"))
-
-		def _fake_add_image(self, *args, **kwargs):
-			"""
-			Simule l'ajout d'un calque d'image.
-
-			:param args: Arguments positionnels ignorés par le substitut.
-			:param kwargs: Arguments nommés utilisés pour configurer le substitut.
-			:return: Calque d'image simulé.
-			"""
-			return DummyLayer(kwargs.get("name", "Visualization"))
-
-		def _fake_index(self, layer):
-			"""
-			Retourne l'indice simulé d'un calque.
-
-			:param layer: Calque concerné.
-			:return: Indice simulé du calque.
-			"""
-			return 0
-
-		def _fake_move(self, src, dst):
-			"""
-			Simule le déplacement d'un calque.
-
-			:param src: Indice de départ.
-			:param dst: Indice d'arrivée.
-			:return: Toujours ``None``.
-			"""
-			return None
-
-		monkeypatch.setattr(type(viewer), "add_points", _fake_add_points)
-		monkeypatch.setattr(type(viewer), "add_tracks", _fake_add_tracks)
-		monkeypatch.setattr(type(viewer), "add_image", _fake_add_image)
-
-		# Patch temporaire uniquement sur la classe réelle de LayerList
-		monkeypatch.setattr(type(viewer.layers), "index", _fake_index)
-		monkeypatch.setattr(type(viewer.layers), "move", _fake_move)
-
-	return _factory
-
-
-##################################################
-@pytest.fixture
 def patched_napari_viewer(monkeypatch, qtbot):
 	"""
 	Sécurise la création d'un viewer Napari en environnement de test/CI.
@@ -327,7 +237,7 @@ def _is_qt_or_napari_test(item) -> bool:
 	keywords = set(item.keywords)
 	nodeid = str(getattr(item, "nodeid", "")).lower()
 
-	return bool({"qtbot", "patched_napari_viewer", "fake_napari_layers"} & fixture_names
+	return bool({"qtbot", "patched_napari_viewer"} & fixture_names
 				or {"qt", "napari"} & keywords
 				or "napari" in nodeid or "qt" in nodeid or "gui" in nodeid)
 
