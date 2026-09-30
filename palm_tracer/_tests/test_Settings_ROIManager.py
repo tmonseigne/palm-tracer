@@ -195,6 +195,33 @@ def test_update_data_box_reset(manager: ROIManager, data):
 
 
 ##################################################
+@pytest.mark.parametrize("sigmas, gaussian", [
+		pytest.param({"Sigma Y": [1.0]}, {"Shape": 1}, id="missing-sigma-x"),
+		pytest.param({"Sigma X": [1.0]}, {"Shape": 2}, id="missing-sigma-y"),
+		pytest.param({"Sigma X": [np.nan], "Sigma Y": [1.0]}, {"Shape": 1}, id="nan-sigma"),
+		pytest.param({"Sigma X": [1.0], "Sigma Y": [np.inf]}, {"Shape": 2}, id="infinite-sigma"),
+		pytest.param({}, {"Shape": 0, "Size": np.nan}, id="nan-size"),
+		pytest.param({}, {"Shape": 0, "Size": np.inf}, id="infinite-size"),
+		pytest.param({}, {"Shape": 0, "Size": 0.0}, id="zero-size"),
+		pytest.param({}, {"Shape": 0, "Size": -1.0}, id="negative-size"),
+		pytest.param({"Sigma X": [0.0], "Sigma Y": [0.0]}, {"Shape": 1}, id="zero-mean-sigma"),
+		pytest.param({"Sigma X": [-2.0], "Sigma Y": [-1.0]}, {"Shape": 2}, id="negative-max-sigma")])
+def test_update_data_box_invalid_gaussian(manager: ROIManager, sigmas, gaussian):
+	"""Des paramètres gaussiens invalides effacent le cadre précédent sans modifier la ROI utilisateur."""
+	manager.set_size(100, 80)
+	manager.set_xy_roi(10, 50, 10, 50)
+	manager.roi_selection.active = True
+	data = pd.DataFrame({"X": [20.0], "Y": [30.0], **sigmas})
+	manager.update_data_box(data)
+	assert manager.data_box != (-1, -1, -1, -1)
+
+	manager.update_data_box(data, gaussian)
+	assert manager.data_box == (-1, -1, -1, -1)
+	assert manager.get_roi_limits() == (10, 50, 10, 50)
+	assert manager.get_hr_limits() == (10, 50, 10, 50)
+
+
+##################################################
 @pytest.mark.parametrize("data_box, expected", [
 		pytest.param((0, 25, 0, 20), (20, 25, 10, 20), id="image-edge"),
 		pytest.param((60, 70, 60, 70), (20, 40, 10, 30), id="disjoint")])

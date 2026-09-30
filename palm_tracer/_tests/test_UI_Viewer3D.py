@@ -1,5 +1,7 @@
 """Teste le widget Napari de visualisation 3D des localisations."""
 
+from napari.components import ViewerModel
+
 from palm_tracer._tests.Utils import *
 from palm_tracer.UI import Viewer3DWidget
 from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
@@ -9,18 +11,20 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 ##################################################
-def test_widget_creation(make_napari_viewer, patched_napari_viewer, capsys):
+def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
-	viewer = make_napari_viewer()  # Créer un viewer à l'aide de la fixture.
-	_ = Viewer3DWidget(viewer)  # .	 Créer notre widget, en passant par le viewer.
+	viewer = ViewerModel(ndisplay=3)
+	w = Viewer3DWidget(viewer)
+	qtbot.addWidget(w)
 
 
 ##################################################
-def test_viewer3d(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch, fake_qfiledialog):
+def test_viewer3d(qtbot, fake_qfiledialog):
 	"""Vérifie la création du widget."""
 	SETTINGS_FILE.unlink(missing_ok=True)
-	viewer = make_napari_viewer()
+	viewer = ViewerModel(ndisplay=3)
 	my_widget = Viewer3DWidget(viewer)
+	qtbot.addWidget(my_widget)
 
 	fake_qfiledialog(Viewer3DWidget, None)  # .			Simuler un "Cancel" sur le QFileDialog
 	my_widget.load_csv()
