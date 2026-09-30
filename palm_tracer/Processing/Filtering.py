@@ -64,20 +64,26 @@ class Filtering:
 	def tracking(self, datas: pd.DataFrame) -> pd.DataFrame:
 		"""
 		Filtre un DataFrame de trajectoires.
-		Simpliste uniquement sur la longueur, car il faut l'analyse statistique des trajectoires pour le reste.
-		Cependant, il peut s'agir d'une première étape avant, justement, cette analyse statistique.
+		Limite d'abord les points aux plans sélectionnés, puis filtre les trajectoires par identifiant,
+		longueur et pourcentage de points dans la ROI. Ces deux derniers critères portent sur les points retenus.
 
 		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
 		"""
 		if datas.empty or not self.filters.active: return datas
+		plane_filter = cast(CheckRangeInt, self.filters["Plane"])
 		track_filter = cast(CheckIntSelection, self.filters.tracking["Track"])
 		length_filter = cast(CheckRangeInt, self.filters.tracking["Length"])
 		time_filter = cast(CheckRangeInt, self.filters.tracking["Time Inside ROI"])
-		if not track_filter.active and not length_filter.active and not time_filter.active: return datas  # Aucun filtre de base
+		if not any((plane_filter.active, track_filter.active, length_filter.active, time_filter.active)): return datas
+
+		res = datas
+		# Filtre sur les plans, avec bornes incluses.
+		if plane_filter.active:
+			limits = plane_filter.value
+			res = res[res["Plane"].between(limits[0], limits[1])]
 
 		# Filtre sur les identifiants de trajectoire
-		res = datas
 		if track_filter.active and not res.empty:
 			mask = np.zeros(len(res), dtype=bool)
 			for minimum, maximum in track_filter.ranges: mask |= res["Track"].between(minimum, maximum).to_numpy()

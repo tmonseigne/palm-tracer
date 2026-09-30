@@ -807,6 +807,7 @@ def test_update_filtered(capsys, pt):
 ##################################################
 @pytest.mark.parametrize("key, filter_name", [
 		pytest.param("loc", "Plane", id="localizations-plane"),
+		pytest.param("trc", "Plane", id="tracks-plane"),
 		pytest.param("trc", "Track", id="tracks-id")])
 def test_update_button_does_not_accumulate_filters(qtbot, pt, key, filter_name):
 	"""Vérifie que deux clics sur Update repartent des données originales lorsque le filtre est élargi."""
@@ -816,15 +817,15 @@ def test_update_button_does_not_accumulate_filters(qtbot, pt, key, filter_name):
 	button = filters.buttons["test"]["update"]
 	source = pd.DataFrame({"Plane": [1, 2, 3], "Track": [1, 2, 3], "X": [0.0, 1.0, 2.0], "Y": [0.0, 1.0, 2.0]})
 	pt.results[key] = source.copy()
-	selected_filter = filters[filter_name] if key == "loc" else filters.tracking[filter_name]
+	selected_filter = filters[filter_name] if filter_name == "Plane" else filters.tracking[filter_name]
 	selected_filter.active = True
 
-	selected_filter.value = [1, 1] if key == "loc" else "1"
+	selected_filter.value = [1, 1] if filter_name == "Plane" else "1"
 	button.click()
 	pd.testing.assert_frame_equal(pt.results[f"f_{key}"], source.iloc[:1])
 
 	# Le deuxième résultat reste partiel pour ne pas déclencher le repli vers le parent.
-	selected_filter.value = [1, 2] if key == "loc" else "1-2"
+	selected_filter.value = [1, 2] if filter_name == "Plane" else "1-2"
 	button.click()
 	pd.testing.assert_frame_equal(pt.results[f"f_{key}"], source.iloc[:2])
 	pd.testing.assert_frame_equal(pt.results[key], source)

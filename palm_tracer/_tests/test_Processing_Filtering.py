@@ -98,6 +98,45 @@ def test_tracking(qtbot, f, select_tracks, select_length, active, expected):
 
 
 ##################################################
+@pytest.mark.parametrize("plane_active, filters_active, expected_indices", [
+		pytest.param(True, True, [1, 2, 4], id="inclusive-planes"),
+		pytest.param(False, True, [0, 1, 2, 3, 4], id="plane-disabled"),
+		pytest.param(True, False, [0, 1, 2, 3, 4], id="filters-disabled")])
+def test_tracking_plane(qtbot, f, plane_active, filters_active, expected_indices):
+	"""Vérifie le filtrage des points par plan sans autre critère et la conservation des données originales."""
+	src = pd.DataFrame({"Track": [1, 1, 1, 2, 2], "Plane": [1, 2, 3, 4, 2]})
+	original = src.copy()
+	f.filters["Plane"].active = plane_active
+	f.filters["Plane"].value = [2, 3]
+	f.filters.active = filters_active
+
+	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[expected_indices])
+	pd.testing.assert_frame_equal(src, original)
+
+
+##################################################
+def test_tracking_plane_before_length(qtbot, f):
+	"""Vérifie que la longueur est évaluée sur les points des plans retenus."""
+	src = pd.DataFrame({"Track": [1, 1, 1, 2, 2], "Plane": [1, 2, 3, 1, 2]})
+	f.filters["Plane"].active = True
+	f.filters["Plane"].value = [2, 3]
+	f.filters.tracking["Length"].active = True
+	f.filters.tracking["Length"].value = [2, 2]
+
+	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[[1, 2]])
+
+
+##################################################
+def test_tracking_plane_empty(qtbot, f):
+	"""Vérifie qu'un intervalle sans point produit un résultat vide avec les colonnes originales."""
+	src = pd.DataFrame({"Track": [1, 1], "Plane": [1, 2]})
+	f.filters["Plane"].active = True
+	f.filters["Plane"].value = [3, 4]
+
+	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[:0])
+
+
+##################################################
 @pytest.mark.parametrize("roi_active, limits, expected_tracks", [
 		pytest.param(True, [0, 0], {1}, id="fully-outside"),
 		pytest.param(True, [100, 100], {4}, id="fully-inside"),
