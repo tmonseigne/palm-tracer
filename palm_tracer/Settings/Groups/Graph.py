@@ -12,13 +12,13 @@ from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
 
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
-						 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Localizations Count"],
+						 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Count per Plane"],
 		"Tracking":     ["Length", "Length On", "Length Off", "MSD", "Instant D",
 						 "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE",
 						 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)"],
-		"No Dual":      ["Localizations Count", "MSD"],
+		"No Dual":      ["Count per Plane", "MSD"],
 		# TODO
-		# "Localization Scatter":   ["Localizations Count"],  # Uniquement disponible pour les localizations en scatter plot
+		# "Localization Scatter":   ["Count per Plane"],  # Uniquement disponible pour les localizations en scatter plot
 		# "Tracking Scatter":   [MSD Mean],  # Uniquement disponible pour les tracks en scatter plot
 		"No Scatter":   [],  # Il est possible que certains éléments ne soient pas compatible avec un scatter plot, option à envisager..
 		}

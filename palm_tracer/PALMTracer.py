@@ -677,26 +677,41 @@ class PALMTracer:
 
 		:param src_id: Identifiant du type de source à représenter.
 		:param src: Nom de la donnée ou de la colonne à extraire.
-		:param log_scale: Applique une transformation logarithmique aux valeurs si ``True``.
+		:param log_scale: Applique une transformation logarithmique aux valeurs si ``True``, après la moyenne par plan en mode Scatter.
 		:param with_track_ids: Conserve les identifiants et agrège les valeurs par trajectoire pour permettre leur mise en correspondance.
 		:return: Données extraites et titre associé au graphique.
+			Pour les localisations, les moyennes et les comptes par plan ont la forme ``(2, N)`` : plans sur la première ligne, valeurs sur la seconde.
 		"""
-		# Localizations
+		mode =  self.settings.graph["Mode"].value
+		# ----- Localizations -----
 		if src_id == 0:
 			title = f"Localizations {src}"
 			df = self.results.localizations
 			if df.empty:  return np.empty(0), title
-			if src == "Localizations Count":
+
+			# -- Cas spécial --
+			if src == "Count per Plane":
 				s = df["Plane"].astype(int)
 				planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
 				counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-				return np.column_stack((planes, counts)), src
+				return np.vstack((planes, counts)), title
 
 			s = df.get(src)  # None si la colonne n'existe pas
 			if s is None: return np.empty(0), title
-			return self._log_data(s.to_numpy(dtype=float), log_scale), title
 
-		# Tracks
+			# -- Mode Histogramme ou Dual --
+			if mode != 1: return self._log_data(s.to_numpy(dtype=float), log_scale), title
+
+			# -- Mode Scatter Plot --
+			values = s.to_numpy(dtype=float)
+			finite_values = pd.Series(np.where(np.isfinite(values), values, np.nan), index=df.index)  # Au cas où, on gère les valeurs NaN
+			means = finite_values.groupby(df["Plane"].astype(int), sort=True).mean()  # .				Moyenne par plan
+			planes = np.arange(int(means.index.min()), int(means.index.max()) + 1, dtype=int)  # .		Récupération des plans du min au max
+			# Les plans sans valeur exploitable restent absents de la moyenne, contrairement au comptage qui vaut zéro.
+			values = means.reindex(pd.Index(planes)).to_numpy(dtype=float)
+			return np.vstack((planes, self._log_data(values, log_scale))), f"{title} Mean per Plane"
+
+		# ----- Tracks -----
 		title = f"Tracks {src}"
 		if "Length" in src:  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
 			df = self.results.tracks

@@ -1008,7 +1008,7 @@ def test_get_graph_data():
 
 	# Classique
 	data, title = pt._get_graph_data()
-	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
+	ref_title, ref_shape, ref_data = "Count per Plane", (2, 2), [[1, 4], [2, 2]]
 	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
 	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
 	np.testing.assert_array_equal(data, ref_data)
@@ -1072,7 +1072,7 @@ def test_get_graph_data_dual_tracks():
 @pytest.mark.parametrize("source, column, empty, msd_step, expected_title, expected_shape, expected_data", [
 		pytest.param(0, 'no column', False, 5, "Localizations no column", (0,), [], id="localizations-missing-column"),
 		pytest.param(0, 'X', False, 5, "Localizations X", (6,), [1, 2, 3, 4, 1, 2], id="localizations-x"),
-		pytest.param(0, 'Localizations Count', False, 5, "Localizations Count", (2, 2), [[1, 4], [2, 2]], id="localization-count"),
+		pytest.param(0, 'Localizations Count', False, 5, "Count per Plane", (2, 2), [[1, 4], [2, 2]], id="localization-count"),
 		pytest.param(0, 'X', True, 5, "Localizations X", (0,), [], id="empty-localizations"),
 		pytest.param(1, 'no column', False, 5, "Tracks no column", (0,), [], id="tracks-missing-column"),
 		pytest.param(1, 'Length Scatter', False, 5, "Tracks Length Scatter", (9, 2), [[1, 99], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2]],
