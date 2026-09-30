@@ -88,9 +88,17 @@ class Graph(BaseSettingGroup):
 		else: self._settings["MSD Step"].hide()
 
 	##################################################
-	def toggle_mode(self, value: int):
-		"""Affiche/Masque la seconde source."""
-		self._settings["Source B"].show() if value == 2 else self._settings["Source B"].hide()
+	def toggle_mode(self, mode: int):
+		"""
+		Adapte les sources et les options d'affichage au mode sélectionné.
+		Les limites sont activées en histogramme et Dual Source, désactivées en Scatter.
+
+		:param mode: Mode sélectionné : ``0`` pour l'histogramme, ``1`` pour le Scatter et ``2`` pour le Dual Source.
+		"""
+		self._settings["Source B"].show() if mode == 2 else self._settings["Source B"].hide()
+		for key in ("Bins", "Cumul", "Count", "Gauss Mix"): self.display[key].show() if mode == 0 else self.display[key].hide()
+		for key in ("Gauss", "KDE", "Poiss", "Exp"): self.display[key].hide() if mode == 1 else self.display[key].show()
+		self.display["Limits"].value = mode != 1
 		self._update_src()
 
 	##################################################
