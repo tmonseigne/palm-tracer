@@ -786,8 +786,15 @@ class PALMTracer:
 		gaussian = s.gaussian.settings if s.gaussian.active else None
 		# Les positions non corrigées ne bornent pas les déplacements produits par le drift.
 		with_drift = s["Drift Correction"].value and not self.results.beads.empty
-		crop_data = self.results.localizations if s["Crop"].value and not tracks and dimension in (0, 1) and not with_drift else None
-		self.settings.rois.update_data_box(crop_data, gaussian)
+		crop_data, crop_margin = None, 5
+		if s["Crop"].value and dimension in (0, 1, 3) and not with_drift:
+			crop_data = self.results.tracks if tracks else self.results.localizations
+			if tracks and dimension == 3:
+				# Le demi-diamètre maximal du dessin HR est converti en pixels source, arrondis vers l'extérieur.
+				st = s.track_stack
+				radius = max(st["Head"].value, st["Width"].value) // 2
+				crop_margin += int(np.ceil(radius / upscale))
+		self.settings.rois.update_data_box(crop_data, gaussian, crop_margin)
 
 		# Mise à jour de la zone de travail avec les régions d'intérêts
 		time_filter = cast(CheckRangeInt, self.settings.filters.tracking["Time Inside ROI"]) if tracks else None

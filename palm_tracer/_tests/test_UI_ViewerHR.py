@@ -439,14 +439,14 @@ def test_generate_render_and_roi_transitions(qtbot):
 
 			# Bornes de référence explicites : marge actuelle de cinq pixels source, plus trois sigmas en gaussien.
 			auto_box = (12, 56, 22, 62) if gaussian else (15, 53, 25, 59)
-			if track_mode or dimension == 2:
+			if dimension == 2:
 				expected_box = full_box
 				assert rois.data_box == (-1, -1, -1, -1), context
 			else:
 				expected_box = (auto_box[0] + shift_x, auto_box[1] + shift_x, auto_box[2] + shift_y, auto_box[3] + shift_y)
 				assert rois.data_box == expected_box, context
 			if stage == "mixed-roi":
-				expected_box = (22, 70, 28, 80) if track_mode or dimension == 2 else (22, auto_box[1], 28, auto_box[3])
+				expected_box = (22, 70, 28, 80) if dimension == 2 else (22, auto_box[1], 28, auto_box[3])
 			elif stage == "empty-roi": expected_box = (90, 110, 90, 110)
 			assert rois.hr_box == expected_box, context
 			x0, x1, y0, y1 = expected_box

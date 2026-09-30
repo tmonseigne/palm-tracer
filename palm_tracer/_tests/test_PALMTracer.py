@@ -1120,6 +1120,63 @@ def test_hr_data_crop(shape, dimension):
 
 
 ##################################################
+@pytest.mark.parametrize("dimension, raw, head, width", [
+		pytest.param(0, False, 1, 1, id="tracks-2d"),
+		pytest.param(3, False, 1, 1, id="track-stack"),
+		pytest.param(3, True, 1, 1, id="raw-background"),
+		pytest.param(3, False, 29, 1, id="large-heads"),
+		pytest.param(3, False, 1, 30, id="wide-tails"),
+		pytest.param(3, True, 29, 30, id="wide-raw")])
+@pytest.mark.parametrize("with_roi", [pytest.param(False, id="full-field"), pytest.param(True, id="partial-roi")])
+def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
+	"""Le premier crop conserve les segments et leur empreinte, avec le même décalage pour le raw et les points."""
+	pt = PALMTracer()
+	pt._stack = np.full((3, 100, 100), 1000, dtype=np.uint16)
+	rois = pt.settings.rois
+	rois.set_size(100, 100)
+	if with_roi:
+		rois.set_xy_roi(36, 90, 20, 90)
+		rois.roi_selection.active = True
+	pt.results["trc"] = pd.DataFrame({"Track": [1, 1, 1], "Plane": [1, 2, 3],
+										 "X": [30, 40, 50], "Y": [35, 45, 40], "Integrated Intensity": [1000] * 3})
+	s = pt.settings.hr
+	s["Dimension"].value = dimension
+	s["Type"].value = 1
+	s["Ratio"].value = 2
+	s["Scaling"].value = 1000
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+	s.track_stack["Head"].value = head
+	s.track_stack["Width"].value = width
+	s.track_stack["Background"].value = raw
+	s["Crop"].value = False
+	full, full_plot = pt.hr()
+	base_x, _, base_y, _ = rois.hr_box
+
+	s["Crop"].value = True
+	cropped, cropped_plot = pt.hr()
+	x0, x1, y0, y1 = rois.hr_box
+	y_slice, x_slice = slice((y0 - base_y) * 2, (y1 - base_y) * 2), slice((x0 - base_x) * 2, (x1 - base_x) * 2)
+	assert cropped.size < full.size
+	assert np.any(cropped)
+	if raw: np.testing.assert_array_equal(cropped, full[:, y_slice, x_slice, :])
+	else:
+		np.testing.assert_array_equal(cropped, full[..., y_slice, x_slice])
+		# Reconstituer l'image entière vérifie aussi qu'aucun signal n'a été coupé hors du nouveau cadre.
+		reconstructed = np.zeros_like(full)
+		reconstructed[..., y_slice, x_slice] = cropped
+		np.testing.assert_array_equal(reconstructed, full)
+	np.testing.assert_allclose(cropped_plot[:, -2:], full_plot[:, -2:] - [(y0 - base_y) * 2, (x0 - base_x) * 2])
+	np.testing.assert_array_equal(cropped_plot[:, :2], full_plot[:, :2])
+	if with_roi: assert rois.hr_box[0] == 36
+
+	s["Crop"].value = False
+	restored, _ = pt.hr()
+	np.testing.assert_array_equal(restored, full)
+	assert rois.data_box == (-1, -1, -1, -1)
+
+
+##################################################
 def test_hr():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1513,7 +1570,10 @@ def test_hr_track_stack(monkeypatch, background, color_mode):
 
 
 ##################################################
-def test_hr_track_stack_empty_roi():
+@pytest.mark.parametrize("crop, expected_box, expected_shape", [
+		pytest.param(False, (0, 5, 0, 5), (1, 5, 5), id="full-field"),
+		pytest.param(True, (1, 5, 1, 5), (1, 4, 4), id="auto-crop")])
+def test_hr_track_stack_empty_roi(crop, expected_box, expected_shape):
 	"""Vérifie une animation sans trajectoire conservée dans la ROI."""
 	pt = PALMTracer()
 	pt._stack = np.zeros((3, 5, 5), dtype=np.uint16)
@@ -1521,8 +1581,10 @@ def test_hr_track_stack_empty_roi():
 	pt.results["trc"] = pd.DataFrame([[1, 2, 6, 6, 100]], columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
 	pt.settings.hr["Dimension"].value = 3
 	pt.settings.hr["Ratio"].value = 1
+	pt.settings.hr["Crop"].value = crop
 	viz, plot = pt.hr()
-	assert viz.shape == (1, 5, 5)
+	assert pt.settings.rois.hr_box == expected_box
+	assert viz.shape == expected_shape
 	assert plot.shape == (0, 4)
 	assert not np.any(viz)
 
