@@ -413,9 +413,12 @@ def test_generate_render_and_roi_transitions(qtbot):
 			 ("z-spots", 1, 0, False, False), ("z-gaussian", 1, 0, True, False),
 			 ("rotation-spots", 2, 0, False, False), ("rotation-gaussian", 2, 0, True, False),
 			 ("tracks", 0, 1, False, False), ("track-stack", 3, 1, False, False),
-			 ("track-stack-raw", 3, 1, False, True), ("return-2d", 0, 0, False, False)]
+			 ("track-stack-raw", 3, 1, False, True), ("return-z", 1, 0, False, False),
+			 ("return-tracks", 0, 1, False, False), ("return-rotation", 2, 0, False, False), ("return-2d", 0, 0, False, False)]
 	for name, dimension, track_mode, gaussian, raw in modes:
 		s["Dimension"].value = dimension
+		# Le retour depuis les tracks vérifie aussi un pas Z manuel différent du pas automatique.
+		s.hr_3d["Z Step"].value = 2 if name == "return-z" else 1
 		s["Type"].value = track_mode
 		s["Source"].value = 0
 		s.gaussian.active = gaussian
@@ -432,6 +435,7 @@ def test_generate_render_and_roi_transitions(qtbot):
 			rois.roi_selection.value = 2 if stage == "empty-roi" else 1
 			rois.roi_selection.active = stage in ("mixed-roi", "empty-roi")
 			if track_mode: initial_tracks_layer.visible = True
+			if track_mode: w._layers[w.LAYERS_NAME[1]].visible = True
 			w._generate()
 			assert w._layers[w.LAYERS_NAME[3]].visible == (dimension != 2), context
 			assert w._layers[w.LAYERS_NAME[2]] is initial_tracks_layer, context
@@ -486,10 +490,32 @@ def test_generate_render_and_roi_transitions(qtbot):
 			inside = source["X"].between(x0, x1) & source["Y"].between(y0, y1)
 			expected_xy = (source.loc[inside, ["Y", "X"]].to_numpy() - [y0, x0]) * 2
 			plot = w._layers[w.LAYERS_NAME[2 if track_mode else 1]].data
-			if track_mode and expected_xy.shape[0] == 0:
+			if dimension == 2:
+				assert plot.shape == (0, 3), context
+				assert not w._layers[w.LAYERS_NAME[1]].visible, context
+			elif track_mode and expected_xy.shape[0] == 0:
 				# Le point fictif garde le calque utilisateur en place sans transmettre un tableau vide à Napari.
 				np.testing.assert_array_equal(plot, np.zeros((1, 4)), err_msg=context)
 			else: np.testing.assert_allclose(plot[:, -2:], expected_xy, err_msg=context)
+			if not track_mode:
+				np.testing.assert_array_equal(initial_tracks_layer.data, np.zeros((1, 4)), err_msg=context)
+				assert not initial_tracks_layer.visible, context
+			if dimension == 1 and len(plot):
+				z = source.loc[inside, "Z"].to_numpy()
+				z_step = s.hr_3d["Z Step"].value or pt._get_uniform_z_step()
+				np.testing.assert_array_equal(plot[:, 0], np.floor((z - z.min()) / z_step), err_msg=context)
+				assert not w._layers[w.LAYERS_NAME[1]].out_of_slice_display, context
+			if track_mode:
+				points_layer = w._layers[w.LAYERS_NAME[1]]
+				assert points_layer.visible and not points_layer.out_of_slice_display, context
+				if expected_xy.shape[0] == 0:
+					assert points_layer.data.shape == (0, 3), context
+				else:
+					np.testing.assert_array_equal(points_layer.data, plot[:, 1:], err_msg=context)
+					planes = source.loc[inside, "Plane"].to_numpy()
+					if dimension == 3: planes = planes - source["Plane"].min()
+					np.testing.assert_array_equal(points_layer.data[:, 0], planes, err_msg=context)
+					np.testing.assert_array_equal(points_layer.face_color, np.tile([0, 1, 0, 1], (len(plot), 1)), err_msg=context)
 
 			# Aucun appel à get_hr_limits ici : les assertions ne doivent pas réparer le cadre testé.
 			for index, canonical in enumerate(canonical_rois):

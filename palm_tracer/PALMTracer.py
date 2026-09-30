@@ -896,7 +896,11 @@ class PALMTracer:
 			plot_data = np.column_stack((np.zeros(plot_data.shape[0], dtype=plot_data.dtype), plot_data))
 		elif plot_data.shape[0] > 0:
 			z_index = plot_columns.index("Z")
-			plot_data[:, z_index] = (plot_data[:, z_index] - np.nanmin(plot_data[:, z_index])) / uniform_z_step
+			z_step = self.settings.hr.hr_3d["Z Step"].value if dimension == 1 else 0
+			z_step = z_step if z_step != 0 else uniform_z_step
+			plot_data[:, z_index] = (plot_data[:, z_index] - np.nanmin(plot_data[:, z_index])) / z_step
+			# Aligne le point vectoriel sur le plan choisi par le rendu ponctuel.
+			if dimension == 1: plot_data[:, z_index] = np.floor(plot_data[:, z_index])
 
 		return viz_data, plot_data, uniform_z_step
 

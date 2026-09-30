@@ -271,19 +271,23 @@ class ViewerHRWidget(QWidget):
 		point_layer = self._layers[self.LAYERS_NAME[1]]
 		tracks_layer = self._layers[self.LAYERS_NAME[2]]
 
-		if self._hr_settings["Type"].value == 0:  # Localisations
+		# Remplace systématiquement les données des deux calques pour éviter les résidus entre modes.
+		points, tracks = np.empty((0, 3), dtype=float), np.zeros((1, 4), dtype=float)
+		if self._hr_settings["Dimension"].value == 2:  # .				 Rotation 3D
+			point_layer.visible = tracks_layer.visible = False
+		elif self._hr_settings["Type"].value == 0:  # .					 Localisations
+			points = plot_data
 			tracks_layer.visible = False
-			Ui.update_layer(point_layer, plot_data, face_color="lime")
-		else:  # Trajectoires
-			point_layer.visible = False
-			# Napari refuse les trajectoires vides : conserve le calque avec le même point fictif qu'à l'initialisation.
-			if plot_data.shape[0] == 0: plot_data = np.array([[0, 0, 0, 0]], dtype=float)
-			Ui.update_layer(tracks_layer, plot_data, blending="translucent")
+		else:  # .														 Trajectoires
+			points = plot_data[:, 1:]  # .								 Les têtes conservent le plan des tracks, déjà décalé pour le track stack.
+			if plot_data.shape[0] > 0: tracks = plot_data
+		Ui.update_layer(point_layer, points, face_color="lime", out_of_slice_display=False)
+		Ui.update_layer(tracks_layer, tracks, blending="translucent")  # Napari refuse les tracks vides : conserve le point fictif de l'initialisation.
 
 		self._update_visualization_layer()
 		self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
-		# La ROI source n'a pas de repère commun avec les projections tournées.
+		# La zone source n'a pas de repère commun avec les projections tournées.
 		roi_layer = self._layers[self.LAYERS_NAME[3]]
 		if self._hr_settings["Dimension"].value == 2:
 			if self._roi_visibility_before_rotation is None: self._roi_visibility_before_rotation = roi_layer.visible

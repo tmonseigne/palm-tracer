@@ -1360,10 +1360,11 @@ def test_hr_empty_roi_3d():
 
 ##################################################
 def test_hr_z_stack():
-	"""Vérifie différentes récupérations de données."""
+	"""Vérifie que les points vectoriels utilisent le même pas Z que le rendu."""
 	pt = get_fake_pt()
 	s = pt.settings.hr
 	s["Dimension"].value = 1
+	s.hr_3d["Z Step"].value = 1
 	s["Ratio"].value = 2
 	s["Source"].value = 1
 	s["Remove Beads"].value = False
@@ -1372,9 +1373,11 @@ def test_hr_z_stack():
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
 	pt.settings.rois.set_size(5, 5)
 	viz, plot = pt.hr()
-	ref_viz = np.zeros((1, 10, 10), dtype=np.uint16)
-	ref_viz[0, 4, 2] = ref_viz[0, 6, 4] = 2
-	ref_plot = [[0, 4, 2], [2, 6, 4], [4, 8, 6], [6, 10, 8], [0, 4, 2], [2, 6, 4]]
+	# Les Z de 3 à 6 nm deviennent les plans 0 à 3 avec un pas de 1 nm.
+	# Le point du plan 3 est hors image en Y ; le plan 2 est conservé mais son intensité est nulle.
+	ref_viz = np.zeros((3, 10, 10), dtype=np.uint16)
+	ref_viz[0, 4, 2] = ref_viz[1, 6, 4] = 2
+	ref_plot = [[0, 4, 2], [1, 6, 4], [2, 8, 6], [3, 10, 8], [0, 4, 2], [1, 6, 4]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
