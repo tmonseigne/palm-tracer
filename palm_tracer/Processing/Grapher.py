@@ -169,49 +169,59 @@ class Grapher:
 		return fig
 
 	##################################################
-	def scatter(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False) -> go.Figure:
+	def scatter(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False,
+				names: list[str] | None = None) -> go.Figure:
 		"""
-		Trace une courbe des données "façon" Seaborn avec Plotly.
+		Trace une ou plusieurs courbes des données "façon" Seaborn avec Plotly, sans relier les valeurs manquantes.
 
-		:param data: Données sous forme de tableau NumPy 1D ou 2D.
+		:param data: Tableau NumPy 1D, couples ``(2, N)`` ou ``(N, 2)``, ou plusieurs courbes sous forme ``(T, 2, N)``.
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
 		:param limit: Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
+		:param names: Noms des courbes, dans leur ordre dans les données. Si fourni, doit contenir un nom par courbe.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
-		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
+		:raises ValueError: Si la forme du tableau ou le nombre de noms ne correspond pas aux courbes attendues.
 		"""
-
-		# Déterminer x,y
+		if data.size == 0: return self.blank(title)
+		# Uniformise les données sous forme de courbes, chacune composée de deux lignes (x, y).
 		if data.ndim == 1:
-			y = data[np.isfinite(data)]
-			x = np.arange(y.size, dtype=float)
+			curves = np.stack((np.arange(data.size, dtype=float), data))[np.newaxis, :, :]
 		elif data.ndim == 2:
-			if data.shape[0] == 2: x, y = data[0, :], data[1, :]  # .	 (2, N) -> lignes = (x, y)
-			elif data.shape[1] == 2:  x, y = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
+			if data.shape[0] == 2: curves = data[np.newaxis, :, :]
+			elif data.shape[1] == 2: curves = data.T[np.newaxis, :, :]
 			else: raise ValueError("data 2D doit avoir 2 lignes ou 2 colonnes (x,y).")
-			mask = np.isfinite(x) & np.isfinite(y)
-			x, y = x[mask], y[mask]
-		else: raise ValueError("data doit être 1D ou 2D.")
+		elif data.ndim == 3 and data.shape[1] == 2: curves = data
+		else: raise ValueError("data doit être 1D, 2D (x,y) ou 3D (courbes, x/y, points).")
+		if names is not None and len(names) != curves.shape[0]: raise ValueError("Un nom doit être fourni pour chaque courbe.")
 
 		# Aucune donnée valide
-		if x.size == 0: return self.blank(title)
+		valid = np.isfinite(curves[:, 0, :]) & np.isfinite(curves[:, 1, :])
+		values = curves[:, 1, :][valid]
+		if values.size == 0: return self.blank(title)
 
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
-		_, limits, mu, sigma = self._get_range(y, limit)
+		_, limits, mu, sigma = self._get_range(values, limit)
 
-		# Tracer une courbe de style "seaborn-like"
-		fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
+		for i, curve in enumerate(curves):
+			if not valid[i].any(): continue
+			name = names[i] if names is not None else f"Curve {i + 1}"
+			# Conserve les abscisses des trous et utilise NaN pour interrompre la ligne au lieu de relier ses voisins.
+			x = np.where(np.isfinite(curve[0]), curve[0], np.nan)
+			y = np.where(valid[i], curve[1], np.nan)
+			fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", connectgaps=False, name=name, line=dict(color=_SEABORN_DEEP[i % len(_SEABORN_DEEP)]),
+									hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra>%{fullData.name}</extra>" if names is not None
+									else "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas
-		if show_sigma and x.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)
+		if show_sigma and values.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)
 
 		# Style "seaborn-like" + Espacement entre barres
 		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, xaxis=self._axis_dict(xlabel), yaxis=self._axis_dict(ylabel, limits),
-						  hovermode="closest", showlegend=False)
+						  hovermode="closest", showlegend=names is not None or len(fig.data) > 1)
 
 		return fig
 

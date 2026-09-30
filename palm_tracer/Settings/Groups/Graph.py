@@ -17,10 +17,7 @@ DATA_SRC: dict[str, list] = {
 						 "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE",
 						 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)"],
 		"No Dual":      ["Count per Plane", "MSD"],
-		# TODO
-		# "Localization Scatter":   ["Count per Plane"],  # Uniquement disponible pour les localizations en scatter plot
-		# "Tracking Scatter":   [MSD Mean],  # Uniquement disponible pour les tracks en scatter plot
-		"No Scatter":   [],  # Il est possible que certains éléments ne soient pas compatible avec un scatter plot, option à envisager..
+		"Tracking Scatter": ["Integrated Intensity", "Integrated Intensity Mean", "MSD", "MSD Mean", "Instant D", "Instant D Mean", "Track Count"],
 		}
 
 
@@ -84,7 +81,7 @@ class Graph(BaseSettingGroup):
 	def toggle_src(self):
 		"""Affiche ou masque l'option msd step à chaque changement de source."""
 		src = cast(Combo, self._settings["Source"])
-		if src.current_text == "MSD": self._settings["MSD Step"].show()
+		if src.current_text == "MSD" and self._settings["Mode"].value == 0: self._settings["MSD Step"].show()
 		else: self._settings["MSD Step"].hide()
 
 	##################################################
@@ -106,6 +103,7 @@ class Graph(BaseSettingGroup):
 		"""Actualise les sources en conservant les libellés disponibles, sinon sélectionne le premier choix."""
 		# Liste de base
 		if self._settings["Type"].value == 0: src = DATA_SRC["Localization"]
+		elif self._settings["Mode"].value == 1: src = DATA_SRC["Tracking Scatter"]
 		else: src = DATA_SRC["Tracking"]
 
 		# En cas de Source multiple, suppression de certaines sources
