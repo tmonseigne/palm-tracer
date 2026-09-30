@@ -66,6 +66,8 @@ class Filtering:
 		Filtre un DataFrame de trajectoires.
 		Limite d'abord les points aux plans sélectionnés, puis filtre les trajectoires par identifiant,
 		longueur et pourcentage de points dans la ROI. Ces deux derniers critères portent sur les points retenus.
+		La ROI est ignorée lorsque le critère de pourcentage est désactivé. Sinon, elle sélectionne
+		les trajectoires sans retirer leurs points extérieurs ; le filtre des plans reste indépendant.
 
 		:param datas: DataFrame à filtrer.
 		:return: :class:`DataFrame <pandas.DataFrame>` filtré.
@@ -96,7 +98,7 @@ class Filtering:
 			keep_ids = counts.index[(counts >= limits[0]) & (counts <= limits[1])]  # IDs de trajectoires gardées: min_len <= nb points <= max_len
 			res = res[res["Track"].isin(keep_ids)]  # .								  Filtrage (on garde l'ordre original)
 
-		# Filtre sur le pourcentage de temps passé dans la ROI sélectionnée.
+		# La ROI sélectionne des trajectoires entières, uniquement lorsque le critère de pourcentage est actif.
 		if not time_filter.active or res.empty: return res
 		points = res.reset_index(drop=True)
 		inside = self.rois.filtering_dataframe(points)  # .									  Liste des points à l'intérieur de la ROI
@@ -105,6 +107,7 @@ class Filtering:
 		percentages = inside_counts.mul(100.0).div(counts)  # .								  Pourcentage à l'intérieur
 		limits = time_filter.value
 		keep_ids = percentages.index[percentages.between(limits[0], limits[1])]
+		# Conserve tous les points des trajectoires retenues, y compris ceux à l'extérieur de la ROI.
 		res = res[res["Track"].isin(keep_ids)]
 		return res
 

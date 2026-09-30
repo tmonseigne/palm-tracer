@@ -20,7 +20,8 @@ class FiltersT(BaseSettingGroup):
 	  ``1-10;15;20-25``.
 	- ``Length`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : intervalle de longueur ; valeur par défaut : ``[1, 10000]``.
 	- ``Time Inside ROI`` (:class:`~palm_tracer.Settings.Types.CheckRangeInt.CheckRangeInt`) : pourcentage des points de la trajectoire situés dans la
-	  zone d'intérêt sélectionnée ; valeur par défaut : ``[0, 100]``.
+	  zone d'intérêt sélectionnée ; valeur par défaut : ``[0, 100]``. Désactivé, ce critère ignore la ROI.
+	  Activé, il conserve tous les points des trajectoires retenues, même ceux à l'extérieur de la ROI.
 	- ``Instant D`` et ``D Coeff`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des coefficients de
 	  diffusion ; valeur par défaut : ``[-5.0, 5.0]``.
 	- ``Alpha`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle de l'exposant du mouvement ; valeur par défaut :
@@ -39,7 +40,8 @@ class FiltersT(BaseSettingGroup):
 																"to separate multiple values or ranges. Example: 1-10;15;20-25."]],
 			"Length":          [CheckRangeInt, ["Length", "", [1, 10000], [1, 100000]]],
 			"Time Inside ROI": [CheckRangeInt, ["Time Inside ROI (%)", "Keep tracks whose percentage of points inside the selected ROI is within "
-																	   "the inclusive range.", [0, 100], [0, 100]]],
+																	   "the inclusive range. Keep all their points, including points outside the ROI. "
+																	   "When unchecked, ignore the ROI for track selection. 0-100% keeps all tracks.", [0, 100], [0, 100]]],
 			"Instant D":       [CheckRangeFloat, ["Instant D", "", [-5, 5], [-10, 10]]],
 			"D Coeff":         [CheckRangeFloat, ["D Coeff (μm²/s)", "", [-5, 5], [-10, 10]]],
 			"Alpha":           [CheckRangeFloat, ["Alpha (Power)", "", [-10, 10], [-100, 100]]],
