@@ -1598,6 +1598,36 @@ def test_hr_filtered_plot_data(monkeypatch, dimension, key, selection):
 
 
 ##################################################
+@pytest.mark.parametrize("filtered", [pytest.param(False, id="unfiltered"), pytest.param(True, id="filtered")])
+def test_hr_localization_z_source(pt, filtered):
+	"""Le rendu Z normalise les points conservés sur uint16 sans inclure les points exclus dans les extrema."""
+	pt._stack = np.zeros((1, 8, 8), dtype=np.uint16)
+	pt.settings.rois.set_size(8, 8)
+	locations = pd.DataFrame({"Plane": [1] * 4, "X": [1.0, 2.0, 3.0, 4.0], "Y": [1.0] * 4,
+								 "Z": [-200.0, 0.0, 200.0, -10000.0], "Integrated Intensity": [100.0] * 4,
+								 "Sigma X": [1.0] * 4, "Sigma Y": [1.0] * 4, "Theta": [0.0] * 4})
+	pt.results["loc"] = locations.copy() if filtered else locations.iloc[:3].copy()
+	if filtered: pt.results["f_loc"] = locations.iloc[:3].copy()
+	before = pt.results["loc"].copy(deep=True)
+	s = pt.settings.hr
+	s["Ratio"].value = 1
+	s["Remove Beads"].value = s["Drift Correction"].value = s["Crop"].value = False
+	s.gaussian.active = False
+	source = s["Source"]
+	assert isinstance(source, Combo)
+	source.value = source.items.index("Z")
+
+	data = pt.hr()
+
+	np.testing.assert_array_equal(data["visualization"][1, 1:4], [0, 32767, 65535])
+	assert data["visualization"][1, 4] == 0
+	np.testing.assert_array_equal(data["plot_data"], [[0, 1, 1], [0, 1, 2], [0, 1, 3]])
+	if filtered: np.testing.assert_array_equal(data["plot_filtered"], [[0, 1, 4]])
+	else: assert "plot_filtered" not in data
+	pd.testing.assert_frame_equal(pt.results["loc"], before)
+
+
+##################################################
 @pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
 def test_hr_filtered_points_all_removed_as_beads(pt, key):
 	"""Une sélection composée uniquement de billes ne produit aucun rendu HR."""

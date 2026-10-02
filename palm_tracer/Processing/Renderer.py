@@ -531,7 +531,8 @@ class Renderer:
 		- Si la valeur minimale de ``Color`` est négative, toutes les valeurs sont décalées afin que le minimum devienne nul.
 		  :math:`C_{Shifted} = C - C_{min}`
 		- Si ``max_value > 0``, les valeurs de ``Color`` sont normalisées linéairement dans l'intervalle ``[0, max_value]``.
-		  :math:`C_{Norm} = C_{Shifted} \\times \\frac{C}{C_{max}}`
+		  :math:`C_{Norm} = C_{Shifted} \\times \\frac{C_{Target}}{C_{max}}`, avec ``C_Target = max_value``.
+		  Pour la source ``Z``, le minimum est toujours soustrait avant normalisation afin d'utiliser toute la plage de couleurs.
 
 		La fonction modifie le DataFrame reçu et le retourne.
 
@@ -551,7 +552,7 @@ class Renderer:
 
 		# Post-traitement des couleurs.
 		color_min = np.min(colors)
-		if color_min < 0.0: colors -= color_min  # .					Décalage pour garantir un minimum nul.
+		if color_min < 0.0 or (col == "Z" and max_value > 0.0): colors -= color_min  # Décalage pour garantir un minimum nul.
 		color_max = np.max(colors)
 		if color_max <= 0.0: colors = np.ones(len(loc), dtype=float)  # Si l'on n'a que des 0, passe tout à 1.
 		elif max_value > 0.0: colors *= max_value / color_max  # .		Normalisation éventuelle.

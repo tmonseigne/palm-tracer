@@ -947,6 +947,32 @@ def test_get_localization_colors():
 
 
 ##################################################
+@pytest.mark.parametrize("z, expected", [
+	pytest.param([-300.0, 0.0, 100.0], [0.0, 0.75, 1.0], id="mixed-sign"),
+	pytest.param([100.0, 200.0, 300.0], [0.0, 0.5, 1.0], id="positive"),
+	pytest.param([-300.0, -200.0, -100.0], [0.0, 0.5, 1.0], id="negative"),
+])
+def test_get_localization_z_colors(z, expected):
+	"""La source Z utilise toute la plage uint16 sans modifier les coordonnées physiques."""
+	loc = pd.DataFrame({"Z": z})
+	before = loc["Z"].copy()
+	max_value = np.iinfo(np.uint16).max
+	res = Renderer.add_colors_to_localizations(loc, "Z", max_value=max_value)
+	np.testing.assert_allclose(res["Color"], np.asarray(expected) * max_value)
+	pd.testing.assert_series_equal(res["Z"], before)
+
+
+##################################################
+@pytest.mark.parametrize("z", [pytest.param(-100.0, id="negative"), pytest.param(0.0, id="zero"), pytest.param(100.0, id="positive")])
+def test_get_localization_constant_z_colors(z):
+	"""Un Z constant conserve une couleur uniforme non nulle sans division par zéro."""
+	loc = pd.DataFrame({"Z": [z, z]})
+	res = Renderer.add_colors_to_localizations(loc, "Z", max_value=np.iinfo(np.uint16).max)
+	np.testing.assert_array_equal(res["Color"], [1.0, 1.0])
+	np.testing.assert_array_equal(res["Z"], [z, z])
+
+
+##################################################
 def test_get_tracks_colors():
 	# DataFrame vide
 	"""Vérifie la génération des couleurs des trajectoires."""

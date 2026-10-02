@@ -1042,15 +1042,16 @@ class PALMTracer:
 		if df.empty: return None, plot, 0.0
 
 		# Ajout de la couleur.
+		max_color = MAX_UI_16 if source == "Z" else 0
 		if tracks: df = self._renderer.add_colors_to_tracks(df, source)
 		elif filtered:
 			# Les points exclus ne doivent pas changer la normalisation des couleurs du rendu conservé.
 			retained = df["_HR Retained"]
 			if not retained.any(): return None, plot, 0.0
-			colored = self._renderer.add_colors_to_localizations(df.loc[retained].copy(), source)
+			colored = self._renderer.add_colors_to_localizations(df.loc[retained].copy(), source, max_color)
 			df["Color"] = 0.0
 			df.loc[retained, "Color"] = colored["Color"].to_numpy()
-		else: df = self._renderer.add_colors_to_localizations(df, source)
+		else: df = self._renderer.add_colors_to_localizations(df, source, max_color)
 		df["Color"] *= color_scaling
 
 		# Ajustement à la ROI
