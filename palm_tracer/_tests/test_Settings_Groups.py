@@ -275,9 +275,12 @@ def test_gallery(qtbot):
 def test_graph(qtbot):
 	"""Vérifie la classe Graph (constructeur, getter, setter)."""
 	g = Graph()
-	group_base_test(Graph(), ["Type", "Source", "Dual", "Source B", "MSD Step", "Display"], ButtonGroup, 1, 0)
+	group_base_test(Graph(), ["Mode", "Type", "Source", "Source B", "MSD Step", "Display"], ButtonGroup, 1, 0)
 	g["Type"].value = 1  # Passage aux Tracks
 	g["Source"].value = 3  # Passage au MSD
+	g["Mode"].value = 1  # Passage aux Scatter Plot
+	g["Mode"].value = 2  # Passage aux nuages de points.
+
 	assert isinstance(g.display, GraphDisplay)
 
 

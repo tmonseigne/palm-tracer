@@ -12,6 +12,7 @@ import pytest
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Parsing
+from palm_tracer.Settings.Groups.Graph import DATA_SRC
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
 
@@ -966,78 +967,76 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 # ==================================================
 # region Visualisation
 # ==================================================
+# region Graph
 ##################################################
-def test_graph():
-	"""Vérifie différentes récupérations de données."""
+@pytest.mark.parametrize("mode, source_type, source", [
+		pytest.param(mode, source_type, source, id=f"{mode_name}-{type_name}-{source}")
+		for mode, mode_name in enumerate(("histogram", "scatter", "dual"))
+		for source_type, type_name in enumerate(("localizations", "tracks"))
+		for source in DATA_SRC["Localization" if source_type == 0 else "Tracking Scatter" if mode == 1 else "Tracking"]
+		if mode != 2 or source not in DATA_SRC["No Dual"]])
+def test_graph(mode, source_type, source):
+	"""Construit une figure pour chaque source A de chaque domaine et mode, avec une source B fixe en Dual."""
 	pt = get_fake_pt()
-
-	ref_title: str
-	ref_shape: tuple
-	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
-
+	# Les points et leurs analyses partagent les mêmes identifiants ; toutes les grandeurs de fit sont disponibles.
+	pt.results["f_blk"] = pd.DataFrame({"Track": [7, 7, 12, 12], "Plane": [1, 3, 2, 3], "Integrated Intensity": [10, 30, 20, 40]})
+	pt.results["MSD"] = pd.DataFrame({"Track": [7, 12], "Step 1": [1.0, 3.0], "Step 2": [2.0, 4.0]})
+	pt.results["InD"] = pd.DataFrame({"Track": [7, 12], "Window 1": [1.0, 3.0], "Window 2": [2.0, 4.0]})
+	fit_columns = {name: [1.0, 2.0] for name in DATA_SRC["Tracking"] if name not in {"Length", "Length On", "Length Off", "MSD", "Instant D"}}
+	pt.results["Fit"] = pd.DataFrame({"Track": [7, 12], **fit_columns})
 	s = pt.settings.graph
-	# Localization Basique
-	s["Type"].value = 0
-	fig = pt.graph()
-	assert fig.data[0].type == "histogram"
-
-	# Localization Count
-	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Localisation Count est un affichage Scatter Plot
-	fig = pt.graph()
-	assert fig.data[0].type == "scatter"
-
-	# Tracking Length Scatter
-	s["Type"].value = 1
-	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Length Scatter est un affichage Scatter Plot
-	fig = pt.graph()
-	assert fig.data[0].type == "scatter"
-
-	# Dual
-	s["Dual"].value = True
-	fig = pt.graph()
-	assert fig.data[0].type == "scattergl"
+	s["Mode"].value, s["Type"].value = mode, source_type
+	source_a = cast(Combo, s["Source"])
+	source_a.value = source_a.items.index(source)
+	if mode == 2:
+		source_b = cast(Combo, s["Source B"])
+		source_b.value = source_b.items.index("X" if source_type == 0 else "Total Intensity")
+	figure = pt.graph()
+	# Instant D rassemble les fenêtres : une valeur par track en B ne peut pas être associée à ce vecteur.
+	if mode == 2 and source_type == 1 and source == "Instant D":
+		assert not figure.data
+		assert figure.layout.annotations[0].text == "No valid data."
+	else:
+		assert figure.data
+		assert figure.data[0].type == ("histogram", "scatter", "scattergl")[mode]
+		assert len(figure.data[0].x) > 0
+	assert source in figure.layout.title.text
 
 
 ##################################################
-def test_get_graph_data():
-	"""Vérifie différentes récupérations de données."""
-	pt = get_fake_pt()
-
-	ref_title: str
-	ref_shape: tuple
-	ref_data: list[int] | list[list[int]] | list[float] | list[list[float]]
-
-	s = pt.settings.graph
-	s["Type"].value = 0
-	# Changement de source
-	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Localisation Count est un affichage Scatter Plot
-
-	# Classique
-	data, title = pt._get_graph_data()
-	ref_title, ref_shape, ref_data = "Localizations Count", (2, 2), [[1, 4], [2, 2]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-	np.testing.assert_array_equal(data, ref_data)
-
-	# Double vue
-	s["Dual"].value = True
-	s["Source"].value = 1
-	s["Source B"].value = 2
-	data, title = pt._get_graph_data()
-	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (2, 6), [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]]
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
-
-	# Colonne inexistante
-	pt.results.localizations.drop("Sigma X", inplace=True, axis=1)
-	data, title = pt._get_graph_data()
-	ref_title, ref_shape, ref_data = "Localizations Sigma X / Sigma Y", (0,), []
-	assert data.shape == ref_shape, f"Dimensions incorrectes.\tAttendu : {ref_shape}\tObtenu : {data.shape}"
-	assert title == ref_title, f"Titre Incorrect.\tAttendu : {ref_title}\tObtenu : {title}"
+@pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
+def test_log_data(log_scale):
+	"""Vérifie le logarithme et les valeurs non positives sans modifier le tableau reçu."""
+	points = np.array([-1.0, 0.0, 0.1, 10.0, np.nan])
+	original = points.copy()
+	expected = [np.nan, np.nan, -1.0, 1.0, np.nan] if log_scale else points
+	np.testing.assert_allclose(PALMTracer._log_data(points, log_scale), expected, equal_nan=True)
+	np.testing.assert_array_equal(points, original)
 
 
 ##################################################
-def test_get_graph_data_dual_tracks():
+@pytest.mark.parametrize("missing_column", [pytest.param(False, id="paired-values"), pytest.param(True, id="missing-source")])
+def test_get_graph_data_dual_localizations(pt, missing_column):
+	"""Vérifie l'ordre des sources et les métadonnées du Dual des localisations."""
+	pt.results["loc"] = pd.DataFrame({"Sigma X": [1.0, 2.0, 3.0], "Sigma Y": [4.0, 5.0, 6.0]})
+	if missing_column: pt.results["loc"].drop(columns="Sigma X", inplace=True)
+	s = pt.settings.graph
+	s["Mode"].value = 2
+	s["Source"].value = cast(Combo, s["Source"]).items.index("Sigma X")
+	s["Source B"].value = cast(Combo, s["Source B"]).items.index("Sigma Y")
+	graph_data = pt._get_graph_data()
+	assert graph_data["title"] == "Localizations Sigma X / Sigma Y"
+	assert graph_data["xlabel"] == "Sigma X"
+	assert graph_data["ylabel"] == "Sigma Y"
+	np.testing.assert_array_equal(graph_data["data"], [] if missing_column else [[1, 2, 3], [4, 5, 6]])
+
+
+##################################################
+@pytest.mark.parametrize("source, expected", [
+		pytest.param("Length", [[7.0, 10.0], [11.0, 20.0]], id="total-duration"),
+		pytest.param("Length On", [[2.5, 10.0], [1.0, 20.0]], id="present-duration"),
+		pytest.param("Length Off", [[2.0, 10.0], [4.0, 20.0]], id="absent-duration")])
+def test_get_graph_data_dual_tracks(source, expected):
 	"""Vérifie la mise en correspondance des données par identifiant de trajectoire."""
 	pt = get_fake_pt()
 	pt.results["f_blk"] = pd.DataFrame({"Track": [1, 1, 1, 1, 1, 2, 2, 2, 3, 3], "Plane": [1, 2, 5, 6, 7, 10, 12, 20, 4, 5], })
@@ -1045,69 +1044,307 @@ def test_get_graph_data_dual_tracks():
 
 	s = pt.settings.graph
 	s["Type"].value = 1
-	s["Dual"].value = True
+	s["Mode"].value = 2
 	source_a = cast(Combo, s["Source"])
 	source_b = cast(Combo, s["Source B"])
 	source_b.value = source_b.items.index("MSE(0)")
 
-	for source, expected in (("Length", [[7.0, 10.0], [11.0, 20.0]]), ("Length On", [[2.5, 10.0], [1.0, 20.0]]), ("Length Off", [[2.0, 10.0], [4.0, 20.0]]),):
-		source_a.value = source_a.items.index(source)
-		data, title = pt._get_graph_data()
-		assert title == f"Tracks {source} / MSE(0)"
-		np.testing.assert_array_equal(data, np.asarray(expected).T)
-		figure = pt.graph()
-		np.testing.assert_array_equal(figure.data[0].x, np.asarray(expected)[:, 0])
-		np.testing.assert_array_equal(figure.data[0].y, np.asarray(expected)[:, 1])
-
-	source_a.value = source_a.items.index("Length")
-	source_b.value = source_b.items.index("Instant D")
-	data, _ = pt._get_graph_data()
-	assert data.size == 0
-
-	source_b.value = source_b.items.index("MSE(0)")
-	pt.results["Fit"]["Track"] += 100
-	data, _ = pt._get_graph_data()
-	assert data.size == 0
-
-	pt.results["f_blk"] = pd.DataFrame({"Track": [1, 1, 2, 2], "Plane": [1, 2, 4, 5]})
-	data, _ = pt._get_graph_data_from_src(1, "Length Off", with_track_ids=True)
-	assert data.shape == (0, 2)
+	source_a.value = source_a.items.index(source)
+	graph_data = pt._get_graph_data()
+	assert graph_data["title"] == f"Tracks {source} / MSE(0)"
+	assert graph_data["xlabel"] == source
+	assert graph_data["ylabel"] == "MSE(0)"
+	np.testing.assert_array_equal(graph_data["data"], np.asarray(expected).T)
 
 
 ##################################################
-@pytest.mark.parametrize("source, column, empty, msd_step, expected_title, expected_shape, expected_data", [
-		pytest.param(0, 'no column', False, 5, "Localizations no column", (0,), [], id="localizations-missing-column"),
-		pytest.param(0, 'X', False, 5, "Localizations X", (6,), [1, 2, 3, 4, 1, 2], id="localizations-x"),
-		pytest.param(0, 'Localizations Count', False, 5, "Localizations Count", (2, 2), [[1, 4], [2, 2]], id="localization-count"),
-		pytest.param(0, 'X', True, 5, "Localizations X", (0,), [], id="empty-localizations"),
-		pytest.param(1, 'no column', False, 5, "Tracks no column", (0,), [], id="tracks-missing-column"),
-		pytest.param(1, 'Length Scatter', False, 5, "Tracks Length Scatter", (9, 2), [[1, 99], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2]],
-					 id="length-scatter"),
-		pytest.param(1, 'Length', False, 5, "Tracks Length", (9,), [99, 2, 2, 2, 2, 2, 2, 2, 2], id="lengths"),
-		pytest.param(1, 'Length On', False, 5, "Tracks Length On", (10,), [1, 1, 2, 2, 2, 2, 2, 2, 2, 2], id="on-durations"),
-		pytest.param(1, 'Length Off', False, 5, "Tracks Length Off", (1,), [97], id="off-durations"),
-		pytest.param(1, 'Length New', False, 5, "Tracks Length New", (0,), [], id="unknown-length"),
-		pytest.param(1, 'MSD', False, 5, "Tracks MSD Step 5", (1, 2), [[81, 0.14]], id="msd-step-5"),
-		pytest.param(1, 'MSD', False, 9, "Tracks MSD Step 9", (0,), [], id="msd-step-9"),
-		pytest.param(1, 'Instant D', False, 9, "Tracks Instant D", (27,), [4.51, 1.37, 3.04, 1.13, 1e-06, 1.99, 1e-06, 2.34, 0.81, 4.02,
-																		   4.26, 1.31, 6.37, 0.60, 2.22, 4.83, 0.27, 0.96, 5.41, 9.19,
-																		   0.60, 1.24, 0.54, 2.43, 2.23, 1.61, 3.05],
+@pytest.mark.parametrize("source_b", [pytest.param("Instant D", id="incompatible-dimensions"), pytest.param("MSE(0)", id="no-common-track")])
+def test_get_graph_data_dual_tracks_empty(pt, source_b):
+	"""Renvoie des données vides quand les sources ne peuvent pas être associées."""
+	pt.results["trc"] = pd.DataFrame({"Track": [1, 1], "Plane": [1, 2]})
+	pt.results["Fit"] = pd.DataFrame({"Track": [2], "MSE(0)": [1.0]})
+	pt.results["InD"] = pd.DataFrame({"Track": [1], "Window 1": [1.0]})
+	s = pt.settings.graph
+	s["Type"].value, s["Mode"].value = 1, 2
+	s["Source"].value = cast(Combo, s["Source"]).items.index("Length")
+	s["Source B"].value = cast(Combo, s["Source B"]).items.index(source_b)
+	assert pt._get_graph_data()["data"].size == 0
+
+
+##################################################
+@pytest.mark.parametrize("source_type, mode, method, expected_args", [
+		pytest.param(0, 0, "_get_localization_graph_data", ("X", 0, True), id="localizations-histogram"),
+		pytest.param(0, 1, "_get_localization_graph_data", ("X", 1, True), id="localizations-scatter"),
+		pytest.param(1, 0, "_get_track_graph_data", ("X", True, False), id="tracks-histogram"),
+		pytest.param(1, 1, "_get_track_scatter_data", ("X", True), id="tracks-scatter"),
+		pytest.param(1, 2, "_get_track_graph_data", ("X", True, True), id="tracks-dual")])
+def test_get_graph_data_from_src(pt, monkeypatch, source_type, mode, method, expected_args):
+	"""Vérifie uniquement l'aiguillage et la transmission des paramètres, sans refaire les calculs des sources."""
+	graph_data = {"data": np.array([1.0]), "title": "Prepared data"}
+	calls = []
+
+	def prepare(*args):
+		"""Conserve les paramètres reçus et renvoie le dictionnaire préparé."""
+		calls.append(args)
+		return graph_data
+
+	monkeypatch.setattr(pt, method, prepare)
+	pt.settings.graph["Mode"].value = mode
+	assert pt._get_graph_data_from_src(source_type, "X", True, mode == 2) is graph_data
+	assert calls == [expected_args]
+
+
+##################################################
+@pytest.mark.parametrize("mode", [pytest.param(0, id="histogram"), pytest.param(1, id="scatter"), pytest.param(2, id="dual")])
+@pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
+def test_get_localization_graph_data(pt, mode, log_scale):
+	"""Vérifie les valeurs individuelles, les moyennes avant logarithme et les plans vides."""
+	pt.results["loc"] = pd.DataFrame({"Plane": [3, 1, 1, 3], "Integrated Intensity": [0.0, 1.0, 9.0, np.inf]})
+	graph_data = pt._get_localization_graph_data("Integrated Intensity", mode, log_scale)
+	if mode == 1: expected = [[1, 2, 3], [np.log10(5), np.nan, np.nan] if log_scale else [5, np.nan, 0]]
+	else: expected = [np.nan, 0, np.log10(9), np.inf] if log_scale else [0, 1, 9, np.inf]
+	np.testing.assert_allclose(graph_data["data"], expected, equal_nan=True)
+	assert ("fit_limit" in graph_data) == (mode == 0 and not log_scale)
+	if "fit_limit" in graph_data: assert graph_data["fit_limit"] == -1.0
+	if mode == 1:
+		assert graph_data["xlabel"] == "Plane"
+		assert graph_data["ylabel"] == "Integrated Intensity"
+	assert graph_data["title"] == "Localizations Integrated Intensity" + (" Mean per Plane" if mode == 1 else "")
+
+
+##################################################
+@pytest.mark.parametrize("mode", [pytest.param(0, id="histogram"), pytest.param(1, id="scatter")])
+def test_get_localization_graph_data_count(pt, mode):
+	"""Vérifie les comptes par plan, y compris zéro sur un plan sans localisation."""
+	pt.results["loc"] = pd.DataFrame({"Plane": [3, 1, 1, 3]})
+	graph_data = pt._get_localization_graph_data("Count per Plane", mode, False)
+	np.testing.assert_array_equal(graph_data["data"], [[1, 2, 3], [2, 0, 2]])
+	assert graph_data["title"] == "Localizations Count per Plane"
+
+
+##################################################
+@pytest.mark.parametrize("mode", [pytest.param(0, id="histogram"), pytest.param(1, id="scatter")])
+def test_get_localization_graph_data_empty(pt, mode):
+	"""Accepte des résultats de localisation vides."""
+	graph_data = pt._get_localization_graph_data("X", mode, False)
+	assert graph_data["data"].shape == (0,)
+	assert graph_data["title"] == "Localizations X"
+
+
+##################################################
+def test_get_localization_graph_data_missing_column(pt):
+	"""Renvoie des données vides si la grandeur demandée n'existe pas."""
+	pt.results["loc"] = pd.DataFrame({"Plane": [1], "X": [2.0]})
+	graph_data = pt._get_localization_graph_data("Unknown", 0, False)
+	assert graph_data["data"].shape == (0,)
+	assert graph_data["title"] == "Localizations Unknown"
+
+
+##################################################
+@pytest.mark.parametrize("source, key, prefix, xlabel, ylabel", [
+		pytest.param("MSD", "MSD", "Step", "Step (planes)", "MSD (μm²)", id="msd"),
+		pytest.param("Instant D", "InD", "Window", "Window", "Instant D (μm²/s)", id="instant-diffusion")])
+@pytest.mark.parametrize("mean", [pytest.param(False, id="per-track"), pytest.param(True, id="mean")])
+@pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
+def test_get_track_scatter_data(pt, source, key, prefix, xlabel, ylabel, mean, log_scale):
+	"""Vérifie l'ordre des steps/fenêtres, les absences et la moyenne avant logarithme."""
+	third_value = 6.0 if source == "MSD" else 1e-5
+	pt.results[key] = pd.DataFrame({"Track":       [12, 7], f"{prefix} 3": [third_value, -1.0], f"{prefix} 1": [0.0, 2.0],
+									f"{prefix} 4": [np.inf, np.nan], f"{prefix} 0": [99, 99], "Unrelated": [99, 99]})
+	src = source + (" Mean" if mean else "")
+	graph_data = pt._get_track_scatter_data(src, log_scale)
+	values = np.array([1, np.nan, third_value, np.nan] if mean else [[0, np.nan, third_value, np.nan], [2, np.nan, np.nan, np.nan]])
+	if log_scale:
+		with np.errstate(divide="ignore", invalid="ignore"): values = np.where(values > 0, np.log10(values), np.nan)
+	expected = np.vstack(([1, 2, 3, 4], values)) if mean else np.stack((np.tile([1, 2, 3, 4], (2, 1)), values), axis=1)
+	np.testing.assert_allclose(graph_data["data"], expected, equal_nan=True)
+	assert graph_data["title"] == f"Tracks {src}"
+	assert graph_data["xlabel"] == xlabel
+	assert graph_data["ylabel"] == (f"log10({ylabel})" if log_scale else ylabel)
+	assert graph_data.get("names") == (None if mean else ["Track 12", "Track 7"])
+
+
+##################################################
+@pytest.mark.parametrize("source, method, expected_args, expected_names, ylabel", [
+		pytest.param("Integrated Intensity", "_get_track_intensity_data", (False,), ["Track 12", "Track 7"], "Integrated Intensity", id="intensity"),
+		pytest.param("Integrated Intensity Mean", "_get_track_intensity_data", (True,), None, "Integrated Intensity", id="mean-intensity"),
+		pytest.param("Track Count", "_get_track_count_data", (), ["In Progress", "Present", "Absent"], "Track Count", id="count")])
+@pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
+def test_get_track_scatter_data_metadata(pt, monkeypatch, source, method, expected_args, expected_names, ylabel, log_scale):
+	"""Vérifie les libellés, les noms et la délégation aux calculs d'intensité ou de comptage."""
+	pt.results["trc"] = pd.DataFrame({"Track": [12, 7, 12]})
+	data = np.array([1.0])
+	calls = []
+
+	def prepare(*args):
+		"""Conserve les paramètres transmis au calcul des données."""
+		calls.append(args)
+		return data
+
+	monkeypatch.setattr(pt, method, prepare)
+	graph_data = pt._get_track_scatter_data(source, log_scale)
+	assert graph_data["data"] is data
+	assert calls == [expected_args + (log_scale,)]
+	assert graph_data["title"] == f"Tracks {source}"
+	assert graph_data["xlabel"] == "Plane"
+	assert graph_data["ylabel"] == (f"log10({ylabel})" if log_scale else ylabel)
+	assert graph_data.get("names") == expected_names
+
+
+##################################################
+@pytest.mark.parametrize("source", [
+		pytest.param("MSD", id="msd"), pytest.param("Instant D Mean", id="mean-diffusion"),
+		pytest.param("Integrated Intensity", id="intensity"), pytest.param("Track Count", id="count")])
+def test_get_track_scatter_data_empty(pt, source):
+	"""Accepte les résultats de tracking ou les analyses absents avec des données vides."""
+	graph_data = pt._get_track_scatter_data(source, False)
+	assert graph_data["data"].size == 0
+	assert graph_data["title"] == f"Tracks {source}"
+
+
+##################################################
+@pytest.mark.parametrize("source, columns", [
+		pytest.param("MSD", {"Track": [1], "Unrelated": [2]}, id="missing-step"),
+		pytest.param("Instant D", {"Window 1": [2]}, id="missing-track-id"),
+		pytest.param("Integrated Intensity", {"Track": [1], "Plane": [1]}, id="missing-intensity"),
+		pytest.param("Track Count", {"Track": [1]}, id="missing-plane")])
+def test_get_track_scatter_data_missing_columns(pt, source, columns):
+	"""Renvoie des données vides si les colonnes nécessaires ne sont pas disponibles."""
+	key = "MSD" if source == "MSD" else "InD" if source == "Instant D" else "trc"
+	pt.results[key] = pd.DataFrame(columns)
+	assert pt._get_track_scatter_data(source, False)["data"].size == 0
+
+
+##################################################
+@pytest.mark.parametrize("source", [pytest.param("Unknown", id="unknown-source"), pytest.param("Track Count Mean", id="unsupported-mean")])
+def test_get_track_scatter_data_unknown_source(pt, source):
+	"""Renvoie un dictionnaire minimal pour les sources non prises en charge."""
+	graph_data = pt._get_track_scatter_data(source, False)
+	assert set(graph_data) == {"data", "title"}
+	assert graph_data["data"].shape == (0,)
+	assert graph_data["title"] == f"Tracks {source}"
+
+
+##################################################
+@pytest.mark.parametrize("source, msd_step, expected_title, expected_data", [
+		pytest.param("MSD", 5, "Tracks MSD Step 5", [[81, 0.14]], id="msd-step-5"),
+		pytest.param("Instant D", 1, "Tracks Instant D", [4.51, 1.37, 3.04, 1.13, 1e-06, 1.99, 1e-06, 2.34, 0.81, 4.02,
+														  4.26, 1.31, 6.37, 0.60, 2.22, 4.83, 0.27, 0.96, 5.41, 9.19, 0.60, 1.24, 0.54, 2.43, 2.23, 1.61,
+														  3.05],
 					 id="instant-diffusion"),
-		pytest.param(1, 'MSE(0)', False, 9, "Tracks MSE(0)", (14, 2), [[35, 1], [37, 1], [66, 1], [75, 1], [81, 1], [83, 1], [102, 1], [114, 1],
-																	   [131, 1], [152, 1], [158, 1], [165, 1], [176, 1], [220, 1]], id="fit-error"),
-		pytest.param(1, 'Length', True, 9, "Tracks Length", (0,), [], id="empty-tracks"),
-		pytest.param(1, 'MSD', True, 9, "Tracks MSD", (0,), [], id="empty-msd"),
-		pytest.param(1, 'Instant D', True, 9, "Tracks Instant D", (0,), [], id="empty-diffusion"),
-		pytest.param(1, 'MSE(0)', True, 9, "Tracks MSE(0)", (0,), [], id="empty-fit")])
-def test_get_graph_data_from_src(source, column, empty, msd_step, expected_title, expected_shape, expected_data):
-	"""Vérifie chaque source graphique avec des résultats préparés indépendamment."""
+		pytest.param("MSE(0)", 1, "Tracks MSE(0)", [[35, 1], [37, 1], [66, 1], [75, 1], [81, 1], [83, 1], [102, 1], [114, 1],
+													[131, 1], [152, 1], [158, 1], [165, 1], [176, 1], [220, 1]], id="fit-error")])
+def test_get_track_graph_data(source, msd_step, expected_title, expected_data):
+	"""Vérifie les valeurs des analyses utilisées en histogramme ou en Dual."""
 	pt = get_fake_pt()
 	pt.settings.graph["MSD Step"].value = msd_step
-	if empty: pt.results.reset()
-	data, title = pt._get_graph_data_from_src(source, column)
-	assert title == expected_title
-	assert data.shape == expected_shape
-	np.testing.assert_array_equal(data, expected_data)
+	graph_data = pt._get_track_graph_data(source, False, False)
+	assert graph_data["title"] == expected_title
+	np.testing.assert_array_equal(graph_data["data"], expected_data)
+
+
+##################################################
+@pytest.mark.parametrize("source", [pytest.param("MSD", id="msd"), pytest.param("Instant D", id="diffusion"), pytest.param("MSE(0)", id="fit")])
+def test_get_track_graph_data_empty(pt, source):
+	"""Accepte des analyses de trajectoire vides."""
+	graph_data = pt._get_track_graph_data(source, False, False)
+	assert graph_data["data"].shape == (0,)
+	assert graph_data["title"] == f"Tracks {source}"
+
+
+##################################################
+@pytest.mark.parametrize("source, msd_step, expected_title", [
+		pytest.param("MSD", 9, "Tracks MSD Step 9", id="missing-msd-step"),
+		pytest.param("Unknown", 1, "Tracks Unknown", id="missing-fit-column")])
+def test_get_track_graph_data_missing_column(source, msd_step, expected_title):
+	"""Renvoie des données vides si le step ou la colonne d'analyse n'existe pas."""
+	pt = get_fake_pt()
+	pt.settings.graph["MSD Step"].value = msd_step
+	graph_data = pt._get_track_graph_data(source, False, False)
+	assert graph_data["data"].shape == (0,)
+	assert graph_data["title"] == expected_title
+
+
+##################################################
+@pytest.mark.parametrize("source, expected_limit, expected_bins", [
+		pytest.param("Instant D", 1e-5, None, id="instant-diffusion"),
+		pytest.param("D(0) (μm²/s)", 1e-5, None, id="diffusion"),
+		pytest.param("A (μm²/s)", 1e-5, None, id="diffusion-slope"),
+		pytest.param("MSD", -1.0, None, id="msd"),
+		pytest.param("Length", None, -1, id="length"),
+		pytest.param("MSE(0)", None, None, id="fit-error")])
+@pytest.mark.parametrize("mode", [pytest.param(0, id="histogram"), pytest.param(2, id="dual")])
+@pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
+def test_get_track_graph_data_options(pt, source, expected_limit, expected_bins, mode, log_scale):
+	"""Vérifie les seuils d'ajustement dans les unités reçues et les classes entières des longueurs."""
+	pt.settings.graph["Mode"].value = mode
+	graph_data = pt._get_track_graph_data(source, log_scale, mode == 2)
+	if mode != 0 or (source == "MSD" and log_scale): expected_limit = None
+	elif log_scale and expected_limit is not None: expected_limit = -5.0
+	assert graph_data.get("fit_limit") == expected_limit
+	assert graph_data.get("bins") == expected_bins
+
+
+##################################################
+@pytest.mark.parametrize("source, expected_data", [
+		pytest.param("Length Scatter", [[1, 99], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2]], id="legacy-track-duration-pairs"),
+		pytest.param("Length", [99, 2, 2, 2, 2, 2, 2, 2, 2], id="total-duration"),
+		pytest.param("Length On", [1, 1, 2, 2, 2, 2, 2, 2, 2, 2], id="present-segments"),
+		pytest.param("Length Off", [97], id="absent-segments")])
+def test_get_track_length_data(source, expected_data):
+	"""Vérifie les durées totales, les segments On/Off et l'ancien format avec identifiants."""
+	pt = get_fake_pt()
+	np.testing.assert_array_equal(pt._get_track_length_data(source, False), expected_data)
+
+
+##################################################
+def test_get_track_length_data_empty(pt):
+	"""Accepte l'absence de trajectoires."""
+	assert pt._get_track_length_data("Length", False).shape == (0,)
+
+
+##################################################
+def test_get_track_length_data_unknown_source():
+	"""Renvoie des durées vides pour une source de longueur non prise en charge."""
+	pt = get_fake_pt()
+	assert pt._get_track_length_data("Length New", False).shape == (0,)
+
+
+##################################################
+@pytest.mark.parametrize("with_track_ids, expected_shape", [pytest.param(False, (0,), id="durations"), pytest.param(True, (0, 2), id="track-duration-pairs")])
+def test_get_track_length_data_without_absence(pt, with_track_ids, expected_shape):
+	"""Ne crée pas de segment absent pour les trajectoires présentes sur tous leurs plans."""
+	pt.results["trc"] = pd.DataFrame({"Track": [1, 1, 2, 2], "Plane": [1, 2, 4, 5]})
+	assert pt._get_track_length_data("Length Off", with_track_ids).shape == expected_shape
+
+
+##################################################
+@pytest.mark.parametrize("mean", [pytest.param(False, id="per-track"), pytest.param(True, id="mean")])
+@pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
+def test_get_track_intensity_data(pt, mean, log_scale):
+	"""Vérifie les doublons moyennés, les échecs exclus et les trous aux plans réels."""
+	pt.results["trc"] = pd.DataFrame({"Track":                [12, 7, 7, 7, 12, 7, 12], "Plane": [2, 1, 1, 3, 4, 4, 4],
+									  "Integrated Intensity": [20, 10, 30, 0, 40, -1, 60]})
+	expected = np.array([[1, 2, 3, 4], [20, 20, 0, 50]] if mean else
+						[[[2, np.nan, 4, np.nan], [20, np.nan, 50, np.nan]], [[1, np.nan, 3, 4], [20, np.nan, 0, np.nan]]], dtype=float)
+	if log_scale:
+		values = expected[1] if mean else expected[:, 1]
+		with np.errstate(divide="ignore", invalid="ignore"): values[:] = np.where(values > 0, np.log10(values), np.nan)
+	np.testing.assert_allclose(pt._get_track_intensity_data(mean, log_scale), expected, equal_nan=True)
+
+
+##################################################
+@pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
+def test_get_track_count_data(pt, log_scale):
+	"""Compte les tracks présents et absents sans compter deux fois les doublons ni exclure les intensités invalides."""
+	pt.results["trc"] = pd.DataFrame({"Track": [7, 7, 7, 12, 12], "Plane": [1, 1, 3, 2, 3], "Integrated Intensity": [-1, -1, np.nan, 0, np.inf]})
+	expected = np.array([[[1, 2, 3], [1, 2, 2]], [[1, 2, 3], [1, 1, 2]], [[1, 2, 3], [0, 1, 0]]], dtype=float)
+	if log_scale:
+		with np.errstate(divide="ignore", invalid="ignore"): expected[:, 1] = np.where(expected[:, 1] > 0, np.log10(expected[:, 1]), np.nan)
+	np.testing.assert_allclose(pt._get_track_count_data(log_scale), expected, equal_nan=True)
+
+
+# endregion Graph
 
 
 ##################################################
@@ -1165,7 +1402,7 @@ def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
 		rois.set_xy_roi(36, 90, 20, 90)
 		rois.roi_selection.active = True
 	pt.results["trc"] = pd.DataFrame({"Track": [1, 1, 1], "Plane": [1, 2, 3],
-										 "X": [30, 40, 50], "Y": [35, 45, 40], "Integrated Intensity": [1000] * 3})
+									  "X":     [30, 40, 50], "Y": [35, 45, 40], "Integrated Intensity": [1000] * 3})
 	s = pt.settings.hr
 	s["Dimension"].value = dimension
 	s["Type"].value = 1
@@ -1632,7 +1869,7 @@ def test_hr_track_stack_crop_background(raw_background, background_color, expect
 	pt.settings.rois.set_xy_roi(1, 4, 1, 4, add=False)
 	pt.settings.filters["ROI"].active = True
 	pt.results["trc"] = pd.DataFrame([[1, 1, 1, 2, 100], [1, 2, 2, 2, 100]],
-										 columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
+									 columns=["Track", "Plane", "X", "Y", "Integrated Intensity"])
 	s = pt.settings.hr
 	s["Dimension"].value = 3
 	s["Ratio"].value = 1

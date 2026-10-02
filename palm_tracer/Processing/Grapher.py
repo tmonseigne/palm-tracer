@@ -51,7 +51,7 @@ class Grapher:
 	##################################################
 	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False,
 				  show_sigma: bool = False, kde: bool = False, gaussian: bool = False, poissonian: bool = False, exponential: bool = False,
-				  density: bool = True, cumulative: bool = False, bins: int = 0, gaussian_mixture: bool = False) -> go.Figure:
+				  density: bool = True, cumulative: bool = False, bins: int = 0, gaussian_mixture: bool = False, fit_limit: float = -np.inf) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
 
@@ -69,6 +69,8 @@ class Grapher:
 		:param bins: Nombre de bins explicite (Sturges si ``0`` et avec des valeurs entières si négatif).
 		:param cumulative: Si ``True``, affiche l'histogramme cumulé ainsi que les courbes KDE / gaussienne en version cumulée.
 		:param gaussian_mixture: Si ``True``, superpose un mélange ajusté de deux gaussiennes.
+		:param fit_limit: Exclut des distributions les valeurs inférieures ou égales à ce seuil, sans modifier l'histogramme.
+			Par défaut, ``-np.inf`` conserve toutes les valeurs finies. Le seuil s'exprime dans les unités des données reçues.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
 		"""
 		if data.ndim == 2:  # On considère la première ligne/colonne comme l'identifiant/compteur pour la valeur d'intérêt
@@ -100,52 +102,58 @@ class Grapher:
 						  cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
 						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
-		# Courbes
-		if x.size > 1 and sigma > 0:
+		# Les distributions utilisent les valeurs admissibles ; les statistiques de l'histogramme restent inchangées.
+		fit_data = x[x > fit_limit]
+		fit_mu, fit_sigma = mu, sigma
+		if 0 < fit_data.size < x.size: fit_mu, fit_sigma = float(np.mean(fit_data)), float(np.std(fit_data))
+		# La densité reste normalisée sur l'effectif total de l'histogramme, y compris les valeurs exclues du fit.
+		fit_weight = fit_data.size / x.size if density else 1.0
+
+		if fit_data.size > 1 and fit_sigma > 0:
 			x_grid = np.linspace(limits[0], limits[1], MESH_SIZE)  # Grille régulière sur l'intervalle affiché
 
 			# Estimation par noyau
 			if kde:
-				kde_model = gaussian_kde(x)  # Choisit sa propre largeur de bande
+				kde_model = gaussian_kde(fit_data)  # Choisit sa propre largeur de bande
 				y_pdf = kde_model(x_grid)
-				y = self._scale_curve(x_grid, y_pdf, x.size, bin_width, density, cumulative)
+				y = self._scale_curve(x_grid, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
 				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
 										 name="KDE", hoverinfo="skip", hovertemplate=None))
 
 			# Gaussienne
 			if gaussian:
-				y_pdf = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x_grid - mu) / sigma) ** 2)
-				y = self._scale_curve(x_grid, y_pdf, x.size, bin_width, density, cumulative)
+				y_pdf = (1.0 / (fit_sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x_grid - fit_mu) / fit_sigma) ** 2)
+				y = self._scale_curve(x_grid, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
 				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
 										 name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
 			# Mélange de deux gaussiennes
-			if gaussian_mixture and np.unique(x).size >= 2:
-				mixture = GaussianMixture.fit(x, n_component=2)
+			if gaussian_mixture and np.unique(fit_data).size >= 2:
+				mixture = GaussianMixture.fit(fit_data, n_component=2)
 				x_mixture, y_pdf = mixture.make_curve(limits, MESH_SIZE)
 				component_pdfs = mixture.component_probability_densities(x_mixture)
-				component_curves = self._scale_curve(x_mixture, component_pdfs, x.size, bin_width, density, cumulative)
+				component_curves = self._scale_curve(x_mixture, component_pdfs, fit_data.size, bin_width, density, cumulative) * fit_weight
 				for component_id in range(component_curves.shape[1]):
 					fig.add_trace(go.Scatter(x=x_mixture, y=component_curves[:, component_id], mode="lines",
 											 line=dict(dash="dot", color=_SEABORN_DEEP[3 + component_id]),
 											 name=f"Gaussian component {component_id + 1}", hoverinfo="skip", hovertemplate=None))
-				y = self._scale_curve(x_mixture, y_pdf, x.size, bin_width, density, cumulative)
+				y = self._scale_curve(x_mixture, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
 				fig.add_trace(go.Scatter(x=x_mixture, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[5]),
 										 name="Gaussian mixture", hoverinfo="skip", hovertemplate=None))
 
 			# Loi de Poisson
-			if poissonian and mu >= 0:
+			if poissonian and fit_mu >= 0:
 				x_poisson = np.arange(max(0, int(np.floor(limits[0]))), int(np.ceil(limits[1])) + 1)
-				y_pdf = poisson.pmf(x_poisson, mu)
-				y = self._scale_curve(x_poisson, y_pdf, x.size, bin_width, density, cumulative, discrete=True)
+				y_pdf = poisson.pmf(x_poisson, fit_mu)
+				y = self._scale_curve(x_poisson, y_pdf, fit_data.size, bin_width, density, cumulative, discrete=True) * fit_weight
 				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[6]),
 										 name="Poisson", hoverinfo="skip", hovertemplate=None))
 
 			# Exponentielle
-			if exponential and mu > 0:
+			if exponential and fit_mu > 0:
 				x_exponential = x_grid[x_grid >= 0]
-				y_pdf = expon.pdf(x_exponential, scale=mu)
-				y = self._scale_curve(x_exponential, y_pdf, x.size, bin_width, density, cumulative)
+				y_pdf = expon.pdf(x_exponential, scale=fit_mu)
+				y = self._scale_curve(x_exponential, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
 				fig.add_trace(go.Scatter(x=x_exponential, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[7]),
 										 name="Exponential", hoverinfo="skip", hovertemplate=None))
 
@@ -161,49 +169,60 @@ class Grapher:
 		return fig
 
 	##################################################
-	def scatter(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False) -> go.Figure:
+	def scatter(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False,
+				names: list[str] | None = None) -> go.Figure:
 		"""
-		Trace une courbe des données "façon" Seaborn avec Plotly.
+		Trace une ou plusieurs courbes des données "façon" Seaborn avec Plotly, sans relier les valeurs manquantes.
 
-		:param data: Données sous forme de tableau NumPy 1D ou 2D.
+		:param data: Tableau NumPy 1D, couples ``(2, N)`` ou ``(N, 2)``, ou plusieurs courbes sous forme ``(T, 2, N)``.
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
 		:param limit: Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
 		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
+		:param names: Noms des courbes, dans leur ordre dans les données. Si fourni, doit contenir un nom par courbe.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
-		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
+		:raises ValueError: Si la forme du tableau ou le nombre de noms ne correspond pas aux courbes attendues.
 		"""
-
-		# Déterminer x,y
+		if data.size == 0: return self.blank(title)
+		# Uniformise les données sous forme de courbes, chacune composée de deux lignes (x, y).
 		if data.ndim == 1:
-			y = data[np.isfinite(data)]
-			x = np.arange(y.size, dtype=float)
+			curves = np.stack((np.arange(data.size, dtype=float), data))[np.newaxis, :, :]
 		elif data.ndim == 2:
-			if data.shape[0] == 2: x, y = data[0, :], data[1, :]  # .	 (2, N) -> lignes = (x, y)
-			elif data.shape[1] == 2:  x, y = data[:, 0], data[:, 1]  # (N, 2) -> colonnes = (x, y)
+			if data.shape[0] == 2: curves = data[np.newaxis, :, :]
+			elif data.shape[1] == 2: curves = data.T[np.newaxis, :, :]
 			else: raise ValueError("data 2D doit avoir 2 lignes ou 2 colonnes (x,y).")
-			mask = np.isfinite(x) & np.isfinite(y)
-			x, y = x[mask], y[mask]
-		else: raise ValueError("data doit être 1D ou 2D.")
+		elif data.ndim == 3 and data.shape[1] == 2: curves = data
+		else: raise ValueError("data doit être 1D, 2D (x,y) ou 3D (courbes, x/y, points).")
+		if names is not None and len(names) != curves.shape[0]:
+			raise ValueError("Un nom doit être fourni pour chaque courbe.")
 
 		# Aucune donnée valide
-		if x.size == 0: return self.blank(title)
+		valid = np.isfinite(curves[:, 0, :]) & np.isfinite(curves[:, 1, :])
+		values = curves[:, 1, :][valid]
+		if values.size == 0: return self.blank(title)
 
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
-		_, limits, mu, sigma = self._get_range(y, limit)
+		_, limits, mu, sigma = self._get_range(values, limit)
 
-		# Tracer une courbe de style "seaborn-like"
-		fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
+		for i, curve in enumerate(curves):
+			if not valid[i].any(): continue
+			name = names[i] if names is not None else f"Curve {i + 1}"
+			# Conserve les abscisses des trous et utilise NaN pour interrompre la ligne au lieu de relier ses voisins.
+			x = np.where(np.isfinite(curve[0]), curve[0], np.nan)
+			y = np.where(valid[i], curve[1], np.nan)
+			fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", connectgaps=False, name=name, line=dict(color=_SEABORN_DEEP[i % len(_SEABORN_DEEP)]),
+									hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra>%{fullData.name}</extra>" if names is not None
+									else "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas
-		if show_sigma and x.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)
+		if show_sigma and values.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)
 
 		# Style "seaborn-like" + Espacement entre barres
 		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, xaxis=self._axis_dict(xlabel), yaxis=self._axis_dict(ylabel, limits),
-						  hovermode="closest", showlegend=False)
+						  hovermode="closest", showlegend=names is not None or len(fig.data) > 1)
 
 		return fig
 

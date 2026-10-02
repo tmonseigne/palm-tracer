@@ -118,7 +118,7 @@ msgid "Vide entièrement les DataFrames filtrés dans ``df``."
 msgstr "Completely clears the filtered DataFrames in ``df``."
 
 #: of palm_tracer.PALMTracer.PALMTracer.update_filtered:1
-msgid "Recalcul les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original."
+msgid "Recalcule les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original."
 msgstr "Recomputes each filter using the latest available DataFrame when last is selected; otherwise, uses the original."
 
 #: of palm_tracer.PALMTracer.PALMTracer.update_filtered:3

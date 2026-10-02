@@ -138,7 +138,7 @@ def test_update_plot_localization(w: GraphViewerWidget, qtbot, capsys):
 	s["Source"].value = len(cast(Combo, s["Source"]).items) - 1  # Localisation Count est un affichage Scatter Plot
 
 	# Dual View
-	s["Dual"].value = True
+	s["Mode"].value = 2
 	s["Source"].value = 1
 	s["Source B"].value = 2
 

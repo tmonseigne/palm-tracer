@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal, Optional, cast
+from typing import Any, Literal, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -315,12 +315,12 @@ class PALMTracer:
 
 		action = prepare_step_action(group, previous_group, pipeline_dirty, step.allow_dirty)
 
-		# --- Etape désactivée ---
+		# --- Étape désactivée ---
 		if action == StepAction.Skip:
 			self._logger.add(f"{group.label} disabled.")
 			return pipeline_dirty
 
-		# --- Etape à récupérer du précédent pipeline ---
+		# --- Étape à récupérer du précédent pipeline ---
 		if action == StepAction.Reuse:
 			self._logger.add(f"{group.label} load previous result (Timestamp : {self._timestamp_previous}).")
 			success = True
@@ -338,7 +338,7 @@ class PALMTracer:
 
 			if not success and group.active: action = StepAction.Compute
 
-		# --- Etape à calculer ---
+		# --- Étape à calculer ---
 		if action == StepAction.Compute:
 			self._logger.add(f"{group.label} enabled.")
 			try: step.process_func()
@@ -543,7 +543,7 @@ class PALMTracer:
 	##################################################
 	def update_filtered(self, last: bool = True):
 		"""
-		Recalcul les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original.
+		Recalcule les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original.
 
 		:param last: Utilise les dernières versions des DataFrames si ``True``, sinon les données brutes seront utilisées.
 		"""
@@ -604,30 +604,30 @@ class PALMTracer:
 	def graph(self) -> go.Figure:
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		s = self.settings.graph.settings
-		src_id, dual = s["Type"], s["Dual"]
-		src_a = cast(Combo, self.settings.graph["Source"]).current_text
-		limit, sigma = s["Display Limits"], s["Display Sigma"]
+		mode, limit, sigma = s["Mode"], s["Display Limits"], s["Display Sigma"]
 		kde, gauss, gauss_mix = s["Display KDE"], s["Display Gauss"], s["Display Gauss Mix"]
 		poiss, expo = s["Display Poiss"], s["Display Exp"]
 		cumul, density, bins = s["Display Cumul"], not s["Display Count"], s["Display Bins"]
 
-		if "Length" in src_a: bins = -1  # Si l'on fait un histogramme de longueur (pour les trajectoires, les bins doivent être des entiers
-
 		# Préparation des Données
-		data, title = self._get_graph_data()
-		# print(f"{data.shape}, {data.size}, {title}") avec une taille supérieure à 10 M, affiche un avertissement
+		graph_data = self._get_graph_data()
+		data, title = graph_data["data"], graph_data["title"]
+		xlabel, ylabel = graph_data.get("xlabel", ""), graph_data.get("ylabel", "")
+		# TODO : avertir avant l'affichage de plusieurs millions de valeurs.
 
 		# Selection du graphique à afficher
-		if src_id == 0 and src_a == "Localizations Count":
-			return self._grapher.scatter(data, title, xlabel="Plane", ylabel="Count", limit=limit, show_sigma=sigma)
-		if src_id == 1 and src_a == "Length Scatter":
-			return self._grapher.scatter(data, title, xlabel="Track", ylabel="Length", limit=limit, show_sigma=sigma)
-		if dual:
-			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
-			return self._grapher.cloud(data, title, xlabel=src_a, ylabel=src_b, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
-									   poissonian=poiss, exponential=expo)
-		return self._grapher.histogram(data, title, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
-									   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix)
+		# --- Histogramme ---
+		if mode == 0:
+			bins = graph_data.get("bins", bins)
+			fit_limit = graph_data.get("fit_limit", -np.inf)
+			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
+										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
+		# --- Courbe Scatter plot ---
+		if mode == 1: return self._grapher.scatter(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, names=graph_data.get("names"))
+
+		# --- Nuage de points ---
+		return self._grapher.cloud(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
+								   poissonian=poiss, exponential=expo)
 
 	##################################################
 	@staticmethod
@@ -642,122 +642,289 @@ class PALMTracer:
 		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
 
 	##################################################
-	def _get_graph_data(self) -> tuple[np.ndarray, str]:
+	def _get_graph_data(self) -> dict[str, Any]:
 		"""
 		Récupère et prépare les données pour l'affichage.
 
-		:return: Données préparées pour le graphique et titre associé.
+		:return: Dictionnaire des données, du titre et des arguments de rendu définis par les sources.
 		"""
 		s = self.settings.graph.settings
-		src_id, dual, log_scale = s["Type"], s["Dual"], s["Display Log Scale"]
+		src_id, mode, log_scale = s["Type"], s["Mode"], s["Display Log Scale"]
 		src_a = cast(Combo, self.settings.graph["Source"]).current_text
 
-		d, t = self._get_graph_data_from_src(src_id, src_a, log_scale, dual)
-		if dual:
+		graph_data = self._get_graph_data_from_src(src_id, src_a, log_scale, mode == 2)
+		if mode == 2:
 			src_b = cast(Combo, self.settings.graph["Source B"]).current_text
-			t += f" / {src_b}"
-			d_b, _ = self._get_graph_data_from_src(src_id, src_b, log_scale, dual)
+			graph_data["title"] += f" / {src_b}"
+			graph_data["xlabel"], graph_data["ylabel"] = src_a, src_b
+			d = graph_data["data"]
+			d_b = self._get_graph_data_from_src(src_id, src_b, log_scale, mode == 2)["data"]
 			if src_id == 1 and d.ndim == 2 and d_b.ndim == 2:
 				source_a = pd.DataFrame(d, columns=["Track", "Source A"])
 				source_b = pd.DataFrame(d_b, columns=["Track", "Source B"])
 				common = source_a.merge(source_b, on="Track", how="inner", sort=False)
-				if common.empty: return np.empty(0), t
-				return common[["Source A", "Source B"]].to_numpy().T, t
-			if d.ndim != d_b.ndim: return np.empty(0), t
-			if d_b.size != d.size: return np.empty(0), t
-			d = np.vstack((d, d_b))
+				graph_data["data"] = common[["Source A", "Source B"]].to_numpy().T if not common.empty else np.empty(0)
+			elif d.ndim != d_b.ndim or d_b.size != d.size: graph_data["data"] = np.empty(0)
+			else: graph_data["data"] = np.vstack((d, d_b))
 
-		return d, t
+		return graph_data
 
 	##################################################
-	def _get_graph_data_from_src(self, src_id, src: str, log_scale: bool = False, with_track_ids: bool = False) -> tuple[np.ndarray, str]:
+	def _get_graph_data_from_src(self, src_type: int, src: str, log_scale: bool = False, with_track_ids: bool = False) -> dict[str, Any]:
 		"""
-		Récupère et prépare les données pour l'affichage.
+		Oriente la préparation d'une source vers le domaine et le mode concernés.
 
-		:param src_id: Identifiant du type de source à représenter.
-		:param src: Nom de la donnée ou de la colonne à extraire.
-		:param log_scale: Applique une transformation logarithmique aux valeurs si ``True``.
-		:param with_track_ids: Conserve les identifiants et agrège les valeurs par trajectoire pour permettre leur mise en correspondance.
-		:return: Données extraites et titre associé au graphique.
+		:param src_type: Domaine sélectionné : localisations (0) ou trajectoires (1).
+		:param src: Grandeur à représenter.
+		:param log_scale: Applique le logarithme aux valeurs, après l'éventuelle moyenne.
+		:param with_track_ids: Conserve les identifiants nécessaires à l'association des sources de trajectoires en Dual.
+		:return: Dictionnaire contenant toujours ``data`` et ``title``. Les clés ``xlabel``, ``ylabel``, ``names``,
+			``fit_limit`` et ``bins`` sont ajoutées selon la source et le mode.
 		"""
-		# Localizations
-		if src_id == 0:
-			title = f"Localizations {src}"
-			df = self.results.localizations
-			if df.empty:  return np.empty(0), title
-			if src == "Localizations Count":
-				s = df["Plane"].astype(int)
-				planes = np.arange(int(s.min()), int(s.max()) + 1, dtype=int)  # Récupération des plans du min au max (si plans vides, ils seront compris)
-				counts = (s.groupby(s).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int))  # Comptage par groupe
-				return np.column_stack((planes, counts)), src
+		mode = self.settings.graph["Mode"].value
+		if src_type == 0: return self._get_localization_graph_data(src, mode, log_scale)
+		if mode == 1: return self._get_track_scatter_data(src, log_scale)
+		return self._get_track_graph_data(src, log_scale, with_track_ids)
 
-			s = df.get(src)  # None si la colonne n'existe pas
-			if s is None: return np.empty(0), title
-			return self._log_data(s.to_numpy(dtype=float), log_scale), title
+	##################################################
+	def _get_localization_graph_data(self, src: str, mode: int, log_scale: bool) -> dict[str, Any]:
+		"""
+		Prépare les valeurs individuelles, les comptes ou les moyennes par plan des localisations.
 
-		# Tracks
-		title = f"Tracks {src}"
-		if "Length" in src:  # Cas particulier, il est peut-être dans le tableau Fit, mais on va utiliser le tableau Tracks initial.
-			df = self.results.tracks
-			if df.empty: return np.empty(0), title
+		Les plans sans localisation ont un compte nul et une moyenne absente (NaN).
+		L'intervalle couvre le premier au dernier plan représenté dans les résultats actifs.
 
-			tracks_planes = df.groupby("Track", sort=False)["Plane"]
+		:param src: Grandeur de localisation à représenter.
+		:param mode: Mode sélectionné : histogramme (0), Scatter (1) ou Dual (2).
+		:param log_scale: Applique le logarithme aux valeurs, après la moyenne en Scatter.
+		:return: Données et titre, avec axes en Scatter et seuil d'ajustement pour les sources concernées en histogramme.
+		"""
+		graph_data: dict[str, Any] = {"data": np.empty(0), "title": f"Localizations {src}"}
+		if mode == 1: graph_data["xlabel"], graph_data["ylabel"] = "Plane", src
+		if mode == 0 and not log_scale and src in {"Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Surface", "MSE XY", "MSE Z"}:
+			graph_data["fit_limit"] = -1.0  # Les échecs à -1 sont déjà supprimés par le logarithme ; zéro reste admissible.
 
-			if src in {"Length Scatter", "Length"}:
-				group = tracks_planes.agg(["min", "max"])
-				res = (group["max"] - group["min"] + 1).to_numpy()
+		df = self.results.localizations
+		if df.empty: return graph_data
+		if src == "Count per Plane":
+			plane = df["Plane"].astype(int)
+			planes = np.arange(int(plane.min()), int(plane.max()) + 1, dtype=int)
+			counts = plane.groupby(plane).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int)
+			graph_data["data"] = np.vstack((planes, counts))
+			return graph_data
 
-				if src == "Length Scatter": return np.column_stack((group.index.to_numpy(), res)), title
-				if with_track_ids: return np.column_stack((group.index.to_numpy(), res)), title
-				return res, title
+		column = df.get(src)
+		if column is None: return graph_data
+		values = column.to_numpy(dtype=float)
+		if mode != 1:
+			graph_data["data"] = self._log_data(values, log_scale)
+			return graph_data
 
-			lengths: list[int] = []
-			lengths_by_track: list[tuple[int, float]] = []
+		finite_values = pd.Series(np.where(np.isfinite(values), values, np.nan), index=df.index)
+		means = finite_values.groupby(df["Plane"].astype(int), sort=True).mean()
+		planes = np.arange(int(means.index.min()), int(means.index.max()) + 1, dtype=int)
+		# Les plans vides restent absents de la moyenne, contrairement au compte qui vaut zéro.
+		values = means.reindex(pd.Index(planes)).to_numpy(dtype=float)
+		graph_data["data"] = np.vstack((planes, self._log_data(values, log_scale)))
+		graph_data["title"] += " Mean per Plane"
+		return graph_data
 
-			for track, planes in tracks_planes:
-				planes_array = np.sort(planes.dropna().unique())
-				if planes_array.size == 0: continue  # pragma: no cover — Techniquement impossible : Plane est toujours valide
+	##################################################
+	def _get_track_scatter_data(self, src: str, log_scale: bool) -> dict[str, Any]:
+		"""
+		Prépare les courbes individuelles ou moyennes des trajectoires, ou leurs trois comptages par plan.
 
-				diffs = np.diff(planes_array)
-				breaks = np.flatnonzero(diffs > 1)
+		Les courbes individuelles ont la forme ``(T, 2, N)`` et les courbes moyennes ``(2, N)``.
+		Les steps et fenêtres sont des indices relatifs à chaque trajectoire ; les intensités et comptes utilisent les plans réels.
+		Les valeurs négatives et non finies sont absentes. Zéro et le plancher positif de diffusion restent admissibles.
 
-				# Récupère la longueur des segments continus des trajectoires.
-				if src == "Length On": track_lengths = np.diff(np.concatenate(([-1], breaks, [planes_array.size - 1],)))
-				elif src == "Length Off": track_lengths = diffs[breaks] - 1  # Nombre de plans absents entre deux segments.
-				else: continue
+		:param src: Source Scatter : intensité, MSD, diffusion instantanée, leur moyenne ou compte des trajectoires.
+		:param log_scale: Applique le logarithme aux valeurs, après l'éventuelle moyenne.
+		:return: Données, titre, axes et noms des courbes lorsqu'ils sont nécessaires.
+		"""
+		graph_data: dict[str, Any] = {"data": np.empty(0), "title": f"Tracks {src}"}
+		mean, source = src.endswith(" Mean"), src.removesuffix(" Mean")
+		labels = {"Track Count": ("Plane", "Track Count"), "Integrated Intensity": ("Plane", "Integrated Intensity"),
+				  "MSD":         ("Step (planes)", "MSD (μm²)"), "Instant D": ("Window", "Instant D (μm²/s)")}
+		if source not in labels or (mean and source == "Track Count"): return graph_data
+		xlabel, ylabel = labels[source]
+		graph_data["xlabel"], graph_data["ylabel"] = xlabel, f"log10({ylabel})" if log_scale else ylabel
 
-				lengths.extend(track_lengths.tolist())
-				if with_track_ids and track_lengths.size > 0: lengths_by_track.append((int(track), float(np.mean(track_lengths))))
+		# Comptage
+		if source == "Track Count":
+			graph_data["names"] = ["In Progress", "Present", "Absent"]
+			graph_data["data"] = self._get_track_count_data(log_scale)
+			return graph_data
 
-			if with_track_ids:
-				if not lengths_by_track: return np.empty((0, 2)), title
-				return np.asarray(lengths_by_track), title
-			return np.asarray(lengths, dtype=int), title
+		# Intensité intégrée
+		if source == "Integrated Intensity":
+			if not mean and "Track" in self.results.tracks.columns:
+				graph_data["names"] = [f"Track {track}" for track in self.results.tracks["Track"].drop_duplicates().astype(int)]  # Plusieurs courbes
+			graph_data["data"] = self._get_track_intensity_data(mean, log_scale)
+			return graph_data
 
-		df = self.results.track_analysis
-		if src == "MSD":
-			df = df["MSD"]
-			if df.empty: return np.empty(0), title
-			step = self.settings.graph["MSD Step"].value  # .										Récupération du numéro du Step.
-			col = f"Step {step}"  # .																Récupération du nom de la colonne.
-			title += f" {col}"
-			if not {"Track", col}.issubset(df.columns): return np.empty(0), title  # .				Vérification de présence des colonnes
-			track, values = df["Track"].astype(int).to_numpy(), df[col].astype(float).to_numpy()  # Séparation track et valeur
-			df = np.column_stack((track, self._log_data(values, log_scale)))  # .					Application du log sur les valeurs
-			return df[np.isfinite(df).all(axis=1)], title  # .										Retour avec filtrage des Lignes NaN
+		# MSD et Instant Diffusion
+		key, prefix = ("InD", "Window ") if source == "Instant D" else ("MSD", "Step ")
+		df = self.results.track_analysis[key]
+		if df.empty or "Track" not in df.columns: return graph_data
+		if not mean: graph_data["names"] = [f"Track {track}" for track in df["Track"].astype(int)]  # Plusieurs courbes identifiées
+		columns = [col for col in df.columns if col.startswith(prefix) and col[len(prefix):].isdigit() and int(col[len(prefix):]) > 0]
+		if not columns: return graph_data
+		steps = np.arange(1, max(int(col[len(prefix):]) for col in columns) + 1, dtype=int)
+		values = df.reindex(columns=[f"{prefix}{step}" for step in steps]).to_numpy(dtype=float)
+		valid = np.isfinite(values) & (values >= 0)
+		values = np.where(valid, values, np.nan)
+		if mean:  # Moyenne des trajectoires
+			counts = valid.sum(axis=0)
+			means = np.full(steps.size, np.nan)
+			# Chaque trajectoire admissible possède le même poids au step ou à la fenêtre considéré.
+			np.divide(np.nansum(values, axis=0), counts, out=means, where=counts > 0)
+			graph_data["data"] = np.vstack((steps, self._log_data(means, log_scale)))
+		else: graph_data["data"] = np.stack((np.broadcast_to(steps, values.shape), self._log_data(values, log_scale)), axis=1)
+		return graph_data
 
+	##################################################
+	def _get_track_graph_data(self, src: str, log_scale: bool, with_track_ids: bool) -> dict[str, Any]:
+		"""
+		Prépare une grandeur de trajectoire pour l'histogramme ou le Dual Source.
+
+		Les longueurs proviennent des points des trajectoires, les autres grandeurs des analyses actives.
+		Les règles de classes entières et d'exclusion des sentinelles lors des ajustements sont transmises dans le dictionnaire.
+
+		:param src: Grandeur de trajectoire à représenter.
+		:param log_scale: Applique une transformation logarithmique aux valeurs.
+		:param with_track_ids: Conserve les identifiants et agrège les segments On/Off par trajectoire pour le Dual Source.
+		:return: Données et titre, avec bins entiers pour les longueurs et seuil d'ajustement lorsqu'il est applicable.
+		"""
+		graph_data: dict[str, Any] = {"data": np.empty(0), "title": f"Tracks {src}"}
+		if self.settings.graph["Mode"].value == 0:
+			if src in {"Instant D", "D(0) (μm²/s)", "A (μm²/s)"}:
+				graph_data["fit_limit"] = float(np.log10(Parsing.TRACK_ANALYSIS_MIN)) if log_scale else Parsing.TRACK_ANALYSIS_MIN
+			elif src == "MSD" and not log_scale: graph_data["fit_limit"] = -1.0
+
+		if "Length" in src:
+			graph_data["bins"] = -1  # Bins sur des nombres entiers.
+			graph_data["data"] = self._get_track_length_data(src, with_track_ids)
+			return graph_data
+
+		analysis = self.results.track_analysis
 		if src == "Instant D":
-			df = df["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # .			Récupération des colonnes
-			if df.size == 0: return np.empty(0), title
-			df = self._log_data(df, log_scale)  # .													Application du log sur les valeurs
-			return df[np.isfinite(df)], title  # .													Retour avec filtrage des Lignes NaN
+			values = analysis["InD"].drop(columns=["Track"], errors="ignore").to_numpy().ravel()  # Mélange de toutes les valeurs
+			values = self._log_data(values, log_scale)
+			graph_data["data"] = values[np.isfinite(values)]
+			return graph_data
 
-		df = df["Fit"]
-		if df.empty: return np.empty(0), title
-		if not {"Track", src}.issubset(df.columns): return np.empty(0), title  # .					Vérification de présence des colonnes
-		track, values = df["Track"].astype(int).to_numpy(), df[src].astype(float).to_numpy()  # .	Séparation track et valeur
-		df = np.column_stack((track, self._log_data(values, log_scale)))  # .						Application du log sur les valeurs
-		return df[np.isfinite(df).all(axis=1)], title  # .											Retour avec filtrage des Lignes NaN
+		df = analysis["MSD"] if src == "MSD" else analysis["Fit"]
+		if df.empty: return graph_data
+		column = src
+		if src == "MSD":
+			column = f"Step {self.settings.graph['MSD Step'].value}"
+			graph_data["title"] += f" {column}"
+		if not {"Track", column}.issubset(df.columns): return graph_data
+		tracks = df["Track"].astype(int).to_numpy()
+		values = self._log_data(df[column].to_numpy(dtype=float), log_scale)
+		data = np.column_stack((tracks, values))
+		graph_data["data"] = data[np.isfinite(data).all(axis=1)]
+		return graph_data
+
+	##################################################
+	def _get_track_length_data(self, src: str, with_track_ids: bool) -> np.ndarray:
+		"""
+		Calcule les durées totales, présentes (On) ou absentes (Off) des trajectoires actives.
+
+		La longueur totale couvre le premier au dernier plan inclus.
+		Les durées ``On`` sont les segments de présence consécutive, et les durées ``Off`` les intervalles absents entre ces segments.
+		En Dual Source, les durées On/Off sont moyennées par trajectoire.
+
+		:param src: Source de longueur : ``Length``, ``Length On`` ou ``Length Off``.
+		:param with_track_ids: Renvoie un couple identifiant/valeur par trajectoire au lieu des durées individuelles.
+		:return: Durées sous forme 1D, ou couples trajectoire/durée sous forme ``(T, 2)``.
+			L'ancienne source ``Length Scatter`` conserve également les identifiants.
+		"""
+		df = self.results.tracks
+		if df.empty: return np.empty(0)
+		tracks_planes = df.groupby("Track", sort=False)["Plane"]
+		if src in {"Length Scatter", "Length"}:
+			bounds = tracks_planes.agg(["min", "max"])
+			total_lengths = (bounds["max"] - bounds["min"] + 1).to_numpy()
+			if src == "Length Scatter" or with_track_ids: return np.column_stack((bounds.index.to_numpy(), total_lengths))
+			return total_lengths
+
+		lengths: list[int] = []
+		lengths_by_track: list[tuple[int, float]] = []
+		for track, planes in tracks_planes:
+			planes_array = np.sort(planes.dropna().unique())
+			if planes_array.size == 0: continue  # pragma: no cover — Plane est toujours valide.
+			diffs = np.diff(planes_array)
+			breaks = np.flatnonzero(diffs > 1)
+			if src == "Length On": track_lengths = np.diff(np.concatenate(([-1], breaks, [planes_array.size - 1])))
+			elif src == "Length Off": track_lengths = diffs[breaks] - 1
+			else: continue
+			lengths.extend(track_lengths.tolist())
+			if with_track_ids and track_lengths.size > 0: lengths_by_track.append((int(track), float(np.mean(track_lengths))))
+		if with_track_ids: return np.asarray(lengths_by_track) if lengths_by_track else np.empty((0, 2))
+		return np.asarray(lengths, dtype=int)
+
+	##################################################
+	def _get_track_intensity_data(self, mean: bool, log_scale: bool) -> np.ndarray:
+		"""
+		Prépare les intensités par trajectoire ou leur moyenne par plan réel.
+
+		Les intensités négatives et non finies sont exclues. Les éventuels doublons d'un couple trajectoire/plan sont moyennés
+		pour que chaque trajectoire contribue une seule fois par plan. Les absences restent des trous, sans interpolation.
+
+		:param mean: Renvoie une seule moyenne par plan si ``True``, sinon une courbe par trajectoire.
+		:param log_scale: Applique le logarithme après l'éventuelle moyenne.
+		:return: Couples plan/intensité sous forme ``(2, N)`` ou ``(T, 2, N)``, complétés par NaN.
+		"""
+		df = self.results.tracks
+		if df.empty or not {"Track", "Plane", "Integrated Intensity"}.issubset(df.columns): return np.empty(0)
+		values = df["Integrated Intensity"].to_numpy(dtype=float)
+		values = pd.Series(np.where(np.isfinite(values) & (values >= 0), values, np.nan), index=df.index)
+		points = values.groupby([df["Track"], df["Plane"].astype(int)], sort=False).mean()
+		if mean:
+			means = points.groupby(level=1, sort=True).mean()
+			planes = np.arange(int(means.index.min()), int(means.index.max()) + 1, dtype=int)
+			return np.vstack((planes, self._log_data(means.reindex(pd.Index(planes)).to_numpy(dtype=float), log_scale)))
+
+		curves: list[np.ndarray] = []
+		for _, track in points.groupby(level=0, sort=False):
+			track = track.droplevel(0).sort_index()
+			planes = track.index.to_numpy(dtype=float)
+			intensities = self._log_data(track.to_numpy(dtype=float), log_scale)
+			# Un seul NaN par intervalle absent suffit à interrompre la ligne, sans allouer tous les plans de chaque trajectoire.
+			gaps = np.flatnonzero(np.diff(planes) > 1) + 1
+			curves.append(np.vstack((np.insert(planes, gaps, np.nan), np.insert(intensities, gaps, np.nan))))
+		if not curves: return np.empty(0)  # pragma: no cover - Garde impossible, car vérifié en amont.
+		data = np.full((len(curves), 2, max(curve.shape[1] for curve in curves)), np.nan)
+		for i, curve in enumerate(curves): data[i, :, :curve.shape[1]] = curve
+		return data
+
+	##################################################
+	def _get_track_count_data(self, log_scale: bool) -> np.ndarray:
+		"""
+		Compte par plan les trajectoires en cours, présentes et absentes, dans cet ordre.
+
+		Une trajectoire est en cours du premier au dernier plan inclus. Elle est présente si elle possède un point au plan considéré,
+		indépendamment de la validité de son intensité. Les doublons trajectoire/plan ne sont comptés qu'une fois.
+		Avant logarithme, le nombre de trajectoires en cours est la somme des nombres de trajectoires présentes et absentes.
+
+		:param log_scale: Applique le logarithme aux comptes ; les comptes nuls deviennent NaN.
+		:return: Trois courbes de couples plan/compte sous forme ``(3, 2, N)``.
+		"""
+		df = self.results.tracks
+		if df.empty or not {"Track", "Plane"}.issubset(df.columns): return np.empty(0)
+		points = df[["Track", "Plane"]].drop_duplicates()
+		bounds = points.groupby("Track", sort=False)["Plane"].agg(["min", "max"])
+		planes = np.arange(int(bounds["min"].min()), int(bounds["max"].max()) + 1, dtype=int)
+		# Somme cumulative des débuts et fins : évite de parcourir tous les plans de toutes les trajectoires.
+		changes = np.zeros(planes.size + 1, dtype=int)
+		np.add.at(changes, bounds["min"].to_numpy(dtype=int) - planes[0], 1)
+		np.add.at(changes, bounds["max"].to_numpy(dtype=int) - planes[0] + 1, -1)
+		in_progress = np.cumsum(changes[:-1])
+		present = points.groupby("Plane").size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int)
+		counts = np.vstack((in_progress, present, in_progress - present))
+		return np.stack((np.broadcast_to(planes, counts.shape), self._log_data(counts, log_scale)), axis=1)
 
 	##################################################
 	def _visualization_graph(self):
