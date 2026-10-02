@@ -273,18 +273,78 @@ def test_generate(generated_widget, capsys):
 	assert actual["HR"] == pt.settings.hr.to_compact_dict()
 	assert actual["Gallery"] == initial["PALM Tracer Settings"]["Gallery"]
 	assert not w._layers[w.LAYERS_NAME[1]].visible
-	assert not w._layers[w.LAYERS_NAME[2]].visible
+	assert not w._layers["Tracks"].visible
 	w._pt.settings.hr["Type"].value = 1
 	w._generate()
 	assert not w._layers[w.LAYERS_NAME[1]].visible
-	assert not w._layers[w.LAYERS_NAME[2]].visible
-	assert viewer.dims.range[0].stop == np.max(w._layers[w.LAYERS_NAME[2]].data[:, 1])
+	assert not w._layers["Tracks"].visible
+	assert viewer.dims.range[0].stop == np.max(w._layers["Tracks"].data[:, 1])
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0
 	w._pt.settings.hr["Dimension"].value = 1
 	w._generate()
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0
+
+
+##################################################
+@pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
+@pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
+@pytest.mark.parametrize("remove_beads", [pytest.param(False, id="keep-beads"), pytest.param(True, id="remove-beads")])
+def test_generate_filtered_points(generated_widget, dimension, key, remove_beads):
+	"""Les points exclus restent rouges et utilisent le cadre XY et l'origine Z du rendu conservé."""
+	_, pt, w = generated_widget
+	pt.results.reset_filtered()
+	locations = pt.results["loc"].iloc[:4].copy()
+	locations.index = [10, 20, 30, 40]
+	locations["X"], locations["Y"], locations["Z"] = [20, 22, 21, 100], [30, 32, 31, 100], [4, 8, 6, 10]
+	pt.results[key] = locations
+	pt.results[f"f_{key}"] = locations.iloc[:2].copy()
+	pt.results["bds"] = locations.iloc[3:].copy()
+	s = pt.settings.hr
+	s["Type"].value, s["Dimension"].value = 0, dimension
+	s["Ratio"].value, s["Crop"].value = 2, True
+	s["Remove Beads"].value, s["Drift Correction"].value = remove_beads, False
+	s.gaussian.active = False
+	s.hr_3d["Z Step"].value = 2
+	before = locations.copy(deep=True)
+	w._generate()
+	x0, _, y0, _ = pt.settings.rois.hr_box
+	layer = w._layers["Points Filtered"]
+	expected_z = 0 if dimension == 0 else 1
+	np.testing.assert_allclose(layer.data, [[expected_z, (31 - y0) * 2, (21 - x0) * 2]])
+	np.testing.assert_allclose(layer.face_color, [[1, 0, 0, 1]])
+	assert not layer.out_of_slice_display
+	assert not layer.editable and layer.locked
+	pd.testing.assert_frame_equal(pt.results[key], before)
+
+	# La réinitialisation vide le même calque sans recréer l'objet Napari.
+	pt.reset_filtered()
+	w._generate()
+	assert w._layers["Points Filtered"] is layer
+	assert layer.data.shape == (0, 3)
+
+
+##################################################
+@pytest.mark.parametrize("mode", [pytest.param("tracking", id="tracking"), pytest.param("rotation", id="rotation")])
+def test_generate_clears_filtered_points_in_other_modes(generated_widget, mode):
+	"""Une transition vers les trajectoires ou la rotation supprime les points exclus du rendu précédent."""
+	_, pt, w = generated_widget
+	pt.results.reset_filtered()
+	pt.results["f_loc"] = pt.results["loc"].iloc[::2].copy()
+	pt.settings.hr["Crop"].value = False
+	pt.settings.hr["Remove Beads"].value = pt.settings.hr["Drift Correction"].value = False
+	w._generate()
+	layer = w._layers["Points Filtered"]
+	assert len(layer.data) > 0
+	layer.visible = True
+	if mode == "tracking": pt.settings.hr["Type"].value = 1
+	else:
+		pt.settings.hr["Dimension"].value = 2
+		pt.settings.hr.hr_3d["Frames"].value = 4
+	w._generate()
+	assert layer.data.shape == (0, 3)
+	if mode == "rotation": assert not layer.visible
 
 
 ##################################################
@@ -405,7 +465,7 @@ def test_generate_render_and_roi_transitions(qtbot):
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, pt)
 	qtbot.addWidget(w)
-	initial_tracks_layer = w._layers[w.LAYERS_NAME[2]]
+	initial_tracks_layer = w._layers["Tracks"]
 	full_box = (0, pt.stack.shape[-1], 0, pt.stack.shape[-2])
 
 	# L'ordre fait notamment passer du gris au RGB, puis revenir aux localisations après les trajectoires.
@@ -437,9 +497,9 @@ def test_generate_render_and_roi_transitions(qtbot):
 			if track_mode: initial_tracks_layer.visible = True
 			if track_mode: w._layers[w.LAYERS_NAME[1]].visible = True
 			w._generate()
-			assert w._layers[w.LAYERS_NAME[3]].visible == (dimension != 2), context
-			assert w._layers[w.LAYERS_NAME[2]] is initial_tracks_layer, context
-			assert viewer.layers[w.LAYERS_NAME[2]] is initial_tracks_layer, context
+			assert w._layers["ROI Filter"].visible == (dimension != 2), context
+			assert w._layers["Tracks"] is initial_tracks_layer, context
+			assert viewer.layers["Tracks"] is initial_tracks_layer, context
 			if track_mode: assert initial_tracks_layer.visible, context
 
 			# Bornes de référence explicites : marge actuelle de cinq pixels source, plus trois sigmas en gaussien.
@@ -458,7 +518,8 @@ def test_generate_render_and_roi_transitions(qtbot):
 			image = w.visualization
 			is_rgb = bool(raw and stage != "empty-roi")
 			image_layer = w._layers[w.LAYERS_NAME[0]]
-			assert viewer.layers[0] is image_layer and len(viewer.layers) == 4, context
+			assert viewer.layers[0] is image_layer, context
+			assert len(viewer.layers) == len(w.LAYERS_NAME), context
 			assert image_layer.rgb == is_rgb, context
 			np.testing.assert_array_equal(image_layer.data, image, err_msg=context)
 			spatial_shape = image.shape[-3:-1] if is_rgb else image.shape[-2:]
@@ -489,7 +550,7 @@ def test_generate_render_and_roi_transitions(qtbot):
 			source = pt.results.tracks if track_mode else pt.results.localizations
 			inside = source["X"].between(x0, x1) & source["Y"].between(y0, y1)
 			expected_xy = (source.loc[inside, ["Y", "X"]].to_numpy() - [y0, x0]) * 2
-			plot = w._layers[w.LAYERS_NAME[2 if track_mode else 1]].data
+			plot = w._layers["Tracks" if track_mode else "Points"].data
 			if dimension == 2:
 				assert plot.shape == (0, 3), context
 				assert not w._layers[w.LAYERS_NAME[1]].visible, context
@@ -537,7 +598,7 @@ def test_generate_render_and_roi_transitions(qtbot):
 def test_rotation_preserves_hidden_roi(generated_widget):
 	"""Conserve une ROI déjà masquée après plusieurs générations en rotation puis un retour en 2D."""
 	_, _, w = generated_widget
-	roi_layer = w._layers[w.LAYERS_NAME[3]]
+	roi_layer = w._layers["ROI Filter"]
 	roi_layer.visible = False
 	w._hr_settings["Dimension"].value = 2
 	w._hr_settings.hr_3d["Frames"].value = 4

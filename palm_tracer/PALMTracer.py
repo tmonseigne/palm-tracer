@@ -936,10 +936,15 @@ class PALMTracer:
 
 	# ==================== HR ====================
 	##################################################
-	def hr(self) -> tuple[np.ndarray, np.ndarray]:
-		"""Génère une représentation en Haute Résolution des données."""
-		viz, plot_data = np.zeros((1, 1), dtype=np.uint16), np.zeros((1, 1), dtype=float)
-		if self._stack is None: return viz, plot_data
+	def hr(self) -> dict[str, np.ndarray]:
+		"""
+		Génère une représentation en haute résolution des données.
+
+		:return: Dictionnaire contenant l'image ``visualization``, les coordonnées vectorielles ``plot_data`` et, si les localisations actives sont
+			filtrées, les coordonnées des points exclus ``plot_filtered``. Ces points partagent le repère du rendu sans contribuer à l'image.
+		"""
+		data = {"visualization": np.zeros((1, 1), dtype=np.uint16), "plot_data": np.zeros((1, 1), dtype=float)}
+		if self._stack is None: return data
 
 		# --- Paramètres ---
 		s = self.settings.hr
@@ -970,8 +975,9 @@ class PALMTracer:
 		n_w, n_h = x1 - x0, y1 - y0
 		self._renderer.set_size(n_w, n_h, upscale)
 
-		viz_data, plot_data, uniform_z_step = self._prepare_hr_data(tracks, dimension, src, color_scaling, upscale, limits)
-		if viz_data is None: return viz, plot_data
+		viz_data, plot, uniform_z_step = self._prepare_hr_data(tracks, dimension, src, color_scaling, upscale, limits)
+		data.update(plot)
+		if viz_data is None: return data
 
 		# --- Localisations ---
 		if not tracks:
@@ -983,7 +989,8 @@ class PALMTracer:
 			else:  # .				-- Rendu 3D Rotation --
 				frames, axis = s.hr_3d["Frames"].value, s.hr_3d["Axis"].value
 				viz = self._renderer.rotation_3d(viz_data, color_mode, uniform_z_step, frames, axis, bg_color, gaussian, crop=s["Crop"].value)
-			return viz, plot_data
+			data["visualization"] = viz
+			return data
 
 		# --- Tracks ---
 		if dimension == 3:
@@ -994,19 +1001,22 @@ class PALMTracer:
 			fade_type, upscale_type, color_lut = st["Fade"].value, st["Upscale"].value, cast(ColorMap, st["Map"]).get_lut()
 			viz = self._renderer.track_stack(viz_data, color_mode, bg_color, head_size, tail_width, tail_length, fade_type, raw, upscale_type, color_lut)
 			# Aligne les trajectoires Napari sur le premier plan retenu par le renderer.
-			if plot_data.shape[0] > 0: plot_data[:, 1] -= first_plane
-			return viz, plot_data
+			if data["plot_data"].shape[0] > 0: data["plot_data"][:, 1] -= first_plane
+			data["visualization"] = viz
+			return data
 
-		return self._renderer.tracks(viz_data, color_mode, bg_color), plot_data
+		data["visualization"] = self._renderer.tracks(viz_data, color_mode, bg_color)
+		return data
 
 	##################################################
 	def _prepare_hr_data(self, tracks: bool, dimension: int, source: str, color_scaling: float, upscale: float,
-						 limits: tuple[int, int, int, int]) -> tuple[Optional[np.ndarray], np.ndarray, float]:
+						 limits: tuple[int, int, int, int]) -> tuple[Optional[np.ndarray], dict[str, np.ndarray], float]:
 		"""
 		Prépare les données du rendu et du calque Napari haute résolution.
 
 		Les trajectoires conservent leurs points extérieurs dans les données de rendu afin que les segments traversant la ROI soient correctement recadrés.
 		Seules les coordonnées transmises au calque Napari sont limitées à la zone affichée.
+		Pour les localisations filtrées, le DataFrame complet est transformé une seule fois avant de séparer les points conservés et exclus.
 
 		:param tracks: True pour préparer des trajectoires, False pour préparer des localisations.
 		:param dimension: Type de rendu demandé.
@@ -1014,16 +1024,32 @@ class PALMTracer:
 		:param color_scaling: Facteur appliqué à l'intensité de la couleur.
 		:param upscale: Facteur d'agrandissement spatial.
 		:param limits: Limites du rendu sous la forme ``(x_min, x_max, y_min, y_max)``.
-		:return: Données éventuelles du renderer, données du calque Napari et pas uniforme sur Z.
+		:return: Données éventuelles du renderer, dictionnaire des coordonnées vectorielles et pas uniforme sur Z.
 		"""
 		# Initialisation du dataframe.
-		df = self.results.tracks.copy() if tracks else self.results.localizations.copy()
+		key = self.results.get_tracks_key() if tracks else self.results.get_localization_key()
+		filtered = not tracks and key.startswith("f_")
+		plot = {"plot_data": np.zeros((1, 1), dtype=float)}
+		if filtered:
+			plot["plot_filtered"] = np.empty((0, 3), dtype=float)
+			df = self.results[key[2:]].copy()
+			# La suppression des billes réinitialise les index : mémorise la sélection avant les transformations.
+			df["_HR Retained"] = df.index.isin(self.results.localizations.index)
+		else: df = self.results[key].copy()
+		# Suppression des billes et correction du drift (modifie les index)
 		if self.settings.hr["Remove Beads"].value: df = Drift.remove_beads(df, self.results.beads)
 		df = self._correct_drift(df)
-		if df.empty: return None, np.zeros((1, 1), dtype=float), 0.0
+		if df.empty: return None, plot, 0.0
 
 		# Ajout de la couleur.
 		if tracks: df = self._renderer.add_colors_to_tracks(df, source)
+		elif filtered:
+			# Les points exclus ne doivent pas changer la normalisation des couleurs du rendu conservé.
+			retained = df["_HR Retained"]
+			if not retained.any(): return None, plot, 0.0
+			colored = self._renderer.add_colors_to_localizations(df.loc[retained].copy(), source)
+			df["Color"] = 0.0
+			df.loc[retained, "Color"] = colored["Color"].to_numpy()
 		else: df = self._renderer.add_colors_to_localizations(df, source)
 		df["Color"] *= color_scaling
 
@@ -1033,6 +1059,8 @@ class PALMTracer:
 		df["X"] -= x0
 		df["Y"] -= y0
 		if not tracks: df = df[df["X"].between(0, width) & df["Y"].between(0, height)]
+
+		retained = df.pop("_HR Retained").to_numpy(dtype=bool) if filtered else np.ones(len(df), dtype=bool)
 
 		# Définition des éléments à récupérer.
 		uniform_z_step = 0.0
@@ -1048,7 +1076,7 @@ class PALMTracer:
 			uniform_z_step = self._get_uniform_z_step()
 
 		# Récupération des éléments.
-		viz_data = df[viz_columns].to_numpy(dtype=float)
+		viz_data = (df.loc[retained, viz_columns] if filtered else df[viz_columns]).to_numpy(dtype=float)
 		plot_data = df[plot_columns].to_numpy(dtype=float, copy=True)
 		y_index, x_index = plot_columns.index("Y"), plot_columns.index("X")
 		plot_data[:, [y_index, x_index]] *= upscale
@@ -1065,11 +1093,16 @@ class PALMTracer:
 			z_index = plot_columns.index("Z")
 			z_step = self.settings.hr.hr_3d["Z Step"].value if dimension == 1 else 0
 			z_step = z_step if z_step != 0 else uniform_z_step
-			plot_data[:, z_index] = (plot_data[:, z_index] - np.nanmin(plot_data[:, z_index])) / z_step
+			# Le Z Stack conserve l'origine des points retenus, même si un point exclu est plus bas.
+			z_reference = plot_data[retained, z_index] if retained.any() else plot_data[:, z_index]
+			z_origin = np.nanmin(z_reference)
+			plot_data[:, z_index] = (plot_data[:, z_index] - z_origin) / z_step
 			# Aligne le point vectoriel sur le plan choisi par le rendu ponctuel.
 			if dimension == 1: plot_data[:, z_index] = np.floor(plot_data[:, z_index])
 
-		return viz_data, plot_data, uniform_z_step
+		if filtered: plot["plot_data"], plot["plot_filtered"] = plot_data[retained], plot_data[~retained]
+		else: plot["plot_data"] = plot_data
+		return viz_data, plot, uniform_z_step
 
 	##################################################
 	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -1134,7 +1167,7 @@ class PALMTracer:
 	def _visualization_hr(self):
 		"""Lance la creation d'une visualisation haute résolution à partir des paramètres passés en paramètres."""
 		name = self.output_viz_name()
-		viz, _ = self.hr()
+		viz = self.hr()["visualization"]
 		self._logger.add(f"\tSaving high-resolution visualization.")
 		if name.suffix == ".png": FileIO.save_png(self.crop(viz), name)  # Si extension png.
 		else: FileIO.save_tif(self.crop(viz), name)  # .				   Si extension tif.

@@ -1370,15 +1370,17 @@ def test_hr_data_crop(shape, dimension):
 	pt.results["loc"] = data
 	pt.results["f_loc"] = data.copy()
 	s["Crop"].value = False
-	full, full_plot = pt.hr()
+	hr_data = pt.hr()
+	full, full_plot = hr_data["visualization"], hr_data["plot_data"]
 	s["Crop"].value = True
-	cropped, cropped_plot = pt.hr()
+	hr_data = pt.hr()
+	cropped, cropped_plot = hr_data["visualization"], hr_data["plot_data"]
 	x0, x1, y0, y1 = pt.settings.rois.hr_box
 	assert cropped.size < full.size
 	np.testing.assert_array_equal(cropped, full[..., y0 * 2:y1 * 2, x0 * 2:x1 * 2])
 	np.testing.assert_allclose(cropped_plot[:, -2:], full_plot[:, -2:] - [y0 * 2, x0 * 2])
 	s["Crop"].value = False
-	restored, _ = pt.hr()
+	restored = pt.hr()["visualization"]
 	np.testing.assert_array_equal(restored, full)
 	assert pt.settings.rois.data_box == (-1, -1, -1, -1)
 
@@ -1414,11 +1416,13 @@ def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
 	s.track_stack["Width"].value = width
 	s.track_stack["Background"].value = raw
 	s["Crop"].value = False
-	full, full_plot = pt.hr()
+	hr_data = pt.hr()
+	full, full_plot = hr_data["visualization"], hr_data["plot_data"]
 	base_x, _, base_y, _ = rois.hr_box
 
 	s["Crop"].value = True
-	cropped, cropped_plot = pt.hr()
+	hr_data = pt.hr()
+	cropped, cropped_plot = hr_data["visualization"], hr_data["plot_data"]
 	x0, x1, y0, y1 = rois.hr_box
 	y_slice, x_slice = slice((y0 - base_y) * 2, (y1 - base_y) * 2), slice((x0 - base_x) * 2, (x1 - base_x) * 2)
 	assert cropped.size < full.size
@@ -1435,7 +1439,7 @@ def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
 	if with_roi: assert rois.hr_box[0] == 36
 
 	s["Crop"].value = False
-	restored, _ = pt.hr()
+	restored = pt.hr()["visualization"]
 	np.testing.assert_array_equal(restored, full)
 	assert rois.data_box == (-1, -1, -1, -1)
 
@@ -1453,13 +1457,15 @@ def test_hr():
 	s["Drift Correction"].value = False
 
 	# Aucune pile
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
 
 	# HR Localisation
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
 	pt.settings.rois.set_size(5, 5)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = ref_viz0.copy()
 	ref_viz[4, 2] = ref_viz[6, 4] = 2
 	ref_plot = [[0, 4, 2], [0, 6, 4], [0, 8, 6], [0, 10, 8], [0, 4, 2],
@@ -1469,14 +1475,16 @@ def test_hr():
 
 	# Mise à l'échelle de l'intensité des localisations
 	s["Scaling"].value = 2
-	viz, scaled_plot = pt.hr()
+	hr_data = pt.hr()
+	viz, scaled_plot = hr_data["visualization"], hr_data["plot_data"]
 	np.testing.assert_array_equal(viz, ref_viz * 2)
 	np.testing.assert_array_equal(scaled_plot, ref_plot)
 	s["Scaling"].value = 1
 
 	# HR Localisation remove beads
 	s["Remove Beads"].value = True
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
 
@@ -1488,7 +1496,8 @@ def test_hr():
 									  [1, 4, 4, 4, 3, 4, 1, 1, 1, 0, 1],
 									  [1, 5, 5, 5, 3, 4, 1, 1, 1, 0, 1]],
 									 columns=Parsing.FILES_COLUMNS["Beads"]["columns"])
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = ref_viz0.copy()
 	ref_viz[4, 0] = ref_viz[6, 4] = 1
 	ref_plot = [[0, 6, 4], [0, 8, 6], [0, 10, 8], [0, 4, 0]]
@@ -1498,12 +1507,14 @@ def test_hr():
 
 	# HR Localisation DataFrame vide
 	for _ in range(4): pt.results.localizations.drop(pt.results.localizations.index, inplace=True)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
 
 	# HR Tracking
 	s["Type"].value = 1
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = ref_viz0.copy()
 	ref_viz[2, 2] = 15
 	ref_viz[2, 8] = 8
@@ -1514,7 +1525,8 @@ def test_hr():
 
 	# Couleur de fond des trajectoires
 	s["Background"].value = 42
-	viz, background_plot = pt.hr()
+	hr_data = pt.hr()
+	viz, background_plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_background = np.full_like(ref_viz, 27525)
 	ref_background[2, 2] = 15
 	ref_background[2, 8] = 8
@@ -1524,15 +1536,88 @@ def test_hr():
 
 	# Mise à l'échelle de l'intensité des trajectoires
 	s["Scaling"].value = 2
-	viz, scaled_plot = pt.hr()
+	hr_data = pt.hr()
+	viz, scaled_plot = hr_data["visualization"], hr_data["plot_data"]
 	np.testing.assert_array_equal(viz, ref_viz * 2)
 	np.testing.assert_array_equal(scaled_plot, ref_plot)
 	s["Scaling"].value = 1
 
 	# HR Tracking DataFrame vide
 	for _ in range(4): pt.results.tracks.drop(pt.results.tracks.index, inplace=True)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
+
+
+##################################################
+@pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
+@pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
+@pytest.mark.parametrize("selection", [pytest.param("subset", id="excluded-points"), pytest.param("all", id="all-kept")])
+def test_hr_filtered_plot_data(monkeypatch, dimension, key, selection):
+	"""Sépare les points après une préparation commune sans changer l'image ni l'origine Z des points conservés."""
+	pt = PALMTracer()
+	pt._stack = np.zeros((2, 8, 8), dtype=np.uint16)
+	pt.settings.rois.set_size(8, 8)
+	locations = pd.DataFrame({"Plane": [1, 2, 2, 2], "X": [1, 3, 2, 20], "Y": [2, 4, 3, 20], "Z": [4, 8, 2, 0],
+								 "Integrated Intensity": [2, 4, -100, 8], "Sigma X": [1.0] * 4, "Sigma Y": [1.0] * 4, "Theta": [0.0] * 4},
+								index=[10, 20, 30, 40])
+	kept = locations.iloc[:2].copy() if selection == "subset" else locations.copy()
+	pt.results[key], pt.results[f"f_{key}"] = locations.copy(), kept.copy()
+	s = pt.settings.hr
+	s["Dimension"].value, s["Ratio"].value = dimension, 2
+	s["Remove Beads"].value = s["Drift Correction"].value = s["Crop"].value = False
+	s.gaussian.active = False
+	s.hr_3d["Z Step"].value = 2
+	s["Source"].value = 1  # Intensité intégrée.
+	prepared_lengths = []
+	correct_drift = pt._correct_drift
+
+	def record_preparation(data):
+		"""Observe la préparation commune des localisations sans modifier leur traitement."""
+		prepared_lengths.append(len(data))
+		return correct_drift(data)
+
+	monkeypatch.setattr(pt, "_correct_drift", record_preparation)
+	data = pt.hr()
+	assert prepared_lengths == [4]
+	assert set(data) == {"visualization", "plot_data", "plot_filtered"}
+	if selection == "subset":
+		np.testing.assert_allclose(data["plot_data"], [[0, 4, 2], [0 if dimension == 0 else 2, 8, 6]])
+		np.testing.assert_allclose(data["plot_filtered"], [[0 if dimension == 0 else -1, 6, 4]])
+	else: assert data["plot_filtered"].shape == (0, 3)
+	pd.testing.assert_frame_equal(pt.results[key], locations)
+	pd.testing.assert_frame_equal(pt.results[f"f_{key}"], kept)
+
+	# Le rendu de référence contient directement les points conservés, sans résultat filtré.
+	pt.results.reset_filtered()
+	pt.results[key] = kept.copy()
+	reference = pt.hr()
+	assert set(reference) == {"visualization", "plot_data"}
+	np.testing.assert_array_equal(data["visualization"], reference["visualization"])
+	np.testing.assert_array_equal(data["plot_data"], reference["plot_data"])
+
+
+##################################################
+@pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
+def test_hr_filtered_points_all_removed_as_beads(pt, key):
+	"""Une sélection composée uniquement de billes ne produit aucun rendu HR."""
+	pt._stack = np.zeros((1, 8, 8), dtype=np.uint16)
+	pt.settings.rois.set_size(8, 8)
+	locations = pd.DataFrame({"Id": [1, 2], "Plane": [1, 1], "X": [2.0, 4.0], "Y": [2.0, 4.0], "Z": [0.0, 0.0],
+								 "Integrated Intensity": [100.0, 200.0], "Sigma X": [1.0, 1.0], "Sigma Y": [1.0, 1.0], "Theta": [0.0, 0.0]})
+	pt.results[key] = locations.copy()
+	pt.results[f"f_{key}"] = locations.iloc[:1].copy()
+	pt.results["bds"] = locations.iloc[:1].copy()
+
+	s = pt.settings.hr
+	s["Remove Beads"].value = True
+	s["Drift Correction"].value = s["Crop"].value = False
+
+	data = pt.hr()
+
+	np.testing.assert_array_equal(data["visualization"], np.zeros((1, 1), dtype=np.uint16))
+	assert data["plot_filtered"].shape == (0, 3)
+	np.testing.assert_array_equal(data["plot_data"], np.zeros((1, 1)))
 
 
 ##################################################
@@ -1551,7 +1636,8 @@ def test_hr_filter():
 	sf = pt.settings.filters
 	sf["ROI"].active = True
 	pt.settings.rois.set_xy_roi(2, 5, 0, 5, False)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = np.zeros((10, 6), dtype=np.uint16)
 	ref_viz[6, 0] = 2  # Précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 × facteur d'agrandissement de 2 = -4)
 	ref_plot = [[0, 6, 0], [0, 8, 2], [0, 10, 4], [0, 6, 0]]
@@ -1560,7 +1646,8 @@ def test_hr_filter():
 
 	# Filtre sur Y
 	pt.settings.rois.set_xy_roi(2, 5, 2, 5, False)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = np.zeros((6, 6), dtype=np.uint16)
 	ref_viz[2, 0] = 2
 	ref_plot = [[0, 2, 0], [0, 4, 2], [0, 6, 4], [0, 2, 0]]
@@ -1570,7 +1657,8 @@ def test_hr_filter():
 	# Tracking Filtré
 	s["Type"].value = 1
 	pt.settings.rois.set_xy_roi(1, 4, 1, 2, False)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = np.zeros((2, 6), dtype=np.uint16)
 	ref_viz[0, 0] = 15
 	ref_plot = [[1, 1, 0, 0], [1, 99, 0, 0], [3, 3, 0, 6], [3, 4, 0, 6], [5, 5, 0, 6], [5, 6, 0, 6],
@@ -1593,7 +1681,8 @@ def test_hr_track_crossing_roi():
 	s["Ratio"].value = 1
 	s["Drift Correction"].value = False
 
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 
 	ref = np.zeros((5, 3), dtype=np.uint16)
 	ref[2, 0:2] = 1
@@ -1615,7 +1704,8 @@ def test_hr_empty_roi_3d():
 	s["Remove Beads"].value = False
 	s["Drift Correction"].value = False
 
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 
 	assert viz.shape == (1, 2, 2)
 	assert plot.shape == (0, 3)
@@ -1636,7 +1726,8 @@ def test_hr_z_stack():
 	# HR Localisation
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
 	pt.settings.rois.set_size(5, 5)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	# Les Z de 3 à 6 nm deviennent les plans 0 à 3 avec un pas de 1 nm.
 	# Le point du plan 3 est hors image en Y ; le plan 2 est conservé mais son intensité est nulle.
 	ref_viz = np.zeros((3, 10, 10), dtype=np.uint16)
@@ -1660,7 +1751,8 @@ def test_hr_rotation():
 	# HR Localisation
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
 	pt.settings.rois.set_size(5, 5)
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = np.zeros((2, 17, 17), dtype=np.uint16)
 	ref_viz[0, 8, 6] = ref_viz[0, 10, 8] = ref_viz[1, 8, 10] = ref_viz[1, 10, 8] = 2
 	ref_plot = [[0, 4, 2], [2, 6, 4], [4, 8, 6], [6, 10, 8], [0, 4, 2], [2, 6, 4]]
@@ -1706,21 +1798,21 @@ def test_hr_stress():
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
 
 	# Génération fixe (n_beads fois sur la position centrale)
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	ref[n_y, n_x] = n_p
 	np.testing.assert_array_equal(viz, ref)
 
 	# Génération fixe de la bille (n_beads fois sur la position [1, 1] * upscale)
 	pt.results["loc"].loc[:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1
 	np.testing.assert_array_equal(viz, ref)
 
 	# Génération Drift corrigé des mêmes données que la bille, donc le premier point sera compté 8 fois.
 	s["Drift Correction"].value = True
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	ref[np.round(bead_y[0] * 2).astype(int), np.round(bead_x[0] * 2).astype(int)] = n_p
 	np.testing.assert_array_equal(viz, ref)
@@ -1728,7 +1820,7 @@ def test_hr_stress():
 	# Génération Drift corrigé, mais la localisation était fixe
 	# (donc elle va bouger vers le haut à droite, elle remonte la diagonale et une partie sera hors champs (départ au centre)
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	ref[4, 8] = ref[3, 10] = ref[2, 12] = ref[1, 14] = 1  # Les autres points hors champ continuent (0,16) (-1, 18)...
 	np.testing.assert_array_equal(viz, ref)
@@ -1741,7 +1833,7 @@ def test_hr_stress():
 						   "Z":     np.zeros(n_p, dtype=float)})
 
 	pt.results["bds"] = pd.concat([beads, beads2], ignore_index=True)
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	ref[4, 8] = ref[3, 9] = ref[2, 10] = ref[1, 11] = ref[0, 12] = 1  # Les autres points hors champ continuent (-1,13) (-2, 14)...
 	np.testing.assert_array_equal(viz, ref)
@@ -1760,7 +1852,7 @@ def test_hr_stress():
 	loc2.loc[n_p:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
 
 	pt.results["loc"] = loc2.copy()
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	ref[0, 15] = ref[1, 13] = ref[2, 11] = ref[3, 9] = ref[4, 6] = ref[5, 4] = ref[6, 2] = ref[7, 0] = 1  # Bille originale
 	ref[n_y, n_x] += n_p  # Localization statique
@@ -1769,7 +1861,7 @@ def test_hr_stress():
 
 	# On supprime nos 2 billes (mais on va conserver notre localisation
 	s["Remove Beads"].value = True
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	ref[n_y, n_x] += n_p  # Localization statique
 	np.testing.assert_array_equal(viz, ref)
@@ -1780,7 +1872,7 @@ def test_hr_stress():
 	pt.results["bds"], pt.results["loc"] = beads.copy(), loc.copy()
 	pt.results["bds"]["X"] = np.array([5.095, 3.755, 5.434, 4.789, 2.376, 5.902, 5.044, 5.144], dtype=float)  # Aléatoire autour du centre.
 	pt.results["bds"]["Y"] = np.array([1.256, 1.900, 1.741, 2.853, 2.287, 2.645, 1.886, 1.454], dtype=float)  # Aléatoire autour du centre.
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	# Position au centre puis résultat du random dans tous les sens ATTENTION LE DRIFT EST LISSÉ.
 	ref[4, 8] = ref[3, 9] = ref[2, 11] = ref[2, 13] = ref[2, 14] = ref[3, 15] = 1
@@ -1788,7 +1880,7 @@ def test_hr_stress():
 
 	# Correction sur la position de la bille avec lissage...
 	pt.results["loc"].loc[:, ["X", "Y"]] = pt.results["bds"].loc[:, ["X", "Y"]].to_numpy()
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	# Position corrigée de la bille aléatoire. Le drift est lissé, il ne s'agit donc pas d'un point unique.
 	ref[3, 9] = ref[3, 10] = ref[2, 11] = ref[2, 14] = ref[3, 14] = 1
@@ -1796,7 +1888,7 @@ def test_hr_stress():
 
 	# Correction sur la position de la bille sans lissage...
 	s["Smooth Drift"].value = False
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	ref = ref_viz0.copy()
 	# Position de la bille random corrigé et non lissé.
 	ref[3, 10] = n_p
@@ -1821,7 +1913,8 @@ def test_hr_track_stack(monkeypatch, background, color_mode):
 	options = s["T-Stack"]
 	for key, value in {"Head": 3, "Width": 2, "Length": 2, "Fade": 1, "Map": 1, "Background": background, "Upscale": 1}.items(): options[key].value = value
 
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	assert viz.shape == ((5, 10, 10, 3) if background else (5, 10, 10))
 	assert viz.dtype == (np.uint8 if background else np.uint16)
 	np.testing.assert_array_equal(plot, [[1, 0, 2, 9.8], [1, 2, 2, 2], [1, 4, 4, 4]])
@@ -1849,7 +1942,8 @@ def test_hr_track_stack_empty_roi(crop, expected_box, expected_shape):
 	pt.settings.hr["Dimension"].value = 3
 	pt.settings.hr["Ratio"].value = 1
 	pt.settings.hr["Crop"].value = crop
-	viz, plot = pt.hr()
+	hr_data = pt.hr()
+	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	assert pt.settings.rois.hr_box == expected_box
 	assert viz.shape == expected_shape
 	assert plot.shape == (0, 4)
@@ -1880,7 +1974,7 @@ def test_hr_track_stack_crop_background(raw_background, background_color, expect
 	s.track_stack["Length"].value = -1
 	s.track_stack["Background"].value = raw_background
 
-	viz, _ = pt.hr()
+	viz = pt.hr()["visualization"]
 	cropped = pt.crop(viz, margin=0)
 
 	assert viz.shape == ((2, 3, 3, 3) if raw_background else (2, 3, 3))

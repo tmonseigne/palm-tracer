@@ -63,7 +63,7 @@ msgid "True si la DLL est valide, False sinon."
 msgstr "True if the DLL is valid, False otherwise."
 
 #: ../../api/palm_tracer.PALMTracer.rst of
-#: palm_tracer.PALMTracer.PALMTracer.graph palm_tracer.PALMTracer.PALMTracer.hr
+#: palm_tracer.PALMTracer.PALMTracer.graph
 msgid "Type renvoyé"
 msgstr "Return type"
 
@@ -142,8 +142,12 @@ msgid "Construit la figure Plotly courante en fonction du domaine et de la sourc
 msgstr "Builds the current Plotly figure based on the domain and source."
 
 #: of palm_tracer.PALMTracer.PALMTracer.hr:1
-msgid "Génère une représentation en Haute Résolution des données."
+msgid "Génère une représentation en haute résolution des données."
 msgstr "Generates a high-resolution representation of the data."
+
+#: of palm_tracer.PALMTracer.PALMTracer.hr:3
+msgid "Dictionnaire contenant l'image ``visualization``, les coordonnées vectorielles ``plot_data`` et, si les localisations actives sont filtrées, les coordonnées des points exclus ``plot_filtered``. Ces points partagent le repère du rendu sans contribuer à l'image."
+msgstr "Dictionary containing the ``visualization`` image, the ``plot_data`` vector coordinates and, when the active localizations are filtered, the ``plot_filtered`` coordinates of the excluded points. These points share the rendering coordinate system without contributing to the image."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:1
 msgid "Recadre automatiquement l'image (ou le volume) en supprimant les zones nulles autour, avec une marge configurable."
