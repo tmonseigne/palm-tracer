@@ -188,8 +188,9 @@ class PALMTracer:
 
 		# --- Chargement des paramètres ---
 		file = cast(FileList, self.settings.batch["Files"]).current_text
-		self.results.stack_name = Path(file).name if file else ""
+		self.results.stack_name = file
 		self._path = self.settings.batch.get_paths()[0] if path == "" else path  # Parsing du batch
+		self.results.results_folder = Path(self._path) if file else None
 		settings_filename = FileIO.get_last_file(self._path, "settings")
 		self._timestamp = FileIO.extract_suffix(settings_filename)
 		if not settings_filename or not self._timestamp:

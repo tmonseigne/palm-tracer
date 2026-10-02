@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 
-from qtpy.QtWidgets import QFormLayout, QGroupBox, QLabel
+from qtpy.QtWidgets import QFormLayout, QGroupBox, QLabel, QPushButton, QStyle, QToolButton
 
 from palm_tracer.Tools import Ui
 
@@ -25,7 +26,7 @@ _STATUS_TOOLTIPS = {
 @dataclass
 class ResultsUI:
 	"""
-	Représente une vue Qt en lecture seule des résultats de PALMTracer.
+	Représente une vue Qt des résultats de PALMTracer avec des boutons de suppression.
 
 	La vue ne conserve aucune donnée métier. Elle affiche les statuts transmis par :class:`~palm_tracer.Results.Results`
 	et peut ainsi être synchronisée avec les autres représentations du même modèle.
@@ -47,17 +48,36 @@ class ResultsUI:
 	"""Calque contenant les différentes lignes d'informations."""
 	_labels: dict[str, QLabel] = field(init=False, default_factory=dict)
 	"""Libellés affichant les statuts des résultats."""
+	_clear_buttons: dict[str, QToolButton] = field(init=False, default_factory=dict)
+	"""Corbeilles par catégorie, connectées au modèle par :class:`~palm_tracer.Results.Results`."""
+	_open_folder_button: QPushButton = field(init=False)
+	"""Bouton d'ouverture du dossier de résultats, connecté au modèle."""
 
 	##################################################
 	def __post_init__(self):
 		"""Construit les composants Qt de la vue."""
 		self.widget = QGroupBox(self.title)
 		self.layout = Ui.make_form(self.widget, self.space, self.margin)
+		self.layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
 		for key, tooltip in _STATUS_TOOLTIPS.items():
 			label = QLabel("No")
 			Ui.add_setting_row(self.layout, f"{key}: ", label, tooltip=tooltip, )
 			self._labels[key] = label
+			if key == "File": continue
+
+			button = QToolButton(self.widget)
+			button.setIcon(self.widget.style().standardIcon(QStyle.StandardPixmap.SP_DialogCancelButton))
+			button.setToolTip(f"Clear {key.lower()} results.")
+			button.setAccessibleName(f"Clear {key.lower()} results")
+			self._clear_buttons[key] = button
+			# Place la corbeille après l'espace extensible, à l'extrémité droite de la ligne.
+			row = self.layout.itemAt(self.layout.rowCount() - 1, QFormLayout.ItemRole.FieldRole).layout()
+			row.addWidget(button)
+
+		self._open_folder_button = QPushButton("Open results folder", self.widget)
+		self._open_folder_button.setEnabled(False)
+		self.layout.addRow(self._open_folder_button)
 
 	# ==================================================
 	# region Mise à jour
@@ -73,7 +93,19 @@ class ResultsUI:
 		:param status: Statuts à afficher, indexés par type de résultat.
 		"""
 		for key, value in status.items():
-			if key in self._labels: self._labels[key].setText(value)
+			if key not in self._labels: continue
+			self._labels[key].setText(Path(value).name if key == "File" else value)
+			if key == "File": self._labels[key].setToolTip(value if value != "No File" else "")
+
+	##################################################
+	def update_results_folder(self, path: Path | None):
+		"""
+		Actualise la disponibilité du bouton et son infobulle.
+
+		:param path: Dossier des résultats, ou :obj:`None` si aucun dossier n'est associé.
+		"""
+		self._open_folder_button.setEnabled(path is not None and path.is_dir())
+		self._open_folder_button.setToolTip(str(path) if path is not None else "")
 
 
 ##################################################

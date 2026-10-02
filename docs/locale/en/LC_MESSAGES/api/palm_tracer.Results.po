@@ -15,8 +15,12 @@ msgid "Alias entre les noms de fichiers et les clés dans le dictionnaire de Dat
 msgstr "Aliases between file names and keys in the DataFrame dictionary."
 
 #: of palm_tracer.Results.Results.stack_name:1
-msgid "Nom du fichier en cours d'analyse."
-msgstr "Name of the file currently being analyzed."
+msgid "Nom du fichier en cours d'analyse, sans dossiers ni extension."
+msgstr "Name of the file currently being analyzed, without directories or extension."
+
+#: of palm_tracer.Results.Results.results_folder:1
+msgid "Dossier absolu des résultats courants, ou :obj:`None` si aucun dossier n'est associé."
+msgstr "Absolute path to the current results directory, or :obj:`None` if no directory is associated."
 
 #: of palm_tracer.Results.Results.localizations:1
 msgid "Localisations actives (:class:`~pandas.DataFrame`)."
@@ -34,11 +38,11 @@ msgstr "Active tracks (:class:`~pandas.DataFrame`), possibly filtered and reconn
 msgid "Analyses actives des trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."
 msgstr "Active track computations, possibly filtered (:class:`~pandas.DataFrame`)."
 
-#: ../../api/palm_tracer.Results.rst:19
+#: ../../api/palm_tracer.Results.rst:20
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Results.rst:22
+#: ../../api/palm_tracer.Results.rst:23
 msgid "Initialisation"
 msgstr "Initialization"
 
@@ -117,7 +121,7 @@ msgstr "Completely clears the result DataFrames."
 msgid "Vide entièrement les DataFrames de résultats filtrés."
 msgstr "Completely clears the filtered result DataFrames."
 
-#: ../../api/palm_tracer.Results.rst:31
+#: ../../api/palm_tracer.Results.rst:32
 msgid "Divers"
 msgstr "Miscellaneous"
 
@@ -169,7 +173,7 @@ msgstr "Qualifier added to the status, for example ``Reconnected``."
 msgid "Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage."
 msgstr "Status with the number of elements before and, if applicable, after filtering."
 
-#: ../../api/palm_tracer.Results.rst:40
+#: ../../api/palm_tracer.Results.rst:41
 msgid "Entrées-sorties"
 msgstr "Input/output"
 
@@ -198,7 +202,7 @@ msgstr "Saves all non-empty filtered results that differ from their initial vers
 msgid "Suffixe identifiant le traitement ; généré automatiquement lorsqu'il est vide."
 msgstr "Suffix identifying the processing run; generated automatically when empty."
 
-#: ../../api/palm_tracer.Results.rst:46
+#: ../../api/palm_tracer.Results.rst:47
 msgid "Interface"
 msgstr ""
 

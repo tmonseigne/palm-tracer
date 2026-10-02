@@ -32,7 +32,11 @@ class Results:
 	"""Interfaces d'information."""
 
 	_stack_name: str = field(init=False, default="")
-	"""Nom du fichier en cours d'analyse."""
+	"""Nom du fichier en cours d'analyse, sans dossiers ni extension."""
+	_stack_path: Path | None = field(init=False, default=None)
+	"""Chemin du fichier en cours d'analyse, conservé pour l'infobulle."""
+	_results_folder: Path | None = field(init=False, default=None)
+	"""Dossier associé aux résultats courants, ou aucun dossier avant leur sélection."""
 
 	KEYS_TO_FILE: dict[str, str] = field(init=False, default_factory=lambda: {
 			"loc": "localizations", "f_loc": "localizations_filtered",
@@ -87,6 +91,7 @@ class Results:
 		self.reset()  # Réinitialise les DataFrames de résultats.
 		self.stack_name = stack_name
 		folder = Path(path).resolve()
+		self.results_folder = folder
 		print(f"\tLoading files from the '{str(folder)}' folder with the timestamp {timestamp}.")
 
 		for key, filename in self.KEYS_TO_FILE.items():
@@ -160,14 +165,37 @@ class Results:
 	##################################################
 	@property
 	def stack_name(self) -> str:
-		"""Nom du fichier en cours d'analyse."""
+		"""Nom du fichier en cours d'analyse, sans dossiers ni extension."""
 		return self._stack_name
 
 	##################################################
 	@stack_name.setter
 	def stack_name(self, stack_name: str):
-		"""Met à jour le nom du fichier en cours d'analyse ainsi que l'affichage des widgets."""
-		self._stack_name = stack_name
+		"""
+		Normalise le nom affiché et conserve le chemin complet pour l'infobulle.
+
+		Le dossier des résultats est dissocié lorsque le chemin du fichier change,
+		même si les deux fichiers portent le même nom dans des dossiers différents.
+
+		:param stack_name: Nom ou chemin du fichier ; une chaîne vide supprime le fichier courant.
+		"""
+		path = Path(stack_name) if stack_name else None
+		if path != self._stack_path or path is None: self._results_folder = None
+		self._stack_path = path
+		self._stack_name = path.stem if path is not None else ""
+		self.update_uis()
+
+	##################################################
+	@property
+	def results_folder(self) -> Path | None:
+		"""Dossier absolu des résultats courants, ou :obj:`None` si aucun dossier n'est associé."""
+		return self._results_folder
+
+	##################################################
+	@results_folder.setter
+	def results_folder(self, path: str | Path | None):
+		"""Mémorise le dossier des résultats et actualise les boutons de toutes les vues."""
+		self._results_folder = Path(path).resolve() if path is not None else None
 		self.update_uis()
 
 	##################################################
@@ -263,7 +291,9 @@ class Results:
 		:param path: Dossier de destination.
 		:param timestamp: Suffixe identifiant le traitement.
 		"""
-		self._data[key].to_csv(self.output_name(self.KEYS_TO_FILE[key], path, timestamp), index=False)
+		filename = self.output_name(self.KEYS_TO_FILE[key], path, timestamp)
+		self._data[key].to_csv(filename, index=False)
+		self.results_folder = filename.parent
 
 	##################################################
 	def save_filtered(self, path: str | Path, timestamp: str = ""):
@@ -287,6 +317,27 @@ class Results:
 	# region Interface
 	# ==================================================
 	##################################################
+	def _open_results_folder(self):
+		"""Ouvre le dossier courant dans l'explorateur du système lorsqu'il existe."""
+		from qtpy.QtCore import QUrl
+		from qtpy.QtGui import QDesktopServices
+
+		if self._results_folder is not None and self._results_folder.is_dir():
+			QDesktopServices.openUrl(QUrl.fromLocalFile(str(self._results_folder)))
+
+	##################################################
+	def _clear_result(self, keys: tuple[str, ...]):
+		"""
+		Vide les variantes d'une catégorie de résultats et actualise toutes les vues.
+
+		Les autres catégories et le nom de la pile sont conservés.
+
+		:param keys: Clés des DataFrames de la catégorie à vider.
+		"""
+		for key in keys: self._data[key] = pd.DataFrame()
+		self.update_uis()
+
+	##################################################
 	def get_ui(self, name: str = "default", margin: int = 5) -> "ResultsUI":
 		"""
 		Retourne une représentation Qt des résultats, existante ou nouvellement créée.
@@ -300,7 +351,21 @@ class Results:
 		from palm_tracer.UI.ResultsUI import ResultsUI  # Import différé pour éviter une dépendance cyclique.
 
 		ui = ResultsUI(margin=margin)
+		ui._open_folder_button.clicked.connect(self._open_results_folder)
+		categories = {
+				"Localizations":      ("loc", "f_loc", "dft", "f_dft"),
+				"Beads":              ("bds",),
+				"Tracks":             ("trc", "f_trc"),
+				"Tracks Reconnected": ("blk", "f_blk"),
+				"MSD":                ("MSD", "f_MSD"),
+				"Instant D":          ("InD", "f_InD"),
+				"MSD Fit":            ("Fit", "f_Fit"),
+				}
+		for category, keys in categories.items():
+			ui._clear_buttons[category].clicked.connect(lambda checked=False, result_keys=keys: self._clear_result(result_keys))
 		ui.update_status(self.get_status())
+		ui._labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
+		ui.update_results_folder(self._results_folder)
 		self._uis[name] = ui
 		return ui
 
@@ -317,4 +382,7 @@ class Results:
 	def update_uis(self):
 		"""Actualise toutes les représentations Qt associées aux résultats."""
 		status = self.get_status()
-		for ui in self._uis.values(): ui.update_status(status)
+		for ui in self._uis.values():
+			ui.update_status(status)
+			ui._labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
+			ui.update_results_folder(self._results_folder)

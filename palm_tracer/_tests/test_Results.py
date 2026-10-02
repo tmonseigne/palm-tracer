@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QDesktopServices
 
 from palm_tracer.Results import Results
 from palm_tracer.Tools import FileIO
@@ -43,12 +45,56 @@ def test_accessors(results, tmp_path):
 
 	assert results.stack_name == "", "Le nom de pile initial doit être vide."
 	results.stack_name = "stack.tif"
-	assert results.stack_name == "stack.tif", "Le nom de pile n'a pas été mémorisé."
+	assert results.stack_name == "stack", "Le nom de pile n'a pas été normalisé."
 
 	expected = tmp_path.resolve() / "localizations-20260827_120000.csv"
 	assert results.output_name("localizations", tmp_path, "20260827_120000") == expected
 	assert results.output_name_by_key("loc", tmp_path, "20260827_120000") == expected
 	assert results.output_name("settings", tmp_path, "20260827_120000", "json") == tmp_path.resolve() / "settings-20260827_120000.json"
+
+
+##################################################
+@pytest.mark.parametrize(("filename", "expected_name"), [
+		pytest.param("stack.tif", "stack", id="tiff-file"),
+		pytest.param("stack.ome.tif", "stack.ome", id="multiple-suffixes"),
+		pytest.param("stack", "stack", id="no-extension")])
+def test_stack_name_normalization(results, qtbot, tmp_path, filename, expected_name):
+	"""Vérifie le nom normalisé et le chemin complet en infobulle dans les vues existantes et nouvelles."""
+	first_ui = results.get_ui("first")
+	qtbot.addWidget(first_ui.widget)
+	path = tmp_path / "subfolder" / filename
+
+	results.stack_name = str(path)
+	second_ui = results.get_ui("second")
+	qtbot.addWidget(second_ui.widget)
+
+	assert results.stack_name == expected_name
+	assert results.get_status()["File"] == expected_name
+	for ui in (first_ui, second_ui):
+		assert ui._labels["File"].text() == expected_name
+		assert ui._labels["File"].toolTip() == str(path)
+
+	results.stack_name = ""
+	assert results.stack_name == ""
+	for ui in (first_ui, second_ui):
+		assert ui._labels["File"].text() == "No File"
+		assert ui._labels["File"].toolTip() == ""
+
+
+##################################################
+@pytest.mark.parametrize("same_path", [
+		pytest.param(True, id="same-stack-path"),
+		pytest.param(False, id="same-name-different-folder")])
+def test_stack_name_results_folder(results, tmp_path, same_path):
+	"""Vérifie que le dossier reste associé uniquement lorsque le chemin complet de la pile est inchangé."""
+	path = tmp_path / "first" / "stack.tif"
+	results.stack_name = str(path)
+	results.results_folder = tmp_path
+
+	results.stack_name = str(path if same_path else tmp_path / "second" / "stack.tif")
+
+	assert results.stack_name == "stack"
+	assert results.results_folder == (tmp_path.resolve() if same_path else None)
 
 
 ##################################################
@@ -119,13 +165,13 @@ def test_status(results):
 				"MSD Fit":            "No"}
 	assert results.get_status() == expected
 
-	results._stack_name = "stack.tif"
+	results.stack_name = "stack.tif"
 	for key in ("loc", "bds", "trc", "blk", "MSD", "InD", "Fit"):
 		results._data[key] = make_dataframe(1)
 	for key in ("f_loc", "f_trc", "f_blk", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = make_dataframe(2)
 
-	expected = {"File":               "stack.tif",
+	expected = {"File":               "stack",
 				"Localizations":      "Yes Filtered (2/1 localizations)",
 				"Beads":              "Yes (1 localizations)",
 				"Tracks":             "Yes Filtered (2/1 tracks)",
@@ -142,7 +188,7 @@ def test_status(results):
 	for key in ("f_loc", "f_trc", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = pd.DataFrame()
 	results._data["blk"] = pd.DataFrame()
-	expected = {"File":               "stack.tif",
+	expected = {"File":               "stack",
 				"Localizations":      "Yes (1 localizations)",
 				"Beads":              "Yes (1 localizations)",
 				"Tracks":             "Yes (1 tracks)",
@@ -191,8 +237,9 @@ def test_load(results, tmp_path, monkeypatch, capsys):
 	results._data["Fit"] = make_dataframe(1)
 	results.load("stack.tif", tmp_path, timestamp)
 
-	assert results.stack_name == "stack.tif"
+	assert results.stack_name == "stack"
 	assert_frame_equal(results["loc"], localizations)
+	assert results.results_folder == tmp_path.resolve()
 	assert results["bds"].empty
 	assert results["trc"].empty
 	assert results["Fit"].empty, "Le chargement doit commencer par réinitialiser les anciens résultats."
@@ -213,6 +260,7 @@ def test_save(results, tmp_path, monkeypatch):
 	filename = results.output_name_by_key("loc", tmp_path, timestamp)
 	assert filename.is_file()
 	assert_frame_equal(pd.read_csv(filename), results["loc"])
+	assert results.results_folder == tmp_path.resolve()
 
 	results._data["f_loc"] = make_dataframe(2)
 	results._data["trc"] = make_dataframe(1)
@@ -225,6 +273,96 @@ def test_save(results, tmp_path, monkeypatch):
 	monkeypatch.setattr(FileIO, "get_timestamp_for_files", lambda: automatic_timestamp)
 	results.save_filtered(tmp_path)
 	assert results.output_name_by_key("f_loc", tmp_path, automatic_timestamp).is_file()
+
+
+##################################################
+@pytest.mark.parametrize("folder_kind", [
+		pytest.param("unset", id="unset-folder"),
+		pytest.param("missing", id="missing-folder")])
+def test_open_results_folder_unavailable(results, tmp_path, monkeypatch, folder_kind):
+	"""Vérifie qu'aucune ouverture n'est demandée sans dossier disponible."""
+	opened_urls = []
+	monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened_urls.append(url))
+	results.results_folder = None if folder_kind == "unset" else tmp_path / "missing"
+
+	results._open_results_folder()
+
+	assert opened_urls == []
+
+
+##################################################
+@pytest.mark.parametrize("folder_kind", [
+		pytest.param("existing", id="existing-folder"),
+		pytest.param("missing", id="missing-folder"),
+		pytest.param("unset", id="unset-folder")])
+def test_open_results_folder_button(results, qtbot, tmp_path, monkeypatch, folder_kind):
+	"""Vérifie l'ouverture du dossier courant par clic et la désactivation sans dossier disponible."""
+	opened_urls = []
+	monkeypatch.setattr(QDesktopServices, "openUrl", lambda url: opened_urls.append(url))
+	first_ui = results.get_ui("first")
+	qtbot.addWidget(first_ui.widget)
+	results.stack_name = str(tmp_path / "stack.tif")
+	folder = None if folder_kind == "unset" else tmp_path / "results folder"
+	if folder_kind == "existing": folder.mkdir()
+	results.results_folder = folder
+	second_ui = results.get_ui("second")
+	qtbot.addWidget(second_ui.widget)
+
+	for ui in (first_ui, second_ui):
+		assert ui._open_folder_button.isEnabled() == (folder_kind == "existing")
+		assert ui._open_folder_button.toolTip() == (str(folder.resolve()) if folder is not None else "")
+	qtbot.mouseClick(first_ui._open_folder_button, Qt.MouseButton.LeftButton)
+
+	if folder_kind == "existing":
+		assert len(opened_urls) == 1
+		assert opened_urls[0].isLocalFile()
+		assert Path(opened_urls[0].toLocalFile()) == folder.resolve()
+	else:
+		assert opened_urls == []
+
+	# Le changement de pile doit empêcher l'ouverture du dossier de la pile précédente.
+	results.stack_name = str(tmp_path / "other-stack.tif")
+	assert results.results_folder is None
+	for ui in (first_ui, second_ui):
+		assert not ui._open_folder_button.isEnabled()
+		assert ui._open_folder_button.toolTip() == ""
+
+
+##################################################
+@pytest.mark.parametrize(("category", "cleared_keys"), [
+		pytest.param("Localizations", ("loc", "f_loc", "dft", "f_dft"), id="localizations"),
+		pytest.param("Beads", ("bds",), id="beads"),
+		pytest.param("Tracks", ("trc", "f_trc"), id="tracks"),
+		pytest.param("Tracks Reconnected", ("blk", "f_blk"), id="reconnected-tracks"),
+		pytest.param("MSD", ("MSD", "f_MSD"), id="msd"),
+		pytest.param("Instant D", ("InD", "f_InD"), id="instant-diffusion"),
+		pytest.param("MSD Fit", ("Fit", "f_Fit"), id="msd-fit")])
+def test_clear_button(results, qtbot, category, cleared_keys):
+	"""Vérifie qu'un clic vide les variantes ciblées, préserve les autres résultats et synchronise les vues."""
+	results.stack_name = "stack.tif"
+	for key in results:
+		results[key] = make_dataframe(2 if key.startswith("f_") else 3)
+	original_data = {key: results[key].copy(deep=True) for key in results}
+	expected_status = results.get_status()
+	expected_status[category] = "No"
+
+	first_ui = results.get_ui("first")
+	second_ui = results.get_ui("second")
+	qtbot.addWidget(first_ui.widget)
+	qtbot.addWidget(second_ui.widget)
+
+	qtbot.mouseClick(first_ui._clear_buttons[category], Qt.MouseButton.LeftButton)
+
+	for key in results:
+		if key in cleared_keys:
+			assert results[key].empty, f"Le résultat '{key}' devrait être vidé par la corbeille '{category}'."
+		else:
+			assert_frame_equal(results[key], original_data[key])
+	assert results.stack_name == "stack"
+	assert results.get_status() == expected_status
+	for ui in (first_ui, second_ui):
+		for key, expected in expected_status.items():
+			assert ui._labels[key].text() == expected
 
 
 ##################################################
@@ -243,7 +381,8 @@ def test_interfaces(results, qtbot):
 	results["trc"] = pd.DataFrame({"Track": [1, 1, 2]})
 	results["blk"] = pd.DataFrame({"Track": [1, 1]})
 	for ui in (first_ui, second_ui):
-		assert ui._labels["File"].text() == "stack.tif"
+		assert ui._labels["File"].text() == "stack"
+		assert ui._labels["File"].toolTip() == "stack.tif"
 		assert ui._labels["Localizations"].text() == "Yes (2 localizations)"
 		assert ui._labels["Tracks"].text() == "Yes (2 tracks)"
 		assert ui._labels["Tracks Reconnected"].text() == "Yes (1 tracks)"

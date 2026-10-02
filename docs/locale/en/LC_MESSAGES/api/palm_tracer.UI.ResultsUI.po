@@ -3,8 +3,8 @@ msgid "ResultsUI"
 msgstr ""
 
 #: of palm_tracer.UI.ResultsUI.ResultsUI:1
-msgid "Représente une vue Qt en lecture seule des résultats de PALMTracer."
-msgstr "Represents a read-only Qt view of PALMTracer results."
+msgid "Représente une vue Qt des résultats de PALMTracer avec des boutons de suppression."
+msgstr "Represents a Qt view of PALMTracer results with clear buttons."
 
 #: of palm_tracer.UI.ResultsUI.ResultsUI:3
 msgid "La vue ne conserve aucune donnée métier. Elle affiche les statuts transmis par :class:`~palm_tracer.Results.Results` et peut ainsi être synchronisée avec les autres représentations du même modèle."
@@ -63,3 +63,11 @@ msgstr "Unknown keys are ignored, allowing the model to provide information that
 #: of palm_tracer.UI.ResultsUI.ResultsUI.update_status:6
 msgid "Statuts à afficher, indexés par type de résultat."
 msgstr "Statuses to display, indexed by result type."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.update_results_folder:1
+msgid "Actualise la disponibilité du bouton et son infobulle."
+msgstr "Updates the button's availability and tooltip."
+
+#: of palm_tracer.UI.ResultsUI.ResultsUI.update_results_folder:3
+msgid "Dossier des résultats, ou :obj:`None` si aucun dossier n'est associé."
+msgstr "Results directory, or :obj:`None` if no directory is associated."
