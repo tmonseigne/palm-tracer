@@ -19,12 +19,12 @@ conv = Ansi2HTMLConverter(inline=True)  # Utiliser des styles en ligne pour évi
 ##################################################
 def to_title_case(name: str) -> str:
 	"""
-	Convertit une chaîne de caractères en "Title Case" (majuscule à chaque mot).
+	Remplace les underscores et tirets par des espaces, puis applique la casse titre.
 
 	:param name: La chaîne de caractères à convertir.
 	:return: La chaîne de caractères convertie en "Title Case".
 	"""
-	return name.replace("_", " ").title()
+	return name.replace("_", " ").replace("-", " ").title()
 
 
 ##################################################
@@ -157,7 +157,7 @@ def get_monitoring(file: str) -> str:
 ##################################################
 def get_test_name(nodeid: str) -> str:
 	"""
-	Formate le nom du test en conservant la casse de ses paramètres.
+	Formate le nom du test et ses paramètres en casse titre, sans crochets.
 
 	:param nodeid: Identifiant complet fourni par pytest.
 	:return: Nom lisible, précédé des classes éventuelles.
@@ -165,7 +165,7 @@ def get_test_name(nodeid: str) -> str:
 	base, separator, parameters = nodeid.partition("[")
 	parts = base.split("::")[1:]
 	name = " / ".join(to_title_case(part.removeprefix("test_")) for part in parts)
-	return f"{name} [{parameters}" if separator else name
+	return f"{name} / {to_title_case(parameters.removesuffix(']'))}" if separator else name
 
 
 ##################################################
@@ -219,7 +219,7 @@ def get_tests(tests: list) -> str:
 						f'{escape(get_test_name(nodeid))} — {len(cases)} cas</button></td>'
 						f'<td>✅ {passed}/{len(cases)}</td><td>{duration}</td></tr>\n')
 			for test in cases:
-				name = f'[{test["nodeid"].partition("[")[2]}' if parametrized else get_test_name(test["nodeid"])
+				name = to_title_case(test["nodeid"].partition("[")[2].removesuffix("]")) if parametrized else get_test_name(test["nodeid"])
 				row_class = ' class="test-variant"' if parametrized else ""
 				res += (f'   <tr{row_class}><td>{escape(name)}</td>'
 						f'<td>{get_outcome_icon(test["outcome"])}</td>'

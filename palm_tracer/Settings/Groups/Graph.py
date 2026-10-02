@@ -29,7 +29,7 @@ class Graph(BaseSettingGroup):
 
 	Paramètres regroupés :
 
-	- ``Mode`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : Type de Graphiques....
+	- ``Mode`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de représentation, histogramme, courbes Scatter ou nuage de points utilisant deux sources.
 	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
 	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée.
 	- ``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque le mode ``Dual`` est actif.

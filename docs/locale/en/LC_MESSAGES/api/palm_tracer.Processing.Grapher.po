@@ -113,30 +113,43 @@ msgstr "If ``True``, displays the cumulative histogram along with the cumulative
 msgid "Si ``True``, superpose un mélange ajusté de deux gaussiennes."
 msgstr "If ``True``, overlays a fitted mixture of two Gaussian distributions."
 
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:17
+msgid "Exclut des distributions les valeurs inférieures ou égales à ce seuil, sans modifier l'histogramme. Par défaut, ``-np.inf`` conserve toutes les valeurs finies. Le seuil s'exprime dans les unités des données reçues."
+msgstr "Excludes values less than or equal to this threshold from distribution fitting, without changing the histogram. By default, ``-np.inf`` retains all finite values. The threshold is expressed in the units of the input data."
+
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:13
-#: palm_tracer.Processing.Grapher.Grapher.histogram:17
-#: palm_tracer.Processing.Grapher.Grapher.scatter:9
+#: palm_tracer.Processing.Grapher.Grapher.histogram:19
+#: palm_tracer.Processing.Grapher.Grapher.scatter:10
 msgid ":class:`go.Figure <plotly.graph_objects.Figure>`."
 msgstr ""
 
-#: of palm_tracer.Processing.Grapher.Grapher.cloud:1
-#: palm_tracer.Processing.Grapher.Grapher.scatter:1
-msgid "Trace une courbe des données \"façon\" Seaborn avec Plotly."
-msgstr "Plots a Seaborn-style curve of the data using Plotly."
+#: of palm_tracer.Processing.Grapher.Grapher.scatter:1
+msgid "Trace une ou plusieurs courbes des données \"façon\" Seaborn avec Plotly, sans relier les valeurs manquantes."
+msgstr "Plots one or more Seaborn-style curves of the data using Plotly, without connecting missing values."
 
-#: of palm_tracer.Processing.Grapher.Grapher.cloud:3
-#: palm_tracer.Processing.Grapher.Grapher.scatter:3
-msgid "Données sous forme de tableau NumPy 1D ou 2D."
-msgstr "Data in the form of a 1D or 2D NumPy array."
+#: of palm_tracer.Processing.Grapher.Grapher.scatter:3
+msgid "Tableau NumPy 1D, couples ``(2, N)`` ou ``(N, 2)``, ou plusieurs courbes sous forme ``(T, 2, N)``."
+msgstr "A 1D NumPy array, pairs with shape ``(2, N)`` or ``(N, 2)``, or multiple curves with shape ``(T, 2, N)``."
+
+#: of palm_tracer.Processing.Grapher.Grapher.scatter:9
+msgid "Noms des courbes, dans leur ordre dans les données. Si fourni, doit contenir un nom par courbe."
+msgstr "Curve names, in their order in the data. If provided, must contain one name per curve."
 
 #: ../../api/palm_tracer.Processing.Grapher.rst
 msgid "Lève"
 msgstr "Raises"
 
-#: of palm_tracer.Processing.Grapher.Grapher.cloud:14
-#: palm_tracer.Processing.Grapher.Grapher.scatter:10
-msgid "Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)"
-msgstr "If the array dimensions do not match the expected ones (1D, 2D, but with only 2 rows or 2 columns)"
+#: of palm_tracer.Processing.Grapher.Grapher.scatter:11
+msgid "Si la forme du tableau ou le nombre de noms ne correspond pas aux courbes attendues."
+msgstr "If the array shape or the number of names does not match the expected curves."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:1
+msgid "Trace une courbe des données \"façon\" Seaborn avec Plotly."
+msgstr "Plots a Seaborn-style curve of the data using Plotly."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:3
+msgid "Données sous forme de tableau NumPy 1D ou 2D."
+msgstr "Data in the form of a 1D or 2D NumPy array."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:9
 msgid "Si ``True``, superpose la KDE gaussienne 2D."
@@ -153,6 +166,10 @@ msgstr "If ``True``, overlays the 2D Poisson distribution."
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:12
 msgid "Si ``True``, superpose l'exponentielle inverse 2D."
 msgstr "If ``True``, overlays the 2D inverse exponential distribution."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:14
+msgid "Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)"
+msgstr "If the array dimensions do not match the expected ones (1D, 2D, but with only 2 rows or 2 columns)"
 
 #: ../../api/palm_tracer.Processing.Grapher.rst:20
 msgid "Figure d'astigmatisme"

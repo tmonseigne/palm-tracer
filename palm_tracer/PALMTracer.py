@@ -895,7 +895,7 @@ class PALMTracer:
 			# Un seul NaN par intervalle absent suffit à interrompre la ligne, sans allouer tous les plans de chaque trajectoire.
 			gaps = np.flatnonzero(np.diff(planes) > 1) + 1
 			curves.append(np.vstack((np.insert(planes, gaps, np.nan), np.insert(intensities, gaps, np.nan))))
-		if not curves: return np.empty(0)
+		if not curves: return np.empty(0)  # pragma: no cover - Garde impossible, car vérifié en amont.
 		data = np.full((len(curves), 2, max(curve.shape[1] for curve in curves)), np.nan)
 		for i, curve in enumerate(curves): data[i, :, :curve.shape[1]] = curve
 		return data

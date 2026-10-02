@@ -194,7 +194,8 @@ class Grapher:
 			else: raise ValueError("data 2D doit avoir 2 lignes ou 2 colonnes (x,y).")
 		elif data.ndim == 3 and data.shape[1] == 2: curves = data
 		else: raise ValueError("data doit être 1D, 2D (x,y) ou 3D (courbes, x/y, points).")
-		if names is not None and len(names) != curves.shape[0]: raise ValueError("Un nom doit être fourni pour chaque courbe.")
+		if names is not None and len(names) != curves.shape[0]:
+			raise ValueError("Un nom doit être fourni pour chaque courbe.")
 
 		# Aucune donnée valide
 		valid = np.isfinite(curves[:, 0, :]) & np.isfinite(curves[:, 1, :])
