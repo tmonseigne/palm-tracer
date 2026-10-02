@@ -23,7 +23,7 @@ class HR3D(BaseSettingGroup):
 
 	label: str = "3D"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {"Z Step": [SpinInt, ["Z Step", "Distance between two planes (unit same as the Z column, typically in nanometers).",
+	setting_list = {"Z Step": [SpinInt, ["Z Step (nm)", "Distance between two planes (unit same as the Z column, typically in nanometers).",
 										 20, [1, 10000], 10]],
 					"Axis":   [Combo, ["Axis", "Stack axis rotation.", 1, ["X", "Y", "Z"]]],
 					"Frames": [SpinInt, ["Frames", "Sets the number of frames for a full rotation during 3D rotation.", 36, [1, 3600], 10]]

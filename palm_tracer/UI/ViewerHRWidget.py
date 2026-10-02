@@ -88,6 +88,7 @@ class ViewerHRWidget(QWidget):
 		self._connect_signals()
 		self._actualize()
 		self._generate()
+		self.viewer.reset_view()  # .  Recentrer et ajuster la vue la première fois uniquement
 
 	##################################################
 	def _init_ui(self):
@@ -161,6 +162,8 @@ class ViewerHRWidget(QWidget):
 
 		# Connexion des boutons Filters de cette UI
 		self._pt.connect_filters_button(self.UI_NAME)
+		self._filters.connect_button(self._generate, self.UI_NAME, "reset")
+		self._filters.connect_button(self._generate, self.UI_NAME, "update")
 
 		self._btn_add_stack.clicked.connect(self._add_stack)
 		self._hr_settings["Type"].connect(self._toggle_type)
@@ -285,7 +288,7 @@ class ViewerHRWidget(QWidget):
 		Ui.update_layer(tracks_layer, tracks, blending="translucent")  # Napari refuse les tracks vides : conserve le point fictif de l'initialisation.
 
 		self._update_visualization_layer()
-		self._layers[self.LAYERS_NAME[0]].visible = True
+		# self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
 		# La zone source n'a pas de repère commun avec les projections tournées.
 		roi_layer = self._layers[self.LAYERS_NAME[3]]
@@ -295,7 +298,7 @@ class ViewerHRWidget(QWidget):
 		elif self._roi_visibility_before_rotation is not None:
 			roi_layer.visible = self._roi_visibility_before_rotation
 			self._roi_visibility_before_rotation = None
-		self.viewer.reset_view()  # Recentrer et ajuster la vue
+		# self.viewer.reset_view()  # Recentrer et ajuster la vue
 		self._pt._save_setting_group("HR")
 
 	##################################################
