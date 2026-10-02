@@ -46,7 +46,7 @@ class ViewerHRWidget(QWidget):
 
 	UI_NAME: str = "HR"
 	"""Nom de l'interface de visualisation haute résolution."""
-	LAYERS_NAME: list[str] = ["Visualization", "Points", "Tracks", "ROI Filter"]
+	LAYERS_NAME: list[str] = ["Visualization", "Points", "Points Filtered", "Tracks", "ROI Filter"]
 	"""Noms des calques gérés par la visionneuse haute résolution."""
 
 	# ==================================================
@@ -74,14 +74,16 @@ class ViewerHRWidget(QWidget):
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
 						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[1],
 																	size=1, face_color="lime", visible=False),
-						self.LAYERS_NAME[2]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=float), name=self.LAYERS_NAME[2],
+						self.LAYERS_NAME[2]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[2],
+																	size=1, face_color="red", visible=False),
+						self.LAYERS_NAME[3]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=float), name=self.LAYERS_NAME[3],
 																	blending="translucent", visible=False),
-						self.LAYERS_NAME[3]: self.viewer.add_shapes([], name=self.LAYERS_NAME[3], shape_type="polygon", edge_color="red",
+						self.LAYERS_NAME[4]: self.viewer.add_shapes([], name=self.LAYERS_NAME[4], shape_type="polygon", edge_color="red",
 																	edge_width=0.5, face_color="transparent")}
 
 		for layer in self._layers.values(): layer.editable, layer.locked = False, True
 
-		self._pt.settings.rois.layer_hr = self._layers[self.LAYERS_NAME[3]]  # Connexion du calque avec le manager.
+		self._pt.settings.rois.layer_hr = self._layers[self.LAYERS_NAME[4]]  # Connexion du calque avec le manager.
 
 		# Construction UI
 		self._init_ui()
@@ -260,7 +262,8 @@ class ViewerHRWidget(QWidget):
 
 		# Conserve le repère de l'image affichée si la génération ne peut pas la remplacer.
 		previous_hr_box = self._pt.settings.rois.hr_box
-		visualization, plot_data = self._pt.hr()
+		data = self._pt.hr()
+		visualization, plot_data = data["visualization"], data["plot_data"]
 		if visualization.size <= 1:
 			self._pt.settings.rois.hr_box = previous_hr_box
 			show_warning("No visualization available.")
@@ -272,26 +275,31 @@ class ViewerHRWidget(QWidget):
 		self._screenshot_filename = f"{path}/screenshot-{suffix}-{FileIO.get_timestamp_for_files()}.png"
 
 		point_layer = self._layers[self.LAYERS_NAME[1]]
-		tracks_layer = self._layers[self.LAYERS_NAME[2]]
+		filtered_layer = self._layers[self.LAYERS_NAME[2]]
+		tracks_layer = self._layers[self.LAYERS_NAME[3]]
 
-		# Remplace systématiquement les données des deux calques pour éviter les résidus entre modes.
+		# Remplace systématiquement les données des calques vectoriels pour éviter les résidus entre modes.
 		points, tracks = np.empty((0, 3), dtype=float), np.zeros((1, 4), dtype=float)
+		filtered_points = np.empty((0, 3), dtype=float)
 		if self._hr_settings["Dimension"].value == 2:  # .				 Rotation 3D
 			point_layer.visible = tracks_layer.visible = False
+			filtered_layer.visible = False
 		elif self._hr_settings["Type"].value == 0:  # .					 Localisations
 			points = plot_data
 			tracks_layer.visible = False
+			filtered_points = data.get("plot_filtered", filtered_points)
 		else:  # .														 Trajectoires
 			points = plot_data[:, 1:]  # .								 Les têtes conservent le plan des tracks, déjà décalé pour le track stack.
 			if plot_data.shape[0] > 0: tracks = plot_data
-		Ui.update_layer(point_layer, points, face_color="lime", out_of_slice_display=False)
+		Ui.update_layer(point_layer, points, face_color="lime", out_of_slice_display=False, editable=False, locked=True)
+		Ui.update_layer(filtered_layer, filtered_points, face_color="red", out_of_slice_display=False, editable=False, locked=True)
 		Ui.update_layer(tracks_layer, tracks, blending="translucent")  # Napari refuse les tracks vides : conserve le point fictif de l'initialisation.
 
 		self._update_visualization_layer()
 		# self._layers[self.LAYERS_NAME[0]].visible = True
 		self._pt.settings.rois.update_hr()
 		# La zone source n'a pas de repère commun avec les projections tournées.
-		roi_layer = self._layers[self.LAYERS_NAME[3]]
+		roi_layer = self._layers[self.LAYERS_NAME[4]]
 		if self._hr_settings["Dimension"].value == 2:
 			if self._roi_visibility_before_rotation is None: self._roi_visibility_before_rotation = roi_layer.visible
 			roi_layer.visible = False
