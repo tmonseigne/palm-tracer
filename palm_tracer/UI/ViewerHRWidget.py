@@ -12,6 +12,9 @@ from typing import cast
 import napari
 import numpy as np
 from napari.utils.notifications import show_info, show_warning
+from qtpy.compat import isalive
+from qtpy.QtCore import QEvent, QObject, Qt
+from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
@@ -20,9 +23,6 @@ from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
 
 TIPS = {
-		"Add Stack":  "Add a stack to the batch and load the latest results for it.\n"
-					  "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
-
 		"Actualize":  "Updates files/data from PALMTracer status.",
 		"Generate":   "Generate HR Visualization.",
 		"Save":       "Save the visualization generated.",
@@ -69,6 +69,8 @@ class ViewerHRWidget(QWidget):
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
 		self._roi_visibility_before_rotation: bool | None = None
+		self._drop_window: QWidget | None = None  # Fenêtre Qt dont les dépôts chargent une pile.
+		self._drop_accepts: bool = False  # État des dépôts à restaurer lorsque le widget est masqué.
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
@@ -108,10 +110,6 @@ class ViewerHRWidget(QWidget):
 		scroll_layout = QVBoxLayout(scroll_content)
 		Ui.init_layout(scroll_layout, space=10)
 		scroll_area = Ui.make_vertical_scroll(scroll_content)
-
-		# --- Bouton pour charger une stack ---
-		self._btn_add_stack = QPushButton("Add Stack")
-		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
 
 		# --- Bloc Sources ---
 		grp_source = QGroupBox("Source")
@@ -154,7 +152,6 @@ class ViewerHRWidget(QWidget):
 		scroll_layout.addStretch()  # Optionnel, mais recommandé
 
 		# --- Mise en page globbale ---
-		layout.addWidget(self._btn_add_stack)
 		layout.addWidget(scroll_area)
 		layout.addLayout(actions_row)
 
@@ -167,7 +164,6 @@ class ViewerHRWidget(QWidget):
 		self._filters.connect_button(self._generate, self.UI_NAME, "reset")
 		self._filters.connect_button(self._generate, self.UI_NAME, "update")
 
-		self._btn_add_stack.clicked.connect(self._add_stack)
 		self._hr_settings["Type"].connect(self._toggle_type)
 
 		# Action Row
@@ -191,6 +187,79 @@ class ViewerHRWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
+	# region Glisser-déposer
+	# ==================================================
+	##################################################
+	def _get_drop_target(self) -> QWidget:
+		"""
+		Retourne la racine Qt de la fenêtre HR, y compris lorsque son dock est flottant.
+
+		:return: Widget délimitant la zone de dépôt ; retourner ``self`` la limiterait au plugin.
+		"""
+		window: QWidget = self
+		while window.parentWidget() is not None: window = window.parentWidget()
+		return window
+
+	##################################################
+	def showEvent(self, event: QShowEvent):
+		"""
+		Active l'interception après l'insertion du widget dans la fenêtre HR.
+
+		:param event: Événement d'affichage Qt.
+		"""
+		super().showEvent(event)
+		if self._drop_window is not None and isalive(self._drop_window): return
+		window = self._get_drop_target()
+		self._drop_window = window
+		self._drop_accepts = window.acceptDrops()
+		window.setAcceptDrops(True)
+		QApplication.instance().installEventFilter(self)
+
+	##################################################
+	def hideEvent(self, event: QHideEvent):
+		"""
+		Retire le filtre et restaure l'état des dépôts si la fenêtre Qt existe encore.
+
+		:param event: Événement de masquage Qt.
+		"""
+		QApplication.instance().removeEventFilter(self)
+		window = self._drop_window
+		self._drop_window = None
+		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
+		super().hideEvent(event)
+
+	##################################################
+	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+		"""
+		Intercepte le dépôt d'une seule pile locale dans la fenêtre HR.
+
+		Les dépôts multiples, les dossiers et les fichiers absents sont refusés.
+		Les autres fenêtres et les glissements sans fichier local restent inchangés.
+
+		:param watched: Objet Qt destinataire de l'événement.
+		:param event: Événement à filtrer.
+		:return: ``True`` si l'événement est consommé avant son traitement par Napari.
+		"""
+		if event.type() not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
+		window = self._drop_window
+		if window is None or not isalive(window) or not isinstance(watched, QWidget): return False
+		if watched is not window and not window.isAncestorOf(watched): return False
+		drop = cast(QDropEvent, event)
+		urls = drop.mimeData().urls()
+		if not any(url.isLocalFile() for url in urls): return False
+		if len(urls) != 1 or not Path(urls[0].toLocalFile()).is_file():
+			drop.ignore()
+			return True
+		drop.setDropAction(Qt.DropAction.CopyAction)
+		drop.accept()
+		if event.type() == QEvent.Type.Drop: self._add_stack(urls[0].toLocalFile())
+		return True
+
+	# ==================================================
+	# endregion Glisser-déposer
+	# ==================================================
+
+	# ==================================================
 	# region Liaison avec PALMTracer
 	# ==================================================
 	##################################################
@@ -206,10 +275,15 @@ class ViewerHRWidget(QWidget):
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).show()
 
 	##################################################
-	def _add_stack(self):
-		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
-		cast(FileList, self._pt.settings.batch["Files"]).add_file()
-		self._pt.load()  # . Chargement des derniers résultats
+	def _add_stack(self, path: str):
+		"""
+		Ajoute la pile déposée, charge ses derniers résultats et actualise les statuts.
+
+		:param path: Chemin local de la pile à ajouter au Batch partagé avec le widget principal.
+		"""
+		cast(FileList, self._pt.settings.batch["Files"]).add_files([path])
+		# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
+		self._pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 		self._actualize()  # Actualisation des statuts
 
 	##################################################

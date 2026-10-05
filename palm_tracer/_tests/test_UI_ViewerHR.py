@@ -1,19 +1,77 @@
 """Teste le widget Napari de visualisation haute résolution des résultats."""
 
 import shutil
+from importlib import import_module
+from pathlib import Path
 from types import SimpleNamespace
+from typing import cast
 
 import pytest
 from napari.components import ViewerModel
-from qtpy.QtCore import QCoreApplication, QEvent, Qt
+from qtpy.compat import isalive
+from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QPoint, QPointF, Qt, QUrl
+from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
+from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QPushButton, QScrollArea, QWidget
 
 from palm_tracer._tests.Utils import *
-from palm_tracer.Settings.Types import BaseUIType, ButtonGroup
+from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, FileList
 from palm_tracer.Tools import FileIO
-from palm_tracer.UI import ViewerHRWidget
+from palm_tracer.UI import PALMTracerWidget, ViewerHRWidget
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
+
+
+##################################################
+class StackDropReceiver(QWidget):
+	"""Simule le destinataire Napari habituel pour détecter les dépôts non interceptés."""
+
+	def __init__(self):
+		"""Initialise l'acceptation des dépôts et leur historique."""
+		super().__init__()
+		self.received = []
+		self.setAcceptDrops(True)
+
+	def dragEnterEvent(self, event):
+		"""Accepte le glissement reçu par le widget habituel."""
+		self.received.append("enter")
+		event.acceptProposedAction()
+
+	def dropEvent(self, event):
+		"""Enregistre le dépôt reçu par le widget habituel."""
+		self.received.append("drop")
+		event.acceptProposedAction()
+
+
+##################################################
+@pytest.fixture
+def stack_drop_widget(qtbot, monkeypatch):
+	"""Crée une fenêtre HR et observe le chargement puis l'actualisation sans génération de rendu."""
+	monkeypatch.setattr(ViewerHRWidget, "_generate", lambda self: None)
+	window = QMainWindow()
+	qtbot.addWidget(window)
+	receiver = StackDropReceiver()
+	window.setCentralWidget(receiver)
+	dock = QDockWidget(window)
+	widget = ViewerHRWidget(ViewerModel(), PALMTracer())
+	dock.setWidget(widget)
+	window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
+	calls = []
+	files = cast(FileList, widget._pt.settings.batch["Files"])
+	monkeypatch.setattr(widget._pt, "load", lambda path="": calls.append(("load", Path(path))))
+	monkeypatch.setattr(widget, "_actualize", lambda: calls.append(("actualize", Path(files.current_text))))
+	window.show()
+	return widget, window, receiver, dock, calls
+
+
+##################################################
+def send_stack_drop(receiver, mime):
+	"""Envoie les événements Qt d'entrée, de déplacement et de dépôt d'une pile."""
+	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
+	return enter, move, drop
 
 
 ##################################################
@@ -105,6 +163,226 @@ def test_widget_double_creation(qtbot):
 # ==================================================
 
 # ==================================================
+# region Glisser-déposer
+# ==================================================
+##################################################
+@pytest.mark.parametrize("target", ["window", "plugin", "scroll"], ids=["window-content", "plugin-button", "scroll-viewport"])
+def test_stack_drop_loads_latest_results_and_actualizes(stack_drop_widget, target):
+	"""Vérifie l'ajout d'une pile, sa sélection, puis le chargement et l'actualisation dans cet ordre."""
+	widget, window, receiver, _, calls = stack_drop_widget
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+	targets = {"window": receiver, "plugin": widget._btn_actualize, "scroll": widget.findChild(QScrollArea).viewport()}
+
+	events = send_stack_drop(targets[target], mime)
+
+	assert widget._drop_window is window
+	assert all(event.isAccepted() for event in events)
+	assert receiver.received == []
+	assert [Path(path) for path in widget._pt.settings.batch["Files"].items] == [INPUT_FILE]
+	assert calls == [("load", OUTPUT_FOLDER), ("actualize", INPUT_FILE)]
+	assert all(button.text() != "Add Stack" for button in widget.findChildren(QPushButton))
+
+
+##################################################
+@pytest.mark.parametrize("scenario", ["multiple", "mixed", "directory", "missing"], ids=["multiple-files", "local-and-remote", "directory", "missing-file"])
+def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario):
+	"""Vérifie qu'un dépôt refusé ne modifie pas le Batch et ne charge aucun résultat."""
+	widget, _, receiver, _, calls = stack_drop_widget
+	urls = {"multiple":  [QUrl.fromLocalFile(str(INPUT_FILE))] * 2,
+			"mixed":     [QUrl.fromLocalFile(str(INPUT_FILE)), QUrl("https://example.com/stack.tif")],
+			"directory": [QUrl.fromLocalFile(str(tmp_path))],
+			"missing":   [QUrl.fromLocalFile(str(tmp_path / "missing.tif"))]}
+	mime = QMimeData()
+	mime.setUrls(urls[scenario])
+
+	events = send_stack_drop(receiver, mime)
+
+	assert not any(event.isAccepted() for event in events)
+	assert receiver.received == []
+	assert widget._pt.settings.batch["Files"].items == []
+	assert calls == []
+
+
+##################################################
+@pytest.mark.parametrize("scenario", ["other-window", "remote", "text"], ids=["other-window", "remote-url", "internal-text"])
+def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenario):
+	"""Vérifie que le filtre HR laisse les autres fenêtres et les glissements sans fichier local inchangés."""
+	widget, _, receiver, _, calls = stack_drop_widget
+	mime = QMimeData()
+	if scenario == "other-window":
+		receiver = StackDropReceiver()
+		qtbot.addWidget(receiver)
+		receiver.show()
+		mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+	elif scenario == "remote": mime.setUrls([QUrl("https://example.com/stack.tif")])
+	else: mime.setText("layer")
+
+	send_stack_drop(receiver, mime)
+
+	assert receiver.received == ["enter", "drop"]
+	assert widget._pt.settings.batch["Files"].items == []
+	assert calls == []
+
+
+##################################################
+@pytest.mark.parametrize("initial_accepts", [False, True], ids=["drops-disabled", "drops-enabled"])
+def test_stack_drop_follows_visibility_and_floating_dock(stack_drop_widget, initial_accepts):
+	"""Vérifie la restauration des dépôts, l'affichage répété et le maintien de la fenêtre après détachement."""
+	widget, window, receiver, dock, calls = stack_drop_widget
+	dock.hide()
+	window.setAcceptDrops(initial_accepts)
+	dock.show()
+	QApplication.sendEvent(widget, QShowEvent())
+	dock.hide()
+	assert widget._drop_window is None
+	assert window.acceptDrops() == initial_accepts
+	dock.show()
+	dock.setFloating(True)
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+
+	send_stack_drop(receiver, mime)
+
+	assert widget._drop_window is window
+	assert receiver.received == []
+	assert calls == [("load", OUTPUT_FOLDER), ("actualize", INPUT_FILE)]
+
+
+##################################################
+@pytest.mark.parametrize("scenario", ["hide", "drop", "show"], ids=["hide-after-destruction", "drop-after-destruction", "show-after-destruction"])
+def test_stack_drop_handles_deleted_window(stack_drop_widget, scenario):
+	"""Vérifie la sécurité des événements tardifs après destruction de la fenêtre cible."""
+	widget, window, receiver, dock, calls = stack_drop_widget
+	deleted_window = QMainWindow()
+	deleted_window.deleteLater()
+	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+	assert not isalive(deleted_window)
+	if scenario == "show": dock.hide()
+	widget._drop_window = deleted_window
+
+	if scenario == "hide":
+		dock.hide()
+		assert widget._drop_window is None
+	elif scenario == "drop":
+		mime = QMimeData()
+		mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+		send_stack_drop(receiver, mime)
+		assert receiver.received == ["enter", "drop"]
+		assert calls == []
+	else:
+		dock.show()
+		assert widget._drop_window is window
+
+
+##################################################
+@pytest.mark.parametrize("mode", [0, 1, 2], ids=["only-one", "each-file", "all-in-one"])
+@pytest.mark.parametrize("shared_main", [False, True], ids=["standalone-hr", "shared-main-widget"])
+def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, tmp_path, monkeypatch, qtbot, mode, shared_main):
+	"""Charge réellement les derniers résultats de la pile déposée malgré une autre pile déjà dans le Batch."""
+	widget, _, receiver, _, calls = stack_drop_widget
+	pt = widget._pt
+	files = cast(FileList, pt.settings.batch["Files"])
+	first_stack, dropped_stack = tmp_path / "first.tif", tmp_path / "dropped.tif"
+	for stack in (first_stack, dropped_stack): shutil.copy2(INPUT_FILE, stack)
+	first_folder, dropped_folder = tmp_path / "first_PALM_Tracer", tmp_path / "dropped_PALM_Tracer"
+	for folder in (first_folder, dropped_folder): folder.mkdir()
+
+	# Les paramètres enregistrés correspondent au traitement individuel de la pile déposée.
+	files.items = [str(dropped_stack)]
+	pt.settings.batch["Mode"].value = 0
+	settings = pt.settings.to_compact_dict()
+	older_timestamp, latest_timestamp = "20260101_000000", "20260102_000000"
+	FileIO.save_json(first_folder / f"settings-{latest_timestamp}.json", settings)
+	pd.DataFrame({"X": [-1.0], "Y": [-1.0]}).to_csv(first_folder / f"localizations-{latest_timestamp}.csv", index=False)
+	FileIO.save_json(dropped_folder / f"settings-{older_timestamp}.json", settings)
+	pd.DataFrame({"X": [1.0], "Y": [2.0]}).to_csv(dropped_folder / f"localizations-{older_timestamp}.csv", index=False)
+	FileIO.save_json(dropped_folder / f"settings-{latest_timestamp}.json", settings)
+	expected = pd.DataFrame({"X": [3.0, 4.0], "Y": [5.0, 6.0]})
+	expected.to_csv(dropped_folder / f"localizations-{latest_timestamp}.csv", index=False)
+
+	files.items = [str(first_stack)]
+	pt.settings.batch["Mode"].value = mode
+	# Seule la validation des DLL est neutralisée : load() lit les vrais JSON, CSV et TIFF.
+	monkeypatch.setattr(pt, "is_dll_valid", lambda: True)
+	load_calls = []
+
+	def load_results(path=""):
+		"""Observe les chemins transmis sans remplacer le véritable chargement."""
+		load_calls.append(Path(path))
+		PALMTracer.load(pt, path)
+
+	monkeypatch.setattr(pt, "load", load_results)
+	if shared_main:
+		# Le widget principal utilise la même instance et conserve son vrai callback de synchronisation.
+		monkeypatch.setattr(import_module(PALMTracerWidget.__module__), "PALMTracer", lambda: pt)
+		monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
+		monkeypatch.setattr(PALMTracerWidget, "_on_change_setting", lambda self: None)
+		monkeypatch.setattr(PALMTracerWidget, "_preview", lambda self: None)
+		monkeypatch.setattr(PALMTracerWidget, "_auto_threshold", lambda self: None)
+		main = PALMTracerWidget(ViewerModel())
+		qtbot.addWidget(main)
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(dropped_stack))])
+
+	send_stack_drop(receiver, mime)
+
+	assert pt.results.results_folder == dropped_folder.resolve()
+	assert pt.results.stack_name == dropped_stack.stem
+	assert Path(files.current_text) == dropped_stack
+	pd.testing.assert_frame_equal(pt.results["loc"], expected)
+	np.testing.assert_array_equal(pt.stack, FileIO.open_tif(dropped_stack))
+	assert calls == [("actualize", dropped_stack)]
+	assert not pt._loading
+	assert load_calls and all(path == dropped_folder for path in load_calls)
+
+
+##################################################
+def test_stack_drop_preserves_active_load_context(stack_drop_widget, monkeypatch):
+	"""Vérifie qu'un chargement imbriqué ne remplace pas le dossier ni le timestamp actifs."""
+	widget, _, _, _, calls = stack_drop_widget
+	pt = widget._pt
+	monkeypatch.setattr(pt, "load", PALMTracer.load.__get__(pt))
+	pt._path, pt._timestamp = "active_PALM_Tracer", "20260102_000000"
+	pt._loading = True
+	try:
+		pt.load(str(INPUT_FILE))
+		assert pt.path == "active_PALM_Tracer"
+		assert pt._timestamp == "20260102_000000"
+		assert calls == []
+	finally: pt._loading = False
+
+
+##################################################
+def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypatch):
+	"""Vérifie qu'une erreur de lecture n'empêche pas un chargement ultérieur sur la même instance."""
+	widget, _, _, _, calls = stack_drop_widget
+	pt = widget._pt
+	monkeypatch.setattr(pt, "load", PALMTracer.load.__get__(pt))
+
+	def fail_load(_path):
+		"""Simule une erreur de lecture pendant le chargement protégé."""
+		raise OSError("Unreadable settings")
+
+	monkeypatch.setattr(pt, "_load_results", fail_load)
+	with pytest.raises(OSError, match="Unreadable settings"):
+		widget._add_stack(str(INPUT_FILE))
+	assert not pt._loading
+	assert calls == []
+
+	loaded_folders = []
+	monkeypatch.setattr(pt, "_load_results", loaded_folders.append)
+	widget._add_stack(str(INPUT_FILE))
+	assert [Path(path) for path in loaded_folders] == [OUTPUT_FOLDER]
+	assert calls == [("actualize", INPUT_FILE)]
+	assert not pt._loading
+
+
+# ==================================================
+# endregion Glisser-déposer
+# ==================================================
+
+# ==================================================
 # region Liaison avec PALMTracer
 # ==================================================
 ##################################################
@@ -123,16 +401,15 @@ def test_check_beads(qtbot):
 
 
 ##################################################
-def test_add_stack(qtbot, capsys, fake_qfiledialog):
-	"""Vérifie le widget."""
+def test_add_stack(qtbot, capsys):
+	"""Vérifie le chargement d'une pile sans résultat enregistré."""
 	viewer = ViewerModel()
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)
 	qtbot.addWidget(w)
 
-	fake_qfiledialog(FileList, f"{INPUT_DIR / 'stack.tif'}")
-	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
+	w._add_stack(str(INPUT_FILE))
 	lines = get_lines_output(capsys)
 	assert "No valid settings file to load." in lines[0]
 
@@ -225,7 +502,7 @@ def test_change_type(qtbot):
 # region Dessin
 # ==================================================
 ##################################################
-def test_generate_bad(qtbot, capsys, fake_qfiledialog):
+def test_generate_bad(qtbot, capsys):
 	"""Vérifie le widget."""
 	viewer = ViewerModel()
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
@@ -239,8 +516,7 @@ def test_generate_bad(qtbot, capsys, fake_qfiledialog):
 	assert "WARNING: No stack processed loaded." in lines[0]
 
 	# Chargement d'une pile, mais aucun process
-	fake_qfiledialog(FileList, f"{INPUT_DIR / 'stack.tif'}")
-	qtbot.mouseClick(w._btn_add_stack, Qt.MouseButton.LeftButton)
+	w._add_stack(str(INPUT_FILE))
 	lines = get_lines_output(capsys)
 	assert "No valid settings file to load." in lines[0]
 
