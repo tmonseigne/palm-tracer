@@ -123,10 +123,10 @@ class ROIManager:
 
 		:param rois: Liste à appliquer.
 		"""
-		intial_l = len(self._rois)
+		initial_l = len(self._rois)
 		new_l = len(rois)
 		self._rois = rois
-		if intial_l != new_l and new_l != 0: self.roi_selection.limits = [1, new_l]
+		if initial_l != new_l and new_l != 0: self.roi_selection.limits = [1, new_l]
 
 	##################################################
 	def set_size(self, width, height):
@@ -180,7 +180,7 @@ class ROIManager:
 		self._is_synchronizing = True
 
 		upscale = self.hr_ratio.value  # .		Ratio d'agrandissement
-		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans l'upscale
+		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans upscale
 		translation = np.array([y0_crop, x0_crop], dtype=float)
 		rois: list[ROI] = []
 
@@ -210,7 +210,7 @@ class ROIManager:
 		"""
 		if self._layer_hr is None or len(self.rois) == 0: return
 		upscale = self.hr_ratio.value  # .		Ratio d'agrandissement
-		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans l'upscale
+		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans upscale
 		translation = np.array([y0_crop, x0_crop], dtype=float)
 		data = []
 

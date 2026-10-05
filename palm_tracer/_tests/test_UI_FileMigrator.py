@@ -1,7 +1,5 @@
 """Teste le widget de migration des anciens résultats Metamorph."""
 
-import shutil
-
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
@@ -75,7 +73,7 @@ def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	# Lancement du calcul
 	qtbot.mouseClick(w._btn_migrate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
-	assert "Migration successfull." in lines[-1]
+	assert "Migration successful." in lines[-1]
 
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 

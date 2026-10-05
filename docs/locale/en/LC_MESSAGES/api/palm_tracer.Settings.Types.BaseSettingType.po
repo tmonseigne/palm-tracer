@@ -61,8 +61,8 @@ msgid "Accesseurs"
 msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:1
-msgid "Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire."
-msgstr "Returns an existing :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` object, or creates one if necessary."
+msgid "Renvoie une interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) existante ou en crée une si nécessaire."
+msgstr "Returns an existing (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.clean_ui:3
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.get_ui:3
@@ -102,14 +102,12 @@ msgstr "Hides the setting."
 msgid "Affiche le paramètre."
 msgstr "Shows the setting."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:1
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:1
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:1
 msgid "Connecte un bouton directement et non le paramètre en lui-même."
 msgstr "Connects a button directly rather than the setting itself."
 
-#: of
-#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:3
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.attach_to_form:3
 #: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_button:4
 msgid "Nom de l'interface à connecter."
 msgstr "Name of the interface to connect."

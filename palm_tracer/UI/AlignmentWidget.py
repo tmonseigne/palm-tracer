@@ -46,7 +46,7 @@ class AlignmentWidget(QWidget):
 
 		self._palm = Palm()
 		self._stack: Optional[np.ndarray] = None
-		self._coefs: Optional[np.ndarray] = None
+		self._coeffs: Optional[np.ndarray] = None
 		self._output_filename: str = ""
 
 		self._init_ui()
@@ -90,11 +90,11 @@ class AlignmentWidget(QWidget):
 		self._btn_load_tif_apply = QPushButton("Load image file (TIFF)", grp)
 		self._btn_load_tif_apply.setToolTip("Load the TIFF file to which the alignment should be applied.")
 
-		self._btn_load_coef_apply = QPushButton("Load coefficients file", grp)
-		self._btn_load_coef_apply.setToolTip("Load the file containing the alignment coefficients.")
+		self._btn_load_coeff_apply = QPushButton("Load coefficients file", grp)
+		self._btn_load_coeff_apply.setToolTip("Load the file containing the alignment coefficients.")
 
 		self._lbl_tif_apply = Ui.make_path_label("No TIFF file loaded", grp)
-		self._lbl_coef_apply = Ui.make_path_label("No coefficients file loaded", grp)
+		self._lbl_coeff_apply = Ui.make_path_label("No coefficients file loaded", grp)
 
 		self._spin_upscale = QSpinBox(grp, minimum=1, maximum=1000, singleStep=1, value=1)
 		self._spin_upscale.setToolTip("Integer upscaling factor for the output aligned image (1 = no upscaling).")
@@ -104,8 +104,8 @@ class AlignmentWidget(QWidget):
 
 		grp_layout.addWidget(self._btn_load_tif_apply)
 		grp_layout.addWidget(self._lbl_tif_apply)
-		grp_layout.addWidget(self._btn_load_coef_apply)
-		grp_layout.addWidget(self._lbl_coef_apply)
+		grp_layout.addWidget(self._btn_load_coeff_apply)
+		grp_layout.addWidget(self._lbl_coeff_apply)
 		grp_layout.addLayout(form)
 
 		self._btn_start_alignment = QPushButton("Start alignment", tab_apply)
@@ -128,7 +128,7 @@ class AlignmentWidget(QWidget):
 		self._btn_compute_coeffs.clicked.connect(self._on_compute_coeffs)
 
 		self._btn_load_tif_apply.clicked.connect(self._on_load_tif)
-		self._btn_load_coef_apply.clicked.connect(self._on_load_coef)
+		self._btn_load_coeff_apply.clicked.connect(self._on_load_coef)
 		self._btn_start_alignment.clicked.connect(self._on_start_alignment)
 
 	# ==================================================
@@ -185,20 +185,20 @@ class AlignmentWidget(QWidget):
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
-			self._coefs = np.loadtxt(filename, comments="#", dtype=float)
+			self._coeffs = np.loadtxt(filename, comments="#", dtype=float)
 		except Exception as e:
-			self._coefs = None
+			self._coeffs = None
 			Ui.print_error(f"Unable to read the coefficient file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
-		if self._coefs.ndim != 2 or self._coefs.shape != (2, 10):
-			self._coefs = None
+		if self._coeffs.ndim != 2 or self._coeffs.shape != (2, 10):
+			self._coeffs = None
 			Ui.print_error(f"The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
 			return
 
 		# --- mise à jour du label de statut ---
-		Ui.update_path_label(self._lbl_coef_apply, Path(filename))
+		Ui.update_path_label(self._lbl_coeff_apply, Path(filename))
 
 		Ui.print_success("Coefficients loaded successfully.")
 
@@ -212,10 +212,10 @@ class AlignmentWidget(QWidget):
 	def _on_start_alignment(self):
 		"""Callback du bouton 'Start alignment'."""
 		if self._stack is None: Ui.print_warning("Can't align without correct tif file.")
-		elif self._coefs is None: Ui.print_warning("Can't align tif file without factors.")
+		elif self._coeffs is None: Ui.print_warning("Can't align tif file without factors.")
 		else:
 			upscale = self._spin_upscale.value()
-			aligned = self._palm.align(self._stack, self._coefs, upscale)
+			aligned = self._palm.align(self._stack, self._coeffs, upscale)
 			save_tif(aligned, self._output_filename)
 			Ui.print_success(f"File saved at {self._output_filename} (upscale={upscale}).")
 

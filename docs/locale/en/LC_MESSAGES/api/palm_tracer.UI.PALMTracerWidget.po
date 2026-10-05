@@ -30,10 +30,6 @@ msgstr "Name of the main interface."
 msgid "Noms des calques gérés par l'interface principale."
 msgstr "Names of the layers managed by the main interface."
 
-#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.LAYER_ARGS:1
-msgid "Propriétés graphiques des différents calques de points."
-msgstr "Graphical properties of the different point layers."
-
 #: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.EMPTY_PREVIEW:1
 msgid "Tableau vide utilisé lorsqu'aucun point n'est prévisualisé."
 msgstr "Empty array used when no point is previewed."

@@ -48,7 +48,7 @@ def simulate_gpu_usage(monitoring: Monitoring, tensor_size: int = 4096, duration
 	:param duration: Durée en secondes pendant lesquelles les opérations GPU sont répétées.
 	"""
 	monitoring.add_test_info("_tests/test_simulation_gpu.py::test_gpu_computation")
-	# Installation de pytorch via le generatuer de lien de leur site en fonction de votre CUDA
+	# Installation de pytorch via le générateur de lien de leur site en fonction de votre CUDA
 	# Ex : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 	if not torch.cuda.is_available():
 		print("Aucun GPU CUDA disponible pour la simulation.")

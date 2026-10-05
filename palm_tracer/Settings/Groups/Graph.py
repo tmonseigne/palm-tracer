@@ -8,7 +8,7 @@ from typing import cast
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.GraphDisplay import GraphDisplay
-from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinInt
+from palm_tracer.Settings.Types import ButtonGroup, Combo, SpinInt
 
 DATA_SRC: dict[str, list] = {
 		"Localization":     ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",

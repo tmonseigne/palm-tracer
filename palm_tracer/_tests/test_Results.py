@@ -71,14 +71,14 @@ def test_stack_name_normalization(results, qtbot, tmp_path, filename, expected_n
 	assert results.stack_name == expected_name
 	assert results.get_status()["File"] == expected_name
 	for ui in (first_ui, second_ui):
-		assert ui._labels["File"].text() == expected_name
-		assert ui._labels["File"].toolTip() == str(path)
+		assert ui.labels["File"].text() == expected_name
+		assert ui.labels["File"].toolTip() == str(path)
 
 	results.stack_name = ""
 	assert results.stack_name == ""
 	for ui in (first_ui, second_ui):
-		assert ui._labels["File"].text() == "No File"
-		assert ui._labels["File"].toolTip() == ""
+		assert ui.labels["File"].text() == "No File"
+		assert ui.labels["File"].toolTip() == ""
 
 
 ##################################################
@@ -309,9 +309,9 @@ def test_open_results_folder_button(results, qtbot, tmp_path, monkeypatch, folde
 	qtbot.addWidget(second_ui.widget)
 
 	for ui in (first_ui, second_ui):
-		assert ui._open_folder_button.isEnabled() == (folder_kind == "existing")
-		assert ui._open_folder_button.toolTip() == (str(folder.resolve()) if folder is not None else "")
-	qtbot.mouseClick(first_ui._open_folder_button, Qt.MouseButton.LeftButton)
+		assert ui.open_folder_button.isEnabled() == (folder_kind == "existing")
+		assert ui.open_folder_button.toolTip() == (str(folder.resolve()) if folder is not None else "")
+	qtbot.mouseClick(first_ui.open_folder_button, Qt.MouseButton.LeftButton)
 
 	if folder_kind == "existing":
 		assert len(opened_urls) == 1
@@ -324,8 +324,8 @@ def test_open_results_folder_button(results, qtbot, tmp_path, monkeypatch, folde
 	results.stack_name = str(tmp_path / "other-stack.tif")
 	assert results.results_folder is None
 	for ui in (first_ui, second_ui):
-		assert not ui._open_folder_button.isEnabled()
-		assert ui._open_folder_button.toolTip() == ""
+		assert not ui.open_folder_button.isEnabled()
+		assert ui.open_folder_button.toolTip() == ""
 
 
 ##################################################
@@ -351,7 +351,7 @@ def test_clear_button(results, qtbot, category, cleared_keys):
 	qtbot.addWidget(first_ui.widget)
 	qtbot.addWidget(second_ui.widget)
 
-	qtbot.mouseClick(first_ui._clear_buttons[category], Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(first_ui.clear_buttons[category], Qt.MouseButton.LeftButton)
 
 	for key in results:
 		if key in cleared_keys:
@@ -362,7 +362,7 @@ def test_clear_button(results, qtbot, category, cleared_keys):
 	assert results.get_status() == expected_status
 	for ui in (first_ui, second_ui):
 		for key, expected in expected_status.items():
-			assert ui._labels[key].text() == expected
+			assert ui.labels[key].text() == expected
 
 
 ##################################################
@@ -381,11 +381,11 @@ def test_interfaces(results, qtbot):
 	results["trc"] = pd.DataFrame({"Track": [1, 1, 2]})
 	results["blk"] = pd.DataFrame({"Track": [1, 1]})
 	for ui in (first_ui, second_ui):
-		assert ui._labels["File"].text() == "stack"
-		assert ui._labels["File"].toolTip() == "stack.tif"
-		assert ui._labels["Localizations"].text() == "Yes (2 localizations)"
-		assert ui._labels["Tracks"].text() == "Yes (2 tracks)"
-		assert ui._labels["Tracks Reconnected"].text() == "Yes (1 tracks)"
+		assert ui.labels["File"].text() == "stack"
+		assert ui.labels["File"].toolTip() == "stack.tif"
+		assert ui.labels["Localizations"].text() == "Yes (2 localizations)"
+		assert ui.labels["Tracks"].text() == "Yes (2 tracks)"
+		assert ui.labels["Tracks Reconnected"].text() == "Yes (1 tracks)"
 
 	results.clean_ui("first")
 	results.clean_ui("unknown")

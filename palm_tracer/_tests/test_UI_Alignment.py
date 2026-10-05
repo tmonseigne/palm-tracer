@@ -69,25 +69,25 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 	# Simuler un "Cancel" sur le QFileDialog
 	fake_qfiledialog(AlignmentWidget, None)
-	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "No coefficient file selected." in lines[0]  # On vérifie juste que le warning attendu est bien passé par print_warning
 
-	# Bad Coef Input
+	# Bad Coeffs Input
 	fake_qfiledialog(AlignmentWidget, "nofile.txt")
-	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Selected file: nofile.txt." in lines[0]
 	assert "Unable to read the coefficient file" in lines[1]
-	assert w._coefs is None
+	assert w._coeffs is None
 
-	# Bad Coef Input
+	# Bad Coeffs Input
 	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/bad_alignment_coeffs.txt")
-	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert f"Selected file: {INPUT_DIR}/bad_alignment_coeffs.txt." in lines[0]
 	assert "The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10)." in lines[1]
-	assert w._coefs is None
+	assert w._coeffs is None
 
 	w.close()
 
@@ -181,11 +181,11 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 	# Chargement du fichier Coef
 	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/alignment_coeffs.txt", "Text files (*.txt);;All files (*.*)")
-	qtbot.mouseClick(w._btn_load_coef_apply, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert f"Selected file: {INPUT_DIR}/alignment_coeffs.txt" in lines[0]
 	assert "Coefficients loaded successfully." in lines[1]
-	assert w._coefs is not None
+	assert w._coeffs is not None
 
 	qtbot.mouseClick(w._btn_start_alignment, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)

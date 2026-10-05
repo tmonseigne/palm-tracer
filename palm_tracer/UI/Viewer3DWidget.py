@@ -97,7 +97,7 @@ class Viewer3DWidget(QWidget):
 		px_size, size, scale_xy, scale_z, outliers = s["Pixel Size"], s["Point Size"], s["XY Scale"], s["Z Scale"], s["Remove Outliers"]
 		coords = self.data[["Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
 		coords[:, 1:3] *= px_size  # .											 Passage en nanomètres pour X et Y précédemment en pixel
-		coords *= np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)  # Changemenet des échelles
+		coords *= np.array([scale_z, scale_xy, scale_xy], dtype=coords.dtype)  # Changement des échelles
 
 		if outliers: coords = coords[self.data["Integrated Intensity"] > 0]
 

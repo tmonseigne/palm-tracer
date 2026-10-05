@@ -15,7 +15,7 @@ from palm_tracer.Processing import Grapher
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.Ui import print_warning
 
-# Tentative d'import QtWebEngine (via qtpy) —En cas d'UI defectueuse
+# Tentative d'import QtWebEngine (via qtpy) —En cas d'UI défectueuse
 try:
 	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
 
@@ -69,7 +69,7 @@ class BasePlotlyWidget(QWidget):
 	##################################################
 	def _make_web_widget(self):
 		"""
-		Créé un Widget pour integrer plotly.
+		Créé un Widget pour intégrer plotly.
 
 		:return: QWebEngineView ou QTextBrowser si indisponible.
 		"""

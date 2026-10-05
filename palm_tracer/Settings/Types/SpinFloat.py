@@ -50,13 +50,13 @@ class SpinFloat(BaseSettingType):
 		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[box])
 		ui.set_tooltip(self.tooltip)  # .					Ajout du Tooltip
 
-		box.setKeyboardTracking(False)  # .					Empèche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
+		box.setKeyboardTracking(False)  # .					Empêche la mise à jour à chaque appuie clavier (attend la fin de l'édition)
 		box.valueChanged.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
 		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
 		ui.layout.addStretch(1)  # .						Pousse tout à gauche, espace vide à droite.
 
-		self._uis[name] = ui  # .							Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .							Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################

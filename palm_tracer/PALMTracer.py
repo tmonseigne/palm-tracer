@@ -140,7 +140,7 @@ class PALMTracer:
 		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
 
 	##################################################
-	def _save_setting_group(self, group_name: Literal["HR", "Filters"]):
+	def save_setting_group(self, group_name: Literal["HR", "Filters"]):
 		"""
 		Met à jour un seul groupe dans le fichier de paramètres du traitement courant.
 
@@ -559,7 +559,7 @@ class PALMTracer:
 		"""Vide entièrement les DataFrames filtrés dans ``df``."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		self.results.reset_filtered()
-		self._save_setting_group("Filters")
+		self.save_setting_group("Filters")
 
 	##################################################
 	def update_filtered(self, last: bool = True):
@@ -586,7 +586,7 @@ class PALMTracer:
 			if len(self.results[key]) == len(self.results[f_key]): self.results[f_key] = pd.DataFrame()
 
 		if self.settings.filters["Save"].value: self.save_filtered()
-		self._save_setting_group("Filters")
+		self.save_setting_group("Filters")
 
 	##################################################
 	def save_filtered(self):
@@ -641,14 +641,14 @@ class PALMTracer:
 		if mode == 0:
 			bins = graph_data.get("bins", bins)
 			fit_limit = graph_data.get("fit_limit", -np.inf)
-			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
+			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonnian=poiss,
 										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
 		# --- Courbe Scatter plot ---
 		if mode == 1: return self._grapher.scatter(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, names=graph_data.get("names"))
 
 		# --- Nuage de points ---
 		return self._grapher.cloud(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
-								   poissonian=poiss, exponential=expo)
+								   poissonnian=poiss, exponential=expo)
 
 	##################################################
 	@staticmethod
@@ -744,7 +744,7 @@ class PALMTracer:
 		finite_values = pd.Series(np.where(np.isfinite(values), values, np.nan), index=df.index)
 		means = finite_values.groupby(df["Plane"].astype(int), sort=True).mean()
 		planes = np.arange(int(means.index.min()), int(means.index.max()) + 1, dtype=int)
-		# Les plans vides restent absents de la moyenne, contrairement au compte qui vaut zéro.
+		# Les plans vides restent absents de la moyenne, contrairement au compte qui vaut zéro
 		values = means.reindex(pd.Index(planes)).to_numpy(dtype=float)
 		graph_data["data"] = np.vstack((planes, self._log_data(values, log_scale)))
 		graph_data["title"] += " Mean per Plane"

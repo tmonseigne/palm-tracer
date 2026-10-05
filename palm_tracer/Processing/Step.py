@@ -80,7 +80,7 @@ def prepare_step_action(group: BaseSettingGroup, previous_group: BaseSettingGrou
 		else: return StepAction.Skip
 	# Si l'étape du process précédent était inactive
 	if not previous_group.active: return StepAction.Compute
-	# Si l'étape du process précédent était active, la courante également, comparaison des valeurs pour éviter un recalcul
+	# Si l'étape du process précédent était active, la courante également, comparaison des valeurs pour éviter un re-calcul
 	if group.to_compact_dict() == previous_group.to_compact_dict(): return StepAction.Reuse
 	# Valeurs différentes
 	return StepAction.Compute

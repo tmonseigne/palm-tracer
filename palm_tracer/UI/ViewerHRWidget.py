@@ -151,7 +151,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		scroll_layout.addWidget(grp_filters)
 		scroll_layout.addStretch()  # Optionnel, mais recommandé
 
-		# --- Mise en page globbale ---
+		# --- Mise en page globale ---
 		layout.addWidget(scroll_area)
 		layout.addLayout(actions_row)
 
@@ -245,7 +245,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 	##################################################
 	def _screenshot(self):  # pragma: no cover — Accès au canevas
-		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les régalges de color map, contraste."""
+		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les réglages de color map, contraste)."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
 			show_info("Screenshot saved successfully.")
@@ -325,7 +325,7 @@ class ViewerHRWidget(BaseNapariWidget):
 			roi_layer.visible = self._roi_visibility_before_rotation
 			self._roi_visibility_before_rotation = None
 		# self.viewer.reset_view()  # Recentrer et ajuster la vue
-		self.pt._save_setting_group("HR")
+		self.pt.save_setting_group("HR")
 
 	##################################################
 	def _update_visualization_layer(self):

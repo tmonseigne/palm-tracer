@@ -20,7 +20,10 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 ##################################################
 @pytest.fixture
 def drop_widget(qtbot, monkeypatch):
-	"""Crée une fenêtre PALMTracer et observe le chargement puis l'actualisation sans génération de rendu."""
+	"""Crée une fenêtre PALMTracer sans chargement initial ni callbacks de traitement des fichiers."""
+	# Ces méthodes sont appelées par le constructeur : les neutraliser avant toute création du widget.
+	monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
+	monkeypatch.setattr(PALMTracerWidget, "_connect_signal", lambda self: None)
 	window = QMainWindow()
 	qtbot.addWidget(window)
 	receiver = DropReceiver()
@@ -28,12 +31,10 @@ def drop_widget(qtbot, monkeypatch):
 	dock = QDockWidget(window)
 	widget = PALMTracerWidget(ViewerModel())
 	# Le modèle connecte lui-même la lecture de profondeur, indépendamment des signaux du widget.
+	monkeypatch.setattr(widget.pt.settings.batch, "get_plane_count", lambda: None)
 	dock.setWidget(widget)
 	window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
 
-	monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
-	monkeypatch.setattr(PALMTracerWidget, "_connect_signal", lambda self: None)
-	monkeypatch.setattr(widget.pt.settings.batch, "get_plane_count", lambda: None)
 	window.show()
 	return widget, receiver
 
@@ -179,7 +180,7 @@ def test_thread_process(qtbot):
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 	w._thread_process(w.pt.process)  # .						Appel de la méthode process
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-	w._thread_process(w._auto_threshold)  # .					Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
+	w._thread_process(w._auto_threshold)  # .					Appel de la méthode auto threshold mais impossible de l'exécuter dans ce contexte.
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 
 
@@ -307,7 +308,7 @@ def test_get_actual_image(qtbot):
 
 	add_basic_file(w.pt)  # .															 Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # .				 Attente : qu'il ait mis une image
-	assert w._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupéraiton de l'image
+	assert w._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupération de l'image
 	assert w._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
 	assert w._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # .Récupération d'une image hors limite
 
@@ -322,7 +323,7 @@ def test_preview(capsys, qtbot):
 
 	setting = w.pt.settings.localization
 	layers = w.viewer.layers
-	with setting.signal_blocked():  # L'éxecution ne devra pas être dans un sub-process pour vérifier la couverture (sans partir sur des configs complexes).
+	with setting.signal_blocked():  # L'exécution ne devra pas être dans un sub-process pour vérifier la couverture (sans partir sur des configs complexes).
 		w._preview()  # .										Passage si preview à False
 		setting["Preview"].value = True
 		qtbot.waitUntil(lambda: setting["Preview"].value, timeout=5000)

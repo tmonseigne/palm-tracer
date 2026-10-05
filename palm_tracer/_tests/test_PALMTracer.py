@@ -4,9 +4,9 @@ Teste l'orchestration complète des traitements par la classe :class:`PALMTracer
 .. note:: Certaines vérifications du journal portent uniquement sur le nombre de lignes, car chaque traitement en produit au moins quinze.
 """
 
-import shutil
 from datetime import datetime, timedelta
 from itertools import count
+from typing import Literal
 
 import pytest
 
@@ -245,7 +245,7 @@ def test_getter_suffix(pt):
 
 ##################################################
 @pytest.mark.parametrize("group_name", [pytest.param("HR", id="hr"), pytest.param("Filters", id="filters")])
-def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name):
+def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name: Literal["HR", "Filters"]):
 	"""Ignore un fichier de paramètres supprimé après l'initialisation du traitement."""
 	pt._path = str(tmp_path)
 	pt._timestamp = "20260101_000000"
@@ -255,7 +255,7 @@ def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name):
 	monkeypatch.setattr(FileIO, "open_json", lambda _: pytest.fail("Le fichier absent ne doit pas être lu."))
 	monkeypatch.setattr(FileIO, "save_json", lambda *_: pytest.fail("Le fichier absent ne doit pas être recréé."))
 
-	pt._save_setting_group(group_name)
+	pt.save_setting_group(group_name)
 
 	assert not settings_filename.exists()
 
@@ -716,18 +716,18 @@ def test_get_astigmatism_model():
 
 	pt._path = tmp_output
 
-	model = pt._get_astigmatism_model(Path(""))  # Il ne va pas reussir, il n'a aucun fichier
+	model = pt._get_astigmatism_model(Path(""))  # Il ne va pas réussir, il n'a aucun fichier
 	assert model.empty
 
 	shutil.copy2(REF_DIR / model_file, tmp_output.parent / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le dernier dossier par défaut
+	model = pt._get_astigmatism_model(Path(""))  # Il va réussir, dans le dernier dossier par défaut
 	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
 
 	shutil.copy2(REF_DIR / model_file, tmp_output / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va reussir, dans le premier dossier par défaut
+	model = pt._get_astigmatism_model(Path(""))  # Il va réussir, dans le premier dossier par défaut
 	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
 
-	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va reussir, dans le chemin donné
+	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va réussir, dans le chemin donné
 	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
 
 
@@ -760,7 +760,7 @@ def test_reset_filtered(capsys, pt):
 	pt.reset_filtered()
 	for key in pt.results:
 		if key.startswith("f_"): assert pt.results[key].empty, "Le Dataframe devrait être vide."
-		else: assert not pt.results[key].empty, "Le Dataframe doit subsiter."
+		else: assert not pt.results[key].empty, "Le Dataframe doit subsister."
 
 
 ##################################################
@@ -830,7 +830,7 @@ def test_update_button_does_not_accumulate_filters(qtbot, pt, key, filter_name):
 
 ##################################################
 def test_update_filtered_saves_only_filters(pt, tmp_path):
-	"""Vérifie que Update enregistre les filtres sans capturer les autres modifications."""
+	"""Vérifie qu'Update enregistre les filtres sans capturer les autres modifications."""
 	pt._path = str(tmp_path)
 	pt._timestamp = "20260102_000000"
 	settings_file = pt._output_name("settings", "json")
@@ -899,7 +899,7 @@ def test_filter_localization(capsys, pt, sequential_timestamps):
 	fl["MSE XY"].active = True
 	fl["MSE XY"].value = [0.05, 10]  # .	345/366 : 1 suppression(s)
 	pt.process()
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le resultat du filtre
+	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le résultat du filtre
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
 
 	pt.settings.filters["Save"].value = True
@@ -935,7 +935,7 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 	ft["Confinement"].value = [-10, 10]
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[5], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le resultat du filtre
+	check_output(OUTPUT_FOLDER, csv=[5], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le résultat du filtre
 	check_capsys(capsys, 21, [5, 6, 7, 10, 11, 16, 17, 18])
 
 	pt.settings.filters["Save"].value = True
@@ -974,7 +974,7 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 def test_graph(mode, source_type, source):
 	"""Construit une figure pour chaque source A de chaque domaine et mode, avec une source B fixe en Dual."""
 	pt = get_fake_pt()
-	# Les points et leurs analyses partagent les mêmes identifiants ; toutes les grandeurs de fit sont disponibles.
+	# Les points et leurs analyses partagent les mêmes identifiants ; toutes les grandeurs d'ajustement sont disponibles.
 	pt.results["f_blk"] = pd.DataFrame({"Track": [7, 7, 12, 12], "Plane": [1, 3, 2, 3], "Integrated Intensity": [10, 30, 20, 40]})
 	pt.results["MSD"] = pd.DataFrame({"Track": [7, 12], "Step 1": [1.0, 3.0], "Step 2": [2.0, 4.0]})
 	pt.results["InD"] = pd.DataFrame({"Track": [7, 12], "Window 1": [1.0, 3.0], "Window 2": [2.0, 4.0]})
@@ -1488,7 +1488,7 @@ def test_hr():
 	s["Drift Correction"].value = True
 	pt.results["bds"] = pd.DataFrame([[1, 1, 1, 1, 2, 3, 1, 1, 1, 0, 1],
 									  [1, 2, 2, 2, 3, 4, 1, 1, 1, 0, 1],
-									  [1, 3, 3, 50, 3, 4, 1, 1, 1, 0, 1],  # Valeur abhérrante gommée par le smooth
+									  [1, 3, 3, 50, 3, 4, 1, 1, 1, 0, 1],  # Valeur aberrante gommée par le smooth
 									  [1, 4, 4, 4, 3, 4, 1, 1, 1, 0, 1],
 									  [1, 5, 5, 5, 3, 4, 1, 1, 1, 0, 1]],
 									 columns=Parsing.FILES_COLUMNS["Beads"]["columns"])
@@ -1665,7 +1665,7 @@ def test_hr_filter():
 	hr_data = pt.hr()
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	ref_viz = np.zeros((10, 6), dtype=np.uint16)
-	ref_viz[6, 0] = 2  # Précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 × facteur d'agrandissement de 2 = -4)
+	ref_viz[6, 0] = 2  # Précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 × facteur d'agrandissement de 2 = -4).
 	ref_plot = [[0, 6, 0], [0, 8, 2], [0, 10, 4], [0, 6, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)
 	np.testing.assert_array_equal(plot, ref_plot)
@@ -1755,7 +1755,7 @@ def test_hr_z_stack():
 	hr_data = pt.hr()
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	# Les Z de 3 à 6 nm deviennent les plans 0 à 3 avec un pas de 1 nm.
-	# Le point du plan 3 est hors image en Y ; le plan 2 est conservé mais son intensité est nulle.
+	# Le point du plan 3 est hors image en Y ; le plan 2 est conservé, mais son intensité est nulle.
 	ref_viz = np.zeros((3, 10, 10), dtype=np.uint16)
 	ref_viz[0, 4, 2] = ref_viz[1, 6, 4] = 2
 	ref_plot = [[0, 4, 2], [1, 6, 4], [2, 8, 6], [3, 10, 8], [0, 4, 2], [1, 6, 4]]
@@ -1811,7 +1811,7 @@ def test_hr_stress():
 						  "Y":     bead_y,
 						  "Z":     np.zeros(n_p, dtype=float)})
 
-	# Loclaisation au centre
+	# Localisation au centre
 	loc = pd.DataFrame({"Plane":                np.arange(1, n_p + 1, dtype=int),
 						"X":                    np.full(n_p, n_x / 2.0, dtype=float),
 						"Y":                    np.full(n_p, n_y / 2.0, dtype=float),

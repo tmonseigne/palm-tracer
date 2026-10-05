@@ -126,7 +126,7 @@ def test_layer_styles_follow_shared_configuration(qtbot, monkeypatch, tmp_path):
 										   "plot_data":     np.array([[0, 0, 0], [0, 1, 1]], dtype=float),
 										   "plot_filtered": np.array([[0, 1, 0]], dtype=float)})
 	monkeypatch.setattr(pt, "output_viz_name", lambda: tmp_path / "visualization.tif")
-	monkeypatch.setattr(pt, "_save_setting_group", lambda group: None)
+	monkeypatch.setattr(pt, "save_setting_group", lambda group: None)
 	monkeypatch.setattr(pt.settings.rois, "update_hr", lambda: None)
 
 	generate(widget)
@@ -152,10 +152,10 @@ def test_results_status_automatic_update(qtbot):
 	results_ui = w.pt.results.get_ui(w.UI_NAME)
 
 	w.pt.results.reset()
-	assert results_ui._labels["Beads"].text() == "No"
+	assert results_ui.labels["Beads"].text() == "No"
 
 	w.pt.results["bds"] = pd.DataFrame(np.zeros((2, 1)))
-	assert results_ui._labels["Beads"].text() == "Yes (2 localizations)"
+	assert results_ui.labels["Beads"].text() == "Yes (2 localizations)"
 
 
 ##################################################
@@ -592,7 +592,7 @@ def test_generate_preserves_render_limits(generated_widget):
 	assert w.visualization.shape == ((y1 - y0) * 2, (x1 - x0) * 2)
 	np.testing.assert_array_equal(w._layers[w.LAYERS_NAME[0]].data, w.visualization)
 	points = w._layers[w.LAYERS_NAME[1]].data
-	# Vérification du décallage
+	# Vérification du décalage
 	np.testing.assert_allclose(points[:, -2], (pt.results.localizations["Y"] - y0) * 2)
 	np.testing.assert_allclose(points[:, -1], (pt.results.localizations["X"] - x0) * 2)
 
@@ -615,7 +615,7 @@ def test_generate_preserves_render_limits(generated_widget):
 
 ##################################################
 def test_generate_restores_box_without_image(generated_widget, capsys):
-	"""Une génération sans résultats conserve l'image, les points et le cadre déjà affichés."""
+	"""Une génération sans résultat conserve l'image, les points et le cadre déjà affichés."""
 	viewer, pt, w = generated_widget
 	pt.results.reset_filtered()
 	pt.results["loc"]["X"], pt.results["loc"]["Y"] = 20.25, 30.25  # Point unique dupliqué
@@ -842,7 +842,7 @@ def test_rotation_preserves_hidden_roi(generated_widget):
 
 ##################################################
 def test_visualization_layer_rgb_transitions():
-	"""Vérifie les axes des rendus 2D et 3D lors des transitions, sans fenêtre ni OpenGL."""
+	"""Vérifie les axes des rendus 2D et 3D lors des transitions, sans fenêtres ni OpenGL."""
 	viewer = ViewerModel()
 	layer = viewer.add_image(np.zeros((1, 1), dtype=np.uint16), name="Visualization")
 	viewer.add_points(np.empty((0, 3)), name="Points")

@@ -61,7 +61,7 @@ msgstr "Indicator of the minimum value of the setting (:class:`float`)."
 msgid "Indicateur de la valeur maximale du paramètre (:class:`float`)."
 msgstr "Indicator of the maximum value of the setting (:class:`float`)."
 
-#: palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.value:1
+#: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.value:1
 msgid "Valeur actuelle du paramètre (:class:`list[float]`)."
 msgstr "Current value of the setting (:class:`list[float]`)."
 
@@ -78,8 +78,8 @@ msgid "Accesseurs"
 msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.get_ui:1
-msgid "Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire."
-msgstr "Returns an existing :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` object, or creates one if necessary."
+msgid "Renvoie une interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) existante ou en crée une si nécessaire."
+msgstr "Returns an existing (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."

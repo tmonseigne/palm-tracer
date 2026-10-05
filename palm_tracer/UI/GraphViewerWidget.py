@@ -62,8 +62,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 		super().__init__()
 		self.setWindowTitle(self.UI_NAME)
 		# Initialisation des membres
-		self._pt = PALMTracer() if palmtracer is None else palmtracer
-		self._graph_settings: Graph = self._pt.settings.graph
+		self.pt = PALMTracer() if palmtracer is None else palmtracer
+		self._graph_settings: Graph = self.pt.settings.graph
 		self._drop_window: QWidget | None = None  # Fenêtre Qt dont les dépôts chargent une pile.
 		self._drop_accepts: bool = False  # État des dépôts à restaurer lorsque le widget est masqué.
 
@@ -85,7 +85,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 			- Zone droite :
 				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
 		"""
-		self._pt.clean_ui(self.UI_NAME)
+		self.pt.clean_ui(self.UI_NAME)
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
@@ -148,7 +148,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
-		self._filters = self._pt.settings.filters
+		self._filters = self.pt.settings.filters
 		self._filters_ui = self._filters.get_ui(self.UI_NAME)
 		vbox_filters.addWidget(self._filters_ui.widget)
 		# Masquage initial
@@ -165,13 +165,13 @@ class GraphViewerWidget(BasePlotlyWidget):
 		actions_row.addWidget(self._btn_export)
 
 		# --- Mise en page dans le scroll ---
-		scroll_layout.addWidget(self._pt.results.get_ui(self.UI_NAME).widget)
+		scroll_layout.addWidget(self.pt.results.get_ui(self.UI_NAME).widget)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_display)
 		scroll_layout.addWidget(grp_filters)
 		scroll_layout.addStretch()  # Optionnel mais recommandé
 
-		# --- Mise en page globbale ---
+		# --- Mise en page globale ---
 		vbox.addWidget(scroll_area)
 		vbox.addLayout(actions_row)
 
@@ -184,7 +184,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		# Connexion des boutons Filters de cette UI
-		self._pt.connect_filters_button(self.UI_NAME)
+		self.pt.connect_filters_button(self.UI_NAME)
 
 		# Sources
 		self._graph_settings["Type"].connect(self._toggle_type)
@@ -205,7 +205,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
-		try: self._pt.clean_ui(self.UI_NAME)
+		try: self.pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
 	# ==================================================
@@ -294,9 +294,9 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param path: Chemin local de la pile à ajouter au Batch partagé avec le widget principal.
 		"""
-		cast(FileList, self._pt.settings.batch["Files"]).add_files([path])
+		cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
 		# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
-		self._pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
+		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 		self._actualize()  # Actualisation des statuts
 
 	##################################################
@@ -307,7 +307,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-		self._fig = self._pt.graph()
+		self._fig = self.pt.graph()
 		self._update_web_widget()
 
 

@@ -277,7 +277,7 @@ class GaussianMixture:
 			\\sigma_k = \\sqrt{\\frac{1}{n_k}\\sum_{i:c_i=k}(x_i-\\mu_k)^2}.
 
 		Une composante contenant moins de deux observations reçoit provisoirement ``global_sigma``.
-		Chaque poids est minoré par la précision machine puis renormalisé, et chaque écart-type calculé est minoré par ``sigma_min``.
+		Chaque poids est minoré par la précision machine puis re-normalisé, et chaque écart-type calculé est minoré par ``sigma_min``.
 		Ces protections fournissent à Expectation-Maximization (EM) des paramètres finis et non singuliers.
 
 		:param data: Observations unidimensionnelles finies à regrouper.

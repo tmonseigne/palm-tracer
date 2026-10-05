@@ -8,4 +8,4 @@ from .Palm import Palm
 from .Renderer import Renderer
 
 # Définir la liste des symboles exportés
-__all__ = ["Drift", "Gallery", "Parsing", "Step", "Visualization", "Filtering", "GaussianMixture", "Grapher", "Palm", "Renderer"]
+__all__ = ["Drift", "Gallery", "Parsing", "Step", "Filtering", "GaussianMixture", "Grapher", "Palm", "Renderer"]

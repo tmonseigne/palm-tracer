@@ -1,7 +1,5 @@
 """Teste la migration des anciens résultats Metamorph."""
 
-import shutil
-
 import pytest
 
 from palm_tracer._tests.Utils import *
@@ -51,10 +49,9 @@ def test_analyze():
 
 
 ##################################################
-@pytest.mark.parametrize("args, kwargs, error", [pytest.param((), {}, RuntimeError, id="no-directory")])
-def test_analyze_invalid(args, kwargs, error):
+def test_analyze_without_directory():
 	"""Vérifie les erreurs attendues avant toute ouverture valide."""
-	with pytest.raises(error): FileMigrator().analyze(*args, **kwargs)
+	with pytest.raises(RuntimeError): FileMigrator().analyze()
 
 
 ##################################################
@@ -85,10 +82,9 @@ def test_migrate(capsys):
 
 
 ##################################################
-@pytest.mark.parametrize("args, kwargs, error", [pytest.param((), {}, RuntimeError, id="no-directory")])
-def test_migrate_invalid(args, kwargs, error):
-	"""Vérifie les erreurs attendues avant toute ouverture valide."""
-	with pytest.raises(error): FileMigrator().migrate(*args, **kwargs)
+def test_migrate_without_directory():
+	"""Vérifie que la migration échoue sans dossier ouvert."""
+	with pytest.raises(RuntimeError): FileMigrator().migrate()
 
 
 # ==================================================

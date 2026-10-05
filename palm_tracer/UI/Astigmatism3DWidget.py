@@ -207,7 +207,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		form.addRow(h)
 
 		self._btn_estimate = QPushButton("Estimate Z", tab_estimate)
-		self._btn_estimate.setToolTip("Estimate Z for all points in localizaation file with the loaded model.")
+		self._btn_estimate.setToolTip("Estimate Z for all points in localization file with the loaded model.")
 
 		tab_layout.addWidget(grp)
 		tab_layout.addWidget(grp_type)
@@ -256,7 +256,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
 		self._btn_estimate.clicked.connect(self._on_estimate)
 
-		# --- Lien entre les spins et les groueps de boutons ---
+		# --- Lien entre les spins et les groupes de boutons ---
 		self._spin_px_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_estimate, v))
 		self._spin_px_estimate.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_compute, v))
 		self._spin_z_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_z_estimate, v))
@@ -284,7 +284,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Mise à jour de l'onglet Sanity Check.
 
 		:param points: Points du jeu de donnée.
-		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 		"""
 		metrics = model_validity(points, model, pixel_size, 1)
@@ -452,7 +452,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Mise à jour de Z (si sélectionné) ---
 		if self._check_z_from_plane.isChecked():
 			if "Plane" not in work.columns:
-				Ui.print_warning("No Plane Column in file. We can't use it to intialize Z.")
+				Ui.print_warning("No Plane Column in file. We can't use it to initialize Z.")
 				return
 			work["Z"] = work["Plane"] * self._spin_z_interval.value()
 

@@ -35,31 +35,31 @@ def test_palm_cpu_empty_result():
 
 
 ##################################################
-@pytest.mark.parametrize("plane", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
+@pytest.mark.parametrize("p", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
 @pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
-def test_palm_cpu_image(plane, fit):
+def test_palm_cpu_image(p: int, fit: int):
 	"""Vérifie sur le lancement de PALM sur une frame."""
 	palm = Palm()
 	file = "stack"
 	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 	suffix = get_loc_suffix(fit)
 
-	localizations = palm.localization(stack[plane], default_threshold, default_watershed, fit, get_fit_params(fit))
-	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{plane}_{suffix}.csv", index=False)
+	localizations = palm.localization(stack[p], default_threshold, default_watershed, fit, get_fit_params(fit))
+	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{p}_{suffix}.csv", index=False)
 
 	assert len(localizations) > 0, "Aucune localisation trouvé"
 
-	path = REF_DIR / f"{file}-localizations-{plane}_{suffix}.csv"
+	path = REF_DIR / f"{file}-localizations-{p}_{suffix}.csv"
 	if path.exists() and path.is_file():
 		print(f"Comparaison avec : '{path}'")
 		ref = pd.read_csv(path)
-		assert compare_points(localizations, ref), f"Test invalide pour les paramètres {plane}_{suffix}"
+		assert compare_points(localizations, ref), f"Test invalide pour les paramètres {p}_{suffix}"
 
 
 ##################################################
 @pytest.mark.parametrize("watershed", [True, False], ids=['with-watershed', 'no-watershed'])
 @pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
-def test_palm_cpu_stack(watershed, fit):
+def test_palm_cpu_stack(watershed: bool, fit: int):
 	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	file = "stack"
@@ -123,22 +123,22 @@ def test_palm_cpu_stack_dll_check_quadrant():
 
 
 ##################################################
-@pytest.mark.parametrize("i", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
-def test_cpu_auto_threshold(i):
+@pytest.mark.parametrize("p", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
+def test_cpu_auto_threshold(p: int):
 	"""Vérifie l'auto-seuillage avec la DLL CPU."""
 	palm = Palm()
 	image = FileIO.open_tif(f"{INPUT_DIR}/stack.tif")
 	ref = [63.639888, 65.789447, 63.192296, 64.375352, 63.954150,
 		   63.400043, 66.521994, 63.373237, 62.515444, 63.866017]
-	res = palm.auto_threshold(image[i], get_fit_params(0))
+	res = palm.auto_threshold(image[p], get_fit_params(0))
 	# print(f"Image {i} : {res:.6f} VS {ref[i]:.6f}")
-	assert is_closed(res, ref[i]), f"Le seuil pour l'image {i} vaut {res} au lieu de {ref[i]}"
+	assert is_closed(res, ref[p]), f"Le seuil pour l'image {p} vaut {res} au lieu de {ref[p]}"
 
 
 ##################################################
 @pytest.mark.parametrize("watershed", [True, False], ids=['with-watershed', 'no-watershed'])
 @pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
-def test_tracking(watershed, fit):
+def test_tracking(watershed: bool, fit: int):
 	"""Vérifie le tracking."""
 	palm = Palm()
 	file = "stack"
@@ -185,24 +185,24 @@ def test_tracking_discontinuous():
 
 
 ##################################################
-@pytest.mark.parametrize("i", range(3), ids=['stationary', 'diffusion', 'linear'])
-def test_blinking_reconnection(i):
+@pytest.mark.parametrize("mode", range(3), ids=['stationary', 'diffusion', 'linear'])
+def test_blinking_reconnection(mode: int):
 	"""Vérifie la reconnexion et la conversion du nombre de plans manquants en écart entre plans."""
 	palm = Palm()
 	file = "tracking"
 	path = Path(f"{INPUT_DIR}/{file}.csv")
 	if path.exists() and path.is_file():
 		t_input = pd.read_csv(path)
-		t_output = palm.blinking_reconnection(t_input, 1, i, 3, 2)
-		if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{i}.csv", index=False)
+		t_output = palm.blinking_reconnection(t_input, 1, mode, 3, 2)
+		if save_output: t_output.round(6).to_csv(f"{OUTPUT_DIR}/{file}-blinking-{mode}.csv", index=False)
 
 		assert len(t_output) > 0, "Aucun Tracking trouvé"
 
-		ref_path = REF_DIR / f"{file}-blinking-{i}.csv"
+		ref_path = REF_DIR / f"{file}-blinking-{mode}.csv"
 		if ref_path.exists() and ref_path.is_file():
 			print(f"Comparaison avec : '{ref_path}'")
 			ref = pd.read_csv(ref_path)
-			assert compare_points(t_output, ref, group_cols=["Track", "Plane"]), f"Test invalide pour les paramètres {i}"
+			assert compare_points(t_output, ref, group_cols=["Track", "Plane"]), f"Test invalide pour les paramètres {mode}"
 	else:
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
@@ -242,7 +242,7 @@ def test_track_analysis(p):
 
 ##################################################
 @pytest.mark.parametrize("mode", range(4), ids=['no-fit', 'linear', 'power', 'exponential'])
-def test_track_analysis_fit_modes(mode):
+def test_track_analysis_fit_modes(mode: int):
 	"""Vérifie les quatre modes d’ajustement des trajectoires."""
 	palm = Palm()
 	file = "tracking2"
@@ -311,7 +311,7 @@ def test_align():
 
 	ref = np.stack([up2_nn(stack[z]) for z in range(stack.shape[0])], axis=0)
 	assert np.allclose(aligned[..., :-1, :-1], ref[..., :-1, :-1], atol=0, rtol=0), "Mode Upscale : le résultat doit être IDENTIQUE au stack d'origine."
-	# On supprime la derniere ligne et colonne car 0 padding en cas de débord dans l'algo original.
+	# On supprime la dernière ligne et colonne, car 0 padding en cas de débord dans l'algo original.
 
 	# --- Facteurs de test (transposition) ---
 	factors = np.zeros((2, 10), dtype=float)
@@ -320,12 +320,12 @@ def test_align():
 
 	aligned = palm.align(stack, factors, 1)
 	if save_output: FileIO.save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-transpose.tif")
-	assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgrè la transposition."
+	assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgré la transposition."
 
 
 ##################################################
-@pytest.mark.parametrize("i", range(5), ids=['level-0', 'level-1', 'level-2', 'level-3', 'level-4'])
-def test_wavelett(i):
+@pytest.mark.parametrize("level", range(5), ids=['level-0', 'level-1', 'level-2', 'level-3', 'level-4'])
+def test_wavelet(level: int):
 	"""Vérifie le comportement de récupérer un plan d'ondelette."""
 	palm = Palm()
 
@@ -333,9 +333,9 @@ def test_wavelett(i):
 	file = "stack"
 	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
 
-	wavelett = palm.wavelett(stack, i)
-	if save_output: FileIO.save_tif(wavelett, f"{OUTPUT_DIR}/{file}-wavelett-{i}.tif")
-	assert wavelett.shape == stack.shape, "Les dimensions doivent être identiques"
+	wavelet = palm.wavelet(stack, level)
+	if save_output: FileIO.save_tif(wavelet, f"{OUTPUT_DIR}/{file}-wavelet-{level}.tif")
+	assert wavelet.shape == stack.shape, "Les dimensions doivent être identiques"
 
 
 ##################################################

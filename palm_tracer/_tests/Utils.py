@@ -222,7 +222,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		for i, row_a in matched_a.iterrows():
 			row_b = matched_b.iloc[i]  # Récupération du point le plus proche
 
-			total_points += 1  # Un point est comparé donc incrémentaiton du compteur
+			total_points += 1  # Un point est comparé donc incrementation du compteur
 			diff = {}  # Dictionnaire de différence
 			exact_match = True  # Le point est identique
 
@@ -307,7 +307,7 @@ def get_light_json(data: dict) -> dict:
 
 	:return: Dictionnaire nettoyé destiné à une comparaison déterministe.
 	"""
-	# --- Suppresison de certains champs ---
+	# --- Suppression de certains champs ---
 	for trace in data.get("data", []): trace.pop("uid", None)  # UID
 
 	# Très souvent inutiles pour des tests de contenu
@@ -349,10 +349,10 @@ class _FakeDownload:
 class DropReceiver(QWidget):
 	"""Simule le destinataire Napari habituel pour détecter les dépôts non interceptés."""
 
-	def __init__(self):
+	def __init__(self, parent: QWidget | None = None):
 		"""Initialise l'acceptation des dépôts et leur historique."""
-		super().__init__()
-		self.received = []
+		super().__init__(parent)
+		self.received: list = []
 		self.setAcceptDrops(True)
 
 	def dragEnterEvent(self, event):

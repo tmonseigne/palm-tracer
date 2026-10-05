@@ -1,6 +1,7 @@
 """Teste les utilitaires de construction et de synchronisation des interfaces Qt."""
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 from qtpy.QtCore import Qt
@@ -54,8 +55,8 @@ def test_make_info_grid(qtbot, with_units):
 	"""Vérifie la construction de la grille avec ou sans unités et infobulles."""
 	parent = QWidget()
 	qtbot.addWidget(parent)
-	elements = {"1": {"label": QLabel("1"), "value": QLabel("-")},
-				"2": {"label": QLabel("2"), "value": QLabel("-")}}
+	elements: dict[str, Any] = {"1": {"label": QLabel("1"), "value": QLabel("-")},
+								"2": {"label": QLabel("2"), "value": QLabel("-")}}
 	if with_units:
 		elements["1"].update(unit=QLabel("unit"), tips="tooltips")
 		elements["2"].update(unit=QLabel("unit"), tips="")
@@ -181,10 +182,10 @@ def test_sync_spin(qtbot):
 	spin_2.valueChanged.connect(lambda v: Ui.sync_spin(spin_1, v))
 
 	spin_1.setValue(4)  # Mise à jour du premier
-	assert spin_2.value() == 4  # Vérificaiton sur le second
+	assert spin_2.value() == 4  # Vérification sur le second
 
 	spin_2.setValue(5)  # Mise à jour du second
-	assert spin_1.value() == 5  # Vérificaiton sur le premier
+	assert spin_1.value() == 5  # Vérification sur le premier
 
 
 ##################################################

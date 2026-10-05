@@ -12,7 +12,7 @@ from palm_tracer.Processing.Drift import _assign_tracks_to_points_greedy  # Cert
 ##################################################
 @pytest.mark.parametrize("function", [pytest.param(extract_beads, id="bead-extraction"), pytest.param(get_drift, id="drift-computation")])
 def test_empty_data(function):
-	"""Vérifie les retours vides sans erreur pour une entrée vide."""
+	"""Vérifie les retours vides sans erreurs pour une entrée vide."""
 	assert function(pd.DataFrame()).empty
 
 

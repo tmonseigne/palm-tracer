@@ -46,6 +46,10 @@ msgstr "three fields to control the High-Resolution display settings,"
 msgid "Noms des calques gérés par la visionneuse haute résolution."
 msgstr "Names of the layers managed by the high-resolution viewer."
 
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.DROP_MULTIPLE:1
+msgid "Limite chaque dépôt à une seule pile locale."
+msgstr "Restricts each drop to a single local stack."
+
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.closeEvent:1
 msgid "Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre."
 msgstr "Clearing the settings UI when the window is closed."
@@ -94,10 +98,10 @@ msgstr "Creates a new dedicated Napari HR window."
 msgid "Retourne un QWidget stub (caché) juste pour satisfaire l'API \"widget plugin\" de Napari."
 msgstr "Returns a hidden stub QWidget solely to satisfy Napari's \"widget plugin\" API."
 
-#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:8
+#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:7
 msgid "Visionneuse Napari courante, volontairement ignorée."
 msgstr "Current Napari viewer, intentionally ignored."
 
-#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:9
+#: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:8
 msgid "Widget factice masqué attendu par l'API des plugins Napari."
 msgstr "Hidden stub widget expected by the Napari plugin API."

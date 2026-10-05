@@ -297,7 +297,7 @@ def update_path_label(lbl: QLabel, path: str | Path):
 ##################################################
 def make_vertical_scroll(widget: QWidget) -> QScrollArea:
 	"""
-	Crééer une zone scrollable verticalement.
+	Créer une zone scrollable verticalement.
 
 	:param widget: Widget à placer dans la zone de défilement.
 	:return: La :class:`QScrollArea` configuré.

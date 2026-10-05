@@ -50,7 +50,7 @@ class Combo(BaseSettingType):
 		ui.layout.addWidget(box)  # .							   Ajout du champ de texte.
 		ui.layout.addStretch(1)  # .							   Pousse tout à gauche, espace vide à droite.
 
-		self._uis[name] = ui  # .								   Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .								   Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################

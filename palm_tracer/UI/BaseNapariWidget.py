@@ -111,7 +111,7 @@ class BaseNapariWidget(QWidget):
 		Intercepte les fichiers locaux dans la fenêtre cible et délègue leur traitement.
 
 		Les autres fenêtres et les glissements sans fichier local restent inchangés.
-		Un dépôt local invalide est consommé mais refusé avant son traitement par Napari.
+		Un dépôt local invalide est consommé, mais refusé avant son traitement par Napari.
 
 		:param watched: Objet Qt destinataire de l'événement.
 		:param event: Événement à filtrer.

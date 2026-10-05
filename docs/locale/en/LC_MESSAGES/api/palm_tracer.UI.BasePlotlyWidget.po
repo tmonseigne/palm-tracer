@@ -50,7 +50,3 @@ msgstr "Miscellaneous"
 #: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.closeEvent:1
 msgid "Assure une destruction propre de QtWebEngine (évite warnings et crash à la sortie)."
 msgstr "Ensures that QtWebEngine is properly destroyed (prevents warnings and crashes upon exit)."
-
-#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.closeEvent
-msgid "Type renvoyé"
-msgstr "Return type"

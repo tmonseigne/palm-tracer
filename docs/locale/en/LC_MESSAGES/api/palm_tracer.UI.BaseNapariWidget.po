@@ -1,0 +1,123 @@
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:2
+msgid "BaseNapariWidget"
+msgstr ""
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget:1
+msgid "Partage les références et l'interception des dépôts dans une fenêtre Napari."
+msgstr "Shares references and drop interception in a Napari window."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget:3
+msgid "Les classes filles définissent leurs noms de calques et le traitement des fichiers déposés."
+msgstr "Subclasses define their layer names and how dropped files are processed."
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget:5
+msgid "Visionneuse Napari utilisée sans copie."
+msgstr "Napari viewer used without copying."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget:6
+msgid "Instance PALMTracer partagée, ou :obj:`None` pour en créer une."
+msgstr "Shared PALMTracer instance, or :obj:`None` to create one."
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.UI_NAME:1
+msgid "Nom de l'interface, à redéfinir dans chaque classe fille."
+msgstr "Interface name, to be overridden in each subclass."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.LAYERS_NAME:1
+msgid "Noms des calques, à redéfinir dans chaque classe fille."
+msgstr "Layer names, to be overridden in each subclass."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.LAYER_ARGS:1
+msgid "Styles communs des points et des contours de ROI ; les classes filles peuvent les redéfinir."
+msgstr "Common styles for points and ROI outlines; subclasses may override them."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.DROP_MULTIPLE:1
+msgid "Autorise plusieurs URL par dépôt ; les visualiseurs d'une seule pile redéfinissent cette constante."
+msgstr "Allows multiple URLs per drop; single-stack viewers override this constant."
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:17
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:20
+msgid "Glisser-déposer"
+msgstr "Drag and drop"
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.showEvent:1
+msgid "Active l'interception après l'insertion du plugin dans sa fenêtre Qt."
+msgstr "Enables interception after the plugin is inserted into its Qt window."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.showEvent:3
+msgid "Événement d'affichage Qt."
+msgstr "Qt show event."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.hideEvent:1
+msgid "Retire le filtre et restaure les dépôts si la fenêtre Qt existe encore."
+msgstr "Removes the filter and restores drop acceptance if the Qt window still exists."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.hideEvent:3
+msgid "Événement de masquage Qt."
+msgstr "Qt hide event."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:1
+msgid "Intercepte les fichiers locaux dans la fenêtre cible et délègue leur traitement."
+msgstr "Intercepts local files in the target window and delegates their processing."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:3
+msgid "Les autres fenêtres et les glissements sans fichier local restent inchangés. Un dépôt local invalide est consommé, mais refusé avant son traitement par Napari."
+msgstr "Other windows and drags without a local file remain unaffected. An invalid local drop is consumed but rejected before Napari processes it."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:6
+msgid "Objet Qt destinataire de l'événement."
+msgstr "Qt object receiving the event."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:7
+msgid "Événement à filtrer."
+msgstr "Event to filter."
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:8
+msgid "``True`` si l'événement est consommé."
+msgstr "``True`` if the event is consumed."
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:27
+msgid "Calques"
+msgstr "Layers"
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.update_layer:1
+msgid "Met à jour un calque Napari en le rendant temporairement visible."
+msgstr "Updates a Napari layer by making it temporarily visible."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.update_layer:3
+msgid "Ce contournement évite les erreurs de rendu pouvant survenir lors de la modification d'un calque masqué. Les données sont affectées avant les propriétés supplémentaires. À la fin de la mise à jour, la visibilité initiale est restaurée si le paramètre de visibilité vaut :obj:`None`, sinon l'état demandé est appliqué."
+msgstr "This workaround prevents rendering errors that may occur when modifying a hidden layer. The data are assigned before the additional properties. At the end of the update, the initial visibility is restored if the visibility parameter is :obj:`None`; otherwise, the requested state is applied."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.update_layer:7
+msgid "Calque Napari à mettre à jour."
+msgstr "Napari layer to update."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.update_layer:8
+msgid "Nouvelles données du calque."
+msgstr "New layer data."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.update_layer:9
+msgid "Visibilité finale, ou :obj:`None` pour conserver l'état initial."
+msgstr "Final visibility, or :obj:`None` to preserve the initial state."
+
+#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.update_layer:10
+msgid "Propriétés supplémentaires à affecter après les données."
+msgstr "Additional properties to assign after the data."

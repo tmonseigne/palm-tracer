@@ -241,14 +241,14 @@ class FileMigrator:
 
 		Le fichier de sortie est nommé : ``<new_name>-<timestamp>.csv`` où ``new_name`` correspond à ``FILES_LINK["A3D"].new``.
 		"""
-		if len(self.files["A3D"]) == 0: Ui.print_warning("No Astimagmatism 3D Model file in folder.")
+		if len(self.files["A3D"]) == 0: Ui.print_warning("No Astigmatism 3D Model file in folder.")
 		else:
 			file = self.files["A3D"][0]
 			data, header = self.open_old_file(file, header=False, skiprows=2)
 			data.columns = FILES_COLUMNS["Astigmatism 3D Model"]["columns"]
 			data.index = MODEL_ROWS
 			data.to_csv(self.output_folder / f"astigmatism_3d_model-{self.suffix}.csv")  # Enregistrement
-			Ui.print_success("Astimagmatism 3D Model file migrated.")
+			Ui.print_success("Astigmatism 3D Model file migrated.")
 
 	##################################################
 	def migrate_tracks_msd(self):

@@ -12,8 +12,9 @@ class SignalWrapper(QObject):
 	"""
 	Encapsule un signal Qt et regroupe les émissions produites pendant son blocage.
 
-	Les connexions et déconnexions sont déléguées au signal interne. Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement
-	la dernière valeur ; celle-ci est émise une seule fois à la sortie du blocage externe.
+	Les connexions et déconnexions sont déléguées au signal interne.
+	Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement la dernière valeur ;
+	celle-ci est émise une seule fois à la sortie du blocage externe.
 	"""
 
 	_signal = Signal(object)
@@ -42,7 +43,7 @@ class SignalWrapper(QObject):
 
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
 		"""
-		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté.
+		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnectés.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés.

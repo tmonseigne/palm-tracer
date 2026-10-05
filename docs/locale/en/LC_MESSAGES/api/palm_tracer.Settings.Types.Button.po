@@ -31,8 +31,8 @@ msgid "Réinitialise le paramètre à sa valeur par défaut."
 msgstr "Resets the setting to its default value."
 
 #: of palm_tracer.Settings.Types.Button.Button.get_ui:1
-msgid "Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire."
-msgstr "Returns an existing :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` object, or creates one if necessary."
+msgid "Renvoie une interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) existante ou en crée une si nécessaire."
+msgstr "Returns an existing (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.Button.Button.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."

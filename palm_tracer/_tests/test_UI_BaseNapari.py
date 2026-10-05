@@ -253,7 +253,7 @@ def test_drop_ignores_inactive_target(qtbot, tmp_path, monkeypatch, scenario):
 ##################################################
 @pytest.mark.parametrize("scenario", ["hide", "show"], ids=["hide-after-destruction", "show-after-destruction"])
 def test_drop_filter_handles_deleted_window(drop_widget, scenario):
-	"""Vérifie le masquage et le réaffichage après destruction de la fenêtre mémorisée."""
+	"""Vérifie le masquage et le ré-affichage après destruction de la fenêtre mémorisée."""
 	widget, _, calls = drop_widget
 	window = QWidget()
 	window.deleteLater()

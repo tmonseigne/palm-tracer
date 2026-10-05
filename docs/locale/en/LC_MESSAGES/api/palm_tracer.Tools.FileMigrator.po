@@ -233,20 +233,17 @@ msgstr "The output file is named: ``<new_name>-<timestamp>.csv`` where ``new_nam
 msgid "Migre le fichier MSD (Mean Square Displacement) PALMTracer."
 msgstr "Migrates the PALMTracer MSD (Mean Square Displacement) file."
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:4
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:4
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:4
 msgid "lit un fichier à structure irrégulière (nombre de colonnes variable par ligne)"
 msgstr "Reads a file with an irregular structure (variable number of columns per row)"
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:5
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:5
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:5
 msgid "supprime la colonne ROI (première colonne)"
 msgstr "removes the ROI column (first column)"
 
-#: of
-#: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:6
+#: of palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_instant_diffusion:6
 #: palm_tracer.Tools.FileMigrator.FileMigrator.migrate_tracks_msd:6
 msgid "renomme les colonnes sous la forme : ``Track, <metric> 1, <metric> 2, ..., <metric> N`` ;"
 msgstr "renames the columns as: ``Track, <metric> 1, <metric> 2, ..., <metric> N``;"

@@ -50,7 +50,7 @@ class ButtonGroup(BaseSettingType):
 		self.group[name].button(self.value).setChecked(True)
 		self.group[name].idClicked.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
-		self._uis[name] = ui  # .									  Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .									  Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################

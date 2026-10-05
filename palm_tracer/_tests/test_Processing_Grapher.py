@@ -75,7 +75,7 @@ def test_histogram(args, kwargs, filename, reference):
 		pytest.param((POINTS, 'Histogram', '', '',), {'gaussian': True}, 'grapher_Histogram_3_gaussian.json', id="gaussian"),
 		pytest.param((np.concatenate((POINTS - 2.0, POINTS + 2.0)), 'Histogram',), {'gaussian_mixture': True}, 'grapher_Histogram_3_gaussian_mix.json',
 					 id="gaussian-mixture"),
-		pytest.param((POINTS, 'Histogram', '', '',), {'poissonian': True}, 'grapher_Histogram_3_poissonian.json', id="poisson"),
+		pytest.param((POINTS, 'Histogram', '', '',), {'poissonnian': True}, 'grapher_Histogram_3_poissonnian.json', id="poisson"),
 		pytest.param((POINTS, 'Histogram', '', '',), {'exponential': True}, 'grapher_Histogram_3_exponential.json', id="exponential"),
 		pytest.param((POINTS, 'Histogram', '', '',), {'gaussian': True, 'density': False}, 'grapher_Histogram_3_count.json', id="gaussian-counts")])
 def test_histogram_curves(args, kwargs, filename):
@@ -83,13 +83,13 @@ def test_histogram_curves(args, kwargs, filename):
 	figure = Grapher().histogram(*args, **kwargs)
 	# Les courbes ajustées peuvent varier selon les versions de SciPy et le système.
 	assert isinstance(figure, go.Figure)
-	options = dict(zip(("limit", "show_sigma", "kde", "gaussian", "poissonian", "exponential"), args[4:10]))
+	options = dict(zip(("limit", "show_sigma", "kde", "gaussian", "poissonnian", "exponential"), args[4:10]))
 	options.update(kwargs)
 	expected_names = ["Histogram"]
 	if options.get("kde"): expected_names.append("KDE")
 	if options.get("gaussian"): expected_names.append("Gaussian")
 	if options.get("gaussian_mixture"): expected_names.extend(["Gaussian component 1", "Gaussian component 2", "Gaussian mixture"])
-	if options.get("poissonian"): expected_names.append("Poisson")
+	if options.get("poissonnian"): expected_names.append("Poisson")
 	if options.get("exponential"): expected_names.append("Exponential")
 	assert [trace.name for trace in figure.data] == expected_names
 	for trace in figure.data[1:]:
@@ -103,7 +103,7 @@ def test_histogram_curves(args, kwargs, filename):
 @pytest.mark.parametrize("distribution, name", [
 		pytest.param("kde", "KDE", id="kde"),
 		pytest.param("gaussian", "Gaussian", id="gaussian"),
-		pytest.param("poissonian", "Poisson", id="poisson"),
+		pytest.param("poissonnian", "Poisson", id="poisson"),
 		pytest.param("exponential", "Exponential", id="exponential")])
 @pytest.mark.parametrize("density, cumulative", [
 		pytest.param(True, False, id="density"),
@@ -112,7 +112,7 @@ def test_histogram_curves(args, kwargs, filename):
 		pytest.param(False, True, id="cumulative-counts")])
 @pytest.mark.parametrize("fit_limit", [pytest.param(0.0, id="zero"), pytest.param(1e-5, id="diffusion-floor")])
 def test_histogram_fit_limit(distribution, name, density, cumulative, fit_limit):
-	"""Vérifie le seuil strict du fit et sa normalisation sans retirer de valeurs de l'histogramme."""
+	"""Vérifie le seuil strict de l'ajustement et sa normalisation sans retirer de valeurs de l'histogramme."""
 	valid = np.array([2.0, 3.0, 4.0, 5.0])
 	points = np.concatenate(([-1.0, fit_limit, fit_limit], valid, [np.nan, np.inf]))
 	figure = Grapher().histogram(points, bins=4, density=density, cumulative=cumulative, fit_limit=fit_limit, **{distribution: True})
@@ -124,14 +124,14 @@ def test_histogram_fit_limit(distribution, name, density, cumulative, fit_limit)
 	# SciPy fournit une référence indépendante pour les paramètres estimés sur les seules valeurs admissibles.
 	if distribution == "kde": expected = gaussian_kde(valid)(x)
 	elif distribution == "gaussian": expected = norm.pdf(x, loc=valid.mean(), scale=valid.std())
-	elif distribution == "poissonian": expected = poisson.pmf(x, mu=valid.mean())
+	elif distribution == "poissonnian": expected = poisson.pmf(x, mu=valid.mean())
 	else: expected = expon.pdf(x, scale=valid.mean())
 	if cumulative:
 		expected = np.cumsum(expected)
 		expected /= expected[-1]
 		expected *= valid.size / len(histogram.x) if density else valid.size
 	elif density: expected *= valid.size / len(histogram.x)
-	else: expected *= valid.size * (1.0 if distribution == "poissonian" else histogram.xbins.size)
+	else: expected *= valid.size * (1.0 if distribution == "poissonnian" else histogram.xbins.size)
 	np.testing.assert_allclose(curve.y, expected)
 	if cumulative: assert curve.y[-1] == pytest.approx(valid.size / len(histogram.x) if density else valid.size)
 
@@ -143,7 +143,7 @@ def test_histogram_fit_limit(distribution, name, density, cumulative, fit_limit)
 		pytest.param(np.array([-1.0, 0.0, 1.0, 1.0]), 0.0, id="constant-admissible-values")])
 def test_histogram_fit_limit_without_distribution(points, fit_limit):
 	"""Conserve l'histogramme seul quand les données admissibles ne permettent aucun ajustement."""
-	figure = Grapher().histogram(points, fit_limit=fit_limit, kde=True, gaussian=True, gaussian_mixture=True, poissonian=True, exponential=True)
+	figure = Grapher().histogram(points, fit_limit=fit_limit, kde=True, gaussian=True, gaussian_mixture=True, poissonnian=True, exponential=True)
 	assert len(figure.data) == 1
 	np.testing.assert_array_equal(figure.data[0].x, points)
 
@@ -257,7 +257,7 @@ def test_cloud(args, kwargs, filename, reference):
 @pytest.mark.parametrize("args, kwargs, filename", [
 		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'kde': True}, 'grapher_cloud_4_kde.json', id="kde"),
 		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'gaussian': True}, 'grapher_cloud_4_gaussian.json', id="gaussian"),
-		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'poissonian': True}, 'grapher_cloud_4_poissonian.json', id="poisson"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'poissonnian': True}, 'grapher_cloud_4_poissonnian.json', id="poisson"),
 		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'exponential': True}, 'grapher_cloud_4_exponential.json', id="exponential")])
 def test_cloud_curves(args, kwargs, filename):
 	"""Vérifie chaque configuration du graphique indépendamment."""
@@ -332,7 +332,7 @@ def test_histogram_poisson_distribution():
 	"""Exporte une distribution de Poisson et sa courbe ajustée pour comparaison visuelle."""
 	# Des classes centrées sur les entiers permettent de comparer les barres aux probabilités de Poisson.
 	points = rng.poisson(lam=4.0, size=10000)
-	figure = Grapher().histogram(points, "Poisson distribution (lambda = 4)", poissonian=True, density=True, bins=-1)
+	figure = Grapher().histogram(points, "Poisson distribution (lambda = 4)", poissonnian=True, density=True, bins=-1)
 	_save_output(figure, OUTPUT_DIR / "grapher_visual_poisson.json")
 
 

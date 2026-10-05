@@ -126,7 +126,7 @@ def test_base_ui_no_label(qtbot):
 ###################################################
 def test_spin_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
-	setting = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
+	setting = SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
 	setting_base_test(setting, 5, 1)
 
 
@@ -578,8 +578,8 @@ def test_button_group(qtbot):
 ###################################################
 def test_sync(qtbot):
 	"""Vérifie la classe abstraite."""
-	spin_1 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
-	spin_2 = SpinInt("Test", "With a toooltip", 1, [0, 10], 1)
+	spin_1 = SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
+	spin_2 = SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
 	spin_1.sync(spin_2)
 	spin_1.value = 5
 	assert spin_2.value == 5, "Valeur non valide."

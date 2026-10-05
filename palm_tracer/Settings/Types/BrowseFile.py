@@ -50,7 +50,7 @@ class BrowseFile(BaseSettingType):
 		ui.layout.addWidget(box)  # .						Ajout du champ de texte.
 		ui.layout.addWidget(browse_button)  # .				Ajout du Bouton.
 
-		self._uis[name] = ui  # .							Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .							Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################

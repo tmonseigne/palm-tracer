@@ -56,8 +56,8 @@ msgid "Accesseurs"
 msgstr "Accessors"
 
 #: of palm_tracer.Settings.Types.FileList.FileList.get_ui:1
-msgid "Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire."
-msgstr "Returns an existing :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` object, or creates one if necessary."
+msgid "Renvoie une interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) existante ou en crée une si nécessaire."
+msgstr "Returns an existing (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."
@@ -95,6 +95,18 @@ msgstr "Callbacks"
 #: of palm_tracer.Settings.Types.FileList.FileList.add_file:1
 msgid "Ajoute des fichiers à la liste via un :class:`QFileDialog`."
 msgstr "Adds one or more files to the list using a :class:`QFileDialog`."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.add_files:1
+msgid "Ajoute les fichiers existants en triant uniquement le nouveau lot."
+msgstr "Adds existing files, sorting only the new batch."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.add_files:3
+msgid "Les dossiers et chemins inexistants sont ignorés. Les doublons sont conservés, comme lors de l'ajout par la boîte de dialogue. Le dernier fichier ajouté est sélectionné et les interfaces sont synchronisées avec une seule notification."
+msgstr "Directories and nonexistent paths are ignored. Duplicates are retained, as when adding files through the dialog box. The last file added is selected and the interfaces are synchronized with a single notification."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.add_files:7
+msgid "Chemins locaux des fichiers à ajouter."
+msgstr "Local paths of the files to add."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.remove_file:1
 msgid "Supprime le fichier actuellement sélectionné dans la :class:`QComboBox`."

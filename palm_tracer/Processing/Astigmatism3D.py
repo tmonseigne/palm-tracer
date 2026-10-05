@@ -111,9 +111,9 @@ def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 ##################################################
 def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sampling: float = 1) -> np.ndarray | float:
 	"""
-	Modèle astigmatique sigma(z).
+	Modèle d'astigmatisme sigma(z).
 
-	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z: Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle.
 	:param pixel_size: Taille des pixels en nanomètres.
 	:param sampling: Facteur d'agrandissement (les fichiers de localisation sauvegardés le sont avant agrandissement donc à laisser à 1).
@@ -148,7 +148,7 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 	  Note : R² peut être négatif si le modèle est très mauvais.
 
 	:param dataset: Tableau (N, 3) contenant les colonnes [Sx, Sy, Z] (sigmas en pixels, Z en unités cohérentes avec le modèle).
-	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param pixel_size: Taille pixel dans les mêmes unités que Z (par ex. nm), utilisée dans le calcul de sigma.
 	:param sampling: Facteur d'échantillonnage (adimensionnel) appliqué dans le calcul de sigma (laisser à 1).
 	:return: Dictionnaire de métriques : RMSE/MAE (en pixels) et R² (adimensionnel) pour X, Y et global.
@@ -178,7 +178,7 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 ##################################################
 def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: float, pixel_size: float, n_curve: int = 5000, sampling: float = 1) -> dict:
 	"""
-	Évalue la validité d'un modèle astigmatique pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle.
+	Évalue la validité d'un modèle d'astigmatisme pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle.
 
 	Le Z estimé correspond au point de la courbe le plus proche dans le plan (SigmaX, SigmaY).
 	Les métriques retournées quantifient à la fois la précision axiale et la cohérence des données avec le modèle.
@@ -204,7 +204,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	- slope_mean : Pente moyenne de la courbe σx(z) - σy(z) en pixel par nanomètres.
 
 	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
-	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
 	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z. Doit être suffisamment grand pour éviter une quantification de Z.
@@ -250,17 +250,17 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 ##################################################
 def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> float:
 	"""
-	Recherche la position axiale pour laquelle les deux sigmas astigmatiques sont les plus proches.
+	Recherche la position axiale pour laquelle les deux sigmas sont les plus proches.
 
 	La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter :
 		- soit un zéro exact de la différence entre les deux courbes de sigma ;
 		- soit un changement de signe, auquel cas une bissection locale est appliquée ;
 		- soit, à défaut, la position minimisant la valeur absolue de cette différence.
 
-	:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
 	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
-	:return: Position axiale estimée du centre astigmatique.
+	:return: Position axiale estimée du centre de l'astigmatisme.
 	"""
 	z_min = -z_max
 	n_samples, n_bisect = 2048, 64

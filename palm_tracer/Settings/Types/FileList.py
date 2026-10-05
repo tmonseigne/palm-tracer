@@ -66,7 +66,7 @@ class FileList(BaseSettingType):
 		ui.layout.addLayout(actions)
 		ui.layout.addWidget(combo)
 
-		self._uis[name] = ui  # .								   Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .								   Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################

@@ -4,7 +4,7 @@ import pytest
 from qtpy.compat import isalive
 from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPoint, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
-from qtpy.QtWidgets import QApplication, QPushButton, QScrollArea, QWidget
+from qtpy.QtWidgets import QApplication, QPushButton, QScrollArea
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.PALMTracer import PALMTracer
@@ -29,8 +29,8 @@ def stack_drop_widget(qtbot, monkeypatch):
 	widget = GraphViewerWidget(PALMTracer())
 	qtbot.addWidget(widget)
 	calls = []
-	files = cast(FileList, widget._pt.settings.batch["Files"])
-	monkeypatch.setattr(widget._pt, "load", lambda path="": calls.append(("load", Path(path))))
+	files = cast(FileList, widget.pt.settings.batch["Files"])
+	monkeypatch.setattr(widget.pt, "load", lambda path="": calls.append(("load", Path(path))))
 	monkeypatch.setattr(widget, "_update_plot", lambda: calls.append(("plot", Path(files.current_text))))
 	widget.show()
 	return widget, calls
@@ -79,13 +79,13 @@ def test_widget_creation(w: GraphViewerWidget, qtbot):
 def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
 	"""Vérifie que les statuts sont actualisés directement par Results."""
 	qtbot.addWidget(w)
-	results_ui = w._pt.results.get_ui(w.UI_NAME)
+	results_ui = w.pt.results.get_ui(w.UI_NAME)
 
-	w._pt.results.reset()
-	assert results_ui._labels["Localizations"].text() == "No"
+	w.pt.results.reset()
+	assert results_ui.labels["Localizations"].text() == "No"
 
-	w._pt.results["loc"] = pd.DataFrame(np.zeros((2, 1)))
-	assert results_ui._labels["Localizations"].text() == "Yes (2 localizations)"
+	w.pt.results["loc"] = pd.DataFrame(np.zeros((2, 1)))
+	assert results_ui.labels["Localizations"].text() == "Yes (2 localizations)"
 
 
 ##################################################
@@ -142,7 +142,7 @@ def test_stack_drop_ignores_inactive_target(stack_drop_widget, scenario):
 	# Après masquage, le filtre est retiré de l'application : on simule directement un événement tardif.
 	assert not widget.eventFilter(receiver, drop)
 	assert not drop.isAccepted()
-	assert widget._pt.settings.batch["Files"].items == []
+	assert widget.pt.settings.batch["Files"].items == []
 	assert calls == []
 
 
@@ -160,7 +160,7 @@ def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target):
 	assert widget._drop_window is widget
 	assert all(event.isAccepted() for event in events)
 	assert widget._web.received == []
-	assert [Path(path) for path in widget._pt.settings.batch["Files"].items] == [INPUT_FILE]
+	assert [Path(path) for path in widget.pt.settings.batch["Files"].items] == [INPUT_FILE]
 	assert calls == [("load", OUTPUT_DIR), ("plot", INPUT_FILE)]
 	assert all(button.text() != "Add Stack" for button in widget.findChildren(QPushButton))
 
@@ -181,7 +181,7 @@ def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario)
 
 	assert not any(event.isAccepted() for event in events)
 	assert widget._web.received == []
-	assert widget._pt.settings.batch["Files"].items == []
+	assert widget.pt.settings.batch["Files"].items == []
 	assert calls == []
 
 
@@ -203,14 +203,14 @@ def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenari
 	send_stack_drop(receiver, mime)
 
 	assert receiver.received == ["enter", "drop"]
-	assert widget._pt.settings.batch["Files"].items == []
+	assert widget.pt.settings.batch["Files"].items == []
 	assert calls == []
 
 
 ##################################################
 @pytest.mark.parametrize("initial_accepts", [False, True], ids=["drops-disabled", "drops-enabled"])
 def test_stack_drop_follows_visibility(stack_drop_widget, initial_accepts):
-	"""Vérifie la restauration des dépôts et l'installation du filtre après réaffichage."""
+	"""Vérifie la restauration des dépôts et l'installation du filtre après ré-affichage."""
 	widget, calls = stack_drop_widget
 	widget.hide()
 	widget.setAcceptDrops(initial_accepts)
@@ -244,11 +244,11 @@ def test_change_type(w: GraphViewerWidget, qtbot):
 	w.show()
 	qtbot.waitExposed(w)
 
-	ui: BaseUIType = cast(ButtonGroup, w._pt.settings.graph["Type"]).get_ui(w.UI_NAME)
+	ui: BaseUIType = cast(ButtonGroup, w.pt.settings.graph["Type"]).get_ui(w.UI_NAME)
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
-	assert w._pt.settings.graph["Type"].value == 0
+	assert w.pt.settings.graph["Type"].value == 0
 	qtbot.mouseClick(ui.boxes[1], Qt.MouseButton.LeftButton)  # Appuie sur Tracks
-	assert w._pt.settings.graph["Type"].value == 1
+	assert w.pt.settings.graph["Type"].value == 1
 
 	w.close()
 
@@ -258,9 +258,9 @@ def test_change_type(w: GraphViewerWidget, qtbot):
 def test_add_stack_uses_dropped_results_folder(stack_drop_widget, tmp_path, mode):
 	"""Vérifie que le chargement utilise la pile ajoutée malgré une autre pile déjà présente."""
 	widget, calls = stack_drop_widget
-	files = cast(FileList, widget._pt.settings.batch["Files"])
+	files = cast(FileList, widget.pt.settings.batch["Files"])
 	files.items = [str(tmp_path / "first.tif")]
-	widget._pt.settings.batch["Mode"].value = mode
+	widget.pt.settings.batch["Mode"].value = mode
 
 	widget._add_stack(str(INPUT_FILE))
 
@@ -276,10 +276,10 @@ def test_update_plot_localization(w: GraphViewerWidget, qtbot, capsys):
 	w.show()
 	qtbot.waitExposed(w)
 
-	s = w._pt.settings.graph
+	s = w.pt.settings.graph
 	ui: BaseUIType = cast(ButtonGroup, s["Type"]).get_ui(w.UI_NAME)
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
-	assert w._pt.settings.graph["Type"].value == 0
+	assert w.pt.settings.graph["Type"].value == 0
 
 	# Changement de source
 	s["Source"].value = 1  # Changement de graph

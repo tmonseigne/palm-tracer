@@ -88,7 +88,7 @@ class Palm:
 		fn.restype = None
 		fn.argtypes = [C_IMG, C_IMG, C_UINT, C_UINT, C_UINT, C_TAB_DBL, C_UINT]
 
-		# void Wavelett(uint16_t* input, double* output, uint64_t h, uint64_t w, uint64_t planes, uint64_t level)
+		# void Wavelet(uint16_t* input, double* output, uint64_t h, uint64_t w, uint64_t planes, uint64_t level)
 		fn = self._dll.Wavelett
 		fn.restype = None
 		fn.argtypes = [C_IMG, C_TAB_DBL, C_UINT, C_UINT, C_UINT, C_UINT]
@@ -351,7 +351,7 @@ class Palm:
 		return out
 
 	##################################################
-	def wavelett(self, stack: np.ndarray, level: int = 2) -> np.ndarray:
+	def wavelet(self, stack: np.ndarray, level: int = 2) -> np.ndarray:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
 

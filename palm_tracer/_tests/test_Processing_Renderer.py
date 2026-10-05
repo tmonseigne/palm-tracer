@@ -438,7 +438,7 @@ def test_rotation():
 	ref[1, 6, 8], ref[1, 8, 6] = 5, 7
 	np.testing.assert_array_equal(res, ref)
 
-	# Z non uniforme [-20 ; +20], aucun changement pour 0 et 180° masi ajout de 90 et 270 Y inchangé, mais X autour du centre évolue
+	# Z non uniforme [-20 ; +20], aucun changement pour 0 et 180°, mais ajout de 90 et 270 Y inchangé, mais X autour du centre évolue
 	# Attention, l'arrondi python dans le cas de X.5 va arrondir au nombre pair le plus proche
 	# Cela donne l'impression de l'axe central à 7 sur les angles 90 et 270.
 	# np.round([6.5, 7.5, 8.5, 9.5]) = array([ 6.,  8.,  8., 10.])
@@ -1768,12 +1768,12 @@ def test_renderer_atom():
 	r = Renderer()
 	r.set_size(700, 500, 2)
 	loc = pd.read_csv(INPUT_DIR / "atoms_sphere_motion.csv").to_numpy()
-	loc[:, 0] += 3.5  # Les positions vont de -3 à +3
-	loc[:, 1] += 2.5  # Les positions vont de -2 à +2
-	loc[:, 0:3] *= 100  # Passsage en gros à des pixel
-	loc = np.hstack((loc, np.zeros((loc.shape[0], 3))))  # Ajout de SigmaX,SigmaY et Theta
-	loc[:, 4] = 1  # Sigma X
-	loc[:, 5] = 2  # Sigma Y
+	loc[:, 0] += 3.5  # .									Les positions vont de -3 à +3.
+	loc[:, 1] += 2.5  # .									Les positions vont de -2 à +2.
+	loc[:, 0:3] *= 100  # .									Passsage en gros à des pixel.
+	loc = np.hstack((loc, np.zeros((loc.shape[0], 3))))  # .Ajout de SigmaX,SigmaY et Theta.
+	loc[:, 4] = 1  # .										Sigma X
+	loc[:, 5] = 2  # .										Sigma Y
 	gaussian = {"Intensity": 1000, "Fixed Intensity": True, "Shape": 2, "Size": 1}
 
 	loc_2d = np.delete(loc, 2, axis=1)
@@ -1829,7 +1829,7 @@ def test_renderer_track_stack_spiral_raw():
 	r = Renderer()
 	size, n_points = 256, 72
 	theta, radius = np.linspace(0, 4 * np.pi, n_points), np.linspace(size // 16, size // 2.5, n_points)
-	# La LUT réserve zéro au noir ; son indice un correspond au début de HSV, donc au rouge pur.
+	# La LUT réserve zéro au noir ; son indice 1 correspond au début de HSV, donc au rouge pur.
 	track = np.column_stack((np.ones(n_points), np.arange(10, 10 + n_points),
 							 size // 2 + radius * np.cos(theta), size // 2 + radius * np.sin(theta), np.ones(n_points)))
 	x = np.linspace(0, 1, size)[None, :]
