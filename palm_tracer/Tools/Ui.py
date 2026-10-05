@@ -415,7 +415,7 @@ def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 # region Fonctions de rappel
 # ==================================================
 ##################################################
-def update_layer(layer: Layer, data: Any, visible: bool | None = None, **properties: Any) -> None:
+def update_layer(layer: Layer, data: Any, visible: bool | None = None, **properties: Any):
 	"""
 	Met à jour un calque Napari en le rendant temporairement visible.
 

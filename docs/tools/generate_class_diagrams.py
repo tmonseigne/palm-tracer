@@ -245,7 +245,7 @@ def _render_diagram(diagram: Diagram, nodes: set[str], edges: list[tuple[str, st
 
 
 ##################################################
-def generate_class_diagrams() -> None:
+def generate_class_diagrams():
 	"""Génère les trois diagrammes de classes utilisés par Sphinx."""
 	GRAPH_PATH.mkdir(parents=True, exist_ok=True)
 	with tempfile.TemporaryDirectory(prefix="palm-tracer-pyreverse-") as temporary_directory:

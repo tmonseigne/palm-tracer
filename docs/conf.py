@@ -94,7 +94,7 @@ gettext_compact = False
 # sphinx-build -b html -D language=fr docs docs/_build/html
 # sphinx-build -b html -D language=en docs docs/_build/html/en
 
-def copy_dir(src: str | Path, dst: str | Path) -> None:
+def copy_dir(src: str | Path, dst: str | Path):
 	"""Copie récursivement un dossier source vers un dossier destination."""
 	src, dst = Path(src), Path(dst)
 	if not src.exists(): return  # .				 Copie les fichiers si le dossier source existe

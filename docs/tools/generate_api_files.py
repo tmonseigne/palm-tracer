@@ -443,7 +443,7 @@ def _rst_class_page(dotted_module: str, class_name: str, py_file: Path) -> str:
 
 
 ##################################################
-def _generate_node_files(node: PackageNode, api_path: Path = API_PATH) -> None:
+def _generate_node_files(node: PackageNode, api_path: Path = API_PATH):
 	"""Génère récursivement les fichiers package + modules."""
 	# Page package
 	package_file = api_path / f"{node.dotted_name}.rst"
@@ -467,7 +467,7 @@ def _build_tree(package_dir: Path, dotted_name: str) -> PackageNode:
 
 
 ##################################################
-def generate_api_rst() -> None:
+def generate_api_rst():
 	"""Point d'entrée : génère tous les fichiers .rst de l'API."""
 	if not _is_python_package(MODULE_PATH): raise RuntimeError(f"MODULE_PATH n'est pas un package Python : {MODULE_PATH}")
 

@@ -77,7 +77,7 @@ class ButtonGroup(BaseSettingType):
 		return self._items[self.value] if 0 <= self.value < len(self._items) else ""
 
 	##################################################
-	def active_item(self, item_id: int, active: bool) -> None:
+	def active_item(self, item_id: int, active: bool):
 		"""
 		Active ou désactive une option du groupe de boutons.
 

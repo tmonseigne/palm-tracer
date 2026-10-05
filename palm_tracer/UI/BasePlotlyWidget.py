@@ -325,7 +325,7 @@ class BasePlotlyWidget(QWidget):
 	# ==================================================
 
 	##################################################
-	def closeEvent(self, event: QCloseEvent) -> None:
+	def closeEvent(self, event: QCloseEvent):
 		"""Assure une destruction propre de QtWebEngine (évite warnings et crash à la sortie)."""
 		try:
 			if _HAS_WEBENGINE and hasattr(self, "_web") and isinstance(self._web, QWebEngineView):

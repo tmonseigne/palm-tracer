@@ -58,7 +58,7 @@ class ROIManager:
 	"""Indique qu'une synchronisation de calques est en cours."""
 
 	##################################################
-	def __post_init__(self) -> None:
+	def __post_init__(self):
 		"""Initialise les connexions du gestionnaire de ROI."""
 		self.roi_selection.connect(self._on_roi_selection_changed)
 
@@ -347,7 +347,7 @@ class ROIManager:
 		return limits
 
 	##################################################
-	def update_data_box(self, data: pd.DataFrame | None, gaussian: dict[str, Any] | None = None, margin: int = 5) -> None:
+	def update_data_box(self, data: pd.DataFrame | None, gaussian: dict[str, Any] | None = None, margin: int = 5):
 		"""
 		Recalcule un cadre conservateur sans modifier les ROI de filtrage.
 

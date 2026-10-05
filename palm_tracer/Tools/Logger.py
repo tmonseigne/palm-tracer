@@ -104,12 +104,12 @@ class Logger:
 		return self
 
 	##################################################
-	def __exit__(self, exc_type, exc, tb) -> None:
+	def __exit__(self, exc_type, exc, tb):
 		"""Garantit la fermeture du fichier."""
 		self.close()
 
 	##################################################
-	def __del__(self) -> None:
+	def __del__(self):
 		"""
 		Best-effort : évite de laisser un handle ouvert si l'objet est détruit.
 

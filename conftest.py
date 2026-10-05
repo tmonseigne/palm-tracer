@@ -151,7 +151,7 @@ def patched_napari_viewer(monkeypatch, qtbot):
 	:param qtbot: Fixture pytest-qt utilisée pour gérer l'environnement Qt du test.
 	"""
 
-	def _cleanup() -> None:
+	def _cleanup():
 		"""Ferme les viewers/fenêtres Napari et les top-level widgets Qt restants."""
 		try:
 			# Selon les versions, _instances peut être un WeakSet ou assimilé.
@@ -186,7 +186,7 @@ def patched_napari_viewer(monkeypatch, qtbot):
 	try: monkeypatch.setattr("vispy.app.backends._qt.get_physical_dpi", lambda *args, **kwargs: 96, raising=True)
 	except Exception: pass
 
-	def _fake_add_layer(self, layer) -> None:
+	def _fake_add_layer(self, layer):
 		"""
 		Simule l'ajout d'un calque à la liste.
 
@@ -195,7 +195,7 @@ def patched_napari_viewer(monkeypatch, qtbot):
 		"""
 		return None  # Ignore la création réelle du visuel VisPy associé à un layer.
 
-	def _fake_remove_layer(self, event) -> None:
+	def _fake_remove_layer(self, event):
 		"""
 		Simule le retrait d'un calque de la liste.
 
@@ -204,7 +204,7 @@ def patched_napari_viewer(monkeypatch, qtbot):
 		"""
 		return None  # Ignore la suppression réelle du visuel VisPy associé à un layer.
 
-	def _fake_reorder_layers(self) -> None:
+	def _fake_reorder_layers(self):
 		"""
 		Simule la réorganisation des calques.
 
