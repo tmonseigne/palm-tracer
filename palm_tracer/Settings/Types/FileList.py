@@ -143,11 +143,24 @@ class FileList(BaseSettingType):
 		# Déterminer le répertoire initial pour la boîte de dialogue
 		initial_dir = (self._items[-1] if self._items else ".")  # Utiliser le dernier fichier ou le répertoire courant
 		paths, _ = QFileDialog.getOpenFileNames(None, "Select files", initial_dir, "All files (*)")
+		self.add_files(paths)
+
+	##################################################
+	def add_files(self, paths: list[str]):
+		"""
+		Ajoute les fichiers existants en triant uniquement le nouveau lot.
+
+		Les dossiers et chemins inexistants sont ignorés. Les doublons sont conservés,
+		comme lors de l'ajout par la boîte de dialogue. Le dernier fichier ajouté est
+		sélectionné et les interfaces sont synchronisées avec une seule notification.
+
+		:param paths: Chemins locaux des fichiers à ajouter.
+		"""
 		valid_paths = sorted((path for path in paths if Path(path).is_file()), key=str.casefold)
 		if valid_paths:
 			with self.signal_blocked():
 				self._items.extend(valid_paths)
-				self.items = None
+				self.items = self._items
 				self.value = len(self._items) - 1
 
 	##################################################

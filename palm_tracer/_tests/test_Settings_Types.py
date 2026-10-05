@@ -11,6 +11,7 @@ from qtpy.QtWidgets import QCheckBox, QColorDialog, QComboBox, QDoubleSpinBox, Q
 
 from palm_tracer._tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
+from palm_tracer.Settings.Types import FileList
 
 
 ###################################################
@@ -345,7 +346,8 @@ def test_file_list_adds_sorted_batch_without_reordering_existing_items(fake_qfil
 
 
 ###################################################
-def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path):
+@pytest.mark.parametrize("source", ["dialog", "paths"], ids=["dialog", "paths"])
+def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path, source):
 	"""Vérifie qu'une opération sur la liste n'émet que son état final."""
 	paths = [tmp_path / "first.tif", tmp_path / "second.tif"]
 	for path in paths: path.touch()
@@ -355,8 +357,10 @@ def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path):
 	selected = []
 	setting.connect(lambda _value: selected.append(setting.current_text))
 
-	fake_qfiledialog(FileList, str(paths[1]))
-	setting.add_file()
+	if source == "dialog":
+		fake_qfiledialog(FileList, str(paths[1]))
+		setting.add_file()
+	else: setting.add_files([str(paths[1])])
 	assert selected == [str(paths[1])]
 
 	selected.clear()
@@ -366,6 +370,42 @@ def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path):
 	selected.clear()
 	setting.clear_files()
 	assert selected == [""]
+
+
+###################################################
+def test_file_list_add_files_syncs_views(qtbot, tmp_path):
+	"""Vérifie le tri du nouveau lot, la conservation des doublons et la synchronisation des vues."""
+	paths = [tmp_path / "z.txt", tmp_path / "A.tif"]
+	for path in paths: path.touch()
+	setting = FileList("Test")
+	setting.items = [str(paths[0])]
+	views = [setting.get_ui(name) for name in ("first", "second")]
+
+	setting.add_files([str(path) for path in paths])
+
+	assert setting.items == [str(paths[0]), str(paths[1]), str(paths[0])]
+	assert setting.value == 2
+	for view in views:
+		combo = cast(QComboBox, view.boxes[3])
+		assert [combo.itemText(index) for index in range(combo.count())] == setting.items
+		assert combo.currentIndex() == setting.value
+
+
+###################################################
+@pytest.mark.parametrize("scenario", ["empty", "directory", "missing"], ids=["empty", "directory", "missing"])
+def test_file_list_add_files_ignores_invalid_paths(tmp_path, scenario):
+	"""Vérifie qu'un lot sans fichier conserve la sélection et n'émet aucun signal."""
+	setting = FileList("Test")
+	setting.items = ["existing.tif"]
+	emitted = []
+	setting.connect(emitted.append)
+	paths = {"empty": [], "directory": [str(tmp_path)], "missing": [str(tmp_path / "missing.tif")]}
+
+	setting.add_files(paths[scenario])
+
+	assert setting.items == ["existing.tif"]
+	assert setting.value == 0
+	assert emitted == []
 
 
 ###################################################

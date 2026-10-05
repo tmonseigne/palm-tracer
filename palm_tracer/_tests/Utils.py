@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 from pathlib import Path
-from typing import Any, cast, Optional
+from typing import Any, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -19,6 +20,8 @@ INPUT_DIR = Path(__file__).parent.resolve() / "input"
 REF_DIR = INPUT_DIR / "ref"
 OUTPUT_DIR = Path(__file__).parent.resolve() / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
+OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
+OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
 IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 TS_PATTERN = r"\[\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}\]"  # Regex timestamp : [16-02-2026 10:06:08]
@@ -33,6 +36,13 @@ save_output = True
 def strip_ansi(text: str) -> str:
 	"""Supprime les séquences ANSI (couleurs console)."""
 	return ANSI_ESCAPE.sub("", text)
+
+
+##################################################
+def clean_output():
+	"""Vide les dossiers de sorties."""
+	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+	shutil.rmtree(OUTPUT_FOLDER_2, ignore_errors=True)
 
 
 ##################################################

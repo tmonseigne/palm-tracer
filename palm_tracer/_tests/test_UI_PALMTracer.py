@@ -1,10 +1,14 @@
 """Teste le widget principal de PALM Tracer."""
 
 import shutil
+from pathlib import Path
 
+import pytest
 from napari.components import ViewerModel
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QTabWidget
+from qtpy.compat import isalive
+from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QPoint, QPointF, Qt, QUrl
+from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
+from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QScrollArea, QTabWidget, QWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.UI import PALMTracerWidget
@@ -15,6 +19,64 @@ SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
+
+
+##################################################
+class DropReceiver(QWidget):
+	"""Simule un widget qui ouvrirait normalement les fichiers déposés."""
+
+	def __init__(self, parent=None):
+		"""Initialise le compteur d'événements et l'acceptation des dépôts."""
+		super().__init__(parent)
+		self.received = []
+		self.setAcceptDrops(True)
+
+	def dragEnterEvent(self, event):
+		"""Accepte le glissement habituel du widget destinataire."""
+		self.received.append("enter")
+		event.acceptProposedAction()
+
+	def dropEvent(self, event):
+		"""Enregistre le dépôt habituel du widget destinataire."""
+		self.received.append("drop")
+		event.acceptProposedAction()
+
+
+##################################################
+def create_drop_widget(monkeypatch):
+	"""Crée un plugin dans un dock sans lecture, prévisualisation ni sauvegarde de paramètres."""
+	monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
+	monkeypatch.setattr(PALMTracerWidget, "_connect_signal", lambda self: None)
+	window = QMainWindow()
+	receiver = DropReceiver()
+	window.setCentralWidget(receiver)
+	dock = QDockWidget(window)
+	widget = PALMTracerWidget(ViewerModel())
+	# Le modèle connecte lui-même la lecture de profondeur, indépendamment des signaux du widget.
+	monkeypatch.setattr(widget.pt.settings.batch, "get_plane_count", lambda: None)
+	dock.setWidget(widget)
+	window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
+	window.show()
+	return widget, window, receiver, dock
+
+
+##################################################
+@pytest.fixture
+def drop_widget(qtbot, monkeypatch):
+	"""Enregistre la fenêtre de dépôt pour son nettoyage automatique par pytest-qt."""
+	widgets = create_drop_widget(monkeypatch)
+	qtbot.addWidget(widgets[1])
+	return widgets
+
+
+##################################################
+def send_file_drop(receiver, mime):
+	"""Envoie la séquence Qt d'entrée, de déplacement et de dépôt au destinataire."""
+	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
+	return enter, move, drop
 
 
 # ==================================================
@@ -79,6 +141,184 @@ def test_filters_button(qtbot):
 
 # ==================================================
 # endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Glisser-déposer
+# ==================================================
+##################################################
+def test_drop_filter_preserves_state_on_repeated_show(drop_widget, tmp_path):
+	"""Vérifie qu'un affichage répété conserve le filtre et l'état à restaurer lors du masquage."""
+	widget, window, receiver, dock = drop_widget
+	dock.hide()
+	window.setAcceptDrops(False)
+	dock.show()
+
+	QApplication.sendEvent(widget, QShowEvent())
+	assert widget._drop_window is window
+	path = tmp_path / "stack.tif"
+	path.touch()
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path))])
+	events = send_file_drop(receiver, mime)
+	assert all(event.isAccepted() for event in events)
+	assert receiver.received == []
+	assert [Path(item) for item in widget.pt.settings.batch["Files"].items] == [path]
+
+	dock.hide()
+	assert not window.acceptDrops()
+
+
+##################################################
+@pytest.mark.parametrize("count", [1, 2], ids=["single-file", "multiple-files"])
+@pytest.mark.parametrize("target", ["window", "plugin", "scroll"], ids=["window-content", "plugin-button", "scroll-viewport"])
+def test_drop_adds_files_from_window(drop_widget, tmp_path, count, target):
+	"""Vérifie l'ajout depuis un widget extérieur au plugin et l'interception avant son gestionnaire."""
+	widget, window, receiver, _ = drop_widget
+	paths = [tmp_path / name for name in ("z.tif", "a.txt")[:count]]
+	for path in paths: path.touch()
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path)) for path in paths])
+
+	targets = {"window": receiver, "plugin": widget.btn_process, "scroll": widget.findChild(QScrollArea).viewport()}
+	events = send_file_drop(targets[target], mime)
+
+	assert widget._drop_window is window
+	assert all(event.isAccepted() for event in events)
+	assert receiver.received == []
+	files = widget.pt.settings.batch["Files"]
+	assert [Path(path) for path in files.items] == sorted(paths, key=lambda path: str(path).casefold())
+	assert files.value == count - 1
+
+
+##################################################
+@pytest.mark.parametrize("scenario", ["directory", "missing", "processing"], ids=["directory", "missing", "processing"])
+def test_drop_rejects_unavailable_files(drop_widget, tmp_path, scenario):
+	"""Vérifie le refus des dossiers, des fichiers absents et des dépôts pendant un traitement."""
+	widget, _, receiver, _ = drop_widget
+	path = tmp_path / "stack.tif"
+	if scenario == "processing":
+		path.touch()
+		widget._processing = True
+	elif scenario == "directory": path = tmp_path
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path))])
+
+	events = send_file_drop(receiver, mime)
+
+	assert not any(event.isAccepted() for event in events)
+	assert receiver.received == []
+	assert widget.pt.settings.batch["Files"].items == []
+
+
+##################################################
+@pytest.mark.parametrize("scenario", ["other-window", "remote-url", "text"], ids=["other-window", "remote-url", "internal-text"])
+def test_drop_preserves_unrelated_events(drop_widget, qtbot, tmp_path, scenario):
+	"""Vérifie que les autres fenêtres et les glissements sans fichier local gardent leurs événements."""
+	widget, _, receiver, _ = drop_widget
+	mime = QMimeData()
+	if scenario == "other-window":
+		receiver = DropReceiver()
+		qtbot.addWidget(receiver)
+		receiver.show()
+		path = tmp_path / "stack.tif"
+		path.touch()
+		mime.setUrls([QUrl.fromLocalFile(str(path))])
+	elif scenario == "remote-url": mime.setUrls([QUrl("https://example.com/stack.tif")])
+	else: mime.setText("layer")
+
+	send_file_drop(receiver, mime)
+
+	assert receiver.received == ["enter", "drop"]
+	assert widget.pt.settings.batch["Files"].items == []
+
+
+##################################################
+@pytest.mark.parametrize("initial_accepts", [False, True], ids=["drops-disabled", "drops-enabled"])
+def test_drop_filter_follows_visibility(drop_widget, tmp_path, initial_accepts):
+	"""Vérifie la désactivation au masquage puis la réactivation à l'affichage du même dock."""
+	widget, window, receiver, dock = drop_widget
+	dock.hide()
+	window.setAcceptDrops(initial_accepts)
+	dock.show()
+	path = tmp_path / "stack.tif"
+	path.touch()
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path))])
+
+	dock.hide()
+	assert widget._drop_window is None
+	assert window.acceptDrops() == initial_accepts
+	send_file_drop(receiver, mime)
+	assert receiver.received == ["enter", "drop"]
+	assert widget.pt.settings.batch["Files"].items == []
+
+	receiver.received.clear()
+	dock.show()
+	send_file_drop(receiver, mime)
+	assert receiver.received == []
+	assert [Path(item) for item in widget.pt.settings.batch["Files"].items] == [path]
+
+
+##################################################
+def test_drop_filter_keeps_window_when_dock_floats(drop_widget, tmp_path):
+	"""Vérifie que le détachement du dock conserve l'interception dans la fenêtre d'origine."""
+	widget, window, receiver, dock = drop_widget
+	dock.setFloating(True)
+	path = tmp_path / "stack.tif"
+	path.touch()
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path))])
+
+	send_file_drop(receiver, mime)
+
+	assert widget._drop_window is window
+	assert receiver.received == []
+	assert [Path(item) for item in widget.pt.settings.batch["Files"].items] == [path]
+
+
+##################################################
+@pytest.mark.parametrize("scenario", ["hide", "drop", "show"], ids=["hide-after-destruction", "drop-after-destruction", "show-after-destruction"])
+def test_drop_filter_handles_deleted_window(drop_widget, tmp_path, scenario):
+	"""Vérifie les événements tardifs lorsque la référence Python vise une fenêtre Qt déjà détruite."""
+	widget, window, receiver, dock = drop_widget
+	deleted_window = QMainWindow()
+	deleted_window.deleteLater()
+	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+	assert not isalive(deleted_window)
+	if scenario == "show": dock.hide()
+	widget._drop_window = deleted_window
+
+	if scenario == "hide":
+		dock.hide()
+		assert widget._drop_window is None
+	elif scenario == "drop":
+		path = tmp_path / "stack.tif"
+		path.touch()
+		mime = QMimeData()
+		mime.setUrls([QUrl.fromLocalFile(str(path))])
+		send_file_drop(receiver, mime)
+		assert receiver.received == ["enter", "drop"]
+		assert widget.pt.settings.batch["Files"].items == []
+	else:
+		dock.show()
+		assert widget._drop_window is window
+
+
+##################################################
+def test_drop_filter_handles_parent_destruction(qtbot, monkeypatch):
+	"""Vérifie la destruction réelle de la fenêtre et de son plugin sans exception dans la boucle Qt."""
+	# Cette fenêtre est détruite explicitement ; pytest-qt ne doit pas tenter de la refermer.
+	widget, window, _, _ = create_drop_widget(monkeypatch)
+	window.deleteLater()
+	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+	assert not isalive(window)
+	assert not isalive(widget)
+
+
+# ==================================================
+# endregion Glisser-déposer
 # ==================================================
 
 # ==================================================
@@ -163,6 +403,7 @@ def test_clean_layer(qtbot):
 ##################################################
 def test_reset_layer(capsys, qtbot):
 	"""Vérifie la remise à zéro des calques."""
+	clean_output()
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)

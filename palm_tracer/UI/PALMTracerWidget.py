@@ -12,7 +12,9 @@ import numpy as np
 import pandas as pd
 from napari import Viewer
 from napari.utils.notifications import show_error, show_info, show_warning
-from qtpy.QtCore import Qt
+from qtpy.compat import isalive
+from qtpy.QtCore import QEvent, QObject, Qt
+from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
@@ -79,6 +81,8 @@ class PALMTracerWidget(QWidget):
 		# ----- Threads -----
 		self._processing = False  # .					 Permets d'éviter les clics multiples.
 		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
+		self._drop_window: Optional[QWidget] = None  # . Fenêtre Qt dont les dépôts alimentent le Batch.
+		self._drop_accepts: bool = False  # .			 État initial de l'acceptation des dépôts dans cette fenêtre.
 		# ----- Objets -----
 		self.pt = PALMTracer()
 		self.last_file = ""
@@ -217,6 +221,85 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
+	# region Glisser-déposer
+	# ==================================================
+	##################################################
+	def _get_drop_target(self) -> QWidget:
+		"""
+		Retourne la racine Qt du plugin pour délimiter l'interception des dépôts.
+
+		Parcourir les parents conserve la fenêtre Napari même si le dock est flottant.
+		Retourner ``self`` permettrait de limiter l'interception au plugin.
+
+		:return: Widget dont les descendants peuvent déposer des fichiers dans le Batch.
+		"""
+		window: QWidget = self
+		while window.parentWidget() is not None: window = window.parentWidget()
+		return window
+
+	##################################################
+	def showEvent(self, event: QShowEvent):
+		"""
+		Active l'interception après l'insertion du plugin dans sa fenêtre Qt.
+
+		:param event: Événement d'affichage du widget.
+		"""
+		super().showEvent(event)
+		if self._drop_window is not None and isalive(self._drop_window): return
+		window = self._get_drop_target()
+		self._drop_window = window
+		self._drop_accepts = window.acceptDrops()
+		window.setAcceptDrops(True)
+		QApplication.instance().installEventFilter(self)
+
+	##################################################
+	def hideEvent(self, event: QHideEvent):
+		"""
+		Rétablit les dépôts habituels lorsque le plugin est masqué ou fermé.
+
+		:param event: Événement de masquage du widget.
+		"""
+		QApplication.instance().removeEventFilter(self)
+		window = self._drop_window
+		self._drop_window = None
+		# Qt peut détruire la fenêtre avant de masquer ses widgets enfants.
+		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
+		super().hideEvent(event)
+
+	##################################################
+	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+		"""
+		Dirige les dépôts de fichiers locaux de la fenêtre vers le Batch.
+
+		Le filtre global couvre les widgets enfants, y compris les zones de défilement.
+		Les autres fenêtres et les glissements internes sans fichier restent inchangés.
+		Pendant un traitement, les dépôts de fichiers sont consommés mais refusés.
+
+		:param watched: Objet Qt destinataire de l'événement.
+		:param event: Événement à filtrer.
+		:return: ``True`` si l'événement est consommé avant son traitement par Napari.
+		"""
+		if event.type() not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
+		window = self._drop_window
+		if window is None or not isalive(window) or not isinstance(watched, QWidget): return False
+		if watched is not window and not window.isAncestorOf(watched): return False
+		drop = cast(QDropEvent, event)
+		paths = [url.toLocalFile() for url in drop.mimeData().urls() if url.isLocalFile()]
+		if not paths: return False
+		if self._processing or not any(Path(path).is_file() for path in paths):
+			drop.ignore()
+			return True
+		# L'action Copy décrit l'ajout des chemins ; aucun fichier source n'est déplacé.
+		drop.setDropAction(Qt.DropAction.CopyAction)
+		drop.accept()
+		if event.type() == QEvent.Type.Drop: cast(FileList, self.pt.settings.batch["Files"]).add_files(paths)
+		return True
+
+	# ==================================================
+	# endregion Glisser-déposer
+	# ==================================================
+
+	# ==================================================
 	# region Threads
 	# ==================================================
 	##################################################
@@ -237,7 +320,7 @@ class PALMTracerWidget(QWidget):
 		self._freeze_ui(True)
 
 		@thread_worker(start_thread=False)
-		def _run_background() -> None:
+		def _run_background():
 			"""Exécute le traitement dans le worker d'arrière-plan."""
 			compute_func()  # STRICTEMENT aucun accès au viewer/layers ici, pragma: no cover —  lancement sur thread.
 
@@ -247,7 +330,7 @@ class PALMTracerWidget(QWidget):
 		# S'exécute dans le thread de l'interface
 		if post_func is not None: w.returned.connect(lambda _ok: post_func())
 
-		def _finish(*_args: object) -> None:  # UI thread : fin propre
+		def _finish(*_args: object):  # UI thread : fin propre
 			"""
 			Libère le worker puis finalise le traitement.
 
@@ -274,7 +357,7 @@ class PALMTracerWidget(QWidget):
 		self._freeze_ui(False)
 
 	##################################################
-	def _freeze_ui(self, on: bool) -> None:
+	def _freeze_ui(self, on: bool):
 		"""Gèle/réactive proprement l'UI sans casser la géométrie."""
 		self.setDisabled(on)  # .		  Au lieu de self.layout().setEnabled(False/True)
 		self.setUpdatesEnabled(not on)  # Stoppe/reprend les repaints
@@ -532,7 +615,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.activateWindow()
 
 	##################################################
-	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
+	def _bind_viewer_lifecycle(self, viewer_attr: str):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
 		viewer = getattr(self, viewer_attr, None)
 		if viewer is None: return

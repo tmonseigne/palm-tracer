@@ -16,9 +16,6 @@ from palm_tracer.Settings.Groups.Graph import DATA_SRC
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
 
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
-OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
-
 
 ##################################################
 @pytest.fixture
@@ -48,13 +45,6 @@ def sequential_timestamps(monkeypatch):
 		return current.strftime("%Y%m%d_%H%M%S" if with_hour else "%Y%m%d")
 
 	monkeypatch.setattr(FileIO, "get_timestamp_for_files", next_timestamp)
-
-
-##################################################
-def clean_output():
-	"""Vide les dossiers de sorties."""
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
-	shutil.rmtree(OUTPUT_FOLDER_2, ignore_errors=True)
 
 
 ##################################################
@@ -332,6 +322,12 @@ def test_load(capsys, pt):
 
 	# Un fichier méta + un localization
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+
+	# Simulation d'un chargement déjà en cours
+	pt._loading = True
+	pt.load()
+	lines = get_lines_output(capsys)
+	assert len(lines) == 0
 
 
 ##################################################
@@ -1558,9 +1554,9 @@ def test_hr_filtered_plot_data(monkeypatch, dimension, key, selection):
 	pt = PALMTracer()
 	pt._stack = np.zeros((2, 8, 8), dtype=np.uint16)
 	pt.settings.rois.set_size(8, 8)
-	locations = pd.DataFrame({"Plane": [1, 2, 2, 2], "X": [1, 3, 2, 20], "Y": [2, 4, 3, 20], "Z": [4, 8, 2, 0],
-								 "Integrated Intensity": [2, 4, -100, 8], "Sigma X": [1.0] * 4, "Sigma Y": [1.0] * 4, "Theta": [0.0] * 4},
-								index=[10, 20, 30, 40])
+	locations = pd.DataFrame({"Plane":                [1, 2, 2, 2], "X": [1, 3, 2, 20], "Y": [2, 4, 3, 20], "Z": [4, 8, 2, 0],
+							  "Integrated Intensity": [2, 4, -100, 8], "Sigma X": [1.0] * 4, "Sigma Y": [1.0] * 4, "Theta": [0.0] * 4},
+							 index=[10, 20, 30, 40])
 	kept = locations.iloc[:2].copy() if selection == "subset" else locations.copy()
 	pt.results[key], pt.results[f"f_{key}"] = locations.copy(), kept.copy()
 	s = pt.settings.hr
@@ -1603,9 +1599,9 @@ def test_hr_localization_z_source(pt, filtered):
 	"""Le rendu Z normalise les points conservés sur uint16 sans inclure les points exclus dans les extrema."""
 	pt._stack = np.zeros((1, 8, 8), dtype=np.uint16)
 	pt.settings.rois.set_size(8, 8)
-	locations = pd.DataFrame({"Plane": [1] * 4, "X": [1.0, 2.0, 3.0, 4.0], "Y": [1.0] * 4,
-								 "Z": [-200.0, 0.0, 200.0, -10000.0], "Integrated Intensity": [100.0] * 4,
-								 "Sigma X": [1.0] * 4, "Sigma Y": [1.0] * 4, "Theta": [0.0] * 4})
+	locations = pd.DataFrame({"Plane":   [1] * 4, "X": [1.0, 2.0, 3.0, 4.0], "Y": [1.0] * 4,
+							  "Z":       [-200.0, 0.0, 200.0, -10000.0], "Integrated Intensity": [100.0] * 4,
+							  "Sigma X": [1.0] * 4, "Sigma Y": [1.0] * 4, "Theta": [0.0] * 4})
 	pt.results["loc"] = locations.copy() if filtered else locations.iloc[:3].copy()
 	if filtered: pt.results["f_loc"] = locations.iloc[:3].copy()
 	before = pt.results["loc"].copy(deep=True)
@@ -1633,8 +1629,8 @@ def test_hr_filtered_points_all_removed_as_beads(pt, key):
 	"""Une sélection composée uniquement de billes ne produit aucun rendu HR."""
 	pt._stack = np.zeros((1, 8, 8), dtype=np.uint16)
 	pt.settings.rois.set_size(8, 8)
-	locations = pd.DataFrame({"Id": [1, 2], "Plane": [1, 1], "X": [2.0, 4.0], "Y": [2.0, 4.0], "Z": [0.0, 0.0],
-								 "Integrated Intensity": [100.0, 200.0], "Sigma X": [1.0, 1.0], "Sigma Y": [1.0, 1.0], "Theta": [0.0, 0.0]})
+	locations = pd.DataFrame({"Id":                   [1, 2], "Plane": [1, 1], "X": [2.0, 4.0], "Y": [2.0, 4.0], "Z": [0.0, 0.0],
+							  "Integrated Intensity": [100.0, 200.0], "Sigma X": [1.0, 1.0], "Sigma Y": [1.0, 1.0], "Theta": [0.0, 0.0]})
 	pt.results[key] = locations.copy()
 	pt.results[f"f_{key}"] = locations.iloc[:1].copy()
 	pt.results["bds"] = locations.iloc[:1].copy()
