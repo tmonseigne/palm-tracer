@@ -5,7 +5,7 @@ Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 """
 
 from pathlib import Path
-from typing import Any, Callable, cast, Optional
+from typing import Any, Callable, Optional, cast
 
 import napari
 import numpy as np
@@ -448,9 +448,9 @@ class PALMTracerWidget(QWidget):
 			_, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
 			Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
-			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
-			self.viewer.reset_view()  # .  Recentrer et ajuster la vue
-			self.pt.load(selected_file)  # Ajout du chargement du dernier lancement pour ce fichier. Alternative à juste un reset des éléments.
+			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()  # .			   Reinitialisation du contrast si la Pile Change
+			self.viewer.reset_view()  # .											   Recentrer et ajuster la vue
+			self.pt.load(str(Path(selected_file).with_suffix("")) + "_PALM_Tracer")  # load() attend le dossier des résultats, et non le chemin du TIFF.
 			try:
 				self.viewer.layers.selection.active = self._layers["Raw"]
 				self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)

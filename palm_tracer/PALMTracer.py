@@ -53,6 +53,8 @@ class PALMTracer:
 	"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 	_timestamp_previous: str = field(init=False, default="")
 	"""Suffixe des fichiers pour le traitement précédent (timestamp au format ``YYYYMMDD_HHMMSS``)."""
+	_loading: bool = field(init=False, default=False)
+	"""Indique qu'un chargement est en cours pour empêcher la réentrance depuis les signaux des paramètres."""
 
 	_grapher: Grapher = field(init=False, default_factory=Grapher)
 	"""Générateur de graphique."""
@@ -180,7 +182,25 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def load(self, path: str = ""):
-		"""Charge les précédents résultats du fichier courant."""
+		"""Charge les précédents résultats du fichier courant sans chargement imbriqué.
+
+		La restauration des paramètres peut déclencher un nouvel appel via les widgets
+		connectés au Batch. Cet appel est ignoré pour préserver le dossier et le timestamp
+		du chargement en cours ; un appel ultérieur reste possible.
+
+		:param path: Dossier des résultats, ou chaîne vide pour utiliser le premier dossier du Batch.
+		"""
+		if self._loading: return
+		self._loading = True
+		try: self._load_results(path)
+		finally: self._loading = False
+
+	##################################################
+	def _load_results(self, path: str):
+		"""Effectue le chargement des paramètres, des résultats et de la pile.
+
+		:param path: Dossier des résultats, ou chaîne vide pour utiliser le premier dossier du Batch.
+		"""
 		if not self.is_dll_valid():
 			Ui.print_warning("Process not completed due to missing DLLs.")
 			self.results.reset()
