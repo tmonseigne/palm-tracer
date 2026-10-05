@@ -10,6 +10,7 @@ from typing import Any, Optional, cast
 
 import numpy as np
 import pandas as pd
+from qtpy.QtWidgets import QWidget
 from scipy.spatial import cKDTree
 
 from palm_tracer import PALMTracer
@@ -342,3 +343,24 @@ class _FakeDownload:
 	def accept(self): self.accepted = True
 
 	def cancel(self): self.canceled = True
+
+
+##################################################
+class DropReceiver(QWidget):
+	"""Simule le destinataire Napari habituel pour détecter les dépôts non interceptés."""
+
+	def __init__(self):
+		"""Initialise l'acceptation des dépôts et leur historique."""
+		super().__init__()
+		self.received = []
+		self.setAcceptDrops(True)
+
+	def dragEnterEvent(self, event):
+		"""Accepte le glissement reçu par le widget habituel."""
+		self.received.append("enter")
+		event.acceptProposedAction()
+
+	def dropEvent(self, event):
+		"""Enregistre le dépôt reçu par le widget habituel."""
+		self.received.append("drop")
+		event.acceptProposedAction()

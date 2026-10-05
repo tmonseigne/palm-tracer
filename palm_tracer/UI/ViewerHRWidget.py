@@ -12,15 +12,13 @@ from typing import cast
 import napari
 import numpy as np
 from napari.utils.notifications import show_info, show_warning
-from qtpy.compat import isalive
-from qtpy.QtCore import QEvent, QObject, Qt
-from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import HR
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 
 TIPS = {
 		"Actualize":  "Updates files/data from PALMTracer status.",
@@ -31,7 +29,7 @@ TIPS = {
 
 
 ##################################################
-class ViewerHRWidget(QWidget):
+class ViewerHRWidget(BaseNapariWidget):
 	"""
 	Affiche les résultats PALM en haute résolution dans Napari.
 
@@ -49,6 +47,9 @@ class ViewerHRWidget(QWidget):
 	LAYERS_NAME: list[str] = ["Visualization", "Points", "Points Filtered", "Tracks", "ROI Filter"]
 	"""Noms des calques gérés par la visionneuse haute résolution."""
 
+	DROP_MULTIPLE: bool = False
+	"""Limite chaque dépôt à une seule pile locale."""
+
 	# ==================================================
 	# region Initialisation
 	# ==================================================
@@ -62,30 +63,29 @@ class ViewerHRWidget(QWidget):
 		:param viewer: Viewer Napari cible.
 		:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
 		"""
-		super().__init__()
-		self.viewer = viewer
-		self._pt = PALMTracer() if palmtracer is None else palmtracer
-		self._hr_settings: HR = self._pt.settings.hr
+		super().__init__(viewer, palmtracer)
+		self._hr_settings: HR = self.pt.settings.hr
 		self._filename: str = ""
 		self._screenshot_filename: str = ""
 		self._roi_visibility_before_rotation: bool | None = None
-		self._drop_window: QWidget | None = None  # Fenêtre Qt dont les dépôts chargent une pile.
-		self._drop_accepts: bool = False  # État des dépôts à restaurer lorsque le widget est masqué.
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
+		present, filtered = self.LAYER_ARGS["Present"], self.LAYER_ARGS["Filtered"]
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
 						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[1],
-																	size=1, face_color="lime", visible=False),
+																	size=present["size"], face_color=present["face"],
+																	border_color=present["color"], border_width=present["border"], visible=False),
 						self.LAYERS_NAME[2]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[2],
-																	size=1, face_color="red", visible=False),
+																	size=filtered["size"], face_color=filtered["face"],
+																	border_color=filtered["color"], border_width=filtered["border"], visible=False),
 						self.LAYERS_NAME[3]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=float), name=self.LAYERS_NAME[3],
 																	blending="translucent", visible=False),
-						self.LAYERS_NAME[4]: self.viewer.add_shapes([], name=self.LAYERS_NAME[4], shape_type="polygon", edge_color="red",
-																	edge_width=0.5, face_color="transparent")}
+						self.LAYERS_NAME[4]: self.viewer.add_shapes([], name=self.LAYERS_NAME[4], shape_type="polygon", edge_color=filtered["color"],
+																	edge_width=filtered["edge"], face_color="transparent")}
 
 		for layer in self._layers.values(): layer.editable, layer.locked = False, True
 
-		self._pt.settings.rois.layer_hr = self._layers[self.LAYERS_NAME[4]]  # Connexion du calque avec le manager.
+		self.pt.settings.rois.layer_hr = self._layers[self.LAYERS_NAME[4]]  # Connexion du calque avec le manager.
 
 		# Construction UI
 		self._init_ui()
@@ -97,7 +97,7 @@ class ViewerHRWidget(QWidget):
 	##################################################
 	def _init_ui(self):
 		"""Construit l'interface utilisateur."""
-		self._pt.clean_ui(self.UI_NAME)
+		self.pt.clean_ui(self.UI_NAME)
 
 		self._widget = QWidget()
 
@@ -121,7 +121,7 @@ class ViewerHRWidget(QWidget):
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
-		self._filters = self._pt.settings.filters
+		self._filters = self.pt.settings.filters
 		self._filters_ui = self._filters.get_ui(self.UI_NAME)
 		vbox_filters.addWidget(self._filters_ui.widget)
 		# Masquage initial
@@ -146,7 +146,7 @@ class ViewerHRWidget(QWidget):
 		actions_row.addWidget(self._btn_screenshot)
 
 		# --- Mise en page dans le scroll ---
-		scroll_layout.addWidget(self._pt.results.get_ui(self.UI_NAME, margin=10).widget)
+		scroll_layout.addWidget(self.pt.results.get_ui(self.UI_NAME, margin=10).widget)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_filters)
 		scroll_layout.addStretch()  # Optionnel, mais recommandé
@@ -160,7 +160,7 @@ class ViewerHRWidget(QWidget):
 		"""Connecte les signaux UI aux callbacks."""
 
 		# Connexion des boutons Filters de cette UI
-		self._pt.connect_filters_button(self.UI_NAME)
+		self.pt.connect_filters_button(self.UI_NAME)
 		self._filters.connect_button(self._generate, self.UI_NAME, "reset")
 		self._filters.connect_button(self._generate, self.UI_NAME, "update")
 
@@ -179,7 +179,7 @@ class ViewerHRWidget(QWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
-		try: self._pt.clean_ui(self.UI_NAME)
+		try: self.pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
 	# ==================================================
@@ -190,70 +190,13 @@ class ViewerHRWidget(QWidget):
 	# region Glisser-déposer
 	# ==================================================
 	##################################################
-	def _get_drop_target(self) -> QWidget:
+	def _drop_files(self, paths: list[str]):
 		"""
-		Retourne la racine Qt de la fenêtre HR, y compris lorsque son dock est flottant.
+		Charge la pile unique acceptée par le filtre de la classe mère.
 
-		:return: Widget délimitant la zone de dépôt ; retourner ``self`` la limiterait au plugin.
+		:param paths: Liste contenant le chemin local de la pile déposée.
 		"""
-		window: QWidget = self
-		while window.parentWidget() is not None: window = window.parentWidget()
-		return window
-
-	##################################################
-	def showEvent(self, event: QShowEvent):
-		"""
-		Active l'interception après l'insertion du widget dans la fenêtre HR.
-
-		:param event: Événement d'affichage Qt.
-		"""
-		super().showEvent(event)
-		if self._drop_window is not None and isalive(self._drop_window): return
-		window = self._get_drop_target()
-		self._drop_window = window
-		self._drop_accepts = window.acceptDrops()
-		window.setAcceptDrops(True)
-		QApplication.instance().installEventFilter(self)
-
-	##################################################
-	def hideEvent(self, event: QHideEvent):
-		"""
-		Retire le filtre et restaure l'état des dépôts si la fenêtre Qt existe encore.
-
-		:param event: Événement de masquage Qt.
-		"""
-		QApplication.instance().removeEventFilter(self)
-		window = self._drop_window
-		self._drop_window = None
-		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
-		super().hideEvent(event)
-
-	##################################################
-	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-		"""
-		Intercepte le dépôt d'une seule pile locale dans la fenêtre HR.
-
-		Les dépôts multiples, les dossiers et les fichiers absents sont refusés.
-		Les autres fenêtres et les glissements sans fichier local restent inchangés.
-
-		:param watched: Objet Qt destinataire de l'événement.
-		:param event: Événement à filtrer.
-		:return: ``True`` si l'événement est consommé avant son traitement par Napari.
-		"""
-		if event.type() not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
-		window = self._drop_window
-		if window is None or not isalive(window) or not isinstance(watched, QWidget): return False
-		if watched is not window and not window.isAncestorOf(watched): return False
-		drop = cast(QDropEvent, event)
-		urls = drop.mimeData().urls()
-		if not any(url.isLocalFile() for url in urls): return False
-		if len(urls) != 1 or not Path(urls[0].toLocalFile()).is_file():
-			drop.ignore()
-			return True
-		drop.setDropAction(Qt.DropAction.CopyAction)
-		drop.accept()
-		if event.type() == QEvent.Type.Drop: self._add_stack(urls[0].toLocalFile())
-		return True
+		self._add_stack(paths[0])
 
 	# ==================================================
 	# endregion Glisser-déposer
@@ -269,7 +212,7 @@ class ViewerHRWidget(QWidget):
 		Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route.
 		"""
 		s_list = ["Remove Beads", "Drift Correction", "Smooth Drift"]
-		if self._pt.results.beads.empty:
+		if self.pt.results.beads.empty:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).hide()
 		else:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).show()
@@ -281,9 +224,9 @@ class ViewerHRWidget(QWidget):
 
 		:param path: Chemin local de la pile à ajouter au Batch partagé avec le widget principal.
 		"""
-		cast(FileList, self._pt.settings.batch["Files"]).add_files([path])
+		cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
 		# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
-		self._pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
+		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 		self._actualize()  # Actualisation des statuts
 
 	##################################################
@@ -295,7 +238,7 @@ class ViewerHRWidget(QWidget):
 	def _save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
-			crop = self._pt.crop(self.visualization)
+			crop = self.pt.crop(self.visualization)
 			if self._filename[-3:] == "png": FileIO.save_png(crop, self._filename, False)
 			else: FileIO.save_tif(crop, self._filename)
 			show_info("Image file saved successfully.")
@@ -328,24 +271,24 @@ class ViewerHRWidget(QWidget):
 	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
 		self._filename = ""
-		path, stack, suffix = self._pt.path, self._pt.stack, self._pt.suffix
+		path, stack, suffix = self.pt.path, self.pt.stack, self.pt.suffix
 
 		if stack is None or not path or not Path(path).is_dir():
 			show_warning(f"No stack processed loaded.")
 			return
 
 		# Conserve le repère de l'image affichée si la génération ne peut pas la remplacer.
-		previous_hr_box = self._pt.settings.rois.hr_box
-		data = self._pt.hr()
+		previous_hr_box = self.pt.settings.rois.hr_box
+		data = self.pt.hr()
 		visualization, plot_data = data["visualization"], data["plot_data"]
 		if visualization.size <= 1:
-			self._pt.settings.rois.hr_box = previous_hr_box
+			self.pt.settings.rois.hr_box = previous_hr_box
 			show_warning("No visualization available.")
 			return
 		self.visualization = visualization
 
 		# Changement des noms
-		self._filename = str(self._pt.output_viz_name())
+		self._filename = str(self.pt.output_viz_name())
 		self._screenshot_filename = f"{path}/screenshot-{suffix}-{FileIO.get_timestamp_for_files()}.png"
 
 		point_layer = self._layers[self.LAYERS_NAME[1]]
@@ -365,13 +308,14 @@ class ViewerHRWidget(QWidget):
 		else:  # .														 Trajectoires
 			points = plot_data[:, 1:]  # .								 Les têtes conservent le plan des tracks, déjà décalé pour le track stack.
 			if plot_data.shape[0] > 0: tracks = plot_data
-		Ui.update_layer(point_layer, points, face_color="lime", out_of_slice_display=False, editable=False, locked=True)
-		Ui.update_layer(filtered_layer, filtered_points, face_color="red", out_of_slice_display=False, editable=False, locked=True)
-		Ui.update_layer(tracks_layer, tracks, blending="translucent")  # Napari refuse les tracks vides : conserve le point fictif de l'initialisation.
+		for layer, data, state in ((point_layer, points, "Present"), (filtered_layer, filtered_points, "Filtered")):
+			args = self.LAYER_ARGS[state]
+			self.update_layer(layer, data, size=args["size"], face_color=args["face"], out_of_slice_display=False, editable=False, locked=True)
+		self.update_layer(tracks_layer, tracks, blending="translucent")  # Napari refuse les tracks vides : conserve le point fictif de l'initialisation.
 
 		self._update_visualization_layer()
 		# self._layers[self.LAYERS_NAME[0]].visible = True
-		self._pt.settings.rois.update_hr()
+		self.pt.settings.rois.update_hr()
 		# La zone source n'a pas de repère commun avec les projections tournées.
 		roi_layer = self._layers[self.LAYERS_NAME[4]]
 		if self._hr_settings["Dimension"].value == 2:
@@ -381,7 +325,7 @@ class ViewerHRWidget(QWidget):
 			roi_layer.visible = self._roi_visibility_before_rotation
 			self._roi_visibility_before_rotation = None
 		# self.viewer.reset_view()  # Recentrer et ajuster la vue
-		self._pt._save_setting_group("HR")
+		self.pt._save_setting_group("HR")
 
 	##################################################
 	def _update_visualization_layer(self):
@@ -391,7 +335,7 @@ class ViewerHRWidget(QWidget):
 		data = self.visualization
 		rgb = data.ndim == 4 and data.shape[-1] == 3
 		if layer.rgb == rgb and layer.ndim == data.ndim - int(rgb):
-			Ui.update_layer(layer, data, editable=False, locked=True)
+			self.update_layer(layer, data, editable=False, locked=True)
 			return
 
 		# Napari configure aussi le visuel à la création : changer uniquement les données ne suffit pas.

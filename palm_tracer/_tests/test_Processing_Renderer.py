@@ -948,10 +948,10 @@ def test_get_localization_colors():
 
 ##################################################
 @pytest.mark.parametrize("z, expected", [
-	pytest.param([-300.0, 0.0, 100.0], [0.0, 0.75, 1.0], id="mixed-sign"),
-	pytest.param([100.0, 200.0, 300.0], [0.0, 0.5, 1.0], id="positive"),
-	pytest.param([-300.0, -200.0, -100.0], [0.0, 0.5, 1.0], id="negative"),
-])
+		pytest.param([-300.0, 0.0, 100.0], [0.0, 0.75, 1.0], id="mixed-sign"),
+		pytest.param([100.0, 200.0, 300.0], [0.0, 0.5, 1.0], id="positive"),
+		pytest.param([-300.0, -200.0, -100.0], [0.0, 0.5, 1.0], id="negative"),
+		])
 def test_get_localization_z_colors(z, expected):
 	"""La source Z utilise toute la plage uint16 sans modifier les coordonnées physiques."""
 	loc = pd.DataFrame({"Z": z})

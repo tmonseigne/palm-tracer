@@ -1,67 +1,45 @@
 """Teste le widget Napari de visualisation haute résolution des résultats."""
 
-import shutil
+from copy import deepcopy
 from importlib import import_module
-from pathlib import Path
 from types import SimpleNamespace
-from typing import cast
 
 import pytest
 from napari.components import ViewerModel
-from qtpy.compat import isalive
 from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QPoint, QPointF, Qt, QUrl
-from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
-from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QPushButton, QScrollArea, QWidget
+from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QPushButton
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, FileList
 from palm_tracer.Tools import FileIO
-from palm_tracer.UI import PALMTracerWidget, ViewerHRWidget
+from palm_tracer.UI import BaseNapariWidget, PALMTracerWidget, ViewerHRWidget
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 ##################################################
-class StackDropReceiver(QWidget):
-	"""Simule le destinataire Napari habituel pour détecter les dépôts non interceptés."""
-
-	def __init__(self):
-		"""Initialise l'acceptation des dépôts et leur historique."""
-		super().__init__()
-		self.received = []
-		self.setAcceptDrops(True)
-
-	def dragEnterEvent(self, event):
-		"""Accepte le glissement reçu par le widget habituel."""
-		self.received.append("enter")
-		event.acceptProposedAction()
-
-	def dropEvent(self, event):
-		"""Enregistre le dépôt reçu par le widget habituel."""
-		self.received.append("drop")
-		event.acceptProposedAction()
-
-
-##################################################
 @pytest.fixture
 def stack_drop_widget(qtbot, monkeypatch):
 	"""Crée une fenêtre HR et observe le chargement puis l'actualisation sans génération de rendu."""
-	monkeypatch.setattr(ViewerHRWidget, "_generate", lambda self: None)
 	window = QMainWindow()
 	qtbot.addWidget(window)
-	receiver = StackDropReceiver()
+	receiver = DropReceiver()
 	window.setCentralWidget(receiver)
 	dock = QDockWidget(window)
 	widget = ViewerHRWidget(ViewerModel(), PALMTracer())
+	# Le modèle connecte lui-même la lecture de profondeur, indépendamment des signaux du widget.
 	dock.setWidget(widget)
 	window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
+
 	calls = []
-	files = cast(FileList, widget._pt.settings.batch["Files"])
-	monkeypatch.setattr(widget._pt, "load", lambda path="": calls.append(("load", Path(path))))
+	files = cast(FileList, widget.pt.settings.batch["Files"])
+	monkeypatch.setattr(ViewerHRWidget, "_generate", lambda self: None)
+	monkeypatch.setattr(widget.pt, "load", lambda path="": calls.append(("load", Path(path))))
 	monkeypatch.setattr(widget, "_actualize", lambda: calls.append(("actualize", Path(files.current_text))))
 	window.show()
-	return widget, window, receiver, dock, calls
+	return widget, receiver, calls
 
 
 ##################################################
@@ -116,17 +94,67 @@ def test_widget_creation(qtbot):
 
 
 ##################################################
+def test_layer_styles_follow_shared_configuration(qtbot, monkeypatch, tmp_path):
+	"""Vérifie les styles personnalisés à la création, puis lors de la régénération des points HR."""
+	styles = deepcopy(BaseNapariWidget.LAYER_ARGS)
+	styles["Present"].update(face="blue", color="yellow", size=3.0, border=0.3)
+	styles["Filtered"].update(face="magenta", color="orange", size=5.0, border=0.1, edge=2.0)
+	monkeypatch.setattr(ViewerHRWidget, "LAYER_ARGS", styles)
+	generate = ViewerHRWidget._generate
+	monkeypatch.setattr(ViewerHRWidget, "_generate", lambda self: None)
+	pt = PALMTracer()
+	widget = ViewerHRWidget(ViewerModel(), pt)
+	qtbot.addWidget(widget)
+	assert widget.pt is pt
+	expected = (("Points", "Present", [0, 0, 1, 1], [1, 1, 0, 1]),
+				("Points Filtered", "Filtered", [1, 0, 1, 1], [1, 0.6470588, 0, 1]))
+
+	# L'ajout d'un point expose les styles configurés pour les calques initialement vides.
+	for name, state, face, border in expected:
+		layer = widget._layers[name]
+		layer.data = np.array([[0, 1, 1]], dtype=float)
+		np.testing.assert_allclose(layer.face_color, [face])
+		np.testing.assert_allclose(layer.border_color, [border])
+		np.testing.assert_allclose(layer.size, styles[state]["size"])
+		np.testing.assert_allclose(layer.border_width, styles[state]["border"])
+	roi = widget._layers["ROI Filter"]
+	assert roi.current_edge_color == "white"
+
+	pt._path, pt._stack = str(tmp_path), np.zeros((1, 2, 2), dtype=np.uint16)
+	pt.settings.hr["Type"].value, pt.settings.hr["Dimension"].value = 0, 0
+	monkeypatch.setattr(pt, "hr", lambda: {"visualization": np.ones((2, 2), dtype=np.uint16),
+										   "plot_data":     np.array([[0, 0, 0], [0, 1, 1]], dtype=float),
+										   "plot_filtered": np.array([[0, 1, 0]], dtype=float)})
+	monkeypatch.setattr(pt, "output_viz_name", lambda: tmp_path / "visualization.tif")
+	monkeypatch.setattr(pt, "_save_setting_group", lambda group: None)
+	monkeypatch.setattr(pt.settings.rois, "update_hr", lambda: None)
+
+	generate(widget)
+
+	for name, state, face, border in expected:
+		layer = widget._layers[name]
+		count = 2 if state == "Present" else 1
+		assert len(layer.data) == count
+		np.testing.assert_allclose(layer.face_color, np.tile(face, (count, 1)))
+		np.testing.assert_allclose(layer.border_color, np.tile(border, (count, 1)))
+		np.testing.assert_allclose(layer.size, styles[state]["size"])
+		np.testing.assert_allclose(layer.border_width, styles[state]["border"])
+		assert not layer.out_of_slice_display
+		assert not layer.editable and layer.locked
+
+
+##################################################
 def test_results_status_automatic_update(qtbot):
 	"""Vérifie que les statuts sont actualisés directement par Results."""
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, get_fake_pt())
 	qtbot.addWidget(w)
-	results_ui = w._pt.results.get_ui(w.UI_NAME)
+	results_ui = w.pt.results.get_ui(w.UI_NAME)
 
-	w._pt.results.reset()
+	w.pt.results.reset()
 	assert results_ui._labels["Beads"].text() == "No"
 
-	w._pt.results["bds"] = pd.DataFrame(np.zeros((2, 1)))
+	w.pt.results["bds"] = pd.DataFrame(np.zeros((2, 1)))
 	assert results_ui._labels["Beads"].text() == "Yes (2 localizations)"
 
 
@@ -166,33 +194,28 @@ def test_widget_double_creation(qtbot):
 # region Glisser-déposer
 # ==================================================
 ##################################################
-@pytest.mark.parametrize("target", ["window", "plugin", "scroll"], ids=["window-content", "plugin-button", "scroll-viewport"])
-def test_stack_drop_loads_latest_results_and_actualizes(stack_drop_widget, target):
+def test_stack_drop_loads_latest_results_and_actualizes(stack_drop_widget):
 	"""Vérifie l'ajout d'une pile, sa sélection, puis le chargement et l'actualisation dans cet ordre."""
-	widget, window, receiver, _, calls = stack_drop_widget
+	widget, receiver, calls = stack_drop_widget
 	mime = QMimeData()
 	mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
-	targets = {"window": receiver, "plugin": widget._btn_actualize, "scroll": widget.findChild(QScrollArea).viewport()}
 
-	events = send_stack_drop(targets[target], mime)
+	events = send_stack_drop(receiver, mime)
 
-	assert widget._drop_window is window
 	assert all(event.isAccepted() for event in events)
 	assert receiver.received == []
-	assert [Path(path) for path in widget._pt.settings.batch["Files"].items] == [INPUT_FILE]
+	assert [Path(path) for path in widget.pt.settings.batch["Files"].items] == [INPUT_FILE]
 	assert calls == [("load", OUTPUT_FOLDER), ("actualize", INPUT_FILE)]
 	assert all(button.text() != "Add Stack" for button in widget.findChildren(QPushButton))
 
 
 ##################################################
-@pytest.mark.parametrize("scenario", ["multiple", "mixed", "directory", "missing"], ids=["multiple-files", "local-and-remote", "directory", "missing-file"])
-def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario):
+@pytest.mark.parametrize("scenario", ["multiple", "mixed"], ids=["multiple-files", "local-and-remote"])
+def test_stack_drop_rejects_multiple_urls(stack_drop_widget, scenario):
 	"""Vérifie qu'un dépôt refusé ne modifie pas le Batch et ne charge aucun résultat."""
-	widget, _, receiver, _, calls = stack_drop_widget
-	urls = {"multiple":  [QUrl.fromLocalFile(str(INPUT_FILE))] * 2,
-			"mixed":     [QUrl.fromLocalFile(str(INPUT_FILE)), QUrl("https://example.com/stack.tif")],
-			"directory": [QUrl.fromLocalFile(str(tmp_path))],
-			"missing":   [QUrl.fromLocalFile(str(tmp_path / "missing.tif"))]}
+	widget, receiver, calls = stack_drop_widget
+	urls = {"multiple": [QUrl.fromLocalFile(str(INPUT_FILE))] * 2,
+			"mixed": [QUrl.fromLocalFile(str(INPUT_FILE)), QUrl("https://example.com/stack.tif")]}
 	mime = QMimeData()
 	mime.setUrls(urls[scenario])
 
@@ -200,79 +223,8 @@ def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario)
 
 	assert not any(event.isAccepted() for event in events)
 	assert receiver.received == []
-	assert widget._pt.settings.batch["Files"].items == []
+	assert widget.pt.settings.batch["Files"].items == []
 	assert calls == []
-
-
-##################################################
-@pytest.mark.parametrize("scenario", ["other-window", "remote", "text"], ids=["other-window", "remote-url", "internal-text"])
-def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenario):
-	"""Vérifie que le filtre HR laisse les autres fenêtres et les glissements sans fichier local inchangés."""
-	widget, _, receiver, _, calls = stack_drop_widget
-	mime = QMimeData()
-	if scenario == "other-window":
-		receiver = StackDropReceiver()
-		qtbot.addWidget(receiver)
-		receiver.show()
-		mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
-	elif scenario == "remote": mime.setUrls([QUrl("https://example.com/stack.tif")])
-	else: mime.setText("layer")
-
-	send_stack_drop(receiver, mime)
-
-	assert receiver.received == ["enter", "drop"]
-	assert widget._pt.settings.batch["Files"].items == []
-	assert calls == []
-
-
-##################################################
-@pytest.mark.parametrize("initial_accepts", [False, True], ids=["drops-disabled", "drops-enabled"])
-def test_stack_drop_follows_visibility_and_floating_dock(stack_drop_widget, initial_accepts):
-	"""Vérifie la restauration des dépôts, l'affichage répété et le maintien de la fenêtre après détachement."""
-	widget, window, receiver, dock, calls = stack_drop_widget
-	dock.hide()
-	window.setAcceptDrops(initial_accepts)
-	dock.show()
-	QApplication.sendEvent(widget, QShowEvent())
-	dock.hide()
-	assert widget._drop_window is None
-	assert window.acceptDrops() == initial_accepts
-	dock.show()
-	dock.setFloating(True)
-	mime = QMimeData()
-	mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
-
-	send_stack_drop(receiver, mime)
-
-	assert widget._drop_window is window
-	assert receiver.received == []
-	assert calls == [("load", OUTPUT_FOLDER), ("actualize", INPUT_FILE)]
-
-
-##################################################
-@pytest.mark.parametrize("scenario", ["hide", "drop", "show"], ids=["hide-after-destruction", "drop-after-destruction", "show-after-destruction"])
-def test_stack_drop_handles_deleted_window(stack_drop_widget, scenario):
-	"""Vérifie la sécurité des événements tardifs après destruction de la fenêtre cible."""
-	widget, window, receiver, dock, calls = stack_drop_widget
-	deleted_window = QMainWindow()
-	deleted_window.deleteLater()
-	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
-	assert not isalive(deleted_window)
-	if scenario == "show": dock.hide()
-	widget._drop_window = deleted_window
-
-	if scenario == "hide":
-		dock.hide()
-		assert widget._drop_window is None
-	elif scenario == "drop":
-		mime = QMimeData()
-		mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
-		send_stack_drop(receiver, mime)
-		assert receiver.received == ["enter", "drop"]
-		assert calls == []
-	else:
-		dock.show()
-		assert widget._drop_window is window
 
 
 ##################################################
@@ -280,8 +232,8 @@ def test_stack_drop_handles_deleted_window(stack_drop_widget, scenario):
 @pytest.mark.parametrize("shared_main", [False, True], ids=["standalone-hr", "shared-main-widget"])
 def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, tmp_path, monkeypatch, qtbot, mode, shared_main):
 	"""Charge réellement les derniers résultats de la pile déposée malgré une autre pile déjà dans le Batch."""
-	widget, _, receiver, _, calls = stack_drop_widget
-	pt = widget._pt
+	widget, receiver, calls = stack_drop_widget
+	pt = widget.pt
 	files = cast(FileList, pt.settings.batch["Files"])
 	first_stack, dropped_stack = tmp_path / "first.tif", tmp_path / "dropped.tif"
 	for stack in (first_stack, dropped_stack): shutil.copy2(INPUT_FILE, stack)
@@ -315,7 +267,7 @@ def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, t
 	monkeypatch.setattr(pt, "load", load_results)
 	if shared_main:
 		# Le widget principal utilise la même instance et conserve son vrai callback de synchronisation.
-		monkeypatch.setattr(import_module(PALMTracerWidget.__module__), "PALMTracer", lambda: pt)
+		monkeypatch.setattr(import_module(BaseNapariWidget.__module__), "PALMTracer", lambda: pt)
 		monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
 		monkeypatch.setattr(PALMTracerWidget, "_on_change_setting", lambda self: None)
 		monkeypatch.setattr(PALMTracerWidget, "_preview", lambda self: None)
@@ -340,8 +292,8 @@ def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, t
 ##################################################
 def test_stack_drop_preserves_active_load_context(stack_drop_widget, monkeypatch):
 	"""Vérifie qu'un chargement imbriqué ne remplace pas le dossier ni le timestamp actifs."""
-	widget, _, _, _, calls = stack_drop_widget
-	pt = widget._pt
+	widget, _, calls = stack_drop_widget
+	pt = widget.pt
 	monkeypatch.setattr(pt, "load", PALMTracer.load.__get__(pt))
 	pt._path, pt._timestamp = "active_PALM_Tracer", "20260102_000000"
 	pt._loading = True
@@ -356,8 +308,8 @@ def test_stack_drop_preserves_active_load_context(stack_drop_widget, monkeypatch
 ##################################################
 def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypatch):
 	"""Vérifie qu'une erreur de lecture n'empêche pas un chargement ultérieur sur la même instance."""
-	widget, _, _, _, calls = stack_drop_widget
-	pt = widget._pt
+	widget, _, calls = stack_drop_widget
+	pt = widget.pt
 	monkeypatch.setattr(pt, "load", PALMTracer.load.__get__(pt))
 
 	def fail_load(_path):
@@ -392,10 +344,10 @@ def test_check_beads(qtbot):
 	w = ViewerHRWidget(viewer, get_fake_pt())
 	qtbot.addWidget(w)
 
-	ui: BaseUIType = w._pt.settings.hr["Remove Beads"].get_ui(w.UI_NAME)
+	ui: BaseUIType = w.pt.settings.hr["Remove Beads"].get_ui(w.UI_NAME)
 	w._check_beads()  # False
 	assert ui.boxes[0].isHidden()
-	w._pt.results["bds"] = w._pt.results["loc"].copy()
+	w.pt.results["bds"] = w.pt.results["loc"].copy()
 	w._check_beads()  # True
 	assert not ui.boxes[0].isHidden()
 
@@ -423,7 +375,7 @@ def test_actualize(qtbot):
 
 	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
 
-	w._pt._stack = np.zeros((1, 1, 1), dtype=np.uint16)
+	w.pt._stack = np.zeros((1, 1, 1), dtype=np.uint16)
 	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
 
 
@@ -487,11 +439,11 @@ def test_change_type(qtbot):
 	w = ViewerHRWidget(viewer, get_fake_pt())  # Créer notre widget, en passant par le viewer.
 	qtbot.addWidget(w)
 
-	ui: BaseUIType = cast(ButtonGroup, w._pt.settings.hr["Type"]).get_ui(w.UI_NAME)
+	ui: BaseUIType = cast(ButtonGroup, w.pt.settings.hr["Type"]).get_ui(w.UI_NAME)
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)  # Appuie sur localization
-	assert w._pt.settings.hr["Type"].value == 0
+	assert w.pt.settings.hr["Type"].value == 0
 	qtbot.mouseClick(ui.boxes[1], Qt.MouseButton.LeftButton)  # Appuie sur Tracks
-	assert w._pt.settings.hr["Type"].value == 1
+	assert w.pt.settings.hr["Type"].value == 1
 
 
 # ==================================================
@@ -526,7 +478,7 @@ def test_generate_bad(qtbot, capsys):
 	assert "WARNING: No stack processed loaded." in lines[0]
 
 	# Un process, mais aucun tableau d'exploitable.
-	w._pt.process()  # Process Vide pour créer le dossier et un paramètre de base
+	w.pt.process()  # Process Vide pour créer le dossier et un paramètre de base
 	_ = get_lines_output(capsys)
 	w._generate()
 	lines = get_lines_output(capsys)
@@ -550,14 +502,14 @@ def test_generate(generated_widget, capsys):
 	assert actual["Gallery"] == initial["PALM Tracer Settings"]["Gallery"]
 	assert not w._layers[w.LAYERS_NAME[1]].visible
 	assert not w._layers["Tracks"].visible
-	w._pt.settings.hr["Type"].value = 1
+	w.pt.settings.hr["Type"].value = 1
 	w._generate()
 	assert not w._layers[w.LAYERS_NAME[1]].visible
 	assert not w._layers["Tracks"].visible
 	assert viewer.dims.range[0].stop == np.max(w._layers["Tracks"].data[:, 1])
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0
-	w._pt.settings.hr["Dimension"].value = 1
+	w.pt.settings.hr["Dimension"].value = 1
 	w._generate()
 	lines = get_lines_output(capsys)
 	assert len(lines) == 0
@@ -673,16 +625,16 @@ def test_generate_restores_box_without_image(generated_widget, capsys):
 	pt.settings.hr["Drift Correction"].value = False
 	pt.settings.hr.gaussian.active = False
 	w._generate()
-	previous_box = w._pt.settings.rois.hr_box
+	previous_box = w.pt.settings.rois.hr_box
 	previous_image = w.visualization
 	previous_points = w._layers[w.LAYERS_NAME[1]].data.copy()
 	assert previous_box[0] > 0 and previous_box[2] > 0
-	w._pt.results.reset()
+	w.pt.results.reset()
 	get_lines_output(capsys)
 
 	w._generate()
 	assert "WARNING: No visualization available." in get_lines_output(capsys)
-	assert w._pt.settings.rois.hr_box == previous_box
+	assert w.pt.settings.rois.hr_box == previous_box
 	assert w.visualization is previous_image
 	np.testing.assert_array_equal(w._layers[w.LAYERS_NAME[0]].data, previous_image)
 	np.testing.assert_array_equal(w._layers[w.LAYERS_NAME[1]].data, previous_points)
@@ -894,7 +846,8 @@ def test_visualization_layer_rgb_transitions():
 	viewer = ViewerModel()
 	layer = viewer.add_image(np.zeros((1, 1), dtype=np.uint16), name="Visualization")
 	viewer.add_points(np.empty((0, 3)), name="Points")
-	state = SimpleNamespace(viewer=viewer, LAYERS_NAME=ViewerHRWidget.LAYERS_NAME, _layers={"Visualization": layer})
+	state = SimpleNamespace(viewer=viewer, LAYERS_NAME=ViewerHRWidget.LAYERS_NAME, _layers={"Visualization": layer},
+							update_layer=BaseNapariWidget.update_layer)
 	for shape in [(2, 5, 7, 3), (3, 5, 7, 3), (2, 5, 7), (5, 7), (2, 5, 7, 3)]:
 		state.visualization = np.zeros(shape, dtype=np.uint8)
 		ViewerHRWidget._update_visualization_layer(state)

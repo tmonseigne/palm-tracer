@@ -5,22 +5,20 @@ Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 """
 
 from pathlib import Path
-from typing import Any, Callable, Optional, cast
+from typing import Callable, Optional, cast
 
 import napari
 import numpy as np
 import pandas as pd
 from napari import Viewer
 from napari.utils.notifications import show_error, show_info, show_warning
-from qtpy.compat import isalive
-from qtpy.QtCore import QEvent, QObject, Qt
-from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
-from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_json, open_tif, save_json
+from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
@@ -33,7 +31,7 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 
 ##################################################
-class PALMTracerWidget(QWidget):
+class PALMTracerWidget(BaseNapariWidget):
 	"""
 	Fournit l'interface Napari principale de PALM Tracer.
 
@@ -47,12 +45,6 @@ class PALMTracerWidget(QWidget):
 	LAYERS_NAME: list[str] = ["Raw", "Points Present", "ROI Present", "Points Filtered", "Points Past", "Points Future", "ROI Filter"]
 	"""Noms des calques gérés par l'interface principale."""
 
-	LAYER_ARGS: dict[str, dict[str, Any]] = {"Present":  {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
-											 "Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red"},
-											 "Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
-											 "Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"}
-											 }
-	"""Propriétés graphiques des différents calques de points."""
 	EMPTY_PREVIEW: np.ndarray = np.empty((0, 2), dtype=float)
 	"""Tableau vide utilisé lorsqu'aucun point n'est prévisualisé."""
 	EMPTY_STACK: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
@@ -70,9 +62,8 @@ class PALMTracerWidget(QWidget):
 
 		:param viewer: Viewer Napari.
 		"""
-		super().__init__()
+		super().__init__(viewer)
 		# ----- Viewers -----
-		self.viewer = viewer
 		self.viewer_hr: Optional[Viewer] = None
 		self.viewer_hr_widget: Optional[QWidget] = None
 		self.viewer_3d: Optional[Viewer] = None
@@ -81,10 +72,7 @@ class PALMTracerWidget(QWidget):
 		# ----- Threads -----
 		self._processing = False  # .					 Permets d'éviter les clics multiples.
 		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
-		self._drop_window: Optional[QWidget] = None  # . Fenêtre Qt dont les dépôts alimentent le Batch.
-		self._drop_accepts: bool = False  # .			 État initial de l'acceptation des dépôts dans cette fenêtre.
 		# ----- Objets -----
-		self.pt = PALMTracer()
 		self.last_file = ""
 		self._preview_locs: dict[str, np.ndarray] = {"Present": self.EMPTY_PREVIEW, "Filtered": self.EMPTY_PREVIEW,
 													 "Past":    self.EMPTY_PREVIEW, "Future": self.EMPTY_PREVIEW}
@@ -224,76 +212,23 @@ class PALMTracerWidget(QWidget):
 	# region Glisser-déposer
 	# ==================================================
 	##################################################
-	def _get_drop_target(self) -> QWidget:
+	def _can_drop_files(self, paths: list[str]) -> bool:
 		"""
-		Retourne la racine Qt du plugin pour délimiter l'interception des dépôts.
+		Refuse les dépôts pendant un traitement PALM Tracer.
 
-		Parcourir les parents conserve la fenêtre Napari même si le dock est flottant.
-		Retourner ``self`` permettrait de limiter l'interception au plugin.
-
-		:return: Widget dont les descendants peuvent déposer des fichiers dans le Batch.
+		:param paths: Chemins locaux du dépôt validé par la classe mère.
+		:return: ``True`` si aucun traitement n'est en cours.
 		"""
-		window: QWidget = self
-		while window.parentWidget() is not None: window = window.parentWidget()
-		return window
+		return not self._processing
 
 	##################################################
-	def showEvent(self, event: QShowEvent):
+	def _drop_files(self, paths: list[str]):
 		"""
-		Active l'interception après l'insertion du plugin dans sa fenêtre Qt.
+		Ajoute les fichiers déposés au Batch de l'interface principale.
 
-		:param event: Événement d'affichage du widget.
+		:param paths: Chemins locaux des fichiers à ajouter.
 		"""
-		super().showEvent(event)
-		if self._drop_window is not None and isalive(self._drop_window): return
-		window = self._get_drop_target()
-		self._drop_window = window
-		self._drop_accepts = window.acceptDrops()
-		window.setAcceptDrops(True)
-		QApplication.instance().installEventFilter(self)
-
-	##################################################
-	def hideEvent(self, event: QHideEvent):
-		"""
-		Rétablit les dépôts habituels lorsque le plugin est masqué ou fermé.
-
-		:param event: Événement de masquage du widget.
-		"""
-		QApplication.instance().removeEventFilter(self)
-		window = self._drop_window
-		self._drop_window = None
-		# Qt peut détruire la fenêtre avant de masquer ses widgets enfants.
-		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
-		super().hideEvent(event)
-
-	##################################################
-	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-		"""
-		Dirige les dépôts de fichiers locaux de la fenêtre vers le Batch.
-
-		Le filtre global couvre les widgets enfants, y compris les zones de défilement.
-		Les autres fenêtres et les glissements internes sans fichier restent inchangés.
-		Pendant un traitement, les dépôts de fichiers sont consommés mais refusés.
-
-		:param watched: Objet Qt destinataire de l'événement.
-		:param event: Événement à filtrer.
-		:return: ``True`` si l'événement est consommé avant son traitement par Napari.
-		"""
-		if event.type() not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
-		window = self._drop_window
-		if window is None or not isalive(window) or not isinstance(watched, QWidget): return False
-		if watched is not window and not window.isAncestorOf(watched): return False
-		drop = cast(QDropEvent, event)
-		paths = [url.toLocalFile() for url in drop.mimeData().urls() if url.isLocalFile()]
-		if not paths: return False
-		if self._processing or not any(Path(path).is_file() for path in paths):
-			drop.ignore()
-			return True
-		# L'action Copy décrit l'ajout des chemins ; aucun fichier source n'est déplacé.
-		drop.setDropAction(Qt.DropAction.CopyAction)
-		drop.accept()
-		if event.type() == QEvent.Type.Drop: cast(FileList, self.pt.settings.batch["Files"]).add_files(paths)
-		return True
+		cast(FileList, self.pt.settings.batch["Files"]).add_files(paths)
 
 	# ==================================================
 	# endregion Glisser-déposer
@@ -416,14 +351,14 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _clean_layer(self, raw: bool = True, preview: bool = True, roi: bool = True):
 		"""Vide les calques sans les supprimer."""
-		if raw: Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
+		if raw: self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
 		if preview:
-			Ui.update_layer(self._layers[self.LAYERS_NAME[1]], self.EMPTY_PREVIEW)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[2]], [])
-			Ui.update_layer(self._layers[self.LAYERS_NAME[3]], self.EMPTY_PREVIEW)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[4]], self.EMPTY_PREVIEW)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[5]], self.EMPTY_PREVIEW)
-		if roi: Ui.update_layer(self._layers[self.LAYERS_NAME[6]], [])
+			self.update_layer(self._layers[self.LAYERS_NAME[1]], self.EMPTY_PREVIEW)
+			self.update_layer(self._layers[self.LAYERS_NAME[2]], [])
+			self.update_layer(self._layers[self.LAYERS_NAME[3]], self.EMPTY_PREVIEW)
+			self.update_layer(self._layers[self.LAYERS_NAME[4]], self.EMPTY_PREVIEW)
+			self.update_layer(self._layers[self.LAYERS_NAME[5]], self.EMPTY_PREVIEW)
+		if roi: self.update_layer(self._layers[self.LAYERS_NAME[6]], [])
 
 	##################################################
 	def _reset_layer(self):
@@ -447,7 +382,7 @@ class PALMTracerWidget(QWidget):
 			self._current_stack = open_tif(selected_file)
 			_, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
+			self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
 			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()  # .			   Reinitialisation du contrast si la Pile Change
 			self.viewer.reset_view()  # .											   Recentrer et ajuster la vue
 			self.pt.load(str(Path(selected_file).with_suffix("")) + "_PALM_Tracer")  # load() attend le dossier des résultats, et non le chemin du TIFF.
@@ -473,8 +408,8 @@ class PALMTracerWidget(QWidget):
 			n_points = len(points)
 			layer = self._layers[f"Points {state}"]
 			# Remets les différents arguments en cas de nombre de points différents
-			Ui.update_layer(layer, points, size=np.full(n_points, 1.0), face_color=[args["face"]] * n_points,
-							border_color=[args["color"]] * n_points, border_width=np.full(n_points, args["border"]))
+			self.update_layer(layer, points, size=np.full(n_points, args["size"]), face_color=[args["face"]] * n_points,
+							  border_color=[args["color"]] * n_points, border_width=np.full(n_points, args["border"]))
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
@@ -491,8 +426,8 @@ class PALMTracerWidget(QWidget):
 			n_rois = len(rois)
 			layer = self._layers[f"ROI {state}"]
 			# Remets les différents arguments en cas de nombre de points différents
-			Ui.update_layer(layer, (rois, [s_type] * n_rois), edge_color=[args["color"]] * n_rois,
-							edge_width=[args["edge"]] * n_rois, face_color=["transparent"] * n_rois)
+			self.update_layer(layer, (rois, [s_type] * n_rois), edge_color=[args["color"]] * n_rois,
+							  edge_width=[args["edge"]] * n_rois, face_color=["transparent"] * n_rois)
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:

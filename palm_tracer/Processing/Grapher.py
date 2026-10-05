@@ -214,8 +214,8 @@ class Grapher:
 			x = np.where(np.isfinite(curve[0]), curve[0], np.nan)
 			y = np.where(valid[i], curve[1], np.nan)
 			fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", connectgaps=False, name=name, line=dict(color=_SEABORN_DEEP[i % len(_SEABORN_DEEP)]),
-									hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra>%{fullData.name}</extra>" if names is not None
-									else "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
+									 hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra>%{fullData.name}</extra>" if names is not None
+									 else "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas
 		if show_sigma and values.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)

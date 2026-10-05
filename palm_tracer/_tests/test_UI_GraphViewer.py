@@ -1,8 +1,5 @@
 """Teste le widget de visualisation interactive des données PALM."""
 
-from pathlib import Path
-from typing import cast
-
 import pytest
 from qtpy.compat import isalive
 from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPoint, QPointF, Qt, QUrl
@@ -23,31 +20,10 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 
 
 ##################################################
-class StackDropReceiver(QWidget):
-	"""Simule la zone du graphe et enregistre les dépôts non interceptés."""
-
-	def __init__(self, parent=None):
-		"""Initialise l'acceptation des dépôts et leur historique."""
-		super().__init__(parent)
-		self.received = []
-		self.setAcceptDrops(True)
-
-	def dragEnterEvent(self, event):
-		"""Accepte le glissement reçu par le widget habituel."""
-		self.received.append("enter")
-		event.acceptProposedAction()
-
-	def dropEvent(self, event):
-		"""Enregistre le dépôt reçu par le widget habituel."""
-		self.received.append("drop")
-		event.acceptProposedAction()
-
-
-##################################################
 @pytest.fixture
 def stack_drop_widget(qtbot, monkeypatch):
 	"""Observe les dépôts dans une fenêtre autonome sans construire de rendu WebEngine."""
-	monkeypatch.setattr(GraphViewerWidget, "_make_web_widget", lambda self: StackDropReceiver(self))
+	monkeypatch.setattr(GraphViewerWidget, "_make_web_widget", lambda self: DropReceiver(self))
 	monkeypatch.setattr(GraphViewerWidget, "_connect_web_widget", lambda self: None)
 	monkeypatch.setattr(GraphViewerWidget, "_update_plot", lambda self: None)
 	widget = GraphViewerWidget(PALMTracer())
@@ -194,10 +170,10 @@ def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target):
 def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario):
 	"""Vérifie qu'un dépôt refusé ne modifie pas le Batch et ne redessine pas le graphe."""
 	widget, calls = stack_drop_widget
-	urls = {"multiple": [QUrl.fromLocalFile(str(INPUT_FILE))] * 2,
-			"mixed": [QUrl.fromLocalFile(str(INPUT_FILE)), QUrl("https://example.com/stack.tif")],
+	urls = {"multiple":  [QUrl.fromLocalFile(str(INPUT_FILE))] * 2,
+			"mixed":     [QUrl.fromLocalFile(str(INPUT_FILE)), QUrl("https://example.com/stack.tif")],
 			"directory": [QUrl.fromLocalFile(str(tmp_path))],
-			"missing": [QUrl.fromLocalFile(str(tmp_path / "missing.tif"))]}
+			"missing":   [QUrl.fromLocalFile(str(tmp_path / "missing.tif"))]}
 	mime = QMimeData()
 	mime.setUrls(urls[scenario])
 
@@ -217,7 +193,7 @@ def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenari
 	receiver = widget._web
 	mime = QMimeData()
 	if scenario == "other-window":
-		receiver = StackDropReceiver()
+		receiver = DropReceiver()
 		qtbot.addWidget(receiver)
 		receiver.show()
 		mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])

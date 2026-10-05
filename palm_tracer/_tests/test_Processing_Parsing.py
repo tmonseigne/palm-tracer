@@ -142,7 +142,7 @@ def test_parse_irregular_array_empty(data):
 
 ##################################################
 @pytest.mark.parametrize("data, result_type, fit_mode, expected", [
-		pytest.param(np.arange(20), "Localization",  0, np.arange(18), id="localizations"),
+		pytest.param(np.arange(20), "Localization", 0, np.arange(18), id="localizations"),
 		pytest.param(np.arange(20), "Tracking", 0, np.arange(16).reshape(2, 8), id="tracks"),
 		pytest.param(np.arange(10).reshape(2, 5), "Astigmatism 3D Model", 0, np.arange(10).reshape(2, 5), id="astigmatism-model"),
 		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "MSD", 0, [[1, 2], [3, 4]], id="msd"),

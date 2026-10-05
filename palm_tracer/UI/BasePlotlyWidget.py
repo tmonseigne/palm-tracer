@@ -352,6 +352,7 @@ class BasePlotlyWidget(QWidget):
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication
 
 	app = QApplication(sys.argv)
