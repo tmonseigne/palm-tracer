@@ -73,7 +73,6 @@ msgstr "Removes the Qt interface associated with the given name from both the re
 
 #: ../../api/palm_tracer.PALMTracer.rst of
 #: palm_tracer.PALMTracer.PALMTracer.connect_filters_button
-#: palm_tracer.PALMTracer.PALMTracer.load
 msgid "Paramètres"
 msgstr "Parameters"
 
@@ -85,6 +84,14 @@ msgstr "Interface name in the dictionary."
 msgid "Accesseurs"
 msgstr "Accessors"
 
+#: of palm_tracer.PALMTracer.PALMTracer.save_setting_group:1
+msgid "Met à jour un seul groupe dans le fichier de paramètres du traitement courant."
+msgstr "Updates a single group in the current processing settings file."
+
+#: of palm_tracer.PALMTracer.PALMTracer.save_setting_group:3
+msgid "Nom du groupe à enregistrer, sans écraser les autres paramètres du fichier."
+msgstr "Name of the group to save, without overwriting the other settings in the file."
+
 #: of palm_tracer.PALMTracer.PALMTracer.output_viz_name:1
 msgid "Indique le nom du fichier de visualisation à enregistrer CHEMIN / name-Timestamp.extension."
 msgstr "Provides the name of the visualization file to save: PATH / name-Timestamp.extension."
@@ -93,13 +100,21 @@ msgstr "Provides the name of the visualization file to save: PATH / name-Timesta
 msgid "Nom du fichier."
 msgstr "File name."
 
-#: ../../api/palm_tracer.PALMTracer.rst:34
+#: ../../api/palm_tracer.PALMTracer.rst:35
 msgid "Traitements"
 msgstr "Processing"
 
 #: of palm_tracer.PALMTracer.PALMTracer.load:1
-msgid "Charge les précédents résultats du fichier courant."
-msgstr "Loads the previous results for the current file."
+msgid "Charge les précédents résultats du fichier courant sans chargement imbriqué."
+msgstr "Loads the previous results for the current file without nested loading."
+
+#: of palm_tracer.PALMTracer.PALMTracer.load:3
+msgid "La restauration des paramètres peut déclencher un nouvel appel via les widgets connectés au Batch. Cet appel est ignoré pour préserver le dossier et le timestamp du chargement en cours ; un appel ultérieur reste possible."
+msgstr "Restoring the settings may trigger another call through the widgets connected to Batch. This call is ignored to preserve the directory and timestamp of the ongoing load; a later call remains possible."
+
+#: of palm_tracer.PALMTracer.PALMTracer.load:7
+msgid "Dossier des résultats, ou chaîne vide pour utiliser le premier dossier du Batch."
+msgstr "Results directory, or an empty string to use the first Batch directory."
 
 #: of palm_tracer.PALMTracer.PALMTracer.process:1
 msgid "Lance le process de PALM selon les éléments en paramètres."
@@ -109,7 +124,7 @@ msgstr "Runs PALM processing using the provided settings."
 msgid "Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."
 msgstr "Saves the metadata file (creates the DataFrame and saves it as CSV if it differs from the previous one)."
 
-#: ../../api/palm_tracer.PALMTracer.rst:41
+#: ../../api/palm_tracer.PALMTracer.rst:42
 msgid "Filtrage"
 msgstr "Filtering"
 
@@ -133,7 +148,7 @@ msgstr "Saves all filtered files if they are not empty."
 msgid "Connecte les boutons d'une interface de filtre."
 msgstr "Connects the buttons of a filter interface."
 
-#: ../../api/palm_tracer.PALMTracer.rst:49
+#: ../../api/palm_tracer.PALMTracer.rst:50
 msgid "Visualisation"
 msgstr "Visualization"
 

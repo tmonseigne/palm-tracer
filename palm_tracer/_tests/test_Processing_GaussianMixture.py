@@ -108,7 +108,7 @@ def test_kmeans_iteration_limit(monkeypatch):
 
 ##################################################
 def test_em_iteration_limit():
-	"""Vérifie l'état retourné lorsqu'EM atteint sa limite d'itérations avant de converger."""
+	"""Vérifie l'état retourné lorsque EM atteint sa limite d'itérations avant de converger."""
 	rng = np.random.default_rng(42)
 	data = np.concatenate((rng.normal(-1.0, 0.5, 100), rng.normal(1.0, 0.5, 100)))
 	mixture = GaussianMixture.fit(data, max_iter=1, n_init=1)

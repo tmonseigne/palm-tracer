@@ -46,12 +46,12 @@ class ResultsUI:
 	"""Widget contenant les informations sur les résultats."""
 	layout: QFormLayout = field(init=False)
 	"""Calque contenant les différentes lignes d'informations."""
-	_labels: dict[str, QLabel] = field(init=False, default_factory=dict)
+	labels: dict[str, QLabel] = field(init=False, default_factory=dict)
 	"""Libellés affichant les statuts des résultats."""
-	_clear_buttons: dict[str, QToolButton] = field(init=False, default_factory=dict)
-	"""Corbeilles par catégorie, connectées au modèle par :class:`~palm_tracer.Results.Results`."""
-	_open_folder_button: QPushButton = field(init=False)
-	"""Bouton d'ouverture du dossier de résultats, connecté au modèle."""
+	clear_buttons: dict[str, QToolButton] = field(init=False, default_factory=dict)
+	"""Corbeilles par catégorie."""
+	open_folder_button: QPushButton = field(init=False)
+	"""Bouton d'ouverture du dossier de résultats."""
 
 	##################################################
 	def __post_init__(self):
@@ -63,21 +63,21 @@ class ResultsUI:
 		for key, tooltip in _STATUS_TOOLTIPS.items():
 			label = QLabel("No")
 			Ui.add_setting_row(self.layout, f"{key}: ", label, tooltip=tooltip, )
-			self._labels[key] = label
+			self.labels[key] = label
 			if key == "File": continue
 
 			button = QToolButton(self.widget)
 			button.setIcon(self.widget.style().standardIcon(QStyle.StandardPixmap.SP_DialogCancelButton))
 			button.setToolTip(f"Clear {key.lower()} results.")
 			button.setAccessibleName(f"Clear {key.lower()} results")
-			self._clear_buttons[key] = button
+			self.clear_buttons[key] = button
 			# Place la corbeille après l'espace extensible, à l'extrémité droite de la ligne.
 			row = self.layout.itemAt(self.layout.rowCount() - 1, QFormLayout.ItemRole.FieldRole).layout()
 			row.addWidget(button)
 
-		self._open_folder_button = QPushButton("Open results folder", self.widget)
-		self._open_folder_button.setEnabled(False)
-		self.layout.addRow(self._open_folder_button)
+		self.open_folder_button = QPushButton("Open results folder", self.widget)
+		self.open_folder_button.setEnabled(False)
+		self.layout.addRow(self.open_folder_button)
 
 	# ==================================================
 	# region Mise à jour
@@ -93,9 +93,9 @@ class ResultsUI:
 		:param status: Statuts à afficher, indexés par type de résultat.
 		"""
 		for key, value in status.items():
-			if key not in self._labels: continue
-			self._labels[key].setText(Path(value).name if key == "File" else value)
-			if key == "File": self._labels[key].setToolTip(value if value != "No File" else "")
+			if key not in self.labels: continue
+			self.labels[key].setText(Path(value).name if key == "File" else value)
+			if key == "File": self.labels[key].setToolTip(value if value != "No File" else "")
 
 	##################################################
 	def update_results_folder(self, path: Path | None):
@@ -104,8 +104,8 @@ class ResultsUI:
 
 		:param path: Dossier des résultats, ou :obj:`None` si aucun dossier n'est associé.
 		"""
-		self._open_folder_button.setEnabled(path is not None and path.is_dir())
-		self._open_folder_button.setToolTip(str(path) if path is not None else "")
+		self.open_folder_button.setEnabled(path is not None and path.is_dir())
+		self.open_folder_button.setToolTip(str(path) if path is not None else "")
 
 
 ##################################################

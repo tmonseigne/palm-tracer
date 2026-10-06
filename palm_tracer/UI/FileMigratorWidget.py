@@ -119,7 +119,7 @@ class FileMigratorWidget(QWidget):
 		except Exception as e:
 			Ui.print_error(f"Error during migration: {e}.")
 			return
-		Ui.print_success("Migration successfull.")
+		Ui.print_success("Migration successful.")
 
 
 ##################################################

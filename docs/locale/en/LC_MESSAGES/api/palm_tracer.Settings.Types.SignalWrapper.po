@@ -36,7 +36,7 @@ msgid "Arguments nommés ignorés, acceptés pour assurer la compatibilité avec
 msgstr "Keyword arguments are ignored and accepted for compatibility with the Qt API."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:1
-msgid "Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnecté."
+msgid "Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnectés."
 msgstr "Disconnects ``f`` if provided, otherwise **all** slots. Returns the number of disconnected slots."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:3

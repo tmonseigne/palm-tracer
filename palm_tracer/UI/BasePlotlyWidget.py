@@ -15,7 +15,7 @@ from palm_tracer.Processing import Grapher
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.Ui import print_warning
 
-# Tentative d'import QtWebEngine (via qtpy) —En cas d'UI defectueuse
+# Tentative d'import QtWebEngine (via qtpy) —En cas d'UI défectueuse
 try:
 	from qtpy.QtWebEngineWidgets import QWebEngineView  # type: ignore
 
@@ -69,7 +69,7 @@ class BasePlotlyWidget(QWidget):
 	##################################################
 	def _make_web_widget(self):
 		"""
-		Créé un Widget pour integrer plotly.
+		Créé un Widget pour intégrer plotly.
 
 		:return: QWebEngineView ou QTextBrowser si indisponible.
 		"""
@@ -325,7 +325,7 @@ class BasePlotlyWidget(QWidget):
 	# ==================================================
 
 	##################################################
-	def closeEvent(self, event: QCloseEvent) -> None:
+	def closeEvent(self, event: QCloseEvent):
 		"""Assure une destruction propre de QtWebEngine (évite warnings et crash à la sortie)."""
 		try:
 			if _HAS_WEBENGINE and hasattr(self, "_web") and isinstance(self._web, QWebEngineView):
@@ -352,6 +352,7 @@ class BasePlotlyWidget(QWidget):
 ##################################################
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication
 
 	app = QApplication(sys.argv)

@@ -58,7 +58,7 @@ class ROIManager:
 	"""Indique qu'une synchronisation de calques est en cours."""
 
 	##################################################
-	def __post_init__(self) -> None:
+	def __post_init__(self):
 		"""Initialise les connexions du gestionnaire de ROI."""
 		self.roi_selection.connect(self._on_roi_selection_changed)
 
@@ -123,10 +123,10 @@ class ROIManager:
 
 		:param rois: Liste à appliquer.
 		"""
-		intial_l = len(self._rois)
+		initial_l = len(self._rois)
 		new_l = len(rois)
 		self._rois = rois
-		if intial_l != new_l and new_l != 0: self.roi_selection.limits = [1, new_l]
+		if initial_l != new_l and new_l != 0: self.roi_selection.limits = [1, new_l]
 
 	##################################################
 	def set_size(self, width, height):
@@ -180,7 +180,7 @@ class ROIManager:
 		self._is_synchronizing = True
 
 		upscale = self.hr_ratio.value  # .		Ratio d'agrandissement
-		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans l'upscale
+		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans upscale
 		translation = np.array([y0_crop, x0_crop], dtype=float)
 		rois: list[ROI] = []
 
@@ -210,7 +210,7 @@ class ROIManager:
 		"""
 		if self._layer_hr is None or len(self.rois) == 0: return
 		upscale = self.hr_ratio.value  # .		Ratio d'agrandissement
-		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans l'upscale
+		x0_crop, _, y0_crop, _ = self.hr_box  # Anciens x0, x1, y0, y1 sans upscale
 		translation = np.array([y0_crop, x0_crop], dtype=float)
 		data = []
 
@@ -347,7 +347,7 @@ class ROIManager:
 		return limits
 
 	##################################################
-	def update_data_box(self, data: pd.DataFrame | None, gaussian: dict[str, Any] | None = None, margin: int = 5) -> None:
+	def update_data_box(self, data: pd.DataFrame | None, gaussian: dict[str, Any] | None = None, margin: int = 5):
 		"""
 		Recalcule un cadre conservateur sans modifier les ROI de filtrage.
 

@@ -304,10 +304,9 @@ class Results:
 		:param timestamp: Suffixe identifiant le traitement ; généré automatiquement lorsqu'il est vide.
 		"""
 		timestamp = FileIO.get_timestamp_for_files() if not timestamp else timestamp
-		for key, fname in self.KEYS_TO_FILE.items():
+		for key in self.KEYS_TO_FILE:
 			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
-			if "f_" in key and not self._data[key].empty and len(self._data[key]) != len(self._data[key[2:]]):
-				self.save(key, path, timestamp)
+			if key.startswith("f_") and not self._data[key].empty and len(self._data[key]) != len(self._data[key[2:]]): self.save(key, path, timestamp)
 
 	# ==================================================
 	# endregion Entrées-sorties
@@ -351,7 +350,7 @@ class Results:
 		from palm_tracer.UI.ResultsUI import ResultsUI  # Import différé pour éviter une dépendance cyclique.
 
 		ui = ResultsUI(margin=margin)
-		ui._open_folder_button.clicked.connect(self._open_results_folder)
+		ui.open_folder_button.clicked.connect(self._open_results_folder)
 		categories = {
 				"Localizations":      ("loc", "f_loc", "dft", "f_dft"),
 				"Beads":              ("bds",),
@@ -362,9 +361,9 @@ class Results:
 				"MSD Fit":            ("Fit", "f_Fit"),
 				}
 		for category, keys in categories.items():
-			ui._clear_buttons[category].clicked.connect(lambda checked=False, result_keys=keys: self._clear_result(result_keys))
+			ui.clear_buttons[category].clicked.connect(lambda checked=False, result_keys=keys: self._clear_result(result_keys))
 		ui.update_status(self.get_status())
-		ui._labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
+		ui.labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
 		ui.update_results_folder(self._results_folder)
 		self._uis[name] = ui
 		return ui
@@ -384,5 +383,5 @@ class Results:
 		status = self.get_status()
 		for ui in self._uis.values():
 			ui.update_status(status)
-			ui._labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
+			ui.labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
 			ui.update_results_folder(self._results_folder)

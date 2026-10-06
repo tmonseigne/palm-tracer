@@ -1,35 +1,13 @@
 """Teste les utilitaires de construction et de synchronisation des interfaces Qt."""
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QLabel, QScrollArea, QSpinBox, QVBoxLayout, QWidget
 
 from palm_tracer.Tools import Ui
-
-
-##################################################
-class _DummyLayer:
-	"""Simule un calque et mémorise sa visibilité lors des affectations."""
-
-	def __init__(self, visible: bool, invalid_property: str = ""):
-		"""
-		Initialise le calque avec l'état demandé.
-
-		:param visible: Visibilité initiale du calque.
-		:param invalid_property: Nom de la propriété dont l'affectation doit échouer.
-		"""
-		object.__setattr__(self, "visible", visible)
-		object.__setattr__(self, "data", "old-data")
-		object.__setattr__(self, "invalid_property", invalid_property)
-		object.__setattr__(self, "updates_visibility", [])
-
-	def __setattr__(self, name, value):
-		"""Mémorise la visibilité courante ou refuse la propriété utilisée pour simuler une erreur."""
-		if name == self.invalid_property: raise ValueError("Invalid property")
-		if name != "visible": self.updates_visibility.append(self.visible)
-		object.__setattr__(self, name, value)
 
 
 # ==================================================
@@ -77,8 +55,8 @@ def test_make_info_grid(qtbot, with_units):
 	"""Vérifie la construction de la grille avec ou sans unités et infobulles."""
 	parent = QWidget()
 	qtbot.addWidget(parent)
-	elements = {"1": {"label": QLabel("1"), "value": QLabel("-")},
-				"2": {"label": QLabel("2"), "value": QLabel("-")}}
+	elements: dict[str, Any] = {"1": {"label": QLabel("1"), "value": QLabel("-")},
+								"2": {"label": QLabel("2"), "value": QLabel("-")}}
 	if with_units:
 		elements["1"].update(unit=QLabel("unit"), tips="tooltips")
 		elements["2"].update(unit=QLabel("unit"), tips="")
@@ -162,32 +140,6 @@ def test_make_spin(qtbot, decimals, buttons, spin_type):
 # region Fonctions de rappel
 # ==================================================
 ##################################################
-@pytest.mark.parametrize("initial_visibility, visible, expected_visibility", [
-		pytest.param(False, None, False, id="preserve-hidden"),
-		pytest.param(True, None, True, id="preserve-visible"),
-		pytest.param(False, True, True, id="force-visible"),
-		pytest.param(True, False, False, id="force-hidden")])
-def test_update_layer(initial_visibility, visible, expected_visibility):
-	"""Vérifie la mise à jour du calque et les différentes politiques de visibilité."""
-	layer = _DummyLayer(initial_visibility)
-	Ui.update_layer(layer, "new-data", visible, face_color="lime", blending="translucent")
-
-	assert layer.data == "new-data"
-	assert layer.face_color == "lime"
-	assert layer.blending == "translucent"
-	assert layer.updates_visibility == [True, True, True]
-	assert layer.visible is expected_visibility
-
-
-##################################################
-def test_update_layer_restores_visibility_on_error():
-	"""Vérifie la restauration de la visibilité lorsqu'une propriété ne peut pas être affectée."""
-	layer = _DummyLayer(False, "invalid")
-	with pytest.raises(ValueError, match="Invalid property"): Ui.update_layer(layer, "new-data", invalid=True)
-	assert layer.visible is False
-
-
-##################################################
 def test_sync_button_group(qtbot):
 	"""Vérifie les fonctions de synchronisation."""
 
@@ -230,10 +182,10 @@ def test_sync_spin(qtbot):
 	spin_2.valueChanged.connect(lambda v: Ui.sync_spin(spin_1, v))
 
 	spin_1.setValue(4)  # Mise à jour du premier
-	assert spin_2.value() == 4  # Vérificaiton sur le second
+	assert spin_2.value() == 4  # Vérification sur le second
 
 	spin_2.setValue(5)  # Mise à jour du second
-	assert spin_1.value() == 5  # Vérificaiton sur le premier
+	assert spin_1.value() == 5  # Vérification sur le premier
 
 
 ##################################################

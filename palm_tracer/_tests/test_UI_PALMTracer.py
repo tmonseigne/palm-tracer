@@ -1,10 +1,10 @@
 """Teste le widget principal de PALM Tracer."""
 
-import shutil
-
+import pytest
 from napari.components import ViewerModel
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QTabWidget
+from qtpy.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
+from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QTabWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.UI import PALMTracerWidget
@@ -15,6 +15,38 @@ SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
+
+
+##################################################
+@pytest.fixture
+def drop_widget(qtbot, monkeypatch):
+	"""Crée une fenêtre PALMTracer sans chargement initial ni callbacks de traitement des fichiers."""
+	# Ces méthodes sont appelées par le constructeur : les neutraliser avant toute création du widget.
+	monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
+	monkeypatch.setattr(PALMTracerWidget, "_connect_signal", lambda self: None)
+	window = QMainWindow()
+	qtbot.addWidget(window)
+	receiver = DropReceiver()
+	window.setCentralWidget(receiver)
+	dock = QDockWidget(window)
+	widget = PALMTracerWidget(ViewerModel())
+	# Le modèle connecte lui-même la lecture de profondeur, indépendamment des signaux du widget.
+	monkeypatch.setattr(widget.pt.settings.batch, "get_plane_count", lambda: None)
+	dock.setWidget(widget)
+	window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
+
+	window.show()
+	return widget, receiver
+
+
+##################################################
+def send_file_drop(receiver, mime):
+	"""Envoie la séquence Qt d'entrée, de déplacement et de dépôt au destinataire."""
+	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
+	return enter, move, drop
 
 
 # ==================================================
@@ -82,6 +114,49 @@ def test_filters_button(qtbot):
 # ==================================================
 
 # ==================================================
+# region Glisser-déposer
+# ==================================================
+##################################################
+@pytest.mark.parametrize("count", [1, 2], ids=["single-file", "multiple-files"])
+def test_drop_adds_files_from_window(drop_widget, tmp_path, count):
+	"""Vérifie l'ajout depuis un widget extérieur au plugin et l'interception avant son gestionnaire."""
+	widget, receiver = drop_widget
+	paths = [tmp_path / name for name in ("z.tif", "a.txt")[:count]]
+	for path in paths: path.touch()
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path)) for path in paths])
+
+	events = send_file_drop(receiver, mime)
+
+	assert all(event.isAccepted() for event in events)
+	assert receiver.received == []
+	files = widget.pt.settings.batch["Files"]
+	assert [Path(path) for path in files.items] == sorted(paths, key=lambda path: str(path).casefold())
+	assert files.value == count - 1
+
+
+##################################################
+def test_drop_rejects_files_during_processing(drop_widget, tmp_path):
+	"""Vérifie que le traitement en cours bloque les ajouts au Batch."""
+	widget, receiver = drop_widget
+	path = tmp_path / "stack.tif"
+	path.touch()
+	widget._processing = True
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path))])
+
+	events = send_file_drop(receiver, mime)
+
+	assert not any(event.isAccepted() for event in events)
+	assert receiver.received == []
+	assert widget.pt.settings.batch["Files"].items == []
+
+
+# ==================================================
+# endregion Glisser-déposer
+# ==================================================
+
+# ==================================================
 # region Threads
 # ==================================================
 ##################################################
@@ -105,7 +180,7 @@ def test_thread_process(qtbot):
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 	w._thread_process(w.pt.process)  # .						Appel de la méthode process
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
-	w._thread_process(w._auto_threshold)  # .					Appel de la méthode auto threshold mais impossible de l'executer dans ce contexte.
+	w._thread_process(w._auto_threshold)  # .					Appel de la méthode auto threshold mais impossible de l'exécuter dans ce contexte.
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 
 
@@ -163,6 +238,7 @@ def test_clean_layer(qtbot):
 ##################################################
 def test_reset_layer(capsys, qtbot):
 	"""Vérifie la remise à zéro des calques."""
+	clean_output()
 	SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
@@ -232,7 +308,7 @@ def test_get_actual_image(qtbot):
 
 	add_basic_file(w.pt)  # .															 Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # .				 Attente : qu'il ait mis une image
-	assert w._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupéraiton de l'image
+	assert w._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupération de l'image
 	assert w._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
 	assert w._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # .Récupération d'une image hors limite
 
@@ -247,7 +323,7 @@ def test_preview(capsys, qtbot):
 
 	setting = w.pt.settings.localization
 	layers = w.viewer.layers
-	with setting.signal_blocked():  # L'éxecution ne devra pas être dans un sub-process pour vérifier la couverture (sans partir sur des configs complexes).
+	with setting.signal_blocked():  # L'exécution ne devra pas être dans un sub-process pour vérifier la couverture (sans partir sur des configs complexes).
 		w._preview()  # .										Passage si preview à False
 		setting["Preview"].value = True
 		qtbot.waitUntil(lambda: setting["Preview"].value, timeout=5000)

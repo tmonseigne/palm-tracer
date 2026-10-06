@@ -86,7 +86,7 @@ class Settings:
 		if name in self._uis: return self._uis[name]
 		ui = dict[str, BaseUIGroup]()
 		for key, setting in self._settings.items(): ui[key] = setting.get_ui(name)
-		self._uis[name] = ui  # Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################

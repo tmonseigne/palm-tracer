@@ -16,7 +16,7 @@ def get_dataset(model: np.ndarray = REF_MODEL, z_max: float = Z_MAX, n: int = N_
 	"""Génère un dataset synthétique (Sx, Sy, Z)."""
 	rng = np.random.default_rng(42)
 
-	# Z uniformément réparti entre [-z_max, +z_max]
+	# Z uniformément réparti entre [-z_max, +z_max].
 	z = np.linspace(-z_max, z_max, n, dtype=float)
 
 	# Sigma modèle

@@ -25,7 +25,7 @@ def test_palm_cpu():
 	  l'augmentation de durée peut être du aux nombreux old method dans la DLL non optimisé dans les compilateurs recents (malloc/free...)
 	- DLL Recompilé stade 1 : même temps Passage à C++20
 	- DLL Recompilé stade 2 : même temps suppression de commentaires e code (normal aucune influence) et arrangement des fichiers
-	- DLL Recompilé stade 3 : même temps passage a une suele fonction pour lancer le process.
+	- DLL Recompilé stade 3 : même temps passage a une seule fonction pour lancer le process.
 	- DLL Recompilé stade 4 : légere diminution avec const definition.
 	- DLL Recompilé stade 5 : ~7min30s Factorisation du calcul de la PSF gain Total ~25%.
 	- DLL Recompilé stade 6 : ~3min20s Factorisation du calcul de la derivé gain Total ~65%.
@@ -39,7 +39,7 @@ def test_palm_cpu():
 	- DLL Recompilé stade 13 : ~4min30-5min Utilisation de size_t au lieu d'unsigned gain Total ~55%
 	- DLL Recompilé stade 14 : ~4min30-5min Utilisation de double au lieu de float gain Total ~55%
 	  YOUHOU Moins de cast et meilleure précision sans perte de performance
-	  (memory toujours entre 4 et 5giga peut etre une limite par thread ? à vérifier si les swap de mémoire ralentissent le process)
+	  (memory toujours entre 4 et 5giga peut être une limite par thread ? à vérifier si les swap de mémoire ralentissent le process)
 	- DLL Recompilé stade 15 : ~4min30-5min uniformisation de la segmentation gain Total ~55%
 	- DLL Recompilé stade 16 : ~4min30-5min uniformisation de Atrous gain Total ~55%
 	- DLL Recompilé stade 17 : ~4min30-5min uniformisation de double gain Total ~55%
@@ -77,7 +77,7 @@ def test_tracking():
 	- DLL Recompilé stade 0 : ~10min (-2min pour le chargement du fichier ~8min),
 	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. Passage à VS 2022
 	- DLL Recompilé stade 1 : ~4min30 (-2min pour le chargement du fichier ~2min30),
-	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. Precalcul et suppression du code inutile
+	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. Pré-calcul et suppression du code inutile
 	- DLL Recompilé stade 1 : ~4min15 (-2min pour le chargement du fichier ~2min15),
 	  utilisation de CPU inférieur à 4% (1 seul cœur), Memory Usage 1.5-3Giga. suppression du code inutilisé
 	- DLL Recompilé stade 1 : ~4min15 (-2min pour le chargement du fichier ~2min15),

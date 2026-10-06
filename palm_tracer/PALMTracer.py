@@ -53,6 +53,8 @@ class PALMTracer:
 	"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 	_timestamp_previous: str = field(init=False, default="")
 	"""Suffixe des fichiers pour le traitement précédent (timestamp au format ``YYYYMMDD_HHMMSS``)."""
+	_loading: bool = field(init=False, default=False)
+	"""Indique qu'un chargement est en cours pour empêcher la réentrance depuis les signaux des paramètres."""
 
 	_grapher: Grapher = field(init=False, default_factory=Grapher)
 	"""Générateur de graphique."""
@@ -138,7 +140,7 @@ class PALMTracer:
 		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
 
 	##################################################
-	def _save_setting_group(self, group_name: Literal["HR", "Filters"]):
+	def save_setting_group(self, group_name: Literal["HR", "Filters"]):
 		"""
 		Met à jour un seul groupe dans le fichier de paramètres du traitement courant.
 
@@ -180,7 +182,25 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def load(self, path: str = ""):
-		"""Charge les précédents résultats du fichier courant."""
+		"""Charge les précédents résultats du fichier courant sans chargement imbriqué.
+
+		La restauration des paramètres peut déclencher un nouvel appel via les widgets
+		connectés au Batch. Cet appel est ignoré pour préserver le dossier et le timestamp
+		du chargement en cours ; un appel ultérieur reste possible.
+
+		:param path: Dossier des résultats, ou chaîne vide pour utiliser le premier dossier du Batch.
+		"""
+		if self._loading: return
+		self._loading = True
+		try: self._load_results(path)
+		finally: self._loading = False
+
+	##################################################
+	def _load_results(self, path: str):
+		"""Effectue le chargement des paramètres, des résultats et de la pile.
+
+		:param path: Dossier des résultats, ou chaîne vide pour utiliser le premier dossier du Batch.
+		"""
 		if not self.is_dll_valid():
 			Ui.print_warning("Process not completed due to missing DLLs.")
 			self.results.reset()
@@ -539,7 +559,7 @@ class PALMTracer:
 		"""Vide entièrement les DataFrames filtrés dans ``df``."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		self.results.reset_filtered()
-		self._save_setting_group("Filters")
+		self.save_setting_group("Filters")
 
 	##################################################
 	def update_filtered(self, last: bool = True):
@@ -566,7 +586,7 @@ class PALMTracer:
 			if len(self.results[key]) == len(self.results[f_key]): self.results[f_key] = pd.DataFrame()
 
 		if self.settings.filters["Save"].value: self.save_filtered()
-		self._save_setting_group("Filters")
+		self.save_setting_group("Filters")
 
 	##################################################
 	def save_filtered(self):
@@ -621,14 +641,14 @@ class PALMTracer:
 		if mode == 0:
 			bins = graph_data.get("bins", bins)
 			fit_limit = graph_data.get("fit_limit", -np.inf)
-			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonian=poiss,
+			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonnian=poiss,
 										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
 		# --- Courbe Scatter plot ---
 		if mode == 1: return self._grapher.scatter(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, names=graph_data.get("names"))
 
 		# --- Nuage de points ---
 		return self._grapher.cloud(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
-								   poissonian=poiss, exponential=expo)
+								   poissonnian=poiss, exponential=expo)
 
 	##################################################
 	@staticmethod
@@ -724,7 +744,7 @@ class PALMTracer:
 		finite_values = pd.Series(np.where(np.isfinite(values), values, np.nan), index=df.index)
 		means = finite_values.groupby(df["Plane"].astype(int), sort=True).mean()
 		planes = np.arange(int(means.index.min()), int(means.index.max()) + 1, dtype=int)
-		# Les plans vides restent absents de la moyenne, contrairement au compte qui vaut zéro.
+		# Les plans vides restent absents de la moyenne, contrairement au compte qui vaut zéro
 		values = means.reindex(pd.Index(planes)).to_numpy(dtype=float)
 		graph_data["data"] = np.vstack((planes, self._log_data(values, log_scale)))
 		graph_data["title"] += " Mean per Plane"

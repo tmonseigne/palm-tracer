@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 from pathlib import Path
-from typing import Any, cast, Optional
+from typing import Any, Optional, cast
 
 import numpy as np
 import pandas as pd
+from qtpy.QtWidgets import QWidget
 from scipy.spatial import cKDTree
 
 from palm_tracer import PALMTracer
@@ -19,6 +21,8 @@ INPUT_DIR = Path(__file__).parent.resolve() / "input"
 REF_DIR = INPUT_DIR / "ref"
 OUTPUT_DIR = Path(__file__).parent.resolve() / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
+OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
+OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
 IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 TS_PATTERN = r"\[\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}\]"  # Regex timestamp : [16-02-2026 10:06:08]
@@ -33,6 +37,13 @@ save_output = True
 def strip_ansi(text: str) -> str:
 	"""Supprime les séquences ANSI (couleurs console)."""
 	return ANSI_ESCAPE.sub("", text)
+
+
+##################################################
+def clean_output():
+	"""Vide les dossiers de sorties."""
+	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+	shutil.rmtree(OUTPUT_FOLDER_2, ignore_errors=True)
 
 
 ##################################################
@@ -211,7 +222,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		for i, row_a in matched_a.iterrows():
 			row_b = matched_b.iloc[i]  # Récupération du point le plus proche
 
-			total_points += 1  # Un point est comparé donc incrémentaiton du compteur
+			total_points += 1  # Un point est comparé donc incrementation du compteur
 			diff = {}  # Dictionnaire de différence
 			exact_match = True  # Le point est identique
 
@@ -296,7 +307,7 @@ def get_light_json(data: dict) -> dict:
 
 	:return: Dictionnaire nettoyé destiné à une comparaison déterministe.
 	"""
-	# --- Suppresison de certains champs ---
+	# --- Suppression de certains champs ---
 	for trace in data.get("data", []): trace.pop("uid", None)  # UID
 
 	# Très souvent inutiles pour des tests de contenu
@@ -332,3 +343,24 @@ class _FakeDownload:
 	def accept(self): self.accepted = True
 
 	def cancel(self): self.canceled = True
+
+
+##################################################
+class DropReceiver(QWidget):
+	"""Simule le destinataire Napari habituel pour détecter les dépôts non interceptés."""
+
+	def __init__(self, parent: QWidget | None = None):
+		"""Initialise l'acceptation des dépôts et leur historique."""
+		super().__init__(parent)
+		self.received: list = []
+		self.setAcceptDrops(True)
+
+	def dragEnterEvent(self, event):
+		"""Accepte le glissement reçu par le widget habituel."""
+		self.received.append("enter")
+		event.acceptProposedAction()
+
+	def dropEvent(self, event):
+		"""Enregistre le dépôt reçu par le widget habituel."""
+		self.received.append("drop")
+		event.acceptProposedAction()

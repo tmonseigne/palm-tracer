@@ -289,8 +289,8 @@ class Renderer:
 		"""
 		Construit une séquence de trajectoires entre le premier et le dernier plan observé.
 
-		Les données doivent être triées par trajectoire puis par plan, avec des plans d'acquisition numérotés à partir de un. La séquence conserve les
-		plans sans observation entre les bornes retenues après filtrage spatial, sans prolonger l'effacement au-delà du dernier plan.
+		Les données doivent être triées par trajectoire puis par plan, avec des plans d'acquisition numérotés à partir de un.
+		La séquence conserve les plans sans observation entre les bornes retenues après filtrage spatial, sans prolonger l'effacement au-delà du dernier plan.
 
 		Les queues sont dessinées par :meth:`draw_track`, puis les têtes par :meth:`draw_track_heads`. La finalisation compose une seule fois les
 		intensités et les opacités avec le fond.
@@ -326,7 +326,7 @@ class Renderer:
 		n_planes = p_max - p_min + 1
 		coords[:, 0] -= p_min  # Passage des plans d'acquisition aux indices locaux du volume de sortie.
 
-		# --- Initialisation : intensités non prémultipliées et masque alpha flottant. ---
+		# --- Initialisation : intensités non pré-multipliées et masque alpha flottant. ---
 		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)
 		res = np.full((n_planes, self._h, self._w), init_value, dtype=float)
 		alpha_mask = np.zeros_like(res, dtype=float)
@@ -424,7 +424,7 @@ class Renderer:
 		"""
 		Finalise une séquence scalaire avec un masque alpha.
 
-		Les intensités non prémultipliées sont mélangées selon ``(1 - alpha) * bg_color + alpha * img``.
+		Les intensités non pré-multipliées sont mélangées selon ``(1 - alpha) * bg_color + alpha * img``.
 		Les pixels d'alpha nul reçoivent directement le fond pour éviter les calculs sur les infinis d'initialisation.
 		Le résultat est saturé dans ``[0, 65535]`` ou replié modulo :math:`2^{16}` selon ``clip``.
 
@@ -439,7 +439,7 @@ class Renderer:
 		for plane, (view, alpha) in enumerate(zip(img, alpha_mask)):
 			valid = alpha > 0.0
 			view[~valid] = bg_color  # .							Remplace les éléments identifiés comme fond par la couleur choisie.
-			# L'intensité des tracés n'est pas prémultipliée : appliquer l'alpha exactement une fois.
+			# L'intensité des tracés n'est pas pré-multipliée : appliquer l'alpha exactement une fois.
 			view[valid] = (1.0 - alpha[valid]) * bg_color + alpha[valid] * view[valid]
 			if clip: np.clip(view, 0, MAX_UI_16, out=view)  # .		Saturer après mélange, comme les autres rendus.
 			else: np.remainder(view, MAX_UI_16 + 1, out=view)  # .	Replier cycliquement avant la conversion en uint16.
@@ -459,9 +459,9 @@ class Renderer:
 		Le gris est recopié sur les trois canaux. Composer ``(1 - alpha) * fond + alpha * couleur``
 		avant arrondi et conversion uint8. Les entrées ne sont pas modifiées et les temporaires sont limités à un plan.
 
-		:param img: Intensités non prémultipliées, de forme ``(plans, hauteur, largeur)``.
+		:param img: Intensités non pré-multipliées, de forme ``(plans, hauteur, largeur)``.
 		:param alpha_mask: Opacités de même forme dans [0, 1].
-		:param raw: Fond déjà recadré temporellement et agrandi, de même forme que img, sur l'échelle uint16.
+		:param raw: Fond déjà recadré temporellement et agrandi, de même forme que ``img``, sur l'échelle uint16.
 		:param color_map: LUT RGB indexée par l'intensité, ou nom de colormap reconnu par Matplotlib pour compatibilité.
 		:return: Nouveau volume RGB uint8 de forme ``(plans, hauteur, largeur, 3)``.
 		:raises ValueError: Si les trois volumes n'ont pas la même forme 3D ou si la LUT ne couvre pas l'échelle uint16.
@@ -478,7 +478,7 @@ class Renderer:
 		res = np.empty((*img.shape, 3), dtype=np.uint8)
 		for plane in range(img.shape[0]):
 			alpha = alpha_mask[plane, ..., None]
-			# Écarter les valeurs initiales infinies avant conversion, même si leur alpha vaut zéro.
+			# Écarter les valeurs initiales infinies avant conversion, même si leur alpha vaut zéro
 			indices = np.clip(np.where(alpha_mask[plane] > 0, img[plane], 0), 0, MAX_UI_16).astype(np.uint16)
 			foreground = lut[indices]
 			background = (np.clip(raw[plane], 0, MAX_UI_16).astype(float)[..., None] - offset) * 255.0 / span
@@ -642,7 +642,7 @@ class Renderer:
 		Prépare les localisations utilisées par les différents modes de rendu.
 
 		Les coordonnées X et Y sont multipliées par le facteur d'agrandissement.
-		Pour un rendu gaussien, les sigmas sont également mis à l'échelle et Theta est converti des degrés vers les radians.
+		Pour un rendu gaussien, les sigmas sont également mis à l'échelle. Theta est converti des degrés vers les radians.
 
 		Les paramètres géométriques et l'intensité des gaussiennes sont ensuite adaptés aux réglages utilisateur.
 		Les localisations situées hors des dimensions du rendu sont supprimées.
@@ -838,7 +838,7 @@ class Renderer:
 					y0 += sy
 			return
 
-		# --- Epaisseur différente de 1. ---
+		# --- Épaisseur différente de 1. ---
 		y_min, left, right = Renderer._line_spans(img.shape, x0, y0, x1, y1, width)
 		# Appliquer couleur et alpha une seule fois à chaque pixel de l'épaisseur, puis marquer exactement la même zone dans le masque.
 		for row, (start, end) in enumerate(zip(left, right)):
@@ -993,7 +993,7 @@ class Renderer:
 		effacement linéaire ``max(0, 1 - âge / (L + 1))``. Une durée de ``-1`` conserve les segments sans effacement ; ``0`` supprime les queues.
 		Le rendu reste limité aux plans du volume.
 
-		Les intensités non prémultipliées sont combinées selon ``color_mode``, les alphas par maximum.
+		Les intensités non pré-multipliées sont combinées selon ``color_mode``, les alphas par maximum.
 		Un recouvrement peut donc associer l'intensité et l'alpha de segments différents.
 		Les pixels d'alpha nul ne contribuent pas ; le mélange avec le fond est réservé à la finalisation.
 

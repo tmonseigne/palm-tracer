@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import colormaps
 from qtpy.QtCore import QSignalBlocker, QSize
 from qtpy.QtGui import QBrush, QColor, QIcon, QLinearGradient, QPainter, QPixmap
-from qtpy.QtWidgets import QColorDialog, QComboBox, QPushButton, QWidget
+from qtpy.QtWidgets import QColorDialog, QComboBox, QPushButton
 
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Settings.Types.Combo import Combo
@@ -284,7 +284,7 @@ class ColorMap(Combo):
 if __name__ == "__main__":
 	import sys
 
-	from qtpy.QtWidgets import QApplication, QFormLayout, QPushButton, QWidget
+	from qtpy.QtWidgets import QApplication, QFormLayout, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -303,8 +303,8 @@ if __name__ == "__main__":
 		setting.get_ui(name).attach_to_form(form)
 
 
-	button = QPushButton("Ajouter une UI")
-	button.clicked.connect(add_setting_ui)
-	form.addRow(button)
+	b = QPushButton("Ajouter une UI")
+	b.clicked.connect(add_setting_ui)
+	form.addRow(b)
 	w.show()
 	sys.exit(app.exec_())

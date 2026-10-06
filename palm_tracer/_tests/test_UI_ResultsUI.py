@@ -28,13 +28,13 @@ def test_creation(qtbot):
 		assert isinstance(label, QLabel)
 		assert label.text() == f"{key}: "
 		assert label.toolTip() == tooltip
-		assert value is ui._labels[key]
+		assert value is ui.labels[key]
 		assert value.text() == "No"
 
 	button_item = ui.layout.itemAt(len(_STATUS_TOOLTIPS), QFormLayout.ItemRole.SpanningRole)
-	assert button_item.widget() is ui._open_folder_button
-	assert ui._open_folder_button.text() == "Open results folder"
-	assert not ui._open_folder_button.isEnabled()
+	assert button_item.widget() is ui.open_folder_button
+	assert ui.open_folder_button.text() == "Open results folder"
+	assert not ui.open_folder_button.isEnabled()
 
 
 ##################################################
@@ -46,13 +46,13 @@ def test_update_status(qtbot):
 
 	ui.update_status(status)
 	for key, expected in status.items():
-		assert ui._labels[key].text() == expected
+		assert ui.labels[key].text() == expected
 
 	ui.update_status({"File": "stack.tif", "Unknown": "Ignored"})
-	assert ui._labels["File"].text() == "stack.tif"
-	assert ui._labels["Localizations"].text() == status["Localizations"]
-	assert "Unknown" not in ui._labels
-	assert ui._labels["File"].toolTip() == "stack.tif"
+	assert ui.labels["File"].text() == "stack.tif"
+	assert ui.labels["Localizations"].text() == status["Localizations"]
+	assert "Unknown" not in ui.labels
+	assert ui.labels["File"].toolTip() == "stack.tif"
 
 
 ##################################################
@@ -67,12 +67,12 @@ def test_file_display(qtbot, tmp_path, filename):
 	full_path = str(tmp_path / filename)
 
 	ui.update_status({"File": full_path})
-	assert ui._labels["File"].text() == filename
-	assert ui._labels["File"].toolTip() == full_path
+	assert ui.labels["File"].text() == filename
+	assert ui.labels["File"].toolTip() == full_path
 
 	ui.update_status({"File": "No File"})
-	assert ui._labels["File"].text() == "No File"
-	assert ui._labels["File"].toolTip() == ""
+	assert ui.labels["File"].text() == "No File"
+	assert ui.labels["File"].toolTip() == ""
 
 
 ##################################################
@@ -86,8 +86,8 @@ def test_update_results_folder(qtbot, tmp_path, path_kind):
 	ui = ResultsUI()
 	qtbot.addWidget(ui.widget)
 	ui.update_results_folder(tmp_path)
-	assert ui._open_folder_button.isEnabled()
-	assert ui._open_folder_button.toolTip() == str(tmp_path)
+	assert ui.open_folder_button.isEnabled()
+	assert ui.open_folder_button.toolTip() == str(tmp_path)
 
 	path = None
 	if path_kind == "existing": path = tmp_path
@@ -98,5 +98,5 @@ def test_update_results_folder(qtbot, tmp_path, path_kind):
 
 	ui.update_results_folder(path)
 
-	assert ui._open_folder_button.isEnabled() == (path_kind == "existing")
-	assert ui._open_folder_button.toolTip() == (str(path) if path is not None else "")
+	assert ui.open_folder_button.isEnabled() == (path_kind == "existing")
+	assert ui.open_folder_button.toolTip() == (str(path) if path is not None else "")

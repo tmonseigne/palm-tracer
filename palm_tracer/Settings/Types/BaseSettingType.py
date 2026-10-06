@@ -59,7 +59,7 @@ class BaseSettingType:
 	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		"""
-		Renvoie une interface :class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType` existante ou en crée une si nécessaire.
+		Renvoie une interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) existante ou en crée une si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
 		:return: Interface du paramètre (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`).

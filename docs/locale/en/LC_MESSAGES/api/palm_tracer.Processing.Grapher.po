@@ -168,8 +168,8 @@ msgid "Si ``True``, superpose l'exponentielle inverse 2D."
 msgstr "If ``True``, overlays the 2D inverse exponential distribution."
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:14
-msgid "Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)"
-msgstr "If the array dimensions do not match the expected ones (1D, 2D, but with only 2 rows or 2 columns)"
+msgid "Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)."
+msgstr "If the array dimensions do not match the expected ones (1D, 2D, but with only 2 rows or 2 columns)."
 
 #: ../../api/palm_tracer.Processing.Grapher.rst:20
 msgid "Figure d'astigmatisme"
@@ -200,7 +200,7 @@ msgid "Si des données expérimentales sont fournies, elles sont superposées so
 msgstr "If experimental data are provided, they are overlaid as points (without hover interaction) in the ``\"cross\"`` and ``\"slope\"`` modes."
 
 #: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:12
-msgid "Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
+msgid "Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
 msgstr "Astigmatic model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
 
 #: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:13

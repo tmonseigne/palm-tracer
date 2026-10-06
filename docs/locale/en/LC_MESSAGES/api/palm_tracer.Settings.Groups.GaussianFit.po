@@ -69,8 +69,8 @@ msgid "Initialise les connexions entre les paramètres."
 msgstr "Initializes the settings dictionary."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.get_ui:1
-msgid "Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire."
-msgstr "Returns an existing :class:`.BaseUIGroup` object, or creates one if necessary."
+msgid "Retourne une interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`) existante ou en crée une si nécessaire."
+msgstr "Returns an existing (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`) object, or creates one if necessary."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.get_ui:3
 msgid "Nom de l'interface dans le dictionnaire."

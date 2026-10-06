@@ -1,7 +1,5 @@
 """Teste le widget de calibration et d'estimation axiale par astigmatisme 3D."""
 
-import shutil
-
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
@@ -173,7 +171,7 @@ def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	lines = get_lines_output(capsys)
 	assert "No model file selected." in lines[0]  # On vérifie juste que le warning attendu est bien passé par print_warning
 
-	# Bad Coef Input
+	# Bad Coeffs Input
 	fake_qfiledialog(Astigmatism3DWidget, "nofile.txt")
 	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
@@ -257,7 +255,7 @@ def test_compute_mean_beads(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
 	assert not w._loc.empty
 
-	w._loc.loc[w._loc["Bead"] == 2, "Z"] *= 3  # La deuxième bille a une amplitude 3 fois supérieure (pour avoir une moyenne de 2 × z sur les 2 billes)
+	w._loc.loc[w._loc["Bead"] == 2, "Z"] *= 3  # La deuxième bille a une amplitude 3 fois supérieure (pour avoir une moyenne de 2 × z sur les 2 billes).
 
 	# Lancement du calcul
 	w._spin_px_compute.setValue(0.2)
@@ -385,7 +383,7 @@ def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w._loc.drop(columns=["Plane"], inplace=True)
 	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
-	assert "No Plane Column in file. We can't use it to intialize Z." in lines[0]
+	assert "No Plane Column in file. We can't use it to initialize Z." in lines[0]
 
 	# Ajout d'une colonne Plane de 1 à N.
 	w._loc["Plane"] = range(1, len(w._loc) + 1)

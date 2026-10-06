@@ -4,12 +4,12 @@ import copy
 from typing import List, Type
 
 import pytest
-from qtpy.QtWidgets import QFormLayout, QWidget
+from qtpy.QtWidgets import QFormLayout
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
-from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeInt, ColorMap, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeInt, Combo, SpinFloat, SpinInt
 
 
 ###################################################
@@ -42,7 +42,7 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 
 	# Interface
 	_ = group.get_ui()
-	ui = group.get_ui()  # Second appel l'ui existe déjà
+	ui = group.get_ui()  # Second appel l'UI existe déjà
 
 	w = QWidget()
 	form = QFormLayout(w)  # Crée et affecte la mise en page au widget

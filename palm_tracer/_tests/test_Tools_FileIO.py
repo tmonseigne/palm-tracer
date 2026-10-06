@@ -2,6 +2,7 @@
 
 import ctypes
 from datetime import datetime
+from typing import Literal
 from unittest.mock import Mock
 
 import pytest
@@ -65,16 +66,16 @@ def test_get_timestamp_for_files(monkeypatch, with_hour, expected):
 
 
 ##################################################
-@pytest.mark.parametrize("sort_mode, expected", [
+@pytest.mark.parametrize("sort, expected", [
 		pytest.param("alpha", "File-03.txt", id="alphabetical-order"), pytest.param("time", "File-01.txt", id="modification-time")])
-def test_get_last_file(tmp_path, sort_mode, expected):
+def test_get_last_file(tmp_path, sort: Literal["time", "alpha"], expected):
 	"""Vérifie que les tris alphabétique et temporel sélectionnent des fichiers distincts."""
 	for name, timestamp in (("File-01.txt", 200), ("File-03.txt", 100), ("Other-99.txt", 300)):
 		path = tmp_path / name
 		path.touch()
 		os.utime(path, (timestamp, timestamp))
 	(tmp_path / "File-99.txt").mkdir()  # Un dossier ne doit pas être sélectionné.
-	assert Path(FileIO.get_last_file(tmp_path, "File", sort_mode)).name == expected
+	assert Path(FileIO.get_last_file(tmp_path, "File", sort)).name == expected
 
 
 ##################################################
@@ -204,7 +205,7 @@ def test_save_tif_rgb(tmp_path):
 		pytest.param((2, 3, 4, 2), id="two-channels"),
 		pytest.param((2, 3, 4, 4), id="four-channels")])
 def test_save_tif_bad_stack(shape, tmp_path):
-	"""Vérifie le rejet des dimensions et nombres de canaux non pris en charge."""
+	"""Vérifie le rejet des dimensions et les nombres de canaux non pris en charge."""
 	with pytest.raises(ValueError): FileIO.save_tif(np.zeros(shape), tmp_path / "invalid.tif")
 
 

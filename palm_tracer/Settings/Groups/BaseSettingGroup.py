@@ -68,7 +68,7 @@ class BaseSettingGroup:
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		"""
-		Retourne une interface :class:`.BaseUIGroup`, existante ou la crée si nécessaire.
+		Retourne une interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`) existante ou en crée une si nécessaire.
 
 		:param name: Nom de l'interface dans le dictionnaire.
 		:param mode: Méthode de création du groupe.
@@ -93,7 +93,7 @@ class BaseSettingGroup:
 			if isinstance(setting, BaseSettingGroup): body.addRow(setting.get_ui(name).widget)
 			else: setting.get_ui(name).attach_to_form(body)
 
-		self._uis[name] = ui  # Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################

@@ -32,10 +32,10 @@ class Button(BaseSettingType):
 		box: QPushButton = QPushButton(self.label)  # Création de la boîte.
 		ui = BaseUIType(layout=QHBoxLayout(), boxes=[box])
 		box.setToolTip(self.tooltip)  # .			  Ajout du Tooltip
-		box.clicked.connect(self.emit)  # .			  L'emission du signal se fera lors du clic sur le bouton
+		box.clicked.connect(self.emit)  # .			  L'émission du signal se fera lors du clic sur le bouton
 		ui.layout.addWidget(box)  # .				  Ajout du champ de texte.
 
-		self._uis[name] = ui  # .					  Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .					  Ajoute l'UI au dictionnaire
 		return ui
 
 

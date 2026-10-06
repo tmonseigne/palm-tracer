@@ -58,7 +58,7 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 COLS_FOR_TRACKING = ["Id", "Plane", "X", "Y"]
 MODEL_ROWS = ["X", "Y"]
 
-# Dimensions utiles fréquement
+# Dimensions utiles fréquemment
 N_COL_META = len(FILES_COLUMNS["Meta"]["columns"])  # .									  Nombre de paramètres pour les métadonnées (6).
 N_COL_TRC = len(FILES_COLUMNS["Tracking"]["columns"])  # .								  Nombre de paramètres pour le tracking (8).
 N_COL_LOC = len(FILES_COLUMNS["Localization"]["columns"])  # .							  Nombre de paramètres pour le tracking (18).

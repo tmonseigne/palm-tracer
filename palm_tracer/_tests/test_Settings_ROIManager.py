@@ -275,7 +275,7 @@ def test_filtering_dataframe(manager: ROIManager):
 	res = manager.filtering_dataframe(df)  # ROI sélection actif, mais aucune ROI.
 	assert res is df
 	manager.set_xy_roi(10, 20, 30, 40, add=False)
-	res = manager.filtering_dataframe(df)  # La ROI est trop restritive.
+	res = manager.filtering_dataframe(df)  # La ROI est trop restrictive.
 	assert res.empty
 
 	manager.set_xy_roi(0, 3, 0, 2, add=False)
@@ -283,7 +283,7 @@ def test_filtering_dataframe(manager: ROIManager):
 	np.testing.assert_allclose(res.to_numpy(), [[1, 1], [2, 2]])
 
 	manager.rois = [ROI("ellipse", np.array([[1, 1], [1, 3], [3, 3], [3, 1]], dtype=float))]
-	res = manager.filtering_dataframe(df)  # Une ellipse est défini par sa bounding box, ici cercle de rayon 1 de centre 2 (donc ne récupère qu'un point)
+	res = manager.filtering_dataframe(df)  # Une ellipse est défini par sa bounding box, ici cercle de rayon 1 de centre 2 (donc ne récupère qu'un point).
 	np.testing.assert_allclose(res.to_numpy(), [[2, 2]])
 
 	manager.rois = [ROI("ellipse", np.array([[1, 1], [1, 1], [1, 1], [1, 1]], dtype=float))]

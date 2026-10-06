@@ -14,7 +14,7 @@ sys.path[:0] = [str(root), str(root / "palm_tracer")]
 # -- Project information -----------------------------------------------------
 
 project = "PALM Tracer"
-copyright = "2025, Thibaut Monseigne"
+copyright = "2026, Thibaut Monseigne"
 author = "Thibaut Monseigne"
 language = "fr"
 
@@ -94,7 +94,7 @@ gettext_compact = False
 # sphinx-build -b html -D language=fr docs docs/_build/html
 # sphinx-build -b html -D language=en docs docs/_build/html/en
 
-def copy_dir(src: str | Path, dst: str | Path) -> None:
+def copy_dir(src: str | Path, dst: str | Path):
 	"""Copie récursivement un dossier source vers un dossier destination."""
 	src, dst = Path(src), Path(dst)
 	if not src.exists(): return  # .				 Copie les fichiers si le dossier source existe
@@ -113,13 +113,13 @@ languages = [("Français", "fr"), ("English", "en")]
 def setup(app):
 	"""Ajoute des variables de contexte HTML (Jinja) en fonction de la langue réellement utilisée."""
 
-	def _inject_context(app_, pagename, templatename, context, doctree):
+	def _inject_context(app_, pagename, template, context, doctree):
 		"""
 		Ajoute les informations de langue au contexte du gabarit.
 
 		:param app_: Application Sphinx.
 		:param pagename: Nom de la page générée.
-		:param templatename: Nom du gabarit.
+		:param template: Nom du gabarit.
 		:param context: Contexte transmis au gabarit.
 		:param doctree: Arbre documentaire de la page.
 		"""

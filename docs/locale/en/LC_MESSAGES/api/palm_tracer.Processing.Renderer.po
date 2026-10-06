@@ -366,7 +366,7 @@ msgstr "Finalizes a scalar sequence using an alpha mask."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:3
 #, python-brace-format
-msgid "Les intensités non prémultipliées sont mélangées selon ``(1 - alpha) * bg_color + alpha * img``. Les pixels d'alpha nul reçoivent directement le fond pour éviter les calculs sur les infinis d'initialisation. Le résultat est saturé dans ``[0, 65535]`` ou replié modulo :math:`2^{16}` selon ``clip``."
+msgid "Les intensités non pré-multipliées sont mélangées selon ``(1 - alpha) * bg_color + alpha * img``. Les pixels d'alpha nul reçoivent directement le fond pour éviter les calculs sur les infinis d'initialisation. Le résultat est saturé dans ``[0, 65535]`` ou replié modulo :math:`2^{16}` selon ``clip``."
 msgstr "Non-premultiplied intensities are blended using ``(1 - alpha) * bg_color + alpha * img``. Pixels with zero alpha receive the background directly to avoid calculations involving initialization infinities. The result is clipped to ``[0, 65535]`` or wrapped modulo :math:`2^{16}` according to ``clip``."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack:7
@@ -394,7 +394,7 @@ msgid "Les intensités des trajectoires sont saturées sur l'échelle fixe 0–6
 msgstr "Track intensities are clipped to the fixed 0–65535 scale. The provided LUT supplies track colors (zero remains black). A colormap name remains accepted and generates the corresponding LUT. Raw background intensities are stretched from their global minimum and maximum to 0–255, using the same scale for all frames. A constant background retains the fixed conversion from 0–65535 to 0–255 to avoid division by zero. Grayscale values are copied to all three channels. Blend ``(1 - alpha) * background + alpha * color`` before rounding and uint8 conversion. Inputs remain unchanged and temporary arrays are limited to one frame."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:10
-msgid "Intensités non prémultipliées, de forme ``(plans, hauteur, largeur)``."
+msgid "Intensités non pré-multipliées, de forme ``(plans, hauteur, largeur)``."
 msgstr "Non-premultiplied intensities of shape ``(frames, height, width)``."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:11
@@ -402,8 +402,8 @@ msgid "Opacités de même forme dans [0, 1]."
 msgstr "Opacities of the same shape in [0, 1]."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:12
-msgid "Fond déjà recadré temporellement et agrandi, de même forme que img, sur l'échelle uint16."
-msgstr "Background already cropped temporally and upscaled, of the same shape as img, on the uint16 scale."
+msgid "Fond déjà recadré temporellement et agrandi, de même forme que ``img``, sur l'échelle uint16."
+msgstr "Background already cropped temporally and upscaled, of the same shape as ``img``, on the uint16 scale."
 
 #: of palm_tracer.Processing.Renderer.Renderer.finalize_track_stack_rgb:13
 msgid "LUT RGB indexée par l'intensité, ou nom de colormap reconnu par Matplotlib pour compatibilité."
@@ -510,8 +510,8 @@ msgid "Prépare les localisations utilisées par les différents modes de rendu.
 msgstr "Prepares the localizations used by the different rendering modes."
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:3
-msgid "Les coordonnées X et Y sont multipliées par le facteur d'agrandissement. Pour un rendu gaussien, les sigmas sont également mis à l'échelle et Theta est converti des degrés vers les radians."
-msgstr "The X and Y coordinates are multiplied by the upscaling factor. For Gaussian rendering, the sigmas are also scaled and Theta is converted from degrees to radians."
+msgid "Les coordonnées X et Y sont multipliées par le facteur d'agrandissement. Pour un rendu gaussien, les sigmas sont également mis à l'échelle. Theta est converti des degrés vers les radians."
+msgstr "The X and Y coordinates are multiplied by the upscaling factor. For Gaussian rendering, the sigmas are also scaled. Theta is converted from degrees to radians."
 
 #: of palm_tracer.Processing.Renderer.Renderer.prepare_localizations:6
 msgid "Les paramètres géométriques et l'intensité des gaussiennes sont ensuite adaptés aux réglages utilisateur. Les localisations situées hors des dimensions du rendu sont supprimées."
@@ -710,7 +710,7 @@ msgid "Pour une durée positive ``L``, le segment reste visible jusqu'à l'âge 
 msgstr "For a positive duration ``L``, a segment remains visible through age ``L`` inclusive, with constant opacity or linear fading ``max(0, 1 - age / (L + 1))``. A duration of ``-1`` retains segments without fading; ``0`` disables tails. Rendering is limited to the volume's frames."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_track:13
-msgid "Les intensités non prémultipliées sont combinées selon ``color_mode``, les alphas par maximum. Un recouvrement peut donc associer l'intensité et l'alpha de segments différents. Les pixels d'alpha nul ne contribuent pas ; le mélange avec le fond est réservé à la finalisation."
+msgid "Les intensités non pré-multipliées sont combinées selon ``color_mode``, les alphas par maximum. Un recouvrement peut donc associer l'intensité et l'alpha de segments différents. Les pixels d'alpha nul ne contribuent pas ; le mélange avec le fond est réservé à la finalisation."
 msgstr "Non-premultiplied intensities are combined according to ``color_mode``, and alphas by maximum. An overlap can therefore combine intensity and alpha from different segments. Pixels with zero alpha do not contribute; background blending is deferred to finalization."
 
 #: of palm_tracer.Processing.Renderer.Renderer.draw_track:17

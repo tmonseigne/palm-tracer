@@ -50,7 +50,7 @@ class ButtonGroup(BaseSettingType):
 		self.group[name].button(self.value).setChecked(True)
 		self.group[name].idClicked.connect(self.set_value_from_ui)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
-		self._uis[name] = ui  # .									  Ajoute l'ui au dictionnaire
+		self._uis[name] = ui  # .									  Ajoute l'UI au dictionnaire
 		return ui
 
 	##################################################
@@ -77,7 +77,7 @@ class ButtonGroup(BaseSettingType):
 		return self._items[self.value] if 0 <= self.value < len(self._items) else ""
 
 	##################################################
-	def active_item(self, item_id: int, active: bool) -> None:
+	def active_item(self, item_id: int, active: bool):
 		"""
 		Active ou désactive une option du groupe de boutons.
 

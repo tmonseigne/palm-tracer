@@ -5,7 +5,7 @@ Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 """
 
 from pathlib import Path
-from typing import Any, Callable, cast, Optional
+from typing import Callable, Optional, cast
 
 import napari
 import numpy as np
@@ -15,10 +15,10 @@ from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
-from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_json, open_tif, save_json
+from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
@@ -31,7 +31,7 @@ SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 
 ##################################################
-class PALMTracerWidget(QWidget):
+class PALMTracerWidget(BaseNapariWidget):
 	"""
 	Fournit l'interface Napari principale de PALM Tracer.
 
@@ -45,12 +45,6 @@ class PALMTracerWidget(QWidget):
 	LAYERS_NAME: list[str] = ["Raw", "Points Present", "ROI Present", "Points Filtered", "Points Past", "Points Future", "ROI Filter"]
 	"""Noms des calques gérés par l'interface principale."""
 
-	LAYER_ARGS: dict[str, dict[str, Any]] = {"Present":  {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime"},
-											 "Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red"},
-											 "Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent"},
-											 "Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent"}
-											 }
-	"""Propriétés graphiques des différents calques de points."""
 	EMPTY_PREVIEW: np.ndarray = np.empty((0, 2), dtype=float)
 	"""Tableau vide utilisé lorsqu'aucun point n'est prévisualisé."""
 	EMPTY_STACK: np.ndarray = np.zeros((1, 1, 1), dtype=np.uint16)
@@ -68,9 +62,8 @@ class PALMTracerWidget(QWidget):
 
 		:param viewer: Viewer Napari.
 		"""
-		super().__init__()
+		super().__init__(viewer)
 		# ----- Viewers -----
-		self.viewer = viewer
 		self.viewer_hr: Optional[Viewer] = None
 		self.viewer_hr_widget: Optional[QWidget] = None
 		self.viewer_3d: Optional[Viewer] = None
@@ -80,7 +73,6 @@ class PALMTracerWidget(QWidget):
 		self._processing = False  # .					 Permets d'éviter les clics multiples.
 		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
 		# ----- Objets -----
-		self.pt = PALMTracer()
 		self.last_file = ""
 		self._preview_locs: dict[str, np.ndarray] = {"Present": self.EMPTY_PREVIEW, "Filtered": self.EMPTY_PREVIEW,
 													 "Past":    self.EMPTY_PREVIEW, "Future": self.EMPTY_PREVIEW}
@@ -217,6 +209,32 @@ class PALMTracerWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
+	# region Glisser-déposer
+	# ==================================================
+	##################################################
+	def _can_drop_files(self, paths: list[str]) -> bool:
+		"""
+		Refuse les dépôts pendant un traitement PALM Tracer.
+
+		:param paths: Chemins locaux du dépôt validé par la classe mère.
+		:return: ``True`` si aucun traitement n'est en cours.
+		"""
+		return not self._processing
+
+	##################################################
+	def _drop_files(self, paths: list[str]):
+		"""
+		Ajoute les fichiers déposés au Batch de l'interface principale.
+
+		:param paths: Chemins locaux des fichiers à ajouter.
+		"""
+		cast(FileList, self.pt.settings.batch["Files"]).add_files(paths)
+
+	# ==================================================
+	# endregion Glisser-déposer
+	# ==================================================
+
+	# ==================================================
 	# region Threads
 	# ==================================================
 	##################################################
@@ -237,7 +255,7 @@ class PALMTracerWidget(QWidget):
 		self._freeze_ui(True)
 
 		@thread_worker(start_thread=False)
-		def _run_background() -> None:
+		def _run_background():
 			"""Exécute le traitement dans le worker d'arrière-plan."""
 			compute_func()  # STRICTEMENT aucun accès au viewer/layers ici, pragma: no cover —  lancement sur thread.
 
@@ -247,7 +265,7 @@ class PALMTracerWidget(QWidget):
 		# S'exécute dans le thread de l'interface
 		if post_func is not None: w.returned.connect(lambda _ok: post_func())
 
-		def _finish(*_args: object) -> None:  # UI thread : fin propre
+		def _finish(*_args: object):  # UI thread : fin propre
 			"""
 			Libère le worker puis finalise le traitement.
 
@@ -274,7 +292,7 @@ class PALMTracerWidget(QWidget):
 		self._freeze_ui(False)
 
 	##################################################
-	def _freeze_ui(self, on: bool) -> None:
+	def _freeze_ui(self, on: bool):
 		"""Gèle/réactive proprement l'UI sans casser la géométrie."""
 		self.setDisabled(on)  # .		  Au lieu de self.layout().setEnabled(False/True)
 		self.setUpdatesEnabled(not on)  # Stoppe/reprend les repaints
@@ -333,14 +351,14 @@ class PALMTracerWidget(QWidget):
 	##################################################
 	def _clean_layer(self, raw: bool = True, preview: bool = True, roi: bool = True):
 		"""Vide les calques sans les supprimer."""
-		if raw: Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
+		if raw: self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
 		if preview:
-			Ui.update_layer(self._layers[self.LAYERS_NAME[1]], self.EMPTY_PREVIEW)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[2]], [])
-			Ui.update_layer(self._layers[self.LAYERS_NAME[3]], self.EMPTY_PREVIEW)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[4]], self.EMPTY_PREVIEW)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[5]], self.EMPTY_PREVIEW)
-		if roi: Ui.update_layer(self._layers[self.LAYERS_NAME[6]], [])
+			self.update_layer(self._layers[self.LAYERS_NAME[1]], self.EMPTY_PREVIEW)
+			self.update_layer(self._layers[self.LAYERS_NAME[2]], [])
+			self.update_layer(self._layers[self.LAYERS_NAME[3]], self.EMPTY_PREVIEW)
+			self.update_layer(self._layers[self.LAYERS_NAME[4]], self.EMPTY_PREVIEW)
+			self.update_layer(self._layers[self.LAYERS_NAME[5]], self.EMPTY_PREVIEW)
+		if roi: self.update_layer(self._layers[self.LAYERS_NAME[6]], [])
 
 	##################################################
 	def _reset_layer(self):
@@ -364,10 +382,10 @@ class PALMTracerWidget(QWidget):
 			self._current_stack = open_tif(selected_file)
 			_, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
-			Ui.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
-			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()
-			self.viewer.reset_view()  # .  Recentrer et ajuster la vue
-			self.pt.load(selected_file)  # Ajout du chargement du dernier lancement pour ce fichier. Alternative à juste un reset des éléments.
+			self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
+			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()  # .			   Reinitialisation du contrast si la Pile Change
+			self.viewer.reset_view()  # .											   Recentrer et ajuster la vue
+			self.pt.load(str(Path(selected_file).with_suffix("")) + "_PALM_Tracer")  # load() attend le dossier des résultats, et non le chemin du TIFF.
 			try:
 				self.viewer.layers.selection.active = self._layers["Raw"]
 				self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)
@@ -390,8 +408,8 @@ class PALMTracerWidget(QWidget):
 			n_points = len(points)
 			layer = self._layers[f"Points {state}"]
 			# Remets les différents arguments en cas de nombre de points différents
-			Ui.update_layer(layer, points, size=np.full(n_points, 1.0), face_color=[args["face"]] * n_points,
-							border_color=[args["color"]] * n_points, border_width=np.full(n_points, args["border"]))
+			self.update_layer(layer, points, size=np.full(n_points, args["size"]), face_color=[args["face"]] * n_points,
+							  border_color=[args["color"]] * n_points, border_width=np.full(n_points, args["border"]))
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
@@ -408,8 +426,8 @@ class PALMTracerWidget(QWidget):
 			n_rois = len(rois)
 			layer = self._layers[f"ROI {state}"]
 			# Remets les différents arguments en cas de nombre de points différents
-			Ui.update_layer(layer, (rois, [s_type] * n_rois), edge_color=[args["color"]] * n_rois,
-							edge_width=[args["edge"]] * n_rois, face_color=["transparent"] * n_rois)
+			self.update_layer(layer, (rois, [s_type] * n_rois), edge_color=[args["color"]] * n_rois,
+							  edge_width=[args["edge"]] * n_rois, face_color=["transparent"] * n_rois)
 
 	##################################################
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
@@ -532,7 +550,7 @@ class PALMTracerWidget(QWidget):
 		self.viewer_graph.activateWindow()
 
 	##################################################
-	def _bind_viewer_lifecycle(self, viewer_attr: str) -> None:  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
+	def _bind_viewer_lifecycle(self, viewer_attr: str):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
 		viewer = getattr(self, viewer_attr, None)
 		if viewer is None: return

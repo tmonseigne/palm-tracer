@@ -50,7 +50,7 @@ class Grapher:
 
 	##################################################
 	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False,
-				  show_sigma: bool = False, kde: bool = False, gaussian: bool = False, poissonian: bool = False, exponential: bool = False,
+				  show_sigma: bool = False, kde: bool = False, gaussian: bool = False, poissonnian: bool = False, exponential: bool = False,
 				  density: bool = True, cumulative: bool = False, bins: int = 0, gaussian_mixture: bool = False, fit_limit: float = -np.inf) -> go.Figure:
 		"""
 		Trace un histogramme des données "façon" Seaborn avec Plotly et optionnellement une courbe kernel density estimation.
@@ -63,7 +63,7 @@ class Grapher:
 		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
 		:param kde: Si ``True``, superpose la KDE gaussienne.
 		:param gaussian: Si ``True``, superpose la gaussienne.
-		:param poissonian: Si ``True``, superpose la poissonnienne.
+		:param poissonnian: Si ``True``, superpose la poissonnienne.
 		:param exponential: Si ``True``, superpose l'exponentielle inverse.
 		:param density: Affiche l'histogramme en densité (``True``) ou en compte (``False``).
 		:param bins: Nombre de bins explicite (Sturges si ``0`` et avec des valeurs entières si négatif).
@@ -97,8 +97,8 @@ class Grapher:
 			limits[1] += 0.5
 
 		# Histogramme
-		histnorm = "probability density" if density else None
-		fig.add_histogram(x=x, xbins=dict(start=limits[0], end=limits[1], size=bin_width), histnorm=histnorm,
+		norm = "probability density" if density else None
+		fig.add_histogram(x=x, xbins=dict(start=limits[0], end=limits[1], size=bin_width), histnorm=norm,
 						  cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
 						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
@@ -106,7 +106,7 @@ class Grapher:
 		fit_data = x[x > fit_limit]
 		fit_mu, fit_sigma = mu, sigma
 		if 0 < fit_data.size < x.size: fit_mu, fit_sigma = float(np.mean(fit_data)), float(np.std(fit_data))
-		# La densité reste normalisée sur l'effectif total de l'histogramme, y compris les valeurs exclues du fit.
+		# La densité reste normalisée sur l'effectif total de l'histogramme, y compris les valeurs exclues de l'ajustement.
 		fit_weight = fit_data.size / x.size if density else 1.0
 
 		if fit_data.size > 1 and fit_sigma > 0:
@@ -142,7 +142,7 @@ class Grapher:
 										 name="Gaussian mixture", hoverinfo="skip", hovertemplate=None))
 
 			# Loi de Poisson
-			if poissonian and fit_mu >= 0:
+			if poissonnian and fit_mu >= 0:
 				x_poisson = np.arange(max(0, int(np.floor(limits[0]))), int(np.ceil(limits[1])) + 1)
 				y_pdf = poisson.pmf(x_poisson, fit_mu)
 				y = self._scale_curve(x_poisson, y_pdf, fit_data.size, bin_width, density, cumulative, discrete=True) * fit_weight
@@ -214,8 +214,8 @@ class Grapher:
 			x = np.where(np.isfinite(curve[0]), curve[0], np.nan)
 			y = np.where(valid[i], curve[1], np.nan)
 			fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", connectgaps=False, name=name, line=dict(color=_SEABORN_DEEP[i % len(_SEABORN_DEEP)]),
-									hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra>%{fullData.name}</extra>" if names is not None
-									else "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
+									 hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra>%{fullData.name}</extra>" if names is not None
+									 else "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas
 		if show_sigma and values.size > 1 and sigma > 0: self._draw_sigma(fig, mu, sigma, False)
@@ -228,7 +228,7 @@ class Grapher:
 
 	##################################################
 	def cloud(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False,
-			  kde: bool = False, gaussian: bool = False, poissonian: bool = False, exponential: bool = False) -> go.Figure:
+			  kde: bool = False, gaussian: bool = False, poissonnian: bool = False, exponential: bool = False) -> go.Figure:
 		"""
 		Trace une courbe des données "façon" Seaborn avec Plotly.
 
@@ -240,10 +240,10 @@ class Grapher:
 		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
 		:param kde: Si ``True``, superpose la KDE gaussienne 2D.
 		:param gaussian: Si ``True``, superpose la gaussienne 2D.
-		:param poissonian: Si ``True``, superpose la poissonnienne 2D.
+		:param poissonnian: Si ``True``, superpose la poissonnienne 2D.
 		:param exponential: Si ``True``, superpose l'exponentielle inverse 2D.
 		:return: :class:`go.Figure <plotly.graph_objects.Figure>`.
-		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes)
+		:raises ValueError: Si les dimensions du tableau ne correspondent pas à ceux attendus (1D, 2D, mais avec uniquement 2 lignes ou 2 colonnes).
 		"""
 
 		if data.size == 0: return self.blank(title)
@@ -263,7 +263,7 @@ class Grapher:
 
 		# Test d'histogramme en heatmap de fond
 		# fig.add_trace(go.Histogram2d(x=x, y=y, nbinsx=self._get_bins_number(x), nbinsy=self._get_bins_number(y), colorscale="Viridis", showscale=True,
-		# 							 opacity=0.5, name="Histogramm", hoverinfo="skip", hovertemplate=None))
+		# 							 opacity=0.5, name="Histogram", hoverinfo="skip", hovertemplate=None))
 
 		# Limite des données avec la règle des 3 Sigmas
 		_, limits_x, mu_x, sigma_x = self._get_range(x, limit)
@@ -289,7 +289,7 @@ class Grapher:
 
 				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
-			if poissonian and mu_x >= 0 and mu_y >= 0:
+			if poissonnian and mu_x >= 0 and mu_y >= 0:
 				xg = np.arange(max(0, int(np.floor(limits_x[0]))), int(np.ceil(limits_x[1])) + 1, )
 				yg = np.arange(max(0, int(np.floor(limits_y[0]))), int(np.ceil(limits_y[1])) + 1, )
 
@@ -344,7 +344,7 @@ class Grapher:
 		Si des données expérimentales sont fournies, elles sont superposées sous forme de points (sans interaction hover)
 		dans les modes ``"cross"`` et ``"slope"``.
 
-		:param model: Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param data: Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``.
 		:param title: Titre du graphe.
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm). Utilisé pour l’évaluation du modèle.

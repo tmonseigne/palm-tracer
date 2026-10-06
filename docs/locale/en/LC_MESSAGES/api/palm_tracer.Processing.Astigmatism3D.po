@@ -103,14 +103,14 @@ msgid "DataFrame filtré avec au plus une localisation par plan."
 msgstr "Filtered DataFrame with at most one localization per plane."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:1
-msgid "Modèle astigmatique sigma(z)."
+msgid "Modèle d'astigmatisme sigma(z)."
 msgstr "Astigmatic model sigma(z)."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:8
 #: palm_tracer.Processing.Astigmatism3D.model_projection_validity:27
 #: palm_tracer.Processing.Astigmatism3D.model_validity:16
 #: palm_tracer.Processing.Astigmatism3D.sigma_model:3
-msgid "Modèle astigmatique de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
+msgid "Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
 msgstr "Astigmatic model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:4
@@ -162,7 +162,7 @@ msgid "Dictionnaire de métriques : RMSE/MAE (en pixels) et R² (adimensionnel) 
 msgstr "Metric dictionary: RMSE/MAE (in pixels) and R² (dimensionless) for X, Y, and global."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:1
-msgid "Évalue la validité d'un modèle astigmatique pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle."
+msgid "Évalue la validité d'un modèle d'astigmatisme pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle."
 msgstr "Evaluates the validity of an astigmatic model for estimating Z by projecting the observations (SigmaX, SigmaY) onto the model curve."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:3
@@ -228,8 +228,8 @@ msgid "Dictionnaire de métriques décrivant la précision axiale (en unités de
 msgstr "Dictionary of metrics describing axial accuracy (in units of Z) and data consistency with the model (distances in pixels)."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:1
-msgid "Recherche la position axiale pour laquelle les deux sigmas astigmatiques sont les plus proches."
-msgstr "Finds the axial position where the two astigmatic sigmas are closest."
+msgid "Recherche la position axiale pour laquelle les deux sigmas sont les plus proches."
+msgstr "Finds the axial position where the two sigmas are closest."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:3
 msgid "La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter :"
@@ -248,5 +248,5 @@ msgid "soit, à défaut, la position minimisant la valeur absolue de cette diff�
 msgstr "or, failing that, the position that minimizes the absolute value of this difference."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:11
-msgid "Position axiale estimée du centre astigmatique."
+msgid "Position axiale estimée du centre de l'astigmatisme."
 msgstr "Estimated axial position of the astigmatic center."

@@ -6,9 +6,12 @@ Fournit le widget de visualisation interactive des données PALM avec Plotly.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import cast
 
-from qtpy.QtCore import Qt, QTimer
+from qtpy.compat import isalive
+from qtpy.QtCore import QEvent, QObject, Qt, QTimer
+from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
 from qtpy.QtWidgets import QAbstractSpinBox, QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
@@ -21,9 +24,6 @@ from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 # region Constantes
 # ==================================================
 TIPS = {
-		"Add Stack": "Add a stack to the batch and load the latest results for it.\n"
-					 "Please note that if you are coming from the main widget, the batch will be updated because the settings are linked.",
-
 		"Actualize": "Updates files/data from PALMTracer status.",
 		"Export":    "Opens a dialog box and exports the figure according to the selected extension.",
 		}
@@ -62,8 +62,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 		super().__init__()
 		self.setWindowTitle(self.UI_NAME)
 		# Initialisation des membres
-		self._pt = PALMTracer() if palmtracer is None else palmtracer
-		self._graph_settings: Graph = self._pt.settings.graph
+		self.pt = PALMTracer() if palmtracer is None else palmtracer
+		self._graph_settings: Graph = self.pt.settings.graph
+		self._drop_window: QWidget | None = None  # Fenêtre Qt dont les dépôts chargent une pile.
+		self._drop_accepts: bool = False  # État des dépôts à restaurer lorsque le widget est masqué.
 
 		# Construction UI
 		self._init_ui()
@@ -83,7 +85,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 			- Zone droite :
 				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
 		"""
-		self._pt.clean_ui(self.UI_NAME)
+		self.pt.clean_ui(self.UI_NAME)
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
@@ -118,10 +120,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._splitter_resize_timer.timeout.connect(lambda: splitter.setSizes([max(left.sizeHint().width(), left.minimumWidth()), 1000]))
 		self._splitter_resize_timer.start(0)
 
-		# --- Bouton pour charger une stack ---
-		self._btn_add_stack = QPushButton("Add Stack")
-		self._btn_add_stack.setToolTip(TIPS["Add Stack"])
-
 		# --- Bloc Source (donnée) + Type de graphe ---
 		grp_source = QGroupBox("Source")
 		form = Ui.make_form(grp_source)
@@ -150,7 +148,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
 		# Integration des Filtres
-		self._filters = self._pt.settings.filters
+		self._filters = self.pt.settings.filters
 		self._filters_ui = self._filters.get_ui(self.UI_NAME)
 		vbox_filters.addWidget(self._filters_ui.widget)
 		# Masquage initial
@@ -167,14 +165,13 @@ class GraphViewerWidget(BasePlotlyWidget):
 		actions_row.addWidget(self._btn_export)
 
 		# --- Mise en page dans le scroll ---
-		scroll_layout.addWidget(self._pt.results.get_ui(self.UI_NAME).widget)
+		scroll_layout.addWidget(self.pt.results.get_ui(self.UI_NAME).widget)
 		scroll_layout.addWidget(grp_source)
 		scroll_layout.addWidget(grp_display)
 		scroll_layout.addWidget(grp_filters)
 		scroll_layout.addStretch()  # Optionnel mais recommandé
 
-		# --- Mise en page globbale ---
-		vbox.addWidget(self._btn_add_stack)
+		# --- Mise en page globale ---
 		vbox.addWidget(scroll_area)
 		vbox.addLayout(actions_row)
 
@@ -187,9 +184,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		# Connexion des boutons Filters de cette UI
-		self._pt.connect_filters_button(self.UI_NAME)
-
-		self._btn_add_stack.clicked.connect(self._add_stack)
+		self.pt.connect_filters_button(self.UI_NAME)
 
 		# Sources
 		self._graph_settings["Type"].connect(self._toggle_type)
@@ -210,11 +205,73 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
-		try: self._pt.clean_ui(self.UI_NAME)
+		try: self.pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
 	# ==================================================
 	# endregion Initialisation
+	# ==================================================
+
+	# ==================================================
+	# region Glisser-déposer
+	# ==================================================
+	##################################################
+	def showEvent(self, event: QShowEvent):
+		"""
+		Active l'interception dans la fenêtre autonome des graphiques.
+
+		:param event: Événement d'affichage Qt.
+		"""
+		super().showEvent(event)
+		if self._drop_window is not None and isalive(self._drop_window): return
+		window = self
+		self._drop_window = window
+		self._drop_accepts = window.acceptDrops()
+		window.setAcceptDrops(True)
+		QApplication.instance().installEventFilter(self)
+
+	##################################################
+	def hideEvent(self, event: QHideEvent):
+		"""
+		Retire le filtre et restaure l'état des dépôts si la fenêtre Qt existe encore.
+
+		:param event: Événement de masquage Qt.
+		"""
+		QApplication.instance().removeEventFilter(self)
+		window = self._drop_window
+		self._drop_window = None
+		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
+		super().hideEvent(event)
+
+	##################################################
+	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+		"""
+		Intercepte le dépôt d'une seule pile locale dans la fenêtre des graphiques.
+
+		Les dépôts multiples, les dossiers et les fichiers absents sont refusés.
+		Les autres fenêtres et les glissements sans fichier local restent inchangés.
+
+		:param watched: Objet Qt destinataire de l'événement.
+		:param event: Événement à filtrer.
+		:return: ``True`` si l'événement est consommé avant son traitement habituel.
+		"""
+		if event.type() not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
+		window = self._drop_window
+		if window is None or not isalive(window) or not isinstance(watched, QWidget): return False
+		if watched is not window and not window.isAncestorOf(watched): return False
+		drop = cast(QDropEvent, event)
+		urls = drop.mimeData().urls()
+		if not any(url.isLocalFile() for url in urls): return False
+		if len(urls) != 1 or not Path(urls[0].toLocalFile()).is_file():
+			drop.ignore()
+			return True
+		drop.setDropAction(Qt.DropAction.CopyAction)
+		drop.accept()
+		if event.type() == QEvent.Type.Drop: self._add_stack(urls[0].toLocalFile())
+		return True
+
+	# ==================================================
+	# endregion Glisser-déposer
 	# ==================================================
 
 	# ==================================================
@@ -231,10 +288,15 @@ class GraphViewerWidget(BasePlotlyWidget):
 		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # .			Tracking
 
 	##################################################
-	def _add_stack(self):
-		"""Permet le chargement d'une image tif pour bypass le chargement initial en lien avec le wiget principal."""
-		cast(FileList, self._pt.settings.batch["Files"]).add_file()
-		self._pt.load()  # . Chargement des derniers résultats
+	def _add_stack(self, path: str):
+		"""
+		Ajoute la pile déposée, charge ses derniers résultats et redessine le graphe.
+
+		:param path: Chemin local de la pile à ajouter au Batch partagé avec le widget principal.
+		"""
+		cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
+		# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
+		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 		self._actualize()  # Actualisation des statuts
 
 	##################################################
@@ -245,7 +307,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 	##################################################
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
-		self._fig = self._pt.graph()
+		self._fig = self.pt.graph()
 		self._update_web_widget()
 
 

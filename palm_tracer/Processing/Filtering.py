@@ -27,7 +27,7 @@ class Filtering:
 	"""Gestionnaire des zones d'intérêt du filtrage spatial."""
 
 	##################################################
-	def __init__(self, filters: Filters, rois: ROIManager) -> None:
+	def __init__(self, filters: Filters, rois: ROIManager):
 		"""
 		Initialise l'instance.
 

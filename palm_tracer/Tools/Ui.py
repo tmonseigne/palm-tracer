@@ -3,16 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from colorama import Fore, Style
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFontMetrics
 from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout,
 							QPushButton, QScrollArea, QSpinBox, QVBoxLayout, QWidget)
-
-if TYPE_CHECKING:
-	from napari.layers import Layer
 
 # ==================================================
 # region Constantes
@@ -300,7 +297,7 @@ def update_path_label(lbl: QLabel, path: str | Path):
 ##################################################
 def make_vertical_scroll(widget: QWidget) -> QScrollArea:
 	"""
-	Crééer une zone scrollable verticalement.
+	Créer une zone scrollable verticalement.
 
 	:param widget: Widget à placer dans la zone de défilement.
 	:return: La :class:`QScrollArea` configuré.
@@ -414,28 +411,6 @@ def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
-##################################################
-def update_layer(layer: Layer, data: Any, visible: bool | None = None, **properties: Any) -> None:
-	"""
-	Met à jour un calque Napari en le rendant temporairement visible.
-
-	Ce contournement évite les erreurs de rendu pouvant survenir lors de la modification d'un calque masqué.
-	Les données sont affectées avant les propriétés supplémentaires.
-	À la fin de la mise à jour, la visibilité initiale est restaurée si le paramètre de visibilité vaut :obj:`None`, sinon l'état demandé est appliqué.
-
-	:param layer: Calque Napari à mettre à jour.
-	:param data: Nouvelles données du calque.
-	:param visible: Visibilité finale, ou :obj:`None` pour conserver l'état initial.
-	:param properties: Propriétés supplémentaires à affecter après les données.
-	"""
-	initial_visibility = layer.visible
-	layer.visible = True
-	try:
-		layer.data = data
-		for name, value in properties.items(): setattr(layer, name, value)
-	finally: layer.visible = initial_visibility if visible is None else visible
-
-
 ##################################################
 def sync_button_group(target: QButtonGroup, value: int):
 	"""

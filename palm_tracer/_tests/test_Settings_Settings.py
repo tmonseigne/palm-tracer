@@ -3,7 +3,6 @@
 import copy
 from typing import List
 
-import numpy as np
 import pytest
 import tifffile as tiff
 
@@ -83,7 +82,7 @@ def test_settings_batch_filter_limits(qtbot, tmp_path, mode, selected, expected)
 
 ###################################################
 def test_settings_batch_filter_limits_after_list_change(qtbot, tmp_path):
-	"""Vérifie le recalcul quand la liste change sans changer l'index courant."""
+	"""Vérifie le re-calcul quand la liste change sans changer l'index courant."""
 	files = [tmp_path / "first.tif", tmp_path / "second.tif"]
 	for path, depth in zip(files, (3, 5)):
 		tiff.imwrite(path, np.zeros((depth, 4, 4), dtype=np.uint16), photometric="minisblack")
