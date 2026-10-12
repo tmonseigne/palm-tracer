@@ -342,7 +342,7 @@ class Grapher:
 		- ``"slope"`` : Courbe de la différence σx(z) - σy(z), utile pour estimer la monotonie et la sensibilité du modèle autour de Z = 0.
 
 		Si des données expérimentales sont fournies, elles sont superposées sous forme de points (sans interaction hover)
-		dans les modes ``"cross"`` et ``"slope"``.
+		dans les modes ``"cross"`` et ``"slope"``. Les points dont Z atteint ou dépasse les bornes ±``z_max`` sont exclus de l'affichage.
 
 		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param data: Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``.
@@ -374,7 +374,7 @@ class Grapher:
 			fig.add_trace(go.Scatter(x=z, y=sy, mode="lines", line=dict(color=_SEABORN_DEEP[1]), hovertemplate="σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
 
 			if data is not None:
-				x, y, z = data.T
+				x, y, z = data[(data[:, 2] > -z_max) & (data[:, 2] < z_max)].T
 				fig.add_trace(go.Scatter(x=z, y=x, mode="markers", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"), hoverinfo="skip"))
 				fig.add_trace(go.Scatter(x=z, y=y, mode="markers", marker=dict(color=_SEABORN_DEEP[1], size=6, symbol="circle"), hoverinfo="skip"))
 
@@ -383,7 +383,7 @@ class Grapher:
 			fig.add_trace(go.Scatter(x=z, y=sx - sy, mode="lines", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="σx-σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
 
 			if data is not None:
-				x, y, z = data.T
+				x, y, z = data[(data[:, 2] > -z_max) & (data[:, 2] < z_max)].T
 				fig.add_trace(go.Scatter(x=z, y=x - y, mode="markers", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"), hoverinfo="skip"))
 
 			fig.update_layout(xaxis=self._axis_dict("Z (nm)"), yaxis=self._axis_dict("σX - σY"))

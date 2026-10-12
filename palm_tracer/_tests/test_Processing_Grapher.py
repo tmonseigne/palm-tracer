@@ -2,6 +2,7 @@
 
 import json
 
+import numpy as np
 import plotly.graph_objects as go
 import pytest
 from scipy.stats import expon, gaussian_kde, norm, poisson
@@ -317,6 +318,58 @@ def test_astigmatism3d(args, kwargs, filename, reference):
 def test_astigmatism3d_invalid(args, kwargs):
 	"""Vérifie le rejet des dimensions incompatibles avec ce graphique."""
 	with pytest.raises(ValueError): Grapher().astigmatism3d(*args, **kwargs)
+
+
+##################################################
+@pytest.mark.parametrize("mode", ["cross", "slope"], ids=["cross", "slope"])
+@pytest.mark.parametrize("z_max", [100, 250], ids=["small-range", "large-range"])
+def test_astigmatism3d_filters_z_limits(mode, z_max):
+	"""Vérifie les coordonnées affichées, le maintien des points intérieurs et des extrémités du modèle."""
+	model = np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float)
+	z = np.array([-2, -1, -0.999999, 0, 0.999999, 1, 2]) * z_max
+	points = np.column_stack((np.arange(1, 8, dtype=float), np.arange(11, 18, dtype=float), z))
+	original = points.copy()
+
+	figure = Grapher().astigmatism3d(model, points, z_max=z_max, mode=mode, n_points=11)
+
+	valid_points = points[2:5]
+	model_trace_count = 2 if mode == "cross" else 1
+	assert len(figure.data) == 2 * model_trace_count
+	for trace in figure.data[:model_trace_count]:
+		assert trace.mode == "lines"
+		np.testing.assert_array_equal(np.asarray(trace.x)[[0, -1]], [-z_max, z_max])
+	for trace in figure.data[model_trace_count:]:
+		assert trace.mode == "markers"
+		np.testing.assert_array_equal(trace.x, valid_points[:, 2])
+	if mode == "cross":
+		np.testing.assert_array_equal(figure.data[2].y, valid_points[:, 0])
+		np.testing.assert_array_equal(figure.data[3].y, valid_points[:, 1])
+	else:
+		np.testing.assert_array_equal(figure.data[1].y, valid_points[:, 0] - valid_points[:, 1])
+	np.testing.assert_array_equal(points, original)
+
+
+##################################################
+@pytest.mark.parametrize("mode", ["cross", "slope"], ids=["cross", "slope"])
+@pytest.mark.parametrize("points", [
+		pytest.param(np.empty((0, 3)), id="empty-data"),
+		pytest.param(np.array([[1, 2, -101], [1, 2, -100], [1, 2, 100], [1, 2, 101]], dtype=float), id="all-excluded")])
+def test_astigmatism3d_without_valid_points(mode, points):
+	"""Vérifie que le modèle reste affiché sans marqueurs quand aucune donnée n'est utilisable."""
+	model = np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float)
+
+	figure = Grapher().astigmatism3d(model, points, z_max=100, mode=mode, n_points=11)
+
+	model_trace_count = 2 if mode == "cross" else 1
+	assert len(figure.data) == 2 * model_trace_count
+	for trace in figure.data[:model_trace_count]:
+		assert trace.mode == "lines"
+		assert len(trace.x) == 11
+		assert len(trace.y) == 11
+	for trace in figure.data[model_trace_count:]:
+		assert trace.mode == "markers"
+		assert len(trace.x) == 0
+		assert len(trace.y) == 0
 
 
 # ==================================================
