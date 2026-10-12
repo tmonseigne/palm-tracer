@@ -25,7 +25,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	"""
 	Permet de calibrer un modèle d'astigmatisme 3D puis d'estimer des positions axiales.
 
-	Le premier onglet construit le modèle à partir des écarts-types selon X et Y. Le second charge un modèle et ajoute l'estimation de Z aux localisations.
+	Le premier onglet recalcule automatiquement le modèle au chargement des localisations et à chaque changement des paramètres de calibration.
+	Le second charge un modèle et ajoute l'estimation de Z aux localisations sur demande.
 
 	:param parent: Widget Qt parent.
 
@@ -55,6 +56,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._mod_filename: Path = Path()
 		self._png_filename: Path = Path()
 		self._loc: pd.DataFrame = pd.DataFrame()
+		self._calibration_z: np.ndarray | None = None  # Z d'origine, conservés avant toute estimation pour les recalculs du modèle.
+		self._updating_parameters = False  # Suspend le recalcul pendant l'adaptation des options au fichier chargé.
 		self._model: pd.DataFrame = pd.DataFrame()
 		self._fig = self._grapher.blank(self.GRAPH_TITLE)
 
@@ -116,13 +119,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		form = Ui.make_form(grp_type)
 		form.addRow(h)
 
-		# Bouton compute
-		self._btn_compute = QPushButton("Compute model", tab_compute)
-		self._btn_compute.setToolTip("Start calculating model coefficients from the localization file.")
-
 		tab_layout.addWidget(grp)
 		tab_layout.addWidget(grp_type)
-		tab_layout.addWidget(self._btn_compute)
 
 		# --- Groupe Vérification de cohérence ---
 		self._sanity: list[dict[str, dict[str, QLabel | str]]] = [{
@@ -251,8 +249,6 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux aux callbacks."""
 		self._btn_load_compute.clicked.connect(self._on_load_loc)
-		self._btn_load_compute.clicked.connect(self._check_loc)
-		self._btn_compute.clicked.connect(self._on_compute)
 
 		self._btn_load_loc_estimate.clicked.connect(self._on_load_loc)
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
@@ -266,10 +262,14 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btg_type_compute.idClicked.connect(lambda i: Ui.sync_button_group(self._btg_type_estimate, i))
 		self._btg_type_estimate.idClicked.connect(lambda i: Ui.sync_button_group(self._btg_type_compute, i))
 
-		# --- Mise à jour de l'affichage de la courbe ---
-		self._spin_px_compute.valueChanged.connect(self._update_plot)
-		self._spin_px_estimate.valueChanged.connect(self._update_plot)
-		self._spin_z_estimate.valueChanged.connect(self._update_plot)
+		# --- Recalcul du modèle après modification des paramètres de calibration ---
+		for spin in (self._spin_px_compute, self._spin_px_estimate, self._spin_z_compute, self._spin_z_estimate, self._spin_z_interval):
+			spin.setKeyboardTracking(False)  # Attend la validation de la saisie plutôt que de recalculer à chaque chiffre.
+			spin.valueChanged.connect(self._on_compute)
+		for check in (self._check_only_one, self._check_z_from_plane, self._check_z_center, self._check_z_flip):
+			check.toggled.connect(self._on_compute)
+
+		# --- Le choix du graphique ne modifie pas le modèle ---
 		self._btg_type_compute.idClicked.connect(self._update_plot)
 		self._btg_type_estimate.idClicked.connect(self._update_plot)
 
@@ -374,7 +374,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 	##################################################
 	def _on_load_loc(self):
-		"""Callback du bouton 'Load Localization file (CSV)'."""
+		"""Charge les localisations et déclenche la calibration uniquement depuis l'onglet Compute Model."""
 		# --- boîte de dialogue pour sélectionner un .csv ---
 		filename, _ = QFileDialog.getOpenFileName(self, "Select Localization CSV file", "", "CSV files (*.csv)")
 
@@ -382,6 +382,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			Ui.print_warning("No file selected.")
 			return
 
+		self._calibration_z = None
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
@@ -406,6 +407,14 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.update_path_label(self._lbl_loc_estimate, self._loc_filename)
 
 		Ui.print_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
+		if self.sender() == self._btn_load_compute:
+			self._calibration_z = self._loc["Z"].to_numpy(dtype=float, copy=True)
+			self._updating_parameters = True
+			try:
+				self._check_loc()
+			finally:
+				self._updating_parameters = False
+			self._on_compute()
 
 	##################################################
 	def _on_load_model(self):
@@ -422,6 +431,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			Ui.print_warning("No model file selected.")
 			return
 
+		self._calibration_z = None  # Le modèle chargé devient la référence pour l'estimation, sans calibration automatique.
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
@@ -449,16 +459,18 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 	##################################################
 	def _on_compute(self):
-		"""Callback du bouton 'Compute model'."""
+		"""Recalcule et sauvegarde le modèle après chargement ou changement des paramètres, à partir des Z d'origine."""
 		# --- Vérification ---
-		if self._loc.empty:
-			Ui.print_warning("Can't Compute model without correct file loaded.")
+		if self._updating_parameters: return
+		if self._loc.empty or self._calibration_z is None:
+			self._update_plot()
 			return
 
 		z_max = self._spin_z_compute.value()
 		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 
 		work = self._loc.copy()
+		work["Z"] = self._calibration_z
 
 		# --- Mise à jour de Z (si sélectionné) ---
 		if self._check_z_from_plane.isChecked():
@@ -505,9 +517,6 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
 		self._loc[["Z", "MSE Z"]] = estimated_z
-
-		# --- Mise à jour de l'affichage ---
-		self._update_plot()
 
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")

@@ -22,6 +22,8 @@ def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
+	assert not hasattr(w, "_btn_compute")
+	assert w._btn_estimate.text() == "Compute Z"
 	assert "blank" not in w._sanity[0]
 	assert list(w._sanity[0])[-1] == "slope_mean"
 	assert list(w._sanity[1])[-1] == "astigmatism"
@@ -260,269 +262,224 @@ def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 ##################################################
-def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration sans fichier chargé."""
+def test_compute_without_calibration_data(qtbot, capsys):
+	"""Vérifie que les paramètres restent modifiables sans déclencher de calibration avant le chargement."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Compute sans Tif
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Can't Compute model without correct file loaded." in lines[0]
-	w.close()
-
-
-##################################################
-def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: " in lines[0]
-	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
-	assert not w._loc.empty
-
-	# Lancement du calcul
 	w._spin_px_compute.setValue(0.2)
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 13  # 4 par modèle affiché + ligne finale
-	assert "Model saved successfully." in lines[-1]
-
-	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
-	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
-
-	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
-
-	w.close()
-
-
-##################################################
-def test_compute_mean_beads(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: " in lines[0]
-	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
-	assert not w._loc.empty
-
-	w._loc.loc[w._loc["Bead"] == 2, "Z"] *= 3  # La deuxième bille a une amplitude 3 fois supérieure (pour avoir une moyenne de 2 × z sur les 2 billes).
-
-	# Lancement du calcul
-	w._spin_px_compute.setValue(0.2)
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 13  # 4 par modèle affiché + ligne finale
-	assert "Model saved successfully." in lines[-1]
-
-	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
-	# Il n'y a que 2 colonnes ou l'amplitude sur Z a eu une influence : Z0 et W.
-	ref["Z0"] *= 2
-	ref["W"] *= 2
-	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
-
-	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
-
-	w.close()
-
-
-##################################################
-def test_compute_remove_bead_col(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: " in lines[0]
-	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
-	assert not w._loc.empty
-
-	w._loc.drop(columns=["Bead"], inplace=True)  # On supprime la colonne Bead
-
-	# Lancement du calcul
-	w._spin_px_compute.setValue(0.2)
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 5  # 4 par modèle affiché + ligne finale
-	assert "Model saved successfully." in lines[-1]
-
-	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
-	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
-
-	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
-
-	w.close()
-
-
-##################################################
-def test_compute_remove_multi(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: " in lines[0]
-	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
-	assert not w._loc.empty
-
-	# Ajout des colonnes
-	w._loc["Plane"] = range(1, len(w._loc) + 1)
-	w._loc["X"] = 5
-	w._loc["Y"] = 5
-	w._loc.loc[4:6, "Plane"] = 3  # Même plan pour ceux-là
-	w._loc.loc[4:6, "X"] = 3  # Mais x différent
-
-	# Lancement du calcul
-	w._spin_px_compute.setValue(0.2)
-	qtbot.mouseClick(w._check_only_one, Qt.MouseButton.LeftButton)
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 5  # 4 par modèle affiché + ligne finale
-	assert "Model saved successfully." in lines[-1]
-
-	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
-
-	w.close()
-
-
-##################################################
-def test_compute_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: " in lines[0]
-	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
-	assert not w._loc.empty
-
-	# Passage de Zmax à 460, coche de Get Z from plane et Z flip
-	w._spin_px_compute.setValue(0.2)
-	w._spin_z_compute.setValue(460)
-	w._check_z_from_plane.setChecked(True)
+	w._spin_z_compute.setValue(450)
 	w._check_z_flip.setChecked(True)
-
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert len(lines) == 13  # 4 par modèle affiché + ligne finale
-	assert "Model saved successfully." in lines[-1]
-
-	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model_centered.csv", index_col=0)
-	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
-
-	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
-
-	# Suppression de la colonne Plane
-	w._loc.drop(columns=["Plane"], inplace=True)
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "No Plane Column in file. We can't use it to initialize Z." in lines[0]
-
-	# Ajout d'une colonne Plane de 1 à N.
-	w._loc["Plane"] = range(1, len(w._loc) + 1)
-
+	assert w._model.empty
+	assert w._calibration_z is None
+	assert get_lines_output(capsys) == []
 	w.close()
 
 
 ##################################################
-def test_compute_center_z(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
+@pytest.mark.parametrize("scenario, reference, scale, bead_count", [
+		pytest.param("original", "astigmatism_3d_model_centered.csv", 1, 2, id="original-z"),
+		pytest.param("mean-beads", "astigmatism_3d_model_centered.csv", 2, 2, id="mean-beads"),
+		pytest.param("single-bead", "astigmatism_3d_model_centered.csv", 1, 1, id="single-bead"),
+		pytest.param("plane-z", "astigmatism_3d_model_centered.csv", 1, 2, id="plane-z-flipped"),
+		pytest.param("uncentered", "astigmatism_3d_model.csv", 1, 2, id="uncentered")])
+def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path, scenario, reference, scale, bead_count):
+	"""Vérifie la calibration immédiate au chargement, ses résultats et le CSV effectivement sauvegardé."""
+	data = pd.read_csv(LOC_FILE)
+	if scenario == "mean-beads":
+		data.loc[data["Bead"] == 2, "Z"] *= 3
+	elif scenario == "single-bead":
+		data = data.drop(columns=["Bead"])
+	localization_file = tmp_path / LOC_FILE.name
+	data.to_csv(localization_file, index=False)
+	original_file = localization_file.read_bytes()
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: " in lines[0]
-	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
-	assert not w._loc.empty
-
-	# Lancement du calcul
 	w._spin_px_compute.setValue(0.2)
-	qtbot.mouseClick(w._check_z_center, Qt.MouseButton.LeftButton)
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
+	w._check_z_from_plane.setChecked(scenario == "plane-z")
+	w._check_z_flip.setChecked(scenario == "plane-z")
+	w._check_z_center.setChecked(scenario != "uncentered")
+	capsys.readouterr()
+
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+
 	lines = get_lines_output(capsys)
-	assert len(lines) == 13  # 4 par modèle affiché + ligne finale
-	assert "Model saved successfully." in lines[-1]
-
-	ref = pd.read_csv(REF_DIR / f"astigmatism_3d_model.csv", index_col=0)
-	assert np.allclose(w._model, ref, atol=0.1, rtol=0), f"Résultat incorrect.\nAttendu : \n\t{ref}\nObtenu : \n\t{w._model}"
-
-	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
-
+	assert "Selected file:" in lines[0]
+	assert "CSV loaded successfully" in lines[1]
+	assert sum("Model for bead " in line for line in lines) == bead_count
+	assert sum("Model saved successfully." in line for line in lines) == 1
+	ref = pd.read_csv(REF_DIR / reference, index_col=0)
+	ref[["Z0", "W"]] *= scale
+	assert np.allclose(w._model, ref, atol=0.1, rtol=0)
+	saved_model = pd.read_csv(tmp_path / MODEL_FILE, index_col=0)
+	pd.testing.assert_frame_equal(saved_model, w._model)
+	np.testing.assert_array_equal(w._calibration_z, data["Z"].to_numpy())
+	assert localization_file.read_bytes() == original_file
 	w.close()
 
 
 ##################################################
-def test_compute_bad_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
+@pytest.mark.parametrize("attribute, value", [
+		pytest.param("_spin_px_compute", 0.21, id="pixel-size"),
+		pytest.param("_spin_z_compute", 450, id="z-limit"),
+		pytest.param("_spin_z_interval", 25, id="plane-interval"),
+		pytest.param("_check_z_from_plane", False, id="z-from-plane"),
+		pytest.param("_check_z_center", False, id="center-z"),
+		pytest.param("_check_z_flip", True, id="flip-z"),
+		pytest.param("_check_only_one", True, id="one-bead"),
+		pytest.param("_spin_px_estimate", 0.21, id="synced-pixel-size"),
+		pytest.param("_spin_z_estimate", 450, id="synced-z-limit")])
+def test_compute_on_parameter_change(qtbot, capsys, fake_qfiledialog, tmp_path, attribute, value):
+	"""Vérifie un unique recalcul complet pour chaque paramètre, y compris les paramètres synchronisés."""
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	original_file = localization_file.read_bytes()
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w.resize(1000, 600)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Chargement du fichier de localisation
-	fake_qfiledialog(Astigmatism3DWidget, str(LOC_FILE))
+	w._spin_px_compute.setValue(0.2)
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: " in lines[0]
-	assert "CSV loaded successfully with 94 points and 11 columns." in lines[1]
-	assert not w._loc.empty
+	capsys.readouterr()
 
+	control = getattr(w, attribute)
+	if isinstance(value, bool):
+		control.setChecked(value)
+	else:
+		control.setValue(value)
+
+	lines = get_lines_output(capsys)
+	assert sum("Model saved successfully." in line for line in lines) == 1
+	pd.testing.assert_frame_equal(pd.read_csv(tmp_path / MODEL_FILE, index_col=0), w._model)
+	assert w._spin_px_compute.value() == w._spin_px_estimate.value()
+	assert w._spin_z_compute.value() == w._spin_z_estimate.value()
+	assert localization_file.read_bytes() == original_file
+	w.close()
+
+
+##################################################
+def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path):
+	"""Vérifie que les changements successifs ne réutilisent ni les Z estimés ni une inversion précédente."""
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	original_z = pd.read_csv(localization_file)["Z"].to_numpy()
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._spin_px_compute.setValue(0.2)
+	w._check_z_from_plane.setChecked(False)
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	original_model = w._model.copy()
+
+	w._check_z_flip.setChecked(True)
+	assert not np.allclose(w._model, original_model)
+	w._spin_px_compute.setValue(0.21)
+	w._spin_px_compute.setValue(0.2)
+	w._check_z_flip.setChecked(False)
+
+	np.testing.assert_array_equal(w._calibration_z, original_z)
+	pd.testing.assert_frame_equal(w._model, original_model)
+	pd.testing.assert_frame_equal(pd.read_csv(tmp_path / MODEL_FILE, index_col=0), original_model)
+	w.close()
+
+
+##################################################
+def test_compute_remove_multi(qtbot, capsys, fake_qfiledialog, tmp_path):
+	"""Vérifie la calibration automatique après désambiguïsation de plusieurs localisations sur un même plan."""
+	data = pd.read_csv(LOC_FILE)
+	data["Plane"] = range(1, len(data) + 1)
+	data["X"], data["Y"] = 5, 5
+	data.loc[4:6, "Plane"] = 3
+	data.loc[4:6, "X"] = 3
+	localization_file = tmp_path / LOC_FILE.name
+	data.to_csv(localization_file, index=False)
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._spin_px_compute.setValue(0.2)
+	w._check_z_from_plane.setChecked(False)
+	w._check_only_one.setChecked(True)
+	capsys.readouterr()
+
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+
+	lines = get_lines_output(capsys)
+	assert sum("Model for bead " in line for line in lines) == 1
+	assert sum("Model saved successfully." in line for line in lines) == 1
+	pd.testing.assert_frame_equal(pd.read_csv(tmp_path / MODEL_FILE, index_col=0), w._model)
+	w.close()
+
+
+##################################################
+def test_compute_missing_plane(qtbot, capsys, fake_qfiledialog, tmp_path):
+	"""Vérifie que l'absence de plans désactive les options concernées avant l'unique calibration automatique."""
+	localization_file = tmp_path / LOC_FILE.name
+	pd.read_csv(LOC_FILE).drop(columns=["Plane"]).to_csv(localization_file, index=False)
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._spin_px_compute.setValue(0.2)
+	capsys.readouterr()
+
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+
+	lines = get_lines_output(capsys)
+	assert not w._check_z_from_plane.isChecked()
+	assert not w._check_z_from_plane.isEnabled()
+	assert not w._check_only_one.isEnabled()
+	assert sum("Model saved successfully." in line for line in lines) == 1
+	assert "No 'Plane' Column in file." in lines[2]
+	w.close()
+
+
+##################################################
+def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path):
+	"""Vérifie les avertissements de calibration automatique pour des sigmas aléatoires."""
+	data = pd.read_csv(LOC_FILE)
 	rng = np.random.default_rng(42)
-	w._loc["Sigma X"] = rng.normal(loc=1.0, scale=1.0, size=len(w._loc))
-	w._loc["Sigma Y"] = rng.normal(loc=1.0, scale=1.0, size=len(w._loc))
-
-	# Lancement du calcul
+	data["Sigma X"] = rng.normal(loc=1.0, scale=1.0, size=len(data))
+	data["Sigma Y"] = rng.normal(loc=1.0, scale=1.0, size=len(data))
+	localization_file = tmp_path / LOC_FILE.name
+	data.to_csv(localization_file, index=False)
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
 	w._spin_px_compute.setValue(0.2)
-	qtbot.mouseClick(w._btn_compute, Qt.MouseButton.LeftButton)
+	w._check_z_from_plane.setChecked(False)
+	capsys.readouterr()
+
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+
 	lines = get_lines_output(capsys)
-	assert len(lines) == 17  # 4 par modèle affiché + 4 lignes Fail Calibration + ligne finale
-	assert "Model saved successfully." in lines[-1]
+	assert any("Model Calibration keep initial state" in line for line in lines)
+	assert sum("Model saved successfully." in line for line in lines) == 1
+	assert (tmp_path / MODEL_FILE).is_file()
+	w.close()
 
-	(INPUT_DIR / MODEL_FILE).unlink(missing_ok=True)
 
+##################################################
+def test_estimation_load_does_not_calibrate(qtbot, capsys, fake_qfiledialog, tmp_path):
+	"""Vérifie que le chargement destiné à Compute Z et ses paramètres ne recalibrent pas le modèle fourni."""
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	original_file = localization_file.read_bytes()
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
+	assert w._model.empty
+	assert w._calibration_z is None
+	fake_qfiledialog(Astigmatism3DWidget, str(REF_DIR / MODEL_FILE))
+	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
+	model = w._model.copy()
+	capsys.readouterr()
+
+	w._spin_px_estimate.setValue(0.2)
+	w._spin_z_estimate.setValue(450)
+
+	pd.testing.assert_frame_equal(w._model, model)
+	assert not (tmp_path / MODEL_FILE).exists()
+	assert localization_file.read_bytes() == original_file
+	assert get_lines_output(capsys) == []
 	w.close()
 
 
