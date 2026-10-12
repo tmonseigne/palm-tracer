@@ -343,6 +343,8 @@ class Grapher:
 
 		Si des données expérimentales sont fournies, elles sont superposées sous forme de points (sans interaction hover)
 		dans les modes ``"cross"`` et ``"slope"``. Les points dont Z atteint ou dépasse les bornes ±``z_max`` sont exclus de l'affichage.
+		Dans ces deux modes, la légende permet d'afficher ou de masquer chaque courbe et chaque série de points indépendamment.
+		Le mode ``"cross"`` ajoute deux repères verticaux rouges en tirets aux minima de σx et σy.
 
 		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param data: Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``.
@@ -364,31 +366,39 @@ class Grapher:
 		sy = sigma_model(model[1], z, pixel_size, 1)
 
 		if mode == "curve":
-			fig.add_trace(go.Scatter(x=sx, y=sy, customdata=z,
-									 mode="markers", marker=dict(size=6, color=z, colorscale="Viridis", colorbar=dict(title="Z (nm)"), showscale=True),
+			fig.add_trace(go.Scatter(x=sx, y=sy, customdata=z, mode="markers",
+									 marker=dict(size=6, color=z, colorscale="Viridis", colorbar=dict(title="Z (nm)"), showscale=True),
 									 hovertemplate="σ(x:%{x:.3f}, y:%{y:.3f}) = %{customdata:.0f} nm<extra></extra>"))
 
 			fig.update_layout(xaxis=self._axis_dict("σX"), yaxis=self._axis_dict("σY"))
 		elif mode == "cross":
-			fig.add_trace(go.Scatter(x=z, y=sx, mode="lines", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="σx(%{x:.3f})=%{y:.3f}<extra></extra>"))
-			fig.add_trace(go.Scatter(x=z, y=sy, mode="lines", line=dict(color=_SEABORN_DEEP[1]), hovertemplate="σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
+			fig.add_trace(go.Scatter(x=z, y=sx, mode="lines", name="Model σX", line=dict(color=_SEABORN_DEEP[0]),
+									 hovertemplate="σx(%{x:.3f})=%{y:.3f}<extra></extra>"))
+			fig.add_trace(go.Scatter(x=z, y=sy, mode="lines", name="Model σY", line=dict(color=_SEABORN_DEEP[1]),
+									 hovertemplate="σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
+			fig.add_vline(x=float(z[np.argmin(sx)]), line_color="red", line_dash="dash", line_width=0.75, name="Min σX", showlegend=True)
+			fig.add_vline(x=float(z[np.argmin(sy)]), line_color="red", line_dash="dash", line_width=0.75, name="Min σY", showlegend=True)
 
 			if data is not None:
 				x, y, z = data[(data[:, 2] > -z_max) & (data[:, 2] < z_max)].T
-				fig.add_trace(go.Scatter(x=z, y=x, mode="markers", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"), hoverinfo="skip"))
-				fig.add_trace(go.Scatter(x=z, y=y, mode="markers", marker=dict(color=_SEABORN_DEEP[1], size=6, symbol="circle"), hoverinfo="skip"))
+				fig.add_trace(go.Scatter(x=z, y=x, mode="markers", name="Data σX", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"),
+										 hoverinfo="skip"))
+				fig.add_trace(go.Scatter(x=z, y=y, mode="markers", name="Data σY", marker=dict(color=_SEABORN_DEEP[1], size=6, symbol="circle"),
+										 hoverinfo="skip"))
 
 			fig.update_layout(xaxis=self._axis_dict("Z (nm)"), yaxis=self._axis_dict("σX/Y"))
 		elif mode == "slope":
-			fig.add_trace(go.Scatter(x=z, y=sx - sy, mode="lines", line=dict(color=_SEABORN_DEEP[0]), hovertemplate="σx-σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
+			fig.add_trace(go.Scatter(x=z, y=sx - sy, mode="lines", name="Model", line=dict(color=_SEABORN_DEEP[0]),
+									 hovertemplate="σx-σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
 
 			if data is not None:
 				x, y, z = data[(data[:, 2] > -z_max) & (data[:, 2] < z_max)].T
-				fig.add_trace(go.Scatter(x=z, y=x - y, mode="markers", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"), hoverinfo="skip"))
+				fig.add_trace(go.Scatter(x=z, y=x - y, mode="markers", name="Data", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"),
+										 hoverinfo="skip"))
 
 			fig.update_layout(xaxis=self._axis_dict("Z (nm)"), yaxis=self._axis_dict("σX - σY"))
 
-		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, hovermode="closest", showlegend=False)
+		fig.update_layout(title=title, template=_TEMPLATE, margin=_MARGIN, hovermode="closest", showlegend=mode in ("cross", "slope"))
 		return fig
 
 	# ==================================================

@@ -9,6 +9,7 @@ from scipy.stats import expon, gaussian_kde, norm, poisson
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.Processing import Grapher
+from palm_tracer.Processing.Astigmatism3D import sigma_model
 from palm_tracer.Processing.GaussianMixture import GaussianMixture
 
 SIZE = 1000
@@ -338,7 +339,7 @@ def test_astigmatism3d_filters_z_limits(mode, z_max):
 	for trace in figure.data[:model_trace_count]:
 		assert trace.mode == "lines"
 		np.testing.assert_array_equal(np.asarray(trace.x)[[0, -1]], [-z_max, z_max])
-	for trace in figure.data[model_trace_count:]:
+	for trace in figure.data[model_trace_count:2 * model_trace_count]:
 		assert trace.mode == "markers"
 		np.testing.assert_array_equal(trace.x, valid_points[:, 2])
 	if mode == "cross":
@@ -366,10 +367,35 @@ def test_astigmatism3d_without_valid_points(mode, points):
 		assert trace.mode == "lines"
 		assert len(trace.x) == 11
 		assert len(trace.y) == 11
-	for trace in figure.data[model_trace_count:]:
+	for trace in figure.data[model_trace_count:2 * model_trace_count]:
 		assert trace.mode == "markers"
 		assert len(trace.x) == 0
 		assert len(trace.y) == 0
+
+
+##################################################
+@pytest.mark.parametrize("model, expected_minima", [
+		pytest.param(np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float), (-50, 50), id="separated-minima"),
+		pytest.param(np.array([[50, 100, 0, 0, 30], [-50, 100, 0, 0, 30]], dtype=float), (50, -50), id="reversed-axes"),
+		pytest.param(np.array([[0, 100, 0, 0, 30], [0, 100, 0, 0, 30]], dtype=float), (0, 0), id="coincident-minima"),
+		pytest.param(np.array([[-50, 100, 0, 0, 30], [20, 100, 0, 0, 40]], dtype=float), (-50, 20), id="asymmetric-minima")])
+def test_astigmatism3d_cross_guides(model, expected_minima):
+	"""Vérifie les deux repères verticaux rouges en tirets aux minima des courbes σX et σY."""
+	z_max, pixel_size, n_points = 100, 160, 101
+	z = np.array([-50, 0, 50], dtype=float)
+	points = np.column_stack((sigma_model(model[0], z, pixel_size), sigma_model(model[1], z, pixel_size), z))
+
+	figure = Grapher().astigmatism3d(model, points, pixel_size=pixel_size, z_max=z_max, mode="cross", n_points=n_points)
+
+	assert len(figure.layout.shapes) == 2
+	for shape, expected_z, name in zip(figure.layout.shapes, expected_minima, ("Min σX", "Min σY")):
+		assert shape.x0 == shape.x1 == expected_z
+		assert shape.y0 == 0 and shape.y1 == 1
+		assert shape.yref == "y domain"
+		assert shape.line.color == "red"
+		assert shape.line.dash == "dash"
+		assert shape.name == name
+		assert shape.showlegend is True
 
 
 # ==================================================
