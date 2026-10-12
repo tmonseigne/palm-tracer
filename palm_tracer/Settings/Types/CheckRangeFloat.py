@@ -56,7 +56,7 @@ class CheckRangeFloat(BaseCheckSetting):
 		ui.set_tooltip(self.tooltip)  # .			   Ajoute l'infobulle
 
 		checkbox.setChecked(self.active)
-		checkbox.toggled.connect(self.set_active)  # .	Connecte le changement de valeur pour que les autres UI se mettent à jour
+		checkbox.toggled.connect(self.set_active)  # . Connecte le changement de valeur pour que les autres UI se mettent à jour
 		spin_min.setKeyboardTracking(False)  # .	   Empêche la mise à jour à chaque appui sur une touche (attend la fin de l'édition)
 		spin_min.valueChanged.connect(self.set_min)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 		spin_max.setKeyboardTracking(False)  # .	   Empêche la mise à jour à chaque appui sur une touche (attend la fin de l'édition)

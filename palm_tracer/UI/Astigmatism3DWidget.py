@@ -34,7 +34,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 	GRAPH_TITLE: str = "Astigmatism model"
 	"""Titre du graphique d'astigmatisme."""
-	GRAPH_TYPE: list["str"] = ["Curve", "Cross", "Slope"]
+	GRAPH_TYPE: list["str"] = ["Cross", "Slope", "Curve"]
 	"""Modes d'affichage disponibles pour le graphique d'astigmatisme."""
 
 	# ==================================================
@@ -85,6 +85,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._spin_z_compute = QSpinBox(grp, minimum=10, maximum=2000, singleStep=10, value=500)
 		self._spin_z_compute.setToolTip("Maximum absolute value of Z.")
 		self._check_z_from_plane = QCheckBox(grp)
+		self._check_z_from_plane.setChecked(True)
 		self._check_z_from_plane.setToolTip("Use the plane column to define the Z column.")
 		self._spin_z_interval = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=20)
 		self._spin_z_interval.setToolTip("Interval in nanometers between two planes.")
@@ -166,7 +167,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		tab_layout.addWidget(grp)
 		tab_layout.addStretch(1)
 
-		# ---------- Onglet 2 : Estimate Z ----------
+		# ---------- Onglet 2 : Compute Z ----------
 		tab_estimate, tab_layout = Ui.make_tab(self._tabs)
 		grp, grp_layout = Ui.make_group(tab_estimate, "Inputs")
 
@@ -206,8 +207,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		form = Ui.make_form(grp_type)
 		form.addRow(h)
 
-		self._btn_estimate = QPushButton("Estimate Z", tab_estimate)
-		self._btn_estimate.setToolTip("Estimate Z for all points in localization file with the loaded model.")
+		self._btn_estimate = QPushButton("Compute Z", tab_estimate)
+		self._btn_estimate.setToolTip("Compute Z for all points in localization file with the loaded model.")
 
 		tab_layout.addWidget(grp)
 		tab_layout.addWidget(grp_type)
@@ -216,7 +217,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		# ---------- Ajout des onglets ----------
 		self._tabs.addTab(tab_compute, "Compute Model")
-		self._tabs.addTab(tab_estimate, "Estimate Z")
+		self._tabs.addTab(tab_estimate, "Compute Z")
 
 		main_layout.addWidget(self._tabs)
 		main_layout.addWidget(self._web, stretch=1)
@@ -307,8 +308,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			z_max = self._spin_z_estimate.value()
 			data = None if self._loc.empty or self._loc["Z"].nunique() <= 1 else self._loc[DLL_REQUIRED_COLS].to_numpy()
 			mode = self._btg_type_compute.checkedId()
-			if mode == 1: mode = "cross"
-			elif mode == 2: mode = "slope"
+			if mode == 0: mode = "cross"
+			elif mode == 1: mode = "slope"
 			else: mode = "curve"
 			self._fig = self._grapher.astigmatism3d(self._model.to_numpy(), data, title=self.GRAPH_TITLE, pixel_size=pixel_size, z_max=z_max, mode=mode)
 		except ValueError:
