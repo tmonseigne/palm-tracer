@@ -1,9 +1,12 @@
 """Teste le widget de calibration et d'estimation axiale par astigmatisme 3D."""
 
+import numpy as np
+import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer._tests.Utils import *
 from palm_tracer._tests.Utils import _FakeDownload
+from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, sigma_model
 from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # Classe
 
 LOC_FILE = INPUT_DIR / "astigmatism_3d_calibration.csv"
@@ -19,6 +22,13 @@ def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
+	assert "blank" not in w._sanity[0]
+	assert list(w._sanity[0])[-1] == "slope_mean"
+	assert list(w._sanity[1])[-1] == "astigmatism"
+	assert w._sanity[0]["slope_mean"]["label"].text() == "Slope:"
+	assert w._sanity[0]["slope_mean"]["unit"].text() == "px/nm"
+	assert w._sanity[1]["astigmatism"]["label"].text() == "Astigmatism:"
+	assert w._sanity[1]["astigmatism"]["unit"].text() == "nm"
 	w.resize(1000, 600)
 	w.show()
 	qtbot.waitExposed(w)
@@ -47,6 +57,65 @@ def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 # ==================================================
 # endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Interface utilisateur
+# ==================================================
+##################################################
+@pytest.mark.parametrize("z_max", [100, 250], ids=["small-range", "large-range"])
+def test_sanity_check_filters_z_limits(qtbot, z_max):
+	"""Vérifie les scores affichés avec les vrais calculs après exclusion des points aux bornes ou au-delà."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._spin_z_compute.setValue(z_max)
+	model = np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float)
+	pixel_size = 160
+	z = np.array([-0.999999, -0.5, 0, 0.5, 0.999999]) * z_max
+	valid_points = np.column_stack((sigma_model(model[0], z, pixel_size), sigma_model(model[1], z, pixel_size), z))
+	points = np.vstack(([[100, 200, -2 * z_max], [100, 200, -z_max]], valid_points, [[100, 200, z_max], [100, 200, 2 * z_max]]))
+	original = points.copy()
+	expected_sigma = model_validity(valid_points, model, pixel_size, 1)
+	expected_projection = model_projection_validity(valid_points, model, z_max, pixel_size)
+
+	w._update_sanity_values(points, model, pixel_size)
+
+	np.testing.assert_array_equal(points, original)
+	for key, value in expected_sigma.items():
+		expected_text = f"{100 * value:0.2f}" if "r2" in key else f"{value:0.4f}"
+		assert w._sanity[0][key]["value"].text() == expected_text
+	for key, value in expected_projection.items():
+		column = 0 if key == "slope_mean" else 1
+		assert w._sanity[column][key]["value"].text() == f"{value:0.4f}"
+	assert w._sanity[0]["r2_x"]["value"].text() == "100.00"
+	assert w._sanity[0]["r2_y"]["value"].text() == "100.00"
+	w.close()
+
+
+##################################################
+@pytest.mark.parametrize("points", [
+		pytest.param(np.empty((0, 3)), id="empty-data"),
+		pytest.param(np.array([[1, 2, -101], [1, 2, -100], [1, 2, 100], [1, 2, 101]], dtype=float), id="all-excluded")])
+def test_sanity_check_without_valid_points(qtbot, points):
+	"""Vérifie la remise à zéro de l'affichage quand aucun point n'est utilisable."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._spin_z_compute.setValue(100)
+	for column in w._sanity:
+		for metric in column.values():
+			metric["value"].setText("123.45")
+
+	model = np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float)
+	w._update_sanity_values(points, model, 160)
+
+	for column in w._sanity:
+		for metric in column.values():
+			assert metric["value"].text().strip() == "--"
+	w.close()
+
+
+# ==================================================
+# endregion Interface utilisateur
 # ==================================================
 
 # ==================================================

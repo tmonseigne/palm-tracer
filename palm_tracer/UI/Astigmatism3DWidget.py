@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -127,39 +127,40 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Groupe Vérification de cohérence ---
 		self._sanity: list[dict[str, dict[str, QLabel | str]]] = [{
 				# Titre de la colonne 1 "Sigma Sanity Check"
-				"rmse_x":  {"label": QLabel("RMSE x:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							"tips":  "Root Mean Square Error on x (0 for a perfect model)."},
-				"rmse_y":  {"label": QLabel("RMSE y:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							"tips":  "Root Mean Square Error on y (0 for a perfect model)."},
-				"rmse_xy": {"label": QLabel("RMSE xy:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							"tips":  "Root Mean Square Error on x and y (0 for a perfect model)."},
-				"mae_x":   {"label": QLabel("MAE x:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							"tips":  "Mean Absolute Error on x (0 for a perfect model)."},
-				"mae_y":   {"label": QLabel("MAE y"), "value": QLabel("     --"), "unit": QLabel("px"),
-							"tips":  "Mean Absolute Error on y (0 for a perfect model)."},
-				"r2_x":    {"label": QLabel("R² x:"), "value": QLabel("     --"), "unit": QLabel("%"),
-							"tips":  "Percent of variance explained on x (100 % for a perfect model)."},
-				"r2_y":    {"label": QLabel("R² y:"), "value": QLabel("     --"), "unit": QLabel("%"),
-							"tips":  "Percent of variance explained on y (100 % for a perfect model)."},
-				"blank":   {"label": QLabel(""), "value": QLabel(""), "unit": QLabel(""), "tips": ""}}, {
+				"rmse_x":     {"label": QLabel("RMSE x:"), "value": QLabel("     --"), "unit": QLabel("px"),
+							   "tips":  "Root Mean Square Error on x (0 for a perfect model)."},
+				"rmse_y":     {"label": QLabel("RMSE y:"), "value": QLabel("     --"), "unit": QLabel("px"),
+							   "tips":  "Root Mean Square Error on y (0 for a perfect model)."},
+				"rmse_xy":    {"label": QLabel("RMSE xy:"), "value": QLabel("     --"), "unit": QLabel("px"),
+							   "tips":  "Root Mean Square Error on x and y (0 for a perfect model)."},
+				"mae_x":      {"label": QLabel("MAE x:"), "value": QLabel("     --"), "unit": QLabel("px"),
+							   "tips":  "Mean Absolute Error on x (0 for a perfect model)."},
+				"mae_y":      {"label": QLabel("MAE y"), "value": QLabel("     --"), "unit": QLabel("px"),
+							   "tips":  "Mean Absolute Error on y (0 for a perfect model)."},
+				"r2_x":       {"label": QLabel("R² x:"), "value": QLabel("     --"), "unit": QLabel("%"),
+							   "tips":  "Percent of variance explained on x (100 % for a perfect model)."},
+				"r2_y":       {"label": QLabel("R² y:"), "value": QLabel("     --"), "unit": QLabel("%"),
+							   "tips":  "Percent of variance explained on y (100 % for a perfect model)."},
+				"slope_mean": {"label": QLabel("Slope:"), "value": QLabel("     --"), "unit": QLabel("px/nm"),
+							   "tips":  "Mean absolute slope of curve σx(z) - σy(z)."}}, {
 
 				# Titre de la colonne 2 "Z Sanity Check"
-				"rmse_z":     {"label": QLabel("RMSE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							   "tips":  "Root Mean Square Error on z (0 for a perfect model)."},
-				"mae_z":      {"label": QLabel("MAE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							   "tips":  "Mean Absolute Error on z (0 for a perfect model)."},
-				"p95_abs_z":  {"label": QLabel("P95 z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							   "tips":  "95e percentile of error distance on z."},
-				"bias_z":     {"label": QLabel("Bias z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							   "tips":  "Mean of error distance on z."},
-				"std_z":      {"label": QLabel("STD z"), "value": QLabel("     --"), "unit": QLabel("nm"),
-							   "tips":  "Standard deviation of error distance on z."},
-				"mean_dist":  {"label": QLabel("Curve Mean dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							   "tips":  "Mean of error distance with the curve."},
-				"p95_dist":   {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
-							   "tips":  "95e percentile of error distance with the curve."},
-				"slope_mean": {"label": QLabel("Slope:"), "value": QLabel("     --"), "unit": QLabel("px/nm"),
-							   "tips":  "Slope of curve σx(z) - σy(z)."}}]
+				"rmse_z":      {"label": QLabel("RMSE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+								"tips":  "Root Mean Square Error on z (0 for a perfect model)."},
+				"mae_z":       {"label": QLabel("MAE z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+								"tips":  "Mean Absolute Error on z (0 for a perfect model)."},
+				"p95_abs_z":   {"label": QLabel("P95 z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+								"tips":  "95e percentile of error distance on z."},
+				"bias_z":      {"label": QLabel("Bias z:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+								"tips":  "Mean of error distance on z."},
+				"std_z":       {"label": QLabel("STD z"), "value": QLabel("     --"), "unit": QLabel("nm"),
+								"tips":  "Standard deviation of error distance on z."},
+				"mean_dist":   {"label": QLabel("Curve Mean dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
+								"tips":  "Mean of error distance with the curve."},
+				"p95_dist":    {"label": QLabel("Curve P95 dist:"), "value": QLabel("     --"), "unit": QLabel("px"),
+								"tips":  "95e percentile of error distance with the curve."},
+				"astigmatism": {"label": QLabel("Astigmatism:"), "value": QLabel("     --"), "unit": QLabel("nm"),
+								"tips":  "Absolute Z distance between the minima of σx(z) and σy(z) within the selected Z range."}}]
 
 		grp, grp_layout = Ui.make_group(tab_compute, "Sanity Check")
 		grp_layout.addLayout(self._init_sanity_check_layout(self._sanity, titles=["Sigma Sanity Check", "Z Sanity Check"]))
@@ -284,21 +285,30 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		"""
 		Mise à jour de l'onglet Sanity Check.
 
+		Les points dont Z atteint ou dépasse les bornes ±Z Max sont exclus des deux calculs.
+		Si aucun point ne reste, les scores sont réinitialisés à ``--``.
+
 		:param points: Points du jeu de donnée.
 		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 		"""
-		metrics = model_validity(points, model, pixel_size, 1)
-		for key in metrics:
-			val: QLabel = self._sanity[0][key]["value"]
-			if "r2" in key: val.setText(f"{100 * metrics[key]:0.2f}")
-			else: val.setText(f"{metrics[key]:0.4f}")
+		z_max = self._spin_z_compute.value()
+		points = points[(points[:, 2] > -z_max) & (points[:, 2] < z_max)]
+		val: QLabel
+		if len(points) == 0:
+			for column in self._sanity:
+				for metric in column.values():
+					val = metric["value"]
+					val.setText("     --")
+			return
 
-		z_max = np.max(np.abs(points[:, 2]))
-		metrics = model_projection_validity(points, model, z_max, pixel_size)
-		for key in metrics:
-			val = self._sanity[1][key]["value"]
-			val.setText(f"{metrics[key]:0.4f}")
+		metrics = model_validity(points, model, pixel_size, 1)
+		metrics.update(model_projection_validity(points, model, z_max, pixel_size))
+		for column in self._sanity:
+			for key, metric in column.items():
+				val = metric["value"]
+				if "r2" in key: val.setText(f"{100 * metrics[key]:0.2f}")
+				else: val.setText(f"{metrics[key]:0.4f}")
 
 	##################################################
 	def _update_plot(self):

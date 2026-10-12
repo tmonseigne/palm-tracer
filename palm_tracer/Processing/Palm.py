@@ -77,9 +77,9 @@ class Palm:
 		fn.restype = C_UINT
 		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_UINT, C_DBL, C_UINT, C_UINT, C_DBL]
 
-		# bool TracksCompute(double* input, double* o_msd, double* o_ind, double* o_fit, uint64_t nRow, bool is_msd, bool is_ind, bool is_3d,
+		# bool TrackAnalysis(double* input, double* o_msd, double* o_ind, double* o_fit, uint64_t nRow, bool is_msd, bool is_ind, bool is_3d,
 		# double pixel_size, double exposure_time, uint64_t fit_mode, double* fit_params)
-		fn = self._dll.TracksCompute
+		fn = self._dll.TrackAnalysis
 		fn.restype = C_BOOL
 		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_TAB_DBL, C_TAB_DBL, C_UINT, C_BOOL, C_BOOL, C_BOOL, C_DBL, C_DBL, C_UINT, C_TAB_DBL]
 
@@ -319,7 +319,7 @@ class Palm:
 		o_ind = np.empty((n,), dtype=float, order="C") if is_ind else np.empty((1,), dtype=float, order="C")
 		o_fit = np.empty((n,), dtype=float, order="C") if fit_mode != 0 else np.empty((1,), dtype=float, order="C")
 
-		self._dll.TracksCompute(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
+		self._dll.TrackAnalysis(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
 								o_fit.ctypes.data_as(C_TAB_DBL),
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
 								C_UINT(fit_mode), params.ctypes.data_as(C_TAB_DBL))

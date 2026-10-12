@@ -124,6 +124,29 @@ def test_model_projection_validity(model, expected):
 		assert np.isclose(res[key], value, atol=0.1), f"Métrique {key} : {res[key]} au lieu de {value}."
 
 
+##################################################
+@pytest.mark.parametrize("model, expected_distance", [
+		pytest.param(np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float), 100, id="separated-minima"),
+		pytest.param(np.array([[50, 100, 0, 0, 30], [-50, 100, 0, 0, 30]], dtype=float), 100, id="reversed-axes"),
+		pytest.param(np.array([[0, 100, 0, 0, 30], [0, 150, 0, 0, 40]], dtype=float), 0, id="coincident-minima"),
+		pytest.param(np.array([[-300, 100, 0, 0, 30], [300, 100, 0, 0, 30]], dtype=float), 400, id="minima-at-domain-edges"),
+		pytest.param(np.array([[0, 100, 3, 2, 30], [0, 100, 0, 0, 30]], dtype=float),
+					 100 * (9 + np.sqrt(17)) / 16, id="asymmetric-model")])
+@pytest.mark.parametrize("pixel_size", [80, 160], ids=["small-pixels", "large-pixels"])
+def test_model_projection_astigmatism(model, expected_distance, pixel_size):
+	"""Vérifie la distance axiale entre les minima, y compris lorsqu'ils diffèrent des paramètres Z0."""
+	z_max, n_curve = 200, 401
+	z = np.array([-100, 0, 100], dtype=float)
+	points = np.column_stack((sigma_model(model[0], z, pixel_size), sigma_model(model[1], z, pixel_size), z))
+
+	metrics = model_projection_validity(points, model, z_max, pixel_size, n_curve)
+
+	# Chaque minimum est localisé à un demi-pas près : l'erreur sur leur distance peut atteindre un pas.
+	z_step = 2 * z_max / (n_curve - 1)
+	assert np.isclose(metrics["astigmatism"], expected_distance, atol=z_step, rtol=0)
+	assert metrics["astigmatism"] >= 0
+
+
 # ==================================================
 # endregion Modèle et validation
 # ==================================================

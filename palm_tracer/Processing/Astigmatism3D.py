@@ -203,6 +203,9 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	- slope_mean : Pente moyenne de la courbe σx(z) - σy(z) en pixel par nanomètres.
 
+	- astigmatism : Distance absolue en Z entre les minima de σx(z) et σy(z), dans les unités de Z (nanomètres).
+	  Les minima sont recherchés sur la courbe échantillonnée dans [-z_max, +z_max] ; la précision dépend de ``n_curve``.
+
 	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
 	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
@@ -227,16 +230,17 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	return {
 			# Métriques en nanomètres
-			"rmse_z":     float(np.sqrt(np.mean(dz * dz))),
-			"mae_z":      float(np.mean(np.abs(dz))),
-			"p95_abs_z":  float(np.percentile(np.abs(dz), 95)),
-			"bias_z":     float(np.mean(dz)),
-			"std_z":      float(np.std(dz)),
+			"rmse_z":      float(np.sqrt(np.mean(dz * dz))),
+			"mae_z":       float(np.mean(np.abs(dz))),
+			"p95_abs_z":   float(np.percentile(np.abs(dz), 95)),
+			"bias_z":      float(np.mean(dz)),
+			"std_z":       float(np.std(dz)),
+			"astigmatism": float(abs(z_curve[np.argmin(sx_curve)] - z_curve[np.argmin(sy_curve)])),
 			# Distance en pixel
-			"mean_dist":  float(np.mean(dist)),
-			"p95_dist":   float(np.percentile(dist, 95)),
+			"mean_dist":   float(np.mean(dist)),
+			"p95_dist":    float(np.percentile(dist, 95)),
 			# Pente
-			"slope_mean": float(np.mean(np.abs(ds)))
+			"slope_mean":  float(np.mean(np.abs(ds)))
 			}
 
 
