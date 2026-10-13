@@ -8,7 +8,7 @@ from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QTabWidget
 
 from palm_tracer._tests.Utils import *
 from palm_tracer.UI import PALMTracerWidget
-from palm_tracer.UI.PALMTracerWidget import SETTINGS_FILE
+from palm_tracer.Tools.FileIO import USER_SETTINGS_FILE
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -55,7 +55,7 @@ def send_file_drop(receiver, mime):
 ##################################################
 def test_creation(qtbot):
 	"""Vérifie la création du widget."""
-	SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
+	USER_SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -65,7 +65,7 @@ def test_creation(qtbot):
 def test_filters_button(qtbot):
 	"""Vérifie le comportement du bouton de filtrage."""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 
@@ -162,7 +162,7 @@ def test_drop_rejects_files_during_processing(drop_widget, tmp_path):
 ##################################################
 def test_thread_process(qtbot):
 	"""Vérifie le clic sur le bouton process."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -194,7 +194,7 @@ def test_thread_process(qtbot):
 ##################################################
 def test_on_load_setting(qtbot, capsys, fake_qfiledialog):
 	"""Vérifie la remise à zéro des calques."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -206,7 +206,7 @@ def test_on_load_setting(qtbot, capsys, fake_qfiledialog):
 ##################################################
 def test_reset_setting(qtbot):
 	"""Vérifie la remise à zéro des calques."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -224,7 +224,7 @@ def test_reset_setting(qtbot):
 ##################################################
 def test_clean_layer(qtbot):
 	"""Vérifie le nettoyage des calques."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -239,7 +239,7 @@ def test_clean_layer(qtbot):
 def test_reset_layer(capsys, qtbot):
 	"""Vérifie la remise à zéro des calques."""
 	clean_output()
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -258,7 +258,7 @@ def test_reset_layer(capsys, qtbot):
 ##################################################
 def test_add_detection_layers(qtbot):
 	"""Vérifie Ajout des calques de détection."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -301,7 +301,7 @@ def test_add_detection_layers(qtbot):
 ##################################################
 def test_get_actual_image(qtbot):
 	"""Vérifie la récupération d'image."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -316,7 +316,7 @@ def test_get_actual_image(qtbot):
 ##################################################
 def test_preview(capsys, qtbot):
 	"""Vérifie le clic sur le bouton preview."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -374,7 +374,7 @@ def test_preview(capsys, qtbot):
 ##################################################
 def test_preview_plane_filter_uses_stack_plane(qtbot):
 	"""Vérifie que le filtre utilise les numéros réels des plans prévisualisés."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -407,7 +407,7 @@ def test_preview_plane_filter_uses_stack_plane(qtbot):
 ##################################################
 def test_auto_threshold(capsys, qtbot):
 	"""Vérifie le clic sur le bouton auto_threshold."""
-	SETTINGS_FILE.unlink(missing_ok=True)
+	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)

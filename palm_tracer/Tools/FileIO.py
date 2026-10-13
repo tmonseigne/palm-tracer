@@ -21,6 +21,9 @@ from palm_tracer.Tools import Ui
 MAX_UI_8 = np.iinfo(np.uint8).max
 MAX_UI_16 = np.iinfo(np.uint16).max
 DLL_PATH = Path(__file__).parent.parent / "DLL"
+CONFIG_DIR = Path.home() / ".palm_tracer"
+USER_SETTINGS_FILE = CONFIG_DIR / "settings.json"
+USER_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model.csv"
 
 
 # ==================================================

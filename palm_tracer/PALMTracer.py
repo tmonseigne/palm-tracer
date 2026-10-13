@@ -440,7 +440,7 @@ class PALMTracer:
 
 		La fonction tente de lire le fichier spécifié par ``path``.
 		Si ce chemin n'est pas valide, elle cherche automatiquement un fichier nommé ``astigmatism_3d_model.csv`` dans :
-		le dossier ``self._path``, puis dans le dossier parent de ``self._path``.
+		le dossier ``self._path``, puis dans le dossier parent de ``self._path``, et enfin dans le dossier utilisateur ``~/.palm_tracer``.
 
 		Si aucun fichier valide n'est trouvé, ou si le fichier est invalide, une DataFrame vide est retournée.
 
@@ -452,18 +452,20 @@ class PALMTracer:
 		        Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
 		        Si ce n'est pas le cas, le modèle est considéré comme invalide.
 
-		.. tip:: Permet de rendre l'appel robuste en cas de chemin utilisateur invalide, en utilisant automatiquement des emplacements par défaut du projet.
+		.. tip:: En cas de chemin inexistant, les emplacements locaux sont prioritaires sur le dernier modèle sauvegardé dans le dossier utilisateur.
 		"""
 		res = pd.DataFrame()
-		final_path = Path(path)
+		final_path = Path(path)  # .								Chemin du modèle défini directement.
 
 		if not final_path.is_file():
 			model_name = "astigmatism_3d_model.csv"
 			_path = Path(self._path)
-			final_path = _path / model_name
+			final_path = _path / model_name  # .					Dossier de résultat de la pile.
 			if not final_path.is_file():
-				final_path = _path.parent / model_name
-				if not final_path.is_file(): return pd.DataFrame()
+				final_path = _path.parent / model_name  # .			Dossier de la pile.
+				if not final_path.is_file():
+					final_path = FileIO.USER_ASTIGMATISM_MODEL  # .	Dossier user.
+					if not final_path.is_file(): return pd.DataFrame()
 
 		try:
 			res = pd.read_csv(final_path, index_col=0)
@@ -538,8 +540,8 @@ class PALMTracer:
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"],
-									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
+		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"], sc["Pixel Size"],
+									   sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
 		for key, name in [("MSD", "MSD"), ("InD", "Instant Diffusion"), ("Fit", "Fit")]:
@@ -641,8 +643,9 @@ class PALMTracer:
 		if mode == 0:
 			bins = graph_data.get("bins", bins)
 			fit_limit = graph_data.get("fit_limit", -np.inf)
-			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonnian=poiss,
-										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
+			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde,
+										   gaussian=gauss, poissonnian=poiss, exponential=expo, density=density, cumulative=cumul,
+										   bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
 		# --- Courbe Scatter plot ---
 		if mode == 1: return self._grapher.scatter(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, names=graph_data.get("names"))
 

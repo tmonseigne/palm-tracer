@@ -16,8 +16,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import Ui
-from palm_tracer.Tools.FileIO import open_json, open_tif, save_json
+from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
@@ -25,9 +24,6 @@ from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
 try: from napari.qt.threading import thread_worker, FunctionWorker  # .		   Chemin public, à préférer
 except ImportError: from superqt.utils import thread_worker, FunctionWorker  # Très rare fallback
-
-CONFIG_DIR = Path.home() / ".palm_tracer"
-SETTINGS_FILE = CONFIG_DIR / "settings.json"
 
 
 ##################################################
@@ -178,8 +174,8 @@ class PALMTracerWidget(BaseNapariWidget):
 	##################################################
 	def _on_startup(self):
 		"""Action lors du démarrage après l'initialisation de l'UI."""
-		CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
-		self._load_setting(SETTINGS_FILE)
+		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
+		self._load_setting(FileIO.USER_SETTINGS_FILE)
 
 	##################################################
 	@staticmethod
@@ -315,7 +311,7 @@ class PALMTracerWidget(BaseNapariWidget):
 			try:
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
 				with self.pt.settings.signal_blocked():
-					cfg = open_json(str(filename))
+					cfg = FileIO.open_json(str(filename))
 					show_info(f"Loading the setting file '{filename}'.")
 					self.pt.settings.update_from_compact_dict(cfg)
 					self.pt.settings.localization["Preview"].value = False
@@ -339,7 +335,7 @@ class PALMTracerWidget(BaseNapariWidget):
 	def _on_change_setting(self):
 		"""Met à jour le fichier de paramètres général."""
 		# Save settings
-		save_json(str(SETTINGS_FILE), self.pt.settings.to_compact_dict())
+		FileIO.save_json(str(FileIO.USER_SETTINGS_FILE), self.pt.settings.to_compact_dict())
 
 	# ==================================================
 	# endregion Fonctions de rappel des paramètres
@@ -379,7 +375,7 @@ class PALMTracerWidget(BaseNapariWidget):
 
 		# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer
 		try:
-			self._current_stack = open_tif(selected_file)
+			self._current_stack = FileIO.open_tif(selected_file)
 			_, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
 			self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)

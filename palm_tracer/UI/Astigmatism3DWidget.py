@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import Optional, cast
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -13,7 +13,7 @@ from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog,
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Astigmatism3D import find_model_center, model_projection_validity, model_validity, remove_multi_beads
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, SHAPE_MODEL
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
 DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
@@ -520,8 +520,10 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
-		self._model.to_csv(str(self._mod_filename))
-		Ui.print_success(f"Model saved successfully.")
+		self._model.to_csv(str(self._mod_filename), lineterminator="\n")
+		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
+		self._model.to_csv(FileIO.USER_ASTIGMATISM_MODEL, lineterminator="\n")
+		Ui.print_success("Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
 		self._update_sanity_values(self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True), self._model.to_numpy(), pixel_size)

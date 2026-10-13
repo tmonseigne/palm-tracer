@@ -7,11 +7,22 @@ from qtpy.QtCore import Qt
 from palm_tracer._tests.Utils import *
 from palm_tracer._tests.Utils import _FakeDownload
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, sigma_model
+from palm_tracer.Tools import FileIO
 from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # Classe
 
 LOC_FILE = INPUT_DIR / "astigmatism_3d_calibration.csv"
 MODEL_FILE = "astigmatism_3d_model.csv"
 PNG_FILE = "astigmatism_3d_model.png"
+
+
+##################################################
+@pytest.fixture(autouse=True)
+def user_model_path(monkeypatch, tmp_path):
+	"""Isole les sauvegardes utilisateur de tous les tests du widget dans un dossier temporaire."""
+	path = tmp_path / ".palm_tracer" / MODEL_FILE
+	monkeypatch.setattr(FileIO, "CONFIG_DIR", path.parent)
+	monkeypatch.setattr(FileIO, "USER_ASTIGMATISM_MODEL", path)
+	return path
 
 
 # ==================================================
@@ -282,7 +293,7 @@ def test_compute_without_calibration_data(qtbot, capsys):
 		pytest.param("single-bead", "astigmatism_3d_model_centered.csv", 1, 1, id="single-bead"),
 		pytest.param("plane-z", "astigmatism_3d_model_centered.csv", 1, 2, id="plane-z-flipped"),
 		pytest.param("uncentered", "astigmatism_3d_model.csv", 1, 2, id="uncentered")])
-def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path, scenario, reference, scale, bead_count):
+def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path, user_model_path, scenario, reference, scale, bead_count):
 	"""Vérifie la calibration immédiate au chargement, ses résultats et le CSV effectivement sauvegardé."""
 	data = pd.read_csv(LOC_FILE)
 	if scenario == "mean-beads":
@@ -313,6 +324,7 @@ def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path,
 	assert np.allclose(w._model, ref, atol=0.1, rtol=0)
 	saved_model = pd.read_csv(tmp_path / MODEL_FILE, index_col=0)
 	pd.testing.assert_frame_equal(saved_model, w._model)
+	pd.testing.assert_frame_equal(pd.read_csv(user_model_path, index_col=0), w._model)
 	np.testing.assert_array_equal(w._calibration_z, data["Z"].to_numpy())
 	assert localization_file.read_bytes() == original_file
 	w.close()
@@ -357,7 +369,7 @@ def test_compute_on_parameter_change(qtbot, capsys, fake_qfiledialog, tmp_path, 
 
 
 ##################################################
-def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path):
+def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path, user_model_path):
 	"""Vérifie que les changements successifs ne réutilisent ni les Z estimés ni une inversion précédente."""
 	localization_file = tmp_path / LOC_FILE.name
 	shutil.copy2(LOC_FILE, localization_file)
@@ -372,6 +384,7 @@ def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path):
 
 	w._check_z_flip.setChecked(True)
 	assert not np.allclose(w._model, original_model)
+	pd.testing.assert_frame_equal(pd.read_csv(user_model_path, index_col=0), w._model)
 	w._spin_px_compute.setValue(0.21)
 	w._spin_px_compute.setValue(0.2)
 	w._check_z_flip.setChecked(False)
@@ -379,6 +392,32 @@ def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path):
 	np.testing.assert_array_equal(w._calibration_z, original_z)
 	pd.testing.assert_frame_equal(w._model, original_model)
 	pd.testing.assert_frame_equal(pd.read_csv(tmp_path / MODEL_FILE, index_col=0), original_model)
+	pd.testing.assert_frame_equal(pd.read_csv(user_model_path, index_col=0), original_model)
+	w.close()
+
+
+##################################################
+def test_compute_user_backup_unavailable(qtbot, capsys, tmp_path, user_model_path):
+	"""Vérifie la propagation de l'erreur de sauvegarde utilisateur après l'écriture locale, sans faux message de succès."""
+	user_model_path.parent.write_text("blocked", encoding="utf-8")  # Un fichier empêche la création du dossier de sauvegarde.
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._loc_filename = localization_file
+	w._loc = pd.read_csv(localization_file)
+	w._calibration_z = w._loc["Z"].to_numpy(dtype=float, copy=True)
+	previous_figure = w._fig
+	capsys.readouterr()
+
+	with pytest.raises(FileExistsError):
+		w._on_compute()
+
+	lines = get_lines_output(capsys)
+	assert not any("Model saved successfully." in line for line in lines)
+	pd.testing.assert_frame_equal(pd.read_csv(tmp_path / MODEL_FILE, index_col=0), w._model)
+	assert w._fig is previous_figure
+	assert user_model_path.parent.read_text(encoding="utf-8") == "blocked"
 	w.close()
 
 
@@ -428,6 +467,32 @@ def test_compute_missing_plane(qtbot, capsys, fake_qfiledialog, tmp_path):
 	assert not w._check_only_one.isEnabled()
 	assert sum("Model saved successfully." in line for line in lines) == 1
 	assert "No 'Plane' Column in file." in lines[2]
+	w.close()
+
+
+##################################################
+def test_compute_missing_plane_with_option_enabled(qtbot, capsys, fake_qfiledialog, tmp_path, user_model_path):
+	"""Vérifie l'arrêt du recalcul si la colonne Plane disparaît alors que son utilisation reste sélectionnée."""
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	assert w._check_z_from_plane.isChecked()
+	previous_model = w._model.copy()
+	local_model = tmp_path / MODEL_FILE
+	previous_local_file = local_model.read_bytes()
+	previous_user_file = user_model_path.read_bytes()
+	w._loc.drop(columns=["Plane"], inplace=True)
+	capsys.readouterr()
+
+	w._spin_z_interval.setValue(w._spin_z_interval.value() + 1)
+
+	assert get_lines_output(capsys) == ["No Plane Column in file. We can't use it to initialize Z."]
+	pd.testing.assert_frame_equal(w._model, previous_model)
+	assert local_model.read_bytes() == previous_local_file
+	assert user_model_path.read_bytes() == previous_user_file
 	w.close()
 
 

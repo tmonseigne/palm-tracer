@@ -18,6 +18,15 @@ from palm_tracer.Tools import FileIO
 
 
 ##################################################
+@pytest.fixture(autouse=True)
+def user_model_path(monkeypatch, tmp_path):
+	"""Isole la recherche du modèle utilisateur pour rendre les tests indépendants des modèles personnels."""
+	path = tmp_path / ".palm_tracer" / "astigmatism_3d_model.csv"
+	monkeypatch.setattr(FileIO, "USER_ASTIGMATISM_MODEL", path)
+	return path
+
+
+##################################################
 @pytest.fixture
 def pt():
 	"""fixture interne."""
@@ -435,11 +444,13 @@ def test_process_localization(capsys, pt):
 
 
 ##################################################
-def test_process_localization_z(capsys, pt):
-	"""Vérifie le process de localisation."""
-	clean_output()
-
-	add_basic_file(pt)
+def test_process_localization_z(capsys, pt, tmp_path):
+	"""Vérifie la localisation sans modèle, puis avec un modèle explicitement sélectionné."""
+	# Isole les emplacements locaux pour éviter de charger un modèle présent parmi les données de test.
+	stack_file = tmp_path / "stack.tif"
+	shutil.copyfile(INPUT_DIR / "stack.tif", stack_file)
+	output_folder = tmp_path / "stack_PALM_Tracer"
+	add_basic_file(pt, [str(stack_file)])
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 1
 	s = pt.settings.localization["Gaussian Fit"]
@@ -449,7 +460,7 @@ def test_process_localization_z(capsys, pt):
 
 	assert len(pt.results["loc"]) == 455
 	assert np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	check_output(output_folder, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
 
 	s["Model"].value = str(REF_DIR / "astigmatism_3d_model.csv")
@@ -457,7 +468,7 @@ def test_process_localization_z(capsys, pt):
 
 	assert len(pt.results["loc"]) == 455
 	assert not np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	check_output(output_folder, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
 
@@ -703,32 +714,49 @@ def test_process_all(capsys, pt):
 
 
 ##################################################
-def test_get_astigmatism_model():
-	"""Vérifie la récupération du modèle d'astigmatisme."""
+@pytest.mark.parametrize("first_available", [
+		pytest.param(0, id="explicit-path"),
+		pytest.param(1, id="output-folder"),
+		pytest.param(2, id="parent-folder"),
+		pytest.param(3, id="user-folder"),
+		pytest.param(4, id="missing-model")])
+def test_get_astigmatism_model(tmp_path, user_model_path, first_available):
+	"""Vérifie la priorité des emplacements avec des modèles distincts et le repli utilisateur en dernier recours."""
 	pt = PALMTracer()
-	tmp_output = OUTPUT_DIR / "Model"
-	shutil.rmtree(tmp_output, ignore_errors=True)
-	tmp_output.mkdir(parents=True, exist_ok=True)
-	model_file = "astigmatism_3d_model.csv"
-	ref = pd.read_csv(REF_DIR / model_file, index_col=0)
-	(tmp_output / model_file).unlink(missing_ok=True)
-	(tmp_output.parent / model_file).unlink(missing_ok=True)
+	output = tmp_path / "output"
+	pt._path = str(output)
+	model_name = "astigmatism_3d_model.csv"
+	paths = [tmp_path / "explicit.csv", output / model_name, output.parent / model_name, user_model_path]
+	ref = pd.read_csv(REF_DIR / model_name, index_col=0)
+	models = []
+	for index, path in enumerate(paths):
+		model = ref.copy()
+		model.iloc[0, 0] = 100 * (index + 1)  # Chaque emplacement porte une valeur identifiable.
+		models.append(model)
+		if index >= first_available:
+			path.parent.mkdir(parents=True, exist_ok=True)
+			model.to_csv(path)
 
-	pt._path = tmp_output
+	model = pt._get_astigmatism_model(paths[0])
 
-	model = pt._get_astigmatism_model(Path(""))  # Il ne va pas réussir, il n'a aucun fichier
+	if first_available == len(paths): assert model.empty
+	else: pd.testing.assert_frame_equal(model, models[first_available])
+
+
+##################################################
+@pytest.mark.parametrize("content", [
+		pytest.param(",Z0,W\nX,1,2\n", id="invalid-shape"),
+		pytest.param('"unterminated quote\n', id="unreadable-csv")])
+def test_get_astigmatism_model_invalid_user_backup(tmp_path, user_model_path, content):
+	"""Vérifie qu'un modèle utilisateur mal formé ne fournit pas de modèle exploitable au pipeline."""
+	pt = PALMTracer()
+	pt._path = str(tmp_path / "output")
+	user_model_path.parent.mkdir(parents=True)
+	user_model_path.write_text(content, encoding="utf-8")
+
+	model = pt._get_astigmatism_model(tmp_path / "missing.csv")
+
 	assert model.empty
-
-	shutil.copy2(REF_DIR / model_file, tmp_output.parent / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va réussir, dans le dernier dossier par défaut
-	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
-
-	shutil.copy2(REF_DIR / model_file, tmp_output / model_file)
-	model = pt._get_astigmatism_model(Path(""))  # Il va réussir, dans le premier dossier par défaut
-	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
-
-	model = pt._get_astigmatism_model(REF_DIR / model_file)  # Il va réussir, dans le chemin donné
-	np.testing.assert_array_almost_equal(model.to_numpy(), ref.to_numpy())
 
 
 # ==================================================
