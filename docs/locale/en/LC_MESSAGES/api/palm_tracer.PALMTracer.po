@@ -1,3 +1,21 @@
+# English translations for PALM Tracer.
+# Copyright (C) 2026 Thibaut Monseigne
+# This file is distributed under the same license as PALM Tracer.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-13 11:41+0200\n"
+"PO-Revision-Date: 2026-10-13 09:48+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.PALMTracer.rst:2
 msgid "PALMTracer"
 msgstr ""
@@ -71,12 +89,12 @@ msgstr "Return type"
 msgid "Supprime l'interface Qt associée au nom donné pour les résultats et les paramètres."
 msgstr "Removes the Qt interface associated with the given name from both the results and settings."
 
-#: ../../api/palm_tracer.PALMTracer.rst of
-#: palm_tracer.PALMTracer.PALMTracer.connect_filters_button
+#: ../../api/palm_tracer.PALMTracer.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.PALMTracer.PALMTracer.clean_ui:3
+#: palm_tracer.PALMTracer.PALMTracer.connect_filters_button:3
 msgid "Nom de l'interface dans le dictionnaire."
 msgstr "Interface name in the dictionary."
 
@@ -117,8 +135,8 @@ msgid "Dossier des résultats, ou chaîne vide pour utiliser le premier dossier 
 msgstr "Results directory, or an empty string to use the first Batch directory."
 
 #: of palm_tracer.PALMTracer.PALMTracer.process:1
-msgid "Lance le process de PALM selon les éléments en paramètres."
-msgstr "Runs PALM processing using the provided settings."
+msgid "Lance le pipeline PALM selon les paramètres sélectionnés."
+msgstr "Runs the PALM pipeline using the selected settings."
 
 #: of palm_tracer.PALMTracer.PALMTracer.save_meta:1
 msgid "Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."
@@ -129,8 +147,8 @@ msgid "Filtrage"
 msgstr "Filtering"
 
 #: of palm_tracer.PALMTracer.PALMTracer.reset_filtered:1
-msgid "Vide entièrement les DataFrames filtrés dans ``df``."
-msgstr "Completely clears the filtered DataFrames in ``df``."
+msgid "Désactive les filtres, vide les résultats filtrés et enregistre les paramètres du groupe Filters pour le traitement courant."
+msgstr "Disables the filters, clears the filtered results, and saves the Filters group settings for the current run."
 
 #: of palm_tracer.PALMTracer.PALMTracer.update_filtered:1
 msgid "Recalcule les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original."
@@ -145,8 +163,8 @@ msgid "Enregistre tous les fichiers filtrés s'ils ne sont pas vides."
 msgstr "Saves all filtered files if they are not empty."
 
 #: of palm_tracer.PALMTracer.PALMTracer.connect_filters_button:1
-msgid "Connecte les boutons d'une interface de filtre."
-msgstr "Connects the buttons of a filter interface."
+msgid "Connecte les boutons de réinitialisation, de mise à jour et de sauvegarde des filtres."
+msgstr "Connects the buttons that reset, update, and save the filters."
 
 #: ../../api/palm_tracer.PALMTracer.rst:50
 msgid "Visualisation"

@@ -182,7 +182,8 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def load(self, path: str = ""):
-		"""Charge les précédents résultats du fichier courant sans chargement imbriqué.
+		"""
+		Charge les précédents résultats du fichier courant sans chargement imbriqué.
 
 		La restauration des paramètres peut déclencher un nouvel appel via les widgets
 		connectés au Batch. Cet appel est ignoré pour préserver le dossier et le timestamp
@@ -197,7 +198,8 @@ class PALMTracer:
 
 	##################################################
 	def _load_results(self, path: str):
-		"""Effectue le chargement des paramètres, des résultats et de la pile.
+		"""
+		Effectue le chargement des paramètres, des résultats et de la pile.
 
 		:param path: Dossier des résultats, ou chaîne vide pour utiliser le premier dossier du Batch.
 		"""
@@ -236,7 +238,7 @@ class PALMTracer:
 
 	##################################################
 	def process(self):
-		"""Lance le process de PALM selon les éléments en paramètres."""
+		"""Lance le pipeline PALM selon les paramètres sélectionnés."""
 
 		if not self.is_dll_valid():
 			Ui.print_warning("Process not completed due to missing DLLs.")
@@ -324,7 +326,7 @@ class PALMTracer:
 	##################################################
 	def _process_step(self, step: Step, previous_settings: Settings | None, pipeline_dirty: bool) -> bool:
 		"""
-		Éffectue une étape du pipeline.
+		Effectue une étape du pipeline.
 
 		:param step: Étape du pipeline.
 		:param previous_settings: Paramètres du précédent pipeline.
@@ -418,7 +420,7 @@ class PALMTracer:
 
 		# Estimation du Z.
 		if not self.results["loc"].empty and fit in (3, 4) and s["Gaussian Fit Z"]:
-			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]))
+			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]), s["Gaussian Fit Use default model"])
 
 			if model.empty:
 				self._logger.add("\tNo valid astigmatism model file for Z Estimation "
@@ -434,36 +436,45 @@ class PALMTracer:
 		self.results.save("loc", self._path, self._timestamp)
 
 	##################################################
-	def _get_astigmatism_model(self, path: Path) -> pd.DataFrame:
+	def _get_astigmatism_model(self, path: Path, use_default: bool = False) -> pd.DataFrame:
 		"""
 		Charge un modèle d'astigmatisme 3D depuis un fichier CSV.
 
 		La fonction tente de lire le fichier spécifié par ``path``.
 		Si ce chemin n'est pas valide, elle cherche automatiquement un fichier nommé ``astigmatism_3d_model.csv`` dans :
-		le dossier ``self._path``, puis dans le dossier parent de ``self._path``.
+		le dossier ``self._path``, puis dans le dossier parent de ``self._path``, et enfin dans le dossier utilisateur ``~/.palm_tracer``.
+		Si ``use_default`` est activé, seul le fichier :data:`~palm_tracer.Tools.FileIO.DEFAULT_ASTIGMATISM_MODEL` est consulté.
+		Son absence ou son invalidité ne déclenche aucune recherche de secours.
 
-		Si aucun fichier valide n'est trouvé, ou si le fichier est invalide, une DataFrame vide est retournée.
+		Si aucun fichier n'est trouvé, si sa lecture échoue ou si sa forme diffère de ``(2, 5)``, un DataFrame vide est retourné.
 
 		:param path: Chemin vers un fichier CSV contenant le modèle d'astigmatisme.
+		:param use_default: Charge exclusivement le modèle par défaut, sans recherche de secours.
 		:return: DataFrame contenant le modèle si valide, sinon une DataFrame vide.
-		:raises Exception: Aucune exception n'est propagée. En cas d'erreur de lecture, un message est affiché via ``Ui.print_error``.
+
+		Les erreurs de lecture sont signalées par ``Ui.print_error`` et ne sont pas propagées.
 
 		.. note::
 		        Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
 		        Si ce n'est pas le cas, le modèle est considéré comme invalide.
 
-		.. tip:: Permet de rendre l'appel robuste en cas de chemin utilisateur invalide, en utilisant automatiquement des emplacements par défaut du projet.
+		.. tip:: En cas de chemin inexistant, les emplacements locaux sont prioritaires sur le dernier modèle sauvegardé dans le dossier utilisateur.
 		"""
 		res = pd.DataFrame()
-		final_path = Path(path)
+		final_path = Path(path)  # .								Chemin du modèle défini directement.
 
-		if not final_path.is_file():
+		if use_default:
+			final_path = FileIO.DEFAULT_ASTIGMATISM_MODEL
+			if not final_path.is_file(): return res
+		elif not final_path.is_file():
 			model_name = "astigmatism_3d_model.csv"
 			_path = Path(self._path)
-			final_path = _path / model_name
+			final_path = _path / model_name  # .					Dossier de résultat de la pile.
 			if not final_path.is_file():
-				final_path = _path.parent / model_name
-				if not final_path.is_file(): return pd.DataFrame()
+				final_path = _path.parent / model_name  # .			Dossier de la pile.
+				if not final_path.is_file():
+					final_path = FileIO.USER_ASTIGMATISM_MODEL  # .	Dossier user.
+					if not final_path.is_file(): return res
 
 		try:
 			res = pd.read_csv(final_path, index_col=0)
@@ -507,7 +518,7 @@ class PALMTracer:
 
 	##################################################
 	def _blinking_reconnection(self):
-		"""Lance le tracking à partir des paramètres de l'interface."""
+		"""Reconnecte les trajectoires interrompues par le clignotement à partir des paramètres de l'interface."""
 		df = self.results["trc"]  # Récupère le DataFrame du suivi non filtré (si jamais il existe)
 		if df.empty:
 			self._logger.add("\tNo tracking data calculated, no additional calculations can be performed.")
@@ -538,8 +549,8 @@ class PALMTracer:
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
 		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"],
-									   sc["Pixel Size"], sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
+		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"], sc["Pixel Size"],
+									   sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
 		for key, name in [("MSD", "MSD"), ("InD", "Instant Diffusion"), ("Fit", "Fit")]:
@@ -556,7 +567,7 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def reset_filtered(self):
-		"""Vide entièrement les DataFrames filtrés dans ``df``."""
+		"""Désactive les filtres, vide les résultats filtrés et enregistre les paramètres du groupe Filters pour le traitement courant."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		self.results.reset_filtered()
 		self.save_setting_group("Filters")
@@ -595,7 +606,11 @@ class PALMTracer:
 
 	##################################################
 	def connect_filters_button(self, ui_name: str = "default"):
-		"""Connecte les boutons d'une interface de filtre."""
+		"""
+		Connecte les boutons de réinitialisation, de mise à jour et de sauvegarde des filtres.
+
+		:param ui_name: Nom de l'interface dans le dictionnaire.
+		"""
 		filters = self.settings.filters
 		filters.connect_button(self.reset_filtered, ui_name, "reset")
 		filters.connect_button(self.update_filtered, ui_name, "update")
@@ -610,7 +625,7 @@ class PALMTracer:
 	# ==================================================
 	##################################################
 	def _gallery(self):
-		"""Lance la génération d'une galerie à partir des paramètres passés en paramètres."""
+		"""Génère une galerie à partir des localisations disponibles et des paramètres de l'interface."""
 		s = self.settings.gallery.settings
 		loc = self.results.localizations
 		if loc.empty:
@@ -641,8 +656,9 @@ class PALMTracer:
 		if mode == 0:
 			bins = graph_data.get("bins", bins)
 			fit_limit = graph_data.get("fit_limit", -np.inf)
-			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss, poissonnian=poiss,
-										   exponential=expo, density=density, cumulative=cumul, bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
+			return self._grapher.histogram(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde,
+										   gaussian=gauss, poissonnian=poiss, exponential=expo, density=density, cumulative=cumul,
+										   bins=bins, gaussian_mixture=gauss_mix, fit_limit=fit_limit)
 		# --- Courbe Scatter plot ---
 		if mode == 1: return self._grapher.scatter(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, names=graph_data.get("names"))
 

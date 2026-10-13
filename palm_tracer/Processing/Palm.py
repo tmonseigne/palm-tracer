@@ -77,9 +77,9 @@ class Palm:
 		fn.restype = C_UINT
 		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_UINT, C_DBL, C_UINT, C_UINT, C_DBL]
 
-		# bool TracksCompute(double* input, double* o_msd, double* o_ind, double* o_fit, uint64_t nRow, bool is_msd, bool is_ind, bool is_3d,
+		# bool TrackAnalysis(double* input, double* o_msd, double* o_ind, double* o_fit, uint64_t nRow, bool is_msd, bool is_ind, bool is_3d,
 		# double pixel_size, double exposure_time, uint64_t fit_mode, double* fit_params)
-		fn = self._dll.TracksCompute
+		fn = self._dll.TrackAnalysis
 		fn.restype = C_BOOL
 		fn.argtypes = [C_TAB_DBL, C_TAB_DBL, C_TAB_DBL, C_TAB_DBL, C_UINT, C_BOOL, C_BOOL, C_BOOL, C_DBL, C_DBL, C_UINT, C_TAB_DBL]
 
@@ -319,7 +319,7 @@ class Palm:
 		o_ind = np.empty((n,), dtype=float, order="C") if is_ind else np.empty((1,), dtype=float, order="C")
 		o_fit = np.empty((n,), dtype=float, order="C") if fit_mode != 0 else np.empty((1,), dtype=float, order="C")
 
-		self._dll.TracksCompute(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
+		self._dll.TrackAnalysis(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
 								o_fit.ctypes.data_as(C_TAB_DBL),
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
 								C_UINT(fit_mode), params.ctypes.data_as(C_TAB_DBL))
@@ -373,10 +373,10 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
-		:param points: Ensemble des points nécessaire à la calibration sous forme de tableau NumPy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
+		:param points: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z], avec les sigmas en pixels et Z en nanomètres.
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param center: Permet de centrer le modèle pour que si :math:`\\sigma_x(0) \\approx \\sigma_y(0)`.
-		:return: Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne).
+		:param center: Centre le modèle afin que :math:`\\sigma_x(0) \\approx \\sigma_y(0)`.
+		:return: DataFrame de forme (2, 5), indexé par axe, contenant les coefficients [Z0, W, C3, C4, A].
 		"""
 		pts = self._as_c_contig(points, np.dtype(float), writeable=False)
 		out = np.empty(Parsing.SHAPE_MODEL, dtype=float, order="C")
@@ -390,11 +390,11 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle.
 
-		:param sigmas: Ensemble des points à estimer sous forme de tableau NumPy 2D avec pour colonnes [sigma_x, sigma_y].
+		:param sigmas: Tableau (N, 2) contenant les colonnes [SigmaX, SigmaY] en pixels.
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param model: Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne).
+		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param z_max: Distance absolue maximale sur Z par rapport à l'origine.
-		:return: Ensemble des Z estimés pour chaque point.
+		:return: Tableau (N, 2) contenant, pour chaque point, Z en nanomètres et l'erreur quadratique du modèle sur les deux sigmas en pixels carrés.
 		"""
 
 		n = len(sigmas)

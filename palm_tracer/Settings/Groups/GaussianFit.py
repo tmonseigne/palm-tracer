@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
@@ -25,6 +26,8 @@ class GaussianFit(BaseSettingGroup):
 	- ``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : valeur absolue maximale utilisée pour initialiser l'estimation axiale ; valeur
 	  par défaut : ``500`` nm.
 	- ``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser.
+	- ``Use default model`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise exclusivement le modèle utilisateur défini par défaut.
+	  La sélection du modèle spécifique est grisée et aucun modèle de secours n'est recherché si le fichier par défaut est absent ou invalide.
 	"""
 
 	label: str = "Gaussian Fit"
@@ -33,9 +36,10 @@ class GaussianFit(BaseSettingGroup):
 			"Mode":  [Combo, ["Mode", "Selects the elements to fit.", 0, ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
 			"Sigma": [SpinFloat, ["σ", "Initial value of sigma.", 1.0, [0.0, 10.0], 0.1]],
 			"Theta": [SpinFloat, ["θ", "Initial value of theta in degree.", 0.0, [-90, 90], 0.01]],
-			"Z":     [CheckBox, ["Compute Z", "Use astigmatism model to estimate Z axial position.", False]],
+			"Z":     [CheckBox, ["3D", "Use astigmatism model to compute Z axial position.", False]],
 			"Z max": [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator.", 500, [10, 2000], 10]],
 			"Model": [BrowseFile, ["Specific Model", "Use only if your model isn't in File output folder"], ""],
+			"Use default model": [CheckBox, ["Use default model", "Use only the default astigmatism model saved in the user folder.", False]],
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 2
@@ -47,18 +51,24 @@ class GaussianFit(BaseSettingGroup):
 		super().initialize()
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)
+		self._settings["Use default model"].connect(self.toggle_default_model)
 
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_fit_mode(self._settings["Mode"].value)
 		self.toggle_z_estimate(self._settings["Z"].value)
+		self.toggle_default_model(self._settings["Use default model"].value)
 		return ui
 
 	##################################################
 	def toggle_fit_mode(self, mode: int):
-		"""Change le mode d'ajustement."""
-		if mode in (0, 1):  # On ne peut pas estimer Z Sigma X et Sigma Y.
+		"""
+		Masque et désactive l'estimation axiale lorsque les deux sigmas ne sont pas ajustés séparément.
+
+		:param mode: Indice du mode d'ajustement gaussien sélectionné.
+		"""
+		if mode in (0, 1):  # L'estimation de Z nécessite l'ajustement séparé de Sigma X et Sigma Y.
 			self._settings["Z"].value = False
 			self._settings["Z"].hide()
 		else:
@@ -66,13 +76,31 @@ class GaussianFit(BaseSettingGroup):
 
 	##################################################
 	def toggle_z_estimate(self, mode: bool):
-		"""Change le mode d'ajustement."""
+		"""
+		Affiche ou masque les paramètres de l'estimation axiale.
+
+		:param mode: Active l'affichage lorsque l'estimation de Z est sélectionnée.
+		"""
 		if mode:
 			self._settings["Z max"].show()
 			self._settings["Model"].show()
+			self._settings["Use default model"].show()
 		else:
 			self._settings["Z max"].hide()
 			self._settings["Model"].hide()
+			self._settings["Use default model"].hide()
+
+	##################################################
+	def toggle_default_model(self, active: bool):
+		"""
+		Grise la sélection du modèle spécifique lorsque le modèle par défaut est demandé.
+
+		:param active: Indique si le modèle par défaut est sélectionné.
+		"""
+		model = cast(BrowseFile, self._settings["Model"])
+		for ui in model._uis.values():
+			if ui.label is not None: ui.label.setEnabled(not active)
+			for box in ui.boxes: box.setEnabled(not active)
 
 
 ##################################################

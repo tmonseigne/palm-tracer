@@ -177,7 +177,7 @@ def test_localization_fit(qtbot):
 def test_gaussian_fit(qtbot):
 	"""Vérifie la classe GaussianFit (constructeur, getter, setter)."""
 	grp = GaussianFit()
-	group_base_test(grp, ["Mode", "Sigma", "Theta", "Z", "Z max", "Model"], Combo, 2, 0)
+	group_base_test(grp, ["Mode", "Sigma", "Theta", "Z", "Z max", "Model", "Use default model"], Combo, 2, 0)
 
 
 ###################################################
@@ -198,6 +198,27 @@ def test_gaussian_fit_z(qtbot):
 	grp["Mode"].value = 0
 	assert ui_z.boxes[0].isHidden()
 	assert ui_z_max.boxes[0].isHidden()
+
+
+###################################################
+@pytest.mark.parametrize("initial", [False, True], ids=["specific-model", "default-model"])
+def test_gaussian_fit_default_model(qtbot, initial):
+	"""Vérifie le choix persistant et le grisement des champs dans plusieurs interfaces."""
+	grp = GaussianFit()
+	grp["Mode"].value = 2
+	grp["Z"].value = True
+	grp["Use default model"].value = initial
+	for name in ("default", "second"): grp.get_ui(name)
+	for active in (initial, not initial):
+		grp["Use default model"].value = active
+		for name in ("default", "second"):
+			for box in grp["Model"].get_ui(name).boxes: assert box.isEnabled() == (not active)
+		data = grp.to_compact_dict()
+		loaded = GaussianFit()
+		loaded.update_from_compact_dict(data)
+		assert loaded["Use default model"].value == active
+	grp["Z"].value = False
+	assert grp["Use default model"].get_ui().boxes[0].isHidden()
 
 
 ###################################################

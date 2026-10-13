@@ -21,6 +21,14 @@ from palm_tracer.Tools import Ui
 MAX_UI_8 = np.iinfo(np.uint8).max
 MAX_UI_16 = np.iinfo(np.uint16).max
 DLL_PATH = Path(__file__).parent.parent / "DLL"
+#: Dossier utilisateur contenant les paramètres persistants et les modèles d'astigmatisme.
+CONFIG_DIR = Path.home() / ".palm_tracer"
+#: Fichier des derniers paramètres enregistrés par le widget principal.
+USER_SETTINGS_FILE = CONFIG_DIR / "settings.json"
+#: Dernier modèle calculé, utilisé en dernier recours par la recherche automatique.
+USER_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model.csv"
+#: Modèle enregistré explicitement comme défaut, exclu de la recherche automatique.
+DEFAULT_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model_default.csv"
 
 
 # ==================================================
@@ -259,7 +267,8 @@ def save_tif(stack: np.ndarray, filename: str | Path):
 
 ##################################################
 def read_tif_shape(filename: str | Path) -> tuple[int, int, int]:
-	"""Lit les dimensions d'une pile TIFF sans charger ses pixels.
+	"""
+	Lit les dimensions d'une pile TIFF sans charger ses pixels.
 
 	Une image 2D est considérée comme une pile d'un seul plan, comme dans :func:`open_tif`.
 

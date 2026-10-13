@@ -1,3 +1,21 @@
+# English translations for PALM Tracer.
+# Copyright (C) 2026 Thibaut Monseigne
+# This file is distributed under the same license as PALM Tracer.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-13 11:40+0200\n"
+"PO-Revision-Date: 2026-10-13 09:48+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Settings.Groups.GaussianFit.rst:2
 msgid "GaussianFit"
 msgstr ""
@@ -34,9 +52,11 @@ msgstr "``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): maximu
 msgid "``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser."
 msgstr "``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`): specific astigmatism model to use."
 
-#: ../../api/palm_tracer.Settings.Groups.GaussianFit.rst of
-#: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_fit_mode
-#: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_z_estimate
+#: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit:13
+msgid "``Use default model`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise exclusivement le modèle utilisateur défini par défaut. La sélection du modèle spécifique est grisée et aucun modèle de secours n'est recherché si le fichier par défaut est absent ou invalide."
+msgstr "``Use default model`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): uses only the user-defined default model. The specific model selector is disabled, and no fallback model is searched for if the default file is missing or invalid."
+
+#: ../../api/palm_tracer.Settings.Groups.GaussianFit.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
@@ -54,7 +74,7 @@ msgstr "Definition of the group's settings and their configuration."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.mode:1
 msgid "Mode d'affichage du groupe dans l'interface."
-msgstr "Default group display method."
+msgstr "Group display mode in the interface."
 
 #: ../../api/palm_tracer.Settings.Groups.GaussianFit.rst:16
 msgid "Méthodes"
@@ -66,7 +86,7 @@ msgstr "Miscellaneous"
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.initialize:1
 msgid "Initialise les connexions entre les paramètres."
-msgstr "Initializes the settings dictionary."
+msgstr "Initializes the connections between settings."
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.get_ui:1
 msgid "Retourne une interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`) existante ou en crée une si nécessaire."
@@ -113,6 +133,27 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_fit_mode:1
-#: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_z_estimate:1
-msgid "Change le mode d'ajustement."
-msgstr "Changes the fitting mode."
+msgid "Masque et désactive l'estimation axiale lorsque les deux sigmas ne sont pas ajustés séparément."
+msgstr "Hides and disables axial estimation when the two sigmas are not fitted separately."
+
+#: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_fit_mode:3
+msgid "Indice du mode d'ajustement gaussien sélectionné."
+msgstr "Index of the selected Gaussian fitting mode."
+
+#: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_z_estimate:1
+msgid "Affiche ou masque les paramètres de l'estimation axiale."
+msgstr "Shows or hides the axial estimation settings."
+
+#: of palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_z_estimate:3
+msgid "Active l'affichage lorsque l'estimation de Z est sélectionnée."
+msgstr "Enables display when Z estimation is selected."
+
+#: of
+#: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_default_model:1
+msgid "Grise la sélection du modèle spécifique lorsque le modèle par défaut est demandé."
+msgstr "Disables the specific model selector when the default model is requested."
+
+#: of
+#: palm_tracer.Settings.Groups.GaussianFit.GaussianFit.toggle_default_model:3
+msgid "Indique si le modèle par défaut est sélectionné."
+msgstr "Indicates whether the default model is selected."
