@@ -24,6 +24,7 @@ DLL_PATH = Path(__file__).parent.parent / "DLL"
 CONFIG_DIR = Path.home() / ".palm_tracer"
 USER_SETTINGS_FILE = CONFIG_DIR / "settings.json"
 USER_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model.csv"
+DEFAULT_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model_default.csv"
 
 
 # ==================================================

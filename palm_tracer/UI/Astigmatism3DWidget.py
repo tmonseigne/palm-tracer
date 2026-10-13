@@ -108,6 +108,9 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.add_setting_row(form, "Plane Interval (nm):", self._spin_z_interval)
 		Ui.add_setting_row(form, "Center Z:", self._check_z_center)
 		Ui.add_setting_row(form, "Flip Z:", self._check_z_flip)
+		self._check_set_default_model = QCheckBox(grp)
+		self._check_set_default_model.setToolTip("Save model as the default astigmatism model in the user folder.")
+		Ui.add_setting_row(form, "Set as default model:", self._check_set_default_model)
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
@@ -175,6 +178,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		self._btn_load_model_estimate = QPushButton("Load Model file (CSV)", grp)
 		self._btn_load_model_estimate.setToolTip("The file is a csv with 2 lines and 5 columns.")
+		self._check_default_model = QCheckBox("Use default model", grp)
+		self._check_default_model.setToolTip("Use only the default model saved in the user folder, even if another model is loaded.")
 
 		self._lbl_loc_estimate = Ui.make_path_label("No file loaded", grp)
 		self._lbl_model_estimate = Ui.make_path_label("No Model file loaded", grp)
@@ -198,6 +203,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		grp_layout.addWidget(self._lbl_loc_estimate)
 		grp_layout.addWidget(self._btn_load_model_estimate)
 		grp_layout.addWidget(self._lbl_model_estimate)
+		grp_layout.addWidget(self._check_default_model)
 		grp_layout.addLayout(form)
 
 		# Bloc Type de graphe
@@ -249,6 +255,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux aux callbacks."""
 		self._btn_load_compute.clicked.connect(self._on_load_loc)
+		self._check_set_default_model.toggled.connect(self._on_set_default_model)
+		self._check_default_model.toggled.connect(self._on_default_model_toggled)
 
 		self._btn_load_loc_estimate.clicked.connect(self._on_load_loc)
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
@@ -523,6 +531,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._model.to_csv(str(self._mod_filename), lineterminator="\n")
 		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
 		self._model.to_csv(FileIO.USER_ASTIGMATISM_MODEL, lineterminator="\n")
+		self._on_set_default_model()
 		Ui.print_success("Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
@@ -531,13 +540,40 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.update_path_label(self._lbl_model_estimate, self._mod_filename)
 
 	##################################################
+	def _on_set_default_model(self):
+		"""Enregistre le modèle courant par défaut lorsque l'option est cochée et qu'un modèle est disponible."""
+		if not self._check_set_default_model.isChecked() or self._model.empty: return
+		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+		self._model.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL, lineterminator="\n")
+		Ui.print_success("Default model saved successfully.")
+
+	##################################################
+	def _on_default_model_toggled(self, active: bool):
+		"""Grise les contrôles du modèle chargé lorsque le modèle par défaut est sélectionné."""
+		self._btn_load_model_estimate.setEnabled(not active)
+		self._lbl_model_estimate.setEnabled(not active)
+
+	##################################################
+	def _get_estimation_model(self) -> pd.DataFrame:
+		"""Retourne le modèle choisi pour Compute Z, sans repli si le modèle par défaut est demandé."""
+		if not self._check_default_model.isChecked(): return self._model
+		if not FileIO.DEFAULT_ASTIGMATISM_MODEL.is_file(): return pd.DataFrame()
+		try:
+			model = pd.read_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL, index_col=0)
+		except Exception as error:
+			Ui.print_error(f"Unable to read the model file: {error}.")
+			return pd.DataFrame()
+		return model if model.shape == SHAPE_MODEL else pd.DataFrame()
+
+	##################################################
 	def _on_estimate(self):
 		"""Callback du bouton 'Estimate'."""
 		# --- Vérifications ---
 		if self._loc.empty:
 			Ui.print_warning("Can't estimate without correct localization file loaded.")
 			return
-		if self._model.empty:
+		model = self._get_estimation_model()
+		if model.empty:
 			Ui.print_warning("Can't estimate without correct model file loaded.")
 			return
 
@@ -564,7 +600,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
 		z_max = self._spin_z_estimate.value()
 		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
-		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
+		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
 		self._loc[["Z", "MSE Z"]] = estimated_z
 		self._loc.to_csv(self._loc_filename, index=False)
 		Ui.print_success("Localization file with estimation saved successfully.")

@@ -23,6 +23,7 @@ def user_model_path(monkeypatch, tmp_path):
 	"""Isole la recherche du modèle utilisateur pour rendre les tests indépendants des modèles personnels."""
 	path = tmp_path / ".palm_tracer" / "astigmatism_3d_model.csv"
 	monkeypatch.setattr(FileIO, "USER_ASTIGMATISM_MODEL", path)
+	monkeypatch.setattr(FileIO, "DEFAULT_ASTIGMATISM_MODEL", path.with_name("astigmatism_3d_model_default.csv"))
 	return path
 
 
@@ -444,7 +445,8 @@ def test_process_localization(capsys, pt):
 
 
 ##################################################
-def test_process_localization_z(capsys, pt, tmp_path):
+@pytest.mark.parametrize("use_default", [False, True], ids=["specific-model", "default-model"])
+def test_process_localization_z(capsys, pt, tmp_path, use_default):
 	"""Vérifie la localisation sans modèle, puis avec un modèle explicitement sélectionné."""
 	# Isole les emplacements locaux pour éviter de charger un modèle présent parmi les données de test.
 	stack_file = tmp_path / "stack.tif"
@@ -464,10 +466,21 @@ def test_process_localization_z(capsys, pt, tmp_path):
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
 
 	s["Model"].value = str(REF_DIR / "astigmatism_3d_model.csv")
+	if use_default:
+		FileIO.DEFAULT_ASTIGMATISM_MODEL.parent.mkdir(parents=True, exist_ok=True)
+		default = pd.read_csv(REF_DIR / "astigmatism_3d_model.csv", index_col=0)
+		default.iloc[:, 0] += 100
+		default.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL)
+	s["Use default model"].value = use_default
 	pt.process()  # Lancement
 
 	assert len(pt.results["loc"]) == 455
 	assert not np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
+	model_path = FileIO.DEFAULT_ASTIGMATISM_MODEL if use_default else REF_DIR / "astigmatism_3d_model.csv"
+	model = pd.read_csv(model_path, index_col=0)
+	points = pt.results["loc"][["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
+	expected = pt.palm.astigmatism_3d_estimation(points, pt.settings.calibration["Pixel Size"].value * 1000, model.to_numpy(), s["Z max"].value)
+	np.testing.assert_allclose(pt.results["loc"][["Z", "MSE Z"]].to_numpy(), expected)
 	check_output(output_folder, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
@@ -728,6 +741,9 @@ def test_get_astigmatism_model(tmp_path, user_model_path, first_available):
 	model_name = "astigmatism_3d_model.csv"
 	paths = [tmp_path / "explicit.csv", output / model_name, output.parent / model_name, user_model_path]
 	ref = pd.read_csv(REF_DIR / model_name, index_col=0)
+	# Le modèle par défaut ne doit jamais participer à la recherche automatique.
+	FileIO.DEFAULT_ASTIGMATISM_MODEL.parent.mkdir(parents=True, exist_ok=True)
+	ref.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL)
 	models = []
 	for index, path in enumerate(paths):
 		model = ref.copy()
@@ -757,6 +773,31 @@ def test_get_astigmatism_model_invalid_user_backup(tmp_path, user_model_path, co
 	model = pt._get_astigmatism_model(tmp_path / "missing.csv")
 
 	assert model.empty
+
+
+##################################################
+@pytest.mark.parametrize("content", [
+		pytest.param("valid", id="valid-default"),
+		pytest.param(None, id="missing-default"),
+		pytest.param(",Z0,W\nX,1,2\n", id="invalid-default"),
+		pytest.param('"unterminated quote\n', id="unreadable-default")])
+def test_get_astigmatism_model_default_only(pt, tmp_path, user_model_path, content):
+	"""Le choix par défaut ignore tous les autres modèles, même lorsque le fichier demandé est absent ou invalide."""
+	pt._path = str(tmp_path / "output")
+	ref = pd.read_csv(REF_DIR / "astigmatism_3d_model.csv", index_col=0)
+	explicit = tmp_path / "specific.csv"
+	for path in (explicit, Path(pt._path) / "astigmatism_3d_model.csv", tmp_path / "astigmatism_3d_model.csv", user_model_path):
+		path.parent.mkdir(parents=True, exist_ok=True)
+		ref.to_csv(path)
+	default = ref.copy()
+	default.iloc[0, 0] += 100
+	if content == "valid": default.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL)
+	elif content is not None: FileIO.DEFAULT_ASTIGMATISM_MODEL.write_text(content, encoding="utf-8")
+
+	model = pt._get_astigmatism_model(explicit, use_default=True)
+
+	if content == "valid": pd.testing.assert_frame_equal(model, default)
+	else: assert model.empty
 
 
 # ==================================================

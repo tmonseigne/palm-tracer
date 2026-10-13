@@ -418,7 +418,7 @@ class PALMTracer:
 
 		# Estimation du Z.
 		if not self.results["loc"].empty and fit in (3, 4) and s["Gaussian Fit Z"]:
-			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]))
+			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]), s["Gaussian Fit Use default model"])
 
 			if model.empty:
 				self._logger.add("\tNo valid astigmatism model file for Z Estimation "
@@ -434,7 +434,7 @@ class PALMTracer:
 		self.results.save("loc", self._path, self._timestamp)
 
 	##################################################
-	def _get_astigmatism_model(self, path: Path) -> pd.DataFrame:
+	def _get_astigmatism_model(self, path: Path, use_default: bool = False) -> pd.DataFrame:
 		"""
 		Charge un modèle d'astigmatisme 3D depuis un fichier CSV.
 
@@ -445,6 +445,7 @@ class PALMTracer:
 		Si aucun fichier valide n'est trouvé, ou si le fichier est invalide, une DataFrame vide est retournée.
 
 		:param path: Chemin vers un fichier CSV contenant le modèle d'astigmatisme.
+		:param use_default: Charge exclusivement le modèle par défaut, sans recherche de secours.
 		:return: DataFrame contenant le modèle si valide, sinon une DataFrame vide.
 		:raises Exception: Aucune exception n'est propagée. En cas d'erreur de lecture, un message est affiché via ``Ui.print_error``.
 
@@ -457,7 +458,10 @@ class PALMTracer:
 		res = pd.DataFrame()
 		final_path = Path(path)  # .								Chemin du modèle défini directement.
 
-		if not final_path.is_file():
+		if use_default:
+			final_path = FileIO.DEFAULT_ASTIGMATISM_MODEL
+			if not final_path.is_file(): return res
+		elif not final_path.is_file():
 			model_name = "astigmatism_3d_model.csv"
 			_path = Path(self._path)
 			final_path = _path / model_name  # .					Dossier de résultat de la pile.
@@ -465,7 +469,7 @@ class PALMTracer:
 				final_path = _path.parent / model_name  # .			Dossier de la pile.
 				if not final_path.is_file():
 					final_path = FileIO.USER_ASTIGMATISM_MODEL  # .	Dossier user.
-					if not final_path.is_file(): return pd.DataFrame()
+					if not final_path.is_file(): return res
 
 		try:
 			res = pd.read_csv(final_path, index_col=0)

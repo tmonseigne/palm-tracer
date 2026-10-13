@@ -22,6 +22,7 @@ def user_model_path(monkeypatch, tmp_path):
 	path = tmp_path / ".palm_tracer" / MODEL_FILE
 	monkeypatch.setattr(FileIO, "CONFIG_DIR", path.parent)
 	monkeypatch.setattr(FileIO, "USER_ASTIGMATISM_MODEL", path)
+	monkeypatch.setattr(FileIO, "DEFAULT_ASTIGMATISM_MODEL", path.with_name("astigmatism_3d_model_default.csv"))
 	return path
 
 
@@ -545,6 +546,85 @@ def test_estimation_load_does_not_calibrate(qtbot, capsys, fake_qfiledialog, tmp
 	assert not (tmp_path / MODEL_FILE).exists()
 	assert localization_file.read_bytes() == original_file
 	assert get_lines_output(capsys) == []
+	w.close()
+
+
+##################################################
+def test_set_default_model_without_model(qtbot, capsys):
+	"""Permet d'activer la sauvegarde par défaut avant de calculer un modèle."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._check_set_default_model.setChecked(True)
+	assert not FileIO.DEFAULT_ASTIGMATISM_MODEL.exists()
+	assert get_lines_output(capsys) == []
+	w.close()
+
+
+##################################################
+@pytest.mark.parametrize("enable_before_load", [False, True], ids=["enable-after-model", "enable-before-model"])
+def test_set_default_model(qtbot, tmp_path, fake_qfiledialog, enable_before_load):
+	"""Vérifie la sauvegarde automatique du modèle par défaut et son arrêt lorsque l'option est décochée."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	assert not hasattr(w, "_btn_set_default_model")
+	assert not w._check_set_default_model.isChecked()
+	w._check_set_default_model.setChecked(enable_before_load)
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copyfile(LOC_FILE, localization_file)
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
+	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	if not enable_before_load:
+		assert not FileIO.DEFAULT_ASTIGMATISM_MODEL.exists()
+		w._check_set_default_model.setChecked(True)
+	pd.testing.assert_frame_equal(pd.read_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL, index_col=0), w._model)
+	w._spin_z_interval.setValue(w._spin_z_interval.value() + 10)
+	pd.testing.assert_frame_equal(pd.read_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL, index_col=0), w._model)
+	previous = FileIO.DEFAULT_ASTIGMATISM_MODEL.read_bytes()
+	w._check_set_default_model.setChecked(False)
+	w._spin_z_interval.setValue(w._spin_z_interval.value() + 10)
+	assert FileIO.DEFAULT_ASTIGMATISM_MODEL.read_bytes() == previous
+	pd.testing.assert_frame_equal(pd.read_csv(FileIO.USER_ASTIGMATISM_MODEL, index_col=0), w._model)
+	w.close()
+
+
+##################################################
+@pytest.mark.parametrize("content", [
+		pytest.param("valid", id="valid-default"),
+		pytest.param(None, id="missing-default"),
+		pytest.param(",Z0,W\nX,1,2\n", id="invalid-default"),
+		pytest.param('"unterminated quote\n', id="unreadable-default")])
+def test_estimate_default_model(qtbot, tmp_path, content):
+	"""Vérifie les vrais calculs avec le modèle par défaut et l'absence de repli sur le modèle déjà chargé."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	w._loc_filename = tmp_path / LOC_FILE.name
+	shutil.copyfile(LOC_FILE, w._loc_filename)
+	original = w._loc_filename.read_bytes()
+	w._loc = pd.read_csv(w._loc_filename)
+	w._model = pd.read_csv(REF_DIR / MODEL_FILE, index_col=0)
+	default = w._model.copy()
+	default.iloc[:, 0] += 100
+	FileIO.USER_ASTIGMATISM_MODEL.parent.mkdir(parents=True)
+	w._model.to_csv(FileIO.USER_ASTIGMATISM_MODEL)
+	if content == "valid": default.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL)
+	elif content is not None: FileIO.DEFAULT_ASTIGMATISM_MODEL.write_text(content, encoding="utf-8")
+	w._check_b_estimate.setChecked(False)
+	w._check_default_model.setChecked(True)
+	assert not w._btn_load_model_estimate.isEnabled()
+	assert not w._lbl_model_estimate.isEnabled()
+	if content == "valid":
+		points = w._loc.loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
+		expected = w._palm.astigmatism_3d_estimation(points, w._spin_px_estimate.value() * 1000, default.to_numpy(), w._spin_z_estimate.value())
+	else: assert w._get_estimation_model().empty
+	w._on_estimate()
+	if content == "valid":
+		actual = pd.read_csv(w._loc_filename)[["Z", "MSE Z"]].to_numpy()
+		np.testing.assert_allclose(actual, expected)
+	else: assert w._loc_filename.read_bytes() == original
+	w._check_default_model.setChecked(False)
+	assert w._btn_load_model_estimate.isEnabled()
+	assert w._lbl_model_estimate.isEnabled()
+	pd.testing.assert_frame_equal(w._get_estimation_model(), w._model)
 	w.close()
 
 

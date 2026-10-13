@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
@@ -25,6 +26,7 @@ class GaussianFit(BaseSettingGroup):
 	- ``Z max`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : valeur absolue maximale utilisée pour initialiser l'estimation axiale ; valeur
 	  par défaut : ``500`` nm.
 	- ``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser.
+	- ``Use default model`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise exclusivement le modèle utilisateur défini par défaut.
 	"""
 
 	label: str = "Gaussian Fit"
@@ -36,6 +38,7 @@ class GaussianFit(BaseSettingGroup):
 			"Z":     [CheckBox, ["3D", "Use astigmatism model to compute Z axial position.", False]],
 			"Z max": [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator.", 500, [10, 2000], 10]],
 			"Model": [BrowseFile, ["Specific Model", "Use only if your model isn't in File output folder"], ""],
+			"Use default model": [CheckBox, ["Use default model", "Use only the default astigmatism model saved in the user folder.", False]],
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 2
@@ -47,12 +50,14 @@ class GaussianFit(BaseSettingGroup):
 		super().initialize()
 		self._settings["Mode"].connect(self.toggle_fit_mode)
 		self._settings["Z"].connect(self.toggle_z_estimate)
+		self._settings["Use default model"].connect(self.toggle_default_model)
 
 	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_fit_mode(self._settings["Mode"].value)
 		self.toggle_z_estimate(self._settings["Z"].value)
+		self.toggle_default_model(self._settings["Use default model"].value)
 		return ui
 
 	##################################################
@@ -70,9 +75,19 @@ class GaussianFit(BaseSettingGroup):
 		if mode:
 			self._settings["Z max"].show()
 			self._settings["Model"].show()
+			self._settings["Use default model"].show()
 		else:
 			self._settings["Z max"].hide()
 			self._settings["Model"].hide()
+			self._settings["Use default model"].hide()
+
+	##################################################
+	def toggle_default_model(self, active: bool):
+		"""Grise la sélection du modèle spécifique lorsque le modèle par défaut est demandé."""
+		model = cast(BrowseFile, self._settings["Model"])
+		for ui in model._uis.values():
+			if ui.label is not None: ui.label.setEnabled(not active)
+			for box in ui.boxes: box.setEnabled(not active)
 
 
 ##################################################
