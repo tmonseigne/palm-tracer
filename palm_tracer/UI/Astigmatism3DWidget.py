@@ -26,7 +26,9 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	Permet de calibrer un modèle d'astigmatisme 3D puis d'estimer des positions axiales.
 
 	Le premier onglet recalcule automatiquement le modèle au chargement des localisations et à chaque changement des paramètres de calibration.
-	Le second charge un modèle et ajoute l'estimation de Z aux localisations sur demande.
+	Chaque modèle calculé est enregistré auprès du CSV et dans le dossier utilisateur ; l'option ``Set as default model`` actualise aussi le modèle
+	par défaut lorsqu'elle est cochée.
+	Le second onglet estime Z sur demande avec le modèle chargé ou, si ``Use default model`` est coché, exclusivement avec le modèle par défaut.
 
 	:param parent: Widget Qt parent.
 
@@ -296,7 +298,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Les points dont Z atteint ou dépasse les bornes ±Z Max sont exclus des deux calculs.
 		Si aucun point ne reste, les scores sont réinitialisés à ``--``.
 
-		:param points: Points du jeu de donnée.
+		:param points: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z], avec les sigmas en pixels et Z en nanomètres.
 		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 		"""
@@ -427,12 +429,12 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	##################################################
 	def _on_load_model(self):
 		"""
-		Callback du bouton 'Load coefficients file'.
+		Charge le modèle sélectionné depuis un CSV et désactive la calibration automatique des localisations courantes.
 
-		À l'issue de la lecture, les coefficients sont stockés dans ``self._factors``
-		sous la forme d'un tableau NumPy de taille ``(2, 10)`` et de type :class:`numpy.float64`.
+		Les coefficients sont stockés dans ``self._model``, un DataFrame de forme ``(2, 5)`` contenant une ligne par axe.
+		Une lecture impossible ou une forme incorrecte laisse le modèle vide.
 		"""
-		# --- boîte de dialogue pour sélectionner un fichier .txt ---
+		# --- Boîte de dialogue pour sélectionner le modèle CSV ---
 		filename, _ = QFileDialog.getOpenFileName(self, "Select Model CSV file", "", "CSV files (*.csv)")
 
 		if not filename:
@@ -467,7 +469,13 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 	##################################################
 	def _on_compute(self):
-		"""Recalcule et sauvegarde le modèle après chargement ou changement des paramètres, à partir des Z d'origine."""
+		"""
+		Recalcule et sauvegarde le modèle après chargement ou changement des paramètres, à partir des Z d'origine.
+
+		Le modèle est enregistré auprès du CSV et comme dernière sauvegarde utilisateur.
+		Si l'option ``Set as default model`` est cochée, le modèle par défaut est également remplacé.
+		Les erreurs d'écriture sont propagées et peuvent interrompre les sauvegardes restantes et la mise à jour de l'affichage.
+		"""
 		# --- Vérification ---
 		if self._updating_parameters: return
 		if self._loc.empty or self._calibration_z is None:
@@ -549,13 +557,21 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 	##################################################
 	def _on_default_model_toggled(self, active: bool):
-		"""Grise les contrôles du modèle chargé lorsque le modèle par défaut est sélectionné."""
+		"""
+		Grise les contrôles du modèle chargé lorsque le modèle par défaut est sélectionné.
+
+		:param active: Indique si le modèle par défaut est sélectionné.
+		"""
 		self._btn_load_model_estimate.setEnabled(not active)
 		self._lbl_model_estimate.setEnabled(not active)
 
 	##################################################
 	def _get_estimation_model(self) -> pd.DataFrame:
-		"""Retourne le modèle choisi pour Compute Z, sans repli si le modèle par défaut est demandé."""
+		"""
+		Retourne le modèle choisi pour Compute Z, sans repli si le modèle par défaut est demandé.
+
+		:return: Modèle chargé ou modèle par défaut relu sur disque ; DataFrame vide si le fichier par défaut est absent ou invalide.
+		"""
 		if not self._check_default_model.isChecked(): return self._model
 		if not FileIO.DEFAULT_ASTIGMATISM_MODEL.is_file(): return pd.DataFrame()
 		try:
@@ -567,7 +583,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 	##################################################
 	def _on_estimate(self):
-		"""Callback du bouton 'Estimate'."""
+		"""Estime Z avec le modèle sélectionné, puis réécrit les localisations après une sauvegarde facultative du CSV d'origine."""
 		# --- Vérifications ---
 		if self._loc.empty:
 			Ui.print_warning("Can't estimate without correct localization file loaded.")
@@ -609,10 +625,11 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 ##################################################
 def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
-	Ouvre la fenêtre d'alignement en mode autonome.
+	Ouvre l'outil d'astigmatisme 3D dans une fenêtre autonome.
 
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
-	elle crée simplement un :class:`Astigmatism3DWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
+	elle crée un :class:`Astigmatism3DWidget`, l'affiche et conserve une référence globale pour éviter sa destruction.
+	Aucun widget n'est renvoyé au gestionnaire de panneaux Napari ; cette fonction retourne ``None``.
 	"""
 	widget = Astigmatism3DWidget()
 	widget.resize(1280, 720)

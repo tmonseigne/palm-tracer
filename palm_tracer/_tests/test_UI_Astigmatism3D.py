@@ -51,7 +51,7 @@ def test_widget_creation(qtbot):
 
 ##################################################
 def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie vérification de lien entre les spins pixel size."""
+	"""Vérifie la synchronisation des tailles de pixel et des limites axiales entre les deux onglets."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
@@ -137,7 +137,7 @@ def test_sanity_check_without_valid_points(qtbot, points):
 # ==================================================
 ##################################################
 def test_check_loc(qtbot, capsys):
-	"""Vérifie le lancement de la calibration sans fichier chargé."""
+	"""Vérifie l'adaptation des options aux colonnes, plans et billes présents dans les localisations."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w.resize(1000, 600)

@@ -78,7 +78,7 @@ def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[li
 ##################################################
 def check_capsys(capsys, n_lines: int, steps: list[int]):
 	"""
-	Vérifie dans le capsys les éléments activé ou non et la correspondance du nombre de lignes.
+	Vérifie les étapes présentes dans la sortie capturée et le nombre de lignes du journal.
 
 	:param capsys: Fixture Pytest capturant la sortie standard.
 	:param n_lines: Nombre de lignes attendu dans la sortie.
@@ -95,11 +95,11 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 ##################################################
 def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 	"""
-	Simule l'exécution d'un process.
+	Prépare les fichiers d'un traitement précédent pour vérifier leur réutilisation.
 
-	:param pt: Objet de base.
-	:param localisation: Défini si une localisation est simulé.
-	:param tracking: Défini si un suivi est simulé.
+	:param pt: Instance du pipeline dont les paramètres sont enregistrés.
+	:param localisation: Indique si les résultats de localisation sont préparés.
+	:param tracking: Indique si les résultats de suivi sont préparés.
 	"""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)

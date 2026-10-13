@@ -1,3 +1,21 @@
+# English translations for PALM Tracer.
+# Copyright (C) 2026 Thibaut Monseigne
+# This file is distributed under the same license as PALM Tracer.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-13 11:42+0200\n"
+"PO-Revision-Date: 2026-10-13 09:48+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Processing.Palm.rst:2
 msgid "Palm"
 msgstr ""
@@ -16,7 +34,7 @@ msgstr "Methods"
 
 #: ../../api/palm_tracer.Processing.Palm.rst:12
 msgid "Initialisation"
-msgstr ""
+msgstr "Initialization"
 
 #: of palm_tracer.Processing.Palm.Palm.is_valid:1
 msgid "Vérifie la validité de la DLL utilisée pour PALM."
@@ -64,13 +82,13 @@ msgstr "DLL calls"
 
 #: of palm_tracer.Processing.Palm.Palm.align:1
 #: palm_tracer.Processing.Palm.Palm.localization:1
-#: palm_tracer.Processing.Palm.Palm.wavelett:1
+#: palm_tracer.Processing.Palm.Palm.wavelet:1
 msgid "Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image."
 msgstr "Performs image processing with an external PALM DLL to detect points in a stack or an image."
 
 #: of palm_tracer.Processing.Palm.Palm.align:3
 #: palm_tracer.Processing.Palm.Palm.localization:3
-#: palm_tracer.Processing.Palm.Palm.wavelett:3
+#: palm_tracer.Processing.Palm.Palm.wavelet:3
 msgid "Pile d'images en entrée sous forme de tableau NumPy (possibilité d'envoyer une image directement)."
 msgstr "Input image stack in the form of a NumPy array (option to send a single image directly)."
 
@@ -124,9 +142,9 @@ msgstr "This method applies a tracking algorithm to the provided localization da
 msgid "Distance maximale autorisée entre deux points pour les relier entre deux plans successifs."
 msgstr "Maximum allowed distance between two points to connect them across two successive planes."
 
-#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:8
-#: palm_tracer.Processing.Palm.Palm.tracking:8
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:9
 #: palm_tracer.Processing.Palm.Palm.track_analysis:11
+#: palm_tracer.Processing.Palm.Palm.tracking:8
 msgid ":class:`DataFrame <pandas.DataFrame>` contenant les trajectoires détectées."
 msgstr ":class:`DataFrame <pandas.DataFrame>` containing the detected tracks."
 
@@ -153,7 +171,7 @@ msgstr "Point dispersion mode (0: stationary, 1: diffuse, 2: linear)."
 msgid "Nombre maximal de plans manquants pendant un scintillement. La DLL utilise l'écart entre les deux plans encadrant l'interruption, soit le nombre de plans manquants augmenté de un."
 msgstr "Maximum number of missing frames during blinking. The DLL uses the gap between the two frames surrounding the interruption, which is the number of missing frames plus one."
 
-#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:7
+#: of palm_tracer.Processing.Palm.Palm.blinking_reconnection:8
 msgid "Vitesse maximale d'un point entre deux plans (en pixel)."
 msgstr "Maximum speed of a point between two planes (in pixels)."
 
@@ -205,11 +223,11 @@ msgstr "Image magnification factor (default: `1` no magnification)."
 msgid "Image alignée."
 msgstr "Aligned image."
 
-#: of palm_tracer.Processing.Palm.Palm.wavelett:4
+#: of palm_tracer.Processing.Palm.Palm.wavelet:4
 msgid "Niveau d'ondelette en sortie."
 msgstr "Output wavelet level."
 
-#: of palm_tracer.Processing.Palm.Palm.wavelett:5
+#: of palm_tracer.Processing.Palm.Palm.wavelet:5
 msgid "Image décomposée."
 msgstr "Decomposed image."
 
@@ -218,30 +236,33 @@ msgid "Exécute un traitement avec une DLL PALM externe pour calibrer un modèle
 msgstr "Performs processing using an external PALM DLL to calibrate an astigmatism model for estimating an axial position."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:3
-msgid "Ensemble des points nécessaire à la calibration sous forme de tableau NumPy 2D avec pour colonnes [Sigma X, Sigma Y, Z]."
-msgstr "Set of points required for calibration in the form of a 2D NumPy array with columns [Sigma X, Sigma Y, Z]."
+msgid "Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z], avec les sigmas en pixels et Z en nanomètres."
+msgstr "Array (N, 3) containing the columns [SigmaX, SigmaY, Z], with sigmas in pixels and Z in nanometers."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:5
-msgid "Permet de centrer le modèle pour que si :math:`\\sigma_x(0) \\approx \\sigma_y(0)`."
-msgstr "Allows centering the model so that :math:`\\sigma_x(0) \\approx \\sigma_y(0)`."
+msgid "Centre le modèle afin que :math:`\\sigma_x(0) \\approx \\sigma_y(0)`."
+msgstr "Centers the model so that :math:`\\sigma_x(0) \\approx \\sigma_y(0)`."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_calibration:6
-#: palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:5
-msgid "Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne)."
-msgstr "Astigmatism model (a 2D NumPy array with 2 rows and 5 parameters per row)."
+msgid "DataFrame de forme (2, 5), indexé par axe, contenant les coefficients [Z0, W, C3, C4, A]."
+msgstr "DataFrame with shape (2, 5), indexed by axis, containing the coefficients [Z0, W, C3, C4, A]."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:1
 msgid "Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle."
 msgstr "Performs a calculation using an external PALM DLL to estimate an axial position based on a model."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:3
-msgid "Ensemble des points à estimer sous forme de tableau NumPy 2D avec pour colonnes [sigma_x, sigma_y]."
-msgstr "Set of points to be estimated in the form of a 2D NumPy array with columns [sigma_x, sigma_y]."
+msgid "Tableau (N, 2) contenant les colonnes [SigmaX, SigmaY] en pixels."
+msgstr "Array (N, 2) containing the columns [SigmaX, SigmaY] in pixels."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:5
+msgid "Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
+msgstr "Astigmatism model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:6
 msgid "Distance absolue maximale sur Z par rapport à l'origine."
 msgstr "Maximum absolute distance along the Z-axis relative to the origin."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:7
-msgid "Ensemble des Z estimés pour chaque point."
-msgstr "Set of estimated Z values for each point."
+msgid "Tableau (N, 2) contenant, pour chaque point, Z en nanomètres et l'erreur quadratique du modèle sur les deux sigmas en pixels carrés."
+msgstr "Array (N, 2) containing, for each point, Z in nanometers and the model's squared error on both sigmas in square pixels."

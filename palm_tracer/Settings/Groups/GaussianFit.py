@@ -27,6 +27,7 @@ class GaussianFit(BaseSettingGroup):
 	  par défaut : ``500`` nm.
 	- ``Model`` (:class:`~palm_tracer.Settings.Types.BrowseFile.BrowseFile`) : modèle d'astigmatisme spécifique à utiliser.
 	- ``Use default model`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise exclusivement le modèle utilisateur défini par défaut.
+	  La sélection du modèle spécifique est grisée et aucun modèle de secours n'est recherché si le fichier par défaut est absent ou invalide.
 	"""
 
 	label: str = "Gaussian Fit"
@@ -62,8 +63,12 @@ class GaussianFit(BaseSettingGroup):
 
 	##################################################
 	def toggle_fit_mode(self, mode: int):
-		"""Change le mode d'ajustement."""
-		if mode in (0, 1):  # On ne peut pas estimer Z Sigma X et Sigma Y.
+		"""
+		Masque et désactive l'estimation axiale lorsque les deux sigmas ne sont pas ajustés séparément.
+
+		:param mode: Indice du mode d'ajustement gaussien sélectionné.
+		"""
+		if mode in (0, 1):  # L'estimation de Z nécessite l'ajustement séparé de Sigma X et Sigma Y.
 			self._settings["Z"].value = False
 			self._settings["Z"].hide()
 		else:
@@ -71,7 +76,11 @@ class GaussianFit(BaseSettingGroup):
 
 	##################################################
 	def toggle_z_estimate(self, mode: bool):
-		"""Change le mode d'ajustement."""
+		"""
+		Affiche ou masque les paramètres de l'estimation axiale.
+
+		:param mode: Active l'affichage lorsque l'estimation de Z est sélectionnée.
+		"""
 		if mode:
 			self._settings["Z max"].show()
 			self._settings["Model"].show()
@@ -83,7 +92,11 @@ class GaussianFit(BaseSettingGroup):
 
 	##################################################
 	def toggle_default_model(self, active: bool):
-		"""Grise la sélection du modèle spécifique lorsque le modèle par défaut est demandé."""
+		"""
+		Grise la sélection du modèle spécifique lorsque le modèle par défaut est demandé.
+
+		:param active: Indique si le modèle par défaut est sélectionné.
+		"""
 		model = cast(BrowseFile, self._settings["Model"])
 		for ui in model._uis.values():
 			if ui.label is not None: ui.label.setEnabled(not active)

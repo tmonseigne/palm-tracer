@@ -1,3 +1,21 @@
+# English translations for PALM Tracer.
+# Copyright (C) 2026 Thibaut Monseigne
+# This file is distributed under the same license as PALM Tracer.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-13 11:40+0200\n"
+"PO-Revision-Date: 2026-10-13 09:48+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Tools.FileIO.rst:2
 msgid "FileIO"
 msgstr ""
@@ -5,6 +23,22 @@ msgstr ""
 #: of palm_tracer.Tools.FileIO:1
 msgid "Fournit les fonctions de lecture, d'écriture et de gestion des fichiers."
 msgstr "Provides file-reading, writing, and management functions."
+
+#: of palm_tracer.Tools.FileIO.CONFIG_DIR:1
+msgid "Dossier utilisateur contenant les paramètres persistants et les modèles d'astigmatisme."
+msgstr "User folder containing persistent settings and astigmatism models."
+
+#: of palm_tracer.Tools.FileIO.USER_SETTINGS_FILE:1
+msgid "Fichier des derniers paramètres enregistrés par le widget principal."
+msgstr "File containing the latest settings saved by the main widget."
+
+#: of palm_tracer.Tools.FileIO.USER_ASTIGMATISM_MODEL:1
+msgid "Dernier modèle calculé, utilisé en dernier recours par la recherche automatique."
+msgstr "Last computed model, used as the final fallback during automatic model lookup."
+
+#: of palm_tracer.Tools.FileIO.DEFAULT_ASTIGMATISM_MODEL:1
+msgid "Modèle enregistré explicitement comme défaut, exclu de la recherche automatique."
+msgstr "Model explicitly saved as the default, excluded from automatic model lookup."
 
 #: of palm_tracer.Tools.FileIO.add_extension:1
 msgid "Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle."

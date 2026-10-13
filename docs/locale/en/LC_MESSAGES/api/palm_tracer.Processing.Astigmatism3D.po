@@ -1,6 +1,24 @@
+# English translations for PALM Tracer.
+# Copyright (C) 2026 Thibaut Monseigne
+# This file is distributed under the same license as PALM Tracer.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-13 11:47+0200\n"
+"PO-Revision-Date: 2026-10-13 09:48+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Processing.Astigmatism3D.rst:2
 msgid "Astigmatism3D"
-msgstr "Astigmatism3D"
+msgstr ""
 
 #: of palm_tracer.Processing.Astigmatism3D:1
 msgid "Fournit les fonctions de calibration et d'estimation de la position axiale par astigmatisme 3D."
@@ -16,29 +34,33 @@ msgstr "The plane indices are assumed to be linearly distributed between ``z_min
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:4
 msgid "``min(planes)``  ⇾ ``z_min``"
-msgstr "``min(planes)``  ⇾ ``z_min``"
+msgstr ""
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:5
 msgid "``max(planes)``  ⇾ ``z_max``"
-msgstr "``max(planes)``  ⇾ ``z_max``"
+msgstr ""
 
 #: of palm_tracer.Processing.Astigmatism3D.z_from_planes:6
 msgid "valeurs intermédiaires interpolées linéairement."
 msgstr "linearly interpolated intermediate values."
 
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:8
+msgid "Si tous les indices sont identiques, chaque position est placée au milieu de l'intervalle."
+msgstr "If all indices are identical, each position is placed at the midpoint of the interval."
+
 #: ../../api/palm_tracer.Processing.Astigmatism3D.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
-#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:8
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:10
 msgid "Tableau des indices de plans (entiers). Peut être de n'importe quelle forme."
 msgstr "Array of plane indices (integers). May be of any shape."
 
-#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:9
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:11
 msgid "Valeur minimale de Z correspondant au premier plan."
 msgstr "Minimum Z value corresponding to the first plane."
 
-#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:10
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:12
 msgid "Valeur maximale de Z correspondant au dernier plan."
 msgstr "Maximum Z value corresponding to the last plane."
 
@@ -46,7 +68,7 @@ msgstr "Maximum Z value corresponding to the last plane."
 msgid "Renvoie"
 msgstr "Returns"
 
-#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:12
+#: of palm_tracer.Processing.Astigmatism3D.z_from_planes:14
 msgid "Tableau NumPy, de même forme que ``planes``, contenant les valeurs de Z estimées."
 msgstr "NumPy array, of the same shape as ``planes``, containing the estimated Z values."
 
@@ -87,47 +109,51 @@ msgid "si un plan ne contient qu'une seule localisation, celle-ci est conservée
 msgstr "If a plan contains only a single localization, that location is retained;"
 
 #: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:6
-msgid "si un plan contient plusieurs localisations, seule la localisation la plus proche de la moyenne ``(X, Y)``;"
-msgstr "if a plan contains multiple localizations, only the location closest to the mean ``(X, Y)`` is retained;"
+msgid "si un plan contient plusieurs localisations, seule la localisation la plus proche de la moyenne ``(X, Y)`` est conservée ;"
+msgstr "if a plane contains multiple localizations, only the localization closest to the mean ``(X, Y)`` is retained;"
 
 #: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:7
 msgid "si aucun plan ne contient une unique localisation, la désambiguïsation n'est pas possible de manière fiable et le DataFrame d'origine est renvoyé."
 msgstr "if no plan contains a single localization, disambiguation is not reliably possible and the original DataFrame is returned."
 
 #: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:9
+msgid "Si la colonne ``Bead`` est présente, seules les localisations de la bille identifiée à l'index ``0`` sont conservées. Un tableau vide ou des colonnes requises manquantes entraînent le retour des données d'origine."
+msgstr "If the ``Bead`` column is present, only the localizations of the bead identified at index ``0`` are retained. An empty table or missing required columns causes the original data to be returned."
+
+#: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:12
 msgid "DataFrame contenant au minimum les colonnes ``X``, ``Y`` et ``Plane``."
 msgstr "DataFrame containing at least the columns ``X``, ``Y``, and ``Plane``."
 
-#: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:10
-msgid "DataFrame filtré avec au plus une localisation par plan."
-msgstr "Filtered DataFrame with at most one localization per plane."
+#: of palm_tracer.Processing.Astigmatism3D.remove_multi_beads:13
+msgid "Localisations de la bille sélectionnée, localisations désambiguïsées par plan ou données d'origine si le filtrage est impossible."
+msgstr "Localizations of the selected bead, localizations disambiguated by plane, or the original data if filtering is impossible."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:1
-msgid "Modèle d'astigmatisme sigma(z)."
-msgstr "Astigmatic model sigma(z)."
+msgid "Évalue le sigma d'un axe du modèle d'astigmatisme aux positions axiales demandées."
+msgstr "Evaluates sigma for one axis of the astigmatism model at the requested axial positions."
 
-#: of palm_tracer.Processing.Astigmatism3D.find_model_center:8
-#: palm_tracer.Processing.Astigmatism3D.model_projection_validity:27
-#: palm_tracer.Processing.Astigmatism3D.model_validity:16
-#: palm_tracer.Processing.Astigmatism3D.sigma_model:3
-msgid "Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
-msgstr "Astigmatic model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
+#: of palm_tracer.Processing.Astigmatism3D.sigma_model:3
+msgid "Coefficients d'un axe de forme (5,) : [Z0, W, C3, C4, A], avec Z0, W et A dans les mêmes unités que Z."
+msgstr "Coefficients for one axis, with shape (5,): [Z0, W, C3, C4, A], with Z0, W, and A in the same units as Z."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:4
-msgid "Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle."
-msgstr "Set of Z values to use to find the sigma based on the model."
+msgid "Position axiale ou tableau des positions axiales auxquelles évaluer le sigma."
+msgstr "Axial position or array of axial positions at which to evaluate sigma."
 
-#: of palm_tracer.Processing.Astigmatism3D.sigma_model:5
-msgid "Taille des pixels en nanomètres."
-msgstr "Pixel size in nanometers."
+#: of palm_tracer.Processing.Astigmatism3D.find_model_center:10
+#: palm_tracer.Processing.Astigmatism3D.model_projection_validity:36
+#: palm_tracer.Processing.Astigmatism3D.model_validity:17
+#: palm_tracer.Processing.Astigmatism3D.sigma_model:5
+msgid "Taille du pixel dans les mêmes unités que Z (ex. nm)."
+msgstr "Pixel size in the same units as Z (e.g., nm)."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:6
 msgid "Facteur d'agrandissement (les fichiers de localisation sauvegardés le sont avant agrandissement donc à laisser à 1)."
 msgstr "Upscale factor (localization files are saved before upscale, so leave this at 1)."
 
 #: of palm_tracer.Processing.Astigmatism3D.sigma_model:7
-msgid "Tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle."
-msgstr "NumPy array containing sigma values as a function of Z for the model."
+msgid "Sigma en pixels, scalaire ou tableau de même forme que les positions axiales."
+msgstr "Sigma in pixels, as a scalar or an array with the same shape as the axial positions."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_validity:1
 msgid "Calcule des métriques d'erreur entre (Sx, Sy) observés et (Sx, Sy) prédits par le modèle aux mêmes positions Z."
@@ -149,17 +175,19 @@ msgstr "R² (*coefficient of determination*): the proportion of the variance in 
 msgid "Tableau (N, 3) contenant les colonnes [Sx, Sy, Z] (sigmas en pixels, Z en unités cohérentes avec le modèle)."
 msgstr "Array (N, 3) containing the columns [Sx, Sy, Z] (standard deviations in pixels, Z in units consistent with the model)."
 
-#: of palm_tracer.Processing.Astigmatism3D.model_validity:17
-msgid "Taille pixel dans les mêmes unités que Z (par ex. nm), utilisée dans le calcul de sigma."
-msgstr "Pixel size in the same units as Z (e.g., nm), used in the calculation of sigma."
+#: of palm_tracer.Processing.Astigmatism3D.find_model_center:8
+#: palm_tracer.Processing.Astigmatism3D.model_projection_validity:34
+#: palm_tracer.Processing.Astigmatism3D.model_validity:16
+msgid "Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
+msgstr "Astigmatism model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_validity:18
 msgid "Facteur d'échantillonnage (adimensionnel) appliqué dans le calcul de sigma (laisser à 1)."
 msgstr "Sampling factor (dimensionless) applied in the calculation of sigma (leave at 1)."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_validity:19
-msgid "Dictionnaire de métriques : RMSE/MAE (en pixels) et R² (adimensionnel) pour X, Y et global."
-msgstr "Metric dictionary: RMSE/MAE (in pixels) and R² (dimensionless) for X, Y, and global."
+msgid "RMSE et MAE en pixels et R² adimensionnel pour chaque axe, ainsi que le RMSE combiné des deux axes."
+msgstr "RMSE and MAE in pixels and dimensionless R² for each axis, along with the combined RMSE of both axes."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:1
 msgid "Évalue la validité d'un modèle d'astigmatisme pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle."
@@ -167,7 +195,7 @@ msgstr "Evaluates the validity of an astigmatic model for estimating Z by projec
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:3
 msgid "Le Z estimé correspond au point de la courbe le plus proche dans le plan (SigmaX, SigmaY). Les métriques retournées quantifient à la fois la précision axiale et la cohérence des données avec le modèle."
-msgstr "The estimated Z corresponds to the point on the curve closest to the (SigmaX, SigmaY) plane. The returned metrics quantify both axial accuracy and the consistency of the data with the model."
+msgstr "The estimated Z corresponds to the nearest point on the curve in the (SigmaX, SigmaY) plane. The returned metrics quantify both axial accuracy and data consistency with the model."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:6
 msgid "RMSE_Z (*Root Mean Square Error*) : Erreur quadratique moyenne sur Z. Mesure de la précision axiale typique. Modèle parfait (sans bruit) : RMSE_Z = 0."
@@ -178,8 +206,8 @@ msgid "MAE_Z (*Mean Absolute Error*) : Erreur moyenne absolue sur Z, plus robust
 msgstr "MAE_Z (*Mean Absolute Error*): Mean absolute error on Z, more robust to outliers than RMSE. Perfect model: MAE_Z = 0."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:12
-msgid "P95_Z : 95e percentile de ΔZ. Indique une borne haute réaliste de l'erreur axiale pour la majorité des localisations."
-msgstr "P95_Z: 95th percentile of ΔZ. Indicates a realistic upper bound on the axial error for the majority of locations."
+msgid "P95_Z : 95e percentile de la valeur absolue de ΔZ. Indique une borne haute de l'erreur axiale pour 95 % des localisations."
+msgstr "P95_Z: 95th percentile of the absolute value of ΔZ. Provides an upper bound on the axial error for 95 % of localizations."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:14
 msgid "Bias_Z : Moyenne de ΔZ. Reflète un biais systématique du modèle. Modèle parfait : Bias_Z = 0."
@@ -198,32 +226,35 @@ msgid "P95_dist_px : 95e percentile de la distance à la courbe. Utile pour déf
 msgstr "P95_dist_px: 95th percentile of the distance to the curve. Useful for defining a threshold to reject unreliable estimates."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:24
-msgid "slope_mean : Pente moyenne de la courbe σx(z) - σy(z) en pixel par nanomètres."
-msgstr "slope_mean: Average slope of the curve σx(z) - σy(z) in pixels per nanometer."
+msgid "slope_mean : Moyenne de la valeur absolue de la dérivée de σx(z) - σy(z), en pixels par unité de Z (pixels par nanomètre si Z est en nm). Elle est calculée sur toute la courbe échantillonnée et ne correspond pas à une régression linéaire des observations."
+msgstr "slope_mean: Mean absolute derivative of σx(z) - σy(z), in pixels per unit of Z (pixels per nanometer if Z is in nm). It is computed over the entire sampled curve and does not represent a linear regression of the observations."
 
-#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:26
+#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:27
+msgid "astigmatism : Distance absolue en Z entre les minima de σx(z) et σy(z), dans les unités de Z (nanomètres). Les minima sont recherchés sur la courbe échantillonnée dans [-z_max, +z_max] ; la précision dépend de ``n_curve``."
+msgstr "astigmatism: Absolute axial distance between the minima of σx(z) and σy(z), in the units of Z (nanometers). The minima are located on the curve sampled over [-z_max, +z_max]; the precision depends on ``n_curve``."
+
+#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:30
+msgid "Les erreurs axiales restent soumises à la résolution de la courbe échantillonnée, même pour des observations sans bruit. Le filtrage des observations aux bornes de Z doit être effectué par l'appelant lorsqu'il est nécessaire."
+msgstr "Axial errors remain limited by the resolution of the sampled curve, even for noise-free observations. The caller must filter observations at the Z limits when needed."
+
+#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:33
 msgid "Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle)."
 msgstr "Array (N, 3) containing the columns [SigmaX, SigmaY, Z] (sigmas in pixels, Z in units consistent with the model)."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:9
-#: palm_tracer.Processing.Astigmatism3D.model_projection_validity:28
+#: palm_tracer.Processing.Astigmatism3D.model_projection_validity:35
 msgid "Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max])."
 msgstr "Maximum value of Z (the model is evaluated over [-z_max, +z_max])."
 
-#: of palm_tracer.Processing.Astigmatism3D.find_model_center:10
-#: palm_tracer.Processing.Astigmatism3D.model_projection_validity:29
-msgid "Taille du pixel dans les mêmes unités que Z (ex. nm)."
-msgstr "Pixel size in the same units as Z (e.g., nm)."
+#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:37
+msgid "Nombre de points d'échantillonnage de la courbe modèle en Z. Une valeur élevée réduit la quantification des positions projetées."
+msgstr "Number of points used to sample the model curve along Z. A higher value reduces quantization of the projected positions."
 
-#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:30
-msgid "Nombre de points d'échantillonnage de la courbe modèle en Z. Doit être suffisamment grand pour éviter une quantification de Z."
-msgstr "Number of sampling points on the model curve in Z. Must be sufficiently large to avoid quantization of Z."
-
-#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:31
+#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:38
 msgid "Facteur d'échantillonnage (adimensionnel) utilisé dans le modèle de sigma (généralement égal à 1)."
 msgstr "Sampling factor (dimensionless) used in the sigma model (generally equal to 1)."
 
-#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:32
+#: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:39
 msgid "Dictionnaire de métriques décrivant la précision axiale (en unités de Z) et la cohérence des données avec le modèle (distances en pixels)."
 msgstr "Dictionary of metrics describing axial accuracy (in units of Z) and data consistency with the model (distances in pixels)."
 
@@ -232,8 +263,8 @@ msgid "Recherche la position axiale pour laquelle les deux sigmas sont les plus 
 msgstr "Finds the axial position where the two sigmas are closest."
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:3
-msgid "La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter :"
-msgstr "The method uniformly scans the interval covered by ``z`` to detect:"
+msgid "La méthode balaie uniformément l'intervalle [-z_max, +z_max] afin de détecter :"
+msgstr "The method uniformly scans the interval [-z_max, +z_max] to detect:"
 
 #: of palm_tracer.Processing.Astigmatism3D.find_model_center:4
 msgid "soit un zéro exact de la différence entre les deux courbes de sigma ;"

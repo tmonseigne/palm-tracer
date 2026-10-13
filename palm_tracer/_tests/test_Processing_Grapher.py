@@ -28,7 +28,7 @@ def _save_output(res: go.Figure, path: Path):
 
 	:param res: Figure Plotly à enregistrer.
 	:param path: Chemin du fichier JSON.
-	:return: Aucune valeur.
+	:return: Dictionnaire JSON allégé de la figure, même si l'enregistrement est désactivé.
 	"""
 	data = get_light_json(res.to_plotly_json())
 	if save_output:

@@ -13,7 +13,16 @@ LOC_COLS = ["Plane", "X", "Y", "Sigma X", "Sigma Y", "Z"]
 ##################################################
 def get_dataset(model: np.ndarray = REF_MODEL, z_max: float = Z_MAX, n: int = N_POINTS,
 				pixel_size: float = PIXEL_SIZE, sampling: float = SAMPLING) -> np.ndarray:
-	"""Génère un dataset synthétique (Sx, Sy, Z)."""
+	"""
+	Génère des observations synthétiques (SigmaX, SigmaY, Z) avec un bruit gaussien reproductible sur les sigmas.
+
+	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
+	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
+	:param n: Nombre de positions axiales régulièrement espacées.
+	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
+	:param sampling: Facteur d'agrandissement appliqué aux sigmas du modèle.
+	:return: Tableau (N, 3) des sigmas bruités en pixels et des positions axiales.
+	"""
 	rng = np.random.default_rng(42)
 
 	# Z uniformément réparti entre [-z_max, +z_max].

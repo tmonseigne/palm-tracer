@@ -173,7 +173,7 @@ class PALMTracerWidget(BaseNapariWidget):
 
 	##################################################
 	def _on_startup(self):
-		"""Action lors du démarrage après l'initialisation de l'UI."""
+		"""Crée le dossier utilisateur si nécessaire et charge les derniers paramètres enregistrés après l'initialisation de l'interface."""
 		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
 		self._load_setting(FileIO.USER_SETTINGS_FILE)
 
@@ -236,7 +236,7 @@ class PALMTracerWidget(BaseNapariWidget):
 	##################################################
 	def _thread_process(self, compute_func: Callable[[], None], post_func: Optional[Callable[[], None]] = None):
 		"""
-		Démarre un traitement long dans un thread séparé et mets à jour l'interface.
+		Démarre un traitement long dans un thread séparé et met à jour l'interface.
 
 		Cette méthode désactive l'interface utilisateur (UI) et change le curseur en "attente" pendant l'exécution de la fonction passée en paramètre.
 		Elle vérifie si un fichier est en cours de prévisualisation avant de lancer le traitement.
@@ -277,7 +277,7 @@ class PALMTracerWidget(BaseNapariWidget):
 	##################################################
 	def _process_done(self):
 		"""
-		Finalise un traitement en réactivant l'interface et mets à jour l'affichage.
+		Finalise un traitement en réactivant l'interface et met à jour l'affichage.
 
 		Cette méthode est appelée lorsque le traitement est terminé.
 		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
@@ -306,7 +306,11 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	##################################################
 	def _load_setting(self, filename: Path):
-		"""Chargement d'un fichier de paramètres."""
+		"""
+		Charge les paramètres enregistrés, puis désactive la prévisualisation et les filtres.
+
+		:param filename: Chemin du fichier JSON à charger ; un fichier absent est ignoré.
+		"""
 		if filename.exists():
 			try:
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
@@ -333,8 +337,8 @@ class PALMTracerWidget(BaseNapariWidget):
 
 	##################################################
 	def _on_change_setting(self):
-		"""Met à jour le fichier de paramètres général."""
-		# Save settings
+		"""Enregistre les paramètres courants dans le fichier utilisateur persistant."""
+		# Sauvegarde des paramètres dans le dossier utilisateur.
 		FileIO.save_json(str(FileIO.USER_SETTINGS_FILE), self.pt.settings.to_compact_dict())
 
 	# ==================================================

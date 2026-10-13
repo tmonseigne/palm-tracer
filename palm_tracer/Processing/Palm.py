@@ -373,10 +373,10 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
 
-		:param points: Ensemble des points nécessaire à la calibration sous forme de tableau NumPy 2D avec pour colonnes [Sigma X, Sigma Y, Z].
+		:param points: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z], avec les sigmas en pixels et Z en nanomètres.
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param center: Permet de centrer le modèle pour que si :math:`\\sigma_x(0) \\approx \\sigma_y(0)`.
-		:return: Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne).
+		:param center: Centre le modèle afin que :math:`\\sigma_x(0) \\approx \\sigma_y(0)`.
+		:return: DataFrame de forme (2, 5), indexé par axe, contenant les coefficients [Z0, W, C3, C4, A].
 		"""
 		pts = self._as_c_contig(points, np.dtype(float), writeable=False)
 		out = np.empty(Parsing.SHAPE_MODEL, dtype=float, order="C")
@@ -390,11 +390,11 @@ class Palm:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle.
 
-		:param sigmas: Ensemble des points à estimer sous forme de tableau NumPy 2D avec pour colonnes [sigma_x, sigma_y].
+		:param sigmas: Tableau (N, 2) contenant les colonnes [SigmaX, SigmaY] en pixels.
 		:param pixel_size: Taille des pixels en nanomètres.
-		:param model: Modèle d'astigmatisme (un tableau NumPy 2D de 2 lignes et 5 paramètres par ligne).
+		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param z_max: Distance absolue maximale sur Z par rapport à l'origine.
-		:return: Ensemble des Z estimés pour chaque point.
+		:return: Tableau (N, 2) contenant, pour chaque point, Z en nanomètres et l'erreur quadratique du modèle sur les deux sigmas en pixels carrés.
 		"""
 
 		n = len(sigmas)

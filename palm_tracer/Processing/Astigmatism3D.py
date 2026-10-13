@@ -22,6 +22,8 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 		- ``max(planes)``  ⇾ ``z_max``
 		- valeurs intermédiaires interpolées linéairement.
 
+	Si tous les indices sont identiques, chaque position est placée au milieu de l'intervalle.
+
 	:param planes: Tableau des indices de plans (entiers). Peut être de n'importe quelle forme.
 	:param z_min: Valeur minimale de Z correspondant au premier plan.
 	:param z_max: Valeur maximale de Z correspondant au dernier plan.
@@ -59,11 +61,14 @@ def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 
 	Le principe est le suivant :
 		- si un plan ne contient qu'une seule localisation, celle-ci est conservée ;
-		- si un plan contient plusieurs localisations, seule la localisation la plus proche de la moyenne ``(X, Y)``;
+		- si un plan contient plusieurs localisations, seule la localisation la plus proche de la moyenne ``(X, Y)`` est conservée ;
 		- si aucun plan ne contient une unique localisation, la désambiguïsation n'est pas possible de manière fiable et le DataFrame d'origine est renvoyé.
 
+	Si la colonne ``Bead`` est présente, seules les localisations de la bille identifiée à l'index ``0`` sont conservées.
+	Un tableau vide ou des colonnes requises manquantes entraînent le retour des données d'origine.
+
 	:param loc: DataFrame contenant au minimum les colonnes ``X``, ``Y`` et ``Plane``.
-	:return: DataFrame filtré avec au plus une localisation par plan.
+	:return: Localisations de la bille sélectionnée, localisations désambiguïsées par plan ou données d'origine si le filtrage est impossible.
 	"""
 	if loc.empty: return loc
 	required_columns = {"X", "Y", "Plane"}
@@ -111,13 +116,13 @@ def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 ##################################################
 def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sampling: float = 1) -> np.ndarray | float:
 	"""
-	Modèle d'astigmatisme sigma(z).
+	Évalue le sigma d'un axe du modèle d'astigmatisme aux positions axiales demandées.
 
-	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
-	:param z: Ensemble des Z à utiliser pour trouver le sigma en fonction du modèle.
-	:param pixel_size: Taille des pixels en nanomètres.
+	:param model: Coefficients d'un axe de forme (5,) : [Z0, W, C3, C4, A], avec Z0, W et A dans les mêmes unités que Z.
+	:param z: Position axiale ou tableau des positions axiales auxquelles évaluer le sigma.
+	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 	:param sampling: Facteur d'agrandissement (les fichiers de localisation sauvegardés le sont avant agrandissement donc à laisser à 1).
-	:return: Tableau NumPy contenant les valeurs de sigma en fonction de Z pour le modèle.
+	:return: Sigma en pixels, scalaire ou tableau de même forme que les positions axiales.
 	"""
 	z0, w, c3, c4, a = model
 
@@ -149,9 +154,9 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 
 	:param dataset: Tableau (N, 3) contenant les colonnes [Sx, Sy, Z] (sigmas en pixels, Z en unités cohérentes avec le modèle).
 	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
-	:param pixel_size: Taille pixel dans les mêmes unités que Z (par ex. nm), utilisée dans le calcul de sigma.
+	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
 	:param sampling: Facteur d'échantillonnage (adimensionnel) appliqué dans le calcul de sigma (laisser à 1).
-	:return: Dictionnaire de métriques : RMSE/MAE (en pixels) et R² (adimensionnel) pour X, Y et global.
+	:return: RMSE et MAE en pixels et R² adimensionnel pour chaque axe, ainsi que le RMSE combiné des deux axes.
 	"""
 	sx_obs, sy_obs, z = dataset[:, 0], dataset[:, 1], dataset[:, 2]
 	sx_hat, sy_hat = sigma_model(model[0], z, pixel_size, sampling), sigma_model(model[1], z, pixel_size, sampling)
@@ -164,7 +169,7 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 
 	# R² (sur sigma) : utile pour un score "qualité de l'ajustement"
 	def r2(y, yhat):
-		"""Basic R2 Compute."""
+		"""Calcule le coefficient de détermination, ou NaN si la variance observée est nulle."""
 		ss_res, ss_tot = np.sum((y - yhat) ** 2), np.sum((y - np.mean(y)) ** 2)
 		return float(1.0 - ss_res / ss_tot) if ss_tot > 0 else float("nan")
 
@@ -189,7 +194,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	- MAE_Z (*Mean Absolute Error*) : Erreur moyenne absolue sur Z, plus robuste aux outliers que le RMSE.
 	  Modèle parfait : MAE_Z = 0.
 
-	- P95_Z : 95e percentile de ΔZ. Indique une borne haute réaliste de l'erreur axiale pour la majorité des localisations.
+	- P95_Z : 95e percentile de la valeur absolue de ΔZ. Indique une borne haute de l'erreur axiale pour 95 % des localisations.
 
 	- Bias_Z : Moyenne de ΔZ. Reflète un biais systématique du modèle.
 	  Modèle parfait : Bias_Z = 0.
@@ -201,16 +206,20 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 
 	- P95_dist_px : 95e percentile de la distance à la courbe. Utile pour définir un seuil de rejet des estimations peu fiables.
 
-	- slope_mean : Pente moyenne de la courbe σx(z) - σy(z) en pixel par nanomètres.
+	- slope_mean : Moyenne de la valeur absolue de la dérivée de σx(z) - σy(z), en pixels par unité de Z (pixels par nanomètre si Z est en nm).
+	  Elle est calculée sur toute la courbe échantillonnée et ne correspond pas à une régression linéaire des observations.
 
 	- astigmatism : Distance absolue en Z entre les minima de σx(z) et σy(z), dans les unités de Z (nanomètres).
 	  Les minima sont recherchés sur la courbe échantillonnée dans [-z_max, +z_max] ; la précision dépend de ``n_curve``.
+
+	Les erreurs axiales restent soumises à la résolution de la courbe échantillonnée, même pour des observations sans bruit.
+	Le filtrage des observations aux bornes de Z doit être effectué par l'appelant lorsqu'il est nécessaire.
 
 	:param dataset: Tableau (N, 3) contenant les colonnes [SigmaX, SigmaY, Z] (sigmas en pixels, Z dans des unités cohérentes avec le modèle).
 	:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 	:param z_max: Valeur maximale de Z (le modèle est évalué sur [-z_max, +z_max]).
 	:param pixel_size: Taille du pixel dans les mêmes unités que Z (ex. nm).
-	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z. Doit être suffisamment grand pour éviter une quantification de Z.
+	:param n_curve: Nombre de points d'échantillonnage de la courbe modèle en Z. Une valeur élevée réduit la quantification des positions projetées.
 	:param sampling: Facteur d'échantillonnage (adimensionnel) utilisé dans le modèle de sigma (généralement égal à 1).
 	:return: Dictionnaire de métriques décrivant la précision axiale (en unités de Z) et la cohérence des données avec le modèle (distances en pixels).
 	"""
@@ -229,7 +238,7 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 	dz = z_est - z_true
 
 	return {
-			# Métriques en nanomètres
+			# Métriques dans les unités de Z, généralement en nanomètres.
 			"rmse_z":      float(np.sqrt(np.mean(dz * dz))),
 			"mae_z":       float(np.mean(np.abs(dz))),
 			"p95_abs_z":   float(np.percentile(np.abs(dz), 95)),
@@ -256,7 +265,7 @@ def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> flo
 	"""
 	Recherche la position axiale pour laquelle les deux sigmas sont les plus proches.
 
-	La méthode balaie uniformément l'intervalle couvert par ``z`` afin de détecter :
+	La méthode balaie uniformément l'intervalle [-z_max, +z_max] afin de détecter :
 		- soit un zéro exact de la différence entre les deux courbes de sigma ;
 		- soit un changement de signe, auquel cas une bissection locale est appliquée ;
 		- soit, à défaut, la position minimisant la valeur absolue de cette différence.

@@ -1,3 +1,21 @@
+# English translations for PALM Tracer.
+# Copyright (C) 2026 Thibaut Monseigne
+# This file is distributed under the same license as PALM Tracer.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-13 11:42+0200\n"
+"PO-Revision-Date: 2026-10-13 09:48+0000\n"
+"Last-Translator: Codex\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Processing.Grapher.rst:2
 msgid "Grapher"
 msgstr ""
@@ -50,7 +68,7 @@ msgstr "Plots a Seaborn-style histogram of the data using Plotly and, optionally
 msgid "Données sous forme de tableau NumPy 1D/ND (aplati)."
 msgstr "Data in the form of a 1D/ND (flattened) NumPy array."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:14
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:16
 #: palm_tracer.Processing.Grapher.Grapher.cloud:4
 #: palm_tracer.Processing.Grapher.Grapher.histogram:4
 #: palm_tracer.Processing.Grapher.Grapher.scatter:4
@@ -196,38 +214,38 @@ msgid "``\"slope\"`` : Courbe de la différence σx(z) - σy(z), utile pour esti
 msgstr "``\"slope\"``: Curve of the difference σx(z) - σy(z), useful for estimating the monotonicity and sensitivity of the model around Z = 0."
 
 #: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:9
-msgid "Si des données expérimentales sont fournies, elles sont superposées sous forme de points (sans interaction hover) dans les modes ``\"cross\"`` et ``\"slope\"``."
-msgstr "If experimental data are provided, they are overlaid as points (without hover interaction) in the ``\"cross\"`` and ``\"slope\"`` modes."
+msgid "Si des données expérimentales sont fournies, elles sont superposées sous forme de points (sans interaction hover) dans les modes ``\"cross\"`` et ``\"slope\"``. Les points dont Z atteint ou dépasse les bornes ±``z_max`` sont exclus de l'affichage. Dans ces deux modes, la légende permet d'afficher ou de masquer chaque courbe et chaque série de points indépendamment. Le mode ``\"cross\"`` ajoute deux repères verticaux rouges en tirets aux minima de σx et σy."
+msgstr "When experimental data are provided, they are overlaid as points (without hover interaction) in ``\"cross\"`` and ``\"slope\"`` modes. Points whose Z reaches or exceeds the ±``z_max`` limits are excluded from the plot. In both modes, the legend allows each curve and point series to be shown or hidden independently. The ``\"cross\"`` mode adds two red dashed vertical lines at the minima of σx and σy."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:12
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:14
 msgid "Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A]."
-msgstr "Astigmatic model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
+msgstr "Astigmatism model with shape (2, 5): X parameters followed by Y parameters, each row = [Z0, W, C3, C4, A]."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:13
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:15
 msgid "Données expérimentales optionnelles de forme (N, 3) : ``[σx, σy, Z]``."
 msgstr "Optional experimental data of form (N, 3): ``[σx, σy, Z]``."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:15
-msgid "Taille du pixel dans les mêmes unités que Z (ex. nm). Utilisé pour l’évaluation du modèle."
-msgstr "Pixel size in the same units as Z (e.g., nm). Used for model evaluation."
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:17
+msgid "Taille du pixel dans les mêmes unités que Z (ex. nm)."
+msgstr "Pixel size in the same units as Z (e.g., nm)."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:16
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:18
 #, python-brace-format
 msgid "Valeur maximale (en valeur absolue) de l’intervalle Z : :math:`Z \\in [-z_{max}, z_{max}]`."
 msgstr "Maximum value (in absolute terms) of the Z interval: :math:`Z \\in [-z_{max}, z_{max}]`."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:17
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:19
 msgid "Mode de visualisation : ``\"curve\"`` : σX vs σY (paramétré par Z), ``\"cross\"`` : σX(Z) et σY(Z), ``\"slope\"`` : σX(Z) - σY(Z)."
 msgstr "Plot mode: ``\"curve\"``: σX vs σY (scaled by Z), ``\"cross\"``: σX(Z) and σY(Z), ``\"slope\"``: σX(Z) - σY(Z)."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:18
-msgid "Nombre de points utilisés pour échantillonner la courbe. Plus la valeur est élevée, plus la courbe est lisse (coût négligeable)."
-msgstr "Number of points used to sample the curve. The higher the value, the smoother the curve (negligible cost)."
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:20
+msgid "Nombre de points utilisés pour échantillonner la courbe et repérer ses minima ; une valeur élevée améliore la résolution axiale."
+msgstr "Number of points used to sample the curve and locate its minima; a higher value improves axial resolution."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:19
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:21
 msgid "Objet Plotly :class:`go.Figure <plotly.graph_objects.Figure>` prêt à être affiché."
 msgstr "Plotly object :class:`go.Figure <plotly.graph_objects.Figure>` ready to be displayed."
 
-#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:20
+#: of palm_tracer.Processing.Grapher.Grapher.astigmatism3d:22
 msgid "Si les dimensions du modèle ne correspondent pas à celles attendues (2x5)."
 msgstr "If the model dimensions do not match the expected ones (2x5)."
