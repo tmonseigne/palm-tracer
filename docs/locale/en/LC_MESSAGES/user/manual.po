@@ -1,3 +1,15 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: ../../user/manual.rst:2
 msgid "Manuel d'utilisation"
 msgstr "User manual"
@@ -184,7 +196,7 @@ msgstr "Batch (file management)"
 
 #: ../../user/manual.rst:110
 msgid "Calibration"
-msgstr "Calibration"
+msgstr ""
 
 #: ../../user/manual.rst:111
 msgid "Onglets :"
@@ -192,7 +204,7 @@ msgstr "Tabs:"
 
 #: ../../user/manual.rst:112
 msgid "Processing"
-msgstr "Processing"
+msgstr ""
 
 #: ../../user/manual.rst:113
 msgid "Paramètres de localisation"
@@ -212,7 +224,7 @@ msgstr "Start Processing button (processing in a separate thread)"
 
 #: ../../user/manual.rst:117
 msgid "Visualization"
-msgstr "Visualization"
+msgstr ""
 
 #: ../../user/manual.rst:118
 msgid "Galerie de ROI."
@@ -228,7 +240,7 @@ msgstr "Graph viewer"
 
 #: ../../user/manual.rst:122
 msgid "Filtering"
-msgstr "Filtering"
+msgstr ""
 
 #: ../../user/manual.rst:123
 msgid "paramètres de filtrage des localisations et pistes"
@@ -364,7 +376,7 @@ msgstr "**Localization**"
 
 #: ../../user/manual.rst:194
 msgid "**Tracking**"
-msgstr "**Tracking**"
+msgstr ""
 
 #: ../../user/manual.rst:195
 msgid "**Analyses des trajectoires**"
@@ -416,7 +428,7 @@ msgstr "**Fit**: fitting method used to precisely localize molecules (None, Gaus
 
 #: ../../user/manual.rst:222
 msgid "Tracking"
-msgstr "Tracking"
+msgstr ""
 
 #: ../../user/manual.rst:224
 msgid "La section *Tracking* est utilisée pour relier les détections entre plans afin de reconstruire des trajectoires (si votre acquisition est adaptée à cette analyse)."
@@ -432,7 +444,7 @@ msgstr "**Max Distance**: maximum distance in pixels between two frames."
 
 #: ../../user/manual.rst:228
 msgid "**Blinking Reconnection**"
-msgstr "**Blinking Reconnection**"
+msgstr ""
 
 #: ../../user/manual.rst:-1
 msgid "Paramètres de reconnexion en cas de scintillement."
@@ -576,7 +588,7 @@ msgstr "The filter on X or Y displays a red rectangle in the Napari visualizatio
 
 #: ../../user/manual.rst:305
 msgid "FAQ"
-msgstr "FAQ"
+msgstr ""
 
 #: ../../user/manual.rst:308
 msgid "1. Pourquoi Napari se ferme-t-il lors du lancement du Plugin ?"

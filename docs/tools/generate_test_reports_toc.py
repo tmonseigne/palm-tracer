@@ -10,19 +10,16 @@ def generate_toctree_rst(dst: str = "tests.rst"):
 	"""
 	Génère la table des matières des rapports de tests.
 
-	Inclut les rapports locaux ``test_report.rst`` et ``test_report_main_computer.rst`` lorsqu’ils existent,
-	ainsi que les rapports ``test_report_ci_*.rst`` présents dans ``docs/reports``.
+	Inclut les rapports ``test_report*.rst`` présents dans ``docs/reports``, notamment le rapport local et les rapports CI.
 
 	:param dst: Chemin du fichier de sortie relatif au dossier ``docs``.
 	"""
 
 	docs_path = Path(__file__).resolve().parent.parent
 	reports_path = docs_path / "reports"  # Répertoire contenant les fichiers .rst
-	pattern = "test_report_ci_"  # .		Modèle pour les fichiers à inclure
 
 	# Recherche des fichiers correspondants
-	files = [reports_path / name for name in ("test_report.rst", "test_report_main_computer.rst") if (reports_path / name).is_file()]
-	files.extend(sorted(reports_path.glob(f"{pattern}*.rst")))
+	files = sorted(reports_path.glob("test_report*.rst"))
 
 	# Génération du contenu du fichier .rst
 	content = ("Tests\n"

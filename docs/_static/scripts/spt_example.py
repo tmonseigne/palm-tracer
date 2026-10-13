@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import cast
 
 from palm_tracer import PALMTracer
-from palm_tracer.Settings.Groups import Batch, Filters, HR, Localization, Tracking
+from palm_tracer.Settings.Groups import HR, Batch, Filters, Localization, Tracking
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt, FileList
 
 # region ---------- Valeurs à modifier ----------

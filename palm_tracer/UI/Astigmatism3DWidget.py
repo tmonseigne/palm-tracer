@@ -44,11 +44,6 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# region Initialisation
 	# ==================================================
 	def __init__(self, parent: Optional[QWidget] = None):
-		"""
-		Construit le widget et initialise l'interface.
-
-		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
-		"""
 		super().__init__(parent)
 		self.setWindowTitle("Astigmatism 3D Tool")
 

@@ -22,7 +22,7 @@ class Button(BaseSettingType):
 
 	# --------------------------------------------------
 	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
+		"""Ne modifie aucun état : un bouton d'action ne possède pas de valeur à réinitialiser."""
 
 	# --------------------------------------------------
 	def get_ui(self, name: str = "default") -> BaseUIType:

@@ -82,7 +82,6 @@ class ColorMap(Combo):
 	# --------------------------------------------------
 	@property
 	def items(self) -> list[str]:
-		"""Récupère la liste des éléments."""
 		return self._items
 
 	# --------------------------------------------------

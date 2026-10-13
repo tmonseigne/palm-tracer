@@ -151,5 +151,6 @@ tests/output/**
 !tests/input/stack.PT/*.log
 !tests/input/stack.log
 scripts_tests/
+!docs/reports/
 
 AGENTS.md

@@ -34,7 +34,7 @@ class FileList(BaseSettingType):
 
 	# --------------------------------------------------
 	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
+		"""Vide la liste de fichiers et réinitialise la sélection."""
 		self.clear_files()
 
 	# ==================================================

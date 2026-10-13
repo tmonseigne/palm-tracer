@@ -1,3 +1,15 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 msgid "Glossaire"
 msgstr "Glossary"
 
@@ -43,7 +55,7 @@ msgstr "Estimation of the position :math:`(x, y)` (and possibly :math:`z`) of a 
 
 #: ../../glossary.rst:39
 msgid "Pipeline"
-msgstr "Pipeline"
+msgstr ""
 
 #: ../../glossary.rst:41
 msgid "Enchaînement reproductible d'étapes de traitement (prétraitement, localisation, filtrage, suivi, rendu, export), avec des paramètres sauvegardés."
@@ -51,7 +63,7 @@ msgstr "Reproducible sequence of processing steps (pre-processing, localization,
 
 #: ../../glossary.rst:21
 msgid "PSF (Point Spread Function)"
-msgstr "PSF (Point Spread Function)"
+msgstr ""
 
 #: ../../glossary.rst:23
 msgid "Réponse impulsionnelle optique du microscope. Elle décrit l'image formée par une source ponctuelle et conditionne la précision de localisation."
@@ -59,7 +71,7 @@ msgstr "Optical impulse response of the microscope. It describes the image forme
 
 #: ../../glossary.rst:18
 msgid "ROI (Region Of Interest)"
-msgstr "ROI (Region Of Interest)"
+msgstr ""
 
 #: ../../glossary.rst:20
 msgid "Sous-région d'une image extraite autour d'une zone d'intérêt (ex. autour d'un maximum local) pour effectuer un traitement local (seuillage, fit, etc.)."
@@ -75,7 +87,7 @@ msgstr "Limit value used to separate a signal (pixels/objects) from the backgrou
 
 #: ../../glossary.rst:24
 msgid "SNR (Signal-to-Noise Ratio)"
-msgstr "SNR (Signal-to-Noise Ratio)"
+msgstr ""
 
 #: ../../glossary.rst:26
 msgid "Rapport signal sur bruit, indicateur de la qualité d'un signal mesuré. Un SNR faible dégrade la précision de localisation et augmente le risque de faux positifs."
@@ -91,7 +103,7 @@ msgstr "Association of localizations belonging to the same molecule across frame
 
 #: ../../glossary.rst:30
 msgid "Watershed"
-msgstr "Watershed"
+msgstr ""
 
 #: ../../glossary.rst:32
 msgid "Méthode de segmentation basée sur la topographie d'une image (analogie "bassin versant"), souvent utilisée pour séparer des objets proches."

@@ -69,7 +69,7 @@ class BasePlotlyWidget(QWidget):
 	# ==================================================
 	def _make_web_widget(self):
 		"""
-		Créé un Widget pour intégrer plotly.
+		Crée le widget d'affichage Plotly, avec une solution de repli textuelle.
 
 		:return: QWebEngineView ou QTextBrowser si indisponible.
 		"""

@@ -1,3 +1,17 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"POT-Creation-Date: 2026-10-13 18:13+0200\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Results.rst:2
 msgid "Results"
 msgstr ""
@@ -122,8 +136,8 @@ msgid "Vide entièrement les DataFrames de résultats filtrés."
 msgstr "Completely clears the filtered result DataFrames."
 
 #: ../../api/palm_tracer.Results.rst:32
-msgid "Divers"
-msgstr "Miscellaneous"
+msgid "Accesseurs"
+msgstr "Accessors"
 
 #: of palm_tracer.Results.Results.get_localization_key:1
 msgid "Clé des localisations actives, en privilégiant les variantes filtrées et corrigées."
@@ -174,7 +188,7 @@ msgid "Statut accompagné du nombre d'éléments avant et, si nécessaire, aprè
 msgstr "Status with the number of elements before and, if applicable, after filtering."
 
 #: ../../api/palm_tracer.Results.rst:41
-msgid "Entrées-sorties"
+msgid "Entrées / sorties"
 msgstr "Input/output"
 
 #: of palm_tracer.Results.Results.save:1
