@@ -1,5 +1,7 @@
 """Configure les fixtures et les hooks Pytest communs à la suite de tests."""
 
+from __future__ import annotations
+
 import json
 import os
 import platform
@@ -15,8 +17,8 @@ from napari._vispy.canvas import VispyCanvas
 from pytest_metadata.plugin import metadata_key
 from qtpy.QtWidgets import QApplication
 
+from tests.Monitoring import Monitoring
 from palm_tracer.Tools import Ui
-from palm_tracer._tests.Monitoring import Monitoring
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 os.environ["QT_OPENGL"] = "software"
@@ -64,7 +66,8 @@ def fake_qfiledialog(monkeypatch):
 		else: module = sys.modules[target.__module__]  # La cible est probablement une classe : on remonte à son module
 
 		# Sanity check : QFileDialog doit exister dans ce module
-		if not hasattr(module, "QFileDialog"): raise AttributeError(f"Le module {module.__name__!r} ne contient pas 'QFileDialog'.")
+		if not hasattr(module, "QFileDialog"):
+			raise AttributeError(f"Le module {module.__name__!r} ne contient pas 'QFileDialog'.")
 
 		def _fake_get_open_file_name(parent=None, caption="", directory="", *args, **kwargs):
 			"""
@@ -258,7 +261,7 @@ def cpu_infos() -> str:
 	except Exception: cores = threads = os.cpu_count()
 
 	try:  # En cas de problème notamment sur mac
-		freq = f"Unknown frequency"
+		freq = "Unknown frequency"
 		if hasattr(psutil, "cpu_freq"):
 			cpu_info = psutil.cpu_freq(percpu=False)
 			if cpu_info and getattr(cpu_info, "current", None): freq = f"{cpu_info.current / 1000:.2f} GHz"
@@ -299,7 +302,7 @@ def pytest_metadata(metadata):
 
 	## Ajout de la carte graphique si disponible
 	try:
-		from pynvml import nvmlInit, nvmlShutdown, nvmlDeviceGetHandleByIndex, nvmlDeviceGetName, nvmlDeviceGetMemoryInfo, nvmlDeviceGetCount
+		from pynvml import nvmlDeviceGetCount, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo, nvmlDeviceGetName, nvmlInit, nvmlShutdown
 
 		nvmlInit()
 		count = nvmlDeviceGetCount()

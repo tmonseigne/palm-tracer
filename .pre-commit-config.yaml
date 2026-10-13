@@ -13,18 +13,10 @@ repos:
       - id: end-of-file-fixer           # Assure que les fichiers se terminent par une nouvelle ligne et uniquement par une nouvelle ligne.
       - id: name-tests-test             # Vérifie que les fichiers de test sont nommés correctement.
         args: [ --pytest-test-first ]   # Assure que les tests correspondent au style test_.*\.py
+        exclude: ^tests/(Big_Data|Monitoring|Monitoring_tests|Utils)[.]py$  # Fichiers de support et test de monitoring lancé séparément.
       - id: trailing-whitespace         # Supprime les espaces de fin de ligne.
         args: [ --markdown-linebreak-ext=md ] # Exception pour les fichiers Markdown
         exclude: ^\.napari-hub/.*       # Exclusion du dossier
-  # I'm not agree with PEP8 so black and ruff are skipped
-  #  - repo: https://github.com/astral-sh/ruff-pre-commit
-  #    rev: v0.8.1
-  #    hooks:
-  #      - id: ruff
-  #  - repo: https://github.com/psf/black
-  #    rev: 24.10.0
-  #    hooks:
-  #      - id: black
   # Napari pre-commit Hook
   - repo: https://github.com/tlambert03/napari-plugin-checks
     rev: v0.3.0

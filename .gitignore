@@ -132,9 +132,6 @@ cython_debug/
 # OS
 .DS_Store
 
-# written by setuptools_scm
-*_version.py
-
 # Pycharm and VSCode
 .idea/
 .vscode/
@@ -149,8 +146,7 @@ cython_debug/
 # For the moment, DLLs won't go to the repository
 palm_tracer/_tests/input/big input/
 palm_tracer/_tests/input/tmp
-**Tubulin-A647**
-tests/
+scripts_tests/
 docs/api/
 
 AGENTS.md

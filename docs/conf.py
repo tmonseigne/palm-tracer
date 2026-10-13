@@ -102,8 +102,8 @@ def copy_dir(src: str | Path, dst: str | Path):
 	shutil.copytree(src, dst, dirs_exist_ok=True)  # Copie récursivement les fichiers du dossier source vers le dossier de destination.
 
 
-copy_dir("reports", "_build/html/reports")
-copy_dir("reports", "_build/html/en/reports")
+copy_dir(root / "docs" / "reports", root / "docs" / "_build" / "html" / "reports")
+copy_dir(root / "docs" / "reports", root / "docs" / "_build" / "html" / "en" / "reports")
 
 default_language_code = "fr"
 

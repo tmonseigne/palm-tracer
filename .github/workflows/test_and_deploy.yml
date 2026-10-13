@@ -35,7 +35,7 @@ jobs:
       fail-fast: false  # .           Poursuivre les autres tâches si une matrice échoue.
       matrix: # .                     Définition de la matrice pour exécuter les tests sur différentes plateformes et versions de Python.
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        python-version: [ "3.12", "3.13", "3.14" ]
 
     # Environnement spécifique pour contourner les alertes Homebrew sur macOS
     env:
@@ -171,7 +171,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install .[documentation]
+          python -m pip install .[all]
 
       # Télécharge les rapports de test générés par le job "Test" pour les inclure dans la documentation.
       - name: Download Test Reports
@@ -241,7 +241,7 @@ jobs:
   #    - name: Install dependencies
   #      run: |
   #        python -m pip install --upgrade pip
-  #        pip install -U setuptools setuptools_scm wheel twine build
+  #        pip install -U setuptools wheel twine build
 
   #    - name: Build and publish
   #      env:

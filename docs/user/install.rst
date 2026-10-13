@@ -130,7 +130,6 @@ Un environnement virtuel permet de gérer les dépendances du projet de manière
 
 .. code-block:: powershell
 
-   $env:SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PALM_TRACER = "1.4.0" # Parfois, il est nécessaire de forcer la version de setuptools_scm pour éviter des erreurs d'installation.
    python -m pip install -e .[testing,documentation]
 
 
