@@ -2,7 +2,7 @@
 
 from qtpy.QtCore import Qt
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.UI.AlignmentWidget import AlignmentWidget  # Classe
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10

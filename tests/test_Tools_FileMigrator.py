@@ -2,7 +2,7 @@
 
 import pytest
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Tools.FileMigrator import FileMigrator
 
 INPUT_FOLDER = INPUT_DIR / "stack.PT"

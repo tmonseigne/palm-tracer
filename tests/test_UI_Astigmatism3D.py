@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 from qtpy.QtCore import Qt
 
-from palm_tracer._tests.Utils import *
-from palm_tracer._tests.Utils import _FakeDownload
+from tests.Utils import *
+from tests.Utils import _FakeDownload
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, sigma_model
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # Classe
@@ -689,7 +689,7 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path):
 
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
-	assert f"Backup done at" in lines[0]
+	assert "Backup done at" in lines[0]
 	assert (backup_dir / "astigmatism_3d_calibration.csv").is_file()
 
 	w.close()
@@ -726,23 +726,23 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path)
 
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
-	assert f"Backup done at" in lines[0]
+	assert "Backup done at" in lines[0]
 	assert (backup_dir / "astigmatism_3d_calibration.csv").is_file()
 
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)  # Test de multiple backup
 	lines = get_lines_output(capsys)
-	assert f"Backup done at" in lines[0]
+	assert "Backup done at" in lines[0]
 	assert (backup_dir / "astigmatism_3d_calibration_1.csv").is_file()
 
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)  # Test de multiple backup
 	lines = get_lines_output(capsys)
-	assert f"Backup done at" in lines[0]
+	assert "Backup done at" in lines[0]
 	assert (backup_dir / "astigmatism_3d_calibration_2.csv").is_file()
 
 	w._check_b_estimate.setChecked(False)  # On recommence sans le backup
 	qtbot.mouseClick(w._btn_estimate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
-	assert f"Localization file with estimation saved successfully." in lines[0]
+	assert "Localization file with estimation saved successfully." in lines[0]
 
 	w.close()
 

@@ -1,5 +1,8 @@
 """Teste les étapes et les transitions du pipeline de traitement."""
 
+from typing import Callable
+
+import pandas as pd
 import pytest
 
 from palm_tracer.Processing import Step
@@ -7,8 +10,18 @@ from palm_tracer.Settings.Groups import Localization
 
 
 ##################################################
+@pytest.mark.parametrize("name, expected", [
+	pytest.param("FilterSingle", Callable[[pd.DataFrame], pd.DataFrame], id="single-dataframe"),
+	pytest.param("FilterTrackAnalysis", Callable[[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame],
+		tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]], id="track-analysis")])
+def test_filter_aliases(name: str, expected):
+	"""Vérifie les alias de filtres sans dépendre de typing.TypeAlias, absent de Python 3.9."""
+	assert getattr(Step, name) == expected
+
+
+##################################################
 def test_object_creation():
-	"""Vérifie step objects creation."""
+	"""Vérifie la création des étapes et l'accès aux actions du pipeline."""
 
 	def f():
 		"""Retourne la valeur utilisée par le scénario de test."""

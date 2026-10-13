@@ -4,7 +4,7 @@ import pytest
 import tifffile
 from PIL import Image
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Processing import Renderer
 
 
@@ -55,7 +55,7 @@ def test_localizations():
 	# Accumulate
 	loc = np.array([[2, 3, 10], [2, 3, 5], [4, 1, 7]], dtype=float)
 	res = r.localizations(loc)
-	ref = np.zeros((20, 10), dtype=np.uint16)
+	ref: np.ndarray = np.zeros((20, 10), dtype=np.uint16)
 	ref[6, 4] = 15
 	ref[2, 8] = 7
 	np.testing.assert_array_equal(res, ref)
@@ -205,7 +205,7 @@ def test_tracks():
 	# Segment traversant le rendu avec deux extrémités hors limites
 	trc = np.array([[1, 1, -1, 5, 100], [1, 2, 6, 5, 100]], dtype=float)
 	res = r.tracks(trc)
-	ref = np.zeros((20, 10), dtype=np.uint16)
+	ref: np.ndarray = np.zeros((20, 10), dtype=np.uint16)
 	ref[10, :] = 100
 	np.testing.assert_array_equal(res, ref)
 
@@ -261,7 +261,7 @@ def test_z_stack():
 	# Z uniforme à 0 + accumulation
 	loc = np.array([[2, 3, 0, 10], [2, 3, 0, 5], [4, 1, 0, 7]], dtype=float)
 	res = r.z_stack(loc, color_mode=0, z_step=20)
-	ref = np.zeros((1, 20, 10), dtype=np.uint16)
+	ref: np.ndarray = np.zeros((1, 20, 10), dtype=np.uint16)
 	ref[0, 6, 4] = 15
 	ref[0, 2, 8] = 7
 	np.testing.assert_array_equal(res, ref)
@@ -412,7 +412,7 @@ def test_rotation():
 
 	# Z uniforme à 0 + accumulation rotation sur X, X ne change pas, mais Y s'inverse autour de l'axe central (7.5)
 	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=2, axis=0)
-	ref = np.zeros((2, 16, 16), dtype=np.uint16)
+	ref: np.ndarray = np.zeros((2, 16, 16), dtype=np.uint16)
 	ref[0, 9, 7], ref[0, 7, 9] = 15, 7  # 0°
 	ref[1, 6, 7], ref[1, 8, 9] = 15, 7  # 180°
 	np.testing.assert_array_equal(res, ref)
@@ -487,7 +487,7 @@ def test_rotation_gaussian():
 	loc = np.array([[0, 0, 0, 1000, 1, 1, 0]], dtype=float)
 	gaussian = {"Intensity": 100, "Fixed Intensity": True, "Shape": 0, "Size": 1}
 	res = r.rotation_3d(loc, color_mode=0, z_step=20, frames=2, axis=1, gaussian=gaussian)
-	ref = np.zeros((2, 11, 11), dtype=np.uint16)
+	ref: np.ndarray = np.zeros((2, 11, 11), dtype=np.uint16)
 	patch = np.array([[3, 5, 7, 7, 5, 3, 1, 0],
 					  [5, 9, 11, 11, 9, 5, 2, 0],
 					  [7, 11, 14, 14, 11, 7, 3, 1],
@@ -523,7 +523,7 @@ def test_track_stack_timeline():
 	track = np.array([[1, 10, 0, 1, 40], [1, 12, 2, 1, 100], [1, 16, 4, 1, 80]], dtype=float)
 	original = track.copy()
 	res = r.track_stack(track, bg_color=20, tail_length=1, fade_type=1)
-	ref = np.full((7, 3, 5), 20, dtype=np.uint16)
+	ref: np.ndarray = np.full((7, 3, 5), 20, dtype=np.uint16)
 	ref[0, 1, 0] = 40
 	ref[2, 1, :3] = 100
 	ref[3, 1, :3] = 60
@@ -542,7 +542,7 @@ def test_track_stack_crossing_bounds():
 
 	res = r.track_stack(track, bg_color=20, tail_length=-1)
 
-	ref = np.full((2, 3, 5), 20, dtype=np.uint16)
+	ref: np.ndarray = np.full((2, 3, 5), 20, dtype=np.uint16)
 	ref[1, 1, :] = 100
 	np.testing.assert_array_equal(res, ref)
 
@@ -564,7 +564,7 @@ def test_track_stack_scale():
 	r = Renderer()
 	r.set_size(3, 2, 2)
 	res = r.track_stack(np.array([[1, 50, 1, 1, 90]]), bg_color=17, tail_length=0)
-	ref = np.full((1, 4, 6), 17, dtype=np.uint16)
+	ref: np.ndarray = np.full((1, 4, 6), 17, dtype=np.uint16)
 	ref[0, 2, 2] = 90
 	np.testing.assert_array_equal(res, ref)
 	r.set_size(0, -1, 1)
@@ -636,7 +636,7 @@ def test_track_stack_raw_fade_and_overlap(mode, intensity):
 	r = Renderer()
 	r.set_size(5, 5, 1)
 	tracks = np.array([[1, 1, 0, 2, 30000], [1, 2, 4, 2, 30000], [2, 1, 2, 0, 10000], [2, 2, 2, 4, 10000], [3, 3, 0, 0, 1]], dtype=float)
-	raw = np.full((3, 5, 5), 5140, dtype=np.uint16)
+	raw: np.ndarray = np.full((3, 5, 5), 5140, dtype=np.uint16)
 	color = FileIO.grayscale_to_color(np.array([[intensity]], dtype=np.uint16))[0, 0]
 	res = r.track_stack(tracks, raw=raw, color_mode=mode, tail_length=1, fade_type=1)
 	np.testing.assert_array_equal(res[1, 2, 2], color)
@@ -714,7 +714,7 @@ def test_finalize_track_stack():
 @pytest.mark.parametrize("background, expected", ((0, 0), (42, 42), (-10, 0), (70000, 65535)), ids=['black', 'gray', 'lower-clipping', 'upper-clipping'])
 def test_finalize_track_stack_empty_background(initial, background, expected):
 	"""Vérifie les fonds sans contribution et l'absence de calcul invalide avec les infinis d'initialisation."""
-	img = np.full((2, 3, 4), initial, dtype=float)
+	img: np.ndarray = np.full((2, 3, 4), initial, dtype=float)
 	alpha = np.zeros_like(img)
 	with np.errstate(all='raise'): res = Renderer.finalize_track_stack(img, alpha, background)
 	np.testing.assert_array_equal(res, np.full(img.shape, expected, dtype=np.uint16))
@@ -746,7 +746,7 @@ def test_finalize_track_stack_strided():
 @pytest.mark.parametrize("mode, initial", ((0, 0), (1, -np.inf), (2, np.inf)), ids=['sum', 'maximum', 'minimum'])
 def test_finalize_track_stack_drawing(mode, initial):
 	"""Vérifie le fade d'une queue sur fond non nul et la tête opaque sur son seul plan, pour les trois modes."""
-	img = np.full((5, 3, 5), initial, dtype=float)
+	img: np.ndarray = np.full((5, 3, 5), initial, dtype=float)
 	alpha = np.zeros_like(img)
 	track = np.array([[0, 1, 1], [1, 3, 1]])
 	colors = np.array([40, 100])
@@ -754,7 +754,7 @@ def test_finalize_track_stack_drawing(mode, initial):
 	Renderer.draw_track_heads(img, alpha, track, colors)
 	with np.errstate(all='raise'):
 		res = Renderer.finalize_track_stack(img, alpha, 20)
-	ref = np.full(img.shape, 20, dtype=np.uint16)
+	ref: np.ndarray = np.full(img.shape, 20, dtype=np.uint16)
 	ref[0, 1, 1] = 40
 	ref[1, 1, 1:4] = 100
 	ref[2, 1, 1:4] = 60
@@ -809,7 +809,7 @@ def test_finalize_track_stack_rgb(cmap):
 def test_finalize_track_stack_rgb_rejects_short_lut():
 	"""Vérifie le rejet d'une LUT qui ne couvre pas toute l'échelle uint16."""
 	volume = np.zeros((1, 1, 1))
-	lut = np.zeros((np.iinfo(np.uint16).max, 3), dtype=np.uint8)
+	lut: np.ndarray = np.zeros((np.iinfo(np.uint16).max, 3), dtype=np.uint8)
 
 	with pytest.raises(ValueError, match="au moins 65536 couleurs RGB"):
 		Renderer.finalize_track_stack_rgb(volume, volume, volume, lut)
@@ -1181,7 +1181,7 @@ def test_line_spans_orientations(swap_axes, sign_x, sign_y, width):
 	points = np.array([[0, 0], [1, 1], [2, 1], [3, 2], [4, 2]])
 	coords = points[:, ::-1] if swap_axes else points
 	coords = coords * [sign_x, sign_y] + [5, 5]
-	ref = np.zeros((11, 11), dtype=bool)
+	ref: np.ndarray = np.zeros((11, 11), dtype=bool)
 	for x, y in coords:
 		ref[max(0, y - (width - 1) // 2):min(11, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(11, x + width // 2 + 1)] = True
 	y_min, left, right = Renderer._line_spans(ref.shape, *coords[0], *coords[-1], width)
@@ -1195,15 +1195,15 @@ def test_line_spans_orientations(swap_axes, sign_x, sign_y, width):
 def test_draw_line():
 	"""Vérifie le tracé d'une ligne et la mise à jour de son masque."""
 	# Point unique
-	img = np.zeros((5, 5), dtype=float)
-	mask = np.zeros(img.shape, dtype=bool)
+	img: np.ndarray = np.zeros((5, 5), dtype=float)
+	mask: np.ndarray = np.zeros(img.shape, dtype=bool)
 	Renderer.draw_line(img, mask, 2, 3, 2, 3, 123.0)
 
-	ref = np.zeros((5, 5), dtype=float)
+	ref: np.ndarray = np.zeros((5, 5), dtype=float)
 	ref[3, 2] = 123.0
 	np.testing.assert_array_equal(img, ref)
 
-	ref_mask = np.zeros((5, 5), dtype=bool)
+	ref_mask: np.ndarray = np.zeros((5, 5), dtype=bool)
 	ref_mask[3, 2] = True
 	np.testing.assert_array_equal(mask, ref_mask)
 
@@ -1270,19 +1270,19 @@ def test_draw_line():
 def test_draw_line_crossing(color_mode, init_value, crossing_value):
 	"""Vérifie la combinaison de deux lignes qui se croisent."""
 	# Croisement de deux lignes pour les trois modes
-	img = np.full((5, 5), init_value, dtype=float)
-	mask = np.zeros(img.shape, dtype=bool)
+	img: np.ndarray = np.full((5, 5), init_value, dtype=float)
+	mask: np.ndarray = np.zeros(img.shape, dtype=bool)
 
 	Renderer.draw_line(img, mask, 0, 2, 4, 2, 10.0, color_mode)
 	Renderer.draw_line(img, mask, 2, 0, 2, 4, 20.0, color_mode)
 
-	ref = np.full((5, 5), init_value, dtype=float)
+	ref: np.ndarray = np.full((5, 5), init_value, dtype=float)
 	ref[2, :] = 10.0
 	ref[:, 2] = 20.0
 	ref[2, 2] = crossing_value
 	np.testing.assert_array_equal(img, ref)
 
-	ref_mask = np.zeros((5, 5), dtype=bool)
+	ref_mask: np.ndarray = np.zeros((5, 5), dtype=bool)
 	ref_mask[2, :] = True
 	ref_mask[:, 2] = True
 	np.testing.assert_array_equal(mask, ref_mask)
@@ -1295,7 +1295,7 @@ def test_draw_line_width(width, first, last, mode):
 	"""Vérifie les largeurs paires et impaires, les points, les bords et l'absence de cumul interne."""
 	img, mask = Renderer.init_rendering(mode, 8, 8)
 	Renderer.draw_line(img, mask, 2, 3, 5, 3, 10, mode, width=width)
-	ref_mask = np.zeros((8, 8), dtype=bool)
+	ref_mask: np.ndarray = np.zeros((8, 8), dtype=bool)
 	ref_mask[first:last, 2 - (width - 1) // 2:6 + width // 2] = True
 	np.testing.assert_array_equal(mask, ref_mask)
 	np.testing.assert_array_equal(img[mask], 10)
@@ -1335,11 +1335,11 @@ def test_draw_line_width_orientations(x1, y1, reverse, width):
 	x0, y0, xe, ye = (x1, y1, 3, 3) if reverse else (3, 3, x1, y1)
 	thin, thin_mask = Renderer.init_rendering(0, 10, 10)
 	Renderer.draw_line(thin, thin_mask, x0, y0, xe, ye, 1)
-	ref_mask = np.zeros((10, 10), dtype=bool)
+	ref_mask: np.ndarray = np.zeros((10, 10), dtype=bool)
 	for y, x in np.argwhere(thin_mask):
 		ref_mask[max(0, y - (width - 1) // 2):min(10, y + width // 2 + 1), max(0, x - (width - 1) // 2):min(10, x + width // 2 + 1)] = True
 	img = np.full((10, 10), 20.0)
-	mask = np.zeros((10, 10), dtype=bool)
+	mask: np.ndarray = np.zeros((10, 10), dtype=bool)
 	Renderer.draw_line(img, mask, x0, y0, xe, ye, 100, 1, width, 0.25)
 	ref = np.full((10, 10), 20.0)
 	ref[ref_mask] = 40.0
@@ -1354,7 +1354,7 @@ def test_draw_line_width_orientations(x1, y1, reverse, width):
 def test_draw_line_alpha(width, mode, color, expected):
 	"""Vérifie la transparence sur fond non nul pour les trois modes et les fonds d'initialisation infinis."""
 	img = np.full((7, 7), 20.0)
-	mask = np.zeros((7, 7), dtype=bool)
+	mask: np.ndarray = np.zeros((7, 7), dtype=bool)
 	Renderer.draw_line(img, mask, 1, 3, 5, 3, color, mode, width, 0.25)
 	assert mask.any()
 	np.testing.assert_array_equal(img[mask], expected)
@@ -1396,7 +1396,7 @@ def test_draw_line_width_finalize(mode, width):
 	img, mask = Renderer.init_rendering(mode, 9, 9)
 	Renderer.draw_line(img, mask, 2, 4, 6, 4, 100, mode, width, 0.5)
 	res = Renderer.finalize_rendering(img, mask, bg_color=7)
-	ref = np.full((9, 9), 7, dtype=np.uint16)
+	ref: np.ndarray = np.full((9, 9), 7, dtype=np.uint16)
 	ref[4 - (width - 1) // 2:5 + width // 2, 2 - (width - 1) // 2:7 + width // 2] = 50
 	np.testing.assert_array_equal(res, ref)
 	np.testing.assert_array_equal(mask, ref == 50)
@@ -1406,9 +1406,9 @@ def test_draw_line_width_finalize(mode, width):
 def test_draw_line_thick_empty_rows():
 	"""Vérifie que des intervalles vides ne modifient ni l'image ni le masque lors du dessin épais."""
 	img = np.full((5, 5), 20.0)
-	mask = np.zeros((5, 5), dtype=bool)
+	mask: np.ndarray = np.zeros((5, 5), dtype=bool)
 	Renderer.draw_line(img, mask, -5, 0, -1, 4, 100, 1, 3, 0.25)
-	ref_mask = np.zeros((5, 5), dtype=bool)
+	ref_mask: np.ndarray = np.zeros((5, 5), dtype=bool)
 	ref_mask[3:, 0] = True
 	ref = np.full((5, 5), 20.0)
 	ref[ref_mask] = 40
@@ -1584,7 +1584,7 @@ def test_draw_track_hard_cutoff():
 @pytest.mark.parametrize("mode, initial, expected", ((0, 0, 120), (1, -np.inf, 100), (2, np.inf, 20)), ids=['sum', 'maximum', 'minimum'])
 def test_draw_track_overlap(mode, initial, expected):
 	"""Vérifie la combinaison indépendante des intensités et le maximum des opacités."""
-	img = np.full((5, 5, 5), initial, dtype=float)
+	img: np.ndarray = np.full((5, 5, 5), initial, dtype=float)
 	alpha = np.zeros_like(img)
 	# Au plan 3, l'horizontale a un âge de 1 ; la verticale vient d'apparaître et impose alpha = 1.
 	Renderer.draw_track(img, alpha, np.array([[0, 0, 2], [2, 4, 2]]), np.array([0, 100]), tail_length=3, fade_type=1, color_mode=mode)
@@ -1600,7 +1600,7 @@ def test_draw_track_overlap(mode, initial, expected):
 def test_draw_track_thickness(mode, initial):
 	"""Vérifie l'opacité uniforme sur toute l'épaisseur et l'absence de cumul interne."""
 	track = np.array([[0, 2, 3], [2, 4, 3]])
-	img = np.full((5, 7, 7), initial, dtype=float)
+	img: np.ndarray = np.full((5, 7, 7), initial, dtype=float)
 	alpha = np.zeros_like(img)
 	Renderer.draw_track(img, alpha, track, np.array([0, 80]), tail_width=3, tail_length=2, fade_type=1, color_mode=mode)
 	ref = np.zeros_like(alpha)
@@ -1728,7 +1728,7 @@ def test_draw_track_heads_preserve_interior():
 	alpha = np.full_like(img, 0.25)
 	Renderer.draw_track_heads(img, alpha, np.array([[1, 3, 3]]), np.array([90]), 5)
 	contour = np.array([[0, 1, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 1, 1, 0]], dtype=bool)
-	mask = np.zeros(img.shape, dtype=bool)
+	mask: np.ndarray = np.zeros(img.shape, dtype=bool)
 	mask[1, 1:6, 1:6] = contour
 	np.testing.assert_array_equal(img, np.where(mask, 90, 40))
 	np.testing.assert_array_equal(alpha, np.where(mask, 1, 0.25))
@@ -1753,7 +1753,7 @@ def test_renderer_track_crossing_roi_diamond():
 
 	res = r.tracks(track, bg_color=0)
 
-	ref = np.zeros((10, 10), dtype=np.uint16)
+	ref: np.ndarray = np.zeros((10, 10), dtype=np.uint16)
 	ref[[0, 1, 2, 3], [6, 7, 8, 9]] = 50000  # Segment supérieur droit.
 	ref[[7, 8, 9], [9, 8, 7]] = 50000  # Segment inférieur droit.
 	ref[[9, 8, 7, 6], [3, 2, 1, 0]] = 50000  # Segment inférieur gauche.
@@ -1835,7 +1835,7 @@ def test_renderer_track_stack_spiral_raw():
 	x = np.linspace(0, 1, size)[None, :]
 	y = np.linspace(0, 1, size)[:, None]
 	# Le raw commence au plan d'acquisition un, tandis que la trajectoire commence au plan dix.
-	raw = np.empty((n_points + 9, size, size), dtype=np.uint16)
+	raw: np.ndarray = np.empty((n_points + 9, size, size), dtype=np.uint16)
 	for plane in range(len(raw)):
 		phase = 2 * np.pi * (plane - 9) / n_points
 		raw[plane] = np.rint(9500 + 2500 * np.sin(2 * np.pi * x - phase) + 1500 * y).astype(np.uint16)

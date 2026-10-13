@@ -1,6 +1,6 @@
 """Teste l'enregistrement du journal d'activité."""
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Tools import Logger
 
 LOG_PATH = OUTPUT_DIR / "test_logger.log"
@@ -48,5 +48,5 @@ def test_logger_with_use(capsys):
 	lines = get_lines_output(capsys)
 	assert len(lines) == 3
 	assert re.fullmatch(TS_PATTERN + rf"\sLog opened : {re.escape(str(LOG_PATH))}", lines[0])
-	assert re.fullmatch(TS_PATTERN + rf"\sMessage", lines[1])
+	assert re.fullmatch(TS_PATTERN + r"\sMessage", lines[1])
 	assert re.fullmatch(TS_PATTERN + rf"\sLog closed : {re.escape(str(LOG_PATH))}", lines[2])

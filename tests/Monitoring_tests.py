@@ -5,13 +5,14 @@ import time
 import psutil
 from plotly.subplots import make_subplots
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
+
 from .Monitoring import Monitoring
 
 try:
 	import torch
 
-	HAVE_GPU = not os.getenv("GITHUB_ACTIONS") == "true"
+	HAVE_GPU = os.getenv("GITHUB_ACTIONS") != "true"
 except ImportError:
 	HAVE_GPU = False
 
@@ -30,7 +31,7 @@ def simulate_cpu_usage(monitoring: Monitoring, intensity: int = 1000000, duratio
 	:param duration: Durée pendant laquelle le CPU sera sollicité (en secondes).
 	:param intensity: Nombre de calculs dans chaque itération (détermine l'intensité).
 	"""
-	monitoring.add_test_info("_tests/test_simulation_cpu.py::test_high_cpu_usage")
+	monitoring.add_test_info("tests/test_simulation_cpu.py::test_high_cpu_usage")
 	print(f"Simulating high CPU usage for {duration} seconds...")
 	start_time = time.time()
 	while time.time() - start_time < duration:
@@ -47,7 +48,7 @@ def simulate_gpu_usage(monitoring: Monitoring, tensor_size: int = 4096, duration
 	:param tensor_size: Taille des matrices carrées utilisées pour les calculs.
 	:param duration: Durée en secondes pendant lesquelles les opérations GPU sont répétées.
 	"""
-	monitoring.add_test_info("_tests/test_simulation_gpu.py::test_gpu_computation")
+	monitoring.add_test_info("tests/test_simulation_gpu.py::test_gpu_computation")
 	# Installation de pytorch via le générateur de lien de leur site en fonction de votre CUDA
 	# Ex : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 	if not torch.cuda.is_available():
@@ -75,13 +76,13 @@ def simulate_memory_usage(monitoring: Monitoring, size: int = 50, duration: floa
 	:param size: Taille totale de mémoire à allouer (en mégaoctets).
 	:param duration: Temps pendant lequel la mémoire reste allouée (en secondes).
 	"""
-	monitoring.add_test_info("_tests/test_simulation_memory.py::test_allocate_memory")
+	monitoring.add_test_info("tests/test_simulation_memory.py::test_allocate_memory")
 	print(f"Allocating {size} MB of memory...")
 	allocated_memory = bytearray(size * 1024 * 1024)  # Alloue un tableau de bytes
-	monitoring.add_test_info("_tests/test_simulation_memory.py::test_hold_memory")
+	monitoring.add_test_info("tests/test_simulation_memory.py::test_hold_memory")
 	print(f"Memory allocated. Holding for {duration} seconds...")
 	time.sleep(duration)  # .							Garde la mémoire allouée pour observer l'impact
-	monitoring.add_test_info("_tests/test_simulation_memory.py::test_release_memory")
+	monitoring.add_test_info("tests/test_simulation_memory.py::test_release_memory")
 	print("Releasing memory.")
 	del allocated_memory  # .							Libère la mémoire
 
@@ -96,15 +97,15 @@ def simulate_disk_io(monitoring: Monitoring, file_size: int = 1, duration: float
 	:param duration: Temps pendant lequel le fichier est maintenu sur le disque (en secondes).
 	:param file_name: Nom du fichier temporaire utilisé pour l'opération.
 	"""
-	monitoring.add_test_info("_tests/test_simulation_disk.py::test_disk_write")
+	monitoring.add_test_info("tests/test_simulation_disk.py::test_disk_write")
 	print(f"Writing a file of size {file_size} MB...")
 	with open(file_name, "wb") as f: f.write(bytearray(file_size * 1024 * 1024))  # Écriture d'un fichier de la taille spécifiée
 
-	monitoring.add_test_info("_tests/test_simulation_disk.py::test_disk_hold")
+	monitoring.add_test_info("tests/test_simulation_disk.py::test_disk_hold")
 	print(f"File written. Holding for {duration} seconds...")
 	time.sleep(duration)  # Maintient le fichier pour observer son impact
 
-	monitoring.add_test_info("_tests/test_simulation_disk.py::test_disk_delete")
+	monitoring.add_test_info("tests/test_simulation_disk.py::test_disk_delete")
 	print("Deleting the file...")
 	os.remove(file_name)  # Supprime le fichier
 	print("Disk I/O simulation complete.")

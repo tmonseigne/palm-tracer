@@ -8,7 +8,7 @@ from unittest.mock import Mock
 import pytest
 import tifffile
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Tools import FileIO
 
 REF_DICT = {"First param":  [0, 1, 2],
@@ -152,7 +152,7 @@ def test_open_json_bad_file():
 	"""Vérifie la fonction open_json avec un fichier inexistant."""
 	with pytest.raises(OSError) as exception_info:
 		_ = FileIO.open_json("bad_filename.json")
-	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 
 
 # ==================================================
@@ -289,7 +289,7 @@ def test_save_png_bad_sample(tmp_path):
 	"""Vérifie la fonction save_png avec un tableau 1D."""
 	with pytest.raises(ValueError) as exception_info:
 		FileIO.save_png(REF_GRADIENT[1, :], tmp_path / "invalid.png")
-	assert exception_info.type == ValueError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is ValueError, "L'erreur relevé n'est pas correcte."
 
 
 # ==================================================
@@ -304,7 +304,7 @@ def test_open_calibration_mat_bad_file():
 	"""Vérifie le rejet d’un fichier de calibration MATLAB inexistant."""
 	with pytest.raises(OSError) as exception_info:
 		_ = FileIO.open_calibration_mat("bad_filename.mat")
-	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 
 
 ##################################################

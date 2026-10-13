@@ -6,7 +6,7 @@ from typing import List
 import pytest
 import tifffile as tiff
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Tools import FileIO

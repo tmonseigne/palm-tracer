@@ -6,7 +6,7 @@ from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPoint, QP
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QPushButton, QScrollArea
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, Combo, FileList
 from palm_tracer.UI import GraphViewerWidget

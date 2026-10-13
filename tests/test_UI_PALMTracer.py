@@ -6,9 +6,9 @@ from qtpy.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QTabWidget
 
-from palm_tracer._tests.Utils import *
-from palm_tracer.UI import PALMTracerWidget
+from tests.Utils import *
 from palm_tracer.Tools.FileIO import USER_SETTINGS_FILE
+from palm_tracer.UI import PALMTracerWidget
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -251,7 +251,7 @@ def test_reset_layer(capsys, qtbot):
 	assert not w._layers["Raw"].visible
 	lines = get_lines_output(capsys)
 	assert len(lines) == 1
-	assert "No valid settings file to load." == lines[0]
+	assert lines[0] == "No valid settings file to load."
 	w._reset_layer()  # .											   Remise à 0 des calques sans changement.
 
 

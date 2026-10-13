@@ -9,7 +9,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QCheckBox, QColorDialog, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QWidget
 
-from palm_tracer._tests.Utils import INPUT_DIR
+from tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
 from palm_tracer.Settings.Types import FileList
 
@@ -70,7 +70,7 @@ def test_base_setting():
 	"""Vérifie la classe abstraite."""
 	setting = BaseSettingType("Test")
 	with pytest.raises(NotImplementedError) as exception_info: setting.get_ui()
-	assert exception_info.type == NotImplementedError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is NotImplementedError, "L'erreur relevé n'est pas correcte."
 
 
 ###################################################

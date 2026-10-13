@@ -6,10 +6,10 @@ from typing import List, Type
 import pytest
 from qtpy.QtWidgets import QFormLayout
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
-from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeInt, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeFloat, CheckRangeInt, Combo, SpinFloat, SpinInt
 
 
 ###################################################
@@ -85,6 +85,20 @@ def test_base_group(qtbot):
 
 
 ###################################################
+@pytest.mark.parametrize("setting_type", [
+	pytest.param(CheckRangeFloat, id="float-range"), pytest.param(CheckRangeInt, id="integer-range")])
+@pytest.mark.parametrize("active, label", [
+	pytest.param(False, "Deactivate", id="inactive"), pytest.param(True, "Activate", id="active")])
+def test_base_group_tostring_range(setting_type, active: bool, label: str):
+	"""Vérifie la description des plages avec un tuple de classes compatible Python 3.9."""
+	group = BaseSettingGroup()
+	setting = setting_type("Range")
+	setting.active = active
+	group._settings["Range"] = setting
+	assert f"- Range : {label} {setting.value}\n" in group.tostring()
+
+
+###################################################
 def test_batch(qtbot):
 	"""Vérifie la classe Batch (constructeur, getter, setter)."""
 	batch = Batch()
@@ -151,7 +165,7 @@ def test_localization(qtbot):
 	g["Fit"].value = 2
 	assert g.get_fit() == 5, "Numéro du Fit incorrect"
 	with pytest.raises(OSError) as exception_info: g.get_fit_params()
-	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 	assert isinstance(g.gaussian, GaussianFit)
 	assert isinstance(g.spline, SplineFit)
 
@@ -170,7 +184,7 @@ def test_localization_fit(qtbot):
 	loc["Fit"].value = 2
 	assert loc.get_fit() == 5, "Numéro du Fit incorrect"
 	with pytest.raises(OSError) as exception_info: loc.get_fit_params()
-	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 
 
 ###################################################

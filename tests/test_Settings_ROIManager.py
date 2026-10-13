@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -61,6 +63,19 @@ def test_layer(manager: ROIManager):
 # ==================================================
 # region Synchronisation
 # ==================================================
+##################################################
+@pytest.mark.parametrize("source", [pytest.param("main", id="main-layer"), pytest.param("hr", id="hr-layer")])
+@pytest.mark.parametrize("types_count, data_count", [
+	pytest.param(1, 0, id="missing-data"), pytest.param(0, 1, id="missing-type")])
+def test_update_from_layer_mismatched_lengths(manager: ROIManager, source: str, types_count: int, data_count: int):
+	"""Vérifie que des listes de formes incohérentes sont rejetées avant la synchronisation."""
+	layer = SimpleNamespace(shape_type=["rectangle"] * types_count, data=[np.zeros((4, 2))] * data_count)
+	setattr(manager, f"_layer_{source}", layer)
+	with pytest.raises(ValueError, match="same length"):
+		getattr(manager, f"update_from_{source}")()
+	assert not manager._is_synchronizing
+
+
 ##################################################
 def test_update_main(manager: ROIManager):
 	"""Vérifie la mise à jour de la zone d'intérêt principale."""

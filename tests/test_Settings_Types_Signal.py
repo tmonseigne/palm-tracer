@@ -29,8 +29,13 @@ def test_disconnect(sw: SignalWrapper):
 	"""Vérifie la connexion d'un slot Python et émission immédiate."""
 	received: List[Any] = []
 	received2: List[Any] = []
-	slot = lambda v: received.append(v)  # <– même objet pour connect & disconnect
-	slot2 = lambda v: received2.append(v)
+	def slot(value):
+		"""Mémorise la valeur reçue par le premier slot."""
+		received.append(value)
+
+	def slot2(value):
+		"""Mémorise la valeur reçue par le second slot."""
+		received2.append(value)
 	sw.connect(slot)
 	sw.connect(slot2)
 

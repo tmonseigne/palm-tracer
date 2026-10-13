@@ -10,7 +10,7 @@ from typing import Literal
 
 import pytest
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Processing import Parsing
 from palm_tracer.Settings.Groups.Graph import DATA_SRC
 from palm_tracer.Settings.Types import Combo
@@ -494,7 +494,7 @@ def test_process_localization_spline_bad(capsys, pt):
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 2
 	with pytest.raises(OSError) as exception_info: pt.process()
-	assert exception_info.type == OSError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])  # Il va créer le meta mais pas le fichier de localization
 	lines = get_lines_output(capsys)
@@ -1513,8 +1513,8 @@ def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
 def test_hr():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
-	ref_empty = np.zeros((1, 1), dtype=np.uint16)
-	ref_viz0 = np.zeros((10, 10), dtype=np.uint16)
+	ref_empty: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
+	ref_viz0: np.ndarray = np.zeros((10, 10), dtype=np.uint16)
 	s = pt.settings.hr
 	s["Ratio"].value = 2
 	s["Source"].value = 1
@@ -1733,7 +1733,7 @@ def test_hr_filter():
 	pt.settings.rois.set_xy_roi(2, 5, 0, 5, False)
 	hr_data = pt.hr()
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
-	ref_viz = np.zeros((10, 6), dtype=np.uint16)
+	ref_viz: np.ndarray = np.zeros((10, 6), dtype=np.uint16)
 	ref_viz[6, 0] = 2  # Précédemment [4, 2], [6, 4] mais avec le filtre sur X à 2 le premier devient hors filtre (-2 × facteur d'agrandissement de 2 = -4).
 	ref_plot = [[0, 6, 0], [0, 8, 2], [0, 10, 4], [0, 6, 0]]
 	np.testing.assert_array_equal(viz, ref_viz)
@@ -1779,7 +1779,7 @@ def test_hr_track_crossing_roi():
 	hr_data = pt.hr()
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 
-	ref = np.zeros((5, 3), dtype=np.uint16)
+	ref: np.ndarray = np.zeros((5, 3), dtype=np.uint16)
 	ref[2, 0:2] = 1
 	np.testing.assert_array_equal(viz, ref)
 	np.testing.assert_array_equal(plot, [[1, 2, 2, 1]])
@@ -1825,7 +1825,7 @@ def test_hr_z_stack():
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	# Les Z de 3 à 6 nm deviennent les plans 0 à 3 avec un pas de 1 nm.
 	# Le point du plan 3 est hors image en Y ; le plan 2 est conservé, mais son intensité est nulle.
-	ref_viz = np.zeros((3, 10, 10), dtype=np.uint16)
+	ref_viz: np.ndarray = np.zeros((3, 10, 10), dtype=np.uint16)
 	ref_viz[0, 4, 2] = ref_viz[1, 6, 4] = 2
 	ref_plot = [[0, 4, 2], [1, 6, 4], [2, 8, 6], [3, 10, 8], [0, 4, 2], [1, 6, 4]]
 	np.testing.assert_array_equal(viz, ref_viz)
@@ -1848,7 +1848,7 @@ def test_hr_rotation():
 	pt.settings.rois.set_size(5, 5)
 	hr_data = pt.hr()
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
-	ref_viz = np.zeros((2, 17, 17), dtype=np.uint16)
+	ref_viz: np.ndarray = np.zeros((2, 17, 17), dtype=np.uint16)
 	ref_viz[0, 8, 6] = ref_viz[0, 10, 8] = ref_viz[1, 8, 10] = ref_viz[1, 10, 8] = 2
 	ref_plot = [[0, 4, 2], [2, 6, 4], [4, 8, 6], [6, 10, 8], [0, 4, 2], [2, 6, 4]]
 	np.testing.assert_array_equal(viz, ref_viz)
@@ -1863,7 +1863,7 @@ def test_hr_stress():
 	n_p, n_x, n_y = 8, 8, 4  # Dimensions de la pile
 	pt._stack = np.zeros((n_p, n_y, n_x), dtype=np.uint16)
 	pt.settings.rois.set_size(8, 4)
-	ref_viz0 = np.zeros((n_y * 2, n_x * 2), dtype=np.uint16)
+	ref_viz0: np.ndarray = np.zeros((n_y * 2, n_x * 2), dtype=np.uint16)
 
 	s = pt.settings.hr
 	s["Ratio"].value = 2
@@ -2099,7 +2099,7 @@ def test_crop():
 	"""Vérifie la création du widget."""
 
 	pt = get_fake_pt()
-	img = np.zeros((1, 1), dtype=np.uint16)
+	img: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 	res = pt.crop(img)  # .										Crop à True, image noire
 	assert np.allclose(img, res)  # .							Crop à True, avec un carré à 1 et une marge (par défaut) de 5
 
@@ -2109,7 +2109,7 @@ def test_crop():
 	assert np.allclose(pt.crop(img), ref)  # .					Crop à True, avec un carré à 1 et une marge (par défaut) de 5
 	assert np.allclose(pt.crop(img, 0), np.ones((2, 4)))  # .	Crop à True, avec aucune marge donc uniquement les points à 1
 
-	vol = np.zeros((10, 10, 10), dtype=np.uint16)
+	vol: np.ndarray = np.zeros((10, 10, 10), dtype=np.uint16)
 	vol[0, 2:4, 6:] = 1
 	assert np.allclose(pt.crop(vol, 0), np.ones((1, 2, 4)))  # .Crop à True, avec aucune marge donc uniquement les points à 1
 
@@ -2121,7 +2121,7 @@ def test_crop():
 def test_crop_track_stack_rgb():
 	"""Préserve les trois canaux RGB, même si un seul canal est non nul ou si le volume est noir."""
 	pt = PALMTracer()
-	img = np.zeros((3, 10, 10, 3), dtype=np.uint8)
+	img: np.ndarray = np.zeros((3, 10, 10, 3), dtype=np.uint8)
 	img[1, 2:4, 6:8, 0] = 255
 	cropped = pt.crop(img, margin=0)
 	assert cropped.shape == (1, 2, 2, 3)

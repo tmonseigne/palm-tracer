@@ -77,7 +77,8 @@ class _DummyLayer:
 
 	def __setattr__(self, name, value):
 		"""Mémorise la visibilité courante ou refuse la propriété utilisée pour simuler une erreur."""
-		if name == self.invalid_property: raise ValueError("Invalid property")
+		if name == self.invalid_property:
+			raise ValueError("Invalid property")
 		if name != "visible": self.updates_visibility.append(self.visible)
 		object.__setattr__(self, name, value)
 

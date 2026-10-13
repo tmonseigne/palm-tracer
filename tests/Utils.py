@@ -56,7 +56,7 @@ def get_lines_output(capsys) -> list[str]:
 	"""
 	out, err = capsys.readouterr()
 	out = strip_ansi(out)
-	return [line for line in out.splitlines()]
+	return out.splitlines()
 
 
 ##################################################

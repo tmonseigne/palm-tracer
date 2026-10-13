@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import pytest
 from scipy.stats import expon, gaussian_kde, norm, poisson
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Processing import Grapher
 from palm_tracer.Processing.Astigmatism3D import sigma_model
 from palm_tracer.Processing.GaussianMixture import GaussianMixture
@@ -46,7 +46,7 @@ def test_blank():
 	g = Grapher()
 	res = g.blank("blank")
 	res = _save_output(res, OUTPUT_DIR / "grapher_blank.json")
-	assert BLANK_FIG == res, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
+	assert res == BLANK_FIG, f"Résultat incorrect.\nAttendu : {BLANK_FIG}\nObtenu : {res}"
 
 
 ##################################################

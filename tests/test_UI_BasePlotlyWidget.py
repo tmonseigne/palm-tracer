@@ -1,7 +1,7 @@
 """Teste la classe de base des widgets autonomes utilisant Plotly."""
 
-from palm_tracer._tests.Utils import *
-from palm_tracer._tests.Utils import _FakeDownload
+from tests.Utils import *
+from tests.Utils import _FakeDownload
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # Classe
 
 

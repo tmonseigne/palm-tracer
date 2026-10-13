@@ -2,9 +2,9 @@
 
 from napari.components import ViewerModel
 
-from palm_tracer._tests.Utils import *
-from palm_tracer.UI import Viewer3DWidget
+from tests.Utils import *
 from palm_tracer.Tools.FileIO import USER_SETTINGS_FILE
+from palm_tracer.UI import Viewer3DWidget
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"

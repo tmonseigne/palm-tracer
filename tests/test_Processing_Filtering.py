@@ -2,7 +2,7 @@
 
 import pytest
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Processing import Filtering
 from palm_tracer.Settings import ROIManager
 from palm_tracer.Settings.Groups import Filters

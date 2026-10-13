@@ -26,9 +26,9 @@ from palm_tracer.Tools import Ui
 MEMORY_RATIO = 1.0 / (1024 * 1024)
 
 try:
-	from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetUtilizationRates, nvmlInit, nvmlShutdown, nvmlDeviceGetCount
+	from pynvml import nvmlDeviceGetHandleByIndex, nvmlDeviceGetUtilizationRates, nvmlInit, nvmlShutdown
 
-	HAVE_GPU = not os.getenv("GITHUB_ACTIONS") == "true"
+	HAVE_GPU = os.getenv("GITHUB_ACTIONS") != "true"
 except ImportError:
 	Ui.print_warning("pynvml is not available, GPU monitoring will be disabled.")
 	HAVE_GPU = False
@@ -255,10 +255,8 @@ class Monitoring:
 		"""
 		unique_names = set(names)  # Récupérer les noms uniques
 		color_map = {}  # .			 Dictionnaire pour associer chaque fichier à une couleur
-		color_index = 0  # .		 Associer une couleur unique à chaque fichier
-		for name in unique_names:
+		for color_index, name in enumerate(unique_names):
 			color_map[name] = palette[color_index % len(palette)]
-			color_index += 1  # .	 Passer à la couleur suivante
 
 		return color_map
 
@@ -319,9 +317,9 @@ class Monitoring:
 			if i < len(tests) - 1: next_timestamp = tests[i + 1]["Timestamp"]
 			else: next_timestamp = last_time
 
-			shapes.append(dict(type="rect", x0=t, x1=next_timestamp, y0=y_range[0], y1=y_range[1],
-							   fillcolor=color, opacity=0.2, line=dict(width=0), xref=f"x{axis_suffix}", yref=f"y{axis_suffix}"))
-			traces.append(go.Scatter(x=[t, t], y=y_range, mode="lines", line=dict(color=color, width=0.5, dash="dash"),
+			shapes.append({"type": "rect", "x0": t, "x1": next_timestamp, "y0": y_range[0], "y1": y_range[1],
+							   "fillcolor": color, "opacity": 0.2, "line": {"width": 0}, "xref": f"x{axis_suffix}", "yref": f"y{axis_suffix}"})
+			traces.append(go.Scatter(x=[t, t], y=y_range, mode="lines", line={"color": color, "width": 0.5, "dash": "dash"},
 									 name=text, hoverinfo="text", text=text))
 
 		return traces, shapes
@@ -347,12 +345,12 @@ class Monitoring:
 	def _draw(self):
 		"""Génère un graphique interactif des ressources utilisées pendant les tests et l'enregistre."""
 
-		params = [{"y": self._cpu, "name": "CPU Usage (%)", "line": dict(color="blue")},
-				  {"y": self._memory, "name": "Memory Usage (Mo)", "line": dict(color="green")},
-				  {"y": self._disk, "name": "Disk Usage (IO Mo)", "line": dict(color="red")}]
+		params = [{"y": self._cpu, "name": "CPU Usage (%)", "line": {"color": "blue"}},
+				  {"y": self._memory, "name": "Memory Usage (Mo)", "line": {"color": "green"}},
+				  {"y": self._disk, "name": "Disk Usage (IO Mo)", "line": {"color": "red"}}]
 
 		# Ajouter GPU seulement si pertinent
-		if not np.allclose(self._gpu, 0): params.insert(1, {"y": self._gpu, "name": "GPU Usage (%)", "line": dict(color="darkblue")})
+		if not np.allclose(self._gpu, 0): params.insert(1, {"y": self._gpu, "name": "GPU Usage (%)", "line": {"color": "darkblue"}})
 
 		self._figure = make_subplots(rows=len(params), cols=1, shared_xaxes=True, vertical_spacing=0.05, subplot_titles=tuple(p["name"] for p in params))
 		color_map = self.get_color_map_by_name([test["File"] for test in self._tests_info], px.colors.qualitative.Plotly)

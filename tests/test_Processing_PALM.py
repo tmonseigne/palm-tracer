@@ -2,7 +2,7 @@
 
 import pytest
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Processing import Palm, Parsing
 from palm_tracer.Processing.Parsing import MODEL_ROWS
 from palm_tracer.Tools import FileIO
@@ -29,7 +29,7 @@ def test_palm_dll_valid():
 def test_palm_cpu_empty_result():
 	"""Vérifie sur le lancement de PALM sur une noire."""
 	palm = Palm()
-	stack = np.zeros((10, 10, 10), dtype=np.uint16)
+	stack: np.ndarray = np.zeros((10, 10, 10), dtype=np.uint16)
 	res = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
 	assert res.empty
 
@@ -177,7 +177,7 @@ def test_tracking_empty():
 def test_tracking_discontinuous():
 	"""Vérifie sur le tracking avec un fichier qui possède des plans sans localisations."""
 	palm = Palm()
-	path = INPUT_DIR / f"localizations_discontinuous.csv"
+	path = INPUT_DIR / "localizations_discontinuous.csv"
 	if path.exists() and path.is_file():
 		localizations = pd.read_csv(path)
 		tracks = palm.tracking(localizations, max_distance)
@@ -294,7 +294,7 @@ def test_align():
 	z, h, w = stack.shape
 
 	# --- Facteurs de test (identité) ---
-	factors = np.zeros((2, 10), dtype=float)
+	factors: np.ndarray = np.zeros((2, 10), dtype=float)
 	factors[0, 7] = 1.0
 	factors[1, 8] = 1.0
 
@@ -307,7 +307,9 @@ def test_align():
 	if save_output: FileIO.save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-upsampling.tif")
 	assert aligned.shape == (z, 2 * h, 2 * w), "Mode Upscale : pour un stack 3D seule X et Y doivent être doublées."
 
-	def up2_nn(arr): return np.repeat(np.repeat(arr, 2, axis=-2), 2, axis=-1)
+	def up2_nn(arr):
+		"""Double les deux dimensions spatiales par répétition des pixels voisins."""
+		return np.repeat(np.repeat(arr, 2, axis=-2), 2, axis=-1)
 
 	ref = np.stack([up2_nn(stack[z]) for z in range(stack.shape[0])], axis=0)
 	assert np.allclose(aligned[..., :-1, :-1], ref[..., :-1, :-1], atol=0, rtol=0), "Mode Upscale : le résultat doit être IDENTIQUE au stack d'origine."

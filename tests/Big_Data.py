@@ -1,6 +1,6 @@
 """Teste les traitements PALM sur des jeux de données volumineux."""
 
-from palm_tracer._tests.Utils import *
+from tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Drift import extract_beads, get_drift, remove_drift
 from palm_tracer.Tools import FileIO, Ui
