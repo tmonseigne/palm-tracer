@@ -33,20 +33,20 @@ default_fit = 4
 save_output = True
 
 
-##################################################
+# --------------------------------------------------
 def strip_ansi(text: str) -> str:
 	"""Supprime les séquences ANSI (couleurs console)."""
 	return ANSI_ESCAPE.sub("", text)
 
 
-##################################################
+# --------------------------------------------------
 def clean_output():
 	"""Vide les dossiers de sorties."""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 	shutil.rmtree(OUTPUT_FOLDER_2, ignore_errors=True)
 
 
-##################################################
+# --------------------------------------------------
 def get_lines_output(capsys) -> list[str]:
 	"""
 	Récupère la sortie lignes par lignes.
@@ -59,14 +59,14 @@ def get_lines_output(capsys) -> list[str]:
 	return out.splitlines()
 
 
-##################################################
+# --------------------------------------------------
 def add_basic_file(pt: PALMTracer, files: Optional[list[str]] = None):
 	"""Mise à jour basique de la liste des fichiers."""
 	file_list = cast(FileList, pt.settings.batch["Files"])
 	file_list.items = [str(INPUT_DIR / "stack.tif")] if files is None else files
 
 
-##################################################
+# --------------------------------------------------
 def get_fake_pt():
 	"""Instance basique de PALMTracer pour chaque test."""
 	pt = PALMTracer()
@@ -84,7 +84,7 @@ def get_fake_pt():
 	return pt
 
 
-##################################################
+# --------------------------------------------------
 def get_fit_params(fit: int) -> np.ndarray:
 	"""
 	Basique fit_param pour la localisation.
@@ -105,7 +105,7 @@ def get_fit_params(fit: int) -> np.ndarray:
 	return np.concatenate([np.array([default_roi, sx, sy, sz, calib["dz"]], dtype=float), calib["coeff"].flatten()])
 
 
-##################################################
+# --------------------------------------------------
 def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_watershed, threshold: float = default_threshold) -> str:
 	"""
 	Génère un suffixe pour les fichiers de localisation.
@@ -118,7 +118,7 @@ def get_loc_suffix(gaussian: int = default_fit, watershed: bool = default_waters
 	return f"{threshold}_{watershed}_{gaussian}_{default_sigma}_{default_theta}_{default_roi}"
 
 
-##################################################
+# --------------------------------------------------
 def get_trc_suffix() -> str:
 	"""
 	Génère un suffixe pour les fichiers de tracking.
@@ -128,7 +128,7 @@ def get_trc_suffix() -> str:
 	return f"{max_distance}"
 
 
-##################################################
+# --------------------------------------------------
 def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
 	"""
 	Vérifie que deux valeurs flottantes sont proches avec une tolérance.
@@ -142,7 +142,7 @@ def is_closed(a: float, b: float, tol: float = 1e-5) -> bool:
 	return np.abs(a - b) <= tol
 
 
-##################################################
+# --------------------------------------------------
 def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 				   group_cols: Optional[list[str]] = None, compare_cols: Optional[list[str]] = None) -> bool:
 	"""
@@ -265,7 +265,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	return res
 
 
-##################################################
+# --------------------------------------------------
 def _prune_json(obj: Any) -> Any:
 	"""Supprime récursivement les champs None / dict vides / listes vides."""
 	if isinstance(obj, dict):
@@ -291,7 +291,7 @@ def _prune_json(obj: Any) -> Any:
 	return obj
 
 
-##################################################
+# --------------------------------------------------
 def get_light_json(data: dict) -> dict:
 	"""
 	Sauvegarde une figure Plotly en JSON déterministe (simple, sans fioritures inutiles).
@@ -319,7 +319,7 @@ def get_light_json(data: dict) -> dict:
 	return data
 
 
-##################################################
+# --------------------------------------------------
 class _FakeDownload:
 	"""
 	Simule un téléchargement QtWebEngine pour tester les actions d'export.
@@ -327,6 +327,7 @@ class _FakeDownload:
 	:param suggested: Nom de fichier suggéré par le téléchargement.
 	"""
 
+	# --------------------------------------------------
 	def __init__(self, suggested="plot.png"):
 		self._suggested = suggested
 		self.directory = None
@@ -334,32 +335,40 @@ class _FakeDownload:
 		self.accepted = False
 		self.canceled = False
 
+	# --------------------------------------------------
 	def suggestedFileName(self): return self._suggested
 
+	# --------------------------------------------------
 	def setDownloadDirectory(self, d): self.directory = d
 
+	# --------------------------------------------------
 	def setDownloadFileName(self, f): self.filename = f
 
+	# --------------------------------------------------
 	def accept(self): self.accepted = True
 
+	# --------------------------------------------------
 	def cancel(self): self.canceled = True
 
 
-##################################################
+# --------------------------------------------------
 class DropReceiver(QWidget):
 	"""Simule le destinataire Napari habituel pour détecter les dépôts non interceptés."""
 
+	# --------------------------------------------------
 	def __init__(self, parent: QWidget | None = None):
 		"""Initialise l'acceptation des dépôts et leur historique."""
 		super().__init__(parent)
 		self.received: list = []
 		self.setAcceptDrops(True)
 
+	# --------------------------------------------------
 	def dragEnterEvent(self, event):
 		"""Accepte le glissement reçu par le widget habituel."""
 		self.received.append("enter")
 		event.acceptProposedAction()
 
+	# --------------------------------------------------
 	def dropEvent(self, event):
 		"""Enregistre le dépôt reçu par le widget habituel."""
 		self.received.append("drop")

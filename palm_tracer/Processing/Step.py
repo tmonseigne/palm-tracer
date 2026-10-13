@@ -3,20 +3,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import auto, Enum
-from typing import Callable, TypeAlias
+from enum import Enum, auto
+from typing import Callable
 
 import pandas as pd
 
 from palm_tracer.Settings.Groups import BaseSettingGroup
 
-##################################################
-FilterSingle: TypeAlias = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un DataFrame et qui en retourne un.
-FilterTrackAnalysis: TypeAlias = Callable[  # Fonction spécifique à l'analyse des trajectoires
+# --------------------------------------------------
+FilterSingle = Callable[[pd.DataFrame], pd.DataFrame]  # Fonction avec un DataFrame et qui en retourne un.
+FilterTrackAnalysis = Callable[  # Fonction spécifique à l'analyse des trajectoires
 	[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame], tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]]
 
 
-##################################################
+# --------------------------------------------------
 @dataclass(frozen=True)
 class Step:
 	"""
@@ -44,7 +44,7 @@ class Step:
 	"""Choix de filtre à appliquer ou non (cas des visualisations)."""
 
 
-##################################################
+# --------------------------------------------------
 class StepAction(Enum):
 	"""Énumère les décisions possibles lors de la préparation d'une étape du pipeline."""
 
@@ -56,7 +56,7 @@ class StepAction(Enum):
 	"""Ignoré (pas actif ou impossible)."""
 
 
-##################################################
+# --------------------------------------------------
 def prepare_step_action(group: BaseSettingGroup, previous_group: BaseSettingGroup | None, pipeline_dirty: bool, allow_dirty: bool = False) -> StepAction:
 	"""
 	Estime le type d'action à effectuer pour une étape du traitement.

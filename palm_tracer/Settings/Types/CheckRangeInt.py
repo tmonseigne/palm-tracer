@@ -13,7 +13,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class CheckRangeInt(BaseCheckSetting):
 	"""
@@ -39,7 +39,6 @@ class CheckRangeInt(BaseCheckSetting):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -66,13 +65,13 @@ class CheckRangeInt(BaseCheckSetting):
 		self._uis[name] = ui  # .					   Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def min(self) -> int:
 		"""Indicateur de la valeur minimale du paramètre (:class:`int`)."""
 		return self._value[0]
 
-	##################################################
+	# --------------------------------------------------
 	@min.setter
 	def min(self, value: int):
 		"""Contrôle la modification de la valeur minimale."""
@@ -85,13 +84,13 @@ class CheckRangeInt(BaseCheckSetting):
 		if self.min > self.max: self.max = value
 		else: self.emit(value)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def max(self) -> int:
 		"""Indicateur de la valeur maximale du paramètre (:class:`int`)."""
 		return self._value[1]
 
-	##################################################
+	# --------------------------------------------------
 	@max.setter
 	def max(self, value: int):
 		"""Contrôle la modification de la valeur maximale."""
@@ -104,26 +103,26 @@ class CheckRangeInt(BaseCheckSetting):
 		if self.max < self.min: self.min = value
 		else: self.emit(value)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> list[int]:
 		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: list[int]):
 		"""Valeur actuelle du paramètre (:class:`list[int]`)."""
 		self.min = value[0]
 		self.max = value[1]
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def limits(self) -> list[int]:
 		"""Limites actuelles du paramètre (:class:`list[int]`)."""
 		return self._limits
 
-	##################################################
+	# --------------------------------------------------
 	@limits.setter
 	def limits(self, value: list[int]):
 		"""Limites actuelles du paramètre (:class:`list[int]`)."""
@@ -143,12 +142,11 @@ class CheckRangeInt(BaseCheckSetting):
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie la valeur, les limites et l'état actif du paramètre."""
 		return {**super().to_compact_dict(), "limits": self.limits}
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		"""Met à jour les limites, la valeur et l'état actif depuis un dictionnaire minimal."""
 		self.limits = data["limits"]  # Récupération des limites avant de mettre à jour la valeur
@@ -161,21 +159,21 @@ class CheckRangeInt(BaseCheckSetting):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-	##################################################
 	def set_min(self, value: int):
 		"""S'assure que min ≤ max."""
 		self.min = value
 
-	##################################################
+	# --------------------------------------------------
 	def set_max(self, value: int):
 		"""S'assure que min ≤ max."""
 		self.max = value
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QPushButton, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -186,6 +184,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

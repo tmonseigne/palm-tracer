@@ -1,9 +1,9 @@
 """Teste les traitements PALM sur des jeux de données volumineux."""
 
-from tests.Utils import *
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Drift import extract_beads, get_drift, remove_drift
 from palm_tracer.Tools import FileIO, Ui
+from tests.Utils import *
 
 # TRESH, FILE = 340.6, "Tubulin-A647-3D-stacks_1"
 TRESH, FILE = 450, "uTub_Cy3"
@@ -16,7 +16,7 @@ LOC_PATH = INPUT_DIR / "big input" / f"{FILE}-localizations-{get_loc_suffix(thre
 TRC_PATH = INPUT_DIR / "big input" / f"{FILE}-tracking-{get_trc_suffix()}.csv"
 
 
-##################################################
+# --------------------------------------------------
 def test_palm_cpu():
 	"""
 	Test pour le process sur des données importantes.
@@ -69,7 +69,7 @@ def test_palm_cpu():
 	assert True
 
 
-##################################################
+# --------------------------------------------------
 def test_tracking():
 	"""
 	Test pour le process sur des données importantes.
@@ -108,7 +108,7 @@ def test_tracking():
 	assert True
 
 
-##################################################
+# --------------------------------------------------
 def test_drift():
 	"""
 	Test Extraction des billes sur des données importantes.

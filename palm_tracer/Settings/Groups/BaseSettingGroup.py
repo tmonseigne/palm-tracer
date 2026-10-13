@@ -13,7 +13,7 @@ from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRangeInt
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class BaseSettingGroup:
 	"""
@@ -39,13 +39,12 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
 		if self.mode != 0: self.active = True
 
-	##################################################
+	# --------------------------------------------------
 	def initialize(self):
 		"""Initialise le dictionnaire de paramètres."""
 		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
@@ -53,7 +52,7 @@ class BaseSettingGroup:
 			args = copy.deepcopy(value[1])
 			self._settings[key] = value[0](*args)
 
-	##################################################
+	# --------------------------------------------------
 	def reset(self):
 		"""Remet les valeurs par défaut des paramètres."""
 		for _, setting in self._settings.items(): setting.reset()
@@ -65,7 +64,6 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		"""
 		Retourne une interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`) existante ou en crée une si nécessaire.
@@ -96,7 +94,7 @@ class BaseSettingGroup:
 		self._uis[name] = ui  # Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime l'interface Qt associée au nom donné.
@@ -108,13 +106,13 @@ class BaseSettingGroup:
 		for setting in self._settings.values():
 			setting.clean_ui(name)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def active(self) -> bool:
 		"""État du groupe, activé ou non (:class:`bool`)."""
 		return self._active
 
-	##################################################
+	# --------------------------------------------------
 	@active.setter
 	def active(self, value: bool):
 		"""Contrôle la modification de l'état actif."""
@@ -126,13 +124,13 @@ class BaseSettingGroup:
 				ui.checkbox.setChecked(value)
 				ui.active(value)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> Any:
 		"""Fonction vide nécessaire aux parcours automatiques."""
 		return
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: Any):
 		"""
@@ -142,13 +140,13 @@ class BaseSettingGroup:
 		"""
 		return
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def settings_names(self) -> list[str]:
 		"""Récupère les noms des paramètres de ce groupe."""
 		return list(self._settings.keys())
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def settings(self) -> dict[str, Any]:
 		"""Récupère les valeurs des paramètres."""
@@ -158,17 +156,17 @@ class BaseSettingGroup:
 			else: res.update({f"{key} {sub_key}": value for sub_key, value in setting.settings.items()})
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:
 		"""Surcharge de l'opérateur []."""
 		return self._settings[key]
 
-	##################################################
+	# --------------------------------------------------
 	def __contains__(self, key: str) -> bool:
 		"""Surcharge pour vérifier si une clé existe."""
 		return key in self._settings
 
-	##################################################
+	# --------------------------------------------------
 	def __iter__(self):
 		"""Surcharge pour obtenir l'itérable des clés."""
 		return iter(self._settings)
@@ -180,12 +178,11 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Visibilité
 	# ==================================================
-	##################################################
 	def hide(self):
 		"""Cache le paramètre."""
 		for ui in self._uis.values(): ui.hide()
 
-	##################################################
+	# --------------------------------------------------
 	def show(self):
 		"""Affiche le paramètre."""
 		for ui in self._uis.values(): ui.show()
@@ -197,20 +194,19 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
 		return {"active": self.active, "settings": {name: setting.to_compact_dict() for name, setting in self._settings.items()}}
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		self.active = data.get("active", False)
 		settings = data["settings"]
-		for key, value in self.setting_list.items():  # Appelle update_from_compact_dict pour chaque élément de setting_list
+		for key in self.setting_list:  # Appelle update_from_compact_dict pour chaque élément de setting_list.
 			if key in settings: self._settings[key].update_from_compact_dict(settings[key])
 
-	##################################################
+	# --------------------------------------------------
 	def tostring(self, line_prefix: str = "") -> str:
 		"""
 		Retourne une chaîne de caractères correspondant à la liste des paramètres.
@@ -221,12 +217,12 @@ class BaseSettingGroup:
 		msg = f"{line_prefix}- Activate : {self.active}\n"
 		for key, setting in self._settings.items():
 			if isinstance(setting, BaseSettingGroup): msg += f"{line_prefix}- {key} :\n{setting.tostring(f'{line_prefix}  ')}"
-			elif isinstance(setting, CheckRangeFloat | CheckRangeInt):
+			elif isinstance(setting, (CheckRangeFloat, CheckRangeInt)):
 				msg += f"{line_prefix}- {key} : {'Activate' if setting.active else 'Deactivate'} {setting.value}\n"
 			else: msg += f"{line_prefix}- {key} : {setting.value}\n"
 		return msg
 
-	##################################################
+	# --------------------------------------------------
 	def __str__(self) -> str:
 		"""
 		Retourne une représentation textuelle de l'objet.
@@ -242,7 +238,6 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-	##################################################
 	def set_active(self, state: int):
 		"""Met à jour l'état actif du groupe lorsque la checkbox est modifiée."""
 		self.active = bool(state)
@@ -254,7 +249,6 @@ class BaseSettingGroup:
 	# ==================================================
 	# region Signaux
 	# ==================================================
-	##################################################
 	def connect(self, f: Any):
 		"""
 		Connecte une fonction ou un slot à tous les éléments du groupe.
@@ -263,7 +257,7 @@ class BaseSettingGroup:
 		"""
 		for _, setting in self._settings.items(): setting.connect(f)
 
-	##################################################
+	# --------------------------------------------------
 	def disconnect(self, f: Optional[Any] = None):
 		"""
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
@@ -273,7 +267,7 @@ class BaseSettingGroup:
 		"""
 		for _, setting in self._settings.items(): setting.disconnect(f)
 
-	##################################################
+	# --------------------------------------------------
 	def signal_blocked(self) -> AbstractContextManager[Any]:
 		"""Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec ``with ...:``."""
 		if not self._settings: return nullcontext()

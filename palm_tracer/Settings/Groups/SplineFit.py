@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import BrowseFile, Combo
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class SplineFit(BaseSettingGroup):
 	"""
@@ -33,9 +33,10 @@ class SplineFit(BaseSettingGroup):
 	"""Mode d'affichage du groupe dans l'interface."""
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

@@ -13,7 +13,6 @@ from palm_tracer.Tools import Ui
 # ==================================================
 # region Construction de l'interface
 # ==================================================
-##################################################
 def test_add_setting_row(qtbot):
 	"""Vérifie l'ajout d'un paramètre dans un formulaire."""
 	parent = QWidget()
@@ -26,7 +25,7 @@ def test_add_setting_row(qtbot):
 	assert form.itemAt(0, QFormLayout.ItemRole.FieldRole).layout().itemAt(0).widget() is value
 
 
-##################################################
+# --------------------------------------------------
 def test_init_layout(qtbot):
 	"""Vérifie les espacements et marges demandés pour un calque."""
 	parent = QWidget()
@@ -38,7 +37,7 @@ def test_init_layout(qtbot):
 	assert (margins.left(), margins.top(), margins.right(), margins.bottom()) == (5, 5, 5, 5)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("builder, widget_type", [pytest.param(Ui.make_tab, QWidget, id="tab"), pytest.param(Ui.make_group, QGroupBox, id="group")])
 def test_make_container(qtbot, builder, widget_type):
 	"""Vérifie la construction d'un conteneur et de son calque vertical."""
@@ -49,7 +48,7 @@ def test_make_container(qtbot, builder, widget_type):
 	assert widget.layout() is layout
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("with_units", [pytest.param(False, id="no-units"), pytest.param(True, id="with-units-and-tooltips")])
 def test_make_info_grid(qtbot, with_units):
 	"""Vérifie la construction de la grille avec ou sans unités et infobulles."""
@@ -64,7 +63,7 @@ def test_make_info_grid(qtbot, with_units):
 	assert isinstance(grid, QGridLayout)
 
 
-##################################################
+# --------------------------------------------------
 def test_make_file_info_group(qtbot):
 	"""Vérifie la construction du groupe d'informations d'un fichier."""
 	group, status = Ui.make_file_info_group()
@@ -73,7 +72,7 @@ def test_make_file_info_group(qtbot):
 	assert status
 
 
-##################################################
+# --------------------------------------------------
 def test_make_path_label(qtbot):
 	"""Vérifie le texte initial du label de chemin."""
 	label = Ui.make_path_label("my path")
@@ -82,7 +81,7 @@ def test_make_path_label(qtbot):
 	assert label.text() == "my path"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("path", [pytest.param("my/path/file.txt", id="string"), pytest.param(Path("my/path/file.txt"), id="path-object")])
 def test_update_path_label(qtbot, path):
 	"""Vérifie le nom affiché et le chemin complet dans l'infobulle."""
@@ -93,7 +92,7 @@ def test_update_path_label(qtbot, path):
 	assert label.toolTip() == str(Path(path))
 
 
-##################################################
+# --------------------------------------------------
 def test_make_vertical_scroll(qtbot):
 	"""Vérifie que la zone de défilement contient le widget demandé."""
 	content = QWidget()
@@ -104,7 +103,7 @@ def test_make_vertical_scroll(qtbot):
 	assert scroll.widgetResizable()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("builder, shape, color", [
 		pytest.param(Ui.make_vertical_separator, QFrame.Shape.VLine, "#000000", id="vertical"),
 		pytest.param(Ui.make_horizontal_separator, QFrame.Shape.HLine, "#B0B0B0", id="horizontal")])
@@ -116,7 +115,7 @@ def test_make_separator(qtbot, builder, shape, color):
 	assert color in separator.styleSheet()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("decimals, buttons, spin_type", [
 		pytest.param(0, True, QSpinBox, id="integer-with-buttons"),
 		pytest.param(2, False, QDoubleSpinBox, id="decimal-without-buttons")])
@@ -139,7 +138,6 @@ def test_make_spin(qtbot, decimals, buttons, spin_type):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
-##################################################
 def test_sync_button_group(qtbot):
 	"""Vérifie les fonctions de synchronisation."""
 
@@ -166,7 +164,7 @@ def test_sync_button_group(qtbot):
 	assert grp_1.checkedId() == 0
 
 
-##################################################
+# --------------------------------------------------
 def test_sync_spin(qtbot):
 	"""Vérifie les fonctions de synchronisation."""
 	main_widget = QWidget()
@@ -188,7 +186,7 @@ def test_sync_spin(qtbot):
 	assert spin_1.value() == 5  # Vérification sur le premier
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("minimum, maximum, expected", [
 		pytest.param(None, None, (-100, 100), id="no-change"),
 		pytest.param(0, None, (0, 100), id="minimum-only"),
@@ -209,7 +207,6 @@ def test_update_spin_limits(qtbot, minimum, maximum, expected):
 # ==================================================
 # region Affichages
 # ==================================================
-##################################################
 @pytest.mark.parametrize("printer, message", [
 		pytest.param(Ui.print_error, "Message d'erreur", id="error"),
 		pytest.param(Ui.print_warning, "Message d'avertissement", id="warning"),
@@ -223,7 +220,7 @@ def test_print_message(capsys, printer, message):
 	assert captured.err == ""
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("seconds, expected", [
 		pytest.param(0, "00:00:00", id="zero-duration"),
 		pytest.param(59, "00:00:59", id="seconds"),

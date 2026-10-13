@@ -21,7 +21,7 @@ DATA_SRC: dict[str, list] = {
 		}
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Graph(BaseSettingGroup):
 	"""
@@ -29,7 +29,8 @@ class Graph(BaseSettingGroup):
 
 	Paramètres regroupés :
 
-	- ``Mode`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de représentation, histogramme, courbes Scatter ou nuage de points utilisant deux sources.
+	- ``Mode`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de représentation,
+	  histogramme, courbes Scatter ou nuage de points utilisant deux sources.
 	- ``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires.
 	- ``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée.
 	- ``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque le mode ``Dual`` est actif.
@@ -49,13 +50,13 @@ class Graph(BaseSettingGroup):
 			"Display":  [GraphDisplay, []]}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def display(self) -> GraphDisplay:
 		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(GraphDisplay, self._settings["Display"])
 
-	##################################################
+	# --------------------------------------------------
 	def initialize(self):
 		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
@@ -65,26 +66,26 @@ class Graph(BaseSettingGroup):
 		self.toggle_mode(self._settings["Mode"].value)
 		self.toggle_src()
 
-	##################################################
+	# --------------------------------------------------
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_mode(self._settings["Mode"].value)
 		self.toggle_src()
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	def toggle_type(self):
 		"""Change la liste des sources pour les graphiques."""
 		self._update_src()
 
-	##################################################
+	# --------------------------------------------------
 	def toggle_src(self):
 		"""Affiche ou masque l'option msd step à chaque changement de source."""
 		src = cast(Combo, self._settings["Source"])
 		if src.current_text == "MSD" and self._settings["Mode"].value == 0: self._settings["MSD Step"].show()
 		else: self._settings["MSD Step"].hide()
 
-	##################################################
+	# --------------------------------------------------
 	def toggle_mode(self, mode: int):
 		"""
 		Adapte les sources et les options d'affichage au mode sélectionné.
@@ -98,7 +99,7 @@ class Graph(BaseSettingGroup):
 		self.display["Limits"].value = mode != 1
 		self._update_src()
 
-	##################################################
+	# --------------------------------------------------
 	def _update_src(self):
 		"""Actualise les sources en conservant les libellés disponibles, sinon sélectionne le premier choix."""
 		# Liste de base
@@ -120,7 +121,7 @@ class Graph(BaseSettingGroup):
 		self.toggle_src()
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

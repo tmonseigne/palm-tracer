@@ -13,6 +13,7 @@ from palm_tracer.Settings import ROI, ROIManager
 from palm_tracer.Settings.Types import CheckInt, CheckRangeInt, SpinInt
 
 
+# --------------------------------------------------
 @pytest.fixture
 def manager() -> ROIManager:
 	"""Construit un gestionnaire avec une sélection active et un ratio HR de 4."""
@@ -22,7 +23,6 @@ def manager() -> ROIManager:
 # ==================================================
 # region Accesseurs
 # ==================================================
-##################################################
 def test_rois(manager: ROIManager):
 	"""Vérifie la gestion de la collection de zones d'intérêt."""
 	manager.rois = [ROI("rectangle", np.zeros((4, 2)))]
@@ -33,7 +33,7 @@ def test_rois(manager: ROIManager):
 	np.testing.assert_allclose(manager.rois[1].data, [[1, 1], [1, 1], [1, 1], [1, 1]])
 
 
-##################################################
+# --------------------------------------------------
 def test_set_xy_roi(manager: ROIManager):
 	"""Vérifie la définition d'une zone d'intérêt XY."""
 	manager.rois = [ROI("ellipse", np.ones((4, 2)))]
@@ -47,7 +47,7 @@ def test_set_xy_roi(manager: ROIManager):
 	assert len(manager.rois) == 2
 
 
-##################################################
+# --------------------------------------------------
 def test_layer(manager: ROIManager):
 	"""Vérifie la synchronisation du calque de zones d'intérêt."""
 	assert manager.layer_main is None and manager.layer_hr is None
@@ -63,7 +63,6 @@ def test_layer(manager: ROIManager):
 # ==================================================
 # region Synchronisation
 # ==================================================
-##################################################
 @pytest.mark.parametrize("source", [pytest.param("main", id="main-layer"), pytest.param("hr", id="hr-layer")])
 @pytest.mark.parametrize("types_count, data_count", [
 	pytest.param(1, 0, id="missing-data"), pytest.param(0, 1, id="missing-type")])
@@ -76,7 +75,7 @@ def test_update_from_layer_mismatched_lengths(manager: ROIManager, source: str, 
 	assert not manager._is_synchronizing
 
 
-##################################################
+# --------------------------------------------------
 def test_update_main(manager: ROIManager):
 	"""Vérifie la mise à jour de la zone d'intérêt principale."""
 	manager.update_from_main()  # Aucun layer
@@ -89,7 +88,7 @@ def test_update_main(manager: ROIManager):
 	manager.layer_main.selected_data = {0}  # Le callback à appelé on_main_selection_changed
 
 
-##################################################
+# --------------------------------------------------
 def test_update_hr(manager: ROIManager):
 	"""Vérifie la mise à jour de la zone d'intérêt haute résolution."""
 	manager.update_from_hr()  # Aucun layer
@@ -102,7 +101,7 @@ def test_update_hr(manager: ROIManager):
 	manager.layer_hr.selected_data = {0}  # Le callback à appelé on_hr_selection_changed
 
 
-##################################################
+# --------------------------------------------------
 def test_update_roi_selection(manager: ROIManager):
 	# Appel du callback _on_roi_selection_changed
 	"""Vérifie la mise à jour de la sélection des zones d'intérêt."""
@@ -122,7 +121,6 @@ def test_update_roi_selection(manager: ROIManager):
 # ==================================================
 # region Entrées-sorties
 # ==================================================
-##################################################
 def test_dict(manager: ROIManager):
 	"""Vérifie la sérialisation du gestionnaire de zones d'intérêt."""
 	manager.rois = [ROI("rectangle", np.zeros((4, 2)))]  # Ajout d'une forme
@@ -144,7 +142,6 @@ def test_dict(manager: ROIManager):
 # ==================================================
 # region Divers
 # ==================================================
-##################################################
 def test_roi_limits(manager: ROIManager):
 	"""Vérifie le calcul des limites des zones d'intérêt."""
 	manager.set_size(100, 80)
@@ -159,7 +156,7 @@ def test_roi_limits(manager: ROIManager):
 	assert manager.get_roi_limits() == (20, 40, 10, 30)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("limits, expected", [
 		pytest.param([0, 0], (0, 100, 0, 80), id="outside"),
 		pytest.param([20, 80], (20, 40, 10, 30), id="crossing"),
@@ -179,7 +176,7 @@ def test_hr_limits(manager: ROIManager, limits: list[int], expected: tuple[int, 
 	assert manager.hr_box == (20, 40, 10, 30)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("gaussian, expected", [
 		pytest.param(None, (15, 35, 15, 35), id="spots"),
 		pytest.param({"Shape": 0, "Size": 2}, (9, 41, 9, 41), id="fixed-size"),
@@ -195,7 +192,7 @@ def test_update_data_box(manager: ROIManager, gaussian, expected):
 	assert manager.get_roi_limits() == (0, 100, 0, 80)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data", [
 		pytest.param(None, id="disabled"),
 		pytest.param(pd.DataFrame(), id="empty-data"),
@@ -209,7 +206,7 @@ def test_update_data_box_reset(manager: ROIManager, data):
 	assert manager.data_box == (-1, -1, -1, -1)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("sigmas, gaussian", [
 		pytest.param({"Sigma Y": [1.0]}, {"Shape": 1}, id="missing-sigma-x"),
 		pytest.param({"Sigma X": [1.0]}, {"Shape": 2}, id="missing-sigma-y"),
@@ -236,7 +233,7 @@ def test_update_data_box_invalid_gaussian(manager: ROIManager, sigmas, gaussian)
 	assert manager.get_hr_limits() == (10, 50, 10, 50)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data_box, expected", [
 		pytest.param((0, 25, 0, 20), (20, 25, 10, 20), id="image-edge"),
 		pytest.param((60, 70, 60, 70), (20, 40, 10, 30), id="disjoint")])
@@ -250,7 +247,7 @@ def test_hr_data_intersection(manager: ROIManager, data_box, expected):
 	assert manager.hr_box == expected
 
 
-##################################################
+# --------------------------------------------------
 def test_data_box_intersection_and_reset(manager: ROIManager):
 	"""Le cadrage HR ne filtre pas les données et disparaît au changement de pile."""
 	manager.set_size(100, 80)
@@ -269,7 +266,7 @@ def test_data_box_intersection_and_reset(manager: ROIManager):
 	assert manager.data_box == (-1, -1, -1, -1)
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_box(manager: ROIManager):
 	"""Vérifie le calcul de la boîte haute résolution."""
 	manager.set_size(100, 80)
@@ -279,7 +276,7 @@ def test_hr_box(manager: ROIManager):
 	assert manager.hr_box == (0, 100, 0, 80)
 
 
-##################################################
+# --------------------------------------------------
 def test_filtering_dataframe(manager: ROIManager):
 	"""Vérifie le filtrage spatial d'un DataFrame."""
 	manager.set_size(10, 10)
@@ -310,7 +307,7 @@ def test_filtering_dataframe(manager: ROIManager):
 	np.testing.assert_allclose(res.to_numpy(), [[1, 1], [2, 2]])
 
 
-##################################################
+# --------------------------------------------------
 def test_filtering_dataframe_concave_cross(manager: ROIManager):
 	"""Vérifie le filtrage exact d'une ROI concave en forme de croix."""
 	manager.set_size(10, 10)

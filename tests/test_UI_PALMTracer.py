@@ -6,9 +6,9 @@ from qtpy.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QTabWidget
 
-from tests.Utils import *
 from palm_tracer.Tools.FileIO import USER_SETTINGS_FILE
 from palm_tracer.UI import PALMTracerWidget
+from tests.Utils import *
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -17,7 +17,7 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def drop_widget(qtbot, monkeypatch):
 	"""Crée une fenêtre PALMTracer sans chargement initial ni callbacks de traitement des fichiers."""
@@ -39,7 +39,7 @@ def drop_widget(qtbot, monkeypatch):
 	return widget, receiver
 
 
-##################################################
+# --------------------------------------------------
 def send_file_drop(receiver, mime):
 	"""Envoie la séquence Qt d'entrée, de déplacement et de dépôt au destinataire."""
 	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
@@ -52,7 +52,6 @@ def send_file_drop(receiver, mime):
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_creation(qtbot):
 	"""Vérifie la création du widget."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
@@ -61,7 +60,7 @@ def test_creation(qtbot):
 	qtbot.addWidget(w)
 
 
-##################################################
+# --------------------------------------------------
 def test_filters_button(qtbot):
 	"""Vérifie le comportement du bouton de filtrage."""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
@@ -116,7 +115,6 @@ def test_filters_button(qtbot):
 # ==================================================
 # region Glisser-déposer
 # ==================================================
-##################################################
 @pytest.mark.parametrize("count", [1, 2], ids=["single-file", "multiple-files"])
 def test_drop_adds_files_from_window(drop_widget, tmp_path, count):
 	"""Vérifie l'ajout depuis un widget extérieur au plugin et l'interception avant son gestionnaire."""
@@ -135,7 +133,7 @@ def test_drop_adds_files_from_window(drop_widget, tmp_path, count):
 	assert files.value == count - 1
 
 
-##################################################
+# --------------------------------------------------
 def test_drop_rejects_files_during_processing(drop_widget, tmp_path):
 	"""Vérifie que le traitement en cours bloque les ajouts au Batch."""
 	widget, receiver = drop_widget
@@ -159,7 +157,6 @@ def test_drop_rejects_files_during_processing(drop_widget, tmp_path):
 # ==================================================
 # region Threads
 # ==================================================
-##################################################
 def test_thread_process(qtbot):
 	"""Vérifie le clic sur le bouton process."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -191,7 +188,6 @@ def test_thread_process(qtbot):
 # ==================================================
 # region Fonctions de rappel des paramètres
 # ==================================================
-##################################################
 def test_on_load_setting(qtbot, capsys, fake_qfiledialog):
 	"""Vérifie la remise à zéro des calques."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -203,7 +199,7 @@ def test_on_load_setting(qtbot, capsys, fake_qfiledialog):
 	w._on_load_setting_btn()
 
 
-##################################################
+# --------------------------------------------------
 def test_reset_setting(qtbot):
 	"""Vérifie la remise à zéro des calques."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -221,7 +217,6 @@ def test_reset_setting(qtbot):
 # ==================================================
 # region Fonctions de rappel des calques
 # ==================================================
-##################################################
 def test_clean_layer(qtbot):
 	"""Vérifie le nettoyage des calques."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -235,7 +230,7 @@ def test_clean_layer(qtbot):
 	w._clean_layer(False, False, False)
 
 
-##################################################
+# --------------------------------------------------
 def test_reset_layer(capsys, qtbot):
 	"""Vérifie la remise à zéro des calques."""
 	clean_output()
@@ -255,7 +250,7 @@ def test_reset_layer(capsys, qtbot):
 	w._reset_layer()  # .											   Remise à 0 des calques sans changement.
 
 
-##################################################
+# --------------------------------------------------
 def test_add_detection_layers(qtbot):
 	"""Vérifie Ajout des calques de détection."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -298,7 +293,7 @@ def test_add_detection_layers(qtbot):
 	assert len(w._layers["Points Future"].data) == 707
 
 
-##################################################
+# --------------------------------------------------
 def test_get_actual_image(qtbot):
 	"""Vérifie la récupération d'image."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -313,7 +308,7 @@ def test_get_actual_image(qtbot):
 	assert w._get_actual_image(100) is None, "Une image hors limite a été récupéré."  # .Récupération d'une image hors limite
 
 
-##################################################
+# --------------------------------------------------
 def test_preview(capsys, qtbot):
 	"""Vérifie le clic sur le bouton preview."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -371,7 +366,7 @@ def test_preview(capsys, qtbot):
 	assert all(len(w._layers[name].data) == 0 for name in w.LAYERS_NAME[1:6])
 
 
-##################################################
+# --------------------------------------------------
 def test_preview_plane_filter_uses_stack_plane(qtbot):
 	"""Vérifie que le filtre utilise les numéros réels des plans prévisualisés."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)
@@ -404,7 +399,7 @@ def test_preview_plane_filter_uses_stack_plane(qtbot):
 		assert len(w._preview_locs["Future"]) > 0
 
 
-##################################################
+# --------------------------------------------------
 def test_auto_threshold(capsys, qtbot):
 	"""Vérifie le clic sur le bouton auto_threshold."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)

@@ -34,7 +34,6 @@ DEFAULT_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model_default.csv"
 # ==================================================
 # region Gestion des fichiers
 # ==================================================
-##################################################
 def add_extension(filename: str, extension: str) -> str:
 	"""
 	Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle.
@@ -48,7 +47,7 @@ def add_extension(filename: str, extension: str) -> str:
 	return filename
 
 
-##################################################
+# --------------------------------------------------
 def add_suffix(filename: str, suffix: str) -> str:
 	"""
 	Ajoute un suffixe à un nom de fichier (gère la possibilité d'une extension ou non au nom de fichier).
@@ -64,7 +63,7 @@ def add_suffix(filename: str, suffix: str) -> str:
 	return f"{filename}{suffix}"
 
 
-##################################################
+# --------------------------------------------------
 def get_timestamp_for_files(with_hour: bool = True) -> str:
 	"""
 	Créé un horodatage au format -AAAAMMJJ_HHMMSS pour un nom de fichier.
@@ -76,7 +75,7 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 	return datetime.now().strftime("%Y%m%d")  # .					 Formater la date
 
 
-##################################################
+# --------------------------------------------------
 def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha"] = "alpha") -> str:
 	"""
 	Récupère le dernier fichier (le plus récent) qui contient le paramètre ``name`` dans son nom dans le chemin ``path``.
@@ -99,7 +98,7 @@ def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha
 		return ""
 
 
-##################################################
+# --------------------------------------------------
 def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 	"""
 	Récupère le suffixe d'un fichier (partie après le séparateur ou après sa dernière occurrence en cas de présence multiple).
@@ -113,7 +112,7 @@ def extract_suffix(filename: str | Path, separator: str = "-") -> str:
 	return parts[1] if len(parts) == 2 else ""
 
 
-##################################################
+# --------------------------------------------------
 def cleanup_process(path: str | Path, timestamp: str):
 	"""
 	Supprime les derniers fichiers résiduels d'un ancien process si toutes ses sorties ont été consommées/renommées.
@@ -142,7 +141,7 @@ def cleanup_process(path: str | Path, timestamp: str):
 		except OSError as e: Ui.print_error(f"Unable to delete previous process file '{file.name}': {e}")
 
 
-##################################################
+# --------------------------------------------------
 def load_dll(name: str) -> Optional[ctypes.CDLL]:
 	"""
 	Charge une DLL, si elle existe.
@@ -167,11 +166,11 @@ def load_dll(name: str) -> Optional[ctypes.CDLL]:
 # ==================================================
 # region Entrées-sorties JSON
 # ==================================================
-##################################################
 def _compact_value_arrays(text: str) -> str:
 	"""Compacte les dictionnaires du type {"value": [...]} sur une seule ligne."""
 	pattern = re.compile(r'\{\s*"value"\s*:\s*\[\s*([^\]]*?)\s*\]\s*\}', flags=re.MULTILINE | re.DOTALL)
 
+	# --------------------------------------------------
 	def replacer(match: re.Match[str]) -> str:
 		"""
 		Compacte la valeur reconnue par l'expression régulière.
@@ -186,11 +185,12 @@ def _compact_value_arrays(text: str) -> str:
 	return pattern.sub(replacer, text)
 
 
-##################################################
+# --------------------------------------------------
 def _compact_value_scalars(text: str) -> str:
 	"""Compacte les dictionnaires du type {"value": x} sur une seule ligne, pour les valeurs scalaires JSON : nombre, booléen, null, chaîne."""
 	pattern = re.compile(r'\{\s*"value"\s*:\s*(true|false|null|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:\\.|[^"\\])*")\s*\}', flags=re.MULTILINE)
 
+	# --------------------------------------------------
 	def replacer(match: re.Match[str]) -> str:
 		"""
 		Compacte la valeur reconnue par l'expression régulière.
@@ -204,7 +204,7 @@ def _compact_value_scalars(text: str) -> str:
 	return pattern.sub(replacer, text)
 
 
-##################################################
+# --------------------------------------------------
 def save_json(filename: str | Path, data: dict[str, Any]):
 	"""
 	Enregistre un dictionnaire au format JSON.
@@ -220,7 +220,7 @@ def save_json(filename: str | Path, data: dict[str, Any]):
 	path.write_text(text, encoding="utf-8")
 
 
-##################################################
+# --------------------------------------------------
 def open_json(filename: str | Path) -> dict[str, Any]:
 	"""
 	Ouvre un fichier JSON et récupère le dictionnaire.
@@ -241,7 +241,6 @@ def open_json(filename: str | Path) -> dict[str, Any]:
 # ==================================================
 # region Entrées-sorties TIFF
 # ==================================================
-##################################################
 def save_tif(stack: np.ndarray, filename: str | Path):
 	"""
 	Sauvegarde une image ou une séquence scalaire ou RGB dans un fichier TIFF.
@@ -265,7 +264,7 @@ def save_tif(stack: np.ndarray, filename: str | Path):
 		raise ValueError("Le tableau doit être 2D, 3D scalaire ou 4D RGB (plans, hauteur, largeur, 3).")
 
 
-##################################################
+# --------------------------------------------------
 def read_tif_shape(filename: str | Path) -> tuple[int, int, int]:
 	"""
 	Lit les dimensions d'une pile TIFF sans charger ses pixels.
@@ -286,7 +285,7 @@ def read_tif_shape(filename: str | Path) -> tuple[int, int, int]:
 	raise ValueError(f"Dimension inattendue pour un TIFF : {len(shape)}D (attendu 2D ou 3D).")
 
 
-##################################################
+# --------------------------------------------------
 def open_tif(filename: str | Path) -> np.ndarray:
 	"""
 	Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur).
@@ -318,7 +317,6 @@ def open_tif(filename: str | Path) -> np.ndarray:
 # ==================================================
 # region Entrées-sorties PNG
 # ==================================================
-##################################################
 def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True):
 	"""
 	Sauvegarde une image en niveaux de gris ou RGB dans un fichier PNG avec Pillow.
@@ -331,15 +329,15 @@ def save_png(image: np.ndarray, filename: str | Path, normalization: bool = True
 		raise ValueError("L'image doit être en 2D (niveaux de gris) ou 3D (RGB).")
 	if normalization:
 		min_val, max_val = image.min(), image.max()
-		if max_val > min_val: image = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
-		else: image = np.zeros_like(image, dtype=np.uint8)  # Cas d'une image uniforme
+		# Une image uniforme devient noire ; sinon, normaliser ses valeurs entre 0 et 255.
+		image = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8) if max_val > min_val else np.zeros_like(image, dtype=np.uint8)
 
 	image = image.clip(0, 255).astype(np.uint8)  # Conversion en entiers 8 bits
 	im = Image.fromarray(image)  # .			   Passage par Pillow
 	im.save(filename)  # .						   Enregistrement
 
 
-##################################################
+# --------------------------------------------------
 def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarray:
 	"""
 	Convertie une image 2D Niveau de gris en tableau 3D (pour la couleur RGB) selon la color map. Le format est compatible avec Pillow et Napari.
@@ -352,7 +350,7 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 	:return: Image RGB de forme (H, W, 3) en dtype uint8, compatible Pillow et Napari.
 	"""
 	# Récupération de la table de correspondance (LUT)
-	lut = np.zeros((MAX_UI_16 + 1, 3), dtype=np.uint8)
+	lut: np.ndarray = np.zeros((MAX_UI_16 + 1, 3), dtype=np.uint8)
 	# Échantillons continus pour indices 1..65535 inclus
 	# t_k = (k-1)/65534 pour k ∈ [1..65535] ; nombre d'échantillons = 65535
 	t = np.linspace(0.0, 1.0, MAX_UI_16, dtype=float)
@@ -377,7 +375,6 @@ def grayscale_to_color(data: np.ndarray, color_map: str = "viridis") -> np.ndarr
 # ==================================================
 # region Entrées-sorties MATLAB
 # ==================================================
-##################################################
 def open_calibration_mat(filename: str | Path) -> dict[str, Any]:
 	"""
 	Charge un fichier de calibration Matlab.
@@ -398,3 +395,7 @@ def open_calibration_mat(filename: str | Path) -> dict[str, Any]:
 			"dz":    cspline["dz"][0][0][0][0],
 			"coeff": np.asfortranarray(coeff, dtype=float)  # Passage en column major et en double
 			}
+
+# ==================================================
+# endregion Entrées-sorties MATLAB
+# ==================================================

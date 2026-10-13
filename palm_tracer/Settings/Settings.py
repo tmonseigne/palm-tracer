@@ -24,7 +24,7 @@ from palm_tracer.Settings.Types import CheckInt, SpinInt
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Settings:
 	"""
@@ -43,7 +43,6 @@ class Settings:
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._settings = dict[str, BaseSettingGroup]()
@@ -55,7 +54,7 @@ class Settings:
 		self.batch["Files"].connect(self._update_filter_limits)
 		self.batch["Mode"].connect(self._update_filter_limits)
 
-	##################################################
+	# --------------------------------------------------
 	def _update_filter_limits(self, _value: Any = None):
 		"""Ajuste les bornes des filtres à la profondeur du lot actif."""
 		try: plane_count = self.batch.get_plane_count()
@@ -64,7 +63,7 @@ class Settings:
 			return
 		self.filters.update_limits(plane_count if plane_count is not None else 100000)
 
-	##################################################
+	# --------------------------------------------------
 	def reset(self):
 		"""Remet les valeurs par défaut des paramètres."""
 		for _, setting in self._settings.items(): setting.reset()
@@ -76,7 +75,6 @@ class Settings:
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> dict[str, BaseUIGroup]:
 		"""
 		Retourne un dictionnaire d'objets :class:`.BaseUIGroup` (un par groupe de paramètres), existants ou les créés si nécessaire.
@@ -89,7 +87,7 @@ class Settings:
 		self._uis[name] = ui  # Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime récursivement les interfaces Qt associées au nom donné.
@@ -98,67 +96,67 @@ class Settings:
 		"""
 		for setting in self._settings.values(): setting.clean_ui(name)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def batch(self) -> Batch:
 		"""Groupe de paramètres liés au batch (:class:`~palm_tracer.Settings.Groups.Batch.Batch`)."""
 		return cast(Batch, self._settings["Batch"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def calibration(self) -> Calibration:
 		"""Groupe de paramètres liés à la calibration (:class:`~palm_tracer.Settings.Groups.Calibration.Calibration`)."""
 		return cast(Calibration, self._settings["Calibration"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def localization(self) -> Localization:
 		"""Groupe de paramètres liés à la localisation (:class:`~palm_tracer.Settings.Groups.Localization.Localization`)."""
 		return cast(Localization, self._settings["Localization"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def beads(self) -> BeadsExtraction:
 		"""Groupe de paramètres liés à l'extraction des billes (:class:`~palm_tracer.Settings.Groups.BeadsExtraction.BeadsExtraction`)."""
 		return cast(BeadsExtraction, self._settings["BeadsExtraction"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def tracking(self) -> Tracking:
 		"""Groupe de paramètres liés au suivi (:class:`~palm_tracer.Settings.Groups.Tracking.Tracking`)."""
 		return cast(Tracking, self._settings["Tracking"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def blinking(self) -> BlinkingReconnection:
 		""" Groupe de paramètres liés à la correction du scintillement (:class:`~palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection`)."""
 		return cast(BlinkingReconnection, self._settings["BlinkingReconnection"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def track_analysis(self) -> TrackAnalysis:
 		"""Groupe de paramètres liés aux analyses des trajectoires (:class:`~palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis`)."""
 		return cast(TrackAnalysis, self._settings["TrackAnalysis"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def gallery(self) -> Gallery:
 		"""Groupe de paramètres liés à la génération de galerie (:class:`~palm_tracer.Settings.Groups.Gallery.Gallery`)."""
 		return cast(Gallery, self._settings["Gallery"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def hr(self) -> HR:
 		"""Groupe de paramètres liés à la Visualisation haute-résolution (:class:`~palm_tracer.Settings.Groups.HR.HR`)."""
 		return cast(HR, self._settings["HR"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def graph(self) -> Graph:
 		"""Groupe de paramètres liés à la Visualisation graphique (:class:`~palm_tracer.Settings.Groups.Graph.Graph`)."""
 		return cast(Graph, self._settings["Graph"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def filters(self) -> Filters:
 		"""Groupe de paramètres liés au filtrage (:class:`~palm_tracer.Settings.Groups.Filters.Filters`)."""
@@ -171,14 +169,13 @@ class Settings:
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
 		res = {"PALM Tracer Settings": {name: obj.to_compact_dict() for name, obj in self._settings.items()}}
 		res["PALM Tracer Settings"]["ROIs"] = self.rois.to_dict_list()
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		groups = data["PALM Tracer Settings"]
@@ -194,19 +191,18 @@ class Settings:
 	# ==================================================
 	# region Entrées-sorties
 	# ==================================================
-	##################################################
 	def tostring(self) -> str:
 		"""
 		Retourne une chaîne de caractères correspondant à la liste des paramètres.
 
 		:return: Une description textuelle des paramètres de PALM Tracer.
 		"""
-		msg = f"Settings :\n"
+		msg = "Settings :\n"
 		for key, setting in self._settings.items():
 			msg += f"  - {key} :\n{setting.tostring('    ')}"
 		return msg
 
-	##################################################
+	# --------------------------------------------------
 	def __str__(self) -> str:
 		"""
 		Retourne une représentation textuelle de l'objet.
@@ -222,7 +218,6 @@ class Settings:
 	# ==================================================
 	# region Signaux
 	# ==================================================
-	##################################################
 	def connect(self, f: Any):
 		"""
 		Connecte une fonction ou un slot à l'intégralité des paramètres.
@@ -231,7 +226,7 @@ class Settings:
 		"""
 		for _, setting in self._settings.items(): setting.connect(f)
 
-	##################################################
+	# --------------------------------------------------
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
 		"""
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
@@ -241,7 +236,7 @@ class Settings:
 		"""
 		for _, setting in self._settings.items(): setting.disconnect(f)
 
-	##################################################
+	# --------------------------------------------------
 	def signal_blocked(self) -> AbstractContextManager[Any]:
 		"""
 		Blocage des signaux pour l'intégralité des paramètres.
@@ -254,7 +249,7 @@ class Settings:
 		return stack
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

@@ -28,7 +28,7 @@ TIPS = {
 		}
 
 
-##################################################
+# --------------------------------------------------
 class ViewerHRWidget(BaseNapariWidget):
 	"""
 	Affiche les résultats PALM en haute résolution dans Napari.
@@ -53,7 +53,6 @@ class ViewerHRWidget(BaseNapariWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
 		"""
 		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
@@ -94,7 +93,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._generate()
 		self.viewer.reset_view()  # .  Recentrer et ajuster la vue la première fois uniquement
 
-	##################################################
+	# --------------------------------------------------
 	def _init_ui(self):
 		"""Construit l'interface utilisateur."""
 		self.pt.clean_ui(self.UI_NAME)
@@ -155,7 +154,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		layout.addWidget(scroll_area)
 		layout.addLayout(actions_row)
 
-	##################################################
+	# --------------------------------------------------
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 
@@ -172,7 +171,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._btn_save.clicked.connect(self._save)
 		self._btn_screenshot.clicked.connect(self._screenshot)
 
-	##################################################
+	# --------------------------------------------------
 	def closeEvent(self, event):
 		"""
 		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
@@ -189,7 +188,6 @@ class ViewerHRWidget(BaseNapariWidget):
 	# ==================================================
 	# region Glisser-déposer
 	# ==================================================
-	##################################################
 	def _drop_files(self, paths: list[str]):
 		"""
 		Charge la pile unique acceptée par le filtre de la classe mère.
@@ -205,7 +203,6 @@ class ViewerHRWidget(BaseNapariWidget):
 	# ==================================================
 	# region Liaison avec PALMTracer
 	# ==================================================
-	##################################################
 	def _check_beads(self):
 		"""
 		Affiche ou masque les élements liés aux billes si des données sont présentes ou non.
@@ -217,7 +214,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		else:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).show()
 
-	##################################################
+	# --------------------------------------------------
 	def _add_stack(self, path: str):
 		"""
 		Ajoute la pile déposée, charge ses derniers résultats et actualise les statuts.
@@ -229,12 +226,12 @@ class ViewerHRWidget(BaseNapariWidget):
 		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 		self._actualize()  # Actualisation des statuts
 
-	##################################################
+	# --------------------------------------------------
 	def _actualize(self):
 		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer."""
 		self._check_beads()
 
-	##################################################
+	# --------------------------------------------------
 	def _save(self):
 		"""Créé une image PNG de la visualisation actuelle."""
 		if self._filename:
@@ -243,14 +240,14 @@ class ViewerHRWidget(BaseNapariWidget):
 			else: FileIO.save_tif(crop, self._filename)
 			show_info("Image file saved successfully.")
 
-	##################################################
+	# --------------------------------------------------
 	def _screenshot(self):  # pragma: no cover — Accès au canevas
 		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les réglages de color map, contraste)."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
 			show_info("Screenshot saved successfully.")
 
-	##################################################
+	# --------------------------------------------------
 	def _toggle_type(self, btn_id: int):
 		"""
 		Met à jour la liste des sources et l'affichage des filtres.
@@ -267,14 +264,13 @@ class ViewerHRWidget(BaseNapariWidget):
 	# ==================================================
 	# region Dessin
 	# ==================================================
-	##################################################
 	def _generate(self):
 		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
 		self._filename = ""
 		path, stack, suffix = self.pt.path, self.pt.stack, self.pt.suffix
 
 		if stack is None or not path or not Path(path).is_dir():
-			show_warning(f"No stack processed loaded.")
+			show_warning("No stack processed loaded.")
 			return
 
 		# Conserve le repère de l'image affichée si la génération ne peut pas la remplacer.
@@ -297,7 +293,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		# Remplace systématiquement les données des calques vectoriels pour éviter les résidus entre modes.
 		points, tracks = np.empty((0, 3), dtype=float), np.zeros((1, 4), dtype=float)
-		filtered_points = np.empty((0, 3), dtype=float)
+		filtered_points: np.ndarray = np.empty((0, 3), dtype=float)
 		if self._hr_settings["Dimension"].value == 2:  # .				 Rotation 3D
 			point_layer.visible = tracks_layer.visible = False
 			filtered_layer.visible = False
@@ -327,7 +323,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		# self.viewer.reset_view()  # Recentrer et ajuster la vue
 		self.pt.save_setting_group("HR")
 
-	##################################################
+	# --------------------------------------------------
 	def _update_visualization_layer(self):
 		"""Actualise l'image et recrée le calque lorsque ses axes spatiaux ou RGB changent."""
 		name = self.LAYERS_NAME[0]
@@ -348,7 +344,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._layers[name] = layer
 
 
-##################################################
+# --------------------------------------------------
 def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer, QWidget]:
 	"""
 	Crée une nouvelle fenêtre Napari HR, sans menu, et y ajoute le ViewerHRWidget docké à droite.
@@ -367,7 +363,7 @@ def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer
 	return viewer, widget
 
 
-##################################################
+# --------------------------------------------------
 def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR.
@@ -388,7 +384,7 @@ def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	return stub
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import napari
 

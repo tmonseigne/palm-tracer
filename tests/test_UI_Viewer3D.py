@@ -2,15 +2,15 @@
 
 from napari.components import ViewerModel
 
-from tests.Utils import *
 from palm_tracer.Tools.FileIO import USER_SETTINGS_FILE
 from palm_tracer.UI import Viewer3DWidget
+from tests.Utils import *
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
-##################################################
+# --------------------------------------------------
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
 	viewer = ViewerModel(ndisplay=3)
@@ -18,7 +18,7 @@ def test_widget_creation(qtbot):
 	qtbot.addWidget(w)
 
 
-##################################################
+# --------------------------------------------------
 def test_viewer3d(qtbot, fake_qfiledialog):
 	"""Vérifie la création du widget."""
 	USER_SETTINGS_FILE.unlink(missing_ok=True)

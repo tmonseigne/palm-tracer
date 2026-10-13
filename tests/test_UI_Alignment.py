@@ -2,8 +2,8 @@
 
 from qtpy.QtCore import Qt
 
-from tests.Utils import *
 from palm_tracer.UI.AlignmentWidget import AlignmentWidget  # Classe
+from tests.Utils import *
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -14,7 +14,6 @@ POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X 
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
@@ -32,7 +31,6 @@ def test_widget_creation(qtbot):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
-##################################################
 def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
@@ -58,7 +56,7 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
@@ -92,7 +90,7 @@ def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
@@ -108,7 +106,7 @@ def test_bad_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
@@ -133,7 +131,7 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
@@ -162,7 +160,7 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la création du widget."""
 	w = AlignmentWidget()

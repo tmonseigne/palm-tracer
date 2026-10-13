@@ -1,11 +1,11 @@
 """Teste la construction des galeries d'images."""
 
-from tests.Utils import *
 from palm_tracer.Processing import Gallery
 from palm_tracer.Tools import FileIO
+from tests.Utils import *
 
 
-##################################################
+# --------------------------------------------------
 def test_make_gallery():
 	"""Vérifie la génération de galerie."""
 	stack = FileIO.open_tif(f"{INPUT_DIR}/stack.tif")  # .									   Récupération d'une stack

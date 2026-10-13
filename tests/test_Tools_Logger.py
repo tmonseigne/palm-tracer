@@ -1,12 +1,12 @@
 """Teste l'enregistrement du journal d'activité."""
 
-from tests.Utils import *
 from palm_tracer.Tools import Logger
+from tests.Utils import *
 
 LOG_PATH = OUTPUT_DIR / "test_logger.log"
 
 
-##################################################
+# --------------------------------------------------
 def test_logger(capsys):
 	"""Vérifie le logger."""
 	logger = Logger()
@@ -25,7 +25,7 @@ def test_logger(capsys):
 	assert re.fullmatch(TS_PATTERN + rf"\sLog closed : {re.escape(str(LOG_PATH))}", lines[4])
 
 
-##################################################
+# --------------------------------------------------
 def test_logger_bad_use(capsys):
 	"""Vérifie l'une mauvaise utilisation du Logger."""
 	logger = Logger()
@@ -38,7 +38,7 @@ def test_logger_bad_use(capsys):
 	assert re.fullmatch(TS_PATTERN + r"\sNo log file open for writing\.", lines[1])
 
 
-##################################################
+# --------------------------------------------------
 def test_logger_with_use(capsys):
 	"""Vérifie l'une mauvaise utilisation du Logger."""
 	with Logger() as logger:

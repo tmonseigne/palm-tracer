@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +12,7 @@ from typing import Optional, TextIO
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Logger:
 	"""
@@ -28,7 +29,7 @@ class Logger:
 	_isopen: bool = field(init=False, default=False)
 	"""Indicateur d'ouverture du fichier."""
 
-	##################################################
+	# --------------------------------------------------
 	def open(self, filename: str | Path):
 		"""
 		Ouvre le fichier de log en mode ajout.
@@ -52,7 +53,7 @@ class Logger:
 			self._isopen = False
 			Ui.print_error(f"Error opening file {self.filename} : {e}")
 
-	##################################################
+	# --------------------------------------------------
 	def close(self):
 		"""
 		Ferme le fichier de log.
@@ -70,8 +71,8 @@ class Logger:
 			# Fin de fichier propre.
 			self.file_handle.write("\n")
 			self.file_handle.flush()
-			try: os.fsync(self.file_handle.fileno())
-			except Exception: pass  # fsync peut ne pas être disponible sur certains backends ; non bloquant.
+			# fsync peut ne pas être disponible sur certains backends ; non bloquant.
+			with suppress(Exception): os.fsync(self.file_handle.fileno())
 			self.file_handle.close()
 			print(f"[{self._get_time()}] Log closed : {self.filename}")
 		except Exception as e:
@@ -81,7 +82,7 @@ class Logger:
 			self.file_handle = None
 			self._isopen = False
 
-	##################################################
+	# --------------------------------------------------
 	def add(self, msg: str):
 		"""Ajoute un message au log."""
 		timestamped_msg = f"[{self._get_time()}] {msg}"
@@ -93,32 +94,30 @@ class Logger:
 		try:
 			self.file_handle.write(timestamped_msg + "\n")
 			self.file_handle.flush()  # S'assure que les données sont écrites immédiatement
-			try: os.fsync(self.file_handle.fileno())
-			except Exception: pass
+			with suppress(Exception): os.fsync(self.file_handle.fileno())
 		except Exception as e:
 			Ui.print_error(f"Error writing to file {self.filename} : {e}")
 
-	##################################################
+	# --------------------------------------------------
 	def __enter__(self) -> "Logger":
 		"""Permet l'utilisation via :code:`with`."""
 		return self
 
-	##################################################
+	# --------------------------------------------------
 	def __exit__(self, exc_type, exc, tb):
 		"""Garantit la fermeture du fichier."""
 		self.close()
 
-	##################################################
+	# --------------------------------------------------
 	def __del__(self):
 		"""
 		Best-effort : évite de laisser un handle ouvert si l'objet est détruit.
 
 		.. note:: Ne doit jamais lever d'exception.
 		"""
-		try: self.close()
-		except Exception: pass
+		with suppress(Exception): self.close()
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _get_time() -> str:
 		"""Renvoie la date et l'heure actuelles sous forme de chaîne formatée."""

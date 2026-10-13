@@ -9,7 +9,7 @@ from palm_tracer.Processing import Step
 from palm_tracer.Settings.Groups import Localization
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("name, expected", [
 	pytest.param("FilterSingle", Callable[[pd.DataFrame], pd.DataFrame], id="single-dataframe"),
 	pytest.param("FilterTrackAnalysis", Callable[[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame],
@@ -19,10 +19,11 @@ def test_filter_aliases(name: str, expected):
 	assert getattr(Step, name) == expected
 
 
-##################################################
+# --------------------------------------------------
 def test_object_creation():
 	"""Vérifie la création des étapes et l'accès aux actions du pipeline."""
 
+	# --------------------------------------------------
 	def f():
 		"""Retourne la valeur utilisée par le scénario de test."""
 		return
@@ -31,7 +32,7 @@ def test_object_creation():
 	print(f"Actions : {Step.StepAction.Compute},{Step.StepAction.Reuse},{Step.StepAction.Skip}")
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("active, previous_active, pipeline_dirty, allow_dirty, different, expected", [
 		pytest.param(False, None, True, True, False, Step.StepAction.Skip, id="inactive-without-previous"),
 		pytest.param(True, None, True, True, False, Step.StepAction.Compute, id="active-without-previous"),

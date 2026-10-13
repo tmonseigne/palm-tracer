@@ -9,12 +9,12 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QCheckBox, QColorDialog, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QWidget
 
-from tests.Utils import INPUT_DIR
 from palm_tracer.Settings.Types import *
 from palm_tracer.Settings.Types import FileList
+from tests.Utils import INPUT_DIR
 
 
-###################################################
+# --------------------------------------------------
 def setting_base_test(setting: BaseSettingType, change, default):
 	"""
 	Tests de base pour un paramètre.
@@ -65,7 +65,7 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	_ = setting.get_ui("default")
 
 
-###################################################
+# --------------------------------------------------
 def test_base_setting():
 	"""Vérifie la classe abstraite."""
 	setting = BaseSettingType("Test")
@@ -73,7 +73,7 @@ def test_base_setting():
 	assert exception_info.type is NotImplementedError, "L'erreur relevé n'est pas correcte."
 
 
-###################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("setting_type", [CheckInt, CheckIntSelection, CheckRangeFloat, CheckRangeInt])
 def test_base_check_setting(setting_type):
 	"""Vérifie le contrat commun des paramètres activables."""
@@ -91,7 +91,7 @@ def test_base_check_setting(setting_type):
 	assert setting.active
 
 
-###################################################
+# --------------------------------------------------
 def test_base_ui(qtbot):
 	"""Vérifie l'interface de base avec libellé."""
 	ui = BaseUIType(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])
@@ -107,7 +107,7 @@ def test_base_ui(qtbot):
 	ui.show()
 
 
-###################################################
+# --------------------------------------------------
 def test_base_ui_no_label(qtbot):
 	"""Vérifie l'interface de base sans libellé."""
 	ui = BaseUIType(layout=QHBoxLayout(), boxes=[QCheckBox()])
@@ -123,21 +123,21 @@ def test_base_ui_no_label(qtbot):
 	ui.show()
 
 
-###################################################
+# --------------------------------------------------
 def test_spin_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
 	setting_base_test(setting, 5, 1)
 
 
-###################################################
+# --------------------------------------------------
 def test_spin_float(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = SpinFloat("Test", "", 1.0, [0.0, 10.0], 1.0)
 	setting_base_test(setting, 5.0, 1.0)
 
 
-###################################################
+# --------------------------------------------------
 def test_check_box(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckBox("Test")
@@ -156,7 +156,7 @@ def test_check_box(qtbot):
 	w.close()
 
 
-###################################################
+# --------------------------------------------------
 def test_combo(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = Combo("Test", "", 0, ["Choix 1", "Choix 2"])
@@ -168,7 +168,7 @@ def test_combo(qtbot):
 	assert setting.items == ["1", "2"]
 
 
-###################################################
+# --------------------------------------------------
 def test_color_map(qtbot):
 	"""Vérifie la liste centralisée et les aperçus du paramètre de colormap."""
 	setting = ColorMap("Test", "", 0)
@@ -192,7 +192,7 @@ def test_color_map(qtbot):
 	assert box.currentIndex() == 0
 
 
-###################################################
+# --------------------------------------------------
 def test_color_map_picker_replaces_temporary_entry(qtbot, monkeypatch):
 	"""Vérifie la création, le remplacement et la non-sérialisation de la colormap personnalisée."""
 	setting = ColorMap("Test", "", 0)
@@ -223,7 +223,7 @@ def test_color_map_picker_replaces_temporary_entry(qtbot, monkeypatch):
 	assert setting.to_compact_dict() == {"value": setting.default, "items": list(ColorMap.AVAILABLE_MAPS)}
 
 
-###################################################
+# --------------------------------------------------
 def test_color_map_rejects_invalid_custom_color():
 	"""Vérifie qu'une couleur invalide ne crée pas d'entrée personnalisée."""
 	setting = ColorMap()
@@ -235,7 +235,7 @@ def test_color_map_rejects_invalid_custom_color():
 	assert setting.value == setting.default
 
 
-###################################################
+# --------------------------------------------------
 def test_color_map_picker_cancel(qtbot, monkeypatch):
 	"""Vérifie que l'annulation du sélecteur ne modifie pas le paramètre."""
 	setting = ColorMap()
@@ -249,7 +249,7 @@ def test_color_map_picker_cancel(qtbot, monkeypatch):
 	assert setting.value == setting.default
 
 
-###################################################
+# --------------------------------------------------
 def test_color_map_updates_picker_without_button():
 	"""Vérifie la mise à jour défensive d'une interface ne contenant que la liste."""
 	setting = ColorMap()
@@ -260,7 +260,7 @@ def test_color_map_updates_picker_without_button():
 	assert len(ui.boxes) == 1
 
 
-###################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("max_value", [None, 0, 255], ids=["default-uint16", "zero", "custom-uint8"])
 def test_color_map_get_lut(max_value):
 	"""Vérifie les dimensions, le type et l'origine noire de la LUT."""
@@ -274,14 +274,14 @@ def test_color_map_get_lut(max_value):
 	if max_value != 0: assert np.any(lut[1:])
 
 
-###################################################
+# --------------------------------------------------
 def test_color_map_get_lut_rejects_negative_maximum():
 	"""Vérifie le rejet d'une borne maximale négative."""
 	with pytest.raises(ValueError, match="positive ou nulle"):
 		ColorMap().get_lut(-1)
 
 
-###################################################
+# --------------------------------------------------
 def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = BrowseFile(label="Test")
@@ -300,7 +300,7 @@ def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
 	assert "stack.tif" in setting.value, "le paramètre devrait être '...stack.tif'"
 
 
-###################################################
+# --------------------------------------------------
 def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = FileList("Test")
@@ -329,7 +329,7 @@ def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
 	assert "stack.tif" in setting.current_text, "Le paramètre devrait être '...stack.tif'"
 
 
-###################################################
+# --------------------------------------------------
 def test_file_list_adds_sorted_batch_without_reordering_existing_items(fake_qfiledialog):
 	"""Vérifie que seul le nouveau lot de fichiers est trié avant son ajout."""
 	existing_items = ["File2", "File1"]
@@ -345,7 +345,7 @@ def test_file_list_adds_sorted_batch_without_reordering_existing_items(fake_qfil
 	assert setting.current_text == selected_paths[0]
 
 
-###################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source", ["dialog", "paths"], ids=["dialog", "paths"])
 def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path, source):
 	"""Vérifie qu'une opération sur la liste n'émet que son état final."""
@@ -372,7 +372,7 @@ def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path, source
 	assert selected == [""]
 
 
-###################################################
+# --------------------------------------------------
 def test_file_list_add_files_syncs_views(qtbot, tmp_path):
 	"""Vérifie le tri du nouveau lot, la conservation des doublons et la synchronisation des vues."""
 	paths = [tmp_path / "z.txt", tmp_path / "A.tif"]
@@ -391,13 +391,13 @@ def test_file_list_add_files_syncs_views(qtbot, tmp_path):
 		assert combo.currentIndex() == setting.value
 
 
-###################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["empty", "directory", "missing"], ids=["empty", "directory", "missing"])
 def test_file_list_add_files_ignores_invalid_paths(tmp_path, scenario):
 	"""Vérifie qu'un lot sans fichier conserve la sélection et n'émet aucun signal."""
 	setting = FileList("Test")
 	setting.items = ["existing.tif"]
-	emitted = []
+	emitted: list[int | None] = []
 	setting.connect(emitted.append)
 	paths = {"empty": [], "directory": [str(tmp_path)], "missing": [str(tmp_path / "missing.tif")]}
 
@@ -408,7 +408,7 @@ def test_file_list_add_files_ignores_invalid_paths(tmp_path, scenario):
 	assert emitted == []
 
 
-###################################################
+# --------------------------------------------------
 def test_check_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckInt("Test", "", 1, [1, 10])
@@ -434,7 +434,7 @@ def test_check_int(qtbot):
 	w.close()
 
 
-###################################################
+# --------------------------------------------------
 def test_check_range_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckRangeInt("Test", "", [0, 0], [-10, 10])
@@ -472,7 +472,7 @@ def test_check_range_int(qtbot):
 	w.close()
 
 
-###################################################
+# --------------------------------------------------
 def test_check_range_float(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckRangeFloat("Test", "", [0.0, 0.0], [-10, 10])
@@ -510,7 +510,7 @@ def test_check_range_float(qtbot):
 	w.close()
 
 
-###################################################
+# --------------------------------------------------
 def test_check_int_selection(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckIntSelection("Test", "")
@@ -539,7 +539,7 @@ def test_check_int_selection(qtbot):
 	w.close()
 
 
-###################################################
+# --------------------------------------------------
 def test_button(qtbot, capsys):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = Button("Test")
@@ -562,7 +562,7 @@ def test_button(qtbot, capsys):
 	w.close()
 
 
-###################################################
+# --------------------------------------------------
 def test_button_group(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = ButtonGroup("Test", "", 0, ["Choix 1", "Choix 2"])
@@ -575,7 +575,7 @@ def test_button_group(qtbot):
 	assert ui.boxes[0].isEnabled()
 
 
-###################################################
+# --------------------------------------------------
 def test_sync(qtbot):
 	"""Vérifie la classe abstraite."""
 	spin_1 = SpinInt("Test", "With a tooltip", 1, [0, 10], 1)

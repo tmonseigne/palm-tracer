@@ -14,28 +14,31 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.UI import BaseNapariWidget
 
 
-##################################################
+# --------------------------------------------------
 class _DropReceiver(QWidget):
 	"""Enregistre les événements que le filtre laisse au destinataire habituel."""
 
+	# --------------------------------------------------
 	def __init__(self):
 		"""Initialise l'acceptation des dépôts et leur historique."""
 		super().__init__()
 		self.received = []
 		self.setAcceptDrops(True)
 
+	# --------------------------------------------------
 	def dragEnterEvent(self, event):
 		"""Accepte le glissement non intercepté."""
 		self.received.append("enter")
 		event.acceptProposedAction()
 
+	# --------------------------------------------------
 	def dropEvent(self, event):
 		"""Enregistre le dépôt non intercepté."""
 		self.received.append("drop")
 		event.acceptProposedAction()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def drop_widget(qtbot, monkeypatch):
 	"""Crée une fenêtre et un destinataire enfant sans comportement métier de classe fille."""
@@ -49,7 +52,7 @@ def drop_widget(qtbot, monkeypatch):
 	return widget, receiver, calls
 
 
-##################################################
+# --------------------------------------------------
 def send_file_drop(receiver, mime):
 	"""Envoie la séquence Qt complète d'entrée, de déplacement et de dépôt."""
 	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
@@ -59,10 +62,11 @@ def send_file_drop(receiver, mime):
 	return enter, move, drop
 
 
-##################################################
+# --------------------------------------------------
 class _DummyLayer:
 	"""Simule un calque et mémorise sa visibilité lors des affectations."""
 
+	# --------------------------------------------------
 	def __init__(self, visible: bool, invalid_property: str = ""):
 		"""
 		Initialise le calque avec l'état demandé.
@@ -75,6 +79,7 @@ class _DummyLayer:
 		object.__setattr__(self, "invalid_property", invalid_property)
 		object.__setattr__(self, "updates_visibility", [])
 
+	# --------------------------------------------------
 	def __setattr__(self, name, value):
 		"""Mémorise la visibilité courante ou refuse la propriété utilisée pour simuler une erreur."""
 		if name == self.invalid_property:
@@ -86,13 +91,13 @@ class _DummyLayer:
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 @pytest.mark.parametrize("shared", [False, True], ids=["new-instance", "shared-instance"])
 def test_initialization_preserves_references(qtbot, monkeypatch, shared):
 	"""Vérifie l'identité des références et l'absence de création supplémentaire en mode partagé."""
 	viewer, pt = ViewerModel(), PALMTracer()
 	created = []
 
+	# --------------------------------------------------
 	def create_palmtracer():
 		"""Observe la création de l'instance par défaut."""
 		created.append(pt)
@@ -114,7 +119,6 @@ def test_initialization_preserves_references(qtbot, monkeypatch, shared):
 # ==================================================
 # region Glisser-déposer
 # ==================================================
-##################################################
 @pytest.mark.parametrize("floating", [False, True], ids=["docked", "floating"])
 def test_drop_target_preserves_root_window(qtbot, floating):
 	"""Vérifie que la fenêtre Napari reste la cible lorsque le dock est détaché."""
@@ -131,7 +135,7 @@ def test_drop_target_preserves_root_window(qtbot, floating):
 	assert widget._drop_window is window
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("initial_accepts", [False, True], ids=["drops-disabled", "drops-enabled"])
 def test_drop_filter_follows_visibility(drop_widget, initial_accepts):
 	"""Vérifie qu'un affichage répété conserve l'état à restaurer après masquage."""
@@ -150,7 +154,7 @@ def test_drop_filter_follows_visibility(drop_widget, initial_accepts):
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("target", ["window", "child"], ids=["root-window", "child-widget"])
 @pytest.mark.parametrize("scenario", ["single", "single-only", "multiple", "mixed"],
 						 ids=["single-file", "single-file-only", "multiple-files", "local-and-remote"])
@@ -174,7 +178,7 @@ def test_drop_delivers_local_files_once(drop_widget, tmp_path, monkeypatch, targ
 	assert receiver.received == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["multiple", "mixed", "directory", "missing", "blocked"],
 						 ids=["multiple-files", "local-and-remote", "directory", "missing-file", "blocked-widget"])
 def test_drop_rejects_invalid_files(drop_widget, tmp_path, monkeypatch, scenario):
@@ -199,7 +203,7 @@ def test_drop_rejects_invalid_files(drop_widget, tmp_path, monkeypatch, scenario
 	assert receiver.received == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["other-window", "remote", "text"], ids=["other-window", "remote-url", "internal-text"])
 def test_drop_preserves_unrelated_events(drop_widget, qtbot, tmp_path, scenario):
 	"""Vérifie que les autres fenêtres et les glissements sans fichier local suivent leur traitement habituel."""
@@ -221,7 +225,7 @@ def test_drop_preserves_unrelated_events(drop_widget, qtbot, tmp_path, scenario)
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["hidden", "deleted", "non-widget"], ids=["hidden-window", "deleted-window", "non-widget-receiver"])
 def test_drop_ignores_inactive_target(qtbot, tmp_path, monkeypatch, scenario):
 	"""Vérifie les événements tardifs et les destinataires dépourvus d'interface QWidget."""
@@ -242,7 +246,7 @@ def test_drop_ignores_inactive_target(qtbot, tmp_path, monkeypatch, scenario):
 	mime = QMimeData()
 	mime.setUrls([QUrl.fromLocalFile(str(path))])
 	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	calls = []
+	calls: list[list[str]] = []
 	monkeypatch.setattr(widget, "_drop_files", calls.append)
 
 	# Le filtre a déjà été retiré après masquage ; on simule directement l'événement tardif.
@@ -251,7 +255,7 @@ def test_drop_ignores_inactive_target(qtbot, tmp_path, monkeypatch, scenario):
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["hide", "show"], ids=["hide-after-destruction", "show-after-destruction"])
 def test_drop_filter_handles_deleted_window(drop_widget, scenario):
 	"""Vérifie le masquage et le ré-affichage après destruction de la fenêtre mémorisée."""
@@ -272,7 +276,7 @@ def test_drop_filter_handles_deleted_window(drop_widget, scenario):
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 def test_drop_filter_handles_parent_destruction(qtbot):
 	"""Vérifie la destruction réelle du parent et de son plugin sans exception dans la boucle Qt."""
 	# Ce parent est détruit explicitement ; pytest-qt ne doit pas tenter de le refermer.
@@ -289,7 +293,7 @@ def test_drop_filter_handles_parent_destruction(qtbot):
 	assert not isalive(widget)
 
 
-##################################################
+# --------------------------------------------------
 def test_drop_requires_specialized_handler(qtbot, tmp_path):
 	"""Vérifie qu'une classe fille incomplète ne perd pas silencieusement les fichiers déposés."""
 	widget = BaseNapariWidget(ViewerModel())
@@ -305,7 +309,6 @@ def test_drop_requires_specialized_handler(qtbot, tmp_path):
 # ==================================================
 # region Calques
 # ==================================================
-##################################################
 @pytest.mark.parametrize("initial_visibility, visible, expected_visibility", [
 		pytest.param(False, None, False, id="preserve-hidden"),
 		pytest.param(True, None, True, id="preserve-visible"),
@@ -323,7 +326,7 @@ def test_update_layer(initial_visibility, visible, expected_visibility):
 	assert layer.visible is expected_visibility
 
 
-##################################################
+# --------------------------------------------------
 def test_update_layer_restores_visibility_on_error():
 	"""Vérifie la restauration de la visibilité lorsqu'une propriété ne peut pas être affectée."""
 	layer = _DummyLayer(False, "invalid")

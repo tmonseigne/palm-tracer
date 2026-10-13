@@ -2,8 +2,8 @@
 
 from qtpy.QtCore import Qt
 
-from tests.Utils import *
 from palm_tracer.UI.FileMigratorWidget import FileMigratorWidget  # Classe
+from tests.Utils import *
 
 INPUT_FOLDER = INPUT_DIR / "stack.PT"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
@@ -12,7 +12,6 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
 	w = FileMigratorWidget()
@@ -30,7 +29,6 @@ def test_widget_creation(qtbot):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
-##################################################
 def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = FileMigratorWidget()
@@ -54,7 +52,7 @@ def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie le lancement de la calibration."""
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)

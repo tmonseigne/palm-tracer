@@ -33,7 +33,7 @@ TIPS = {
 # endregion Constantes
 # ==================================================
 
-##################################################
+# --------------------------------------------------
 class GraphViewerWidget(BasePlotlyWidget):
 	"""
 	Affiche interactivement les graphiques associés aux données PALM.
@@ -52,7 +52,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __init__(self, palmtracer: PALMTracer | None = None):
 		"""
 		Initialise le widget (UI, connexions, état initial) et lie PALMTracer.
@@ -72,7 +71,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._connect_signals()
 		self._actualize()  # Actualisation des statuts et tracé initial
 
-	##################################################
+	# --------------------------------------------------
 	def _init_ui(self):
 		"""
 		Construit l'interface utilisateur :
@@ -180,7 +179,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._graph_settings.toggle_mode(self._graph_settings["Mode"].value)
 		self._graph_settings.toggle_src()
 
-	##################################################
+	# --------------------------------------------------
 	def _connect_signals(self):
 		"""Connecte les signaux UI aux callbacks."""
 		# Connexion des boutons Filters de cette UI
@@ -198,7 +197,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._btn_actualize.clicked.connect(self._actualize)
 		self._btn_export.clicked.connect(self._on_export)
 
-	##################################################
+	# --------------------------------------------------
 	def closeEvent(self, event):
 		"""
 		Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre.
@@ -215,7 +214,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Glisser-déposer
 	# ==================================================
-	##################################################
 	def showEvent(self, event: QShowEvent):
 		"""
 		Active l'interception dans la fenêtre autonome des graphiques.
@@ -230,7 +228,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		window.setAcceptDrops(True)
 		QApplication.instance().installEventFilter(self)
 
-	##################################################
+	# --------------------------------------------------
 	def hideEvent(self, event: QHideEvent):
 		"""
 		Retire le filtre et restaure l'état des dépôts si la fenêtre Qt existe encore.
@@ -243,7 +241,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
 		super().hideEvent(event)
 
-	##################################################
+	# --------------------------------------------------
 	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
 		"""
 		Intercepte le dépôt d'une seule pile locale dans la fenêtre des graphiques.
@@ -277,7 +275,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Liaison avec PALMTracer
 	# ==================================================
-	##################################################
 	def _toggle_type(self, btn_id: int):
 		"""
 		Met à jour la liste des sources et l'affichage des filtres.
@@ -287,7 +284,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		if btn_id == 0: self._filters.show_part(self.UI_NAME, localization=True, tracking=False)  # Localisation
 		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # .			Tracking
 
-	##################################################
+	# --------------------------------------------------
 	def _add_stack(self, path: str):
 		"""
 		Ajoute la pile déposée, charge ses derniers résultats et redessine le graphe.
@@ -299,19 +296,19 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 		self._actualize()  # Actualisation des statuts
 
-	##################################################
+	# --------------------------------------------------
 	def _actualize(self):
 		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer et redessine le graph."""
 		self._update_plot()  # Puis redessiner le graphe.
 
-	##################################################
+	# --------------------------------------------------
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		self._fig = self.pt.graph()
 		self._update_web_widget()
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

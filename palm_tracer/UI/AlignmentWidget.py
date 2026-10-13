@@ -16,7 +16,7 @@ from palm_tracer.Processing import Palm
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
 
-_windows = []  # Conserve une référence globale pour éviter le ramasse-miettes
+_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
 class AlignmentWidget(QWidget):
@@ -34,7 +34,6 @@ class AlignmentWidget(QWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
 		"""
 		Construit le widget et initialise l'interface.
@@ -52,7 +51,7 @@ class AlignmentWidget(QWidget):
 		self._init_ui()
 		self._connect_signals()
 
-	##################################################
+	# --------------------------------------------------
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
@@ -121,7 +120,7 @@ class AlignmentWidget(QWidget):
 
 		main_layout.addWidget(self._tabs)
 
-	##################################################
+	# --------------------------------------------------
 	def _connect_signals(self):
 		"""Connecte les signaux aux callbacks."""
 		self._btn_load_tif_compute.clicked.connect(self._on_load_tif)
@@ -164,7 +163,7 @@ class AlignmentWidget(QWidget):
 
 		Ui.print_success(f"TIFF loaded successfully. Shape={self._stack.shape}, dtype={self._stack.dtype}")
 
-	##################################################
+	# --------------------------------------------------
 	def _on_load_coef(self):
 		"""
 		Callback du bouton 'Load coefficients file'.
@@ -194,7 +193,7 @@ class AlignmentWidget(QWidget):
 		# --- vérification de la forme des données ---
 		if self._coeffs.ndim != 2 or self._coeffs.shape != (2, 10):
 			self._coeffs = None
-			Ui.print_error(f"The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
+			Ui.print_error("The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
 			return
 
 		# --- mise à jour du label de statut ---
@@ -202,13 +201,13 @@ class AlignmentWidget(QWidget):
 
 		Ui.print_success("Coefficients loaded successfully.")
 
-	##################################################
+	# --------------------------------------------------
 	def _on_compute_coeffs(self):
 		"""Callback du bouton 'Compute coefficients'."""
 		if self._stack is None: Ui.print_warning("Can't Compute alignment coefficients without correct tif file.")
 		else: Ui.print_warning("Compute alignment coefficients isn't implemented yet. Use original PALMTracer.")
 
-	##################################################
+	# --------------------------------------------------
 	def _on_start_alignment(self):
 		"""Callback du bouton 'Start alignment'."""
 		if self._stack is None: Ui.print_warning("Can't align without correct tif file.")
@@ -220,7 +219,7 @@ class AlignmentWidget(QWidget):
 			Ui.print_success(f"File saved at {self._output_filename} (upscale={upscale}).")
 
 
-##################################################
+# --------------------------------------------------
 def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
 	Ouvre la fenêtre d'alignement en mode autonome.
@@ -234,7 +233,7 @@ def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans c
 	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

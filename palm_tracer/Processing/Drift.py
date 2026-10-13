@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
+from collections.abc import Hashable
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
-from palm_tracer.Processing.Parsing import apply_dataframe_type, FILES_COLUMNS
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, apply_dataframe_type
 
 
 # ==================================================
 # region Validation et appariement
 # ==================================================
-##################################################
 @dataclass
 class _ActiveTrack:
 	"""
@@ -33,14 +34,15 @@ class _ActiveTrack:
 	"""Dernière position connue de la trajectoire."""  # Forme : (D,)
 
 
-##################################################
+# --------------------------------------------------
 def _check_cols(data: pd.DataFrame, required: set[str]):
 	"""Vérification rapide des colonnes."""
 	missing = sorted(required - set(data.columns))
-	if missing: raise ValueError(f"Missing columns in data: {missing}.")
+	if missing:
+		raise ValueError(f"Missing columns in data: {missing}.")
 
 
-##################################################
+# --------------------------------------------------
 def _check_planes(data: pd.DataFrame) -> np.ndarray:
 	"""
 	Vérifie les plans disponibles dans le DataFrame et leur continuité.
@@ -51,13 +53,13 @@ def _check_planes(data: pd.DataFrame) -> np.ndarray:
 	planes = np.array(sorted(pd.unique(data["Plane"])))
 	expected = np.arange(planes[0], planes[-1] + 1, dtype=planes.dtype)
 	if planes.size < 2:
-		raise ValueError(f"We need at least 2 planes.")
+		raise ValueError("We need at least 2 planes.")
 	if planes.size != expected.size or np.any(planes != expected):
 		raise ValueError(f"The planes are not consecutive: {planes}.")
 	return planes
 
 
-##################################################
+# --------------------------------------------------
 def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, n_points: int) -> tuple[np.ndarray, np.ndarray]:
 	"""
 	Assigne des suivis à des points du plan courant en gérant les collisions, à partir des résultats de :meth:`scipy.spatial.cKDTree.query` avec ``k>1``.
@@ -98,7 +100,7 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 	keep_t: list[int] = []
 	keep_p: list[int] = []
 
-	for d, i, p_j in pairs:
+	for _distance, i, p_j in pairs:
 		if i in used_t or p_j in used_p: continue  # Le suivi/point a déjà été assigné
 		used_t.add(i)
 		used_p.add(p_j)
@@ -115,7 +117,6 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 # ==================================================
 # region Extraction des billes
 # ==================================================
-##################################################
 def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> pd.DataFrame:
 	"""
 	Extrait des billes suivies à travers les plans en ne conservant que celles qui ont une correspondance dans **tous** les plans.
@@ -156,10 +157,12 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	planes = _check_planes(work)
 
 	# ----- Initialisation -----
-	by_plane: dict[int, pd.DataFrame] = {p: df for p, df in work.groupby("Plane", sort=False)}
+	# Itérer explicitement : dict(groupby) tenterait d'appeler son attribut « keys », qui contient ici « Plane ».
+	by_plane: dict[Hashable, pd.DataFrame] = {p: df for p, df in work.groupby("Plane", sort=False)}  # noqa: C416
 	coord_cols = ["X", "Y", "Z"] if is_3d else ["X", "Y"]
 
 	# --- petit utilitaire
+	# --------------------------------------------------
 	def _get_plane_infos(plane):
 		"""
 		Récupère rapidement les informations du plan.
@@ -189,12 +192,14 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 		dist, ind = tree.query(last, k=min(k, tree.n), p=p_norm, distance_upper_bound=max_distance, workers=-1)
 
 		# --- Résolution des collisions (en temps normal difficile à obtenir avec une densité une distance max cohérente.) ---
-		keep_t, keep_p = _assign_tracks_to_points_greedy(ind, dist, n_points=tree.n)
+		# L'entrée « last » est bidimensionnelle : query renvoie des tableaux, même pour un seul suivi ou voisin.
+		keep_t, keep_p = _assign_tracks_to_points_greedy(cast(np.ndarray, ind), cast(np.ndarray, dist), n_points=tree.n)
 		if keep_t.size == 0: return pd.DataFrame()
 
 		# --- Mise à jour des tracks actifs ---
 		new_active_tracks: list[_ActiveTrack] = []
-		for t_i, p_j in zip(keep_t.tolist(), keep_p.tolist(), strict=True):
+		# Les deux tableaux proviennent des mêmes affectations et ont donc la même longueur.
+		for t_i, p_j in zip(keep_t.tolist(), keep_p.tolist()):
 			t = active_tracks[t_i]  # .		Récupération d'un suivi valide
 			t.ids.append(i_p[p_j])  # .		Ajout du point au suivi
 			t.last_pos = c_p[p_j].copy()  # Remplacement de la dernière position.
@@ -216,7 +221,7 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	return beads.sort_values(by=["Bead", "Plane"], kind="stable").reset_index(drop=True)  # Tri stable pour lisibilité.
 
 
-##################################################
+# --------------------------------------------------
 def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> pd.DataFrame:
 	"""
 	Met à jour data en lui enlevant les billes identifiées (correspondance exact sur Plane/X/Y/Z).
@@ -249,7 +254,6 @@ def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> 
 # ==================================================
 # region Correction de la dérive
 # ==================================================
-##################################################
 def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
 	Calcule le drift moyen interplans à partir d'un DataFrame de billes suivies.
@@ -291,7 +295,7 @@ def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	return drift.sort_values(by=["Plane"], kind="stable").reset_index(drop=True)
 
 
-##################################################
+# --------------------------------------------------
 def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
 	Applique une correction de drift à un DataFrame de points.
@@ -338,7 +342,7 @@ def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) ->
 	return out
 
 
-##################################################
+# --------------------------------------------------
 def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> tuple[pd.DataFrame, pd.DataFrame]:
 	"""
 	Trouve des billes au sein d'un jeu de donnée, calcule le drift et le corrige.
@@ -366,7 +370,6 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 # ==================================================
 # region Filtrage
 # ==================================================
-##################################################
 def median_filter_centered(data: np.ndarray, size: int = 5) -> np.ndarray:
 	"""
 	Applique un filtre médian centré sur un signal 1D ou sur un tableau 2D ``(nb_points, nb_axes)``.
@@ -408,3 +411,7 @@ def median_filter_centered(data: np.ndarray, size: int = 5) -> np.ndarray:
 		result[idx] = np.nanmedian(work[start:end], axis=0)
 
 	return result[:, 0] if is_1d else result
+
+# ==================================================
+# endregion Filtrage
+# ==================================================

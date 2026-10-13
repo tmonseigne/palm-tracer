@@ -6,7 +6,7 @@ from qtpy.QtWidgets import QFormLayout, QLabel
 from palm_tracer.UI.ResultsUI import _STATUS_TOOLTIPS, ResultsUI
 
 
-##################################################
+# --------------------------------------------------
 def test_creation(qtbot):
 	"""Vérifie la construction du groupe et de chacune de ses lignes."""
 	ui = ResultsUI(title="Test Results", space=7, margin=9)
@@ -37,7 +37,7 @@ def test_creation(qtbot):
 	assert not ui.open_folder_button.isEnabled()
 
 
-##################################################
+# --------------------------------------------------
 def test_update_status(qtbot):
 	"""Vérifie la mise à jour complète, partielle et avec une clé inconnue."""
 	ui = ResultsUI()
@@ -55,7 +55,7 @@ def test_update_status(qtbot):
 	assert ui.labels["File"].toolTip() == "stack.tif"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("filename", [
 		pytest.param("stack.tif", id="tiff-file"),
 		pytest.param("stack.ome.tif", id="multiple-suffixes"),
@@ -75,7 +75,7 @@ def test_file_display(qtbot, tmp_path, filename):
 	assert ui.labels["File"].toolTip() == ""
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("path_kind", [
 		pytest.param("existing", id="existing-folder"),
 		pytest.param("missing", id="missing-folder"),

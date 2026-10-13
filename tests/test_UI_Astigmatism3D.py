@@ -4,18 +4,18 @@ import numpy as np
 import pytest
 from qtpy.QtCore import Qt
 
-from tests.Utils import *
-from tests.Utils import _FakeDownload
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, sigma_model
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # Classe
+from tests.Utils import *
+from tests.Utils import _FakeDownload
 
 LOC_FILE = INPUT_DIR / "astigmatism_3d_calibration.csv"
 MODEL_FILE = "astigmatism_3d_model.csv"
 PNG_FILE = "astigmatism_3d_model.png"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture(autouse=True)
 def user_model_path(monkeypatch, tmp_path):
 	"""Isole les sauvegardes utilisateur de tous les tests du widget dans un dossier temporaire."""
@@ -29,7 +29,6 @@ def user_model_path(monkeypatch, tmp_path):
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
 	w = Astigmatism3DWidget()
@@ -49,7 +48,7 @@ def test_widget_creation(qtbot):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la synchronisation des tailles de pixel et des limites axiales entre les deux onglets."""
 	w = Astigmatism3DWidget()
@@ -76,7 +75,6 @@ def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 # ==================================================
 # region Interface utilisateur
 # ==================================================
-##################################################
 @pytest.mark.parametrize("z_max", [100, 250], ids=["small-range", "large-range"])
 def test_sanity_check_filters_z_limits(qtbot, z_max):
 	"""Vérifie les scores affichés avec les vrais calculs après exclusion des points aux bornes ou au-delà."""
@@ -106,7 +104,7 @@ def test_sanity_check_filters_z_limits(qtbot, z_max):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("points", [
 		pytest.param(np.empty((0, 3)), id="empty-data"),
 		pytest.param(np.array([[1, 2, -101], [1, 2, -100], [1, 2, 100], [1, 2, 101]], dtype=float), id="all-excluded")])
@@ -135,7 +133,6 @@ def test_sanity_check_without_valid_points(qtbot, points):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
-##################################################
 def test_check_loc(qtbot, capsys):
 	"""Vérifie l'adaptation des options aux colonnes, plans et billes présents dans les localisations."""
 	w = Astigmatism3DWidget()
@@ -183,7 +180,7 @@ def test_check_loc(qtbot, capsys):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
@@ -239,7 +236,7 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
@@ -273,7 +270,7 @@ def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute_without_calibration_data(qtbot, capsys):
 	"""Vérifie que les paramètres restent modifiables sans déclencher de calibration avant le chargement."""
 	w = Astigmatism3DWidget()
@@ -287,7 +284,7 @@ def test_compute_without_calibration_data(qtbot, capsys):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario, reference, scale, bead_count", [
 		pytest.param("original", "astigmatism_3d_model_centered.csv", 1, 2, id="original-z"),
 		pytest.param("mean-beads", "astigmatism_3d_model_centered.csv", 2, 2, id="mean-beads"),
@@ -331,7 +328,7 @@ def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path,
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("attribute, value", [
 		pytest.param("_spin_px_compute", 0.21, id="pixel-size"),
 		pytest.param("_spin_z_compute", 450, id="z-limit"),
@@ -369,7 +366,7 @@ def test_compute_on_parameter_change(qtbot, capsys, fake_qfiledialog, tmp_path, 
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path, user_model_path):
 	"""Vérifie que les changements successifs ne réutilisent ni les Z estimés ni une inversion précédente."""
 	localization_file = tmp_path / LOC_FILE.name
@@ -397,7 +394,7 @@ def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path, user_model
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute_user_backup_unavailable(qtbot, capsys, tmp_path, user_model_path):
 	"""Vérifie la propagation de l'erreur de sauvegarde utilisateur après l'écriture locale, sans faux message de succès."""
 	user_model_path.parent.write_text("blocked", encoding="utf-8")  # Un fichier empêche la création du dossier de sauvegarde.
@@ -422,7 +419,7 @@ def test_compute_user_backup_unavailable(qtbot, capsys, tmp_path, user_model_pat
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute_remove_multi(qtbot, capsys, fake_qfiledialog, tmp_path):
 	"""Vérifie la calibration automatique après désambiguïsation de plusieurs localisations sur un même plan."""
 	data = pd.read_csv(LOC_FILE)
@@ -449,7 +446,7 @@ def test_compute_remove_multi(qtbot, capsys, fake_qfiledialog, tmp_path):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute_missing_plane(qtbot, capsys, fake_qfiledialog, tmp_path):
 	"""Vérifie que l'absence de plans désactive les options concernées avant l'unique calibration automatique."""
 	localization_file = tmp_path / LOC_FILE.name
@@ -471,7 +468,7 @@ def test_compute_missing_plane(qtbot, capsys, fake_qfiledialog, tmp_path):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute_missing_plane_with_option_enabled(qtbot, capsys, fake_qfiledialog, tmp_path, user_model_path):
 	"""Vérifie l'arrêt du recalcul si la colonne Plane disparaît alors que son utilisation reste sélectionnée."""
 	localization_file = tmp_path / LOC_FILE.name
@@ -497,7 +494,7 @@ def test_compute_missing_plane_with_option_enabled(qtbot, capsys, fake_qfiledial
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path):
 	"""Vérifie les avertissements de calibration automatique pour des sigmas aléatoires."""
 	data = pd.read_csv(LOC_FILE)
@@ -522,7 +519,7 @@ def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_estimation_load_does_not_calibrate(qtbot, capsys, fake_qfiledialog, tmp_path):
 	"""Vérifie que le chargement destiné à Compute Z et ses paramètres ne recalibrent pas le modèle fourni."""
 	localization_file = tmp_path / LOC_FILE.name
@@ -549,7 +546,7 @@ def test_estimation_load_does_not_calibrate(qtbot, capsys, fake_qfiledialog, tmp
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_set_default_model_without_model(qtbot, capsys):
 	"""Permet d'activer la sauvegarde par défaut avant de calculer un modèle."""
 	w = Astigmatism3DWidget()
@@ -560,7 +557,7 @@ def test_set_default_model_without_model(qtbot, capsys):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("enable_before_load", [False, True], ids=["enable-after-model", "enable-before-model"])
 def test_set_default_model(qtbot, tmp_path, fake_qfiledialog, enable_before_load):
 	"""Vérifie la sauvegarde automatique du modèle par défaut et son arrêt lorsque l'option est décochée."""
@@ -587,7 +584,7 @@ def test_set_default_model(qtbot, tmp_path, fake_qfiledialog, enable_before_load
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("content", [
 		pytest.param("valid", id="valid-default"),
 		pytest.param(None, id="missing-default"),
@@ -628,7 +625,7 @@ def test_estimate_default_model(qtbot, tmp_path, content):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie le lancement de l'estimation sans fichier chargé."""
 	w = Astigmatism3DWidget()
@@ -658,7 +655,7 @@ def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path):
 	"""Vérifie le lancement de l'estimation."""
 	w = Astigmatism3DWidget()
@@ -695,7 +692,7 @@ def test_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path):
 	"""Vérifie le lancement de l'estimation."""
 	w = Astigmatism3DWidget()
@@ -754,7 +751,6 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path)
 # ==================================================
 # region Export Plotly hérité
 # ==================================================
-##################################################
 def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie le callback de téléchargement du graphique."""
 	w = Astigmatism3DWidget()

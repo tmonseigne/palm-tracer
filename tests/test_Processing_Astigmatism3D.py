@@ -10,7 +10,7 @@ REF_MODEL2 = np.array([[-200, 100, 0, 0, 32], [200, 100, 0, 0, 32]], dtype=float
 LOC_COLS = ["Plane", "X", "Y", "Sigma X", "Sigma Y", "Z"]
 
 
-##################################################
+# --------------------------------------------------
 def get_dataset(model: np.ndarray = REF_MODEL, z_max: float = Z_MAX, n: int = N_POINTS,
 				pixel_size: float = PIXEL_SIZE, sampling: float = SAMPLING) -> np.ndarray:
 	"""
@@ -47,7 +47,6 @@ DATASET = get_dataset()
 # ==================================================
 # region Préparation des données
 # ==================================================
-##################################################
 @pytest.mark.parametrize("planes, z_min, z_max, expected", [
 		pytest.param(np.arange(5), -10, 10, [-10, -5, 0, 5, 10], id="symmetric-range"),
 		pytest.param(np.arange(5), -10, 0, [-10, -7.5, -5, -2.5, 0], id="negative-range"),
@@ -59,7 +58,7 @@ def test_get_z_from_planes(planes, z_min, z_max, expected):
 	np.testing.assert_array_equal(z_from_planes(planes, z_min, z_max), expected)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("count, centered, expected", [
 		pytest.param(5, True, [-2, -1, 0, 1, 2], id="centered-odd-count"),
 		pytest.param(4, True, [-1.5, -0.5, 0.5, 1.5], id="centered-even-count"),
@@ -69,7 +68,7 @@ def test_get_z_from_step(count, centered, expected):
 	np.testing.assert_array_equal(z_from_step(count, 1, centered), expected)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data, expected", [
 		pytest.param(pd.DataFrame([], columns=LOC_COLS), pd.DataFrame([], columns=LOC_COLS), id="empty"),
 		pytest.param(pd.DataFrame([[0, 0, 0, 0, 0]], columns=LOC_COLS[1:]), pd.DataFrame([[0, 0, 0, 0, 0]], columns=LOC_COLS[1:]), id="missing-plane-column"),
@@ -94,7 +93,6 @@ def test_remove_multi_loc(data, expected):
 # ==================================================
 # region Modèle et validation
 # ==================================================
-##################################################
 def test_sigma_model():
 	"""Vérifie le comportement de sigma_model."""
 	model = np.array([200., 100., 0., 0., 32.], dtype=float)
@@ -104,7 +102,7 @@ def test_sigma_model():
 	assert np.allclose(res, ref), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("model, expected", [
 		pytest.param(REF_MODEL, {'rmse_x': 0.02, 'rmse_y': 0.02, 'rmse_xy': 0.02, 'mae_x': 0.02, 'mae_y': 0.02, 'r2_x': 1, 'r2_y': 1}, id="correct-model"),
 		pytest.param(REF_MODEL[::-1], {'rmse_x': 1.21, 'rmse_y': 1.21, 'rmse_xy': 1.21, 'mae_x': 1.06, 'mae_y': 1.06, 'r2_x': -2.87, 'r2_y': -2.21},
@@ -118,7 +116,7 @@ def test_model_validity(model, expected):
 		assert np.isclose(res[key], value, atol=0.1), f"Métrique {key} : {res[key]} au lieu de {value}."
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("model, expected", [
 		pytest.param(REF_MODEL, {'rmse_z':     5.78, 'mae_z': 4.58, 'p95_abs_z': 11.40, 'bias_z': 0.03, 'std_z': 5.78, 'mean_dist': 0.02, 'p95_dist': 0.04,
 								 "slope_mean": 0.004}, id="correct-model"),
@@ -133,7 +131,7 @@ def test_model_projection_validity(model, expected):
 		assert np.isclose(res[key], value, atol=0.1), f"Métrique {key} : {res[key]} au lieu de {value}."
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("model, expected_distance", [
 		pytest.param(np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float), 100, id="separated-minima"),
 		pytest.param(np.array([[50, 100, 0, 0, 30], [-50, 100, 0, 0, 30]], dtype=float), 100, id="reversed-axes"),
@@ -163,7 +161,6 @@ def test_model_projection_astigmatism(model, expected_distance, pixel_size):
 # ==================================================
 # region Recherche du centre
 # ==================================================
-##################################################
 def test_find_model_center():
 	"""Vérifie le comportement de find_model_center."""
 	res = find_model_center(REF_MODEL, Z_MAX, PIXEL_SIZE)

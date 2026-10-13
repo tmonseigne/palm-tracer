@@ -4,14 +4,13 @@ import pytest
 import tifffile
 from PIL import Image
 
-from tests.Utils import *
 from palm_tracer.Processing import Renderer
+from tests.Utils import *
 
 
 # ==================================================
 # region Configuration
 # ==================================================
-##################################################
 def test_set_size():
 	"""Vérifie le calcul de la taille d'une reconstruction."""
 	r = Renderer()
@@ -27,7 +26,6 @@ def test_set_size():
 # ==================================================
 # region Rendus
 # ==================================================
-##################################################
 def test_localizations():
 	"""Vérifie le rendu des localisations."""
 	r = Renderer()
@@ -81,7 +79,7 @@ def test_localizations():
 	assert res[2, 2] == np.iinfo(np.uint16).max
 
 
-##################################################
+# --------------------------------------------------
 def test_localizations_gaussian():
 	"""Vérifie le rendu gaussien des localisations."""
 	r = Renderer()
@@ -173,7 +171,7 @@ def test_localizations_gaussian():
 	assert ref_max == res.max()
 
 
-##################################################
+# --------------------------------------------------
 def test_tracks():
 	"""Vérifie le rendu des trajectoires."""
 	r = Renderer()
@@ -233,7 +231,7 @@ def test_tracks():
 		np.testing.assert_array_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 def test_z_stack():
 	"""Vérifie le rendu d'une pile Z."""
 	r = Renderer()
@@ -310,7 +308,7 @@ def test_z_stack():
 	assert res[0, 2, 2] == np.iinfo(np.uint16).max
 
 
-##################################################
+# --------------------------------------------------
 def test_z_stack_gaussian():
 	"""Vérifie le rendu gaussien d'une pile Z."""
 	r = Renderer()
@@ -382,7 +380,7 @@ def test_z_stack_gaussian():
 	assert ref_max == res.max()
 
 
-##################################################
+# --------------------------------------------------
 def test_rotation():
 	"""Vérifie le rendu d'une rotation 3D."""
 	r = Renderer()
@@ -452,7 +450,7 @@ def test_rotation():
 	np.testing.assert_array_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("axis", [0, 1, 2], ids=["x", "y", "z"])
 @pytest.mark.parametrize("shape", [None, 0, 1, 2], ids=["spots", "fixed", "isotropic", "anisotropic"])
 def test_rotation_data_crop(axis, shape):
@@ -479,7 +477,7 @@ def test_rotation_data_crop(axis, shape):
 	np.testing.assert_array_equal(r.rotation_3d(loc, z_step=1, frames=13, axis=axis, gaussian=gaussian), full)
 
 
-##################################################
+# --------------------------------------------------
 def test_rotation_gaussian():
 	"""Vérifie le rendu gaussien d'une rotation 3D."""
 	r = Renderer()
@@ -515,7 +513,7 @@ def test_rotation_gaussian():
 	assert res.shape == (1, 6, 6) and np.count_nonzero(res) == 0
 
 
-##################################################
+# --------------------------------------------------
 def test_track_stack_timeline():
 	"""Vérifie le recadrage temporel, les observations manquantes, l'effacement et les têtes sur les plans observés."""
 	r = Renderer()
@@ -533,7 +531,7 @@ def test_track_stack_timeline():
 	assert res.dtype == np.uint16
 
 
-##################################################
+# --------------------------------------------------
 def test_track_stack_crossing_bounds():
 	"""Conserve et recadre un segment animé dont les deux extrémités sont hors du rendu."""
 	r = Renderer()
@@ -547,7 +545,7 @@ def test_track_stack_crossing_bounds():
 	np.testing.assert_array_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data", (np.empty((0, 5)), np.zeros(5), np.zeros((1, 4)), np.array([[1, 4, -5, -5, 20]])),
 						 ids=['empty', '1d-array', 'missing-column', 'out-of-bounds'])
 def test_track_stack_empty_and_scale(data):
@@ -558,7 +556,7 @@ def test_track_stack_empty_and_scale(data):
 	np.testing.assert_array_equal(res, np.full((1, 4, 6), 17, dtype=np.uint16))
 
 
-##################################################
+# --------------------------------------------------
 def test_track_stack_scale():
 	"""Vérifie l’échelle des coordonnées et le bornage de la taille."""
 	r = Renderer()
@@ -571,7 +569,7 @@ def test_track_stack_scale():
 	np.testing.assert_array_equal(r.track_stack(np.empty((0, 5)), bg_color=17), [[[17]]])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode, expected", ((0, 30), (1, 20), (2, 10)), ids=['sum', 'maximum', 'minimum'])
 def test_track_stack_priority_and_modes(mode, expected):
 	"""Vérifie les croisements, les queues illimitées et la priorité globale des têtes."""
@@ -585,7 +583,7 @@ def test_track_stack_priority_and_modes(mode, expected):
 	assert res[1, 2, 2] == expected and res[2, 2, 2] == expected
 
 
-##################################################
+# --------------------------------------------------
 def test_track_stack_head_priority():
 	"""Vérifie la priorité globale des têtes sur les queues."""
 	r = Renderer()
@@ -596,7 +594,7 @@ def test_track_stack_head_priority():
 	assert res[1, 2, 2] == 3 and res[1, 2, 1] == 100
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("upscale", (0, 1), ids=['nearest-neighbor', 'lanczos'])
 @pytest.mark.parametrize("mode", (1, 2), ids=['maximum', 'minimum'])
 def test_track_stack_raw(upscale, mode):
@@ -617,7 +615,7 @@ def test_track_stack_raw(upscale, mode):
 	with np.testing.assert_raises(ValueError): r.track_stack(tracks, raw=raw[:2])
 
 
-##################################################
+# --------------------------------------------------
 def test_track_stack_raw_empty_and_2d():
 	"""Vérifie le retour scalaire sans observation et le rendu RGB sur fond 2D avec une observation."""
 	r = Renderer()
@@ -629,7 +627,7 @@ def test_track_stack_raw_empty_and_2d():
 	np.testing.assert_array_equal(res[0, 1, 1], [20, 20, 20])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode, intensity", ((0, 40000), (1, 30000), (2, 10000)), ids=['sum', 'maximum', 'minimum'])
 def test_track_stack_raw_fade_and_overlap(mode, intensity):
 	"""Vérifie l'effacement sur fond brut et les couleurs aux croisements pour les trois modes de combinaison."""
@@ -651,7 +649,6 @@ def test_track_stack_raw_fade_and_overlap(mode, intensity):
 # ==================================================
 # region Manipulation du résultat
 # ==================================================
-##################################################
 @pytest.mark.parametrize("color_mode, init_value", ((0, 0.0), (1, -np.inf), (2, np.inf)), ids=['sum', 'maximum', 'minimum'])
 def test_init_rendering(color_mode, init_value):
 	"""Vérifie les valeurs neutres et le masque initial des rendus."""
@@ -666,7 +663,7 @@ def test_init_rendering(color_mode, init_value):
 	assert not np.any(mask)
 
 
-##################################################
+# --------------------------------------------------
 def test_init_rendering_volume():
 	"""Vérifie les dimensions et le masque initial d’un volume."""
 	volume, mask = Renderer.init_rendering(0, 3, 4, 2)
@@ -675,7 +672,7 @@ def test_init_rendering_volume():
 	assert not np.any(mask)
 
 
-##################################################
+# --------------------------------------------------
 def test_finalize_rendering():
 	"""Vérifie la saturation et le repliement cyclique d'un rendu en uint16."""
 	img = np.array([[-1, 0, 1.9, 65535, 65536, 65537, 131073]], dtype=float)
@@ -695,7 +692,7 @@ def test_finalize_rendering():
 	np.testing.assert_array_equal(res, 0)
 
 
-##################################################
+# --------------------------------------------------
 def test_finalize_track_stack():
 	"""Vérifie le mélange unique avec le fond, la saturation après mélange et la troncature."""
 	img = np.array([[[100, 100, 100, 1.9, -100, 70000, 70000]]], dtype=float)
@@ -709,7 +706,7 @@ def test_finalize_track_stack():
 	assert not np.shares_memory(res, img)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("initial", (0, -np.inf, np.inf), ids=['zero-background', 'negative-infinite-background', 'positive-infinite-background'])
 @pytest.mark.parametrize("background, expected", ((0, 0), (42, 42), (-10, 0), (70000, 65535)), ids=['black', 'gray', 'lower-clipping', 'upper-clipping'])
 def test_finalize_track_stack_empty_background(initial, background, expected):
@@ -721,7 +718,7 @@ def test_finalize_track_stack_empty_background(initial, background, expected):
 	np.testing.assert_array_equal(alpha, 0)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("shape", ((0, 3, 4), (2, 0, 4), (2, 3, 0)), ids=['no-planes', 'no-rows', 'no-columns'])
 def test_finalize_track_stack_empty_dimensions(shape):
 	"""Vérifie les volumes dont une dimension est nulle."""
@@ -729,7 +726,7 @@ def test_finalize_track_stack_empty_dimensions(shape):
 	assert res.shape == shape and res.dtype == np.uint16
 
 
-##################################################
+# --------------------------------------------------
 def test_finalize_track_stack_strided():
 	"""Vérifie la finalisation d'une vue non contiguë sans modifier les pixels voisins ni l'alpha."""
 	base = np.full((2, 3, 8), 100.0)
@@ -742,7 +739,7 @@ def test_finalize_track_stack_strided():
 	np.testing.assert_array_equal(alpha, 0.5)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode, initial", ((0, 0), (1, -np.inf), (2, np.inf)), ids=['sum', 'maximum', 'minimum'])
 def test_finalize_track_stack_drawing(mode, initial):
 	"""Vérifie le fade d'une queue sur fond non nul et la tête opaque sur son seul plan, pour les trois modes."""
@@ -761,7 +758,7 @@ def test_finalize_track_stack_drawing(mode, initial):
 	np.testing.assert_array_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 def test_finalize_track_stack_remainder():
 	"""Vérifie le modulo après mélange, les valeurs négatives, les tours multiples et la troncature."""
 	img = np.array([[[-1, -1.5, 65536, 65537, 131073, 70000, -np.inf, np.inf]]], dtype=float)
@@ -775,7 +772,7 @@ def test_finalize_track_stack_remainder():
 	assert res.dtype == np.uint16
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("background, expected", ((-1, 65535), (65536, 0), (131073, 1)), ids=['negative-background', 'one-wrap', 'two-wraps'])
 def test_finalize_track_stack_background_remainder(background, expected):
 	"""Vérifie le repliement du fond lorsque l’opacité est nulle."""
@@ -784,7 +781,7 @@ def test_finalize_track_stack_background_remainder(background, expected):
 	np.testing.assert_array_equal(res, [[[expected]]])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("cmap", ("viridis", "magma"), ids=['viridis', 'magma'])
 def test_finalize_track_stack_rgb(cmap):
 	"""Vérifie la colormap, le gris, les alphas nul/partiel/opaque et la conservation des entrées."""
@@ -805,7 +802,7 @@ def test_finalize_track_stack_rgb(cmap):
 	with np.testing.assert_raises(ValueError): Renderer.finalize_track_stack_rgb(img, alpha, raw[:, :, :2])
 
 
-##################################################
+# --------------------------------------------------
 def test_finalize_track_stack_rgb_rejects_short_lut():
 	"""Vérifie le rejet d'une LUT qui ne couvre pas toute l'échelle uint16."""
 	volume = np.zeros((1, 1, 1))
@@ -815,7 +812,7 @@ def test_finalize_track_stack_rgb_rejects_short_lut():
 		Renderer.finalize_track_stack_rgb(volume, volume, volume, lut)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("value, expected_value", ((0, 0), (25700, 100)), ids=['black', 'gray'])
 def test_finalize_track_stack_rgb_global_contrast(value, expected_value):
 	"""Étire un brut peu lumineux avec la même échelle sur tous les plans, sans modifier les entrées."""
@@ -832,7 +829,7 @@ def test_finalize_track_stack_rgb_global_contrast(value, expected_value):
 	np.testing.assert_array_equal(res, expected_value)
 
 
-##################################################
+# --------------------------------------------------
 def test_upscale_raw():
 	"""Vérifie les blocs dupliqués, l'indépendance des plans et la conservation de l'entrée."""
 	r = Renderer()
@@ -849,7 +846,7 @@ def test_upscale_raw():
 	np.testing.assert_array_equal(r._upscale_raw(raw[:, :, ::-1], 0), res[:, :, ::-1])
 
 
-##################################################
+# --------------------------------------------------
 def test_upscale_raw_lanczos():
 	"""Vérifie les plans constants, les valeurs intermédiaires et l'absence de mélange entre plans."""
 	r = Renderer()
@@ -867,7 +864,7 @@ def test_upscale_raw_lanczos():
 	np.testing.assert_array_equal(raw, original)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", (0, 1), ids=['nearest-neighbor', 'lanczos'])
 def test_upscale_raw_edge_cases(mode):
 	"""Vérifie le ratio un, les volumes vides, les dimensions incompatibles et les paramètres invalides."""
@@ -884,7 +881,7 @@ def test_upscale_raw_edge_cases(mode):
 	np.testing.assert_array_equal(res, 0)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("ratio", (1, 2), ids=['ratio-1', 'ratio-2'])
 @pytest.mark.parametrize("mode", (0, 1), ids=['nearest-neighbor', 'lanczos'])
 def test_upscale_raw_2d(ratio, mode):
@@ -908,7 +905,6 @@ def test_upscale_raw_2d(ratio, mode):
 # ==================================================
 # region Préparation des données
 # ==================================================
-##################################################
 def test_get_localization_colors():
 	# DataFrame vide
 	"""Vérifie la génération des couleurs des localisations."""
@@ -946,7 +942,7 @@ def test_get_localization_colors():
 	np.testing.assert_array_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("z, expected", [
 		pytest.param([-300.0, 0.0, 100.0], [0.0, 0.75, 1.0], id="mixed-sign"),
 		pytest.param([100.0, 200.0, 300.0], [0.0, 0.5, 1.0], id="positive"),
@@ -962,7 +958,7 @@ def test_get_localization_z_colors(z, expected):
 	pd.testing.assert_series_equal(res["Z"], before)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("z", [pytest.param(-100.0, id="negative"), pytest.param(0.0, id="zero"), pytest.param(100.0, id="positive")])
 def test_get_localization_constant_z_colors(z):
 	"""Un Z constant conserve une couleur uniforme non nulle sans division par zéro."""
@@ -972,7 +968,7 @@ def test_get_localization_constant_z_colors(z):
 	np.testing.assert_array_equal(res["Z"], [z, z])
 
 
-##################################################
+# --------------------------------------------------
 def test_get_tracks_colors():
 	# DataFrame vide
 	"""Vérifie la génération des couleurs des trajectoires."""
@@ -1029,7 +1025,7 @@ def test_get_tracks_colors():
 	np.testing.assert_array_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 def test_prepare_localizations():
 	"""Vérifie la préparation des localisations de rendu."""
 	r = Renderer()
@@ -1077,7 +1073,7 @@ def test_prepare_localizations():
 	np.testing.assert_array_almost_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 def test_prepare_tracks():
 	"""Vérifie les plans, les arrondis, la conservation des points extérieurs et les tranches de trajectoires sans copie."""
 	r = Renderer()
@@ -1101,7 +1097,7 @@ def test_prepare_tracks():
 	assert not np.shares_memory(colors, tracks)
 
 
-##################################################
+# --------------------------------------------------
 def test_prepare_tracks_empty():
 	"""Vérifie une entrée vide."""
 	r = Renderer()
@@ -1118,7 +1114,6 @@ def test_prepare_tracks_empty():
 # ==================================================
 # region Dessin
 # ==================================================
-##################################################
 @pytest.mark.parametrize("args, expected_y, expected_left, expected_right",
 						 [((1, 2, 4, 2, 1), 2, [1], [5]),
 						  ((3, 1, 3, 4, 1), 1, [3, 3, 3, 3], [4, 4, 4, 4]),
@@ -1142,7 +1137,7 @@ def test_line_spans(args, expected_y, expected_left, expected_right, reverse):
 	assert left.dtype == int and right.dtype == int
 
 
-##################################################
+# --------------------------------------------------
 def test_line_spans_clipping():
 	"""Vérifie les empreintes hors cadre, les lignes vides et le bornage des largeurs."""
 	for shape, points, width in (((0, 5), (0, 0, 4, 4), 3), ((5, 0), (0, 0, 4, 4), 3),
@@ -1171,7 +1166,7 @@ def test_line_spans_clipping():
 		np.testing.assert_array_equal(right, [5])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("swap_axes", (False, True), ids=['original-axes', 'swapped-axes'])
 @pytest.mark.parametrize("sign_x, sign_y", ((1, 1), (1, -1), (-1, 1), (-1, -1)), ids=['right-down', 'right-up', 'left-down', 'left-up'])
 @pytest.mark.parametrize("width", (1, 2, 3, 4), ids=['width-1', 'width-2', 'width-3', 'width-4'])
@@ -1191,7 +1186,7 @@ def test_line_spans_orientations(swap_axes, sign_x, sign_y, width):
 	np.testing.assert_array_equal(res, ref)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_line():
 	"""Vérifie le tracé d'une ligne et la mise à jour de son masque."""
 	# Point unique
@@ -1265,7 +1260,7 @@ def test_draw_line():
 	assert not np.any(mask)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("color_mode, init_value, crossing_value", ((0, 0.0, 30.0), (1, -np.inf, 20.0), (2, np.inf, 10.0)), ids=['sum', 'maximum', 'minimum'])
 def test_draw_line_crossing(color_mode, init_value, crossing_value):
 	"""Vérifie la combinaison de deux lignes qui se croisent."""
@@ -1288,7 +1283,7 @@ def test_draw_line_crossing(color_mode, init_value, crossing_value):
 	np.testing.assert_array_equal(mask, ref_mask)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("width, first, last", ((1, 3, 4), (2, 3, 5), (3, 2, 5), (4, 2, 6)), ids=['width-1', 'width-2', 'width-3', 'width-4'])
 @pytest.mark.parametrize("mode", (0, 1, 2), ids=['sum', 'maximum', 'minimum'])
 def test_draw_line_width(width, first, last, mode):
@@ -1301,7 +1296,7 @@ def test_draw_line_width(width, first, last, mode):
 	np.testing.assert_array_equal(img[mask], 10)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("width, first, last", ((1, 3, 4), (2, 3, 5), (3, 2, 5), (4, 2, 6)), ids=['width-1', 'width-2', 'width-3', 'width-4'])
 def test_draw_line_point_width(width, first, last):
 	"""Vérifie l’empreinte carrée d’un point pour les largeurs paires et impaires."""
@@ -1313,7 +1308,7 @@ def test_draw_line_point_width(width, first, last):
 	np.testing.assert_array_equal(img, ref)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_line_width_border():
 	"""Vérifie qu’une ligne épaisse hors cadre peut toucher le bord."""
 	# Une ligne dont le centre est hors de l'image peut encore toucher le bord.
@@ -1325,7 +1320,7 @@ def test_draw_line_width_border():
 	np.testing.assert_array_equal(mask, ref > 0)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("x1, y1", ((7, 7), (7, 4), (4, 7), (1, 7), (7, 1), (3, 7), (7, 3)),
 						 ids=['diagonal', 'shallow-slope', 'steep-slope', 'left', 'up', 'vertical', 'horizontal'])
 @pytest.mark.parametrize("reverse", (False, True), ids=['forward', 'reverse'])
@@ -1347,7 +1342,7 @@ def test_draw_line_width_orientations(x1, y1, reverse, width):
 	np.testing.assert_array_equal(mask, ref_mask)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("width", (1, 3), ids=['width-1', 'width-3'])
 @pytest.mark.parametrize("mode, color, expected", ((0, 100, 45), (1, 100, 40), (1, 10, 20), (2, 100, 20), (2, 4, 16)),
 						 ids=['sum', 'maximum-higher-value', 'maximum-lower-value', 'minimum-higher-value', 'minimum-lower-value'])
@@ -1361,7 +1356,7 @@ def test_draw_line_alpha(width, mode, color, expected):
 	np.testing.assert_array_equal(img[~mask], 20)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("width", (1, 3), ids=['width-1', 'width-3'])
 @pytest.mark.parametrize("mode", (0, 1, 2), ids=['sum', 'maximum', 'minimum'])
 def test_draw_line_alpha_initial_background(width, mode):
@@ -1376,7 +1371,7 @@ def test_draw_line_alpha_initial_background(width, mode):
 	np.testing.assert_array_equal(img[~mask], original[~mask])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("width", (-5, 0, 1), ids=['negative-width', 'zero-width', 'width-1'])
 @pytest.mark.parametrize("alpha, expected_alpha", ((-0.1, 0), (0.25, 0.25), (1.1, 1)), ids=['negative-alpha', 'partial-alpha', 'alpha-above-one'])
 def test_draw_line_clamped_parameters(width, alpha, expected_alpha):
@@ -1388,7 +1383,7 @@ def test_draw_line_clamped_parameters(width, alpha, expected_alpha):
 	np.testing.assert_array_equal(mask, ref > 0)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", (0, 1, 2), ids=['sum', 'maximum', 'minimum'])
 @pytest.mark.parametrize("width", (2, 3, 4), ids=['width-2', 'width-3', 'width-4'])
 def test_draw_line_width_finalize(mode, width):
@@ -1402,7 +1397,7 @@ def test_draw_line_width_finalize(mode, width):
 	np.testing.assert_array_equal(mask, ref == 50)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_line_thick_empty_rows():
 	"""Vérifie que des intervalles vides ne modifient ni l'image ni le masque lors du dessin épais."""
 	img = np.full((5, 5), 20.0)
@@ -1416,7 +1411,7 @@ def test_draw_line_thick_empty_rows():
 	np.testing.assert_array_equal(mask, ref_mask)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_gaussian():
 	"""Vérifie le rendu gaussien 2D, son masque et ses modes."""
 	x, y, color, sx, sy, theta = 2, 2, 100.0, 1.0, 2.0, 0.0
@@ -1465,7 +1460,7 @@ def test_draw_gaussian():
 	assert not np.any(mask)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_gaussian_3d():
 	"""Vérifie le rendu gaussien en 3D."""
 	x, y, z, color, s = 1.5, 1.5, 1.5, 100, 1
@@ -1514,7 +1509,7 @@ def test_draw_gaussian_3d():
 	assert not np.any(mask)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_blinks():
 	"""Vérifie les apparitions aux plans 12/20, l'historique illimité et la conservation des entrées."""
 	track = np.array([[10, 0, 1], [12, 2, 1], [20, 4, 1]])
@@ -1532,7 +1527,7 @@ def test_draw_track_blinks():
 	np.testing.assert_array_equal(colors, [5, 10, 30])
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_empty_rows():
 	"""Vérifie que les lignes vides d'une empreinte partiellement hors cadre sont ignorées."""
 	img = np.zeros((3, 5, 5))
@@ -1551,7 +1546,7 @@ def test_draw_track_empty_rows():
 	np.testing.assert_array_equal(alpha, ref_alpha)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_short_fade_long_blink():
 	"""Vérifie le fade uniforme d'un segment qui apparaît après huit plans sans observation."""
 	track = np.array([[12, 0, 1], [20, 4, 1]])
@@ -1567,7 +1562,7 @@ def test_draw_track_short_fade_long_blink():
 	np.testing.assert_array_equal(img, np.where(ref_alpha > 0, 90, 0))
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_hard_cutoff():
 	"""Vérifie la limite d'âge inclusive et les plans sans nouvelle observation, sans fade."""
 	track = np.array([[0, 0, 0], [4, 4, 0]])
@@ -1580,7 +1575,7 @@ def test_draw_track_hard_cutoff():
 	np.testing.assert_array_equal(img, ref * 50)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode, initial, expected", ((0, 0, 120), (1, -np.inf, 100), (2, np.inf, 20)), ids=['sum', 'maximum', 'minimum'])
 def test_draw_track_overlap(mode, initial, expected):
 	"""Vérifie la combinaison indépendante des intensités et le maximum des opacités."""
@@ -1595,7 +1590,7 @@ def test_draw_track_overlap(mode, initial, expected):
 	assert img[0, 0, 0] == initial and alpha[0, 0, 0] == 0
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode, initial", ((0, 0), (1, -np.inf), (2, np.inf)), ids=['sum', 'maximum', 'minimum'])
 def test_draw_track_thickness(mode, initial):
 	"""Vérifie l'opacité uniforme sur toute l'épaisseur et l'absence de cumul interne."""
@@ -1611,7 +1606,7 @@ def test_draw_track_thickness(mode, initial):
 	np.testing.assert_array_equal(img, np.where(ref > 0, 80, initial))
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_stationary_and_clipping():
 	"""Vérifie un déplacement nul au bord, les segments hors cadre et les bornes temporelles du volume."""
 	img = np.zeros((5, 3, 3))
@@ -1637,7 +1632,7 @@ def test_draw_track_stationary_and_clipping():
 	np.testing.assert_array_equal(alpha, 0)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("departure", (0, 9), ids=['departure-0', 'departure-9'])
 @pytest.mark.parametrize("endpoint", ((1, 1), (8, 1), (8, 8)), ids=['stationary', 'horizontal', 'diagonal'])
 def test_draw_track_alpha_independent_of_geometry(departure, endpoint):
@@ -1655,7 +1650,7 @@ def test_draw_track_alpha_independent_of_geometry(departure, endpoint):
 	np.testing.assert_array_equal(alpha[13:], 0)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("size", (-2, 0, 1), ids=['negative-diameter', 'zero-diameter', 'diameter-1'])
 def test_draw_track_heads_planes(size):
 	"""Vérifie les plans observés uniquement, le diamètre minimal et la conservation des entrées."""
@@ -1673,7 +1668,7 @@ def test_draw_track_heads_planes(size):
 	np.testing.assert_array_equal(colors, [20, 70])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("size, pattern", ((2, [[1, 1], [1, 1]]),
 										   (4, [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]]),
 										   (5, [[0, 1, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 1, 1, 0]])),
@@ -1690,7 +1685,7 @@ def test_draw_track_heads_circles(size, pattern):
 	np.testing.assert_array_equal(img, ref * 80)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_heads_clipping():
 	"""Vérifie le recadrage des cercles aux bords sans déplacer leur centre et les entrées hors volume."""
 	img = np.zeros((2, 3, 3))
@@ -1707,7 +1702,7 @@ def test_draw_track_heads_clipping():
 		np.testing.assert_array_equal(alpha, ref > 0)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_heads_priority():
 	"""Vérifie la priorité opaque des têtes sur une queue et la priorité de la dernière tête dessinée."""
 	img = np.zeros((5, 5, 5))
@@ -1721,7 +1716,7 @@ def test_draw_track_heads_priority():
 	np.testing.assert_array_equal(alpha, original_alpha)
 
 
-##################################################
+# --------------------------------------------------
 def test_draw_track_heads_preserve_interior():
 	"""Vérifie que le contour laisse les intensités et les opacités existantes intactes à l'intérieur."""
 	img = np.full((3, 7, 7), 40.0)
@@ -1741,7 +1736,6 @@ def test_draw_track_heads_preserve_interior():
 # ==================================================
 # region Rendus spéciaux
 # ==================================================
-##################################################
 def test_renderer_track_crossing_roi_diamond():
 	"""Exporte une trajectoire en losange dont les quatre segments traversent les bords d'une ROI carrée."""
 	r = Renderer()
@@ -1762,7 +1756,7 @@ def test_renderer_track_crossing_roi_diamond():
 	FileIO.save_png(res, OUTPUT_DIR / "track_crossing_roi_diamond.png")
 
 
-##################################################
+# --------------------------------------------------
 def test_renderer_atom():
 	"""Vérifie le rendu d'une localisation isolée."""
 	r = Renderer()
@@ -1802,7 +1796,7 @@ def test_renderer_atom():
 	FileIO.save_tif(res, OUTPUT_DIR / "atoms_sphere_motion_3D_gaussian.tif")
 
 
-##################################################
+# --------------------------------------------------
 def test_renderer_track_stack_spiral():
 	"""Exporte une spirale animée pour vérifier visuellement la queue, le fade, la tête et le fond gris foncé."""
 	r = Renderer()
@@ -1823,7 +1817,7 @@ def test_renderer_track_stack_spiral():
 	frames[0].save(OUTPUT_DIR / "track_stack_spiral.gif", save_all=True, append_images=frames[1:], duration=80, loop=0, optimize=False)
 
 
-##################################################
+# --------------------------------------------------
 def test_renderer_track_stack_spiral_raw():
 	"""Exporte une spirale rouge avec fade sur un dégradé gris mouvant au contraste ajusté sur toute la séquence."""
 	r = Renderer()

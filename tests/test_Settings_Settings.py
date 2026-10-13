@@ -6,13 +6,13 @@ from typing import List
 import pytest
 import tifffile as tiff
 
-from tests.Utils import *
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups import *
 from palm_tracer.Tools import FileIO
+from tests.Utils import *
 
 
-###################################################
+# --------------------------------------------------
 def test_settings(qtbot, capsys):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	settings = Settings()
@@ -32,7 +32,7 @@ def test_settings(qtbot, capsys):
 	assert len(lines) == 135
 
 
-###################################################
+# --------------------------------------------------
 def test_settings_group_getter(qtbot):
 	"""Vérifie la récupération des différents groupes de paramètres."""
 	settings = Settings()
@@ -60,7 +60,7 @@ def test_settings_group_getter(qtbot):
 	assert isinstance(s, Filters), "Récupération du groupe incorrecte."
 
 
-###################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode, selected, expected", [
 		pytest.param(0, 0, 3, id="first-stack"),
 		pytest.param(0, 1, 5, id="selected-stack"),
@@ -80,7 +80,7 @@ def test_settings_batch_filter_limits(qtbot, tmp_path, mode, selected, expected)
 	assert settings.filters.tracking["Length"].limits[1] == expected
 
 
-###################################################
+# --------------------------------------------------
 def test_settings_batch_filter_limits_after_list_change(qtbot, tmp_path):
 	"""Vérifie le re-calcul quand la liste change sans changer l'index courant."""
 	files = [tmp_path / "first.tif", tmp_path / "second.tif"]
@@ -100,7 +100,7 @@ def test_settings_batch_filter_limits_after_list_change(qtbot, tmp_path):
 	assert settings.filters["Plane"].limits[1] == 100000
 
 
-###################################################
+# --------------------------------------------------
 def test_settings_batch_reuses_tif_metadata(qtbot, tmp_path, monkeypatch):
 	"""Vérifie que le changement de mode réutilise les profondeurs déjà lues."""
 	files = [tmp_path / "first.tif", tmp_path / "second.tif"]
@@ -110,6 +110,7 @@ def test_settings_batch_reuses_tif_metadata(qtbot, tmp_path, monkeypatch):
 	read_shape = FileIO.read_tif_shape
 	read_paths = []
 
+	# --------------------------------------------------
 	def count_read(path):
 		"""Compte les lectures de métadonnées TIFF."""
 		read_paths.append(str(path))
@@ -127,7 +128,7 @@ def test_settings_batch_reuses_tif_metadata(qtbot, tmp_path, monkeypatch):
 	assert settings.filters["Plane"].limits[1] == 8
 
 
-###################################################
+# --------------------------------------------------
 def test_settings_signal(qtbot):
 	"""Vérifie Connexion d'un slot Python, blocage et émission."""
 	settings = Settings()

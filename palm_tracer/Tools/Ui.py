@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from colorama import Fore, Style
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFontMetrics
-from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout,
-							QPushButton, QScrollArea, QSpinBox, QVBoxLayout, QWidget)
+
+from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton,  # isort: skip
+							QScrollArea, QSpinBox, QVBoxLayout, QWidget)
 
 # ==================================================
 # region Constantes
@@ -24,7 +25,7 @@ CONFIG_PLOTLY: dict[str, Any] = {
 		"displaylogo":            False,
 		"modeBarButtonsToRemove": ["zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d",
 								   "resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian"],
-		"toImageButtonOptions":   dict(format="png", height=1200, width=1200, scale=2)}
+		"toImageButtonOptions":   {"format": "png", "height": 1200, "width": 1200, "scale": 2}}
 
 # Espace par défaut de l'interface (espacement interne, marge...).
 COMMON_SPACE: int = 5
@@ -37,7 +38,6 @@ COMMON_SPACE: int = 5
 # ==================================================
 # region Construction de l'interface
 # ==================================================
-##################################################
 def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int = 0, margin: int = 0, *, tooltip: str = ""):
 	"""
 	Ajoute une ligne de paramètre dans un :class:`QFormLayout`.
@@ -62,7 +62,7 @@ def add_setting_row(form: QFormLayout, label: str, widget: QWidget, space: int =
 	form.addRow(label_widget, layout)
 
 
-##################################################
+# --------------------------------------------------
 def init_layout(layout: QLayout, space: int = COMMON_SPACE, margin: int = COMMON_SPACE):
 	"""
 	Configure un layout avec des marges et un espacement uniformes.
@@ -80,7 +80,7 @@ def init_layout(layout: QLayout, space: int = COMMON_SPACE, margin: int = COMMON
 		layout.setVerticalSpacing(space)
 
 
-##################################################
+# --------------------------------------------------
 def make_tab(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> tuple[QWidget, QVBoxLayout]:
 	"""
 	Crée un onglet prêt à l'emploi (widget conteneur + layout vertical).
@@ -99,7 +99,7 @@ def make_tab(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: i
 	return tab, layout
 
 
-##################################################
+# --------------------------------------------------
 def make_group(parent: QWidget | None = None, name: str = "", space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> tuple[QGroupBox, QVBoxLayout]:
 	"""
 	Crée un :class:`QGroupBox` avec un layout vertical configuré.
@@ -117,15 +117,15 @@ def make_group(parent: QWidget | None = None, name: str = "", space: int = COMMO
 	return group, layout
 
 
-##################################################
+# --------------------------------------------------
 def make_exclusive_btn_group(labels: list[str], space: int = COMMON_SPACE) -> tuple[QHBoxLayout, QButtonGroup, dict[str, QPushButton]]:
 	"""
-	Crée un :class:`QGroupBox` avec un layout vertical configuré.
+	Crée des boutons exclusifs dans un layout horizontal et sélectionne le premier.
 
-	:param labels: Titres affiché dans les boutons.
+	:param labels: Titres affichés dans les boutons ; la liste doit contenir au moins un élément.
 	:param space: Valeur (en pixels) utilisée pour l'espacement du layout. Par défaut : ``COMMON_SPACE``.
 
-	:return: Un tuple ``(group, layout)`` où : ``group`` est le :class:`QGroupBox` créé et ``layout`` son calque.
+	:return: Layout horizontal, groupe exclusif et dictionnaire des boutons indexé par titre.
 	"""
 	layout = QHBoxLayout()
 	layout.setSpacing(space)
@@ -133,26 +133,24 @@ def make_exclusive_btn_group(labels: list[str], space: int = COMMON_SPACE) -> tu
 	group.setExclusive(True)
 	buttons: dict[str, QPushButton] = {label: QPushButton(label) for label in labels}
 
-	i = 0
-	for _, button in buttons.items():
+	for i, button in enumerate(buttons.values()):
 		button.setCheckable(True)
 		button.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # Évite le rectangle de focus
 		layout.addWidget(button)
 		group.addButton(button, i)  # Insertion dans le groupe exclusif
-		i += 1
 
 	buttons[labels[0]].setChecked(True)
 
 	return layout, group, buttons
 
 
-##################################################
+# --------------------------------------------------
 def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> QFormLayout:
 	"""
 	Crée et configure un :class:`QFormLayout` pour des paramètres.
 
 	Configuration appliquée :
-		- labels alignés à droite et centrés verticalement ;
+		- libellés alignés à gauche et centrés verticalement ;
 		- formulaire ancré en haut à gauche ;
 		- espacements horizontaux/verticaux adaptés à une UI de réglages ;
 		- politique de croissance des champs : les widgets de droite restent à leur *sizeHint* (évite qu'ils s'étirent jusqu'au bord droit).
@@ -171,7 +169,7 @@ def make_form(parent: QWidget | None = None, space: int = COMMON_SPACE, margin: 
 	return layout
 
 
-##################################################
+# --------------------------------------------------
 def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, size: int = 2, parent: QWidget | None = None,
 				   space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> QGridLayout:
 	"""
@@ -181,8 +179,7 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 
 	La colonne ``value`` est extensible afin de conserver un alignement propre, tandis que les labels et unités gardent leur taille naturelle.
 
-	:param elements:
-		Dictionnaire décrivant les lignes à afficher.
+	:param elements: Dictionnaire décrivant les lignes à afficher.
 		Chaque entrée doit contenir :
 
 			- ``"label"`` : :class:`QLabel` (libellé) ;
@@ -212,10 +209,9 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	if size == 3:    layout.setColumnStretch(2, 0)  # .				Unité
 
 	row = 2
-	for key, item in elements.items():
-		lbl: QLabel = item["label"]
-		val: QLabel = item["value"]
-		lbl.setToolTip(item.get("tips", ""))  # .					Infobulle associée au libellé
+	for item in elements.values():
+		lbl, val = cast(QLabel, item["label"]), cast(QLabel, item["value"])
+		lbl.setToolTip(cast(str, item.get("tips", "")))  # .		Infobulle associée au libellé
 
 		# Alignements : gauche | droite | gauche (si une unité)
 		val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -224,7 +220,7 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 		layout.addWidget(val, row, 1)
 
 		if size == 3:
-			unit: QLabel = item["unit"]
+			unit = cast(QLabel, item["unit"])
 			unit.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 			layout.addWidget(unit, row, 2)
 
@@ -233,7 +229,7 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	return layout
 
 
-##################################################
+# --------------------------------------------------
 def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) -> tuple[QGroupBox, dict[str, QLabel]]:
 	"""
 	Construit un groupe d'information pour le listing des fichiers calculés.
@@ -263,7 +259,7 @@ def make_file_info_group(space: int = COMMON_SPACE, margin: int = COMMON_SPACE) 
 	return grp, status
 
 
-##################################################
+# --------------------------------------------------
 def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 	"""
 	Crée un :class:`QLabel` stylisé pour afficher un chemin ou un nom de fichier.
@@ -279,7 +275,7 @@ def make_path_label(value: str = "", parent: QWidget | None = None) -> QLabel:
 	return lbl
 
 
-##################################################
+# --------------------------------------------------
 def update_path_label(lbl: QLabel, path: str | Path):
 	"""
 	Met à jour un label de chemin avec un nouvel objet :class:`pathlib.Path`.
@@ -294,7 +290,7 @@ def update_path_label(lbl: QLabel, path: str | Path):
 	lbl.setToolTip(str(path))
 
 
-##################################################
+# --------------------------------------------------
 def make_vertical_scroll(widget: QWidget) -> QScrollArea:
 	"""
 	Créer une zone scrollable verticalement.
@@ -311,7 +307,7 @@ def make_vertical_scroll(widget: QWidget) -> QScrollArea:
 	return scroll
 
 
-##################################################
+# --------------------------------------------------
 def make_vertical_separator(color: str = "#B0B0B0") -> QFrame:
 	"""
 	Crée un séparateur vertical discret.
@@ -326,7 +322,7 @@ def make_vertical_separator(color: str = "#B0B0B0") -> QFrame:
 	return sep
 
 
-##################################################
+# --------------------------------------------------
 def make_horizontal_separator(color: str = "#B0B0B0") -> QFrame:
 	"""
 	Crée un séparateur horizontal discret.
@@ -341,7 +337,7 @@ def make_horizontal_separator(color: str = "#B0B0B0") -> QFrame:
 	return sep
 
 
-##################################################
+# --------------------------------------------------
 def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: int | float = 1,
 			  step: int | float = 1, value: int | float = 0, decimals: int = 0, buttons: bool = True) -> QSpinBox | QDoubleSpinBox:
 	"""
@@ -364,6 +360,7 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 	:param buttons: Affiche ou non les boutons up/down.
 	:return: La spinbox configurée (:class:`QSpinBox` ou :class:`QDoubleSpinBox`).
 	"""
+	spin: QSpinBox | QDoubleSpinBox
 	if decimals <= 0:
 		spin = QSpinBox(parent, minimum=minimum, maximum=maximum, singleStep=step, value=value)
 		spin.setStyleSheet("QSpinBox { padding: 0; }")  # .								 Suppression de l'espacement interne
@@ -379,7 +376,7 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 	return spin
 
 
-##################################################
+# --------------------------------------------------
 def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 	"""
 	Ajuste la largeur fixe d'une spinbox en fonction du contenu affichable.
@@ -411,7 +408,6 @@ def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
-##################################################
 def sync_button_group(target: QButtonGroup, value: int):
 	"""
 	Synchronise un groupe de boutons exclusif avec un autre via son id.
@@ -432,7 +428,7 @@ def sync_button_group(target: QButtonGroup, value: int):
 	target.blockSignals(False)
 
 
-##################################################
+# --------------------------------------------------
 def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 	"""
 	Synchronise une spinbox avec la valeur envoyée (par signal).
@@ -452,7 +448,7 @@ def sync_spin(target: QDoubleSpinBox | QSpinBox, value: float | int):
 	target.blockSignals(False)
 
 
-##################################################
+# --------------------------------------------------
 def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | None = None, maximum: float | int | None = None, ):
 	"""
 	Met à jour dynamiquement les bornes d'une spinbox.
@@ -475,7 +471,6 @@ def update_spin_limits(spin: QDoubleSpinBox | QSpinBox, minimum: float | int | N
 # ==================================================
 # region Affichages
 # ==================================================
-##################################################
 def print_error(msg: str):
 	"""
 	Affiche un message avec une couleur rouge.
@@ -485,7 +480,7 @@ def print_error(msg: str):
 	print(Fore.RED + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
 
-##################################################
+# --------------------------------------------------
 def print_warning(msg: str):
 	"""
 	Affiche un message avec une couleur jaune.
@@ -495,7 +490,7 @@ def print_warning(msg: str):
 	print(Fore.YELLOW + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
 
-##################################################
+# --------------------------------------------------
 def print_success(msg: str):
 	"""
 	Affiche un message avec une couleur verte.
@@ -505,7 +500,7 @@ def print_success(msg: str):
 	print(Fore.GREEN + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
 
-##################################################
+# --------------------------------------------------
 def format_time(seconds):
 	"""
 	Fonction pour formater le temps en secondes en HH:MM:SS.

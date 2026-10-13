@@ -1,14 +1,13 @@
 """Teste la classe de base des widgets autonomes utilisant Plotly."""
 
+from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # Classe
 from tests.Utils import *
 from tests.Utils import _FakeDownload
-from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget  # Classe
 
 
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_creation(qtbot):
 	"""Vérifie la création du widget."""
 	w = BasePlotlyWidget()
@@ -26,7 +25,6 @@ def test_creation(qtbot):
 # ==================================================
 # region Widget Web Plotly
 # ==================================================
-##################################################
 def test_update_plotly(qtbot):
 	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()
@@ -40,7 +38,7 @@ def test_update_plotly(qtbot):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_update_plotly_no_js(qtbot):
 	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()
@@ -54,7 +52,7 @@ def test_update_plotly_no_js(qtbot):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()
@@ -91,7 +89,6 @@ def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 # ==================================================
 # region Export Plotly
 # ==================================================
-##################################################
 def test_export_plotly(qtbot, monkeypatch, fake_qfiledialog):
 	"""Vérifie gestion de plotly."""
 	w = BasePlotlyWidget()

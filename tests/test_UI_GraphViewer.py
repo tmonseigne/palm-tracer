@@ -6,10 +6,10 @@ from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPoint, QP
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QPushButton, QScrollArea
 
-from tests.Utils import *
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, Combo, FileList
 from palm_tracer.UI import GraphViewerWidget
+from tests.Utils import *
 
 OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"
 INPUT_FILE = INPUT_DIR / "stack.tif"
@@ -19,7 +19,7 @@ rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce 
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def stack_drop_widget(qtbot, monkeypatch):
 	"""Observe les dépôts dans une fenêtre autonome sans construire de rendu WebEngine."""
@@ -36,7 +36,7 @@ def stack_drop_widget(qtbot, monkeypatch):
 	return widget, calls
 
 
-##################################################
+# --------------------------------------------------
 def send_stack_drop(receiver, mime):
 	"""Envoie les événements Qt d'entrée, de déplacement et de dépôt d'une pile."""
 	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
@@ -46,7 +46,7 @@ def send_stack_drop(receiver, mime):
 	return enter, move, drop
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def w() -> GraphViewerWidget:
 	"""Instance fraîche de GraphViewerWidget pour chaque test."""
@@ -55,7 +55,7 @@ def w() -> GraphViewerWidget:
 	return w
 
 
-##################################################
+# --------------------------------------------------
 def flush_qt_delete_events():
 	"""Traite les événements Qt de suppression différée."""
 	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
@@ -65,7 +65,6 @@ def flush_qt_delete_events():
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_widget_creation(w: GraphViewerWidget, qtbot):
 	"""Vérifie la création du widget."""
 	qtbot.addWidget(w)
@@ -75,7 +74,7 @@ def test_widget_creation(w: GraphViewerWidget, qtbot):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
 	"""Vérifie que les statuts sont actualisés directement par Results."""
 	qtbot.addWidget(w)
@@ -88,7 +87,7 @@ def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
 	assert results_ui.labels["Localizations"].text() == "Yes (2 localizations)"
 
 
-##################################################
+# --------------------------------------------------
 def test_widget_double_creation(qtbot):
 	"""Vérifie Permettant de gérer la création en doublon de la même UI."""
 
@@ -121,7 +120,6 @@ def test_widget_double_creation(qtbot):
 # ==================================================
 # region Glisser-déposer
 # ==================================================
-##################################################
 @pytest.mark.parametrize("scenario", ["hidden", "deleted", "non-widget"], ids=["hidden-window", "deleted-window", "non-widget-receiver"])
 def test_stack_drop_ignores_inactive_target(stack_drop_widget, scenario):
 	"""Vérifie qu'un événement tardif ou sans destinataire QWidget n'est pas intercepté."""
@@ -146,7 +144,7 @@ def test_stack_drop_ignores_inactive_target(stack_drop_widget, scenario):
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("target", ["window", "button", "scroll", "graph"], ids=["window", "action-button", "scroll-viewport", "graph-area"])
 def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target):
 	"""Vérifie l'ajout, le chargement du dossier des résultats et le tracé depuis chaque zone."""
@@ -165,7 +163,7 @@ def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target):
 	assert all(button.text() != "Add Stack" for button in widget.findChildren(QPushButton))
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["multiple", "mixed", "directory", "missing"], ids=["multiple-files", "local-and-remote", "directory", "missing-file"])
 def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario):
 	"""Vérifie qu'un dépôt refusé ne modifie pas le Batch et ne redessine pas le graphe."""
@@ -185,7 +183,7 @@ def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario)
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["other-window", "remote", "text"], ids=["other-window", "remote-url", "internal-text"])
 def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenario):
 	"""Vérifie que le filtre laisse les autres fenêtres et les glissements sans fichier local inchangés."""
@@ -207,7 +205,7 @@ def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenari
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("initial_accepts", [False, True], ids=["drops-disabled", "drops-enabled"])
 def test_stack_drop_follows_visibility(stack_drop_widget, initial_accepts):
 	"""Vérifie la restauration des dépôts et l'installation du filtre après ré-affichage."""
@@ -236,7 +234,6 @@ def test_stack_drop_follows_visibility(stack_drop_widget, initial_accepts):
 # ==================================================
 # region Liaison avec PALMTracer
 # ==================================================
-##################################################
 def test_change_type(w: GraphViewerWidget, qtbot):
 	"""Vérifie la création du widget."""
 	qtbot.addWidget(w)
@@ -253,7 +250,7 @@ def test_change_type(w: GraphViewerWidget, qtbot):
 	w.close()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", [0, 1, 2], ids=["only-one", "each-file", "all-in-one"])
 def test_add_stack_uses_dropped_results_folder(stack_drop_widget, tmp_path, mode):
 	"""Vérifie que le chargement utilise la pile ajoutée malgré une autre pile déjà présente."""
@@ -268,7 +265,7 @@ def test_add_stack_uses_dropped_results_folder(stack_drop_widget, tmp_path, mode
 	assert calls == [("load", OUTPUT_DIR), ("plot", INPUT_FILE)]
 
 
-##################################################
+# --------------------------------------------------
 def test_update_plot_localization(w: GraphViewerWidget, qtbot, capsys):
 	"""Vérifie différentes visualizations."""
 	qtbot.addWidget(w)

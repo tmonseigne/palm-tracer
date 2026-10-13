@@ -4,6 +4,7 @@ Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 .. todo:: Rendre interruptibles les prévisualisations sans bloquer l'interface Napari.
 """
 
+from contextlib import suppress
 from pathlib import Path
 from typing import Callable, Optional, cast
 
@@ -22,11 +23,13 @@ from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
-try: from napari.qt.threading import thread_worker, FunctionWorker  # .		   Chemin public, à préférer
-except ImportError: from superqt.utils import thread_worker, FunctionWorker  # Très rare fallback
+try:
+	from napari.qt.threading import FunctionWorker, thread_worker  # Chemin public, à préférer.
+except ImportError:
+	from superqt.utils import FunctionWorker, thread_worker  # Repli pour les versions antérieures.
 
 
-##################################################
+# --------------------------------------------------
 class PALMTracerWidget(BaseNapariWidget):
 	"""
 	Fournit l'interface Napari principale de PALM Tracer.
@@ -49,7 +52,6 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __init__(self, viewer: "napari.viewer.Viewer"):
 		"""
 		Initialise le widget principal de l'interface utilisateur.
@@ -90,7 +92,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		self._connect_signal()
 		self._on_startup()
 
-	##################################################
+	# --------------------------------------------------
 	def _init_ui(self):
 		"""Initialisation de l'interface utilisateur du widget."""
 		# Base
@@ -145,7 +147,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		action_widget.setLayout(btn_action_row)
 		self.layout().addWidget(action_widget)
 
-	##################################################
+	# --------------------------------------------------
 	def _connect_signal(self):
 		"""Connecte les signaux UI aux callbacks."""
 		# Boutons QT classiques
@@ -171,13 +173,13 @@ class PALMTracerWidget(BaseNapariWidget):
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(self._preview)
 
-	##################################################
+	# --------------------------------------------------
 	def _on_startup(self):
 		"""Crée le dossier utilisateur si nécessaire et charge les derniers paramètres enregistrés après l'initialisation de l'interface."""
 		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
 		self._load_setting(FileIO.USER_SETTINGS_FILE)
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _create_tab(widgets: list[QWidget]) -> QWidget:
 		"""
@@ -207,7 +209,6 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	# region Glisser-déposer
 	# ==================================================
-	##################################################
 	def _can_drop_files(self, paths: list[str]) -> bool:
 		"""
 		Refuse les dépôts pendant un traitement PALM Tracer.
@@ -217,7 +218,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		"""
 		return not self._processing
 
-	##################################################
+	# --------------------------------------------------
 	def _drop_files(self, paths: list[str]):
 		"""
 		Ajoute les fichiers déposés au Batch de l'interface principale.
@@ -233,7 +234,6 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	# region Threads
 	# ==================================================
-	##################################################
 	def _thread_process(self, compute_func: Callable[[], None], post_func: Optional[Callable[[], None]] = None):
 		"""
 		Démarre un traitement long dans un thread séparé et met à jour l'interface.
@@ -250,6 +250,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		self._processing = True
 		self._freeze_ui(True)
 
+		# --------------------------------------------------
 		@thread_worker(start_thread=False)
 		def _run_background():
 			"""Exécute le traitement dans le worker d'arrière-plan."""
@@ -261,6 +262,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		# S'exécute dans le thread de l'interface
 		if post_func is not None: w.returned.connect(lambda _ok: post_func())
 
+		# --------------------------------------------------
 		def _finish(*_args: object):  # UI thread : fin propre
 			"""
 			Libère le worker puis finalise le traitement.
@@ -274,7 +276,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		w.errored.connect(lambda e: show_error(f"Error in thread: {e}"))
 		w.start()
 
-	##################################################
+	# --------------------------------------------------
 	def _process_done(self):
 		"""
 		Finalise un traitement en réactivant l'interface et met à jour l'affichage.
@@ -287,15 +289,15 @@ class PALMTracerWidget(BaseNapariWidget):
 		self._processing = False
 		self._freeze_ui(False)
 
-	##################################################
+	# --------------------------------------------------
 	def _freeze_ui(self, on: bool):
 		"""Gèle/réactive proprement l'UI sans casser la géométrie."""
 		self.setDisabled(on)  # .		  Au lieu de self.layout().setEnabled(False/True)
 		self.setUpdatesEnabled(not on)  # Stoppe/reprend les repaints
 		if on: QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 		else:
-			try: QApplication.restoreOverrideCursor()
-			except RuntimeError: pass  # .	Aucun curseur à restaurer
+			# Aucun curseur à restaurer : ignorer l'erreur Qt correspondante.
+			with suppress(RuntimeError): QApplication.restoreOverrideCursor()
 
 	# ==================================================
 	# endregion Threads
@@ -304,7 +306,6 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	# region Fonctions de rappel des paramètres
 	# ==================================================
-	##################################################
 	def _load_setting(self, filename: Path):
 		"""
 		Charge les paramètres enregistrés, puis désactive la prévisualisation et les filtres.
@@ -324,18 +325,18 @@ class PALMTracerWidget(BaseNapariWidget):
 			except Exception as e:
 				show_warning(f"Error loading file '{filename}': {e}")
 
-	##################################################
+	# --------------------------------------------------
 	def _on_load_setting_btn(self):
 		"""Action lors d'un clic sur le bouton Load setting."""
 		filename, _ = QFileDialog.getOpenFileName(None, "Select a settings file", ".", "JSON files (*.json)")
 		self._load_setting(Path(filename))
 
-	##################################################
+	# --------------------------------------------------
 	def _on_reset_setting_btn(self):
 		"""Action lors d'un clic sur le bouton Reset setting."""
 		self.pt.settings.reset()
 
-	##################################################
+	# --------------------------------------------------
 	def _on_change_setting(self):
 		"""Enregistre les paramètres courants dans le fichier utilisateur persistant."""
 		# Sauvegarde des paramètres dans le dossier utilisateur.
@@ -348,7 +349,6 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	# region Fonctions de rappel des calques
 	# ==================================================
-	##################################################
 	def _clean_layer(self, raw: bool = True, preview: bool = True, roi: bool = True):
 		"""Vide les calques sans les supprimer."""
 		if raw: self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
@@ -360,7 +360,7 @@ class PALMTracerWidget(BaseNapariWidget):
 			self.update_layer(self._layers[self.LAYERS_NAME[5]], self.EMPTY_PREVIEW)
 		if roi: self.update_layer(self._layers[self.LAYERS_NAME[6]], [])
 
-	##################################################
+	# --------------------------------------------------
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
 		self.pt.settings.localization["Preview"].value = False
@@ -395,7 +395,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		except Exception as e:
 			show_error(f"Error loading {selected_file}: {e}")
 
-	##################################################
+	# --------------------------------------------------
 	def _add_preview_layers(self):
 		"""Ajoute des calques à Napari pour les localisations sur le plan actuel, précédent et suivant."""
 		self._clean_layer(False, True, False)
@@ -429,7 +429,7 @@ class PALMTracerWidget(BaseNapariWidget):
 			self.update_layer(layer, (rois, [s_type] * n_rois), edge_color=[args["color"]] * n_rois,
 							  edge_width=[args["edge"]] * n_rois, face_color=["transparent"] * n_rois)
 
-	##################################################
+	# --------------------------------------------------
 	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
 		"""
 		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres.
@@ -443,11 +443,11 @@ class PALMTracerWidget(BaseNapariWidget):
 		plane = self._current_stack[plane_idx]  # .			   Récupération des données du plan affiché
 		return np.asarray(plane, dtype=np.uint16)  # .		   Renvoie sous le format numpy
 
-	##################################################
+	# --------------------------------------------------
 	def _preview(self):
 		"""Action lors d'un clic sur le bouton de preview."""
 		if not self.pt.settings.localization["Preview"].value:
-			self._preview_locs = {state: self.EMPTY_PREVIEW for state in self.LAYER_ARGS}
+			self._preview_locs = dict.fromkeys(self.LAYER_ARGS, self.EMPTY_PREVIEW)
 			self._clean_layer(False, True, False)
 			return
 
@@ -459,6 +459,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		except Exception: raise
 		plane_number = self.viewer.dims.current_step[0] + 1
 
+		# --------------------------------------------------
 		def localize_preview(image: np.ndarray, number: int) -> tuple[pd.DataFrame, pd.DataFrame]:
 			"""Renvoie les localisations brutes et filtrées d'un plan de la pile."""
 			locations = self.pt.palm.localization(image, t, w, f, fp)
@@ -502,7 +503,7 @@ class PALMTracerWidget(BaseNapariWidget):
 
 		self._add_preview_layers()
 
-	##################################################
+	# --------------------------------------------------
 	def _auto_threshold(self):
 		"""Action lors d'un clic sur le bouton auto du seuillage."""
 		image = self._get_actual_image()
@@ -519,21 +520,20 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	# region Visualiseurs externes
 	# ==================================================
-	##################################################
 	def _open_hr_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Ouvre une instance Napari avec le Viewer Haute Résolution, si elle n'existe pas déjà."""
 		if self.viewer_hr is None:
 			self.viewer_hr, self.viewer_hr_widget = create_viewerhr(self.pt)
 			self._bind_viewer_lifecycle("viewer_hr")
 
-	##################################################
+	# --------------------------------------------------
 	def _open_3d_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Ouvre une instance Napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
 			self.viewer_3d, self.viewer_3d_widget = create_viewer3d()
 			self._bind_viewer_lifecycle("viewer_3d")
 
-	##################################################
+	# --------------------------------------------------
 	def _open_graph_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Ouvre la visionneuse de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
@@ -549,12 +549,13 @@ class PALMTracerWidget(BaseNapariWidget):
 		self.viewer_graph.raise_()
 		self.viewer_graph.activateWindow()
 
-	##################################################
+	# --------------------------------------------------
 	def _bind_viewer_lifecycle(self, viewer_attr: str):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Connecte la destruction de la fenêtre Qt d'un viewer Napari à la remise à None."""
 		viewer = getattr(self, viewer_attr, None)
 		if viewer is None: return
 
+		# --------------------------------------------------
 		def _on_close(*_):
 			"""
 			Nettoie les références lorsque la visionneuse est fermée.
@@ -572,7 +573,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		qt_window.destroyed.connect(_on_close)  # .							 Quand la fenêtre est détruite, on invalide le pointeur Python.
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import napari
 

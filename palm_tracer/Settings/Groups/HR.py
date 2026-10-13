@@ -19,7 +19,7 @@ DATA_SRC: dict[str, list] = {
 		}
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class HR(BaseSettingGroup):
 	"""
@@ -46,46 +46,46 @@ class HR(BaseSettingGroup):
 
 	label: str = "High Resolution"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]]],
-					"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
-					"Source":           [Combo, ["Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"]]],
-					"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
-					"Color mode":       [Combo, ["Intensity mode", "When contributions overlap, select whether their pixel values are added "
-																   "or only the maximum or minimum value is retained.", 0, ["Addition", "Max", "Min"]]],
-					"Background":       [SpinInt, ["Background Intensity", "Background intensity as a percentage: 0% produces black and 100% produces white.",
-												   0, [0, 100], 10]],
-					"Ratio":            [SpinInt, ["Upscaling ratio", "Image upscaling ratio.", 4, [1, 256], 2]],
-					"Crop":             [CheckBox, ["Auto Crop",
-													"Remove black borders around the reconstruction when processing only part of the field of view. "
-													"Keep a 5-pixel margin.", True]],
-					"Remove Beads":     [CheckBox, ["Remove Beads", "Remove beads during reconstruction.", True]],
-					"Drift Correction": [CheckBox, ["Drift Correction", "Apply a drift correction (Note: The beads must have been extracted before.)", True]],
-					"Smooth Drift":     [CheckBox, ["Smooth Drift", "Smooth the drift correction.", True]],
-					"Gaussian":         [HRGaussian, []],
-					"3D":               [HR3D, []],
-					"T-Stack":          [HRTrackStack, []],
-					}
+	setting_list = {
+			"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]]],
+			"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
+			"Source":           [Combo, ["Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"]]],
+			"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
+			"Color mode":       [Combo, ["Intensity mode", ("When contributions overlap, select whether their pixel values are added "
+															"or only the maximum or minimum value is retained."), 0, ["Addition", "Max", "Min"]]],
+			"Background":       [SpinInt, ["Background Intensity", "Background intensity as a percentage: 0% produces black and 100% produces white.",
+										   0, [0, 100], 10]],
+			"Ratio":            [SpinInt, ["Upscaling ratio", "Image upscaling ratio.", 4, [1, 256], 2]],
+			"Crop":             [CheckBox, ["Auto Crop", ("Remove black borders around the reconstruction when processing only part of the field of view. "
+														  "Keep a 5-pixel margin."), True]],
+			"Remove Beads":     [CheckBox, ["Remove Beads", "Remove beads during reconstruction.", True]],
+			"Drift Correction": [CheckBox, ["Drift Correction", "Apply a drift correction (Note: The beads must have been extracted before.)", True]],
+			"Smooth Drift":     [CheckBox, ["Smooth Drift", "Smooth the drift correction.", True]],
+			"Gaussian":         [HRGaussian, []],
+			"3D":               [HR3D, []],
+			"T-Stack":          [HRTrackStack, []],
+			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def gaussian(self) -> HRGaussian:
 		"""Groupe de paramètres liés à la représentation gaussienne (:class:`~palm_tracer.Settings.Groups.HRGaussian.HRGaussian`)."""
 		return cast(HRGaussian, self._settings["Gaussian"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def hr_3d(self) -> HR3D:
 		"""Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."""
 		return cast(HR3D, self._settings["3D"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def track_stack(self) -> HRTrackStack:
 		"""Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."""
 		return cast(HRTrackStack, self._settings["T-Stack"])
 
-	##################################################
+	# --------------------------------------------------
 	def initialize(self):
 		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
@@ -94,14 +94,14 @@ class HR(BaseSettingGroup):
 		self.toggle_dimension()
 		self.toggle_type()
 
-	##################################################
+	# --------------------------------------------------
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_dimension()
 		self.toggle_type()
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	def toggle_dimension(self):
 		"""Adapte les types de données et les options au mode de reconstruction."""
 		s = cast(ButtonGroup, self._settings["Type"])  # .	Type Localisations ou trajectoires.
@@ -131,7 +131,7 @@ class HR(BaseSettingGroup):
 				self._settings["3D"]["Axis"].show()
 				self._settings["3D"]["Frames"].show()
 
-	##################################################
+	# --------------------------------------------------
 	def toggle_type(self):
 		"""Adapte la liste des sources au type de reconstruction."""
 		src = cast(Combo, self._settings["Source"])
@@ -145,7 +145,7 @@ class HR(BaseSettingGroup):
 			self._settings["Gaussian"].hide()
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

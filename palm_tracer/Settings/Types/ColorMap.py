@@ -18,7 +18,7 @@ MAX_UI_8 = np.iinfo(np.uint8).max
 MAX_UI_16 = np.iinfo(np.uint16).max
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class ColorMap(Combo):
 	"""
@@ -52,7 +52,6 @@ class ColorMap(Combo):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		"""
 		Renvoie une interface existante ou crée une liste déroulante avec les aperçus.
@@ -80,13 +79,13 @@ class ColorMap(Combo):
 			box.setCurrentIndex(self.value)
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def items(self) -> list[str]:
 		"""Récupère la liste des éléments."""
 		return self._items
 
-	##################################################
+	# --------------------------------------------------
 	@items.setter
 	def items(self, items: list[str] | None = None):
 		"""
@@ -105,7 +104,7 @@ class ColorMap(Combo):
 			self._update_picker_button(ui)
 		self.value = 0
 
-	##################################################
+	# --------------------------------------------------
 	def set_custom_color(self, color: QColor):
 		"""
 		Crée ou remplace la colormap temporaire allant du noir à la couleur choisie.
@@ -135,7 +134,7 @@ class ColorMap(Combo):
 		self.value = custom_index
 		if already_selected: self.emit(custom_index)
 
-	##################################################
+	# --------------------------------------------------
 	def get_lut(self, max_value: int = MAX_UI_16) -> np.ndarray:
 		"""
 		Construit la table de correspondance RGB de la colormap sélectionnée.
@@ -150,7 +149,7 @@ class ColorMap(Combo):
 		if max_value < 0:
 			raise ValueError("La valeur maximale de la LUT doit être positive ou nulle.")
 
-		lut = np.zeros((max_value + 1, 3), dtype=np.uint8)
+		lut: np.ndarray = np.zeros((max_value + 1, 3), dtype=np.uint8)
 		if max_value == 0: return lut
 
 		positions = np.linspace(0.0, 1.0, max_value, dtype=float)
@@ -168,7 +167,6 @@ class ColorMap(Combo):
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""
 		Renvoie le paramètre sans inclure la colormap personnalisée temporaire.
@@ -188,7 +186,6 @@ class ColorMap(Combo):
 	# ==================================================
 	# region Aperçus
 	# ==================================================
-	##################################################
 	def _populate_box(self, box: QComboBox):
 		"""
 		Remplit une liste déroulante avec les noms et aperçus des colormaps.
@@ -202,7 +199,7 @@ class ColorMap(Combo):
 			icon = self._create_custom_icon(self._custom_color) if is_custom else self._create_icon(color_map)
 			box.addItem(icon, color_map)
 
-	##################################################
+	# --------------------------------------------------
 	def _open_color_picker(self, parent: QWidget):
 		"""
 		Ouvre le sélecteur Qt et applique la couleur validée.
@@ -213,7 +210,7 @@ class ColorMap(Combo):
 		color = QColorDialog.getColor(initial_color, parent, "Select Custom Color Map")
 		if color.isValid(): self.set_custom_color(color)
 
-	##################################################
+	# --------------------------------------------------
 	def _update_picker_button(self, ui: BaseUIType):
 		"""
 		Met à jour l'aperçu du bouton associé à une interface.
@@ -224,7 +221,7 @@ class ColorMap(Combo):
 		color = self._custom_color or QColor("white")
 		cast(QPushButton, ui.boxes[1]).setIcon(self._create_custom_icon(color, self.PICKER_ICON_SIZE))
 
-	##################################################
+	# --------------------------------------------------
 	@classmethod
 	def _create_icon(cls, name: str) -> QIcon:
 		"""
@@ -245,7 +242,7 @@ class ColorMap(Combo):
 			stops.append((position, QColor.fromRgbF(float(red), float(green), float(blue), float(alpha))))
 		return cls._create_gradient_icon(stops)
 
-	##################################################
+	# --------------------------------------------------
 	@classmethod
 	def _create_custom_icon(cls, color: QColor, size: QSize | None = None) -> QIcon:
 		"""
@@ -257,7 +254,7 @@ class ColorMap(Combo):
 		"""
 		return cls._create_gradient_icon([(0.0, QColor("black")), (1.0, color)], size)
 
-	##################################################
+	# --------------------------------------------------
 	@classmethod
 	def _create_gradient_icon(cls, stops: list[tuple[float, QColor]], size: QSize | None = None) -> QIcon:
 		"""
@@ -280,7 +277,7 @@ class ColorMap(Combo):
 		return QIcon(pixmap)
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 
@@ -295,6 +292,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

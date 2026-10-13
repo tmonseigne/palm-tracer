@@ -8,7 +8,6 @@ from palm_tracer.Processing.Parsing import *
 # ==================================================
 # region Manipulation de DataFrame
 # ==================================================
-##################################################
 @pytest.mark.parametrize("keep_others, expected", [
 		pytest.param(True, ["Y", "X", "Z"], id="other-columns-preserved"),
 		pytest.param(False, ["Y"], id="selection-only")])
@@ -20,14 +19,14 @@ def test_rearrange_dataframe_columns(keep_others, expected):
 	assert rearrange_dataframe_columns(res, ["Y"], keep_others).columns.tolist() == expected
 
 
-##################################################
+# --------------------------------------------------
 def test_rearrange_dataframe_columns_missing():
 	"""Vérifie le rejet d'une colonne sélectionnée absente."""
 	df = pd.DataFrame({"X": [1], "Y": [2], "Z": [3]})
 	with pytest.raises(ValueError): rearrange_dataframe_columns(df, ["Alpha"], True)
 
 
-##################################################
+# --------------------------------------------------
 def test_log10_dataframe():
 	"""Vérifie log10_DataFrame."""
 	data = pd.DataFrame([[0, 0], [1, 1]], columns=["A", "B"])
@@ -43,7 +42,6 @@ def test_log10_dataframe():
 # ==================================================
 # region Gestion des angles
 # ==================================================
-##################################################
 def test_degrees_to_radians():
 	"""Vérifie degrees_to_radians."""
 
@@ -59,7 +57,7 @@ def test_degrees_to_radians():
 	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_radians_to_degrees():
 	"""Vérifie radians_to_degrees."""
 	data = [0, np.pi / 6, np.pi / 4, np.pi / 3, np.pi / 2, 2 * np.pi / 3, 3 * np.pi / 4, 5 * np.pi / 6, np.pi,
@@ -74,7 +72,7 @@ def test_radians_to_degrees():
 	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_wrap_angle():
 	"""Vérifie wrap_angle."""
 	data = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360]
@@ -87,7 +85,7 @@ def test_wrap_angle():
 	assert np.allclose(res, ref, atol=1e-6, equal_nan=True), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_manage_theta():
 	"""Vérifie manage_theta."""
 	data = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4, np.pi]
@@ -103,26 +101,25 @@ def test_manage_theta():
 # ==================================================
 # region Analyse
 # ==================================================
-##################################################
 def test_get_meta():
 	"""Vérifie la lecture de métadonnées de dimensions valides."""
 	get_meta(np.zeros(shape=(1, N_COL_META)))
 
 
-##################################################
+# --------------------------------------------------
 def test_get_meta_invalid():
 	"""Vérifie le rejet de métadonnées vides."""
 	with pytest.raises(ValueError): get_meta([])
 
 
-##################################################
+# --------------------------------------------------
 def test_parse_irregular_array():
 	"""Vérifie la reconstruction d'un tableau avec longueurs de lignes intégrées."""
 	res = parse_irregular_array(np.array([2, 1, 2, 2, 3, 4]))
 	np.testing.assert_array_equal(res, [[1, 2], [3, 4]])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data", [
 		pytest.param(np.array([[2, 1, 2, 2, 3, 4]]), id="2d-array"),
 		pytest.param(np.array(["hey", 1, 2, 2, 3, 4]), id="non-numeric-data"),
@@ -132,7 +129,7 @@ def test_parse_irregular_array_invalid(data):
 	with pytest.raises(ValueError): parse_irregular_array(data)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data", [
 		pytest.param(np.array([]), id="empty-array"), pytest.param(np.array([0]), id="empty-row")])
 def test_parse_irregular_array_empty(data):
@@ -140,7 +137,7 @@ def test_parse_irregular_array_empty(data):
 	assert parse_irregular_array(data).empty
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data, result_type, fit_mode, expected", [
 		pytest.param(np.arange(20), "Localization", 0, np.arange(18), id="localizations"),
 		pytest.param(np.arange(20), "Tracking", 0, np.arange(16).reshape(2, 8), id="tracks"),
@@ -156,7 +153,7 @@ def test_parse_result(data, result_type, fit_mode, expected):
 	assert np.allclose(res, expected, atol=0, rtol=0)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("result_type", [
 		pytest.param("Localization", id="localizations"), pytest.param("Tracking", id="tracks"), pytest.param("Fit", id="fit")])
 def test_parse_result_empty(result_type):
@@ -164,7 +161,7 @@ def test_parse_result_empty(result_type):
 	assert parse_result(np.array([]), result_type).empty
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data, result_type", [
 		pytest.param(np.array([2, 1, 2, 2, 3, 4]), "Fit", id="invalid-fit"),
 		pytest.param(np.array([11] + [1] * 11), "mon type", id="unknown-type")])

@@ -2,8 +2,8 @@
 
 import pytest
 
-from tests.Utils import *
 from palm_tracer.Tools.FileMigrator import FileMigrator
+from tests.Utils import *
 
 INPUT_FOLDER = INPUT_DIR / "stack.PT"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
@@ -12,7 +12,6 @@ OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 # ==================================================
 # region Analyse et orchestration
 # ==================================================
-##################################################
 def test_open():
 	"""Vérifie la classe FileMigrator."""
 	m = FileMigrator()
@@ -20,7 +19,7 @@ def test_open():
 	m.open(INPUT_FOLDER)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("args, kwargs, error", [
 		pytest.param((INPUT_DIR,), {}, ValueError, id="directory-without-results"),
 		pytest.param((INPUT_DIR / 'stack.tif',), {}, NotADirectoryError, id="file-instead-of-directory"),
@@ -30,7 +29,7 @@ def test_open_invalid(args, kwargs, error):
 	with pytest.raises(error): FileMigrator().open(*args, **kwargs)
 
 
-##################################################
+# --------------------------------------------------
 def test_analyze():
 	"""Vérifie la classe FileMigrator."""
 	m = FileMigrator()
@@ -48,13 +47,13 @@ def test_analyze():
 	assert len(m.files["Unused"]) == 3, "Les trois fichiers de log n'ont pas été trouvé."
 
 
-##################################################
+# --------------------------------------------------
 def test_analyze_without_directory():
 	"""Vérifie les erreurs attendues avant toute ouverture valide."""
 	with pytest.raises(RuntimeError): FileMigrator().analyze()
 
 
-##################################################
+# --------------------------------------------------
 def test_migrate(capsys):
 	"""Vérifie la classe FileMigrator."""
 	m = FileMigrator()
@@ -77,11 +76,11 @@ def test_migrate(capsys):
 		res_file = sorted(OUTPUT_FOLDER.glob(f"{ref_file.stem}-*.csv"))[0]
 		ref, res = pd.read_csv(ref_file), pd.read_csv(res_file)
 		ref, res = ref.apply(pd.to_numeric, errors="coerce"), res.apply(pd.to_numeric, errors="coerce")
-		pd.testing.assert_frame_equal(ref, res, check_dtype=False), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
+		pd.testing.assert_frame_equal(ref, res, check_dtype=False)
 	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 
 
-##################################################
+# --------------------------------------------------
 def test_migrate_without_directory():
 	"""Vérifie que la migration échoue sans dossier ouvert."""
 	with pytest.raises(RuntimeError): FileMigrator().migrate()
@@ -94,7 +93,6 @@ def test_migrate_without_directory():
 # ==================================================
 # region Migration des fichiers
 # ==================================================
-##################################################
 def test_update_meta(capsys):
 	"""Vérifie update_meta."""
 	m = FileMigrator()
@@ -120,7 +118,6 @@ def test_update_meta(capsys):
 # ==================================================
 # region Outils de conversion
 # ==================================================
-##################################################
 def test_open_old_file():
 	"""Vérifie open_old_file."""
 	m = FileMigrator()
@@ -130,7 +127,7 @@ def test_open_old_file():
 	assert df.shape == (2, 5), "Taille du Dataframe incorrect."
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("args, kwargs, error", [
 		pytest.param((INPUT_FOLDER,), {}, FileNotFoundError, id="directory-instead-of-file"),
 		pytest.param((INPUT_DIR / 'File-01.txt',), {'skiprows': 4}, ValueError, id="invalid-content")])
@@ -139,7 +136,7 @@ def test_open_old_file_invalid(args, kwargs, error):
 	with pytest.raises(error): FileMigrator().open_old_file(*args, **kwargs)
 
 
-##################################################
+# --------------------------------------------------
 def test_open_old_irregular_file():
 	"""Vérifie open_old_file."""
 	m = FileMigrator()
@@ -153,7 +150,7 @@ def test_open_old_irregular_file():
 	assert df.shape == (13, 7), "Taille du Dataframe incorrect."
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("args, kwargs, error", [
 		pytest.param((INPUT_FOLDER,), {}, FileNotFoundError, id="directory-instead-of-file"),
 		pytest.param((INPUT_DIR / 'File-01.txt',), {'skiprows': 4}, ValueError, id="invalid-content")])
@@ -162,7 +159,7 @@ def test_open_old_irregular_file_invalid(args, kwargs, error):
 	with pytest.raises(error): FileMigrator().open_old_irregular_file(*args, **kwargs)
 
 
-##################################################
+# --------------------------------------------------
 def test_column_migrator():
 	"""Vérifie column_migrator."""
 	m = FileMigrator()

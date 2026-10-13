@@ -9,14 +9,13 @@ from palm_tracer.Processing.Drift import _assign_tracks_to_points_greedy  # Cert
 # ==================================================
 # region Validation et appariement
 # ==================================================
-##################################################
 @pytest.mark.parametrize("function", [pytest.param(extract_beads, id="bead-extraction"), pytest.param(get_drift, id="drift-computation")])
 def test_empty_data(function):
 	"""Vérifie les retours vides sans erreurs pour une entrée vide."""
 	assert function(pd.DataFrame()).empty
 
 
-##################################################
+# --------------------------------------------------
 def test_assign_tracks_no_pairs():
 	"""Vérifie le passage dans le cas particulier ou tous les éléments sont trop éloignés."""
 	ind = np.array([[5, 5], [5, 5]], dtype=int)  # n_points = 5 => p_j >= 5 => tout invalide
@@ -26,7 +25,7 @@ def test_assign_tracks_no_pairs():
 	assert keep_p.size == 0
 
 
-##################################################
+# --------------------------------------------------
 def test_assign_tracks_skip_used_track():
 	"""Vérifie qu'un suivi avec 2 candidats valides ⇒ après avoir pris le 1er, le 2e déclenche used_tracks."""
 	ind = np.array([[0, 1]], dtype=int)  # 1 track, 2 candidats
@@ -43,7 +42,6 @@ def test_assign_tracks_skip_used_track():
 # ==================================================
 # region Extraction des billes
 # ==================================================
-##################################################
 @pytest.mark.parametrize("data, kwargs, message", [
 		pytest.param(pd.DataFrame(), {'max_distance': -1}, "max_distance must be strictly positive.", id="negative-distance"),
 		pytest.param(pd.DataFrame([[1, 2], [3, 4]]), {}, "Missing columns in data: ['Plane', 'X', 'Y', 'Z'].", id="missing-columns"),
@@ -57,7 +55,7 @@ def test_extract_bead_bad_input(data, kwargs, message):
 	assert str(exception_info.value) == message
 
 
-##################################################
+# --------------------------------------------------
 def test_extract_beads_no_match_returns_empty():
 	"""Vérifie qu'aucun match directement."""
 	df = pd.DataFrame([[1, 0, 0, 0], [2, 10, 10, 0], ], columns=["Plane", "X", "Y", "Z"], dtype="int32")
@@ -65,7 +63,7 @@ def test_extract_beads_no_match_returns_empty():
 	assert res.empty
 
 
-##################################################
+# --------------------------------------------------
 def test_extract_beads():
 	"""Vérifie la génération de l'extraction des billes."""
 	df = pd.DataFrame([[1, 0, 0, 0], [1, 10, 10, 10], [1, 20, 20, 20], [1, 30, 30, 30], [1, 1, 1, 0],  # P1
@@ -119,7 +117,7 @@ def test_extract_beads():
 	assert res.equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_remove_beads():
 	"""Vérifie la suppression des billes."""
 	df = pd.DataFrame([[1, 1, 1, 1], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],  # P1 : drift 0
@@ -148,7 +146,6 @@ def test_remove_beads():
 # ==================================================
 # region Correction de la dérive
 # ==================================================
-##################################################
 @pytest.mark.parametrize("data, kwargs, message", [
 		pytest.param(pd.DataFrame([[1, 2], [3, 4]]), {}, "Missing columns in data: ['Bead', 'Plane', 'X', 'Y', 'Z'].", id="missing-columns"),
 		pytest.param(pd.DataFrame([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]], columns=['Bead', 'Plane', 'X', 'Y', 'Z']), {}, "The planes are not consecutive: [2 7].",
@@ -162,7 +159,7 @@ def test_get_drift_bad_input(data, kwargs, message):
 	assert str(exception_info.value) == message
 
 
-##################################################
+# --------------------------------------------------
 def test_get_drift():
 	"""Vérifie la récupération du déplacement."""
 	df = pd.DataFrame([[1, 1, 1, 1, 0], [1, 2, 1, 1, 0], [1, 3, 1, 1, 0], [1, 4, 1, 1, 0],  # .			   Bille 1
@@ -190,7 +187,7 @@ def test_get_drift():
 	assert res.astype(float).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data, drift, kwargs, message", [
 		pytest.param(pd.DataFrame([[1, 2], [3, 4]]), pd.DataFrame([[1, 2], [3, 4]]), {}, "Missing columns in data: ['Plane', 'X', 'Y', 'Z'].",
 					 id="incomplete-localizations"),
@@ -203,7 +200,7 @@ def test_apply_drift_bad_input(data, drift, kwargs, message):
 	assert str(exception_info.value) == message
 
 
-##################################################
+# --------------------------------------------------
 def test_remove_drift():
 	"""Vérifie la suppression du drift."""
 	df = pd.DataFrame([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0],  # P1 : drift 0
@@ -230,13 +227,13 @@ def test_remove_drift():
 	assert res.astype(float).equals(ref), f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_remove_drift_empty():
 	"""Vérifie la correction sans localisation ni dérive."""
 	assert remove_drift(pd.DataFrame(), pd.DataFrame()).empty
 
 
-##################################################
+# --------------------------------------------------
 def test_chain_drift():
 	"""Vérifie l'enchaînement de la correction de Drift."""
 	bead = pd.DataFrame([[1, 1, 1, 1, 1], [1, 2, 0, 1, 0], [1, 3, 1, 0, 0], [1, 4, 1, 1, 2]], columns=['Bead', 'Plane', 'X', 'Y', 'Z'], dtype="int32")
@@ -249,7 +246,7 @@ def test_chain_drift():
 	assert np.allclose(new_drift[["X", "Y", "Z"]].to_numpy(), 0)
 
 
-##################################################
+# --------------------------------------------------
 def test_drift_correction():
 	"""Vérifie le pipeline de la correction de Drift."""
 	df = pd.DataFrame([[1, 0, 0, 0], [1, 10, 10, 10], [1, 20, 20, 20], [1, 30, 30, 30], [1, 1, 1, 0],  # P1
@@ -273,7 +270,6 @@ def test_drift_correction():
 # ==================================================
 # region Filtrage
 # ==================================================
-##################################################
 def test_median_filter_centered():
 	"""Vérifie le lissage d'un drift."""
 	# 1D
@@ -294,7 +290,7 @@ def test_median_filter_centered():
 	assert np.allclose(res, df, atol=0), f"Résultat incorrect.\nAttendu : \n{ref}\nObtenu : \n{res}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("data, size", [
 		pytest.param(np.ones((2, 2)), 4, id="even-window"),
 		pytest.param(np.ones((2, 2, 2)), 5, id="3d-array")])

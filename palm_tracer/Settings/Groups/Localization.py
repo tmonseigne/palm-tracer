@@ -16,7 +16,7 @@ from palm_tracer.Settings.Types import Button, CheckBox, Combo, SpinFloat, SpinI
 from palm_tracer.Tools.FileIO import open_calibration_mat
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Localization(BaseSettingGroup):
 	"""
@@ -50,31 +50,31 @@ class Localization(BaseSettingGroup):
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def gaussian(self) -> GaussianFit:
 		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(GaussianFit, self._settings["Gaussian Fit"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def spline(self) -> SplineFit:
 		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(SplineFit, self._settings["Spline Fit"])
 
-	##################################################
+	# --------------------------------------------------
 	def initialize(self):
 		"""Initialise les connexions entre les paramètres."""
 		super().initialize()
 		self._settings["Fit"].connect(self.toggle_fit_mode)
 
-	##################################################
+	# --------------------------------------------------
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		self.toggle_fit_mode(self._settings["Fit"].value)
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	def toggle_fit_mode(self, mode):
 		"""Change le mode d'ajustement."""
 		if mode == 0:
@@ -87,7 +87,7 @@ class Localization(BaseSettingGroup):
 			self._settings["Gaussian Fit"].hide()
 			self._settings["Spline Fit"].show()
 
-	##################################################
+	# --------------------------------------------------
 	def get_fit(self) -> int:
 		"""Récupère le paramètre indiquant le mode d'ajustement."""
 		s = self.settings
@@ -98,7 +98,7 @@ class Localization(BaseSettingGroup):
 		elif mode == 1: return 1 + gaussian_mode  # Ajustement Gaussien
 		else: return 5  # + spline_sensor 		  # Ajustement Spline
 
-	##################################################
+	# --------------------------------------------------
 	def get_fit_params(self) -> np.ndarray:
 		"""Récupère les paramètres pour l'ajustement."""
 		s = self.settings
@@ -117,7 +117,7 @@ class Localization(BaseSettingGroup):
 		except Exception: raise
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

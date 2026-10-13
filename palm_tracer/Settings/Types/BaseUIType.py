@@ -9,7 +9,7 @@ from qtpy.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QVBoxLayout, QWidge
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class BaseUIType:
 	"""
@@ -33,7 +33,7 @@ class BaseUIType:
 	row: int = field(init=False, default=-1)
 	"""Position dans le formulaire parent (utile lors d'un Hide & Seek)."""
 
-	##################################################
+	# --------------------------------------------------
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		Ui.init_layout(self.layout, 0, 0)  # .				Initialise le layout
@@ -41,7 +41,6 @@ class BaseUIType:
 	# ==================================================
 	# region Gestion de la mise en page
 	# ==================================================
-	##################################################
 	def attach_to_form(self, form: QFormLayout):
 		"""
 		Enregistre le :class:`QFormLayout` et la position dans le formulaire pour permettre un show/hide propre.
@@ -53,7 +52,7 @@ class BaseUIType:
 		if self.label is not None: form.addRow(self.label, self.layout)
 		else: form.addRow(self.layout)
 
-	##################################################
+	# --------------------------------------------------
 	def hide(self):
 		"""Cache le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, False)
@@ -61,7 +60,7 @@ class BaseUIType:
 			if self.label is not None: self.label.hide()
 			for b in self.boxes: b.hide()
 
-	##################################################
+	# --------------------------------------------------
 	def show(self):
 		"""Affiche le paramètre."""
 		if self.form is not None and self.row >= 0: self.form.setRowVisible(self.row, True)
@@ -69,7 +68,7 @@ class BaseUIType:
 			if self.label is not None: self.label.show()
 			for b in self.boxes: b.show()
 
-	##################################################
+	# --------------------------------------------------
 	def set_tooltip(self, tooltip: str):
 		"""
 		Ajoute un tooltip au Label.

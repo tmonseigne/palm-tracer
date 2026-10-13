@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, cast, Optional
+from typing import Any, Optional, cast
 
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
@@ -14,7 +14,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class FileList(BaseSettingType):
 	"""
@@ -29,10 +29,10 @@ class FileList(BaseSettingType):
 	_value: int = field(init=False, default=-1)
 	"""Valeur (position dans la liste) actuelle du paramètre (:class:`int`)."""
 
-	_items: list[str] = field(init=False, default_factory=lambda: [])
+	_items: list[str] = field(init=False, default_factory=list)
 	"""Liste des fichiers actuels (:class:`list[str]`)."""
 
-	##################################################
+	# --------------------------------------------------
 	def reset(self):
 		"""Réinitialise le paramètre à sa valeur par défaut."""
 		self.clear_files()
@@ -40,7 +40,6 @@ class FileList(BaseSettingType):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -69,13 +68,13 @@ class FileList(BaseSettingType):
 		self._uis[name] = ui  # .								   Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> int:
 		"""Valeur actuelle du paramètre (position dans la liste en :class:`int`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: int):
 		"""Valeur actuelle du paramètre (position dans la liste en :class:`int`)."""
@@ -87,19 +86,19 @@ class FileList(BaseSettingType):
 
 		self.emit(value)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def current_text(self) -> str:
 		"""Valeur actuelle du paramètre (élément dans la liste en :class:`str`)."""
 		return self._items[self.value] if 0 <= self.value < len(self._items) else ""
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def items(self) -> list[str]:
 		"""Récupère la liste des éléments."""
 		return self._items
 
-	##################################################
+	# --------------------------------------------------
 	@items.setter
 	def items(self, items: Optional[list[str]] = None):
 		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
@@ -120,12 +119,17 @@ class FileList(BaseSettingType):
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
+		"""Renvoie l'indice sélectionné et la liste des fichiers pour la sauvegarde compacte."""
 		return {"value": self._value, "items": self._items}
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
+		"""
+		Restaure les fichiers avant l'indice sélectionné depuis une sauvegarde compacte.
+
+		:param data: Dictionnaire contenant les clés ``items`` et ``value``.
+		"""
 		self.items = data["items"]  # Récupération de la liste des éléments avant de mettre à jour la valeur
 		self.value = data["value"]
 
@@ -137,7 +141,6 @@ class FileList(BaseSettingType):
 	# region Fonctions de rappel
 	# ==================================================
 
-	##################################################
 	def add_file(self):
 		"""Ajoute des fichiers à la liste via un :class:`QFileDialog`."""
 		# Déterminer le répertoire initial pour la boîte de dialogue
@@ -145,7 +148,7 @@ class FileList(BaseSettingType):
 		paths, _ = QFileDialog.getOpenFileNames(None, "Select files", initial_dir, "All files (*)")
 		self.add_files(paths)
 
-	##################################################
+	# --------------------------------------------------
 	def add_files(self, paths: list[str]):
 		"""
 		Ajoute les fichiers existants en triant uniquement le nouveau lot.
@@ -163,7 +166,7 @@ class FileList(BaseSettingType):
 				self.items = self._items
 				self.value = len(self._items) - 1
 
-	##################################################
+	# --------------------------------------------------
 	def remove_file(self):
 		"""Supprime le fichier actuellement sélectionné dans la :class:`QComboBox`."""
 		current_index = self.value
@@ -173,7 +176,7 @@ class FileList(BaseSettingType):
 				self.items = None
 				self.value = 0
 
-	##################################################
+	# --------------------------------------------------
 	def clear_files(self):
 		"""Vide la liste des fichiers."""
 		with self.signal_blocked():
@@ -183,10 +186,11 @@ class FileList(BaseSettingType):
 			self.emit()
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -197,6 +201,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

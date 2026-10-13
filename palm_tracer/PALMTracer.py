@@ -24,7 +24,7 @@ from palm_tracer.Tools import FileIO, Logger, Ui
 MAX_UI_16 = np.iinfo(np.uint16).max
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class PALMTracer:
 	"""
@@ -67,7 +67,6 @@ class PALMTracer:
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.filtering = Filtering(self.settings.filters, self.settings.rois)
@@ -83,7 +82,7 @@ class PALMTracer:
 				# Step("high-resolution visualization", "visualization_hr", ["hr"], self._visualization_hr),
 				]
 
-	##################################################
+	# --------------------------------------------------
 	def is_dll_valid(self) -> bool:
 		"""
 		Vérifie la validité de la DLL utilisée par le plugin.
@@ -92,7 +91,7 @@ class PALMTracer:
 		"""
 		return self.palm.is_valid()
 
-	##################################################
+	# --------------------------------------------------
 	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime l'interface Qt associée au nom donné pour les résultats et les paramètres.
@@ -109,25 +108,24 @@ class PALMTracer:
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	@property
 	def path(self) -> str:
 		"""Dossier de sortie pour le fichier en cours de traitement."""
 		return self._path
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def stack(self) -> np.ndarray:
 		"""Pile en cours de traitement."""
 		return self._stack
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def suffix(self) -> str:
 		"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
 		return self._timestamp
 
-	##################################################
+	# --------------------------------------------------
 	def _output_name(self, name: str, ext: str = "csv", previous: bool = False) -> Path:
 		"""
 		Indique le nom du fichier à enregistrer CHEMIN / name-Timestamp.extension.
@@ -139,7 +137,7 @@ class PALMTracer:
 		"""
 		return Path(self._path).resolve() / f"{name}-{self._timestamp_previous if previous else self._timestamp}.{ext}"
 
-	##################################################
+	# --------------------------------------------------
 	def save_setting_group(self, group_name: Literal["HR", "Filters"]):
 		"""
 		Met à jour un seul groupe dans le fichier de paramètres du traitement courant.
@@ -155,7 +153,7 @@ class PALMTracer:
 		data["PALM Tracer Settings"][group_name] = group.to_compact_dict()
 		FileIO.save_json(settings_filename, data)
 
-	##################################################
+	# --------------------------------------------------
 	def output_viz_name(self) -> Path:
 		"""
 		Indique le nom du fichier de visualisation à enregistrer CHEMIN / name-Timestamp.extension.
@@ -180,7 +178,6 @@ class PALMTracer:
 	# ==================================================
 	# region Traitements
 	# ==================================================
-	##################################################
 	def load(self, path: str = ""):
 		"""
 		Charge les précédents résultats du fichier courant sans chargement imbriqué.
@@ -196,7 +193,7 @@ class PALMTracer:
 		try: self._load_results(path)
 		finally: self._loading = False
 
-	##################################################
+	# --------------------------------------------------
 	def _load_results(self, path: str):
 		"""
 		Effectue le chargement des paramètres, des résultats et de la pile.
@@ -236,7 +233,7 @@ class PALMTracer:
 		except Exception as e:
 			print(f"\tError loading stack: {e}")
 
-	##################################################
+	# --------------------------------------------------
 	def process(self):
 		"""Lance le pipeline PALM selon les paramètres sélectionnés."""
 
@@ -308,7 +305,7 @@ class PALMTracer:
 			self._logger.close()
 			FileIO.cleanup_process(self._path, self._timestamp_previous)
 
-	##################################################
+	# --------------------------------------------------
 	def save_meta(self):
 		"""Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."""
 		prev_name = Path(self._output_name("meta", previous=True))
@@ -323,7 +320,7 @@ class PALMTracer:
 		else: meta.to_csv(name, index=False)
 		self._logger.add("Meta file saved.")
 
-	##################################################
+	# --------------------------------------------------
 	def _process_step(self, step: Step, previous_settings: Settings | None, pipeline_dirty: bool) -> bool:
 		"""
 		Effectue une étape du pipeline.
@@ -378,7 +375,7 @@ class PALMTracer:
 			if n_init != n_end:
 				self._logger.add(f"\t\tFiltering of file {n_end} row(s) instead of {n_init}: {n_init - n_end} deletion(s).")
 				if self.settings.filters["Save"].value and n_end != 0:
-					self._logger.add(f"\t\tSaving the filtered file.")
+					self._logger.add("\t\tSaving the filtered file.")
 					self.results.save(f_key, self._path, self._timestamp)
 			else:
 				self.results[f_key] = pd.DataFrame()
@@ -403,7 +400,7 @@ class PALMTracer:
 
 		return pipeline_dirty
 
-	##################################################
+	# --------------------------------------------------
 	def _localization(self):
 		"""Lance la localisation à partir des paramètres de l'interface."""
 		# Parse settings
@@ -420,7 +417,7 @@ class PALMTracer:
 
 		# Estimation du Z.
 		if not self.results["loc"].empty and fit in (3, 4) and s["Gaussian Fit Z"]:
-			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]), s["Gaussian Fit Use default model"])
+			model = self._get_astigmatism_model(Path(s["Gaussian Fit Model"]), s["Gaussian Fit Default Model"])
 
 			if model.empty:
 				self._logger.add("\tNo valid astigmatism model file for Z Estimation "
@@ -435,7 +432,7 @@ class PALMTracer:
 		self._logger.add(f"\tSaving the localization file ({len(self.results['loc'])} localization(s) found).")
 		self.results.save("loc", self._path, self._timestamp)
 
-	##################################################
+	# --------------------------------------------------
 	def _get_astigmatism_model(self, path: Path, use_default: bool = False) -> pd.DataFrame:
 		"""
 		Charge un modèle d'astigmatisme 3D depuis un fichier CSV.
@@ -483,7 +480,7 @@ class PALMTracer:
 
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def _beads_extraction(self):
 		"""Extrait les billes des localisations."""
 		df = self.results.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
@@ -501,7 +498,7 @@ class PALMTracer:
 		self._logger.add(f"\tSaving the beads file ({self.results['bds'].iloc[-1, 0]} beads(s) found).")
 		self.results.save("bds", self._path, self._timestamp)
 
-	##################################################
+	# --------------------------------------------------
 	def _tracking(self):
 		"""Lance le suivi à partir des paramètres de l'interface."""
 		df = self.results.localizations  # Récupère automatiquement le "bon" DataFrame (filtré ou non)
@@ -516,7 +513,7 @@ class PALMTracer:
 		self._logger.add(f"\tSaving the tracking file ({len(self.results['trc'])} point(s) found).")
 		self.results.save("trc", self._path, self._timestamp)
 
-	##################################################
+	# --------------------------------------------------
 	def _blinking_reconnection(self):
 		"""Reconnecte les trajectoires interrompues par le clignotement à partir des paramètres de l'interface."""
 		df = self.results["trc"]  # Récupère le DataFrame du suivi non filtré (si jamais il existe)
@@ -530,7 +527,7 @@ class PALMTracer:
 		self._logger.add(f"\tSaving the reconnected tracking file ({len(self.results['blk'])} point(s) found).")
 		self.results.save("blk", self._path, self._timestamp)
 
-	##################################################
+	# --------------------------------------------------
 	def _track_analysis(self):
 		"""Lance les analyses des trajectoires à partir des paramètres de l'interface."""
 		df = self.results.tracks  # Récupère automatiquement le "bon" DataFrame (blinking et filtré ou non)
@@ -565,14 +562,13 @@ class PALMTracer:
 	# ==================================================
 	# region Filtrage
 	# ==================================================
-	##################################################
 	def reset_filtered(self):
 		"""Désactive les filtres, vide les résultats filtrés et enregistre les paramètres du groupe Filters pour le traitement courant."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
 		self.results.reset_filtered()
 		self.save_setting_group("Filters")
 
-	##################################################
+	# --------------------------------------------------
 	def update_filtered(self, last: bool = True):
 		"""
 		Recalcule les filtres sur le dernier DataFrame disponible pour chacun si last est sélectionné, sinon sur l'original.
@@ -599,12 +595,12 @@ class PALMTracer:
 		if self.settings.filters["Save"].value: self.save_filtered()
 		self.save_setting_group("Filters")
 
-	##################################################
+	# --------------------------------------------------
 	def save_filtered(self):
 		"""Enregistre tous les fichiers filtrés s'ils ne sont pas vides."""
 		self.results.save_filtered(self._path, "")
 
-	##################################################
+	# --------------------------------------------------
 	def connect_filters_button(self, ui_name: str = "default"):
 		"""
 		Connecte les boutons de réinitialisation, de mise à jour et de sauvegarde des filtres.
@@ -623,20 +619,19 @@ class PALMTracer:
 	# ==================================================
 	# region Visualisation
 	# ==================================================
-	##################################################
 	def _gallery(self):
 		"""Génère une galerie à partir des localisations disponibles et des paramètres de l'interface."""
 		s = self.settings.gallery.settings
 		loc = self.results.localizations
 		if loc.empty:
-			self._logger.add(f"\tNo localization data for gallery generation.")
+			self._logger.add("\tNo localization data for gallery generation.")
 			return
 		gallery = Gallery.make_gallery(self._stack, loc, s["ROI Size"], s["ROIs Per Line"])
 		self._logger.add(f"\tSaving gallery ({s}).")
 		FileIO.save_tif(gallery, self._output_name(f"gallery_{s['ROI Size']}_{s['ROIs Per Line']}", "tif"))
 
 	# ==================== Graph ====================
-	##################################################
+	# --------------------------------------------------
 	def graph(self) -> go.Figure:
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		s = self.settings.graph.settings
@@ -666,7 +661,7 @@ class PALMTracer:
 		return self._grapher.cloud(data, title, xlabel=xlabel, ylabel=ylabel, limit=limit, show_sigma=sigma, kde=kde, gaussian=gauss,
 								   poissonnian=poiss, exponential=expo)
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _log_data(data: np.ndarray, log: bool) -> np.ndarray:
 		"""
@@ -678,7 +673,7 @@ class PALMTracer:
 		"""
 		with np.errstate(divide='ignore', invalid='ignore'): return np.where(data > 0, np.log10(data), np.nan) if log else data
 
-	##################################################
+	# --------------------------------------------------
 	def _get_graph_data(self) -> dict[str, Any]:
 		"""
 		Récupère et prépare les données pour l'affichage.
@@ -706,7 +701,7 @@ class PALMTracer:
 
 		return graph_data
 
-	##################################################
+	# --------------------------------------------------
 	def _get_graph_data_from_src(self, src_type: int, src: str, log_scale: bool = False, with_track_ids: bool = False) -> dict[str, Any]:
 		"""
 		Oriente la préparation d'une source vers le domaine et le mode concernés.
@@ -723,7 +718,7 @@ class PALMTracer:
 		if mode == 1: return self._get_track_scatter_data(src, log_scale)
 		return self._get_track_graph_data(src, log_scale, with_track_ids)
 
-	##################################################
+	# --------------------------------------------------
 	def _get_localization_graph_data(self, src: str, mode: int, log_scale: bool) -> dict[str, Any]:
 		"""
 		Prépare les valeurs individuelles, les comptes ou les moyennes par plan des localisations.
@@ -745,7 +740,7 @@ class PALMTracer:
 		if df.empty: return graph_data
 		if src == "Count per Plane":
 			plane = df["Plane"].astype(int)
-			planes = np.arange(int(plane.min()), int(plane.max()) + 1, dtype=int)
+			planes: np.ndarray = np.arange(int(plane.min()), int(plane.max()) + 1, dtype=int)
 			counts = plane.groupby(plane).size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int)
 			graph_data["data"] = np.vstack((planes, counts))
 			return graph_data
@@ -766,7 +761,7 @@ class PALMTracer:
 		graph_data["title"] += " Mean per Plane"
 		return graph_data
 
-	##################################################
+	# --------------------------------------------------
 	def _get_track_scatter_data(self, src: str, log_scale: bool) -> dict[str, Any]:
 		"""
 		Prépare les courbes individuelles ou moyennes des trajectoires, ou leurs trois comptages par plan.
@@ -807,7 +802,7 @@ class PALMTracer:
 		if not mean: graph_data["names"] = [f"Track {track}" for track in df["Track"].astype(int)]  # Plusieurs courbes identifiées
 		columns = [col for col in df.columns if col.startswith(prefix) and col[len(prefix):].isdigit() and int(col[len(prefix):]) > 0]
 		if not columns: return graph_data
-		steps = np.arange(1, max(int(col[len(prefix):]) for col in columns) + 1, dtype=int)
+		steps: np.ndarray = np.arange(1, max(int(col[len(prefix):]) for col in columns) + 1, dtype=int)
 		values = df.reindex(columns=[f"{prefix}{step}" for step in steps]).to_numpy(dtype=float)
 		valid = np.isfinite(values) & (values >= 0)
 		values = np.where(valid, values, np.nan)
@@ -820,7 +815,7 @@ class PALMTracer:
 		else: graph_data["data"] = np.stack((np.broadcast_to(steps, values.shape), self._log_data(values, log_scale)), axis=1)
 		return graph_data
 
-	##################################################
+	# --------------------------------------------------
 	def _get_track_graph_data(self, src: str, log_scale: bool, with_track_ids: bool) -> dict[str, Any]:
 		"""
 		Prépare une grandeur de trajectoire pour l'histogramme ou le Dual Source.
@@ -864,7 +859,7 @@ class PALMTracer:
 		graph_data["data"] = data[np.isfinite(data).all(axis=1)]
 		return graph_data
 
-	##################################################
+	# --------------------------------------------------
 	def _get_track_length_data(self, src: str, with_track_ids: bool) -> np.ndarray:
 		"""
 		Calcule les durées totales, présentes (On) ou absentes (Off) des trajectoires actives.
@@ -902,7 +897,7 @@ class PALMTracer:
 		if with_track_ids: return np.asarray(lengths_by_track) if lengths_by_track else np.empty((0, 2))
 		return np.asarray(lengths, dtype=int)
 
-	##################################################
+	# --------------------------------------------------
 	def _get_track_intensity_data(self, mean: bool, log_scale: bool) -> np.ndarray:
 		"""
 		Prépare les intensités par trajectoire ou leur moyenne par plan réel.
@@ -921,7 +916,7 @@ class PALMTracer:
 		points = values.groupby([df["Track"], df["Plane"].astype(int)], sort=False).mean()
 		if mean:
 			means = points.groupby(level=1, sort=True).mean()
-			planes = np.arange(int(means.index.min()), int(means.index.max()) + 1, dtype=int)
+			planes: np.ndarray = np.arange(int(means.index.min()), int(means.index.max()) + 1, dtype=int)
 			return np.vstack((planes, self._log_data(means.reindex(pd.Index(planes)).to_numpy(dtype=float), log_scale)))
 
 		curves: list[np.ndarray] = []
@@ -937,7 +932,7 @@ class PALMTracer:
 		for i, curve in enumerate(curves): data[i, :, :curve.shape[1]] = curve
 		return data
 
-	##################################################
+	# --------------------------------------------------
 	def _get_track_count_data(self, log_scale: bool) -> np.ndarray:
 		"""
 		Compte par plan les trajectoires en cours, présentes et absentes, dans cet ordre.
@@ -953,9 +948,9 @@ class PALMTracer:
 		if df.empty or not {"Track", "Plane"}.issubset(df.columns): return np.empty(0)
 		points = df[["Track", "Plane"]].drop_duplicates()
 		bounds = points.groupby("Track", sort=False)["Plane"].agg(["min", "max"])
-		planes = np.arange(int(bounds["min"].min()), int(bounds["max"].max()) + 1, dtype=int)
+		planes: np.ndarray = np.arange(int(bounds["min"].min()), int(bounds["max"].max()) + 1, dtype=int)
 		# Somme cumulative des débuts et fins : évite de parcourir tous les plans de toutes les trajectoires.
-		changes = np.zeros(planes.size + 1, dtype=int)
+		changes: np.ndarray = np.zeros(planes.size + 1, dtype=int)
 		np.add.at(changes, bounds["min"].to_numpy(dtype=int) - planes[0], 1)
 		np.add.at(changes, bounds["max"].to_numpy(dtype=int) - planes[0] + 1, -1)
 		in_progress = np.cumsum(changes[:-1])
@@ -963,7 +958,7 @@ class PALMTracer:
 		counts = np.vstack((in_progress, present, in_progress - present))
 		return np.stack((np.broadcast_to(planes, counts.shape), self._log_data(counts, log_scale)), axis=1)
 
-	##################################################
+	# --------------------------------------------------
 	def _visualization_graph(self):
 		"""Lance la creation d'une visualisation graphique à partir des paramètres."""
 		s = self.settings.graph.settings
@@ -972,7 +967,7 @@ class PALMTracer:
 		self._logger.add(f"\tSaving Graph ({s}).")
 
 	# ==================== HR ====================
-	##################################################
+	# --------------------------------------------------
 	def hr(self) -> dict[str, np.ndarray]:
 		"""
 		Génère une représentation en haute résolution des données.
@@ -1045,7 +1040,7 @@ class PALMTracer:
 		data["visualization"] = self._renderer.tracks(viz_data, color_mode, bg_color)
 		return data
 
-	##################################################
+	# --------------------------------------------------
 	def _prepare_hr_data(self, tracks: bool, dimension: int, source: str, color_scaling: float, upscale: float,
 						 limits: tuple[int, int, int, int]) -> tuple[Optional[np.ndarray], dict[str, np.ndarray], float]:
 		"""
@@ -1142,7 +1137,7 @@ class PALMTracer:
 		else: plot["plot_data"] = plot_data
 		return viz_data, plot, uniform_z_step
 
-	##################################################
+	# --------------------------------------------------
 	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:
 		"""
 		Vérifie si la correction de drift est activé, faisable et l'applique.
@@ -1159,7 +1154,7 @@ class PALMTracer:
 		if s["Smooth Drift"].value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
 		return Drift.remove_drift(data, drift, is_3d=False)
 
-	##################################################
+	# --------------------------------------------------
 	def crop(self, img: np.ndarray, margin: int = 5) -> np.ndarray:
 		"""
 		Recadre automatiquement l'image (ou le volume) en supprimant les zones nulles autour, avec une marge configurable.
@@ -1190,7 +1185,7 @@ class PALMTracer:
 
 		return img[tuple(slices)]
 
-	##################################################
+	# --------------------------------------------------
 	def _get_uniform_z_step(self) -> float:
 		"""
 		Calcule le pas en nanomètre sur Z pour une échelle uniforme.
@@ -1201,12 +1196,12 @@ class PALMTracer:
 		upscale = self.settings.hr["Ratio"].value
 		return pixel_size / upscale
 
-	##################################################
+	# --------------------------------------------------
 	def _visualization_hr(self):
 		"""Lance la creation d'une visualisation haute résolution à partir des paramètres passés en paramètres."""
 		name = self.output_viz_name()
 		viz = self.hr()["visualization"]
-		self._logger.add(f"\tSaving high-resolution visualization.")
+		self._logger.add("\tSaving high-resolution visualization.")
 		if name.suffix == ".png": FileIO.save_png(self.crop(viz), name)  # Si extension png.
 		else: FileIO.save_tif(self.crop(viz), name)  # .				   Si extension tif.
 		return

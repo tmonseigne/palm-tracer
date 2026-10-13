@@ -2,16 +2,17 @@
 
 import pytest
 
-from tests.Utils import *
 from palm_tracer.Processing import Filtering
 from palm_tracer.Settings import ROIManager
 from palm_tracer.Settings.Groups import Filters
 from palm_tracer.Settings.Types import CheckInt, SpinInt
+from tests.Utils import *
 
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
 
 
+# --------------------------------------------------
 @pytest.fixture
 def f() -> Filtering:
 	"""Construit un gestionnaire avec une sélection active et un ratio HR de 4."""
@@ -21,7 +22,7 @@ def f() -> Filtering:
 	return Filtering(filters, manager)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("method", [
 		pytest.param("localization", id="localizations"), pytest.param("tracking", id="tracks"),
 		pytest.param("track_analysis", id="track-analysis")])
@@ -34,7 +35,7 @@ def test_filter_bad(qtbot, f, method):
 		assert getattr(f, method)(pd.DataFrame()).empty
 
 
-##################################################
+# --------------------------------------------------
 def test_localization(qtbot, f):
 	"""Vérifie le filtrage complet."""
 	src = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
@@ -79,7 +80,7 @@ def test_localization(qtbot, f):
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("select_tracks, select_length, active, expected", [
 		pytest.param(True, False, True, 66, id="track-ids"),
 		pytest.param(False, True, True, 166, id="length"),
@@ -97,7 +98,7 @@ def test_tracking(qtbot, f, select_tracks, select_length, active, expected):
 	assert len(f.tracking(src)) == expected
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("plane_active, filters_active, expected_indices", [
 		pytest.param(True, True, [1, 2, 4], id="inclusive-planes"),
 		pytest.param(False, True, [0, 1, 2, 3, 4], id="plane-disabled"),
@@ -114,7 +115,7 @@ def test_tracking_plane(qtbot, f, plane_active, filters_active, expected_indices
 	pd.testing.assert_frame_equal(src, original)
 
 
-##################################################
+# --------------------------------------------------
 def test_tracking_plane_before_length(qtbot, f):
 	"""Vérifie que la longueur est évaluée sur les points des plans retenus."""
 	src = pd.DataFrame({"Track": [1, 1, 1, 2, 2], "Plane": [1, 2, 3, 1, 2]})
@@ -126,7 +127,7 @@ def test_tracking_plane_before_length(qtbot, f):
 	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[[1, 2]])
 
 
-##################################################
+# --------------------------------------------------
 def test_tracking_plane_empty(qtbot, f):
 	"""Vérifie qu'un intervalle sans point produit un résultat vide avec les colonnes originales."""
 	src = pd.DataFrame({"Track": [1, 1], "Plane": [1, 2]})
@@ -136,7 +137,7 @@ def test_tracking_plane_empty(qtbot, f):
 	pd.testing.assert_frame_equal(f.tracking(src), src.iloc[:0])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("roi_active, limits, expected_tracks", [
 		pytest.param(True, [0, 0], {1}, id="fully-outside"),
 		pytest.param(True, [100, 100], {4}, id="fully-inside"),
@@ -162,7 +163,7 @@ def test_tracking_time_inside_roi(qtbot, f, roi_active, limits, expected_tracks)
 	pd.testing.assert_frame_equal(res, src[src["Track"].isin(expected_tracks)])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("length_active", [
 		pytest.param(False, id="no-other-filter"),
 		pytest.param(True, id="length-active")])
@@ -179,7 +180,7 @@ def test_tracking_ignores_roi_without_percentage(qtbot, f, length_active):
 	pd.testing.assert_frame_equal(f.tracking(src), src)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario, expected", [
 		pytest.param("intersection", [47, 9, 9, 9], id="intersection-without-criteria"),
 		pytest.param("filtered", [16, 3, 3, 3], id="active-criteria"),

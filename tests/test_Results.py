@@ -13,7 +13,7 @@ from palm_tracer.Results import Results
 from palm_tracer.Tools import FileIO
 
 
-##################################################
+# --------------------------------------------------
 def make_dataframe(row_count: int) -> pd.DataFrame:
 	"""
 	Construit un DataFrame minimal contenant le nombre de lignes demandé.
@@ -24,14 +24,16 @@ def make_dataframe(row_count: int) -> pd.DataFrame:
 	return pd.DataFrame(np.arange(row_count), columns=["Value"])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def results() -> Results:
 	"""Retourne un conteneur de résultats vide."""
 	return Results()
 
 
-##################################################
+# ==================================================
+# region Initialisation
+# ==================================================
 def test_accessors(results, tmp_path):
 	"""Vérifie les accès aux résultats et la génération des noms de fichiers."""
 	expected_keys = ["loc", "dft", "bds", "trc", "blk", "MSD", "InD", "Fit",
@@ -53,7 +55,67 @@ def test_accessors(results, tmp_path):
 	assert results.output_name("settings", tmp_path, "20260827_120000", "json") == tmp_path.resolve() / "settings-20260827_120000.json"
 
 
-##################################################
+# --------------------------------------------------
+def test_load(results, tmp_path, monkeypatch, capsys):
+	"""Vérifie le chargement d'un fichier, une absence et une erreur de lecture."""
+	timestamp = "20260827_120000"
+	results.KEYS_TO_FILE = {"loc": "localizations", "bds": "beads", "trc": "tracking"}
+	localizations = make_dataframe(2)
+	localizations.to_csv(results.output_name_by_key("loc", tmp_path, timestamp), index=False)
+	make_dataframe(1).to_csv(results.output_name_by_key("bds", tmp_path, timestamp), index=False)
+
+	real_read_csv = pd.read_csv
+
+	# --------------------------------------------------
+	def fake_read_csv(path, *args, **kwargs):
+		"""Simule une erreur limitée au fichier de billes."""
+		if Path(path).name.startswith("beads-"):
+			raise ValueError("invalid beads file")
+		return real_read_csv(path, *args, **kwargs)
+
+	monkeypatch.setattr(pd, "read_csv", fake_read_csv)
+	results._data["Fit"] = make_dataframe(1)
+	results.load("stack.tif", tmp_path, timestamp)
+
+	assert results.stack_name == "stack"
+	assert_frame_equal(results["loc"], localizations)
+	assert results.results_folder == tmp_path.resolve()
+	assert results["bds"].empty
+	assert results["trc"].empty
+	assert results["Fit"].empty, "Le chargement doit commencer par réinitialiser les anciens résultats."
+
+	output = capsys.readouterr().out
+	assert f"Loading files from the '{str(tmp_path.resolve())}' folder with the timestamp {timestamp}." in output
+	assert "File 'localizations' loaded successfully." in output
+	assert "Error loading file 'beads': invalid beads file" in output
+	assert "File 'tracking' not found." in output
+
+
+# --------------------------------------------------
+def test_reset(results):
+	"""Vérifie les réinitialisations partielles et complète des résultats."""
+	for key in results:
+		results._data[key] = make_dataframe(1)
+
+	results.reset_filtered()
+	for key in results:
+		if key.startswith("f_"):
+			assert results[key].empty, f"Le résultat filtré '{key}' devrait être vide."
+		else:
+			assert not results[key].empty, f"Le résultat original '{key}' devrait être conservé."
+
+	results.reset()
+	assert all(results[key].empty for key in results), "Tous les résultats devraient être vides."
+
+
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+
+# ==================================================
+# region Accesseurs
+# ==================================================
 @pytest.mark.parametrize(("filename", "expected_name"), [
 		pytest.param("stack.tif", "stack", id="tiff-file"),
 		pytest.param("stack.ome.tif", "stack.ome", id="multiple-suffixes"),
@@ -81,7 +143,7 @@ def test_stack_name_normalization(results, qtbot, tmp_path, filename, expected_n
 		assert ui.labels["File"].toolTip() == ""
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("same_path", [
 		pytest.param(True, id="same-stack-path"),
 		pytest.param(False, id="same-name-different-folder")])
@@ -97,7 +159,7 @@ def test_stack_name_results_folder(results, tmp_path, same_path):
 	assert results.results_folder == (tmp_path.resolve() if same_path else None)
 
 
-##################################################
+# --------------------------------------------------
 def test_active_results(results):
 	"""Vérifie les priorités de sélection des différentes variantes de résultats."""
 	assert results.get_localization_key() == "loc"
@@ -128,31 +190,7 @@ def test_active_results(results):
 	assert results.beads is results["bds"]
 
 
-##################################################
-@pytest.mark.parametrize(("original_count", "filtered_count", "prefix", "expected"), [
-		pytest.param(0, 0, "", "No", id="no-tracks"),
-		pytest.param(2, 0, "", "Yes (2 tracks)", id="original-tracks-only"),
-		pytest.param(2, 2, "", "Yes (2 tracks)", id="all-tracks-preserved"),
-		pytest.param(2, 1, "", "Yes Filtered (1/2 tracks)", id="partially-filtered-tracks"),
-		pytest.param(2, 1, "Reconnected", "Yes Reconnected Filtered (1/2 tracks)", id="reconnected-filtered-tracks")])
-def test_dataframe_status(original_count, filtered_count, prefix, expected):
-	"""Vérifie chaque forme de statut individuel."""
-	status = Results.get_df_status(make_dataframe(original_count), make_dataframe(filtered_count), "tracks", prefix)
-	assert status == expected, f"Statut incorrect.\nAttendu : {expected}\nObtenu : {status}"
-
-
-##################################################
-def test_dataframe_status_counts_unique_tracks():
-	"""Vérifie que le statut compte les trajectoires et non leurs points."""
-	original = pd.DataFrame({"Track": [1, 1, 2, 2, 2, 3], "X": [0, 1, 2, 3, 4, 5], "Y": [5, 4, 3, 2, 1, 0]})
-	filtered = pd.DataFrame({"Track": [1, 1, 3], "X": [0, 1, 5], "Y": [5, 4, 0]})
-
-	status = Results.get_df_status(original, filtered, "tracks")
-
-	assert status == "Yes Filtered (2/3 tracks)"
-
-
-##################################################
+# --------------------------------------------------
 def test_status(results):
 	"""Vérifie exactement l'ensemble des statuts dans chaque configuration."""
 	expected = {"File":               "No File",
@@ -199,59 +237,38 @@ def test_status(results):
 	assert results.get_status() == expected
 
 
-##################################################
-def test_reset(results):
-	"""Vérifie les réinitialisations partielles et complète des résultats."""
-	for key in results:
-		results._data[key] = make_dataframe(1)
-
-	results.reset_filtered()
-	for key in results:
-		if key.startswith("f_"):
-			assert results[key].empty, f"Le résultat filtré '{key}' devrait être vide."
-		else:
-			assert not results[key].empty, f"Le résultat original '{key}' devrait être conservé."
-
-	results.reset()
-	assert all(results[key].empty for key in results), "Tous les résultats devraient être vides."
+# --------------------------------------------------
+@pytest.mark.parametrize(("original_count", "filtered_count", "prefix", "expected"), [
+		pytest.param(0, 0, "", "No", id="no-tracks"),
+		pytest.param(2, 0, "", "Yes (2 tracks)", id="original-tracks-only"),
+		pytest.param(2, 2, "", "Yes (2 tracks)", id="all-tracks-preserved"),
+		pytest.param(2, 1, "", "Yes Filtered (1/2 tracks)", id="partially-filtered-tracks"),
+		pytest.param(2, 1, "Reconnected", "Yes Reconnected Filtered (1/2 tracks)", id="reconnected-filtered-tracks")])
+def test_dataframe_status(original_count, filtered_count, prefix, expected):
+	"""Vérifie chaque forme de statut individuel."""
+	status = Results.get_df_status(make_dataframe(original_count), make_dataframe(filtered_count), "tracks", prefix)
+	assert status == expected, f"Statut incorrect.\nAttendu : {expected}\nObtenu : {status}"
 
 
-##################################################
-def test_load(results, tmp_path, monkeypatch, capsys):
-	"""Vérifie le chargement d'un fichier, une absence et une erreur de lecture."""
-	timestamp = "20260827_120000"
-	results.KEYS_TO_FILE = {"loc": "localizations", "bds": "beads", "trc": "tracking"}
-	localizations = make_dataframe(2)
-	localizations.to_csv(results.output_name_by_key("loc", tmp_path, timestamp), index=False)
-	make_dataframe(1).to_csv(results.output_name_by_key("bds", tmp_path, timestamp), index=False)
+# --------------------------------------------------
+def test_dataframe_status_counts_unique_tracks():
+	"""Vérifie que le statut compte les trajectoires et non leurs points."""
+	original = pd.DataFrame({"Track": [1, 1, 2, 2, 2, 3], "X": [0, 1, 2, 3, 4, 5], "Y": [5, 4, 3, 2, 1, 0]})
+	filtered = pd.DataFrame({"Track": [1, 1, 3], "X": [0, 1, 5], "Y": [5, 4, 0]})
 
-	real_read_csv = pd.read_csv
+	status = Results.get_df_status(original, filtered, "tracks")
 
-	def fake_read_csv(path, *args, **kwargs):
-		"""Simule une erreur limitée au fichier de billes."""
-		if Path(path).name.startswith("beads-"):
-			raise ValueError("invalid beads file")
-		return real_read_csv(path, *args, **kwargs)
-
-	monkeypatch.setattr(pd, "read_csv", fake_read_csv)
-	results._data["Fit"] = make_dataframe(1)
-	results.load("stack.tif", tmp_path, timestamp)
-
-	assert results.stack_name == "stack"
-	assert_frame_equal(results["loc"], localizations)
-	assert results.results_folder == tmp_path.resolve()
-	assert results["bds"].empty
-	assert results["trc"].empty
-	assert results["Fit"].empty, "Le chargement doit commencer par réinitialiser les anciens résultats."
-
-	output = capsys.readouterr().out
-	assert f"Loading files from the '{str(tmp_path.resolve())}' folder with the timestamp {timestamp}." in output
-	assert "File 'localizations' loaded successfully." in output
-	assert "Error loading file 'beads': invalid beads file" in output
-	assert "File 'tracking' not found." in output
+	assert status == "Yes Filtered (2/3 tracks)"
 
 
-##################################################
+# ==================================================
+# endregion Accesseurs
+# ==================================================
+
+
+# ==================================================
+# region Entrées / sorties
+# ==================================================
 def test_save(results, tmp_path, monkeypatch):
 	"""Vérifie l'enregistrement individuel et celui des résultats filtrés utiles."""
 	timestamp = "20260827_120000"
@@ -275,7 +292,14 @@ def test_save(results, tmp_path, monkeypatch):
 	assert results.output_name_by_key("f_loc", tmp_path, automatic_timestamp).is_file()
 
 
-##################################################
+# ==================================================
+# endregion Entrées / sorties
+# ==================================================
+
+
+# ==================================================
+# region Interface
+# ==================================================
 @pytest.mark.parametrize("folder_kind", [
 		pytest.param("unset", id="unset-folder"),
 		pytest.param("missing", id="missing-folder")])
@@ -290,7 +314,7 @@ def test_open_results_folder_unavailable(results, tmp_path, monkeypatch, folder_
 	assert opened_urls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("folder_kind", [
 		pytest.param("existing", id="existing-folder"),
 		pytest.param("missing", id="missing-folder"),
@@ -328,7 +352,7 @@ def test_open_results_folder_button(results, qtbot, tmp_path, monkeypatch, folde
 		assert ui.open_folder_button.toolTip() == ""
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize(("category", "cleared_keys"), [
 		pytest.param("Localizations", ("loc", "f_loc", "dft", "f_dft"), id="localizations"),
 		pytest.param("Beads", ("bds",), id="beads"),
@@ -365,7 +389,7 @@ def test_clear_button(results, qtbot, category, cleared_keys):
 			assert ui.labels[key].text() == expected
 
 
-##################################################
+# --------------------------------------------------
 def test_interfaces(results, qtbot):
 	"""Vérifie la création, la réutilisation et la synchronisation des interfaces."""
 	first_ui = results.get_ui("first", margin=7)
@@ -392,3 +416,8 @@ def test_interfaces(results, qtbot):
 	replacement_ui = results.get_ui("first")
 	qtbot.addWidget(replacement_ui.widget)
 	assert replacement_ui is not first_ui, "Une interface nettoyée doit être recréée."
+
+
+# ==================================================
+# endregion Interface
+# ==================================================

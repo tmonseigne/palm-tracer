@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class FiltersL(BaseSettingGroup):
 	"""
@@ -45,15 +45,16 @@ class FiltersL(BaseSettingGroup):
 	mode: int = 1
 	"""Mode d'affichage du groupe dans l'interface."""
 
-	##################################################
+	# --------------------------------------------------
 	def deactivate_filters(self):
 		"""Désactive tous les filtres."""
 		for key in self.setting_list: self._settings[key].active = False
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

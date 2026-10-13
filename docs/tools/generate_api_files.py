@@ -8,20 +8,43 @@ from __future__ import annotations
 
 import ast
 import shutil
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 DOCS_PATH = ROOT_PATH / "docs"
 API_PATH = DOCS_PATH / "api"
-MODULE_PATH = ROOT_PATH / "palm_tracer"
+
+
+# --------------------------------------------------
+def _read_project_configuration() -> tuple[str, str]:
+	"""
+	Lit le nom du projet Sphinx et détermine le package Python associé sans importer sa configuration.
+
+	Le nom du package correspond au nom du projet en minuscules, avec les espaces et tirets remplacés par des underscores.
+
+	:return: Nom du package et titre du projet.
+	:raises RuntimeError: Si le nom du projet n’est pas une chaîne littérale ou si le package associé est absent.
+	"""
+	tree = ast.parse((DOCS_PATH / "conf.py").read_text(encoding="utf-8"))
+	for node in tree.body:
+		if not isinstance(node, ast.Assign) or not any(isinstance(target, ast.Name) and target.id == "project" for target in node.targets): continue
+		if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+			project_name = node.value.value
+			module_name = project_name.lower().replace(" ", "_").replace("-", "_")
+			if (ROOT_PATH / module_name / "__init__.py").is_file(): return module_name, project_name
+			raise RuntimeError(f"Python package not found for Sphinx project: {project_name}")
+	raise RuntimeError("Sphinx configuration must declare project as a string literal.")
+
+
+MODULE_NAME, PROJECT_NAME = _read_project_configuration()
+MODULE_PATH = ROOT_PATH / MODULE_NAME
 
 
 # ==================================================
 # region Classes
 # ==================================================
-##################################################
 @dataclass(frozen=True)
 class ModulePublicApi:
 	"""
@@ -40,7 +63,7 @@ class ModulePublicApi:
 	"""Noms des constantes publiques, dans leur ordre de déclaration."""
 
 
-##################################################
+# --------------------------------------------------
 @dataclass(frozen=True)
 class ClassMember:
 	"""
@@ -56,7 +79,7 @@ class ClassMember:
 	"""Numéro de la ligne de déclaration du membre."""
 
 
-##################################################
+# --------------------------------------------------
 @dataclass(frozen=True)
 class ClassPublicApi:
 	"""
@@ -72,7 +95,7 @@ class ClassPublicApi:
 	"""Méthodes publiques, dans leur ordre de déclaration."""
 
 
-##################################################
+# --------------------------------------------------
 @dataclass(frozen=True)
 class PackageNode:
 	"""
@@ -88,7 +111,7 @@ class PackageNode:
 	"""Nom qualifié du package."""
 	dir_path: Path
 	"""Chemin du répertoire du package."""
-	subpackages: tuple["PackageNode", ...]
+	subpackages: tuple[PackageNode, ...]
 	"""Sous-packages directs."""
 	modules: tuple[str, ...]
 	"""Modules publics directs."""  # Noms qualifiés (package inclus), sans __init__
@@ -101,26 +124,40 @@ class PackageNode:
 # ==================================================
 # region Vérification des fichiers
 # ==================================================
-##################################################
 def _is_python_package(directory: Path) -> bool:
-	"""Retourne True si directory contient un __init__.py."""
+	"""
+	Indique si un dossier contient un fichier ``__init__.py``.
+
+	:param directory: Chemin du dossier à examiner.
+	:return: ``True`` si le dossier est un package Python.
+	"""
 	return directory.is_dir() and (directory / "__init__.py").is_file()
 
 
-##################################################
+# --------------------------------------------------
 def _iter_public_py_modules(package_dir: Path) -> Iterable[Path]:
-	"""Liste les fichiers .py publics d'un package (hors __init__.py)."""
+	"""
+	Énumère les modules publics directs d’un package, hors ``__init__.py``.
+
+	:param package_dir: Chemin du dossier du package.
+	:yield: Chemins des modules, triés par nom de fichier.
+	"""
 	for py in sorted(package_dir.glob("*.py")):
 		if py.name == "__init__.py": continue
 		if py.name.startswith("_"): continue  # Fichiers privés
 		yield py
 
 
-##################################################
+# --------------------------------------------------
 def _iter_public_subpackages(package_dir: Path) -> Iterable[Path]:
-	"""Liste les sous-packages publics d'un package."""
+	"""
+	Énumère les sous-packages publics directs d’un package.
+
+	:param package_dir: Chemin du dossier du package.
+	:yield: Chemins des sous-packages, triés par nom de dossier.
+	"""
 	for child in sorted(package_dir.iterdir()):
-		if child.name.startswith("_"): continue  # Package privés
+		if child.name.startswith("_"): continue  # Packages privés
 		if _is_python_package(child): yield child
 
 
@@ -132,9 +169,15 @@ def _iter_public_subpackages(package_dir: Path) -> Iterable[Path]:
 # ==================================================
 # region Analyse
 # ==================================================
-##################################################
 def _parse_public_api_from_file(py_file: Path) -> ModulePublicApi:
-	"""Extrait les classes/fonctions/constantes publiques d'un fichier .py sans l'importer."""
+	"""
+	Extrait les symboles publics d’un fichier Python sans l’importer.
+
+	Les noms de constantes sont reconnus par leur écriture en majuscules.
+
+	:param py_file: Fichier Python à analyser.
+	:return: Classes, fonctions et constantes publiques dans leur ordre de déclaration.
+	"""
 	tree = ast.parse(py_file.read_text(encoding="utf-8"), filename=str(py_file))
 
 	classes: list[str] = []
@@ -161,7 +204,7 @@ def _parse_public_api_from_file(py_file: Path) -> ModulePublicApi:
 	return ModulePublicApi(tuple(classes), tuple(functions), tuple(constants))
 
 
-##################################################
+# --------------------------------------------------
 def _parse_class_public_api(py_file: Path, class_name: str) -> ClassPublicApi:
 	"""
 	Analyse les membres publics d'une classe Python.
@@ -204,7 +247,7 @@ def _parse_class_public_api(py_file: Path, class_name: str) -> ClassPublicApi:
 	return ClassPublicApi((), ())
 
 
-##################################################
+# --------------------------------------------------
 def _is_property(func: ast.FunctionDef) -> bool:
 	"""
 	Indique si une fonction AST représente une propriété ou son setter.
@@ -218,17 +261,16 @@ def _is_property(func: ast.FunctionDef) -> bool:
 	return False
 
 
-##################################################
+# --------------------------------------------------
 def _parse_regions_markers(py_file: Path) -> list[tuple[int, int | None, str]]:
 	"""
-	Retourne les régions sous la forme (start_line, end_line_or_none, name).
+	Extrait les marqueurs de région d’un fichier Python.
 
-	- start_line / end_line sont 1-indexés.
-	- Si '# endregion' absent, end_line vaut None (sera clos plus tard).
-	- Pas de régions imbriquées (convention projet).
+	Les régions imbriquées ne sont pas prises en charge.
+	Une région non fermée conserve une fin égale à ``None``, résolue ensuite lors du découpage par classe.
 
-	:param py_file: Fichier Python dont les marqueurs de région doivent être analysés.
-	:return: Régions détectées sous la forme ``(ligne_début, ligne_fin, nom)``.
+	:param py_file: Fichier Python à analyser.
+	:return: Régions sous la forme ``(ligne_début, ligne_fin, nom)``, avec des lignes numérotées à partir de 1.
 	"""
 	lines = py_file.read_text(encoding="utf-8").splitlines()
 
@@ -256,9 +298,18 @@ def _parse_regions_markers(py_file: Path) -> list[tuple[int, int | None, str]]:
 	return regions
 
 
-##################################################
+# --------------------------------------------------
 def _clamp_regions_to_class(regions: list[tuple[int, int | None, str]], class_start: int, class_end: int) -> list[tuple[int, int, str]]:
-	"""Applique la règle : région ouverte = jusqu'à la fin de la classe, et garde seulement celles qui intersectent la classe."""
+	"""
+	Restreint les régions aux lignes d’une classe.
+
+	Une région non fermée se termine à la dernière ligne de la classe.
+
+	:param regions: Régions sous la forme ``(ligne_début, ligne_fin, nom)``.
+	:param class_start: Première ligne de la classe, numérotée à partir de 1.
+	:param class_end: Dernière ligne de la classe, incluse.
+	:return: Régions intersectant la classe, triées par ligne de début.
+	"""
 	out: list[tuple[int, int, str]] = []
 	for start, end_or_none, name in regions:
 		end = end_or_none if end_or_none is not None else class_end
@@ -274,15 +325,21 @@ def _clamp_regions_to_class(regions: list[tuple[int, int | None, str]], class_st
 	return out
 
 
-##################################################
+# --------------------------------------------------
 def _find_region_name(lineno: int, regions: list[tuple[int, int, str]]) -> str:
-	"""Retourne le nom de région contenant lineno, sinon ''."""
+	"""
+	Recherche la région contenant une ligne de déclaration.
+
+	:param lineno: Numéro de la ligne de déclaration.
+	:param regions: Régions fermées sous la forme ``(ligne_début, ligne_fin, nom)``.
+	:return: Nom de la première région correspondante, ou chaîne vide.
+	"""
 	for start, end, name in regions:
 		if start <= lineno <= end: return name
 	return ""
 
 
-##################################################
+# --------------------------------------------------
 def _unique_members_preserve_order(items: list[ClassMember]) -> tuple[ClassMember, ...]:
 	"""
 	Déduplique les membres en conservant leur ordre de déclaration.
@@ -299,9 +356,14 @@ def _unique_members_preserve_order(items: list[ClassMember]) -> tuple[ClassMembe
 	return tuple(out)
 
 
-##################################################
+# --------------------------------------------------
 def _unique_preserve_order(items: Iterable[str]) -> tuple[str, ...]:
-	"""Supprime les doublons en conservant l'ordre d'apparition."""
+	"""
+	Déduplique des chaînes en conservant leur ordre d’apparition.
+
+	:param items: Chaînes à dédupliquer.
+	:return: Chaînes distinctes dans leur ordre d’apparition.
+	"""
 	seen: set[str] = set()
 	out: list[str] = []
 	for x in items:
@@ -319,22 +381,32 @@ def _unique_preserve_order(items: Iterable[str]) -> tuple[str, ...]:
 # region Génération RST
 # ==================================================
 
-##################################################
+# --------------------------------------------------
 def _rst_title(title: str, sep: str = "=") -> str:
-	"""Génère un titre RST avec underline '=','-','^'."""
+	"""
+	Génère un titre reStructuredText souligné.
+
+	:param title: Texte du titre.
+	:param sep: Caractère de soulignement du titre.
+	:return: Titre suivi de son soulignement et d’une ligne vide.
+	"""
 	return f"{title}\n{sep * len(title)}\n\n"
 
 
-##################################################
+# --------------------------------------------------
 def _rst_package_page(node: PackageNode) -> str:
-	"""Génère le contenu RST pour une page de package avec 2 toctree."""
-	# Titre principal : tu peux décider d’un mapping spécifique pour la racine.
-	if node.dotted_name == "palm_tracer": title = "PALM Tracer API Reference"
-	else: title = node.dotted_name.split(".")[-1]
+	"""
+	Génère la page reStructuredText d’un package.
+
+	:param node: Package et descendants directs à documenter.
+	:return: Page contenant les tables des matières des modules et sous-packages disponibles.
+	"""
+	# Titre spécifique du package racine.
+	title = f"{PROJECT_NAME} API Reference" if node.dotted_name == MODULE_NAME else node.dotted_name.split(".")[-1]
 	out = _rst_title(title)
 
-	# Optionnel : petit texte d’intro auto (tu peux faire un mapping manuel si tu veux)
-	if node.dotted_name != "palm_tracer":
+	# Introduction du sous-package.
+	if node.dotted_name != MODULE_NAME:
 		short_name = node.dotted_name.split(".")[-1]
 		out += f"{short_name}\n\n"
 
@@ -355,15 +427,16 @@ def _rst_package_page(node: PackageNode) -> str:
 	return out
 
 
-##################################################
+# --------------------------------------------------
 def _rst_module_page(dotted_module: str, py_file: Path) -> str:
 	"""
-	Génère une page module avec une stratégie :
-	- 1 classe publique, 0 fonction publique ⇒ autosummary vers la classe (template class.rst)
-	- sinon ⇒ automodule (ou autosummary mixte si tu préfères)
+	Génère la page reStructuredText d’un module.
+
+	Un module contenant une seule classe publique et aucune fonction publique utilise la page détaillée de cette classe.
+	Les autres modules utilisent la directive ``automodule``.
 
 	:param dotted_module: Nom qualifié du module.
-	:param py_file: Fichier Python correspondant au module.
+	:param py_file: Fichier Python à analyser.
 	:return: Contenu reStructuredText de la page du module.
 	"""
 	title = dotted_module.split(".")[-1]
@@ -383,7 +456,7 @@ def _rst_module_page(dotted_module: str, py_file: Path) -> str:
 	return out
 
 
-##################################################
+# --------------------------------------------------
 def _rst_class_page(dotted_module: str, class_name: str, py_file: Path) -> str:
 	"""
 	Génère la page reStructuredText d'une classe.
@@ -442,39 +515,57 @@ def _rst_class_page(dotted_module: str, class_name: str, py_file: Path) -> str:
 	return out
 
 
-##################################################
+# --------------------------------------------------
 def _generate_node_files(node: PackageNode, api_path: Path = API_PATH):
-	"""Génère récursivement les fichiers package + modules."""
+	"""
+	Écrit récursivement les pages reStructuredText d’un package.
+
+	:param node: Package et descendants directs à documenter.
+	:param api_path: Chemin du dossier de sortie des pages API.
+	"""
 	# Page package
 	package_file = api_path / f"{node.dotted_name}.rst"
-	package_file.write_text(_rst_package_page(node), encoding="utf-8")
+	package_file.write_bytes(_rst_package_page(node).encode("utf-8"))
 
 	# Pages modules
 	for py in _iter_public_py_modules(node.dir_path):
 		mod = f"{node.dotted_name}.{py.stem}"
-		(api_path / f"{mod}.rst").write_text(_rst_module_page(mod, py), encoding="utf-8")
+		(api_path / f"{mod}.rst").write_bytes(_rst_module_page(mod, py).encode("utf-8"))
 
 	# Récursion
 	for sub in node.subpackages: _generate_node_files(sub, api_path)
 
 
-##################################################
+# --------------------------------------------------
 def _build_tree(package_dir: Path, dotted_name: str) -> PackageNode:
-	"""Construit récursivement l'arbre des packages/modules."""
+	"""
+	Construit récursivement l’arborescence publique d’un package.
+
+	:param package_dir: Chemin du dossier du package.
+	:param dotted_name: Nom qualifié du package.
+	:return: Package avec ses modules et sous-packages publics.
+	"""
 	modules = tuple(f"{dotted_name}.{py.stem}" for py in _iter_public_py_modules(package_dir))
 	subpackages = tuple(_build_tree(subpkg_dir, f"{dotted_name}.{subpkg_dir.name}") for subpkg_dir in _iter_public_subpackages(package_dir))
 	return PackageNode(dotted_name=dotted_name, dir_path=package_dir, subpackages=subpackages, modules=modules)
 
 
-##################################################
+# --------------------------------------------------
 def generate_api_rst():
-	"""Point d'entrée : génère tous les fichiers .rst de l'API."""
-	if not _is_python_package(MODULE_PATH): raise RuntimeError(f"MODULE_PATH n'est pas un package Python : {MODULE_PATH}")
+	"""
+	Régénère les pages reStructuredText de l’API publique.
 
-	shutil.rmtree(API_PATH, ignore_errors=True)  # Il y a une option de check de différence
+	Le dossier ``docs/api`` est supprimé puis recréé ; ses pages sont entièrement générées.
+
+	:raises RuntimeError: Si le dossier source n’est pas un package Python.
+	"""
+	if not _is_python_package(MODULE_PATH):
+		raise RuntimeError(f"MODULE_PATH n'est pas un package Python : {MODULE_PATH}")
+
+	shutil.rmtree(API_PATH, ignore_errors=True)  # Supprime les anciennes pages avant régénération.
 	API_PATH.mkdir(parents=True, exist_ok=True)
 
-	tree = _build_tree(MODULE_PATH, dotted_name="palm_tracer")
+	tree = _build_tree(MODULE_PATH, dotted_name=MODULE_NAME)
 	_generate_node_files(tree, API_PATH)
 
 
@@ -482,7 +573,7 @@ def generate_api_rst():
 # endregion Génération RST
 # ==================================================
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	generate_api_rst()
 	print(f"RST API générés dans : {API_PATH}")

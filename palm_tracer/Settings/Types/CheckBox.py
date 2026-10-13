@@ -12,7 +12,7 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class CheckBox(BaseSettingType):
 	"""
@@ -31,7 +31,6 @@ class CheckBox(BaseSettingType):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -48,13 +47,13 @@ class CheckBox(BaseSettingType):
 		self._uis[name] = ui  # .					   Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> bool:
 		"""Valeur actuelle du paramètre (:class:`bool`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: bool):
 		"""Valeur actuelle du paramètre (:class:`bool`)."""
@@ -67,10 +66,11 @@ class CheckBox(BaseSettingType):
 		self.emit(value)
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QPushButton, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -81,6 +81,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

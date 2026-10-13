@@ -94,6 +94,7 @@ gettext_compact = False
 # sphinx-build -b html -D language=fr docs docs/_build/html
 # sphinx-build -b html -D language=en docs docs/_build/html/en
 
+# --------------------------------------------------
 def copy_dir(src: str | Path, dst: str | Path):
 	"""Copie récursivement un dossier source vers un dossier destination."""
 	src, dst = Path(src), Path(dst)
@@ -110,9 +111,11 @@ default_language_code = "fr"
 languages = [("Français", "fr"), ("English", "en")]
 
 
+# --------------------------------------------------
 def setup(app):
 	"""Ajoute des variables de contexte HTML (Jinja) en fonction de la langue réellement utilisée."""
 
+	# --------------------------------------------------
 	def _inject_context(app_, pagename, template, context, doctree):
 		"""
 		Ajoute les informations de langue au contexte du gabarit.

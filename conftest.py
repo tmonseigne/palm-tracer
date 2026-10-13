@@ -7,6 +7,7 @@ import os
 import platform
 import sys
 import types
+from contextlib import suppress
 
 import cpuinfo
 import napari
@@ -17,8 +18,8 @@ from napari._vispy.canvas import VispyCanvas
 from pytest_metadata.plugin import metadata_key
 from qtpy.QtWidgets import QApplication
 
-from tests.Monitoring import Monitoring
 from palm_tracer.Tools import Ui
+from tests.Monitoring import Monitoring
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 os.environ["QT_OPENGL"] = "software"
@@ -31,7 +32,6 @@ all_tests_monitoring = Monitoring()
 # ==================================================
 # region Fixtures pytest
 # ==================================================
-##################################################
 @pytest.fixture
 def fake_qfiledialog(monkeypatch):
 	"""
@@ -52,6 +52,7 @@ def fake_qfiledialog(monkeypatch):
 	:return: Fabrique configurant les réponses simulées d'un :class:`QFileDialog`.
 	"""
 
+	# --------------------------------------------------
 	def _factory(target, filename: str | list[str] | None, filter_str: str = "TIFF images (*.tif *.tiff)"):
 		"""
 		Configure un faux QFileDialog.<method> dans le module donné.
@@ -62,13 +63,14 @@ def fake_qfiledialog(monkeypatch):
 		"""
 
 		# 1) Déterminer le module à partir de target
-		if isinstance(target, types.ModuleType): module = target
-		else: module = sys.modules[target.__module__]  # La cible est probablement une classe : on remonte à son module
+		# Pour une classe, retrouve le module qui la définit.
+		module = target if isinstance(target, types.ModuleType) else sys.modules[target.__module__]
 
 		# Sanity check : QFileDialog doit exister dans ce module
 		if not hasattr(module, "QFileDialog"):
 			raise AttributeError(f"Le module {module.__name__!r} ne contient pas 'QFileDialog'.")
 
+		# --------------------------------------------------
 		def _fake_get_open_file_name(parent=None, caption="", directory="", *args, **kwargs):
 			"""
 			Simule la sélection d'un fichier à ouvrir.
@@ -83,6 +85,7 @@ def fake_qfiledialog(monkeypatch):
 			if filename is None: return "", ""  # Cas où l'utilisateur clique sur "Annuler"
 			return filename, filter_str
 
+		# --------------------------------------------------
 		def _fake_get_open_file_names(parent=None, caption="", directory="", *args, **kwargs):
 			"""
 			Simule la sélection de plusieurs fichiers à ouvrir.
@@ -97,6 +100,7 @@ def fake_qfiledialog(monkeypatch):
 			if filename is None: return [], ""  # Cas où l'utilisateur clique sur "Annuler"
 			return ([filename] if isinstance(filename, str) else filename), filter_str
 
+		# --------------------------------------------------
 		def _fake_get_existing_directory(parent=None, caption="", directory="", *args, **kwargs):
 			"""
 			Simule la sélection d'un dossier existant.
@@ -111,6 +115,7 @@ def fake_qfiledialog(monkeypatch):
 			if filename is None: return ""  # Cas où l'utilisateur clique sur "Annuler"
 			return filename
 
+		# --------------------------------------------------
 		def _fake_get_save_file_name(parent=None, caption="", directory="", *args, **kwargs):
 			"""
 			Simule la sélection d'un fichier à enregistrer.
@@ -134,7 +139,7 @@ def fake_qfiledialog(monkeypatch):
 	return _factory
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def patched_napari_viewer(monkeypatch, qtbot):
 	"""
@@ -154,14 +159,14 @@ def patched_napari_viewer(monkeypatch, qtbot):
 	:param qtbot: Fixture pytest-qt utilisée pour gérer l'environnement Qt du test.
 	"""
 
+	# --------------------------------------------------
 	def _cleanup():
 		"""Ferme les viewers/fenêtres Napari et les top-level widgets Qt restants."""
 		try:
 			# Selon les versions, _instances peut être un WeakSet ou assimilé.
 			instances = list(getattr(napari.viewer.Viewer, "_instances", []))
 			for viewer in instances:
-				try: viewer.close()
-				except Exception: pass
+				with suppress(Exception): viewer.close()
 		except Exception: pass
 
 		# 2) Fermer toutes les fenêtres/top-level widgets Qt restantes
@@ -169,8 +174,7 @@ def patched_napari_viewer(monkeypatch, qtbot):
 			app = QApplication.instance()
 			if app is not None:
 				for widget in list(app.topLevelWidgets()):
-					try: widget.close()
-					except Exception: pass
+					with suppress(Exception): widget.close()
 				app.processEvents()
 		except Exception: pass
 
@@ -186,9 +190,9 @@ def patched_napari_viewer(monkeypatch, qtbot):
 	monkeypatch.setattr("napari._vispy.canvas.get_max_texture_sizes", lambda: (4096, 4096), raising=True)
 	monkeypatch.setattr("napari._vispy.canvas.VispyCanvas._clean_and_update_scenegraph", lambda self: None, raising=True)
 	monkeypatch.setattr("napari._vispy.canvas.VispyCanvas._resume_scene_graph_update", lambda self: None, raising=True)
-	try: monkeypatch.setattr("vispy.app.backends._qt.get_physical_dpi", lambda *args, **kwargs: 96, raising=True)
-	except Exception: pass
+	with suppress(Exception): monkeypatch.setattr("vispy.app.backends._qt.get_physical_dpi", lambda *args, **kwargs: 96, raising=True)
 
+	# --------------------------------------------------
 	def _fake_add_layer(self, layer):
 		"""
 		Simule l'ajout d'un calque à la liste.
@@ -198,6 +202,7 @@ def patched_napari_viewer(monkeypatch, qtbot):
 		"""
 		return None  # Ignore la création réelle du visuel VisPy associé à un layer.
 
+	# --------------------------------------------------
 	def _fake_remove_layer(self, event):
 		"""
 		Simule le retrait d'un calque de la liste.
@@ -207,6 +212,7 @@ def patched_napari_viewer(monkeypatch, qtbot):
 		"""
 		return None  # Ignore la suppression réelle du visuel VisPy associé à un layer.
 
+	# --------------------------------------------------
 	def _fake_reorder_layers(self):
 		"""
 		Simule la réorganisation des calques.
@@ -232,7 +238,6 @@ def patched_napari_viewer(monkeypatch, qtbot):
 # ==================================================
 # region Hooks pytest
 # ==================================================
-##################################################
 def _is_qt_or_napari_test(item) -> bool:
 	"""Indique si le test utilise Qt ou Napari."""
 	if item is None: return False
@@ -245,7 +250,7 @@ def _is_qt_or_napari_test(item) -> bool:
 				or "napari" in nodeid or "qt" in nodeid or "gui" in nodeid)
 
 
-##################################################
+# --------------------------------------------------
 def cpu_infos() -> str:
 	"""
 	Collecte les informations relatives au processeur.
@@ -270,7 +275,7 @@ def cpu_infos() -> str:
 	return res
 
 
-##################################################
+# --------------------------------------------------
 def add_to_json(path, datas_name, datas):
 	"""
 	Ajoute des données à un fichier JSON.
@@ -286,8 +291,9 @@ def add_to_json(path, datas_name, datas):
 	except FileNotFoundError: Ui.print_warning("Json File not found.")
 
 
-##################################################
+# --------------------------------------------------
 # Fonction pour configurer les métadonnées du rapport
+# --------------------------------------------------
 @pytest.hookimpl
 def pytest_metadata(metadata):
 	"""
@@ -319,7 +325,7 @@ def pytest_metadata(metadata):
 		metadata["GPU"] = f"Error detecting GPU: {str(e)}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.hookimpl(tryfirst=True)
 def pytest_sessionstart(session):
 	"""
@@ -331,7 +337,7 @@ def pytest_sessionstart(session):
 	all_tests_monitoring.start(0.1)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.hookimpl(tryfirst=True)
 def pytest_sessionfinish(session, exitstatus):
 	"""
@@ -348,7 +354,7 @@ def pytest_sessionfinish(session, exitstatus):
 	add_to_json("reports/test_report.json", "metadata", session.config.stash[metadata_key])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_protocol(item, nextitem):
 	"""Capture les informations sur chaque test."""
@@ -357,7 +363,7 @@ def pytest_runtest_protocol(item, nextitem):
 	return None
 
 
-##################################################
+# --------------------------------------------------
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_setup(item):
 	"""À l'initialisation de chaque test."""
@@ -365,7 +371,7 @@ def pytest_runtest_setup(item):
 	if _is_qt_or_napari_test(item) and all_tests_monitoring.is_running: all_tests_monitoring.pause()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.hookimpl(trylast=True)
 def pytest_runtest_teardown(item, nextitem):
 	"""Au nettoyage de chaque test."""

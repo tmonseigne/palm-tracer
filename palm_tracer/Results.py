@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 	from palm_tracer.UI.ResultsUI import ResultsUI  # Import conditionnel pour éviter une dépendance cyclique à l'exécution.
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Results:
 	"""Conserve les résultats des traitements et leurs représentations Qt."""
@@ -52,7 +52,6 @@ class Results:
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	@staticmethod
 	def output_name(name: str, path: str | Path, timestamp: str, ext: str = "csv") -> Path:
 		"""
@@ -66,7 +65,7 @@ class Results:
 		"""
 		return Path(path).resolve() / f"{name}-{timestamp}.{ext}"
 
-	##################################################
+	# --------------------------------------------------
 	def output_name_by_key(self, key: str, path: str | Path, timestamp: str, ext: str = "csv") -> Path:
 		"""
 		Construit le chemin d'un fichier de résultat à partir de sa clé.
@@ -79,7 +78,7 @@ class Results:
 		"""
 		return self.output_name(self.KEYS_TO_FILE[key], path, timestamp, ext)
 
-	##################################################
+	# --------------------------------------------------
 	def load(self, stack_name: str, path: str | Path, timestamp: str):
 		"""
 		Charge les résultats précédemment enregistrés pour une pile et un traitement.
@@ -111,13 +110,13 @@ class Results:
 
 		self.update_uis()
 
-	##################################################
+	# --------------------------------------------------
 	def reset(self):
 		"""Vide entièrement les DataFrames de résultats."""
 		for key in self._data: self._data[key] = pd.DataFrame()
 		self.update_uis()
 
-	##################################################
+	# --------------------------------------------------
 	def reset_filtered(self):
 		"""Vide entièrement les DataFrames de résultats filtrés."""
 		for key in self._data:
@@ -131,12 +130,11 @@ class Results:
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def __getitem__(self, key: str) -> pd.DataFrame:
 		"""Retourne le DataFrame associé à la clé indiquée."""
 		return self._data[key]
 
-	##################################################
+	# --------------------------------------------------
 	def __setitem__(self, key: str, value: pd.DataFrame):
 		"""
 		Remplace le DataFrame associé à une clé.
@@ -147,12 +145,12 @@ class Results:
 		self._data[key] = value
 		self.update_uis()
 
-	##################################################
+	# --------------------------------------------------
 	def __iter__(self):
 		"""Retourne un itérateur sur les clés des résultats."""
 		return iter(self._data)
 
-	##################################################
+	# --------------------------------------------------
 	def _get_active_key(self, keys: tuple[str, ...]) -> str:
 		"""
 		Retourne la dernière clé associée à un résultat non vide, ou la première clé par défaut.
@@ -162,13 +160,13 @@ class Results:
 		"""
 		return next((key for key in reversed(keys) if not self._data[key].empty), keys[0], )
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def stack_name(self) -> str:
 		"""Nom du fichier en cours d'analyse, sans dossiers ni extension."""
 		return self._stack_name
 
-	##################################################
+	# --------------------------------------------------
 	@stack_name.setter
 	def stack_name(self, stack_name: str):
 		"""
@@ -185,60 +183,60 @@ class Results:
 		self._stack_name = path.stem if path is not None else ""
 		self.update_uis()
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def results_folder(self) -> Path | None:
 		"""Dossier absolu des résultats courants, ou :obj:`None` si aucun dossier n'est associé."""
 		return self._results_folder
 
-	##################################################
+	# --------------------------------------------------
 	@results_folder.setter
 	def results_folder(self, path: str | Path | None):
 		"""Mémorise le dossier des résultats et actualise les boutons de toutes les vues."""
 		self._results_folder = Path(path).resolve() if path is not None else None
 		self.update_uis()
 
-	##################################################
+	# --------------------------------------------------
 	def get_localization_key(self) -> str:
 		"""Clé des localisations actives, en privilégiant les variantes filtrées et corrigées."""
 		return self._get_active_key(("loc", "f_loc", "dft", "f_dft"))
 
-	##################################################
+	# --------------------------------------------------
 	def get_tracks_key(self) -> str:
 		"""Clé des trajectoires actives, en privilégiant les variantes filtrées et reconnectées."""
 		return self._get_active_key(("trc", "f_trc", "blk", "f_blk"))
 
-	##################################################
+	# --------------------------------------------------
 	def get_track_analysis_key(self) -> list[str]:
 		"""Clés des analyses des trajectoires, en privilégiant leurs variantes filtrées."""
 		return [self._get_active_key(("MSD", "f_MSD")), self._get_active_key(("InD", "f_InD")), self._get_active_key(("Fit", "f_Fit"))]
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def localizations(self) -> pd.DataFrame:
 		"""Localisations actives (:class:`~pandas.DataFrame`)."""
 		return self._data[self.get_localization_key()]
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def beads(self) -> pd.DataFrame:
 		"""Billes détectées (:class:`~pandas.DataFrame`)."""
 		return self._data["bds"]
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def tracks(self) -> pd.DataFrame:
 		"""Trajectoires actives (:class:`~pandas.DataFrame`), éventuellement filtrées et reconnectées."""
 		return self._data[self.get_tracks_key()]
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def track_analysis(self) -> dict[str, pd.DataFrame]:
 		"""Analyses actives des trajectoires, éventuellement filtrés (:class:`~pandas.DataFrame`)."""
 		keys = self.get_track_analysis_key()
 		return {"MSD": self._data[keys[0]], "InD": self._data[keys[1]], "Fit": self._data[keys[2]]}
 
-	##################################################
+	# --------------------------------------------------
 	def get_status(self) -> dict[str, str]:
 		"""
 		Construit les statuts des différentes catégories de résultats actuellement chargées.
@@ -256,7 +254,7 @@ class Results:
 
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def get_df_status(original: pd.DataFrame, filtered: pd.DataFrame, name: str, pre: str = "") -> str:
 		"""
@@ -280,9 +278,12 @@ class Results:
 		else: return f"{yes} Filtered ({n_filt}/{n_init} {name})"
 
 	# ==================================================
-	# region Entrées-sorties
+	# endregion Accesseurs
 	# ==================================================
-	##################################################
+
+	# ==================================================
+	# region Entrées / sorties
+	# ==================================================
 	def save(self, key: str, path: str | Path, timestamp: str):
 		"""
 		Enregistre un résultat dans un fichier CSV.
@@ -295,7 +296,7 @@ class Results:
 		self._data[key].to_csv(filename, index=False)
 		self.results_folder = filename.parent
 
-	##################################################
+	# --------------------------------------------------
 	def save_filtered(self, path: str | Path, timestamp: str = ""):
 		"""
 		Enregistre tous les résultats filtrés non vides et différents de leur version initiale.
@@ -303,19 +304,18 @@ class Results:
 		:param path: Dossier de destination.
 		:param timestamp: Suffixe identifiant le traitement ; généré automatiquement lorsqu'il est vide.
 		"""
-		timestamp = FileIO.get_timestamp_for_files() if not timestamp else timestamp
+		timestamp = timestamp if timestamp else FileIO.get_timestamp_for_files()
 		for key in self.KEYS_TO_FILE:
 			# Il s'agit d'un filtre, il n'est pas vide et il a une taille différente de l'original
 			if key.startswith("f_") and not self._data[key].empty and len(self._data[key]) != len(self._data[key[2:]]): self.save(key, path, timestamp)
 
 	# ==================================================
-	# endregion Entrées-sorties
+	# endregion Entrées / sorties
 	# ==================================================
 
 	# ==================================================
 	# region Interface
 	# ==================================================
-	##################################################
 	def _open_results_folder(self):
 		"""Ouvre le dossier courant dans l'explorateur du système lorsqu'il existe."""
 		from qtpy.QtCore import QUrl
@@ -324,7 +324,7 @@ class Results:
 		if self._results_folder is not None and self._results_folder.is_dir():
 			QDesktopServices.openUrl(QUrl.fromLocalFile(str(self._results_folder)))
 
-	##################################################
+	# --------------------------------------------------
 	def _clear_result(self, keys: tuple[str, ...]):
 		"""
 		Vide les variantes d'une catégorie de résultats et actualise toutes les vues.
@@ -336,7 +336,7 @@ class Results:
 		for key in keys: self._data[key] = pd.DataFrame()
 		self.update_uis()
 
-	##################################################
+	# --------------------------------------------------
 	def get_ui(self, name: str = "default", margin: int = 5) -> "ResultsUI":
 		"""
 		Retourne une représentation Qt des résultats, existante ou nouvellement créée.
@@ -368,7 +368,7 @@ class Results:
 		self._uis[name] = ui
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime l'interface Qt associée au nom donné.
@@ -377,7 +377,7 @@ class Results:
 		"""
 		self._uis.pop(name, None)
 
-	##################################################
+	# --------------------------------------------------
 	def update_uis(self):
 		"""Actualise toutes les représentations Qt associées aux résultats."""
 		status = self.get_status()

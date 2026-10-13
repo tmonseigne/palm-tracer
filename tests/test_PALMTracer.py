@@ -4,20 +4,21 @@ Teste l'orchestration complète des traitements par la classe :class:`PALMTracer
 .. note:: Certaines vérifications du journal portent uniquement sur le nombre de lignes, car chaque traitement en produit au moins quinze.
 """
 
+from contextlib import suppress
 from datetime import datetime, timedelta
 from itertools import count
 from typing import Literal
 
 import pytest
 
-from tests.Utils import *
 from palm_tracer.Processing import Parsing
 from palm_tracer.Settings.Groups.Graph import DATA_SRC
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
+from tests.Utils import *
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture(autouse=True)
 def user_model_path(monkeypatch, tmp_path):
 	"""Isole la recherche du modèle utilisateur pour rendre les tests indépendants des modèles personnels."""
@@ -27,23 +28,23 @@ def user_model_path(monkeypatch, tmp_path):
 	return path
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def pt():
 	"""fixture interne."""
 	obj = PALMTracer()
 	yield obj
-	try: obj._logger.close()
-	except Exception: pass
+	with suppress(Exception): obj._logger.close()
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def sequential_timestamps(monkeypatch):
 	"""Fournit un timestamp croissant par appel pour tester la réutilisation sans attente réelle."""
 	start = datetime(2026, 1, 2)
 	seconds = count()
 
+	# --------------------------------------------------
 	def next_timestamp(with_hour: bool = True) -> str:
 		"""
 		Avance l'horodatage simulé d'une seconde.
@@ -57,7 +58,7 @@ def sequential_timestamps(monkeypatch):
 	monkeypatch.setattr(FileIO, "get_timestamp_for_files", next_timestamp)
 
 
-##################################################
+# --------------------------------------------------
 def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[list[int]] = None, json: Optional[list[int]] = None,
 				 tif: Optional[list[int]] = None, png: Optional[list[int]] = None, html: Optional[list[int]] = None, clean: bool = True):
 	"""Vérifie si la sortie correspond à ce qui est attendu."""
@@ -75,7 +76,7 @@ def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[li
 	if clean: shutil.rmtree(folder, ignore_errors=True)
 
 
-##################################################
+# --------------------------------------------------
 def check_capsys(capsys, n_lines: int, steps: list[int]):
 	"""
 	Vérifie les étapes présentes dans la sortie capturée et le nombre de lignes du journal.
@@ -92,7 +93,7 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 	for i in range(8): assert step_name[i] in lines[steps[i]]
 
 
-##################################################
+# --------------------------------------------------
 def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 	"""
 	Prépare les fichiers d'un traitement précédent pour vérifier leur réutilisation.
@@ -121,7 +122,6 @@ def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_reset_result(pt):
 	"""Vérifie le process sans fichiers en entrée."""
 
@@ -145,7 +145,7 @@ def test_reset_result(pt):
 		assert pt.results[key].empty, "Le Dataframe devrait être vide."
 
 
-##################################################
+# --------------------------------------------------
 def test_clean_ui(monkeypatch, pt):
 	"""Vérifie la délégation du nettoyage des interfaces."""
 	results_names: list[str] = []
@@ -166,7 +166,6 @@ def test_clean_ui(monkeypatch, pt):
 # ==================================================
 # region Accesseurs
 # ==================================================
-##################################################
 def test_getter_localization(pt):
 	"""Vérifie le getter de la localisation."""
 	res = pt.results.localizations
@@ -188,7 +187,7 @@ def test_getter_localization(pt):
 	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_getter_beads(pt):
 	"""Vérifie le getter de la localisation."""
 	res = pt.results.beads
@@ -199,7 +198,7 @@ def test_getter_beads(pt):
 	assert res.equals(ref1), f"Résultat incorrect.\nAttendu : {ref1}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_getter_tracks(pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.results.tracks
@@ -221,7 +220,7 @@ def test_getter_tracks(pt):
 	assert res.equals(ref2), f"Résultat incorrect.\nAttendu : {ref2}\tObtenu : {res}"
 
 
-##################################################
+# --------------------------------------------------
 def test_getter_track_analysis(pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	df = pt.results.track_analysis
@@ -232,28 +231,28 @@ def test_getter_track_analysis(pt):
 	assert df["MSD"].equals(ref1), "Le Dataframe devrait non vide."
 
 
-##################################################
+# --------------------------------------------------
 def test_getter_path(pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.path
 	assert res == ""
 
 
-##################################################
+# --------------------------------------------------
 def test_getter_stack(pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.stack
 	assert res is None
 
 
-##################################################
+# --------------------------------------------------
 def test_getter_suffix(pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	res = pt.suffix
 	assert res == ""
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("group_name", [pytest.param("HR", id="hr"), pytest.param("Filters", id="filters")])
 def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name: Literal["HR", "Filters"]):
 	"""Ignore un fichier de paramètres supprimé après l'initialisation du traitement."""
@@ -277,7 +276,6 @@ def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name: 
 # ==================================================
 # region Traitements
 # ==================================================
-##################################################
 def test_load_bad_dll(capsys, pt):
 	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
 	pt.palm._dll = None
@@ -286,7 +284,7 @@ def test_load_bad_dll(capsys, pt):
 	assert "Process not completed due to missing DLLs." in lines[0]
 
 
-##################################################
+# --------------------------------------------------
 def test_load_nothing(capsys, pt):
 	"""Vérifie le chargement avec fichier, mais sans settings."""
 	pt.load("bad path")
@@ -294,7 +292,7 @@ def test_load_nothing(capsys, pt):
 	assert "No valid settings file to load." in lines[0]
 
 
-##################################################
+# --------------------------------------------------
 def test_load(capsys, pt):
 	"""Vérifie le chargement avec fichier, mais sans settings."""
 	clean_output()
@@ -340,7 +338,7 @@ def test_load(capsys, pt):
 	assert len(lines) == 0
 
 
-##################################################
+# --------------------------------------------------
 def test_process_no_input(capsys, pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	clean_output()
@@ -350,7 +348,7 @@ def test_process_no_input(capsys, pt):
 	assert "No files." in lines[0]
 
 
-##################################################
+# --------------------------------------------------
 def test_process_nothing(capsys, pt):
 	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
 	clean_output()
@@ -405,7 +403,7 @@ def test_process_nothing(capsys, pt):
 	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_bad_dll(capsys, pt):
 	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
 	pt.palm._dll = None
@@ -415,7 +413,7 @@ def test_process_bad_dll(capsys, pt):
 	assert "Process not completed due to missing DLLs." in lines[0]
 
 
-##################################################
+# --------------------------------------------------
 def test_process_multiple_stack(capsys, pt):
 	"""Vérifie le process avec plusieurs piles."""
 	clean_output()
@@ -430,7 +428,7 @@ def test_process_multiple_stack(capsys, pt):
 	check_capsys(capsys, 30, [5, 6, 7, 8, 9, 10, 11, 12])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_localization(capsys, pt):
 	"""Vérifie le process de localisation."""
 	clean_output()
@@ -444,7 +442,7 @@ def test_process_localization(capsys, pt):
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("use_default", [False, True], ids=["specific-model", "default-model"])
 def test_process_localization_z(capsys, pt, tmp_path, use_default):
 	"""Vérifie la localisation sans modèle, puis avec un modèle explicitement sélectionné."""
@@ -471,7 +469,7 @@ def test_process_localization_z(capsys, pt, tmp_path, use_default):
 		default = pd.read_csv(REF_DIR / "astigmatism_3d_model.csv", index_col=0)
 		default.iloc[:, 0] += 100
 		default.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL)
-	s["Use default model"].value = use_default
+	s["Default Model"].value = use_default
 	pt.process()  # Lancement
 
 	assert len(pt.results["loc"]) == 455
@@ -485,7 +483,7 @@ def test_process_localization_z(capsys, pt, tmp_path, use_default):
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_localization_spline_bad(capsys, pt):
 	"""Vérifie le process de localisation."""
 	clean_output()
@@ -501,7 +499,7 @@ def test_process_localization_spline_bad(capsys, pt):
 	assert len(lines) == 6  # Arrêt après l'erreur
 
 
-##################################################
+# --------------------------------------------------
 def test_process_localization_spline(capsys, pt):
 	"""Vérifie le process de localisation."""
 	clean_output()
@@ -517,7 +515,7 @@ def test_process_localization_spline(capsys, pt):
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_beads_extraction_no_beads(capsys, pt):
 	"""Vérifie le process de l'extraction des billes."""
 	clean_output()
@@ -533,7 +531,7 @@ def test_process_beads_extraction_no_beads(capsys, pt):
 	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_plane_discontinuous(capsys, pt):
 	"""Vérifie le process de l'extraction des billes."""
 	clean_output()
@@ -547,7 +545,7 @@ def test_process_plane_discontinuous(capsys, pt):
 	assert "No beads found." in lines[0]
 
 
-##################################################
+# --------------------------------------------------
 def test_process_beads_extraction(capsys, pt):
 	"""Vérifie le process de l'extraction des billes."""
 	clean_output()
@@ -568,7 +566,7 @@ def test_process_beads_extraction(capsys, pt):
 	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_tracking(capsys, pt):
 	"""Vérifie le process de tracking."""
 	clean_output()
@@ -587,7 +585,7 @@ def test_process_tracking(capsys, pt):
 	check_capsys(capsys, 17, [5, 7, 8, 10, 11, 12, 13, 14])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_tracking_blinking(capsys, pt):
 	"""Vérifie le process de tracking."""
 	clean_output()
@@ -603,7 +601,7 @@ def test_process_tracking_blinking(capsys, pt):
 	check_capsys(capsys, 17, [5, 6, 7, 9, 11, 12, 13, 14])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_track_analysis(capsys, pt, sequential_timestamps):
 	"""Vérifie le process de tracking."""
 	clean_output()
@@ -638,7 +636,7 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps):
 	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_gallery(capsys, pt):
 	"""Vérifie le process de visualization HR."""
 	clean_output()
@@ -656,7 +654,7 @@ def test_process_gallery(capsys, pt):
 	check_capsys(capsys, 17, [5, 7, 8, 9, 10, 11, 13, 14])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_visualization_graph(capsys, pt):
 	"""Vérifie le process de visualization de graph."""
 	clean_output()
@@ -671,7 +669,7 @@ def test_process_visualization_graph(capsys, pt):
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 15])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_visualization_hr(capsys, pt, sequential_timestamps):
 	"""Vérifie le process de visualization HR."""
 	clean_output()
@@ -699,7 +697,7 @@ def test_process_visualization_hr(capsys, pt, sequential_timestamps):
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
 
 
-##################################################
+# --------------------------------------------------
 def test_process_all(capsys, pt):
 	"""Vérifie Basique pour le process complet."""
 	clean_output()
@@ -726,7 +724,7 @@ def test_process_all(capsys, pt):
 	check_capsys(capsys, 26, [5, 7, 9, 11, 13, 18, 20, 22])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("first_available", [
 		pytest.param(0, id="explicit-path"),
 		pytest.param(1, id="output-folder"),
@@ -759,7 +757,7 @@ def test_get_astigmatism_model(tmp_path, user_model_path, first_available):
 	else: pd.testing.assert_frame_equal(model, models[first_available])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("content", [
 		pytest.param(",Z0,W\nX,1,2\n", id="invalid-shape"),
 		pytest.param('"unterminated quote\n', id="unreadable-csv")])
@@ -775,7 +773,7 @@ def test_get_astigmatism_model_invalid_user_backup(tmp_path, user_model_path, co
 	assert model.empty
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("content", [
 		pytest.param("valid", id="valid-default"),
 		pytest.param(None, id="missing-default"),
@@ -807,7 +805,6 @@ def test_get_astigmatism_model_default_only(pt, tmp_path, user_model_path, conte
 # ==================================================
 # region Filtrage
 # ==================================================
-##################################################
 def test_reset_filtered(capsys, pt):
 	"""Vérifie la suppréssion des tableaux filtrés."""
 
@@ -832,7 +829,7 @@ def test_reset_filtered(capsys, pt):
 		else: assert not pt.results[key].empty, "Le Dataframe doit subsister."
 
 
-##################################################
+# --------------------------------------------------
 def test_reset_filtered_saves_only_filters(pt, tmp_path):
 	"""Vérifie que Reset cible le traitement chargé et conserve les autres groupes."""
 	pt._path = str(tmp_path)
@@ -854,7 +851,7 @@ def test_reset_filtered_saves_only_filters(pt, tmp_path):
 	assert not pt.settings.filters["Plane"].active
 
 
-##################################################
+# --------------------------------------------------
 def test_update_filtered(capsys, pt):
 	"""Vérifie la mise à jour des tableaux filtrés."""
 	clean_output()
@@ -870,7 +867,7 @@ def test_update_filtered(capsys, pt):
 	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])  # Il n'a rien enregistré, car les filtres n'ont pas fait de changement.
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("key, filter_name", [
 		pytest.param("loc", "Plane", id="localizations-plane"),
 		pytest.param("trc", "Plane", id="tracks-plane"),
@@ -897,7 +894,7 @@ def test_update_button_does_not_accumulate_filters(qtbot, pt, key, filter_name):
 	pd.testing.assert_frame_equal(pt.results[key], source)
 
 
-##################################################
+# --------------------------------------------------
 def test_update_filtered_saves_only_filters(pt, tmp_path):
 	"""Vérifie qu'Update enregistre les filtres sans capturer les autres modifications."""
 	pt._path = str(tmp_path)
@@ -917,7 +914,7 @@ def test_update_filtered_saves_only_filters(pt, tmp_path):
 	assert actual["PALM Tracer Settings"]["Calibration"] == initial["PALM Tracer Settings"]["Calibration"]
 
 
-##################################################
+# --------------------------------------------------
 def test_save_filtered(capsys, pt):
 	"""Vérifie la mise à jour des tableaux filtrés."""
 	clean_output()
@@ -936,14 +933,14 @@ def test_save_filtered(capsys, pt):
 	check_output(OUTPUT_FOLDER, csv=[1])  # Il a enregistré la version filtrée.
 
 
-##################################################
+# --------------------------------------------------
 def test_connect_filters_button(qtbot, capsys, pt):
 	"""Vérifie la connexion des boutons de filtrage."""
 	pt.settings.get_ui("test")
 	pt.connect_filters_button("test")
 
 
-##################################################
+# --------------------------------------------------
 def test_filter_localization(capsys, pt, sequential_timestamps):
 	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
@@ -977,7 +974,7 @@ def test_filter_localization(capsys, pt, sequential_timestamps):
 	check_capsys(capsys, 18, [5, 9, 10, 11, 12, 13, 14, 15])
 
 
-##################################################
+# --------------------------------------------------
 def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 	"""Vérifie le filtrage complet lors de l'exécution."""
 	clean_output()
@@ -1033,7 +1030,7 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 # region Visualisation
 # ==================================================
 # region Graph
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode, source_type, source", [
 		pytest.param(mode, source_type, source, id=f"{mode_name}-{type_name}-{source}")
 		for mode, mode_name in enumerate(("histogram", "scatter", "dual"))
@@ -1068,7 +1065,7 @@ def test_graph(mode, source_type, source):
 	assert source in figure.layout.title.text
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
 def test_log_data(log_scale):
 	"""Vérifie le logarithme et les valeurs non positives sans modifier le tableau reçu."""
@@ -1079,7 +1076,7 @@ def test_log_data(log_scale):
 	np.testing.assert_array_equal(points, original)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("missing_column", [pytest.param(False, id="paired-values"), pytest.param(True, id="missing-source")])
 def test_get_graph_data_dual_localizations(pt, missing_column):
 	"""Vérifie l'ordre des sources et les métadonnées du Dual des localisations."""
@@ -1096,7 +1093,7 @@ def test_get_graph_data_dual_localizations(pt, missing_column):
 	np.testing.assert_array_equal(graph_data["data"], [] if missing_column else [[1, 2, 3], [4, 5, 6]])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, expected", [
 		pytest.param("Length", [[7.0, 10.0], [11.0, 20.0]], id="total-duration"),
 		pytest.param("Length On", [[2.5, 10.0], [1.0, 20.0]], id="present-duration"),
@@ -1122,7 +1119,7 @@ def test_get_graph_data_dual_tracks(source, expected):
 	np.testing.assert_array_equal(graph_data["data"], np.asarray(expected).T)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source_b", [pytest.param("Instant D", id="incompatible-dimensions"), pytest.param("MSE(0)", id="no-common-track")])
 def test_get_graph_data_dual_tracks_empty(pt, source_b):
 	"""Renvoie des données vides quand les sources ne peuvent pas être associées."""
@@ -1136,7 +1133,7 @@ def test_get_graph_data_dual_tracks_empty(pt, source_b):
 	assert pt._get_graph_data()["data"].size == 0
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source_type, mode, method, expected_args", [
 		pytest.param(0, 0, "_get_localization_graph_data", ("X", 0, True), id="localizations-histogram"),
 		pytest.param(0, 1, "_get_localization_graph_data", ("X", 1, True), id="localizations-scatter"),
@@ -1148,6 +1145,7 @@ def test_get_graph_data_from_src(pt, monkeypatch, source_type, mode, method, exp
 	graph_data = {"data": np.array([1.0]), "title": "Prepared data"}
 	calls = []
 
+	# --------------------------------------------------
 	def prepare(*args):
 		"""Conserve les paramètres reçus et renvoie le dictionnaire préparé."""
 		calls.append(args)
@@ -1159,7 +1157,7 @@ def test_get_graph_data_from_src(pt, monkeypatch, source_type, mode, method, exp
 	assert calls == [expected_args]
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", [pytest.param(0, id="histogram"), pytest.param(1, id="scatter"), pytest.param(2, id="dual")])
 @pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
 def test_get_localization_graph_data(pt, mode, log_scale):
@@ -1177,7 +1175,7 @@ def test_get_localization_graph_data(pt, mode, log_scale):
 	assert graph_data["title"] == "Localizations Integrated Intensity" + (" Mean per Plane" if mode == 1 else "")
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", [pytest.param(0, id="histogram"), pytest.param(1, id="scatter")])
 def test_get_localization_graph_data_count(pt, mode):
 	"""Vérifie les comptes par plan, y compris zéro sur un plan sans localisation."""
@@ -1187,7 +1185,7 @@ def test_get_localization_graph_data_count(pt, mode):
 	assert graph_data["title"] == "Localizations Count per Plane"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", [pytest.param(0, id="histogram"), pytest.param(1, id="scatter")])
 def test_get_localization_graph_data_empty(pt, mode):
 	"""Accepte des résultats de localisation vides."""
@@ -1196,7 +1194,7 @@ def test_get_localization_graph_data_empty(pt, mode):
 	assert graph_data["title"] == "Localizations X"
 
 
-##################################################
+# --------------------------------------------------
 def test_get_localization_graph_data_missing_column(pt):
 	"""Renvoie des données vides si la grandeur demandée n'existe pas."""
 	pt.results["loc"] = pd.DataFrame({"Plane": [1], "X": [2.0]})
@@ -1205,7 +1203,7 @@ def test_get_localization_graph_data_missing_column(pt):
 	assert graph_data["title"] == "Localizations Unknown"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, key, prefix, xlabel, ylabel", [
 		pytest.param("MSD", "MSD", "Step", "Step (planes)", "MSD (μm²)", id="msd"),
 		pytest.param("Instant D", "InD", "Window", "Window", "Instant D (μm²/s)", id="instant-diffusion")])
@@ -1229,7 +1227,7 @@ def test_get_track_scatter_data(pt, source, key, prefix, xlabel, ylabel, mean, l
 	assert graph_data.get("names") == (None if mean else ["Track 12", "Track 7"])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, method, expected_args, expected_names, ylabel", [
 		pytest.param("Integrated Intensity", "_get_track_intensity_data", (False,), ["Track 12", "Track 7"], "Integrated Intensity", id="intensity"),
 		pytest.param("Integrated Intensity Mean", "_get_track_intensity_data", (True,), None, "Integrated Intensity", id="mean-intensity"),
@@ -1241,6 +1239,7 @@ def test_get_track_scatter_data_metadata(pt, monkeypatch, source, method, expect
 	data = np.array([1.0])
 	calls = []
 
+	# --------------------------------------------------
 	def prepare(*args):
 		"""Conserve les paramètres transmis au calcul des données."""
 		calls.append(args)
@@ -1256,7 +1255,7 @@ def test_get_track_scatter_data_metadata(pt, monkeypatch, source, method, expect
 	assert graph_data.get("names") == expected_names
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source", [
 		pytest.param("MSD", id="msd"), pytest.param("Instant D Mean", id="mean-diffusion"),
 		pytest.param("Integrated Intensity", id="intensity"), pytest.param("Track Count", id="count")])
@@ -1267,7 +1266,7 @@ def test_get_track_scatter_data_empty(pt, source):
 	assert graph_data["title"] == f"Tracks {source}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, columns", [
 		pytest.param("MSD", {"Track": [1], "Unrelated": [2]}, id="missing-step"),
 		pytest.param("Instant D", {"Window 1": [2]}, id="missing-track-id"),
@@ -1280,7 +1279,7 @@ def test_get_track_scatter_data_missing_columns(pt, source, columns):
 	assert pt._get_track_scatter_data(source, False)["data"].size == 0
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source", [pytest.param("Unknown", id="unknown-source"), pytest.param("Track Count Mean", id="unsupported-mean")])
 def test_get_track_scatter_data_unknown_source(pt, source):
 	"""Renvoie un dictionnaire minimal pour les sources non prises en charge."""
@@ -1290,7 +1289,7 @@ def test_get_track_scatter_data_unknown_source(pt, source):
 	assert graph_data["title"] == f"Tracks {source}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, msd_step, expected_title, expected_data", [
 		pytest.param("MSD", 5, "Tracks MSD Step 5", [[81, 0.14]], id="msd-step-5"),
 		pytest.param("Instant D", 1, "Tracks Instant D", [4.51, 1.37, 3.04, 1.13, 1e-06, 1.99, 1e-06, 2.34, 0.81, 4.02,
@@ -1308,7 +1307,7 @@ def test_get_track_graph_data(source, msd_step, expected_title, expected_data):
 	np.testing.assert_array_equal(graph_data["data"], expected_data)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source", [pytest.param("MSD", id="msd"), pytest.param("Instant D", id="diffusion"), pytest.param("MSE(0)", id="fit")])
 def test_get_track_graph_data_empty(pt, source):
 	"""Accepte des analyses de trajectoire vides."""
@@ -1317,7 +1316,7 @@ def test_get_track_graph_data_empty(pt, source):
 	assert graph_data["title"] == f"Tracks {source}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, msd_step, expected_title", [
 		pytest.param("MSD", 9, "Tracks MSD Step 9", id="missing-msd-step"),
 		pytest.param("Unknown", 1, "Tracks Unknown", id="missing-fit-column")])
@@ -1330,7 +1329,7 @@ def test_get_track_graph_data_missing_column(source, msd_step, expected_title):
 	assert graph_data["title"] == expected_title
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, expected_limit, expected_bins", [
 		pytest.param("Instant D", 1e-5, None, id="instant-diffusion"),
 		pytest.param("D(0) (μm²/s)", 1e-5, None, id="diffusion"),
@@ -1350,7 +1349,7 @@ def test_get_track_graph_data_options(pt, source, expected_limit, expected_bins,
 	assert graph_data.get("bins") == expected_bins
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("source, expected_data", [
 		pytest.param("Length Scatter", [[1, 99], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2]], id="legacy-track-duration-pairs"),
 		pytest.param("Length", [99, 2, 2, 2, 2, 2, 2, 2, 2], id="total-duration"),
@@ -1362,20 +1361,20 @@ def test_get_track_length_data(source, expected_data):
 	np.testing.assert_array_equal(pt._get_track_length_data(source, False), expected_data)
 
 
-##################################################
+# --------------------------------------------------
 def test_get_track_length_data_empty(pt):
 	"""Accepte l'absence de trajectoires."""
 	assert pt._get_track_length_data("Length", False).shape == (0,)
 
 
-##################################################
+# --------------------------------------------------
 def test_get_track_length_data_unknown_source():
 	"""Renvoie des durées vides pour une source de longueur non prise en charge."""
 	pt = get_fake_pt()
 	assert pt._get_track_length_data("Length New", False).shape == (0,)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("with_track_ids, expected_shape", [pytest.param(False, (0,), id="durations"), pytest.param(True, (0, 2), id="track-duration-pairs")])
 def test_get_track_length_data_without_absence(pt, with_track_ids, expected_shape):
 	"""Ne crée pas de segment absent pour les trajectoires présentes sur tous leurs plans."""
@@ -1383,7 +1382,7 @@ def test_get_track_length_data_without_absence(pt, with_track_ids, expected_shap
 	assert pt._get_track_length_data("Length Off", with_track_ids).shape == expected_shape
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mean", [pytest.param(False, id="per-track"), pytest.param(True, id="mean")])
 @pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
 def test_get_track_intensity_data(pt, mean, log_scale):
@@ -1398,7 +1397,7 @@ def test_get_track_intensity_data(pt, mean, log_scale):
 	np.testing.assert_allclose(pt._get_track_intensity_data(mean, log_scale), expected, equal_nan=True)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("log_scale", [pytest.param(False, id="linear"), pytest.param(True, id="logarithmic")])
 def test_get_track_count_data(pt, log_scale):
 	"""Compte les tracks présents et absents sans compter deux fois les doublons ni exclure les intensités invalides."""
@@ -1412,7 +1411,7 @@ def test_get_track_count_data(pt, log_scale):
 # endregion Graph
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("shape", [
 		pytest.param(None, id="spots"), pytest.param(0, id="fixed-size"),
 		pytest.param(1, id="isotropic"), pytest.param(2, id="anisotropic")])
@@ -1450,7 +1449,7 @@ def test_hr_data_crop(shape, dimension):
 	assert pt.settings.rois.data_box == (-1, -1, -1, -1)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("dimension, raw, head, width", [
 		pytest.param(0, False, 1, 1, id="tracks-2d"),
 		pytest.param(3, False, 1, 1, id="track-stack"),
@@ -1509,7 +1508,7 @@ def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
 	assert rois.data_box == (-1, -1, -1, -1)
 
 
-##################################################
+# --------------------------------------------------
 def test_hr():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1614,7 +1613,7 @@ def test_hr():
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
 @pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
 @pytest.mark.parametrize("selection", [pytest.param("subset", id="excluded-points"), pytest.param("all", id="all-kept")])
@@ -1637,6 +1636,7 @@ def test_hr_filtered_plot_data(monkeypatch, dimension, key, selection):
 	prepared_lengths = []
 	correct_drift = pt._correct_drift
 
+	# --------------------------------------------------
 	def record_preparation(data):
 		"""Observe la préparation commune des localisations sans modifier leur traitement."""
 		prepared_lengths.append(len(data))
@@ -1662,7 +1662,7 @@ def test_hr_filtered_plot_data(monkeypatch, dimension, key, selection):
 	np.testing.assert_array_equal(data["plot_data"], reference["plot_data"])
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("filtered", [pytest.param(False, id="unfiltered"), pytest.param(True, id="filtered")])
 def test_hr_localization_z_source(pt, filtered):
 	"""Le rendu Z normalise les points conservés sur uint16 sans inclure les points exclus dans les extrema."""
@@ -1692,7 +1692,7 @@ def test_hr_localization_z_source(pt, filtered):
 	pd.testing.assert_frame_equal(pt.results["loc"], before)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
 def test_hr_filtered_points_all_removed_as_beads(pt, key):
 	"""Une sélection composée uniquement de billes ne produit aucun rendu HR."""
@@ -1715,7 +1715,7 @@ def test_hr_filtered_points_all_removed_as_beads(pt, key):
 	np.testing.assert_array_equal(data["plot_data"], np.zeros((1, 1)))
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_filter():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1762,7 +1762,7 @@ def test_hr_filter():
 	np.testing.assert_array_equal(plot, ref_plot)
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_track_crossing_roi():
 	"""Trace depuis le bord de la ROI un segment dont le premier point est extérieur."""
 	pt = PALMTracer()
@@ -1785,7 +1785,7 @@ def test_hr_track_crossing_roi():
 	np.testing.assert_array_equal(plot, [[1, 2, 2, 1]])
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_empty_roi_3d():
 	"""Génère un volume vide aux dimensions de la ROI lorsqu'elle ne contient aucune localisation."""
 	pt = get_fake_pt()
@@ -1807,7 +1807,7 @@ def test_hr_empty_roi_3d():
 	assert not np.any(viz)
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_z_stack():
 	"""Vérifie que les points vectoriels utilisent le même pas Z que le rendu."""
 	pt = get_fake_pt()
@@ -1832,7 +1832,7 @@ def test_hr_z_stack():
 	np.testing.assert_array_equal(plot, ref_plot)
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_rotation():
 	"""Vérifie différentes récupérations de données."""
 	pt = get_fake_pt()
@@ -1855,7 +1855,7 @@ def test_hr_rotation():
 	np.testing.assert_array_equal(plot, ref_plot)
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_stress():
 	"""Vérifie génération HR plus complexe."""
 	pt = PALMTracer()
@@ -1990,7 +1990,7 @@ def test_hr_stress():
 	np.testing.assert_array_equal(viz, ref)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("background", [False, True], ids=["no-background", "with-background"])
 @pytest.mark.parametrize("color_mode", [0, 1, 2], ids=["addition", "maximum", "minimum"])
 def test_hr_track_stack(monkeypatch, background, color_mode):
@@ -2024,7 +2024,7 @@ def test_hr_track_stack(monkeypatch, background, color_mode):
 	assert "visualization_track_stack_tracks" in pt.output_viz_name().name
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("crop, expected_box, expected_shape", [
 		pytest.param(False, (0, 5, 0, 5), (1, 5, 5), id="full-field"),
 		pytest.param(True, (1, 5, 1, 5), (1, 4, 4), id="auto-crop")])
@@ -2045,7 +2045,7 @@ def test_hr_track_stack_empty_roi(crop, expected_box, expected_shape):
 	assert not np.any(viz)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("raw_background, background_color, expected_shape", [
 		pytest.param(False, 20, (2, 3, 3), id="uniform-background"),
 		pytest.param(True, 0, (2, 3, 3, 3), id="raw-background"),
@@ -2076,7 +2076,7 @@ def test_hr_track_stack_crop_background(raw_background, background_color, expect
 	assert cropped.shape == expected_shape
 
 
-##################################################
+# --------------------------------------------------
 def test_hr_track_stack_dimension_switch(qtbot):
 	"""Vérifie le type sélectionné et la réactivation des localisations en quittant le mode animé."""
 	pt = PALMTracer()
@@ -2094,7 +2094,7 @@ def test_hr_track_stack_dimension_switch(qtbot):
 		s["Dimension"].value = 3
 
 
-##################################################
+# --------------------------------------------------
 def test_crop():
 	"""Vérifie la création du widget."""
 
@@ -2117,7 +2117,7 @@ def test_crop():
 	assert np.allclose(pt.crop(img), img)  # .					Crop à False, aucun changement dans l'image
 
 
-##################################################
+# --------------------------------------------------
 def test_crop_track_stack_rgb():
 	"""Préserve les trois canaux RGB, même si un seul canal est non nul ou si le volume est noir."""
 	pt = PALMTracer()

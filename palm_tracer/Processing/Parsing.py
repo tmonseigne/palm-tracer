@@ -70,7 +70,6 @@ TRACK_ANALYSIS_MIN = 1e-5  # .															  Valeur minimale au niveau des Ana
 # ==================================================
 # region Manipulation de DataFrame
 # ==================================================
-##################################################
 def apply_dataframe_type(data: pd.DataFrame, columns: list[str], numeric_type: str = "int32"):
 	"""
 	Force les colonnes en paramètres à adopter un type numérique.
@@ -85,7 +84,7 @@ def apply_dataframe_type(data: pd.DataFrame, columns: list[str], numeric_type: s
 		if key in data.columns: data[key] = pd.to_numeric(data[key], errors="coerce").astype(numeric_type)
 
 
-##################################################
+# --------------------------------------------------
 def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remaining: bool = True) -> pd.DataFrame:
 	"""
 	Réorganise les colonnes d'un DataFrame en mettant certaines en premier, avec l'option d'ajouter les colonnes restantes dans leur ordre d'origine.
@@ -109,7 +108,7 @@ def rearrange_dataframe_columns(data: pd.DataFrame, columns: list[str], remainin
 	return data.loc[:, columns]  # .											   Réorganisation du DataFrame
 
 
-##################################################
+# --------------------------------------------------
 def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	"""
 	Applique un log en base 10 sur certaines colonnes du DataFrame (remplace par Nan les valeurs inférieures ou égales à 0).
@@ -131,7 +130,6 @@ def log10_dataframe(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 # ==================================================
 # region Gestion des angles
 # ==================================================
-##################################################
 def degrees_to_radians(angle_deg: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	"""
 	Convertit des angles en degrés vers des radians.
@@ -145,7 +143,7 @@ def degrees_to_radians(angle_deg: np.ndarray | pd.Series | float | list) -> np.n
 	return np.asarray(angle_deg) * (np.pi / 180.0)
 
 
-##################################################
+# --------------------------------------------------
 def radians_to_degrees(angle_rad: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	"""
 	Convertit des angles en radians vers des degrés.
@@ -159,7 +157,7 @@ def radians_to_degrees(angle_rad: np.ndarray | pd.Series | float | list) -> np.n
 	return np.asarray(angle_rad) * (180.0 / np.pi)
 
 
-##################################################
+# --------------------------------------------------
 def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.pi, center: bool = True) -> np.ndarray:
 	"""
 	Contraint des angles dans un intervalle sélectionné, exemple avec :math:`length = \\pi` et un intervalle centré.
@@ -177,7 +175,7 @@ def wrap_angle(theta: np.ndarray | pd.Series | float | list, length: float = np.
 	return (np.asarray(theta) + low) % length - low
 
 
-##################################################
+# --------------------------------------------------
 def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 	"""
 	Contraint des angles en radians dans l'intervalle :math:`[-\\frac{\\pi}{2}, \\frac{\\pi}{2}[` (:func:`wrap_angle`).
@@ -197,7 +195,6 @@ def manage_theta(theta: np.ndarray | pd.Series | float | list) -> np.ndarray:
 # ==================================================
 # region Analyse
 # ==================================================
-##################################################
 def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	"""
 	Créer le DataFrame pour les informations meta (dimensions du fichier et calibration).
@@ -217,7 +214,7 @@ def get_meta(data: list | np.ndarray) -> pd.DataFrame:
 	return res
 
 
-##################################################
+# --------------------------------------------------
 def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
@@ -262,7 +259,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	if not rows: return pd.DataFrame()  # Aucun bloc valide avant un L<=0 ou tableau vide
 
 	max_len = max(len(r) for r in rows)
-	out = np.full((len(rows), max_len), np.nan, dtype=float)
+	out: np.ndarray = np.full((len(rows), max_len), np.nan, dtype=float)
 	for r_idx, r in enumerate(rows):
 		if r.size: out[r_idx, :r.size] = r
 
@@ -271,7 +268,7 @@ def parse_irregular_array(data: np.ndarray) -> pd.DataFrame:
 	return df
 
 
-##################################################
+# --------------------------------------------------
 def parse_result(data: np.ndarray, file_type: str = "Localization", fit_mode: int = 0) -> pd.DataFrame:
 	"""
 	Parsing du résultat de la DLL PALM.
@@ -291,7 +288,7 @@ def parse_result(data: np.ndarray, file_type: str = "Localization", fit_mode: in
 	"""
 	# Récupération des éléments
 	if file_type not in FILES_COLUMNS:
-		raise ValueError(f"file_type incorrect.")
+		raise ValueError("file_type incorrect.")
 	columns, types = FILES_COLUMNS[file_type]["columns"], FILES_COLUMNS[file_type]["types"]
 	n_columns = len(columns)
 

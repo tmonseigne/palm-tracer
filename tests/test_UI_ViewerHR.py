@@ -10,16 +10,16 @@ from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QPoint, QPointF, Qt
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QPushButton
 
-from tests.Utils import *
 from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, FileList
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI import BaseNapariWidget, PALMTracerWidget, ViewerHRWidget
+from tests.Utils import *
 
 INPUT_FILE = INPUT_DIR / "stack.tif"
 OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def stack_drop_widget(qtbot, monkeypatch):
 	"""Crée une fenêtre HR et observe le chargement puis l'actualisation sans génération de rendu."""
@@ -42,7 +42,7 @@ def stack_drop_widget(qtbot, monkeypatch):
 	return widget, receiver, calls
 
 
-##################################################
+# --------------------------------------------------
 def send_stack_drop(receiver, mime):
 	"""Envoie les événements Qt d'entrée, de déplacement et de dépôt d'une pile."""
 	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
@@ -52,7 +52,7 @@ def send_stack_drop(receiver, mime):
 	return enter, move, drop
 
 
-##################################################
+# --------------------------------------------------
 @pytest.fixture
 def generated_widget(qtbot, capsys):
 	"""Charge la pile et les résultats de référence pour les scénarios de génération HR."""
@@ -75,7 +75,7 @@ def generated_widget(qtbot, capsys):
 	return viewer, pt, w
 
 
-##################################################
+# --------------------------------------------------
 def flush_qt_delete_events():
 	"""Traite les événements Qt de suppression différée."""
 	QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
@@ -85,7 +85,6 @@ def flush_qt_delete_events():
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_widget_creation(qtbot):
 	"""Vérifie la création du widget."""
 	viewer = ViewerModel()
@@ -93,7 +92,7 @@ def test_widget_creation(qtbot):
 	qtbot.addWidget(w)
 
 
-##################################################
+# --------------------------------------------------
 def test_layer_styles_follow_shared_configuration(qtbot, monkeypatch, tmp_path):
 	"""Vérifie les styles personnalisés à la création, puis lors de la régénération des points HR."""
 	styles = deepcopy(BaseNapariWidget.LAYER_ARGS)
@@ -143,7 +142,7 @@ def test_layer_styles_follow_shared_configuration(qtbot, monkeypatch, tmp_path):
 		assert not layer.editable and layer.locked
 
 
-##################################################
+# --------------------------------------------------
 def test_results_status_automatic_update(qtbot):
 	"""Vérifie que les statuts sont actualisés directement par Results."""
 	viewer = ViewerModel()
@@ -158,7 +157,7 @@ def test_results_status_automatic_update(qtbot):
 	assert results_ui.labels["Beads"].text() == "Yes (2 localizations)"
 
 
-##################################################
+# --------------------------------------------------
 def test_widget_double_creation(qtbot):
 	"""
 	Vérifie Permettant de gérer la création en doublon de la même UI.
@@ -193,7 +192,6 @@ def test_widget_double_creation(qtbot):
 # ==================================================
 # region Glisser-déposer
 # ==================================================
-##################################################
 def test_stack_drop_loads_latest_results_and_actualizes(stack_drop_widget):
 	"""Vérifie l'ajout d'une pile, sa sélection, puis le chargement et l'actualisation dans cet ordre."""
 	widget, receiver, calls = stack_drop_widget
@@ -209,7 +207,7 @@ def test_stack_drop_loads_latest_results_and_actualizes(stack_drop_widget):
 	assert all(button.text() != "Add Stack" for button in widget.findChildren(QPushButton))
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["multiple", "mixed"], ids=["multiple-files", "local-and-remote"])
 def test_stack_drop_rejects_multiple_urls(stack_drop_widget, scenario):
 	"""Vérifie qu'un dépôt refusé ne modifie pas le Batch et ne charge aucun résultat."""
@@ -227,7 +225,7 @@ def test_stack_drop_rejects_multiple_urls(stack_drop_widget, scenario):
 	assert calls == []
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", [0, 1, 2], ids=["only-one", "each-file", "all-in-one"])
 @pytest.mark.parametrize("shared_main", [False, True], ids=["standalone-hr", "shared-main-widget"])
 def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, tmp_path, monkeypatch, qtbot, mode, shared_main):
@@ -259,6 +257,7 @@ def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, t
 	monkeypatch.setattr(pt, "is_dll_valid", lambda: True)
 	load_calls = []
 
+	# --------------------------------------------------
 	def load_results(path=""):
 		"""Observe les chemins transmis sans remplacer le véritable chargement."""
 		load_calls.append(Path(path))
@@ -289,7 +288,7 @@ def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, t
 	assert load_calls and all(path == dropped_folder for path in load_calls)
 
 
-##################################################
+# --------------------------------------------------
 def test_stack_drop_preserves_active_load_context(stack_drop_widget, monkeypatch):
 	"""Vérifie qu'un chargement imbriqué ne remplace pas le dossier ni le timestamp actifs."""
 	widget, _, calls = stack_drop_widget
@@ -305,13 +304,14 @@ def test_stack_drop_preserves_active_load_context(stack_drop_widget, monkeypatch
 	finally: pt._loading = False
 
 
-##################################################
+# --------------------------------------------------
 def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypatch):
 	"""Vérifie qu'une erreur de lecture n'empêche pas un chargement ultérieur sur la même instance."""
 	widget, _, calls = stack_drop_widget
 	pt = widget.pt
 	monkeypatch.setattr(pt, "load", PALMTracer.load.__get__(pt))
 
+	# --------------------------------------------------
 	def fail_load(_path):
 		"""Simule une erreur de lecture pendant le chargement protégé."""
 		raise OSError("Unreadable settings")
@@ -322,7 +322,7 @@ def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypat
 	assert not pt._loading
 	assert calls == []
 
-	loaded_folders = []
+	loaded_folders: list[str] = []
 	monkeypatch.setattr(pt, "_load_results", loaded_folders.append)
 	widget._add_stack(str(INPUT_FILE))
 	assert [Path(path) for path in loaded_folders] == [OUTPUT_FOLDER]
@@ -337,7 +337,6 @@ def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypat
 # ==================================================
 # region Liaison avec PALMTracer
 # ==================================================
-##################################################
 def test_check_beads(qtbot):
 	"""Vérifie le widget."""
 	viewer = ViewerModel()
@@ -352,7 +351,7 @@ def test_check_beads(qtbot):
 	assert not ui.boxes[0].isHidden()
 
 
-##################################################
+# --------------------------------------------------
 def test_add_stack(qtbot, capsys):
 	"""Vérifie le chargement d'une pile sans résultat enregistré."""
 	viewer = ViewerModel()
@@ -366,7 +365,7 @@ def test_add_stack(qtbot, capsys):
 	assert "No valid settings file to load." in lines[0]
 
 
-##################################################
+# --------------------------------------------------
 def test_actualize(qtbot):
 	"""Vérifie le widget."""
 	viewer = ViewerModel()
@@ -379,7 +378,7 @@ def test_actualize(qtbot):
 	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
 
 
-##################################################
+# --------------------------------------------------
 def test_save(qtbot):
 	"""Vérifie la création du widget."""
 	res_2d, res_3d = OUTPUT_DIR / "HR.png", OUTPUT_DIR / "HR.tif"
@@ -405,7 +404,7 @@ def test_save(qtbot):
 	res_2d.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
 
 
-##################################################
+# --------------------------------------------------
 def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatch):
 	"""Vérifie le bouton de capture et l'appel à l'API du viewer graphique, sans exécuter le rendu OpenGL."""
 	res = OUTPUT_DIR / "HR.png"
@@ -413,6 +412,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatc
 	viewer = make_napari_viewer()  # .			 	Créer un viewer à l'aide de la fixture.
 
 	# --- Mock screenshot ---
+	# --------------------------------------------------
 	def _fake_screenshot(self, path, canvas_only=True):
 		"""Fake screenshot : écrit un faux PNG."""
 		Path(path).write_bytes(b"fake png")
@@ -432,7 +432,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatc
 	res.unlink(missing_ok=True)  # .				Suppression du fichier de résultat s'il existe.
 
 
-##################################################
+# --------------------------------------------------
 def test_change_type(qtbot):
 	"""Vérifie le widget."""
 	viewer = ViewerModel()
@@ -453,7 +453,6 @@ def test_change_type(qtbot):
 # ==================================================
 # region Dessin
 # ==================================================
-##################################################
 def test_generate_bad(qtbot, capsys):
 	"""Vérifie le widget."""
 	viewer = ViewerModel()
@@ -485,7 +484,7 @@ def test_generate_bad(qtbot, capsys):
 	assert "WARNING: No visualization available." in lines[0]
 
 
-##################################################
+# --------------------------------------------------
 def test_generate(generated_widget, capsys):
 	"""Vérifie le widget."""
 	viewer, pt, w = generated_widget
@@ -515,7 +514,7 @@ def test_generate(generated_widget, capsys):
 	assert len(lines) == 0
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
 @pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
 @pytest.mark.parametrize("remove_beads", [pytest.param(False, id="keep-beads"), pytest.param(True, id="remove-beads")])
@@ -553,7 +552,7 @@ def test_generate_filtered_points(generated_widget, dimension, key, remove_beads
 	assert layer.data.shape == (0, 3)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", [pytest.param("tracking", id="tracking"), pytest.param("rotation", id="rotation")])
 def test_generate_clears_filtered_points_in_other_modes(generated_widget, mode):
 	"""Une transition vers les trajectoires ou la rotation supprime les points exclus du rendu précédent."""
@@ -575,7 +574,7 @@ def test_generate_clears_filtered_points_in_other_modes(generated_widget, mode):
 	if mode == "rotation": assert not layer.visible
 
 
-##################################################
+# --------------------------------------------------
 def test_generate_preserves_render_limits(generated_widget):
 	"""Le vrai rendu recadré et les points affichés utilisent le même cadre, y compris après régénération."""
 	viewer, pt, w = generated_widget
@@ -613,7 +612,7 @@ def test_generate_preserves_render_limits(generated_widget):
 	assert pt.settings.rois.hr_box == (width - 7, width, height - 7, height)  # Taille du padding autour du point unique
 
 
-##################################################
+# --------------------------------------------------
 def test_generate_restores_box_without_image(generated_widget, capsys):
 	"""Une génération sans résultat conserve l'image, les points et le cadre déjà affichés."""
 	viewer, pt, w = generated_widget
@@ -640,7 +639,7 @@ def test_generate_restores_box_without_image(generated_widget, capsys):
 	np.testing.assert_array_equal(w._layers[w.LAYERS_NAME[1]].data, previous_points)
 
 
-##################################################
+# --------------------------------------------------
 def test_generate_render_and_roi_transitions(qtbot):
 	"""
 	Enchaîne tous les rendus sur les mêmes viewers pour détecter une dérive du repère des ROI.
@@ -822,7 +821,7 @@ def test_generate_render_and_roi_transitions(qtbot):
 			elif stage == "return-auto": np.testing.assert_array_equal(image, initial_render, err_msg=context)
 
 
-##################################################
+# --------------------------------------------------
 def test_rotation_preserves_hidden_roi(generated_widget):
 	"""Conserve une ROI déjà masquée après plusieurs générations en rotation puis un retour en 2D."""
 	_, _, w = generated_widget
@@ -840,7 +839,7 @@ def test_rotation_preserves_hidden_roi(generated_widget):
 	assert w._roi_visibility_before_rotation is None
 
 
-##################################################
+# --------------------------------------------------
 def test_visualization_layer_rgb_transitions():
 	"""Vérifie les axes des rendus 2D et 3D lors des transitions, sans fenêtres ni OpenGL."""
 	viewer = ViewerModel()

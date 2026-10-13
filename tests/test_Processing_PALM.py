@@ -2,16 +2,15 @@
 
 import pytest
 
-from tests.Utils import *
 from palm_tracer.Processing import Palm, Parsing
 from palm_tracer.Processing.Parsing import MODEL_ROWS
 from palm_tracer.Tools import FileIO
+from tests.Utils import *
 
 
 # ==================================================
 # region Initialisation
 # ==================================================
-##################################################
 def test_palm_dll_valid():
 	"""Vérifie sur la présence d ela DLL PALM."""
 	palm = Palm()
@@ -25,7 +24,6 @@ def test_palm_dll_valid():
 # ==================================================
 # region Appels de la DLL
 # ==================================================
-##################################################
 def test_palm_cpu_empty_result():
 	"""Vérifie sur le lancement de PALM sur une noire."""
 	palm = Palm()
@@ -34,7 +32,7 @@ def test_palm_cpu_empty_result():
 	assert res.empty
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("p", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
 @pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
 def test_palm_cpu_image(p: int, fit: int):
@@ -56,7 +54,7 @@ def test_palm_cpu_image(p: int, fit: int):
 		assert compare_points(localizations, ref), f"Test invalide pour les paramètres {p}_{suffix}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("watershed", [True, False], ids=['with-watershed', 'no-watershed'])
 @pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
 def test_palm_cpu_stack(watershed: bool, fit: int):
@@ -78,7 +76,7 @@ def test_palm_cpu_stack(watershed: bool, fit: int):
 		assert compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
 
 
-##################################################
+# --------------------------------------------------
 def test_palm_cpu_stack_plane_selection():
 	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
@@ -96,7 +94,7 @@ def test_palm_cpu_stack_plane_selection():
 		assert compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
 
 
-##################################################
+# --------------------------------------------------
 def test_palm_cpu_stack_dll_check_quadrant():
 	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
@@ -122,7 +120,7 @@ def test_palm_cpu_stack_dll_check_quadrant():
 		assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("p", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
 def test_cpu_auto_threshold(p: int):
 	"""Vérifie l'auto-seuillage avec la DLL CPU."""
@@ -135,7 +133,7 @@ def test_cpu_auto_threshold(p: int):
 	assert is_closed(res, ref[p]), f"Le seuil pour l'image {p} vaut {res} au lieu de {ref[p]}"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("watershed", [True, False], ids=['with-watershed', 'no-watershed'])
 @pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
 def test_tracking(watershed: bool, fit: int):
@@ -162,7 +160,7 @@ def test_tracking(watershed: bool, fit: int):
 		Ui.print_warning(f"Fichier de localisations '{path}' indisponible.")
 
 
-##################################################
+# --------------------------------------------------
 def test_tracking_empty():
 	"""Vérifie les entrées sans localisation exploitable."""
 	palm = Palm()
@@ -173,7 +171,7 @@ def test_tracking_empty():
 	assert tracks.empty
 
 
-##################################################
+# --------------------------------------------------
 def test_tracking_discontinuous():
 	"""Vérifie sur le tracking avec un fichier qui possède des plans sans localisations."""
 	palm = Palm()
@@ -184,7 +182,7 @@ def test_tracking_discontinuous():
 		if save_output: tracks.round(6).to_csv(f"{OUTPUT_DIR}/discontinuous-tracking.csv", index=False)
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", range(3), ids=['stationary', 'diffusion', 'linear'])
 def test_blinking_reconnection(mode: int):
 	"""Vérifie la reconnexion et la conversion du nombre de plans manquants en écart entre plans."""
@@ -207,7 +205,7 @@ def test_blinking_reconnection(mode: int):
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
 
-##################################################
+# --------------------------------------------------
 def test_blinking_reconnection_empty():
 	"""Vérifie le retour vide sans trajectoire."""
 	palm = Palm()
@@ -215,7 +213,7 @@ def test_blinking_reconnection_empty():
 	assert tracks.empty
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("p", [True, False], ids=['ind-3d-enabled', 'ind-3d-disabled'])
 def test_track_analysis(p):
 	"""Vérifie les analyses des trajectoires avec ou sans diffusion instantanée et 3D."""
@@ -240,7 +238,7 @@ def test_track_analysis(p):
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("mode", range(4), ids=['no-fit', 'linear', 'power', 'exponential'])
 def test_track_analysis_fit_modes(mode: int):
 	"""Vérifie les quatre modes d’ajustement des trajectoires."""
@@ -265,7 +263,7 @@ def test_track_analysis_fit_modes(mode: int):
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("selection, is_msd, fit_length", [
 		pytest.param("all", False, 4, id="diffusion-without-msd"),
 		pytest.param("first", True, 18, id="single-observation"),
@@ -283,7 +281,7 @@ def test_track_analysis_small_inputs(selection, is_msd, fit_length):
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
 
-##################################################
+# --------------------------------------------------
 def test_align():
 	"""Vérifie le comportement de l'alignement."""
 	palm = Palm()
@@ -307,6 +305,7 @@ def test_align():
 	if save_output: FileIO.save_tif(aligned, f"{OUTPUT_DIR}/{file}-aligned-upsampling.tif")
 	assert aligned.shape == (z, 2 * h, 2 * w), "Mode Upscale : pour un stack 3D seule X et Y doivent être doublées."
 
+	# --------------------------------------------------
 	def up2_nn(arr):
 		"""Double les deux dimensions spatiales par répétition des pixels voisins."""
 		return np.repeat(np.repeat(arr, 2, axis=-2), 2, axis=-1)
@@ -325,7 +324,7 @@ def test_align():
 	assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgré la transposition."
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("level", range(5), ids=['level-0', 'level-1', 'level-2', 'level-3', 'level-4'])
 def test_wavelet(level: int):
 	"""Vérifie le comportement de récupérer un plan d'ondelette."""
@@ -340,7 +339,7 @@ def test_wavelet(level: int):
 	assert wavelet.shape == stack.shape, "Les dimensions doivent être identiques"
 
 
-##################################################
+# --------------------------------------------------
 @pytest.mark.parametrize("center, filename", [
 		pytest.param(False, "astigmatism_3d_model.csv", id="no-centering"),
 		pytest.param(True, "astigmatism_3d_model_centered.csv", id="centered-model")])
@@ -355,7 +354,7 @@ def test_astigmatism_3d_calibration(center, filename):
 	np.testing.assert_allclose(res, ref, atol=0.1, rtol=0)
 
 
-##################################################
+# --------------------------------------------------
 def test_astigmatism_3d_estimation():
 	"""Vérifie le comportement de l'estimation de l'astigmatisme 3D."""
 	palm = Palm()

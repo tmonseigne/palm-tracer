@@ -22,7 +22,7 @@ _STATUS_TOOLTIPS = {
 		}
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class ResultsUI:
 	"""
@@ -53,7 +53,7 @@ class ResultsUI:
 	open_folder_button: QPushButton = field(init=False)
 	"""Bouton d'ouverture du dossier de résultats."""
 
-	##################################################
+	# --------------------------------------------------
 	def __post_init__(self):
 		"""Construit les composants Qt de la vue."""
 		self.widget = QGroupBox(self.title)
@@ -82,7 +82,6 @@ class ResultsUI:
 	# ==================================================
 	# region Mise à jour
 	# ==================================================
-	##################################################
 	def update_status(self, status: Mapping[str, str]):
 		"""
 		Actualise les statuts affichés.
@@ -97,7 +96,7 @@ class ResultsUI:
 			self.labels[key].setText(Path(value).name if key == "File" else value)
 			if key == "File": self.labels[key].setToolTip(value if value != "No File" else "")
 
-	##################################################
+	# --------------------------------------------------
 	def update_results_folder(self, path: Path | None):
 		"""
 		Actualise la disponibilité du bouton et son infobulle.
@@ -108,7 +107,7 @@ class ResultsUI:
 		self.open_folder_button.setToolTip(str(path) if path is not None else "")
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 
