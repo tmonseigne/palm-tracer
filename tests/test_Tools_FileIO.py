@@ -2,6 +2,7 @@
 
 import ctypes
 from datetime import datetime
+from pathlib import Path
 from typing import Literal
 from unittest.mock import Mock
 
@@ -10,6 +11,7 @@ import tifffile
 
 from palm_tracer.Tools import FileIO
 from tests.Utils import *
+from tests.Utils import strip_ansi
 
 REF_DICT = {"First param":  [0, 1, 2],
 			"2nd param":    True,
@@ -89,6 +91,30 @@ def test_get_last_file_not_found(tmp_path, folder_exists):
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("stage", ["list", "stat"], ids=["directory-unreadable", "file-disappeared"])
+def test_get_last_file_io_error(tmp_path, monkeypatch, capsys, stage):
+	"""Renvoie un chemin vide et signale une erreur pendant la recherche ou le tri des fichiers."""
+	(tmp_path / "File-01.txt").touch()
+	operation = "iterdir" if stage == "list" else "stat"
+	original = getattr(Path, operation)
+	if stage == "stat":
+		# Le fichier disparaît après le filtrage is_file(), pendant le tri par date.
+		original_is_file = Path.is_file
+		monkeypatch.setattr(Path, "is_file", lambda path: True if path.name == "File-01.txt" else original_is_file(path))
+
+	# Limite l'erreur à la lecture du dossier ou aux métadonnées du fichier recherché.
+	def fail_access(path, *args, **kwargs):
+		"""Simule une erreur d'accès ciblée."""
+		if (stage == "list" and path == tmp_path) or (stage == "stat" and path.name == "File-01.txt"):
+			raise OSError("Access denied")
+		return original(path, *args, **kwargs)
+
+	monkeypatch.setattr(Path, operation, fail_access)
+	assert FileIO.get_last_file(tmp_path, "File", "time") == ""
+	assert "Error while searching for the file: Access denied" in capsys.readouterr().out
+
+
+# --------------------------------------------------
 @pytest.mark.parametrize("filename, expected", [
 		pytest.param("", "", id="empty-name"), pytest.param("filename", "", id="no-extension"),
 		pytest.param("filename.json", "", id="no-suffix"), pytest.param("filename-01.json", "01", id="single-suffix"),
@@ -117,6 +143,27 @@ def test_cleanup_process_missing_folder(tmp_path):
 	folder = tmp_path / "missing"
 	FileIO.cleanup_process(folder, "0")
 	assert not folder.exists()
+
+
+# --------------------------------------------------
+def test_cleanup_process_delete_error(tmp_path, monkeypatch, capsys):
+	"""Signale une suppression impossible et poursuit le nettoyage des autres fichiers administratifs."""
+	blocked = tmp_path / "settings-0.json"
+	removable = tmp_path / "log-0.log"
+	for path in (blocked, removable): path.touch()
+	original_unlink = Path.unlink
+
+	# Refuse uniquement la suppression du fichier de paramètres.
+	def fail_unlink(p, *args, **kwargs):
+		"""Conserve le fichier bloqué et supprime normalement les autres."""
+		if p == blocked: raise PermissionError("File locked")
+		return original_unlink(p, *args, **kwargs)
+
+	monkeypatch.setattr(Path, "unlink", fail_unlink)
+	FileIO.cleanup_process(tmp_path, "0")
+	assert blocked.exists()
+	assert not removable.exists()
+	assert "Unable to delete previous process file 'settings-0.json': File locked" in strip_ansi(capsys.readouterr().out)
 
 
 # --------------------------------------------------
@@ -159,6 +206,10 @@ def test_open_json_bad_file():
 
 # ==================================================
 # region Entrées-sorties TIFF
+# ==================================================
+
+# ==================================================
+# region Écriture et relecture
 # ==================================================
 @pytest.mark.parametrize("image", [pytest.param(REF_STACK, id="stack"), pytest.param(REF_GRADIENT, id="2d-image")])
 def test_tif_roundtrip(image, tmp_path):
@@ -206,7 +257,13 @@ def test_save_tif_bad_stack(shape, tmp_path):
 	with pytest.raises(ValueError): FileIO.save_tif(np.zeros(shape), tmp_path / "invalid.tif")
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Écriture et relecture
+# ==================================================
+
+# ==================================================
+# region Dimensions et pixels
+# ==================================================
 @pytest.mark.parametrize("shape, expected", [
 		pytest.param((4, 5), (1, 4, 5), id="single-image"),
 		pytest.param((3, 4, 5), (3, 4, 5), id="stack")])
@@ -226,15 +283,6 @@ def test_read_tif_shape_single_image(tmp_path):
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("filename, error", [
-		pytest.param("bad_filename.tif", OSError, id="missing-file"),
-		pytest.param(INPUT_DIR / "stack4D.tif", ValueError, id="invalid-dimensions")])
-def test_read_tif_shape_bad_file(filename, error):
-	"""Vérifie les erreurs de lecture des dimensions TIFF."""
-	with pytest.raises(error): FileIO.read_tif_shape(filename)
-
-
-# --------------------------------------------------
 def test_open_tif():
 	"""Vérifie la fonction open_tif."""
 	stack = FileIO.open_tif(f"{INPUT_DIR}/stack2D.tif")
@@ -242,12 +290,19 @@ def test_open_tif():
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("filename, error", [
-		pytest.param("bad_filename.png", OSError, id="missing-file"),
-		pytest.param(INPUT_DIR / "stack4D.tif", ValueError, id="invalid-dimensions")])
-def test_open_tif_bad_file(filename, error):
-	"""Vérifie les erreurs de lecture pour un fichier absent ou incompatible."""
-	with pytest.raises(error): FileIO.open_tif(filename)
+@pytest.mark.parametrize("reader, filename, error", [
+		pytest.param(FileIO.read_tif_shape, "bad_filename.tif", OSError, id="shape-missing-file"),
+		pytest.param(FileIO.read_tif_shape, INPUT_DIR / "stack4D.tif", ValueError, id="shape-invalid-dimensions"),
+		pytest.param(FileIO.open_tif, "bad_filename.png", OSError, id="pixels-missing-file"),
+		pytest.param(FileIO.open_tif, INPUT_DIR / "stack4D.tif", ValueError, id="pixels-invalid-dimensions")])
+def test_tif_read_errors(reader, filename, error):
+	"""Vérifie le même rejet des fichiers absents ou incompatibles pour les dimensions et les pixels TIFF."""
+	with pytest.raises(error): reader(filename)
+
+
+# ==================================================
+# endregion Dimensions et pixels
+# ==================================================
 
 
 # ==================================================
@@ -295,19 +350,20 @@ def test_save_png_bad_sample(tmp_path):
 # ==================================================
 # region Entrées-sorties MATLAB
 # ==================================================
+def test_open_calibration_mat():
+	"""Vérifie les dimensions des coefficients de calibration MATLAB."""
+	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
+	res, ref = calib["coeff"].shape, (14, 14, 6, 64)
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+
+
+# --------------------------------------------------
 def test_open_calibration_mat_bad_file():
 	"""Vérifie le rejet d’un fichier de calibration MATLAB inexistant."""
 	with pytest.raises(OSError) as exception_info:
 		_ = FileIO.open_calibration_mat("bad_filename.mat")
 	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 
-
-# --------------------------------------------------
-def test_open_calibration_mat():
-	"""Vérifie les dimensions des coefficients de calibration MATLAB."""
-	calib = FileIO.open_calibration_mat(f"{INPUT_DIR}/calibration.mat")
-	res, ref = calib["coeff"].shape, (14, 14, 6, 64)
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 # ==================================================
 # endregion Entrées-sorties MATLAB

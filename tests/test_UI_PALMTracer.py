@@ -1,20 +1,36 @@
 """Teste le widget principal de PALM Tracer."""
 
+from importlib import import_module
+from types import SimpleNamespace
+from unittest.mock import Mock, PropertyMock
+
+import numpy as np
 import pytest
 from napari.components import ViewerModel
 from qtpy.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QTabWidget
 
-from palm_tracer.Tools.FileIO import USER_SETTINGS_FILE
+from palm_tracer.Tools import FileIO
 from palm_tracer.UI import PALMTracerWidget
 from tests.Utils import *
+from tests.Utils import add_basic_file
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = np.stack([rng.uniform(1, SIZE_Y - 1, size=SIZE), rng.uniform(1, SIZE_X - 1, size=SIZE)], axis=1)
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
+
+
+# --------------------------------------------------
+@pytest.fixture
+def callback_widget(qtbot, monkeypatch):
+	"""Crée un widget sans chargement initial ni lancement automatique de traitement pendant les tests de callbacks."""
+	monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
+	monkeypatch.setattr(PALMTracerWidget, "_connect_signal", lambda self: None)
+	w = PALMTracerWidget(ViewerModel())
+	qtbot.addWidget(w)
+	return w
 
 
 # --------------------------------------------------
@@ -54,24 +70,31 @@ def send_file_drop(receiver, mime):
 # ==================================================
 def test_creation(qtbot):
 	"""Vérifie la création du widget."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)  # On supprime le fichier setting
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
 
 
 # --------------------------------------------------
-def test_filters_button(qtbot):
+def test_threading_import_fallback(import_without_dependency):
+	"""Utilise les workers SuperQt lorsque l'import public de Napari n'est pas disponible."""
+	from superqt.utils import FunctionWorker, thread_worker
+
+	module = import_without_dependency(PALMTracerWidget.__module__, "napari.qt.threading")
+	assert module.FunctionWorker is FunctionWorker
+	assert module.thread_worker is thread_worker
+
+
+# --------------------------------------------------
+def test_filters_button(qtbot, input_stack, output_folder):
 	"""Vérifie le comportement du bouton de filtrage."""
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 
 	qtbot.addWidget(w)
 	w.show()
 
-	add_basic_file(w.pt)  # .									Ajout d'une entrée
+	add_basic_file(w.pt, [str(input_stack)])  # .				Ajout d'une entrée
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 
 	# Activation d'un process
@@ -101,7 +124,7 @@ def test_filters_button(qtbot):
 	assert len(w.pt.results["f_loc"]) == 242
 
 	qtbot.mouseClick(ui_buttons["save"], Qt.MouseButton.LeftButton)
-	f = FileIO.get_last_file(OUTPUT_FOLDER, "localizations_filtered")
+	f = FileIO.get_last_file(output_folder, "localizations_filtered")
 	assert f
 
 	qtbot.mouseClick(ui_buttons["reset"], Qt.MouseButton.LeftButton)
@@ -129,7 +152,7 @@ def test_drop_adds_files_from_window(drop_widget, tmp_path, count):
 	assert all(event.isAccepted() for event in events)
 	assert receiver.received == []
 	files = widget.pt.settings.batch["Files"]
-	assert [Path(path) for path in files.items] == sorted(paths, key=lambda path: str(path).casefold())
+	assert [Path(p) for p in files.items] == sorted(paths, key=lambda p: str(p).casefold())
 	assert files.value == count - 1
 
 
@@ -157,9 +180,8 @@ def test_drop_rejects_files_during_processing(drop_widget, tmp_path):
 # ==================================================
 # region Threads
 # ==================================================
-def test_thread_process(qtbot):
+def test_thread_process(qtbot, input_stack):
 	"""Vérifie le clic sur le bouton process."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -173,7 +195,7 @@ def test_thread_process(qtbot):
 	w._processing = False
 
 	# Ajout d'une entrée
-	add_basic_file(w.pt)  # .									Ajout d'une entrée
+	add_basic_file(w.pt, [str(input_stack)])  # .				Ajout d'une entrée
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 	w._thread_process(w.pt.process)  # .						Appel de la méthode process
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
@@ -188,9 +210,47 @@ def test_thread_process(qtbot):
 # ==================================================
 # region Fonctions de rappel des paramètres
 # ==================================================
+def test_load_setting_restores_values(callback_widget, tmp_path, monkeypatch):
+	"""Restaure les paramètres puis désactive les filtres et la prévisualisation avant de synchroniser les ROI."""
+	w = callback_widget
+	module = import_module(PALMTracerWidget.__module__)
+	info = Mock()
+	monkeypatch.setattr(module, "show_info", info)
+	update_rois = Mock(wraps=w.pt.settings.rois.update_main)
+	monkeypatch.setattr(w.pt.settings.rois, "update_main", update_rois)
+
+	# Enregistre une configuration distincte de l'état courant, avec des options à désactiver au chargement.
+	w.pt.settings.calibration["Pixel Size"].value = 0.32
+	w.pt.settings.localization["Preview"].value = True
+	w.pt.settings.filters["Plane"].active = True
+	path = tmp_path / "settings.json"
+	FileIO.save_json(path, w.pt.settings.to_compact_dict())
+	w.pt.settings.calibration["Pixel Size"].value = 0.16
+
+	w._load_setting(path)
+	assert w.pt.settings.calibration["Pixel Size"].value == 0.32
+	assert not w.pt.settings.localization["Preview"].value
+	assert not w.pt.settings.filters["Plane"].active
+	update_rois.assert_called_once_with()
+	info.assert_called_once_with(f"Loading the setting file '{path}'.")
+
+
+# --------------------------------------------------
+def test_load_setting_invalid_json(callback_widget, tmp_path, monkeypatch):
+	"""Signale un fichier JSON invalide sans propager l'erreur au callback Qt."""
+	w = callback_widget
+	path = tmp_path / "settings.json"
+	path.write_text("invalid json", encoding="utf-8")
+	warning = Mock()
+	monkeypatch.setattr(import_module(PALMTracerWidget.__module__), "show_warning", warning)
+	w._load_setting(path)
+	warning.assert_called_once()
+	assert f"Error loading file '{path}':" in warning.call_args.args[0]
+
+
+# --------------------------------------------------
 def test_on_load_setting(qtbot, capsys, fake_qfiledialog):
 	"""Vérifie la remise à zéro des calques."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -202,7 +262,6 @@ def test_on_load_setting(qtbot, capsys, fake_qfiledialog):
 # --------------------------------------------------
 def test_reset_setting(qtbot):
 	"""Vérifie la remise à zéro des calques."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -217,9 +276,12 @@ def test_reset_setting(qtbot):
 # ==================================================
 # region Fonctions de rappel des calques
 # ==================================================
+
+# ==================================================
+# region Nettoyage et chargement de la pile
+# ==================================================
 def test_clean_layer(qtbot):
 	"""Vérifie le nettoyage des calques."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -231,17 +293,15 @@ def test_clean_layer(qtbot):
 
 
 # --------------------------------------------------
-def test_reset_layer(capsys, qtbot):
+def test_reset_layer(capsys, qtbot, input_stack):
 	"""Vérifie la remise à zéro des calques."""
-	clean_output()
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
 
 	w._reset_layer()  # .											   Remise à 0 des calques sans fichier dans le batch.
 	w._layers["Raw"].visible = False
-	add_basic_file(w.pt)  # .										   Ajout d'une entrée
+	add_basic_file(w.pt, [str(input_stack)])  # .					   Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 	assert not w._layers["Raw"].visible
 	lines = get_lines_output(capsys)
@@ -251,9 +311,47 @@ def test_reset_layer(capsys, qtbot):
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("stage", ["read", "selection"], ids=["unreadable-stack", "selection-failed"])
+def test_reset_layer_error(callback_widget, input_stack, monkeypatch, stage):
+	"""Signale une erreur de lecture ou de sélection sans laisser le callback de changement de pile lever une exception."""
+	w = callback_widget
+	add_basic_file(w.pt, [str(input_stack)])
+	module = import_module(PALMTracerWidget.__module__)
+	error, info = Mock(), Mock()
+	monkeypatch.setattr(module, "show_error", error)
+	monkeypatch.setattr(module, "show_info", info)
+	load = Mock()
+	monkeypatch.setattr(w.pt, "load", load)
+
+	# La sélection est simulée après les vraies mises à jour de la pile et du calque Raw.
+	if stage == "read": monkeypatch.setattr(FileIO, "open_tif", Mock(side_effect=OSError("Unreadable stack")))
+	else:
+		selection = Mock()
+		monkeypatch.setattr(type(selection), "active", PropertyMock(side_effect=RuntimeError("Selection unavailable")), raising=False)
+		monkeypatch.setattr(w, "viewer", SimpleNamespace(layers=SimpleNamespace(selection=selection), dims=Mock(), reset_view=Mock()))
+	w._reset_layer()
+
+	error.assert_called_once()
+	if stage == "read":
+		assert error.call_args.args[0] == f"Error loading {input_stack}: Unreadable stack"
+		load.assert_not_called()
+		info.assert_not_called()
+	else:
+		assert error.call_args.args[0] == "Error during layer selection: Selection unavailable"
+		load.assert_called_once_with(str(input_stack.with_name(f"{input_stack.stem}_PALM_Tracer")))
+		info.assert_called_once()
+		assert w._current_stack.shape == (10, 128, 256)
+
+
+# ==================================================
+# endregion Nettoyage et chargement de la pile
+# ==================================================
+
+# ==================================================
+# region Calques de détection
+# ==================================================
 def test_add_detection_layers(qtbot):
 	"""Vérifie Ajout des calques de détection."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -293,15 +391,20 @@ def test_add_detection_layers(qtbot):
 	assert len(w._layers["Points Future"].data) == 707
 
 
-# --------------------------------------------------
-def test_get_actual_image(qtbot):
+# ==================================================
+# endregion Calques de détection
+# ==================================================
+
+# ==================================================
+# region Prévisualisation et seuil automatique
+# ==================================================
+def test_get_actual_image(qtbot, input_stack):
 	"""Vérifie la récupération d'image."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
 
-	add_basic_file(w.pt)  # .															 Ajout d'une entrée
+	add_basic_file(w.pt, [str(input_stack)])  # .										 Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # .				 Attente : qu'il ait mis une image
 	assert w._get_actual_image() is not None, "Aucune image récupéré."  # .				 Récupération de l'image
 	assert w._get_actual_image(-100) is None, "Une image hors limite a été récupéré."  # Récupération d'une image hors limite
@@ -309,9 +412,8 @@ def test_get_actual_image(qtbot):
 
 
 # --------------------------------------------------
-def test_preview(capsys, qtbot):
+def test_preview(capsys, qtbot, input_stack):
 	"""Vérifie le clic sur le bouton preview."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -325,7 +427,7 @@ def test_preview(capsys, qtbot):
 		w._preview()  # .										Passage par le point get_actual_image = None pour le temps présent.
 
 	# Ajout d'une entrée
-	add_basic_file(w.pt)  # .									Ajout d'une entrée.
+	add_basic_file(w.pt, [str(input_stack)])  # .				Ajout d'une entrée.
 	qtbot.waitUntil(lambda: "Raw" in layers, timeout=5000)  # .	Attente : qu'il ait mis une image.
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : le flag doit passer à False.
 
@@ -367,14 +469,27 @@ def test_preview(capsys, qtbot):
 
 
 # --------------------------------------------------
-def test_preview_plane_filter_uses_stack_plane(qtbot):
+def test_preview_fit_error(callback_widget, monkeypatch):
+	"""Propage une configuration d'ajustement invalide avant tout calcul de localisation."""
+	w = callback_widget
+	w.pt.settings.localization["Preview"].value = True
+	# Fournit une image valide pour atteindre la lecture des paramètres d'ajustement.
+	monkeypatch.setattr(w, "_get_actual_image", lambda offset=0: np.zeros((1, 4, 4), dtype=np.uint16))
+	monkeypatch.setattr(w.pt.settings.localization, "get_fit", Mock(side_effect=ValueError("Invalid fit")))
+	localize = Mock()
+	monkeypatch.setattr(w.pt.palm, "localization", localize)
+	with pytest.raises(ValueError, match="Invalid fit"): w._preview()
+	localize.assert_not_called()
+
+
+# --------------------------------------------------
+def test_preview_plane_filter_uses_stack_plane(qtbot, input_stack):
 	"""Vérifie que le filtre utilise les numéros réels des plans prévisualisés."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
 
-	add_basic_file(w.pt)
+	add_basic_file(w.pt, [str(input_stack)])
 	qtbot.waitUntil(lambda: "Raw" in viewer.layers, timeout=5000)
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)
 	viewer.dims.set_current_step(0, 4)  # Le cinquième plan a pour indice 4 dans Napari.
@@ -400,9 +515,8 @@ def test_preview_plane_filter_uses_stack_plane(qtbot):
 
 
 # --------------------------------------------------
-def test_auto_threshold(capsys, qtbot):
+def test_auto_threshold(capsys, qtbot, input_stack):
 	"""Vérifie le clic sur le bouton auto_threshold."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -410,12 +524,18 @@ def test_auto_threshold(capsys, qtbot):
 	w._auto_threshold()  # .										   Appel de la méthode auto_threshold sans fichier dans le batch.
 
 	# Ajout d'une entrée
-	add_basic_file(w.pt)  # .										   Ajout d'une entrée
+	add_basic_file(w.pt, [str(input_stack)])  # .					   Ajout d'une entrée
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 	w._auto_threshold()  # .										   Appel de la méthode auto_threshold.
 
 	lines = get_lines_output(capsys)
 	assert "Auto Threshold: 63.95" in lines[-1]
+
+
+# ==================================================
+# endregion Prévisualisation et seuil automatique
+# ==================================================
+
 
 # ==================================================
 # endregion Fonctions de rappel des calques

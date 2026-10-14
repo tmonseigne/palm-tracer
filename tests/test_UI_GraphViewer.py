@@ -11,8 +11,6 @@ from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, Combo, FileList
 from palm_tracer.UI import GraphViewerWidget
 from tests.Utils import *
 
-OUTPUT_DIR = INPUT_DIR / "stack_PALM_Tracer"
-INPUT_FILE = INPUT_DIR / "stack.tif"
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
 rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
@@ -48,9 +46,9 @@ def send_stack_drop(receiver, mime):
 
 # --------------------------------------------------
 @pytest.fixture
-def w() -> GraphViewerWidget:
+def w(input_stack) -> GraphViewerWidget:
 	"""Instance fraîche de GraphViewerWidget pour chaque test."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	w = GraphViewerWidget(pt)
 	return w
 
@@ -88,11 +86,11 @@ def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
 
 
 # --------------------------------------------------
-def test_widget_double_creation(qtbot):
+def test_widget_double_creation(qtbot, input_stack):
 	"""Vérifie Permettant de gérer la création en doublon de la même UI."""
 
 	"""Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 
 	w = GraphViewerWidget(pt)
 	w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
@@ -121,7 +119,7 @@ def test_widget_double_creation(qtbot):
 # region Glisser-déposer
 # ==================================================
 @pytest.mark.parametrize("scenario", ["hidden", "deleted", "non-widget"], ids=["hidden-window", "deleted-window", "non-widget-receiver"])
-def test_stack_drop_ignores_inactive_target(stack_drop_widget, scenario):
+def test_stack_drop_ignores_inactive_target(stack_drop_widget, scenario, input_stack):
 	"""Vérifie qu'un événement tardif ou sans destinataire QWidget n'est pas intercepté."""
 	widget, calls = stack_drop_widget
 	receiver = widget._web
@@ -134,7 +132,7 @@ def test_stack_drop_ignores_inactive_target(stack_drop_widget, scenario):
 		widget._drop_window = window
 	else: receiver = QObject(widget)
 	mime = QMimeData()
-	mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+	mime.setUrls([QUrl.fromLocalFile(str(input_stack))])
 	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 
 	# Après masquage, le filtre est retiré de l'application : on simule directement un événement tardif.
@@ -146,11 +144,11 @@ def test_stack_drop_ignores_inactive_target(stack_drop_widget, scenario):
 
 # --------------------------------------------------
 @pytest.mark.parametrize("target", ["window", "button", "scroll", "graph"], ids=["window", "action-button", "scroll-viewport", "graph-area"])
-def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target):
+def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target, input_stack, output_folder):
 	"""Vérifie l'ajout, le chargement du dossier des résultats et le tracé depuis chaque zone."""
 	widget, calls = stack_drop_widget
 	mime = QMimeData()
-	mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+	mime.setUrls([QUrl.fromLocalFile(str(input_stack))])
 	targets = {"window": widget, "button": widget._btn_actualize, "scroll": widget.findChild(QScrollArea).viewport(), "graph": widget._web}
 
 	events = send_stack_drop(targets[target], mime)
@@ -158,18 +156,18 @@ def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target):
 	assert widget._drop_window is widget
 	assert all(event.isAccepted() for event in events)
 	assert widget._web.received == []
-	assert [Path(path) for path in widget.pt.settings.batch["Files"].items] == [INPUT_FILE]
-	assert calls == [("load", OUTPUT_DIR), ("plot", INPUT_FILE)]
+	assert [Path(path) for path in widget.pt.settings.batch["Files"].items] == [input_stack]
+	assert calls == [("load", output_folder), ("plot", input_stack)]
 	assert all(button.text() != "Add Stack" for button in widget.findChildren(QPushButton))
 
 
 # --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["multiple", "mixed", "directory", "missing"], ids=["multiple-files", "local-and-remote", "directory", "missing-file"])
-def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario):
+def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario, input_stack):
 	"""Vérifie qu'un dépôt refusé ne modifie pas le Batch et ne redessine pas le graphe."""
 	widget, calls = stack_drop_widget
-	urls = {"multiple":  [QUrl.fromLocalFile(str(INPUT_FILE))] * 2,
-			"mixed":     [QUrl.fromLocalFile(str(INPUT_FILE)), QUrl("https://example.com/stack.tif")],
+	urls = {"multiple":  [QUrl.fromLocalFile(str(input_stack))] * 2,
+			"mixed":     [QUrl.fromLocalFile(str(input_stack)), QUrl("https://example.com/stack.tif")],
 			"directory": [QUrl.fromLocalFile(str(tmp_path))],
 			"missing":   [QUrl.fromLocalFile(str(tmp_path / "missing.tif"))]}
 	mime = QMimeData()
@@ -185,7 +183,7 @@ def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario)
 
 # --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["other-window", "remote", "text"], ids=["other-window", "remote-url", "internal-text"])
-def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenario):
+def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenario, input_stack):
 	"""Vérifie que le filtre laisse les autres fenêtres et les glissements sans fichier local inchangés."""
 	widget, calls = stack_drop_widget
 	receiver = widget._web
@@ -194,7 +192,7 @@ def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenari
 		receiver = DropReceiver()
 		qtbot.addWidget(receiver)
 		receiver.show()
-		mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+		mime.setUrls([QUrl.fromLocalFile(str(input_stack))])
 	elif scenario == "remote": mime.setUrls([QUrl("https://example.com/stack.tif")])
 	else: mime.setText("graph")
 
@@ -207,7 +205,7 @@ def test_stack_drop_preserves_unrelated_events(stack_drop_widget, qtbot, scenari
 
 # --------------------------------------------------
 @pytest.mark.parametrize("initial_accepts", [False, True], ids=["drops-disabled", "drops-enabled"])
-def test_stack_drop_follows_visibility(stack_drop_widget, initial_accepts):
+def test_stack_drop_follows_visibility(stack_drop_widget, initial_accepts, input_stack, output_folder):
 	"""Vérifie la restauration des dépôts et l'installation du filtre après ré-affichage."""
 	widget, calls = stack_drop_widget
 	widget.hide()
@@ -219,12 +217,12 @@ def test_stack_drop_follows_visibility(stack_drop_widget, initial_accepts):
 	assert widget.acceptDrops() == initial_accepts
 	widget.show()
 	mime = QMimeData()
-	mime.setUrls([QUrl.fromLocalFile(str(INPUT_FILE))])
+	mime.setUrls([QUrl.fromLocalFile(str(input_stack))])
 
 	send_stack_drop(widget._web, mime)
 
 	assert widget._web.received == []
-	assert calls == [("load", OUTPUT_DIR), ("plot", INPUT_FILE)]
+	assert calls == [("load", output_folder), ("plot", input_stack)]
 
 
 # ==================================================
@@ -252,17 +250,17 @@ def test_change_type(w: GraphViewerWidget, qtbot):
 
 # --------------------------------------------------
 @pytest.mark.parametrize("mode", [0, 1, 2], ids=["only-one", "each-file", "all-in-one"])
-def test_add_stack_uses_dropped_results_folder(stack_drop_widget, tmp_path, mode):
+def test_add_stack_uses_dropped_results_folder(stack_drop_widget, tmp_path, mode, input_stack, output_folder):
 	"""Vérifie que le chargement utilise la pile ajoutée malgré une autre pile déjà présente."""
 	widget, calls = stack_drop_widget
 	files = cast(FileList, widget.pt.settings.batch["Files"])
 	files.items = [str(tmp_path / "first.tif")]
 	widget.pt.settings.batch["Mode"].value = mode
 
-	widget._add_stack(str(INPUT_FILE))
+	widget._add_stack(str(input_stack))
 
-	assert Path(files.current_text) == INPUT_FILE
-	assert calls == [("load", OUTPUT_DIR), ("plot", INPUT_FILE)]
+	assert Path(files.current_text) == input_stack
+	assert calls == [("load", output_folder), ("plot", input_stack)]
 
 
 # --------------------------------------------------

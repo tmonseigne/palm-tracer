@@ -6,11 +6,12 @@ from typing import Any, List, cast
 import numpy as np
 import pytest
 from qtpy.QtCore import Qt
-from qtpy.QtGui import QColor
+from qtpy.QtGui import QColor, QValidator
 from qtpy.QtWidgets import QCheckBox, QColorDialog, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QWidget
 
 from palm_tracer.Settings.Types import *
-from palm_tracer.Settings.Types import FileList
+from palm_tracer.Settings.Types import CheckIntSelection, FileList
+from palm_tracer.Settings.Types.CheckIntSelection import IntSelectionValidator
 from tests.Utils import INPUT_DIR
 
 
@@ -65,7 +66,9 @@ def setting_base_test(setting: BaseSettingType, change, default):
 	_ = setting.get_ui("default")
 
 
-# --------------------------------------------------
+# ==================================================
+# region BaseSettingType et BaseCheckSetting
+# ==================================================
 def test_base_setting():
 	"""Vérifie la classe abstraite."""
 	setting = BaseSettingType("Test")
@@ -74,7 +77,9 @@ def test_base_setting():
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("setting_type", [CheckInt, CheckIntSelection, CheckRangeFloat, CheckRangeInt])
+@pytest.mark.parametrize("setting_type", [
+		pytest.param(CheckInt, id="integer"), pytest.param(CheckIntSelection, id="integer-selection"),
+		pytest.param(CheckRangeFloat, id="float-range"), pytest.param(CheckRangeInt, id="integer-range")])
 def test_base_check_setting(setting_type):
 	"""Vérifie le contrat commun des paramètres activables."""
 	setting = setting_type()
@@ -91,10 +96,17 @@ def test_base_check_setting(setting_type):
 	assert setting.active
 
 
-# --------------------------------------------------
-def test_base_ui(qtbot):
-	"""Vérifie l'interface de base avec libellé."""
-	ui = BaseUIType(layout=QHBoxLayout(), label=QLabel("Test"), boxes=[QCheckBox()])
+# ==================================================
+# endregion BaseSettingType et BaseCheckSetting
+# ==================================================
+
+# ==================================================
+# region BaseUIType
+# ==================================================
+@pytest.mark.parametrize("with_label", [True, False], ids=["with-label", "no-label"])
+def test_base_ui(qtbot, with_label):
+	"""Vérifie les transitions de visibilité et l'attachement au formulaire, avec ou sans libellé."""
+	ui = BaseUIType(layout=QHBoxLayout(), label=QLabel("Test") if with_label else None, boxes=[QCheckBox()])
 	ui.set_tooltip("")
 
 	ui.hide()
@@ -107,23 +119,13 @@ def test_base_ui(qtbot):
 	ui.show()
 
 
-# --------------------------------------------------
-def test_base_ui_no_label(qtbot):
-	"""Vérifie l'interface de base sans libellé."""
-	ui = BaseUIType(layout=QHBoxLayout(), boxes=[QCheckBox()])
-	ui.set_tooltip("")
+# ==================================================
+# endregion BaseUIType
+# ==================================================
 
-	ui.hide()
-	ui.show()
-
-	form = QFormLayout()
-	ui.attach_to_form(form)
-
-	ui.hide()
-	ui.show()
-
-
-# --------------------------------------------------
+# ==================================================
+# region SpinInt et SpinFloat
+# ==================================================
 def test_spin_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
@@ -137,7 +139,13 @@ def test_spin_float(qtbot):
 	setting_base_test(setting, 5.0, 1.0)
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion SpinInt et SpinFloat
+# ==================================================
+
+# ==================================================
+# region CheckBox et Combo
+# ==================================================
 def test_check_box(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckBox("Test")
@@ -168,7 +176,13 @@ def test_combo(qtbot):
 	assert setting.items == ["1", "2"]
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion CheckBox et Combo
+# ==================================================
+
+# ==================================================
+# region ColorMap
+# ==================================================
 def test_color_map(qtbot):
 	"""Vérifie la liste centralisée et les aperçus du paramètre de colormap."""
 	setting = ColorMap("Test", "", 0)
@@ -281,7 +295,13 @@ def test_color_map_get_lut_rejects_negative_maximum():
 		ColorMap().get_lut(-1)
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion ColorMap
+# ==================================================
+
+# ==================================================
+# region BrowseFile et FileList
+# ==================================================
 def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = BrowseFile(label="Test")
@@ -408,7 +428,13 @@ def test_file_list_add_files_ignores_invalid_paths(tmp_path, scenario):
 	assert emitted == []
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion BrowseFile et FileList
+# ==================================================
+
+# ==================================================
+# region CheckInt, CheckRangeInt et CheckRangeFloat
+# ==================================================
 def test_check_int(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = CheckInt("Test", "", 1, [1, 10])
@@ -510,6 +536,36 @@ def test_check_range_float(qtbot):
 	w.close()
 
 
+# ==================================================
+# endregion CheckInt, CheckRangeInt et CheckRangeFloat
+# ==================================================
+
+# ==================================================
+# region IntSelectionValidator et CheckIntSelection
+# ==================================================
+@pytest.mark.parametrize("text, expected", [
+		pytest.param("", QValidator.State.Acceptable, id="empty-selection"),
+		pytest.param("  ", QValidator.State.Acceptable, id="whitespace"),
+		pytest.param("1;3-5", QValidator.State.Acceptable, id="integer-ranges"),
+		pytest.param("1;a", QValidator.State.Invalid, id="invalid-character")])
+def test_int_selection_validator(text, expected):
+	"""Vérifie l'état de validation sans modifier le texte ni la position du curseur."""
+	position = len(text)
+	assert IntSelectionValidator().validate(text, position) == (expected, text, position)
+
+
+# --------------------------------------------------
+def test_int_selection_validator_parse_error(monkeypatch):
+	"""Conserve un état intermédiaire lorsqu'une sélection syntaxiquement autorisée ne peut pas être convertie."""
+	# Simule une erreur de conversion après le contrôle des caractères autorisés.
+	def fail_parse(_text):
+		"""Simule une sélection non convertible."""
+		raise ValueError("Incomplete selection")
+
+	monkeypatch.setattr(CheckIntSelection, "parse", fail_parse)
+	assert IntSelectionValidator().validate("1-", 2) == (QValidator.State.Intermediate, "1-", 2)
+
+
 # --------------------------------------------------
 def test_check_int_selection(qtbot):
 	"""Vérifie la classe (constructeur, getter, setter)."""
@@ -539,7 +595,13 @@ def test_check_int_selection(qtbot):
 	w.close()
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion IntSelectionValidator et CheckIntSelection
+# ==================================================
+
+# ==================================================
+# region Button et ButtonGroup
+# ==================================================
 def test_button(qtbot, capsys):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	setting = Button("Test")
@@ -575,7 +637,13 @@ def test_button_group(qtbot):
 	assert ui.boxes[0].isEnabled()
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Button et ButtonGroup
+# ==================================================
+
+# ==================================================
+# region Synchronisation
+# ==================================================
 def test_sync(qtbot):
 	"""Vérifie la classe abstraite."""
 	spin_1 = SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
@@ -586,3 +654,8 @@ def test_sync(qtbot):
 
 	spin_2.value = 3
 	assert spin_1.value == 3, "Valeur non valide."
+
+
+# ==================================================
+# endregion Synchronisation
+# ==================================================

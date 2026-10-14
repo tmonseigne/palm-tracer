@@ -12,7 +12,9 @@ from palm_tracer.Tools import FileIO
 from tests.Utils import *
 
 
-# --------------------------------------------------
+# ==================================================
+# region Initialisation
+# ==================================================
 def test_settings(qtbot, capsys):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	settings = Settings()
@@ -30,34 +32,6 @@ def test_settings(qtbot, capsys):
 	print(settings)
 	lines = get_lines_output(capsys)
 	assert len(lines) == 135
-
-
-# --------------------------------------------------
-def test_settings_group_getter(qtbot):
-	"""Vérifie la récupération des différents groupes de paramètres."""
-	settings = Settings()
-	s = settings.batch
-	assert isinstance(s, Batch), "Récupération du groupe incorrecte."
-	s = settings.calibration
-	assert isinstance(s, Calibration), "Récupération du groupe incorrecte."
-	s = settings.localization
-	assert isinstance(s, Localization), "Récupération du groupe incorrecte."
-	s = settings.beads
-	assert isinstance(s, BeadsExtraction), "Récupération du groupe incorrecte."
-	s = settings.tracking
-	assert isinstance(s, Tracking), "Récupération du groupe incorrecte."
-	s = settings.blinking
-	assert isinstance(s, BlinkingReconnection), "Récupération du groupe incorrecte."
-	s = settings.track_analysis
-	assert isinstance(s, TrackAnalysis), "Récupération du groupe incorrecte."
-	s = settings.gallery
-	assert isinstance(s, Gallery), "Récupération du groupe incorrecte."
-	s = settings.graph
-	assert isinstance(s, Graph), "Récupération du groupe incorrecte."
-	s = settings.hr
-	assert isinstance(s, HR), "Récupération du groupe incorrecte."
-	s = settings.filters
-	assert isinstance(s, Filters), "Récupération du groupe incorrecte."
 
 
 # --------------------------------------------------
@@ -111,10 +85,10 @@ def test_settings_batch_reuses_tif_metadata(qtbot, tmp_path, monkeypatch):
 	read_paths = []
 
 	# --------------------------------------------------
-	def count_read(path):
+	def count_read(p):
 		"""Compte les lectures de métadonnées TIFF."""
-		read_paths.append(str(path))
-		return read_shape(path)
+		read_paths.append(str(p))
+		return read_shape(p)
 
 	monkeypatch.setattr(FileIO, "read_tif_shape", count_read)
 	settings = Settings()
@@ -128,7 +102,31 @@ def test_settings_batch_reuses_tif_metadata(qtbot, tmp_path, monkeypatch):
 	assert settings.filters["Plane"].limits[1] == 8
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Accesseurs
+# ==================================================
+@pytest.mark.parametrize("attribute, group_type", [
+		pytest.param("batch", Batch, id="batch"), pytest.param("calibration", Calibration, id="calibration"),
+		pytest.param("localization", Localization, id="localization"), pytest.param("beads", BeadsExtraction, id="beads"),
+		pytest.param("tracking", Tracking, id="tracking"), pytest.param("blinking", BlinkingReconnection, id="blinking"),
+		pytest.param("track_analysis", TrackAnalysis, id="track-analysis"), pytest.param("gallery", Gallery, id="gallery"),
+		pytest.param("graph", Graph, id="graph"), pytest.param("hr", HR, id="high-resolution"), pytest.param("filters", Filters, id="filters")])
+def test_settings_group_getter(qtbot, attribute, group_type):
+	"""Vérifie que chaque accesseur renvoie le groupe de paramètres attendu."""
+	assert isinstance(getattr(Settings(), attribute), group_type), "Récupération du groupe incorrecte."
+
+
+# ==================================================
+# endregion Accesseurs
+# ==================================================
+
+# ==================================================
+# region Signaux
+# ==================================================
 def test_settings_signal(qtbot):
 	"""Vérifie Connexion d'un slot Python, blocage et émission."""
 	settings = Settings()
@@ -137,3 +135,8 @@ def test_settings_signal(qtbot):
 	settings.connect(lambda v: received.append(v))
 	with settings.signal_blocked(): pass
 	settings.disconnect()
+
+
+# ==================================================
+# endregion Signaux
+# ==================================================

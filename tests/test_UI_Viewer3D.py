@@ -2,12 +2,8 @@
 
 from napari.components import ViewerModel
 
-from palm_tracer.Tools.FileIO import USER_SETTINGS_FILE
 from palm_tracer.UI import Viewer3DWidget
 from tests.Utils import *
-
-INPUT_FILE = INPUT_DIR / "stack.tif"
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 # --------------------------------------------------
@@ -21,11 +17,12 @@ def test_widget_creation(qtbot):
 # --------------------------------------------------
 def test_viewer3d(qtbot, fake_qfiledialog):
 	"""Vérifie la création du widget."""
-	USER_SETTINGS_FILE.unlink(missing_ok=True)
+	# Création du viewer et du widget avec la configuration utilisateur isolée par la fixture commune.
 	viewer = ViewerModel(ndisplay=3)
 	my_widget = Viewer3DWidget(viewer)
 	qtbot.addWidget(my_widget)
 
+	# Annulation et fichiers invalides : aucune donnée ne doit être chargée.
 	fake_qfiledialog(Viewer3DWidget, None)  # .			Simuler un "Cancel" sur le QFileDialog
 	my_widget.load_csv()
 	assert my_widget.data.empty
@@ -38,6 +35,7 @@ def test_viewer3d(qtbot, fake_qfiledialog):
 	my_widget.load_csv()
 	assert my_widget.data.empty
 
+	# Chargement valide, puis rechargement avec un calque déjà présent.
 	fake_qfiledialog(Viewer3DWidget, f"{INPUT_DIR}/localizations.csv")
 	my_widget.load_csv()
 	assert my_widget.data.shape == (6, 18)
@@ -45,6 +43,7 @@ def test_viewer3d(qtbot, fake_qfiledialog):
 	my_widget.load_csv()  # .							Pour recommencer avec un calque déjà actif
 	assert my_widget.data.shape == (6, 18)
 
+	# Actualisation du calque après filtrage, puis avec un tableau vide.
 	my_widget.settings["Remove Outliers"].value = True  # Suppression des outliers
 	my_widget.update_layer()
 

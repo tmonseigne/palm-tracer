@@ -7,6 +7,28 @@ from PIL import Image
 from palm_tracer.Processing import Renderer
 from tests.Utils import *
 
+# Références fixes communes aux rendus gaussiens simples et superposés ; les tests ne les modifient pas.
+GAUSSIAN_2D = np.array([
+	[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166],
+	[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
+	[4.82661763, 7.02268722, 7.95774715, 7.02268722, 4.82661763],
+	[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
+	[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166]])
+
+GAUSSIAN_3D = np.array([
+	[
+		[0.21726327, 0.59058281, 0.59058281],
+		[0.59058281, 1.60537052, 1.60537052],
+		[0.59058281, 1.60537052, 1.60537052]],
+	[
+		[0.59058281, 1.60537052, 1.60537052],
+		[1.60537052, 4.36384952, 4.36384952],
+		[1.60537052, 4.36384952, 4.36384952]],
+	[
+		[0.59058281, 1.60537052, 1.60537052],
+		[1.60537052, 4.36384952, 4.36384952],
+		[1.60537052, 4.36384952, 4.36384952]]])
+
 
 # ==================================================
 # region Configuration
@@ -25,6 +47,10 @@ def test_set_size():
 
 # ==================================================
 # region Rendus
+# ==================================================
+
+# ==================================================
+# region Localisations
 # ==================================================
 def test_localizations():
 	"""Vérifie le rendu des localisations."""
@@ -171,7 +197,13 @@ def test_localizations_gaussian():
 	assert ref_max == res.max()
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Localisations
+# ==================================================
+
+# ==================================================
+# region Trajectoires
+# ==================================================
 def test_tracks():
 	"""Vérifie le rendu des trajectoires."""
 	r = Renderer()
@@ -220,18 +252,30 @@ def test_tracks():
 	assert res[2, 2] == 0
 	assert res[4, 4] == np.iinfo(np.uint16).max
 
-	# Croisement de trajectoires pour les trois modes
-	trc = np.array([[1, 1, 1, 3, 10], [1, 4, 4, 3, 10], [2, 2, 3, 1, 20], [2, 8, 3, 4, 20]], dtype=float)
-	for color_mode, crossing_value in ((0, 30), (1, 20), (2, 10)):
-		res = r.tracks(trc, color_mode=color_mode, bg_color=42)
-		ref = np.full((20, 10), 42, dtype=np.uint16)
-		ref[6, 2:9] = 10
-		ref[2:9, 6] = 20
-		ref[6, 6] = crossing_value
-		np.testing.assert_array_equal(res, ref)
-
 
 # --------------------------------------------------
+@pytest.mark.parametrize("color_mode, crossing_value", [
+		pytest.param(0, 30, id="addition"), pytest.param(1, 20, id="maximum"), pytest.param(2, 10, id="minimum")])
+def test_tracks_crossing(color_mode, crossing_value):
+	"""Vérifie séparément chaque mode de couleur au croisement de deux trajectoires."""
+	r = Renderer()
+	r.set_size(5, 10, 2)
+	trc = np.array([[1, 1, 1, 3, 10], [1, 4, 4, 3, 10], [2, 2, 3, 1, 20], [2, 8, 3, 4, 20]], dtype=float)
+	res = r.tracks(trc, color_mode=color_mode, bg_color=42)
+	ref = np.full((20, 10), 42, dtype=np.uint16)
+	ref[6, 2:9] = 10
+	ref[2:9, 6] = 20
+	ref[6, 6] = crossing_value
+	np.testing.assert_array_equal(res, ref)
+
+
+# ==================================================
+# endregion Trajectoires
+# ==================================================
+
+# ==================================================
+# region Volumes Z
+# ==================================================
 def test_z_stack():
 	"""Vérifie le rendu d'une pile Z."""
 	r = Renderer()
@@ -380,7 +424,13 @@ def test_z_stack_gaussian():
 	assert ref_max == res.max()
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Volumes Z
+# ==================================================
+
+# ==================================================
+# region Rotations
+# ==================================================
 def test_rotation():
 	"""Vérifie le rendu d'une rotation 3D."""
 	r = Renderer()
@@ -513,7 +563,13 @@ def test_rotation_gaussian():
 	assert res.shape == (1, 6, 6) and np.count_nonzero(res) == 0
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Rotations
+# ==================================================
+
+# ==================================================
+# region Séquences de trajectoires
+# ==================================================
 def test_track_stack_timeline():
 	"""Vérifie le recadrage temporel, les observations manquantes, l'effacement et les têtes sur les plans observés."""
 	r = Renderer()
@@ -640,6 +696,11 @@ def test_track_stack_raw_fade_and_overlap(mode, intensity):
 	np.testing.assert_array_equal(res[1, 2, 2], color)
 	np.testing.assert_array_equal(res[2, 2, 2], np.rint(10 + 0.5 * color))
 	np.testing.assert_array_equal(res[:, 4, 4], [[20] * 3] * 3)
+
+
+# ==================================================
+# endregion Séquences de trajectoires
+# ==================================================
 
 
 # ==================================================
@@ -905,6 +966,10 @@ def test_upscale_raw_2d(ratio, mode):
 # ==================================================
 # region Préparation des données
 # ==================================================
+
+# ==================================================
+# region Couleurs
+# ==================================================
 def test_get_localization_colors():
 	# DataFrame vide
 	"""Vérifie la génération des couleurs des localisations."""
@@ -1025,7 +1090,13 @@ def test_get_tracks_colors():
 	np.testing.assert_array_equal(res, ref)
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Couleurs
+# ==================================================
+
+# ==================================================
+# region Coordonnées
+# ==================================================
 def test_prepare_localizations():
 	"""Vérifie la préparation des localisations de rendu."""
 	r = Renderer()
@@ -1108,11 +1179,20 @@ def test_prepare_tracks_empty():
 
 
 # ==================================================
+# endregion Coordonnées
+# ==================================================
+
+
+# ==================================================
 # endregion Préparation des données
 # ==================================================
 
 # ==================================================
 # region Dessin
+# ==================================================
+
+# ==================================================
+# region Empreintes et lignes
 # ==================================================
 @pytest.mark.parametrize("args, expected_y, expected_left, expected_right",
 						 [((1, 2, 4, 2, 1), 2, [1], [5]),
@@ -1138,15 +1218,22 @@ def test_line_spans(args, expected_y, expected_left, expected_right, reverse):
 
 
 # --------------------------------------------------
-def test_line_spans_clipping():
-	"""Vérifie les empreintes hors cadre, les lignes vides et le bornage des largeurs."""
-	for shape, points, width in (((0, 5), (0, 0, 4, 4), 3), ((5, 0), (0, 0, 4, 4), 3),
-								 ((5, 5), (-4, -4, -2, -2), 1), ((5, 5), (6, 0, 6, 4), 1),
-								 ((5, 5), (-3, 1, 1, -3), 1)):
-		y_min, left, right = Renderer._line_spans(shape, *points, width)
-		assert y_min == 0 and left.shape == (0,) and right.shape == (0,)
-		assert left.dtype == int and right.dtype == int
+@pytest.mark.parametrize("shape, points, width", [
+		pytest.param((0, 5), (0, 0, 4, 4), 3, id="zero-height"),
+		pytest.param((5, 0), (0, 0, 4, 4), 3, id="zero-width"),
+		pytest.param((5, 5), (-4, -4, -2, -2), 1, id="negative-coordinates"),
+		pytest.param((5, 5), (6, 0, 6, 4), 1, id="outside-right"),
+		pytest.param((5, 5), (-3, 1, 1, -3), 1, id="outside-corner")])
+def test_line_spans_empty(shape, points, width):
+	"""Vérifie l'absence d'empreinte pour une image vide ou une ligne entièrement hors cadre."""
+	y_min, left, right = Renderer._line_spans(shape, *points, width)
+	assert y_min == 0 and left.shape == (0,) and right.shape == (0,)
+	assert left.dtype == int and right.dtype == int
 
+
+# --------------------------------------------------
+def test_line_spans_clipping():
+	"""Vérifie les empreintes touchant le bord et les lignes vides dans leur boîte englobante."""
 	# Le centre de la ligne est hors cadre, mais son épaisseur touche la première colonne.
 	y_min, left, right = Renderer._line_spans((5, 5), -1, -3, -1, 7, 3)
 	assert y_min == 0
@@ -1159,11 +1246,15 @@ def test_line_spans_clipping():
 	assert np.all(left[:4] >= right[:4])
 	assert left[4] == 0 and right[4] == 1
 
-	for width in (-2, 0, 1):
-		y_min, left, right = Renderer._line_spans((5, 5), -2, 2, 7, 2, width)
-		assert y_min == 2
-		np.testing.assert_array_equal(left, [0])
-		np.testing.assert_array_equal(right, [5])
+
+# --------------------------------------------------
+@pytest.mark.parametrize("width", [-2, 0, 1], ids=["negative-width", "zero-width", "unit-width"])
+def test_line_spans_width_clamping(width):
+	"""Ramène les largeurs non positives à la même empreinte que la largeur unitaire."""
+	y_min, left, right = Renderer._line_spans((5, 5), -2, 2, 7, 2, width)
+	assert y_min == 2
+	np.testing.assert_array_equal(left, [0])
+	np.testing.assert_array_equal(right, [5])
 
 
 # --------------------------------------------------
@@ -1411,15 +1502,17 @@ def test_draw_line_thick_empty_rows():
 	np.testing.assert_array_equal(mask, ref_mask)
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Empreintes et lignes
+# ==================================================
+
+# ==================================================
+# region Gaussiennes
+# ==================================================
 def test_draw_gaussian():
 	"""Vérifie le rendu gaussien 2D, son masque et ses modes."""
 	x, y, color, sx, sy, theta = 2, 2, 100.0, 1.0, 2.0, 0.0
-	ref = np.array([[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166],
-					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
-					[4.82661763, 7.02268722, 7.95774715, 7.02268722, 4.82661763],
-					[2.92749158, 4.25947511, 4.82661763, 4.25947511, 2.92749158],
-					[0.65321166, 0.95041736, 1.07696397, 0.95041736, 0.65321166]])
+	ref = GAUSSIAN_2D
 
 	# Gaussienne unique avec le mode maximum
 	img, mask = Renderer.init_rendering(1, 5, 5)
@@ -1433,17 +1526,6 @@ def test_draw_gaussian():
 	Renderer.draw_gaussian_2d(img, mask, x, y, color, sx, sy, np.pi / 2.0, 1)
 	np.testing.assert_array_almost_equal(img, ref.transpose())
 	np.testing.assert_array_equal(mask, True)
-
-	# Superposition pour les trois modes
-	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
-		img, mask = Renderer.init_rendering(color_mode, 5, 5)
-
-		Renderer.draw_gaussian_2d(img, mask, x, y, 100.0, sx, sy, theta, color_mode)
-		np.testing.assert_array_equal(mask, True)
-
-		Renderer.draw_gaussian_2d(img, mask, x, y, 50.0, sx, sy, theta, color_mode)
-		np.testing.assert_array_almost_equal(img, expected)
-		np.testing.assert_array_equal(mask, True)
 
 	# Gaussienne entièrement hors dimensions
 	img = np.zeros((5, 5), dtype=float)
@@ -1464,17 +1546,7 @@ def test_draw_gaussian():
 def test_draw_gaussian_3d():
 	"""Vérifie le rendu gaussien en 3D."""
 	x, y, z, color, s = 1.5, 1.5, 1.5, 100, 1
-	ref = np.array([[[0.21726327, 0.59058281, 0.59058281],
-					 [0.59058281, 1.60537052, 1.60537052],
-					 [0.59058281, 1.60537052, 1.60537052]],
-
-					[[0.59058281, 1.60537052, 1.60537052],
-					 [1.60537052, 4.36384952, 4.36384952],
-					 [1.60537052, 4.36384952, 4.36384952]],
-
-					[[0.59058281, 1.60537052, 1.60537052],
-					 [1.60537052, 4.36384952, 4.36384952],
-					 [1.60537052, 4.36384952, 4.36384952]]])
+	ref = GAUSSIAN_3D
 
 	# Gaussienne unique avec le mode maximum
 	img, mask = Renderer.init_rendering(1, 3, 3, 3)
@@ -1482,17 +1554,6 @@ def test_draw_gaussian_3d():
 	assert res is img
 	np.testing.assert_array_almost_equal(res, ref)
 	np.testing.assert_array_equal(mask, True)
-
-	# Superposition pour les trois modes
-	for color_mode, expected in ((0, 1.5 * ref), (1, ref), (2, 0.5 * ref),):
-		img, mask = Renderer.init_rendering(color_mode, 3, 3, 3)
-
-		Renderer.draw_gaussian_3d(img, mask, x, y, z, 100.0, s, color_mode)
-		np.testing.assert_array_equal(mask, True)
-
-		Renderer.draw_gaussian_3d(img, mask, x, y, z, 50.0, s, color_mode)
-		np.testing.assert_array_almost_equal(img, expected)
-		np.testing.assert_array_equal(mask, True)
 
 	# Gaussienne entièrement hors dimensions
 	img = np.zeros((5, 5, 5), dtype=float)
@@ -1510,6 +1571,35 @@ def test_draw_gaussian_3d():
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("dimension", [2, 3], ids=["2d", "3d"])
+@pytest.mark.parametrize("color_mode, factor", [
+		pytest.param(0, 1.5, id="addition"), pytest.param(1, 1.0, id="maximum"), pytest.param(2, 0.5, id="minimum")])
+def test_draw_gaussian_overlap(dimension, color_mode, factor):
+	"""Vérifie la superposition de deux gaussiennes et la mise à jour de leur masque en 2D et en 3D."""
+	if dimension == 2:
+		img, mask = Renderer.init_rendering(color_mode, 5, 5)
+		draw = Renderer.draw_gaussian_2d
+		position, sigma, reference = (2, 2), (1.0, 2.0, 0.0), GAUSSIAN_2D
+	else:
+		img, mask = Renderer.init_rendering(color_mode, 3, 3, 3)
+		draw = Renderer.draw_gaussian_3d
+		position, sigma, reference = (1.5, 1.5, 1.5), (1,), GAUSSIAN_3D
+
+	# La seconde gaussienne est dessinée sur le même tableau et le même masque que la première.
+	draw(img, mask, *position, 100.0, *sigma, color_mode)
+	np.testing.assert_array_equal(mask, True)
+	draw(img, mask, *position, 50.0, *sigma, color_mode)
+	np.testing.assert_array_almost_equal(img, factor * reference)
+	np.testing.assert_array_equal(mask, True)
+
+
+# ==================================================
+# endregion Gaussiennes
+# ==================================================
+
+# ==================================================
+# region Queues des trajectoires
+# ==================================================
 def test_draw_track_blinks():
 	"""Vérifie les apparitions aux plans 12/20, l'historique illimité et la conservation des entrées."""
 	track = np.array([[10, 0, 1], [12, 2, 1], [20, 4, 1]])
@@ -1607,8 +1697,8 @@ def test_draw_track_thickness(mode, initial):
 
 
 # --------------------------------------------------
-def test_draw_track_stationary_and_clipping():
-	"""Vérifie un déplacement nul au bord, les segments hors cadre et les bornes temporelles du volume."""
+def test_draw_track_stationary():
+	"""Vérifie le déplacement nul au bord du volume et l'estompage de la queue."""
 	img = np.zeros((5, 3, 3))
 	alpha = np.zeros_like(img)
 	Renderer.draw_track(img, alpha, np.array([[0, 0, 0], [2, 0, 0]]), np.array([0, 10]), tail_width=3, tail_length=1, fade_type=1)
@@ -1618,16 +1708,21 @@ def test_draw_track_stationary_and_clipping():
 	np.testing.assert_array_equal(alpha, ref)
 	np.testing.assert_array_equal(img, np.where(ref > 0, 10, 0))
 
-	for track in (np.empty((0, 3), dtype=int), np.array([[0, 1, 1]]), np.array([[5, 0, 0], [6, 1, 1]]),
-				  np.array([[-5, 0, 0], [-4, 1, 1]]), np.array([[0, -5, -5], [1, -4, -4]])):
-		img.fill(0)
-		alpha.fill(0)
-		Renderer.draw_track(img, alpha, track, np.ones(len(track)), tail_length=1)
-		np.testing.assert_array_equal(img, 0)
-		np.testing.assert_array_equal(alpha, 0)
 
-	# Une queue désactivée ne dessine pas les têtes ; leur passe reste séparée.
-	Renderer.draw_track(img, alpha, np.array([[0, 0, 0], [1, 2, 2]]), np.array([1, 2]), tail_length=0)
+# --------------------------------------------------
+@pytest.mark.parametrize("track, tail_length", [
+		pytest.param(np.empty((0, 3), dtype=int), 1, id="empty-track"),
+		pytest.param(np.array([[0, 1, 1]]), 1, id="single-point"),
+		pytest.param(np.array([[5, 0, 0], [6, 1, 1]]), 1, id="after-volume"),
+		pytest.param(np.array([[-5, 0, 0], [-4, 1, 1]]), 1, id="before-volume"),
+		pytest.param(np.array([[0, -5, -5], [1, -4, -4]]), 1, id="outside-image"),
+		pytest.param(np.array([[0, 0, 0], [1, 2, 2]]), 0, id="disabled-tail")])
+def test_draw_track_without_drawing(track, tail_length):
+	"""Conserve un volume vide pour une trajectoire non dessinable ou une queue désactivée."""
+	img = np.zeros((5, 3, 3))
+	alpha = np.zeros_like(img)
+	colors = np.ones(len(track)) if tail_length else np.array([1, 2])
+	Renderer.draw_track(img, alpha, track, colors, tail_length=tail_length)
 	np.testing.assert_array_equal(img, 0)
 	np.testing.assert_array_equal(alpha, 0)
 
@@ -1650,7 +1745,13 @@ def test_draw_track_alpha_independent_of_geometry(departure, endpoint):
 	np.testing.assert_array_equal(alpha[13:], 0)
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Queues des trajectoires
+# ==================================================
+
+# ==================================================
+# region Têtes des trajectoires
+# ==================================================
 @pytest.mark.parametrize("size", (-2, 0, 1), ids=['negative-diameter', 'zero-diameter', 'diameter-1'])
 def test_draw_track_heads_planes(size):
 	"""Vérifie les plans observés uniquement, le diamètre minimal et la conservation des entrées."""
@@ -1686,7 +1787,10 @@ def test_draw_track_heads_circles(size, pattern):
 
 
 # --------------------------------------------------
-def test_draw_track_heads_clipping():
+@pytest.mark.parametrize("track", [
+		pytest.param(np.empty((0, 3), dtype=int), id="empty-track"),
+		pytest.param(np.array([[-1, 1, 1], [2, 1, 1], [0, -9, -9], [0, 9, 9]]), id="outside-volume")])
+def test_draw_track_heads_clipping(track):
 	"""Vérifie le recadrage des cercles aux bords sans déplacer leur centre et les entrées hors volume."""
 	img = np.zeros((2, 3, 3))
 	alpha = np.zeros_like(img)
@@ -1696,10 +1800,9 @@ def test_draw_track_heads_clipping():
 	ref[1] = [[0, 0, 0], [0, 0, 20], [0, 20, 0]]
 	np.testing.assert_array_equal(img, ref)
 	np.testing.assert_array_equal(alpha, ref > 0)
-	for track in (np.empty((0, 3), dtype=int), np.array([[-1, 1, 1], [2, 1, 1], [0, -9, -9], [0, 9, 9]])):
-		Renderer.draw_track_heads(img, alpha, track, np.ones(len(track)), 4)
-		np.testing.assert_array_equal(img, ref)
-		np.testing.assert_array_equal(alpha, ref > 0)
+	Renderer.draw_track_heads(img, alpha, track, np.ones(len(track)), 4)
+	np.testing.assert_array_equal(img, ref)
+	np.testing.assert_array_equal(alpha, ref > 0)
 
 
 # --------------------------------------------------
@@ -1727,6 +1830,11 @@ def test_draw_track_heads_preserve_interior():
 	mask[1, 1:6, 1:6] = contour
 	np.testing.assert_array_equal(img, np.where(mask, 90, 40))
 	np.testing.assert_array_equal(alpha, np.where(mask, 1, 0.25))
+
+
+# ==================================================
+# endregion Têtes des trajectoires
+# ==================================================
 
 
 # ==================================================
@@ -1851,6 +1959,7 @@ def test_renderer_track_stack_spiral_raw():
 	np.testing.assert_array_equal(tifffile.imread(path), res)
 	frames = [Image.fromarray(plane) for plane in res]
 	frames[0].save(OUTPUT_DIR / "track_stack_spiral_raw.gif", save_all=True, append_images=frames[1:], duration=80, loop=0, optimize=False)
+
 
 # ==================================================
 # endregion Rendus spéciaux

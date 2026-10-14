@@ -7,6 +7,7 @@ import pytest
 from qtpy.QtWidgets import QFormLayout
 
 from palm_tracer.Settings.Groups import *
+from palm_tracer.Settings.Groups import Localization
 from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
 from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, CheckIntSelection, CheckRangeFloat, CheckRangeInt, Combo, SpinFloat, SpinInt
 from tests.Utils import *
@@ -71,7 +72,36 @@ def group_base_test(group: BaseSettingGroup, names: list[str],
 	group.clean_ui()
 
 
-# --------------------------------------------------
+# ==================================================
+# region Contrats communs
+# ==================================================
+@pytest.mark.parametrize("group_type, keys, setting_type, change, default", [
+		pytest.param(Calibration, ["Pixel Size", "Exposure", "Intensity"], SpinFloat, 0.32, 0.16, id="calibration"),
+		pytest.param(GaussianFit, ["Mode", "Sigma", "Theta", "Z", "Z max", "Model", "Default Model"], Combo, 2, 0, id="gaussian-fit"),
+		pytest.param(SplineFit, ["Sensor", "Variance Map", "File"], Combo, 1, 0, id="spline-fit"),
+		pytest.param(BeadsExtraction, ["Max Distance", "3D"], SpinFloat, 2, 1, id="beads"),
+		pytest.param(Tracking, ["Max Distance"], SpinFloat, 2, 1, id="tracking"),
+		pytest.param(BlinkingReconnection, ["Mode", "Max Duration", "Max Distance"], Combo, 1, 0, id="blinking"),
+		pytest.param(TrackAnalysis, ["MSD", "Instant Diffusion", "Fit Length", "Fit", "3D"], CheckBox, True, False, id="track-analysis"),
+		pytest.param(Gallery, ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9, id="gallery"),
+		pytest.param(GraphDisplay, ["Limits", "Sigma", "Gauss", "Gauss Mix", "KDE", "Poiss", "Exp", "Cumul", "Log Scale", "Count", "Bins"],
+			CheckBox, False, True, id="graph-display"),
+		pytest.param(HRGaussian, ["Intensity", "Fixed Intensity", "Shape", "Size"], SpinInt, 10, 100, id="hr-gaussian"),
+		pytest.param(HR3D, ["Z Step", "Axis", "Frames"], SpinInt, 10, 20, id="hr-3d"),
+		pytest.param(HRTrackStack, ["Head", "Width", "Length", "Fade", "Map", "Background", "Upscale"], SpinInt, 5, 1, id="hr-track-stack"),
+		pytest.param(Visualization3D, ["Point Size", "Pixel Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 2, 1, id="visualization-3d")])
+def test_group_contract(qtbot, group_type, keys, setting_type, change, default):
+	"""Vérifie le même contrat de construction, sérialisation et réinitialisation pour chaque groupe."""
+	group_base_test(group_type(), keys, setting_type, change, default)
+
+
+# ==================================================
+# endregion Contrats communs
+# ==================================================
+
+# ==================================================
+# region BaseSettingGroup
+# ==================================================
 def test_base_group(qtbot):
 	"""Vérifie la classe abstraite."""
 	group = BaseSettingGroup()
@@ -98,7 +128,13 @@ def test_base_group_tostring_range(setting_type, active: bool, label: str):
 	assert f"- Range : {label} {setting.value}\n" in group.tostring()
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion BaseSettingGroup
+# ==================================================
+
+# ==================================================
+# region Batch
+# ==================================================
 def test_batch(qtbot):
 	"""Vérifie la classe Batch (constructeur, getter, setter)."""
 	batch = Batch()
@@ -143,58 +179,56 @@ def test_batch_get_stacks(qtbot, files, mode, expected_count, expected_shape):
 	if stacks: assert stacks[0].shape == expected_shape
 
 
-# --------------------------------------------------
-def test_calibration(qtbot):
-	"""Vérifie la classe Calibration (constructeur, getter, setter)."""
-	group_base_test(Calibration(), ["Pixel Size", "Exposure", "Intensity"], SpinFloat, 0.32, 0.16)
+# ==================================================
+# endregion Batch
+# ==================================================
 
-
-# --------------------------------------------------
+# ==================================================
+# region Localization
+# ==================================================
 def test_localization(qtbot):
 	"""Vérifie la classe Localisation (constructeur, getter, setter)."""
 	g = Localization()
 	group_base_test(g, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
 					CheckBox, True, False)
 
-	g["Fit"].value = 0
-	assert g.get_fit() == 0, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(g.get_fit_params(), np.array([7], dtype=float))
-	g["Fit"].value = 1
-	assert g.get_fit() == 1, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(g.get_fit_params(), np.array([7, 1, 2, 0], dtype=float))
-	g["Fit"].value = 2
-	assert g.get_fit() == 5, "Numéro du Fit incorrect"
-	with pytest.raises(OSError) as exception_info: g.get_fit_params()
-	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 	assert isinstance(g.gaussian, GaussianFit)
 	assert isinstance(g.spline, SplineFit)
 
 
 # --------------------------------------------------
-def test_localization_fit(qtbot):
-	"""Vérifie la classe Localisation pour la récupération des paramètres de Fit."""
+@pytest.mark.parametrize("with_ui", [False, True], ids=["without-ui", "with-ui"])
+@pytest.mark.parametrize("selected, expected_fit, expected_params", [
+		pytest.param(0, 0, [7], id="no-fit"),
+		pytest.param(1, 1, [7, 1, 2, 0], id="gaussian-fit")])
+def test_localization_fit(qtbot, with_ui, selected, expected_fit, expected_params):
+	"""Vérifie le numéro et les paramètres du mode d'ajustement sélectionné."""
 	loc = Localization()
+	if with_ui: loc.get_ui()
+	loc["Fit"].value = selected
+	assert loc.get_fit() == expected_fit, "Numéro du Fit incorrect"
+	np.testing.assert_array_equal(loc.get_fit_params(), np.array(expected_params, dtype=float))
 
-	loc["Fit"].value = 0
-	assert loc.get_fit() == 0, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7], dtype=float))
-	loc["Fit"].value = 1
-	assert loc.get_fit() == 1, "Numéro du Fit incorrect"
-	np.testing.assert_array_equal(loc.get_fit_params(), np.array([7, 1, 2, 0], dtype=float))
+
+# --------------------------------------------------
+@pytest.mark.parametrize("with_ui", [False, True], ids=["without-ui", "with-ui"])
+def test_localization_spline_missing_file(qtbot, with_ui):
+	"""Identifie le mode spline et refuse ses paramètres si aucun fichier de calibration n'est disponible."""
+	loc = Localization()
+	if with_ui: loc.get_ui()
 	loc["Fit"].value = 2
 	assert loc.get_fit() == 5, "Numéro du Fit incorrect"
 	with pytest.raises(OSError) as exception_info: loc.get_fit_params()
 	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 
 
-# --------------------------------------------------
-def test_gaussian_fit(qtbot):
-	"""Vérifie la classe GaussianFit (constructeur, getter, setter)."""
-	grp = GaussianFit()
-	group_base_test(grp, ["Mode", "Sigma", "Theta", "Z", "Z max", "Model", "Default Model"], Combo, 2, 0)
+# ==================================================
+# endregion Localization
+# ==================================================
 
-
-# --------------------------------------------------
+# ==================================================
+# region GaussianFit
+# ==================================================
 def test_gaussian_fit_z(qtbot):
 	"""Vérifie la classe GaussianFit avec affichage/masquage des éléments."""
 	grp = GaussianFit()
@@ -235,37 +269,13 @@ def test_gaussian_fit_default_model(qtbot, initial):
 	assert grp["Default Model"].get_ui().boxes[0].isHidden()
 
 
-# --------------------------------------------------
-def test_spline_fit(qtbot):
-	"""Vérifie la classe SplineFit (constructeur, getter, setter)."""
-	group_base_test(SplineFit(), ["Sensor", "Variance Map", "File"], Combo, 1, 0)
+# ==================================================
+# endregion GaussianFit
+# ==================================================
 
-
-# --------------------------------------------------
-def test_beads(qtbot):
-	"""Vérifie la classe BeadsExtraction (constructeur, getter, setter)."""
-	group_base_test(BeadsExtraction(), ["Max Distance", "3D"], SpinFloat, 2, 1)
-
-
-# --------------------------------------------------
-def test_tracking(qtbot):
-	"""Vérifie la classe Tracking (constructeur, getter, setter)."""
-	group_base_test(Tracking(), ["Max Distance"], SpinFloat, 2, 1)
-
-
-# --------------------------------------------------
-def test_blinking_reconnection(qtbot):
-	"""Vérifie la classe BlinkingReconnection (constructeur, getter, setter)."""
-	group_base_test(BlinkingReconnection(), ["Mode", "Max Duration", "Max Distance"], Combo, 1, 0)
-
-
-# --------------------------------------------------
-def test_track_analysis(qtbot):
-	"""Vérifie la classe TrackAnalysis (constructeur, getter, setter)."""
-	group_base_test(TrackAnalysis(), ["MSD", "Instant Diffusion", "Fit Length", "Fit", "3D"], CheckBox, True, False)
-
-
-# --------------------------------------------------
+# ==================================================
+# region Filters, FiltersL et FiltersT
+# ==================================================
 def test_filters(qtbot):
 	"""Vérifie la classe Filters (constructeur, getter, setter)."""
 	g = Filters()
@@ -300,13 +310,13 @@ def test_filters_t(qtbot):
 	g.deactivate_filters()
 
 
-# --------------------------------------------------
-def test_gallery(qtbot):
-	"""Vérifie la classe Gallery (constructeur, getter, setter)."""
-	group_base_test(Gallery(), ["ROI Size", "ROIs Per Line"], SpinInt, 11, 9)
+# ==================================================
+# endregion Filters, FiltersL et FiltersT
+# ==================================================
 
-
-# --------------------------------------------------
+# ==================================================
+# region Graph
+# ==================================================
 def test_graph(qtbot):
 	"""Vérifie la classe Graph (constructeur, getter, setter)."""
 	g = Graph()
@@ -319,14 +329,13 @@ def test_graph(qtbot):
 	assert isinstance(g.display, GraphDisplay)
 
 
-# --------------------------------------------------
-def test_graph_display(qtbot):
-	"""Vérifie la classe GraphDisplay (constructeur, getter, setter)."""
-	group_base_test(GraphDisplay(), ["Limits", "Sigma", "Gauss", "Gauss Mix", "KDE", "Poiss", "Exp", "Cumul", "Log Scale", "Count", "Bins"],
-					CheckBox, False, True)
+# ==================================================
+# endregion Graph
+# ==================================================
 
-
-# --------------------------------------------------
+# ==================================================
+# region HR
+# ==================================================
 def test_hr(qtbot):
 	"""Vérifie la classe HR (constructeur, getter, setter)."""
 	g = HR()
@@ -342,26 +351,6 @@ def test_hr(qtbot):
 	assert isinstance(g.track_stack, HRTrackStack)
 
 
-# --------------------------------------------------
-def test_hr_gaussian(qtbot):
-	"""Vérifie la classe HRGaussian (constructeur, getter, setter)."""
-	group_base_test(HRGaussian(), ["Intensity", "Fixed Intensity", "Shape", "Size"], SpinInt, 10, 100)
-
-
-# --------------------------------------------------
-def test_hr_3d(qtbot):
-	"""Vérifie la classe HRGaussian (constructeur, getter, setter)."""
-	group_base_test(HR3D(), ["Z Step", "Axis", "Frames"], SpinInt, 10, 20)
-
-
-# --------------------------------------------------
-def test_hr_track_stack(qtbot):
-	"""Vérifie le groupe de paramètres du rendu des trajectoires."""
-	group = HRTrackStack()
-	group_base_test(group, ["Head", "Width", "Length", "Fade", "Map", "Background", "Upscale"], SpinInt, 5, 1)
-
-
-# --------------------------------------------------
-def test_visualization_3d(qtbot):
-	"""Vérifie la classe Visualization3D (constructeur, getter, setter)."""
-	group_base_test(Visualization3D(), ["Point Size", "Pixel Size", "XY Scale", "Z Scale", "Remove Outliers"], SpinFloat, 2, 1)
+# ==================================================
+# endregion HR
+# ==================================================

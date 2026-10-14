@@ -1,6 +1,9 @@
 """Teste le widget de calibration et d'estimation axiale par astigmatisme 3D."""
 
+from unittest.mock import Mock
+
 import numpy as np
+import pandas as pd
 import pytest
 from qtpy.QtCore import Qt
 
@@ -13,17 +16,6 @@ from tests.Utils import _FakeDownload
 LOC_FILE = INPUT_DIR / "astigmatism_3d_calibration.csv"
 MODEL_FILE = "astigmatism_3d_model.csv"
 PNG_FILE = "astigmatism_3d_model.png"
-
-
-# --------------------------------------------------
-@pytest.fixture(autouse=True)
-def user_model_path(monkeypatch, tmp_path):
-	"""Isole les sauvegardes utilisateur de tous les tests du widget dans un dossier temporaire."""
-	path = tmp_path / ".palm_tracer" / MODEL_FILE
-	monkeypatch.setattr(FileIO, "CONFIG_DIR", path.parent)
-	monkeypatch.setattr(FileIO, "USER_ASTIGMATISM_MODEL", path)
-	monkeypatch.setattr(FileIO, "DEFAULT_ASTIGMATISM_MODEL", path.with_name("astigmatism_3d_model_default.csv"))
-	return path
 
 
 # ==================================================
@@ -126,12 +118,45 @@ def test_sanity_check_without_valid_points(qtbot, points):
 	w.close()
 
 
+# --------------------------------------------------
+@pytest.mark.parametrize("mode, expected", [
+		pytest.param(0, "cross", id="cross-section"),
+		pytest.param(1, "slope", id="slope"),
+		pytest.param(2, "curve", id="sigma-curves")])
+def test_update_plot_modes(qtbot, monkeypatch, mode, expected):
+	"""Transmet le mode sélectionné et les paramètres physiques au générateur de figure."""
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	# Observe un seul rafraîchissement explicite, sans rendu Web ni calcul de calibration.
+	figure = w._grapher.blank()
+	plot = Mock(return_value=figure)
+	update_web = Mock()
+	monkeypatch.setattr(w._grapher, "astigmatism3d", plot)
+	monkeypatch.setattr(w, "_update_web_widget", update_web)
+	w._model = pd.DataFrame(np.array([[-50, 100, 0, 0, 30], [50, 100, 0, 0, 30]], dtype=float))
+	w._loc = pd.DataFrame()
+	# Le sélecteur est contrôlé sans déclencher son callback avant la vérification.
+	monkeypatch.setattr(w._btg_type_compute, "checkedId", lambda: mode)
+	w._update_plot()
+	plot.assert_called_once()
+	args, kwargs = plot.call_args
+	np.testing.assert_array_equal(args[0], w._model.to_numpy())
+	assert args[1] is None
+	assert kwargs == {"title": w.GRAPH_TITLE, "pixel_size": w._spin_px_compute.value() * 1000, "z_max": w._spin_z_estimate.value(), "mode": expected}
+	assert w._fig is figure
+	update_web.assert_called_once_with()
+
+
 # ==================================================
 # endregion Interface utilisateur
 # ==================================================
 
 # ==================================================
 # region Fonctions de rappel
+# ==================================================
+
+# ==================================================
+# region Chargement des données et modèles
 # ==================================================
 def test_check_loc(qtbot, capsys):
 	"""Vérifie l'adaptation des options aux colonnes, plans et billes présents dans les localisations."""
@@ -181,7 +206,8 @@ def test_check_loc(qtbot, capsys):
 
 
 # --------------------------------------------------
-def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
+@pytest.mark.parametrize("button", ["_btn_load_compute", "_btn_load_loc_estimate"], ids=["calibration-tab", "estimation-tab"])
+def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog, button):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
@@ -191,13 +217,13 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 	# Simuler un "Cancel" sur le QFileDialog
 	fake_qfiledialog(Astigmatism3DWidget, None)
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(getattr(w, button), Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "No file selected." in lines[0]  # On vérifie juste que le warning attendu est bien passé par print_warning
 
 	# Bad file Input
 	fake_qfiledialog(Astigmatism3DWidget, "nofile.csv")
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(getattr(w, button), Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Selected file: nofile.csv." in lines[0]
 	assert "Unable to read the CSV file" in lines[1]
@@ -205,34 +231,39 @@ def test_bad_load_loc(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 	# Bad Localization Input
 	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
-	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(getattr(w, button), Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Selected file:" in lines[0]
 	assert "The localization file is not in the correct format." in lines[1]
 	assert w._loc.empty
 
-	# Simuler un "Cancel" sur le QFileDialog
-	fake_qfiledialog(Astigmatism3DWidget, None)
-	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "No file selected." in lines[0]  # On vérifie juste que le warning attendu est bien passé par print_warning
+	w.close()
 
-	# Bad file Input
-	fake_qfiledialog(Astigmatism3DWidget, "nofile.csv")
-	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: nofile.csv." in lines[0]
-	assert "Unable to read the CSV file" in lines[1]
-	assert w._loc.empty
 
-	# Bad Localization Input
-	fake_qfiledialog(Astigmatism3DWidget, f"{INPUT_DIR}/tracking.csv")
+# --------------------------------------------------
+def test_estimation_load_does_not_calibrate(qtbot, capsys, fake_qfiledialog, tmp_path):
+	"""Vérifie que le chargement destiné à Compute Z et ses paramètres ne recalibrent pas le modèle fourni."""
+	localization_file = tmp_path / LOC_FILE.name
+	shutil.copy2(LOC_FILE, localization_file)
+	original_file = localization_file.read_bytes()
+	w = Astigmatism3DWidget()
+	qtbot.addWidget(w)
+	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file:" in lines[0]
-	assert "The localization file is not in the correct format." in lines[1]
-	assert w._loc.empty
+	assert w._model.empty
+	assert w._calibration_z is None
+	fake_qfiledialog(Astigmatism3DWidget, str(REF_DIR / MODEL_FILE))
+	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
+	model = w._model.copy()
+	capsys.readouterr()
 
+	w._spin_px_estimate.setValue(0.2)
+	w._spin_z_estimate.setValue(450)
+
+	pd.testing.assert_frame_equal(w._model, model)
+	assert not (tmp_path / MODEL_FILE).exists()
+	assert localization_file.read_bytes() == original_file
+	assert get_lines_output(capsys) == []
 	w.close()
 
 
@@ -270,7 +301,13 @@ def test_bad_load_model(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Chargement des données et modèles
+# ==================================================
+
+# ==================================================
+# region Calibration
+# ==================================================
 def test_compute_without_calibration_data(qtbot, capsys):
 	"""Vérifie que les paramètres restent modifiables sans déclencher de calibration avant le chargement."""
 	w = Astigmatism3DWidget()
@@ -293,6 +330,7 @@ def test_compute_without_calibration_data(qtbot, capsys):
 		pytest.param("uncentered", "astigmatism_3d_model.csv", 1, 2, id="uncentered")])
 def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path, user_model_path, scenario, reference, scale, bead_count):
 	"""Vérifie la calibration immédiate au chargement, ses résultats et le CSV effectivement sauvegardé."""
+	# Préparation des localisations du scénario dans un fichier temporaire.
 	data = pd.read_csv(LOC_FILE)
 	if scenario == "mean-beads":
 		data.loc[data["Bead"] == 2, "Z"] *= 3
@@ -301,6 +339,7 @@ def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path,
 	localization_file = tmp_path / LOC_FILE.name
 	data.to_csv(localization_file, index=False)
 	original_file = localization_file.read_bytes()
+	# Configuration des options de calibration avant de charger les localisations.
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w._spin_px_compute.setValue(0.2)
@@ -309,6 +348,7 @@ def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path,
 	w._check_z_center.setChecked(scenario != "uncentered")
 	capsys.readouterr()
 
+	# Le chargement doit déclencher immédiatement le calcul et la sauvegarde du modèle.
 	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
 
@@ -320,6 +360,7 @@ def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path,
 	ref = pd.read_csv(REF_DIR / reference, index_col=0)
 	ref[["Z0", "W"]] *= scale
 	assert np.allclose(w._model, ref, atol=0.1, rtol=0)
+	# Vérification des deux sauvegardes du modèle et de la préservation du fichier d'entrée.
 	saved_model = pd.read_csv(tmp_path / MODEL_FILE, index_col=0)
 	pd.testing.assert_frame_equal(saved_model, w._model)
 	pd.testing.assert_frame_equal(pd.read_csv(user_model_path, index_col=0), w._model)
@@ -519,34 +560,13 @@ def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path):
 	w.close()
 
 
-# --------------------------------------------------
-def test_estimation_load_does_not_calibrate(qtbot, capsys, fake_qfiledialog, tmp_path):
-	"""Vérifie que le chargement destiné à Compute Z et ses paramètres ne recalibrent pas le modèle fourni."""
-	localization_file = tmp_path / LOC_FILE.name
-	shutil.copy2(LOC_FILE, localization_file)
-	original_file = localization_file.read_bytes()
-	w = Astigmatism3DWidget()
-	qtbot.addWidget(w)
-	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
-	qtbot.mouseClick(w._btn_load_loc_estimate, Qt.MouseButton.LeftButton)
-	assert w._model.empty
-	assert w._calibration_z is None
-	fake_qfiledialog(Astigmatism3DWidget, str(REF_DIR / MODEL_FILE))
-	qtbot.mouseClick(w._btn_load_model_estimate, Qt.MouseButton.LeftButton)
-	model = w._model.copy()
-	capsys.readouterr()
+# ==================================================
+# endregion Calibration
+# ==================================================
 
-	w._spin_px_estimate.setValue(0.2)
-	w._spin_z_estimate.setValue(450)
-
-	pd.testing.assert_frame_equal(w._model, model)
-	assert not (tmp_path / MODEL_FILE).exists()
-	assert localization_file.read_bytes() == original_file
-	assert get_lines_output(capsys) == []
-	w.close()
-
-
-# --------------------------------------------------
+# ==================================================
+# region Modèle par défaut
+# ==================================================
 def test_set_default_model_without_model(qtbot, capsys):
 	"""Permet d'activer la sauvegarde par défaut avant de calculer un modèle."""
 	w = Astigmatism3DWidget()
@@ -625,7 +645,13 @@ def test_estimate_default_model(qtbot, tmp_path, content):
 	w.close()
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Modèle par défaut
+# ==================================================
+
+# ==================================================
+# region Estimation axiale
+# ==================================================
 def test_bad_estimate(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie le lancement de l'estimation sans fichier chargé."""
 	w = Astigmatism3DWidget()
@@ -745,6 +771,11 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path)
 
 
 # ==================================================
+# endregion Estimation axiale
+# ==================================================
+
+
+# ==================================================
 # endregion Fonctions de rappel
 # ==================================================
 
@@ -784,6 +815,7 @@ def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert dl.filename == target.name
 
 	w.close()
+
 
 # ==================================================
 # endregion Export Plotly hérité

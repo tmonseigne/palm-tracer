@@ -22,7 +22,9 @@ def f() -> Filtering:
 	return Filtering(filters, manager)
 
 
-# --------------------------------------------------
+# ==================================================
+# region Entrées vides
+# ==================================================
 @pytest.mark.parametrize("method", [
 		pytest.param("localization", id="localizations"), pytest.param("tracking", id="tracks"),
 		pytest.param("track_analysis", id="track-analysis")])
@@ -35,7 +37,13 @@ def test_filter_bad(qtbot, f, method):
 		assert getattr(f, method)(pd.DataFrame()).empty
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Entrées vides
+# ==================================================
+
+# ==================================================
+# region Localisations
+# ==================================================
 def test_localization(qtbot, f):
 	"""Vérifie le filtrage complet."""
 	src = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
@@ -80,7 +88,13 @@ def test_localization(qtbot, f):
 	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Localisations
+# ==================================================
+
+# ==================================================
+# region Trajectoires
+# ==================================================
 @pytest.mark.parametrize("select_tracks, select_length, active, expected", [
 		pytest.param(True, False, True, 66, id="track-ids"),
 		pytest.param(False, True, True, 166, id="length"),
@@ -180,7 +194,13 @@ def test_tracking_ignores_roi_without_percentage(qtbot, f, length_active):
 	pd.testing.assert_frame_equal(f.tracking(src), src)
 
 
-# --------------------------------------------------
+# ==================================================
+# endregion Trajectoires
+# ==================================================
+
+# ==================================================
+# region Analyse des trajectoires
+# ==================================================
 @pytest.mark.parametrize("scenario, expected", [
 		pytest.param("intersection", [47, 9, 9, 9], id="intersection-without-criteria"),
 		pytest.param("filtered", [16, 3, 3, 3], id="active-criteria"),
@@ -218,3 +238,8 @@ def test_track_analysis(qtbot, f, scenario, expected):
 	f.filters.active = scenario != "disabled"
 	res = f.track_analysis(tracks, msd, instant_d, fit)
 	assert [len(frame) for frame in res] == expected
+
+
+# ==================================================
+# endregion Analyse des trajectoires
+# ==================================================

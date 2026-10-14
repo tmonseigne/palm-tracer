@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-import shutil
+import shutil as shutil
 from pathlib import Path
 from typing import Any, Optional, cast
 
@@ -20,9 +20,7 @@ from palm_tracer.Tools import FileIO, Ui
 INPUT_DIR = Path(__file__).parent.resolve() / "input"
 REF_DIR = INPUT_DIR / "ref"
 OUTPUT_DIR = Path(__file__).parent.resolve() / "output"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Créer le dossier de sorties (la première fois, il n'existe pas)
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
-OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # .		   Créer le dossier de sorties (la première fois, il n'existe pas)
 IS_CI = os.environ.get("CI", "").lower() in {"1", "true", "yes"}
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 TS_PATTERN = r"\[\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}\]"  # Regex timestamp : [16-02-2026 10:06:08]
@@ -40,13 +38,6 @@ def strip_ansi(text: str) -> str:
 
 
 # --------------------------------------------------
-def clean_output():
-	"""Vide les dossiers de sorties."""
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
-	shutil.rmtree(OUTPUT_FOLDER_2, ignore_errors=True)
-
-
-# --------------------------------------------------
 def get_lines_output(capsys) -> list[str]:
 	"""
 	Récupère la sortie lignes par lignes.
@@ -60,17 +51,27 @@ def get_lines_output(capsys) -> list[str]:
 
 
 # --------------------------------------------------
-def add_basic_file(pt: PALMTracer, files: Optional[list[str]] = None):
-	"""Mise à jour basique de la liste des fichiers."""
+def add_basic_file(pt: PALMTracer, files: list[str]):
+	"""
+	Met à jour la liste des fichiers avec les chemins explicitement choisis par le test.
+
+	:param pt: Pipeline dont la liste de fichiers est mise à jour.
+	:param files: Chemins des piles, copiées dans un dossier temporaire si le traitement produit des fichiers.
+	"""
 	file_list = cast(FileList, pt.settings.batch["Files"])
-	file_list.items = [str(INPUT_DIR / "stack.tif")] if files is None else files
+	file_list.items = files
 
 
 # --------------------------------------------------
-def get_fake_pt():
-	"""Instance basique de PALMTracer pour chaque test."""
+def get_fake_pt(input_stack: Path):
+	"""
+	Construit une instance basique avec une pile isolée et les résultats de référence.
+
+	:param input_stack: Copie temporaire de la pile utilisée par le test.
+	:return: Pipeline initialisé avec les données de référence.
+	"""
 	pt = PALMTracer()
-	add_basic_file(pt)
+	add_basic_file(pt, [str(input_stack)])
 	pt.results["loc"] = pd.read_csv(INPUT_DIR / "localizations.csv")
 	pt.results["f_loc"] = pt.results["loc"].copy()
 	pt.results["trc"] = pd.read_csv(INPUT_DIR / "tracking.csv")

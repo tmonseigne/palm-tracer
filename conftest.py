@@ -5,9 +5,12 @@ from __future__ import annotations
 import json
 import os
 import platform
+import shutil
 import sys
 import types
 from contextlib import suppress
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 
 import cpuinfo
 import napari
@@ -18,7 +21,7 @@ from napari._vispy.canvas import VispyCanvas
 from pytest_metadata.plugin import metadata_key
 from qtpy.QtWidgets import QApplication
 
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileIO, Ui
 from tests.Monitoring import Monitoring
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -32,6 +35,114 @@ all_tests_monitoring = Monitoring()
 # ==================================================
 # region Fixtures pytest
 # ==================================================
+@pytest.fixture
+def import_without_dependency(monkeypatch):
+	"""
+	Fournit une fabrique important une copie isolée d'un module sans une dépendance optionnelle.
+
+	:param monkeypatch: Fixture restaurant les importations et le registre des modules après le test.
+	:return: Fabrique renvoyant le module chargé avec son mécanisme de repli.
+	"""
+
+	# --------------------------------------------------
+	def _import(module_name: str, dependency: str):
+		"""
+		Simule une dépendance absente uniquement pendant l'importation de la copie.
+
+		:param module_name: Nom du module applicatif déjà chargé.
+		:param dependency: Nom exact de l'importation devant lever :class:`ImportError`.
+		:return: Copie du module, sans remplacer le module applicatif original.
+		"""
+		alias = f"_test_{module_name.replace('.', '_')}"
+		spec = spec_from_file_location(alias, sys.modules[module_name].__file__)
+		assert spec is not None and spec.loader is not None
+		module = module_from_spec(spec)
+		original_import = __import__
+
+		# --------------------------------------------------
+		def _missing_import(name, global_vars=None, local_vars=None, fromlist=(), level=0):
+			"""Refuse la dépendance ciblée et délègue toutes les autres importations."""
+			if name == dependency: raise ImportError(f"Unavailable dependency: {dependency}")
+			return original_import(name, global_vars, local_vars, fromlist, level)
+
+		# Le patch d'import reste limité à l'exécution du module pour ne pas affecter les callbacks Qt.
+		with monkeypatch.context() as context:
+			context.setitem(sys.modules, alias, module)
+			context.setattr("builtins.__import__", _missing_import)
+			spec.loader.exec_module(module)
+		return module
+
+	return _import
+
+
+# --------------------------------------------------
+@pytest.fixture(autouse=True)
+def isolated_user_config(monkeypatch, tmp_path):
+	"""
+	Isole les paramètres et modèles utilisateur de chaque test.
+
+	:param monkeypatch: Fixture remplaçant temporairement les chemins de configuration.
+	:param tmp_path: Dossier temporaire propre au test.
+	:return: Dossier de configuration temporaire, créé uniquement par le code testé.
+	"""
+	folder = tmp_path / ".palm_tracer"
+	monkeypatch.setattr(FileIO, "CONFIG_DIR", folder)
+	for name in ("USER_SETTINGS_FILE", "USER_ASTIGMATISM_MODEL", "DEFAULT_ASTIGMATISM_MODEL"):
+		monkeypatch.setattr(FileIO, name, folder / getattr(FileIO, name).name)
+	return folder
+
+
+# --------------------------------------------------
+@pytest.fixture
+def user_model_path(isolated_user_config):
+	"""Fournit le chemin temporaire du modèle astigmatique utilisateur."""
+	return isolated_user_config / "astigmatism_3d_model.csv"
+
+
+# --------------------------------------------------
+@pytest.fixture
+def copy_input(tmp_path):
+	"""
+	Fournit une fabrique copiant une entrée de référence dans le dossier temporaire du test.
+
+	:param tmp_path: Dossier temporaire propre au test.
+	:return: Fabrique renvoyant le chemin de la copie, fichier ou dossier.
+	"""
+	folder = Path(__file__).parent / "tests" / "input"
+
+	# --------------------------------------------------
+	def _copy(name: str) -> Path:
+		"""
+		Copie une entrée en conservant son nom et ses éventuels sous-dossiers.
+
+		:param name: Chemin relatif de l'entrée dans ``tests/input``.
+		:return: Chemin de la copie temporaire.
+		"""
+		source, destination = folder / name, tmp_path / name
+		if not destination.exists():
+			destination.parent.mkdir(parents=True, exist_ok=True)
+			if source.is_dir(): shutil.copytree(source, destination)
+			else: shutil.copy2(source, destination)
+		return destination
+
+	return _copy
+
+
+# --------------------------------------------------
+@pytest.fixture
+def input_stack(copy_input):
+	"""Fournit une copie temporaire de la pile principale."""
+	return copy_input("stack.tif")
+
+
+# --------------------------------------------------
+@pytest.fixture
+def output_folder(input_stack):
+	"""Fournit le dossier de résultats associé à la pile temporaire, sans le créer."""
+	return input_stack.with_name(f"{input_stack.stem}_PALM_Tracer")
+
+
+# --------------------------------------------------
 @pytest.fixture
 def fake_qfiledialog(monkeypatch):
 	"""

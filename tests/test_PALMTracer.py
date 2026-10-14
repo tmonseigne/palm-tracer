@@ -7,25 +7,21 @@ Teste l'orchestration complète des traitements par la classe :class:`PALMTracer
 from contextlib import suppress
 from datetime import datetime, timedelta
 from itertools import count
+from pathlib import Path
 from typing import Literal
+from unittest.mock import Mock
 
+import pandas as pd
 import pytest
 
 from palm_tracer.Processing import Parsing
+from palm_tracer.Processing.Step import Step
+from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups.Graph import DATA_SRC
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
 from tests.Utils import *
-
-
-# --------------------------------------------------
-@pytest.fixture(autouse=True)
-def user_model_path(monkeypatch, tmp_path):
-	"""Isole la recherche du modèle utilisateur pour rendre les tests indépendants des modèles personnels."""
-	path = tmp_path / ".palm_tracer" / "astigmatism_3d_model.csv"
-	monkeypatch.setattr(FileIO, "USER_ASTIGMATISM_MODEL", path)
-	monkeypatch.setattr(FileIO, "DEFAULT_ASTIGMATISM_MODEL", path.with_name("astigmatism_3d_model_default.csv"))
-	return path
+from tests.Utils import add_basic_file
 
 
 # --------------------------------------------------
@@ -94,29 +90,29 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 
 
 # --------------------------------------------------
-def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool):
+def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool, output_folder: Path):
 	"""
 	Prépare les fichiers d'un traitement précédent pour vérifier leur réutilisation.
 
 	:param pt: Instance du pipeline dont les paramètres sont enregistrés.
 	:param localisation: Indique si les résultats de localisation sont préparés.
 	:param tracking: Indique si les résultats de suivi sont préparés.
+	:param output_folder: Dossier temporaire des résultats de la pile.
 	"""
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
-	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
+	output_folder.mkdir(exist_ok=True, parents=True)
 	timestamp = "20260101_000000"
 	pt.settings.rois.set_size(256, 128)
 	if localisation:
 		src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
-		dst = OUTPUT_FOLDER / f"localizations-{timestamp}.csv"
+		dst = output_folder / f"localizations-{timestamp}.csv"
 		shutil.copy2(src, dst)
 		pt.settings.localization.active = True
 	if tracking:
 		src = INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5.csv"
-		dst = OUTPUT_FOLDER / f"tracking-{timestamp}.csv"
+		dst = output_folder / f"tracking-{timestamp}.csv"
 		shutil.copy2(src, dst)
 		pt.settings.tracking.active = True
-	FileIO.save_json(OUTPUT_FOLDER / f"settings-{timestamp}.json", pt.settings.to_compact_dict())
+	FileIO.save_json(output_folder / f"settings-{timestamp}.json", pt.settings.to_compact_dict())
 
 
 # ==================================================
@@ -166,6 +162,44 @@ def test_clean_ui(monkeypatch, pt):
 # ==================================================
 # region Accesseurs
 # ==================================================
+def test_getter_path(pt):
+	"""Vérifie le process sans fichiers en entrée."""
+	res = pt.path
+	assert res == ""
+
+
+# --------------------------------------------------
+def test_getter_stack(pt):
+	"""Vérifie le process sans fichiers en entrée."""
+	res = pt.stack
+	assert res is None
+
+
+# --------------------------------------------------
+def test_getter_suffix(pt):
+	"""Vérifie le process sans fichiers en entrée."""
+	res = pt.suffix
+	assert res == ""
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("group_name", [pytest.param("HR", id="hr"), pytest.param("Filters", id="filters")])
+def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name: Literal["HR", "Filters"]):
+	"""Ignore un fichier de paramètres supprimé après l'initialisation du traitement."""
+	pt._path = str(tmp_path)
+	pt._timestamp = "20260101_000000"
+	settings_filename = pt._output_name("settings", "json")
+	settings_filename.touch()
+	settings_filename.unlink()
+	monkeypatch.setattr(FileIO, "open_json", lambda _: pytest.fail("Le fichier absent ne doit pas être lu."))
+	monkeypatch.setattr(FileIO, "save_json", lambda *_: pytest.fail("Le fichier absent ne doit pas être recréé."))
+
+	pt.save_setting_group(group_name)
+
+	assert not settings_filename.exists()
+
+
+# --------------------------------------------------
 def test_getter_localization(pt):
 	"""Vérifie le getter de la localisation."""
 	res = pt.results.localizations
@@ -231,44 +265,6 @@ def test_getter_track_analysis(pt):
 	assert df["MSD"].equals(ref1), "Le Dataframe devrait non vide."
 
 
-# --------------------------------------------------
-def test_getter_path(pt):
-	"""Vérifie le process sans fichiers en entrée."""
-	res = pt.path
-	assert res == ""
-
-
-# --------------------------------------------------
-def test_getter_stack(pt):
-	"""Vérifie le process sans fichiers en entrée."""
-	res = pt.stack
-	assert res is None
-
-
-# --------------------------------------------------
-def test_getter_suffix(pt):
-	"""Vérifie le process sans fichiers en entrée."""
-	res = pt.suffix
-	assert res == ""
-
-
-# --------------------------------------------------
-@pytest.mark.parametrize("group_name", [pytest.param("HR", id="hr"), pytest.param("Filters", id="filters")])
-def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name: Literal["HR", "Filters"]):
-	"""Ignore un fichier de paramètres supprimé après l'initialisation du traitement."""
-	pt._path = str(tmp_path)
-	pt._timestamp = "20260101_000000"
-	settings_filename = pt._output_name("settings", "json")
-	settings_filename.touch()
-	settings_filename.unlink()
-	monkeypatch.setattr(FileIO, "open_json", lambda _: pytest.fail("Le fichier absent ne doit pas être lu."))
-	monkeypatch.setattr(FileIO, "save_json", lambda *_: pytest.fail("Le fichier absent ne doit pas être recréé."))
-
-	pt.save_setting_group(group_name)
-
-	assert not settings_filename.exists()
-
-
 # ==================================================
 # endregion Accesseurs
 # ==================================================
@@ -276,10 +272,15 @@ def test_save_setting_group_missing_file(monkeypatch, pt, tmp_path, group_name: 
 # ==================================================
 # region Traitements
 # ==================================================
-def test_load_bad_dll(capsys, pt):
-	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
-	pt.palm._dll = None
-	pt.load("")
+
+# ==================================================
+# region Chargement des résultats
+# ==================================================
+@pytest.mark.parametrize("method", ["load", "process"], ids=["load-results", "run-pipeline"])
+def test_missing_dll(capsys, pt, monkeypatch, method):
+	"""Refuse le chargement ou le traitement lorsque la DLL est absente."""
+	monkeypatch.setattr(pt.palm, "_dll", None)
+	getattr(pt, method)()
 	lines = get_lines_output(capsys)
 	assert "Process not completed due to missing DLLs." in lines[0]
 
@@ -293,18 +294,18 @@ def test_load_nothing(capsys, pt):
 
 
 # --------------------------------------------------
-def test_load(capsys, pt):
+def test_load(capsys, pt, input_stack, output_folder):
 	"""Vérifie le chargement avec fichier, mais sans settings."""
-	clean_output()
 
-	# Process initial
-	add_basic_file(pt)
+	# Traitement initial de la pile temporaire pour produire les résultats à recharger.
+	add_basic_file(pt, [str(input_stack)])
 	pt.settings.localization.active = True
 	pt.process()
 	assert len(pt.results["loc"]) == 455
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
-	# Chargement
+	# Rechargement des résultats enregistrés dans le dossier associé à cette pile.
 	pt.load()
+	assert Path(pt.path) == output_folder
 
 	assert not pt.results["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
 	assert pt.results["f_loc"].empty, "Le Dataframe de localizations filtré devrait être vide."
@@ -329,7 +330,7 @@ def test_load(capsys, pt):
 	assert "Stack loaded successfully (size: (10, 128, 256))." in lines[17]
 
 	# Un fichier méta + un localization
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
+	check_output(output_folder, csv=[2], log=[1], json=[1])
 
 	# Simulation d'un chargement déjà en cours
 	pt._loading = True
@@ -339,9 +340,35 @@ def test_load(capsys, pt):
 
 
 # --------------------------------------------------
+def test_load_stack_error(capsys, pt, input_stack, output_folder, monkeypatch):
+	"""Conserve les résultats chargés et libère le verrou si la lecture de la pile échoue."""
+	# Prépare de vrais paramètres et résultats dans le dossier de la pile temporaire.
+	add_basic_file(pt, [str(input_stack)])
+	output_folder.mkdir()
+	timestamp = "20260101_000000"
+	FileIO.save_json(output_folder / f"settings-{timestamp}.json", pt.settings.to_compact_dict())
+	expected = pd.DataFrame({"X": [1.0], "Y": [2.0]})
+	expected.to_csv(output_folder / f"localizations-{timestamp}.csv", index=False)
+	monkeypatch.setattr(pt, "is_dll_valid", lambda: True)
+	monkeypatch.setattr(pt.settings.batch, "get_stacks", Mock(side_effect=OSError("Unreadable stack")))
+
+	# Le chargement des CSV doit réussir malgré l'échec final du TIFF.
+	pt.load(str(output_folder))
+	pd.testing.assert_frame_equal(pt.results["loc"], expected)
+	assert pt.stack is None
+	assert not pt._loading
+	assert "Error loading stack: Unreadable stack" in capsys.readouterr().out
+
+
+# ==================================================
+# endregion Chargement des résultats
+# ==================================================
+
+# ==================================================
+# region Pipeline et réutilisation
+# ==================================================
 def test_process_no_input(capsys, pt):
 	"""Vérifie le process sans fichiers en entrée."""
-	clean_output()
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization ne devrait pas être vide"
 	lines = get_lines_output(capsys)
@@ -349,15 +376,14 @@ def test_process_no_input(capsys, pt):
 
 
 # --------------------------------------------------
-def test_process_nothing(capsys, pt):
+def test_process_nothing(capsys, pt, input_stack, output_folder):
 	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
-	clean_output()
 
-	add_basic_file(pt)
+	add_basic_file(pt, [str(input_stack)])
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 15, [5, 6, 7, 8, 9, 10, 11, 12])
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
+	check_output(output_folder, csv=[1], log=[1], json=[1])
 
 	# Test d'une visualisation sans données.
 	pt.settings.gallery.active = True
@@ -366,7 +392,7 @@ def test_process_nothing(capsys, pt):
 	pt.process()  # Test d'une visualisation sans données.
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 18, [5, 6, 7, 8, 9, 10, 12, 14])
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
+	check_output(output_folder, csv=[1], log=[1], json=[1])
 
 	# Test d'une analyse des trajectoires sans données.
 	pt.settings.gallery.active = False
@@ -376,7 +402,7 @@ def test_process_nothing(capsys, pt):
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 8, 9, 11, 12, 13])
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
+	check_output(output_folder, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul de reconnexion de trajectoires sans données.
 	pt.settings.track_analysis.active = False
@@ -384,7 +410,7 @@ def test_process_nothing(capsys, pt):
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 8, 10, 11, 12, 13])
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
+	check_output(output_folder, csv=[1], log=[1], json=[1])
 
 	# Test d'une analyse des trajectoires sans données.
 	pt.settings.blinking.active = False
@@ -392,7 +418,7 @@ def test_process_nothing(capsys, pt):
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 7, 9, 10, 11, 12, 13])
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
+	check_output(output_folder, csv=[1], log=[1], json=[1])
 
 	# Test d'un calcul de correction de drift sans données.
 	pt.settings.tracking.active = False
@@ -400,307 +426,31 @@ def test_process_nothing(capsys, pt):
 	pt.process()
 	assert pt.results["loc"].empty, "Le Dataframe de localization devrait être vide"
 	check_capsys(capsys, 16, [5, 6, 8, 9, 10, 11, 12, 13])
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
+	check_output(output_folder, csv=[1], log=[1], json=[1])
 
 
 # --------------------------------------------------
-def test_process_bad_dll(capsys, pt):
-	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
-	pt.palm._dll = None
-	pt.process()
-
-	lines = get_lines_output(capsys)
-	assert "Process not completed due to missing DLLs." in lines[0]
-
-
-# --------------------------------------------------
-def test_process_multiple_stack(capsys, pt):
+def test_process_multiple_stack(capsys, pt, input_stack, output_folder, copy_input):
 	"""Vérifie le process avec plusieurs piles."""
-	clean_output()
 
-	add_basic_file(pt, [f"{INPUT_DIR}/stack.tif", f"{INPUT_DIR}/stack_quadrant.tif"])
+	# Préparation de deux piles temporaires et de leurs dossiers de résultats respectifs.
+	second_stack = copy_input("stack_quadrant.tif")
+	output_folder_2 = second_stack.with_name(f"{second_stack.stem}_PALM_Tracer")
+	add_basic_file(pt, [str(input_stack), str(second_stack)])
+	# Traitement de chaque pile séparément au sein du même lot.
 	pt.settings.batch["Mode"].value = 1
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])
-	check_output(OUTPUT_FOLDER_2, csv=[1], log=[1], json=[1])
+	# Vérification des fichiers produits pour chacune des deux piles.
+	check_output(output_folder, csv=[1], log=[1], json=[1])
+	check_output(output_folder_2, csv=[1], log=[1], json=[1])
 	# (2*21 lignes dans le cas d'aucun process)
 	check_capsys(capsys, 30, [5, 6, 7, 8, 9, 10, 11, 12])
 
 
 # --------------------------------------------------
-def test_process_localization(capsys, pt):
-	"""Vérifie le process de localisation."""
-	clean_output()
-
-	add_basic_file(pt)
-	pt.settings.localization.active = True
-	pt.process()
-
-	assert len(pt.results["loc"]) == 455
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
-
-
-# --------------------------------------------------
-@pytest.mark.parametrize("use_default", [False, True], ids=["specific-model", "default-model"])
-def test_process_localization_z(capsys, pt, tmp_path, use_default):
-	"""Vérifie la localisation sans modèle, puis avec un modèle explicitement sélectionné."""
-	# Isole les emplacements locaux pour éviter de charger un modèle présent parmi les données de test.
-	stack_file = tmp_path / "stack.tif"
-	shutil.copyfile(INPUT_DIR / "stack.tif", stack_file)
-	output_folder = tmp_path / "stack_PALM_Tracer"
-	add_basic_file(pt, [str(stack_file)])
-	pt.settings.localization.active = True
-	pt.settings.localization["Fit"].value = 1
-	s = pt.settings.localization["Gaussian Fit"]
-	s["Mode"].value = 2
-	s["Z"].value = True
-	pt.process()  # Lancement, mais aucun fichier de model.
-
-	assert len(pt.results["loc"]) == 455
-	assert np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
-	check_output(output_folder, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
-
-	s["Model"].value = str(REF_DIR / "astigmatism_3d_model.csv")
-	if use_default:
-		FileIO.DEFAULT_ASTIGMATISM_MODEL.parent.mkdir(parents=True, exist_ok=True)
-		default = pd.read_csv(REF_DIR / "astigmatism_3d_model.csv", index_col=0)
-		default.iloc[:, 0] += 100
-		default.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL)
-	s["Default Model"].value = use_default
-	pt.process()  # Lancement
-
-	assert len(pt.results["loc"]) == 455
-	assert not np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
-	model_path = FileIO.DEFAULT_ASTIGMATISM_MODEL if use_default else REF_DIR / "astigmatism_3d_model.csv"
-	model = pd.read_csv(model_path, index_col=0)
-	points = pt.results["loc"][["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
-	expected = pt.palm.astigmatism_3d_estimation(points, pt.settings.calibration["Pixel Size"].value * 1000, model.to_numpy(), s["Z max"].value)
-	np.testing.assert_allclose(pt.results["loc"][["Z", "MSE Z"]].to_numpy(), expected)
-	check_output(output_folder, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
-
-
-# --------------------------------------------------
-def test_process_localization_spline_bad(capsys, pt):
-	"""Vérifie le process de localisation."""
-	clean_output()
-
-	add_basic_file(pt)
-	pt.settings.localization.active = True
-	pt.settings.localization["Fit"].value = 2
-	with pytest.raises(OSError) as exception_info: pt.process()
-	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
-
-	check_output(OUTPUT_FOLDER, csv=[1], log=[1], json=[1])  # Il va créer le meta mais pas le fichier de localization
-	lines = get_lines_output(capsys)
-	assert len(lines) == 6  # Arrêt après l'erreur
-
-
-# --------------------------------------------------
-def test_process_localization_spline(capsys, pt):
-	"""Vérifie le process de localisation."""
-	clean_output()
-
-	add_basic_file(pt)
-	pt.settings.localization.active = True
-	pt.settings.localization["Fit"].value = 2
-	pt.settings.localization["Spline Fit"]["File"].value = f"{INPUT_DIR}/calibration.mat"
-	pt.process()
-
-	assert len(pt.results["loc"]) == 455
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
-
-
-# --------------------------------------------------
-def test_process_beads_extraction_no_beads(capsys, pt):
-	"""Vérifie le process de l'extraction des billes."""
-	clean_output()
-
-	add_basic_file(pt)
-	pt.settings.localization.active = True
-	pt.settings.beads.active = True
-	pt.process()
-
-	assert len(pt.results["loc"]) == 455
-	assert pt.results["bds"].empty
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])
-	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
-
-
-# --------------------------------------------------
-def test_process_plane_discontinuous(capsys, pt):
-	"""Vérifie le process de l'extraction des billes."""
-	clean_output()
-
-	src = INPUT_DIR / "localizations.csv"
-	pt.results["loc"] = pd.read_csv(src)
-	pt.results["loc"].loc[1, "Plane"] = 5
-	pt._beads_extraction()
-	assert pt.results["bds"].empty
-	lines = get_lines_output(capsys)
-	assert "No beads found." in lines[0]
-
-
-# --------------------------------------------------
-def test_process_beads_extraction(capsys, pt):
-	"""Vérifie le process de l'extraction des billes."""
-	clean_output()
-
-	add_basic_file(pt)
-	OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
-	timestamp = FileIO.get_timestamp_for_files()
-	src, dst = INPUT_DIR / "localizations.csv", OUTPUT_FOLDER / f"localizations-{timestamp}.csv"
-	shutil.copy2(src, dst)
-	pt.settings.localization.active = True
-	FileIO.save_json(OUTPUT_FOLDER / f"settings-{timestamp}.json", pt.settings.to_compact_dict())
-
-	pt.settings.beads.active = True
-	pt.process()
-
-	assert len(pt.results["bds"]) == 4  # 2 Billes sur 2 plans
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
-	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
-
-
-# --------------------------------------------------
-def test_process_tracking(capsys, pt):
-	"""Vérifie le process de tracking."""
-	clean_output()
-
-	add_basic_file(pt)
-	add_fakeprocess(pt, True, False)  # Ajout d'un fichier de localisations
-
-	pt.settings.tracking.active = True
-	pt.process()
-
-	ref = pt.results.localizations
-	ref = ref[ref["Integrated Intensity"] > 0]  # Suppression des éléments où la colonne "Integrated Intensity" est inférieure à 0 (l'ajustement a échoué).
-
-	assert len(ref) == len(pt.results.tracks), "Nombre de points différents entre la localization et le tracking."
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
-	check_capsys(capsys, 17, [5, 7, 8, 10, 11, 12, 13, 14])
-
-
-# --------------------------------------------------
-def test_process_tracking_blinking(capsys, pt):
-	"""Vérifie le process de tracking."""
-	clean_output()
-
-	add_basic_file(pt)
-	add_fakeprocess(pt, False, True)  # Ajout d'un fichier de Tracking
-
-	pt.settings.blinking.active = True
-	pt.process()
-
-	assert len(pt.results["trc"]) == len(pt.results["blk"]), "Nombre de points différents entre la reconnexion et le tracking."
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
-	check_capsys(capsys, 17, [5, 6, 7, 9, 11, 12, 13, 14])
-
-
-# --------------------------------------------------
-def test_process_track_analysis(capsys, pt, sequential_timestamps):
-	"""Vérifie le process de tracking."""
-	clean_output()
-
-	add_basic_file(pt)
-	add_fakeprocess(pt, False, True)  # Ajout d'un fichier de Tracking
-
-	ta = pt.settings.track_analysis
-	ta.active = True
-	pt.process()
-
-	# Aucun fichier Ajouté juste meta et le tracking copié
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)
-	check_capsys(capsys, 17, [5, 6, 7, 9, 10, 12, 13, 14])
-
-	ta["MSD"].value = True
-	pt.process()
-	assert len(pt.results["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
-	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
-	# Ajout de fichier MSD (ainsi qu'un fit minimal, un meta, un json et un log)
-	check_output(OUTPUT_FOLDER, csv=[4], log=[1], json=[1], clean=False)
-	check_capsys(capsys, 19, [5, 6, 7, 9, 10, 14, 15, 16])
-
-	ta["MSD"].value = False
-	ta["Instant Diffusion"].value = True
-	ta["Fit"].value = 1
-	pt.process()
-	assert len(pt.results["MSD"]) == 0  # MSD désactivé, il est conservé
-	assert len(pt.results["InD"]) == 3  # Seules 3 trajectoires sont éligibles
-	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
-	check_output(OUTPUT_FOLDER, csv=[6], log=[2], json=[2])  # Il a conservé le msd precedent mais à renommé le meta
-	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
-
-
-# --------------------------------------------------
-def test_process_gallery(capsys, pt):
-	"""Vérifie le process de visualization HR."""
-	clean_output()
-
-	add_basic_file(pt)
-	add_fakeprocess(pt, True, False)  # Ajout d'un fichier de localisations
-
-	pt.settings.gallery.active = True
-	pt.process()
-
-	# Dimension 270 (30 ROI / lignes(colonnes) * taille de ROI de 9) et 1 frame (30 * 30 = 900 / frame et environ 450 en entrée)
-	res, ref = FileIO.open_tif(str(list(OUTPUT_FOLDER.glob("*.tif"))[0])).shape, (1, 270, 270)
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], tif=[1])
-	check_capsys(capsys, 17, [5, 7, 8, 9, 10, 11, 13, 14])
-
-
-# --------------------------------------------------
-def test_process_visualization_graph(capsys, pt):
-	"""Vérifie le process de visualization de graph."""
-	clean_output()
-
-	add_basic_file(pt)
-	add_fakeprocess(pt, True, True)  # Ajout d'un fichier de localisations et de tracking
-
-	pt.settings.graph.active = True
-	pt.process()
-
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], html=[1])
-	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 15])
-
-
-# --------------------------------------------------
-def test_process_visualization_hr(capsys, pt, sequential_timestamps):
-	"""Vérifie le process de visualization HR."""
-	clean_output()
-
-	add_basic_file(pt)
-	add_fakeprocess(pt, True, True)  # Ajout d'un fichier de localisations et de tracking
-
-	pt.settings.hr.active = True
-	pt.settings.hr["Crop"].value = False
-	pt.process()
-
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1], png=[1], clean=False)
-	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
-
-	pt.settings.hr["Dimension"].value = 1  # Génération de Z-stack
-	pt.process()
-
-	check_output(OUTPUT_FOLDER, csv=[3], log=[2], json=[2], png=[1], tif=[1], clean=False)
-	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
-
-	pt.settings.hr["Dimension"].value = 2  # Génération de la rotation 3D
-	pt.process()
-
-	check_output(OUTPUT_FOLDER, csv=[3], log=[3], json=[3], png=[1], tif=[2])
-	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
-
-
-# --------------------------------------------------
-def test_process_all(capsys, pt):
+def test_process_all(capsys, pt, input_stack, output_folder):
 	"""Vérifie Basique pour le process complet."""
-	clean_output()
 
 	pt.settings.localization.active = True
 	pt.settings.localization["Fit"].value = 1
@@ -717,11 +467,137 @@ def test_process_all(capsys, pt):
 	pt.settings.gallery.active = True
 	pt.settings.graph.active = True
 	pt.settings.hr.active = True
-	add_basic_file(pt)
+	add_basic_file(pt, [str(input_stack)])
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[7], log=[1], json=[1], tif=[1], png=[1], html=[1])
+	check_output(output_folder, csv=[7], log=[1], json=[1], tif=[1], png=[1], html=[1])
 	check_capsys(capsys, 26, [5, 7, 9, 11, 13, 18, 20, 22])
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("stage", ["read", "rename"], ids=["unreadable-csv", "rename-denied"])
+def test_process_step_recomputes_after_reuse_error(pt, tmp_path, monkeypatch, stage):
+	"""Recalcule une étape active si le résultat précédent ne peut pas être lu ou renommé."""
+	# Configure une étape identique au traitement précédent pour demander sa réutilisation.
+	pt._path = str(tmp_path)
+	pt._timestamp_previous, pt._timestamp = "20260101_000000", "20260102_000000"
+	pt.settings.localization.active = True
+	previous = Settings()
+	previous.update_from_compact_dict(pt.settings.to_compact_dict())
+	old_file = pt.results.output_name_by_key("loc", pt.path, pt._timestamp_previous)
+	new_file = pt.results.output_name_by_key("loc", pt.path, pt._timestamp)
+	pd.DataFrame({"X": [-1.0]}).to_csv(old_file, index=False)
+	expected = pd.DataFrame({"X": [2.0]})
+	messages = []
+	monkeypatch.setattr(pt._logger, "add", messages.append)
+	if stage == "read": monkeypatch.setattr(pd, "read_csv", Mock(side_effect=OSError("Reuse failed")))
+	else: monkeypatch.setattr(Path, "rename", Mock(side_effect=PermissionError("Reuse failed")))
+
+	# Le résultat incomplet doit être vidé avant d'entrer dans le nouveau calcul.
+	def compute():
+		"""Vérifie l'abandon du résultat précédent et fournit un résultat recalculé."""
+		assert pt.results["loc"].empty
+		pt.results["loc"] = expected.copy()
+
+	process = Mock(side_effect=compute)
+	step = Step("localization", ["loc"], process, Mock(), apply_filter=False)
+	assert pt._process_step(step, previous, False)
+	process.assert_called_once_with()
+	step.filter_func.assert_not_called()
+	pd.testing.assert_frame_equal(pt.results["loc"], expected)
+	assert old_file.exists()
+	assert not new_file.exists()
+	assert any(f"Error loading file '{old_file.name}': Reuse failed" in message for message in messages)
+
+
+# ==================================================
+# endregion Pipeline et réutilisation
+# ==================================================
+
+# ==================================================
+# region Localisation et modèles astigmatiques
+# ==================================================
+def test_process_localization(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de localisation."""
+
+	add_basic_file(pt, [str(input_stack)])
+	pt.settings.localization.active = True
+	pt.process()
+
+	assert len(pt.results["loc"]) == 455
+	check_output(output_folder, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("use_default", [False, True], ids=["specific-model", "default-model"])
+def test_process_localization_z(capsys, pt, use_default, input_stack, output_folder):
+	"""Vérifie la localisation sans modèle, puis avec un modèle explicitement sélectionné."""
+	# Premier traitement sans modèle disponible : les coordonnées Z doivent rester nulles.
+	add_basic_file(pt, [str(input_stack)])
+	pt.settings.localization.active = True
+	pt.settings.localization["Fit"].value = 1
+	s = pt.settings.localization["Gaussian Fit"]
+	s["Mode"].value = 2
+	s["Z"].value = True
+	pt.process()  # Lancement, mais aucun fichier de model.
+
+	assert len(pt.results["loc"]) == 455
+	assert np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
+	check_output(output_folder, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
+
+	# Sélection d'un modèle explicite ou préparation du modèle par défaut dans la configuration temporaire.
+	s["Model"].value = str(REF_DIR / "astigmatism_3d_model.csv")
+	if use_default:
+		FileIO.DEFAULT_ASTIGMATISM_MODEL.parent.mkdir(parents=True, exist_ok=True)
+		default = pd.read_csv(REF_DIR / "astigmatism_3d_model.csv", index_col=0)
+		default.iloc[:, 0] += 100
+		default.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL)
+	s["Default Model"].value = use_default
+	# Nouveau traitement avec le modèle sélectionné sur la même instance du pipeline.
+	pt.process()  # Lancement
+
+	assert len(pt.results["loc"]) == 455
+	assert not np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
+	# Comparaison des coordonnées et erreurs axiales avec une estimation directe utilisant ce modèle.
+	model_path = FileIO.DEFAULT_ASTIGMATISM_MODEL if use_default else REF_DIR / "astigmatism_3d_model.csv"
+	model = pd.read_csv(model_path, index_col=0)
+	points = pt.results["loc"][["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
+	expected = pt.palm.astigmatism_3d_estimation(points, pt.settings.calibration["Pixel Size"].value * 1000, model.to_numpy(), s["Z max"].value)
+	np.testing.assert_allclose(pt.results["loc"][["Z", "MSE Z"]].to_numpy(), expected)
+	check_output(output_folder, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
+
+
+# --------------------------------------------------
+def test_process_localization_spline_bad(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de localisation."""
+
+	add_basic_file(pt, [str(input_stack)])
+	pt.settings.localization.active = True
+	pt.settings.localization["Fit"].value = 2
+	with pytest.raises(OSError) as exception_info: pt.process()
+	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
+
+	check_output(output_folder, csv=[1], log=[1], json=[1])  # Il va créer le meta mais pas le fichier de localization
+	lines = get_lines_output(capsys)
+	assert len(lines) == 6  # Arrêt après l'erreur
+
+
+# --------------------------------------------------
+def test_process_localization_spline(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de localisation."""
+
+	add_basic_file(pt, [str(input_stack)])
+	pt.settings.localization.active = True
+	pt.settings.localization["Fit"].value = 2
+	pt.settings.localization["Spline Fit"]["File"].value = f"{INPUT_DIR}/calibration.mat"
+	pt.process()
+
+	assert len(pt.results["loc"]) == 455
+	check_output(output_folder, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
 
 # --------------------------------------------------
@@ -799,6 +675,132 @@ def test_get_astigmatism_model_default_only(pt, tmp_path, user_model_path, conte
 
 
 # ==================================================
+# endregion Localisation et modèles astigmatiques
+# ==================================================
+
+# ==================================================
+# region Billes et trajectoires
+# ==================================================
+def test_process_beads_extraction_no_beads(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de l'extraction des billes."""
+
+	add_basic_file(pt, [str(input_stack)])
+	pt.settings.localization.active = True
+	pt.settings.beads.active = True
+	pt.process()
+
+	assert len(pt.results["loc"]) == 455
+	assert pt.results["bds"].empty
+	check_output(output_folder, csv=[2], log=[1], json=[1])
+	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
+
+
+# --------------------------------------------------
+def test_process_plane_discontinuous(capsys, pt):
+	"""Vérifie le process de l'extraction des billes."""
+
+	src = INPUT_DIR / "localizations.csv"
+	pt.results["loc"] = pd.read_csv(src)
+	pt.results["loc"].loc[1, "Plane"] = 5
+	pt._beads_extraction()
+	assert pt.results["bds"].empty
+	lines = get_lines_output(capsys)
+	assert "No beads found." in lines[0]
+
+
+# --------------------------------------------------
+def test_process_beads_extraction(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de l'extraction des billes."""
+
+	add_basic_file(pt, [str(input_stack)])
+	output_folder.mkdir(exist_ok=True, parents=True)
+	timestamp = FileIO.get_timestamp_for_files()
+	src, dst = INPUT_DIR / "localizations.csv", output_folder / f"localizations-{timestamp}.csv"
+	shutil.copy2(src, dst)
+	pt.settings.localization.active = True
+	FileIO.save_json(output_folder / f"settings-{timestamp}.json", pt.settings.to_compact_dict())
+
+	pt.settings.beads.active = True
+	pt.process()
+
+	assert len(pt.results["bds"]) == 4  # 2 Billes sur 2 plans
+	check_output(output_folder, csv=[3], log=[1], json=[1])
+	check_capsys(capsys, 17, [5, 7, 9, 10, 11, 12, 13, 14])
+
+
+# --------------------------------------------------
+def test_process_tracking(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de tracking."""
+
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations
+
+	pt.settings.tracking.active = True
+	pt.process()
+
+	ref = pt.results.localizations
+	ref = ref[ref["Integrated Intensity"] > 0]  # Suppression des éléments où la colonne "Integrated Intensity" est inférieure à 0 (l'ajustement a échoué).
+
+	assert len(ref) == len(pt.results.tracks), "Nombre de points différents entre la localization et le tracking."
+	check_output(output_folder, csv=[3], log=[1], json=[1])
+	check_capsys(capsys, 17, [5, 7, 8, 10, 11, 12, 13, 14])
+
+
+# --------------------------------------------------
+def test_process_tracking_blinking(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de tracking."""
+
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, False, True, output_folder)  # Ajout d'un fichier de Tracking
+
+	pt.settings.blinking.active = True
+	pt.process()
+
+	assert len(pt.results["trc"]) == len(pt.results["blk"]), "Nombre de points différents entre la reconnexion et le tracking."
+	check_output(output_folder, csv=[3], log=[1], json=[1])
+	check_capsys(capsys, 17, [5, 6, 7, 9, 11, 12, 13, 14])
+
+
+# --------------------------------------------------
+def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, output_folder):
+	"""Vérifie le process de tracking."""
+
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, False, True, output_folder)  # Ajout d'un fichier de Tracking
+
+	ta = pt.settings.track_analysis
+	ta.active = True
+	pt.process()
+
+	# Aucun fichier Ajouté juste meta et le tracking copié
+	check_output(output_folder, csv=[2], log=[1], json=[1], clean=False)
+	check_capsys(capsys, 17, [5, 6, 7, 9, 10, 12, 13, 14])
+
+	ta["MSD"].value = True
+	pt.process()
+	assert len(pt.results["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
+	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
+	# Ajout de fichier MSD (ainsi qu'un fit minimal, un meta, un json et un log)
+	check_output(output_folder, csv=[4], log=[1], json=[1], clean=False)
+	check_capsys(capsys, 19, [5, 6, 7, 9, 10, 14, 15, 16])
+
+	ta["MSD"].value = False
+	ta["Instant Diffusion"].value = True
+	ta["Fit"].value = 1
+	pt.process()
+	assert len(pt.results["MSD"]) == 0  # MSD désactivé, il est conservé
+	assert len(pt.results["InD"]) == 3  # Seules 3 trajectoires sont éligibles
+	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
+	check_output(output_folder, csv=[6], log=[2], json=[2])  # Il a conservé le msd precedent mais à renommé le meta
+	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
+
+
+# ==================================================
+# endregion Billes et trajectoires
+# ==================================================
+
+
+# ==================================================
 # endregion Traitements
 # ==================================================
 
@@ -852,19 +854,18 @@ def test_reset_filtered_saves_only_filters(pt, tmp_path):
 
 
 # --------------------------------------------------
-def test_update_filtered(capsys, pt):
+def test_update_filtered(capsys, pt, input_stack, output_folder):
 	"""Vérifie la mise à jour des tableaux filtrés."""
-	clean_output()
 	pt.update_filtered()  # .			Tout est vide
 	pt.settings.filters["Save"].value = True
 	pt.update_filtered()  # .			Tout est vide, mais je demande à enregistrer
 
-	add_basic_file(pt)
-	add_fakeprocess(pt, True, False)  # Ajout d'un fichier de localisations et de tracking
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations et de tracking
 
 	pt.process()
 	pt.update_filtered()  # .			Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1])  # Il n'a rien enregistré, car les filtres n'ont pas fait de changement.
+	check_output(output_folder, csv=[2], log=[1], json=[1])  # Il n'a rien enregistré, car les filtres n'ont pas fait de changement.
 
 
 # --------------------------------------------------
@@ -915,22 +916,21 @@ def test_update_filtered_saves_only_filters(pt, tmp_path):
 
 
 # --------------------------------------------------
-def test_save_filtered(capsys, pt):
+def test_save_filtered(capsys, pt, input_stack, output_folder):
 	"""Vérifie la mise à jour des tableaux filtrés."""
-	clean_output()
 	pt._path = OUTPUT_DIR
 	pt.update_filtered()  # .				Tout est vide
 	pt.settings.filters["Save"].value = True
 	pt.update_filtered()  # .				Tout est vide, mais je demande à enregistrer
 
-	add_basic_file(pt)
-	add_fakeprocess(pt, True, False)  # .	Ajout d'un fichier de localisations et de tracking
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, True, False, output_folder)  # .	Ajout d'un fichier de localisations et de tracking
 
 	pt.results["loc"] = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
 	pt.settings.filters["Plane"].active = True
 	pt.settings.filters["Plane"].value = [2, 3]
 	pt.update_filtered()  # .				Il va recalculer les filtres.
-	check_output(OUTPUT_FOLDER, csv=[1])  # Il a enregistré la version filtrée.
+	check_output(output_folder, csv=[1])  # Il a enregistré la version filtrée.
 
 
 # --------------------------------------------------
@@ -941,12 +941,11 @@ def test_connect_filters_button(qtbot, capsys, pt):
 
 
 # --------------------------------------------------
-def test_filter_localization(capsys, pt, sequential_timestamps):
+def test_filter_localization(capsys, pt, sequential_timestamps, input_stack, output_folder):
 	"""Vérifie le filtrage complet lors de l'exécution."""
-	clean_output()
 
-	add_basic_file(pt)
-	add_fakeprocess(pt, True, False)  # .	Ajout d'un fichier de localisations et de tracking
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations et de tracking
 
 	f = pt.settings.filters
 	fl = f.localization
@@ -965,22 +964,21 @@ def test_filter_localization(capsys, pt, sequential_timestamps):
 	fl["MSE XY"].active = True
 	fl["MSE XY"].value = [0.05, 10]  # .	345/366 : 1 suppression(s)
 	pt.process()
-	check_output(OUTPUT_FOLDER, csv=[2], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le résultat du filtre
+	check_output(output_folder, csv=[2], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le résultat du filtre
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])
 
 	pt.settings.filters["Save"].value = True
 	pt.process()  # Second passage avec enregistrement
-	check_output(OUTPUT_FOLDER, csv=[3], log=[1], json=[1])
+	check_output(output_folder, csv=[3], log=[1], json=[1])
 	check_capsys(capsys, 18, [5, 9, 10, 11, 12, 13, 14, 15])
 
 
 # --------------------------------------------------
-def test_filter_track_analysis(capsys, pt, sequential_timestamps):
+def test_filter_track_analysis(capsys, pt, sequential_timestamps, input_stack, output_folder):
 	"""Vérifie le filtrage complet lors de l'exécution."""
-	clean_output()
 
-	add_basic_file(pt)
-	add_fakeprocess(pt, False, True)  # Ajout d'un fichier de tracking
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, False, True, output_folder)  # Ajout d'un fichier de tracking
 
 	pt.settings.track_analysis.active = True
 	pt.settings.track_analysis["MSD"].value = True
@@ -1001,7 +999,7 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 	ft["Confinement"].value = [-10, 10]
 	pt.process()
 
-	check_output(OUTPUT_FOLDER, csv=[5], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le résultat du filtre
+	check_output(output_folder, csv=[5], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le résultat du filtre
 	check_capsys(capsys, 21, [5, 6, 7, 10, 11, 16, 17, 18])
 
 	pt.settings.filters["Save"].value = True
@@ -1010,7 +1008,7 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 	assert len(pt.results.tracks) == 26, f"Il reste {len(pt.results.tracks)} points au lieu de 26 sur les trajectoires."
 	assert len(pt.results.track_analysis["MSD"]) == 6, f"Il reste {len(pt.results.track_analysis['MSD'])} trajectoires au lieu de 14."
 
-	check_output(OUTPUT_FOLDER, csv=[9], log=[1], json=[1], clean=False)  # Track + 2 analyses de trajectoires, leurs versions filtrées et le meta = 9
+	check_output(output_folder, csv=[9], log=[1], json=[1], clean=False)  # Track + 2 analyses de trajectoires, leurs versions filtrées et le meta = 9
 	check_capsys(capsys, 26, [5, 6, 7, 11, 12, 21, 22, 23])
 
 	# Filtre massif plus rien à la sortie
@@ -1018,7 +1016,7 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 	pt.process()
 	assert len(pt.results["f_trc"]) == 0, f"Il reste {len(pt.results.tracks)} points au lieu de 0 sur les trajectoires."
 	assert len(pt.results["f_MSD"]) == 0, f"Il reste {len(pt.results.track_analysis['MSD'])} trajectoires au lieu de 0."
-	check_output(OUTPUT_FOLDER, csv=[9], log=[2], json=[2])  # Il ne va pas réenregistrer les éléments filtrés
+	check_output(output_folder, csv=[9], log=[2], json=[2])  # Il ne va pas réenregistrer les éléments filtrés
 	check_capsys(capsys, 21, [5, 6, 7, 10, 11, 16, 17, 18])
 
 
@@ -1029,17 +1027,42 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps):
 # ==================================================
 # region Visualisation
 # ==================================================
-# region Graph
-# --------------------------------------------------
+
+# ==================================================
+# region Galeries
+# ==================================================
+def test_process_gallery(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de visualization HR."""
+
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations
+
+	pt.settings.gallery.active = True
+	pt.process()
+
+	# Dimension 270 (30 ROI / lignes(colonnes) * taille de ROI de 9) et 1 frame (30 * 30 = 900 / frame et environ 450 en entrée)
+	res, ref = FileIO.open_tif(str(list(output_folder.glob("*.tif"))[0])).shape, (1, 270, 270)
+	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+	check_output(output_folder, csv=[2], log=[1], json=[1], tif=[1])
+	check_capsys(capsys, 17, [5, 7, 8, 9, 10, 11, 13, 14])
+
+
+# ==================================================
+# endregion Galeries
+# ==================================================
+
+# ==================================================
+# region Graphiques
+# ==================================================
 @pytest.mark.parametrize("mode, source_type, source", [
 		pytest.param(mode, source_type, source, id=f"{mode_name}-{type_name}-{source}")
 		for mode, mode_name in enumerate(("histogram", "scatter", "dual"))
 		for source_type, type_name in enumerate(("localizations", "tracks"))
 		for source in DATA_SRC["Localization" if source_type == 0 else "Tracking Scatter" if mode == 1 else "Tracking"]
 		if mode != 2 or source not in DATA_SRC["No Dual"]])
-def test_graph(mode, source_type, source):
+def test_graph(mode, source_type, source, input_stack):
 	"""Construit une figure pour chaque source A de chaque domaine et mode, avec une source B fixe en Dual."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	# Les points et leurs analyses partagent les mêmes identifiants ; toutes les grandeurs d'ajustement sont disponibles.
 	pt.results["f_blk"] = pd.DataFrame({"Track": [7, 7, 12, 12], "Plane": [1, 3, 2, 3], "Integrated Intensity": [10, 30, 20, 40]})
 	pt.results["MSD"] = pd.DataFrame({"Track": [7, 12], "Step 1": [1.0, 3.0], "Step 2": [2.0, 4.0]})
@@ -1098,9 +1121,9 @@ def test_get_graph_data_dual_localizations(pt, missing_column):
 		pytest.param("Length", [[7.0, 10.0], [11.0, 20.0]], id="total-duration"),
 		pytest.param("Length On", [[2.5, 10.0], [1.0, 20.0]], id="present-duration"),
 		pytest.param("Length Off", [[2.0, 10.0], [4.0, 20.0]], id="absent-duration")])
-def test_get_graph_data_dual_tracks(source, expected):
+def test_get_graph_data_dual_tracks(source, expected, input_stack):
 	"""Vérifie la mise en correspondance des données par identifiant de trajectoire."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	pt.results["f_blk"] = pd.DataFrame({"Track": [1, 1, 1, 1, 1, 2, 2, 2, 3, 3], "Plane": [1, 2, 5, 6, 7, 10, 12, 20, 4, 5], })
 	pt.results["Fit"] = pd.DataFrame({"Track": [2, 1, 4], "MSE(0)": [20.0, 10.0, 40.0]})
 
@@ -1298,9 +1321,9 @@ def test_get_track_scatter_data_unknown_source(pt, source):
 					 id="instant-diffusion"),
 		pytest.param("MSE(0)", 1, "Tracks MSE(0)", [[35, 1], [37, 1], [66, 1], [75, 1], [81, 1], [83, 1], [102, 1], [114, 1],
 													[131, 1], [152, 1], [158, 1], [165, 1], [176, 1], [220, 1]], id="fit-error")])
-def test_get_track_graph_data(source, msd_step, expected_title, expected_data):
+def test_get_track_graph_data(source, msd_step, expected_title, expected_data, input_stack):
 	"""Vérifie les valeurs des analyses utilisées en histogramme ou en Dual."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	pt.settings.graph["MSD Step"].value = msd_step
 	graph_data = pt._get_track_graph_data(source, False, False)
 	assert graph_data["title"] == expected_title
@@ -1320,9 +1343,9 @@ def test_get_track_graph_data_empty(pt, source):
 @pytest.mark.parametrize("source, msd_step, expected_title", [
 		pytest.param("MSD", 9, "Tracks MSD Step 9", id="missing-msd-step"),
 		pytest.param("Unknown", 1, "Tracks Unknown", id="missing-fit-column")])
-def test_get_track_graph_data_missing_column(source, msd_step, expected_title):
+def test_get_track_graph_data_missing_column(source, msd_step, expected_title, input_stack):
 	"""Renvoie des données vides si le step ou la colonne d'analyse n'existe pas."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	pt.settings.graph["MSD Step"].value = msd_step
 	graph_data = pt._get_track_graph_data(source, False, False)
 	assert graph_data["data"].shape == (0,)
@@ -1355,9 +1378,9 @@ def test_get_track_graph_data_options(pt, source, expected_limit, expected_bins,
 		pytest.param("Length", [99, 2, 2, 2, 2, 2, 2, 2, 2], id="total-duration"),
 		pytest.param("Length On", [1, 1, 2, 2, 2, 2, 2, 2, 2, 2], id="present-segments"),
 		pytest.param("Length Off", [97], id="absent-segments")])
-def test_get_track_length_data(source, expected_data):
+def test_get_track_length_data(source, expected_data, input_stack):
 	"""Vérifie les durées totales, les segments On/Off et l'ancien format avec identifiants."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	np.testing.assert_array_equal(pt._get_track_length_data(source, False), expected_data)
 
 
@@ -1368,9 +1391,9 @@ def test_get_track_length_data_empty(pt):
 
 
 # --------------------------------------------------
-def test_get_track_length_data_unknown_source():
+def test_get_track_length_data_unknown_source(input_stack):
 	"""Renvoie des durées vides pour une source de longueur non prise en charge."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	assert pt._get_track_length_data("Length New", False).shape == (0,)
 
 
@@ -1408,110 +1431,30 @@ def test_get_track_count_data(pt, log_scale):
 	np.testing.assert_allclose(pt._get_track_count_data(log_scale), expected, equal_nan=True)
 
 
-# endregion Graph
-
-
 # --------------------------------------------------
-@pytest.mark.parametrize("shape", [
-		pytest.param(None, id="spots"), pytest.param(0, id="fixed-size"),
-		pytest.param(1, id="isotropic"), pytest.param(2, id="anisotropic")])
-@pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
-def test_hr_data_crop(shape, dimension):
-	"""Compare le premier crop au rendu complet et vérifie sa désactivation sur le même objet."""
-	pt = get_fake_pt()
-	pt._stack = np.zeros((1, 100, 100), dtype=np.uint16)
-	pt.settings.rois.set_size(100, 100)
-	s = pt.settings.hr
-	s["Dimension"].value = dimension
-	s["Ratio"].value = 2
-	s["Remove Beads"].value = False
-	s["Drift Correction"].value = False
-	s.gaussian.active = shape is not None
-	if shape is not None: s.gaussian["Shape"].value = shape
-	data = pt.results["loc"].copy()
-	data["X"], data["Y"] = 40.25, 50.25
-	data["Sigma X"], data["Sigma Y"] = 1.0, 2.0
-	pt.results["loc"] = data
-	pt.results["f_loc"] = data.copy()
-	s["Crop"].value = False
-	hr_data = pt.hr()
-	full, full_plot = hr_data["visualization"], hr_data["plot_data"]
-	s["Crop"].value = True
-	hr_data = pt.hr()
-	cropped, cropped_plot = hr_data["visualization"], hr_data["plot_data"]
-	x0, x1, y0, y1 = pt.settings.rois.hr_box
-	assert cropped.size < full.size
-	np.testing.assert_array_equal(cropped, full[..., y0 * 2:y1 * 2, x0 * 2:x1 * 2])
-	np.testing.assert_allclose(cropped_plot[:, -2:], full_plot[:, -2:] - [y0 * 2, x0 * 2])
-	s["Crop"].value = False
-	restored = pt.hr()["visualization"]
-	np.testing.assert_array_equal(restored, full)
-	assert pt.settings.rois.data_box == (-1, -1, -1, -1)
+def test_process_visualization_graph(capsys, pt, input_stack, output_folder):
+	"""Vérifie le process de visualization de graph."""
+
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, True, True, output_folder)  # Ajout d'un fichier de localisations et de tracking
+
+	pt.settings.graph.active = True
+	pt.process()
+
+	check_output(output_folder, csv=[3], log=[1], json=[1], html=[1])
+	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 15])
 
 
-# --------------------------------------------------
-@pytest.mark.parametrize("dimension, raw, head, width", [
-		pytest.param(0, False, 1, 1, id="tracks-2d"),
-		pytest.param(3, False, 1, 1, id="track-stack"),
-		pytest.param(3, True, 1, 1, id="raw-background"),
-		pytest.param(3, False, 29, 1, id="large-heads"),
-		pytest.param(3, False, 1, 30, id="wide-tails"),
-		pytest.param(3, True, 29, 30, id="wide-raw")])
-@pytest.mark.parametrize("with_roi", [pytest.param(False, id="full-field"), pytest.param(True, id="partial-roi")])
-def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
-	"""Le premier crop conserve les segments et leur empreinte, avec le même décalage pour le raw et les points."""
-	pt = PALMTracer()
-	pt._stack = np.full((3, 100, 100), 1000, dtype=np.uint16)
-	rois = pt.settings.rois
-	rois.set_size(100, 100)
-	if with_roi:
-		rois.set_xy_roi(36, 90, 20, 90)
-		rois.roi_selection.active = True
-	pt.results["trc"] = pd.DataFrame({"Track": [1, 1, 1], "Plane": [1, 2, 3],
-									  "X":     [30, 40, 50], "Y": [35, 45, 40], "Integrated Intensity": [1000] * 3})
-	s = pt.settings.hr
-	s["Dimension"].value = dimension
-	s["Type"].value = 1
-	s["Ratio"].value = 2
-	s["Scaling"].value = 1000
-	s["Remove Beads"].value = False
-	s["Drift Correction"].value = False
-	s.track_stack["Head"].value = head
-	s.track_stack["Width"].value = width
-	s.track_stack["Background"].value = raw
-	s["Crop"].value = False
-	hr_data = pt.hr()
-	full, full_plot = hr_data["visualization"], hr_data["plot_data"]
-	base_x, _, base_y, _ = rois.hr_box
+# ==================================================
+# endregion Graphiques
+# ==================================================
 
-	s["Crop"].value = True
-	hr_data = pt.hr()
-	cropped, cropped_plot = hr_data["visualization"], hr_data["plot_data"]
-	x0, x1, y0, y1 = rois.hr_box
-	y_slice, x_slice = slice((y0 - base_y) * 2, (y1 - base_y) * 2), slice((x0 - base_x) * 2, (x1 - base_x) * 2)
-	assert cropped.size < full.size
-	assert np.any(cropped)
-	if raw: np.testing.assert_array_equal(cropped, full[:, y_slice, x_slice, :])
-	else:
-		np.testing.assert_array_equal(cropped, full[..., y_slice, x_slice])
-		# Reconstituer l'image entière vérifie aussi qu'aucun signal n'a été coupé hors du nouveau cadre.
-		reconstructed = np.zeros_like(full)
-		reconstructed[..., y_slice, x_slice] = cropped
-		np.testing.assert_array_equal(reconstructed, full)
-	np.testing.assert_allclose(cropped_plot[:, -2:], full_plot[:, -2:] - [(y0 - base_y) * 2, (x0 - base_x) * 2])
-	np.testing.assert_array_equal(cropped_plot[:, :2], full_plot[:, :2])
-	if with_roi: assert rois.hr_box[0] == 36
-
-	s["Crop"].value = False
-	restored = pt.hr()["visualization"]
-	np.testing.assert_array_equal(restored, full)
-	assert rois.data_box == (-1, -1, -1, -1)
-
-
-# --------------------------------------------------
-def test_hr():
+# ==================================================
+# region Haute résolution
+# ==================================================
+def test_hr(input_stack):
 	"""Vérifie différentes récupérations de données."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	ref_empty: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 	ref_viz0: np.ndarray = np.zeros((10, 10), dtype=np.uint16)
 	s = pt.settings.hr
@@ -1637,10 +1580,10 @@ def test_hr_filtered_plot_data(monkeypatch, dimension, key, selection):
 	correct_drift = pt._correct_drift
 
 	# --------------------------------------------------
-	def record_preparation(data):
+	def record_preparation(d):
 		"""Observe la préparation commune des localisations sans modifier leur traitement."""
-		prepared_lengths.append(len(data))
-		return correct_drift(data)
+		prepared_lengths.append(len(d))
+		return correct_drift(d)
 
 	monkeypatch.setattr(pt, "_correct_drift", record_preparation)
 	data = pt.hr()
@@ -1716,9 +1659,9 @@ def test_hr_filtered_points_all_removed_as_beads(pt, key):
 
 
 # --------------------------------------------------
-def test_hr_filter():
+def test_hr_filter(input_stack):
 	"""Vérifie différentes récupérations de données."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	s = pt.settings.hr
 	s["Ratio"].value = 2
 	s["Source"].value = 1
@@ -1786,9 +1729,9 @@ def test_hr_track_crossing_roi():
 
 
 # --------------------------------------------------
-def test_hr_empty_roi_3d():
+def test_hr_empty_roi_3d(input_stack):
 	"""Génère un volume vide aux dimensions de la ROI lorsqu'elle ne contient aucune localisation."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	pt._stack = np.zeros((1, 5, 5), dtype=np.uint16)
 	pt.settings.rois.set_size(5, 5)
 	pt.settings.rois.set_xy_roi(0, 1, 0, 1, add=False)
@@ -1808,9 +1751,9 @@ def test_hr_empty_roi_3d():
 
 
 # --------------------------------------------------
-def test_hr_z_stack():
+def test_hr_z_stack(input_stack):
 	"""Vérifie que les points vectoriels utilisent le même pas Z que le rendu."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	s = pt.settings.hr
 	s["Dimension"].value = 1
 	s.hr_3d["Z Step"].value = 1
@@ -1833,9 +1776,9 @@ def test_hr_z_stack():
 
 
 # --------------------------------------------------
-def test_hr_rotation():
+def test_hr_rotation(input_stack):
 	"""Vérifie différentes récupérations de données."""
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	s = pt.settings.hr
 	s["Dimension"].value = 2
 	s.hr_3d["Frames"].value = 2
@@ -2094,11 +2037,120 @@ def test_hr_track_stack_dimension_switch(qtbot):
 		s["Dimension"].value = 3
 
 
+# ==================================================
+# endregion Haute résolution
+# ==================================================
+
+# ==================================================
+# region Préparation des données HR
+# ==================================================
+@pytest.mark.parametrize("shape", [
+		pytest.param(None, id="spots"), pytest.param(0, id="fixed-size"),
+		pytest.param(1, id="isotropic"), pytest.param(2, id="anisotropic")])
+@pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
+def test_hr_data_crop(shape, dimension, input_stack):
+	"""Compare le premier crop au rendu complet et vérifie sa désactivation sur le même objet."""
+	pt = get_fake_pt(input_stack)
+	pt._stack = np.zeros((1, 100, 100), dtype=np.uint16)
+	pt.settings.rois.set_size(100, 100)
+	s = pt.settings.hr
+	s["Dimension"].value = dimension
+	s["Ratio"].value = 2
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+	s.gaussian.active = shape is not None
+	if shape is not None: s.gaussian["Shape"].value = shape
+	data = pt.results["loc"].copy()
+	data["X"], data["Y"] = 40.25, 50.25
+	data["Sigma X"], data["Sigma Y"] = 1.0, 2.0
+	pt.results["loc"] = data
+	pt.results["f_loc"] = data.copy()
+	s["Crop"].value = False
+	hr_data = pt.hr()
+	full, full_plot = hr_data["visualization"], hr_data["plot_data"]
+	s["Crop"].value = True
+	hr_data = pt.hr()
+	cropped, cropped_plot = hr_data["visualization"], hr_data["plot_data"]
+	x0, x1, y0, y1 = pt.settings.rois.hr_box
+	assert cropped.size < full.size
+	np.testing.assert_array_equal(cropped, full[..., y0 * 2:y1 * 2, x0 * 2:x1 * 2])
+	np.testing.assert_allclose(cropped_plot[:, -2:], full_plot[:, -2:] - [y0 * 2, x0 * 2])
+	s["Crop"].value = False
+	restored = pt.hr()["visualization"]
+	np.testing.assert_array_equal(restored, full)
+	assert pt.settings.rois.data_box == (-1, -1, -1, -1)
+
+
 # --------------------------------------------------
-def test_crop():
+@pytest.mark.parametrize("dimension, raw, head, width", [
+		pytest.param(0, False, 1, 1, id="tracks-2d"),
+		pytest.param(3, False, 1, 1, id="track-stack"),
+		pytest.param(3, True, 1, 1, id="raw-background"),
+		pytest.param(3, False, 29, 1, id="large-heads"),
+		pytest.param(3, False, 1, 30, id="wide-tails"),
+		pytest.param(3, True, 29, 30, id="wide-raw")])
+@pytest.mark.parametrize("with_roi", [pytest.param(False, id="full-field"), pytest.param(True, id="partial-roi")])
+def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
+	"""Le premier crop conserve les segments et leur empreinte, avec le même décalage pour le raw et les points."""
+	pt = PALMTracer()
+	pt._stack = np.full((3, 100, 100), 1000, dtype=np.uint16)
+	rois = pt.settings.rois
+	rois.set_size(100, 100)
+	if with_roi:
+		rois.set_xy_roi(36, 90, 20, 90)
+		rois.roi_selection.active = True
+	pt.results["trc"] = pd.DataFrame({"Track": [1, 1, 1], "Plane": [1, 2, 3],
+									  "X":     [30, 40, 50], "Y": [35, 45, 40], "Integrated Intensity": [1000] * 3})
+	s = pt.settings.hr
+	s["Dimension"].value = dimension
+	s["Type"].value = 1
+	s["Ratio"].value = 2
+	s["Scaling"].value = 1000
+	s["Remove Beads"].value = False
+	s["Drift Correction"].value = False
+	s.track_stack["Head"].value = head
+	s.track_stack["Width"].value = width
+	s.track_stack["Background"].value = raw
+	s["Crop"].value = False
+	hr_data = pt.hr()
+	full, full_plot = hr_data["visualization"], hr_data["plot_data"]
+	base_x, _, base_y, _ = rois.hr_box
+
+	s["Crop"].value = True
+	hr_data = pt.hr()
+	cropped, cropped_plot = hr_data["visualization"], hr_data["plot_data"]
+	x0, x1, y0, y1 = rois.hr_box
+	y_slice, x_slice = slice((y0 - base_y) * 2, (y1 - base_y) * 2), slice((x0 - base_x) * 2, (x1 - base_x) * 2)
+	assert cropped.size < full.size
+	assert np.any(cropped)
+	if raw: np.testing.assert_array_equal(cropped, full[:, y_slice, x_slice, :])
+	else:
+		np.testing.assert_array_equal(cropped, full[..., y_slice, x_slice])
+		# Reconstituer l'image entière vérifie aussi qu'aucun signal n'a été coupé hors du nouveau cadre.
+		reconstructed = np.zeros_like(full)
+		reconstructed[..., y_slice, x_slice] = cropped
+		np.testing.assert_array_equal(reconstructed, full)
+	np.testing.assert_allclose(cropped_plot[:, -2:], full_plot[:, -2:] - [(y0 - base_y) * 2, (x0 - base_x) * 2])
+	np.testing.assert_array_equal(cropped_plot[:, :2], full_plot[:, :2])
+	if with_roi: assert rois.hr_box[0] == 36
+
+	s["Crop"].value = False
+	restored = pt.hr()["visualization"]
+	np.testing.assert_array_equal(restored, full)
+	assert rois.data_box == (-1, -1, -1, -1)
+
+
+# ==================================================
+# endregion Préparation des données HR
+# ==================================================
+
+# ==================================================
+# region Recadrage et sauvegarde
+# ==================================================
+def test_crop(input_stack):
 	"""Vérifie la création du widget."""
 
-	pt = get_fake_pt()
+	pt = get_fake_pt(input_stack)
 	img: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 	res = pt.crop(img)  # .										Crop à True, image noire
 	assert np.allclose(img, res)  # .							Crop à True, avec un carré à 1 et une marge (par défaut) de 5
@@ -2127,6 +2179,39 @@ def test_crop_track_stack_rgb():
 	assert cropped.shape == (1, 2, 2, 3)
 	np.testing.assert_array_equal(cropped, img[1:2, 2:4, 6:8])
 	assert pt.crop(np.zeros_like(img)).shape == (1, 1, 1, 3)
+
+
+# --------------------------------------------------
+def test_process_visualization_hr(capsys, pt, sequential_timestamps, input_stack, output_folder):
+	"""Vérifie le process de visualization HR."""
+
+	add_basic_file(pt, [str(input_stack)])
+	add_fakeprocess(pt, True, True, output_folder)  # Ajout d'un fichier de localisations et de tracking
+
+	pt.settings.hr.active = True
+	pt.settings.hr["Crop"].value = False
+	pt.process()
+
+	check_output(output_folder, csv=[3], log=[1], json=[1], png=[1], clean=False)
+	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
+
+	pt.settings.hr["Dimension"].value = 1  # Génération de Z-stack
+	pt.process()
+
+	check_output(output_folder, csv=[3], log=[2], json=[2], png=[1], tif=[1], clean=False)
+	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
+
+	pt.settings.hr["Dimension"].value = 2  # Génération de la rotation 3D
+	pt.process()
+
+	check_output(output_folder, csv=[3], log=[3], json=[3], png=[1], tif=[2])
+	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
+
+
+# ==================================================
+# endregion Recadrage et sauvegarde
+# ==================================================
+
 
 # ==================================================
 # endregion Visualisation

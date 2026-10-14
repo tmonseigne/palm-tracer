@@ -1,6 +1,7 @@
 """Teste l'abstraction et le regroupement des signaux Qt."""
 
 from typing import Any, List
+from unittest.mock import Mock
 
 import pytest
 
@@ -14,7 +15,9 @@ def sw() -> SignalWrapper:
 	return SignalWrapper()
 
 
-# --------------------------------------------------
+# ==================================================
+# region Connexion et déconnexion
+# ==================================================
 def test_connect_and_emit_direct(sw: SignalWrapper):
 	"""Vérifie la connexion d'un slot Python et émission immédiate."""
 	received: List[Any] = []
@@ -56,18 +59,49 @@ def test_disconnect(sw: SignalWrapper):
 
 
 # --------------------------------------------------
-def test_block_simple_coalescence_last_value(sw: SignalWrapper):
-	"""Vérifie que pendant un blocage, plusieurs emit() sont coalescés : une seule émission à la sortie, avec la DERNIÈRE valeur."""
+@pytest.mark.parametrize("disconnect_all", [False, True], ids=["single-slot", "all-slots"])
+@pytest.mark.parametrize("error", [TypeError, RuntimeError], ids=["already-disconnected", "destroyed-object"])
+def test_disconnect_unavailable_signal(sw: SignalWrapper, monkeypatch, disconnect_all, error):
+	"""Nettoie le registre des slots même lorsque Qt ne peut plus les déconnecter."""
+	# Prépare un slot enregistré, puis simule un signal devenu indisponible.
+	slot = Mock()
+	sw.connect(slot)
+	signal = Mock()
+	signal.disconnect.side_effect = error("Signal unavailable")
+	monkeypatch.setattr(sw, "_signal", signal)
+
+	assert sw.disconnect(None if disconnect_all else slot) == 0
+	assert sw._slots == []
+	signal.disconnect.assert_called_once_with(slot)
+	slot.assert_not_called()
+
+
+# ==================================================
+# endregion Connexion et déconnexion
+# ==================================================
+
+# ==================================================
+# region Blocage des signaux
+# ==================================================
+def test_blocked_returns_context_manager_instance(sw: SignalWrapper):
+	"""Vérifie que blocked() retourne bien un context manager du bon type (BlockCtx)."""
+	ctx = sw.blocked()
+	assert isinstance(ctx, SignalWrapper.BlockCtx)
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("values", [
+		pytest.param(("A", "B", "C"), id="successive-values"),
+		pytest.param(tuple(range(10)), id="repeated-overwrites")])
+def test_block_simple_coalescence_last_value(sw: SignalWrapper, values):
+	"""N'émet que la dernière valeur reçue pendant le blocage, quel que soit le nombre d'écrasements."""
 	received: List[Any] = []
 	sw.connect(lambda v: received.append(v))
 
 	with sw.blocked():
-		sw.emit("A")
-		sw.emit("B")  # Écrase A
-		sw.emit("C")  # Écrase B
+		for value in values: sw.emit(value)
 
-	# Une seule émission (C) après sortie du bloc
-	assert received == ["C"]
+	assert received == [values[-1]]
 
 
 # --------------------------------------------------
@@ -152,10 +186,18 @@ def test_block_without_emit(sw: SignalWrapper):
 
 
 # --------------------------------------------------
-def test_blocked_returns_context_manager_instance(sw: SignalWrapper):
-	"""Vérifie que blocked() retourne bien un context manager du bon type (BlockCtx)."""
-	ctx = sw.blocked()
-	assert isinstance(ctx, SignalWrapper.BlockCtx)
+def test_emit_direct_after_previous_block(sw: SignalWrapper):
+	"""Vérifie qu'après un blocage avec émission, un emit direct doit passer immédiatement (et ne pas être coalescé par un ancien état)."""
+	received: List[Any] = []
+	sw.connect(lambda v: received.append(v))
+
+	with sw.blocked(): sw.emit("first")
+	# Ici, on a reçu 'first' une fois
+	assert received == ["first"]
+
+	# Émission directe : doit s'ajouter immédiatement
+	sw.emit("second")
+	assert received == ["first", "second"]
 
 
 # --------------------------------------------------
@@ -174,27 +216,6 @@ def test_internal_block_begin_end_paths(sw: SignalWrapper):
 	assert received == []
 
 
-# --------------------------------------------------
-def test_coalescence_overwrite_multiple_times(sw: SignalWrapper):
-	"""Vérifie que la valeur en attente est toujours la dernière avant déblocage."""
-	received: List[Any] = []
-	sw.connect(lambda v: received.append(v))
-
-	with sw.blocked():
-		for i in range(10): sw.emit(i)
-	assert received == [9]  # Dernière émission
-
-
-# --------------------------------------------------
-def test_emit_direct_after_previous_block(sw: SignalWrapper):
-	"""Vérifie qu'après un blocage avec émission, un emit direct doit passer immédiatement (et ne pas être coalescé par un ancien état)."""
-	received: List[Any] = []
-	sw.connect(lambda v: received.append(v))
-
-	with sw.blocked(): sw.emit("first")
-	# Ici, on a reçu 'first' une fois
-	assert received == ["first"]
-
-	# Émission directe : doit s'ajouter immédiatement
-	sw.emit("second")
-	assert received == ["first", "second"]
+# ==================================================
+# endregion Blocage des signaux
+# ==================================================

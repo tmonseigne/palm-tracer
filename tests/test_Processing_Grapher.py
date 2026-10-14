@@ -408,8 +408,8 @@ def test_astigmatism3d_cross_guides(model, expected_minima):
 def test_histogram_poisson_distribution():
 	"""Exporte une distribution de Poisson et sa courbe ajustée pour comparaison visuelle."""
 	# Des classes centrées sur les entiers permettent de comparer les barres aux probabilités de Poisson.
-	rng = np.random.default_rng(42)
-	points = rng.poisson(lam=4.0, size=10000)
+	gen = np.random.default_rng(42)
+	points = gen.poisson(lam=4.0, size=10000)
 	figure = Grapher().histogram(points, "Poisson distribution (lambda = 4)", poissonnian=True, density=True, bins=-1)
 	_save_output(figure, OUTPUT_DIR / "grapher_visual_poisson.json")
 
@@ -418,8 +418,8 @@ def test_histogram_poisson_distribution():
 def test_histogram_exponential_distribution():
 	"""Exporte une exponentielle décroissante et sa courbe ajustée pour comparaison visuelle."""
 	# La courbe du Grapher estime la moyenne d'une loi exponentielle non décalée, définie à partir de zéro.
-	rng = np.random.default_rng(42)
-	points = rng.exponential(scale=2.0, size=10000)
+	gen = np.random.default_rng(42)
+	points = gen.exponential(scale=2.0, size=10000)
 	figure = Grapher().histogram(points, "Exponential distribution (mean = 2)", exponential=True, density=True, bins=80)
 	_save_output(figure, OUTPUT_DIR / "grapher_visual_exponential.json")
 
@@ -428,8 +428,8 @@ def test_histogram_exponential_distribution():
 def test_histogram_gaussian_mixture_distribution():
 	"""Exporte un mélange de deux gaussiennes et sa courbe ajustée pour comparaison visuelle."""
 	# Les poids, moyennes et écarts-types distincts rendent les deux composantes visibles.
-	rng = np.random.default_rng(42)
-	points = np.concatenate((rng.normal(-2.0, 0.5, 3500), rng.normal(3.0, 0.8, 6500)))
+	gen = np.random.default_rng(42)
+	points = np.concatenate((gen.normal(-2.0, 0.5, 3500), gen.normal(3.0, 0.8, 6500)))
 	figure = Grapher().histogram(points, "Gaussian mixture (35% / 65%)", gaussian_mixture=True, density=True, bins=80)
 	_save_output(figure, OUTPUT_DIR / "grapher_visual_gaussian_mixture.json")
 

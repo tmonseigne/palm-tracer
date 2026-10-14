@@ -180,7 +180,7 @@ class BasePlotlyWidget(QWidget):
 		try: html = self._build_plotly_shell_html()
 		except FileNotFoundError as error:
 			print_warning(str(error))
-			self._web.setText(f"<b>Plotly unavailable</b><br>{error}")
+			self._web.setHtml(f"<b>Plotly unavailable</b><br>{error}")
 			return
 
 		self._web.setHtml(html, QUrl.fromLocalFile(str(Path(__file__).resolve().parent)))

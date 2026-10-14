@@ -31,6 +31,10 @@ def test_widget_creation(qtbot):
 # ==================================================
 # region Fonctions de rappel
 # ==================================================
+
+# ==================================================
+# region Chargement des TIFF et calcul des coefficients
+# ==================================================
 def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
 	w = AlignmentWidget()
@@ -52,40 +56,6 @@ def test_bad_load_tif(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert "Selected file: nofile.tif." in lines[1]  # Le fichier a été détecté la seconde fois
 	assert "Unable to read the TIFF file" in lines[2]  # Mais erreur
 	assert w._stack is None
-
-	w.close()
-
-
-# --------------------------------------------------
-def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
-	w = AlignmentWidget()
-	qtbot.addWidget(w)
-	w.resize(500, 250)
-	w.show()
-	qtbot.waitExposed(w)
-
-	# Simuler un "Cancel" sur le QFileDialog
-	fake_qfiledialog(AlignmentWidget, None)
-	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "No coefficient file selected." in lines[0]  # On vérifie juste que le warning attendu est bien passé par print_warning
-
-	# Bad Coeffs Input
-	fake_qfiledialog(AlignmentWidget, "nofile.txt")
-	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert "Selected file: nofile.txt." in lines[0]
-	assert "Unable to read the coefficient file" in lines[1]
-	assert w._coeffs is None
-
-	# Bad Coeffs Input
-	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/bad_alignment_coeffs.txt")
-	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
-	lines = get_lines_output(capsys)
-	assert f"Selected file: {INPUT_DIR}/bad_alignment_coeffs.txt." in lines[0]
-	assert "The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10)." in lines[1]
-	assert w._coeffs is None
 
 	w.close()
 
@@ -131,6 +101,46 @@ def test_compute(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	w.close()
 
 
+# ==================================================
+# endregion Chargement des TIFF et calcul des coefficients
+# ==================================================
+
+# ==================================================
+# region Chargement des coefficients et alignement
+# ==================================================
+def test_bad_load_coef(qtbot, capsys, monkeypatch, fake_qfiledialog):
+	"""Vérifie la gestion des erreurs avec la boîte de dialogue d'ouverture de fichier."""
+	w = AlignmentWidget()
+	qtbot.addWidget(w)
+	w.resize(500, 250)
+	w.show()
+	qtbot.waitExposed(w)
+
+	# Simuler un "Cancel" sur le QFileDialog
+	fake_qfiledialog(AlignmentWidget, None)
+	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert "No coefficient file selected." in lines[0]  # On vérifie juste que le warning attendu est bien passé par print_warning
+
+	# Bad Coeffs Input
+	fake_qfiledialog(AlignmentWidget, "nofile.txt")
+	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert "Selected file: nofile.txt." in lines[0]
+	assert "Unable to read the coefficient file" in lines[1]
+	assert w._coeffs is None
+
+	# Bad Coeffs Input
+	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/bad_alignment_coeffs.txt")
+	qtbot.mouseClick(w._btn_load_coeff_apply, Qt.MouseButton.LeftButton)
+	lines = get_lines_output(capsys)
+	assert f"Selected file: {INPUT_DIR}/bad_alignment_coeffs.txt." in lines[0]
+	assert "The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10)." in lines[1]
+	assert w._coeffs is None
+
+	w.close()
+
+
 # --------------------------------------------------
 def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	"""Vérifie la création du widget."""
@@ -161,7 +171,7 @@ def test_bad_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 # --------------------------------------------------
-def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
+def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog, input_stack):
 	"""Vérifie la création du widget."""
 	w = AlignmentWidget()
 	qtbot.addWidget(w)
@@ -170,10 +180,10 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	qtbot.waitExposed(w)
 
 	# Chargement du fichier Tif
-	fake_qfiledialog(AlignmentWidget, f"{INPUT_DIR}/stack.tif")
+	fake_qfiledialog(AlignmentWidget, str(input_stack))
 	qtbot.mouseClick(w._btn_load_tif_apply, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
-	assert f"Selected file: {INPUT_DIR}/stack.tif" in lines[0]
+	assert f"Selected file: {input_stack}" in lines[0]
 	assert "TIFF loaded successfully. Shape=(10, 128, 256), dtype=uint16" in lines[1]
 	assert w._stack is not None
 
@@ -189,8 +199,14 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	lines = get_lines_output(capsys)
 	assert f"File saved at {w._output_filename} (upscale=1)." in lines[0]
 	output = Path(w._output_filename)
-	output.unlink(missing_ok=True)
+	assert output.parent == input_stack.parent
 	w.close()
+
+
+# ==================================================
+# endregion Chargement des coefficients et alignement
+# ==================================================
+
 
 # ==================================================
 # endregion Fonctions de rappel

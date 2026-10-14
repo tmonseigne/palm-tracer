@@ -6,7 +6,6 @@ from palm_tracer.Tools.FileMigrator import FileMigrator
 from tests.Utils import *
 
 INPUT_FOLDER = INPUT_DIR / "stack.PT"
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
 
 
 # ==================================================
@@ -48,42 +47,41 @@ def test_analyze():
 
 
 # --------------------------------------------------
-def test_analyze_without_directory():
-	"""Vérifie les erreurs attendues avant toute ouverture valide."""
-	with pytest.raises(RuntimeError): FileMigrator().analyze()
-
-
-# --------------------------------------------------
-def test_migrate(capsys):
+def test_migrate(capsys, copy_input):
 	"""Vérifie la classe FileMigrator."""
+	# Copie des anciens résultats pour isoler le dossier créé automatiquement par la migration.
+	input_folder = copy_input("stack.PT")
+	output_folder = input_folder.with_name(f"{input_folder.stem}_PALM_Tracer")
 	m = FileMigrator()
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)  # Supprime récursivement le dossier et tout son contenu pour n'avoir rien à charger.
 
-	m.open(INPUT_FOLDER)
+	# Première migration sans analyse : seul un dossier de sortie vide doit être créé.
+	m.open(input_folder)
 	m.migrate()  # Sans analyse avant, il va créer le dossier puis ne rien faire à chaque élément
 	lines = get_lines_output(capsys)
 	assert len(lines) == 6  # Pour les 6 fichiers
-	assert OUTPUT_FOLDER.exists(), "Le dossier de sortie aurait du être créé."
-	assert OUTPUT_FOLDER.is_dir(), "Le chemin de sortie n'est pas un dossier."
-	assert not any(OUTPUT_FOLDER.iterdir()), "Le dossier de sortie devrait être vide."
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)  # Supprimer le dossier
+	assert output_folder.exists(), "Le dossier de sortie aurait du être créé."
+	assert output_folder.is_dir(), "Le chemin de sortie n'est pas un dossier."
+	assert not any(output_folder.iterdir()), "Le dossier de sortie devrait être vide."
+	shutil.rmtree(output_folder, ignore_errors=True)  # Supprimer le dossier
 
+	# Analyse des anciens fichiers, puis migration complète dans un dossier recréé.
 	m.analyze()
 	m.migrate()
 	lines = get_lines_output(capsys)
 	assert len(lines) == 7  # Pour les 6 fichiers et le warning de taille
+	# Comparaison de chaque CSV migré avec son fichier de référence.
 	for ref_file in sorted((REF_DIR / "stack_PALM_Tracer").glob("*.csv")):
-		res_file = sorted(OUTPUT_FOLDER.glob(f"{ref_file.stem}-*.csv"))[0]
+		res_file = sorted(output_folder.glob(f"{ref_file.stem}-*.csv"))[0]
 		ref, res = pd.read_csv(ref_file), pd.read_csv(res_file)
 		ref, res = ref.apply(pd.to_numeric, errors="coerce"), res.apply(pd.to_numeric, errors="coerce")
 		pd.testing.assert_frame_equal(ref, res, check_dtype=False)
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 
 
 # --------------------------------------------------
-def test_migrate_without_directory():
-	"""Vérifie que la migration échoue sans dossier ouvert."""
-	with pytest.raises(RuntimeError): FileMigrator().migrate()
+@pytest.mark.parametrize("method", ["analyze", "migrate"], ids=["analyze", "migrate"])
+def test_operation_without_directory(method):
+	"""Refuse toute analyse ou migration avant l'ouverture d'un dossier."""
+	with pytest.raises(RuntimeError): getattr(FileMigrator(), method)()
 
 
 # ==================================================
@@ -173,6 +171,7 @@ def test_column_migrator():
 	for i in range(len(data)):
 		res = m.column_migrator(data[i])
 		assert ref[i] == res, f"Résultat incorrect.\nAttendu : {ref[i]}\nObtenu : {res}"
+
 
 # ==================================================
 # endregion Outils de conversion

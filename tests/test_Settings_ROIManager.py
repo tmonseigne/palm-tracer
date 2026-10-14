@@ -23,6 +23,15 @@ def manager() -> ROIManager:
 # ==================================================
 # region Accesseurs
 # ==================================================
+def test_layer(manager: ROIManager):
+	"""Vérifie la synchronisation du calque de zones d'intérêt."""
+	assert manager.layer_main is None and manager.layer_hr is None
+	manager.layer_main = Shapes()
+	manager.layer_hr = Shapes()
+	assert isinstance(manager.layer_main, Shapes) and isinstance(manager.layer_hr, Shapes)
+
+
+# --------------------------------------------------
 def test_rois(manager: ROIManager):
 	"""Vérifie la gestion de la collection de zones d'intérêt."""
 	manager.rois = [ROI("rectangle", np.zeros((4, 2)))]
@@ -45,15 +54,6 @@ def test_set_xy_roi(manager: ROIManager):
 
 	manager.set_xy_roi(4.0, 5.0, 6.0, 7.0, add=True)
 	assert len(manager.rois) == 2
-
-
-# --------------------------------------------------
-def test_layer(manager: ROIManager):
-	"""Vérifie la synchronisation du calque de zones d'intérêt."""
-	assert manager.layer_main is None and manager.layer_hr is None
-	manager.layer_main = Shapes()
-	manager.layer_hr = Shapes()
-	assert isinstance(manager.layer_main, Shapes) and isinstance(manager.layer_hr, Shapes)
 
 
 # ==================================================
@@ -142,6 +142,10 @@ def test_dict(manager: ROIManager):
 # ==================================================
 # region Divers
 # ==================================================
+
+# ==================================================
+# region Limites des ROI
+# ==================================================
 def test_roi_limits(manager: ROIManager):
 	"""Vérifie le calcul des limites des zones d'intérêt."""
 	manager.set_size(100, 80)
@@ -177,6 +181,36 @@ def test_hr_limits(manager: ROIManager, limits: list[int], expected: tuple[int, 
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("data_box, expected", [
+		pytest.param((0, 25, 0, 20), (20, 25, 10, 20), id="image-edge"),
+		pytest.param((60, 70, 60, 70), (20, 40, 10, 30), id="disjoint")])
+def test_hr_data_intersection(manager: ROIManager, data_box, expected):
+	"""Accepte les bords nuls et conserve un domaine valide si les cadres sont disjoints."""
+	manager.set_size(100, 80)
+	manager.set_xy_roi(20, 40, 10, 30)
+	manager.roi_selection.active = True
+	manager.data_box = data_box
+	assert manager.get_hr_limits() == expected
+	assert manager.hr_box == expected
+
+
+# --------------------------------------------------
+def test_hr_box(manager: ROIManager):
+	"""Vérifie le calcul de la boîte haute résolution."""
+	manager.set_size(100, 80)
+	manager.rois = [ROI("rectangle", np.array([[-5.2, -10.8], [-5.2, 120.4], [90.7, 120.4], [90.7, -10.8]]))]
+	assert manager.hr_box == (0, 1, 0, 1)
+	assert manager.get_hr_limits() == (0, 100, 0, 80)
+	assert manager.hr_box == (0, 100, 0, 80)
+
+
+# ==================================================
+# endregion Limites des ROI
+# ==================================================
+
+# ==================================================
+# region Cadrage des données
+# ==================================================
 @pytest.mark.parametrize("gaussian, expected", [
 		pytest.param(None, (15, 35, 15, 35), id="spots"),
 		pytest.param({"Shape": 0, "Size": 2}, (9, 41, 9, 41), id="fixed-size"),
@@ -234,20 +268,6 @@ def test_update_data_box_invalid_gaussian(manager: ROIManager, sigmas, gaussian)
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("data_box, expected", [
-		pytest.param((0, 25, 0, 20), (20, 25, 10, 20), id="image-edge"),
-		pytest.param((60, 70, 60, 70), (20, 40, 10, 30), id="disjoint")])
-def test_hr_data_intersection(manager: ROIManager, data_box, expected):
-	"""Accepte les bords nuls et conserve un domaine valide si les cadres sont disjoints."""
-	manager.set_size(100, 80)
-	manager.set_xy_roi(20, 40, 10, 30)
-	manager.roi_selection.active = True
-	manager.data_box = data_box
-	assert manager.get_hr_limits() == expected
-	assert manager.hr_box == expected
-
-
-# --------------------------------------------------
 def test_data_box_intersection_and_reset(manager: ROIManager):
 	"""Le cadrage HR ne filtre pas les données et disparaît au changement de pile."""
 	manager.set_size(100, 80)
@@ -266,17 +286,13 @@ def test_data_box_intersection_and_reset(manager: ROIManager):
 	assert manager.data_box == (-1, -1, -1, -1)
 
 
-# --------------------------------------------------
-def test_hr_box(manager: ROIManager):
-	"""Vérifie le calcul de la boîte haute résolution."""
-	manager.set_size(100, 80)
-	manager.rois = [ROI("rectangle", np.array([[-5.2, -10.8], [-5.2, 120.4], [90.7, 120.4], [90.7, -10.8]]))]
-	assert manager.hr_box == (0, 1, 0, 1)
-	assert manager.get_hr_limits() == (0, 100, 0, 80)
-	assert manager.hr_box == (0, 100, 0, 80)
+# ==================================================
+# endregion Cadrage des données
+# ==================================================
 
-
-# --------------------------------------------------
+# ==================================================
+# region Filtrage spatial
+# ==================================================
 def test_filtering_dataframe(manager: ROIManager):
 	"""Vérifie le filtrage spatial d'un DataFrame."""
 	manager.set_size(10, 10)
@@ -322,6 +338,12 @@ def test_filtering_dataframe_concave_cross(manager: ROIManager):
 	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1], [1, 1], [9, 9]])  # Uniquement le dernier qui est en dehors de la bounding box.
 	res = manager.filtering_dataframe(dataframe, strict=True)
 	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1]])  # Enlève en plus les 2 points dans des coins.
+
+
+# ==================================================
+# endregion Filtrage spatial
+# ==================================================
+
 
 # ==================================================
 # endregion Divers

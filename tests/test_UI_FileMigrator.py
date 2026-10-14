@@ -4,9 +4,7 @@ from qtpy.QtCore import Qt
 
 from palm_tracer.UI.FileMigratorWidget import FileMigratorWidget  # Classe
 from tests.Utils import *
-
-INPUT_FOLDER = INPUT_DIR / "stack.PT"
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
+from tests.Utils import strip_ansi
 
 
 # ==================================================
@@ -53,29 +51,48 @@ def test_bad_load(qtbot, capsys, monkeypatch, fake_qfiledialog):
 
 
 # --------------------------------------------------
-def test_mirgate(qtbot, capsys, monkeypatch, fake_qfiledialog):
-	"""Vérifie le lancement de la calibration."""
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+def test_migrate(qtbot, capsys, monkeypatch, fake_qfiledialog, copy_input):
+	"""Vérifie le lancement de la migration depuis le widget."""
+	# Préparation d'une copie temporaire des anciens résultats et affichage du widget.
+	input_folder = copy_input("stack.PT")
 	w = FileMigratorWidget()
 	qtbot.addWidget(w)
 	w.resize(500, 250)
 	w.show()
 	qtbot.waitExposed(w)
 
-	# Chargement du fichier de localisation
-	fake_qfiledialog(FileMigratorWidget, str(INPUT_FOLDER))
+	# Sélection du dossier temporaire contenant les anciens résultats.
+	fake_qfiledialog(FileMigratorWidget, str(input_folder))
 	qtbot.mouseClick(w._btn_load_folder, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Folder loaded successfully." in lines[-1]
 
-	# Lancement du calcul
+	# Lancement de la migration depuis l'interface et vérification du message de succès.
 	qtbot.mouseClick(w._btn_migrate, Qt.MouseButton.LeftButton)
 	lines = get_lines_output(capsys)
 	assert "Migration successful." in lines[-1]
 
-	shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
 
 	w.close()
+
+
+# --------------------------------------------------
+def test_migrate_error(qtbot, capsys, monkeypatch):
+	"""Signale une migration impossible sans afficher de message de succès."""
+	w = FileMigratorWidget()
+	qtbot.addWidget(w)
+
+	# Simule l'échec de l'écriture lors du lancement de la migration.
+	def fail_migrate():
+		"""Simule une erreur d'écriture des résultats migrés."""
+		raise OSError("Output unavailable")
+
+	monkeypatch.setattr(w._fm, "migrate", fail_migrate)
+	w._on_migrate()
+	output = strip_ansi(capsys.readouterr().out)
+	assert "Error during migration: Output unavailable." in output
+	assert "Migration successful." not in output
+
 
 # ==================================================
 # endregion Fonctions de rappel
