@@ -72,7 +72,6 @@ def test_migrate(qtbot, capsys, monkeypatch, fake_qfiledialog, copy_input):
 	lines = get_lines_output(capsys)
 	assert "Migration successful." in lines[-1]
 
-
 	w.close()
 
 
@@ -92,7 +91,6 @@ def test_migrate_error(qtbot, capsys, monkeypatch):
 	output = strip_ansi(capsys.readouterr().out)
 	assert "Error during migration: Output unavailable." in output
 	assert "Migration successful." not in output
-
 
 # ==================================================
 # endregion Fonctions de rappel

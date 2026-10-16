@@ -12,6 +12,7 @@ from typing import Literal
 from unittest.mock import Mock
 
 import pandas as pd
+import plotly.graph_objects as go
 import pytest
 
 from palm_tracer.Processing import Parsing
@@ -778,7 +779,11 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 
 	ta["MSD"].value = True
 	pt.process()
-	assert len(pt.results["MSD"]) == 93  # Toutes les trajectoires sont éligibles au MSD
+	# Chaque trajectoire d'au moins deux points fournit une ligne de MSD.
+	tracks = pd.read_csv(INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5.csv")
+	lengths = tracks.groupby("Track").size()
+	expected_msd_ids = set(lengths[lengths >= 2].index)
+	assert set(pt.results["MSD"]["Track"]) == expected_msd_ids
 	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
 	# Ajout de fichier MSD (ainsi qu'un fit minimal, un meta, un json et un log)
 	check_output(output_folder, csv=[4], log=[1], json=[1], clean=False)
@@ -791,7 +796,7 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 	assert len(pt.results["MSD"]) == 0  # MSD désactivé, il est conservé
 	assert len(pt.results["InD"]) == 3  # Seules 3 trajectoires sont éligibles
 	assert len(pt.results["Fit"]) == 3  # Seules 3 trajectoires sont éligibles
-	check_output(output_folder, csv=[6], log=[2], json=[2])  # Il a conservé le msd precedent mais à renommé le meta
+	check_output(output_folder, csv=[6], log=[2], json=[2])  # Il a conservé le msd précédent mais à renommé le meta
 	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
 
 
@@ -1004,9 +1009,13 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps, input_stack, o
 
 	pt.settings.filters["Save"].value = True
 	pt.process()
-	# Vérification manuelle à l'heure actuelle
-	assert len(pt.results.tracks) == 26, f"Il reste {len(pt.results.tracks)} points au lieu de 26 sur les trajectoires."
-	assert len(pt.results.track_analysis["MSD"]) == 6, f"Il reste {len(pt.results.track_analysis['MSD'])} trajectoires au lieu de 14."
+	# Vérifié indépendamment avec les deux premiers lags du MSD et les fenêtres de trois points :
+	# D(0) entre 1 et 5 µm²/s et au plus 50 % des diffusions instantanées hors ]0,01 ; 5[.
+	expected_ids = {36, 89, 139, 183}
+	tracks = pd.read_csv(INPUT_DIR / "ref" / "stack-tracking-103.6_True_4_1.0_0.0_7-5.csv")
+	expected_tracks = tracks[tracks["Track"].isin(expected_ids)]
+	pd.testing.assert_frame_equal(pt.results.tracks, expected_tracks)
+	assert set(pt.results.track_analysis["MSD"]["Track"]) == expected_ids
 
 	check_output(output_folder, csv=[9], log=[1], json=[1], clean=False)  # Track + 2 analyses de trajectoires, leurs versions filtrées et le meta = 9
 	check_capsys(capsys, 26, [5, 6, 7, 11, 12, 21, 22, 23])
@@ -1083,8 +1092,10 @@ def test_graph(mode, source_type, source, input_stack):
 		assert figure.layout.annotations[0].text == "No valid data."
 	else:
 		assert figure.data
-		assert figure.data[0].type == ("histogram", "scatter", "scattergl")[mode]
-		assert len(figure.data[0].x) > 0
+		trace = figure.data[0]
+		assert isinstance(trace, (go.Histogram, go.Scatter, go.Scattergl))
+		assert trace.type == ("histogram", "scatter", "scattergl")[mode]
+		assert len(trace.x) > 0
 	assert source in figure.layout.title.text
 
 
@@ -2206,7 +2217,6 @@ def test_process_visualization_hr(capsys, pt, sequential_timestamps, input_stack
 
 	check_output(output_folder, csv=[3], log=[3], json=[3], png=[1], tif=[2])
 	check_capsys(capsys, 18, [5, 7, 8, 10, 11, 12, 13, 14])
-
 
 # ==================================================
 # endregion Recadrage et sauvegarde

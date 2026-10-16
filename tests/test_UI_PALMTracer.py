@@ -7,7 +7,7 @@ from unittest.mock import Mock, PropertyMock
 import numpy as np
 import pytest
 from napari.components import ViewerModel
-from qtpy.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
+from qtpy.QtCore import QMimeData, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QTabWidget
 
@@ -58,8 +58,8 @@ def drop_widget(qtbot, monkeypatch):
 # --------------------------------------------------
 def send_file_drop(receiver, mime):
 	"""Envoie la séquence Qt d'entrée, de déplacement et de dépôt au destinataire."""
-	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	move = QDragMoveEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	enter = QDragEnterEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
 	return enter, move, drop
@@ -530,7 +530,6 @@ def test_auto_threshold(capsys, qtbot, input_stack):
 
 	lines = get_lines_output(capsys)
 	assert "Auto Threshold: 63.95" in lines[-1]
-
 
 # ==================================================
 # endregion Prévisualisation et seuil automatique

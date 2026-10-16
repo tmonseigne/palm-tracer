@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, cast
+from typing import Any, Optional, cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
@@ -244,6 +245,7 @@ class Settings:
 		:return: Retourne un context manager utilisable avec ``with ...:``.
 		"""
 		# if not self._settings: return nullcontext() # On n'a pas de settings vide
+		# noinspection PyAbstractClass
 		stack = ExitStack()
 		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
 		return stack

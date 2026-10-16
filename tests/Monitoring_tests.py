@@ -4,6 +4,7 @@ import os
 import sys
 import time
 
+import plotly.graph_objects as go
 import psutil
 from plotly.subplots import make_subplots
 
@@ -178,7 +179,9 @@ def test_monitoring_draw_test_section():
 	assert len(figure.data) == 2
 	assert len(figure.layout.shapes) == 2
 	assert [trace.name for trace in figure.data] == ["Monitoring - Premier", "Monitoring - Second"]
-	assert [trace.xaxis for trace in figure.data] == ["x2", "x2"]
+	for trace in figure.data:
+		assert isinstance(trace, go.Scatter)
+		assert trace.xaxis == "x2"
 	assert [shape.xref for shape in figure.layout.shapes] == ["x2", "x2"]
 	assert [shape.yref for shape in figure.layout.shapes] == ["y2", "y2"]
 

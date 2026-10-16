@@ -65,7 +65,7 @@ def test_set_xy_roi(manager: ROIManager):
 # ==================================================
 @pytest.mark.parametrize("source", [pytest.param("main", id="main-layer"), pytest.param("hr", id="hr-layer")])
 @pytest.mark.parametrize("types_count, data_count", [
-	pytest.param(1, 0, id="missing-data"), pytest.param(0, 1, id="missing-type")])
+		pytest.param(1, 0, id="missing-data"), pytest.param(0, 1, id="missing-type")])
 def test_update_from_layer_mismatched_lengths(manager: ROIManager, source: str, types_count: int, data_count: int):
 	"""Vérifie que des listes de formes incohérentes sont rejetées avant la synchronisation."""
 	layer = SimpleNamespace(shape_type=["rectangle"] * types_count, data=[np.zeros((4, 2))] * data_count)
@@ -107,11 +107,11 @@ def test_update_roi_selection(manager: ROIManager):
 	"""Vérifie la mise à jour de la sélection des zones d'intérêt."""
 	manager.roi_selection.value = 0  # Aucune ROI donc rejet, car hors limite.
 	manager.rois = [ROI("rectangle", np.zeros((4, 2)))]  # Ajout d'une forme
-	manager.roi_selection.value = 1  # Bonne selection, mais aucun layer.
+	manager.roi_selection.value = 1  # Bonne sélection, mais aucun layer.
 	manager.layer_main = Shapes()
-	manager.roi_selection.value = 1  # Bonne selection, mais aucun layer.
+	manager.roi_selection.value = 1  # Bonne sélection, mais aucun layer.
 	manager.layer_hr = Shapes()
-	manager.roi_selection.value = 1  # Bonne selection, mais aucun layer.
+	manager.roi_selection.value = 1  # Bonne sélection, mais aucun layer.
 
 
 # ==================================================
@@ -338,7 +338,6 @@ def test_filtering_dataframe_concave_cross(manager: ROIManager):
 	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1], [1, 1], [9, 9]])  # Uniquement le dernier qui est en dehors de la bounding box.
 	res = manager.filtering_dataframe(dataframe, strict=True)
 	np.testing.assert_allclose(res.to_numpy(), [[5, 5], [1, 5], [5, 1]])  # Enlève en plus les 2 points dans des coins.
-
 
 # ==================================================
 # endregion Filtrage spatial

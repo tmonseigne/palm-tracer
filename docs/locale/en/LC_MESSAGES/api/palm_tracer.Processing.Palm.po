@@ -1,8 +1,9 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 11:42+0200\n"
+"POT-Creation-Date: 2026-10-20 11:08+0200\n"
 "PO-Revision-Date: 2026-10-13 09:48+0000\n"
 "Last-Translator: Codex\n"
 "Language: en\n"
@@ -261,5 +262,25 @@ msgid "Distance absolue maximale sur Z par rapport à l'origine."
 msgstr "Maximum absolute distance along the Z-axis relative to the origin."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:7
-msgid "Tableau (N, 2) contenant, pour chaque point, Z en nanomètres et l'erreur quadratique du modèle sur les deux sigmas en pixels carrés."
-msgstr "Array (N, 2) containing, for each point, Z in nanometers and the model's squared error on both sigmas in square pixels."
+msgid "Tableau (N, 2) contenant Z en nanomètres et le score de compatibilité des sigmas entre 0 et 1 (1 = meilleur)."
+msgstr "Array (N, 2) containing Z in nanometers and the sigma compatibility score between 0 and 1 (1 = best)."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:9
+msgid "Le cœur minimise toujours la somme des carrés des résidus sur les sigmas pour choisir Z. Le score final est une convention propre au projet, calculée uniquement sur la localisation courante :"
+msgstr "The core still minimizes the sum of squared residuals of the sigmas to select Z. The final score is a project-specific convention, computed using only the current localization:"
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:12
+msgid ""
+"r^2 = \\frac{1}{2}\\sum_{a\\in\\{x,y\\}}\n"
+"      \\left(\\frac{\\sigma_a-\\hat\\sigma_a(Z)}{\\hat\\sigma_a(Z)}\\right)^2,\n"
+"\\qquad Q_Z = \\frac{1}{1+r^2/0.20^2}."
+msgstr ""
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:18
+#, no-python-format
+msgid "Un écart relatif RMS de 20 % donne 0.5 ; une largeur non finie ou non positive donne 0. Ce score n'est ni un R², ni une probabilité, ni une précision axiale en nanomètres. Il ne pénalise pas explicitement une saturation à la borne et ne détecte pas les Z ambigus. La plage de recherche peut changer le Z retenu, mais ne normalise pas le score."
+msgstr "A relative RMS deviation of 20 percent gives 0.5; a non-finite or non-positive width gives 0. This score is neither an R², a probability, nor an axial precision in nanometers. It does not explicitly penalize a solution at a search boundary and does not detect ambiguous Z values. The search range may change the selected Z, but does not normalize the score."
+
+#: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:25
+msgid "La seconde valeur remplace l'ancienne SSE en pixels carrés (0 = meilleur). La colonne historique ``MSE Z`` conserve son nom mais contient ce score (1 = meilleur). Les anciens fichiers et seuils ne sont pas convertis ; utiliser un cœur compatible et recalculer l'estimation pour obtenir des valeurs homogènes."
+msgstr "The second value replaces the previous SSE in square pixels (0 = best). The historical ``MSE Z`` column retains its name but contains this score (1 = best). Existing files and thresholds are not converted; use a compatible core and recompute the estimation to obtain consistent values."

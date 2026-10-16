@@ -146,7 +146,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
-		# Integration des Filtres
+		# Intégration des Filtres
 		self._filters = self.pt.settings.filters
 		self._filters_ui = self._filters.get_ui(self.UI_NAME)
 		vbox_filters.addWidget(self._filters_ui.widget)

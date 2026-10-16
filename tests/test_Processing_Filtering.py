@@ -48,35 +48,38 @@ def test_localization(qtbot, f):
 	"""Vérifie le filtrage complet."""
 	src = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
 	f.filters["Plane"].active = True
-	f.filters["Plane"].value = [1, 9]  # .	Suppression du dernier plan uniquement 411/451 : 40 suppression(s)
+	f.filters["Plane"].value = [1, 9]  # Exclusion du dernier plan.
 	fl = f.filters.localization
 	fl["Intensity"].active = True
-	fl["Intensity"].value = [100, 20000]  # 391/411 : 20 suppression(s)
+	fl["Intensity"].value = [100, 20000]
 	fl["Sigma X"].active = True
 	fl["Sigma X"].value = [0, 10]  # .		Aucune suppression
 	fl["Sigma Y"].active = True
 	fl["Sigma Y"].value = [0, 10]  # .		Aucune suppression
 	fl["Circularity"].active = True  # .	Aucune suppression
 	fl["Theta"].active = True
-	fl["Theta"].value = [-60, 60]  # .		346/391 : 45 suppression(s)
+	fl["Theta"].value = [-60, 60]
 	fl["Z"].active = True  # .				Aucune suppression
 	fl["MSE XY"].active = True
-	fl["MSE XY"].value = [0.05, 10]  # .	345/346 : 1 suppression(s)
+	fl["MSE XY"].value = [0.05, 10]
 	# fl["MSE Z"].active = True # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
-	f.rois.set_xy_roi(0, 128, 0, 128)  # .	183/345
+	f.rois.set_xy_roi(0, 128, 0, 128)
 	f.filters["ROI"].active = True
 	f.filters["ROI"].value = 1
 
 	res = f.localization(src)
 
-	ref = [["Plane", 1, 9], ["X", 0, 128], ["Y", 0, 128], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.01, 10],
+	ref = [["Plane", 1, 9], ["X", 0, 128], ["Y", 0, 128], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.05, 10],
 		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -60, 60],
 		   ["Circularity", 0, 1], ["Z", -1, 1]]
 	for r in ref:
 		assert res[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."
 
-	res, ref = len(res), 183
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+	# Contrôle aussi les lignes omises : les seules bornes sur la sortie ne suffisent pas.
+	expected = src
+	for column, lower, upper in ref:
+		expected = expected[expected[column].between(lower, upper)]
+	pd.testing.assert_frame_equal(res, expected)
 
 	fl["MSE Z"].active = True  # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
 	res = f.localization(src)
@@ -238,7 +241,6 @@ def test_track_analysis(qtbot, f, scenario, expected):
 	f.filters.active = scenario != "disabled"
 	res = f.track_analysis(tracks, msd, instant_d, fit)
 	assert [len(frame) for frame in res] == expected
-
 
 # ==================================================
 # endregion Analyse des trajectoires

@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 from napari.components import ViewerModel
-from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QPoint, QPointF, Qt, QUrl
+from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QPushButton
 
@@ -42,8 +42,8 @@ def stack_drop_widget(qtbot, monkeypatch):
 # --------------------------------------------------
 def send_stack_drop(receiver, mime):
 	"""Envoie les événements Qt d'entrée, de déplacement et de dépôt d'une pile."""
-	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	move = QDragMoveEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	enter = QDragEnterEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
 	return enter, move, drop
@@ -138,7 +138,7 @@ def test_layer_styles_follow_shared_configuration(qtbot, monkeypatch, tmp_path):
 		np.testing.assert_allclose(layer.border_color, np.tile(border, (count, 1)))
 		np.testing.assert_allclose(layer.size, styles[state]["size"])
 		np.testing.assert_allclose(layer.border_width, styles[state]["border"])
-		assert not layer.out_of_slice_display
+		assert layer.projection_mode == "none"
 		assert not layer.editable and layer.locked
 
 
@@ -213,7 +213,7 @@ def test_stack_drop_rejects_multiple_urls(stack_drop_widget, scenario, input_sta
 	"""Vérifie qu'un dépôt refusé ne modifie pas le Batch et ne charge aucun résultat."""
 	widget, receiver, calls = stack_drop_widget
 	urls = {"multiple": [QUrl.fromLocalFile(str(input_stack))] * 2,
-			"mixed": [QUrl.fromLocalFile(str(input_stack)), QUrl("https://example.com/stack.tif")]}
+			"mixed":    [QUrl.fromLocalFile(str(input_stack)), QUrl("https://example.com/stack.tif")]}
 	mime = QMimeData()
 	mime.setUrls(urls[scenario])
 
@@ -543,7 +543,7 @@ def test_generate_filtered_points(generated_widget, dimension, key, remove_beads
 	expected_z = 0 if dimension == 0 else 1
 	np.testing.assert_allclose(layer.data, [[expected_z, (31 - y0) * 2, (21 - x0) * 2]])
 	np.testing.assert_allclose(layer.face_color, [[1, 0, 0, 1]])
-	assert not layer.out_of_slice_display
+	assert layer.projection_mode == "none"
 	assert not layer.editable and layer.locked
 	pd.testing.assert_frame_equal(pt.results[key], before)
 
@@ -799,10 +799,10 @@ def test_generate_render_and_roi_transitions(qtbot, input_stack):
 				z = source.loc[inside, "Z"].to_numpy()
 				z_step = s.hr_3d["Z Step"].value or pt._get_uniform_z_step()
 				np.testing.assert_array_equal(plot[:, 0], np.floor((z - z.min()) / z_step), err_msg=context)
-				assert not w._layers[w.LAYERS_NAME[1]].out_of_slice_display, context
+				assert w._layers[w.LAYERS_NAME[1]].projection_mode == "none", context
 			if track_mode:
 				points_layer = w._layers[w.LAYERS_NAME[1]]
-				assert points_layer.visible and not points_layer.out_of_slice_display, context
+				assert points_layer.visible and points_layer.projection_mode == "none", context
 				if expected_xy.shape[0] == 0:
 					assert points_layer.data.shape == (0, 3), context
 				else:
@@ -873,7 +873,6 @@ def test_visualization_layer_rgb_transitions():
 		np.testing.assert_array_equal(layer.data, state.visualization)
 		viewer.dims.ndisplay = 3
 		assert layer.ndim == len(shape) - int(layer.rgb)
-
 
 # ==================================================
 # endregion Mise à jour des calques

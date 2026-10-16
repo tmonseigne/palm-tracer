@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from contextlib import suppress
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 from qtpy.QtCore import QObject, Signal
 

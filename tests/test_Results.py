@@ -417,7 +417,6 @@ def test_interfaces(results, qtbot):
 	qtbot.addWidget(replacement_ui.widget)
 	assert replacement_ui is not first_ui, "Une interface nettoyée doit être recréée."
 
-
 # ==================================================
 # endregion Interface
 # ==================================================

@@ -272,6 +272,7 @@ class BaseSettingGroup:
 		"""Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec ``with ...:``."""
 		if not self._settings: return nullcontext()
 
+		# noinspection PyAbstractClass
 		stack = ExitStack()
 		for setting in self._settings.values(): stack.enter_context(setting.signal_blocked())  # Chaque enfant doit lui-même retourner un context manager
 		return stack

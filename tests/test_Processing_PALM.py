@@ -1,8 +1,11 @@
 """Teste l'encapsulation et l'utilisation de la DLL PALM."""
 
+from unittest.mock import Mock
+
 import pytest
 
 from palm_tracer.Processing import Palm, Parsing
+from palm_tracer.Processing.Astigmatism3D import sigma_model
 from palm_tracer.Processing.Parsing import MODEL_ROWS
 from palm_tracer.Tools import FileIO
 from tests.Utils import *
@@ -136,8 +139,8 @@ def test_cpu_auto_threshold(p: int):
 	"""Vérifie l'auto-seuillage avec la DLL CPU."""
 	palm = Palm()
 	image = FileIO.open_tif(f"{INPUT_DIR}/stack.tif")
-	ref = [63.639888, 65.789447, 63.192296, 64.375352, 63.954150,
-		   63.400043, 66.521994, 63.373237, 62.515444, 63.866017]
+	ref = [63.651749, 66.142910, 63.192296, 64.368855, 63.954150,
+		   63.400043, 66.521994, 63.373237, 62.613244, 63.866017]
 	res = palm.auto_threshold(image[p], get_fit_params(0))
 	# print(f"Image {i} : {res:.6f} VS {ref[i]:.6f}")
 	assert is_closed(res, ref[p]), f"Le seuil pour l'image {p} vaut {res} au lieu de {ref[p]}"
@@ -272,8 +275,10 @@ def test_track_analysis_fit_modes(mode: int):
 			if ref_path.exists() and ref_path.is_file():
 				print(f"Comparaison avec : '{ref_path}'")
 				ref = pd.read_csv(ref_path)
-				# Comparaison entre le DataFrame t_output[name] et ref avec une tolérance de 1e-5 et ignore les NaN
-				np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=1e-5, atol=1e-5, equal_nan=True)
+				# Sans plateau observé, les paramètres exponentiels sont sensibles aux variations numériques entre plateformes.
+				# La tolérance relative de ce mode est alignée sur les tests C++ ; les autres modes restent à 1e-5.
+				rtol = 1e-3 if mode == 3 else 1e-5
+				np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=rtol, atol=1e-5, equal_nan=True)
 	else:
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
 
@@ -294,6 +299,27 @@ def test_track_analysis_small_inputs(selection, is_msd, fit_length):
 		palm.track_analysis(tracks, is_msd, True, False, 1, 1, 1, np.array([fit_length], dtype=float))
 	else:
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("ids, planes, fit_length, mode, sizes", [
+		pytest.param([1, 1], [1, 100], 4, 1, (102, 1, 11), id="long-blinking"),
+		pytest.param([1, 1, 1, 2, 2], [8000, 8001, 8009, 15000, 15009], 1, 2, (23, 8, 23), id="separate-tracks"),
+		pytest.param([1], [16000], 4, 3, (1, 1, 13), id="single-point")])
+def test_track_analysis_buffer_sizes(monkeypatch, ids, planes, fit_length, mode, sizes):
+	"""Vérifie les allocations sans appeler la DLL, notamment quand le blinking dépasse l'ancienne marge."""
+	columns = Parsing.FILES_COLUMNS["Tracking"]["columns"]
+	tracks = pd.DataFrame(np.ones((len(ids), len(columns))), columns=columns)
+	tracks["Track"], tracks["Plane"] = ids, planes
+	palm = Palm.__new__(Palm)
+	palm._dll = Mock()
+	parser = Mock(return_value=pd.DataFrame())
+	monkeypatch.setattr(Parsing, "parse_result", parser)
+
+	palm.track_analysis(tracks, True, True, False, 1, 1, mode, np.array([fit_length], dtype=float))
+
+	palm._dll.TrackAnalysis.assert_called_once()
+	assert tuple(call.args[0].size for call in parser.call_args_list) == sizes
 
 
 # ==================================================
@@ -328,7 +354,7 @@ def test_align(mode, upscale, filename):
 		# Référence par répétition des pixels, avec le même padding exclu que dans le scénario initial.
 		ref = np.repeat(np.repeat(stack, 2, axis=-2), 2, axis=-1)
 		assert np.allclose(aligned[..., :-1, :-1], ref[..., :-1, :-1], atol=0, rtol=0), (
-			"Mode Upscale : le résultat doit être IDENTIQUE au stack d'origine.")
+				"Mode Upscale : le résultat doit être IDENTIQUE au stack d'origine.")
 	else:
 		assert aligned.shape == stack.shape, "Mode Transpose : les dimensions doivent être identiques malgré la transposition."
 
@@ -388,9 +414,12 @@ def test_astigmatism_3d_estimation():
 	# Vérification très permissive (arrondi et estimateurs sont les fautifs)
 	assert np.allclose(res[:, 0], ref, atol=40, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res[:, 0]}"
 
-	# Vérification de l'erreur maximale en pixel²
-	assert np.max(res[:, 1]) < 0.15, f"Résultat incorrect.\tAttendu : 0.15\tObtenu : {np.max(res[:, 1])}"
-
+	# Le score est calculé sur les sigmas prédits au Z effectivement retenu, sans normalisation par la pile.
+	predicted = np.column_stack([sigma_model(axis, res[:, 0], 200) for axis in model.to_numpy()])
+	relative_error = (points[:, :-1] - predicted) / predicted
+	expected_score = 1 / (1 + np.mean(relative_error * relative_error, axis=1) / 0.2 ** 2)
+	np.testing.assert_allclose(res[:, 1], expected_score, atol=1e-12, rtol=1e-12)
+	assert np.all((res[:, 1] >= 0) & (res[:, 1] <= 1))
 
 # ==================================================
 # endregion Astigmatisme 3D

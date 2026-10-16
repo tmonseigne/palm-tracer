@@ -269,7 +269,6 @@ def test_close_web_widget(plotly_widget, monkeypatch, has_page):
 		page.triggerAction.assert_not_called()
 		page.deleteLater.assert_not_called()
 
-
 # ==================================================
 # endregion Fermeture
 # ==================================================

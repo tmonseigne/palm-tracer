@@ -172,7 +172,6 @@ def test_column_migrator():
 		res = m.column_migrator(data[i])
 		assert ref[i] == res, f"Résultat incorrect.\nAttendu : {ref[i]}\nObtenu : {res}"
 
-
 # ==================================================
 # endregion Outils de conversion
 # ==================================================

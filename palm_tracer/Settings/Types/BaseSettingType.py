@@ -75,6 +75,12 @@ class BaseSettingType:
 
 	# --------------------------------------------------
 	@property
+	def uis(self) -> dict[str, BaseUIType]:
+		"""Dictionnaire des interfaces qui ont été créées pour ce paramètre."""
+		return self._uis
+
+	# --------------------------------------------------
+	@property
 	def value(self) -> Any:
 		"""Valeur actuelle du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
 		return True

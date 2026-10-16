@@ -25,8 +25,10 @@ class FiltersL(BaseSettingGroup):
 	  ``[0.0, 1.0]``.
 	- ``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle angulaire ; valeur par défaut :
 	  ``[-90.0, 90.0]`` degrés.
-	- ``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des erreurs quadratiques moyennes ;
-	  valeur par défaut : ``[0.0, 1.0]``.
+	- ``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des scores de qualité ;
+	  valeur par défaut : ``[0.0, 1.0]``, plus grand = meilleur. Les noms historiques sont conservés :
+	  XY contient la corrélation de Pearson au carré, Z le score de compatibilité des sigmas défini dans
+	  :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`. Les anciens fichiers peuvent encore contenir une SSE pour Z.
 	"""
 
 	label: str = "Localization"

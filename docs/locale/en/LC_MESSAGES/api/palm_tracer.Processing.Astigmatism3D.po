@@ -203,6 +203,7 @@ msgid "MAE_Z (*Mean Absolute Error*) : Erreur moyenne absolue sur Z, plus robust
 msgstr "MAE_Z (*Mean Absolute Error*): Mean absolute error on Z, more robust to outliers than RMSE. Perfect model: MAE_Z = 0."
 
 #: of palm_tracer.Processing.Astigmatism3D.model_projection_validity:12
+#, no-python-format
 msgid "P95_Z : 95e percentile de la valeur absolue de ΔZ. Indique une borne haute de l'erreur axiale pour 95 % des localisations."
 msgstr "P95_Z: 95th percentile of the absolute value of ΔZ. Provides an upper bound on the axial error for 95 % of localizations."
 

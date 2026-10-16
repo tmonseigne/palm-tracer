@@ -372,8 +372,8 @@ class Monitoring:
 		"""Construit la figure interactive des ressources utilisées pendant les tests."""
 
 		params: list[_MonitoringTrace] = [{"y": self._cpu, "name": "CPU Usage (%)", "line": {"color": "blue"}},
-				  {"y": self._memory, "name": "Memory Usage (Mo)", "line": {"color": "green"}},
-				  {"y": self._disk, "name": "Disk Usage (IO Mo)", "line": {"color": "red"}}]
+										  {"y": self._memory, "name": "Memory Usage (Mo)", "line": {"color": "green"}},
+										  {"y": self._disk, "name": "Disk Usage (IO Mo)", "line": {"color": "red"}}]
 
 		# Ajouter GPU seulement si pertinent
 		if not np.allclose(self._gpu, 0): params.insert(1, {"y": self._gpu, "name": "GPU Usage (%)", "line": {"color": "darkblue"}})

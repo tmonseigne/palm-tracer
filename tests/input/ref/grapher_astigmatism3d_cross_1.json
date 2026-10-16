@@ -39,36 +39,36 @@
 	"hovermode": "closest",
 	"shapes": [
 	  {
-	    "line": {
-	      "color": "red",
-	      "dash": "dash",
-	      "width": 0.75
-	    },
-	    "name": "Min σX",
-	    "showlegend": true,
-	    "type": "line",
-	    "x0": -100.0,
-	    "x1": -100.0,
-	    "xref": "x",
-	    "y0": 0,
-	    "y1": 1,
-	    "yref": "y domain"
+		"line": {
+		  "color": "red",
+		  "dash": "dash",
+		  "width": 0.75
+		},
+		"name": "Min σX",
+		"showlegend": true,
+		"type": "line",
+		"x0": -100.0,
+		"x1": -100.0,
+		"xref": "x",
+		"y0": 0,
+		"y1": 1,
+		"yref": "y domain"
 	  },
 	  {
-	    "line": {
-	      "color": "red",
-	      "dash": "dash",
-	      "width": 0.75
-	    },
-	    "name": "Min σY",
-	    "showlegend": true,
-	    "type": "line",
-	    "x0": 100.0,
-	    "x1": 100.0,
-	    "xref": "x",
-	    "y0": 0,
-	    "y1": 1,
-	    "yref": "y domain"
+		"line": {
+		  "color": "red",
+		  "dash": "dash",
+		  "width": 0.75
+		},
+		"name": "Min σY",
+		"showlegend": true,
+		"type": "line",
+		"x0": 100.0,
+		"x1": 100.0,
+		"xref": "x",
+		"y0": 0,
+		"y1": 1,
+		"yref": "y domain"
 	  }
 	],
 	"showlegend": true,

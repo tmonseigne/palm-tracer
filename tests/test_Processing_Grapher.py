@@ -94,6 +94,7 @@ def test_histogram_curves(args, kwargs, filename):
 	if options.get("exponential"): expected_names.append("Exponential")
 	assert [trace.name for trace in figure.data] == expected_names
 	for trace in figure.data[1:]:
+		assert isinstance(trace, go.Scatter)
 		assert len(trace.x) == len(trace.y) > 1
 		assert np.isfinite(trace.y).all()
 		assert (np.asarray(trace.y) >= 0).all()
@@ -118,6 +119,8 @@ def test_histogram_fit_limit(distribution, name, density, cumulative, fit_limit)
 	points = np.concatenate(([-1.0, fit_limit, fit_limit], valid, [np.nan, np.inf]))
 	figure = Grapher().histogram(points, bins=4, density=density, cumulative=cumulative, fit_limit=fit_limit, **{distribution: True})
 	histogram, curve = figure.data
+	assert isinstance(histogram, go.Histogram)
+	assert isinstance(curve, go.Scatter)
 	assert curve.name == name
 	np.testing.assert_array_equal(histogram.x, points[:7])
 	assert histogram.cumulative.enabled == cumulative
@@ -146,7 +149,9 @@ def test_histogram_fit_limit_without_distribution(points, fit_limit):
 	"""Conserve l'histogramme seul quand les données admissibles ne permettent aucun ajustement."""
 	figure = Grapher().histogram(points, fit_limit=fit_limit, kde=True, gaussian=True, gaussian_mixture=True, poissonnian=True, exponential=True)
 	assert len(figure.data) == 1
-	np.testing.assert_array_equal(figure.data[0].x, points)
+	histogram = figure.data[0]
+	assert isinstance(histogram, go.Histogram)
+	np.testing.assert_array_equal(histogram.x, points)
 
 
 # --------------------------------------------------
@@ -169,10 +174,15 @@ def test_histogram_gaussian_mixture_components(cumulative, fit_limit, monkeypatc
 	monkeypatch.setattr(GaussianMixture, "fit", capture_fit)
 	figure = Grapher().histogram(points, gaussian_mixture=True, density=True, cumulative=cumulative, fit_limit=fit_limit)
 	component_1, component_2, mixture = figure.data[1:]
+	assert isinstance(component_1, go.Scatter)
+	assert isinstance(component_2, go.Scatter)
+	assert isinstance(mixture, go.Scatter)
+	histogram = figure.data[0]
+	assert isinstance(histogram, go.Histogram)
 
 	assert len(fit_inputs) == 1
 	np.testing.assert_array_equal(fit_inputs[0], points[points > fit_limit])
-	np.testing.assert_array_equal(figure.data[0].x, points)
+	np.testing.assert_array_equal(histogram.x, points)
 	assert [trace.name for trace in figure.data[1:]] == ["Gaussian component 1", "Gaussian component 2", "Gaussian mixture"]
 	assert np.allclose(np.asarray(component_1.y) + np.asarray(component_2.y), np.asarray(mixture.y))
 	if cumulative: assert mixture.y[-1] == pytest.approx(fit_inputs[0].size / points.size)
@@ -212,8 +222,12 @@ def test_scatter_multiple_curves(names, expected_names):
 	assert figure.layout.xaxis.title.text == "Plane"
 	assert figure.layout.yaxis.title.text == "Intensity"
 	assert list(figure.layout.yaxis.range) == [10, 80]
-	assert figure.data[0].line.color != figure.data[1].line.color
+	first_curve, second_curve = figure.data
+	assert isinstance(first_curve, go.Scatter)
+	assert isinstance(second_curve, go.Scatter)
+	assert first_curve.line.color != second_curve.line.color
 	for trace, index in zip(figure.data, [0, 2]):
+		assert isinstance(trace, go.Scatter)
 		expected_x = points[index, 0].copy()
 		expected_y = points[index, 1].copy()
 		expected_y[~np.isfinite(expected_x)] = np.nan
@@ -336,16 +350,23 @@ def test_astigmatism3d_filters_z_limits(mode, z_max):
 	model_trace_count = 2 if mode == "cross" else 1
 	assert len(figure.data) == 2 * model_trace_count
 	for trace in figure.data[:model_trace_count]:
+		assert isinstance(trace, go.Scatter)
 		assert trace.mode == "lines"
 		np.testing.assert_array_equal(np.asarray(trace.x)[[0, -1]], [-z_max, z_max])
 	for trace in figure.data[model_trace_count:2 * model_trace_count]:
+		assert isinstance(trace, go.Scatter)
 		assert trace.mode == "markers"
 		np.testing.assert_array_equal(trace.x, valid_points[:, 2])
 	if mode == "cross":
-		np.testing.assert_array_equal(figure.data[2].y, valid_points[:, 0])
-		np.testing.assert_array_equal(figure.data[3].y, valid_points[:, 1])
+		x_trace, y_trace = figure.data[model_trace_count:]
+		assert isinstance(x_trace, go.Scatter)
+		assert isinstance(y_trace, go.Scatter)
+		np.testing.assert_array_equal(x_trace.y, valid_points[:, 0])
+		np.testing.assert_array_equal(y_trace.y, valid_points[:, 1])
 	else:
-		np.testing.assert_array_equal(figure.data[1].y, valid_points[:, 0] - valid_points[:, 1])
+		difference_trace = figure.data[1]
+		assert isinstance(difference_trace, go.Scatter)
+		np.testing.assert_array_equal(difference_trace.y, valid_points[:, 0] - valid_points[:, 1])
 	np.testing.assert_array_equal(points, original)
 
 
@@ -363,10 +384,12 @@ def test_astigmatism3d_without_valid_points(mode, points):
 	model_trace_count = 2 if mode == "cross" else 1
 	assert len(figure.data) == 2 * model_trace_count
 	for trace in figure.data[:model_trace_count]:
+		assert isinstance(trace, go.Scatter)
 		assert trace.mode == "lines"
 		assert len(trace.x) == 11
 		assert len(trace.y) == 11
 	for trace in figure.data[model_trace_count:2 * model_trace_count]:
+		assert isinstance(trace, go.Scatter)
 		assert trace.mode == "markers"
 		assert len(trace.x) == 0
 		assert len(trace.y) == 0

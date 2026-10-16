@@ -119,8 +119,6 @@ class Palm:
 		:param writeable: Garantit un buffer modifiable si True.
 		:return: Tableau C-contigu compatible DLL.
 		"""
-		if not isinstance(a, np.ndarray): a = np.asarray(a)
-
 		# Vérification de copie nécessaire ou non
 		if (a.dtype != dtype) or (not a.flags["C_CONTIGUOUS"]) or (writeable and not a.flags["WRITEABLE"]):
 			a = np.ascontiguousarray(a, dtype=dtype)  # Rend contigu
@@ -309,21 +307,37 @@ class Palm:
 		in_tracks = self._as_c_contig(in_tracks, np.dtype(float), writeable=False)  # Assurance de contiguïté
 		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)  # . Assurance de contiguïté
 		n_row = len(tracks)  # .													  Nombre de points pour les trajectoires
-		n = n_row * N_TRC_CP_FIT  # .												  Taille maximale des tableaux finaux
+		# Même découpage que LoadTracks : un groupe par identifiant contigu, sans réordonner les points.
+		bounds = np.concatenate(([0], np.flatnonzero(in_tracks[1:, 0] != in_tracks[:-1, 0]) + 1, [n_row]))
+		lengths = np.diff(bounds)
+		# Chaque bloc contient sa longueur et l'identifiant ; une sentinelle termine chaque sortie.
+		# MSD : un lag par frame entre les extrémités, y compris les lags vides dus au blinking.
+		msd_size = 1
+		if is_msd:
+			valid = lengths >= 2
+			spans = in_tracks[bounds[1:][valid] - 1, 1] - in_tracks[bounds[:-1][valid], 1]
+			msd_size += int(np.sum(spans)) + 2 * int(np.count_nonzero(valid))
+		ind_size = 1
+		if is_ind:
+			fit_length = int(params[0])
+			windows = lengths[lengths > fit_length] - fit_length
+			ind_size += int(np.sum(windows)) + 2 * windows.size
+		# Fits : borne par trajectoire (8/9/10 métriques + identifiant + longueur), car certains sont rejetés.
+		fit_size = 1 + lengths.size * {2: 11, 3: N_TRC_CP_FIT}.get(fit_mode, 10)
 
 		# Sorties : buffer réel si demandé, sinon buffer dummy (évite pointeurs NULL)
-		o_msd = np.empty((n,), dtype=float, order="C") if is_msd else np.empty((1,), dtype=float, order="C")
-		o_ind = np.empty((n,), dtype=float, order="C") if is_ind else np.empty((1,), dtype=float, order="C")
-		o_fit = np.empty((n,), dtype=float, order="C") if fit_mode != 0 else np.empty((1,), dtype=float, order="C")
+		o_msd = np.empty((msd_size,), dtype=float, order="C")
+		o_ind = np.empty((ind_size,), dtype=float, order="C")
+		o_fit = np.empty((fit_size if fit_mode != 0 else 1,), dtype=float, order="C")
 
 		self._dll.TrackAnalysis(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
 								o_fit.ctypes.data_as(C_TAB_DBL),
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
 								C_UINT(fit_mode), params.ctypes.data_as(C_TAB_DBL))
 
-		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD")
-		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion")
-		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", fit_mode)
+		if is_msd: res["MSD"] = Parsing.parse_result(o_msd, "MSD")
+		if is_ind: res["InD"] = Parsing.parse_result(o_ind, "Instant Diffusion")
+		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit, "Fit", fit_mode)
 		return res
 
 	# --------------------------------------------------
@@ -391,7 +405,28 @@ class Palm:
 		:param pixel_size: Taille des pixels en nanomètres.
 		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param z_max: Distance absolue maximale sur Z par rapport à l'origine.
-		:return: Tableau (N, 2) contenant, pour chaque point, Z en nanomètres et l'erreur quadratique du modèle sur les deux sigmas en pixels carrés.
+		:return: Tableau (N, 2) contenant Z en nanomètres et le score de compatibilité des sigmas entre 0 et 1 (1 = meilleur).
+
+		Le cœur minimise toujours la somme des carrés des résidus sur les sigmas pour choisir Z.
+		Le score final est une convention propre au projet, calculée uniquement sur la localisation courante :
+
+		.. math::
+
+		   r^2 = \\frac{1}{2}\\sum_{a\\in\\{x,y\\}}
+		         \\left(\\frac{\\sigma_a-\\hat\\sigma_a(Z)}{\\hat\\sigma_a(Z)}\\right)^2,
+		   \\qquad Q_Z = \\frac{1}{1+r^2/0.20^2}.
+
+		Un écart relatif RMS de 20 % donne 0.5 ; une largeur non finie ou non positive donne 0.
+		Ce score n'est ni un R², ni une probabilité, ni une précision axiale en nanomètres.
+		Il ne pénalise pas explicitement une saturation à la borne et ne détecte pas les Z ambigus.
+		La plage de recherche peut changer le Z retenu, mais ne normalise pas le score.
+
+		.. warning::
+
+		   La seconde valeur remplace l'ancienne SSE en pixels carrés (0 = meilleur).
+		   La colonne historique ``MSE Z`` conserve son nom mais contient ce score (1 = meilleur).
+		   Les anciens fichiers et seuils ne sont pas convertis ; utiliser un cœur compatible
+		   et recalculer l'estimation pour obtenir des valeurs homogènes.
 		"""
 
 		n = len(sigmas)

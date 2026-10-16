@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from napari.components import ViewerModel
 from qtpy.compat import isalive
-from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPoint, QPointF, Qt, QUrl
+from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QVBoxLayout, QWidget
 
@@ -55,8 +55,8 @@ def drop_widget(qtbot, monkeypatch):
 # --------------------------------------------------
 def send_file_drop(receiver, mime):
 	"""Envoie la séquence Qt complète d'entrée, de déplacement et de dépôt."""
-	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	move = QDragMoveEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	enter = QDragEnterEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
 	return enter, move, drop
@@ -65,6 +65,13 @@ def send_file_drop(receiver, mime):
 # --------------------------------------------------
 class _DummyLayer:
 	"""Simule un calque et mémorise sa visibilité lors des affectations."""
+
+	visible: bool  #: Visibilité courante du calque.
+	data: str  #: Données représentées par le calque simulé.
+	invalid_property: str  #: Propriété dont l'affectation doit échouer.
+	updates_visibility: list[bool]  #: Visibilité observée lors de chaque mise à jour.
+	face_color: str  #: Couleur affectée par la mise à jour du calque.
+	blending: str  #: Mode de mélange affecté par la mise à jour du calque.
 
 	# --------------------------------------------------
 	def __init__(self, visible: bool, invalid_property: str = ""):

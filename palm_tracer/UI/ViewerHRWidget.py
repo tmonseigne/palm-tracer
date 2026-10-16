@@ -119,7 +119,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
-		# Integration des Filtres
+		# Intégration des Filtres
 		self._filters = self.pt.settings.filters
 		self._filters_ui = self._filters.get_ui(self.UI_NAME)
 		vbox_filters.addWidget(self._filters_ui.widget)
@@ -306,7 +306,7 @@ class ViewerHRWidget(BaseNapariWidget):
 			if plot_data.shape[0] > 0: tracks = plot_data
 		for layer, data, state in ((point_layer, points, "Present"), (filtered_layer, filtered_points, "Filtered")):
 			args = self.LAYER_ARGS[state]
-			self.update_layer(layer, data, size=args["size"], face_color=args["face"], out_of_slice_display=False, editable=False, locked=True)
+			self.update_layer(layer, data, size=args["size"], face_color=args["face"], projection_mode="none", editable=False, locked=True)
 		self.update_layer(tracks_layer, tracks, blending="translucent")  # Napari refuse les tracks vides : conserve le point fictif de l'initialisation.
 
 		self._update_visualization_layer()

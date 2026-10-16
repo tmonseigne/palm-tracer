@@ -536,29 +536,40 @@ def test_compute_missing_plane_with_option_enabled(qtbot, capsys, fake_qfiledial
 
 
 # --------------------------------------------------
-def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path):
-	"""Vérifie les avertissements de calibration automatique pour des sigmas aléatoires."""
+def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path, user_model_path, monkeypatch):
+	"""Vérifie l'avertissement et la sauvegarde lorsque la calibration renvoie les paramètres initiaux."""
 	data = pd.read_csv(LOC_FILE)
-	rng = np.random.default_rng(42)
-	data["Sigma X"] = rng.normal(loc=1.0, scale=1.0, size=len(data))
-	data["Sigma Y"] = rng.normal(loc=1.0, scale=1.0, size=len(data))
 	localization_file = tmp_path / LOC_FILE.name
 	data.to_csv(localization_file, index=False)
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
 	w._spin_px_compute.setValue(0.2)
 	w._check_z_from_plane.setChecked(False)
+	w._check_z_center.setChecked(False)
+	# Des sigmas aléatoires ne garantissent pas l'échec du solveur : imposer ici son résultat
+	# pour tester le comportement de l'interface, indépendamment de sa convergence numérique.
+	initial_width = (data["Z"].max() - data["Z"].min()) / 4
+	initial_model = pd.DataFrame([[-100.0, initial_width, 0.0, 0.0, 200.0],
+								  [100.0, initial_width, 0.0, 0.0, 200.0]],
+								 columns=["Z0", "W", "C3", "C4", "A"], index=["X", "Y"])
+	calibration = Mock(side_effect=lambda *_args: initial_model.copy())
+	monkeypatch.setattr(w._palm, "astigmatism_3d_calibration", calibration)
+	# Le rendu Web dispose de ses propres tests ; ce scénario cible les avertissements et les sauvegardes.
+	monkeypatch.setattr(w, "_update_web_widget", Mock())
 	capsys.readouterr()
 
 	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
 
 	lines = get_lines_output(capsys)
-	assert any("Model Calibration keep initial state" in line for line in lines)
+	assert calibration.call_count == data["Bead"].nunique()
+	for axis in ("X", "Y"):
+		assert sum(f"Model Calibration keep initial state on axis {axis}." in line for line in lines) == calibration.call_count
 	assert sum("Model saved successfully." in line for line in lines) == 1
-	assert (tmp_path / MODEL_FILE).is_file()
+	pd.testing.assert_frame_equal(w._model, initial_model)
+	pd.testing.assert_frame_equal(pd.read_csv(tmp_path / MODEL_FILE, index_col=0), initial_model)
+	pd.testing.assert_frame_equal(pd.read_csv(user_model_path, index_col=0), initial_model)
 	w.close()
-
 
 # ==================================================
 # endregion Calibration
@@ -815,7 +826,6 @@ def test_download(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert dl.filename == target.name
 
 	w.close()
-
 
 # ==================================================
 # endregion Export Plotly hérité

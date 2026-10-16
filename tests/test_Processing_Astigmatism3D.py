@@ -1,8 +1,10 @@
 """Teste les fonctions de calibration et d'estimation axiale par astigmatisme 3D."""
 
+import numpy as np
+import pandas as pd
 import pytest
 
-from palm_tracer.Processing.Astigmatism3D import *
+from palm_tracer.Processing import Astigmatism3D as A3D
 
 Z_MAX, N_POINTS, PIXEL_SIZE, SAMPLING = 500, 5000, 160, 1
 REF_MODEL = np.array([[300, 450, -0.70, -0.30, 240], [-300, 600, 1.40, 0.04, 240]], dtype=float)
@@ -29,8 +31,8 @@ def get_dataset(model: np.ndarray = REF_MODEL, z_max: float = Z_MAX, n: int = N_
 	z = np.linspace(-z_max, z_max, n, dtype=float)
 
 	# Sigma modèle
-	sx = sigma_model(model[0], z, pixel_size, sampling)
-	sy = sigma_model(model[1], z, pixel_size, sampling)
+	sx = A3D.sigma_model(model[0], z, pixel_size, sampling)
+	sy = A3D.sigma_model(model[1], z, pixel_size, sampling)
 
 	# Bruit gaussien (en pixels)
 	sx += rng.normal(0.0, 0.02, size=n)
@@ -55,7 +57,7 @@ DATASET = get_dataset()
 		pytest.param(np.ones(5), -10, 10, np.zeros(5), id="identical-planes")])
 def test_get_z_from_planes(planes, z_min, z_max, expected):
 	"""Vérifie la conversion des numéros de plans selon la plage axiale."""
-	np.testing.assert_array_equal(z_from_planes(planes, z_min, z_max), expected)
+	np.testing.assert_array_equal(A3D.z_from_planes(planes, z_min, z_max), expected)
 
 
 # --------------------------------------------------
@@ -65,7 +67,7 @@ def test_get_z_from_planes(planes, z_min, z_max, expected):
 		pytest.param(5, False, [0, 1, 2, 3, 4], id="no-centering")])
 def test_get_z_from_step(count, centered, expected):
 	"""Vérifie les positions axiales pour un pas unitaire."""
-	np.testing.assert_array_equal(z_from_step(count, 1, centered), expected)
+	np.testing.assert_array_equal(A3D.z_from_step(count, 1, centered), expected)
 
 
 # --------------------------------------------------
@@ -82,7 +84,7 @@ def test_get_z_from_step(count, centered, expected):
 					 pd.DataFrame([[1, 1, 3, 3, 1, 1, 0]], columns=["Bead"] + LOC_COLS), id="bead-column")])
 def test_remove_multi_loc(data, expected):
 	"""Vérifie la sélection des billes dans chaque configuration de localisation."""
-	res = remove_multi_beads(data.copy())
+	res = A3D.remove_multi_beads(data.copy())
 	pd.testing.assert_frame_equal(res, expected)
 
 
@@ -97,7 +99,7 @@ def test_sigma_model():
 	"""Vérifie le comportement de sigma_model."""
 	model = np.array([200., 100., 0., 0., 32.], dtype=float)
 	z = np.linspace(-200, 200, 11, dtype=float)
-	res = sigma_model(model, z, 160, 1)
+	res = A3D.sigma_model(model, z, 160, 1)
 	ref = [0.82462113, 0.74726167, 0.67052218, 0.59464275, 0.52, 0.4472136, 0.37735925, 0.31240999, 0.25612497, 0.21540659, 0.2]
 	assert np.allclose(res, ref), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {res}"
 
@@ -111,7 +113,7 @@ def test_sigma_model():
 					 id="different-model")])
 def test_model_validity(model, expected):
 	"""Vérifie les métriques pour chaque modèle de calibration indépendamment."""
-	res = model_validity(DATASET, model, PIXEL_SIZE, SAMPLING)
+	res = A3D.model_validity(DATASET, model, PIXEL_SIZE, SAMPLING)
 	for key, value in expected.items():
 		assert np.isclose(res[key], value, atol=0.1), f"Métrique {key} : {res[key]} au lieu de {value}."
 
@@ -126,7 +128,7 @@ def test_model_validity(model, expected):
 								  'p95_dist': 2.27, "slope_mean": 0.0015}, id="different-model")])
 def test_model_projection_validity(model, expected):
 	"""Vérifie les métriques pour chaque modèle de calibration indépendamment."""
-	res = model_projection_validity(DATASET, model, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
+	res = A3D.model_projection_validity(DATASET, model, Z_MAX, PIXEL_SIZE, N_POINTS, SAMPLING)
 	for key, value in expected.items():
 		assert np.isclose(res[key], value, atol=0.1), f"Métrique {key} : {res[key]} au lieu de {value}."
 
@@ -144,9 +146,9 @@ def test_model_projection_astigmatism(model, expected_distance, pixel_size):
 	"""Vérifie la distance axiale entre les minima, y compris lorsqu'ils diffèrent des paramètres Z0."""
 	z_max, n_curve = 200, 401
 	z = np.array([-100, 0, 100], dtype=float)
-	points = np.column_stack((sigma_model(model[0], z, pixel_size), sigma_model(model[1], z, pixel_size), z))
+	points = np.column_stack((A3D.sigma_model(model[0], z, pixel_size), A3D.sigma_model(model[1], z, pixel_size), z))
 
-	metrics = model_projection_validity(points, model, z_max, pixel_size, n_curve)
+	metrics = A3D.model_projection_validity(points, model, z_max, pixel_size, n_curve)
 
 	# Chaque minimum est localisé à un demi-pas près : l'erreur sur leur distance peut atteindre un pas.
 	z_step = 2 * z_max / (n_curve - 1)
@@ -163,27 +165,27 @@ def test_model_projection_astigmatism(model, expected_distance, pixel_size):
 # ==================================================
 def test_find_model_center():
 	"""Vérifie le comportement de find_model_center."""
-	res = find_model_center(REF_MODEL, Z_MAX, PIXEL_SIZE)
+	res = A3D.find_model_center(REF_MODEL, Z_MAX, PIXEL_SIZE)
 	ref = 21.3895675
 	assert np.isclose(res, ref, 1e-6)
 	model = REF_MODEL.copy()
 	model[0, 0] -= res
 	model[1, 0] -= res
-	res = find_model_center(model, Z_MAX, PIXEL_SIZE)
+	res = A3D.find_model_center(model, Z_MAX, PIXEL_SIZE)
 	assert np.isclose(res, 0, 1e-6)
 
 	model_no_sign_change = np.array([[0.0, 300.0, 0.0, 0.0, 200.0], [0.0, 300.0, 0.0, 0.0, 250.0]], dtype=float)
-	res = find_model_center(model_no_sign_change, Z_MAX, PIXEL_SIZE)
+	res = A3D.find_model_center(model_no_sign_change, Z_MAX, PIXEL_SIZE)
 	ref = -0.2442599
 	assert np.isclose(res, ref, 1e-6)
 
 	model_easy_0 = np.array([[0.0, 300.0, 0.0, 0.0, 240.0], [0.0, 300.0, 0.0, 0.0, 240.0]], dtype=float)
-	res = find_model_center(model_easy_0, 1024, 1)
+	res = A3D.find_model_center(model_easy_0, 1024, 1)
 	ref = -1024
 	assert np.isclose(res, ref, 1e-6)
 
 	model_bisection_no_exact_zero = np.array([[-123.41678443, 350.5466747, 0.687, 0.439, 240.456], [210, 350, 0, 0, 240], ], dtype=float)
-	res = find_model_center(model_bisection_no_exact_zero, 100, 1)
+	res = A3D.find_model_center(model_bisection_no_exact_zero, 100, 1)
 	ref = 29.2051458
 	assert np.isclose(res, ref, 1e-6)
 

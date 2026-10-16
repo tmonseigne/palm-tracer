@@ -1,13 +1,12 @@
 """Teste l'organisation et la sérialisation des paramètres."""
 
 import copy
-from typing import List
 
 import pytest
 import tifffile as tiff
 
+from palm_tracer.Settings import Groups as sg
 from palm_tracer.Settings import Settings
-from palm_tracer.Settings.Groups import *
 from palm_tracer.Tools import FileIO
 from tests.Utils import *
 
@@ -110,11 +109,11 @@ def test_settings_batch_reuses_tif_metadata(qtbot, tmp_path, monkeypatch):
 # region Accesseurs
 # ==================================================
 @pytest.mark.parametrize("attribute, group_type", [
-		pytest.param("batch", Batch, id="batch"), pytest.param("calibration", Calibration, id="calibration"),
-		pytest.param("localization", Localization, id="localization"), pytest.param("beads", BeadsExtraction, id="beads"),
-		pytest.param("tracking", Tracking, id="tracking"), pytest.param("blinking", BlinkingReconnection, id="blinking"),
-		pytest.param("track_analysis", TrackAnalysis, id="track-analysis"), pytest.param("gallery", Gallery, id="gallery"),
-		pytest.param("graph", Graph, id="graph"), pytest.param("hr", HR, id="high-resolution"), pytest.param("filters", Filters, id="filters")])
+		pytest.param("batch", sg.Batch, id="batch"), pytest.param("calibration", sg.Calibration, id="calibration"),
+		pytest.param("localization", sg.Localization, id="localization"), pytest.param("beads", sg.BeadsExtraction, id="beads"),
+		pytest.param("tracking", sg.Tracking, id="tracking"), pytest.param("blinking", sg.BlinkingReconnection, id="blinking"),
+		pytest.param("track_analysis", sg.TrackAnalysis, id="track-analysis"), pytest.param("gallery", sg.Gallery, id="gallery"),
+		pytest.param("graph", sg.Graph, id="graph"), pytest.param("hr", sg.HR, id="high-resolution"), pytest.param("filters", sg.Filters, id="filters")])
 def test_settings_group_getter(qtbot, attribute, group_type):
 	"""Vérifie que chaque accesseur renvoie le groupe de paramètres attendu."""
 	assert isinstance(getattr(Settings(), attribute), group_type), "Récupération du groupe incorrecte."
@@ -131,11 +130,10 @@ def test_settings_signal(qtbot):
 	"""Vérifie Connexion d'un slot Python, blocage et émission."""
 	settings = Settings()
 
-	received: List[Any] = []
+	received: list[Any] = []
 	settings.connect(lambda v: received.append(v))
 	with settings.signal_blocked(): pass
 	settings.disconnect()
-
 
 # ==================================================
 # endregion Signaux

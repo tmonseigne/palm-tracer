@@ -99,7 +99,7 @@ class GaussianFit(BaseSettingGroup):
 		:param active: Indique si le modèle par défaut est sélectionné.
 		"""
 		model = cast(BrowseFile, self._settings["Model"])
-		for ui in model._uis.values():
+		for ui in model.uis.values():
 			if ui.label is not None: ui.label.setEnabled(not active)
 			for box in ui.boxes: box.setEnabled(not active)
 

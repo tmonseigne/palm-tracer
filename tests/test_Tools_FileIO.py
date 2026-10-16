@@ -364,7 +364,6 @@ def test_open_calibration_mat_bad_file():
 		_ = FileIO.open_calibration_mat("bad_filename.mat")
 	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
 
-
 # ==================================================
 # endregion Entrées-sorties MATLAB
 # ==================================================

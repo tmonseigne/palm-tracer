@@ -199,6 +199,7 @@ msgid "Affichage d'un histogramme shrinkable"
 msgstr "Display of a shrinkable histogram."
 
 #: ../../cdc.rst:88
+#, no-python-format
 msgid "Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme \"blanc\" à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)"
 msgstr "Proposal to include a checkbox for automatic image shrinking (default value: 0.5% of the \"white\" histogram, which appears consistent with the provided example images, but remains configurable)."
 

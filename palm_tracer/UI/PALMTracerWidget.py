@@ -4,9 +4,10 @@ Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 .. todo:: Rendre interruptibles les prévisualisations sans bloquer l'interface Napari.
 """
 
+from collections.abc import Callable
 from contextlib import suppress
 from pathlib import Path
-from typing import Callable, Optional, cast
+from typing import Optional, cast
 
 import napari
 import numpy as np
@@ -383,7 +384,7 @@ class PALMTracerWidget(BaseNapariWidget):
 			_, height, width = self._current_stack.shape
 			self.pt.settings.rois.set_size(width, height)
 			self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
-			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()  # .			   Reinitialisation du contrast si la Pile Change
+			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()  # .			   Réinitialisation du contrast si la Pile Change
 			self.viewer.reset_view()  # .											   Recentrer et ajuster la vue
 			self.pt.load(str(Path(selected_file).with_suffix("")) + "_PALM_Tracer")  # load() attend le dossier des résultats, et non le chemin du TIFF.
 			try:

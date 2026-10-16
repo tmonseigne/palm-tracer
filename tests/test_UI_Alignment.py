@@ -202,7 +202,6 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog, input_stack):
 	assert output.parent == input_stack.parent
 	w.close()
 
-
 # ==================================================
 # endregion Chargement des coefficients et alignement
 # ==================================================

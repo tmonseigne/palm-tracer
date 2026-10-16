@@ -646,7 +646,7 @@ class PALMTracer:
 		xlabel, ylabel = graph_data.get("xlabel", ""), graph_data.get("ylabel", "")
 		# TODO : avertir avant l'affichage de plusieurs millions de valeurs.
 
-		# Selection du graphique à afficher
+		# Sélection du graphique à afficher
 		# --- Histogramme ---
 		if mode == 0:
 			bins = graph_data.get("bins", bins)
@@ -960,7 +960,7 @@ class PALMTracer:
 
 	# --------------------------------------------------
 	def _visualization_graph(self):
-		"""Lance la creation d'une visualisation graphique à partir des paramètres."""
+		"""Lance la création d'une visualisation graphique à partir des paramètres."""
 		s = self.settings.graph.settings
 		name = f"graph_{self.settings.graph['Type'].value}_{cast(Combo, self.settings.graph['Source']).current_text}"
 		self.graph().write_html(self._output_name(name, ext=".html"))
@@ -1198,7 +1198,7 @@ class PALMTracer:
 
 	# --------------------------------------------------
 	def _visualization_hr(self):
-		"""Lance la creation d'une visualisation haute résolution à partir des paramètres passés en paramètres."""
+		"""Lance la création d'une visualisation haute résolution à partir des paramètres passés en paramètres."""
 		name = self.output_viz_name()
 		viz = self.hr()["visualization"]
 		self._logger.add("\tSaving high-resolution visualization.")

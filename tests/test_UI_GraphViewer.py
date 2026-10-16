@@ -2,7 +2,7 @@
 
 import pytest
 from qtpy.compat import isalive
-from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPoint, QPointF, Qt, QUrl
+from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QObject, QPointF, Qt, QUrl
 from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QPushButton, QScrollArea
 
@@ -37,8 +37,8 @@ def stack_drop_widget(qtbot, monkeypatch):
 # --------------------------------------------------
 def send_stack_drop(receiver, mime):
 	"""Envoie les événements Qt d'entrée, de déplacement et de dépôt d'une pile."""
-	enter = QDragEnterEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	move = QDragMoveEvent(QPoint(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	enter = QDragEnterEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
 	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
 	return enter, move, drop

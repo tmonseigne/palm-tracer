@@ -44,6 +44,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# region Initialisation
 	# ==================================================
 	def __init__(self, parent: Optional[QWidget] = None):
+		"""Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide."""
 		super().__init__(parent)
 		self.setWindowTitle("Astigmatism 3D Tool")
 
