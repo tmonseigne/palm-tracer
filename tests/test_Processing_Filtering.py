@@ -8,9 +8,6 @@ from palm_tracer.Settings.Groups import Filters
 from palm_tracer.Settings.Types import CheckInt, SpinInt
 from tests.Utils import *
 
-OUTPUT_FOLDER = INPUT_DIR / "stack_PALM_Tracer"
-OUTPUT_FOLDER_2 = INPUT_DIR / "stack_quadrant_PALM_Tracer"
-
 
 # --------------------------------------------------
 @pytest.fixture

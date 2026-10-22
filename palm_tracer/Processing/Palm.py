@@ -66,6 +66,12 @@ class Palm:
 		fn.restype = C_UINT
 		fn.argtypes = [C_IMG, C_TAB_DBL, C_UINT, C_UINT, C_UINT, C_UINT, C_DBL, C_DBL, C_UINT, C_TAB_DBL]
 
+		# uint64_t Fitting(uint16_t* stack, double* positions, uint64_t n_points, double* output, uint64_t output_size,
+		# uint64_t h, uint64_t w, uint64_t planes, uint64_t fit, double* fit_params)
+		fn = self._dll.Fitting
+		fn.restype = C_UINT
+		fn.argtypes = [C_IMG, C_TAB_DBL, C_UINT, C_TAB_DBL, C_UINT, C_UINT, C_UINT, C_UINT, C_UINT, C_TAB_DBL]
+
 		# uint64_t Tracking(double* points, double* tracks, uint64_t n_points, double max_dist)
 		fn = self._dll.Tracking
 		fn.argtypes = [C_TAB_DBL, C_TAB_UINT, C_UINT, C_DBL]
@@ -204,6 +210,32 @@ class Palm:
 				mask = res["Integrated Intensity"] > 0
 				res.loc[mask, "Theta"] = Parsing.manage_theta(res.loc[mask, "Theta"])  # Normalisation de Theta
 
+		return res
+
+	# --------------------------------------------------
+	def fitting(self, stack: np.ndarray, localizations: pd.DataFrame, fit: int, fit_params: np.ndarray) -> pd.DataFrame:
+		"""
+		Réajuste des localisations existantes sur une image ou une pile, sans nouvelle détection.
+
+		:param stack: Image 2D ou pile 3D ordonnée par plan.
+		:param localizations: DataFrame contenant Id (conservé), Plane (à partir de 1), X, Y (en pixels), Intensity et Surface.
+		:param fit: Mode d'ajustement, comme dans :meth:`localization`.
+		:param fit_params: Paramètres du mode d'ajustement.
+		:return: Localisations au format habituel, avec les mêmes conversions et le même parsing que :meth:`localization`.
+		"""
+		stk = self._as_c_contig(stack, np.dtype(np.uint16), writeable=False)
+		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)
+		points = self._as_c_contig(localizations[Parsing.COLS_FOR_FITTING].to_numpy(dtype=float), np.dtype(float), writeable=False)
+		height, width = stk.shape[-2:]
+		n_planes = 1 if stk.ndim == 2 else stk.shape[0]
+		output = np.empty(len(points) * Parsing.N_COL_LOC, dtype=float)
+
+		count = self._dll.Fitting(stk.ctypes.data_as(C_IMG), points.ctypes.data_as(C_TAB_DBL), C_UINT(len(points)), output.ctypes.data_as(C_TAB_DBL),
+								  C_UINT(output.size), C_UINT(height), C_UINT(width), C_UINT(n_planes), C_UINT(fit), params.ctypes.data_as(C_TAB_DBL))
+		res = Parsing.parse_result(output[:count], "Localization")
+		if fit == 4:
+			mask = res["Integrated Intensity"] > 0
+			res.loc[mask, "Theta"] = Parsing.manage_theta(res.loc[mask, "Theta"])
 		return res
 
 	# --------------------------------------------------

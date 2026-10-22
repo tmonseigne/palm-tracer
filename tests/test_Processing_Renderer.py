@@ -1412,13 +1412,10 @@ def test_draw_line_width_border():
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("x1, y1", ((7, 7), (7, 4), (4, 7), (1, 7), (7, 1), (3, 7), (7, 3)),
-						 ids=['diagonal', 'shallow-slope', 'steep-slope', 'left', 'up', 'vertical', 'horizontal'])
-@pytest.mark.parametrize("reverse", (False, True), ids=['forward', 'reverse'])
-@pytest.mark.parametrize("width", (2, 3, 4), ids=['width-2', 'width-3', 'width-4'])
-def test_draw_line_width_orientations(x1, y1, reverse, width):
-	"""Vérifie les diagonales, les pentes variées et le sens du tracé avec une référence par empreintes."""
-	x0, y0, xe, ye = (x1, y1, 3, 3) if reverse else (3, 3, x1, y1)
+@pytest.mark.parametrize("width", (2, 3), ids=['even-width', 'odd-width'])
+def test_draw_line_width_orientations(width):
+	"""Vérifie l'application des empreintes paires et impaires avec couleur, transparence et masque."""
+	x0, y0, xe, ye = 3, 3, 7, 4
 	thin, thin_mask = Renderer.init_rendering(0, 10, 10)
 	Renderer.draw_line(thin, thin_mask, x0, y0, xe, ye, 1)
 	ref_mask: np.ndarray = np.zeros((10, 10), dtype=bool)

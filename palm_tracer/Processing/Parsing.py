@@ -56,6 +56,7 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 		}
 
 COLS_FOR_TRACKING = ["Id", "Plane", "X", "Y"]
+COLS_FOR_FITTING = ["Id", "Plane", "X", "Y", "Intensity", "Surface"]
 MODEL_ROWS = ["X", "Y"]
 
 # Dimensions utiles fréquemment

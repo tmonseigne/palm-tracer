@@ -196,9 +196,11 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		group_b = group_b.reset_index(drop=True)
 		if len(group_a) != len(group_b):
 			Ui.print_warning(f"{len(group_a)} points in A, {len(group_b)} points in B pour { {col: int(val) for col, val in zip(group_cols, group_values)} }.")
+			res = False
 
 		if group_b.empty:
 			Ui.print_warning(f"Pas de correspondance pour {dict(zip(group_cols, group_values))} dans B.")
+			res = False
 			continue
 
 		# Utilisation d'un KDTree pour accélérer la recherche des plus proches voisins
@@ -209,9 +211,13 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		used_indices = set()
 		unique_matches = []
 		for i, idx in enumerate(indices):
-			if idx not in used_indices:
-				unique_matches.append((i, idx))
-				used_indices.add(idx)
+			if idx in used_indices:
+				# Des coordonnées identiques peuvent représenter plusieurs lignes : chaque ligne de B ne sert qu'une fois.
+				_, candidates = tree.query(group_a.iloc[i][["X", "Y", "Z"]].to_numpy(dtype=float), k=len(group_b))
+				idx = next((int(candidate) for candidate in np.atleast_1d(candidates) if candidate not in used_indices), None)
+				if idx is None: continue
+			unique_matches.append((i, idx))
+			used_indices.add(idx)
 
 		matched_a_indices, matched_b_indices = zip(*unique_matches) if unique_matches else ([], [])
 		matched_a_indices, matched_b_indices = list(matched_a_indices), list(matched_b_indices)
@@ -244,6 +250,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		# Gestion des points non appariés
 		non_matched_a = group_a.drop(index=matched_a_indices, errors="ignore")
 		non_matched_b = group_b.drop(index=matched_b_indices, errors="ignore")
+		if not non_matched_a.empty or not non_matched_b.empty: res = False
 
 		if not non_matched_a.empty:
 			Ui.print_warning(f"Points supplémentaires dans A pour { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
@@ -258,12 +265,12 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	if total_points > 0:
 		exact_match_ratio = exact_matches / total_points * 100
 		msg = f"Comparaison terminée : {total_points} Points comparés, {exact_matches} Points identiques ({exact_match_ratio:.2f}%)"
-		if total_points == exact_matches: Ui.print_success(msg)
+		if res and total_points == exact_matches and total_points == len(a): Ui.print_success(msg)
 		else: Ui.print_warning(msg)
 
-		res = exact_matches == total_points
+		res = res and exact_matches == total_points
 
-	return res
+	return res and total_points == len(a)
 
 
 # --------------------------------------------------

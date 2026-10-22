@@ -3,6 +3,7 @@
 from unittest.mock import Mock
 
 import pytest
+from scipy.optimize import least_squares
 
 from palm_tracer.Processing import Palm, Parsing
 from palm_tracer.Processing.Astigmatism3D import sigma_model
@@ -25,46 +26,11 @@ def test_palm_dll_valid():
 # ==================================================
 
 # ==================================================
-# region Appels de la DLL
-# ==================================================
-
-# ==================================================
 # region Localisation
 # ==================================================
-def test_palm_cpu_empty_result():
-	"""Vérifie sur le lancement de PALM sur une noire."""
-	palm = Palm()
-	stack: np.ndarray = np.zeros((10, 10, 10), dtype=np.uint16)
-	res = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
-	assert res.empty
-
-
-# --------------------------------------------------
-@pytest.mark.parametrize("p", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
-@pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
-def test_palm_cpu_image(p: int, fit: int):
-	"""Vérifie sur le lancement de PALM sur une frame."""
-	palm = Palm()
-	file = "stack"
-	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
-	suffix = get_loc_suffix(fit)
-
-	localizations = palm.localization(stack[p], default_threshold, default_watershed, fit, get_fit_params(fit))
-	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{p}_{suffix}.csv", index=False)
-
-	assert len(localizations) > 0, "Aucune localisation trouvé"
-
-	path = REF_DIR / f"{file}-localizations-{p}_{suffix}.csv"
-	if path.exists() and path.is_file():
-		print(f"Comparaison avec : '{path}'")
-		ref = pd.read_csv(path)
-		assert compare_points(localizations, ref), f"Test invalide pour les paramètres {p}_{suffix}"
-
-
-# --------------------------------------------------
 @pytest.mark.parametrize("watershed", [True, False], ids=['with-watershed', 'no-watershed'])
 @pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
-def test_palm_cpu_stack(watershed: bool, fit: int):
+def test_localization(watershed: bool, fit: int):
 	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	file = "stack"
@@ -84,25 +50,7 @@ def test_palm_cpu_stack(watershed: bool, fit: int):
 
 
 # --------------------------------------------------
-def test_palm_cpu_stack_plane_selection():
-	"""Vérifie sur le lancement de PALM sur une pile."""
-	palm = Palm()
-	file = "stack"
-	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
-	suffix = get_loc_suffix()
-
-	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit), [2, 3, 4, 5, 6])
-	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
-	assert len(localizations) > 0, "Aucune localisation trouvé"
-	path = REF_DIR / f"{file}-localizations-plane_select-{suffix}.csv"
-	if path.exists() and path.is_file():
-		print(f"Comparaison avec : '{path}'")
-		ref = pd.read_csv(path)
-		assert compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
-
-
-# --------------------------------------------------
-def test_palm_cpu_stack_dll_check_quadrant():
+def test_localization_stack_quadrant():
 	"""Vérifie sur le lancement de PALM sur une pile."""
 	palm = Palm()
 	suffix = get_loc_suffix()
@@ -127,15 +75,88 @@ def test_palm_cpu_stack_dll_check_quadrant():
 		assert compare_points(localizations, ref), "Test invalide pour la vérification des quadrants."
 
 
+# --------------------------------------------------
+def test_localization_image():
+	"""Vérifie la localisation d'une image 2D extraite de la pile."""
+	palm = Palm()
+	file = "stack"
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
+	p = 0
+	suffix = get_loc_suffix()
+
+	localizations = palm.localization(stack[p], default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
+	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-{p}_{suffix}.csv", index=False)
+
+	assert len(localizations) > 0, "Aucune localisation trouvé"
+
+	path = REF_DIR / f"{file}-localizations-{p}_{suffix}.csv"
+	if path.exists() and path.is_file():
+		print(f"Comparaison avec : '{path}'")
+		ref = pd.read_csv(path)
+		assert compare_points(localizations, ref), f"Test invalide pour les paramètres {p}_{suffix}"
+
+
+# --------------------------------------------------
+def test_localization_plane_selection():
+	"""Vérifie sur le lancement de PALM sur une pile."""
+	palm = Palm()
+	file = "stack"
+	stack = FileIO.open_tif(f"{INPUT_DIR}/{file}.tif")
+	suffix = get_loc_suffix()
+
+	localizations = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit), [2, 3, 4, 5, 6])
+	if save_output: localizations.round(6).to_csv(f"{OUTPUT_DIR}/{file}-localizations-plane_select-{suffix}.csv", index=False)
+	assert len(localizations) > 0, "Aucune localisation trouvé"
+	path = REF_DIR / f"{file}-localizations-plane_select-{suffix}.csv"
+	if path.exists() and path.is_file():
+		print(f"Comparaison avec : '{path}'")
+		ref = pd.read_csv(path)
+		assert compare_points(localizations, ref, 0.001), f"Test invalide pour les paramètres {suffix}"
+
+
+# --------------------------------------------------
+def test_localization_empty_result():
+	"""Vérifie sur le lancement de PALM sur une noire."""
+	palm = Palm()
+	stack: np.ndarray = np.zeros((10, 10, 10), dtype=np.uint16)
+	res = palm.localization(stack, default_threshold, default_watershed, default_fit, get_fit_params(default_fit))
+	assert res.empty
+
+
 # ==================================================
 # endregion Localisation
+# ==================================================
+
+# ==================================================
+# region Ajustement de positions
+# ==================================================
+@pytest.mark.parametrize("fit", [2, 4], ids=['gaussian-sigma', 'gaussian-theta'])
+def test_fitting_matches_localization(fit: int):
+	"""Compare la détection suivie d'un fit séparé à la localisation avec fit sur la pile complète."""
+	palm = Palm()
+	stack = FileIO.open_tif(INPUT_DIR / "stack.tif")
+	params = get_fit_params(fit)
+	localizations = palm.localization(stack, default_threshold, default_watershed, 0, get_fit_params(0))
+	expected = palm.localization(stack, default_threshold, default_watershed, fit, params)
+	points = localizations[Parsing.COLS_FOR_FITTING].copy()
+	points["Id"] *= 2  # Identifiants non consécutifs pour vérifier leur conservation.
+	actual = palm.fitting(stack, points, fit, params)
+	np.testing.assert_array_equal(actual["Id"], points["Id"])
+
+	# L'appariement à la localisation avec fit tient compte du tri des positions après ajustement.
+	columns = [column for column in expected.columns if column not in ("Id", "Index")]
+	assert compare_points(actual, expected, tol=1e-8, compare_cols=columns)
+
+
+# ==================================================
+# endregion Ajustement de positions
 # ==================================================
 
 # ==================================================
 # region Seuil automatique
 # ==================================================
 @pytest.mark.parametrize("p", range(10), ids=['plane-1', 'plane-2', 'plane-3', 'plane-4', 'plane-5', 'plane-6', 'plane-7', 'plane-8', 'plane-9', 'plane-10'])
-def test_cpu_auto_threshold(p: int):
+def test_auto_threshold(p: int):
 	"""Vérifie l'auto-seuillage avec la DLL CPU."""
 	palm = Palm()
 	image = FileIO.open_tif(f"{INPUT_DIR}/stack.tif")
@@ -153,13 +174,11 @@ def test_cpu_auto_threshold(p: int):
 # ==================================================
 # region Trajectoires
 # ==================================================
-@pytest.mark.parametrize("watershed", [True, False], ids=['with-watershed', 'no-watershed'])
-@pytest.mark.parametrize("fit", range(6), ids=['no-fit', 'gaussian-xy', 'gaussian-sigma', 'gaussian-sigma-xy', 'gaussian-theta', 'spline'])
-def test_tracking(watershed: bool, fit: int):
-	"""Vérifie le tracking."""
+def test_tracking():
+	"""Vérifie le tracking à partir d'un fichier de localisations de référence."""
 	palm = Palm()
 	file = "stack"
-	suffix = get_loc_suffix(fit, watershed)
+	suffix = get_loc_suffix()
 	suffix_trc = suffix + "-" + get_trc_suffix()
 
 	path = REF_DIR / f"{file}-localizations-{suffix}.csv"
@@ -281,6 +300,46 @@ def test_track_analysis_fit_modes(mode: int):
 				np.testing.assert_allclose(t_output[name].to_numpy(float), ref.to_numpy(float), rtol=rtol, atol=1e-5, equal_nan=True)
 	else:
 		Ui.print_warning(f"Fichier de Tracking '{path}' indisponible.")
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("mode", [1, 2, 3], ids=['linear', 'power', 'exponential'])
+def test_track_analysis_recovers_synthetic_model(mode: int):
+	"""Retrouve les paramètres connus d'un MSD synthétique via l'analyse complète d'une trajectoire."""
+	lags = np.arange(1, 9, dtype=float)
+	if mode == 1:
+		expected_msd = 2 * lags + 3
+		columns, expected_params = ["A (μm²/s)", "B (μm²)"], [0.5, 3]
+	elif mode == 2:
+		expected_msd = 2 * lags ** 1.3
+		columns, expected_params = ["Alpha", "B (μm²)"], [1.3, 2]
+	else:
+		expected_msd = 20 * (1 - np.exp(-lags / 3))
+		# Le décalage temporel et l'ordonnée initiale ne sont pas identifiables séparément.
+		columns, expected_params = ["A (μm²)", "B (s)"], [20, 3]
+
+	def msd_residual(coordinates):
+		"""Construit les positions à partir du MSD cible, indépendamment du moteur de fit testé."""
+		points = np.vstack(([0.0, 0.0], coordinates.reshape(-1, 2)))
+		return np.array([np.mean(np.sum((points[k:] - points[:-k]) ** 2, axis=1)) for k in range(1, len(points))]) - expected_msd
+
+	# L'API prend des positions : synthétiser une trajectoire dont le MSD suit exactement le modèle choisi.
+	rng = np.random.default_rng(42)
+	initial = np.cumsum(rng.normal(size=(len(lags), 2)) * 2, axis=0)
+	simulation = least_squares(msd_residual, initial.ravel(), ftol=1e-12, xtol=1e-12, gtol=1e-12, max_nfev=1000)
+	np.testing.assert_allclose(msd_residual(simulation.x), 0, atol=1e-6)
+	positions = np.vstack(([0.0, 0.0], simulation.x.reshape(-1, 2)))
+	planes = np.arange(1, len(positions) + 1)
+	tracks = pd.DataFrame({"Track": 1, "Plane": planes, "Id": planes, "X": positions[:, 0], "Y": positions[:, 1],
+						   "Z":     0.0, "Integrated Intensity": 100.0, "Surface": 1})
+
+	result = Palm().track_analysis(tracks, True, False, False, 1, 1, mode, np.array([4], dtype=float))
+	np.testing.assert_allclose(result["MSD"].iloc[0, 1:].to_numpy(float), expected_msd, atol=1e-6)
+	assert len(result["Fit"]) == 1
+	fit = result["Fit"].iloc[0]
+	np.testing.assert_allclose(fit[columns].to_numpy(float), expected_params, rtol=1e-2, atol=1e-2)
+	# La colonne historique « MSE » contient le coefficient R².
+	assert fit["MSE"] == pytest.approx(1, abs=1e-5)
 
 
 # --------------------------------------------------

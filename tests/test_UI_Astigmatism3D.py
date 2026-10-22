@@ -571,6 +571,7 @@ def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path, user_model
 	pd.testing.assert_frame_equal(pd.read_csv(user_model_path, index_col=0), initial_model)
 	w.close()
 
+
 # ==================================================
 # endregion Calibration
 # ==================================================
