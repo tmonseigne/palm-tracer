@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import CheckBox, SpinInt
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class GraphDisplay(BaseSettingGroup):
 	"""
@@ -47,9 +47,10 @@ class GraphDisplay(BaseSettingGroup):
 	"""Mode d'affichage du groupe dans l'interface."""
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

@@ -7,8 +7,7 @@ $ErrorActionPreference = "Stop"
 
 # Versions validées pour cette révision de PALM Tracer.
 $CompatiblePythonVersion = [version]"3.14.7"
-$MinimumPythonVersion = [version]"3.9.0"
-$PalmTracerScmVersion = "1.4.0"
+$MinimumPythonVersion = [version]"3.12.0"
 $PythonInstallerSha256 = "9D9EB2709EF81BF5CD30DB3C2096BDBC4EA10087C22E62F27D356B36F6AE9649"
 $PythonInstallerUrl = "https://www.python.org/ftp/python/$CompatiblePythonVersion/python-$CompatiblePythonVersion-amd64.exe"
 $BuildToolsUrl = "https://aka.ms/vs/stable/vs_buildtools.exe"
@@ -317,13 +316,8 @@ function Install-PalmTracer {
 	& $PythonPath -m pip install --upgrade pip setuptools wheel
 	if ($LASTEXITCODE -ne 0) { throw "pip, setuptools or wheel could not be updated." }
 
-	$previousScmVersion = [Environment]::GetEnvironmentVariable("SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PALM_TRACER", "Process")
-	try {
-		$env:SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PALM_TRACER = $PalmTracerScmVersion
-		& $PythonPath -m pip install -e "$ProjectPath[testing,documentation]"
-		if ($LASTEXITCODE -ne 0) { throw "PALM Tracer installation failed." }
-	}
-	finally { [Environment]::SetEnvironmentVariable("SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PALM_TRACER", $previousScmVersion, "Process") }
+	& $PythonPath -m pip install -e "$ProjectPath[all]"
+	if ($LASTEXITCODE -ne 0) { throw "PALM Tracer installation failed." }
 }
 
 function Enable-LongPaths {

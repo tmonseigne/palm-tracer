@@ -67,6 +67,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/api/
 
 # PyBuilder
 .pybuilder/
@@ -132,25 +133,24 @@ cython_debug/
 # OS
 .DS_Store
 
-# written by setuptools_scm
-*_version.py
-
 # Pycharm and VSCode
 .idea/
 .vscode/
 
 # Artifacts
-*docs/generated/
-*output/
-*reports/
+reports/
+_output/**
+
 *.docx
 *_PALM_Tracer/
 
-# For the moment, DLLs won't go to the repository
-palm_tracer/_tests/input/big input/
-palm_tracer/_tests/input/tmp
-**Tubulin-A647**
-tests/
-docs/api/
+tests/input/big input/
+tests/input/tmp
+tests/output/**
+!tests/input/ref/**
+!tests/input/stack.PT/*.log
+!tests/input/stack.log
+scripts_tests/
+!docs/reports/
 
 AGENTS.md

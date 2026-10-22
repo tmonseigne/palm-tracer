@@ -16,14 +16,14 @@ from palm_tracer.Processing.Parsing import SHAPE_MODEL
 # Palette "deep" de seaborn (approx)
 _SEABORN_DEEP = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD", "#FFD92F", "#E7298A", "#66A61E", "#E6AB02"]
 _TEMPLATE = "plotly_white"
-_BLANK_ANNOTATIONS = [dict(text="No valid data.", x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)]
+_BLANK_ANNOTATIONS = [{"text": "No valid data.", "x": 0.5, "y": 0.5, "xref": "paper", "yref": "paper", "showarrow": False}]
 _GRID_COLOR = "#e6e6e6"
 _GRID_WIDTH = 0.75
-_MARGIN = dict(l=60, r=30, t=60, b=50)
+_MARGIN = {"l": 60, "r": 30, "t": 60, "b": 50}
 MESH_SIZE = 128
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Grapher:
 	"""
@@ -35,7 +35,6 @@ class Grapher:
 	# ==================================================
 	# region Figures statistiques
 	# ==================================================
-	##################################################
 	@staticmethod
 	def blank(title: str = "") -> go.Figure:
 		"""
@@ -48,7 +47,7 @@ class Grapher:
 		fig.update_layout(title=title, template=_TEMPLATE, annotations=_BLANK_ANNOTATIONS, margin=_MARGIN)
 		return fig
 
-	##################################################
+	# --------------------------------------------------
 	def histogram(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False,
 				  show_sigma: bool = False, kde: bool = False, gaussian: bool = False, poissonnian: bool = False, exponential: bool = False,
 				  density: bool = True, cumulative: bool = False, bins: int = 0, gaussian_mixture: bool = False, fit_limit: float = -np.inf) -> go.Figure:
@@ -98,8 +97,8 @@ class Grapher:
 
 		# Histogramme
 		norm = "probability density" if density else None
-		fig.add_histogram(x=x, xbins=dict(start=limits[0], end=limits[1], size=bin_width), histnorm=norm,
-						  cumulative=dict(enabled=cumulative), marker=dict(color=_SEABORN_DEEP[0], line=dict(width=0)),
+		fig.add_histogram(x=x, xbins={"start": limits[0], "end": limits[1], "size": bin_width}, histnorm=norm,
+						  cumulative={"enabled": cumulative}, marker={"color": _SEABORN_DEEP[0], "line": {"width": 0}},
 						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
 		# Les distributions utilisent les valeurs admissibles ; les statistiques de l'histogramme restent inchangées.
@@ -117,14 +116,14 @@ class Grapher:
 				kde_model = gaussian_kde(fit_data)  # Choisit sa propre largeur de bande
 				y_pdf = kde_model(x_grid)
 				y = self._scale_curve(x_grid, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
-				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[1]),
+				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line={"dash": "dash", "color": _SEABORN_DEEP[1]},
 										 name="KDE", hoverinfo="skip", hovertemplate=None))
 
 			# Gaussienne
 			if gaussian:
 				y_pdf = (1.0 / (fit_sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x_grid - fit_mu) / fit_sigma) ** 2)
 				y = self._scale_curve(x_grid, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
-				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[2]),
+				fig.add_trace(go.Scatter(x=x_grid, y=y, mode="lines", line={"dash": "dash", "color": _SEABORN_DEEP[2]},
 										 name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
 			# Mélange de deux gaussiennes
@@ -135,10 +134,10 @@ class Grapher:
 				component_curves = self._scale_curve(x_mixture, component_pdfs, fit_data.size, bin_width, density, cumulative) * fit_weight
 				for component_id in range(component_curves.shape[1]):
 					fig.add_trace(go.Scatter(x=x_mixture, y=component_curves[:, component_id], mode="lines",
-											 line=dict(dash="dot", color=_SEABORN_DEEP[3 + component_id]),
+											 line={"dash": "dot", "color": _SEABORN_DEEP[3 + component_id]},
 											 name=f"Gaussian component {component_id + 1}", hoverinfo="skip", hovertemplate=None))
 				y = self._scale_curve(x_mixture, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
-				fig.add_trace(go.Scatter(x=x_mixture, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[5]),
+				fig.add_trace(go.Scatter(x=x_mixture, y=y, mode="lines", line={"dash": "dash", "color": _SEABORN_DEEP[5]},
 										 name="Gaussian mixture", hoverinfo="skip", hovertemplate=None))
 
 			# Loi de Poisson
@@ -146,7 +145,7 @@ class Grapher:
 				x_poisson = np.arange(max(0, int(np.floor(limits[0]))), int(np.ceil(limits[1])) + 1)
 				y_pdf = poisson.pmf(x_poisson, fit_mu)
 				y = self._scale_curve(x_poisson, y_pdf, fit_data.size, bin_width, density, cumulative, discrete=True) * fit_weight
-				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[6]),
+				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode="lines", line={"dash": "dash", "color": _SEABORN_DEEP[6]},
 										 name="Poisson", hoverinfo="skip", hovertemplate=None))
 
 			# Exponentielle
@@ -154,7 +153,7 @@ class Grapher:
 				x_exponential = x_grid[x_grid >= 0]
 				y_pdf = expon.pdf(x_exponential, scale=fit_mu)
 				y = self._scale_curve(x_exponential, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
-				fig.add_trace(go.Scatter(x=x_exponential, y=y, mode="lines", line=dict(dash="dash", color=_SEABORN_DEEP[7]),
+				fig.add_trace(go.Scatter(x=x_exponential, y=y, mode="lines", line={"dash": "dash", "color": _SEABORN_DEEP[7]},
 										 name="Exponential", hoverinfo="skip", hovertemplate=None))
 
 		# Mu et Sigmas
@@ -168,7 +167,7 @@ class Grapher:
 						  hovermode="x", showlegend=True, bargap=0.15, bargroupgap=0.05)
 		return fig
 
-	##################################################
+	# --------------------------------------------------
 	def scatter(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False,
 				names: list[str] | None = None) -> go.Figure:
 		"""
@@ -213,7 +212,7 @@ class Grapher:
 			# Conserve les abscisses des trous et utilise NaN pour interrompre la ligne au lieu de relier ses voisins.
 			x = np.where(np.isfinite(curve[0]), curve[0], np.nan)
 			y = np.where(valid[i], curve[1], np.nan)
-			fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", connectgaps=False, name=name, line=dict(color=_SEABORN_DEEP[i % len(_SEABORN_DEEP)]),
+			fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", connectgaps=False, name=name, line={"color": _SEABORN_DEEP[i % len(_SEABORN_DEEP)]},
 									 hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra>%{fullData.name}</extra>" if names is not None
 									 else "x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
@@ -226,7 +225,7 @@ class Grapher:
 
 		return fig
 
-	##################################################
+	# --------------------------------------------------
 	def cloud(self, data: np.ndarray, title: str = "", xlabel: str = "", ylabel: str = "", limit: bool = False, show_sigma: bool = False,
 			  kde: bool = False, gaussian: bool = False, poissonnian: bool = False, exponential: bool = False) -> go.Figure:
 		"""
@@ -272,6 +271,8 @@ class Grapher:
 		if x.size > 1 and sigma_x > 0 and sigma_y > 0:
 			if kde:
 				xg, yg = np.linspace(limits_x[0], limits_x[1], MESH_SIZE), np.linspace(limits_y[0], limits_y[1], MESH_SIZE)
+				xm: np.ndarray
+				ym: np.ndarray
 				xm, ym = np.meshgrid(xg, yg)
 
 				k = gaussian_kde(np.vstack([x, y]))  # 2D KDE
@@ -309,7 +310,7 @@ class Grapher:
 
 				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Exponential", hoverinfo="skip", hovertemplate=None))
 
-		fig.add_trace(go.Scattergl(x=x, y=y, mode="markers", marker=dict(size=4, color=_SEABORN_DEEP[0]), opacity=0.75, name="Data",
+		fig.add_trace(go.Scattergl(x=x, y=y, mode="markers", marker={"size": 4, "color": _SEABORN_DEEP[0]}, opacity=0.75, name="Data",
 								   hovertemplate="x=%{x:.2f}<br>y=%{y:.2f}<extra></extra>"))
 
 		# Mu et Sigmas sur X
@@ -329,7 +330,6 @@ class Grapher:
 	# ==================================================
 	# region Figure d'astigmatisme
 	# ==================================================
-	##################################################
 	def astigmatism3d(self, model: np.ndarray, data: np.ndarray | None = None, title: str = "", pixel_size: float = 160, z_max: float = 500,
 					  mode: Literal["curve", "cross", "slope"] = "curve", n_points: int = 5000) -> go.Figure:
 		"""
@@ -367,33 +367,33 @@ class Grapher:
 
 		if mode == "curve":
 			fig.add_trace(go.Scatter(x=sx, y=sy, customdata=z, mode="markers",
-									 marker=dict(size=6, color=z, colorscale="Viridis", colorbar=dict(title="Z (nm)"), showscale=True),
+									 marker={"size": 6, "color": z, "colorscale": "Viridis", "colorbar": {"title": "Z (nm)"}, "showscale": True},
 									 hovertemplate="σ(x:%{x:.3f}, y:%{y:.3f}) = %{customdata:.0f} nm<extra></extra>"))
 
 			fig.update_layout(xaxis=self._axis_dict("σX"), yaxis=self._axis_dict("σY"))
 		elif mode == "cross":
-			fig.add_trace(go.Scatter(x=z, y=sx, mode="lines", name="Model σX", line=dict(color=_SEABORN_DEEP[0]),
+			fig.add_trace(go.Scatter(x=z, y=sx, mode="lines", name="Model σX", line={"color": _SEABORN_DEEP[0]},
 									 hovertemplate="σx(%{x:.3f})=%{y:.3f}<extra></extra>"))
-			fig.add_trace(go.Scatter(x=z, y=sy, mode="lines", name="Model σY", line=dict(color=_SEABORN_DEEP[1]),
+			fig.add_trace(go.Scatter(x=z, y=sy, mode="lines", name="Model σY", line={"color": _SEABORN_DEEP[1]},
 									 hovertemplate="σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
 			fig.add_vline(x=float(z[np.argmin(sx)]), line_color="red", line_dash="dash", line_width=0.75, name="Min σX", showlegend=True)
 			fig.add_vline(x=float(z[np.argmin(sy)]), line_color="red", line_dash="dash", line_width=0.75, name="Min σY", showlegend=True)
 
 			if data is not None:
 				x, y, z = data[(data[:, 2] > -z_max) & (data[:, 2] < z_max)].T
-				fig.add_trace(go.Scatter(x=z, y=x, mode="markers", name="Data σX", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"),
+				fig.add_trace(go.Scatter(x=z, y=x, mode="markers", name="Data σX", marker={"color": _SEABORN_DEEP[0], "size": 6, "symbol": "circle"},
 										 hoverinfo="skip"))
-				fig.add_trace(go.Scatter(x=z, y=y, mode="markers", name="Data σY", marker=dict(color=_SEABORN_DEEP[1], size=6, symbol="circle"),
+				fig.add_trace(go.Scatter(x=z, y=y, mode="markers", name="Data σY", marker={"color": _SEABORN_DEEP[1], "size": 6, "symbol": "circle"},
 										 hoverinfo="skip"))
 
 			fig.update_layout(xaxis=self._axis_dict("Z (nm)"), yaxis=self._axis_dict("σX/Y"))
 		elif mode == "slope":
-			fig.add_trace(go.Scatter(x=z, y=sx - sy, mode="lines", name="Model", line=dict(color=_SEABORN_DEEP[0]),
+			fig.add_trace(go.Scatter(x=z, y=sx - sy, mode="lines", name="Model", line={"color": _SEABORN_DEEP[0]},
 									 hovertemplate="σx-σy(%{x:.3f})=%{y:.3f}<extra></extra>"))
 
 			if data is not None:
 				x, y, z = data[(data[:, 2] > -z_max) & (data[:, 2] < z_max)].T
-				fig.add_trace(go.Scatter(x=z, y=x - y, mode="markers", name="Data", marker=dict(color=_SEABORN_DEEP[0], size=6, symbol="circle"),
+				fig.add_trace(go.Scatter(x=z, y=x - y, mode="markers", name="Data", marker={"color": _SEABORN_DEEP[0], "size": 6, "symbol": "circle"},
 										 hoverinfo="skip"))
 
 			fig.update_layout(xaxis=self._axis_dict("Z (nm)"), yaxis=self._axis_dict("σX - σY"))
@@ -408,7 +408,6 @@ class Grapher:
 	# ==================================================
 	# region Outils
 	# ==================================================
-	##################################################
 	@staticmethod
 	def _get_bins_number(data: np.ndarray, limits=(30, 300)) -> int:
 		"""
@@ -423,7 +422,7 @@ class Grapher:
 		bins = int(np.ceil(np.log2(n_values) + 1))  # .Règle de Sturges
 		return max(limits[0], min(bins, limits[1]))  # Bornes pour éviter des valeurs extrêmes
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _get_range(data: np.ndarray, limit: bool) -> tuple[np.ndarray, list[float], float, float]:
 		"""
@@ -442,7 +441,7 @@ class Grapher:
 			limits = [float(np.min(data)), float(np.max(data))]
 		return data, limits, mu, sigma
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _scale_curve(x_grid: np.ndarray, y_pdf: np.ndarray, n: int, bin_width: float, density: bool = False, cumulative: bool = False, discrete: bool = False):
 		"""
@@ -473,7 +472,7 @@ class Grapher:
 		if density: return y_pdf  # Non cumulatif et densité, aucune mise à l'échelle
 		return y_pdf * n if discrete else y_pdf * n * bin_width  # Convertir la densité en comptes ~ dens * N * bin_width
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _draw_sigma(fig, mu, sigma, x_axis: bool = True):
 		"""
@@ -493,7 +492,7 @@ class Grapher:
 		else:
 			for p in params: fig.add_hline(y=p[0], line_color=p[1], line_dash="dot", line_width=1.5, name=p[2])
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _axis_dict(title: str, limits: Optional[list] = None) -> dict:
 		"""
@@ -503,4 +502,4 @@ class Grapher:
 		:param limits: Bornes de l'axe.
 		:return: Configuration de l'axe Plotly.
 		"""
-		return dict(title=title, range=limits, zeroline=False, showgrid=True, gridcolor=_GRID_COLOR, gridwidth=_GRID_WIDTH)
+		return {"title": title, "range": limits, "zeroline": False, "showgrid": True, "gridcolor": _GRID_COLOR, "gridwidth": _GRID_WIDTH}

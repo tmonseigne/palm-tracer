@@ -1,6 +1,6 @@
 [project]
 name = "palm-tracer"
-dynamic = ["version"]
+version = "1.4.0"
 description = "PALM Tracer is an all-in-one software package for the analysis of single molecule localization microscopy (SMLM) data."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -17,18 +17,14 @@ classifiers = [
 	"Programming Language :: Python",
 	"Programming Language :: Python :: 3",
 	"Programming Language :: Python :: 3 :: Only",
-	"Programming Language :: Python :: 3.9",
-	"Programming Language :: Python :: 3.10",
-	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
 	"Programming Language :: Python :: 3.13",
 	"Programming Language :: Python :: 3.14",
 	"Topic :: Scientific/Engineering :: Image Processing",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
 	"colorama",
-	"datetime",
 	"numpy",
 	"pandas",
 	"magicgui",
@@ -41,11 +37,8 @@ dependencies = [
 	"matplotlib",
 	"seaborn",
 	"plotly",
-	"kaleido",
 	# Dépendances pour l'interface
 	"napari",
-	"PySide6",
-	"PySide6-Addons",
 	# Dépendances pour les infos cross plateforme
 	"psutil",
 	"py-cpuinfo",
@@ -53,7 +46,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+all = [
+	"palm-tracer[testing,documentation]",
+]
+
 testing = [
+	"PySide6",
+	"PySide6-Addons",
 	"tox",
 	"pytest", # https://docs.pytest.org/en/latest/contents.html
 	"pytest-cov", # https://pytest-cov.readthedocs.io/en/latest/
@@ -80,7 +79,7 @@ palm-tracer = "palm_tracer:napari.yaml"
 
 
 [build-system]
-requires = ["setuptools>=42.0.0", "wheel", "setuptools_scm"]
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -88,48 +87,40 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["palm_tracer"]
-exclude = ["docs"]
+exclude = ["docs", "tests"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
 
-
-[tool.setuptools_scm]
-write_to = "palm_tracer/_version.py"
-
-
-[tool.black]
-line-length = 160
-target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
-
 [tool.ruff]
 line-length = 160
-target-version = "py313"
+target-version = "py312"
 fix = true
 
-exclude = [".bzr", ".direnv", ".eggs", ".git", ".mypy_cache", ".pants.d", ".ruff_cache", ".svn", ".tox", ".venv", "__pypackages__", "_build",
-	"buck-out", "build", "dist", "node_modules", "venv", "*vendored*", "*_vendor*", ]
+exclude = [".bzr", ".direnv", ".eggs", ".git", ".mypy_cache", ".pants.d", ".ruff_cache", ".svn", ".tox", ".venv", "__pypackages__",
+	"_build", "buck-out", "build", "dist", "node_modules", "venv", "*vendored*", "*_vendor*", ]
 
 [tool.ruff.lint]
 select = [
-	"E", "F", "W", # flake8
-	"UP", # pyupgrade
-	"I", # isort
-	"BLE", # flake8-blind-exception
-	"B", # flake8-bugbear
-	"A", # flake8-builtins
-	"C4", # flake8-comprehensions
-	"ISC", # flake8-implicit-str-concat
-	"G", # flake8-logging-format
-	"PIE", # flake8-pie
-	"SIM", # flake8-simplify
+	"E", "F", "W", # .  flake8
+	"UP", # .           pyupgrade
+	"I", # .            isort
+	"BLE", # .          flake8-blind-exception
+	"B", # .            flake8-bugbear
+	"A", # .            flake8-builtins
+	"C4", # .           flake8-comprehensions
+	"ISC", # .          flake8-implicit-str-concat
+	"G", # .            flake8-logging-format
+	"PIE", # .          flake8-pie
+	"SIM", # .          flake8-simplify
 ]
 
 ignore = [
-	"E501", # line too long. let black handle this
+	"E501", # .         Longueur des lignes gérée par le formateur utilisé ponctuellement.
 	"UP006", "UP007", # type annotation. As using magicgui require runtime type annotation then we disable this.
-	"SIM117", # flake8-simplify - some of merged with statements are not looking great with black, reanble after drop python 3.9
+	"UP045", # .        Conserve Optional pour les annotations évaluées par les interfaces.
+	"E701", "W191", # . Corps courts sur une ligne et indentation par tabulations autorisés.
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["palm_tracer"]
+known-first-party = ["palm_tracer", "tests"]

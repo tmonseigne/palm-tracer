@@ -9,7 +9,7 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBox
 
 from palm_tracer.Tools import FileMigrator, Ui
 
-_windows = []  # Conserve une référence globale pour éviter le ramasse-miettes
+_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes.
 
 
 class FileMigratorWidget(QWidget):
@@ -22,7 +22,6 @@ class FileMigratorWidget(QWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
 		"""
 		Construit le widget et initialise l'interface.
@@ -37,7 +36,7 @@ class FileMigratorWidget(QWidget):
 		self._init_ui()
 		self._connect_signals()
 
-	##################################################
+	# --------------------------------------------------
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 		main_layout = QVBoxLayout(self)
@@ -66,7 +65,7 @@ class FileMigratorWidget(QWidget):
 		main_layout.addWidget(self._btn_migrate)
 		main_layout.addStretch(1)
 
-	##################################################
+	# --------------------------------------------------
 	def _connect_signals(self):
 		"""Connecte les signaux aux callbacks."""
 		self._btn_load_folder.clicked.connect(self._on_load_folder)
@@ -79,14 +78,13 @@ class FileMigratorWidget(QWidget):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-	##################################################
 	def _update_filelist(self):
 		"""Mise à jour de la liste des fichiers."""
 		for key, item in self._fm.files.items():
 			if key != "Unused": self._filelist[key]["value"].setText("--" if len(item) == 0 else item[0].name)
 			else: self._filelist[key]["value"].setText("--" if len(item) == 0 else "\n".join(n.name for n in item))
 
-	##################################################
+	# --------------------------------------------------
 	def _on_load_folder(self):
 		"""Callback du bouton 'Load folder'."""
 		# --- boîte de dialogue pour sélectionner un dossier ---
@@ -109,9 +107,9 @@ class FileMigratorWidget(QWidget):
 		# --- mise à jour du label associé au bouton ---
 		Ui.update_path_label(self._lbl_load_folder, folder)
 
-		print(f"Folder loaded successfully.")
+		print("Folder loaded successfully.")
 
-	##################################################
+	# --------------------------------------------------
 	def _on_migrate(self):
 		"""Callback du bouton 'Migrate'."""
 		try:
@@ -122,7 +120,7 @@ class FileMigratorWidget(QWidget):
 		Ui.print_success("Migration successful.")
 
 
-##################################################
+# --------------------------------------------------
 def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
 	Ouvre la fenêtre de l'outil de migration en mode autonome.
@@ -136,7 +134,7 @@ def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans co
 	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

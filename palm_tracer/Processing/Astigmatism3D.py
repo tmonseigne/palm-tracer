@@ -12,7 +12,6 @@ from palm_tracer.Tools import Ui
 # ==================================================
 # region Préparation des données
 # ==================================================
-##################################################
 def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 	"""
 	Estime une position Z (en unités physiques) à partir d'indices de plans.
@@ -36,7 +35,7 @@ def z_from_planes(planes: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
 	return z_min + (planes - p_min) * (z_max - z_min) / (p_max - p_min)  # .						 Interpolation linéaire
 
 
-##################################################
+# --------------------------------------------------
 def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray:
 	"""
 	Estime les positions Z (en unités physiques) pour une pile de plans équidistants.
@@ -47,13 +46,12 @@ def z_from_step(n_planes: int, z_step: float, center: bool = True) -> np.ndarray
 	:return: Tableau NumPy contenant les valeurs de Z estimées.
 	"""
 	# Indices centrés : impair ⇾ un plan à 0 ; pair ⇾ 0 entre les deux plans centraux.
-	if center: indices = np.arange(n_planes, dtype=float) - 0.5 * (n_planes - 1)
-	# Indices classiques : plan 0 à 0, puis positifs.
-	else: indices = np.arange(n_planes, dtype=float)
+	# Sans centrage : plan 0 à 0, puis positifs.
+	indices = np.arange(n_planes, dtype=float) - 0.5 * (n_planes - 1) if center else np.arange(n_planes, dtype=float)
 	return indices * float(z_step)
 
 
-##################################################
+# --------------------------------------------------
 def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 	"""
 	Supprime les localisations multiples par plan en conservant, pour chaque plan ambigu,
@@ -113,7 +111,6 @@ def remove_multi_beads(loc: pd.DataFrame) -> pd.DataFrame:
 # ==================================================
 # region Modèle et validation
 # ==================================================
-##################################################
 def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sampling: float = 1) -> np.ndarray | float:
 	"""
 	Évalue le sigma d'un axe du modèle d'astigmatisme aux positions axiales demandées.
@@ -135,7 +132,7 @@ def sigma_model(model: np.ndarray, z: np.ndarray | float, pixel_size: float, sam
 	return (sampling / pixel_size) * a * g
 
 
-##################################################
+# --------------------------------------------------
 def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sampling: float = 1) -> dict:
 	"""
 	Calcule des métriques d'erreur entre (Sx, Sy) observés et (Sx, Sy) prédits par le modèle aux mêmes positions Z.
@@ -168,6 +165,7 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 	mae_x, mae_y = float(np.mean(np.abs(ex))), float(np.mean(np.abs(ey)))
 
 	# R² (sur sigma) : utile pour un score "qualité de l'ajustement"
+	# --------------------------------------------------
 	def r2(y, yhat):
 		"""Calcule le coefficient de détermination, ou NaN si la variance observée est nulle."""
 		ss_res, ss_tot = np.sum((y - yhat) ** 2), np.sum((y - np.mean(y)) ** 2)
@@ -180,7 +178,7 @@ def model_validity(dataset: np.ndarray, model: np.ndarray, pixel_size: float, sa
 			}
 
 
-##################################################
+# --------------------------------------------------
 def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: float, pixel_size: float, n_curve: int = 5000, sampling: float = 1) -> dict:
 	"""
 	Évalue la validité d'un modèle d'astigmatisme pour l'estimation de Z en projetant les observations (SigmaX, SigmaY) sur la courbe modèle.
@@ -260,7 +258,6 @@ def model_projection_validity(dataset: np.ndarray, model: np.ndarray, z_max: flo
 # ==================================================
 # region Recherche du centre
 # ==================================================
-##################################################
 def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> float:
 	"""
 	Recherche la position axiale pour laquelle les deux sigmas sont les plus proches.
@@ -300,7 +297,7 @@ def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> flo
 
 	# def delta(z: float) -> float: return sigma_model(model[0], z, pixel_size, 1.0) - sigma_model(model[1], z, pixel_size, 1.0)
 
-	for i in range(n_bisect):
+	for _ in range(n_bisect):
 		mid_z = 0.5 * (left_z + right_z)
 		mid_d = sigma_model(model[0], mid_z, pixel_size, 1.0) - sigma_model(model[1], mid_z, pixel_size, 1.0)
 
@@ -311,3 +308,7 @@ def find_model_center(model: np.ndarray, z_max: float, pixel_size: float) -> flo
 		else: left_z, left_d = mid_z, mid_d
 
 	return best_z
+
+# ==================================================
+# endregion Recherche du centre
+# ==================================================

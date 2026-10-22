@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 
 
-##################################################
+# --------------------------------------------------
 @dataclass(frozen=True)
 class GaussianMixture:
 	"""
@@ -53,7 +53,7 @@ class GaussianMixture:
 	n_iter: int
 	"""Nombre d'itérations exécutées par l'initialisation retenue."""
 
-	##################################################
+	# --------------------------------------------------
 	@classmethod
 	def fit(cls, data: np.ndarray, n_component: int = 2, max_iter: int = 200, tolerance: float = 1e-5, n_init: int = 3) -> GaussianMixture:
 		"""
@@ -126,7 +126,7 @@ class GaussianMixture:
 		order = np.argsort(means)
 		return cls(weights[order], means[order], sigmas[order], log_likelihood, converged, n_iter)
 
-	##################################################
+	# --------------------------------------------------
 	def probability_density(self, x: np.ndarray) -> np.ndarray:
 		"""
 		Évalue la densité de probabilité totale du mélange.
@@ -153,7 +153,7 @@ class GaussianMixture:
 		"""
 		return np.sum(self.component_probability_densities(x), axis=-1)
 
-	##################################################
+	# --------------------------------------------------
 	def component_probability_densities(self, x: np.ndarray) -> np.ndarray:
 		"""
 		Évalue séparément la contribution pondérée de chaque composante à la densité du mélange.
@@ -178,7 +178,7 @@ class GaussianMixture:
 		components = np.exp(-0.5 * standardized ** 2) / (self.sigmas * np.sqrt(2.0 * np.pi))
 		return self.weights * components
 
-	##################################################
+	# --------------------------------------------------
 	def make_curve(self, limits: tuple[float, float] | list[float], n_point: int = 128) -> tuple[np.ndarray, np.ndarray]:
 		"""
 		Construit une courbe régulière représentant la densité du mélange.
@@ -205,7 +205,7 @@ class GaussianMixture:
 		x_grid = np.linspace(limits[0], limits[1], n_point, dtype=float)
 		return x_grid, self.probability_density(x_grid)
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _initialize_centers(data: np.ndarray, n_component: int, init_id: int, rng: np.random.Generator) -> np.ndarray:
 		"""
@@ -235,7 +235,7 @@ class GaussianMixture:
 			quantiles = (np.arange(n_component, dtype=float) + 0.5) / n_component
 			return np.asarray(np.quantile(data, quantiles), dtype=float)
 
-		centers = np.empty(n_component, dtype=float)
+		centers: np.ndarray = np.empty(n_component, dtype=float)
 		centers[0] = data[rng.integers(data.size)]
 		minimum_distances = (data - centers[0]) ** 2
 		for component_id in range(1, n_component):
@@ -247,7 +247,7 @@ class GaussianMixture:
 			minimum_distances = np.minimum(minimum_distances, (data - centers[component_id]) ** 2)
 		return centers
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _parameters_from_centers(data: np.ndarray, centers: np.ndarray, global_sigma: float, sigma_min: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 		"""
@@ -300,13 +300,13 @@ class GaussianMixture:
 		weights = np.maximum(counts / data.size, np.finfo(float).eps)
 		weights /= np.sum(weights)
 		means = centers.copy()
-		sigmas = np.full(centers.size, global_sigma, dtype=float)
+		sigmas: np.ndarray = np.full(centers.size, global_sigma, dtype=float)
 		for component_id in range(centers.size):
 			component = data[labels == component_id]
 			if component.size > 1: sigmas[component_id] = max(float(np.std(component)), sigma_min)
 		return weights, means, sigmas
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _expectation_maximization(data: np.ndarray, weights: np.ndarray, means: np.ndarray, sigmas: np.ndarray, sigma_min: float, max_iter: int,
 								  tolerance: float) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, bool, int]:

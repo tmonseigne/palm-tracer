@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 	from napari.layers import Layer
 
 
-##################################################
+# --------------------------------------------------
 class BaseNapariWidget(QWidget):
 	"""
 	Partage les références et l'interception des dépôts dans une fenêtre Napari.
@@ -44,7 +44,6 @@ class BaseNapariWidget(QWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
 		"""
 		Conserve les références partagées et initialise l'état du filtre de dépôt.
@@ -65,7 +64,6 @@ class BaseNapariWidget(QWidget):
 	# ==================================================
 	# region Glisser-déposer
 	# ==================================================
-	##################################################
 	def _get_drop_target(self) -> QWidget:
 		"""
 		Retourne la racine Qt du plugin, y compris lorsque son dock est flottant.
@@ -76,7 +74,7 @@ class BaseNapariWidget(QWidget):
 		while window.parentWidget() is not None: window = window.parentWidget()
 		return window
 
-	##################################################
+	# --------------------------------------------------
 	def showEvent(self, event: QShowEvent):
 		"""
 		Active l'interception après l'insertion du plugin dans sa fenêtre Qt.
@@ -91,7 +89,7 @@ class BaseNapariWidget(QWidget):
 		window.setAcceptDrops(True)
 		QApplication.instance().installEventFilter(self)
 
-	##################################################
+	# --------------------------------------------------
 	def hideEvent(self, event: QHideEvent):
 		"""
 		Retire le filtre et restaure les dépôts si la fenêtre Qt existe encore.
@@ -105,7 +103,7 @@ class BaseNapariWidget(QWidget):
 		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
 		super().hideEvent(event)
 
-	##################################################
+	# --------------------------------------------------
 	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
 		"""
 		Intercepte les fichiers locaux dans la fenêtre cible et délègue leur traitement.
@@ -134,7 +132,7 @@ class BaseNapariWidget(QWidget):
 		if event.type() == QEvent.Type.Drop: self._drop_files(paths)
 		return True
 
-	##################################################
+	# --------------------------------------------------
 	def _can_drop_files(self, paths: list[str]) -> bool:
 		"""
 		Indique si l'état du widget permet le dépôt ; les classes filles peuvent ajouter leurs contraintes.
@@ -144,7 +142,7 @@ class BaseNapariWidget(QWidget):
 		"""
 		return True
 
-	##################################################
+	# --------------------------------------------------
 	def _drop_files(self, paths: list[str]):
 		"""
 		Traite les fichiers acceptés ; cette méthode doit être redéfinie dans chaque classe fille.
@@ -161,7 +159,6 @@ class BaseNapariWidget(QWidget):
 	# ==================================================
 	# region Calques
 	# ==================================================
-	##################################################
 	@staticmethod
 	def update_layer(layer: Layer, data: Any, visible: bool | None = None, **properties: Any) -> None:
 		"""

@@ -1,0 +1,660 @@
+"""Teste les différents types de paramètres et leurs interfaces Qt."""
+
+import copy
+from typing import Any, cast
+
+import numpy as np
+import pytest
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QColor, QValidator
+from qtpy.QtWidgets import QCheckBox, QColorDialog, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QPushButton, QSpinBox, QWidget
+
+from palm_tracer.Settings import Types as st
+from palm_tracer.Settings.Types.CheckIntSelection import IntSelectionValidator
+from tests.Utils import INPUT_DIR
+
+
+# --------------------------------------------------
+def setting_base_test(setting: st.BaseSettingType, change, default):
+	"""
+	Tests de base pour un paramètre.
+
+	:param setting: Paramètre à tester.
+	:param change: Valeur à changer.
+	:param default: Valeur attendue par défaut.
+	"""
+
+	# Modification des valeurs
+	assert setting.value == default, "Valeur par défaut non valide."
+	setting.value = change
+	assert setting.value == change, "Valeur défini non valide."
+
+	# Utilisation du dictionnaire
+	min_dictionary = copy.deepcopy(setting.to_compact_dict())  # Copie profonde pour éviter de partager les listes
+	setting.reset()
+	assert setting.value == default, "Valeur par défaut après reset non valide."
+	setting.update_from_compact_dict(min_dictionary)
+	assert setting.value == change, "Valeur récupérée du dictionnaire non valide."
+
+	# Visibilité
+	setting.hide()
+	setting.show()
+
+	# Interface
+	_ = setting.get_ui("default")
+	form = QFormLayout()
+	setting.attach_to_form("default", form)  # Deuxième appel interne à get_ui
+
+	setting.value = default
+	setting.value = default  # Second appel vers une valeur identique
+
+	# Signaux
+	received: list[Any] = []
+	setting.connect(lambda v: received.append(v))
+
+	with setting.signal_blocked():
+		setting.emit("A")
+		setting.emit("B")  # Écrase A
+	assert received == ["B"]
+
+	with setting.signal_blocked(emit_last=False): setting.emit("C")  # Ignore C
+	assert received == ["B"]
+
+	setting.disconnect()
+	setting.clean_ui("default")
+	_ = setting.get_ui("default")
+
+
+# ==================================================
+# region BaseSettingType et BaseCheckSetting
+# ==================================================
+def test_base_setting():
+	"""Vérifie la classe abstraite."""
+	setting = st.BaseSettingType("Test")
+	with pytest.raises(NotImplementedError) as exception_info: setting.get_ui()
+	assert exception_info.type is NotImplementedError, "L'erreur relevé n'est pas correcte."
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("setting_type", [
+		pytest.param(st.CheckInt, id="integer"), pytest.param(st.CheckIntSelection, id="integer-selection"),
+		pytest.param(st.CheckRangeFloat, id="float-range"), pytest.param(st.CheckRangeInt, id="integer-range")])
+def test_base_check_setting(setting_type):
+	"""Vérifie le contrat commun des paramètres activables."""
+	setting = setting_type()
+	assert isinstance(setting, st.BaseCheckSetting)
+	assert not setting.active
+
+	setting.active = True
+	assert setting.active
+	data = copy.deepcopy(setting.to_compact_dict())
+	setting.reset()
+	assert not setting.active
+
+	setting.update_from_compact_dict(data)
+	assert setting.active
+
+
+# ==================================================
+# endregion BaseSettingType et BaseCheckSetting
+# ==================================================
+
+# ==================================================
+# region BaseUIType
+# ==================================================
+@pytest.mark.parametrize("with_label", [True, False], ids=["with-label", "no-label"])
+def test_base_ui(qtbot, with_label):
+	"""Vérifie les transitions de visibilité et l'attachement au formulaire, avec ou sans libellé."""
+	ui = st.BaseUIType(layout=QHBoxLayout(), label=QLabel("Test") if with_label else None, boxes=[QCheckBox()])
+	ui.set_tooltip("")
+
+	ui.hide()
+	ui.show()
+
+	form = QFormLayout()
+	ui.attach_to_form(form)
+
+	ui.hide()
+	ui.show()
+
+
+# ==================================================
+# endregion BaseUIType
+# ==================================================
+
+# ==================================================
+# region SpinInt et SpinFloat
+# ==================================================
+def test_spin_int(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
+	setting_base_test(setting, 5, 1)
+
+
+# --------------------------------------------------
+def test_spin_float(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.SpinFloat("Test", "", 1.0, [0.0, 10.0], 1.0)
+	setting_base_test(setting, 5.0, 1.0)
+
+
+# ==================================================
+# endregion SpinInt et SpinFloat
+# ==================================================
+
+# ==================================================
+# region CheckBox et Combo
+# ==================================================
+def test_check_box(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.CheckBox("Test")
+	setting_base_test(setting, True, False)
+	ui = setting.get_ui("new")
+
+	w = QWidget()
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert setting.value
+
+	w.close()
+
+
+# --------------------------------------------------
+def test_combo(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.Combo("Test", "", 0, ["Choix 1", "Choix 2"])
+	setting_base_test(setting, 1, 0)
+	# Récupération du texte actuel
+	assert setting.current_text == "Choix 1"
+	# Modification des éléments après la création de l'interface
+	setting.items = ["1", "2"]
+	assert setting.items == ["1", "2"]
+
+
+# ==================================================
+# endregion CheckBox et Combo
+# ==================================================
+
+# ==================================================
+# region ColorMap
+# ==================================================
+def test_color_map(qtbot):
+	"""Vérifie la liste centralisée et les aperçus du paramètre de colormap."""
+	setting = st.ColorMap("Test", "", 0)
+	setting_base_test(setting, 1, 0)
+	assert setting.items == list(st.ColorMap.AVAILABLE_MAPS)
+
+	ui = setting.get_ui("default")
+	box = cast(QComboBox, ui.boxes[0])
+	assert box.iconSize() == st.ColorMap.ICON_SIZE
+	assert all(not box.itemIcon(i).isNull() for i in range(box.count()))
+	assert isinstance(ui.boxes[1], QPushButton)
+	assert not cast(QPushButton, ui.boxes[1]).icon().isNull()
+
+	setting.items = ["viridis", "unknown"]
+	assert not box.itemIcon(0).isNull()
+	assert box.itemIcon(1).isNull()
+	setting.value = 1
+	setting.items = None
+	assert setting.items == ["viridis", "unknown"]
+	assert setting.value == 0
+	assert box.currentIndex() == 0
+
+
+# --------------------------------------------------
+def test_color_map_picker_replaces_temporary_entry(qtbot, monkeypatch):
+	"""Vérifie la création, le remplacement et la non-sérialisation de la colormap personnalisée."""
+	setting = st.ColorMap("Test", "", 0)
+	ui = setting.get_ui()
+	box = cast(QComboBox, ui.boxes[0])
+	button = cast(QPushButton, ui.boxes[1])
+	colors = iter((QColor(10, 20, 30), QColor(40, 50, 60)))
+	monkeypatch.setattr(QColorDialog, "getColor", staticmethod(lambda *_args, **_kwargs: next(colors)))
+	received: list[int] = []
+	setting.connect(received.append)
+	original_count = len(setting.items)
+
+	button.click()
+	custom_index = original_count
+	assert len(setting.items) == original_count + 1
+	assert setting.value == custom_index
+	assert setting.current_text == "Custom (#0a141e)"
+	assert box.count() == len(setting.items)
+	assert not box.itemIcon(custom_index).isNull()
+	np.testing.assert_array_equal(setting.get_lut(255)[-1], [10, 20, 30])
+
+	button.click()
+	assert len(setting.items) == original_count + 1
+	assert setting.value == custom_index
+	assert setting.current_text == "Custom (#28323c)"
+	np.testing.assert_array_equal(setting.get_lut(255)[-1], [40, 50, 60])
+	assert received == [custom_index, custom_index]
+	assert setting.to_compact_dict() == {"value": setting.default, "items": list(st.ColorMap.AVAILABLE_MAPS)}
+
+
+# --------------------------------------------------
+def test_color_map_rejects_invalid_custom_color():
+	"""Vérifie qu'une couleur invalide ne crée pas d'entrée personnalisée."""
+	setting = st.ColorMap()
+	original_items = setting.items.copy()
+
+	setting.set_custom_color(QColor())
+
+	assert setting.items == original_items
+	assert setting.value == setting.default
+
+
+# --------------------------------------------------
+def test_color_map_picker_cancel(qtbot, monkeypatch):
+	"""Vérifie que l'annulation du sélecteur ne modifie pas le paramètre."""
+	setting = st.ColorMap()
+	button = cast(QPushButton, setting.get_ui().boxes[1])
+	monkeypatch.setattr(QColorDialog, "getColor", staticmethod(lambda *_args, **_kwargs: QColor()))
+	original_items = setting.items.copy()
+
+	button.click()
+
+	assert setting.items == original_items
+	assert setting.value == setting.default
+
+
+# --------------------------------------------------
+def test_color_map_updates_picker_without_button():
+	"""Vérifie la mise à jour défensive d'une interface ne contenant que la liste."""
+	setting = st.ColorMap()
+	ui = st.BaseUIType(layout=QHBoxLayout(), boxes=[QComboBox()])
+
+	setting._update_picker_button(ui)
+
+	assert len(ui.boxes) == 1
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("max_value", [None, 0, 255], ids=["default-uint16", "zero", "custom-uint8"])
+def test_color_map_get_lut(max_value):
+	"""Vérifie les dimensions, le type et l'origine noire de la LUT."""
+	setting = st.ColorMap("Test", "", 0)
+	expected_max = np.iinfo(np.uint16).max if max_value is None else max_value
+	lut = setting.get_lut() if max_value is None else setting.get_lut(max_value)
+
+	assert lut.shape == (expected_max + 1, 3)
+	assert lut.dtype == np.uint8
+	np.testing.assert_array_equal(lut[0], 0)
+	if max_value != 0: assert np.any(lut[1:])
+
+
+# --------------------------------------------------
+def test_color_map_get_lut_rejects_negative_maximum():
+	"""Vérifie le rejet d'une borne maximale négative."""
+	with pytest.raises(ValueError, match="positive ou nulle"):
+		st.ColorMap().get_lut(-1)
+
+
+# ==================================================
+# endregion ColorMap
+# ==================================================
+
+# ==================================================
+# region BrowseFile et FileList
+# ==================================================
+def test_browse_file(qtbot, monkeypatch, fake_qfiledialog):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.BrowseFile(label="Test")
+	setting_base_test(setting, "filename.extension", "")
+
+	fake_qfiledialog(st.BrowseFile, None)  # Simule une annulation du QFileDialog
+	setting.browse_file()
+	assert setting.value == "", "le paramètre devrait être vide"
+
+	fake_qfiledialog(st.BrowseFile, "file.tif")  # Simuler un fichier inexistant
+	setting.browse_file()
+	assert setting.value == "", "le paramètre devrait être vide."
+
+	fake_qfiledialog(st.BrowseFile, f"{INPUT_DIR}/stack.tif")
+	setting.browse_file()
+	assert "stack.tif" in setting.value, "le paramètre devrait être '...stack.tif'"
+
+
+# --------------------------------------------------
+def test_file_list(qtbot, monkeypatch, fake_qfiledialog):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.FileList("Test")
+	setting_base_test(setting, -1, -1)
+	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a jamais eu
+	setting.items = ["File1", "File2", "File3"]
+	setting.value = 1
+	assert setting.current_text == "File2", "Valeur sélectionnée non valide."
+	setting.remove_file()
+	assert setting.items == ["File1", "File3"], "Liste de fichiers après suppression non valide."
+	setting.clear_files()
+	assert setting.items == [], "Liste de fichiers après nettoyage non valide."
+	assert setting.current_text == "", "Valeur non vide."
+	setting.remove_file()  # Suppression d'un fichier alors qu'il n'y en a plus
+
+	fake_qfiledialog(st.BrowseFile, None)  # Simule une annulation du QFileDialog
+	setting.add_file()
+	assert setting.items == [], "Liste de fichiers non valide."
+
+	fake_qfiledialog(st.BrowseFile, "file.tif")  # Simuler un fichier inexistant
+	setting.add_file()
+	assert setting.items == [], "Liste de fichiers non valide."
+
+	fake_qfiledialog(st.BrowseFile, f"{INPUT_DIR}/stack.tif")
+	setting.add_file()
+	assert "stack.tif" in setting.current_text, "Le paramètre devrait être '...stack.tif'"
+
+
+# --------------------------------------------------
+def test_file_list_adds_sorted_batch_without_reordering_existing_items(fake_qfiledialog):
+	"""Vérifie que seul le nouveau lot de fichiers est trié avant son ajout."""
+	existing_items = ["File2", "File1"]
+	selected_paths = [str(INPUT_DIR / "File-02.txt"), str(INPUT_DIR / "File-01.txt")]
+	setting = st.FileList("Test")
+	setting.items = existing_items.copy()
+
+	fake_qfiledialog(st.FileList, selected_paths)
+	setting.add_file()
+
+	assert setting.items == [existing_items[0], existing_items[1], selected_paths[1], selected_paths[0]]
+	assert setting.value == len(setting.items) - 1
+	assert setting.current_text == selected_paths[0]
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("source", ["dialog", "paths"], ids=["dialog", "paths"])
+def test_file_list_emits_final_selection_once(fake_qfiledialog, tmp_path, source):
+	"""Vérifie qu'une opération sur la liste n'émet que son état final."""
+	paths = [tmp_path / "first.tif", tmp_path / "second.tif"]
+	for path in paths: path.touch()
+
+	setting = st.FileList("Test")
+	setting.items = [str(paths[0])]
+	selected = []
+	setting.connect(lambda _value: selected.append(setting.current_text))
+
+	if source == "dialog":
+		fake_qfiledialog(st.FileList, str(paths[1]))
+		setting.add_file()
+	else: setting.add_files([str(paths[1])])
+	assert selected == [str(paths[1])]
+
+	selected.clear()
+	setting.remove_file()
+	assert selected == [str(paths[0])]
+
+	selected.clear()
+	setting.clear_files()
+	assert selected == [""]
+
+
+# --------------------------------------------------
+def test_file_list_add_files_syncs_views(qtbot, tmp_path):
+	"""Vérifie le tri du nouveau lot, la conservation des doublons et la synchronisation des vues."""
+	paths = [tmp_path / "z.txt", tmp_path / "A.tif"]
+	for path in paths: path.touch()
+	setting = st.FileList("Test")
+	setting.items = [str(paths[0])]
+	views = [setting.get_ui(name) for name in ("first", "second")]
+
+	setting.add_files([str(path) for path in paths])
+
+	assert setting.items == [str(paths[0]), str(paths[1]), str(paths[0])]
+	assert setting.value == 2
+	for view in views:
+		combo = cast(QComboBox, view.boxes[3])
+		assert [combo.itemText(index) for index in range(combo.count())] == setting.items
+		assert combo.currentIndex() == setting.value
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("scenario", ["empty", "directory", "missing"], ids=["empty", "directory", "missing"])
+def test_file_list_add_files_ignores_invalid_paths(tmp_path, scenario):
+	"""Vérifie qu'un lot sans fichier conserve la sélection et n'émet aucun signal."""
+	setting = st.FileList("Test")
+	setting.items = ["existing.tif"]
+	emitted: list[int | None] = []
+	setting.connect(emitted.append)
+	paths = {"empty": [], "directory": [str(tmp_path)], "missing": [str(tmp_path / "missing.tif")]}
+
+	setting.add_files(paths[scenario])
+
+	assert setting.items == ["existing.tif"]
+	assert setting.value == 0
+	assert emitted == []
+
+
+# ==================================================
+# endregion BrowseFile et FileList
+# ==================================================
+
+# ==================================================
+# region CheckInt, CheckRangeInt et CheckRangeFloat
+# ==================================================
+def test_check_int(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.CheckInt("Test", "", 1, [1, 10])
+	setting_base_test(setting, 2, 1)
+	ui = setting.get_ui("new")
+
+	setting.active = True
+
+	setting.limits = [4, 6]
+	assert setting.value == 4, "Valeur non valide."
+
+	w = QWidget()
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	cast(QSpinBox, ui.boxes[1]).setValue(5)
+	assert setting.value == 5
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert not setting.active
+
+	w.close()
+
+
+# --------------------------------------------------
+def test_check_range_int(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.CheckRangeInt("Test", "", [0, 0], [-10, 10])
+	setting_base_test(setting, [3, 5], [0, 0])
+	ui = setting.get_ui("new")
+
+	# Cas particuliers
+	setting.value = [9, 4]
+	assert setting.value == [4, 4], "Valeur non valide."
+	setting.min = 10
+	assert setting.value == [10, 10], "Valeur non valide."
+	setting.max = 3
+	assert setting.value == [3, 3], "Valeur non valide."
+
+	setting.active = True
+
+	setting.max = 10
+	assert setting.value == [3, 10], "Valeur non valide."
+	setting.limits = [4, 6]
+	assert setting.value == [4, 6], "Valeur non valide."
+
+	w = QWidget()
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	cast(QSpinBox, ui.boxes[1]).setValue(5)
+	assert setting.min == 5
+	cast(QSpinBox, ui.boxes[2]).setValue(5)
+	assert setting.max == 5
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert not setting.active
+
+	w.close()
+
+
+# --------------------------------------------------
+def test_check_range_float(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.CheckRangeFloat("Test", "", [0.0, 0.0], [-10, 10])
+	setting_base_test(setting, [3.0, 5.0], [0.0, 0.0])
+	ui = setting.get_ui("new")
+
+	# Cas particuliers
+	setting.value = [9, 4]
+	assert setting.value == [4, 4], "Valeur non valide."
+	setting.min = 10
+	assert setting.value == [10, 10], "Valeur non valide."
+	setting.max = 3
+	assert setting.value == [3, 3], "Valeur non valide."
+
+	setting.active = True
+
+	setting.max = 10
+	assert setting.value == [3, 10], "Valeur non valide."
+	setting.limits = [4, 6]
+	assert setting.value == [4, 6], "Valeur non valide."
+
+	w = QWidget()
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	cast(QDoubleSpinBox, ui.boxes[1]).setValue(5)
+	assert setting.min == 5
+	cast(QDoubleSpinBox, ui.boxes[2]).setValue(5)
+	assert setting.max == 5
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert not setting.active
+
+	w.close()
+
+
+# ==================================================
+# endregion CheckInt, CheckRangeInt et CheckRangeFloat
+# ==================================================
+
+# ==================================================
+# region IntSelectionValidator et CheckIntSelection
+# ==================================================
+@pytest.mark.parametrize("text, expected", [
+		pytest.param("", QValidator.State.Acceptable, id="empty-selection"),
+		pytest.param("  ", QValidator.State.Acceptable, id="whitespace"),
+		pytest.param("1;3-5", QValidator.State.Acceptable, id="integer-ranges"),
+		pytest.param("1;a", QValidator.State.Invalid, id="invalid-character")])
+def test_int_selection_validator(text, expected):
+	"""Vérifie l'état de validation sans modifier le texte ni la position du curseur."""
+	position = len(text)
+	assert IntSelectionValidator().validate(text, position) == (expected, text, position)
+
+
+# --------------------------------------------------
+def test_int_selection_validator_parse_error(monkeypatch):
+	"""Conserve un état intermédiaire lorsqu'une sélection syntaxiquement autorisée ne peut pas être convertie."""
+
+	# Simule une erreur de conversion après le contrôle des caractères autorisés.
+	def fail_parse(_text):
+		"""Simule une sélection non convertible."""
+		raise ValueError("Incomplete selection")
+
+	monkeypatch.setattr(st.CheckIntSelection, "parse", fail_parse)
+	assert IntSelectionValidator().validate("1-", 2) == (QValidator.State.Intermediate, "1-", 2)
+
+
+# --------------------------------------------------
+def test_check_int_selection(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.CheckIntSelection("Test", "")
+	setting_base_test(setting, "1;3-4", "")
+	ui = setting.get_ui("new")
+
+	setting.active = True
+
+	assert setting.value == "", "Valeur non valide."
+	assert setting.ranges == [], "Valeur non valide."
+	assert not setting.contains(7), "Valeur non valide."
+	# Gestion des cas problématiques : séparateurs répétés, caractère invalide, bornes inversées et fusion d'intervalles
+	setting.value = "4-6;10-8;7--7;;9;8:6;2"
+	assert setting.value == "2;4-10", "Valeur non valide."
+	assert setting.ranges == [(2, 2), (4, 10)], "Valeur non valide."
+	assert setting.contains(7), "Valeur non valide."
+
+	w = QWidget()
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	assert not setting.active
+	w.close()
+
+
+# ==================================================
+# endregion IntSelectionValidator et CheckIntSelection
+# ==================================================
+
+# ==================================================
+# region Button et ButtonGroup
+# ==================================================
+def test_button(qtbot, capsys):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.Button("Test")
+	setting_base_test(setting, True, True)
+	setting.connect_button(lambda: print("Hi"), "default", 0)  # UI sur laquelle aucun clic n'est effectué
+	setting.connect_button(lambda: print("Hello"), "new", 0)  # UI sur laquelle le clic est effectué
+	ui = setting.get_ui("new")
+
+	w = QWidget()
+	form = QFormLayout(w)  # Crée et affecte la mise en page au widget
+	ui.attach_to_form(form)
+	w.show()
+	qtbot.waitExposed(w)
+
+	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
+	out, err = capsys.readouterr()
+	assert "Hello" in out
+	assert "Hi" not in out
+
+	w.close()
+
+
+# --------------------------------------------------
+def test_button_group(qtbot):
+	"""Vérifie la classe (constructeur, getter, setter)."""
+	setting = st.ButtonGroup("Test", "", 0, ["Choix 1", "Choix 2"])
+	setting_base_test(setting, 1, 0)
+	assert setting.current_text == "Choix 1"
+	ui = setting.get_ui("default")
+	setting.active_item(0, False)
+	assert not ui.boxes[0].isEnabled()
+	setting.active_item(0, True)
+	assert ui.boxes[0].isEnabled()
+
+
+# ==================================================
+# endregion Button et ButtonGroup
+# ==================================================
+
+# ==================================================
+# region Synchronisation
+# ==================================================
+def test_sync(qtbot):
+	"""Vérifie la classe abstraite."""
+	spin_1 = st.SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
+	spin_2 = st.SpinInt("Test", "With a tooltip", 1, [0, 10], 1)
+	spin_1.sync(spin_2)
+	spin_1.value = 5
+	assert spin_2.value == 5, "Valeur non valide."
+
+	spin_2.value = 3
+	assert spin_1.value == 3, "Valeur non valide."
+
+# ==================================================
+# endregion Synchronisation
+# ==================================================

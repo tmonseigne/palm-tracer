@@ -16,18 +16,18 @@ from ansi2html import Ansi2HTMLConverter
 conv = Ansi2HTMLConverter(inline=True)  # Utiliser des styles en ligne pour éviter les dépendances CSS
 
 
-##################################################
+# --------------------------------------------------
 def to_title_case(name: str) -> str:
 	"""
-	Remplace les underscores et tirets par des espaces, puis applique la casse titre.
+	Convertit une chaîne de caractères en "Title Case" (majuscule à chaque mot).
 
 	:param name: La chaîne de caractères à convertir.
 	:return: La chaîne de caractères convertie en "Title Case".
 	"""
-	return name.replace("_", " ").replace("-", " ").title()
+	return name.replace("_", " ").title()
 
 
-##################################################
+# --------------------------------------------------
 def format_duration(duration: float) -> str:
 	"""
 	Formate une durée en une unité lisible avec la précision adéquate.
@@ -44,7 +44,6 @@ def format_duration(duration: float) -> str:
 # ==================================================
 # region Génération
 # ==================================================
-##################################################
 def generate_rst_from_json(src: str | Path, dst: str | Path):
 	"""
 	Génère un fichier reStructuredText à partir d'un rapport Pytest en format JSON.
@@ -75,7 +74,7 @@ def generate_rst_from_json(src: str | Path, dst: str | Path):
 		f.write(get_tests(data["tests"]))
 
 
-##################################################
+# --------------------------------------------------
 def get_files_info(src: str | Path, monitoring_ext: str = "html") -> list[str]:
 	"""
 	Extrait les informations du fichier source pour générer un titre et un nom de fichier pour le monitoring.
@@ -90,7 +89,7 @@ def get_files_info(src: str | Path, monitoring_ext: str = "html") -> list[str]:
 	return [title, monitoring_file]
 
 
-##################################################
+# --------------------------------------------------
 def get_metadata(metadata: dict[str, Any]) -> str:
 	"""
 	Génère une section reStructuredText pour afficher les métadonnées du rapport.
@@ -109,7 +108,7 @@ def get_metadata(metadata: dict[str, Any]) -> str:
 	return res + "\n"
 
 
-##################################################
+# --------------------------------------------------
 def get_summary(data: dict) -> str:
 	"""
 	Génère une section reStructuredText pour afficher un résumé du rapport de test.
@@ -131,7 +130,7 @@ def get_summary(data: dict) -> str:
 	return res
 
 
-##################################################
+# --------------------------------------------------
 def get_monitoring(file: str) -> str:
 	"""
 	Génère une section reStructuredText pour afficher un graphique de monitoring à partir d'un fichier.
@@ -154,10 +153,10 @@ def get_monitoring(file: str) -> str:
 	return res
 
 
-##################################################
+# --------------------------------------------------
 def get_test_name(nodeid: str) -> str:
 	"""
-	Formate le nom du test et ses paramètres en casse titre, sans crochets.
+	Formate le nom du test en conservant la casse de ses paramètres.
 
 	:param nodeid: Identifiant complet fourni par pytest.
 	:return: Nom lisible, précédé des classes éventuelles.
@@ -165,10 +164,10 @@ def get_test_name(nodeid: str) -> str:
 	base, separator, parameters = nodeid.partition("[")
 	parts = base.split("::")[1:]
 	name = " / ".join(to_title_case(part.removeprefix("test_")) for part in parts)
-	return f"{name} / {to_title_case(parameters.removesuffix(']'))}" if separator else name
+	return f"{name} [{parameters}" if separator else name
 
 
-##################################################
+# --------------------------------------------------
 def get_test_duration(test: dict) -> float:
 	"""
 	Additionne les durées des phases présentes dans le résultat.
@@ -179,7 +178,7 @@ def get_test_duration(test: dict) -> float:
 	return sum(test.get(phase, {}).get("duration", 0) for phase in ("setup", "call", "teardown"))
 
 
-##################################################
+# --------------------------------------------------
 def get_tests(tests: list) -> str:
 	"""
 	Génère une section reStructuredText pour afficher les résultats des tests.
@@ -188,7 +187,7 @@ def get_tests(tests: list) -> str:
 	:return: Chaîne reStructuredText formatée avec les résultats des tests.
 	"""
 	res = ("Test Cases\n"
-		   f"----------\n\n"
+		   "----------\n\n"
 		   ".. raw:: html\n\n   <div class=\"test-page\">\n\n")
 
 	# Grouper les tests par fichiers
@@ -219,7 +218,7 @@ def get_tests(tests: list) -> str:
 						f'{escape(get_test_name(nodeid))} — {len(cases)} cas</button></td>'
 						f'<td>✅ {passed}/{len(cases)}</td><td>{duration}</td></tr>\n')
 			for test in cases:
-				name = to_title_case(test["nodeid"].partition("[")[2].removesuffix("]")) if parametrized else get_test_name(test["nodeid"])
+				name = f'[{test["nodeid"].partition("[")[2]}' if parametrized else get_test_name(test["nodeid"])
 				row_class = ' class="test-variant"' if parametrized else ""
 				res += (f'   <tr{row_class}><td>{escape(name)}</td>'
 						f'<td>{get_outcome_icon(test["outcome"])}</td>'
@@ -236,11 +235,11 @@ def get_tests(tests: list) -> str:
 			stdout = re.sub(r"^(<br>)+", "", stdout)  # .					Supprime les "<br>" initiaux
 			stdout = re.sub(r"(<br>)+$", "", stdout)  # .					Supprime les "<br>" finaux
 			if stdout:  # .													Si le stdout existe, l'afficher dans un bloc repliable
-				res += f".. raw:: html\n\n"
-				res += f"   <details>\n"
+				res += ".. raw:: html\n\n"
+				res += "   <details>\n"
 				res += f"      <summary>Log Test : {test_name}</summary>\n"
 				res += f"      <pre>{stdout}</pre>\n"
-				res += f"   </details>\n\n"
+				res += "   </details>\n\n"
 
 	# Tout reste visible sans JavaScript ; les boutons fonctionnent aussi au clavier.
 	res += '''.. raw:: html
@@ -295,7 +294,7 @@ def get_tests(tests: list) -> str:
 	return res
 
 
-##################################################
+# --------------------------------------------------
 def get_outcome_icon(outcome: str) -> str:
 	"""
 	Retourne une icône/emoji correspondant à un résultat de test.
@@ -316,7 +315,7 @@ def get_outcome_icon(outcome: str) -> str:
 # ==================================================
 # endregion Génération
 # ==================================================
-##################################################
+# --------------------------------------------------
 def usage():
 	"""Affiche l'usage du script en ligne de commande."""
 	print("Usage:\n"
@@ -326,7 +325,7 @@ def usage():
 		  "    OUTPUT_FILE: Path to the output reStructuredText file.")
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	if len(sys.argv) < 3:
 		usage()

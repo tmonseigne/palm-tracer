@@ -16,7 +16,7 @@ from palm_tracer.Tools.Ui import print_warning
 MAX_UI_16 = np.iinfo(np.uint16).max
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Renderer:
 	"""
@@ -35,7 +35,6 @@ class Renderer:
 	# ==================================================
 	# region Configuration
 	# ==================================================
-	##################################################
 	def set_size(self, width: int, height: int, ratio: int):
 		"""
 		Met à jour les tailles pour le rendu.
@@ -53,7 +52,6 @@ class Renderer:
 	# ==================================================
 	# region Rendus
 	# ==================================================
-	##################################################
 	def localizations(self, loc: np.ndarray, color_mode: int = 0, bg_color: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
 		Construit une image haute résolution à partir d'un ensemble de localisations.
@@ -102,7 +100,7 @@ class Renderer:
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
-	##################################################
+	# --------------------------------------------------
 	def tracks(self, trc: np.ndarray, color_mode: int = 0, bg_color: int = 0) -> np.ndarray:
 		"""
 		Construit une image haute résolution (uint16) à partir de trajectoires localisées.
@@ -145,7 +143,7 @@ class Renderer:
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
-	##################################################
+	# --------------------------------------------------
 	def z_stack(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, bg_color: int = 0, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
 		Construit un volume haute résolution à partir d'un ensemble de localisations.
@@ -188,18 +186,18 @@ class Renderer:
 			valid = ((x >= 0) & (x < self._w) & (y >= 0) & (y < self._h))
 			x, y, c = x[valid], y[valid], c[valid]  # .			   Avec les arrondis, on revérifie les points hors dimension
 			z_id = np.floor(z_id[valid]).astype(int)
-			bg_mask[z_id, y, x] = True  # .		 						Mise à jour du masque du fond.
-			if color_mode == 0: np.add.at(res, (z_id, y, x), c)  # .		Accumulation des valeurs (plus efficace qu'une boucle).
+			bg_mask[z_id, y, x] = True  # .		 						 Mise à jour du masque du fond.
+			if color_mode == 0: np.add.at(res, (z_id, y, x), c)  # .	 Accumulation des valeurs (plus efficace qu'une boucle).
 			elif color_mode == 1: np.maximum.at(res, (z_id, y, x), c)  # Conservation de la valeur maximale en cas de superposition.
-			else: np.minimum.at(res, (z_id, y, x), c)  # .				Conservation de la valeur minimale en cas de superposition.
-		else:  # .												   Calcul de l'image en mode Gaussien
+			else: np.minimum.at(res, (z_id, y, x), c)  # .				 Conservation de la valeur minimale en cas de superposition.
+		else:  # .												   		 Calcul de l'image en mode Gaussien
 			x, y, _, c, s = loc_v[:, 0:5].T
 			c *= self._r  # En 3D, un facteur d'agrandissement supplémentaire est appliqué à l'intensité.
 			self.draw_gaussian_3d(res, bg_mask, x, y, z_id, c, s, color_mode)
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
-	##################################################
+	# --------------------------------------------------
 	def rotation_3d(self, loc: np.ndarray, color_mode: int = 0, z_step: float = 20, frames: int = 36, axis: int = 1,
 					bg_color: int = 0, gaussian: dict[str, Any] | None = None, crop: bool = False) -> np.ndarray:
 		"""
@@ -283,7 +281,7 @@ class Renderer:
 
 		return self.finalize_rendering(res, bg_mask, bg_color)
 
-	##################################################
+	# --------------------------------------------------
 	def track_stack(self, trc: np.ndarray, color_mode: int = 0, bg_color: int = 0, head_size: int = 1, tail_width: int = 1, tail_length: int = -1,
 					fade_type: int = 0, raw: np.ndarray | None = None, upscale_type: int = 0, color_map: str | np.ndarray = "viridis") -> np.ndarray:
 		"""
@@ -328,7 +326,7 @@ class Renderer:
 
 		# --- Initialisation : intensités non pré-multipliées et masque alpha flottant. ---
 		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)
-		res = np.full((n_planes, self._h, self._w), init_value, dtype=float)
+		res: np.ndarray = np.full((n_planes, self._h, self._w), init_value, dtype=float)
 		alpha_mask = np.zeros_like(res, dtype=float)
 		# L'alpha vaut zéro hors dessin. Ne pas utiliser draw_line tel quel : il mélange déjà la couleur et écrit True dans le masque.
 
@@ -355,7 +353,6 @@ class Renderer:
 	# ==================================================
 	# region Manipulation du résultat
 	# ==================================================
-	##################################################
 	def blank_rendering(self, bg_color: int = 0, is_3d: bool = False):
 		"""
 		Crée une image ou un volume vide rempli avec la couleur de fond.
@@ -369,7 +366,7 @@ class Renderer:
 		if is_3d: return np.full((1, max(self._h, 1), max(self._w, 1)), bg_color, dtype=np.uint16)
 		return np.full((max(self._h, 1), max(self._w, 1)), bg_color, dtype=np.uint16)
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def init_rendering(color_mode: int, height: int, width: int, depth: int = -1) -> tuple[np.ndarray, np.ndarray]:
 		"""
@@ -390,11 +387,11 @@ class Renderer:
 		"""
 		init_value = 0.0 if color_mode == 0 else (-np.inf if color_mode == 1 else np.inf)  # Valeur initiale du fond.
 		shape = (depth, height, width) if depth > 0 else (height, width)  # .				 Forme du Tableau (2D ou 3D).
-		img = np.full(shape, init_value, dtype=float)  # .									 Tableau de résultat.
+		img: np.ndarray = np.full(shape, init_value, dtype=float)  # .						 Tableau de résultat.
 		mask = np.zeros_like(img, dtype=bool)  # .											 Masque pour le fond.
 		return img, mask
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def finalize_rendering(img: np.ndarray, bg_mask: np.ndarray, bg_color: int = 0, clip: bool = True) -> np.ndarray:
 		"""
@@ -414,11 +411,11 @@ class Renderer:
 		:return: Nouvelle image ou nouveau volume de même forme que ``img`` et de type :class:`~numpy.uint16`.
 		"""
 		img[~bg_mask] = bg_color  # .					Remplace les éléments identifiés comme fond par la couleur choisie.
-		if clip: img = img.clip(0, MAX_UI_16)  # .		Limite les valeurs entre 0 et la valeur maximale possible pour un uint16.
-		else: img = np.remainder(img, MAX_UI_16 + 1)  # Rend cyclique les valeurs entre 0 et la valeur maximale pour un uint16.
+		# Limiter ou rendre cycliques les valeurs dans l'intervalle représentable par un uint16.
+		img = img.clip(0, MAX_UI_16) if clip else np.remainder(img, MAX_UI_16 + 1)
 		return img.astype(np.uint16)  # .				Conversion de l'image en np.uint16.
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def finalize_track_stack(img: np.ndarray, alpha_mask: np.ndarray, bg_color: int = 0, clip: bool = True) -> np.ndarray:
 		"""
@@ -446,7 +443,7 @@ class Renderer:
 			res[plane] = view  # .									Conversion en uint16 avec troncature, sans modifier le masque alpha.
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def finalize_track_stack_rgb(img: np.ndarray, alpha_mask: np.ndarray, raw: np.ndarray, color_map: str | np.ndarray = "viridis") -> np.ndarray:
 		"""
@@ -485,7 +482,7 @@ class Renderer:
 			res[plane] = np.rint((1.0 - alpha) * background + alpha * foreground).clip(0, 255).astype(np.uint8)
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def _upscale_raw(self, raw: np.ndarray, upscale_type: int) -> np.ndarray:
 		"""
 		Agrandit les axes Y et X d'un volume sans interpoler entre les plans.
@@ -520,7 +517,6 @@ class Renderer:
 	# ==================================================
 	# region Préparation des données
 	# ==================================================
-	##################################################
 	@staticmethod
 	def add_colors_to_localizations(loc: pd.DataFrame, col: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
@@ -547,8 +543,7 @@ class Renderer:
 		if loc.empty: return loc
 
 		# Extraction directe en numpy pour éviter les copies/alignements pandas inutiles.
-		if col in loc.columns: colors = loc[col].to_numpy(dtype=float, copy=True)
-		else: colors = np.ones(len(loc), dtype=float)
+		colors = loc[col].to_numpy(dtype=float, copy=True) if col in loc.columns else np.ones(len(loc), dtype=float)
 
 		# Post-traitement des couleurs.
 		color_min = np.min(colors)
@@ -561,7 +556,7 @@ class Renderer:
 
 		return loc
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def add_colors_to_tracks(trc: pd.DataFrame, source: str = "", max_value: float = 0) -> pd.DataFrame:
 		"""
@@ -636,7 +631,7 @@ class Renderer:
 
 		return data[["Track", "Plane", "X", "Y", "Color"]]
 
-	##################################################
+	# --------------------------------------------------
 	def prepare_localizations(self, data: np.ndarray, is_3d: bool = False, gaussian: dict[str, Any] | None = None) -> np.ndarray:
 		"""
 		Prépare les localisations utilisées par les différents modes de rendu.
@@ -693,7 +688,7 @@ class Renderer:
 
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def prepare_tracks(self, data: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 		"""
 		Prépare et délimite les trajectoires pour les rendus 2D et les séquences.
@@ -727,7 +722,6 @@ class Renderer:
 	# ==================================================
 	# region Dessin
 	# ==================================================
-	##################################################
 	@staticmethod
 	def _line_spans(shape: tuple[int, int], x0: int, y0: int, x1: int, y1: int, width: int = 1) -> tuple[int, np.ndarray, np.ndarray]:
 		"""
@@ -780,7 +774,7 @@ class Renderer:
 		if not np.any(left < right): return 0, np.empty(0, dtype=int), np.empty(0, dtype=int)
 		return y_min, left, right
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def draw_line(img: np.ndarray, bg_mask: np.ndarray, x0: int, y0: int, x1: int, y1: int, color: float, color_mode: int = 0,
 				  width: int = 1, alpha: float = 1.0):
@@ -853,7 +847,7 @@ class Renderer:
 			view[:] = value
 			bg_mask[y_min + row, start:end] = True
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def draw_gaussian_2d(img: np.ndarray, bg_mask: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, colors: np.ndarray | float,
 						 sx: np.ndarray | float, sy: np.ndarray | float, theta: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
@@ -895,6 +889,8 @@ class Renderer:
 			if x_min > x_max or y_min > y_max: continue  # Arrive uniquement si l'entièreté de l'intervalle est hors dimensions.
 
 			x_grid, y_grid = np.arange(x_min, x_max + 1, dtype=float), np.arange(y_min, y_max + 1, dtype=float)
+			xx: np.ndarray
+			yy: np.ndarray
 			xx, yy = np.meshgrid(x_grid, y_grid)
 
 			dx, dy = xx - xc, yy - yc
@@ -919,7 +915,7 @@ class Renderer:
 
 		return img
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def draw_gaussian_3d(img: np.ndarray, bg_mask: np.ndarray, x: np.ndarray | float, y: np.ndarray | float, z: np.ndarray | float,
 						 colors: np.ndarray | float, s: np.ndarray | float, color_mode: int = 0) -> np.ndarray:
@@ -959,6 +955,9 @@ class Renderer:
 			x_grid = np.arange(x_min, x_max + 1, dtype=float)
 			y_grid = np.arange(y_min, y_max + 1, dtype=float)
 			z_grid = np.arange(z_min, z_max + 1, dtype=float)
+			zz: np.ndarray
+			yy: np.ndarray
+			xx: np.ndarray
 			zz, yy, xx = np.meshgrid(z_grid, y_grid, x_grid, indexing="ij")
 
 			dx, dy, dz = xx - xc, yy - yc, zz - zc
@@ -976,7 +975,7 @@ class Renderer:
 
 		return img
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def draw_track(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray,
 				   tail_width: int = 1, tail_length: int = -1, fade_type: int = 0, color_mode: int = 0):
@@ -1038,7 +1037,7 @@ class Renderer:
 				alpha_view = alpha_mask[first:last, y, start:end]
 				np.maximum(alpha_view, alpha, out=alpha_view)  # .	Même empreinte complète que l'intensité, épaisseur comprise.
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def draw_track_heads(img: np.ndarray, alpha_mask: np.ndarray, track: np.ndarray, colors: np.ndarray, head_size: int = 1):
 		"""

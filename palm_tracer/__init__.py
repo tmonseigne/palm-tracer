@@ -1,8 +1,10 @@
 """Expose l'API publique principale de PALM Tracer."""
 
+from importlib.metadata import PackageNotFoundError, version
+
 try:
-	from ._version import version as __version__
-except ImportError:
+	__version__ = version("palm-tracer")
+except PackageNotFoundError:
 	__version__ = "unknown"
 
 from .PALMTracer import PALMTracer

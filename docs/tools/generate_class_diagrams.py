@@ -26,7 +26,6 @@ EDGE_PATTERN = re.compile(r'^"(?P<source>[^"]+)" -> "(?P<target>[^"]+)" (?P<attr
 # ==================================================
 # region Configuration
 # ==================================================
-##################################################
 @dataclass(frozen=True)
 class Diagram:
 	"""
@@ -126,7 +125,6 @@ MANUAL_EDGES = (
 # ==================================================
 # region Extraction
 # ==================================================
-##################################################
 def _run_pyreverse(output_directory: Path) -> Path:
 	"""
 	Exécute pyreverse et retourne le chemin du diagramme DOT brut.
@@ -140,18 +138,19 @@ def _run_pyreverse(output_directory: Path) -> Path:
 		raise RuntimeError("La commande 'pyreverse' est introuvable. Installez pylint pour générer les diagrammes.")
 
 	command = [pyreverse, "--only-classnames", "--project", "palm_tracer", "--output", "dot",
-			   "--output-directory", str(output_directory), "--ignore", "_tests", str(MODULE_PATH)]
+			   "--output-directory", str(output_directory), "--ignore", "tests", str(MODULE_PATH)]
 	result = subprocess.run(command, cwd=ROOT_PATH, check=False, capture_output=True, text=True)
 	if result.returncode != 0:
 		details = result.stderr.strip() or result.stdout.strip() or "erreur inconnue"
 		raise RuntimeError(f"La génération pyreverse a échoué : {details}")
 
 	output_path = output_directory / "classes_palm_tracer.dot"
-	if not output_path.is_file(): raise RuntimeError(f"pyreverse n'a pas produit le fichier attendu : {output_path}")
+	if not output_path.is_file():
+		raise RuntimeError(f"pyreverse n'a pas produit le fichier attendu : {output_path}")
 	return output_path
 
 
-##################################################
+# --------------------------------------------------
 def _is_architectural_class(identifier: str) -> bool:
 	"""
 	Indique si une classe doit apparaître dans les diagrammes d'architecture.
@@ -160,10 +159,10 @@ def _is_architectural_class(identifier: str) -> bool:
 	:return: ``True`` pour une classe publique utile à la vue architecturale.
 	"""
 	class_name = identifier.rsplit(".", maxsplit=1)[-1]
-	return "._tests." not in identifier and not class_name.startswith("_") and identifier not in EXCLUDED_CLASSES
+	return not identifier.startswith("tests.") and ".tests." not in identifier and not class_name.startswith("_") and identifier not in EXCLUDED_CLASSES
 
 
-##################################################
+# --------------------------------------------------
 def _read_graph(raw_graph_path: Path) -> tuple[set[str], list[tuple[str, str, str]]]:
 	"""
 	Extrait les classes et relations du graphe produit par pyreverse.
@@ -186,7 +185,6 @@ def _read_graph(raw_graph_path: Path) -> tuple[set[str], list[tuple[str, str, st
 # ==================================================
 # region Génération
 # ==================================================
-##################################################
 def _normalize_edge_attributes(attributes: str, min_length: int) -> str:
 	"""
 	Uniformise les attributs d'une relation produite par pyreverse.
@@ -201,7 +199,7 @@ def _normalize_edge_attributes(attributes: str, min_length: int) -> str:
 	return f'{normalized[:-1]}, minlen="{min_length}"]'
 
 
-##################################################
+# --------------------------------------------------
 def _render_diagram(diagram: Diagram, nodes: set[str], edges: list[tuple[str, str, str]]) -> str:
 	"""
 	Construit le contenu DOT d'un diagramme synthétique.
@@ -216,8 +214,8 @@ def _render_diagram(diagram: Diagram, nodes: set[str], edges: list[tuple[str, st
 
 	lines = [f'digraph "{diagram.name}" {{',
 			 'graph [bgcolor="transparent", nodesep="0.35", pad="0.2", rankdir="BT", ranksep="0.7"];',
-			 f'node [color="#4a4a4a", fillcolor="{diagram.fill_color}", fontcolor="black", fontname="Helvetica", '
-			 f'fontsize="10", shape="box", style="filled,rounded"];',
+			 (f'node [color="#4a4a4a", fillcolor="{diagram.fill_color}", fontcolor="black", fontname="Helvetica", '
+			 f'fontsize="10", shape="box", style="filled,rounded"];'),
 			 'edge [color="#666666", fontcolor="#006400", fontname="Helvetica", fontsize="9"];',
 			 ""]
 	for identifier in sorted(diagram_nodes, key=lambda item: (item.rsplit(".", maxsplit=1)[-1].casefold(), item.casefold())):
@@ -244,7 +242,7 @@ def _render_diagram(diagram: Diagram, nodes: set[str], edges: list[tuple[str, st
 	return "\n".join(lines) + "\n"
 
 
-##################################################
+# --------------------------------------------------
 def generate_class_diagrams():
 	"""Génère les trois diagrammes de classes utilisés par Sphinx."""
 	GRAPH_PATH.mkdir(parents=True, exist_ok=True)
@@ -265,7 +263,7 @@ def generate_class_diagrams():
 # endregion Génération
 # ==================================================
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	generate_class_diagrams()
 	print(f"Diagrammes de classes générés dans : {GRAPH_PATH}")

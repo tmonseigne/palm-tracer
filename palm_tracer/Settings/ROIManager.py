@@ -15,7 +15,7 @@ from palm_tracer.Settings.Types import CheckInt, CheckRangeInt, SpinInt
 from palm_tracer.Tools.Ui import print_warning
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class ROIManager:
 	"""
@@ -57,7 +57,7 @@ class ROIManager:
 	_is_synchronizing: bool = field(init=False, default=False)
 	"""Indique qu'une synchronisation de calques est en cours."""
 
-	##################################################
+	# --------------------------------------------------
 	def __post_init__(self):
 		"""Initialise les connexions du gestionnaire de ROI."""
 		self.roi_selection.connect(self._on_roi_selection_changed)
@@ -65,13 +65,12 @@ class ROIManager:
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	@property
 	def layer_main(self) -> Optional[Shapes]:
 		"""Calque de l'interface principale."""
 		return self._layer_main
 
-	##################################################
+	# --------------------------------------------------
 	@layer_main.setter
 	def layer_main(self, layer: Shapes):
 		"""
@@ -87,13 +86,13 @@ class ROIManager:
 		layer.selected_data.events.items_changed.connect(self.on_main_selection_changed)
 		self.update_main()
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def layer_hr(self) -> Optional[Shapes]:
 		"""Calque de l'interface haute résolution."""
 		return self._layer_hr
 
-	##################################################
+	# --------------------------------------------------
 	@layer_hr.setter
 	def layer_hr(self, layer: Shapes):
 		"""
@@ -109,13 +108,13 @@ class ROIManager:
 		layer.selected_data.events.items_changed.connect(self.on_hr_selection_changed)
 		self.update_hr()
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def rois(self) -> list[ROI]:
 		"""Calque de l'interface haute résolution."""
 		return self._rois
 
-	##################################################
+	# --------------------------------------------------
 	@rois.setter
 	def rois(self, rois: list[ROI]):
 		"""
@@ -128,7 +127,7 @@ class ROIManager:
 		self._rois = rois
 		if initial_l != new_l and new_l != 0: self.roi_selection.limits = [1, new_l]
 
-	##################################################
+	# --------------------------------------------------
 	def set_size(self, width, height):
 		"""
 		Met à jour la hauteur et largeur maximale de la ROI.
@@ -139,7 +138,7 @@ class ROIManager:
 		self.width, self.height = width, height
 		self.data_box = (-1, -1, -1, -1)
 
-	##################################################
+	# --------------------------------------------------
 	def set_xy_roi(self, x_min: float, x_max: float, y_min: float, y_max: float, add: bool = True):
 		"""
 		Ajoute une zone d'intérêt type rectangle pour un filtre rapide sur X et Y (utile pour simplifier le filtre par ROI en script).
@@ -161,22 +160,25 @@ class ROIManager:
 	# ==================================================
 	# region Synchronisation
 	# ==================================================
-	##################################################
 	def update_from_main(self):
 		"""Met à jour la liste des ROI à partir du calque principal (callback appelé à chaque modification dans le calque principal)."""
 		if self._layer_main is None or self._is_synchronizing: return
+		if len(self._layer_main.shape_type) != len(self._layer_main.data):
+			raise ValueError("Shape types and ROI data must have the same length.")
 		self._is_synchronizing = True
 
 		self.rois = [ROI(type=self._shape_to_str(s_type), data=np.array(s_data, copy=True))
-					 for s_type, s_data in zip(self._layer_main.shape_type, self._layer_main.data, strict=True)]
+					 for s_type, s_data in zip(self._layer_main.shape_type, self._layer_main.data)]
 		self.update_hr()
 
 		self._is_synchronizing = False
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_hr(self):
 		"""Met à jour la liste des ROI à partir du calque haute résolution (callback appelé à chaque modification dans le calque haute résolution)."""
 		if self._layer_hr is None or self._is_synchronizing: return
+		if len(self._layer_hr.shape_type) != len(self._layer_hr.data):
+			raise ValueError("Shape types and ROI data must have the same length.")
 		self._is_synchronizing = True
 
 		upscale = self.hr_ratio.value  # .		Ratio d'agrandissement
@@ -184,7 +186,7 @@ class ROIManager:
 		translation = np.array([y0_crop, x0_crop], dtype=float)
 		rois: list[ROI] = []
 
-		for shape_type, data in zip(self._layer_hr.shape_type, self._layer_hr.data, strict=True):
+		for shape_type, data in zip(self._layer_hr.shape_type, self._layer_hr.data):
 			coord = np.asarray(data.data, dtype=float).copy()  # Coordonnées des ROIS
 			coord[:, -2:] = (coord[:, -2:] / upscale) + translation  # Transformation des coordonnées (Napari utilise l'ordre (..., Y, X)).
 			rois.append(ROI(type=self._shape_to_str(shape_type), data=coord, ))
@@ -194,14 +196,14 @@ class ROIManager:
 
 		self._is_synchronizing = False
 
-	##################################################
+	# --------------------------------------------------
 	def update_main(self):
 		"""Met à jour le calque principal."""
 		if self._layer_main is None or len(self.rois) == 0: return
 		self._layer_main.data = [np.array(roi.data, copy=True) for roi in self._rois]
 		self._layer_main.shape_type = [roi.type for roi in self._rois]
 
-	##################################################
+	# --------------------------------------------------
 	def update_hr(self):
 		"""
 		Met à jour le calque Haute Résolution.
@@ -222,7 +224,7 @@ class ROIManager:
 		self._layer_hr.data = data
 		self._layer_hr.shape_type = [roi.type for roi in self._rois]
 
-	##################################################
+	# --------------------------------------------------
 	def on_main_selection_changed(self, event: Any = None):
 		"""
 		Traite un changement de sélection.
@@ -232,7 +234,7 @@ class ROIManager:
 		del event
 		self.update_colors(self._layer_main)
 
-	##################################################
+	# --------------------------------------------------
 	def on_hr_selection_changed(self, event: Any = None):
 		"""
 		Traite un changement de sélection.
@@ -242,7 +244,7 @@ class ROIManager:
 		del event
 		self.update_colors(self._layer_hr)
 
-	##################################################
+	# --------------------------------------------------
 	def _on_roi_selection_changed(self):
 		"""
 		Sélectionne dans Napari la ROI choisie dans le paramètre.
@@ -262,7 +264,6 @@ class ROIManager:
 	# ==================================================
 	# region Entrées-sorties
 	# ==================================================
-	##################################################
 	def from_dict_list(self, rois: list[dict[str, Any]]):
 		"""
 		Importe une liste de dictionnaires de formes depuis un enregistrement json.
@@ -273,7 +274,7 @@ class ROIManager:
 		for roi in rois: res.append(ROI(roi["type"], np.asarray(roi["data"], dtype=float)))
 		self.rois = res
 
-	##################################################
+	# --------------------------------------------------
 	def to_dict_list(self):
 		"""Exporte une liste de dictionnaires de formes pour le format json."""
 		res = []
@@ -287,7 +288,6 @@ class ROIManager:
 	# ==================================================
 	# region Divers
 	# ==================================================
-	##################################################
 	@staticmethod
 	def _shape_to_str(shape_type: Any) -> str:
 		"""
@@ -298,14 +298,14 @@ class ROIManager:
 		"""
 		return str(getattr(shape_type, "value", shape_type))
 
-	##################################################
+	# --------------------------------------------------
 	def update_colors(self, layer: Shapes):
 		"""Met à jour les couleurs selon la sélection courante."""
 		edge_colors = [self._default_color] * layer.nshapes
 		for index in layer.selected_data: edge_colors[index] = self._selected_color
 		layer.edge_color = edge_colors
 
-	##################################################
+	# --------------------------------------------------
 	def get_roi_limits(self) -> tuple[int, int, int, int]:
 		"""
 		Définit la bounding box de la zone d'intérêt (utile pour la génération HR).
@@ -324,7 +324,7 @@ class ROIManager:
 		# Limitation aux dimensions de l'image.
 		return max(0, x0), min(self.width, x1), max(0, y0), min(self.height, y1)
 
-	##################################################
+	# --------------------------------------------------
 	def get_hr_limits(self, time_filter: CheckRangeInt | None = None) -> tuple[int, int, int, int]:
 		"""
 		Détermine le cadre spatial du rendu haute résolution et le mémorise dans ``hr_box``.
@@ -346,7 +346,7 @@ class ROIManager:
 		self.hr_box = limits
 		return limits
 
-	##################################################
+	# --------------------------------------------------
 	def update_data_box(self, data: pd.DataFrame | None, gaussian: dict[str, Any] | None = None, margin: int = 5):
 		"""
 		Recalcule un cadre conservateur sans modifier les ROI de filtrage.
@@ -380,7 +380,7 @@ class ROIManager:
 		x1, y1 = np.minimum(upper, (self.width, self.height))
 		if x0 < x1 and y0 < y1: self.data_box = int(x0), int(x1), int(y0), int(y1)
 
-	##################################################
+	# --------------------------------------------------
 	def filtering_dataframe(self, dataframe: pd.DataFrame, strict: bool = True) -> pd.DataFrame:
 		"""
 		Filtre un DataFrame selon la ROI sélectionnée.
@@ -417,7 +417,7 @@ class ROIManager:
 
 		return df.loc[strict_mask]
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _points_in_polygon(points: np.ndarray, roi_data: np.ndarray) -> np.ndarray:
 		"""
@@ -430,7 +430,7 @@ class ROIManager:
 		path = MatplotlibPath(np.asarray(roi_data, dtype=float)[:, [-1, -2]])  # Passage de Y, X vers X, Y et création du chemin
 		return path.contains_points(points, radius=1.0e-9)  # Un petit rayon positif permet d'inclure les points situés sur le bord.
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _points_in_ellipse(points: np.ndarray, roi_data: np.ndarray) -> np.ndarray:
 		"""

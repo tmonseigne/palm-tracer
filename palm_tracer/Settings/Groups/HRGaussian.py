@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import CheckBox, Combo, SpinFloat, SpinInt
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class HRGaussian(BaseSettingGroup):
 	"""
@@ -24,20 +24,21 @@ class HRGaussian(BaseSettingGroup):
 
 	label: str = "Gaussian Mode"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {"Intensity":       [SpinInt, ["Intensity", "Integrated intensity of the Gaussian curve if 'Fixed Intensity' is selected; otherwise, "
-															   "the ratio by which the value selected in the source will be divided.", 100, [1, 100000], 10]],
-					"Fixed Intensity": [CheckBox, ["Fixed Intensity", "Ensures that each point has the same intensity."]],
-					"Shape":           [Combo, ["Shape", "Defines the shape of the Gaussian distribution (Isotropic, Anisotropic, or Fixed Size, "
-														 "so that each point has the same isotropic shape).", 0, ["Fixed Size", "Isotrope", "Anisotrope"]]],
-					"Size":            [SpinFloat, ["Size", "The standard deviation of the Gaussian distribution if \"Fixed Size\" is selected.",
-													1, [0, 50], 0.01, 3]],
-					}
+	setting_list = {
+			"Intensity":       [SpinInt, ["Intensity", ("Integrated intensity of the Gaussian curve if 'Fixed Intensity' is selected; otherwise, "
+														"the ratio by which the value selected in the source will be divided."), 100, [1, 100000], 10]],
+			"Fixed Intensity": [CheckBox, ["Fixed Intensity", "Ensures that each point has the same intensity."]],
+			"Shape":           [Combo, ["Shape", ("Defines the shape of the Gaussian distribution (Isotropic, Anisotropic, or Fixed Size, "
+												  "so that each point has the same isotropic shape)."), 0, ["Fixed Size", "Isotrope", "Anisotrope"]]],
+			"Size":            [SpinFloat, ["Size", "The standard deviation of the Gaussian distribution if \"Fixed Size\" is selected.", 1, [0, 50], 0.01, 3]]
+			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

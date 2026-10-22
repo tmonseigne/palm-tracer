@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import SpinFloat
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Tracking(BaseSettingGroup):
 	"""
@@ -26,9 +26,10 @@ class Tracking(BaseSettingGroup):
 	"""Définition des paramètres du groupe et de leur configuration."""
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

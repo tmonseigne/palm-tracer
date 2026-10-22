@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, cast, Optional
+from typing import Any, Optional, cast
 
 from qtpy.QtWidgets import QFormLayout, QPushButton
 
@@ -11,7 +11,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class BaseSettingType:
 	"""
@@ -39,12 +39,11 @@ class BaseSettingType:
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.value = self.default
 
-	##################################################
+	# --------------------------------------------------
 	def reset(self):
 		"""Réinitialise le paramètre à sa valeur par défaut."""
 		self.value = self.default
@@ -56,7 +55,6 @@ class BaseSettingType:
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		"""
 		Renvoie une interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`) existante ou en crée une si nécessaire.
@@ -66,7 +64,7 @@ class BaseSettingType:
 		"""
 		raise NotImplementedError("La méthode 'get_ui' doit être implémentée dans la sous-classe.")
 
-	##################################################
+	# --------------------------------------------------
 	def clean_ui(self, name: str = "default"):
 		"""
 		Supprime l'interface Qt associée au nom donné.
@@ -75,19 +73,24 @@ class BaseSettingType:
 		"""
 		self._uis.pop(name, None)
 
-	##################################################
+	# --------------------------------------------------
+	@property
+	def uis(self) -> dict[str, BaseUIType]:
+		"""Dictionnaire des interfaces qui ont été créées pour ce paramètre."""
+		return self._uis
+
+	# --------------------------------------------------
 	@property
 	def value(self) -> Any:
 		"""Valeur actuelle du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
 		return True
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: Any):
 		"""Valeur actuelle du paramètre (:class:`str`, :class:`int`, :class:`float`...)."""
-		pass
 
-	##################################################
+	# --------------------------------------------------
 	def set_value_from_ui(self, value: Any):
 		"""Met à jour la valeur à chaque modification de l'UI (appelle le setter)."""
 		self.value = value
@@ -99,17 +102,16 @@ class BaseSettingType:
 	# ==================================================
 	# region Interface et visibilité
 	# ==================================================
-	##################################################
 	def hide(self):
 		"""Cache le paramètre."""
 		for ui in self._uis.values(): ui.hide()
 
-	##################################################
+	# --------------------------------------------------
 	def show(self):
 		"""Affiche le paramètre."""
 		for ui in self._uis.values(): ui.show()
 
-	##################################################
+	# --------------------------------------------------
 	def attach_to_form(self, ui_name: str, form: QFormLayout):
 		"""
 		Connecte un bouton directement et non le paramètre en lui-même.
@@ -126,12 +128,11 @@ class BaseSettingType:
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie un dictionnaire minimal contenant la valeur du setting."""
 		return {"value": self.value}
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		self.value = data["value"]  # Appel du Setter
@@ -143,7 +144,6 @@ class BaseSettingType:
 	# ==================================================
 	# region Signaux et synchronisation
 	# ==================================================
-	##################################################
 	def connect_button(self, f: Any, ui_name: str = "default", n: int = 0):
 		"""
 		Connecte un bouton directement et non le paramètre en lui-même.
@@ -155,7 +155,7 @@ class BaseSettingType:
 		b = cast(QPushButton, self.get_ui(ui_name).boxes[n])
 		b.clicked.connect(f)
 
-	##################################################
+	# --------------------------------------------------
 	def connect(self, f: Any):
 		"""
 		Connecte une fonction ou un slot au signal encapsulé.
@@ -164,7 +164,7 @@ class BaseSettingType:
 		"""
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 
-	##################################################
+	# --------------------------------------------------
 	def disconnect(self, f: Optional[Any] = None) -> int:
 		"""
 		Déconnecte ``f`` si fourni, sinon tous les slots. Renvoie le nombre de slots déconnectés.
@@ -174,7 +174,7 @@ class BaseSettingType:
 		"""
 		return self._signal.disconnect(f)
 
-	##################################################
+	# --------------------------------------------------
 	def emit(self, value: Any = None):
 		"""
 		Émet le signal encapsulé.
@@ -185,7 +185,7 @@ class BaseSettingType:
 		"""
 		self._signal.emit(value)  # Émission du signal.
 
-	##################################################
+	# --------------------------------------------------
 	def signal_blocked(self, emit_last: bool = True) -> SignalWrapper.BlockCtx:
 		"""
 		Contexte de blocage des signaux de ce paramètre.
@@ -196,7 +196,7 @@ class BaseSettingType:
 		"""
 		return self._signal.blocked(emit_last)
 
-	##################################################
+	# --------------------------------------------------
 	def sync(self, other: "BaseSettingType"):
 		"""
 		Synchronise ce paramètre avec un autre paramètre.
@@ -206,6 +206,7 @@ class BaseSettingType:
 		:param other: Autre paramètre à synchroniser.
 		"""
 
+		# --------------------------------------------------
 		def sync(setting: "BaseSettingType", value: Any):
 			"""
 			Propage la valeur vers le paramètre synchronisé.

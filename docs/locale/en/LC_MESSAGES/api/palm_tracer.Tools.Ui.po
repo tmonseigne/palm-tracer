@@ -1,3 +1,16 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"POT-Creation-Date: 2026-10-13 12:22+0200\n"
+
 #: ../../api/palm_tracer.Tools.Ui.rst:2
 msgid "Ui"
 msgstr ""
@@ -90,8 +103,7 @@ msgstr "A tuple ``(tab, layout)`` where ``tab`` is the tab widget and ``layout``
 msgid "Type renvoyé"
 msgstr "Return type"
 
-#: of palm_tracer.Tools.Ui.make_exclusive_btn_group:1
-#: palm_tracer.Tools.Ui.make_group:1
+#: of palm_tracer.Tools.Ui.make_group:1
 msgid "Crée un :class:`QGroupBox` avec un layout vertical configuré."
 msgstr "Creates a :class:`QGroupBox` with a configured vertical layout."
 
@@ -103,14 +115,21 @@ msgstr "Qt parent of the group box (may be ``None`` if defined later)."
 msgid "Titre affiché dans l'en-tête du group box."
 msgstr "Title displayed in the group box header."
 
-#: of palm_tracer.Tools.Ui.make_exclusive_btn_group:6
-#: palm_tracer.Tools.Ui.make_group:8
+#: of palm_tracer.Tools.Ui.make_group:8
 msgid "Un tuple ``(group, layout)`` où : ``group`` est le :class:`QGroupBox` créé et ``layout`` son calque."
 msgstr "A tuple ``(group, layout)`` where: ``group`` is the :class:`QGroupBox` created and ``layout`` is its layout."
 
+#: of palm_tracer.Tools.Ui.make_exclusive_btn_group:1
+msgid "Crée des boutons exclusifs dans un layout horizontal et sélectionne le premier."
+msgstr "Creates exclusive buttons in a horizontal layout and selects the first one."
+
 #: of palm_tracer.Tools.Ui.make_exclusive_btn_group:3
-msgid "Titres affiché dans les boutons."
-msgstr "Titles displayed in the buttons."
+msgid "Titres affichés dans les boutons ; la liste doit contenir au moins un élément."
+msgstr "Button labels; the list must contain at least one item."
+
+#: of palm_tracer.Tools.Ui.make_exclusive_btn_group:6
+msgid "Layout horizontal, groupe exclusif et dictionnaire des boutons indexé par titre."
+msgstr "Horizontal layout, exclusive group and dictionary of buttons indexed by label."
 
 #: of palm_tracer.Tools.Ui.make_form:1
 msgid "Crée et configure un :class:`QFormLayout` pour des paramètres."
@@ -121,8 +140,8 @@ msgid "Configuration appliquée :"
 msgstr "Configuration applied:"
 
 #: of palm_tracer.Tools.Ui.make_form:4
-msgid "labels alignés à droite et centrés verticalement ;"
-msgstr "labels right-aligned and vertically centered;"
+msgid "libellés alignés à gauche et centrés verticalement ;"
+msgstr "labels left-aligned and vertically centered;"
 
 #: of palm_tracer.Tools.Ui.make_form:5
 msgid "formulaire ancré en haut à gauche ;"
@@ -160,47 +179,47 @@ msgstr "The ``value`` column is resizable to maintain proper alignment, while la
 msgid "Dictionnaire décrivant les lignes à afficher. Chaque entrée doit contenir :          - ``\"label\"`` : :class:`QLabel` (libellé) ;         - ``\"value\"`` : :class:`QLabel` (valeur associée) ;         - optionnellement ``\"unit\"`` : :class:`QLabel` (unité) si ``size == 3`` ;         - optionnellement ``\"tips\"`` : ``str`` (tooltip appliqué au label)."
 msgstr "Dictionary describing the rows to display. Each entry must contain:          - ``\"label\"``: :class:`QLabel` (label);         - ``\"value\"``: :class:`QLabel` (associated value);         - optionally ``\"unit\"``: :class:`QLabel` (unit) if ``size == 3``;         - optionally ``\"tips\"``: ``str`` (tooltip applied to the label)."
 
-#: of palm_tracer.Tools.Ui.make_info_grid:8
+#: of palm_tracer.Tools.Ui.make_info_grid:7
 msgid "Dictionnaire décrivant les lignes à afficher. Chaque entrée doit contenir :"
 msgstr "Dictionary describing the lines to display. Each entry must contain:"
 
-#: of palm_tracer.Tools.Ui.make_info_grid:11
+#: of palm_tracer.Tools.Ui.make_info_grid:10
 msgid "``\"label\"`` : :class:`QLabel` (libellé) ;"
 msgstr "``\"label\"``: :class:`QLabel` (label);"
 
-#: of palm_tracer.Tools.Ui.make_info_grid:12
+#: of palm_tracer.Tools.Ui.make_info_grid:11
 msgid "``\"value\"`` : :class:`QLabel` (valeur associée) ;"
 msgstr "``\"value\"``: :class:`QLabel` (associated value);"
 
-#: of palm_tracer.Tools.Ui.make_info_grid:13
+#: of palm_tracer.Tools.Ui.make_info_grid:12
 msgid "optionnellement ``\"unit\"`` : :class:`QLabel` (unité) si ``size == 3`` ;"
 msgstr "optionally ``\"unit\"``: :class:`QLabel` (unit) if ``size == 3``;"
 
-#: of palm_tracer.Tools.Ui.make_info_grid:14
+#: of palm_tracer.Tools.Ui.make_info_grid:13
 msgid "optionnellement ``\"tips\"`` : ``str`` (tooltip appliqué au label)."
 msgstr "optionally ``\"tips\"``: ``str`` (tooltip applied to the label)."
 
-#: of palm_tracer.Tools.Ui.make_info_grid:15
+#: of palm_tracer.Tools.Ui.make_info_grid:14
 msgid "Titre de la colonne affichée en haut de la grille."
 msgstr "Column title displayed at the top of the grid."
 
-#: of palm_tracer.Tools.Ui.make_info_grid:16
+#: of palm_tracer.Tools.Ui.make_info_grid:15
 msgid "Nombre de colonnes : ``2`` → ``label | value``, ``3`` → ``label | value | unit``."
 msgstr "Number of columns: ``2`` → ``label | value``, ``3`` → ``label | value | unit``."
 
-#: of palm_tracer.Tools.Ui.make_info_grid:17
+#: of palm_tracer.Tools.Ui.make_info_grid:16
 msgid "Parent Qt du layout (optionnel)."
 msgstr "Qt parent of the layout (optional)."
 
-#: of palm_tracer.Tools.Ui.make_info_grid:18
+#: of palm_tracer.Tools.Ui.make_info_grid:17
 msgid "Espacement interne entre les éléments (en pixels)."
 msgstr "Internal spacing between elements (in pixels)."
 
-#: of palm_tracer.Tools.Ui.make_info_grid:19
+#: of palm_tracer.Tools.Ui.make_info_grid:18
 msgid "Marges du layout (en pixels)."
 msgstr "Layout margins (in pixels)."
 
-#: of palm_tracer.Tools.Ui.make_info_grid:20
+#: of palm_tracer.Tools.Ui.make_info_grid:19
 msgid "Le :class:`QGridLayout` configuré."
 msgstr "The configured :class:`QGridLayout`."
 

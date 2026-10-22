@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, CheckRangeInt
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class FiltersT(BaseSettingGroup):
 	"""
@@ -36,12 +36,13 @@ class FiltersT(BaseSettingGroup):
 	label: str = "Tracks"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Track":           [CheckIntSelection, ["Track ID", "Selected Track IDs. Use - to specify a range and ; "
-																"to separate multiple values or ranges. Example: 1-10;15;20-25."]],
+			"Track":           [CheckIntSelection, ["Track ID", ("Selected Track IDs. Use - to specify a range and ; "
+																 "to separate multiple values or ranges. Example: 1-10;15;20-25.")]],
 			"Length":          [CheckRangeInt, ["Length", "", [1, 10000], [1, 100000]]],
-			"Time Inside ROI": [CheckRangeInt, ["Time Inside ROI (%)", "Keep tracks whose percentage of points inside the selected ROI is within "
-																	   "the inclusive range. Keep all their points, including points outside the ROI. "
-																	   "When unchecked, ignore the ROI for track selection. 0-100% keeps all tracks.", [0, 100], [0, 100]]],
+			"Time Inside ROI": [CheckRangeInt, ["Time Inside ROI (%)", ("Keep tracks whose percentage of points inside the selected ROI is within "
+																		"the inclusive range. Keep all their points, including points outside the ROI. "
+																		"When unchecked, ignore the ROI for track selection. "
+																		"0-100% keeps all tracks."), [0, 100], [0, 100]]],
 			"Instant D":       [CheckRangeFloat, ["Instant D", "", [-5, 5], [-10, 10]]],
 			"D Coeff":         [CheckRangeFloat, ["D Coeff (μm²/s)", "", [-5, 5], [-10, 10]]],
 			"Alpha":           [CheckRangeFloat, ["Alpha (Power)", "", [-10, 10], [-100, 100]]],
@@ -52,13 +53,13 @@ class FiltersT(BaseSettingGroup):
 	mode: int = 1
 	"""Mode d'affichage du groupe dans l'interface."""
 
-	##################################################
+	# --------------------------------------------------
 	def deactivate_filters(self):
 		"""Désactive tous les filtres."""
 		for key in self.setting_list: self._settings[key].active = False
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

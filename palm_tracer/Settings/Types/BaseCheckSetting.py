@@ -11,7 +11,7 @@ from qtpy.QtWidgets import QCheckBox
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class BaseCheckSetting(BaseSettingType):
 	"""
@@ -24,7 +24,7 @@ class BaseCheckSetting(BaseSettingType):
 	_active: bool = field(init=False, default=False)
 	"""Indicateur d'activation du paramètre."""
 
-	##################################################
+	# --------------------------------------------------
 	def reset(self):
 		"""Réinitialise la valeur et désactive le paramètre."""
 		super().reset()
@@ -33,13 +33,12 @@ class BaseCheckSetting(BaseSettingType):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	@property
 	def active(self) -> bool:
 		"""Indique si le paramètre est actif."""
 		return self._active
 
-	##################################################
+	# --------------------------------------------------
 	@active.setter
 	def active(self, value: bool):
 		"""Modifie l'état actif et synchronise les interfaces associées."""
@@ -57,12 +56,11 @@ class BaseCheckSetting(BaseSettingType):
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""Renvoie la valeur et l'état actif du paramètre."""
 		return {**super().to_compact_dict(), "active": self.active}
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		"""Met à jour la valeur et l'état actif depuis un dictionnaire minimal."""
 		super().update_from_compact_dict(data)
@@ -75,7 +73,6 @@ class BaseCheckSetting(BaseSettingType):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-	##################################################
 	def set_active(self, state: bool):
 		"""Met à jour l'état actif lorsque la case à cocher est modifiée."""
 		self.active = state

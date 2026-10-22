@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import CheckBox, SpinFloat
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class BeadsExtraction(BaseSettingGroup):
 	"""
@@ -23,14 +23,17 @@ class BeadsExtraction(BaseSettingGroup):
 
 	label: str = "Beads Extraction"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {"Max Distance": [SpinFloat, ["Max Distance (pixel)", "Maximum distance between two planes for a bead.", 1.0, [0.0, 20.0], 0.1, 2]],
-					"3D":           [CheckBox, ["3D", "Use the Z-axis during computes.", False]]}
+	setting_list = {
+			"Max Distance": [SpinFloat, ["Max Distance (pixel)", "Maximum distance between two planes for a bead.", 1.0, [0.0, 20.0], 0.1, 2]],
+			"3D":           [CheckBox, ["3D", "Use the Z-axis during computes.", False]]
+			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

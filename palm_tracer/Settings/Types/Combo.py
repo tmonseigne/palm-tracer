@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, cast, Optional
+from typing import Any, Optional, cast
 
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QComboBox, QHBoxLayout, QLabel
@@ -12,7 +12,7 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Combo(BaseSettingType):
 	"""
@@ -35,7 +35,6 @@ class Combo(BaseSettingType):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -53,13 +52,13 @@ class Combo(BaseSettingType):
 		self._uis[name] = ui  # .								   Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> int:
 		"""Valeur actuelle du paramètre (position dans la liste en :class:`int`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: int):
 		"""Valeur actuelle du paramètre (position dans la liste en :class:`int`)."""
@@ -71,19 +70,19 @@ class Combo(BaseSettingType):
 
 		self.emit(value)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def current_text(self) -> str:
 		"""Valeur actuelle du paramètre (élément dans la liste en :class:`str`)."""
 		return self._items[self.value] if 0 <= self.value < len(self._items) else ""
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def items(self) -> list[str]:
 		"""Récupère la liste des éléments."""
 		return self._items
 
-	##################################################
+	# --------------------------------------------------
 	@items.setter
 	def items(self, items: Optional[list[str]] = None):
 		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
@@ -102,20 +101,20 @@ class Combo(BaseSettingType):
 	# ==================================================
 	# region Sérialisation
 	# ==================================================
-	##################################################
 	def to_compact_dict(self) -> dict[str, Any]:
 		return {"value": self.value, "items": self.items}
 
-	##################################################
+	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		self.items = data["items"]  # Récupération de la liste des éléments avant de mettre à jour la valeur
 		self.value = data["value"]
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QPushButton, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -126,6 +125,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

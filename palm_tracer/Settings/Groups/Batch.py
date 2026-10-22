@@ -13,7 +13,7 @@ from palm_tracer.Settings.Types import Combo, FileList
 from palm_tracer.Tools import FileIO, Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Batch(BaseSettingGroup):
 	"""
@@ -30,7 +30,7 @@ class Batch(BaseSettingGroup):
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Files": [FileList, ["Files", ""]],
-			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]],
+			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]]
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1
@@ -38,7 +38,7 @@ class Batch(BaseSettingGroup):
 	_plane_cache: dict[str, tuple[int, int, int]] = field(init=False, default_factory=dict)
 	"""Profondeur TIFF indexée par chemin, taille et date de modification du fichier."""
 
-	##################################################
+	# --------------------------------------------------
 	def get_paths(self, suffix: str = "_PALM_Tracer") -> list[str]:
 		"""
 		Génère un chemin basé sur les fichiers du Batch et le mode sélectionné.
@@ -61,7 +61,7 @@ class Batch(BaseSettingGroup):
 
 		return [str(Path.cwd() / suffix)]  # Retourne le chemin courant si aucun fichiers
 
-	##################################################
+	# --------------------------------------------------
 	def get_stacks(self) -> list[np.ndarray]:
 		"""
 		Récupère la liste de piles en fonction des paramètres.
@@ -86,9 +86,10 @@ class Batch(BaseSettingGroup):
 
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def get_plane_count(self) -> int | None:
-		"""Retourne le nombre de plans du fichier courant ou de l'acquisition concaténée.
+		"""
+		Retourne le nombre de plans du fichier courant ou de l'acquisition concaténée.
 
 		:return: Nombre de plans, ou ``None`` si aucun fichier n'est sélectionné.
 		"""
@@ -109,7 +110,7 @@ class Batch(BaseSettingGroup):
 		return plane_count
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

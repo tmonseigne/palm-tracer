@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from contextlib import suppress
 from pathlib import Path
 from typing import Optional
 
@@ -25,7 +26,7 @@ except Exception:
 	_HAS_WEBENGINE = False
 
 
-##################################################
+# --------------------------------------------------
 class BasePlotlyWidget(QWidget):
 	"""
 	Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly.
@@ -44,7 +45,7 @@ class BasePlotlyWidget(QWidget):
 	PLOTLY_JS_URL = "https://cdn.plot.ly/plotly-3.4.0.min.js"
 	"""Adresse de secours de la bibliothèque JavaScript Plotly."""
 
-	##################################################
+	# --------------------------------------------------
 	def __init__(self, parent: Optional[QWidget] = None):
 		"""
 		Construit le widget et initialise l'interface.
@@ -66,10 +67,9 @@ class BasePlotlyWidget(QWidget):
 	# ==================================================
 	# region Widget Web Plotly
 	# ==================================================
-	##################################################
 	def _make_web_widget(self):
 		"""
-		Créé un Widget pour intégrer plotly.
+		Crée le widget d'affichage Plotly, avec une solution de repli textuelle.
 
 		:return: QWebEngineView ou QTextBrowser si indisponible.
 		"""
@@ -80,7 +80,7 @@ class BasePlotlyWidget(QWidget):
 			res.setText("<b>QtWebEngine unavailable</b><br>Install PyQtWebEngine for Plotly display.")
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def _get_plotly_js_url(self) -> QUrl:
 		"""
 		Construit l'URL locale vers le fichier JavaScript Plotly embarqué.
@@ -95,7 +95,7 @@ class BasePlotlyWidget(QWidget):
 			raise FileNotFoundError(f"Plotly JavaScript file not found: {self.PLOTLY_JS_PATH}")
 		return QUrl.fromLocalFile(str(self.PLOTLY_JS_PATH.resolve()))
 
-	##################################################
+	# --------------------------------------------------
 	def _build_plotly_shell_html(self) -> str:
 		"""
 		Construit la page HTML minimale contenant le conteneur Plotly.
@@ -164,7 +164,7 @@ class BasePlotlyWidget(QWidget):
 </html>
 """
 
-	##################################################
+	# --------------------------------------------------
 	def _load_plotly_page_once(self):
 		"""
 		Charge la page HTML minimale contenant Plotly une seule fois.
@@ -180,13 +180,13 @@ class BasePlotlyWidget(QWidget):
 		try: html = self._build_plotly_shell_html()
 		except FileNotFoundError as error:
 			print_warning(str(error))
-			self._web.setText(f"<b>Plotly unavailable</b><br>{error}")
+			self._web.setHtml(f"<b>Plotly unavailable</b><br>{error}")
 			return
 
 		self._web.setHtml(html, QUrl.fromLocalFile(str(Path(__file__).resolve().parent)))
 		self._plotly_page_loaded = True
 
-	##################################################
+	# --------------------------------------------------
 	def _update_web_widget(self):
 		"""
 		Met à jour le widget Web affichant la figure Plotly.
@@ -225,7 +225,7 @@ class BasePlotlyWidget(QWidget):
 		"""
 		self._web.page().runJavaScript(js)
 
-	##################################################
+	# --------------------------------------------------
 	def _connect_web_widget(self):
 		"""Connecte les signaux aux callbacks."""
 		if _HAS_WEBENGINE and isinstance(self._web, QWebEngineView):
@@ -233,7 +233,7 @@ class BasePlotlyWidget(QWidget):
 			profile.downloadRequested.connect(self._on_download_requested)
 			self._web.loadFinished.connect(self._update_web_widget)
 
-	##################################################
+	# --------------------------------------------------
 	def _on_download_requested(self, download):
 		"""Intercepte le téléchargement Plotly (Save image) pour demander explicitement où enregistrer le fichier."""
 		if not self._pending_download_path:
@@ -260,10 +260,10 @@ class BasePlotlyWidget(QWidget):
 	# ==================================================
 	# region Export Plotly
 	# ==================================================
-	##################################################
 	def _export_via_plotly_download(self, path: Path, fmt: str):
 		"""Export via Plotly.downloadImage (même mécanisme que le bouton caméra). Requiert QtWebEngine + QWebEngineView."""
-		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)): raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):
+			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		# Plotly va initier un téléchargement -> on capte le prochain downloadRequested
 		self._pending_download_path = str(path)
@@ -282,7 +282,7 @@ class BasePlotlyWidget(QWidget):
 	    """
 		self._web.page().runJavaScript(js)
 
-	##################################################
+	# --------------------------------------------------
 	def _on_export(self):
 		"""
 		Ouvre un dialogue et exporte la figure selon l'extension choisie.
@@ -298,7 +298,8 @@ class BasePlotlyWidget(QWidget):
 			- En l'absence de figure/HTML, avertit l'utilisateur.
 			- Sur échec d'écriture, affiche un message d'erreur.
 		"""
-		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)): raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
+		if not (_HAS_WEBENGINE and isinstance(self._web, QWebEngineView)):
+			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		if not self._html:
 			print_warning("No figures to export.")
@@ -324,7 +325,7 @@ class BasePlotlyWidget(QWidget):
 	# endregion Export Plotly
 	# ==================================================
 
-	##################################################
+	# --------------------------------------------------
 	def closeEvent(self, event: QCloseEvent):
 		"""Assure une destruction propre de QtWebEngine (évite warnings et crash à la sortie)."""
 		try:
@@ -337,8 +338,7 @@ class BasePlotlyWidget(QWidget):
 					self._web.setHtml("")  # Optionnel: libère le contenu HTML pour réduire l'activité pendant le teardown.
 
 					# Déconnecte proprement le signal de download (évite callbacks tardifs).
-					try: page.profile().downloadRequested.disconnect(self._on_download_requested)
-					except Exception: pass
+					with suppress(Exception): page.profile().downloadRequested.disconnect(self._on_download_requested)
 
 					# Destruction différée (Qt-safe).
 					page.deleteLater()
@@ -349,7 +349,7 @@ class BasePlotlyWidget(QWidget):
 		super().closeEvent(event)
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

@@ -8,7 +8,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import CheckBox, Combo, SpinInt
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class TrackAnalysis(BaseSettingGroup):
 	"""
@@ -25,17 +25,20 @@ class TrackAnalysis(BaseSettingGroup):
 
 	label: str = "Track Analysis"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {"MSD":               [CheckBox, ["MSD", "", False]],
-					"Instant Diffusion": [CheckBox, ["Instant Diffusion", "", False]],
-					"Fit Length":        [SpinInt, ["Fit Length", "", 4, [2, 1000], 1]],
-					"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]],
-					"3D":                [CheckBox, ["3D", "Use the Z-axis during track analysis.", False]]}
+	setting_list = {
+			"MSD":               [CheckBox, ["MSD", "", False]],
+			"Instant Diffusion": [CheckBox, ["Instant Diffusion", "", False]],
+			"Fit Length":        [SpinInt, ["Fit Length", "", 4, [2, 1000], 1]],
+			"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]],
+			"3D":                [CheckBox, ["3D", "Use the Z-axis during track analysis.", False]]
+			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

@@ -10,7 +10,7 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Button(BaseSettingType):
 	"""
@@ -20,12 +20,11 @@ class Button(BaseSettingType):
 	:param tooltip: Description affichée dans l'infobulle.
 	"""
 
-	##################################################
+	# --------------------------------------------------
 	def reset(self):
-		"""Réinitialise le paramètre à sa valeur par défaut."""
-		pass
+		"""Ne modifie aucun état : un bouton d'action ne possède pas de valeur à réinitialiser."""
 
-	##################################################
+	# --------------------------------------------------
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -39,10 +38,11 @@ class Button(BaseSettingType):
 		return ui
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()

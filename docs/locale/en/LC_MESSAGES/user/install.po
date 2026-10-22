@@ -1,6 +1,18 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: ../../user/install.rst:2
 msgid "Installation"
-msgstr "Installation"
+msgstr ""
 
 #: ../../user/install.rst:33
 msgid "Ce guide vous aidera à installer le projet étape par étape."
@@ -240,7 +252,7 @@ msgstr "All done! 🎉 You have successfully installed and configured the plugin
 
 #: ../../user/install.rst:145
 msgid "FAQ"
-msgstr "FAQ"
+msgstr ""
 
 #: ../../user/install.rst:148
 msgid "1. Pourquoi utiliser un environnement virtuel ?"

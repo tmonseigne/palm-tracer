@@ -1,3 +1,20 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-20 11:08+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Settings.Groups.FiltersL.rst:2
 msgid "FiltersL"
 msgstr ""
@@ -31,8 +48,8 @@ msgid "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRange
 msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): angular range; default value: ``[-90.0, 90.0]`` degrees."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:14
-msgid "``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des erreurs quadratiques moyennes ; valeur par défaut : ``[0.0, 1.0]``."
-msgstr "``MSE XY`` and ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): mean-squared-error ranges; default value: ``[0.0, 1.0]``."
+msgid "``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des scores de qualité ; valeur par défaut : ``[0.0, 1.0]``, plus grand = meilleur. Les noms historiques sont conservés : XY contient la corrélation de Pearson au carré, Z le score de compatibilité des sigmas défini dans :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`. Les anciens fichiers peuvent encore contenir une SSE pour Z."
+msgstr "``MSE XY`` and ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): quality score ranges; default value: ``[0.0, 1.0]``, higher = better. The historical names are retained: XY contains the squared Pearson correlation, and Z contains the sigma compatibility score defined in :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`. Existing files may still contain an SSE for Z."
 
 #: ../../api/palm_tracer.Settings.Groups.FiltersL.rst
 msgid "Paramètres"

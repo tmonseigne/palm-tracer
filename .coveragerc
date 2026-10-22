@@ -9,12 +9,11 @@ omit =
 	*/shibokensupport/*      ; shiboken créer des fichiers virtuels qui n'existent pas
     */signature_bootstrap.py ; idem
     */pyscript*              ; idem
-    palm_tracer/_tests/*
+    tests/*
     examples/*
     main.py
     conftest.py
     __init__.py
-    _version.py
 
 # Évite les messages "couldn't parse" restants lors du report (à cause de shiboken)
 ignore_errors = True
@@ -24,17 +23,10 @@ exclude_lines =
     pragma: no cover
 
 exclude_also =
-    if platform.system()
-    try
-	except
-	finally
-	GPU
 	# Cas particulier pour hack les importations cycliques
 	if TYPE_CHECKING:
 	# Aucun appel de fichier lors des tests pour le code coverage
 	if __name__ == "__main__":
-	# les if contenant _HAS_WEBENGINE sont la en cas de mauvaises installation donc non couvert à 100%
-	_HAS_WEBENGINE
     # Fonctions retournant un viewer Napari + QWidget
     ^\s*def create_.*-> tuple\[napari\.Viewer,\s*QWidget\]:
     # Fonctions prenant un viewer Napari en argument

@@ -14,11 +14,11 @@ from palm_tracer.Settings.Types.BaseCheckSetting import BaseCheckSetting
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
-##################################################
+# --------------------------------------------------
 class IntSelectionValidator(QValidator):
 	"""Valide la syntaxe d'une sélection de valeurs entières et d'intervalles."""
 
-	##################################################
+	# --------------------------------------------------
 	def validate(self, text: str, pos: int) -> tuple[QValidator.State, str, int]:
 		"""
 		Valide la syntaxe d'une sélection entière.
@@ -41,7 +41,7 @@ class IntSelectionValidator(QValidator):
 		return QValidator.State.Acceptable, text, pos
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class CheckIntSelection(BaseCheckSetting):
 	"""
@@ -63,7 +63,6 @@ class CheckIntSelection(BaseCheckSetting):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -85,13 +84,13 @@ class CheckIntSelection(BaseCheckSetting):
 		self._uis[name] = ui  # .					 Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> str:
 		"""Sélection actuelle sous sa forme textuelle normalisée (:class:`str`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: str):
 		"""Contrôle et normalise la modification de la sélection."""
@@ -104,7 +103,7 @@ class CheckIntSelection(BaseCheckSetting):
 
 		self.emit(value)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def ranges(self) -> list[tuple[int, int]]:
 		"""Intervalles correspondant à la sélection actuelle."""
@@ -117,7 +116,6 @@ class CheckIntSelection(BaseCheckSetting):
 	# ==================================================
 	# region Sélection
 	# ==================================================
-	##################################################
 	@staticmethod
 	def parse(value: str) -> list[tuple[int, int]]:
 		"""
@@ -153,7 +151,7 @@ class CheckIntSelection(BaseCheckSetting):
 
 		return merged
 
-	##################################################
+	# --------------------------------------------------
 	@classmethod
 	def normalize(cls, value: str) -> str:
 		"""
@@ -164,7 +162,7 @@ class CheckIntSelection(BaseCheckSetting):
 		"""
 		return ";".join(str(minimum) if minimum == maximum else f"{minimum}-{maximum}" for minimum, maximum in cls.parse(value))
 
-	##################################################
+	# --------------------------------------------------
 	def contains(self, value: int) -> bool:
 		"""
 		Indique si une valeur entière appartient à la sélection.
@@ -175,10 +173,11 @@ class CheckIntSelection(BaseCheckSetting):
 		return any(minimum <= value <= maximum for minimum, maximum in self.ranges)
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QPushButton, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -189,6 +188,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

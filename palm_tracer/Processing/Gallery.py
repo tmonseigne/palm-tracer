@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 
-##################################################
+# --------------------------------------------------
 def make_gallery(stack: np.ndarray, localizations: pd.DataFrame, roi_size: int, rois_per_line: int) -> np.ndarray:
 	"""
 	Génère une galerie d'images extraites d'une pile d'images en fonction des localisations spécifiées.

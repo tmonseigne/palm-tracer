@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
+from collections.abc import Hashable
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 
-from palm_tracer.Processing.Parsing import apply_dataframe_type, FILES_COLUMNS
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, apply_dataframe_type
 
 
 # ==================================================
 # region Validation et appariement
 # ==================================================
-##################################################
 @dataclass
 class _ActiveTrack:
 	"""
@@ -33,14 +34,15 @@ class _ActiveTrack:
 	"""Dernière position connue de la trajectoire."""  # Forme : (D,)
 
 
-##################################################
+# --------------------------------------------------
 def _check_cols(data: pd.DataFrame, required: set[str]):
 	"""Vérification rapide des colonnes."""
 	missing = sorted(required - set(data.columns))
-	if missing: raise ValueError(f"Missing columns in data: {missing}.")
+	if missing:
+		raise ValueError(f"Missing columns in data: {missing}.")
 
 
-##################################################
+# --------------------------------------------------
 def _check_planes(data: pd.DataFrame) -> np.ndarray:
 	"""
 	Vérifie les plans disponibles dans le DataFrame et leur continuité.
@@ -51,13 +53,13 @@ def _check_planes(data: pd.DataFrame) -> np.ndarray:
 	planes = np.array(sorted(pd.unique(data["Plane"])))
 	expected = np.arange(planes[0], planes[-1] + 1, dtype=planes.dtype)
 	if planes.size < 2:
-		raise ValueError(f"We need at least 2 planes.")
+		raise ValueError("We need at least 2 planes.")
 	if planes.size != expected.size or np.any(planes != expected):
 		raise ValueError(f"The planes are not consecutive: {planes}.")
 	return planes
 
 
-##################################################
+# --------------------------------------------------
 def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, n_points: int) -> tuple[np.ndarray, np.ndarray]:
 	"""
 	Assigne des suivis à des points du plan courant en gérant les collisions, à partir des résultats de :meth:`scipy.spatial.cKDTree.query` avec ``k>1``.
@@ -70,9 +72,9 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 	.. note:: Cette stratégie permet à un suivi de "prendre son 2ᵉ choix" si son meilleur candidat est déjà pris.
 
 	:param indices: Indices retournés par KDTree (forme (T, k) ou (T,) si k==1).
-	:param distances: Distances retournées par KDTree (même forme que ``ind``).
+	:param distances: Distances retournées par KDTree (même forme que ``indices``).
 	:param n_points: Nombre de points dans le plan courant (``tree.n``).
-	:returns: (keep_tracks, keep_points) indices des suivis (0..T-1) et points (0..P-1) retenus.
+	:return: (keep_tracks, keep_points) indices des suivis (0..T-1) et points (0..P-1) retenus.
 	"""
 	# Normalisation de la forme : (n, k)
 	if indices.ndim == 1: indices, distances = indices[:, None], distances[:, None]
@@ -98,7 +100,7 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 	keep_t: list[int] = []
 	keep_p: list[int] = []
 
-	for d, i, p_j in pairs:
+	for _distance, i, p_j in pairs:
 		if i in used_t or p_j in used_p: continue  # Le suivi/point a déjà été assigné
 		used_t.add(i)
 		used_p.add(p_j)
@@ -115,31 +117,32 @@ def _assign_tracks_to_points_greedy(indices: np.ndarray, distances: np.ndarray, 
 # ==================================================
 # region Extraction des billes
 # ==================================================
-##################################################
 def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> pd.DataFrame:
 	"""
-	Extrait des billes suivies à travers les plans en ne conservant que celles qui ont une correspondance dans **tous** les plans.
-	(du premier au dernier plan présent dans ``data``).
+	Extrait les billes possédant une correspondance dans **tous** les plans, du premier au dernier plan présent dans ``data``.
 
 	La correspondance entre deux plans consécutifs est réalisée avec une contrainte de distance euclidienne de type "sphère" :
-	:math:`\\sqrt{x^2+y^2+z^2} \\leq max_{distance}`
+	:math:`\\sqrt{(\\Delta x)^2+(\\Delta y)^2+(\\Delta z)^2} \\leq max_{distance}`.
+	En 2D, le terme associé à Z est omis. Avec ``strict=True``, l'inégalité est stricte.
 
 	En cas de multiples candidats, on choisit le plus proche en distance euclidienne.
 	Les conflits (un même point du plan suivant proposé pour plusieurs tracks) sont résolus par un appariement glouton sur les distances croissantes
 	(un point ne peut être assigné qu'à un seul track).
 
+	Une entrée vide ou l'absence de trajectoire complète renvoie un DataFrame vide, sans garantie sur ses colonnes.
+
 	:param data: DataFrame contenant au minimum les colonnes ``Plane``, ``X``, ``Y`` et ``Z``.
 		Chaque ligne représente une détection (un point) dans un plan donné.
-	:param max_distance: Distance maximale autorisée entre deux plans (en unités des coordonnées) selon la norme L∞.
+	:param max_distance: Distance euclidienne maximale autorisée entre deux plans, dans les unités des coordonnées.
 	:param is_3d: Si ``True``, utilise (X,Y,Z). Sinon, utilise uniquement (X,Y).
 	:param strict: Si ``True``, la distance doit être strictement inférieure à la distance maximale (comportement par défaut).
-	:param k: Nombre de correspondances maximum pour chaque point, permet de gérer les collisions de suivis (par défaut 4 maximum).
-		Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul correspondant ou aucun pour chaque point.
+	:param k: Nombre maximal de candidats examinés pour chaque suivi (4 par défaut), limité au nombre de localisations du plan suivant.
 
-	:returns: Un nouveau DataFrame ne contenant **que** les points appartenant à des billes valides,
+	:return: Un nouveau DataFrame ne contenant **que** les points appartenant à des billes valides,
 		avec une colonne ``Bead`` (1..N) indiquant l'identifiant de la bille. Les lignes sont triées par ``Bead`` puis ``Plane``.
 
-	:raises ValueError: Si des colonnes requises sont manquantes, ou si ``max_distance`` n'est pas strictement positif.
+	:raises ValueError: Si des colonnes requises sont manquantes, si les plans ne sont pas consécutifs ou sont moins de deux,
+		ou si ``max_distance`` n'est pas strictement positif.
 	"""
 	# ----- Vérifications initiales -----
 	if max_distance <= 0:
@@ -156,10 +159,12 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	planes = _check_planes(work)
 
 	# ----- Initialisation -----
-	by_plane: dict[int, pd.DataFrame] = {p: df for p, df in work.groupby("Plane", sort=False)}
+	# Itérer explicitement : dict(groupby) tenterait d'appeler son attribut « keys », qui contient ici « Plane ».
+	by_plane: dict[Hashable, pd.DataFrame] = {p: df for p, df in work.groupby("Plane", sort=False)}  # noqa: C416
 	coord_cols = ["X", "Y", "Z"] if is_3d else ["X", "Y"]
 
 	# --- petit utilitaire
+	# --------------------------------------------------
 	def _get_plane_infos(plane):
 		"""
 		Récupère rapidement les informations du plan.
@@ -189,12 +194,14 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 		dist, ind = tree.query(last, k=min(k, tree.n), p=p_norm, distance_upper_bound=max_distance, workers=-1)
 
 		# --- Résolution des collisions (en temps normal difficile à obtenir avec une densité une distance max cohérente.) ---
-		keep_t, keep_p = _assign_tracks_to_points_greedy(ind, dist, n_points=tree.n)
+		# L'entrée « last » est bidimensionnelle : query renvoie des tableaux, même pour un seul suivi ou voisin.
+		keep_t, keep_p = _assign_tracks_to_points_greedy(cast(np.ndarray, ind), cast(np.ndarray, dist), n_points=tree.n)
 		if keep_t.size == 0: return pd.DataFrame()
 
 		# --- Mise à jour des tracks actifs ---
 		new_active_tracks: list[_ActiveTrack] = []
-		for t_i, p_j in zip(keep_t.tolist(), keep_p.tolist(), strict=True):
+		# Les deux tableaux proviennent des mêmes affectations et ont donc la même longueur.
+		for t_i, p_j in zip(keep_t.tolist(), keep_p.tolist()):
 			t = active_tracks[t_i]  # .		Récupération d'un suivi valide
 			t.ids.append(i_p[p_j])  # .		Ajout du point au suivi
 			t.last_pos = c_p[p_j].copy()  # Remplacement de la dernière position.
@@ -216,7 +223,7 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 	return beads.sort_values(by=["Bead", "Plane"], kind="stable").reset_index(drop=True)  # Tri stable pour lisibilité.
 
 
-##################################################
+# --------------------------------------------------
 def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> pd.DataFrame:
 	"""
 	Met à jour data en lui enlevant les billes identifiées (correspondance exact sur Plane/X/Y/Z).
@@ -224,7 +231,7 @@ def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> 
 	:param data: Données de localisation (doit contenir Plane, X, Y, Z).
 	:param beads: Billes à retirer (doit contenir Plane, X, Y, Z).
 	:param decimals: Nombre de décimales conservées pour la comparaison (évite les problèmes d'arrondi float).
-	:returns: Copie de data sans les lignes correspondant aux billes.
+	:return: Copie de data sans les lignes correspondant aux billes.
 	"""
 	if data.empty or beads.empty: return data
 
@@ -249,7 +256,6 @@ def remove_beads(data: pd.DataFrame, beads: pd.DataFrame, decimals: int = 5) -> 
 # ==================================================
 # region Correction de la dérive
 # ==================================================
-##################################################
 def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
 	Calcule le drift moyen interplans à partir d'un DataFrame de billes suivies.
@@ -268,7 +274,7 @@ def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	                          Chaque bille doit avoir exactement une ligne par plan et les plans doivent être consécutifs.
 	:param is_3d: Si ``True``, calcule aussi le drift en Z. Sinon, la colonne Z est renvoyée à 0.
 
-	:returns: DataFrame avec colonnes ``Plane``, ``X``, ``Y``, ``Z`` contenant le drift moyen, pour les plans de 2 à N.
+	:return: DataFrame avec colonnes ``Plane``, ``X``, ``Y``, ``Z`` contenant le drift moyen, pour les plans de 2 à N.
 	:raises ValueError: Si des colonnes sont manquantes, ou incohérence de plans au sein des billes.
 	"""
 	# ----- Vérifications initiales -----
@@ -291,7 +297,7 @@ def get_drift(beads: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	return drift.sort_values(by=["Plane"], kind="stable").reset_index(drop=True)
 
 
-##################################################
+# --------------------------------------------------
 def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) -> pd.DataFrame:
 	"""
 	Applique une correction de drift à un DataFrame de points.
@@ -309,7 +315,7 @@ def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) ->
 	:param drift: DataFrame contenant au minimum ``Plane``, ``X``, ``Y`` ``Z``, typiquement pour les plans 2..N.
 	:param is_3d: Si ``True``, applique aussi la correction en Z.
 
-	:returns: Un nouveau DataFrame corrigé (mêmes colonnes que ``data``).
+	:return: Un nouveau DataFrame corrigé (mêmes colonnes que ``data``).
 	:raises ValueError: Si des colonnes sont manquantes dans ``data`` ou ``drift``.
 	"""
 	# ----- Vérifications initiales -----
@@ -338,20 +344,19 @@ def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) ->
 	return out
 
 
-##################################################
+# --------------------------------------------------
 def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = True, *, strict: bool = True, k: int = 4) -> tuple[pd.DataFrame, pd.DataFrame]:
 	"""
-	Trouve des billes au sein d'un jeu de donnée, calcule le drift et le corrige.
+	Extrait les billes, estime la dérive et la soustrait aux localisations.
 
 	:param data: DataFrame contenant au minimum les colonnes ``Plane``, ``X``, ``Y`` et ``Z``.
-	                         Chaque ligne représente une détection (un point) dans un plan donné.
-	:param max_distance: Distance maximale autorisée entre deux plans (en unités des coordonnées) selon la norme L∞.
+		Chaque ligne représente une détection (un point) dans un plan donné.
+	:param max_distance: Distance euclidienne maximale autorisée entre deux plans, dans les unités des coordonnées.
 	:param is_3d: Si ``True``, utilise (X,Y,Z). Sinon, utilise uniquement (X,Y).
 	:param strict: Si ``True``, la distance doit être strictement inférieure à la distance maximale (comportement par défaut).
-	:param k: Nombre maximal de correspondances autorisées pour chaque point. Permet de gérer les collisions de suivi (4 au maximum par défaut).
-	                  En pratique, avec des données et des paramètres cohérents, chaque point ne possède qu'une seule correspondance, voire aucune.
+	:param k: Nombre maximal de candidats examinés pour chaque suivi (4 par défaut), limité au nombre de localisations du plan suivant.
 
-	:returns: Les billes identifiées et un nouveau DataFrame ne contenant les données corrigées.
+	:return: Les billes identifiées et un nouveau DataFrame contenant les localisations corrigées.
 	"""
 
 	beads = extract_beads(data, max_distance=max_distance, is_3d=is_3d, strict=strict, k=k)
@@ -366,7 +371,6 @@ def drift_correction(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = 
 # ==================================================
 # region Filtrage
 # ==================================================
-##################################################
 def median_filter_centered(data: np.ndarray, size: int = 5) -> np.ndarray:
 	"""
 	Applique un filtre médian centré sur un signal 1D ou sur un tableau 2D ``(nb_points, nb_axes)``.
@@ -408,3 +412,7 @@ def median_filter_centered(data: np.ndarray, size: int = 5) -> np.ndarray:
 		result[idx] = np.nanmedian(work[start:end], axis=0)
 
 	return result[:, 0] if is_1d else result
+
+# ==================================================
+# endregion Filtrage
+# ==================================================

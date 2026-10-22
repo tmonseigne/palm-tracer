@@ -13,7 +13,7 @@ from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class BrowseFile(BaseSettingType):
 	"""
@@ -32,7 +32,6 @@ class BrowseFile(BaseSettingType):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -53,13 +52,13 @@ class BrowseFile(BaseSettingType):
 		self._uis[name] = ui  # .							Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> str:
 		"""Valeur actuelle du paramètre (:class:`str`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: str):
 		"""Valeur actuelle du paramètre (:class:`str`)."""
@@ -78,7 +77,6 @@ class BrowseFile(BaseSettingType):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-	##################################################
 	def browse_file(self):
 		"""Ouvre un dialogue de sélection de fichiers et mets à jour la boîte avec le chemin sélectionné."""
 		current = Path(self.value)
@@ -89,10 +87,11 @@ class BrowseFile(BaseSettingType):
 		if Path(path).is_file(): self.value = path  # Mets à jour le chemin dans la boîte de texte
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QWidget, QFormLayout
+
+	from qtpy.QtWidgets import QFormLayout, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -103,6 +102,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

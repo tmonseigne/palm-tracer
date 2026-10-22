@@ -15,7 +15,7 @@ from palm_tracer.Settings.Types import CheckBox, CheckInt, CheckRangeInt
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Filters(BaseSettingGroup):
 	"""
@@ -49,25 +49,25 @@ class Filters(BaseSettingGroup):
 	buttons: dict[str, dict[str, QPushButton]] = field(init=False, default_factory=lambda: dict[str, dict[str, QPushButton]]())
 	"""Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`) pour chaque UI."""
 
-	##################################################
+	# --------------------------------------------------
 	def __post_init__(self):
 		"""Finalise l'initialisation de l'instance."""
 		super().__post_init__()
 		self.active = True
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def localization(self) -> FiltersL:
 		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(FiltersL, self._settings["Localization"])
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def tracking(self) -> FiltersT:
 		"""Groupe de paramètres liés aux filtres sur le suivi (:class:`~palm_tracer.Settings.Groups.FiltersT.FiltersT`)."""
 		return cast(FiltersT, self._settings["Tracks"])
 
-	##################################################
+	# --------------------------------------------------
 	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
 		ui = super().get_ui(name, mode)
 		ui.body_layout.setContentsMargins(5, 0, 0, 0)  # Très léger décalage.
@@ -87,7 +87,7 @@ class Filters(BaseSettingGroup):
 		ui.layout.addRow(actions)
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	def deactivate_filters(self):
 		"""Désactive tous les filtres."""
 		self._settings["Save"].value = False
@@ -97,7 +97,7 @@ class Filters(BaseSettingGroup):
 		ft = cast(FiltersT, self._settings["Tracks"])
 		ft.deactivate_filters()
 
-	##################################################
+	# --------------------------------------------------
 	def update_limits(self, plane_max: int | None = None):
 		"""Met à jour le min et le max de certains filtres."""
 		with self.signal_blocked():
@@ -108,7 +108,7 @@ class Filters(BaseSettingGroup):
 				s = cast(CheckRangeInt, ft["Length"])
 				s.limits = [s.limits[0], plane_max]
 
-	##################################################
+	# --------------------------------------------------
 	def connect_button(self, f: Any, ui_name: str = "default", name: str = "reset"):
 		"""
 		Connecte un bouton directement et non le paramètre en lui-même.
@@ -120,7 +120,7 @@ class Filters(BaseSettingGroup):
 		if ui_name in self.buttons and name in self.buttons[ui_name]:
 			self.buttons[ui_name][name].clicked.connect(f)
 
-	##################################################
+	# --------------------------------------------------
 	def show_part(self, ui_name: str = "default", localization: bool = True, tracking: bool = True):
 		"""
 		Affiche/Cache les parties à filtrer.
@@ -133,9 +133,10 @@ class Filters(BaseSettingGroup):
 		self.tracking.get_ui(ui_name).show() if tracking else self.tracking.get_ui(ui_name).hide()
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
+
 	from qtpy.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 	app = QApplication(sys.argv)

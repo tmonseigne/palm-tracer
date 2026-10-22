@@ -1,3 +1,17 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"POT-Creation-Date: 2026-10-13 18:13+0200\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Settings.Types.ColorMap.rst:2
 msgid "ColorMap"
 msgstr ""
@@ -56,10 +70,6 @@ msgstr "Number of sampled colors used to draw a preview."
 msgid "Préfixe de l'entrée temporaire créée par le sélecteur de couleur."
 msgstr "Prefix of the temporary entry created by the color picker."
 
-#: of palm_tracer.Settings.Types.ColorMap.ColorMap.items:1
-msgid "Récupère la liste des éléments."
-msgstr "Returns the list of items."
-
 #: ../../api/palm_tracer.Settings.Types.ColorMap.rst:19
 msgid "Méthodes"
 msgstr "Methods"
@@ -84,8 +94,7 @@ msgstr "Returns"
 msgid "Interface du paramètre."
 msgstr "Parameter interface."
 
-#: ../../api/palm_tracer.Settings.Types.ColorMap.rst of
-#: palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict
+#: ../../api/palm_tracer.Settings.Types.ColorMap.rst
 msgid "Type renvoyé"
 msgstr "Return type"
 
@@ -133,6 +142,6 @@ msgstr "Serialization"
 msgid "Renvoie le paramètre sans inclure la colormap personnalisée temporaire."
 msgstr "Returns the parameter without including the temporary custom colormap."
 
-#: of palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict:5
+#: of palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict:3
 msgid "Dictionnaire sérialisable sans la colormap personnalisée temporaire."
 msgstr "Serializable dictionary without the temporary custom colormap."

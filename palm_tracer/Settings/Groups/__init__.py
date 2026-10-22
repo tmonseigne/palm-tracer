@@ -19,8 +19,8 @@ from .HR3D import HR3D
 from .HRGaussian import HRGaussian
 from .Localization import Localization
 from .SplineFit import SplineFit
-from .Tracking import Tracking
 from .TrackAnalysis import TrackAnalysis
+from .Tracking import Tracking
 from .Visualization3D import Visualization3D
 
 # Définir la liste des symboles exportés

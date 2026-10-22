@@ -13,7 +13,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class SpinInt(BaseSettingType):
 	"""
@@ -39,7 +39,6 @@ class SpinInt(BaseSettingType):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -56,13 +55,13 @@ class SpinInt(BaseSettingType):
 		self._uis[name] = ui  # .							Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> int:
 		"""Valeur actuelle du paramètre (:class:`int`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: int):
 		"""Valeur actuelle du paramètre (:class:`int`)."""
@@ -75,10 +74,11 @@ class SpinInt(BaseSettingType):
 		self.emit(value)
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QPushButton, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -89,6 +89,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

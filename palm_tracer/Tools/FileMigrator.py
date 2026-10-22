@@ -10,11 +10,11 @@ from typing import NamedTuple
 import numpy as np
 import pandas as pd
 
-from palm_tracer.Processing.Parsing import FILES_COLUMNS, get_meta, MODEL_ROWS, N_COL_META
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, N_COL_META, get_meta
 from palm_tracer.Tools import FileIO, Ui
 
 
-##################################################
+# --------------------------------------------------
 class Link(NamedTuple):
 	"""
 	Associe un ancien nom de fichier à son nouveau suffixe.
@@ -29,7 +29,7 @@ class Link(NamedTuple):
 	"""Nouveau nom de colonne."""
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class FileMigrator:
 	"""
@@ -65,7 +65,6 @@ class FileMigrator:
 	# ==================================================
 	# region Analyse et orchestration
 	# ==================================================
-	##################################################
 	def open(self, folder: Path):
 		"""
 		Sélectionne le dossier d'entrée contenant les résultats PALMTracer.
@@ -86,7 +85,7 @@ class FileMigrator:
 			raise ValueError(f"Input folder should be named like 'something.PT' (MetaMorph output): {folder}")
 		self.input_folder = folder
 
-	##################################################
+	# --------------------------------------------------
 	def analyze(self):
 		"""
 		Analyse :attr:`input_folder` et classe les fichiers reconnus par catégorie.
@@ -112,7 +111,7 @@ class FileMigrator:
 		# Tri pour reproductibilité (tests / logs).
 		for key in self.files: self.files[key].sort(key=lambda x: x.as_posix())
 
-	##################################################
+	# --------------------------------------------------
 	def migrate(self):
 		"""
 		Lance la migration vers le format récent.
@@ -152,12 +151,11 @@ class FileMigrator:
 	# ==================================================
 	# region Migration des fichiers
 	# ==================================================
-	##################################################
 	def make_meta(self):
 		"""Écriture du fichier méta uniquement si au moins une valeur est différente de -1."""
 		if (self.meta != -1).any().any(): self.meta.to_csv(self.output_folder / f"meta-{self.suffix}.csv", index=False)
 
-	##################################################
+	# --------------------------------------------------
 	def update_meta(self, column: str, v: int | float):
 		"""
 		Met à jour l'objet meta et vérifie si une valeur différente est présente.
@@ -171,7 +169,7 @@ class FileMigrator:
 			Ui.print_warning(f"Warning that the '{column}' metadata differs between several files to be migrated ({ref} VS {v}). "
 							 f"The first one ({ref}) will be retained.")
 
-	##################################################
+	# --------------------------------------------------
 	def migrate_localization(self):
 		"""
 		Migre le fichier de localisations PALMTracer vers le format courant.
@@ -200,7 +198,7 @@ class FileMigrator:
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['loc'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("Localization file migrated.")
 
-	##################################################
+	# --------------------------------------------------
 	def migrate_tracks(self):
 		"""
 		Migre le fichier de tracking PALMTracer vers le format courant.
@@ -228,7 +226,7 @@ class FileMigrator:
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['trc'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("Tracking file migrated.")
 
-	##################################################
+	# --------------------------------------------------
 	def migrate_astigmatism_3d_model(self):
 		"""
 		Migre le fichier de modèle d'astigmatisme 3D PALMTracer.
@@ -250,7 +248,7 @@ class FileMigrator:
 			data.to_csv(self.output_folder / f"astigmatism_3d_model-{self.suffix}.csv")  # Enregistrement
 			Ui.print_success("Astigmatism 3D Model file migrated.")
 
-	##################################################
+	# --------------------------------------------------
 	def migrate_tracks_msd(self):
 		"""
 		Migre le fichier MSD (Mean Square Displacement) PALMTracer.
@@ -274,7 +272,7 @@ class FileMigrator:
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['MSD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("MSD file migrated.")
 
-	##################################################
+	# --------------------------------------------------
 	def migrate_tracks_instant_diffusion(self):
 		"""
 		Migre le fichier de diffusion instantanée PALMTracer.
@@ -298,7 +296,7 @@ class FileMigrator:
 			data.to_csv(self.output_folder / f"{self.FILES_LINK['InD'].new}-{self.suffix}.csv", index=False)  # Enregistrement
 			Ui.print_success("Instant Diffusion file migrated.")
 
-	##################################################
+	# --------------------------------------------------
 	def migrate_tracks_fit(self):
 		"""
 		Migre le fichier d'ajustement de trajectoires PALMTracer.
@@ -341,7 +339,6 @@ class FileMigrator:
 	# ==================================================
 	# region Outils de conversion
 	# ==================================================
-	##################################################
 	@staticmethod
 	def open_old_file(file: Path, header: bool = True, skiprows: int = 2, sep: str = "\t") -> tuple[pd.DataFrame, list[str]]:
 		"""
@@ -373,7 +370,7 @@ class FileMigrator:
 		df = pd.read_csv(file, sep=sep, header=0 if header else None, skiprows=skiprows, engine="python")  # On récupère le tableau
 		return df, header_lines
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def open_old_irregular_file(file: Path, skiprows: int = 2, sep: str = "\t", ) -> tuple[pd.DataFrame, list[str]]:
 		"""
@@ -427,7 +424,7 @@ class FileMigrator:
 
 		return pd.DataFrame(rect_rows), header_lines
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def column_migrator(name: str) -> str:
 		"""
@@ -470,7 +467,7 @@ class FileMigrator:
 		if s == "msez": return "MSE Z"
 		return s
 
-	##################################################
+	# --------------------------------------------------
 	def dataframe_migrator(self, data: pd.DataFrame, target_cols: list[str]) -> pd.DataFrame:
 		"""
 		Normalise un DataFrame PALMTracer vers un schéma de colonnes cible.

@@ -1,10 +1,22 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: ../../cdc.rst:2
 msgid "Cahier des charges PALM Tracer Python"
 msgstr "PALM Tracer Python specifications"
 
 #: ../../cdc.rst:11
 msgid "Description"
-msgstr "Description"
+msgstr ""
 
 #: ../../cdc.rst:13
 msgid "Le but du projet est de transposer `PALM Tracer <https://www.iins.u-bordeaux.fr/projectSIBARITA70>`_ présent en tant que plugin de `Metamorph <https://fr.moleculardevices.com/products/cellular-imaging-systems/high-content-analysis/metamorph-microscopy>`_."
@@ -187,6 +199,7 @@ msgid "Affichage d'un histogramme shrinkable"
 msgstr "Display of a shrinkable histogram."
 
 #: ../../cdc.rst:88
+#, no-python-format
 msgid "Proposition d'avoir une checkbox pour auto shrink les images (valeur par défaut 0.5% de l'histogramme \"blanc\" à l'air cohérent avec les images passées en exemple, mais paramètre modifiable)"
 msgstr "Proposal to include a checkbox for automatic image shrinking (default value: 0.5% of the \"white\" histogram, which appears consistent with the provided example images, but remains configurable)."
 
@@ -208,7 +221,7 @@ msgstr "Play/pause of individual frames."
 
 #: ../../cdc.rst:95
 msgid "Processing"
-msgstr "Processing"
+msgstr ""
 
 #: ../../cdc.rst:97
 msgid "Options d'acquisition (pixel size, exposition…)"
@@ -248,7 +261,7 @@ msgstr "3D-related options?"
 
 #: ../../cdc.rst:106 ../../cdc.rst:125
 msgid "Tracking"
-msgstr "Tracking"
+msgstr ""
 
 #: ../../cdc.rst:107
 msgid "Distance max (unité à définir correctement on parle en pixel, µm ou autre ?)"
@@ -424,7 +437,7 @@ msgstr "**Different processes**: When different processes lead to similar result
 
 #: ../../cdc.rst:186
 msgid "Documentation"
-msgstr "Documentation"
+msgstr ""
 
 #: ../../cdc.rst:188
 msgid "La documentation sera répartie en plusieurs parties générées dynamiquement ou statiquement selon les cas. Les différentes parties seront :"

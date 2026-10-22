@@ -12,7 +12,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class ButtonGroup(BaseSettingType):
 	"""
@@ -38,7 +38,6 @@ class ButtonGroup(BaseSettingType):
 	# ==================================================
 	# region Accesseurs
 	# ==================================================
-	##################################################
 	def get_ui(self, name: str = "default") -> BaseUIType:
 		if name in self._uis: return self._uis[name]
 
@@ -53,13 +52,13 @@ class ButtonGroup(BaseSettingType):
 		self._uis[name] = ui  # .									  Ajoute l'UI au dictionnaire
 		return ui
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def value(self) -> int:
 		"""Valeur actuelle du paramètre (position dans la liste en :class:`int`)."""
 		return self._value
 
-	##################################################
+	# --------------------------------------------------
 	@value.setter
 	def value(self, value: int):
 		"""Valeur actuelle du paramètre (position dans la liste en :class:`int`)."""
@@ -70,13 +69,13 @@ class ButtonGroup(BaseSettingType):
 
 		self.emit(value)
 
-	##################################################
+	# --------------------------------------------------
 	@property
 	def current_text(self) -> str:
 		"""Valeur actuelle du paramètre (élément dans la liste en :class:`str`)."""
 		return self._items[self.value] if 0 <= self.value < len(self._items) else ""
 
-	##################################################
+	# --------------------------------------------------
 	def active_item(self, item_id: int, active: bool):
 		"""
 		Active ou désactive une option du groupe de boutons.
@@ -87,10 +86,11 @@ class ButtonGroup(BaseSettingType):
 		for ui in self._uis.values(): ui.boxes[item_id].setEnabled(active)
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
-	from qtpy.QtWidgets import QApplication, QWidget, QFormLayout, QPushButton
+
+	from qtpy.QtWidgets import QApplication, QFormLayout, QPushButton, QWidget
 
 	app = QApplication(sys.argv)
 	w = QWidget()
@@ -101,6 +101,7 @@ if __name__ == "__main__":
 	counter = 0
 
 
+	# --------------------------------------------------
 	def add_setting_ui():
 		"""Ajoute une nouvelle interface du paramètre au formulaire."""
 		global counter

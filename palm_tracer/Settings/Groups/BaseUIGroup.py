@@ -10,7 +10,7 @@ from qtpy.QtWidgets import QCheckBox, QFormLayout, QHBoxLayout, QLabel, QWidget
 from palm_tracer.Tools import Ui
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class BaseUIGroup:
 	"""
@@ -38,7 +38,7 @@ class BaseUIGroup:
 	body_layout: QFormLayout = field(init=False)
 	"""Calque du corps du groupe (:class:`QFormLayout`)."""
 
-	##################################################
+	# --------------------------------------------------
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		header = None
@@ -78,7 +78,6 @@ class BaseUIGroup:
 	# ==================================================
 	# region Gestion de la mise en page
 	# ==================================================
-	##################################################
 	def attach_to_form(self, form: QFormLayout):
 		"""
 		Ajoute l'interface du groupe à un formulaire.
@@ -87,17 +86,17 @@ class BaseUIGroup:
 		"""
 		form.addRow(self.layout)
 
-	##################################################
+	# --------------------------------------------------
 	def hide(self):
 		"""Cache le groupe de paramètres."""
 		self.widget.hide()
 
-	##################################################
+	# --------------------------------------------------
 	def show(self):
 		"""Affiche le groupe de paramètres."""
 		self.widget.show()
 
-	##################################################
+	# --------------------------------------------------
 	def active(self, state: bool):
 		"""
 		Affiche ou cache le corps du groupe.

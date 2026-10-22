@@ -12,7 +12,7 @@ from palm_tracer.Settings.Groups import Filters
 from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, CheckRangeInt
 
 
-##################################################
+# --------------------------------------------------
 class Filtering:
 	"""
 	Applique les paramètres de filtrage aux localisations et aux trajectoires.
@@ -26,7 +26,7 @@ class Filtering:
 	rois: ROIManager
 	"""Gestionnaire des zones d'intérêt du filtrage spatial."""
 
-	##################################################
+	# --------------------------------------------------
 	def __init__(self, filters: Filters, rois: ROIManager):
 		"""
 		Initialise l'instance.
@@ -37,7 +37,7 @@ class Filtering:
 		self.filters = filters
 		self.rois = rois
 
-	##################################################
+	# --------------------------------------------------
 	def localization(self, datas: pd.DataFrame) -> pd.DataFrame:
 		"""
 		Filtre un DataFrame de localisation.
@@ -55,12 +55,12 @@ class Filtering:
 				   [f["MSE XY"], "MSE XY"], [f["MSE Z"], "MSE Z"]]
 
 		for filt, col in filters:
-			if isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
+			if isinstance(filt, (CheckRangeFloat, CheckRangeInt)) and filt.active:
 				limits = filt.value
 				res = res[res[col].between(limits[0], limits[1])]  # Bornes incluses
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def tracking(self, datas: pd.DataFrame) -> pd.DataFrame:
 		"""
 		Filtre un DataFrame de trajectoires.
@@ -87,7 +87,7 @@ class Filtering:
 
 		# Filtre sur les identifiants de trajectoire
 		if track_filter.active and not res.empty:
-			mask = np.zeros(len(res), dtype=bool)
+			mask: np.ndarray = np.zeros(len(res), dtype=bool)
 			for minimum, maximum in track_filter.ranges: mask |= res["Track"].between(minimum, maximum).to_numpy()
 			res = res[mask]
 
@@ -111,7 +111,7 @@ class Filtering:
 		res = res[res["Track"].isin(keep_ids)]
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def track_analysis(self, tracks: pd.DataFrame, msd: pd.DataFrame, instant_d: pd.DataFrame,
 					   fit: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 		"""
@@ -175,7 +175,7 @@ class Filtering:
 						[f["Confinement"], "Confinement Radius (μm)"]]
 
 				for filt, col in filters:
-					if col in o_fit.columns and isinstance(filt, CheckRangeFloat | CheckRangeInt) and filt.active:
+					if col in o_fit.columns and isinstance(filt, (CheckRangeFloat, CheckRangeInt)) and filt.active:
 						limits = filt.value
 						o_fit = o_fit[o_fit[col].between(limits[0], limits[1])]  # Bornes incluses
 

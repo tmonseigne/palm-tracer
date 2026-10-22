@@ -1,57 +1,76 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"POT-Creation-Date: 2026-10-13 18:13+0200\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
 #: ../../api/palm_tracer.Processing.Drift.rst:2
 msgid "Drift"
-msgstr "Drift"
+msgstr ""
 
 #: of palm_tracer.Processing.Drift:1
 msgid "Fournit les fonctions d'extraction des billes et de correction de la dérive."
 msgstr "Provides bead-extraction and drift-correction functions."
 
 #: of palm_tracer.Processing.Drift.extract_beads:1
-msgid "Extrait des billes suivies à travers les plans en ne conservant que celles qui ont une correspondance dans **tous** les plans. (du premier au dernier plan présent dans ``data``)."
-msgstr "Extracts the beads tracked across the planes, retaining only those that have a match in **all** planes (from the first to the last plane present in ``data``)."
+msgid "Extrait les billes possédant une correspondance dans **tous** les plans, du premier au dernier plan présent dans ``data``."
+msgstr "Extracts beads with a match in **all** planes, from the first to the last plane present in ``data``."
 
-#: of palm_tracer.Processing.Drift.extract_beads:4
+#: of palm_tracer.Processing.Drift.extract_beads:3
 #, python-brace-format
-msgid "La correspondance entre deux plans consécutifs est réalisée avec une contrainte de distance euclidienne de type \"sphère\" : :math:`\\sqrt{x^2+y^2+z^2} \\leq max_{distance}`"
-msgstr "The correspondence between two consecutive planes is established using a Euclidean distance constraint of the \"sphere\" type: :math:`\\sqrt{x^2+y^2+z^2} \\leq max_{distance}`"
+msgid "La correspondance entre deux plans consécutifs est réalisée avec une contrainte de distance euclidienne de type \"sphère\" : :math:`\\sqrt{(\\Delta x)^2+(\\Delta y)^2+(\\Delta z)^2} \\leq max_{distance}`. En 2D, le terme associé à Z est omis. Avec ``strict=True``, l'inégalité est stricte."
+msgstr "Matching between consecutive planes uses a spherical Euclidean distance constraint: :math:`\\sqrt{(\\Delta x)^2+(\\Delta y)^2+(\\Delta z)^2} \\leq max_{distance}`. In 2D, the Z term is omitted. With ``strict=True``, the inequality is strict."
 
 #: of palm_tracer.Processing.Drift.extract_beads:7
 msgid "En cas de multiples candidats, on choisit le plus proche en distance euclidienne. Les conflits (un même point du plan suivant proposé pour plusieurs tracks) sont résolus par un appariement glouton sur les distances croissantes (un point ne peut être assigné qu'à un seul track)."
 msgstr "In case of multiple candidates, the one closest in Euclidean distance is chosen. Conflicts (the same point in the next proposed plane for multiple tracks) are resolved by a greedy matching on increasing distances (a point can only be assigned to a single track)."
+
+#: of palm_tracer.Processing.Drift.extract_beads:11
+msgid "Une entrée vide ou l'absence de trajectoire complète renvoie un DataFrame vide, sans garantie sur ses colonnes."
+msgstr "Empty input or the absence of a complete track returns an empty DataFrame, with no guarantee about its columns."
 
 #: ../../api/palm_tracer.Processing.Drift.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
 #: of palm_tracer.Processing.Drift.drift_correction:3
-#: palm_tracer.Processing.Drift.extract_beads:11
+#: palm_tracer.Processing.Drift.extract_beads:13
 msgid "DataFrame contenant au minimum les colonnes ``Plane``, ``X``, ``Y`` et ``Z``. Chaque ligne représente une détection (un point) dans un plan donné."
 msgstr "DataFrame containing at least the columns ``Plane``, ``X``, ``Y``, and ``Z``. Each row represents a detection (a point) in a given plane."
 
 #: of palm_tracer.Processing.Drift.drift_correction:5
-#: palm_tracer.Processing.Drift.extract_beads:13
-msgid "Distance maximale autorisée entre deux plans (en unités des coordonnées) selon la norme L∞."
-msgstr "Maximum allowed distance between two planes (in coordinate units) according to the L∞ norm."
+#: palm_tracer.Processing.Drift.extract_beads:15
+msgid "Distance euclidienne maximale autorisée entre deux plans, dans les unités des coordonnées."
+msgstr "Maximum Euclidean distance allowed between two planes, in coordinate units."
 
 #: of palm_tracer.Processing.Drift.drift_correction:6
-#: palm_tracer.Processing.Drift.extract_beads:14
+#: palm_tracer.Processing.Drift.extract_beads:16
 msgid "Si ``True``, utilise (X,Y,Z). Sinon, utilise uniquement (X,Y)."
 msgstr "If ``True``, use (X,Y,Z). Otherwise, use only (X,Y)."
 
 #: of palm_tracer.Processing.Drift.drift_correction:7
-#: palm_tracer.Processing.Drift.extract_beads:15
+#: palm_tracer.Processing.Drift.extract_beads:17
 msgid "Si ``True``, la distance doit être strictement inférieure à la distance maximale (comportement par défaut)."
 msgstr "If ``True``, the distance must be strictly less than the maximum distance (default behavior)."
 
-#: of palm_tracer.Processing.Drift.extract_beads:16
-msgid "Nombre de correspondances maximum pour chaque point, permet de gérer les collisions de suivis (par défaut 4 maximum). Dans la réalité, avec des données et paramètres cohérents, il n'y aura qu'un seul correspondant ou aucun pour chaque point."
-msgstr "Maximum number of matches for each point, used to manage tracking collisions (default maximum of 4). In practice, with consistent data and settings, there will be only one match or none for each point."
+#: of palm_tracer.Processing.Drift.drift_correction:8
+#: palm_tracer.Processing.Drift.extract_beads:18
+msgid "Nombre maximal de candidats examinés pour chaque suivi (4 par défaut), limité au nombre de localisations du plan suivant."
+msgstr "Maximum number of candidates examined for each track (4 by default), limited to the number of localizations in the next plane."
 
 #: ../../api/palm_tracer.Processing.Drift.rst
 msgid "Renvoie"
 msgstr "Returns"
 
-#: of palm_tracer.Processing.Drift.extract_beads:19
+#: of palm_tracer.Processing.Drift.extract_beads:20
 msgid "Un nouveau DataFrame ne contenant **que** les points appartenant à des billes valides, avec une colonne ``Bead`` (1..N) indiquant l'identifiant de la bille. Les lignes sont triées par ``Bead`` puis ``Plane``."
 msgstr "A new DataFrame containing **only** the points belonging to valid beads, with a ``Bead`` column (1..N) indicating the bead ID. The rows are sorted by ``Bead`` and then by ``Plane``."
 
@@ -59,9 +78,9 @@ msgstr "A new DataFrame containing **only** the points belonging to valid beads,
 msgid "Lève"
 msgstr "Raise"
 
-#: of palm_tracer.Processing.Drift.extract_beads:22
-msgid "Si des colonnes requises sont manquantes, ou si ``max_distance`` n'est pas strictement positif."
-msgstr "If required columns are missing, or if ``max_distance`` is not strictly positive."
+#: of palm_tracer.Processing.Drift.extract_beads:23
+msgid "Si des colonnes requises sont manquantes, si les plans ne sont pas consécutifs ou sont moins de deux, ou si ``max_distance`` n'est pas strictement positif."
+msgstr "If required columns are missing, if the planes are not consecutive or fewer than two, or if ``max_distance`` is not strictly positive."
 
 #: ../../api/palm_tracer.Processing.Drift.rst
 msgid "Type renvoyé"
@@ -179,16 +198,12 @@ msgid "Si des colonnes sont manquantes dans ``data`` ou ``drift``."
 msgstr "If columns are missing in ``data`` or ``drift``."
 
 #: of palm_tracer.Processing.Drift.drift_correction:1
-msgid "Trouve des billes au sein d'un jeu de donnée, calcule le drift et le corrige."
-msgstr "Finds beads within a dataset, calculates the drift, and corrects it."
+msgid "Extrait les billes, estime la dérive et la soustrait aux localisations."
+msgstr "Extracts beads, estimates drift, and subtracts it from the localizations."
 
-#: of palm_tracer.Processing.Drift.drift_correction:8
-msgid "Nombre maximal de correspondances autorisées pour chaque point. Permet de gérer les collisions de suivi (4 au maximum par défaut). En pratique, avec des données et des paramètres cohérents, chaque point ne possède qu'une seule correspondance, voire aucune."
-msgstr "Maximum number of matches for each point, used to manage tracking collisions (default is 4). In practice, with consistent data and settings, there will be only one match or none for each point."
-
-#: of palm_tracer.Processing.Drift.drift_correction:11
-msgid "Les billes identifiées et un nouveau DataFrame ne contenant les données corrigées."
-msgstr "The identified beads and a new DataFrame containing the corrected data."
+#: of palm_tracer.Processing.Drift.drift_correction:10
+msgid "Les billes identifiées et un nouveau DataFrame contenant les localisations corrigées."
+msgstr "The identified beads and a new DataFrame containing the corrected localizations."
 
 #: of palm_tracer.Processing.Drift.median_filter_centered:1
 msgid "Applique un filtre médian centré sur un signal 1D ou sur un tableau 2D ``(nb_points, nb_axes)``."

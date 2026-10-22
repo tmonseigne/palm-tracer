@@ -20,7 +20,7 @@ C_IMG, C_TAB_DBL, C_TAB_UINT = ctypes.POINTER(ctypes.c_uint16), ctypes.POINTER(c
 C_UINT, C_BOOL, C_DBL = ctypes.c_uint64, ctypes.c_bool, ctypes.c_double
 
 
-##################################################
+# --------------------------------------------------
 @dataclass
 class Palm:
 	"""
@@ -37,13 +37,12 @@ class Palm:
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self._dll = FileIO.load_dll(self._type)
 		self._bind()
 
-	##################################################
+	# --------------------------------------------------
 	def is_valid(self) -> bool:
 		"""
 		Vérifie la validité de la DLL utilisée pour PALM.
@@ -52,7 +51,7 @@ class Palm:
 		"""
 		return self._dll is not None
 
-	##################################################
+	# --------------------------------------------------
 	def _bind(self):
 		"""Déclare les signatures ctypes (argtypes/restype) une seule fois."""
 
@@ -110,7 +109,6 @@ class Palm:
 	# ==================================================
 	# region Analyse des arguments
 	# ==================================================
-	##################################################
 	@staticmethod
 	def _as_c_contig(a: np.ndarray, dtype: np.dtype, *, writeable: bool) -> np.ndarray:
 		"""
@@ -121,15 +119,13 @@ class Palm:
 		:param writeable: Garantit un buffer modifiable si True.
 		:return: Tableau C-contigu compatible DLL.
 		"""
-		if not isinstance(a, np.ndarray): a = np.asarray(a)
-
 		# Vérification de copie nécessaire ou non
 		if (a.dtype != dtype) or (not a.flags["C_CONTIGUOUS"]) or (writeable and not a.flags["WRITEABLE"]):
 			a = np.ascontiguousarray(a, dtype=dtype)  # Rend contigu
 			if writeable: a.setflags(write=True)  # .	Rend modifiable ou non
 		return a
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def max_allocation_bytes(fraction_available: float = 0.5, safety_gb: int = 1) -> int:
 		"""
@@ -153,7 +149,6 @@ class Palm:
 	# region Appels de la DLL
 	# ==================================================
 
-	##################################################
 	def localization(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray,
 					 planes: Optional[list[int]] = None) -> pd.DataFrame:
 		"""
@@ -172,8 +167,8 @@ class Palm:
 		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)  # .	 Assurance de contiguïté
 		height, width = stk.shape[-2:]  # .												 Récupère les deux dernières dimensions
 		n_planes = 1 if stk.ndim == 2 else stk.shape[0]  # .							 Récupère le nombre de plans si 3D sinon 1
-		if planes is None: planes = list(range(n_planes))  # .							 Si aucune sélection, liste de tous les plans
-		else: planes = [p for p in planes if 0 <= p < n_planes]  # .					 Sinon, sélection des plans valides
+		# Si aucune sélection, prendre tous les plans ; sinon, conserver uniquement les plans valides.
+		planes = list(range(n_planes)) if planes is None else [p for p in planes if 0 <= p < n_planes]
 		n_planes = len(planes)  # .														 Nouveau nombre de plans
 		# Ajoute une dimension plan artificielle pour une image 2D ou une vue mémoire (slice) pour une pile 3D
 		stk = stk[np.newaxis, :, :] if stk.ndim == 2 else stk[planes[0]:planes[0] + n_planes]
@@ -190,7 +185,7 @@ class Palm:
 			k = min(n_plane_max, n_planes - i)  # .										 Taille réelle du bloc, soit le max, soit "ce qui reste".
 			stk_block = stk[i:i + k]  # .												 Indices relatifs (0..n_planes-1)
 			n_block = plane_points * k  # .												 Nombre de points pour ce bloc
-			locs = np.empty((n_block,), dtype=float, order="C")  # .					 Création de la sortie
+			locs: np.ndarray = np.empty((n_block,), dtype=float, order="C")  # .		 Création de la sortie
 
 			count = self._dll.Localization(stk_block.ctypes.data_as(C_IMG), locs.ctypes.data_as(C_TAB_DBL), C_UINT(n_block), C_UINT(height), C_UINT(width),
 										   C_UINT(k), C_DBL(threshold), C_DBL(0 if watershed else 10), C_UINT(fit), params.ctypes.data_as(C_TAB_DBL))
@@ -211,7 +206,7 @@ class Palm:
 
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def auto_threshold(self, image: np.ndarray, fit_params: np.ndarray) -> float:
 		"""
 		Calcule un seuil automatique basé sur la segmentation de l'image.
@@ -225,7 +220,7 @@ class Palm:
 		height, width = img.shape  # .													 Récupère les dimensions
 		return float(self._dll.AutoThreshold(img.ctypes.data_as(C_IMG), C_UINT(height), C_UINT(width), params.ctypes.data_as(C_TAB_DBL)))
 
-	##################################################
+	# --------------------------------------------------
 	def tracking(self, localizations: pd.DataFrame, max_distance: float) -> pd.DataFrame:
 		"""
 		Exécute l'algorithme de tracking sur les points localisés.
@@ -241,10 +236,10 @@ class Palm:
 		if localizations.empty or not set(required).issubset(localizations.columns): return pd.DataFrame()
 
 		points = localizations.loc[localizations["Integrated Intensity"] > 0, Parsing.COLS_FOR_TRACKING]
-		if points.empty: return pd.DataFrame()  # .						En cas de DataFrame qui a été vidé après le masquage des mauvais points
-		n = len(points)  # .											Nombre de points
-		track_size = n * 2  # .											Taille du tableau final
-		tracks = np.empty((track_size,), dtype=np.uint64, order="C")  # Tableau final
+		if points.empty: return pd.DataFrame()  # .									En cas de DataFrame qui a été vidé après le masquage des mauvais points.
+		n = len(points)  # .														Nombre de points
+		track_size = n * 2  # .														Taille du tableau final
+		tracks: np.ndarray = np.empty((track_size,), dtype=np.uint64, order="C")  # Tableau final
 
 		p = self._as_c_contig(points.to_numpy(), np.dtype(float), writeable=False)  # Assurance de contiguïté
 		self._dll.Tracking(p.ctypes.data_as(C_TAB_DBL), tracks.ctypes.data_as(C_TAB_UINT), C_UINT(n), C_DBL(max_distance))
@@ -255,7 +250,7 @@ class Palm:
 		res = localizations.loc[localizations["Track"] > 0, Parsing.FILES_COLUMNS["Tracking"]["columns"]]  # On ne conserve qu'une partie des colonnes
 		return res.sort_values(by=["Track", "Plane"], ascending=[True, True]).reset_index(drop=True)  # .	 On trie le résultat final
 
-	##################################################
+	# --------------------------------------------------
 	def blinking_reconnection(self, tracks: pd.DataFrame, pixel_size: float, mode: int, max_duration: int, max_speed: float) -> pd.DataFrame:
 		"""
 		Exécute l'algorithme de reconnexion des trajectoires sur celles déjà localisées.
@@ -276,7 +271,7 @@ class Palm:
 
 		n = len(tracks)
 		track_size = n * Parsing.N_COL_TRC
-		out = np.empty((track_size,), dtype=float, order="C")
+		out: np.ndarray = np.empty((track_size,), dtype=float, order="C")
 		max_plane_delta = max_duration + 1  # La DLL attend l'écart entre les plans, et non le nombre de plans manquants.
 
 		count = self._dll.BlinkingReconnection(in_tracks.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size),
@@ -284,7 +279,7 @@ class Palm:
 
 		return Parsing.parse_result(out[:count], "Tracking")
 
-	##################################################
+	# --------------------------------------------------
 	def track_analysis(self, tracks: pd.DataFrame, is_msd: bool, is_ind: bool, is_3d: bool,
 					   pixel_size: float, exposure_time: float, fit_mode: int, fit_params: np.ndarray) -> dict[str, pd.DataFrame]:
 		"""
@@ -312,24 +307,40 @@ class Palm:
 		in_tracks = self._as_c_contig(in_tracks, np.dtype(float), writeable=False)  # Assurance de contiguïté
 		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)  # . Assurance de contiguïté
 		n_row = len(tracks)  # .													  Nombre de points pour les trajectoires
-		n = n_row * N_TRC_CP_FIT  # .												  Taille maximale des tableaux finaux
+		# Même découpage que LoadTracks : un groupe par identifiant contigu, sans réordonner les points.
+		bounds = np.concatenate(([0], np.flatnonzero(in_tracks[1:, 0] != in_tracks[:-1, 0]) + 1, [n_row]))
+		lengths = np.diff(bounds)
+		# Chaque bloc contient sa longueur et l'identifiant ; une sentinelle termine chaque sortie.
+		# MSD : un lag par frame entre les extrémités, y compris les lags vides dus au blinking.
+		msd_size = 1
+		if is_msd:
+			valid = lengths >= 2
+			spans = in_tracks[bounds[1:][valid] - 1, 1] - in_tracks[bounds[:-1][valid], 1]
+			msd_size += int(np.sum(spans)) + 2 * int(np.count_nonzero(valid))
+		ind_size = 1
+		if is_ind:
+			fit_length = int(params[0])
+			windows = lengths[lengths > fit_length] - fit_length
+			ind_size += int(np.sum(windows)) + 2 * windows.size
+		# Fits : borne par trajectoire (8/9/10 métriques + identifiant + longueur), car certains sont rejetés.
+		fit_size = 1 + lengths.size * {2: 11, 3: N_TRC_CP_FIT}.get(fit_mode, 10)
 
 		# Sorties : buffer réel si demandé, sinon buffer dummy (évite pointeurs NULL)
-		o_msd = np.empty((n,), dtype=float, order="C") if is_msd else np.empty((1,), dtype=float, order="C")
-		o_ind = np.empty((n,), dtype=float, order="C") if is_ind else np.empty((1,), dtype=float, order="C")
-		o_fit = np.empty((n,), dtype=float, order="C") if fit_mode != 0 else np.empty((1,), dtype=float, order="C")
+		o_msd = np.empty((msd_size,), dtype=float, order="C")
+		o_ind = np.empty((ind_size,), dtype=float, order="C")
+		o_fit = np.empty((fit_size if fit_mode != 0 else 1,), dtype=float, order="C")
 
 		self._dll.TrackAnalysis(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
 								o_fit.ctypes.data_as(C_TAB_DBL),
 								C_UINT(n_row), C_BOOL(is_msd), C_BOOL(is_ind), C_BOOL(is_3d), C_DBL(pixel_size), C_DBL(exposure_time),
 								C_UINT(fit_mode), params.ctypes.data_as(C_TAB_DBL))
 
-		if is_msd: res["MSD"] = Parsing.parse_result(o_msd[:n], "MSD")
-		if is_ind: res["InD"] = Parsing.parse_result(o_ind[:n], "Instant Diffusion")
-		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit[:n], "Fit", fit_mode)
+		if is_msd: res["MSD"] = Parsing.parse_result(o_msd, "MSD")
+		if is_ind: res["InD"] = Parsing.parse_result(o_ind, "Instant Diffusion")
+		if fit_mode != 0: res["Fit"] = Parsing.parse_result(o_fit, "Fit", fit_mode)
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def align(self, stack: np.ndarray, factors: np.ndarray, upsampling: int = 1) -> np.ndarray:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
@@ -350,7 +361,7 @@ class Palm:
 							params.ctypes.data_as(C_TAB_DBL), C_UINT(upsampling))
 		return out
 
-	##################################################
+	# --------------------------------------------------
 	def wavelet(self, stack: np.ndarray, level: int = 2) -> np.ndarray:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
@@ -368,7 +379,7 @@ class Palm:
 		self._dll.Wavelett(stk.ctypes.data_as(C_IMG), out.ctypes.data_as(C_TAB_DBL), C_UINT(height), C_UINT(width), C_UINT(planes), C_UINT(level))
 		return out
 
-	##################################################
+	# --------------------------------------------------
 	def astigmatism_3d_calibration(self, points: np.ndarray, pixel_size: float, center: bool = True) -> pd.DataFrame:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour calibrer un modèle d'astigmatisme permettant d'estimer une position axiale.
@@ -379,13 +390,13 @@ class Palm:
 		:return: DataFrame de forme (2, 5), indexé par axe, contenant les coefficients [Z0, W, C3, C4, A].
 		"""
 		pts = self._as_c_contig(points, np.dtype(float), writeable=False)
-		out = np.empty(Parsing.SHAPE_MODEL, dtype=float, order="C")
+		out: np.ndarray = np.empty(Parsing.SHAPE_MODEL, dtype=float, order="C")
 		n = pts.shape[0]
 
 		self._dll.Astigmatism3DCalibration(pts.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size), C_BOOL(center))
 		return Parsing.parse_result(out, "Astigmatism 3D Model")
 
-	##################################################
+	# --------------------------------------------------
 	def astigmatism_3d_estimation(self, sigmas: np.ndarray, pixel_size: float, model: np.ndarray, z_max: float = 800) -> np.ndarray:
 		"""
 		Exécute un traitement avec une DLL PALM externe pour estimer une position axiale à partir d'un modèle.
@@ -394,13 +405,34 @@ class Palm:
 		:param pixel_size: Taille des pixels en nanomètres.
 		:param model: Modèle d'astigmatisme de forme (2, 5) : paramètres X puis Y, chaque ligne = [Z0, W, C3, C4, A].
 		:param z_max: Distance absolue maximale sur Z par rapport à l'origine.
-		:return: Tableau (N, 2) contenant, pour chaque point, Z en nanomètres et l'erreur quadratique du modèle sur les deux sigmas en pixels carrés.
+		:return: Tableau (N, 2) contenant Z en nanomètres et le score de compatibilité des sigmas entre 0 et 1 (1 = meilleur).
+
+		Le cœur minimise toujours la somme des carrés des résidus sur les sigmas pour choisir Z.
+		Le score final est une convention propre au projet, calculée uniquement sur la localisation courante :
+
+		.. math::
+
+		   r^2 = \\frac{1}{2}\\sum_{a\\in\\{x,y\\}}
+		         \\left(\\frac{\\sigma_a-\\hat\\sigma_a(Z)}{\\hat\\sigma_a(Z)}\\right)^2,
+		   \\qquad Q_Z = \\frac{1}{1+r^2/0.20^2}.
+
+		Un écart relatif RMS de 20 % donne 0.5 ; une largeur non finie ou non positive donne 0.
+		Ce score n'est ni un R², ni une probabilité, ni une précision axiale en nanomètres.
+		Il ne pénalise pas explicitement une saturation à la borne et ne détecte pas les Z ambigus.
+		La plage de recherche peut changer le Z retenu, mais ne normalise pas le score.
+
+		.. warning::
+
+		   La seconde valeur remplace l'ancienne SSE en pixels carrés (0 = meilleur).
+		   La colonne historique ``MSE Z`` conserve son nom mais contient ce score (1 = meilleur).
+		   Les anciens fichiers et seuils ne sont pas convertis ; utiliser un cœur compatible
+		   et recalculer l'estimation pour obtenir des valeurs homogènes.
 		"""
 
 		n = len(sigmas)
 		s = self._as_c_contig(sigmas, np.dtype(float), writeable=False)
 		m = self._as_c_contig(model, np.dtype(float), writeable=False)
-		out = np.empty((n, 2), dtype=float, order="C")
+		out: np.ndarray = np.empty((n, 2), dtype=float, order="C")
 		self._dll.Astigmatism3DEstimation(s.ctypes.data_as(C_TAB_DBL), out.ctypes.data_as(C_TAB_DBL), C_UINT(n), C_DBL(pixel_size),
 										  m.ctypes.data_as(C_TAB_DBL), C_DBL(z_max))
 

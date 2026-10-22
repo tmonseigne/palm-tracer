@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from contextlib import suppress
+from typing import Any, Optional
 
 from qtpy.QtCore import QObject, Signal
 
 
-##################################################
+# --------------------------------------------------
 class SignalWrapper(QObject):
 	"""
 	Encapsule un signal Qt et regroupe les émissions produites pendant son blocage.
@@ -20,7 +22,7 @@ class SignalWrapper(QObject):
 	_signal = Signal(object)
 	"""Signal encapsulé, prêt à être utilisé dans l'application."""
 
-	##################################################
+	# --------------------------------------------------
 	def __init__(self):
 		"""Initialise l'objet SignalWrapper."""
 		super().__init__()  # .							 Appelle le constructeur de la classe parent QObject.
@@ -30,7 +32,7 @@ class SignalWrapper(QObject):
 		self._slots: list[Callable[[Any], None]] = []  # Liste des Fonctions ou slots connectés.
 		self._emit_on_unblock_stack: list[bool] = []  # .Liste des émissions à conserver
 
-	##################################################
+	# --------------------------------------------------
 	def connect(self, f: Callable[[Any], None], **kwargs):
 		"""
 		Connecte une fonction ou un slot au signal encapsulé.
@@ -41,6 +43,7 @@ class SignalWrapper(QObject):
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 		self._slots.append(f)
 
+	# --------------------------------------------------
 	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
 		"""
 		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnectés.
@@ -66,11 +69,10 @@ class SignalWrapper(QObject):
 		except (TypeError, RuntimeError): n = 0
 
 		# Nettoie le registre
-		try: self._slots.remove(f)
-		except ValueError: pass
+		with suppress(ValueError): self._slots.remove(f)
 		return n
 
-	##################################################
+	# --------------------------------------------------
 	def emit(self, value: Any = None, **kwargs):
 		"""Émet le signal encapsulé."""
 		if self._block_count > 0:
@@ -79,7 +81,7 @@ class SignalWrapper(QObject):
 			return
 		self._signal.emit(value)  # Émission du signal.
 
-	##################################################
+	# --------------------------------------------------
 	# --- Gestion du blocage des signaux ---
 	class BlockCtx:
 		"""
@@ -89,6 +91,7 @@ class SignalWrapper(QObject):
 		:param emit_last: Émet la dernière valeur mémorisée à la sortie du contexte externe.
 		"""
 
+		# --------------------------------------------------
 		def __init__(self, owner: "SignalWrapper", emit_last: bool = True):
 			"""
 			Initialise l'instance.
@@ -99,6 +102,7 @@ class SignalWrapper(QObject):
 			self._o = owner
 			self._emit_last = emit_last
 
+		# --------------------------------------------------
 		def __enter__(self):
 			"""
 			Active le contexte de blocage et retourne son gestionnaire.
@@ -108,6 +112,7 @@ class SignalWrapper(QObject):
 			self._o._block_begin(self._emit_last)
 			return self
 
+		# --------------------------------------------------
 		def __exit__(self, exc_type, exc, tb):
 			"""
 			Termine le contexte de blocage sans masquer les exceptions.
@@ -120,6 +125,7 @@ class SignalWrapper(QObject):
 			self._o._block_end()
 			return False
 
+	# --------------------------------------------------
 	def blocked(self, emit_last: bool = True) -> "BlockCtx":
 		"""
 		Retourne un contexte de blocage des signaux.
@@ -129,11 +135,13 @@ class SignalWrapper(QObject):
 		"""
 		return SignalWrapper.BlockCtx(self, emit_last)
 
+	# --------------------------------------------------
 	def _block_begin(self, emit_last: bool):
 		"""Démarre (ou imbrique) un blocage."""
 		self._block_count += 1
 		self._emit_on_unblock_stack.append(emit_last)
 
+	# --------------------------------------------------
 	def _block_end(self):
 		"""Termine un blocage et émet éventuellement la dernière valeur mémorisée."""
 		if self._block_count == 0: return

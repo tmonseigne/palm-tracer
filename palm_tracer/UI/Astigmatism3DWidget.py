@@ -18,7 +18,7 @@ from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
 DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
-_windows = []  # Conserve une référence globale pour éviter le ramasse-miettes
+_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
 class Astigmatism3DWidget(BasePlotlyWidget):
@@ -43,13 +43,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	##################################################
 	def __init__(self, parent: Optional[QWidget] = None):
-		"""
-		Construit le widget et initialise l'interface.
-
-		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
-		"""
+		"""Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide."""
 		super().__init__(parent)
 		self.setWindowTitle("Astigmatism 3D Tool")
 
@@ -67,7 +62,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._connect_signals()
 		self._update_plot()
 
-	##################################################
+	# --------------------------------------------------
 	def _init_ui(self):
 		"""Construit l'interface utilisateur (onglets + boutons) en conservant un style proche du Graph Viewer."""
 
@@ -229,7 +224,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		main_layout.addWidget(self._tabs)
 		main_layout.addWidget(self._web, stretch=1)
 
-	##################################################
+	# --------------------------------------------------
 	@staticmethod
 	def _init_sanity_check_layout(sanity: list[dict[str, dict[str, QLabel | str]]], titles: list[str]) -> QHBoxLayout:
 		"""
@@ -253,7 +248,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		res.addLayout(Ui.make_info_grid(sanity[1], titles[1], 3), stretch=1)
 		return res
 
-	##################################################
+	# --------------------------------------------------
 	def _connect_signals(self):
 		"""Connecte les signaux aux callbacks."""
 		self._btn_load_compute.clicked.connect(self._on_load_loc)
@@ -290,7 +285,6 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Interface utilisateur
 	# ==================================================
-	##################################################
 	def _update_sanity_values(self, points: np.ndarray, model: np.ndarray, pixel_size: float):
 		"""
 		Mise à jour de l'onglet Sanity Check.
@@ -320,7 +314,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 				if "r2" in key: val.setText(f"{100 * metrics[key]:0.2f}")
 				else: val.setText(f"{metrics[key]:0.4f}")
 
-	##################################################
+	# --------------------------------------------------
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		try:
@@ -343,7 +337,6 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-	##################################################
 	def _check_loc(self):
 		"""Vérifie la validité du fichier de localisation et modifie les options sélectionnables en conséquence."""
 		if "Plane" not in self._loc.columns:
@@ -382,7 +375,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 				z_max = self._loc["Z"].abs().max()
 				if z_max > 10: self._spin_z_estimate.setValue(z_max)
 
-	##################################################
+	# --------------------------------------------------
 	def _on_load_loc(self):
 		"""Charge les localisations et déclenche la calibration uniquement depuis l'onglet Compute Model."""
 		# --- boîte de dialogue pour sélectionner un .csv ---
@@ -426,7 +419,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 				self._updating_parameters = False
 			self._on_compute()
 
-	##################################################
+	# --------------------------------------------------
 	def _on_load_model(self):
 		"""
 		Charge le modèle sélectionné depuis un CSV et désactive la calibration automatique des localisations courantes.
@@ -456,7 +449,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- vérification de la forme des données ---
 		if self._model.shape != SHAPE_MODEL:
 			self._model = pd.DataFrame()
-			Ui.print_error(f"The model file is not in the correct format. Expected format: two lines of five values (2x5).")
+			Ui.print_error("The model file is not in the correct format. Expected format: two lines of five values (2x5).")
 			return
 
 		# --- mise à jour du label de statut ---
@@ -467,7 +460,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		Ui.print_success("Model loaded successfully.")
 
-	##################################################
+	# --------------------------------------------------
 	def _on_compute(self):
 		"""
 		Recalcule et sauvegarde le modèle après chargement ou changement des paramètres, à partir des Z d'origine.
@@ -547,7 +540,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._update_plot()
 		Ui.update_path_label(self._lbl_model_estimate, self._mod_filename)
 
-	##################################################
+	# --------------------------------------------------
 	def _on_set_default_model(self):
 		"""Enregistre le modèle courant par défaut lorsque l'option est cochée et qu'un modèle est disponible."""
 		if not self._check_set_default_model.isChecked() or self._model.empty: return
@@ -555,7 +548,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._model.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL, lineterminator="\n")
 		Ui.print_success("Default model saved successfully.")
 
-	##################################################
+	# --------------------------------------------------
 	def _on_default_model_toggled(self, active: bool):
 		"""
 		Grise les contrôles du modèle chargé lorsque le modèle par défaut est sélectionné.
@@ -565,7 +558,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btn_load_model_estimate.setEnabled(not active)
 		self._lbl_model_estimate.setEnabled(not active)
 
-	##################################################
+	# --------------------------------------------------
 	def _get_estimation_model(self) -> pd.DataFrame:
 		"""
 		Retourne le modèle choisi pour Compute Z, sans repli si le modèle par défaut est demandé.
@@ -581,7 +574,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			return pd.DataFrame()
 		return model if model.shape == SHAPE_MODEL else pd.DataFrame()
 
-	##################################################
+	# --------------------------------------------------
 	def _on_estimate(self):
 		"""Estime Z avec le modèle sélectionné, puis réécrit les localisations après une sauvegarde facultative du CSV d'origine."""
 		# --- Vérifications ---
@@ -622,7 +615,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.print_success("Localization file with estimation saved successfully.")
 
 
-##################################################
+# --------------------------------------------------
 def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""
 	Ouvre l'outil d'astigmatisme 3D dans une fenêtre autonome.
@@ -637,7 +630,7 @@ def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sa
 	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 

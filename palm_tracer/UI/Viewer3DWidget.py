@@ -25,7 +25,7 @@ class Viewer3DWidget(QWidget):
 	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer 3D"``.
 	"""
 
-	##################################################
+	# --------------------------------------------------
 	def __init__(self, viewer: napari.Viewer):
 		"""
 		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
@@ -58,7 +58,7 @@ class Viewer3DWidget(QWidget):
 
 		self.settings.connect(self.update_layer)
 
-	##################################################
+	# --------------------------------------------------
 	def load_csv(self):
 		"""
 		Ouvre une boîte de dialogue pour sélectionner un fichier ``.csv`` et charge les données associées dans un :class:`pandas.DataFrame`.
@@ -79,7 +79,7 @@ class Viewer3DWidget(QWidget):
 
 		self.update_layer()
 
-	##################################################
+	# --------------------------------------------------
 	def update_layer(self):
 		"""
 		Crée ou mets à jour le calque de points 3D dans le viewer Napari.
@@ -106,7 +106,7 @@ class Viewer3DWidget(QWidget):
 		self.layer.size = size
 
 
-##################################################
+# --------------------------------------------------
 def create_viewer3d() -> tuple[napari.Viewer, QWidget]:
 	"""
 	Crée une nouvelle fenêtre Napari 3D, sans menu, et y ajoute le Viewer3DWidget docké à droite.
@@ -123,7 +123,7 @@ def create_viewer3d() -> tuple[napari.Viewer, QWidget]:
 	return viewer, widget
 
 
-##################################################
+# --------------------------------------------------
 def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer 3D.
@@ -145,7 +145,7 @@ def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	return stub
 
 
-##################################################
+# --------------------------------------------------
 if __name__ == "__main__":
 	import napari
 

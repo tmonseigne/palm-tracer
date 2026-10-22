@@ -1,3 +1,15 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer\n"
+"Language: en\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: ../../algorithm/arrays_indices.rst:2
 msgid "Tableaux et Indices"
 msgstr "Arrays and Indices"
@@ -194,7 +206,7 @@ msgstr "This makes it possible to mentally visualize each **matrix plane** separ
 
 #: ../../algorithm/arrays_indices.rst:207
 msgid "Conclusion"
-msgstr "Conclusion"
+msgstr ""
 
 #: ../../algorithm/arrays_indices.rst:209
 msgid "Les tableaux sont des structures puissantes, mais il est essentiel de bien comprendre l'ordre des indices selon le contexte (mathématique, NumPy, images, etc.)."
