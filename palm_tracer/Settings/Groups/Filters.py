@@ -38,7 +38,7 @@ class Filters(BaseSettingGroup):
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
 			"Save":         [CheckBox, ["Save filtered", "Save filtered datas in _filtered.csv file.", False]],
-			"Plane":        [CheckRangeInt, ["Plane", "Limits the planes to be used.", [1, 100000], [1, 100000]]],
+			"Plane":        [CheckRangeInt, ["Plane", "Limits the planes to be used, by plane number (starting at 1).", [1, 100000], [1, 100000]]],
 			"ROI":          [CheckInt, ["ROI", "ROI selected for filtering. Selected ROI appear in yellow.", 1, [1, 1]]],
 			"Localization": [FiltersL, []],
 			"Tracks":       [FiltersT, []]

@@ -43,10 +43,10 @@ class Graph(BaseSettingGroup):
 	setting_list = {
 			"Mode":     [ButtonGroup, ["Mode", "Dual Source Allow second source for Graph in a point cloud for source A by source B.",
 									   0, ["Histogram", "Scatter", "Dual Source"]]],
-			"Type":     [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
+			"Type":     [ButtonGroup, ["Type", "Choose whether to plot localization data or track data.", 0, ["Localization", "Tracks"]]],
 			"Source":   [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
 			"Source B": [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
-			"MSD Step": [SpinInt, ["MSD Step", "Step selected for display.", 1, [1, 10000], 1]],
+			"MSD Step": [SpinInt, ["MSD Step", "Time lag selected for display, in planes.", 1, [1, 10000], 1]],
 			"Display":  [GraphDisplay, []]}
 	"""Définition des paramètres du groupe et de leur configuration."""
 

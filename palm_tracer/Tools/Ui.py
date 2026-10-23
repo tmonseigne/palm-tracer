@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
+from numbers import Integral
 from pathlib import Path
 from typing import Any, cast
 
 from colorama import Fore, Style
-from qtpy.QtCore import Qt
-from qtpy.QtGui import QFontMetrics
+from qtpy.QtCore import QEvent, QLocale, QPointF, Qt
+from qtpy.QtGui import QFontMetrics, QPaintEvent, QPainter, QPalette, QPen, QPolygonF
 
 from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton,  # isort: skip
-							QScrollArea, QSpinBox, QVBoxLayout, QWidget)
+							QScrollArea, QSpinBox, QToolButton, QVBoxLayout, QWidget)
 
 # ==================================================
 # region Constantes
@@ -348,7 +349,8 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 	Configuration appliquée :
 		- suppression des marges et paddings inutiles ;
 		- alignement centré du texte ;
-		- largeur ajustée dynamiquement en fonction du range et du nombre de décimales ;
+		- séparation des milliers par une espace insécable et séparateur décimal point ;
+		- largeur uniforme de cinq caractères, avec une marge adaptée à la présence des boutons ;
 		- possibilité de masquer les boutons d'incrément.
 
 	:param parent: Parent Qt du widget.
@@ -363,41 +365,133 @@ def make_spin(parent: QWidget | None = None, minimum: int | float = 0, maximum: 
 	spin: QSpinBox | QDoubleSpinBox
 	if decimals <= 0:
 		spin = QSpinBox(parent, minimum=minimum, maximum=maximum, singleStep=step, value=value)
-		spin.setStyleSheet("QSpinBox { padding: 0; }")  # .								 Suppression de l'espacement interne
-		if not buttons: spin.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)  # .	 Supprime les flèches
 	else:
 		spin = QDoubleSpinBox(parent, decimals=decimals, minimum=minimum, maximum=maximum, singleStep=step, value=value)
-		spin.setStyleSheet("QDoubleSpinBox { padding: 0; }")  # .						 Suppression de l'espacement interne
-		if not buttons: spin.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.NoButtons)  # Supprime les flèches
+
+	# La locale xhosa d'Afrique du Sud associe une espace insécable entre milliers au point décimal.
+	# C'est le seul, le local FR fait "1 000,00". Le local US fait "1,000.00".
+	spin.setLocale(QLocale("xh_ZA"))
+	spin.setGroupSeparatorShown(True)
 
 	spin.setContentsMargins(0, 0, 0, 0)  # .											 Suppression des marges
 	spin.setAlignment(Qt.AlignmentFlag.AlignCenter)  # .								 Définir l'alignement au centre.
-	set_spin_width(spin)  # .															 Définition de la largeur maximale
+	set_spin_buttons(spin, buttons)
 	return spin
 
 
 # --------------------------------------------------
-def set_spin_width(spin: QSpinBox | QDoubleSpinBox):
+class _SpinLimitButton(QToolButton):
 	"""
-	Ajuste la largeur fixe d'une spinbox en fonction du contenu affichable.
+	Intègre un bouton de borne dans un champ numérique, avec un symbole adapté à sa palette.
 
-	La largeur est estimée à partir du nombre maximal de caractères nécessaires (valeur max, signe, décimales) et de la métrique de police du widget.
-	Cela permet d'éviter les widgets trop larges et de garantir que toutes les valeurs restent visibles sans troncature.
+	:param spin: Champ contenant le bouton.
+	:param minimum: Place le bouton à gauche pour le minimum, à droite pour le maximum.
+	"""
+
+	def __init__(self, spin: QSpinBox | QDoubleSpinBox, minimum: bool):
+		super().__init__(spin)
+		self._spin = spin  # Champ dont la géométrie et les marges de texte sont suivies.
+		self._minimum = minimum  # Sens du symbole et côté du champ à occuper.
+		self.setAutoRaise(True)
+		self.setStyleSheet("QToolButton { padding: 0; margin: 0; border: 0; background: transparent; }")
+		spin.installEventFilter(self)
+		self._update_geometry()
+
+	# --------------------------------------------------
+	def _update_geometry(self):
+		"""Place le bouton au bord du champ et réserve sa largeur dans le texte, sans élargir le widget."""
+		width = max(14, self._spin.fontMetrics().height()) + 2
+		x = 1 if self._minimum else self._spin.width() - width - 1
+		self.setGeometry(x, 1, width, max(0, self._spin.height() - 2))
+		edit = self._spin.lineEdit()
+		margins = edit.textMargins()
+		edit.setTextMargins(width + 2 if self._minimum else margins.left(), margins.top(),
+							margins.right() if self._minimum else width + 2, margins.bottom())
+		self.raise_()
+
+	# --------------------------------------------------
+	def eventFilter(self, watched, event: QEvent) -> bool:
+		"""Maintient le bouton et les marges lors des changements de taille, de police ou de style du champ."""
+		if watched is self._spin and event.type() in (QEvent.Type.Resize, QEvent.Type.Show, QEvent.Type.FontChange, QEvent.Type.StyleChange):
+			self._update_geometry()
+		return super().eventFilter(watched, event)
+
+	# --------------------------------------------------
+	def paintEvent(self, event: QPaintEvent):  # pragma: no cover, élément purement visuel.
+		"""Dessine le fond standard et un symbole de borne avec la couleur du texte du thème courant."""
+		super().paintEvent(event)
+		group = QPalette.ColorGroup.Active if self.isEnabled() else QPalette.ColorGroup.Disabled
+		color = self.palette().color(group, QPalette.ColorRole.WindowText)
+		painter = QPainter(self)
+		if self.isEnabled() and self.underMouse():
+			# La palette du champ reflète le thème Napari ; palette(highlight) en QSS peut reprendre l'accent système.
+			painter.fillRect(self.rect(), self._spin.lineEdit().palette().color(group, QPalette.ColorRole.Highlight))
+		painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+		painter.translate(self.width() / 2, self.height() / 2)
+		if not self._minimum: painter.scale(-1, 1)
+		painter.setPen(QPen(color, 1.2))
+		painter.drawLine(QPointF(-4, -4), QPointF(-4, 4))
+		painter.setPen(Qt.PenStyle.NoPen)
+		painter.setBrush(color)
+		painter.drawPolygon(QPolygonF([QPointF(3, -4), QPointF(-2, 0), QPointF(3, 4)]))
+		painter.end()
+
+
+# --------------------------------------------------
+def make_spin_limit_button(spin: QSpinBox | QDoubleSpinBox, minimum: bool) -> QToolButton:
+	"""
+	Crée dans un champ numérique un bouton ramenant sa valeur à l'une de ses limites courantes.
+
+	:param spin: Champ numérique à modifier.
+	:param minimum: Sélectionne la limite minimale si vrai, la limite maximale sinon.
+	:return: Bouton intégré au bord du champ, sans ajout dans un layout, avec symbole adapté au thème et infobulle explicite.
+	"""
+	button = _SpinLimitButton(spin, minimum)
+	tooltip = f"Set to the {'minimum' if minimum else 'maximum'} allowed value"
+	button.setToolTip(tooltip)
+	button.setAccessibleName(tooltip)
+	# Les limites sont lues au clic pour suivre les changements de pile ou de paramètres.
+	button.clicked.connect(lambda: spin.setValue(spin.minimum() if minimum else spin.maximum()))
+	return button
+
+
+# --------------------------------------------------
+def set_spin_buttons(spin: QSpinBox | QDoubleSpinBox, buttons: bool):
+	"""
+	Configure la visibilité des boutons d'une spinbox et ajuste sa largeur.
+
+	Applique le style compact commun aux champs créés par :func:`make_spin`.
+	Le masquage utilise une feuille de style pour contourner le champ réduit à un pixel avec ``NoButtons`` sous Qt 6.12.
+
+	:param spin: Spinbox à configurer.
+	:param buttons: Affiche ou masque les boutons d'incrément.
+	"""
+	stylesheet = "QAbstractSpinBox { padding: 0; }"
+	if not buttons:
+		stylesheet += " QAbstractSpinBox::up-button, QAbstractSpinBox::down-button { width: 0px; height: 0px; }"
+		# Napari dessine les symboles +/− dans des sous-contrôles distincts qui peuvent dépasser des boutons.
+		stylesheet += " QAbstractSpinBox::up-arrow, QAbstractSpinBox::down-arrow { image: none; width: 0px; height: 0px; }"
+	spin.setButtonSymbols(QSpinBox.ButtonSymbols.UpDownArrows)
+	spin.setStyleSheet(stylesheet)
+	spin.setProperty("pt_buttons", buttons)  # Conserve l'état visuel, indépendant de buttonSymbols() avec le masquage QSS.
+	set_spin_width(spin)
+
+
+# --------------------------------------------------
+def set_spin_width(spin: QSpinBox | QDoubleSpinBox, n_char: int = 10):
+	"""
+	Fixe une largeur uniforme correspondant à cinq caractères et à une marge de confort.
+
+	La largeur ne dépend ni des bornes ni du nombre de décimales. La marge vaut 10 pixels sans boutons et 50 pixels avec boutons.
+	Les valeurs plus longues restent accessibles par défilement horizontal pendant la saisie.
 
 	:param spin: Spinbox à ajuster.
+	:param n_char: Nombre de caractères à afficher (constant pour un affichage uniforme)
 	"""
-	# ---- estimation du nombre de caractères ----
-	min_val, max_val = spin.minimum(), spin.maximum()
-	max_abs = max(abs(min_val), abs(max_val))
-	has_sign = min_val < 0
-	char_count = max(1, len(str(int(max_abs))))
-	if has_sign: char_count += 1
-	if isinstance(spin, QDoubleSpinBox): char_count += 1 + spin.decimals()  # "." + décimales
-
-	# ---- conversion caractères → pixels ----
+	buttons = spin.property("pt_buttons")
+	if buttons is None: buttons = spin.buttonSymbols() != QSpinBox.ButtonSymbols.NoButtons
 	metrics = QFontMetrics(spin.font())
-	# Petite marge de confort (boutons up/down, padding) "−" est en général le caractère le plus long en cas de police non uniforme.
-	width_px = char_count * metrics.horizontalAdvance("−") + 50
+	width_px = n_char * metrics.horizontalAdvance("0") + (50 if buttons else 30)
 	spin.setFixedWidth(width_px)
 
 
@@ -498,6 +592,22 @@ def print_success(msg: str):
 	:param msg: Message à afficher.
 	"""
 	print(Fore.GREEN + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
+
+
+# --------------------------------------------------
+def format_number(value: int | float, decimals: int = 2) -> str:
+	"""
+	Formate une valeur numérique avec des espaces insécables entre milliers et un point décimal.
+
+	Les entiers, y compris les scalaires entiers NumPy, sont affichés sans décimales.
+	Le formatage est indépendant des locales Python et Qt et ne modifie pas la valeur source.
+
+	:param value: Valeur numérique à afficher.
+	:param decimals: Nombre de décimales des flottants, ignoré pour les entiers.
+	:return: Représentation destinée à l'affichage ou aux messages de journal.
+	"""
+	spec = "," if isinstance(value, Integral) else f",.{decimals}f"
+	return format(value, spec).replace(",", "\u00a0")
 
 
 # --------------------------------------------------

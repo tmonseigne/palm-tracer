@@ -151,10 +151,10 @@ def test_results_status_automatic_update(qtbot, input_stack):
 	results_ui = w.pt.results.get_ui(w.UI_NAME)
 
 	w.pt.results.reset()
-	assert results_ui.labels["Beads"].text() == "No"
+	assert results_ui.labels["Beads"].text() == "0"
 
 	w.pt.results["bds"] = pd.DataFrame(np.zeros((2, 1)))
-	assert results_ui.labels["Beads"].text() == "Yes (2 localizations)"
+	assert results_ui.labels["Beads"].text() == "2"
 
 
 # --------------------------------------------------

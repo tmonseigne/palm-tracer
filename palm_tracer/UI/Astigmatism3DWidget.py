@@ -16,7 +16,7 @@ from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, SHAPE_MODE
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
-DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
+_DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
 _windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
@@ -70,6 +70,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.init_layout(main_layout)
 
 		self._tabs = QTabWidget(self)
+		self._tabs.setMinimumWidth(self.LEFT_PANEL_MINIMUM_WIDTH)
 
 		# ---------- Onglet 1 : Compute Model ----------
 		tab_compute, tab_layout = Ui.make_tab(self._tabs)
@@ -98,16 +99,16 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._check_only_one.setToolTip("If more than one localization appears on a plane, the one closest to the other localization is retained.")
 
 		form = Ui.make_form(None)
-		Ui.add_setting_row(form, "Only one bead:", self._check_only_one)
-		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute)
-		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_compute)
-		Ui.add_setting_row(form, "Get Z from plane:", self._check_z_from_plane)
-		Ui.add_setting_row(form, "Plane Interval (nm):", self._spin_z_interval)
-		Ui.add_setting_row(form, "Center Z:", self._check_z_center)
-		Ui.add_setting_row(form, "Flip Z:", self._check_z_flip)
+		Ui.add_setting_row(form, "Only one bead:", self._check_only_one, tooltip=self._check_only_one.toolTip())
+		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute, tooltip=self._spin_px_compute.toolTip())
+		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_compute, tooltip=self._spin_z_compute.toolTip())
+		Ui.add_setting_row(form, "Get Z from plane:", self._check_z_from_plane, tooltip=self._check_z_from_plane.toolTip())
+		Ui.add_setting_row(form, "Plane Interval (nm):", self._spin_z_interval, tooltip=self._spin_z_interval.toolTip())
+		Ui.add_setting_row(form, "Center Z:", self._check_z_center, tooltip=self._check_z_center.toolTip())
+		Ui.add_setting_row(form, "Flip Z:", self._check_z_flip, tooltip=self._check_z_flip.toolTip())
 		self._check_set_default_model = QCheckBox(grp)
 		self._check_set_default_model.setToolTip("Save model as the default astigmatism model in the user folder.")
-		Ui.add_setting_row(form, "Set as default model:", self._check_set_default_model)
+		Ui.add_setting_row(form, "Set as default model:", self._check_set_default_model, tooltip=self._check_set_default_model.toolTip())
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
@@ -192,9 +193,9 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._check_b_estimate.setToolTip("Save original localisation file in backup folder.")
 
 		form = Ui.make_form(None)
-		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate)
-		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_estimate)
-		Ui.add_setting_row(form, "Save Backup:", self._check_b_estimate)
+		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate, tooltip=self._spin_px_estimate.toolTip())
+		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_estimate, tooltip=self._spin_z_estimate.toolTip())
+		Ui.add_setting_row(form, "Save Backup:", self._check_b_estimate, tooltip=self._check_b_estimate.toolTip())
 
 		grp_layout.addWidget(self._btn_load_loc_estimate)
 		grp_layout.addWidget(self._lbl_loc_estimate)
@@ -320,7 +321,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		try:
 			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
 			z_max = self._spin_z_estimate.value()
-			data = None if self._loc.empty or self._loc["Z"].nunique() <= 1 else self._loc[DLL_REQUIRED_COLS].to_numpy()
+			data = None if self._loc.empty or self._loc["Z"].nunique() <= 1 else self._loc[_DLL_REQUIRED_COLS].to_numpy()
 			mode = self._btg_type_compute.checkedId()
 			if mode == 0: mode = "cross"
 			elif mode == 1: mode = "slope"
@@ -348,13 +349,13 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			self._spin_z_interval.setEnabled(False)
 		else:
 			planes = self._loc["Plane"]
-			n_planes = planes.max() - planes.min() + 1  # Nombre de plans
+			n_planes = planes.max() - planes.min() + 1  # .						 Nombre de plans
 			s_p = f"There are {n_planes} planes"
 			self._check_z_from_plane.setEnabled(True)
 			self._spin_z_interval.setEnabled(True)
 			self._check_only_one.setEnabled(True)
 			if "Bead" in self._loc.columns:
-				n_beads = self._loc["Bead"].nunique()  # Nombre de billes
+				n_beads = self._loc["Bead"].nunique()  # .						 Nombre de billes
 				Ui.print_success(f"{s_p} and {n_beads} beads in file.")
 			else:
 				counts_per_plane = self._loc.groupby("Plane").size()  # .		 Nombre de localisations par plan.
@@ -398,9 +399,9 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			return
 
 		# --- vérification de la forme des données ---
-		if not set(DLL_REQUIRED_COLS).issubset(self._loc.columns):
+		if not set(_DLL_REQUIRED_COLS).issubset(self._loc.columns):
 			Ui.print_error(f"The localization file is not in the correct format.\n"
-						   f"\tExpected format, at least columns: {', '.join(sorted(DLL_REQUIRED_COLS))}.\n"
+						   f"\tExpected format, at least columns: {', '.join(sorted(_DLL_REQUIRED_COLS))}.\n"
 						   f"\tFound columns: {', '.join(self._loc.columns)}")
 			self._loc = pd.DataFrame()
 			return
@@ -498,8 +499,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Préparation des données ---
 		beads: list[np.ndarray] = []
 		if "Bead" in work.columns:  # Une ou plusieurs billes identifiées
-			for _, df in work.groupby("Bead", sort=True): beads.append(df.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True))
-		else:  beads.append(work.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True))
+			for _, df in work.groupby("Bead", sort=True): beads.append(df.loc[:, _DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True))
+		else:  beads.append(work.loc[:, _DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True))
 
 		# --- Calcul ---
 		models: list[pd.DataFrame] = []
@@ -523,7 +524,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			print(f"Average model:\n{self._model}")
 
 		# --- Mise à jour du Z dans loc ---
-		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
+		points = self._loc.loc[:, _DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
 		self._loc[["Z", "MSE Z"]] = estimated_z
 
@@ -536,7 +537,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.print_success("Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
-		self._update_sanity_values(self._loc.loc[:, DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True), self._model.to_numpy(), pixel_size)
+		self._update_sanity_values(self._loc.loc[:, _DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True), self._model.to_numpy(), pixel_size)
 		self._update_plot()
 		Ui.update_path_label(self._lbl_model_estimate, self._mod_filename)
 
@@ -608,7 +609,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Estimation ---
 		pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
 		z_max = self._spin_z_estimate.value()
-		points = self._loc.loc[:, DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
+		points = self._loc.loc[:, _DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
 		self._loc[["Z", "MSE Z"]] = estimated_z
 		self._loc.to_csv(self._loc_filename, index=False)

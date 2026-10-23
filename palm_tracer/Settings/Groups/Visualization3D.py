@@ -26,11 +26,11 @@ class Visualization3D(BaseSettingGroup):
 	label: str = "3D"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Point Size":      [SpinFloat, ["Point Size", "", 1, [0.1, 1000], 1, 1]],
-			"Pixel Size":      [SpinInt, ["Pixel Size (nm)", "", 160, [1, 1000], 10]],
-			"XY Scale":        [SpinFloat, ["XY Scale", "", 1.0, [0.0, 1000], 1.0, 1]],
-			"Z Scale":         [SpinFloat, ["Z Scale", "", 1.0, [0.0, 1000], 1.0, 1]],
-			"Remove Outliers": [CheckBox, ["Remove Outliers", "", False]]
+			"Point Size":      [SpinFloat, ["Point Size", "Point diameter in viewer coordinates, in nanometers (nm).", 1, [0.1, 1000], 1, 1]],
+			"Pixel Size":      [SpinInt, ["Pixel Size (nm)", "Physical size of an acquisition pixel, in nanometers (nm).", 160, [1, 1000], 10]],
+			"XY Scale":        [SpinFloat, ["XY Scale", "Multiplicative display scale for X and Y coordinates (dimensionless).", 1.0, [0.0, 1000], 1.0, 1]],
+			"Z Scale":         [SpinFloat, ["Z Scale", "Multiplicative display scale for Z coordinates (dimensionless).", 1.0, [0.0, 1000], 1.0, 1]],
+			"Remove Outliers": [CheckBox, ["Remove Outliers", "Display only localizations with a strictly positive integrated intensity.", False]]
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 2

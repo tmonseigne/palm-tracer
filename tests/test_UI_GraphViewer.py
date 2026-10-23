@@ -79,10 +79,10 @@ def test_results_status_automatic_update(w: GraphViewerWidget, qtbot):
 	results_ui = w.pt.results.get_ui(w.UI_NAME)
 
 	w.pt.results.reset()
-	assert results_ui.labels["Localizations"].text() == "No"
+	assert results_ui.labels["Localizations"].text() == "0"
 
 	w.pt.results["loc"] = pd.DataFrame(np.zeros((2, 1)))
-	assert results_ui.labels["Localizations"].text() == "Yes (2 localizations)"
+	assert results_ui.labels["Localizations"].text() == "2"
 
 
 # --------------------------------------------------

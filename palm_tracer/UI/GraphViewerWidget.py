@@ -12,7 +12,7 @@ from typing import cast
 from qtpy.compat import isalive
 from qtpy.QtCore import QEvent, QObject, Qt, QTimer
 from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
-from qtpy.QtWidgets import QAbstractSpinBox, QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSpinBox, QSplitter, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
@@ -88,10 +88,6 @@ class GraphViewerWidget(BasePlotlyWidget):
 		main_layout = QHBoxLayout(self)
 		Ui.init_layout(main_layout)
 
-		self.setStyleSheet("""QAbstractSpinBox { padding: 1px 10px; min-width: 10px; min-height: 18px; }
-		QLineEdit { min-height: 20px; padding: 2px; }
-		QComboBox { padding: 3px 10px 3px 8px; }""")
-
 		# --- Séparateur redimensionnable ---
 		splitter = QSplitter(Qt.Orientation.Horizontal, self)
 		main_layout.addWidget(splitter)
@@ -99,7 +95,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		# --- Colonne gauche ---
 		left = QFrame(self)
 		left.setFrameShape(QFrame.Shape.StyledPanel)
-		left.setMinimumWidth(300)
+		left.setMinimumWidth(self.LEFT_PANEL_MINIMUM_WIDTH)
 		vbox = QVBoxLayout(left)
 		Ui.init_layout(vbox)
 		scroll_content = QWidget()
@@ -136,7 +132,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 		for i, key in enumerate(display_settings):
 			row, col = i // 2, (i % 2) * 2
 			ui = display_settings[key].get_ui(self.UI_NAME)
-			if isinstance(display_settings[key], SpinInt): cast(QAbstractSpinBox, ui.boxes[0]).setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+			if isinstance(display_settings[key], SpinInt): Ui.set_spin_buttons(cast(QSpinBox, ui.boxes[0]), False)
 			grid.addLayout(ui.layout, row, col)
 			grid.addWidget(ui.label, row, col + 1)
 

@@ -38,6 +38,8 @@ class BasePlotlyWidget(QWidget):
 
 	PLOT_DIV_ID = "plotly_graph"
 	"""Identifiant HTML du conteneur Plotly."""
+	LEFT_PANEL_MINIMUM_WIDTH: int = 360
+	"""Largeur minimale de la colonne de réglages, en pixels logiques, identique au panneau PALMTracer."""
 	RESOURCE_DIR = Path(__file__).resolve().parent / "res"
 	"""Répertoire des ressources de l'interface."""
 	PLOTLY_JS_PATH = RESOURCE_DIR / "plotly.min.js"
@@ -53,6 +55,9 @@ class BasePlotlyWidget(QWidget):
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
 		"""
 		super().__init__(parent)
+		self.setStyleSheet("""QAbstractSpinBox { padding: 1px 10px; min-width: 10px; min-height: 18px; }
+		QLineEdit { min-height: 20px; padding: 2px; }
+		QComboBox { padding: 3px 10px 3px 8px; }""")
 
 		self._pending_download_path: str = ""
 		self._grapher = Grapher()

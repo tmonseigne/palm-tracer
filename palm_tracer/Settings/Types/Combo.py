@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional, cast
+from typing import Optional, cast
 
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QComboBox, QHBoxLayout, QLabel
@@ -17,6 +17,7 @@ from palm_tracer.Settings.Types.BaseUIType import BaseUIType
 class Combo(BaseSettingType):
 	"""
 	Représente un choix effectué dans une liste déroulante.
+	Seul l'indice sélectionné est sérialisé ; les choix sont définis par le code ou reconstruits par le groupe de paramètres.
 
 	:param label: Libellé affiché dans l'interface.
 	:param tooltip: Description affichée dans l'infobulle.
@@ -97,18 +98,6 @@ class Combo(BaseSettingType):
 	# ==================================================
 	# endregion Accesseurs
 	# ==================================================
-
-	# ==================================================
-	# region Sérialisation
-	# ==================================================
-	def to_compact_dict(self) -> dict[str, Any]:
-		return {"value": self.value, "items": self.items}
-
-	# --------------------------------------------------
-	def update_from_compact_dict(self, data: dict[str, Any]):
-		self.items = data["items"]  # Récupération de la liste des éléments avant de mettre à jour la valeur
-		self.value = data["value"]
-
 
 # --------------------------------------------------
 if __name__ == "__main__":

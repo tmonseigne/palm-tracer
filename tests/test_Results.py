@@ -131,7 +131,7 @@ def test_stack_name_normalization(results, qtbot, tmp_path, filename, expected_n
 	qtbot.addWidget(second_ui.widget)
 
 	assert results.stack_name == expected_name
-	assert results.get_status()["File"] == expected_name
+	assert results.get_status()["File"] == (expected_name, str(path))
 	for ui in (first_ui, second_ui):
 		assert ui.labels["File"].text() == expected_name
 		assert ui.labels["File"].toolTip() == str(path)
@@ -193,57 +193,67 @@ def test_active_results(results):
 # --------------------------------------------------
 def test_status(results):
 	"""Vérifie exactement l'ensemble des statuts dans chaque configuration."""
-	expected = {"File":               "No File",
-				"Localizations":      "No",
-				"Beads":              "No",
-				"Tracks":             "No",
-				"Tracks Reconnected": "No",
-				"MSD":                "No",
-				"Instant D":          "No",
-				"MSD Fit":            "No"}
+	expected = {"File":               ("No File", ""),
+				"Localizations":      ("0", "0 localizations"),
+				"Beads":              ("0", "0 beads"),
+				"Tracks":             ("0", "0 tracks"),
+				"Tracks Reconnected": ("0", "0 reconnected tracks"),
+				"MSD":                ("0", "0 tracks"),
+				"Instant D":          ("0", "0 tracks"),
+				"MSD Fit":            ("0", "0 tracks")}
 	assert results.get_status() == expected
 
 	results.stack_name = "stack.tif"
 	for key in ("loc", "bds", "trc", "blk", "MSD", "InD", "Fit"):
-		results._data[key] = make_dataframe(1)
-	for key in ("f_loc", "f_trc", "f_blk", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = make_dataframe(2)
+	for key in ("f_loc", "f_trc", "f_blk", "f_MSD", "f_InD", "f_Fit"):
+		results._data[key] = make_dataframe(1)
 
-	expected = {"File":               "stack",
-				"Localizations":      "Yes Filtered (2/1 localizations)",
-				"Beads":              "Yes (1 localizations)",
-				"Tracks":             "Yes Filtered (2/1 tracks)",
-				"Tracks Reconnected": "Yes Filtered (2/1 tracks)",
-				"MSD":                "Yes Filtered (2/1 tracks)",
-				"Instant D":          "Yes Filtered (2/1 tracks)",
-				"MSD Fit":            "Yes Filtered (2/1 tracks)"}
+	percentages = "50.00% retained; 50.00% filtered out."
+	expected = {"File":               ("stack", "stack.tif"),
+				"Localizations":      ("1/2", f"1/2 localizations\n{percentages}"),
+				"Beads":              ("2", "2 beads"),
+				"Tracks":             ("1/2", f"1/2 tracks\n{percentages}"),
+				"Tracks Reconnected": ("1/2", f"1/2 reconnected tracks\n{percentages}"),
+				"MSD":                ("1/2", f"1/2 tracks\n{percentages}"),
+				"Instant D":          ("1/2", f"1/2 tracks\n{percentages}"),
+				"MSD Fit":            ("1/2", f"1/2 tracks\n{percentages}")}
 	assert results.get_status() == expected
 
 	results._data["f_blk"] = pd.DataFrame()
-	expected["Tracks Reconnected"] = "Yes (1 tracks)"
+	expected["Tracks Reconnected"] = ("2", "2 reconnected tracks")
 	assert results.get_status() == expected
 
 	for key in ("f_loc", "f_trc", "f_MSD", "f_InD", "f_Fit"):
 		results._data[key] = pd.DataFrame()
 	results._data["blk"] = pd.DataFrame()
-	expected = {"File":               "stack",
-				"Localizations":      "Yes (1 localizations)",
-				"Beads":              "Yes (1 localizations)",
-				"Tracks":             "Yes (1 tracks)",
-				"Tracks Reconnected": "No",
-				"MSD":                "Yes (1 tracks)",
-				"Instant D":          "Yes (1 tracks)",
-				"MSD Fit":            "Yes (1 tracks)"}
+	expected = {"File":               ("stack", "stack.tif"),
+				"Localizations":      ("2", "2 localizations"),
+				"Beads":              ("2", "2 beads"),
+				"Tracks":             ("2", "2 tracks"),
+				"Tracks Reconnected": ("0", "0 reconnected tracks"),
+				"MSD":                ("2", "2 tracks"),
+				"Instant D":          ("2", "2 tracks"),
+				"MSD Fit":            ("2", "2 tracks")}
 	assert results.get_status() == expected
 
 
 # --------------------------------------------------
+def test_status_counts_unique_beads(results):
+	"""Vérifie que le statut des billes compte leurs identifiants distincts plutôt que leurs localisations."""
+	results._data["bds"] = pd.DataFrame({"Bead": [1, 1, 2, 2, 2], "Plane": [1, 2, 1, 2, 3]})
+	assert results.get_status()["Beads"] == ("2", "2 beads")
+
+
+# --------------------------------------------------
 @pytest.mark.parametrize(("original_count", "filtered_count", "prefix", "expected"), [
-		pytest.param(0, 0, "", "No", id="no-tracks"),
-		pytest.param(2, 0, "", "Yes (2 tracks)", id="original-tracks-only"),
-		pytest.param(2, 2, "", "Yes (2 tracks)", id="all-tracks-preserved"),
-		pytest.param(2, 1, "", "Yes Filtered (1/2 tracks)", id="partially-filtered-tracks"),
-		pytest.param(2, 1, "Reconnected", "Yes Reconnected Filtered (1/2 tracks)", id="reconnected-filtered-tracks")])
+		pytest.param(0, 0, "", ("0", "0 tracks"), id="no-tracks"),
+		pytest.param(2, 0, "", ("2", "2 tracks"), id="original-tracks-only"),
+		pytest.param(2000, 2000, "", ("2\u00a0000", "2\u00a0000 tracks"), id="all-tracks-preserved"),
+		pytest.param(2000, 1000, "", ("1\u00a0000/2\u00a0000", "1\u00a0000/2\u00a0000 tracks\n50.00% retained; 50.00% filtered out."),
+					 id="partially-filtered-tracks"),
+		pytest.param(2, 1, "Reconnected", ("1/2", "1/2 reconnected tracks\n50.00% retained; 50.00% filtered out."),
+					 id="reconnected-filtered-tracks")])
 def test_dataframe_status(original_count, filtered_count, prefix, expected):
 	"""Vérifie chaque forme de statut individuel."""
 	status = Results.get_df_status(make_dataframe(original_count), make_dataframe(filtered_count), "tracks", prefix)
@@ -258,7 +268,7 @@ def test_dataframe_status_counts_unique_tracks():
 
 	status = Results.get_df_status(original, filtered, "tracks")
 
-	assert status == "Yes Filtered (2/3 tracks)"
+	assert status == ("2/3", "2/3 tracks\n66.67% retained; 33.33% filtered out.")
 
 
 # ==================================================
@@ -368,7 +378,9 @@ def test_clear_button(results, qtbot, category, cleared_keys):
 		results[key] = make_dataframe(2 if key.startswith("f_") else 3)
 	original_data = {key: results[key].copy(deep=True) for key in results}
 	expected_status = results.get_status()
-	expected_status[category] = "No"
+	kind = "localizations" if category == "Localizations" else "beads" if category == "Beads" else "tracks"
+	if category == "Tracks Reconnected": kind = "reconnected tracks"
+	expected_status[category] = ("0", f"0 {kind}")
 
 	first_ui = results.get_ui("first")
 	second_ui = results.get_ui("second")
@@ -385,8 +397,9 @@ def test_clear_button(results, qtbot, category, cleared_keys):
 	assert results.stack_name == "stack"
 	assert results.get_status() == expected_status
 	for ui in (first_ui, second_ui):
-		for key, expected in expected_status.items():
-			assert ui.labels[key].text() == expected
+		for key, (text, tooltip) in expected_status.items():
+			assert ui.labels[key].text() == text
+			assert ui.labels[key].toolTip() == tooltip
 
 
 # --------------------------------------------------
@@ -407,9 +420,9 @@ def test_interfaces(results, qtbot):
 	for ui in (first_ui, second_ui):
 		assert ui.labels["File"].text() == "stack"
 		assert ui.labels["File"].toolTip() == "stack.tif"
-		assert ui.labels["Localizations"].text() == "Yes (2 localizations)"
-		assert ui.labels["Tracks"].text() == "Yes (2 tracks)"
-		assert ui.labels["Tracks Reconnected"].text() == "Yes (1 tracks)"
+		assert ui.labels["Localizations"].text() == "2"
+		assert ui.labels["Tracks"].text() == "2"
+		assert ui.labels["Tracks Reconnected"].text() == "1"
 
 	results.clean_ui("first")
 	results.clean_ui("unknown")

@@ -49,6 +49,7 @@ class Viewer3DWidget(QWidget):
 
 		# Bouton de chargement CSV
 		btn = QPushButton("Load CSV")
+		btn.setToolTip("Load localizations containing X and Y in pixels, Z in nanometers (nm), and Integrated Intensity.")
 		btn.clicked.connect(self.load_csv)
 		layout.addWidget(btn)
 

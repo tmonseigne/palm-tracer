@@ -233,7 +233,7 @@ def test_color_map_picker_replaces_temporary_entry(qtbot, monkeypatch):
 	assert setting.current_text == "Custom (#28323c)"
 	np.testing.assert_array_equal(setting.get_lut(255)[-1], [40, 50, 60])
 	assert received == [custom_index, custom_index]
-	assert setting.to_compact_dict() == {"value": setting.default, "items": list(st.ColorMap.AVAILABLE_MAPS)}
+	assert setting.to_compact_dict() == {"value": setting.default}
 
 
 # --------------------------------------------------
@@ -491,6 +491,17 @@ def test_check_range_int(qtbot):
 	assert setting.min == 5
 	cast(QSpinBox, ui.boxes[2]).setValue(5)
 	assert setting.max == 5
+	qtbot.mouseClick(ui.boxes[3], Qt.MouseButton.LeftButton)
+	assert setting.value == [4, 5]
+	qtbot.mouseClick(ui.boxes[4], Qt.MouseButton.LeftButton)
+	assert setting.value == [4, 6]
+	# Les boutons suivent aussi les limites modifiées après la construction de l'interface.
+	setting.limits = [3, 7]
+	qtbot.mouseClick(ui.boxes[3], Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(ui.boxes[4], Qt.MouseButton.LeftButton)
+	assert setting.value == [3, 7]
+	assert cast(QSpinBox, setting.get_ui("default").boxes[1]).value() == 3
+	assert cast(QSpinBox, setting.get_ui("default").boxes[2]).value() == 7
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
 	assert not setting.active
 
@@ -529,6 +540,17 @@ def test_check_range_float(qtbot):
 	assert setting.min == 5
 	cast(QDoubleSpinBox, ui.boxes[2]).setValue(5)
 	assert setting.max == 5
+	qtbot.mouseClick(ui.boxes[3], Qt.MouseButton.LeftButton)
+	assert setting.value == [4, 5]
+	qtbot.mouseClick(ui.boxes[4], Qt.MouseButton.LeftButton)
+	assert setting.value == [4, 6]
+	# Les limites décimales restent prises en compte lors des clics suivants.
+	setting.limits = [3.25, 7.75]
+	qtbot.mouseClick(ui.boxes[3], Qt.MouseButton.LeftButton)
+	qtbot.mouseClick(ui.boxes[4], Qt.MouseButton.LeftButton)
+	assert setting.value == [3.25, 7.75]
+	assert cast(QDoubleSpinBox, setting.get_ui("default").boxes[1]).value() == 3.25
+	assert cast(QDoubleSpinBox, setting.get_ui("default").boxes[2]).value() == 7.75
 	qtbot.mouseClick(ui.boxes[0], Qt.MouseButton.LeftButton)
 	assert not setting.active
 

@@ -25,9 +25,9 @@ class Calibration(BaseSettingGroup):
 	label: str = "Calibration"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Pixel Size": [SpinFloat, ["Pixel Size (μm)", "", 0.160, [0.001, 1.0], 0.01, 3]],
-			"Exposure":   [SpinFloat, ["Exposure Time (s/frame)", "", 0.050, [0.001, 1.0], 0.01, 3]],
-			"Intensity":  [SpinFloat, ["Intensity (photon/ADU)", "", 0.0120, [0.0, 1.0], 0.001, 4]]
+			"Pixel Size": [SpinFloat, ["Pixel Size (μm)", "Physical size of an acquisition pixel, in micrometers (µm).", 0.160, [0.001, 1.0], 0.01, 3]],
+			"Exposure":   [SpinFloat, ["Exposure Time (s/frame)", "Exposure time in seconds per frame (s/frame).", 0.050, [0.001, 1.0], 0.01, 3]],
+			"Intensity":  [SpinFloat, ["Intensity (photon/ADU)", "Intensity conversion factor in photons per ADU (photon/ADU).", 0.0120, [0.0, 1.0], 0.001, 4]]
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1

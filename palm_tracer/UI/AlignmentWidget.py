@@ -99,7 +99,7 @@ class AlignmentWidget(QWidget):
 		self._spin_upscale.setToolTip("Integer upscaling factor for the output aligned image (1 = no upscaling).")
 
 		form = Ui.make_form(None)
-		Ui.add_setting_row(form, "Upscaling factor:", self._spin_upscale)
+		Ui.add_setting_row(form, "Upscaling factor:", self._spin_upscale, tooltip=self._spin_upscale.toolTip())
 
 		grp_layout.addWidget(self._btn_load_tif_apply)
 		grp_layout.addWidget(self._lbl_tif_apply)

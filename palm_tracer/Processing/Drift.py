@@ -210,7 +210,7 @@ def extract_beads(data: pd.DataFrame, max_distance: float = 1, is_3d: bool = Tru
 		active_tracks = new_active_tracks  # Remplacement des trajectoires actives
 
 	# ----- Préparation des données à renvoyer -----
-	work.drop(columns=["_index"], inplace=True)
+	work = work.drop(columns=["_index"])
 	rows: list[pd.DataFrame] = []  # Les trajectoires restantes sont des billes valides. On rassemble leurs points dans une liste de DataFrames.
 	for p in range(len(active_tracks)):
 		df_bead = work.loc[active_tracks[p].ids]
@@ -329,18 +329,18 @@ def remove_drift(data: pd.DataFrame, drift: pd.DataFrame, is_3d: bool = True) ->
 	drift_work = drift.loc[:, list(required)].copy()
 	drift_work = drift_work.sort_values("Plane", kind="stable").reset_index(drop=True)
 	drift_work[["X", "Y", "Z"]] = drift_work[["X", "Y", "Z"]].cumsum()
-	drift_work = drift_work.set_index("Plane")
+	drift_work = drift_work.set_index("Plane").add_suffix("_drift")
 
 	# --- Application : jointure et soustraction ---
 	out = data.copy()
-	out = out.join(drift_work, on="Plane", rsuffix="_drift")  # On fait un merge aligné sur Plane pour vectoriser (évite une boucle Python par plan).
+	out = out.join(drift_work, on="Plane")  # Jointure alignée sur Plane ; les colonnes de dérive sont déjà suffixées.
 	out = out.fillna(0.0)
 
 	# Soustraction (correction).
 	out["X"] -= out["X_drift"]
 	out["Y"] -= out["Y_drift"]
 	if is_3d: out["Z"] -= out["Z_drift"]
-	out.drop(columns=[c for c in out.columns if c.endswith("_drift")], inplace=True)  # Nettoyage
+	out = out.drop(columns=[c for c in out.columns if c.endswith("_drift")])  # Nettoyage
 	return out
 
 

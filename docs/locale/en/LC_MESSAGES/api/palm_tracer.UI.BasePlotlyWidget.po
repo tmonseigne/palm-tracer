@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 12:02+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:2
 msgid "BasePlotlyWidget"
@@ -39,6 +44,11 @@ msgstr "Attributes"
 msgid "Identifiant HTML du conteneur Plotly."
 msgstr "HTML identifier of the Plotly container."
 
+#: of
+#: palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.LEFT_PANEL_MINIMUM_WIDTH:1
+msgid "Largeur minimale de la colonne de réglages, en pixels logiques, identique au panneau PALMTracer."
+msgstr "Minimum width of the settings column in logical pixels, matching the PALMTracer panel."
+
 #: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget.RESOURCE_DIR:1
 msgid "Répertoire des ressources de l'interface."
 msgstr "Interface resource directory."
@@ -51,11 +61,11 @@ msgstr "Local path to the Plotly JavaScript library."
 msgid "Adresse de secours de la bibliothèque JavaScript Plotly."
 msgstr "Fallback URL for the Plotly JavaScript library."
 
-#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:17
+#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:18
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:20
+#: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:21
 msgid "Divers"
 msgstr "Miscellaneous"
 

@@ -349,7 +349,7 @@ class PALMTracer:
 				new_file = self.results.output_name_by_key(key, self._path, self._timestamp)
 				try:
 					self.results[key] = pd.read_csv(old_file)
-					self._logger.add(f"\tFile '{old_file.name}' loaded successfully, {len(self.results[key])} row(s) found.")
+					self._logger.add(f"\tFile '{old_file.name}' loaded successfully, {Ui.format_number(len(self.results[key]))} row(s) found.")
 					old_file.rename(new_file)  # On renomme le fichier pour qu'à la prochaine étape, ce process soit celui du csv.
 				except Exception as e:
 					self._logger.add(f"\tError loading file '{old_file.name}': {e}")
@@ -373,7 +373,8 @@ class PALMTracer:
 			self.results[f_key] = step.filter_func(self.results[step.keys[0]])
 			n_init, n_end = len(self.results[step.keys[0]]), len(self.results[f_key])
 			if n_init != n_end:
-				self._logger.add(f"\t\tFiltering of file {n_end} row(s) instead of {n_init}: {n_init - n_end} deletion(s).")
+				self._logger.add(f"\t\tFiltering of file {Ui.format_number(n_end)} row(s) instead of {Ui.format_number(n_init)}: "
+								 f"{Ui.format_number(n_init - n_end)} deletion(s).")
 				if self.settings.filters["Save"].value and n_end != 0:
 					self._logger.add("\t\tSaving the filtered file.")
 					self.results.save(f_key, self._path, self._timestamp)
@@ -389,7 +390,8 @@ class PALMTracer:
 
 			n_end = len(self.results["f_MSD"])
 			if n_init != n_end:
-				self._logger.add(f"\t\tFiltering of files {n_end} row(s) instead of {n_init}: {n_init - n_end} deletion(s)")
+				self._logger.add(f"\t\tFiltering of files {Ui.format_number(n_end)} row(s) instead of {Ui.format_number(n_init)}: "
+								 f"{Ui.format_number(n_init - n_end)} deletion(s)")
 				if self.settings.filters["Save"].value:
 					for key, name in [(o_name, "tracking"), ("f_MSD", "MSD"), ("f_InD", "Instant Diffusion"), ("f_Fit", "Fit")]:
 						if not self.results[key].empty:
@@ -429,7 +431,7 @@ class PALMTracer:
 				estimated_z = self.palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
 				self.results["loc"][["Z", "MSE Z"]] = estimated_z
 
-		self._logger.add(f"\tSaving the localization file ({len(self.results['loc'])} localization(s) found).")
+		self._logger.add(f"\tSaving the localization file ({Ui.format_number(len(self.results['loc']))} localization(s) found).")
 		self.results.save("loc", self._path, self._timestamp)
 
 	# --------------------------------------------------
@@ -495,7 +497,7 @@ class PALMTracer:
 		if self.results["bds"].empty:
 			self._logger.add("\tNo beads found.")
 			return
-		self._logger.add(f"\tSaving the beads file ({self.results['bds'].iloc[-1, 0]} beads(s) found).")
+		self._logger.add(f"\tSaving the beads file ({Ui.format_number(self.results['bds'].iloc[-1, 0], 0)} beads(s) found).")
 		self.results.save("bds", self._path, self._timestamp)
 
 	# --------------------------------------------------
@@ -510,7 +512,7 @@ class PALMTracer:
 		s = self.settings.tracking.settings
 		self.results["trc"] = self.palm.tracking(df, s["Max Distance"])
 
-		self._logger.add(f"\tSaving the tracking file ({len(self.results['trc'])} point(s) found).")
+		self._logger.add(f"\tSaving the tracking file ({Ui.format_number(len(self.results['trc']))} point(s) found).")
 		self.results.save("trc", self._path, self._timestamp)
 
 	# --------------------------------------------------
@@ -524,7 +526,7 @@ class PALMTracer:
 		s = self.settings.blinking.settings
 		self.results["blk"] = self.palm.blinking_reconnection(df, 1, s["Mode"], s["Max Duration"], s["Max Distance"])
 
-		self._logger.add(f"\tSaving the reconnected tracking file ({len(self.results['blk'])} point(s) found).")
+		self._logger.add(f"\tSaving the reconnected tracking file ({Ui.format_number(len(self.results['blk']))} point(s) found).")
 		self.results.save("blk", self._path, self._timestamp)
 
 	# --------------------------------------------------

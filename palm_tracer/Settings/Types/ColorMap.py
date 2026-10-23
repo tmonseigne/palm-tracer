@@ -168,7 +168,7 @@ class ColorMap(Combo):
 	# ==================================================
 	def to_compact_dict(self) -> dict[str, Any]:
 		"""
-		Renvoie le paramètre sans inclure la colormap personnalisée temporaire.
+		Renvoie uniquement l'indice sélectionné, ou l'indice par défaut si la colormap personnalisée temporaire est sélectionnée.
 
 		:return: Dictionnaire sérialisable sans la colormap personnalisée temporaire.
 		"""
@@ -176,7 +176,7 @@ class ColorMap(Combo):
 
 		custom_index = len(self._items) - 1
 		value = self.default if self.value == custom_index else self.value
-		return {"value": value, "items": self._items[:-1]}
+		return {"value": value}
 
 	# ==================================================
 	# endregion Sérialisation

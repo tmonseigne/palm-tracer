@@ -237,17 +237,17 @@ class Results:
 		return {"MSD": self._data[keys[0]], "InD": self._data[keys[1]], "Fit": self._data[keys[2]]}
 
 	# --------------------------------------------------
-	def get_status(self) -> dict[str, str]:
+	def get_status(self) -> dict[str, tuple[str, str]]:
 		"""
 		Construit les statuts des différentes catégories de résultats actuellement chargées.
 
-		:return: Statuts indexés par catégorie de résultat.
+		:return: Couples (texte compact, infobulle) indexés par catégorie de résultat.
 		"""
-		res = {"File":               self.stack_name if self._stack_name else "No File",
+		res = {"File":               (self.stack_name if self._stack_name else "No File", str(self._stack_path) if self._stack_path is not None else ""),
 			   "Localizations":      self.get_df_status(self._data["loc"], self._data["f_loc"], "localizations"),
-			   "Beads":              self.get_df_status(self._data["bds"], self._data["bds"], "localizations"),
+			   "Beads":              self.get_df_status(self._data["bds"], self._data["bds"], "beads"),
 			   "Tracks":             self.get_df_status(self._data["trc"], self._data["f_trc"], "tracks"),
-			   "Tracks Reconnected": self.get_df_status(self._data["blk"], self._data["f_blk"], "tracks"),
+			   "Tracks Reconnected": self.get_df_status(self._data["blk"], self._data["f_blk"], "tracks", "Reconnected"),
 			   "MSD":                self.get_df_status(self._data["MSD"], self._data["f_MSD"], "tracks"),
 			   "Instant D":          self.get_df_status(self._data["InD"], self._data["f_InD"], "tracks"),
 			   "MSD Fit":            self.get_df_status(self._data["Fit"], self._data["f_Fit"], "tracks")}
@@ -256,26 +256,30 @@ class Results:
 
 	# --------------------------------------------------
 	@staticmethod
-	def get_df_status(original: pd.DataFrame, filtered: pd.DataFrame, name: str, pre: str = "") -> str:
+	def get_df_status(original: pd.DataFrame, filtered: pd.DataFrame, name: str, pre: str = "") -> tuple[str, str]:
 		"""
 		Construit le statut d'un résultat à partir de ses versions initiale et filtrée.
 
-		En présence d'une colonne ``Track``, les identifiants de trajectoire distincts et non nuls sont comptés ;
-		sinon, le nombre de lignes est utilisé.
+		Pour les billes, les identifiants distincts de ``Bead`` sont comptés ; pour les autres résultats, ceux de ``Track`` sont utilisés.
+		Les valeurs manquantes sont exclues. En l'absence de la colonne correspondante, le nombre de lignes est utilisé.
 
 		:param original: DataFrame initial.
 		:param filtered: DataFrame filtré.
 		:param name: Nom du type de données, par exemple ``localizations`` ou ``tracks``.
 		:param pre: Qualificatif ajouté au statut, par exemple ``Reconnected``.
-		:return: Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage.
+		:return: Couple (compteurs compacts, infobulle détaillée avec les pourcentages conservé et retiré si le résultat est filtré).
 		"""
-		n_init = original["Track"].nunique() if "Track" in original.columns else len(original)
-		n_filt = filtered["Track"].nunique() if "Track" in filtered.columns else len(filtered)
-		yes = f"Yes {pre}" if pre else "Yes"
+		column = "Bead" if name == "beads" else "Track"
+		n_init = original[column].nunique() if column in original.columns else len(original)
+		n_filt = filtered[column].nunique() if column in filtered.columns else len(filtered)
+		kind = f"{pre.lower()} {name}" if pre else name
+		count = Ui.format_number(n_init)
+		if n_filt == 0 or n_filt == n_init or n_init == 0: return count, f"{count} {kind}"
 
-		if n_init == 0: return "No"
-		if n_filt == 0 or n_filt == n_init: return f"{yes} ({n_init} {name})"
-		else: return f"{yes} Filtered ({n_filt}/{n_init} {name})"
+		counts = f"{Ui.format_number(n_filt)}/{count}"
+		tooltip = (f"{counts} {kind}\n{Ui.format_number(100 * n_filt / n_init)}% retained; "
+				   f"{Ui.format_number(100 * (n_init - n_filt) / n_init)}% filtered out.")
+		return counts, tooltip
 
 	# ==================================================
 	# endregion Accesseurs
@@ -363,7 +367,6 @@ class Results:
 		for category, keys in categories.items():
 			ui.clear_buttons[category].clicked.connect(lambda checked=False, result_keys=keys: self._clear_result(result_keys))
 		ui.update_status(self.get_status())
-		ui.labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
 		ui.update_results_folder(self._results_folder)
 		self._uis[name] = ui
 		return ui
@@ -383,5 +386,4 @@ class Results:
 		status = self.get_status()
 		for ui in self._uis.values():
 			ui.update_status(status)
-			ui.labels["File"].setToolTip(str(self._stack_path) if self._stack_path is not None else "")
 			ui.update_results_folder(self._results_folder)

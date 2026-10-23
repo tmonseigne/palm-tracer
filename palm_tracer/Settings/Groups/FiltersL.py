@@ -34,14 +34,16 @@ class FiltersL(BaseSettingGroup):
 	label: str = "Localization"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Z":           [CheckRangeInt, ["Z", "", [-2000, 2000], [-2000, 2000]]],
-			"Intensity":   [CheckRangeInt, ["Intensity", "", [0, 10000000], [0, 10000000]]],
-			"Sigma X":     [CheckRangeFloat, ["Sigma X", "", [0, 10], [0, 10]]],
-			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", "", [0, 10], [0, 10]]],
-			"Circularity": [CheckRangeFloat, ["Circularity", "", [0, 1], [0, 1]]],
-			"Theta":       [CheckRangeFloat, ["Theta", "", [-90, 90], [-90, 90]]],
-			"MSE XY":      [CheckRangeFloat, ["MSE XY", "", [0, 1], [0, 1]]],
-			"MSE Z":       [CheckRangeFloat, ["MSE Z", "", [0, 1], [0, 1]]]
+			"Z":           [CheckRangeInt, ["Z", "Axial position range, in nanometers (nm).", [-2000, 2000], [-2000, 2000]]],
+			"Intensity":   [CheckRangeInt, ["Intensity", "Integrated intensity range, in image intensity units (ADU).", [0, 10000000], [0, 10000000]]],
+			"Sigma X":     [CheckRangeFloat, ["Sigma X", "Standard deviation range along X, in acquisition pixels.", [0, 10], [0, 10]]],
+			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", "Standard deviation range along Y, in acquisition pixels.", [0, 10], [0, 10]]],
+			"Circularity": [CheckRangeFloat, ["Circularity", "Circularity range, from 0 to 1 (dimensionless); 1 corresponds to equal X and Y sigmas.",
+											  [0, 1], [0, 1]]],
+			"Theta":       [CheckRangeFloat, ["Theta", "Orientation angle range, in degrees (°).", [-90, 90], [-90, 90]]],
+			"MSE XY":      [CheckRangeFloat, ["MSE XY", "Squared Pearson correlation range for the XY fit, from 0 to 1; higher is better.", [0, 1], [0, 1]]],
+			"MSE Z":       [CheckRangeFloat, ["MSE Z", ("Sigma compatibility score range for the astigmatism model, from 0 to 1; higher is better. "
+														"Legacy files may contain a sum of squared errors instead."), [0, 1], [0, 1]]]
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1

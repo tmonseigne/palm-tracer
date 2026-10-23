@@ -606,7 +606,7 @@ class Renderer:
 			segment_lengths = np.nan_to_num(segment_lengths, nan=0.0)
 			data["SegmentLength"] = segment_lengths
 			data["Color"] = data.groupby("Track")["SegmentLength"].transform("sum").to_numpy(dtype=float)
-			data.drop(columns="SegmentLength", inplace=True)
+			data = data.drop(columns="SegmentLength")
 
 		# Numéro du plan relatif au début de chaque trajectoire, en commençant à 1.
 		elif source == "Relative Plane":

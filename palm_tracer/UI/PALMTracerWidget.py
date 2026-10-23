@@ -24,10 +24,8 @@ from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
-try:
-	from napari.qt.threading import FunctionWorker, thread_worker  # Chemin public, à préférer.
-except ImportError:
-	from superqt.utils import FunctionWorker, thread_worker  # Repli pour les versions antérieures.
+try: from napari.qt.threading import FunctionWorker, thread_worker  # Chemin public, à préférer.
+except ImportError: from superqt.utils import FunctionWorker, thread_worker  # Repli pour les versions antérieures.
 
 
 # --------------------------------------------------
@@ -107,12 +105,17 @@ class PALMTracerWidget(BaseNapariWidget):
 
 		# Viewer Button
 		self.btn_viewer_gr = QPushButton("Graph Viewer")
+		self.btn_viewer_gr.setToolTip("Open the graph viewer to explore localization and track results.")
 		self.btn_viewer_hr = QPushButton("HR Viewer")
+		self.btn_viewer_hr.setToolTip("Open the high-resolution reconstruction viewer.")
 		self.btn_viewer_3d = QPushButton("3D Viewer")
+		self.btn_viewer_3d.setToolTip("Open the 3D localization viewer.")
 
 		# Load Setting Button
 		self.btn_load_setting = QPushButton("Load Setting")
+		self.btn_load_setting.setToolTip("Load processing and visualization settings from a settings file.")
 		self.btn_reset_setting = QPushButton("Reset Setting")
+		self.btn_reset_setting.setToolTip("Reset all settings to their default values.")
 		setting_action_row = QHBoxLayout()
 		setting_action_row.addWidget(self.btn_load_setting)
 		setting_action_row.addWidget(self.btn_reset_setting)
@@ -140,7 +143,9 @@ class PALMTracerWidget(BaseNapariWidget):
 
 		# Launch/Load Button
 		self.btn_process = QPushButton("Start Processing")
+		self.btn_process.setToolTip("Process the acquisition files using the enabled groups and current settings.")
 		self.btn_load_result = QPushButton("Load Last Result")
+		self.btn_load_result.setToolTip("Load saved results associated with the current acquisition.")
 		btn_action_row = QHBoxLayout()
 		btn_action_row.addWidget(self.btn_process)
 		btn_action_row.addWidget(self.btn_load_result)
@@ -480,9 +485,9 @@ class PALMTracerWidget(BaseNapariWidget):
 		# Affichage console (les notifications posent problème en thread externe)
 		l_past, l_present, l_future = len(self._preview_locs["Past"]), len(self._preview_locs["Present"]), len(self._preview_locs["Future"])
 		l_filt = len(self._preview_locs["Filtered"])
-		print(f"Preview of plane {self.viewer.dims.current_step[0]} : {l_past + l_present + l_future} detected points "
-			  f"{f'+ {l_filt} filtered ' if l_filt > 0 else ''}"
-			  f"({l_present} on the current frame, {l_past} on the previous frame, {l_future} on the next frame).")
+		print(f"Preview of plane {self.viewer.dims.current_step[0]} : {Ui.format_number(l_past + l_present + l_future)} detected points "
+			  f"{f'+ {Ui.format_number(l_filt)} filtered ' if l_filt > 0 else ''}({Ui.format_number(l_present)} on the current frame, "
+			  f"{Ui.format_number(l_past)} on the previous frame, {Ui.format_number(l_future)} on the next frame).")
 
 		valid_loc = pres_loc.loc[pres_loc["Integrated Intensity"] > 0]
 		if not valid_loc.empty:

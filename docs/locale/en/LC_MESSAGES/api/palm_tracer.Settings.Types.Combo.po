@@ -3,7 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"POT-Creation-Date: 2026-10-13 14:33+0200\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 15:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -17,27 +20,26 @@ msgid "Combo"
 msgstr ""
 
 #: of palm_tracer.Settings.Types.Combo.Combo:1
-msgid "Représente un choix effectué dans une liste déroulante."
-msgstr "Select from the dropdown list."
+msgid "Représente un choix effectué dans une liste déroulante. Seul l'indice sélectionné est sérialisé ; les choix sont définis par le code ou reconstruits par le groupe de paramètres."
+msgstr "Represents a selection in a drop-down list. Only the selected index is serialized; the choices are defined in the code or rebuilt by the parameter group."
 
-#: ../../api/palm_tracer.Settings.Types.Combo.rst of
-#: palm_tracer.Settings.Types.Combo.Combo.update_from_compact_dict
+#: ../../api/palm_tracer.Settings.Types.Combo.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
-#: of palm_tracer.Settings.Types.Combo.Combo:3
+#: of palm_tracer.Settings.Types.Combo.Combo:4
 msgid "Libellé affiché dans l'interface."
 msgstr "Label displayed in the interface."
 
-#: of palm_tracer.Settings.Types.Combo.Combo:4
+#: of palm_tracer.Settings.Types.Combo.Combo:5
 msgid "Description affichée dans l'infobulle."
 msgstr "Description displayed in the tooltip."
 
-#: of palm_tracer.Settings.Types.Combo.Combo:5
+#: of palm_tracer.Settings.Types.Combo.Combo:6
 msgid "Indice sélectionné par défaut."
 msgstr "Index selected by default."
 
-#: of palm_tracer.Settings.Types.Combo.Combo:6
+#: of palm_tracer.Settings.Types.Combo.Combo:7
 msgid "Libellés des choix proposés."
 msgstr "Labels of the available choices."
 
@@ -85,19 +87,6 @@ msgstr "Returns"
 msgid "Interface du paramètre (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
 msgstr "Setting interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUIType`)."
 
-#: ../../api/palm_tracer.Settings.Types.Combo.rst of
-#: palm_tracer.Settings.Types.Combo.Combo.to_compact_dict
+#: ../../api/palm_tracer.Settings.Types.Combo.rst
 msgid "Type renvoyé"
 msgstr "Return type"
-
-#: ../../api/palm_tracer.Settings.Types.Combo.rst:25
-msgid "Sérialisation"
-msgstr "Serialization"
-
-#: of palm_tracer.Settings.Types.Combo.Combo.to_compact_dict:1
-msgid "Renvoie un dictionnaire minimal contenant la valeur du setting."
-msgstr "Returns a minimal dictionary containing the setting's value."
-
-#: of palm_tracer.Settings.Types.Combo.Combo.update_from_compact_dict:1
-msgid "Met à jour la classe à partir d'un dictionnaire minimal."
-msgstr "Updates the class from a minimal dictionary."

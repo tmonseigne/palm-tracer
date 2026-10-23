@@ -3,7 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"POT-Creation-Date: 2026-10-13 18:13+0200\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 15:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -139,8 +142,8 @@ msgid "Sérialisation"
 msgstr "Serialization"
 
 #: of palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict:1
-msgid "Renvoie le paramètre sans inclure la colormap personnalisée temporaire."
-msgstr "Returns the parameter without including the temporary custom colormap."
+msgid "Renvoie uniquement l'indice sélectionné, ou l'indice par défaut si la colormap personnalisée temporaire est sélectionnée."
+msgstr "Returns only the selected index, or the default index if the temporary custom colormap is selected."
 
 #: of palm_tracer.Settings.Types.ColorMap.ColorMap.to_compact_dict:3
 msgid "Dictionnaire sérialisable sans la colormap personnalisée temporaire."

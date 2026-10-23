@@ -1115,7 +1115,7 @@ def test_log_data(log_scale):
 def test_get_graph_data_dual_localizations(pt, missing_column):
 	"""Vérifie l'ordre des sources et les métadonnées du Dual des localisations."""
 	pt.results["loc"] = pd.DataFrame({"Sigma X": [1.0, 2.0, 3.0], "Sigma Y": [4.0, 5.0, 6.0]})
-	if missing_column: pt.results["loc"].drop(columns="Sigma X", inplace=True)
+	if missing_column: pt.results["loc"] = pt.results["loc"].drop(columns="Sigma X")
 	s = pt.settings.graph
 	s["Mode"].value = 2
 	s["Source"].value = cast(Combo, s["Source"]).items.index("Sigma X")
@@ -1524,7 +1524,7 @@ def test_hr(input_stack):
 	s["Drift Correction"].value = False
 
 	# HR Localisation DataFrame vide
-	for _ in range(4): pt.results.localizations.drop(pt.results.localizations.index, inplace=True)
+	for key in ("loc", "f_loc", "dft", "f_dft"): pt.results[key] = pt.results[key].iloc[:0].copy()
 	hr_data = pt.hr()
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)
@@ -1561,7 +1561,7 @@ def test_hr(input_stack):
 	s["Scaling"].value = 1
 
 	# HR Tracking DataFrame vide
-	for _ in range(4): pt.results.tracks.drop(pt.results.tracks.index, inplace=True)
+	for key in ("trc", "f_trc", "blk", "f_blk"): pt.results[key] = pt.results[key].iloc[:0].copy()
 	hr_data = pt.hr()
 	viz, plot = hr_data["visualization"], hr_data["plot_data"]
 	assert np.allclose(ref_empty, viz) and np.allclose(ref_empty, plot)

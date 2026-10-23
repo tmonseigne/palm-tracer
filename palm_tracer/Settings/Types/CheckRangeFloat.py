@@ -51,7 +51,9 @@ class CheckRangeFloat(BaseCheckSetting):
 		spin_max: QSpinBox = Ui.make_spin(None, minimum=self.limits[0], maximum=self.limits[1], step=self.step,
 										  value=self.value[1], decimals=self.precision, buttons=False)
 
-		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max])
+		button_min = Ui.make_spin_limit_button(spin_min, True)
+		button_max = Ui.make_spin_limit_button(spin_max, False)
+		ui = BaseUIType(layout=QHBoxLayout(), label=QLabel(self.label), boxes=[checkbox, spin_min, spin_max, button_min, button_max])
 		ui.set_tooltip(self.tooltip)  # .			   Ajoute l'infobulle
 
 		checkbox.setChecked(self.active)

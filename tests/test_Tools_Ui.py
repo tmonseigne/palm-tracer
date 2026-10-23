@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QLabel, QScrollArea, QSpinBox, QVBoxLayout, QWidget
@@ -118,6 +119,8 @@ def test_make_separator(qtbot, builder, shape, color):
 # --------------------------------------------------
 @pytest.mark.parametrize("decimals, buttons, spin_type", [
 		pytest.param(0, True, QSpinBox, id="integer-with-buttons"),
+		pytest.param(0, False, QSpinBox, id="integer-without-buttons"),
+		pytest.param(2, True, QDoubleSpinBox, id="decimal-with-buttons"),
 		pytest.param(2, False, QDoubleSpinBox, id="decimal-without-buttons")])
 def test_make_spin(qtbot, decimals, buttons, spin_type):
 	"""Vérifie le type et les paramètres du champ numérique."""
@@ -125,10 +128,34 @@ def test_make_spin(qtbot, decimals, buttons, spin_type):
 	qtbot.addWidget(spin)
 	assert isinstance(spin, spin_type)
 	assert (spin.minimum(), spin.maximum(), spin.singleStep(), spin.value()) == (-100, 100, 10, 0)
-	assert (spin.buttonSymbols() != QSpinBox.ButtonSymbols.NoButtons) == buttons
+	assert spin.buttonSymbols() == QSpinBox.ButtonSymbols.UpDownArrows
+	assert ("width: 0px; height: 0px;" in spin.styleSheet()) == (not buttons)
+	assert ("image: none;" in spin.styleSheet()) == (not buttons)
 	if decimals: assert spin.decimals() == decimals
 	Ui.set_spin_width(spin)
 	assert spin.minimumWidth() == spin.maximumWidth() > 0
+	spin.show()
+	qtbot.waitUntil(lambda: spin.lineEdit().width() > 1)
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("decimals", [pytest.param(0, id="integer"), pytest.param(2, id="decimal")])
+def test_set_spin_buttons(qtbot, decimals):
+	"""Vérifie le masquage puis le réaffichage des boutons sur le même champ sans perdre sa valeur."""
+	spin = Ui.make_spin(minimum=-100, maximum=100, value=12, decimals=decimals)
+	qtbot.addWidget(spin)
+	width_with_buttons = spin.width()
+	Ui.set_spin_buttons(spin, False)
+	assert spin.property("pt_buttons") is False
+	assert "image: none;" in spin.styleSheet()
+	assert spin.width() < width_with_buttons
+	spin.show()
+	qtbot.waitUntil(lambda: spin.lineEdit().width() > 1)
+	Ui.set_spin_buttons(spin, True)
+	assert spin.property("pt_buttons") is True
+	assert "image: none;" not in spin.styleSheet()
+	assert spin.width() == width_with_buttons
+	assert spin.value() == 12
 
 
 # ==================================================
@@ -218,6 +245,26 @@ def test_print_message(capsys, printer, message):
 	assert message in captured.out
 	assert captured.out.endswith("\n")
 	assert captured.err == ""
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("value, decimals, expected", [
+		pytest.param(0, 2, "0", id="zero"),
+		pytest.param(999, 2, "999", id="small-integer"),
+		pytest.param(1234567, 2, "1\u00a0234\u00a0567", id="large-integer"),
+		pytest.param(-1234567, 2, "-1\u00a0234\u00a0567", id="negative-integer"),
+		pytest.param(np.int64(1234567), 2, "1\u00a0234\u00a0567", id="numpy-integer"),
+		pytest.param(np.uint64(18446744073709551615), 2, "18\u00a0446\u00a0744\u00a0073\u00a0709\u00a0551\u00a0615", id="numpy-uint64"),
+		pytest.param(1234567.89, 2, "1\u00a0234\u00a0567.89", id="decimal-point"),
+		pytest.param(-1234.5, 3, "-1\u00a0234.500", id="negative-decimal"),
+		pytest.param(np.float64(1234.5), 2, "1\u00a0234.50", id="numpy-float"),
+		pytest.param(1234.0, 0, "1\u00a0234", id="float-count"),
+		pytest.param(999.999, 2, "1\u00a0000.00", id="rounding-across-thousand"),
+		pytest.param(float("nan"), 2, "nan", id="nan"),
+		pytest.param(float("inf"), 2, "inf", id="infinity")])
+def test_format_number(value, decimals, expected):
+	"""Vérifie les séparateurs, la précision et la conservation exacte des grands entiers."""
+	assert Ui.format_number(value, decimals) == expected
 
 
 # --------------------------------------------------

@@ -29,7 +29,7 @@ def test_creation(qtbot):
 		assert label.text() == f"{key}: "
 		assert label.toolTip() == tooltip
 		assert value is ui.labels[key]
-		assert value.text() == "No"
+		assert value.text() == ("No" if key == "File" else "0")
 
 	button_item = ui.layout.itemAt(len(_STATUS_TOOLTIPS), QFormLayout.ItemRole.SpanningRole)
 	assert button_item.widget() is ui.open_folder_button
@@ -42,17 +42,39 @@ def test_update_status(qtbot):
 	"""Vérifie la mise à jour complète, partielle et avec une clé inconnue."""
 	ui = ResultsUI()
 	qtbot.addWidget(ui.widget)
-	status = {key: f"Status {index}" for index, key in enumerate(_STATUS_TOOLTIPS)}
+	status = {key: (f"Status {index}", f"Tooltip {index}") for index, key in enumerate(_STATUS_TOOLTIPS)}
 
 	ui.update_status(status)
-	for key, expected in status.items():
+	for key, (expected, tooltip) in status.items():
 		assert ui.labels[key].text() == expected
+		assert ui.labels[key].toolTip() == tooltip
 
-	ui.update_status({"File": "stack.tif", "Unknown": "Ignored"})
+	ui.update_status({"File": ("stack.tif", "stack.tif"), "Unknown": ("Ignored", "Ignored")})
 	assert ui.labels["File"].text() == "stack.tif"
-	assert ui.labels["Localizations"].text() == status["Localizations"]
+	assert ui.labels["Localizations"].text() == status["Localizations"][0]
 	assert "Unknown" not in ui.labels
 	assert ui.labels["File"].toolTip() == "stack.tif"
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("category, expected, tooltip", [
+		pytest.param("Localizations", "1\u00a0234", "1\u00a0234 localizations", id="localizations"),
+		pytest.param("Beads", "12", "12 beads", id="beads"),
+		pytest.param("Tracks", "500/2\u00a0000",
+					 "500/2\u00a0000 tracks\n25.00% retained; 75.00% filtered out.", id="filtered-tracks"),
+		pytest.param("Tracks Reconnected", "500/2\u00a0000",
+					 "500/2\u00a0000 reconnected tracks\n25.00% retained; 75.00% filtered out.", id="filtered-reconnected-tracks"),
+		pytest.param("Tracks Reconnected", "12", "12 reconnected tracks", id="reconnected-tracks")])
+def test_update_status_counts_and_tooltip(qtbot, category, expected, tooltip):
+	"""Vérifie le compteur compact, les détails en infobulle et leur réinitialisation lorsque le résultat est vidé."""
+	ui = ResultsUI()
+	qtbot.addWidget(ui.widget)
+	ui.update_status({category: (expected, tooltip)})
+	assert ui.labels[category].text() == expected
+	assert ui.labels[category].toolTip() == tooltip
+	ui.update_status({category: ("0", "No result")})
+	assert ui.labels[category].text() == "0"
+	assert ui.labels[category].toolTip() == "No result"
 
 
 # --------------------------------------------------
@@ -66,11 +88,11 @@ def test_file_display(qtbot, tmp_path, filename):
 	qtbot.addWidget(ui.widget)
 	full_path = str(tmp_path / filename)
 
-	ui.update_status({"File": full_path})
+	ui.update_status({"File": (filename, full_path)})
 	assert ui.labels["File"].text() == filename
 	assert ui.labels["File"].toolTip() == full_path
 
-	ui.update_status({"File": "No File"})
+	ui.update_status({"File": ("No File", "")})
 	assert ui.labels["File"].text() == "No File"
 	assert ui.labels["File"].toolTip() == ""
 

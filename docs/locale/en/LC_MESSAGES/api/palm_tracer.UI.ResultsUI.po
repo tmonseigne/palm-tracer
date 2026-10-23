@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 15:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.UI.ResultsUI.rst:2
 msgid "ResultsUI"
@@ -81,12 +86,12 @@ msgid "Actualise les statuts affichés."
 msgstr "Updates the displayed statuses."
 
 #: of palm_tracer.UI.ResultsUI.ResultsUI.update_status:3
-msgid "Les clés inconnues sont ignorées afin de permettre au modèle de fournir des informations qui ne sont pas représentées par cette vue."
-msgstr "Unknown keys are ignored, allowing the model to provide information that is not represented by this view."
+msgid "Les clés inconnues sont ignorées afin de permettre au modèle de fournir des informations qui ne sont pas représentées par cette vue. Les résultats affichent uniquement leurs compteurs. L'infobulle précise le type de résultat, la reconnexion éventuelle et les pourcentages conservés et retirés après filtrage."
+msgstr "Unknown keys are ignored, allowing the model to provide information that is not represented by this view. Results display only their counts. The tooltip specifies the result type, whether tracks have been reconnected, and the percentages retained and removed after filtering."
 
-#: of palm_tracer.UI.ResultsUI.ResultsUI.update_status:6
-msgid "Statuts à afficher, indexés par type de résultat."
-msgstr "Statuses to display, indexed by result type."
+#: of palm_tracer.UI.ResultsUI.ResultsUI.update_status:8
+msgid "Couples (texte compact, infobulle) à afficher, indexés par type de résultat."
+msgstr "Pairs of compact text and tooltip to display, indexed by result type."
 
 #: of palm_tracer.UI.ResultsUI.ResultsUI.update_results_folder:1
 msgid "Actualise la disponibilité du bouton et son infobulle."

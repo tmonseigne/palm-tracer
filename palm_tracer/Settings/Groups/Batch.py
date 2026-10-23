@@ -29,8 +29,9 @@ class Batch(BaseSettingGroup):
 	label: str = "Batch"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Files": [FileList, ["Files", ""]],
-			"Mode":  [Combo, ["Mode", "", 0, ["Only one", "Each File separately", "All in One"]]]
+			"Files": [FileList, ["Files", "Acquisition files to process. Select the current file from the list."]],
+			"Mode":  [Combo, ["Mode", "Process the selected file, each file independently, or all files as a single acquisition.",
+							  0, ["Only one", "Each File separately", "All in One"]]]
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 1

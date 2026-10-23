@@ -47,8 +47,9 @@ class HR(BaseSettingGroup):
 	label: str = "High Resolution"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Dimension":        [ButtonGroup, ["Dimension", "", 0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]]],
-			"Type":             [ButtonGroup, ["Type", "", 0, ["Localization", "Tracks"]]],
+			"Dimension":        [ButtonGroup, ["Dimension", "Reconstruct a 2D image, a Z stack, a 3D rotation, or a track animation.",
+											   0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]]],
+			"Type":             [ButtonGroup, ["Type", "Choose whether to reconstruct localizations or tracks.", 0, ["Localization", "Tracks"]]],
 			"Source":           [Combo, ["Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"]]],
 			"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
 			"Color mode":       [Combo, ["Intensity mode", ("When contributions overlap, select whether their pixel values are added "

@@ -38,13 +38,15 @@ class Localization(BaseSettingGroup):
 	label: str = "Localization"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Preview":        [CheckBox, ["Preview", "", False]],
-			"Threshold":      [SpinFloat, ["Threshold", "", 90.0, [1.0, 10000.0], 5.0, 2]],
-			"Auto Threshold": [Button, ["Auto Threshold", ""]],
-			"ROI Shape":      [Combo, ["ROI Shape", "", 0, ["Circle", "Square"]]],
-			"ROI Size":       [SpinInt, ["ROI Size", "", 7, [3, 50], 1]],
+			"Preview":        [CheckBox, ["Preview", "Preview localizations on the current plane using the current detection and fitting parameters.", False]],
+			"Threshold":      [SpinFloat, ["Threshold", "Detection threshold on wavelet coefficients, in image intensity units (ADU).",
+										   90.0, [1.0, 10000.0], 5.0, 2]],
+			"Auto Threshold": [Button, ["Auto Threshold", "Estimate the detection threshold automatically from the current plane."]],
+			"ROI Shape":      [Combo, ["ROI Shape", "Shape of the area used to fit each localization.", 0, ["Circle", "Square"]]],
+			"ROI Size":       [SpinInt, ["ROI Size", "Size of the fitting area, in acquisition pixels.", 7, [3, 50], 1]],
 			"Watershed":      [CheckBox, ["Watershed", "Use Watershed algorithm to separate nearby points.", True]],
-			"Fit":            [Combo, ["Fit", "", 0, ["Nothing", "Gaussian Fit"]]],  # ["Nothing", "Gaussian Fit", "Spline Fit"]
+			"Fit":            [Combo, ["Fit", "Fitting method used to refine detected localizations; 'Nothing' disables fitting.",
+									   0, ["Nothing", "Gaussian Fit"]]],
 			"Gaussian Fit":   [GaussianFit, []],
 			"Spline Fit":     [SplineFit, []]
 			}

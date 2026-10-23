@@ -24,9 +24,9 @@ class SplineFit(BaseSettingGroup):
 	label: str = "Spline Fit"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Sensor":       [Combo, ["Sensor", "", 0, ["EMCCD", "sCMOS"]]],
-			"Variance Map": [BrowseFile, ["sCMOS Variance Map", "", ""]],
-			"File":         [BrowseFile, ["Calibration File", "", ""]],
+			"Sensor":       [Combo, ["Sensor", "Camera sensor type used for spline fitting.", 0, ["EMCCD", "sCMOS"]]],
+			"Variance Map": [BrowseFile, ["sCMOS Variance Map", "File containing the pixel variance map for the sCMOS sensor.", ""]],
+			"File":         [BrowseFile, ["Calibration File", "File containing the point spread function calibration for spline fitting.", ""]],
 			}
 	"""Définition des paramètres du groupe et de leur configuration."""
 	mode: int = 2

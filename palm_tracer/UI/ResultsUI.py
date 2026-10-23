@@ -61,7 +61,7 @@ class ResultsUI:
 		self.layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
 		for key, tooltip in _STATUS_TOOLTIPS.items():
-			label = QLabel("No")
+			label = QLabel("No" if key == "File" else "0")
 			Ui.add_setting_row(self.layout, f"{key}: ", label, tooltip=tooltip, )
 			self.labels[key] = label
 			if key == "File": continue
@@ -82,19 +82,22 @@ class ResultsUI:
 	# ==================================================
 	# region Mise à jour
 	# ==================================================
-	def update_status(self, status: Mapping[str, str]):
+	def update_status(self, status: Mapping[str, tuple[str, str]]):
 		"""
 		Actualise les statuts affichés.
 
 		Les clés inconnues sont ignorées afin de permettre au modèle de fournir
 		des informations qui ne sont pas représentées par cette vue.
+		Les résultats affichent uniquement leurs compteurs. L'infobulle précise le type de résultat,
+		la reconnexion éventuelle et les pourcentages conservés et retirés après filtrage.
 
-		:param status: Statuts à afficher, indexés par type de résultat.
+		:param status: Couples (texte compact, infobulle) à afficher, indexés par type de résultat.
 		"""
 		for key, value in status.items():
 			if key not in self.labels: continue
-			self.labels[key].setText(Path(value).name if key == "File" else value)
-			if key == "File": self.labels[key].setToolTip(value if value != "No File" else "")
+			text, tooltip = value
+			self.labels[key].setText(text)
+			self.labels[key].setToolTip(tooltip)
 
 	# --------------------------------------------------
 	def update_results_folder(self, path: Path | None):

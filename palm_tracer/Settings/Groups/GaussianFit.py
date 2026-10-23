@@ -35,10 +35,10 @@ class GaussianFit(BaseSettingGroup):
 	setting_list = {
 			"Mode":          [Combo, ["Mode", "Selects the elements to fit.", 0,
 									  ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
-			"Sigma":         [SpinFloat, ["σ", "Initial value of sigma.", 1.0, [0.0, 10.0], 0.1]],
+			"Sigma":         [SpinFloat, ["σ", "Initial value of sigma, in acquisition pixels.", 1.0, [0.0, 10.0], 0.1]],
 			"Theta":         [SpinFloat, ["θ", "Initial value of theta in degree.", 0.0, [-90, 90], 0.01]],
 			"Z":             [CheckBox, ["3D", "Use astigmatism model to compute Z axial position.", False]],
-			"Z max":         [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator.", 500, [10, 2000], 10]],
+			"Z max":         [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator, in nanometers (nm).", 500, [10, 2000], 10]],
 			"Model":         [BrowseFile, ["Specific Model", "Use only if your model isn't in File output folder"], ""],
 			"Default Model": [CheckBox, ["Use default model", "Use only the default astigmatism model saved in the user folder.", False]],
 			}

@@ -3,7 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"POT-Creation-Date: 2026-10-13 18:13+0200\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 15:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -156,16 +159,16 @@ msgid "Construit les statuts des différentes catégories de résultats actuelle
 msgstr "Builds the statuses of the result categories currently loaded."
 
 #: of palm_tracer.Results.Results.get_status:3
-msgid "Statuts indexés par catégorie de résultat."
-msgstr "Statuses indexed by result category."
+msgid "Couples (texte compact, infobulle) indexés par catégorie de résultat."
+msgstr "Pairs of compact text and tooltip, indexed by result category."
 
 #: of palm_tracer.Results.Results.get_df_status:1
 msgid "Construit le statut d'un résultat à partir de ses versions initiale et filtrée."
 msgstr "Builds the status of a result from its initial and filtered versions."
 
 #: of palm_tracer.Results.Results.get_df_status:3
-msgid "En présence d'une colonne ``Track``, les identifiants de trajectoire distincts et non nuls sont comptés ; sinon, le nombre de lignes est utilisé."
-msgstr "If a “Track” column is present, the number of distinct, non-zero track IDs is counted; otherwise, the number of rows is used."
+msgid "Pour les billes, les identifiants distincts de ``Bead`` sont comptés ; pour les autres résultats, ceux de ``Track`` sont utilisés. Les valeurs manquantes sont exclues. En l'absence de la colonne correspondante, le nombre de lignes est utilisé."
+msgstr "For beads, distinct ``Bead`` identifiers are counted; for other results, distinct ``Track`` identifiers are used. Missing values are excluded. If the corresponding column is absent, the number of rows is used."
 
 #: of palm_tracer.Results.Results.get_df_status:6
 msgid "DataFrame initial."
@@ -184,8 +187,8 @@ msgid "Qualificatif ajouté au statut, par exemple ``Reconnected``."
 msgstr "Qualifier added to the status, for example ``Reconnected``."
 
 #: of palm_tracer.Results.Results.get_df_status:10
-msgid "Statut accompagné du nombre d'éléments avant et, si nécessaire, après filtrage."
-msgstr "Status with the number of elements before and, if applicable, after filtering."
+msgid "Couple (compteurs compacts, infobulle détaillée avec les pourcentages conservé et retiré si le résultat est filtré)."
+msgstr "Pair of compact counts and a detailed tooltip with the percentages retained and removed when the result is filtered."
 
 #: ../../api/palm_tracer.Results.rst:41
 msgid "Entrées / sorties"

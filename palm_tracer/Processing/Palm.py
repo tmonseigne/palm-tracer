@@ -204,7 +204,7 @@ class Palm:
 		res = pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 		if not res.empty:
-			res.reset_index(drop=True, inplace=True)
+			res = res.reset_index(drop=True)
 			res["Id"] = res.index + 1  # .												 1-based comme attendu
 			if fit == 4:  # .															 Ajustement gaussien avec Theta
 				mask = res["Integrated Intensity"] > 0
