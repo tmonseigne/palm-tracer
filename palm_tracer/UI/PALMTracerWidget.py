@@ -215,22 +215,13 @@ class PALMTracerWidget(BaseNapariWidget):
 	# ==================================================
 	# region Glisser-déposer
 	# ==================================================
-	def _can_drop_files(self, paths: list[str]) -> bool:
-		"""
-		Refuse les dépôts pendant un traitement PALM Tracer.
-
-		:param paths: Chemins locaux du dépôt validé par la classe mère.
-		:return: ``True`` si aucun traitement n'est en cours.
-		"""
-		return not self._processing
-
-	# --------------------------------------------------
 	def _drop_files(self, paths: list[str]):
 		"""
-		Ajoute les fichiers déposés au Batch de l'interface principale.
+		Ajoute les fichiers déposés au Batch, sauf pendant un traitement.
 
 		:param paths: Chemins locaux des fichiers à ajouter.
 		"""
+		if self._processing: return
 		cast(FileList, self.pt.settings.batch["Files"]).add_files(paths)
 
 	# ==================================================

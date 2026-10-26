@@ -35,6 +35,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
 
+	UI_NAME: str = "Astigmatism 3D Tool"
+	"""Nom de l'interface d'astigmatisme."""
 	GRAPH_TITLE: str = "Astigmatism model"
 	"""Titre du graphique d'astigmatisme."""
 	GRAPH_TYPE: list["str"] = ["Cross", "Slope", "Curve"]
@@ -46,7 +48,6 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def __init__(self, parent: Optional[QWidget] = None):
 		"""Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide."""
 		super().__init__(parent)
-		self.setWindowTitle("Astigmatism 3D Tool")
 
 		self._palm = Palm()
 		self._loc_filename: Path = Path()

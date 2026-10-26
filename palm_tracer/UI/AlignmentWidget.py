@@ -15,11 +15,12 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSpinBox, QTa
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
+from palm_tracer.UI.BaseWidget import BaseWidget
 
 _windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
-class AlignmentWidget(QWidget):
+class AlignmentWidget(BaseWidget):
 	"""
 	Permet de calculer puis d'appliquer un alignement géométrique entre deux acquisitions.
 
@@ -31,6 +32,9 @@ class AlignmentWidget(QWidget):
 	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
 
+	UI_NAME: str = "Alignment Tool"
+	"""Nom de l'interface d'alignement."""
+
 	# ==================================================
 	# region Initialisation
 	# ==================================================
@@ -41,7 +45,6 @@ class AlignmentWidget(QWidget):
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
 		"""
 		super().__init__(parent)
-		self.setWindowTitle("Alignment Tool")
 
 		self._palm = Palm()
 		self._stack: Optional[np.ndarray] = None

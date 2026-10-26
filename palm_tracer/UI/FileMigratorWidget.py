@@ -8,16 +8,20 @@ from typing import Optional
 from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.Tools import FileMigrator, Ui
+from palm_tracer.UI.BaseWidget import BaseWidget
 
 _windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes.
 
 
-class FileMigratorWidget(QWidget):
+class FileMigratorWidget(BaseWidget):
 	"""
 	Fournit l'interface de migration des anciens dossiers de résultats Metamorph.
 
 	:param parent: Widget Qt parent.
 	"""
+
+	UI_NAME: str = "File Migrator Tool"
+	"""Nom de l'interface de migration."""
 
 	# ==================================================
 	# region Initialisation
@@ -29,7 +33,6 @@ class FileMigratorWidget(QWidget):
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
 		"""
 		super().__init__(parent)
-		self.setWindowTitle("File Migrator Tool")
 
 		self._fm: FileMigrator = FileMigrator()
 

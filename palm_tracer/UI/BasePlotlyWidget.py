@@ -15,6 +15,7 @@ from qtpy.QtWidgets import QFileDialog, QTextBrowser, QWidget
 from palm_tracer.Processing import Grapher
 from palm_tracer.Tools import Ui
 from palm_tracer.Tools.Ui import print_warning
+from palm_tracer.UI.BaseWidget import BaseWidget
 
 # Tentative d'import QtWebEngine (via qtpy) —En cas d'UI défectueuse
 try:
@@ -27,7 +28,7 @@ except Exception:
 
 
 # --------------------------------------------------
-class BasePlotlyWidget(QWidget):
+class BasePlotlyWidget(BaseWidget):
 	"""
 	Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly.
 

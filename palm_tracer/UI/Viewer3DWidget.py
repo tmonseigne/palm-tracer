@@ -12,9 +12,10 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
 from palm_tracer.Settings.Groups import Visualization3D
+from palm_tracer.UI.BaseWidget import BaseWidget
 
 
-class Viewer3DWidget(QWidget):
+class Viewer3DWidget(BaseWidget):
 	"""
 	Affiche les localisations tridimensionnelles dans un calque Napari.
 
@@ -24,6 +25,9 @@ class Viewer3DWidget(QWidget):
 
 	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer 3D"``.
 	"""
+
+	UI_NAME: str = "Viewer 3D"
+	"""Nom de l'interface de visualisation tridimensionnelle."""
 
 	# --------------------------------------------------
 	def __init__(self, viewer: napari.Viewer):
