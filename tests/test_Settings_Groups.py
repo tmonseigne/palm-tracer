@@ -133,6 +133,29 @@ def test_base_group_tostring_range(setting_type, active: bool, label: str):
 # ==================================================
 # region Batch
 # ==================================================
+@pytest.mark.parametrize("suffix, accepted", [
+		pytest.param(".tif", True, id="tif"),
+		pytest.param(".tiff", True, id="tiff"),
+		pytest.param(".STK", True, id="uppercase-stk"),
+		pytest.param(".csv", False, id="csv-rejected"),
+		pytest.param(".txt", False, id="text-rejected"),
+		pytest.param(".tif.csv", False, id="disguised-extension")])
+@pytest.mark.parametrize("source", ["dialog", "drop"], ids=["file-dialog", "explicit-paths"])
+def test_batch_filters_new_acquisition_files(tmp_path, fake_qfiledialog, suffix, accepted, source):
+	"""Vérifie que l'ajout au Batch utilise les mêmes extensions depuis le dialogue et les chemins déposés."""
+	batch = sg.Batch()
+	files = batch["Files"]
+	path = tmp_path / f"acquisition{suffix}"
+	path.touch()
+	if source == "dialog":
+		fake_qfiledialog(st.FileList, str(path))
+		files.add_file()
+	else: files.add_files([str(path)])
+	assert files.items == ([str(path)] if accepted else [])
+	assert files.current_text == (str(path) if accepted else "")
+
+
+# --------------------------------------------------
 def test_batch(qtbot):
 	"""Vérifie la classe Batch (constructeur, getter, setter)."""
 	batch = sg.Batch()

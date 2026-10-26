@@ -29,6 +29,10 @@ USER_SETTINGS_FILE = CONFIG_DIR / "settings.json"
 USER_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model.csv"
 #: Modèle enregistré explicitement comme défaut, exclu de la recherche automatique.
 DEFAULT_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model_default.csv"
+#: Extensions des acquisitions TIFF, y compris les piles Metamorph STK ; comparaison sans distinction de casse.
+STACK_EXTENSIONS: tuple[str, ...] = (".tif", ".tiff", ".stk")
+#: Filtre Qt commun aux sélecteurs de piles.
+STACK_FILE_FILTER: str = "TIFF / Metamorph stacks (*.tif *.tiff *.stk)"
 
 
 # ==================================================
@@ -288,7 +292,7 @@ def read_tif_shape(filename: str | Path) -> tuple[int, int, int]:
 # --------------------------------------------------
 def open_tif(filename: str | Path) -> np.ndarray:
 	"""
-	Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur).
+	Ouvre un fichier TIFF, y compris une pile Metamorph STK, en tant que pile 3D (frames x hauteur x largeur).
 	Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D.
 
 	:param filename: Chemin du fichier TIFF à ouvrir.
