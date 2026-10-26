@@ -65,6 +65,7 @@ class BasePlotlyWidget(BaseWidget):
 		self._plotly_page_loaded = False
 		self._web_page_ready = False
 		self._web = self._make_web_widget()
+		self._context_menu_exclusions.append(self._web)
 		self._connect_web_widget()
 
 	# ==================================================

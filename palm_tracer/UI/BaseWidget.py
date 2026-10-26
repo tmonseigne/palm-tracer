@@ -7,8 +7,8 @@ from typing import cast
 
 from qtpy.compat import isalive
 from qtpy.QtCore import QEvent, QObject, Qt
-from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
-from qtpy.QtWidgets import QApplication, QWidget
+from qtpy.QtGui import QContextMenuEvent, QDropEvent, QHideEvent, QShowEvent
+from qtpy.QtWidgets import QApplication, QDockWidget, QMenu, QWidget
 
 from palm_tracer.Tools import Ui
 
@@ -47,11 +47,75 @@ class BaseWidget(QWidget):
 		super().__init__(parent)
 		self.setWindowTitle(self.UI_NAME)
 		self.setStyleSheet(Ui.STYLESHEET_COMMON)
-		self._drop_window: QWidget | None = None  # Fenêtre Qt dont les dépôts sont interceptés.
-		self._drop_accepts: bool = False  # .		État initial à restaurer lors du masquage.
+		self._drop_window: QWidget | None = None  # .		 Fenêtre Qt dont les dépôts sont interceptés.
+		self._drop_accepts: bool = False  # .				 État initial à restaurer lors du masquage.
+		self._context_menu_exclusions: list[QWidget] = []  # Vues conservant exclusivement leur propre menu contextuel.
 
 	# ==================================================
 	# endregion Initialisation
+	# ==================================================
+
+	# ==================================================
+	# region Menu contextuel
+	# ==================================================
+	def _get_always_on_top_target(self) -> QWidget | None:
+		"""
+		Retourne la fenêtre autonome ou le dock flottant contenant le widget.
+
+		Un panneau docké ne doit pas modifier les propriétés de la fenêtre Napari qui l'héberge.
+
+		:return: Fenêtre pouvant rester au premier plan, ou :obj:`None` pour un panneau intégré.
+		"""
+		if self.isWindow(): return self
+		parent = self.parentWidget()
+		while parent is not None:
+			if isinstance(parent, QDockWidget): return parent if parent.isFloating() else None
+			parent = parent.parentWidget()
+		return None
+
+	# --------------------------------------------------
+	def _set_always_on_top(self, enabled: bool):
+		"""
+		Change le maintien au premier plan sans déplacer ni réafficher une fenêtre initialement masquée.
+
+		:param enabled: Active le maintien au premier plan de la fenêtre autonome ou du dock flottant.
+		"""
+		window = self._get_always_on_top_target()
+		if window is None: return
+		if bool(window.windowFlags() & Qt.WindowType.WindowStaysOnTopHint) == enabled: return
+		geometry, visible = window.geometry(), window.isVisible()
+		# Qt masque la fenêtre lorsque ses attributs de fenêtre sont modifiés.
+		window.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, enabled)
+		window.setGeometry(geometry)
+		if visible: window.show()
+
+	# --------------------------------------------------
+	def contextMenuEvent(self, event: QContextMenuEvent):
+		"""
+		Propose une case de maintien au premier plan depuis le panneau du widget uniquement.
+
+		Les vues exclues conservent leur menu contextuel. Un panneau docké affiche l'option désactivée,
+		car son maintien individuel au premier plan nécessite un détachement préalable.
+
+		:param event: Demande de menu contextuel par la souris ou le clavier.
+		"""
+		child = QApplication.focusWidget() if event.reason() == QContextMenuEvent.Reason.Keyboard else self.childAt(event.pos())
+		if child is not None and any(isalive(view) and (view is child or view.isAncestorOf(child)) for view in self._context_menu_exclusions):
+			event.ignore()
+			return
+		window = self._get_always_on_top_target()
+		menu = QMenu(self)
+		action = menu.addAction("Always on top")
+		action.setCheckable(True)
+		action.setChecked(window is not None and bool(window.windowFlags() & Qt.WindowType.WindowStaysOnTopHint))
+		action.setEnabled(window is not None)
+		action.toggled.connect(self._set_always_on_top)
+		try: menu.exec(event.globalPos())
+		finally: menu.deleteLater()
+		event.accept()
+
+	# ==================================================
+	# endregion Menu contextuel
 	# ==================================================
 
 	# ==================================================
