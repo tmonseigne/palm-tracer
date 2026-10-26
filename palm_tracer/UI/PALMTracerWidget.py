@@ -40,6 +40,8 @@ class PALMTracerWidget(BaseNapariWidget):
 
 	UI_NAME: str = "PALMTracer"
 	"""Nom de l'interface principale."""
+	DROP_EXTENSIONS: tuple[str, ...] = FileIO.STACK_EXTENSIONS
+	"""Extensions des acquisitions autorisées au dépôt."""
 	LAYERS_NAME: list[str] = ["Raw", "Points Present", "ROI Present", "Points Filtered", "Points Past", "Points Future", "ROI Filter"]
 	"""Noms des calques gérés par l'interface principale."""
 

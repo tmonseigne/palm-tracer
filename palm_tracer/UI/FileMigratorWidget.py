@@ -22,6 +22,10 @@ class FileMigratorWidget(BaseWidget):
 
 	UI_NAME: str = "File Migrator Tool"
 	"""Nom de l'interface de migration."""
+	DROP_MULTIPLE: bool = False
+	"""Limite le dépôt à un dossier de résultats."""
+	DROP_DIRECTORIES: bool = True
+	"""Autorise le dépôt du dossier Metamorph à analyser."""
 
 	# ==================================================
 	# region Initialisation
@@ -81,6 +85,18 @@ class FileMigratorWidget(BaseWidget):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
+	def _drop_files(self, paths: list[str]):
+		"""
+		Charge le dossier de résultats déposé sans lancer sa migration.
+
+		:param paths: Liste contenant le chemin du dossier Metamorph.
+		"""
+		if len(paths) != 1 or not Path(paths[0]).is_dir():
+			Ui.print_warning("Drop one Metamorph result folder (.PT).")
+			return
+		self._load_folder(paths[0])
+
+	# --------------------------------------------------
 	def _update_filelist(self):
 		"""Mise à jour de la liste des fichiers."""
 		for key, item in self._fm.files.items():
@@ -96,11 +112,20 @@ class FileMigratorWidget(BaseWidget):
 		if not folder:
 			Ui.print_warning("No folder selected.")
 			return
+		self._load_folder(folder)
+
+	# --------------------------------------------------
+	def _load_folder(self, folder: str):
+		"""
+		Analyse le dossier choisi par dialogue ou déposé et actualise la liste des fichiers.
+
+		:param folder: Chemin local du dossier de résultats Metamorph.
+		"""
 
 		# --- lecture du dossier ---
 		try:
-			folder = Path(folder)
-			self._fm.open(folder)
+			path = Path(folder)
+			self._fm.open(path)
 			self._fm.analyze()
 			self._update_filelist()
 		except Exception as e:
@@ -108,7 +133,7 @@ class FileMigratorWidget(BaseWidget):
 			return
 
 		# --- mise à jour du label associé au bouton ---
-		Ui.update_path_label(self._lbl_load_folder, folder)
+		Ui.update_path_label(self._lbl_load_folder, path)
 
 		print("Folder loaded successfully.")
 

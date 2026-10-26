@@ -49,6 +49,8 @@ class ViewerHRWidget(BaseNapariWidget):
 
 	DROP_MULTIPLE: bool = False
 	"""Limite chaque dépôt à une seule pile locale."""
+	DROP_EXTENSIONS: tuple[str, ...] = FileIO.STACK_EXTENSIONS
+	"""Extensions des piles acceptées par la visionneuse."""
 
 	# ==================================================
 	# region Initialisation

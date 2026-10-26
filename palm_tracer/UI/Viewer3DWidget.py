@@ -28,6 +28,10 @@ class Viewer3DWidget(BaseWidget):
 
 	UI_NAME: str = "Viewer 3D"
 	"""Nom de l'interface de visualisation tridimensionnelle."""
+	DROP_MULTIPLE: bool = False
+	"""Limite le dépôt à un fichier de localisations."""
+	DROP_EXTENSIONS: tuple[str, ...] = (".csv",)
+	"""Extensions des fichiers de localisations acceptés."""
 
 	# --------------------------------------------------
 	def __init__(self, viewer: napari.Viewer):
@@ -64,6 +68,15 @@ class Viewer3DWidget(BaseWidget):
 		self.settings.connect(self.update_layer)
 
 	# --------------------------------------------------
+	def _drop_files(self, paths: list[str]):
+		"""
+		Charge le CSV déposé dans la fenêtre de visualisation.
+
+		:param paths: Liste contenant le chemin du fichier de localisations.
+		"""
+		self._load_csv(paths[0])
+
+	# --------------------------------------------------
 	def load_csv(self):
 		"""
 		Ouvre une boîte de dialogue pour sélectionner un fichier ``.csv`` et charge les données associées dans un :class:`pandas.DataFrame`.
@@ -76,7 +89,20 @@ class Viewer3DWidget(BaseWidget):
 		"""
 		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "CSV files (*.csv)")
 		if not path or not Path(path).is_file(): return
-		self.data = pd.read_csv(path)
+		self._load_csv(path)
+
+	# --------------------------------------------------
+	def _load_csv(self, path: str):
+		"""
+		Lit les localisations choisies ou déposées et actualise le calque 3D.
+
+		:param path: Chemin local du CSV de localisations.
+		"""
+		try: self.data = pd.read_csv(path)
+		except (OSError, ValueError) as error:
+			self.data = pd.DataFrame()
+			show_warning(f"Unable to read the CSV file: {error}.")
+			return
 		if not all(col in self.data.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):
 			self.data = pd.DataFrame()
 			show_warning("The file must contain the columns X, Y, Z, and Integrated Intensity.")

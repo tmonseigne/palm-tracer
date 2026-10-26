@@ -37,6 +37,10 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 	UI_NAME: str = "Astigmatism 3D Tool"
 	"""Nom de l'interface d'astigmatisme."""
+	DROP_MULTIPLE: bool = False
+	"""Limite le dépôt à un CSV de localisations ou de modèle."""
+	DROP_EXTENSIONS: tuple[str, ...] = (".csv",)
+	"""Extensions des fichiers acceptés pour les localisations et les modèles."""
 	GRAPH_TITLE: str = "Astigmatism model"
 	"""Titre du graphique d'astigmatisme."""
 	GRAPH_TYPE: list["str"] = ["Cross", "Slope", "Curve"]
@@ -378,6 +382,27 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 				if z_max > 10: self._spin_z_estimate.setValue(z_max)
 
 	# --------------------------------------------------
+	def _drop_files(self, paths: list[str]):
+		"""
+		Reconnaît le CSV par ses colonnes et charge les localisations ou le modèle partagé entre les onglets.
+
+		Un dépôt de localisations ne déclenche une calibration que dans le premier onglet.
+		La reconnaissance lit uniquement l'en-tête ; le chargeur concerné valide ensuite les données complètes.
+
+		:param paths: Liste contenant le chemin du CSV déposé.
+		"""
+		filename = paths[0]
+		try: columns = pd.read_csv(filename, nrows=0).columns
+		except (OSError, ValueError) as error:
+			Ui.print_error(f"Unable to read the CSV file: {error}.")
+			return
+		if set(_DLL_REQUIRED_COLS).issubset(columns):
+			self._load_loc(filename, calibrate=self._tabs.currentIndex() == 0)
+		elif list(columns[1:]) == FILES_COLUMNS["Astigmatism 3D Model"]["columns"]:
+			self._load_model(filename)
+		else: Ui.print_warning("The CSV must contain localizations or an astigmatism 3D model.")
+
+	# --------------------------------------------------
 	def _on_load_loc(self):
 		"""Charge les localisations et déclenche la calibration uniquement depuis l'onglet Compute Model."""
 		# --- boîte de dialogue pour sélectionner un .csv ---
@@ -386,6 +411,16 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		if not filename:
 			Ui.print_warning("No file selected.")
 			return
+		self._load_loc(filename, calibrate=self.sender() == self._btn_load_compute)
+
+	# --------------------------------------------------
+	def _load_loc(self, filename: str, calibrate: bool = False):
+		"""
+		Charge les localisations partagées et calibre le modèle uniquement sur demande explicite.
+
+		:param filename: Chemin local du CSV de localisations.
+		:param calibrate: Active la calibration après chargement depuis le premier onglet.
+		"""
 
 		self._calibration_z = None
 		# --- lecture du fichier ---
@@ -412,7 +447,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.update_path_label(self._lbl_loc_estimate, self._loc_filename)
 
 		Ui.print_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
-		if self.sender() == self._btn_load_compute:
+		if calibrate:
 			self._calibration_z = self._loc["Z"].to_numpy(dtype=float, copy=True)
 			self._updating_parameters = True
 			try:
@@ -435,6 +470,15 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		if not filename:
 			Ui.print_warning("No model file selected.")
 			return
+		self._load_model(filename)
+
+	# --------------------------------------------------
+	def _load_model(self, filename: str):
+		"""
+		Charge le modèle partagé entre les onglets sans recalculer ses coefficients.
+
+		:param filename: Chemin local du CSV du modèle.
+		"""
 
 		self._calibration_z = None  # Le modèle chargé devient la référence pour l'estimation, sans calibration automatique.
 		# --- lecture du fichier ---

@@ -27,6 +27,10 @@ class BaseWidget(QWidget):
 	"""Nom de l'interface, à redéfinir dans chaque classe fille."""
 	DROP_MULTIPLE: bool = True
 	"""Autorise plusieurs URL par dépôt ; les outils limités à un fichier redéfinissent cette constante."""
+	DROP_EXTENSIONS: tuple[str, ...] = ()
+	"""Extensions de fichiers autorisées en minuscules ; un tuple vide ne limite pas les extensions."""
+	DROP_DIRECTORIES: bool = False
+	"""Accepte les dossiers en plus des fichiers autorisés."""
 
 	# ==================================================
 	# region Initialisation
@@ -108,7 +112,9 @@ class BaseWidget(QWidget):
 		urls = drop.mimeData().urls()
 		paths = [url.toLocalFile() for url in urls if url.isLocalFile()]
 		if not paths: return False
-		if (not self.DROP_MULTIPLE and len(urls) != 1) or not any(Path(path).is_file() for path in paths):
+		valid_paths = all((Path(path).is_file() and (not self.DROP_EXTENSIONS or Path(path).suffix.lower() in self.DROP_EXTENSIONS))
+						  or (self.DROP_DIRECTORIES and Path(path).is_dir()) for path in paths)
+		if (not self.DROP_MULTIPLE and len(urls) != 1) or not valid_paths:
 			drop.ignore()
 			return True
 		# Copy décrit l'ajout des chemins ; aucun fichier source n'est déplacé.

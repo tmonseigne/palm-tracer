@@ -15,7 +15,7 @@ from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLa
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
 from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList, SpinInt
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 
 # ==================================================
@@ -48,6 +48,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 	"""Nom de l'interface de visualisation des graphiques."""
 	DROP_MULTIPLE: bool = False
 	"""Limite le dépôt à une seule pile."""
+	DROP_EXTENSIONS: tuple[str, ...] = FileIO.STACK_EXTENSIONS
+	"""Extensions des piles dont les résultats peuvent être chargés."""
 
 	# ==================================================
 	# region Initialisation
