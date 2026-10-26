@@ -18,15 +18,11 @@ class BeadsExtraction(BaseSettingGroup):
 
 	- ``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale entre deux plans pour associer une bille ; valeur
 	  par défaut : ``1.0`` pixel.
-	- ``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z ; valeur par défaut : ``False``.
 	"""
 
 	label: str = "Beads Extraction"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Max Distance": [SpinFloat, ["Max Distance", "Maximum distance between two planes for a bead, in pixels.", 1.0, [0.0, 20.0], 0.1, 2]],
-			"3D":           [CheckBox, ["3D", "Use the Z-axis during computes.", False]]
-			}
+	setting_list = {"Max Distance": [SpinFloat, ["Max Distance", "Maximum distance between two planes for a bead, in pixels.", 1.0, [0.0, 20.0], 0.1, 2]]}
 	"""Définition des paramètres du groupe et de leur configuration."""
 
 

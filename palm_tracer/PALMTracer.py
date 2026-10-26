@@ -492,7 +492,7 @@ class PALMTracer:
 			return
 
 		s = self.settings.beads.settings
-		try: self.results["bds"] = Drift.extract_beads(df, s["Max Distance"], s["3D"], strict=False, k=2)
+		try: self.results["bds"] = Drift.extract_beads(df, s["Max Distance"], False, strict=False, k=2)
 		except ValueError: self.results["bds"] = pd.DataFrame()
 		if self.results["bds"].empty:
 			self._logger.add("\tNo beads found.")
