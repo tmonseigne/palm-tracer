@@ -131,7 +131,6 @@ class PALMTracerWidget(BaseNapariWidget):
 
 		# Ajout des onglets
 		tabs = QTabWidget()  # Création du QTabWidget
-		tabs.setStyleSheet("""QTabWidget::tab-bar { alignment: left; }""")
 		tabs.addTab(self._create_tab([setting_ui["Localization"].widget, setting_ui["BeadsExtraction"].widget, setting_ui["Tracking"].widget,
 									  setting_ui["BlinkingReconnection"].widget, setting_ui["TrackAnalysis"].widget]), "Processing")
 		tabs.addTab(self._create_tab([setting_ui["Gallery"].widget, setting_ui["Graph"].widget, setting_ui["HR"].widget,

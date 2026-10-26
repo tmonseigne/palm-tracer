@@ -1,4 +1,4 @@
-"""Définit l'identité et le glisser-déposer communs aux widgets Qt."""
+"""Définit l'identité, le style et le glisser-déposer communs aux widgets Qt."""
 
 from __future__ import annotations
 
@@ -10,12 +10,15 @@ from qtpy.QtCore import QEvent, QObject, Qt
 from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QWidget
 
+from palm_tracer.Tools import Ui
+
 
 # --------------------------------------------------
 class BaseWidget(QWidget):
 	"""
 	Intercepte les fichiers déposés dans toute la fenêtre Qt contenant le widget.
 
+	Le titre et le style Qt commun sont initialisés pour les fenêtres autonomes comme pour les panneaux intégrés.
 	La cible comprend les widgets enfants et la fenêtre Napari éventuelle, même lorsque le dock est flottant.
 	Les classes filles doivent définir l'action du dépôt dans :meth:`_drop_files`.
 	La base reste instanciable ; appeler l'action sans la redéfinir lève :class:`NotImplementedError`.
@@ -37,12 +40,13 @@ class BaseWidget(QWidget):
 	# ==================================================
 	def __init__(self, parent: QWidget | None = None):
 		"""
-		Initialise l'identité et l'état du filtre de dépôt.
+		Initialise l'identité, le style Qt et l'état du filtre de dépôt.
 
 		:param parent: Widget Qt parent, ou :obj:`None` pour une fenêtre autonome.
 		"""
 		super().__init__(parent)
 		self.setWindowTitle(self.UI_NAME)
+		self.setStyleSheet(Ui.STYLESHEET_COMMON)
 		self._drop_window: QWidget | None = None  # Fenêtre Qt dont les dépôts sont interceptés.
 		self._drop_accepts: bool = False  # .		État initial à restaurer lors du masquage.
 

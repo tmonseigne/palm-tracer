@@ -16,7 +16,16 @@ from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, Q
 # ==================================================
 # region Constantes
 # ==================================================
-# Style pour une ligne d'information
+# Style Qt commun aux fenêtres et panneaux PALM Tracer.
+STYLESHEET_COMMON: str = """QAbstractSpinBox { padding: 1px 10px; min-width: 10px; min-height: 18px; }
+QLineEdit { min-height: 20px; padding: 2px; }
+QComboBox { padding: 3px 10px 3px 8px; }
+QTabWidget::tab-bar { alignment: left; }"""
+# Style pour les titres des groupes de paramètres.
+STYLESHEET_GROUP_TITLE: str = "font-weight: bold;"
+# Style pour les titres des grilles d'information.
+STYLESHEET_INFO_TITLE: str = "font-weight: 600;"
+# Style pour une ligne d'information.
 STYLESHEET_INFO: str = "color: #666666; font-style: italic; padding: 2px;"
 
 # Configuration par défaut de l'interface Plotly pour les différentes fenêtres autonomes.
@@ -200,7 +209,7 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	# Titre de colonne
 	title_lbl = QLabel(title)
 	title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-	title_lbl.setStyleSheet("font-weight: 600;")
+	title_lbl.setStyleSheet(STYLESHEET_INFO_TITLE)
 	layout.addWidget(title_lbl, 0, 0, 1, size)  # .					Titre
 	layout.addWidget(make_horizontal_separator(), 1, 0, 1, size)  # Séparateur horizontal
 

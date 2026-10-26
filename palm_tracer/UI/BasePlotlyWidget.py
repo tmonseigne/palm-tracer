@@ -56,9 +56,6 @@ class BasePlotlyWidget(BaseWidget):
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
 		"""
 		super().__init__(parent)
-		self.setStyleSheet("""QAbstractSpinBox { padding: 1px 10px; min-width: 10px; min-height: 18px; }
-		QLineEdit { min-height: 20px; padding: 2px; }
-		QComboBox { padding: 3px 10px 3px 8px; }""")
 
 		self._pending_download_path: str = ""
 		self._grapher = Grapher()

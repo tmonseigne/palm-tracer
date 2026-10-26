@@ -49,7 +49,7 @@ class BaseUIGroup:
 
 		if self.mode <= 1:  # La check box n'est pas présente et le groupe est toujours actif avec un titre
 			title = QLabel(self.name)
-			title.setStyleSheet("font-weight: bold;")  # Style pour le label de titre
+			title.setStyleSheet(Ui.STYLESHEET_GROUP_TITLE)
 
 			header = QWidget()
 			header_layout = QHBoxLayout(header)
