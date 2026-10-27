@@ -10,11 +10,13 @@ import numpy as np
 import pandas as pd
 from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
+from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Astigmatism3D import find_model_center, model_projection_validity, model_validity, remove_multi_beads
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, SHAPE_MODEL
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 _DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
@@ -31,6 +33,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	Le second onglet estime Z sur demande avec le modèle chargé ou, si ``Use default model`` est coché, exclusivement avec le modèle par défaut.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 
 	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
@@ -49,9 +52,14 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None):
-		"""Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide."""
-		super().__init__(parent)
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
+		"""
+		Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide.
+
+		:param parent: Widget Qt parent éventuel.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
+		"""
+		super().__init__(parent, palmtracer)
 
 		self._palm = Palm()
 		self._loc_filename: Path = Path()
@@ -670,7 +678,7 @@ def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sa
 	elle crée un :class:`Astigmatism3DWidget`, l'affiche et conserve une référence globale pour éviter sa destruction.
 	Aucun widget n'est renvoyé au gestionnaire de panneaux Napari ; cette fonction retourne ``None``.
 	"""
-	widget = Astigmatism3DWidget()
+	widget = Astigmatism3DWidget(palmtracer=get_current_palmtracer())
 	widget.resize(1280, 720)
 	widget.show()
 	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python

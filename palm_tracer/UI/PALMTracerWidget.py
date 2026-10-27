@@ -18,6 +18,7 @@ from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
+from palm_tracer.UI.Napari import install_plugin_menu_sections
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
 
@@ -56,6 +57,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		:param viewer: Viewer Napari.
 		"""
 		super().__init__(viewer)
+		install_plugin_menu_sections(viewer)
 		# ----- Viewers -----
 		self.viewer_hr: Optional[Viewer] = None
 		self.viewer_hr_widget: Optional[QWidget] = None
@@ -447,7 +449,7 @@ class PALMTracerWidget(BaseNapariWidget):
 	def _open_3d_viewer(self):  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 		"""Ouvre une instance Napari avec le Viewer 3D, si elle n'existe pas déjà."""
 		if self.viewer_3d is None:
-			self.viewer_3d, self.viewer_3d_widget = create_viewer3d()
+			self.viewer_3d, self.viewer_3d_widget = create_viewer3d(self.pt)
 			self._bind_viewer_lifecycle("viewer_3d")
 
 	# --------------------------------------------------

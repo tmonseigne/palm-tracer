@@ -17,6 +17,9 @@ from palm_tracer.Settings.Groups import Graph
 from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList, SpinInt
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
+
+_windows: list[QWidget] = []  # Conserve les fenêtres ouvertes depuis le menu Napari.
 
 # ==================================================
 # region Constantes
@@ -254,6 +257,15 @@ class GraphViewerWidget(BasePlotlyWidget):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		self._fig = self.pt.graph()
 		self._update_web_widget()
+
+
+# --------------------------------------------------
+def open_graphviewer():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
+	"""Ouvre le Graph Viewer autonome avec l'instance du widget principal dans la fenêtre Napari active."""
+	widget = GraphViewerWidget(palmtracer=get_current_palmtracer())
+	widget.resize(1280, 720)
+	widget.show()
+	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python.
 
 
 # --------------------------------------------------

@@ -18,6 +18,7 @@ from palm_tracer.Settings.Groups import HR
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 TIPS = {
 		"Actualize":  "Updates files/data from PALMTracer status.",
@@ -38,7 +39,7 @@ class ViewerHRWidget(BaseNapariWidget):
 	:param viewer: Visionneuse Napari recevant les calques.
 	:param palmtracer: Instance principale à laquelle le widget est associé.
 
-	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer HR"``.
+	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "HR Viewer"``.
 	"""
 
 	UI_NAME: str = "HR"
@@ -359,24 +360,24 @@ def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer
 	viewer.title = "HR Viewer"  # .											 Modifier le titre de la fenêtre
 	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
 	widget = ViewerHRWidget(viewer, palmtracer)  # .						 Crée le widget en lui passant le viewer
-	viewer.window.add_dock_widget(widget, name="Viewer HR", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	viewer.window.add_dock_widget(widget, name="HR Viewer", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
 	return viewer, widget
 
 
 # --------------------------------------------------
 def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	"""
-	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR.
+	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > HR Viewer.
 
-	- Ignore le viewer courant.
+	- Récupère l'instance PALMTracer du widget principal dans le viewer appelant.
 	- Crée une nouvelle fenêtre Napari HR dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire l'API "widget plugin" de Napari.
 
-	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
+	:param _viewer: Visionneuse appelante éventuelle ; sinon la visionneuse active est utilisée.
 	:return: Widget factice masqué attendu par l'API des plugins Napari.
 	"""
 	# Crée la nouvelle fenêtre HR
-	create_viewerhr()
+	create_viewerhr(get_current_palmtracer(_viewer))
 
 	# Stub minimal pour Napari (sera docké, mais caché)
 	stub = QWidget()

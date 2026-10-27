@@ -7,8 +7,10 @@ from typing import Optional
 
 from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBoxLayout, QWidget
 
+from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Tools import FileMigrator, Ui
 from palm_tracer.UI.BaseWidget import BaseWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 _windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes.
 
@@ -18,6 +20,7 @@ class FileMigratorWidget(BaseWidget):
 	Fournit l'interface de migration des anciens dossiers de résultats Metamorph.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 	"""
 
 	UI_NAME: str = "File Migrator Tool"
@@ -30,13 +33,14 @@ class FileMigratorWidget(BaseWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None):
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 		"""
-		super().__init__(parent)
+		super().__init__(parent, palmtracer)
 
 		self._fm: FileMigrator = FileMigrator()
 
@@ -156,7 +160,7 @@ def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans co
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
 	elle crée simplement un :class:`FileMigratorWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
 	"""
-	widget = FileMigratorWidget()
+	widget = FileMigratorWidget(palmtracer=get_current_palmtracer())
 	widget.resize(500, 250)
 	widget.show()
 	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python

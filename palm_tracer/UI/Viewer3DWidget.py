@@ -10,8 +10,10 @@ import pandas as pd
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
+from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Visualization3D
 from palm_tracer.UI.BaseWidget import BaseWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 
 class Viewer3DWidget(BaseWidget):
@@ -21,11 +23,12 @@ class Viewer3DWidget(BaseWidget):
 	Le widget charge un fichier CSV, règle les échelles XY et Z, ajuste la taille des points et peut exclure les localisations d'intensité nulle.
 
 	:param viewer: Visionneuse Napari recevant le calque de points.
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 
-	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer 3D"``.
+	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "3D Viewer"``.
 	"""
 
-	UI_NAME: str = "Viewer 3D"
+	UI_NAME: str = "3D Viewer"
 	"""Nom de l'interface de visualisation tridimensionnelle."""
 	DROP_MULTIPLE: bool = False
 	"""Limite le dépôt à un fichier de localisations."""
@@ -33,7 +36,7 @@ class Viewer3DWidget(BaseWidget):
 	"""Extensions des fichiers de localisations acceptés."""
 
 	# --------------------------------------------------
-	def __init__(self, viewer: napari.Viewer):
+	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
 		"""
 		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
 
@@ -41,8 +44,9 @@ class Viewer3DWidget(BaseWidget):
 
 		:param viewer: Viewer Napari cible.
 		:type viewer: :class:`napari.Viewer`
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 		"""
-		super().__init__()
+		super().__init__(palmtracer=palmtracer)
 		self.viewer: napari.Viewer = viewer
 		self.layer = self.viewer.add_points(np.empty((0, 3), dtype=float), size=1, name="Points 3D", ndim=3)
 		self.layer.locked = True
@@ -137,37 +141,38 @@ class Viewer3DWidget(BaseWidget):
 
 
 # --------------------------------------------------
-def create_viewer3d() -> tuple[napari.Viewer, QWidget]:
+def create_viewer3d(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer, QWidget]:
 	"""
 	Crée une nouvelle fenêtre Napari 3D, sans menu, et y ajoute le Viewer3DWidget docké à droite.
 
 	Cette fonction NE lance PAS napari.run() : elle est faite pour être appelée depuis un plugin, donc dans une appli Qt déjà active.
 
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 	:return: Visionneuse Napari créée et widget 3D associé.
 	"""
 	viewer = napari.Viewer(ndisplay=3)  # .									 Crée le viewer 3D napari
 	viewer.title = "3D Viewer"  # .											 Modifier le titre de la fenêtre
 	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
-	widget = Viewer3DWidget(viewer)  # .									 Crée le widget en lui passant le viewer
-	viewer.window.add_dock_widget(widget, name="Viewer 3D", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	widget = Viewer3DWidget(viewer, palmtracer)  # Instance partagée transmise avant l'ajout du panneau.
+	viewer.window.add_dock_widget(widget, name="3D Viewer", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
 	return viewer, widget
 
 
 # --------------------------------------------------
 def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
 	"""
-	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer 3D.
+	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > 3D Viewer.
 
-	- Ignore le viewer courant.
+	- Récupère l'instance PALMTracer du widget principal dans le viewer appelant.
 	- Crée une nouvelle fenêtre Napari 3D dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire
 	  l'API "widget plugin" de Napari.
 
-	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
+	:param _viewer: Visionneuse appelante éventuelle ; sinon la visionneuse active est utilisée.
 	:return: Widget factice masqué attendu par l'API des plugins Napari.
 	"""
 	# Crée la nouvelle fenêtre 3D
-	create_viewer3d()
+	create_viewer3d(get_current_palmtracer(_viewer))
 
 	# Stub minimal pour Napari (sera docké, mais caché)
 	stub = QWidget()

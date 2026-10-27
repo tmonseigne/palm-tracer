@@ -12,10 +12,12 @@ from typing import Optional
 import numpy as np
 from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
 
+from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
 from palm_tracer.UI.BaseWidget import BaseWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 _windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
@@ -28,6 +30,7 @@ class AlignmentWidget(BaseWidget):
 	existants à une image sélectionnée.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 
 	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
@@ -40,13 +43,14 @@ class AlignmentWidget(BaseWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None):
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 		"""
-		super().__init__(parent)
+		super().__init__(parent, palmtracer)
 
 		self._palm = Palm()
 		self._stack: Optional[np.ndarray] = None
@@ -272,7 +276,7 @@ def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans c
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
 	elle crée simplement un :class:`AlignmentWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
 	"""
-	widget = AlignmentWidget()
+	widget = AlignmentWidget(palmtracer=get_current_palmtracer())
 	widget.resize(500, 250)
 	widget.show()
 	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
