@@ -27,6 +27,15 @@ STYLESHEET_GROUP_TITLE: str = "font-weight: bold;"
 STYLESHEET_INFO_TITLE: str = "font-weight: 600;"
 # Style pour une ligne d'information.
 STYLESHEET_INFO: str = "color: #666666; font-style: italic; padding: 2px;"
+# Style de la notification locale ; la palette Qt conserve la compatibilité avec les thèmes clairs et sombres.
+STYLESHEET_NOTIFICATION: str = """QFrame#pt_notification {
+background-color: palette(window); border: 1px solid palette(mid); border-left: 4px solid #3888d0; border-radius: 5px;
+}
+QFrame#pt_notification[level="success"] { border-left-color: #399b57; }
+QFrame#pt_notification[level="warning"] { border-left-color: #d39a25; }
+QFrame#pt_notification[level="error"] { border-left-color: #cf5050; }
+QFrame#pt_notification QLabel { color: palette(window-text); background: transparent; border: none; padding: 0; }
+QFrame#pt_notification QToolButton { background: transparent; border: none; padding: 2px; }"""
 
 # Configuration par défaut de l'interface Plotly pour les différentes fenêtres autonomes.
 CONFIG_PLOTLY: dict[str, Any] = {

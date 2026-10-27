@@ -1,4 +1,4 @@
-"""Définit l'identité, le style et le glisser-déposer communs aux widgets Qt."""
+"""Définit les comportements et notifications communs aux widgets Qt."""
 
 from __future__ import annotations
 
@@ -6,11 +6,12 @@ from pathlib import Path
 from typing import cast
 
 from qtpy.compat import isalive
-from qtpy.QtCore import QEvent, QObject, Qt
-from qtpy.QtGui import QContextMenuEvent, QDropEvent, QHideEvent, QShowEvent
+from qtpy.QtCore import QEvent, QObject, Qt, Signal, Slot
+from qtpy.QtGui import QContextMenuEvent, QDropEvent, QHideEvent, QResizeEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMenu, QWidget
 
 from palm_tracer.Tools import Ui
+from palm_tracer.UI.NotificationWidget import NotificationLevel, NotificationWidget
 
 
 # --------------------------------------------------
@@ -34,6 +35,8 @@ class BaseWidget(QWidget):
 	"""Extensions de fichiers autorisées en minuscules ; un tuple vide ne limite pas les extensions."""
 	DROP_DIRECTORIES: bool = False
 	"""Accepte les dossiers en plus des fichiers autorisés."""
+	_notification_requested = Signal(str, str, int)
+	"""Transmet les demandes de notification au thread graphique, y compris depuis un worker."""
 
 	# ==================================================
 	# region Initialisation
@@ -45,14 +48,109 @@ class BaseWidget(QWidget):
 		:param parent: Widget Qt parent, ou :obj:`None` pour une fenêtre autonome.
 		"""
 		super().__init__(parent)
+		self._notification: NotificationWidget | None = None  # Notification unique, créée seulement au premier message.
 		self.setWindowTitle(self.UI_NAME)
 		self.setStyleSheet(Ui.STYLESHEET_COMMON)
 		self._drop_window: QWidget | None = None  # .		 Fenêtre Qt dont les dépôts sont interceptés.
 		self._drop_accepts: bool = False  # .				 État initial à restaurer lors du masquage.
 		self._context_menu_exclusions: list[QWidget] = []  # Vues conservant exclusivement leur propre menu contextuel.
+		self._notification_requested.connect(self._show_notification)
 
 	# ==================================================
 	# endregion Initialisation
+	# ==================================================
+
+	# ==================================================
+	# region Notifications
+	# ==================================================
+	def notify(self, message: str, level: NotificationLevel = "info", duration_ms: int = 4000):
+		"""
+		Conserve le message dans la console et demande une notification locale sans accéder aux widgets depuis un worker.
+
+		Le message suivant remplace le précédent. L'affichage Qt est délégué au thread graphique par un signal.
+		Les messages provenant du moteur de calcul ne sont pas interceptés globalement.
+
+		:param message: Texte brut du message.
+		:param level: Niveau d'information, de succès, d'avertissement ou d'erreur.
+		:param duration_ms: Délai avant fondu en millisecondes ; zéro demande une fermeture manuelle.
+		:raises ValueError: Si le niveau est inconnu ou le délai négatif.
+		"""
+		if level not in ("info", "success", "warning", "error") or duration_ms < 0:
+			raise ValueError("Niveau de notification inconnu ou délai négatif.")
+		if level == "warning": Ui.print_warning(message)
+		elif level == "error": Ui.print_error(message)
+		elif level == "success": Ui.print_success(message)
+		else: print(message)
+		self._notification_requested.emit(message, level, duration_ms)
+
+	# --------------------------------------------------
+	def notify_info(self, message: str, duration_ms: int = 4000):
+		"""
+		Affiche une information locale avec disparition automatique.
+
+		:param message: Texte brut du message.
+		:param duration_ms: Délai avant fondu ; zéro conserve le message jusqu'à sa fermeture manuelle.
+		"""
+		self.notify(message, "info", duration_ms)
+
+	# --------------------------------------------------
+	def notify_success(self, message: str, duration_ms: int = 4000):
+		"""
+		Affiche la réussite d'une opération dans le panneau courant.
+
+		:param message: Texte brut du message.
+		:param duration_ms: Délai avant fondu ; zéro conserve le message jusqu'à sa fermeture manuelle.
+		"""
+		self.notify(message, "success", duration_ms)
+
+	# --------------------------------------------------
+	def notify_warning(self, message: str, duration_ms: int = 4000):
+		"""
+		Affiche un avertissement local sans ouvrir de dialogue bloquant.
+
+		:param message: Texte brut du message.
+		:param duration_ms: Délai avant fondu ; zéro conserve le message jusqu'à sa fermeture manuelle.
+		"""
+		self.notify(message, "warning", duration_ms)
+
+	# --------------------------------------------------
+	def notify_error(self, message: str, duration_ms: int = 4000):
+		"""
+		Affiche une erreur locale sans ouvrir de dialogue bloquant.
+
+		:param message: Texte brut du message.
+		:param duration_ms: Délai avant fondu ; zéro conserve le message jusqu'à sa fermeture manuelle.
+		"""
+		self.notify(message, "error", duration_ms)
+
+	# --------------------------------------------------
+	@Slot(str, str, int)
+	def _show_notification(self, message: str, level: str, duration_ms: int):
+		"""
+		Crée ou remplace la notification depuis le thread graphique.
+
+		Les messages reçus lorsque le panneau est masqué restent dans la console sans créer de notification invisible.
+
+		:param message: Texte brut du message.
+		:param level: Niveau préalablement validé par :meth:`notify`.
+		:param duration_ms: Délai avant fondu, en millisecondes.
+		"""
+		if not self.isVisible(): return
+		if self._notification is None: self._notification = NotificationWidget(self)
+		self._notification.show_message(message, cast(NotificationLevel, level), duration_ms)
+
+	# --------------------------------------------------
+	def resizeEvent(self, event: QResizeEvent):
+		"""
+		Maintient la notification dans le coin du panneau lorsque sa taille change.
+
+		:param event: Événement de redimensionnement Qt.
+		"""
+		super().resizeEvent(event)
+		if self._notification is not None: self._notification.reposition()
+
+	# ==================================================
+	# endregion Notifications
 	# ==================================================
 
 	# ==================================================
@@ -154,6 +252,7 @@ class BaseWidget(QWidget):
 		:param event: Événement de masquage Qt.
 		"""
 		QApplication.instance().removeEventFilter(self)
+		if self._notification is not None and isalive(self._notification): self._notification.dismiss()
 		window = self._drop_window
 		self._drop_window = None
 		# Qt peut détruire la fenêtre avant de masquer ses widgets enfants.

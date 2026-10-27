@@ -92,7 +92,7 @@ class FileMigratorWidget(BaseWidget):
 		:param paths: Liste contenant le chemin du dossier Metamorph.
 		"""
 		if len(paths) != 1 or not Path(paths[0]).is_dir():
-			Ui.print_warning("Drop one Metamorph result folder (.PT).")
+			self.notify_warning("Drop one Metamorph result folder (.PT).")
 			return
 		self._load_folder(paths[0])
 
@@ -110,7 +110,7 @@ class FileMigratorWidget(BaseWidget):
 		folder = QFileDialog.getExistingDirectory(self, "Select folder", "")
 
 		if not folder:
-			Ui.print_warning("No folder selected.")
+			self.notify_warning("No folder selected.")
 			return
 		self._load_folder(folder)
 
@@ -129,13 +129,13 @@ class FileMigratorWidget(BaseWidget):
 			self._fm.analyze()
 			self._update_filelist()
 		except Exception as e:
-			Ui.print_error(f"Unable to read the folder : {e}.")
+			self.notify_error(f"Unable to read the folder : {e}.")
 			return
 
 		# --- mise à jour du label associé au bouton ---
 		Ui.update_path_label(self._lbl_load_folder, path)
 
-		print("Folder loaded successfully.")
+		self.notify_success("Folder loaded successfully.")
 
 	# --------------------------------------------------
 	def _on_migrate(self):
@@ -143,9 +143,9 @@ class FileMigratorWidget(BaseWidget):
 		try:
 			self._fm.migrate()
 		except Exception as e:
-			Ui.print_error(f"Error during migration: {e}.")
+			self.notify_error(f"Error during migration: {e}.")
 			return
-		Ui.print_success("Migration successful.")
+		self.notify_success("Migration successful.")
 
 
 # --------------------------------------------------

@@ -14,7 +14,6 @@ from qtpy.QtWidgets import QFileDialog, QTextBrowser, QWidget
 
 from palm_tracer.Processing import Grapher
 from palm_tracer.Tools import Ui
-from palm_tracer.Tools.Ui import print_warning
 from palm_tracer.UI.BaseWidget import BaseWidget
 
 # Tentative d'import QtWebEngine (via qtpy) —En cas d'UI défectueuse
@@ -183,7 +182,7 @@ class BasePlotlyWidget(BaseWidget):
 
 		try: html = self._build_plotly_shell_html()
 		except FileNotFoundError as error:
-			print_warning(str(error))
+			self.notify_warning(str(error))
 			self._web.setHtml(f"<b>Plotly unavailable</b><br>{error}")
 			return
 
@@ -306,7 +305,7 @@ class BasePlotlyWidget(BaseWidget):
 			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		if not self._html:
-			print_warning("No figures to export.")
+			self.notify_warning("No figures to export.")
 			return
 
 		path, selected_filter = QFileDialog.getSaveFileName(self, "Export the graph", str(self._graph_folder),
@@ -323,7 +322,7 @@ class BasePlotlyWidget(BaseWidget):
 				with open(path, "w", encoding="utf-8") as f: f.write(self._html)
 			elif lower.endswith(".pdf"): self._web.page().printToPdf(str(path))
 			else: self._export_via_plotly_download(path, fmt="png")  # Pas d'extension reconnue ⇾ PNG par défaut
-		except Exception as e: print_warning(f"Export failed : {e}")
+		except Exception as e: self.notify_warning(f"Export failed : {e}")
 
 	# ==================================================
 	# endregion Export Plotly

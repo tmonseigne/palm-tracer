@@ -7,7 +7,6 @@ from pathlib import Path
 import napari
 import numpy as np
 import pandas as pd
-from napari.utils.notifications import show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
@@ -101,11 +100,11 @@ class Viewer3DWidget(BaseWidget):
 		try: self.data = pd.read_csv(path)
 		except (OSError, ValueError) as error:
 			self.data = pd.DataFrame()
-			show_warning(f"Unable to read the CSV file: {error}.")
+			self.notify_warning(f"Unable to read the CSV file: {error}.")
 			return
 		if not all(col in self.data.columns for col in ["X", "Y", "Z", "Integrated Intensity"]):
 			self.data = pd.DataFrame()
-			show_warning("The file must contain the columns X, Y, Z, and Integrated Intensity.")
+			self.notify_warning("The file must contain the columns X, Y, Z, and Integrated Intensity.")
 			return
 
 		self.update_layer()

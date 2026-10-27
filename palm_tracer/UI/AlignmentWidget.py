@@ -153,7 +153,7 @@ class AlignmentWidget(BaseWidget):
 		stacks = [path for path in paths if Path(path).suffix.lower() in FileIO.STACK_EXTENSIONS]
 		coefficients = [path for path in paths if Path(path).suffix.lower() in (".csv", ".txt")]
 		if not 1 <= len(paths) <= 2 or len(stacks) > 1 or len(coefficients) > 1 or len(stacks) + len(coefficients) != len(paths):
-			Ui.print_warning("Drop one stack, one coefficient file, or one of each.")
+			self.notify_warning("Drop one stack, one coefficient file, or one of each.")
 			return
 		if stacks: self._load_tif(stacks[0])
 		if coefficients: self._load_coef(coefficients[0])
@@ -171,7 +171,7 @@ class AlignmentWidget(BaseWidget):
 		filename, _ = QFileDialog.getOpenFileName(self, "Select stack", "", FileIO.STACK_FILE_FILTER)
 
 		if not filename:
-			Ui.print_warning("No TIFF file selected.")
+			self.notify_warning("No TIFF file selected.")
 			return
 		self._load_tif(filename)
 
@@ -190,13 +190,13 @@ class AlignmentWidget(BaseWidget):
 			self._stack = open_tif(str(path))
 		except Exception as e:
 			self._stack = None
-			Ui.print_error(f"Unable to read the TIFF file : {e}.")
+			self.notify_error(f"Unable to read the TIFF file : {e}.")
 			return
 
 		# --- mise à jour du label associé au bouton ---
 		Ui.update_path_label(self._lbl_tif_compute, path)
 		Ui.update_path_label(self._lbl_tif_apply, path)
-		Ui.print_success(f"TIFF loaded successfully. Shape={self._stack.shape}, dtype={self._stack.dtype}")
+		self.notify_success(f"TIFF loaded successfully. Shape={self._stack.shape}, dtype={self._stack.dtype}")
 
 	# --------------------------------------------------
 	def _on_load_coef(self):
@@ -213,7 +213,7 @@ class AlignmentWidget(BaseWidget):
 		filename, _ = QFileDialog.getOpenFileName(self, "Select coefficients file", "", "Coefficient files (*.csv *.txt)")
 
 		if not filename:
-			Ui.print_warning("No coefficient file selected.")
+			self.notify_warning("No coefficient file selected.")
 			return
 		self._load_coef(filename)
 
@@ -232,36 +232,36 @@ class AlignmentWidget(BaseWidget):
 			self._coeffs = np.loadtxt(filename, comments="#", dtype=float, delimiter=separator)
 		except Exception as e:
 			self._coeffs = None
-			Ui.print_error(f"Unable to read the coefficient file: {e}.")
+			self.notify_error(f"Unable to read the coefficient file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if self._coeffs.ndim != 2 or self._coeffs.shape != (2, 10):
 			self._coeffs = None
-			Ui.print_error("The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
+			self.notify_error("The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
 			return
 
 		# --- mise à jour du label de statut ---
 		Ui.update_path_label(self._lbl_coeff_apply, Path(filename))
 
-		Ui.print_success("Coefficients loaded successfully.")
+		self.notify_success("Coefficients loaded successfully.")
 
 	# --------------------------------------------------
 	def _on_compute_coeffs(self):
 		"""Callback du bouton 'Compute coefficients'."""
-		if self._stack is None: Ui.print_warning("Can't Compute alignment coefficients without correct tif file.")
-		else: Ui.print_warning("Compute alignment coefficients isn't implemented yet. Use original PALMTracer.")
+		if self._stack is None: self.notify_warning("Can't Compute alignment coefficients without correct tif file.")
+		else: self.notify_warning("Compute alignment coefficients isn't implemented yet. Use original PALMTracer.")
 
 	# --------------------------------------------------
 	def _on_start_alignment(self):
 		"""Callback du bouton 'Start alignment'."""
-		if self._stack is None: Ui.print_warning("Can't align without correct tif file.")
-		elif self._coeffs is None: Ui.print_warning("Can't align tif file without factors.")
+		if self._stack is None: self.notify_warning("Can't align without correct tif file.")
+		elif self._coeffs is None: self.notify_warning("Can't align tif file without factors.")
 		else:
 			upscale = self._spin_upscale.value()
 			aligned = self._palm.align(self._stack, self._coeffs, upscale)
 			save_tif(aligned, self._output_filename)
-			Ui.print_success(f"File saved at {self._output_filename} (upscale={upscale}).")
+			self.notify_success(f"File saved at {self._output_filename} (upscale={upscale}).")
 
 
 # --------------------------------------------------

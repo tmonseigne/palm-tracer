@@ -13,7 +13,6 @@ import napari
 import numpy as np
 import pandas as pd
 from napari import Viewer
-from napari.utils.notifications import show_error, show_info, show_warning
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
@@ -271,7 +270,7 @@ class PALMTracerWidget(BaseNapariWidget):
 			self._process_done()
 
 		w.finished.connect(_finish)
-		w.errored.connect(lambda e: show_error(f"Error in thread: {e}"))
+		w.errored.connect(lambda e: self.notify_error(f"Error in thread: {e}"))
 		w.start()
 
 	# --------------------------------------------------
@@ -283,7 +282,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
 		Elle doit être appelée depuis le thread principal (GUI).
 		"""
-		# show_info("Thread Process done.")
+		# self.notify_info("Thread Process done.")
 		self._processing = False
 		self._freeze_ui(False)
 
@@ -315,13 +314,13 @@ class PALMTracerWidget(BaseNapariWidget):
 				# Bloque les signaux, agrège les multiples .emit() potentiels :
 				with self.pt.settings.signal_blocked():
 					cfg = FileIO.open_json(str(filename))
-					show_info(f"Loading the setting file '{filename}'.")
+					self.notify_info(f"Loading the setting file '{filename}'.")
 					self.pt.settings.update_from_compact_dict(cfg)
 					self.pt.settings.localization["Preview"].value = False
 					self.pt.settings.filters.deactivate_filters()
 					self.pt.settings.rois.update_main()
 			except Exception as e:
-				show_warning(f"Error loading file '{filename}': {e}")
+				self.notify_warning(f"Error loading file '{filename}': {e}")
 
 	# --------------------------------------------------
 	def _on_load_setting_btn(self):
@@ -387,11 +386,11 @@ class PALMTracerWidget(BaseNapariWidget):
 			try:
 				self.viewer.layers.selection.active = self._layers["Raw"]
 				self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)
-			except Exception as e: show_error(f"Error during layer selection: {e}")
-			show_info(f"Loaded {selected_file} {self._current_stack.shape} into Napari viewer.")
+			except Exception as e: self.notify_error(f"Error during layer selection: {e}")
+			self.notify_info(f"Loaded {selected_file} {self._current_stack.shape} into Napari viewer.")
 
 		except Exception as e:
-			show_error(f"Error loading {selected_file}: {e}")
+			self.notify_error(f"Error loading {selected_file}: {e}")
 
 	# --------------------------------------------------
 	def _add_preview_layers(self):
@@ -508,7 +507,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		if image is None: return
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
 		print(f"Auto Threshold: {threshold:.2f}")
-		# show_info(f"Auto Threshold: {threshold:.2f}") Durant les threads externes, dangereux de faire appel à l'interface
+		# La prévisualisation conserve les diagnostics dans la console pour ne pas multiplier les notifications.
 		self.pt.settings.localization["Threshold"].value = threshold  # .								  Changement du seuil dans les settings
 
 	# ==================================================

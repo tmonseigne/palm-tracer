@@ -11,7 +11,6 @@ from typing import cast
 
 import napari
 import numpy as np
-from napari.utils.notifications import show_info, show_warning
 from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
@@ -240,14 +239,14 @@ class ViewerHRWidget(BaseNapariWidget):
 			crop = self.pt.crop(self.visualization)
 			if self._filename[-3:] == "png": FileIO.save_png(crop, self._filename, False)
 			else: FileIO.save_tif(crop, self._filename)
-			show_info("Image file saved successfully.")
+			self.notify_info("Image file saved successfully.")
 
 	# --------------------------------------------------
 	def _screenshot(self):  # pragma: no cover — Accès au canevas
 		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les réglages de color map, contraste)."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
-			show_info("Screenshot saved successfully.")
+			self.notify_info("Screenshot saved successfully.")
 
 	# --------------------------------------------------
 	def _toggle_type(self, btn_id: int):
@@ -272,7 +271,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		path, stack, suffix = self.pt.path, self.pt.stack, self.pt.suffix
 
 		if stack is None or not path or not Path(path).is_dir():
-			show_warning("No stack processed loaded.")
+			self.notify_warning("No stack processed loaded.")
 			return
 
 		# Conserve le repère de l'image affichée si la génération ne peut pas la remplacer.
@@ -281,7 +280,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		visualization, plot_data = data["visualization"], data["plot_data"]
 		if visualization.size <= 1:
 			self.pt.settings.rois.hr_box = previous_hr_box
-			show_warning("No visualization available.")
+			self.notify_warning("No visualization available.")
 			return
 		self.visualization = visualization
 
