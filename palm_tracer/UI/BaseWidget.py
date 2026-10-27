@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 from typing import cast
 
 from qtpy.compat import isalive
 from qtpy.QtCore import QEvent, QObject, Qt, Signal, Slot
-from qtpy.QtGui import QContextMenuEvent, QDropEvent, QHideEvent, QResizeEvent, QShowEvent
+from qtpy.QtGui import QContextMenuEvent, QCursor, QDropEvent, QHideEvent, QResizeEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMenu, QWidget
+from superqt.utils import FunctionWorker
 
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.NotificationWidget import NotificationLevel, NotificationWidget
@@ -51,19 +53,114 @@ class BaseWidget(QWidget):
 		self._notification: NotificationWidget | None = None  # Notification unique, créée seulement au premier message.
 		self.setWindowTitle(self.UI_NAME)
 		self.setStyleSheet(Ui.STYLESHEET_COMMON)
-		self._drop_window: QWidget | None = None  # .		 Fenêtre Qt dont les dépôts sont interceptés.
-		self._drop_accepts: bool = False  # .				 État initial à restaurer lors du masquage.
-		self._context_menu_exclusions: list[QWidget] = []  # Vues conservant exclusivement leur propre menu contextuel.
+		self._drop_window: QWidget | None = None  # .		 	Fenêtre Qt dont les dépôts sont interceptés.
+		self._drop_accepts: bool = False  # .				 	État initial à restaurer lors du masquage.
+		self._context_menu_exclusions: list[QWidget] = []  # .	Vues conservant exclusivement leur propre menu contextuel.
 		self._notification_requested.connect(self._show_notification)
+		self._processing: bool = False  # .						Traitement et éventuelle finalisation encore actifs.
+		self._worker: FunctionWorker | None = None  # .			Conserve le worker jusqu'à son signal de fin.
+		self._post_process: Callable[[], None] | None = None  # Mise à jour exécutée uniquement après réussite, sur le thread Qt.
+		self._processing_was_enabled: bool = True  # .			État à restaurer après le traitement.
 
 	# ==================================================
 	# endregion Initialisation
 	# ==================================================
 
 	# ==================================================
+	# region Threads
+	# ==================================================
+	@property
+	def processing(self) -> bool:
+		"""Indique si un calcul ou sa finalisation est encore en cours pour ce widget."""
+		return self._processing
+
+	# --------------------------------------------------
+	def _thread_process(self, compute_func: Callable[[], None], post_func: Callable[[], None] | None = None):
+		"""
+		Lance un calcul dans un worker et désactive temporairement les interactions du widget.
+
+		Une demande reçue pendant un traitement est ignorée, sans annulation ni mise en attente.
+		Le calcul ne doit accéder à aucun widget ou calque ; la finalisation est exécutée dans le thread graphique.
+		Les préconditions métier sont vérifiées par le calcul ou par son appelant, indépendamment de cette base Qt.
+
+		:param compute_func: Calcul sans argument à exécuter en arrière-plan.
+		:param post_func: Mise à jour sans argument à exécuter après réussite, avant la réactivation du widget.
+		"""
+		if self._processing: return
+		self._processing = True
+		self._post_process = post_func
+		self._freeze_ui(True)
+		try:
+			worker = FunctionWorker(compute_func)
+			self._worker = worker
+			worker.returned.connect(self._process_returned)
+			worker.errored.connect(self._process_failed)
+			worker.finished.connect(self._process_done)
+			worker.start()
+		except Exception as error:
+			self._process_done()
+			self._process_failed(error)
+
+	# --------------------------------------------------
+	@Slot(object)
+	def _process_returned(self, _result: object):
+		"""
+		Exécute la finalisation du calcul réussi depuis le thread graphique.
+
+		:param _result: Valeur transmise par le worker et ignorée par cette interface de calcul sans retour.
+		"""
+		try:
+			if self._post_process is not None: self._post_process()
+		except Exception as error:
+			self._process_failed(error)
+			return
+
+	# --------------------------------------------------
+	@Slot(object)
+	def _process_failed(self, error: Exception):
+		"""
+		Signale une erreur de calcul, de démarrage ou de finalisation dans le panneau concerné.
+
+		:param error: Exception remontée par le worker ou par sa finalisation.
+		"""
+		self.notify_error(f"Error in thread: {error}")
+
+	# --------------------------------------------------
+	@Slot()
+	def _process_done(self):
+		"""Libère le traitement terminé et restaure les interactions et le curseur du widget."""
+		if not self._processing: return
+		self._worker = None
+		self._post_process = None
+		self._freeze_ui(False)
+		self._processing = False
+
+	# --------------------------------------------------
+	def _freeze_ui(self, on: bool):
+		"""
+		Grise le widget sans bloquer les rafraîchissements et impose le curseur d'attente dans l'application.
+
+		Le curseur global reste visible sur les panneaux désactivés et les enfants ayant leur propre curseur.
+		Chaque traitement empile un curseur d'attente et le dépile à sa fin ; les autres panneaux restent utilisables.
+
+		:param on: Active le curseur d'attente et désactive le panneau, ou restaure son état initial.
+		"""
+		if on:
+			self._processing_was_enabled = not self.testAttribute(Qt.WidgetAttribute.WA_ForceDisabled)
+			QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+			self.setEnabled(False)
+		else:
+			self.setEnabled(self._processing_was_enabled)
+			QApplication.restoreOverrideCursor()
+
+	# ==================================================
+	# endregion Threads
+	# ==================================================
+
+	# ==================================================
 	# region Notifications
 	# ==================================================
-	def notify(self, message: str, level: NotificationLevel = "info", duration_ms: int = 4000):
+	def notify(self, message: str, level: NotificationLevel = "info", duration_ms: int = 3000):
 		"""
 		Conserve le message dans la console et demande une notification locale sans accéder aux widgets depuis un worker.
 
@@ -84,7 +181,7 @@ class BaseWidget(QWidget):
 		self._notification_requested.emit(message, level, duration_ms)
 
 	# --------------------------------------------------
-	def notify_info(self, message: str, duration_ms: int = 4000):
+	def notify_info(self, message: str, duration_ms: int = 3000):
 		"""
 		Affiche une information locale avec disparition automatique.
 
@@ -94,7 +191,7 @@ class BaseWidget(QWidget):
 		self.notify(message, "info", duration_ms)
 
 	# --------------------------------------------------
-	def notify_success(self, message: str, duration_ms: int = 4000):
+	def notify_success(self, message: str, duration_ms: int = 3000):
 		"""
 		Affiche la réussite d'une opération dans le panneau courant.
 
@@ -104,7 +201,7 @@ class BaseWidget(QWidget):
 		self.notify(message, "success", duration_ms)
 
 	# --------------------------------------------------
-	def notify_warning(self, message: str, duration_ms: int = 4000):
+	def notify_warning(self, message: str, duration_ms: int = 3000):
 		"""
 		Affiche un avertissement local sans ouvrir de dialogue bloquant.
 
@@ -114,7 +211,7 @@ class BaseWidget(QWidget):
 		self.notify(message, "warning", duration_ms)
 
 	# --------------------------------------------------
-	def notify_error(self, message: str, duration_ms: int = 4000):
+	def notify_error(self, message: str, duration_ms: int = 3000):
 		"""
 		Affiche une erreur locale sans ouvrir de dialogue bloquant.
 
@@ -281,7 +378,7 @@ class BaseWidget(QWidget):
 		if not paths: return False
 		valid_paths = all((Path(path).is_file() and (not self.DROP_EXTENSIONS or Path(path).suffix.lower() in self.DROP_EXTENSIONS))
 						  or (self.DROP_DIRECTORIES and Path(path).is_dir()) for path in paths)
-		if (not self.DROP_MULTIPLE and len(urls) != 1) or not valid_paths:
+		if self._processing or (not self.DROP_MULTIPLE and len(urls) != 1) or not valid_paths:
 			drop.ignore()
 			return True
 		# Copy décrit l'ajout des chemins ; aucun fichier source n'est déplacé.
@@ -300,6 +397,6 @@ class BaseWidget(QWidget):
 		"""
 		raise NotImplementedError("Le widget doit définir le traitement des fichiers déposés.")
 
-	# ==================================================
-	# endregion Glisser-déposer
-	# ==================================================
+# ==================================================
+# endregion Glisser-déposer
+# ==================================================

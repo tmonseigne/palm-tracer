@@ -4,8 +4,6 @@ Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 .. todo:: Rendre interruptibles les prévisualisations sans bloquer l'interface Napari.
 """
 
-from collections.abc import Callable
-from contextlib import suppress
 from pathlib import Path
 from typing import Optional, cast
 
@@ -14,7 +12,7 @@ import numpy as np
 import pandas as pd
 from napari import Viewer
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.Settings.Types import FileList
 from palm_tracer.Tools import FileIO, Ui
@@ -22,9 +20,6 @@ from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Viewer3DWidget import create_viewer3d
 from palm_tracer.UI.ViewerHRWidget import create_viewerhr
-
-try: from napari.qt.threading import FunctionWorker, thread_worker  # Chemin public, à préférer.
-except ImportError: from superqt.utils import FunctionWorker, thread_worker  # Repli pour les versions antérieures.
 
 
 # --------------------------------------------------
@@ -67,9 +62,6 @@ class PALMTracerWidget(BaseNapariWidget):
 		self.viewer_3d: Optional[Viewer] = None
 		self.viewer_3d_widget: Optional[QWidget] = None
 		self.viewer_graph: Optional[GraphViewerWidget] = None
-		# ----- Threads -----
-		self._processing = False  # .					 Permets d'éviter les clics multiples.
-		self._worker: Optional[FunctionWorker] = None  # Worker Napari en cours
 		# ----- Objets -----
 		self.last_file = ""
 		self._preview_locs: dict[str, np.ndarray] = {"Present": self.EMPTY_PREVIEW, "Filtered": self.EMPTY_PREVIEW,
@@ -226,78 +218,6 @@ class PALMTracerWidget(BaseNapariWidget):
 
 	# ==================================================
 	# endregion Glisser-déposer
-	# ==================================================
-
-	# ==================================================
-	# region Threads
-	# ==================================================
-	def _thread_process(self, compute_func: Callable[[], None], post_func: Optional[Callable[[], None]] = None):
-		"""
-		Démarre un traitement long dans un thread séparé et met à jour l'interface.
-
-		Cette méthode désactive l'interface utilisateur (UI) et change le curseur en "attente" pendant l'exécution de la fonction passée en paramètre.
-		Elle vérifie si un fichier est en cours de prévisualisation avant de lancer le traitement.
-		Le traitement est exécuté dans un thread séparé pour ne pas bloquer l'interface principale de l'application.
-
-		:param compute_func: Fonction à exécuter dans un thread séparé. Elle ne doit pas prendre de paramètres et ne retourne rien.
-		:param post_func: Fonction à exécuter après le thread. Elle ne doit pas prendre de paramètres et ne retourne rien.
-		"""
-		if self._processing: return
-		if self.last_file == "": return
-		self._processing = True
-		self._freeze_ui(True)
-
-		# --------------------------------------------------
-		@thread_worker(start_thread=False)
-		def _run_background():
-			"""Exécute le traitement dans le worker d'arrière-plan."""
-			compute_func()  # STRICTEMENT aucun accès au viewer/layers ici, pragma: no cover —  lancement sur thread.
-
-		w: FunctionWorker = cast(FunctionWorker, _run_background())
-		self._worker = w
-
-		# S'exécute dans le thread de l'interface
-		if post_func is not None: w.returned.connect(lambda _ok: post_func())
-
-		# --------------------------------------------------
-		def _finish(*_args: object):  # UI thread : fin propre
-			"""
-			Libère le worker puis finalise le traitement.
-
-			:param _args: Arguments transmis par le signal Qt et ignorés.
-			"""
-			self._worker = None
-			self._process_done()
-
-		w.finished.connect(_finish)
-		w.errored.connect(lambda e: self.notify_error(f"Error in thread: {e}"))
-		w.start()
-
-	# --------------------------------------------------
-	def _process_done(self):
-		"""
-		Finalise un traitement en réactivant l'interface et met à jour l'affichage.
-
-		Cette méthode est appelée lorsque le traitement est terminé.
-		Elle réactive l'interface utilisateur (UI), restaure le curseur et effectue les mises à jour nécessaires sur l'interface principale.
-		Elle doit être appelée depuis le thread principal (GUI).
-		"""
-		# self.notify_info("Thread Process done.")
-		self._processing = False
-		self._freeze_ui(False)
-
-	# --------------------------------------------------
-	def _freeze_ui(self, on: bool):
-		"""Gèle/réactive proprement l'UI sans casser la géométrie."""
-		self.setDisabled(on)  # .		  Au lieu de self.layout().setEnabled(False/True)
-		self.setUpdatesEnabled(not on)  # Stoppe/reprend les repaints
-		if on: QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-		else:
-			# Aucun curseur à restaurer : ignorer l'erreur Qt correspondante.
-			with suppress(RuntimeError): QApplication.restoreOverrideCursor()
-
-	# ==================================================
-	# endregion Threads
 	# ==================================================
 
 	# ==================================================
