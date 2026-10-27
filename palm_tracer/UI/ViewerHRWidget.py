@@ -355,7 +355,6 @@ def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer
 	:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
 	:return: Visionneuse Napari créée et widget haute résolution associé.
 	"""
-	if palmtracer is None: palmtracer = PALMTracer()
 	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari
 	viewer.title = "HR Viewer"  # .											 Modifier le titre de la fenêtre
 	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu

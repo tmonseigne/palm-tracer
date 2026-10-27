@@ -12,9 +12,9 @@ from qtpy.QtGui import QContextMenuEvent, QCursor, QDropEvent, QHideEvent, QResi
 from qtpy.QtWidgets import QApplication, QDockWidget, QMenu, QWidget
 from superqt.utils import FunctionWorker
 
+from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.NotificationWidget import NotificationLevel, NotificationWidget
-
 
 # --------------------------------------------------
 class BaseWidget(QWidget):
@@ -27,6 +27,7 @@ class BaseWidget(QWidget):
 	La base reste instanciable ; appeler l'action sans la redéfinir lève :class:`NotImplementedError`.
 
 	:param parent: Widget Qt parent, ou :obj:`None` pour une fenêtre autonome.
+	:param palmtracer: Instance partagée conservée sans copie, ou :obj:`None` pour en créer une.
 	"""
 
 	UI_NAME: str = ""
@@ -43,13 +44,15 @@ class BaseWidget(QWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: QWidget | None = None):
+	def __init__(self, parent: QWidget | None = None, palmtracer: PALMTracer | None = None):
 		"""
-		Initialise l'identité, le style Qt et l'état du filtre de dépôt.
+		Conserve ou crée l'instance métier et initialise l'identité, le style Qt et l'état du filtre de dépôt.
 
 		:param parent: Widget Qt parent, ou :obj:`None` pour une fenêtre autonome.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 		"""
 		super().__init__(parent)
+		self.pt: PALMTracer = PALMTracer() if palmtracer is None else palmtracer  # Instance fournie sans copie ou créée pour ce widget.
 		self._notification: NotificationWidget | None = None  # Notification unique, créée seulement au premier message.
 		self.setWindowTitle(self.UI_NAME)
 		self.setStyleSheet(Ui.STYLESHEET_COMMON)

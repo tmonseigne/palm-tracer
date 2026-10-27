@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from contextlib import suppress
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import plotly.graph_objects as go
 from qtpy.QtCore import QUrl
@@ -15,6 +15,9 @@ from qtpy.QtWidgets import QFileDialog, QTextBrowser, QWidget
 from palm_tracer.Processing import Grapher
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.BaseWidget import BaseWidget
+
+if TYPE_CHECKING:
+	from palm_tracer.PALMTracer import PALMTracer
 
 # Tentative d'import QtWebEngine (via qtpy) —En cas d'UI défectueuse
 try:
@@ -34,6 +37,7 @@ class BasePlotlyWidget(BaseWidget):
 	La classe centralise l'affichage dans QtWebEngine ainsi que l'export des figures vers les formats pris en charge.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée conservée sans copie, ou :obj:`None` pour en créer une.
 	"""
 
 	PLOT_DIV_ID = "plotly_graph"
@@ -48,13 +52,14 @@ class BasePlotlyWidget(BaseWidget):
 	"""Adresse de secours de la bibliothèque JavaScript Plotly."""
 
 	# --------------------------------------------------
-	def __init__(self, parent: Optional[QWidget] = None):
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une dans la base commune.
 		"""
-		super().__init__(parent)
+		super().__init__(parent, palmtracer)
 
 		self._pending_download_path: str = ""
 		self._grapher = Grapher()

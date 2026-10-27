@@ -60,9 +60,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param palmtracer: Instance principale :class:`~palm_tracer.PALMTracer` sans copie (référence partagée).
 		"""
-		super().__init__()
+		super().__init__(palmtracer=palmtracer)
 		# Initialisation des membres
-		self.pt = PALMTracer() if palmtracer is None else palmtracer
 		self._graph_settings: Graph = self.pt.settings.graph
 
 		# Construction UI

@@ -43,9 +43,8 @@ class BaseNapariWidget(BaseWidget):
 		:param viewer: Visionneuse Napari recevant les calques du widget.
 		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 		"""
-		super().__init__()
+		super().__init__(palmtracer=palmtracer)
 		self.viewer = viewer  # .										Conservation du lien vers le Viewer Napari
-		self.pt = PALMTracer() if palmtracer is None else palmtracer  # Récupération ou création d' l'objet PALMTracer
 
 	# ==================================================
 	# endregion Initialisation
