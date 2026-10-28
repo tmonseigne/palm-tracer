@@ -20,8 +20,6 @@ from palm_tracer.UI.Napari import get_current_palmtracer
 
 _DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
 
-_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
-
 
 class Astigmatism3DWidget(BasePlotlyWidget):
 	"""
@@ -445,8 +443,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- vérification de la forme des données ---
 		if not set(_DLL_REQUIRED_COLS).issubset(self._loc.columns):
 			self.notify_error(f"The localization file is not in the correct format.\n"
-						   f"\tExpected format, at least columns: {', '.join(sorted(_DLL_REQUIRED_COLS))}.\n"
-						   f"\tFound columns: {', '.join(self._loc.columns)}")
+							  f"\tExpected format, at least columns: {', '.join(sorted(_DLL_REQUIRED_COLS))}.\n"
+							  f"\tFound columns: {', '.join(self._loc.columns)}")
 			self._loc = pd.DataFrame()
 			return
 
@@ -675,13 +673,11 @@ def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sa
 	Ouvre l'outil d'astigmatisme 3D dans une fenêtre autonome.
 
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
-	elle crée un :class:`Astigmatism3DWidget`, l'affiche et conserve une référence globale pour éviter sa destruction.
+	elle crée un :class:`Astigmatism3DWidget` et délègue l'affichage et la conservation de sa référence à la base commune.
 	Aucun widget n'est renvoyé au gestionnaire de panneaux Napari ; cette fonction retourne ``None``.
 	"""
 	widget = Astigmatism3DWidget(palmtracer=get_current_palmtracer())
-	widget.resize(1280, 720)
-	widget.show()
-	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
+	widget.show_standalone()
 
 
 # --------------------------------------------------
@@ -690,6 +686,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = Astigmatism3DWidget()
-	w.resize(1280, 720)
-	w.show()
+	w.show_standalone()
 	sys.exit(app.exec_())

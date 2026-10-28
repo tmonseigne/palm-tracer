@@ -314,7 +314,7 @@ class BasePlotlyWidget(BaseWidget):
 			return
 
 		path, selected_filter = FileDialog.save_file(self, "Export the graph", str(self._graph_folder),
-															"PNG (*.png);;SVG (*.svg);;WEBP (*.webp);;HTML (*.html);;PDF (*.pdf)")
+													 "PNG (*.png);;SVG (*.svg);;WEBP (*.webp);;HTML (*.html);;PDF (*.pdf)")
 		if not path: return
 
 		try:
@@ -365,6 +365,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = BasePlotlyWidget()
-	w.resize(1280, 720)
-	w.show()
+	w.show_standalone()
 	sys.exit(app.exec_())

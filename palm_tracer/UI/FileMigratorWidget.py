@@ -12,8 +12,6 @@ from palm_tracer.Tools import FileDialog, FileMigrator, Ui
 from palm_tracer.UI.BaseWidget import BaseWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
 
-_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes.
-
 
 class FileMigratorWidget(BaseWidget):
 	"""
@@ -158,12 +156,10 @@ def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans co
 	Ouvre la fenêtre de l'outil de migration en mode autonome.
 
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
-	elle crée simplement un :class:`FileMigratorWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
+	elle crée un :class:`FileMigratorWidget` et l'affiche dans une fenêtre autonome dont la référence est gérée par la base commune.
 	"""
 	widget = FileMigratorWidget(palmtracer=get_current_palmtracer())
-	widget.resize(500, 250)
-	widget.show()
-	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
+	widget.show_standalone(500, 250)
 
 
 # --------------------------------------------------
@@ -172,6 +168,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = FileMigratorWidget()
-	w.resize(500, 250)
-	w.show()
+	w.show_standalone(500, 250)
 	sys.exit(app.exec_())

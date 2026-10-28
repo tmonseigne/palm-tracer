@@ -164,7 +164,7 @@ class FileList(BaseSettingType):
 		:param paths: Chemins locaux des fichiers à ajouter.
 		"""
 		valid_paths = sorted((path for path in paths if Path(path).is_file() and
-							 (not self.extensions or Path(path).suffix.lower() in self.extensions)), key=str.casefold)
+							  (not self.extensions or Path(path).suffix.lower() in self.extensions)), key=str.casefold)
 		if valid_paths:
 			with self.signal_blocked():
 				self._items.extend(valid_paths)

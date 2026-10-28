@@ -16,6 +16,7 @@ from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Tools import Ui
 from palm_tracer.UI.NotificationWidget import NotificationLevel, NotificationWidget
 
+
 # --------------------------------------------------
 class BaseWidget(QWidget):
 	"""
@@ -38,6 +39,8 @@ class BaseWidget(QWidget):
 	"""Extensions de fichiers autorisées en minuscules ; un tuple vide ne limite pas les extensions."""
 	DROP_DIRECTORIES: bool = False
 	"""Accepte les dossiers en plus des fichiers autorisés."""
+	_standalone_windows: dict[int, BaseWidget] = {}
+	"""Références des fenêtres autonomes conservées jusqu'à leur destruction par Qt."""
 	_notification_requested = Signal(str, str, int)
 	"""Transmet les demandes de notification au thread graphique, y compris depuis un worker."""
 
@@ -67,6 +70,32 @@ class BaseWidget(QWidget):
 
 	# ==================================================
 	# endregion Initialisation
+	# ==================================================
+
+	# ==================================================
+	# region Fenêtres autonomes
+	# ==================================================
+	def show_standalone(self, width: int = 1280, height: int = 720):
+		"""
+		Dimensionne et affiche une fenêtre autonome en conservant sa référence jusqu'à sa destruction.
+
+		La fermeture détruit la fenêtre et libère sa référence commune. Les appels répétés n'ajoutent
+		ni référence ni connexion supplémentaire. Les panneaux intégrés restent gérés par leur conteneur.
+
+		:param width: Largeur initiale en pixels logiques.
+		:param height: Hauteur initiale en pixels logiques.
+		"""
+		identity = id(self)
+		if identity not in BaseWidget._standalone_windows:
+			BaseWidget._standalone_windows[identity] = self
+			# Capture uniquement l'identifiant pour ne pas retenir la fenêtre dans son propre callback.
+			self.destroyed.connect(lambda: BaseWidget._standalone_windows.pop(identity, None))
+		self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+		self.resize(width, height)
+		self.show()
+
+	# ==================================================
+	# endregion Fenêtres autonomes
 	# ==================================================
 
 	# ==================================================

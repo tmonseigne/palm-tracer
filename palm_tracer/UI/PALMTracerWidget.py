@@ -457,14 +457,14 @@ class PALMTracerWidget(BaseNapariWidget):
 		"""Ouvre la visionneuse de graphiques, s'il n'existe pas déjà."""
 		if self.viewer_graph is None:
 			w = GraphViewerWidget(self.pt)
-			w.resize(1280, 720)
 			self.viewer_graph = w
 			# Quand le widget est détruit, rémettre la réf à None.
-			w.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 			w.destroyed.connect(lambda *_: setattr(self, "viewer_graph", None))
+			w.show_standalone()
+		else:
+			self.viewer_graph.show()
 
 		# (re)montrer et mettre au premier plan
-		self.viewer_graph.show()
 		self.viewer_graph.raise_()
 		self.viewer_graph.activateWindow()
 

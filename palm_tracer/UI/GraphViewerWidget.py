@@ -19,8 +19,6 @@ from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
 
-_windows: list[QWidget] = []  # Conserve les fenêtres ouvertes depuis le menu Napari.
-
 # ==================================================
 # region Constantes
 # ==================================================
@@ -263,9 +261,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 def open_graphviewer():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
 	"""Ouvre le Graph Viewer autonome avec l'instance du widget principal dans la fenêtre Napari active."""
 	widget = GraphViewerWidget(palmtracer=get_current_palmtracer())
-	widget.resize(1280, 720)
-	widget.show()
-	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python.
+	widget.show_standalone()
 
 
 # --------------------------------------------------
@@ -274,6 +270,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = GraphViewerWidget()
-	w.resize(1280, 720)
-	w.show()
+	w.show_standalone()
 	sys.exit(app.exec_())
