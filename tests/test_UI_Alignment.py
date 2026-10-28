@@ -1,9 +1,14 @@
 """Teste le widget de calcul et d'application des alignements géométriques."""
 
+from unittest.mock import Mock
+
+import pytest
+import tifffile
 from qtpy.QtCore import Qt
 
 from palm_tracer.UI.AlignmentWidget import AlignmentWidget  # Classe
 from tests.Utils import *
+from tests.Utils import send_file_drop
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -26,6 +31,58 @@ def test_widget_creation(qtbot):
 
 # ==================================================
 # endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Glisser-déposer
+# ==================================================
+@pytest.mark.parametrize("scenario", ["stack", "coefficients", "pair", "reversed-pair", "legacy-text"],
+						 ids=["single-stack", "single-csv", "stack-and-csv", "csv-and-stack", "legacy-text"])
+def test_alignment_drop_loads_inputs(qtbot, tmp_path, scenario):
+	"""Vérifie les chargements réels des entrées d'alignement et l'indépendance de l'ordre du dépôt."""
+	widget = AlignmentWidget()
+	qtbot.addWidget(widget)
+	stack = np.arange(2 * 4 * 5, dtype=np.uint16).reshape(2, 4, 5)
+	stack_file = tmp_path / "stack.STK"
+	tifffile.imwrite(stack_file, stack, photometric="minisblack")
+	coefficients = np.arange(20, dtype=float).reshape(2, 10)
+	coefficient_file = tmp_path / ("coefficients.txt" if scenario == "legacy-text" else "coefficients.CSV")
+	np.savetxt(coefficient_file, coefficients, delimiter=" " if scenario == "legacy-text" else ",")
+	paths = {"stack":         [stack_file], "coefficients": [coefficient_file], "pair": [stack_file, coefficient_file],
+			 "reversed-pair": [coefficient_file, stack_file], "legacy-text": [coefficient_file]}[scenario]
+
+	widget.show()
+	send_file_drop(widget, paths)
+
+	if stack_file in paths: np.testing.assert_array_equal(widget._stack, stack)
+	if coefficient_file in paths: np.testing.assert_array_equal(widget._coeffs, coefficients)
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("names", [
+		pytest.param(["first.tif", "second.stk"], id="two-stacks"),
+		pytest.param(["first.csv", "second.csv"], id="two-coefficient-files"),
+		pytest.param(["first.tif", "second.csv", "third.csv"], id="three-files"),
+		pytest.param(["first.tif", "second.png"], id="unsupported-file")])
+def test_alignment_drop_rejects_ambiguous_batch(qtbot, tmp_path, monkeypatch, names):
+	"""Vérifie qu'un lot invalide ne déclenche aucun chargement partiel."""
+	widget = AlignmentWidget()
+	qtbot.addWidget(widget)
+	load_stack, load_coefficients = Mock(), Mock()
+	monkeypatch.setattr(widget, "_load_tif", load_stack)
+	monkeypatch.setattr(widget, "_load_coef", load_coefficients)
+	paths = [tmp_path / name for name in names]
+	for path in paths: path.touch()
+
+	widget.show()
+	send_file_drop(widget, paths)
+
+	load_stack.assert_not_called()
+	load_coefficients.assert_not_called()
+
+
+# ==================================================
+# endregion Glisser-déposer
 # ==================================================
 
 # ==================================================
@@ -205,7 +262,6 @@ def test_align(qtbot, capsys, monkeypatch, fake_qfiledialog, input_stack):
 # ==================================================
 # endregion Chargement des coefficients et alignement
 # ==================================================
-
 
 # ==================================================
 # endregion Fonctions de rappel

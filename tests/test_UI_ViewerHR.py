@@ -3,17 +3,18 @@
 from copy import deepcopy
 from importlib import import_module
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
 from napari.components import ViewerModel
-from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, QPointF, Qt, QUrl
-from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
-from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QPushButton
+from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, Qt, QUrl
+from qtpy.QtWidgets import QDockWidget, QMainWindow, QPushButton
 
 from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, FileList
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI import BaseNapariWidget, PALMTracerWidget, ViewerHRWidget
 from tests.Utils import *
+from tests.Utils import send_drop_events
 
 
 # --------------------------------------------------
@@ -37,16 +38,6 @@ def stack_drop_widget(qtbot, monkeypatch):
 	monkeypatch.setattr(widget, "_actualize", lambda: calls.append(("actualize", Path(files.current_text))))
 	window.show()
 	return widget, receiver, calls
-
-
-# --------------------------------------------------
-def send_stack_drop(receiver, mime):
-	"""Envoie les événements Qt d'entrée, de déplacement et de dépôt d'une pile."""
-	enter = QDragEnterEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	move = QDragMoveEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
-	return enter, move, drop
 
 
 # --------------------------------------------------
@@ -198,7 +189,7 @@ def test_stack_drop_loads_latest_results_and_actualizes(stack_drop_widget, input
 	mime = QMimeData()
 	mime.setUrls([QUrl.fromLocalFile(str(input_stack))])
 
-	events = send_stack_drop(receiver, mime)
+	events = send_drop_events(receiver, mime)
 
 	assert all(event.isAccepted() for event in events)
 	assert receiver.received == []
@@ -217,7 +208,7 @@ def test_stack_drop_rejects_multiple_urls(stack_drop_widget, scenario, input_sta
 	mime = QMimeData()
 	mime.setUrls(urls[scenario])
 
-	events = send_stack_drop(receiver, mime)
+	events = send_drop_events(receiver, mime)
 
 	assert not any(event.isAccepted() for event in events)
 	assert receiver.received == []
@@ -276,7 +267,7 @@ def test_stack_drop_loads_latest_results_from_dropped_stack(stack_drop_widget, t
 	mime = QMimeData()
 	mime.setUrls([QUrl.fromLocalFile(str(dropped_stack))])
 
-	send_stack_drop(receiver, mime)
+	send_drop_events(receiver, mime)
 
 	assert pt.results.results_folder == dropped_folder.resolve()
 	assert pt.results.stack_name == dropped_stack.stem
@@ -352,7 +343,7 @@ def test_check_beads(qtbot, input_stack):
 
 
 # --------------------------------------------------
-def test_add_stack(qtbot, capsys, input_stack):
+def test_add_stack(qtbot, input_stack):
 	"""Vérifie le chargement d'une pile sans résultat enregistré."""
 	viewer = ViewerModel()
 	pt = PALMTracer()
@@ -360,8 +351,8 @@ def test_add_stack(qtbot, capsys, input_stack):
 	qtbot.addWidget(w)
 
 	w._add_stack(str(input_stack))
-	lines = get_lines_output(capsys)
-	assert "No valid settings file to load." in lines[0]
+	assert Path(cast(FileList, pt.settings.batch["Files"]).current_text) == input_stack
+	assert pt.results["loc"].empty
 
 
 # --------------------------------------------------
@@ -466,7 +457,7 @@ def test_generate_bad(qtbot, capsys, input_stack):
 	# PALMTracer n'est pas initialisé
 	w._generate()
 	lines = get_lines_output(capsys)
-	assert "WARNING: No stack processed loaded." in lines[0]
+	assert "No stack processed loaded." in lines[0]
 
 	# Chargement d'une pile, mais aucun process
 	w._add_stack(str(input_stack))
@@ -476,14 +467,14 @@ def test_generate_bad(qtbot, capsys, input_stack):
 	# Idem aucune pile de chargée, car il n'a pas eu de process précédent.
 	w._generate()
 	lines = get_lines_output(capsys)
-	assert "WARNING: No stack processed loaded." in lines[0]
+	assert "No stack processed loaded." in lines[0]
 
 	# Un process, mais aucun tableau d'exploitable.
 	w.pt.process()  # Process Vide pour créer le dossier et un paramètre de base
 	_ = get_lines_output(capsys)
 	w._generate()
 	lines = get_lines_output(capsys)
-	assert "WARNING: No visualization available." in lines[0]
+	assert "No visualization available." in lines[0]
 
 
 # --------------------------------------------------
@@ -615,7 +606,7 @@ def test_generate_preserves_render_limits(generated_widget):
 
 
 # --------------------------------------------------
-def test_generate_restores_box_without_image(generated_widget, capsys):
+def test_generate_restores_box_without_image(generated_widget, monkeypatch):
 	"""Une génération sans résultat conserve l'image, les points et le cadre déjà affichés."""
 	viewer, pt, w = generated_widget
 	pt.results.reset_filtered()
@@ -631,10 +622,11 @@ def test_generate_restores_box_without_image(generated_widget, capsys):
 	previous_points = w._layers[w.LAYERS_NAME[1]].data.copy()
 	assert previous_box[0] > 0 and previous_box[2] > 0
 	w.pt.results.reset()
-	get_lines_output(capsys)
+	notify = Mock()
+	monkeypatch.setattr(w, "notify_warning", notify)
 
 	w._generate()
-	assert "WARNING: No visualization available." in get_lines_output(capsys)
+	notify.assert_called_once_with("No visualization available.")
 	assert w.pt.settings.rois.hr_box == previous_box
 	assert w.visualization is previous_image
 	np.testing.assert_array_equal(w._layers[w.LAYERS_NAME[0]].data, previous_image)
@@ -877,7 +869,6 @@ def test_visualization_layer_rgb_transitions():
 # ==================================================
 # endregion Mise à jour des calques
 # ==================================================
-
 
 # ==================================================
 # endregion Dessin

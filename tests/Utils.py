@@ -10,7 +10,9 @@ from typing import Any, Optional, cast
 
 import numpy as np
 import pandas as pd
-from qtpy.QtWidgets import QWidget
+from qtpy.QtCore import QMimeData, QPointF, Qt, QUrl
+from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from qtpy.QtWidgets import QApplication, QWidget
 from scipy.spatial import cKDTree
 
 from palm_tracer import PALMTracer
@@ -357,6 +359,36 @@ class _FakeDownload:
 
 	# --------------------------------------------------
 	def cancel(self): self.canceled = True
+
+
+# --------------------------------------------------
+def send_drop_events(receiver: QWidget, mime: QMimeData) -> tuple[QDragEnterEvent, QDragMoveEvent, QDropEvent]:
+	"""
+	Envoie la séquence Qt complète d'entrée, de déplacement et de dépôt.
+
+	:param receiver: Widget recevant les événements, sans modifier sa visibilité.
+	:param mime: Données MIME à conserver tant que les événements retournés sont utilisés.
+	:return: Événements envoyés, pour vérifier leur acceptation.
+	"""
+	enter = QDragEnterEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	move = QDragMoveEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
+	return enter, move, drop
+
+
+# --------------------------------------------------
+def send_file_drop(receiver: QWidget, paths: list[Path]) -> tuple[tuple[QDragEnterEvent, QDragMoveEvent, QDropEvent], QMimeData]:
+	"""
+	Prépare les chemins locaux et envoie leur séquence de glisser-déposer.
+
+	:param receiver: Widget recevant les événements, sans modifier sa visibilité.
+	:param paths: Fichiers ou dossiers locaux à déposer ensemble.
+	:return: Événements envoyés et données MIME à conserver pendant leur utilisation.
+	"""
+	mime = QMimeData()
+	mime.setUrls([QUrl.fromLocalFile(str(path)) for path in paths])
+	return send_drop_events(receiver, mime), mime
 
 
 # --------------------------------------------------

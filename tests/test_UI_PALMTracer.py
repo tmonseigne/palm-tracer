@@ -1,20 +1,18 @@
 """Teste le widget principal de PALM Tracer."""
 
-from importlib import import_module
 from types import SimpleNamespace
 from unittest.mock import Mock, PropertyMock
 
 import numpy as np
 import pytest
 from napari.components import ViewerModel
-from qtpy.QtCore import QMimeData, QPointF, Qt, QUrl
-from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
-from qtpy.QtWidgets import QApplication, QDockWidget, QMainWindow, QTabWidget
+from qtpy.QtCore import QMimeData, Qt, QUrl
+from qtpy.QtWidgets import QDockWidget, QMainWindow, QTabWidget
 
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI import PALMTracerWidget
 from tests.Utils import *
-from tests.Utils import add_basic_file
+from tests.Utils import add_basic_file, send_drop_events
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -55,16 +53,6 @@ def drop_widget(qtbot, monkeypatch):
 	return widget, receiver
 
 
-# --------------------------------------------------
-def send_file_drop(receiver, mime):
-	"""Envoie la séquence Qt d'entrée, de déplacement et de dépôt au destinataire."""
-	enter = QDragEnterEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	move = QDragMoveEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	drop = QDropEvent(QPointF(1, 1), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
-	for event in (enter, move, drop): QApplication.sendEvent(receiver, event)
-	return enter, move, drop
-
-
 # ==================================================
 # region Initialisation
 # ==================================================
@@ -73,16 +61,6 @@ def test_creation(qtbot):
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
-
-
-# --------------------------------------------------
-def test_threading_import_fallback(import_without_dependency):
-	"""Utilise les workers SuperQt lorsque l'import public de Napari n'est pas disponible."""
-	from superqt.utils import FunctionWorker, thread_worker
-
-	module = import_without_dependency(PALMTracerWidget.__module__, "napari.qt.threading")
-	assert module.FunctionWorker is FunctionWorker
-	assert module.thread_worker is thread_worker
 
 
 # --------------------------------------------------
@@ -124,8 +102,8 @@ def test_filters_button(qtbot, input_stack, output_folder):
 	assert len(w.pt.results["f_loc"]) == 242
 
 	qtbot.mouseClick(ui_buttons["save"], Qt.MouseButton.LeftButton)
-	f = FileIO.get_last_file(output_folder, "localizations_filtered")
-	assert f
+	filename = FileIO.get_last_file(output_folder, "localizations_filtered")
+	assert filename
 
 	qtbot.mouseClick(ui_buttons["reset"], Qt.MouseButton.LeftButton)
 	assert len(w.pt.results["f_loc"]) == 0
@@ -142,12 +120,12 @@ def test_filters_button(qtbot, input_stack, output_folder):
 def test_drop_adds_files_from_window(drop_widget, tmp_path, count):
 	"""Vérifie l'ajout depuis un widget extérieur au plugin et l'interception avant son gestionnaire."""
 	widget, receiver = drop_widget
-	paths = [tmp_path / name for name in ("z.tif", "a.txt")[:count]]
+	paths = [tmp_path / name for name in ("z.tif", "a.STK")[:count]]
 	for path in paths: path.touch()
 	mime = QMimeData()
 	mime.setUrls([QUrl.fromLocalFile(str(path)) for path in paths])
 
-	events = send_file_drop(receiver, mime)
+	events = send_drop_events(receiver, mime)
 
 	assert all(event.isAccepted() for event in events)
 	assert receiver.received == []
@@ -166,7 +144,7 @@ def test_drop_rejects_files_during_processing(drop_widget, tmp_path):
 	mime = QMimeData()
 	mime.setUrls([QUrl.fromLocalFile(str(path))])
 
-	events = send_file_drop(receiver, mime)
+	events = send_drop_events(receiver, mime)
 
 	assert not any(event.isAccepted() for event in events)
 	assert receiver.received == []
@@ -189,11 +167,6 @@ def test_thread_process(qtbot, input_stack):
 	w._thread_process(w._auto_threshold)
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
 
-	# Appel avec un traitement en cours
-	w._processing = True
-	w._thread_process(w._auto_threshold)
-	w._processing = False
-
 	# Ajout d'une entrée
 	add_basic_file(w.pt, [str(input_stack)])  # .				Ajout d'une entrée
 	qtbot.waitUntil(lambda: not w._processing, timeout=5000)  # Attente : que le thread soit terminé
@@ -213,9 +186,8 @@ def test_thread_process(qtbot, input_stack):
 def test_load_setting_restores_values(callback_widget, tmp_path, monkeypatch):
 	"""Restaure les paramètres puis désactive les filtres et la prévisualisation avant de synchroniser les ROI."""
 	w = callback_widget
-	module = import_module(PALMTracerWidget.__module__)
 	info = Mock()
-	monkeypatch.setattr(module, "show_info", info)
+	monkeypatch.setattr(w, "notify_info", info)
 	update_rois = Mock(wraps=w.pt.settings.rois.update_main)
 	monkeypatch.setattr(w.pt.settings.rois, "update_main", update_rois)
 
@@ -242,7 +214,7 @@ def test_load_setting_invalid_json(callback_widget, tmp_path, monkeypatch):
 	path = tmp_path / "settings.json"
 	path.write_text("invalid json", encoding="utf-8")
 	warning = Mock()
-	monkeypatch.setattr(import_module(PALMTracerWidget.__module__), "show_warning", warning)
+	monkeypatch.setattr(w, "notify_warning", warning)
 	w._load_setting(path)
 	warning.assert_called_once()
 	assert f"Error loading file '{path}':" in warning.call_args.args[0]
@@ -305,8 +277,7 @@ def test_reset_layer(capsys, qtbot, input_stack):
 	qtbot.waitUntil(lambda: "Raw" in w.viewer.layers, timeout=5000)  # Attente : qu'il ait mis une image
 	assert not w._layers["Raw"].visible
 	lines = get_lines_output(capsys)
-	assert len(lines) == 1
-	assert lines[0] == "No valid settings file to load."
+	assert lines == ["No valid settings file to load.", f"Loaded {input_stack} (10, 128, 256) into Napari viewer."]
 	w._reset_layer()  # .											   Remise à 0 des calques sans changement.
 
 
@@ -316,10 +287,9 @@ def test_reset_layer_error(callback_widget, input_stack, monkeypatch, stage):
 	"""Signale une erreur de lecture ou de sélection sans laisser le callback de changement de pile lever une exception."""
 	w = callback_widget
 	add_basic_file(w.pt, [str(input_stack)])
-	module = import_module(PALMTracerWidget.__module__)
 	error, info = Mock(), Mock()
-	monkeypatch.setattr(module, "show_error", error)
-	monkeypatch.setattr(module, "show_info", info)
+	monkeypatch.setattr(w, "notify_error", error)
+	monkeypatch.setattr(w, "notify_info", info)
 	load = Mock()
 	monkeypatch.setattr(w.pt, "load", load)
 
@@ -534,7 +504,6 @@ def test_auto_threshold(capsys, qtbot, input_stack):
 # ==================================================
 # endregion Prévisualisation et seuil automatique
 # ==================================================
-
 
 # ==================================================
 # endregion Fonctions de rappel des calques

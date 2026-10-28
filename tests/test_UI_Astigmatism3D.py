@@ -8,10 +8,11 @@ import pytest
 from qtpy.QtCore import Qt
 
 from palm_tracer.Processing.Astigmatism3D import model_projection_validity, model_validity, sigma_model
+from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # Classe
 from tests.Utils import *
-from tests.Utils import _FakeDownload
+from tests.Utils import _FakeDownload, send_file_drop
 
 LOC_FILE = INPUT_DIR / "astigmatism_3d_calibration.csv"
 MODEL_FILE = "astigmatism_3d_model.csv"
@@ -149,6 +150,103 @@ def test_update_plot_modes(qtbot, monkeypatch, mode, expected):
 
 # ==================================================
 # endregion Interface utilisateur
+# ==================================================
+
+# ==================================================
+# region Glisser-déposer
+# ==================================================
+@pytest.mark.parametrize("error_type", [OSError, ValueError], ids=["read-error", "parse-error"])
+def test_astigmatism_drop_reports_csv_read_error(qtbot, tmp_path, monkeypatch, text_plotly, error_type):
+	"""Signale une erreur de lecture de l'en-tête sans lancer de chargement métier."""
+	widget = Astigmatism3DWidget()
+	qtbot.addWidget(widget)
+	error = error_type("CSV unavailable")
+	notify = Mock()
+	monkeypatch.setattr(widget, "notify_error", notify)
+	monkeypatch.setattr(pd, "read_csv", Mock(side_effect=error))
+
+	widget._drop_files([str(tmp_path / "data.csv")])
+
+	notify.assert_called_once_with("Unable to read the CSV file: CSV unavailable.")
+
+
+# --------------------------------------------------
+def test_astigmatism_drop_rejects_unrecognized_csv(qtbot, tmp_path, monkeypatch, text_plotly):
+	"""Refuse un CSV lisible qui ne contient ni localisations compatibles ni modèle."""
+	widget = Astigmatism3DWidget()
+	qtbot.addWidget(widget)
+	path = tmp_path / "unrecognized.csv"
+	pd.DataFrame({"X": [1.0], "Y": [2.0]}).to_csv(path, index=False)
+	notify = Mock()
+	monkeypatch.setattr(widget, "notify_warning", notify)
+
+	widget._drop_files([str(path)])
+
+	notify.assert_called_once_with("The CSV must contain localizations or an astigmatism 3D model.")
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("tab", [0, 1], ids=["calibration-tab", "estimation-tab"])
+@pytest.mark.parametrize("kind", ["localizations", "model"], ids=["localizations", "model"])
+def test_astigmatism_drop_recognizes_csv_content(qtbot, tmp_path, monkeypatch, text_plotly, tab, kind):
+	"""Vérifie la destination du CSV partagé et le déclenchement de la calibration seulement dans le premier onglet."""
+	widget = Astigmatism3DWidget()
+	qtbot.addWidget(widget)
+	widget._tabs.setCurrentIndex(tab)
+	compute = Mock()
+	monkeypatch.setattr(widget, "_on_compute", compute)
+	monkeypatch.setattr(widget, "_update_plot", Mock())
+	model = pd.DataFrame(np.ones((2, 5)), index=MODEL_ROWS, columns=FILES_COLUMNS["Astigmatism 3D Model"]["columns"])
+	if kind == "localizations": widget._model = model.copy()
+	localizations = pd.DataFrame({"Sigma X": [1.0, 1.1], "Sigma Y": [1.2, 1.3], "Z": [-1.0, 1.0]})
+	path = tmp_path / "arbitrary-name.CSV"
+	if kind == "localizations": localizations.to_csv(path, index=False)
+	else: model.to_csv(path)
+
+	widget.show()
+	send_file_drop(widget, [path])
+
+	if kind == "localizations":
+		pd.testing.assert_frame_equal(widget._loc, localizations)
+		pd.testing.assert_frame_equal(widget._model, model)
+		# Le mock ne conserve pas la garde contre les signaux intermédiaires de mise à jour des paramètres.
+		if tab == 0: np.testing.assert_array_equal(widget._calibration_z, localizations["Z"].to_numpy())
+		else: compute.assert_not_called()
+	else:
+		pd.testing.assert_frame_equal(widget._model, model)
+		compute.assert_not_called()
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("source", ["dialog", "drop"], ids=["reload-from-button", "reload-from-drop"])
+def test_astigmatism_estimation_reload_preserves_model(qtbot, tmp_path, monkeypatch, fake_qfiledialog, text_plotly, source):
+	"""Vérifie qu'une recharge de localisations en estimation conserve le modèle et désactive toute recalibration."""
+	widget = Astigmatism3DWidget()
+	qtbot.addWidget(widget)
+	widget._tabs.setCurrentIndex(1)
+	model = pd.DataFrame(np.ones((2, 5)), index=MODEL_ROWS, columns=FILES_COLUMNS["Astigmatism 3D Model"]["columns"])
+	widget._model = model.copy()
+	widget._calibration_z = np.array([-10.0, 10.0])
+	localizations = pd.DataFrame({"Sigma X": [1.0], "Sigma Y": [1.0], "Z": [3.0]})
+	path = tmp_path / "localizations.csv"
+	localizations.to_csv(path, index=False)
+	compute = Mock()
+	monkeypatch.setattr(widget, "_on_compute", compute)
+	if source == "dialog":
+		fake_qfiledialog(Astigmatism3DWidget, str(path))
+		widget._btn_load_loc_estimate.click()
+	else:
+		widget.show()
+		send_file_drop(widget, [path])
+
+	pd.testing.assert_frame_equal(widget._loc, localizations)
+	pd.testing.assert_frame_equal(widget._model, model)
+	assert widget._calibration_z is None
+	compute.assert_not_called()
+
+
+# ==================================================
+# endregion Glisser-déposer
 # ==================================================
 
 # ==================================================
@@ -785,7 +883,6 @@ def test_estimate_backup(qtbot, capsys, monkeypatch, fake_qfiledialog, tmp_path)
 # ==================================================
 # endregion Estimation axiale
 # ==================================================
-
 
 # ==================================================
 # endregion Fonctions de rappel

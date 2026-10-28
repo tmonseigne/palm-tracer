@@ -19,9 +19,10 @@ import pytest
 from napari._qt.qt_viewer import QtViewer
 from napari._vispy.canvas import VispyCanvas
 from pytest_metadata.plugin import metadata_key
-from qtpy.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication, QTextBrowser
 
 from palm_tracer.Tools import FileDialog, FileIO, Ui
+from palm_tracer.UI import BasePlotlyWidget
 from tests.Monitoring import Monitoring
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -35,6 +36,16 @@ all_tests_monitoring = Monitoring()
 # ==================================================
 # region Fixtures pytest
 # ==================================================
+# --------------------------------------------------
+@pytest.fixture
+def text_plotly(monkeypatch):
+	"""Remplace le moteur Web par une vue textuelle pour tester le chargement sans lancer Chromium."""
+	monkeypatch.setattr(BasePlotlyWidget, "_make_web_widget", lambda self: QTextBrowser(self))
+	monkeypatch.setattr(BasePlotlyWidget, "_connect_web_widget", lambda self: None)
+	monkeypatch.setattr(BasePlotlyWidget, "_update_web_widget", lambda self: None)
+
+
+
 @pytest.fixture
 def import_without_dependency(monkeypatch):
 	"""

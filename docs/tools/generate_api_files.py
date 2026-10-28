@@ -165,7 +165,6 @@ def _iter_public_subpackages(package_dir: Path) -> Iterable[Path]:
 # endregion Vérification des fichiers
 # ==================================================
 
-
 # ==================================================
 # region Analyse
 # ==================================================

@@ -316,7 +316,6 @@ def test_tif_read_errors(reader, filename, error):
 # endregion Dimensions et pixels
 # ==================================================
 
-
 # ==================================================
 # endregion Entrées-sorties TIFF
 # ==================================================

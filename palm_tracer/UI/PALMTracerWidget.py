@@ -215,7 +215,6 @@ class PALMTracerWidget(BaseNapariWidget):
 
 		:param paths: Chemins locaux des fichiers à ajouter.
 		"""
-		if self._processing: return
 		cast(FileList, self.pt.settings.batch["Files"]).add_files(paths)
 
 	# ==================================================

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, cast
 
 from qtpy.QtCore import QEasingCurve, QPropertyAnimation, Qt, QTimer
 from qtpy.QtWidgets import QFrame, QGraphicsOpacityEffect, QHBoxLayout, QLabel, QSizePolicy, QStyle, QToolButton, QWidget
@@ -120,8 +120,7 @@ class NotificationWidget(QFrame):
 	# --------------------------------------------------
 	def reposition(self):
 		"""Ajuste la taille au parent et replace la notification sans modifier les layouts environnants."""
-		parent = self.parentWidget()
-		if parent is None: return
+		parent = cast(QWidget, self.parentWidget())
 		margin = min(self.MARGIN, max(0, min(parent.width(), parent.height()) // 8))
 		width = min(self.MAXIMUM_WIDTH, max(1, parent.width() - 2 * margin))
 		maximum_height = max(1, parent.height() - 2 * margin)

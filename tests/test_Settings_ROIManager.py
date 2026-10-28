@@ -343,7 +343,6 @@ def test_filtering_dataframe_concave_cross(manager: ROIManager):
 # endregion Filtrage spatial
 # ==================================================
 
-
 # ==================================================
 # endregion Divers
 # ==================================================
