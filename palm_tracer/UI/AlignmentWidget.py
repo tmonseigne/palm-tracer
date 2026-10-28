@@ -10,11 +10,11 @@ from pathlib import Path
 from typing import Optional
 
 import numpy as np
-from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Tools import FileDialog, FileIO, Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
 from palm_tracer.UI.BaseWidget import BaseWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
@@ -172,7 +172,7 @@ class AlignmentWidget(BaseWidget):
 	def _on_load_tif(self):
 		"""Callback du bouton 'Load TIFF file'."""
 		# --- boîte de dialogue pour sélectionner une pile TIFF ou STK ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select stack", "", FileIO.STACK_FILE_FILTER)
+		filename, _ = FileDialog.open_file(self, "Select stack", FileIO.STACK_FILE_FILTER)
 
 		if not filename:
 			self.notify_warning("No TIFF file selected.")
@@ -214,7 +214,7 @@ class AlignmentWidget(BaseWidget):
 		sous la forme d'un tableau NumPy de taille ``(2, 10)`` et de type :class:`numpy.float64`.
 		"""
 		# --- boîte de dialogue pour sélectionner un CSV ou un fichier texte historique ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select coefficients file", "", "Coefficient files (*.csv *.txt)")
+		filename, _ = FileDialog.open_file(self, "Select coefficients file", "Coefficient files (*.csv *.txt)")
 
 		if not filename:
 			self.notify_warning("No coefficient file selected.")

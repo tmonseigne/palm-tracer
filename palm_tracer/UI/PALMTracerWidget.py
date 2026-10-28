@@ -12,10 +12,10 @@ import numpy as np
 import pandas as pd
 from napari import Viewer
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QHBoxLayout, QPushButton, QSizePolicy, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.Settings.Types import FileList
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Tools import FileDialog, FileIO, Ui
 from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.GraphViewerWidget import GraphViewerWidget
 from palm_tracer.UI.Napari import install_plugin_menu_sections
@@ -247,7 +247,7 @@ class PALMTracerWidget(BaseNapariWidget):
 	# --------------------------------------------------
 	def _on_load_setting_btn(self):
 		"""Action lors d'un clic sur le bouton Load setting."""
-		filename, _ = QFileDialog.getOpenFileName(None, "Select a settings file", ".", "JSON files (*.json)")
+		filename, _ = FileDialog.open_file(self, "Select a settings file", "JSON files (*.json)")
 		self._load_setting(Path(filename))
 
 	# --------------------------------------------------

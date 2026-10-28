@@ -25,6 +25,8 @@ DLL_PATH = Path(__file__).parent.parent / "DLL"
 CONFIG_DIR = Path.home() / ".palm_tracer"
 #: Fichier des derniers paramètres enregistrés par le widget principal.
 USER_SETTINGS_FILE = CONFIG_DIR / "settings.json"
+#: Derniers dossiers utilisés par les dialogues d'ouverture et d'export.
+USER_UI_STATE_FILE = CONFIG_DIR / "ui_state.json"
 #: Dernier modèle calculé, utilisé en dernier recours par la recherche automatique.
 USER_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model.csv"
 #: Modèle enregistré explicitement comme défaut, exclu de la recherche automatique.

@@ -21,7 +21,7 @@ from napari._vispy.canvas import VispyCanvas
 from pytest_metadata.plugin import metadata_key
 from qtpy.QtWidgets import QApplication
 
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Tools import FileDialog, FileIO, Ui
 from tests.Monitoring import Monitoring
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -87,7 +87,7 @@ def isolated_user_config(monkeypatch, tmp_path):
 	"""
 	folder = tmp_path / ".palm_tracer"
 	monkeypatch.setattr(FileIO, "CONFIG_DIR", folder)
-	for name in ("USER_SETTINGS_FILE", "USER_ASTIGMATISM_MODEL", "DEFAULT_ASTIGMATISM_MODEL"):
+	for name in ("USER_SETTINGS_FILE", "USER_UI_STATE_FILE", "USER_ASTIGMATISM_MODEL", "DEFAULT_ASTIGMATISM_MODEL"):
 		monkeypatch.setattr(FileIO, name, folder / getattr(FileIO, name).name)
 	return folder
 
@@ -146,14 +146,14 @@ def output_folder(input_stack):
 @pytest.fixture
 def fake_qfiledialog(monkeypatch):
 	"""
-	Fixture générique pour simuler les principaux sélecteurs de :class:`QFileDialog` sur n'importe quel module Qt qui l'a importé.
+	Fixture générique pour simuler les sélecteurs Qt directs ou centralisés dans :mod:`palm_tracer.Tools.FileDialog`.
 
 	Usage dans un test :
 
 	import palm_tracer.GUI.AlignmentWidget as alignment_mod
 
 	fake_qfiledialog(alignment_mod, "/chemin/vers/stack.tif")
-	# ⇾ le prochain appel à alignment_mod.QFileDialog.getOpenFileName(...)
+	# ⇾ le prochain dialogue d'ouverture de l'outil
 	#    renverra ("/chemin/vers/stack.tif", "TIFF images (*.tif *.tiff)")
 
 	fake_qfiledialog(alignment_mod, None)
@@ -166,9 +166,9 @@ def fake_qfiledialog(monkeypatch):
 	# --------------------------------------------------
 	def _factory(target, filename: str | list[str] | None, filter_str: str = "TIFF images (*.tif *.tiff)"):
 		"""
-		Configure un faux QFileDialog.<method> dans le module donné.
+		Configure les réponses des dialogues utilisés directement ou via FileDialog par le module donné.
 
-		:param target: Module Python qui contient le symbole QFileDialog (ex. ``palm_tracer.UI.AlignmentWidget``).
+		:param target: Module Python ou classe utilisant les dialogues (ex. ``palm_tracer.UI.AlignmentWidget``).
 		:param filename: Chemin complet du fichier à renvoyer, liste de chemins pour une sélection multiple ou :obj:`None` pour simuler l'annulation.
 		:param filter_str: Chaîne de filtre à renvoyer avec le filename (optionnel).
 		"""
@@ -177,9 +177,8 @@ def fake_qfiledialog(monkeypatch):
 		# Pour une classe, retrouve le module qui la définit.
 		module = target if isinstance(target, types.ModuleType) else sys.modules[target.__module__]
 
-		# Sanity check : QFileDialog doit exister dans ce module
-		if not hasattr(module, "QFileDialog"):
-			raise AttributeError(f"Le module {module.__name__!r} ne contient pas 'QFileDialog'.")
+		# Les widgets délèguent désormais leurs dialogues au module FileDialog commun.
+		dialog = getattr(module, "QFileDialog", FileDialog.QFileDialog)
 
 		# --------------------------------------------------
 		def _fake_get_open_file_name(parent=None, caption="", directory="", *args, **kwargs):
@@ -242,10 +241,10 @@ def fake_qfiledialog(monkeypatch):
 			return filename, filter_str
 
 		# PATCH : on remplace les méthodes de QFileDialog utilisées par ce module
-		monkeypatch.setattr(module.QFileDialog, "getOpenFileName", _fake_get_open_file_name)
-		monkeypatch.setattr(module.QFileDialog, "getOpenFileNames", _fake_get_open_file_names)
-		monkeypatch.setattr(module.QFileDialog, "getSaveFileName", _fake_get_save_file_name)
-		monkeypatch.setattr(module.QFileDialog, "getExistingDirectory", _fake_get_existing_directory)
+		monkeypatch.setattr(dialog, "getOpenFileName", _fake_get_open_file_name)
+		monkeypatch.setattr(dialog, "getOpenFileNames", _fake_get_open_file_names)
+		monkeypatch.setattr(dialog, "getSaveFileName", _fake_get_save_file_name)
+		monkeypatch.setattr(dialog, "getExistingDirectory", _fake_get_existing_directory)
 
 	return _factory
 

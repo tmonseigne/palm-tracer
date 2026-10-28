@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, Optional
 import plotly.graph_objects as go
 from qtpy.QtCore import QUrl
 from qtpy.QtGui import QCloseEvent
-from qtpy.QtWidgets import QFileDialog, QTextBrowser, QWidget
+from qtpy.QtWidgets import QTextBrowser, QWidget
 
 from palm_tracer.Processing import Grapher
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileDialog, Ui
 from palm_tracer.UI.BaseWidget import BaseWidget
 
 if TYPE_CHECKING:
@@ -245,7 +245,7 @@ class BasePlotlyWidget(BaseWidget):
 	def _on_download_requested(self, download):
 		"""Intercepte le téléchargement Plotly (Save image) pour demander explicitement où enregistrer le fichier."""
 		if not self._pending_download_path:
-			path, _ = QFileDialog.getSaveFileName(self, "Export the graph", str(self._graph_folder), "Images (*.png)")
+			path, _ = FileDialog.save_file(self, "Export the graph", str(self._graph_folder), "Images (*.png)")
 			if not path:
 				download.cancel()
 				return
@@ -313,7 +313,7 @@ class BasePlotlyWidget(BaseWidget):
 			self.notify_warning("No figures to export.")
 			return
 
-		path, selected_filter = QFileDialog.getSaveFileName(self, "Export the graph", str(self._graph_folder),
+		path, selected_filter = FileDialog.save_file(self, "Export the graph", str(self._graph_folder),
 															"PNG (*.png);;SVG (*.svg);;WEBP (*.webp);;HTML (*.html);;PDF (*.pdf)")
 		if not path: return
 

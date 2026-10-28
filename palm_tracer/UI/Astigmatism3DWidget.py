@@ -8,13 +8,13 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
+from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Astigmatism3D import find_model_center, model_projection_validity, model_validity, remove_multi_beads
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, SHAPE_MODEL
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Tools import FileDialog, FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
 
@@ -414,7 +414,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def _on_load_loc(self):
 		"""Charge les localisations et déclenche la calibration uniquement depuis l'onglet Compute Model."""
 		# --- boîte de dialogue pour sélectionner un .csv ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select Localization CSV file", "", "CSV files (*.csv)")
+		filename, _ = FileDialog.open_file(self, "Select Localization CSV file", "CSV files (*.csv)")
 
 		if not filename:
 			self.notify_warning("No file selected.")
@@ -473,7 +473,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Une lecture impossible ou une forme incorrecte laisse le modèle vide.
 		"""
 		# --- Boîte de dialogue pour sélectionner le modèle CSV ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select Model CSV file", "", "CSV files (*.csv)")
+		filename, _ = FileDialog.open_file(self, "Select Model CSV file", "CSV files (*.csv)")
 
 		if not filename:
 			self.notify_warning("No model file selected.")

@@ -5,4 +5,4 @@ from .FileMigrator import FileMigrator
 from .Logger import Logger
 
 # Définir la liste des symboles exportés
-__all__ = ["FileIO", "Ui", "FileMigrator", "Logger"]
+__all__ = ["FileDialog", "FileIO", "Ui", "FileMigrator", "Logger"]

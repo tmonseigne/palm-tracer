@@ -8,10 +8,11 @@ import napari
 import numpy as np
 import pandas as pd
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
+from qtpy.QtWidgets import QFormLayout, QPushButton, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Visualization3D
+from palm_tracer.Tools import FileDialog
 from palm_tracer.UI.BaseWidget import BaseWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
 
@@ -90,7 +91,7 @@ class Viewer3DWidget(BaseWidget):
 
 		Cette méthode déclenche ensuite :meth:`update_layer` pour créer le calque 3D.
 		"""
-		path, _ = QFileDialog.getOpenFileName(self, "Load CSV", ".", "CSV files (*.csv)")
+		path, _ = FileDialog.open_file(self, "Load CSV", "CSV files (*.csv)")
 		if not path or not Path(path).is_file(): return
 		self._load_csv(path)
 

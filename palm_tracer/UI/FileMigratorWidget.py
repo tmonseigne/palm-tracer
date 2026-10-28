@@ -5,10 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
-from palm_tracer.Tools import FileMigrator, Ui
+from palm_tracer.Tools import FileDialog, FileMigrator, Ui
 from palm_tracer.UI.BaseWidget import BaseWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
 
@@ -111,7 +111,7 @@ class FileMigratorWidget(BaseWidget):
 	def _on_load_folder(self):
 		"""Callback du bouton 'Load folder'."""
 		# --- boîte de dialogue pour sélectionner un dossier ---
-		folder = QFileDialog.getExistingDirectory(self, "Select folder", "")
+		folder = FileDialog.open_directory(self, "Select folder")
 
 		if not folder:
 			self.notify_warning("No folder selected.")

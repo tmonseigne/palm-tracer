@@ -7,11 +7,11 @@ from pathlib import Path
 from typing import Any, Optional, cast
 
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
+from qtpy.QtWidgets import QComboBox, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileDialog, Ui
 
 
 # --------------------------------------------------
@@ -149,9 +149,7 @@ class FileList(BaseSettingType):
 
 	def add_file(self):
 		"""Ajoute des fichiers à la liste via un :class:`QFileDialog`."""
-		# Déterminer le répertoire initial pour la boîte de dialogue
-		initial_dir = (self._items[-1] if self._items else ".")  # Utiliser le dernier fichier ou le répertoire courant
-		paths, _ = QFileDialog.getOpenFileNames(None, "Select files", initial_dir, self.file_filter)
+		paths, _ = FileDialog.open_files(None, "Select files", self.file_filter)
 		self.add_files(paths)
 
 	# --------------------------------------------------

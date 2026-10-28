@@ -10,8 +10,8 @@ from colorama import Fore, Style
 from qtpy.QtCore import QEvent, QLocale, QPointF, Qt
 from qtpy.QtGui import QFontMetrics, QPaintEvent, QPainter, QPalette, QPen, QPolygonF
 
-from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton,  # isort: skip
-							QScrollArea, QSpinBox, QToolButton, QVBoxLayout, QWidget)
+from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel,  # isort: skip
+							QLayout, QPushButton, QScrollArea, QSpinBox, QToolButton, QVBoxLayout, QWidget)
 
 # ==================================================
 # region Constantes
