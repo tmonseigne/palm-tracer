@@ -118,10 +118,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		grp_source = QGroupBox("Source")
 		form = Ui.make_form(grp_source)
 		for key in self._graph_settings:
-			if isinstance(self._graph_settings[key], BaseSettingType):
-				self._graph_settings[key].get_ui(self.UI_NAME).attach_to_form(form)
-				if isinstance(self._graph_settings[key], Combo):
-					self._graph_settings[key].get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
+			setting = self._graph_settings[key]
+			if isinstance(setting, BaseSettingType):
+				setting.get_ui(self.UI_NAME).attach_to_form(form)
+				if isinstance(setting, Combo):
+					setting.get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
 		# --- Bloc Affichage (2 colonnes) ---
 		display_settings = self._graph_settings.display
@@ -130,8 +131,9 @@ class GraphViewerWidget(BasePlotlyWidget):
 		Ui.init_layout(grid)
 		for i, key in enumerate(display_settings):
 			row, col = i // 2, (i % 2) * 2
-			ui = display_settings[key].get_ui(self.UI_NAME)
-			if isinstance(display_settings[key], SpinInt): Ui.set_spin_buttons(cast(QSpinBox, ui.boxes[0]), False)
+			display_setting = cast(BaseSettingType, display_settings[key])
+			ui = display_setting.get_ui(self.UI_NAME)
+			if isinstance(display_setting, SpinInt): Ui.set_spin_buttons(cast(QSpinBox, ui.boxes[0]), False)
 			grid.addLayout(ui.layout, row, col)
 			grid.addWidget(ui.label, row, col + 1)
 

@@ -406,7 +406,14 @@ class _SpinLimitButton(QToolButton):
 	:param minimum: Place le bouton à gauche pour le minimum, à droite pour le maximum.
 	"""
 
+	# --------------------------------------------------
 	def __init__(self, spin: QSpinBox | QDoubleSpinBox, minimum: bool):
+		"""
+		Ajoute le bouton au champ numérique et suit ses changements de géométrie.
+
+		:param spin: Champ numérique contenant le bouton.
+		:param minimum: Place le bouton à gauche pour le minimum, à droite pour le maximum.
+		"""
 		super().__init__(spin)
 		self._spin = spin  # Champ dont la géométrie et les marges de texte sont suivies.
 		self._minimum = minimum  # Sens du symbole et côté du champ à occuper.

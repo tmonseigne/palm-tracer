@@ -1,10 +1,11 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 11:40+0200\n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
 "PO-Revision-Date: 2026-10-13 09:48+0000\n"
-"Last-Translator: Codex\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -29,6 +30,10 @@ msgstr "User folder containing persistent settings and astigmatism models."
 msgid "Fichier des derniers paramètres enregistrés par le widget principal."
 msgstr "File containing the latest settings saved by the main widget."
 
+#: of palm_tracer.Tools.FileIO.USER_UI_STATE_FILE:1
+msgid "Derniers dossiers utilisés par les dialogues d'ouverture et d'export."
+msgstr "Last directories used by open and export dialogs."
+
 #: of palm_tracer.Tools.FileIO.USER_ASTIGMATISM_MODEL:1
 msgid "Dernier modèle calculé, utilisé en dernier recours par la recherche automatique."
 msgstr "Last computed model, used as the final fallback during automatic model lookup."
@@ -36,6 +41,14 @@ msgstr "Last computed model, used as the final fallback during automatic model l
 #: of palm_tracer.Tools.FileIO.DEFAULT_ASTIGMATISM_MODEL:1
 msgid "Modèle enregistré explicitement comme défaut, exclu de la recherche automatique."
 msgstr "Model explicitly saved as the default, excluded from automatic model lookup."
+
+#: of palm_tracer.Tools.FileIO.STACK_EXTENSIONS:1
+msgid "Extensions des acquisitions TIFF, y compris les piles Metamorph STK ; comparaison sans distinction de casse."
+msgstr "TIFF acquisition extensions, including Metamorph STK stacks; case-insensitive comparison."
+
+#: of palm_tracer.Tools.FileIO.STACK_FILE_FILTER:1
+msgid "Filtre Qt commun aux sélecteurs de piles."
+msgstr "Common Qt filter for stack selection dialogs."
 
 #: of palm_tracer.Tools.FileIO.add_extension:1
 msgid "Ajoute l'extension au fichier si ce n'est pas déjà l'extension actuelle."
@@ -96,8 +109,8 @@ msgid "Horodatage."
 msgstr "Timestamp."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:1
-msgid "Récupère le dernier fichier (le plus récent) qui contient le paramètre ``name`` dans son nom dans le chemin ``path``."
-msgstr "Retrieves the last (most recent) file containing the ``name`` parameter in its filename from the ``path``."
+msgid "Récupère le dernier fichier selon le tri demandé parmi les noms contenant ``name`` dans le dossier ``path``."
+msgstr "Retrieves the last file according to the requested sort order among names containing ``name`` in directory ``path``."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:3
 msgid "Chemin du dossier où chercher les fichiers."
@@ -108,8 +121,8 @@ msgid "Chaîne à rechercher dans les noms de fichiers."
 msgstr "String to search for in filenames."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:5
-msgid "Mode de tri : \"time\" : date de modification (par défaut), \"alpha\" : ordre alphabétique."
-msgstr "Sort mode: \"time\": modification date (default), \"alpha\": alphabetical order."
+msgid "Mode de tri : ``time`` pour la date de modification, ``alpha`` pour l'ordre alphabétique (par défaut)."
+msgstr "Sort mode: ``time`` for modification time, or ``alpha`` for alphabetical order (default)."
 
 #: of palm_tracer.Tools.FileIO.get_last_file:6
 msgid "Chemin complet du dernier fichier trouvé (ou une chaîne vide si aucun fichier ne correspond)."
@@ -226,8 +239,8 @@ msgid "Si la série TIFF n'est ni 2D ni 3D."
 msgstr "If the TIFF series is neither 2D nor 3D."
 
 #: of palm_tracer.Tools.FileIO.open_tif:1
-msgid "Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur). Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D."
-msgstr "Opens a TIFF file as a 3D stack (frames x height x width). If the file contains a single 2D image, adds an axis to make a 3D stack."
+msgid "Ouvre un fichier TIFF, y compris une pile Metamorph STK, en tant que pile 3D (frames x hauteur x largeur). Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D."
+msgstr "Opens a TIFF file, including a Metamorph STK stack, as a 3D stack (frames x height x width). If the file contains a single 2D image, adds an axis to make a 3D stack."
 
 #: of palm_tracer.Tools.FileIO.open_tif:4
 msgid "Chemin du fichier TIFF à ouvrir."

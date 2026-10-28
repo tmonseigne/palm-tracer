@@ -146,7 +146,6 @@ class FileList(BaseSettingType):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-
 	def add_file(self):
 		"""Ajoute des fichiers à la liste via un :class:`QFileDialog`."""
 		paths, _ = FileDialog.open_files(None, "Select files", self.file_filter)

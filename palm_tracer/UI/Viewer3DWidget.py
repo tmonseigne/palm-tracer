@@ -160,7 +160,7 @@ def create_viewer3d(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer
 
 
 # --------------------------------------------------
-def open_viewer3d(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
+def open_viewer3d(_viewer: napari.viewer.Viewer = None, ) -> QWidget:
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > 3D Viewer.
 

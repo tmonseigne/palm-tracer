@@ -1,0 +1,64 @@
+# Copyright (C) 2026, Thibaut Monseigne
+# This file is distributed under the same license as the PALM Tracer package.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../api/palm_tracer.UI.Napari.rst:2
+msgid "Napari"
+msgstr ""
+
+#: of palm_tracer.UI.Napari:1
+msgid "Retrouve le contexte PALM Tracer des outils ouverts depuis Napari."
+msgstr "Retrieves the PALM Tracer context for tools opened from Napari."
+
+#: of palm_tracer.UI.Napari.install_plugin_menu_sections:1
+msgid "Ajoute des titres discrets au sous-menu PALM Tracer lorsque le menu Plugins est ouvert."
+msgstr "Adds unobtrusive headings to the PALM Tracer submenu when the Plugins menu is opened."
+
+#: of palm_tracer.UI.Napari.install_plugin_menu_sections:3
+msgid "Les actions Napari et leur ordre sont conservés. Le branchement sur le menu parent permet de retrouver le sous-menu même après sa reconstruction par Napari, sans modifier son registre de commandes. Un modèle de viewer sans fenêtre, utilisé notamment par les tests des calques, ne nécessite aucun branchement."
+msgstr "Napari actions and their order are preserved. Connecting to the parent menu allows the submenu to be found even after Napari rebuilds it, without modifying its command registry. A viewer model without a window, as used in layer tests, does not require a connection."
+
+#: ../../api/palm_tracer.UI.Napari.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.Napari.install_plugin_menu_sections:7
+msgid "Visionneuse dont le menu Plugins doit être présenté par groupes."
+msgstr "Viewer whose Plugins menu should be organized into groups."
+
+#: of palm_tracer.UI.Napari.get_current_palmtracer:1
+msgid "Retrouve l'instance du widget principal dans la fenêtre Napari appelante."
+msgstr "Retrieves the main widget's instance from the calling Napari window."
+
+#: of palm_tracer.UI.Napari.get_current_palmtracer:3
+msgid "La recherche utilise uniquement les widgets dockés du viewer fourni ou actif, sans parcourir les parents Qt. L'absence de widget principal laisse la base du nouvel outil créer sa propre instance. Appeler cette fonction avant de créer une nouvelle fenêtre Napari, qui pourrait devenir le viewer actif."
+msgstr "The search uses only the docked widgets of the supplied or active viewer, without traversing Qt parents. If there is no main widget, the new tool's base class creates its own instance. Call this function before creating a new Napari window, which could become the active viewer."
+
+#: of palm_tracer.UI.Napari.get_current_palmtracer:7
+msgid "Visionneuse appelante, ou :obj:`None` pour utiliser la visionneuse active."
+msgstr "Calling viewer, or :obj:`None` to use the active viewer."
+
+#: ../../api/palm_tracer.UI.Napari.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.UI.Napari.get_current_palmtracer:8
+msgid "Instance du widget principal, ou :obj:`None` si aucun n'est présent dans cette fenêtre."
+msgstr "Main widget's instance, or :obj:`None` if there is no main widget in this window."
+
+#: ../../api/palm_tracer.UI.Napari.rst
+msgid "Type renvoyé"
+msgstr "Return type"

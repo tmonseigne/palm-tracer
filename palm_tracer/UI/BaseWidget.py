@@ -20,7 +20,7 @@ from palm_tracer.UI.NotificationWidget import NotificationLevel, NotificationWid
 # --------------------------------------------------
 class BaseWidget(QWidget):
 	"""
-	Intercepte les fichiers déposés dans toute la fenêtre Qt contenant le widget.
+	Centralise l'identité, les fenêtres autonomes, les dépôts de fichiers, les traitements et les notifications des widgets Qt.
 
 	Le titre et le style Qt commun sont initialisés pour les fenêtres autonomes comme pour les panneaux intégrés.
 	La cible comprend les widgets enfants et la fenêtre Napari éventuelle, même lorsque le dock est flottant.
@@ -428,7 +428,3 @@ class BaseWidget(QWidget):
 		:raises NotImplementedError: Si la classe fille ne définit pas le traitement du dépôt.
 		"""
 		raise NotImplementedError("Le widget doit définir le traitement des fichiers déposés.")
-
-# ==================================================
-# endregion Glisser-déposer
-# ==================================================

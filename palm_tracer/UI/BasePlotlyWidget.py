@@ -253,12 +253,12 @@ class BasePlotlyWidget(BaseWidget):
 			path = self._pending_download_path
 			self._pending_download_path = ""
 
-		path = Path(path)
-		self._graph_folder = path.parent
+		target = Path(path)
+		self._graph_folder = target.parent
 		print(self._graph_folder)
 		# Qt6 : on règle le dossier + le nom de fichier séparément.
-		download.setDownloadDirectory(str(path.parent))
-		download.setDownloadFileName(path.name)
+		download.setDownloadDirectory(str(target.parent))
+		download.setDownloadFileName(target.name)
 		download.accept()
 
 	# ==================================================
@@ -319,14 +319,14 @@ class BasePlotlyWidget(BaseWidget):
 
 		try:
 			lower = path.lower()
-			path = Path(path)
-			if lower.endswith(".png"): self._export_via_plotly_download(path, fmt="png")
-			elif lower.endswith(".svg"): self._export_via_plotly_download(path, fmt="svg")
-			elif lower.endswith(".webp"): self._export_via_plotly_download(path, fmt="webp")
+			target = Path(path)
+			if lower.endswith(".png"): self._export_via_plotly_download(target, fmt="png")
+			elif lower.endswith(".svg"): self._export_via_plotly_download(target, fmt="svg")
+			elif lower.endswith(".webp"): self._export_via_plotly_download(target, fmt="webp")
 			elif lower.endswith(".html"):
-				with open(path, "w", encoding="utf-8") as f: f.write(self._html)
-			elif lower.endswith(".pdf"): self._web.page().printToPdf(str(path))
-			else: self._export_via_plotly_download(path, fmt="png")  # Pas d'extension reconnue ⇾ PNG par défaut
+				with open(target, "w", encoding="utf-8") as f: f.write(self._html)
+			elif lower.endswith(".pdf"): self._web.page().printToPdf(str(target))
+			else: self._export_via_plotly_download(target, fmt="png")  # Pas d'extension reconnue ⇾ PNG par défaut
 		except Exception as e: self.notify_warning(f"Export failed : {e}")
 
 	# ==================================================

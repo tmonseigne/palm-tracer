@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.UI.ViewerHRWidget.rst:2
 msgid "ViewerHRWidget"
@@ -47,8 +52,8 @@ msgid "Instance principale à laquelle le widget est associé."
 msgstr "Main instance associated with the widget."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:9
-msgid "Le widget peut être lancé avec la commande ``napari -w palm-tracer \"Viewer HR\"``."
-msgstr "**Note**: can be launched directly with the command ``napari -w palm-tracer \"Viewer HR\"``"
+msgid "Le widget peut être lancé avec la commande ``napari -w palm-tracer \"HR Viewer\"``."
+msgstr "The widget can be launched with ``napari -w palm-tracer \"HR Viewer\"``."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.UI_NAME:1
 msgid "Nom de l'interface de visualisation haute résolution."
@@ -61,6 +66,10 @@ msgstr "Names of the layers managed by the high-resolution viewer."
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.DROP_MULTIPLE:1
 msgid "Limite chaque dépôt à une seule pile locale."
 msgstr "Restricts each drop to a single local stack."
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.DROP_EXTENSIONS:1
+msgid "Extensions des piles acceptées par la visionneuse."
+msgstr "Stack extensions accepted by the viewer."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.closeEvent:1
 msgid "Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre."
@@ -95,12 +104,12 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:1
-msgid "Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR."
-msgstr "Callable used by Napari for the Plugins > PALM Tracer > Viewer HR menu."
+msgid "Callable utilisé par Napari pour le menu Plugins > PALM Tracer > HR Viewer."
+msgstr "Callable used by Napari for the Plugins > PALM Tracer > HR Viewer menu entry."
 
 #: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:3
-msgid "Ignore le viewer courant."
-msgstr "Ignores the current viewer."
+msgid "Récupère l'instance PALMTracer du widget principal dans le viewer appelant."
+msgstr "Retrieves the PALMTracer instance of the main widget in the calling viewer."
 
 #: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:4
 msgid "Crée une nouvelle fenêtre Napari HR dédiée."
@@ -111,8 +120,8 @@ msgid "Retourne un QWidget stub (caché) juste pour satisfaire l'API \"widget pl
 msgstr "Returns a hidden stub QWidget solely to satisfy Napari's \"widget plugin\" API."
 
 #: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:7
-msgid "Visionneuse Napari courante, volontairement ignorée."
-msgstr "Current Napari viewer, intentionally ignored."
+msgid "Visionneuse appelante éventuelle ; sinon la visionneuse active est utilisée."
+msgstr "Optional calling viewer; otherwise the active viewer is used."
 
 #: of palm_tracer.UI.ViewerHRWidget.open_viewerhr:8
 msgid "Widget factice masqué attendu par l'API des plugins Napari."

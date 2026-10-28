@@ -3,16 +3,33 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.UI.GraphViewerWidget.rst:2
 msgid "GraphViewerWidget"
 msgstr ""
+
+#: of palm_tracer.UI.GraphViewerWidget:1
+msgid "Fournit le widget de visualisation interactive des données PALM avec Plotly."
+msgstr "Provides the widget for interactive visualization of PALM data with Plotly."
+
+#: of palm_tracer.UI.GraphViewerWidget:3
+msgid "À faire"
+msgstr "To do"
+
+#: of palm_tracer.UI.GraphViewerWidget:3
+msgid "Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix."
+msgstr "Warns the user before displaying more than ten million points and allows their choice to be remembered."
 
 #: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget:1
 msgid "Affiche interactivement les graphiques associés aux données PALM."
@@ -34,21 +51,17 @@ msgstr "Main instance whose data is displayed. The reference is retained without
 msgid "Si QtWebEngine n'est pas disponible, le widget utilise un affichage textuel de remplacement."
 msgstr "If QtWebEngine is unavailable, the widget uses a fallback text display."
 
-#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:9
-msgid "Attributs"
-msgstr "Attributes"
-
 #: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.UI_NAME:1
 msgid "Nom de l'interface de visualisation des graphiques."
 msgstr "Name of the graph-viewer interface."
 
-#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:14
-msgid "Méthodes"
-msgstr "Methods"
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.DROP_MULTIPLE:1
+msgid "Limite le dépôt à une seule pile."
+msgstr "Limits drops to a single stack."
 
-#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:17
-msgid "Initialisation"
-msgstr "Initialization"
+#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.DROP_EXTENSIONS:1
+msgid "Extensions des piles dont les résultats peuvent être chargés."
+msgstr "Extensions of stacks whose results can be loaded."
 
 #: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.closeEvent:1
 msgid "Nettoyage de l'UI des paramètres lors de la fermeture de la fenêtre."
@@ -58,50 +71,6 @@ msgstr "Clearing the settings UI when the window is closed."
 msgid "Événement de fermeture Qt."
 msgstr "Qt close event."
 
-#: ../../api/palm_tracer.UI.GraphViewerWidget.rst:22
-msgid "Glisser-déposer"
-msgstr "Drag and drop"
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.showEvent:1
-msgid "Active l'interception dans la fenêtre autonome des graphiques."
-msgstr "Enables interception in the standalone graph window."
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.showEvent:3
-msgid "Événement d'affichage Qt."
-msgstr "Qt show event."
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.hideEvent:1
-msgid "Retire le filtre et restaure l'état des dépôts si la fenêtre Qt existe encore."
-msgstr "Removes the filter and restores the drop acceptance state if the Qt window still exists."
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.hideEvent:3
-msgid "Événement de masquage Qt."
-msgstr "Qt hide event."
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.eventFilter:1
-msgid "Intercepte le dépôt d'une seule pile locale dans la fenêtre des graphiques."
-msgstr "Intercepts the drop of a single local stack in the graph window."
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.eventFilter:3
-msgid "Les dépôts multiples, les dossiers et les fichiers absents sont refusés. Les autres fenêtres et les glissements sans fichier local restent inchangés."
-msgstr "Drops containing multiple files, directories, and missing files are rejected. Other windows and drags without a local file remain unaffected."
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.eventFilter:6
-msgid "Objet Qt destinataire de l'événement."
-msgstr "Qt object receiving the event."
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.eventFilter:7
-msgid "Événement à filtrer."
-msgstr "Event to filter."
-
-#: ../../api/palm_tracer.UI.GraphViewerWidget.rst
-msgid "Renvoie"
-msgstr "Returns"
-
-#: of palm_tracer.UI.GraphViewerWidget.GraphViewerWidget.eventFilter:8
-msgid "``True`` si l'événement est consommé avant son traitement habituel."
-msgstr "``True`` if the event is consumed before its usual processing."
-
-#: ../../api/palm_tracer.UI.GraphViewerWidget.rst
-msgid "Type renvoyé"
-msgstr "Return type"
+#: of palm_tracer.UI.GraphViewerWidget.open_graphviewer:1
+msgid "Ouvre le Graph Viewer autonome avec l'instance du widget principal dans la fenêtre Napari active."
+msgstr "Opens the standalone Graph Viewer with the main widget's instance from the active Napari window."

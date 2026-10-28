@@ -44,7 +44,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	"""Extensions des fichiers acceptés pour les localisations et les modèles."""
 	GRAPH_TITLE: str = "Astigmatism model"
 	"""Titre du graphique d'astigmatisme."""
-	GRAPH_TYPE: list["str"] = ["Cross", "Slope", "Curve"]
+	GRAPH_TYPE: list[str] = ["Cross", "Slope", "Curve"]
 	"""Modes d'affichage disponibles pour le graphique d'astigmatisme."""
 
 	# ==================================================

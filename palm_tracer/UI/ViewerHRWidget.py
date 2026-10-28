@@ -15,7 +15,7 @@ from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QV
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import HR
-from palm_tracer.Settings.Types import FileList
+from palm_tracer.Settings.Types import Combo, FileList
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
@@ -117,7 +117,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		ui = self._hr_settings.get_ui(self.UI_NAME)
 		ui.body_layout.setContentsMargins(5, 15, 5, 5)
 		grp_source.setLayout(ui.body_layout)
-		self._hr_settings["Source"].get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
+		cast(Combo, self._hr_settings["Source"]).get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
@@ -365,7 +365,7 @@ def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer
 
 
 # --------------------------------------------------
-def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
+def open_viewerhr(_viewer: napari.viewer.Viewer = None, ) -> QWidget:
 	"""
 	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > HR Viewer.
 

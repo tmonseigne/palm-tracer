@@ -1,10 +1,11 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 11:40+0200\n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
 "PO-Revision-Date: 2026-10-13 09:48+0000\n"
-"Last-Translator: Codex\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -37,9 +38,25 @@ msgstr "Parameters"
 msgid "Widget Qt parent."
 msgstr "Parent Qt widget."
 
-#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:10
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:9
+msgid "Instance partagée, ou :obj:`None` pour en créer une."
+msgstr "Shared instance, or :obj:`None` to create one."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget:11
 msgid "Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin."
 msgstr "The widget can be launched directly, integrated into PALM Tracer, or used from another plugin."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget.UI_NAME:1
+msgid "Nom de l'interface d'astigmatisme."
+msgstr "Name of the astigmatism interface."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget.DROP_MULTIPLE:1
+msgid "Limite le dépôt à un CSV de localisations ou de modèle."
+msgstr "Limits drops to a single localization or model CSV file."
+
+#: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget.DROP_EXTENSIONS:1
+msgid "Extensions des fichiers acceptés pour les localisations et les modèles."
+msgstr "Accepted file extensions for localizations and models."
 
 #: of palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget.GRAPH_TITLE:1
 msgid "Titre du graphique d'astigmatisme."
@@ -54,5 +71,5 @@ msgid "Ouvre l'outil d'astigmatisme 3D dans une fenêtre autonome."
 msgstr "Opens the 3D astigmatism tool in a standalone window."
 
 #: of palm_tracer.UI.Astigmatism3DWidget.open_astigmatism3d:3
-msgid "Cette fonction est utilisée par le plugin Napari comme point d'entrée : elle crée un :class:`Astigmatism3DWidget`, l'affiche et conserve une référence globale pour éviter sa destruction. Aucun widget n'est renvoyé au gestionnaire de panneaux Napari ; cette fonction retourne ``None``."
-msgstr "This function is the Napari plugin entry point: it creates an :class:`Astigmatism3DWidget`, displays it, and keeps a global reference to prevent its destruction. No widget is returned to the Napari dock manager; this function returns ``None``."
+msgid "Cette fonction est utilisée par le plugin Napari comme point d'entrée : elle crée un :class:`Astigmatism3DWidget` et délègue l'affichage et la conservation de sa référence à la base commune. Aucun widget n'est renvoyé au gestionnaire de panneaux Napari ; cette fonction retourne ``None``."
+msgstr "This function is used as an entry point by the Napari plugin: it creates an :class:`Astigmatism3DWidget` and delegates display and reference retention to the common base class. No widget is returned to the Napari dock manager; this function returns ``None``."

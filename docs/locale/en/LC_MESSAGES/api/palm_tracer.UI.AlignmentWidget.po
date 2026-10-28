@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.UI.AlignmentWidget.rst:2
 msgid "AlignmentWidget"
@@ -42,14 +47,26 @@ msgstr "Parameters"
 msgid "Widget Qt parent."
 msgstr "Parent Qt widget."
 
-#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:8
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:7
+msgid "Instance partagée, ou :obj:`None` pour en créer une."
+msgstr "Shared instance, or :obj:`None` to create one."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget:9
 msgid "Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin."
 msgstr "The widget can be launched directly, integrated into PALM Tracer, or used from another plugin."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget.UI_NAME:1
+msgid "Nom de l'interface d'alignement."
+msgstr "Name of the alignment interface."
+
+#: of palm_tracer.UI.AlignmentWidget.AlignmentWidget.DROP_EXTENSIONS:1
+msgid "Accepte une pile et les coefficients CSV ou texte historiques."
+msgstr "Accepts a stack and coefficients in CSV or legacy text format."
 
 #: of palm_tracer.UI.AlignmentWidget.open_alignment:1
 msgid "Ouvre la fenêtre d'alignement en mode autonome."
 msgstr "Opens the alignment window in standalone mode."
 
 #: of palm_tracer.UI.AlignmentWidget.open_alignment:3
-msgid "Cette fonction est utilisée par le plugin Napari comme point d'entrée : elle crée simplement un :class:`AlignmentWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre."
-msgstr "This function is used by the Napari plugin as an entry point: it simply creates an :class:`AlignmentWidget`, displays it, and returns it. The widget is independent of Napari and opens in its own window."
+msgid "Cette fonction est utilisée par le plugin Napari comme point d'entrée : elle crée un :class:`AlignmentWidget` et l'affiche dans une fenêtre autonome dont la référence est gérée par la base commune."
+msgstr "This function is used as an entry point by the Napari plugin: it creates an :class:`AlignmentWidget` and displays it in a standalone window whose reference is managed by the common base class."

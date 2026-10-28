@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.UI.Viewer3DWidget.rst:2
 msgid "Viewer3DWidget"
@@ -34,9 +39,26 @@ msgstr "Parameters"
 msgid "Visionneuse Napari recevant le calque de points."
 msgstr "Napari viewer receiving the point layer."
 
-#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:7
-msgid "Le widget peut être lancé avec la commande ``napari -w palm-tracer \"Viewer 3D\"``."
-msgstr "**Note**: Can be launched directly with the command ``napari -w palm-tracer \"Viewer 3D\"``"
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:6
+#: palm_tracer.UI.Viewer3DWidget.create_viewer3d:5
+msgid "Instance partagée, ou :obj:`None` pour en créer une."
+msgstr "Shared instance, or :obj:`None` to create one."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget:8
+msgid "Le widget peut être lancé avec la commande ``napari -w palm-tracer \"3D Viewer\"``."
+msgstr "The widget can be launched with ``napari -w palm-tracer \"3D Viewer\"``."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.UI_NAME:1
+msgid "Nom de l'interface de visualisation tridimensionnelle."
+msgstr "Name of the three-dimensional visualization interface."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.DROP_MULTIPLE:1
+msgid "Limite le dépôt à un fichier de localisations."
+msgstr "Limits drops to a single localization file."
+
+#: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.DROP_EXTENSIONS:1
+msgid "Extensions des fichiers de localisations acceptés."
+msgstr "Accepted localization file extensions."
 
 #: of palm_tracer.UI.Viewer3DWidget.Viewer3DWidget.load_csv:1
 msgid "Ouvre une boîte de dialogue pour sélectionner un fichier ``.csv`` et charge les données associées dans un :class:`pandas.DataFrame`."
@@ -94,7 +116,7 @@ msgstr "This function does NOT call napari.run(): it is designed to be called fr
 msgid "Renvoie"
 msgstr "Returns"
 
-#: of palm_tracer.UI.Viewer3DWidget.create_viewer3d:5
+#: of palm_tracer.UI.Viewer3DWidget.create_viewer3d:6
 msgid "Visionneuse Napari créée et widget 3D associé."
 msgstr "Created Napari viewer and associated 3D widget."
 
@@ -103,12 +125,12 @@ msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:1
-msgid "Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer 3D."
-msgstr "Callable used by Napari for the Plugins > PALM Tracer > Viewer 3D menu."
+msgid "Callable utilisé par Napari pour le menu Plugins > PALM Tracer > 3D Viewer."
+msgstr "Callable used by Napari for the Plugins > PALM Tracer > 3D Viewer menu entry."
 
 #: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:3
-msgid "Ignore le viewer courant."
-msgstr "Ignores the current viewer."
+msgid "Récupère l'instance PALMTracer du widget principal dans le viewer appelant."
+msgstr "Retrieves the PALMTracer instance of the main widget in the calling viewer."
 
 #: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:4
 msgid "Crée une nouvelle fenêtre Napari 3D dédiée."
@@ -119,8 +141,8 @@ msgid "Retourne un QWidget stub (caché) juste pour satisfaire l'API \"widget pl
 msgstr "Returns a hidden stub QWidget solely to satisfy Napari's \"widget plugin\" API."
 
 #: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:8
-msgid "Visionneuse Napari courante, volontairement ignorée."
-msgstr "Current Napari viewer, intentionally ignored."
+msgid "Visionneuse appelante éventuelle ; sinon la visionneuse active est utilisée."
+msgstr "Optional calling viewer; otherwise the active viewer is used."
 
 #: of palm_tracer.UI.Viewer3DWidget.open_viewer3d:9
 msgid "Widget factice masqué attendu par l'API des plugins Napari."

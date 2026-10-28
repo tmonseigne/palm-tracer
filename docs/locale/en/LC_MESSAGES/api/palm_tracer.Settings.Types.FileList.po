@@ -3,7 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"POT-Creation-Date: 2026-10-13 18:13+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-27 09:56+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -32,9 +35,25 @@ msgstr "Label displayed in the interface."
 msgid "Description affichée dans l'infobulle."
 msgstr "Description displayed in the tooltip."
 
+#: of palm_tracer.Settings.Types.FileList.FileList:5
+msgid "Extensions autorisées en minuscules, ou tuple vide pour accepter tous les fichiers."
+msgstr "Allowed extensions in lowercase, or an empty tuple to accept all files."
+
+#: of palm_tracer.Settings.Types.FileList.FileList:6
+msgid "Filtre affiché par le sélecteur de fichiers."
+msgstr "Filter displayed by the file selection dialog."
+
 #: ../../api/palm_tracer.Settings.Types.FileList.rst:9
 msgid "Attributs"
 msgstr "Attributes"
+
+#: of palm_tracer.Settings.Types.FileList.FileList.extensions:1
+msgid "Extensions acceptées à l'ajout ; un tuple vide ne limite pas les extensions."
+msgstr "Extensions accepted when adding files; an empty tuple allows all extensions."
+
+#: of palm_tracer.Settings.Types.FileList.FileList.file_filter:1
+msgid "Filtre du sélecteur, cohérent avec les extensions autorisées."
+msgstr "Dialog filter matching the allowed extensions."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.default:1
 msgid "Valeur (position dans la liste) par défaut du paramètre (:class:`int`)."
@@ -52,11 +71,11 @@ msgstr "Current value of the setting (element in the list as :class:`str`)"
 msgid "Récupère la liste des éléments."
 msgstr "Retrieves the list of elements."
 
-#: ../../api/palm_tracer.Settings.Types.FileList.rst:17
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:19
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Settings.Types.FileList.rst:20
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:22
 msgid "Divers"
 msgstr "Miscellaneous"
 
@@ -64,7 +83,7 @@ msgstr "Miscellaneous"
 msgid "Vide la liste de fichiers et réinitialise la sélection."
 msgstr "Clears the file list and resets the selection."
 
-#: ../../api/palm_tracer.Settings.Types.FileList.rst:25
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:27
 msgid "Accesseurs"
 msgstr "Accessors"
 
@@ -89,7 +108,7 @@ msgstr "Setting interface (:class:`~palm_tracer.Settings.Types.BaseUIType.BaseUI
 msgid "Type renvoyé"
 msgstr "Return type"
 
-#: ../../api/palm_tracer.Settings.Types.FileList.rst:30
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:32
 msgid "Sérialisation"
 msgstr "Serialization"
 
@@ -105,7 +124,7 @@ msgstr "Restores the files before the selected index from compact storage."
 msgid "Dictionnaire contenant les clés ``items`` et ``value``."
 msgstr "Dictionary containing the ``items`` and ``value`` keys."
 
-#: ../../api/palm_tracer.Settings.Types.FileList.rst:36
+#: ../../api/palm_tracer.Settings.Types.FileList.rst:38
 msgid "Fonctions de rappel"
 msgstr "Callbacks"
 
@@ -118,8 +137,8 @@ msgid "Ajoute les fichiers existants en triant uniquement le nouveau lot."
 msgstr "Adds existing files, sorting only the new batch."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.add_files:3
-msgid "Les dossiers et chemins inexistants sont ignorés. Les doublons sont conservés, comme lors de l'ajout par la boîte de dialogue. Le dernier fichier ajouté est sélectionné et les interfaces sont synchronisées avec une seule notification."
-msgstr "Directories and nonexistent paths are ignored. Duplicates are retained, as when adding files through the dialog box. The last file added is selected and the interfaces are synchronized with a single notification."
+msgid "Les dossiers, chemins inexistants et extensions non autorisées sont ignorés. Les doublons sont conservés, comme lors de l'ajout par la boîte de dialogue. Le dernier fichier ajouté est sélectionné et les interfaces sont synchronisées avec une seule notification."
+msgstr "Directories, nonexistent paths, and disallowed extensions are ignored. Duplicates are retained, as when adding files through the dialog. The last added file is selected, and the interfaces are synchronized with a single notification."
 
 #: of palm_tracer.Settings.Types.FileList.FileList.add_files:7
 msgid "Chemins locaux des fichiers à ajouter."
