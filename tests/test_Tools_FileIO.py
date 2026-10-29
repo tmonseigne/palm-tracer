@@ -283,6 +283,18 @@ def test_read_tif_shape_single_image(tmp_path):
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("suffix", [".tif", ".tiff", ".stk", ".STK"], ids=["tif", "tiff", "stk", "uppercase-stk"])
+def test_open_tif_supports_stack_extensions(tmp_path, suffix):
+	"""Vérifie qu'un contenu TIFF conserve ses pixels et ses dimensions sous chaque extension de pile."""
+	stack = np.arange(3 * 4 * 5, dtype=np.uint16).reshape(3, 4, 5)
+	path = tmp_path / f"stack{suffix}"
+	tifffile.imwrite(path, stack, photometric="minisblack")
+	assert suffix.lower() in FileIO.STACK_EXTENSIONS
+	np.testing.assert_array_equal(FileIO.open_tif(path), stack)
+	assert FileIO.read_tif_shape(path) == stack.shape
+
+
+# --------------------------------------------------
 def test_open_tif():
 	"""Vérifie la fonction open_tif."""
 	stack = FileIO.open_tif(f"{INPUT_DIR}/stack2D.tif")
@@ -303,7 +315,6 @@ def test_tif_read_errors(reader, filename, error):
 # ==================================================
 # endregion Dimensions et pixels
 # ==================================================
-
 
 # ==================================================
 # endregion Entrées-sorties TIFF

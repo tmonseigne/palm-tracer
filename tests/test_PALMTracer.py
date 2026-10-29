@@ -804,7 +804,6 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 # endregion Billes et trajectoires
 # ==================================================
 
-
 # ==================================================
 # endregion Traitements
 # ==================================================
@@ -1826,7 +1825,7 @@ def test_hr_stress():
 	s["Drift Correction"].value = False
 
 	# Bille qui part en diagonale du haut à droite vers le bas à gauche
-	bead_x, bead_y = np.linspace(n_x - 0.5, 0, n_p, dtype=float), np.linspace(0, n_y - 0.5, n_p, dtype=float)
+	bead_x, bead_y = np.linspace(n_x - 0.5, 0.0, n_p, dtype=float), np.linspace(0.0, n_y - 0.5, n_p, dtype=float)
 
 	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=int),
 						  "Plane": np.arange(1, n_p + 1, dtype=int),
@@ -2221,7 +2220,6 @@ def test_process_visualization_hr(capsys, pt, sequential_timestamps, input_stack
 # ==================================================
 # endregion Recadrage et sauvegarde
 # ==================================================
-
 
 # ==================================================
 # endregion Visualisation

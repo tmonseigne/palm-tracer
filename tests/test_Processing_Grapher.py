@@ -155,9 +155,7 @@ def test_histogram_fit_limit_without_distribution(points, fit_limit):
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("cumulative", [
-		pytest.param(False, id="density"),
-		pytest.param(True, id="cumulative")])
+@pytest.mark.parametrize("cumulative", [pytest.param(False, id="density"), pytest.param(True, id="cumulative")])
 @pytest.mark.parametrize("fit_limit", [pytest.param(-np.inf, id="all-values"), pytest.param(0.0, id="positive-values")])
 def test_histogram_gaussian_mixture_components(cumulative, fit_limit, monkeypatch):
 	"""Vérifie le tracé séparé et additif des deux composantes gaussiennes."""
@@ -423,7 +421,6 @@ def test_astigmatism3d_cross_guides(model, expected_minima):
 # ==================================================
 # endregion Figure d'astigmatisme
 # ==================================================
-
 
 # ==================================================
 # region Rendus spéciaux

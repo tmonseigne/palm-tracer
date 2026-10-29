@@ -5,31 +5,40 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from qtpy.QtWidgets import QApplication, QFileDialog, QLabel, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from palm_tracer.Tools import FileMigrator, Ui
+from palm_tracer.PALMTracer import PALMTracer
+from palm_tracer.Tools import FileDialog, FileMigrator, Ui
+from palm_tracer.UI.BaseWidget import BaseWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
-_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes.
 
-
-class FileMigratorWidget(QWidget):
+class FileMigratorWidget(BaseWidget):
 	"""
 	Fournit l'interface de migration des anciens dossiers de résultats Metamorph.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 	"""
+
+	UI_NAME: str = "File Migrator Tool"
+	"""Nom de l'interface de migration."""
+	DROP_MULTIPLE: bool = False
+	"""Limite le dépôt à un dossier de résultats."""
+	DROP_DIRECTORIES: bool = True
+	"""Autorise le dépôt du dossier Metamorph à analyser."""
 
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None):
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 		"""
-		super().__init__(parent)
-		self.setWindowTitle("File Migrator Tool")
+		super().__init__(parent, palmtracer)
 
 		self._fm: FileMigrator = FileMigrator()
 
@@ -78,6 +87,18 @@ class FileMigratorWidget(QWidget):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
+	def _drop_files(self, paths: list[str]):
+		"""
+		Charge le dossier de résultats déposé sans lancer sa migration.
+
+		:param paths: Liste contenant le chemin du dossier Metamorph.
+		"""
+		if len(paths) != 1 or not Path(paths[0]).is_dir():
+			self.notify_warning("Drop one Metamorph result folder (.PT).")
+			return
+		self._load_folder(paths[0])
+
+	# --------------------------------------------------
 	def _update_filelist(self):
 		"""Mise à jour de la liste des fichiers."""
 		for key, item in self._fm.files.items():
@@ -88,26 +109,35 @@ class FileMigratorWidget(QWidget):
 	def _on_load_folder(self):
 		"""Callback du bouton 'Load folder'."""
 		# --- boîte de dialogue pour sélectionner un dossier ---
-		folder = QFileDialog.getExistingDirectory(self, "Select folder", "")
+		folder = FileDialog.open_directory(self, "Select folder")
 
 		if not folder:
-			Ui.print_warning("No folder selected.")
+			self.notify_warning("No folder selected.")
 			return
+		self._load_folder(folder)
+
+	# --------------------------------------------------
+	def _load_folder(self, folder: str):
+		"""
+		Analyse le dossier choisi par dialogue ou déposé et actualise la liste des fichiers.
+
+		:param folder: Chemin local du dossier de résultats Metamorph.
+		"""
 
 		# --- lecture du dossier ---
 		try:
-			folder = Path(folder)
-			self._fm.open(folder)
+			path = Path(folder)
+			self._fm.open(path)
 			self._fm.analyze()
 			self._update_filelist()
 		except Exception as e:
-			Ui.print_error(f"Unable to read the folder : {e}.")
+			self.notify_error(f"Unable to read the folder : {e}.")
 			return
 
 		# --- mise à jour du label associé au bouton ---
-		Ui.update_path_label(self._lbl_load_folder, folder)
+		Ui.update_path_label(self._lbl_load_folder, path)
 
-		print("Folder loaded successfully.")
+		self.notify_success("Folder loaded successfully.")
 
 	# --------------------------------------------------
 	def _on_migrate(self):
@@ -115,9 +145,9 @@ class FileMigratorWidget(QWidget):
 		try:
 			self._fm.migrate()
 		except Exception as e:
-			Ui.print_error(f"Error during migration: {e}.")
+			self.notify_error(f"Error during migration: {e}.")
 			return
-		Ui.print_success("Migration successful.")
+		self.notify_success("Migration successful.")
 
 
 # --------------------------------------------------
@@ -126,12 +156,10 @@ def open_migrator():  # pragma: no cover — Aucun lancement de fenêtre sans co
 	Ouvre la fenêtre de l'outil de migration en mode autonome.
 
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
-	elle crée simplement un :class:`FileMigratorWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
+	elle crée un :class:`FileMigratorWidget` et l'affiche dans une fenêtre autonome dont la référence est gérée par la base commune.
 	"""
-	widget = FileMigratorWidget()
-	widget.resize(500, 250)
-	widget.show()
-	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
+	widget = FileMigratorWidget(palmtracer=get_current_palmtracer())
+	widget.show_standalone(500, 250)
 
 
 # --------------------------------------------------
@@ -140,6 +168,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = FileMigratorWidget()
-	w.resize(500, 250)
-	w.show()
+	w.show_standalone(500, 250)
 	sys.exit(app.exec_())

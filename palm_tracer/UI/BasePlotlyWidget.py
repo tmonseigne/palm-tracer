@@ -5,16 +5,19 @@ from __future__ import annotations
 import json
 from contextlib import suppress
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import plotly.graph_objects as go
 from qtpy.QtCore import QUrl
 from qtpy.QtGui import QCloseEvent
-from qtpy.QtWidgets import QFileDialog, QTextBrowser, QWidget
+from qtpy.QtWidgets import QTextBrowser, QWidget
 
 from palm_tracer.Processing import Grapher
-from palm_tracer.Tools import Ui
-from palm_tracer.Tools.Ui import print_warning
+from palm_tracer.Tools import FileDialog, Ui
+from palm_tracer.UI.BaseWidget import BaseWidget
+
+if TYPE_CHECKING:
+	from palm_tracer.PALMTracer import PALMTracer
 
 # Tentative d'import QtWebEngine (via qtpy) —En cas d'UI défectueuse
 try:
@@ -27,13 +30,14 @@ except Exception:
 
 
 # --------------------------------------------------
-class BasePlotlyWidget(QWidget):
+class BasePlotlyWidget(BaseWidget):
 	"""
 	Fournit les fonctions communes aux widgets Qt autonomes utilisant Plotly.
 
 	La classe centralise l'affichage dans QtWebEngine ainsi que l'export des figures vers les formats pris en charge.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée conservée sans copie, ou :obj:`None` pour en créer une.
 	"""
 
 	PLOT_DIV_ID = "plotly_graph"
@@ -48,16 +52,14 @@ class BasePlotlyWidget(QWidget):
 	"""Adresse de secours de la bibliothèque JavaScript Plotly."""
 
 	# --------------------------------------------------
-	def __init__(self, parent: Optional[QWidget] = None):
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une dans la base commune.
 		"""
-		super().__init__(parent)
-		self.setStyleSheet("""QAbstractSpinBox { padding: 1px 10px; min-width: 10px; min-height: 18px; }
-		QLineEdit { min-height: 20px; padding: 2px; }
-		QComboBox { padding: 3px 10px 3px 8px; }""")
+		super().__init__(parent, palmtracer)
 
 		self._pending_download_path: str = ""
 		self._grapher = Grapher()
@@ -67,6 +69,7 @@ class BasePlotlyWidget(QWidget):
 		self._plotly_page_loaded = False
 		self._web_page_ready = False
 		self._web = self._make_web_widget()
+		self._context_menu_exclusions.append(self._web)
 		self._connect_web_widget()
 
 	# ==================================================
@@ -184,7 +187,7 @@ class BasePlotlyWidget(QWidget):
 
 		try: html = self._build_plotly_shell_html()
 		except FileNotFoundError as error:
-			print_warning(str(error))
+			self.notify_warning(str(error))
 			self._web.setHtml(f"<b>Plotly unavailable</b><br>{error}")
 			return
 
@@ -242,7 +245,7 @@ class BasePlotlyWidget(QWidget):
 	def _on_download_requested(self, download):
 		"""Intercepte le téléchargement Plotly (Save image) pour demander explicitement où enregistrer le fichier."""
 		if not self._pending_download_path:
-			path, _ = QFileDialog.getSaveFileName(self, "Export the graph", str(self._graph_folder), "Images (*.png)")
+			path, _ = FileDialog.save_file(self, "Export the graph", str(self._graph_folder), "Images (*.png)")
 			if not path:
 				download.cancel()
 				return
@@ -250,12 +253,12 @@ class BasePlotlyWidget(QWidget):
 			path = self._pending_download_path
 			self._pending_download_path = ""
 
-		path = Path(path)
-		self._graph_folder = path.parent
+		target = Path(path)
+		self._graph_folder = target.parent
 		print(self._graph_folder)
 		# Qt6 : on règle le dossier + le nom de fichier séparément.
-		download.setDownloadDirectory(str(path.parent))
-		download.setDownloadFileName(path.name)
+		download.setDownloadDirectory(str(target.parent))
+		download.setDownloadFileName(target.name)
 		download.accept()
 
 	# ==================================================
@@ -307,24 +310,24 @@ class BasePlotlyWidget(QWidget):
 			raise RuntimeError("QtWebEngine is required for Plotly downloadImage export.")
 
 		if not self._html:
-			print_warning("No figures to export.")
+			self.notify_warning("No figures to export.")
 			return
 
-		path, selected_filter = QFileDialog.getSaveFileName(self, "Export the graph", str(self._graph_folder),
-															"PNG (*.png);;SVG (*.svg);;WEBP (*.webp);;HTML (*.html);;PDF (*.pdf)")
+		path, selected_filter = FileDialog.save_file(self, "Export the graph", str(self._graph_folder),
+													 "PNG (*.png);;SVG (*.svg);;WEBP (*.webp);;HTML (*.html);;PDF (*.pdf)")
 		if not path: return
 
 		try:
 			lower = path.lower()
-			path = Path(path)
-			if lower.endswith(".png"): self._export_via_plotly_download(path, fmt="png")
-			elif lower.endswith(".svg"): self._export_via_plotly_download(path, fmt="svg")
-			elif lower.endswith(".webp"): self._export_via_plotly_download(path, fmt="webp")
+			target = Path(path)
+			if lower.endswith(".png"): self._export_via_plotly_download(target, fmt="png")
+			elif lower.endswith(".svg"): self._export_via_plotly_download(target, fmt="svg")
+			elif lower.endswith(".webp"): self._export_via_plotly_download(target, fmt="webp")
 			elif lower.endswith(".html"):
-				with open(path, "w", encoding="utf-8") as f: f.write(self._html)
-			elif lower.endswith(".pdf"): self._web.page().printToPdf(str(path))
-			else: self._export_via_plotly_download(path, fmt="png")  # Pas d'extension reconnue ⇾ PNG par défaut
-		except Exception as e: print_warning(f"Export failed : {e}")
+				with open(target, "w", encoding="utf-8") as f: f.write(self._html)
+			elif lower.endswith(".pdf"): self._web.page().printToPdf(str(target))
+			else: self._export_via_plotly_download(target, fmt="png")  # Pas d'extension reconnue ⇾ PNG par défaut
+		except Exception as e: self.notify_warning(f"Export failed : {e}")
 
 	# ==================================================
 	# endregion Export Plotly
@@ -362,6 +365,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = BasePlotlyWidget()
-	w.resize(1280, 720)
-	w.show()
+	w.show_standalone()
 	sys.exit(app.exec_())

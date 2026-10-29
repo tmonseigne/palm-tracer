@@ -25,10 +25,16 @@ DLL_PATH = Path(__file__).parent.parent / "DLL"
 CONFIG_DIR = Path.home() / ".palm_tracer"
 #: Fichier des derniers paramètres enregistrés par le widget principal.
 USER_SETTINGS_FILE = CONFIG_DIR / "settings.json"
+#: Derniers dossiers utilisés par les dialogues d'ouverture et d'export.
+USER_UI_STATE_FILE = CONFIG_DIR / "ui_state.json"
 #: Dernier modèle calculé, utilisé en dernier recours par la recherche automatique.
 USER_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model.csv"
 #: Modèle enregistré explicitement comme défaut, exclu de la recherche automatique.
 DEFAULT_ASTIGMATISM_MODEL = CONFIG_DIR / "astigmatism_3d_model_default.csv"
+#: Extensions des acquisitions TIFF, y compris les piles Metamorph STK ; comparaison sans distinction de casse.
+STACK_EXTENSIONS: tuple[str, ...] = (".tif", ".tiff", ".stk")
+#: Filtre Qt commun aux sélecteurs de piles.
+STACK_FILE_FILTER: str = "TIFF / Metamorph stacks (*.tif *.tiff *.stk)"
 
 
 # ==================================================
@@ -78,11 +84,11 @@ def get_timestamp_for_files(with_hour: bool = True) -> str:
 # --------------------------------------------------
 def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha"] = "alpha") -> str:
 	"""
-	Récupère le dernier fichier (le plus récent) qui contient le paramètre ``name`` dans son nom dans le chemin ``path``.
+	Récupère le dernier fichier selon le tri demandé parmi les noms contenant ``name`` dans le dossier ``path``.
 
 	:param path: Chemin du dossier où chercher les fichiers.
 	:param name: Chaîne à rechercher dans les noms de fichiers.
-	:param sort_mode: Mode de tri : "time" : date de modification (par défaut), "alpha" : ordre alphabétique.
+	:param sort_mode: Mode de tri : ``time`` pour la date de modification, ``alpha`` pour l'ordre alphabétique (par défaut).
 	:return: Chemin complet du dernier fichier trouvé (ou une chaîne vide si aucun fichier ne correspond).
 	"""
 	try:
@@ -90,9 +96,9 @@ def get_last_file(path: str | Path, name: str, sort_mode: Literal["time", "alpha
 		if not folder.is_dir(): return ""  # .									   Ce n'est pas un dossier
 		files = [p for p in folder.iterdir() if p.is_file() and name in p.name]  # Récupérer tous les fichiers contenant le nom
 		if not files: return ""  # .											   Aucun fichier trouvé
-		if sort_mode == "time": files.sort(key=lambda p: p.stat().st_mtime)  # .   Trier les fichiers par date de modification décroissante
+		if sort_mode == "time": files.sort(key=lambda p: p.stat().st_mtime)  # .   Trier les fichiers par date de modification croissante.
 		else: files.sort(key=lambda p: p.name)  # .								   Trier les fichiers par ordre alphabétique.
-		return str(files[-1])  # .												   Retourner le dernier fichier de la liste (le plus récent)
+		return str(files[-1])  # .												   Retourner le dernier fichier selon le tri choisi.
 	except Exception as e:
 		print(f"Error while searching for the file: {e}")
 		return ""
@@ -288,7 +294,7 @@ def read_tif_shape(filename: str | Path) -> tuple[int, int, int]:
 # --------------------------------------------------
 def open_tif(filename: str | Path) -> np.ndarray:
 	"""
-	Ouvre un fichier TIFF en tant que pile 3D (frames x hauteur x largeur).
+	Ouvre un fichier TIFF, y compris une pile Metamorph STK, en tant que pile 3D (frames x hauteur x largeur).
 	Si le fichier contient une seule image 2D, ajoute une dimension pour en faire une pile 3D.
 
 	:param filename: Chemin du fichier TIFF à ouvrir.

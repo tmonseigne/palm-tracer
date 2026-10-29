@@ -7,11 +7,11 @@ from pathlib import Path
 from typing import Any, Optional, cast
 
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
+from qtpy.QtWidgets import QComboBox, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileDialog, Ui
 
 
 # --------------------------------------------------
@@ -22,8 +22,14 @@ class FileList(BaseSettingType):
 
 	:param label: Libellé affiché dans l'interface.
 	:param tooltip: Description affichée dans l'infobulle.
+	:param extensions: Extensions autorisées en minuscules, ou tuple vide pour accepter tous les fichiers.
+	:param file_filter: Filtre affiché par le sélecteur de fichiers.
 	"""
 
+	extensions: tuple[str, ...] = ()
+	"""Extensions acceptées à l'ajout ; un tuple vide ne limite pas les extensions."""
+	file_filter: str = "All files (*)"
+	"""Filtre du sélecteur, cohérent avec les extensions autorisées."""
 	default: int = field(init=False, default=-1)
 	"""Valeur (position dans la liste) par défaut du paramètre (:class:`int`)."""
 	_value: int = field(init=False, default=-1)
@@ -140,12 +146,9 @@ class FileList(BaseSettingType):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
-
 	def add_file(self):
 		"""Ajoute des fichiers à la liste via un :class:`QFileDialog`."""
-		# Déterminer le répertoire initial pour la boîte de dialogue
-		initial_dir = (self._items[-1] if self._items else ".")  # Utiliser le dernier fichier ou le répertoire courant
-		paths, _ = QFileDialog.getOpenFileNames(None, "Select files", initial_dir, "All files (*)")
+		paths, _ = FileDialog.open_files(None, "Select files", self.file_filter)
 		self.add_files(paths)
 
 	# --------------------------------------------------
@@ -153,13 +156,14 @@ class FileList(BaseSettingType):
 		"""
 		Ajoute les fichiers existants en triant uniquement le nouveau lot.
 
-		Les dossiers et chemins inexistants sont ignorés. Les doublons sont conservés,
+		Les dossiers, chemins inexistants et extensions non autorisées sont ignorés. Les doublons sont conservés,
 		comme lors de l'ajout par la boîte de dialogue. Le dernier fichier ajouté est
 		sélectionné et les interfaces sont synchronisées avec une seule notification.
 
 		:param paths: Chemins locaux des fichiers à ajouter.
 		"""
-		valid_paths = sorted((path for path in paths if Path(path).is_file()), key=str.casefold)
+		valid_paths = sorted((path for path in paths if Path(path).is_file() and
+							  (not self.extensions or Path(path).suffix.lower() in self.extensions)), key=str.casefold)
 		if valid_paths:
 			with self.signal_blocked():
 				self._items.extend(valid_paths)

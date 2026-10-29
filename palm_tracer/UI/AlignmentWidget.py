@@ -10,16 +10,17 @@ from pathlib import Path
 from typing import Optional
 
 import numpy as np
-from qtpy.QtWidgets import QApplication, QFileDialog, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
 
+from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileDialog, FileIO, Ui
 from palm_tracer.Tools.FileIO import open_tif, save_tif
+from palm_tracer.UI.BaseWidget import BaseWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
-_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
-
-class AlignmentWidget(QWidget):
+class AlignmentWidget(BaseWidget):
 	"""
 	Permet de calculer puis d'appliquer un alignement géométrique entre deux acquisitions.
 
@@ -27,21 +28,27 @@ class AlignmentWidget(QWidget):
 	existants à une image sélectionnée.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 
 	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
 
+	UI_NAME: str = "Alignment Tool"
+	"""Nom de l'interface d'alignement."""
+	DROP_EXTENSIONS: tuple[str, ...] = (*FileIO.STACK_EXTENSIONS, ".csv", ".txt")
+	"""Accepte une pile et les coefficients CSV ou texte historiques."""
+
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None):
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 
 		:param parent: Widget parent Qt, ou :obj:`None` si widget racine.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 		"""
-		super().__init__(parent)
-		self.setWindowTitle("Alignment Tool")
+		super().__init__(parent, palmtracer)
 
 		self._palm = Palm()
 		self._stack: Optional[np.ndarray] = None
@@ -135,88 +142,128 @@ class AlignmentWidget(QWidget):
 	# ==================================================
 
 	# ==================================================
+	# region Glisser-déposer
+	# ==================================================
+	def _drop_files(self, paths: list[str]):
+		"""
+		Charge un fichier ou une paire composée d'une pile et de coefficients, indépendamment de leur ordre.
+
+		La composition complète est validée avant tout chargement afin de refuser un lot ambigu sans modifier les entrées.
+
+		:param paths: Chemins locaux déposés dans la fenêtre.
+		"""
+		stacks = [path for path in paths if Path(path).suffix.lower() in FileIO.STACK_EXTENSIONS]
+		coefficients = [path for path in paths if Path(path).suffix.lower() in (".csv", ".txt")]
+		if not 1 <= len(paths) <= 2 or len(stacks) > 1 or len(coefficients) > 1 or len(stacks) + len(coefficients) != len(paths):
+			self.notify_warning("Drop one stack, one coefficient file, or one of each.")
+			return
+		if stacks: self._load_tif(stacks[0])
+		if coefficients: self._load_coef(coefficients[0])
+
+	# ==================================================
+	# endregion Glisser-déposer
+	# ==================================================
+
+	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
 	def _on_load_tif(self):
 		"""Callback du bouton 'Load TIFF file'."""
-		# --- boîte de dialogue pour sélectionner un .tif ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select TIFF file", "", "TIFF images (*.tif *.tiff)")
+		# --- boîte de dialogue pour sélectionner une pile TIFF ou STK ---
+		filename, _ = FileDialog.open_file(self, "Select stack", FileIO.STACK_FILE_FILTER)
 
 		if not filename:
-			Ui.print_warning("No TIFF file selected.")
+			self.notify_warning("No TIFF file selected.")
 			return
+		self._load_tif(filename)
 
+	# --------------------------------------------------
+	def _load_tif(self, filename: str):
+		"""
+		Charge une pile TIFF ou STK depuis un bouton ou un dépôt et actualise les deux onglets.
+
+		:param filename: Chemin local de la pile.
+		"""
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
-			filename = Path(filename)
-			self._output_filename = str(filename.with_name(f"{filename.stem}_aligned{filename.suffix}"))  # Construction du chemin de sortie
-			self._stack = open_tif(str(filename))
+			path = Path(filename)
+			self._output_filename = str(path.with_name(f"{path.stem}_aligned{path.suffix}"))  # Construction du chemin de sortie
+			self._stack = open_tif(str(path))
 		except Exception as e:
 			self._stack = None
-			Ui.print_error(f"Unable to read the TIFF file : {e}.")
+			self.notify_error(f"Unable to read the TIFF file : {e}.")
 			return
 
 		# --- mise à jour du label associé au bouton ---
-		Ui.update_path_label(self._lbl_tif_compute, filename)
-		Ui.update_path_label(self._lbl_tif_apply, filename)
-
-		Ui.print_success(f"TIFF loaded successfully. Shape={self._stack.shape}, dtype={self._stack.dtype}")
+		Ui.update_path_label(self._lbl_tif_compute, path)
+		Ui.update_path_label(self._lbl_tif_apply, path)
+		self.notify_success(f"TIFF loaded successfully. Shape={self._stack.shape}, dtype={self._stack.dtype}")
 
 	# --------------------------------------------------
 	def _on_load_coef(self):
 		"""
 		Callback du bouton 'Load coefficients file'.
 
-		Ouvre un fichier texte contenant les coefficients d'alignement sous la forme de deux lignes de dix valeurs (2x10),
+		Ouvre un CSV numérique ou un fichier texte contenant deux lignes de dix coefficients (2x10),
 		en ignorant la première ligne de commentaire commençant par '#'.
 
-		À l'issue de la lecture, les coefficients sont stockés dans ``self._factors``
+		À l'issue de la lecture, les coefficients sont stockés dans ``self._coeffs``
 		sous la forme d'un tableau NumPy de taille ``(2, 10)`` et de type :class:`numpy.float64`.
 		"""
-		# --- boîte de dialogue pour sélectionner un fichier .txt ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select coefficients file", "", "Text files (*.txt);;All files (*.*)")
+		# --- boîte de dialogue pour sélectionner un CSV ou un fichier texte historique ---
+		filename, _ = FileDialog.open_file(self, "Select coefficients file", "Coefficient files (*.csv *.txt)")
 
 		if not filename:
-			Ui.print_warning("No coefficient file selected.")
+			self.notify_warning("No coefficient file selected.")
 			return
+		self._load_coef(filename)
+
+	# --------------------------------------------------
+	def _load_coef(self, filename: str):
+		"""
+		Charge une matrice de coefficients 2 × 10 depuis un CSV numérique ou un fichier texte historique.
+
+		:param filename: Chemin local des coefficients ; les CSV utilisent la virgule comme séparateur.
+		"""
 
 		# --- lecture du fichier ---
 		try:
 			print(f"Selected file: {filename}.")
-			self._coeffs = np.loadtxt(filename, comments="#", dtype=float)
+			separator = "," if Path(filename).suffix.lower() == ".csv" else None
+			self._coeffs = np.loadtxt(filename, comments="#", dtype=float, delimiter=separator)
 		except Exception as e:
 			self._coeffs = None
-			Ui.print_error(f"Unable to read the coefficient file: {e}.")
+			self.notify_error(f"Unable to read the coefficient file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if self._coeffs.ndim != 2 or self._coeffs.shape != (2, 10):
 			self._coeffs = None
-			Ui.print_error("The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
+			self.notify_error("The coefficient file is not in the correct format. Expected format: two lines of ten values (2x10).")
 			return
 
 		# --- mise à jour du label de statut ---
 		Ui.update_path_label(self._lbl_coeff_apply, Path(filename))
 
-		Ui.print_success("Coefficients loaded successfully.")
+		self.notify_success("Coefficients loaded successfully.")
 
 	# --------------------------------------------------
 	def _on_compute_coeffs(self):
 		"""Callback du bouton 'Compute coefficients'."""
-		if self._stack is None: Ui.print_warning("Can't Compute alignment coefficients without correct tif file.")
-		else: Ui.print_warning("Compute alignment coefficients isn't implemented yet. Use original PALMTracer.")
+		if self._stack is None: self.notify_warning("Can't Compute alignment coefficients without correct tif file.")
+		else: self.notify_warning("Compute alignment coefficients isn't implemented yet. Use original PALMTracer.")
 
 	# --------------------------------------------------
 	def _on_start_alignment(self):
 		"""Callback du bouton 'Start alignment'."""
-		if self._stack is None: Ui.print_warning("Can't align without correct tif file.")
-		elif self._coeffs is None: Ui.print_warning("Can't align tif file without factors.")
+		if self._stack is None: self.notify_warning("Can't align without correct tif file.")
+		elif self._coeffs is None: self.notify_warning("Can't align tif file without factors.")
 		else:
 			upscale = self._spin_upscale.value()
 			aligned = self._palm.align(self._stack, self._coeffs, upscale)
 			save_tif(aligned, self._output_filename)
-			Ui.print_success(f"File saved at {self._output_filename} (upscale={upscale}).")
+			self.notify_success(f"File saved at {self._output_filename} (upscale={upscale}).")
 
 
 # --------------------------------------------------
@@ -225,12 +272,10 @@ def open_alignment():  # pragma: no cover — Aucun lancement de fenêtre sans c
 	Ouvre la fenêtre d'alignement en mode autonome.
 
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
-	elle crée simplement un :class:`AlignmentWidget`, l'affiche et le renvoie. Le widget ne dépend pas de Napari et s'ouvre dans sa propre fenêtre.
+	elle crée un :class:`AlignmentWidget` et l'affiche dans une fenêtre autonome dont la référence est gérée par la base commune.
 	"""
-	widget = AlignmentWidget()
-	widget.resize(500, 250)
-	widget.show()
-	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
+	widget = AlignmentWidget(palmtracer=get_current_palmtracer())
+	widget.show_standalone(500, 250)
 
 
 # --------------------------------------------------
@@ -239,6 +284,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = AlignmentWidget()
-	w.resize(500, 250)
-	w.show()
+	w.show_standalone(500, 250)
 	sys.exit(app.exec_())

@@ -9,16 +9,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import cast
 
-from qtpy.compat import isalive
-from qtpy.QtCore import QEvent, QObject, Qt, QTimer
-from qtpy.QtGui import QDropEvent, QHideEvent, QShowEvent
+from qtpy.QtCore import Qt, QTimer
 from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSpinBox, QSplitter, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
 from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList, SpinInt
-from palm_tracer.Tools import Ui
+from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 # ==================================================
 # region Constantes
@@ -48,6 +47,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 	UI_NAME: str = "Graph Viewer"
 	"""Nom de l'interface de visualisation des graphiques."""
+	DROP_MULTIPLE: bool = False
+	"""Limite le dépôt à une seule pile."""
+	DROP_EXTENSIONS: tuple[str, ...] = FileIO.STACK_EXTENSIONS
+	"""Extensions des piles dont les résultats peuvent être chargés."""
 
 	# ==================================================
 	# region Initialisation
@@ -58,13 +61,9 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param palmtracer: Instance principale :class:`~palm_tracer.PALMTracer` sans copie (référence partagée).
 		"""
-		super().__init__()
-		self.setWindowTitle(self.UI_NAME)
+		super().__init__(palmtracer=palmtracer)
 		# Initialisation des membres
-		self.pt = PALMTracer() if palmtracer is None else palmtracer
 		self._graph_settings: Graph = self.pt.settings.graph
-		self._drop_window: QWidget | None = None  # Fenêtre Qt dont les dépôts chargent une pile.
-		self._drop_accepts: bool = False  # État des dépôts à restaurer lorsque le widget est masqué.
 
 		# Construction UI
 		self._init_ui()
@@ -119,10 +118,11 @@ class GraphViewerWidget(BasePlotlyWidget):
 		grp_source = QGroupBox("Source")
 		form = Ui.make_form(grp_source)
 		for key in self._graph_settings:
-			if isinstance(self._graph_settings[key], BaseSettingType):
-				self._graph_settings[key].get_ui(self.UI_NAME).attach_to_form(form)
-				if isinstance(self._graph_settings[key], Combo):
-					self._graph_settings[key].get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
+			setting = self._graph_settings[key]
+			if isinstance(setting, BaseSettingType):
+				setting.get_ui(self.UI_NAME).attach_to_form(form)
+				if isinstance(setting, Combo):
+					setting.get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
 		# --- Bloc Affichage (2 colonnes) ---
 		display_settings = self._graph_settings.display
@@ -131,8 +131,9 @@ class GraphViewerWidget(BasePlotlyWidget):
 		Ui.init_layout(grid)
 		for i, key in enumerate(display_settings):
 			row, col = i // 2, (i % 2) * 2
-			ui = display_settings[key].get_ui(self.UI_NAME)
-			if isinstance(display_settings[key], SpinInt): Ui.set_spin_buttons(cast(QSpinBox, ui.boxes[0]), False)
+			display_setting = cast(BaseSettingType, display_settings[key])
+			ui = display_setting.get_ui(self.UI_NAME)
+			if isinstance(display_setting, SpinInt): Ui.set_spin_buttons(cast(QSpinBox, ui.boxes[0]), False)
 			grid.addLayout(ui.layout, row, col)
 			grid.addWidget(ui.label, row, col + 1)
 
@@ -210,59 +211,13 @@ class GraphViewerWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Glisser-déposer
 	# ==================================================
-	def showEvent(self, event: QShowEvent):
+	def _drop_files(self, paths: list[str]):
 		"""
-		Active l'interception dans la fenêtre autonome des graphiques.
+		Charge la pile unique acceptée par le filtre commun.
 
-		:param event: Événement d'affichage Qt.
+		:param paths: Liste contenant le chemin local de la pile déposée.
 		"""
-		super().showEvent(event)
-		if self._drop_window is not None and isalive(self._drop_window): return
-		window = self
-		self._drop_window = window
-		self._drop_accepts = window.acceptDrops()
-		window.setAcceptDrops(True)
-		QApplication.instance().installEventFilter(self)
-
-	# --------------------------------------------------
-	def hideEvent(self, event: QHideEvent):
-		"""
-		Retire le filtre et restaure l'état des dépôts si la fenêtre Qt existe encore.
-
-		:param event: Événement de masquage Qt.
-		"""
-		QApplication.instance().removeEventFilter(self)
-		window = self._drop_window
-		self._drop_window = None
-		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
-		super().hideEvent(event)
-
-	# --------------------------------------------------
-	def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-		"""
-		Intercepte le dépôt d'une seule pile locale dans la fenêtre des graphiques.
-
-		Les dépôts multiples, les dossiers et les fichiers absents sont refusés.
-		Les autres fenêtres et les glissements sans fichier local restent inchangés.
-
-		:param watched: Objet Qt destinataire de l'événement.
-		:param event: Événement à filtrer.
-		:return: ``True`` si l'événement est consommé avant son traitement habituel.
-		"""
-		if event.type() not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
-		window = self._drop_window
-		if window is None or not isalive(window) or not isinstance(watched, QWidget): return False
-		if watched is not window and not window.isAncestorOf(watched): return False
-		drop = cast(QDropEvent, event)
-		urls = drop.mimeData().urls()
-		if not any(url.isLocalFile() for url in urls): return False
-		if len(urls) != 1 or not Path(urls[0].toLocalFile()).is_file():
-			drop.ignore()
-			return True
-		drop.setDropAction(Qt.DropAction.CopyAction)
-		drop.accept()
-		if event.type() == QEvent.Type.Drop: self._add_stack(urls[0].toLocalFile())
-		return True
+		self._add_stack(paths[0])
 
 	# ==================================================
 	# endregion Glisser-déposer
@@ -305,11 +260,17 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 
 # --------------------------------------------------
+def open_graphviewer():  # pragma: no cover — Aucun lancement de fenêtre sans contrôle en CI
+	"""Ouvre le Graph Viewer autonome avec l'instance du widget principal dans la fenêtre Napari active."""
+	widget = GraphViewerWidget(palmtracer=get_current_palmtracer())
+	widget.show_standalone()
+
+
+# --------------------------------------------------
 if __name__ == "__main__":
 	import sys
 
 	app = QApplication(sys.argv)
 	w = GraphViewerWidget()
-	w.resize(1280, 720)
-	w.show()
+	w.show_standalone()
 	sys.exit(app.exec_())

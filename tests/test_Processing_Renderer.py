@@ -702,7 +702,6 @@ def test_track_stack_raw_fade_and_overlap(mode, intensity):
 # endregion Séquences de trajectoires
 # ==================================================
 
-
 # ==================================================
 # endregion Rendus
 # ==================================================
@@ -1181,7 +1180,6 @@ def test_prepare_tracks_empty():
 # ==================================================
 # endregion Coordonnées
 # ==================================================
-
 
 # ==================================================
 # endregion Préparation des données
@@ -1832,7 +1830,6 @@ def test_draw_track_heads_preserve_interior():
 # ==================================================
 # endregion Têtes des trajectoires
 # ==================================================
-
 
 # ==================================================
 # endregion Dessin

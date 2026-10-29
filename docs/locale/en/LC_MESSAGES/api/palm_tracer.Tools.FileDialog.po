@@ -1,0 +1,95 @@
+# Copyright (C) 2026, Thibaut Monseigne
+# This file is distributed under the same license as the PALM Tracer package.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../api/palm_tracer.Tools.FileDialog.rst:2
+msgid "FileDialog"
+msgstr ""
+
+#: of palm_tracer.Tools.FileDialog:1
+msgid "Centralise les dialogues Qt et la mémorisation de leurs derniers dossiers."
+msgstr "Centralizes Qt dialogs and remembers their last directories."
+
+#: of palm_tracer.Tools.FileDialog.open_file:1
+msgid "Sélectionne un fichier dans le dernier dossier ouvert et mémorise le dossier après validation."
+msgstr "Selects a file in the last opened directory and remembers the directory when the dialog is accepted."
+
+#: ../../api/palm_tracer.Tools.FileDialog.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.Tools.FileDialog.open_directory:3
+#: palm_tracer.Tools.FileDialog.open_file:3
+#: palm_tracer.Tools.FileDialog.open_files:3
+#: palm_tracer.Tools.FileDialog.save_file:3
+msgid "Widget parent éventuel du dialogue."
+msgstr "Optional parent widget of the dialog."
+
+#: of palm_tracer.Tools.FileDialog.open_directory:4
+#: palm_tracer.Tools.FileDialog.open_file:4
+#: palm_tracer.Tools.FileDialog.open_files:4
+#: palm_tracer.Tools.FileDialog.save_file:4
+msgid "Titre du dialogue."
+msgstr "Dialog title."
+
+#: of palm_tracer.Tools.FileDialog.open_file:5
+#: palm_tracer.Tools.FileDialog.open_files:5
+msgid "Filtre des fichiers affichés, au format Qt."
+msgstr "Filter for displayed files, in Qt format."
+
+#: ../../api/palm_tracer.Tools.FileDialog.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.Tools.FileDialog.open_file:6
+msgid "Chemin du fichier et filtre sélectionné, ou chaînes vides en cas d'annulation."
+msgstr "File path and selected filter, or empty strings if canceled."
+
+#: ../../api/palm_tracer.Tools.FileDialog.rst
+msgid "Type renvoyé"
+msgstr "Return type"
+
+#: of palm_tracer.Tools.FileDialog.open_files:1
+msgid "Sélectionne plusieurs fichiers en partageant l'historique des autres dialogues d'ouverture."
+msgstr "Selects multiple files using the history shared with other open dialogs."
+
+#: of palm_tracer.Tools.FileDialog.open_files:6
+msgid "Chemins des fichiers et filtre sélectionné, ou liste vide en cas d'annulation."
+msgstr "File paths and selected filter, or an empty list if canceled."
+
+#: of palm_tracer.Tools.FileDialog.open_directory:1
+msgid "Sélectionne un dossier en partageant l'historique des dialogues d'ouverture de fichiers."
+msgstr "Selects a directory using the history shared with file open dialogs."
+
+#: of palm_tracer.Tools.FileDialog.open_directory:5
+msgid "Dossier choisi, ou chaîne vide en cas d'annulation."
+msgstr "Selected directory, or an empty string if canceled."
+
+#: of palm_tracer.Tools.FileDialog.save_file:1
+msgid "Sélectionne un chemin d'export dans un historique distinct de celui des ouvertures."
+msgstr "Selects an export path using a history separate from that of open dialogs."
+
+#: of palm_tracer.Tools.FileDialog.save_file:5
+msgid "Nom de fichier proposé ; un éventuel dossier est remplacé par le dernier dossier d'export."
+msgstr "Suggested filename; any directory component is replaced by the last export directory."
+
+#: of palm_tracer.Tools.FileDialog.save_file:6
+msgid "Filtre des formats proposés, au format Qt."
+msgstr "Filter for available formats, in Qt format."
+
+#: of palm_tracer.Tools.FileDialog.save_file:7
+msgid "Chemin de sortie et filtre sélectionné, ou chaînes vides en cas d'annulation."
+msgstr "Output path and selected filter, or empty strings if canceled."

@@ -11,14 +11,14 @@ from typing import cast
 
 import napari
 import numpy as np
-from napari.utils.notifications import show_info, show_warning
 from qtpy.QtWidgets import QApplication, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import HR
-from palm_tracer.Settings.Types import FileList
+from palm_tracer.Settings.Types import Combo, FileList
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 TIPS = {
 		"Actualize":  "Updates files/data from PALMTracer status.",
@@ -39,7 +39,7 @@ class ViewerHRWidget(BaseNapariWidget):
 	:param viewer: Visionneuse Napari recevant les calques.
 	:param palmtracer: Instance principale à laquelle le widget est associé.
 
-	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "Viewer HR"``.
+	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "HR Viewer"``.
 	"""
 
 	UI_NAME: str = "HR"
@@ -49,6 +49,8 @@ class ViewerHRWidget(BaseNapariWidget):
 
 	DROP_MULTIPLE: bool = False
 	"""Limite chaque dépôt à une seule pile locale."""
+	DROP_EXTENSIONS: tuple[str, ...] = FileIO.STACK_EXTENSIONS
+	"""Extensions des piles acceptées par la visionneuse."""
 
 	# ==================================================
 	# region Initialisation
@@ -115,7 +117,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		ui = self._hr_settings.get_ui(self.UI_NAME)
 		ui.body_layout.setContentsMargins(5, 15, 5, 5)
 		grp_source.setLayout(ui.body_layout)
-		self._hr_settings["Source"].get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
+		cast(Combo, self._hr_settings["Source"]).get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")
@@ -238,14 +240,14 @@ class ViewerHRWidget(BaseNapariWidget):
 			crop = self.pt.crop(self.visualization)
 			if self._filename[-3:] == "png": FileIO.save_png(crop, self._filename, False)
 			else: FileIO.save_tif(crop, self._filename)
-			show_info("Image file saved successfully.")
+			self.notify_info("Image file saved successfully.")
 
 	# --------------------------------------------------
 	def _screenshot(self):  # pragma: no cover — Accès au canevas
 		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les réglages de color map, contraste)."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
-			show_info("Screenshot saved successfully.")
+			self.notify_info("Screenshot saved successfully.")
 
 	# --------------------------------------------------
 	def _toggle_type(self, btn_id: int):
@@ -270,7 +272,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		path, stack, suffix = self.pt.path, self.pt.stack, self.pt.suffix
 
 		if stack is None or not path or not Path(path).is_dir():
-			show_warning("No stack processed loaded.")
+			self.notify_warning("No stack processed loaded.")
 			return
 
 		# Conserve le repère de l'image affichée si la génération ne peut pas la remplacer.
@@ -279,7 +281,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		visualization, plot_data = data["visualization"], data["plot_data"]
 		if visualization.size <= 1:
 			self.pt.settings.rois.hr_box = previous_hr_box
-			show_warning("No visualization available.")
+			self.notify_warning("No visualization available.")
 			return
 		self.visualization = visualization
 
@@ -354,29 +356,28 @@ def create_viewerhr(palmtracer: PALMTracer | None = None) -> tuple[napari.Viewer
 	:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
 	:return: Visionneuse Napari créée et widget haute résolution associé.
 	"""
-	if palmtracer is None: palmtracer = PALMTracer()
 	viewer = napari.Viewer(ndisplay=2)  # .									 Crée le viewer HR napari
 	viewer.title = "HR Viewer"  # .											 Modifier le titre de la fenêtre
 	viewer.window.main_menu.setVisible(False)  # .							 Cacher la barre de menu
 	widget = ViewerHRWidget(viewer, palmtracer)  # .						 Crée le widget en lui passant le viewer
-	viewer.window.add_dock_widget(widget, name="Viewer HR", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
+	viewer.window.add_dock_widget(widget, name="HR Viewer", area="right")  # L'ajoute comme dock widget dans la fenêtre napari
 	return viewer, widget
 
 
 # --------------------------------------------------
-def open_viewerhr(_viewer: "napari.viewer.Viewer" = None, ) -> QWidget:
+def open_viewerhr(_viewer: napari.viewer.Viewer = None, ) -> QWidget:
 	"""
-	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > Viewer HR.
+	Callable utilisé par Napari pour le menu Plugins > PALM Tracer > HR Viewer.
 
-	- Ignore le viewer courant.
+	- Récupère l'instance PALMTracer du widget principal dans le viewer appelant.
 	- Crée une nouvelle fenêtre Napari HR dédiée.
 	- Retourne un QWidget stub (caché) juste pour satisfaire l'API "widget plugin" de Napari.
 
-	:param _viewer: Visionneuse Napari courante, volontairement ignorée.
+	:param _viewer: Visionneuse appelante éventuelle ; sinon la visionneuse active est utilisée.
 	:return: Widget factice masqué attendu par l'API des plugins Napari.
 	"""
 	# Crée la nouvelle fenêtre HR
-	create_viewerhr()
+	create_viewerhr(get_current_palmtracer(_viewer))
 
 	# Stub minimal pour Napari (sera docké, mais caché)
 	stub = QWidget()

@@ -8,17 +8,17 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
+from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
+from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
 from palm_tracer.Processing.Astigmatism3D import find_model_center, model_projection_validity, model_validity, remove_multi_beads
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS, SHAPE_MODEL
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Tools import FileDialog, FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
+from palm_tracer.UI.Napari import get_current_palmtracer
 
 _DLL_REQUIRED_COLS = ["Sigma X", "Sigma Y", "Z"]
-
-_windows: list[QWidget] = []  # Conserve une référence globale pour éviter le ramasse-miettes
 
 
 class Astigmatism3DWidget(BasePlotlyWidget):
@@ -31,22 +31,33 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	Le second onglet estime Z sur demande avec le modèle chargé ou, si ``Use default model`` est coché, exclusivement avec le modèle par défaut.
 
 	:param parent: Widget Qt parent.
+	:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
 
 	.. note:: Le widget peut être lancé directement, intégré à PALM Tracer ou utilisé depuis un autre plugin.
 	"""
 
+	UI_NAME: str = "Astigmatism 3D Tool"
+	"""Nom de l'interface d'astigmatisme."""
+	DROP_MULTIPLE: bool = False
+	"""Limite le dépôt à un CSV de localisations ou de modèle."""
+	DROP_EXTENSIONS: tuple[str, ...] = (".csv",)
+	"""Extensions des fichiers acceptés pour les localisations et les modèles."""
 	GRAPH_TITLE: str = "Astigmatism model"
 	"""Titre du graphique d'astigmatisme."""
-	GRAPH_TYPE: list["str"] = ["Cross", "Slope", "Curve"]
+	GRAPH_TYPE: list[str] = ["Cross", "Slope", "Curve"]
 	"""Modes d'affichage disponibles pour le graphique d'astigmatisme."""
 
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None):
-		"""Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide."""
-		super().__init__(parent)
-		self.setWindowTitle("Astigmatism 3D Tool")
+	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
+		"""
+		Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide.
+
+		:param parent: Widget Qt parent éventuel.
+		:param palmtracer: Instance partagée, ou :obj:`None` pour en créer une.
+		"""
+		super().__init__(parent, palmtracer)
 
 		self._palm = Palm()
 		self._loc_filename: Path = Path()
@@ -341,7 +352,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def _check_loc(self):
 		"""Vérifie la validité du fichier de localisation et modifie les options sélectionnables en conséquence."""
 		if "Plane" not in self._loc.columns:
-			Ui.print_warning("No 'Plane' Column in file. 'Get Z from plane' and 'Only one bead' options can't be used.")
+			self.notify_warning("No 'Plane' Column in file. 'Get Z from plane' and 'Only one bead' options can't be used.")
 			self._check_only_one.setChecked(False)
 			self._check_only_one.setEnabled(False)
 			self._check_z_from_plane.setChecked(False)
@@ -356,19 +367,19 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			self._check_only_one.setEnabled(True)
 			if "Bead" in self._loc.columns:
 				n_beads = self._loc["Bead"].nunique()  # .						 Nombre de billes
-				Ui.print_success(f"{s_p} and {n_beads} beads in file.")
+				self.notify_success(f"{s_p} and {n_beads} beads in file.")
 			else:
 				counts_per_plane = self._loc.groupby("Plane").size()  # .		 Nombre de localisations par plan.
 				single_planes = counts_per_plane[counts_per_plane == 1].index  # Plans non ambigus : une seule localisation.
 				multi_planes = counts_per_plane[counts_per_plane > 1].index  # . Plans ambigus : plusieurs localisations.
 				if len(multi_planes) == 0:
-					Ui.print_success(f"{s_p} and only one bead.")
+					self.notify_success(f"{s_p} and only one bead.")
 				elif len(single_planes) == 0:
-					Ui.print_warning(f"{s_p} and at least two localizations per plane. The 'Only one bead' option can't be used.")
+					self.notify_warning(f"{s_p} and at least two localizations per plane. The 'Only one bead' option can't be used.")
 					self._check_only_one.setChecked(False)
 					self._check_only_one.setEnabled(False)
 				else:
-					Ui.print_warning(f"{s_p} and some planes contain multiple localizations. It is recommended to use the 'Only one bead' option.")
+					self.notify_warning(f"{s_p} and some planes contain multiple localizations. It is recommended to use the 'Only one bead' option.")
 					self._check_only_one.setChecked(True)
 
 			# --- mise à jour du Z Max ---
@@ -377,14 +388,45 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 				if z_max > 10: self._spin_z_estimate.setValue(z_max)
 
 	# --------------------------------------------------
+	def _drop_files(self, paths: list[str]):
+		"""
+		Reconnaît le CSV par ses colonnes et charge les localisations ou le modèle partagé entre les onglets.
+
+		Un dépôt de localisations ne déclenche une calibration que dans le premier onglet.
+		La reconnaissance lit uniquement l'en-tête ; le chargeur concerné valide ensuite les données complètes.
+
+		:param paths: Liste contenant le chemin du CSV déposé.
+		"""
+		filename = paths[0]
+		try: columns = pd.read_csv(filename, nrows=0).columns
+		except (OSError, ValueError) as error:
+			self.notify_error(f"Unable to read the CSV file: {error}.")
+			return
+		if set(_DLL_REQUIRED_COLS).issubset(columns):
+			self._load_loc(filename, calibrate=self._tabs.currentIndex() == 0)
+		elif list(columns[1:]) == FILES_COLUMNS["Astigmatism 3D Model"]["columns"]:
+			self._load_model(filename)
+		else: self.notify_warning("The CSV must contain localizations or an astigmatism 3D model.")
+
+	# --------------------------------------------------
 	def _on_load_loc(self):
 		"""Charge les localisations et déclenche la calibration uniquement depuis l'onglet Compute Model."""
 		# --- boîte de dialogue pour sélectionner un .csv ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select Localization CSV file", "", "CSV files (*.csv)")
+		filename, _ = FileDialog.open_file(self, "Select Localization CSV file", "CSV files (*.csv)")
 
 		if not filename:
-			Ui.print_warning("No file selected.")
+			self.notify_warning("No file selected.")
 			return
+		self._load_loc(filename, calibrate=self.sender() == self._btn_load_compute)
+
+	# --------------------------------------------------
+	def _load_loc(self, filename: str, calibrate: bool = False):
+		"""
+		Charge les localisations partagées et calibre le modèle uniquement sur demande explicite.
+
+		:param filename: Chemin local du CSV de localisations.
+		:param calibrate: Active la calibration après chargement depuis le premier onglet.
+		"""
 
 		self._calibration_z = None
 		# --- lecture du fichier ---
@@ -395,14 +437,14 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			self._loc = pd.read_csv(filename)
 		except Exception as e:
 			self._loc = pd.DataFrame()
-			Ui.print_error(f"Unable to read the CSV file : {e}.")
+			self.notify_error(f"Unable to read the CSV file : {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if not set(_DLL_REQUIRED_COLS).issubset(self._loc.columns):
-			Ui.print_error(f"The localization file is not in the correct format.\n"
-						   f"\tExpected format, at least columns: {', '.join(sorted(_DLL_REQUIRED_COLS))}.\n"
-						   f"\tFound columns: {', '.join(self._loc.columns)}")
+			self.notify_error(f"The localization file is not in the correct format.\n"
+							  f"\tExpected format, at least columns: {', '.join(sorted(_DLL_REQUIRED_COLS))}.\n"
+							  f"\tFound columns: {', '.join(self._loc.columns)}")
 			self._loc = pd.DataFrame()
 			return
 
@@ -410,8 +452,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Ui.update_path_label(self._lbl_compute, self._loc_filename)
 		Ui.update_path_label(self._lbl_loc_estimate, self._loc_filename)
 
-		Ui.print_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
-		if self.sender() == self._btn_load_compute:
+		self.notify_success(f"CSV loaded successfully with {len(self._loc)} points and {len(self._loc.columns)} columns.")
+		if calibrate:
 			self._calibration_z = self._loc["Z"].to_numpy(dtype=float, copy=True)
 			self._updating_parameters = True
 			try:
@@ -429,11 +471,20 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		Une lecture impossible ou une forme incorrecte laisse le modèle vide.
 		"""
 		# --- Boîte de dialogue pour sélectionner le modèle CSV ---
-		filename, _ = QFileDialog.getOpenFileName(self, "Select Model CSV file", "", "CSV files (*.csv)")
+		filename, _ = FileDialog.open_file(self, "Select Model CSV file", "CSV files (*.csv)")
 
 		if not filename:
-			Ui.print_warning("No model file selected.")
+			self.notify_warning("No model file selected.")
 			return
+		self._load_model(filename)
+
+	# --------------------------------------------------
+	def _load_model(self, filename: str):
+		"""
+		Charge le modèle partagé entre les onglets sans recalculer ses coefficients.
+
+		:param filename: Chemin local du CSV du modèle.
+		"""
 
 		self._calibration_z = None  # Le modèle chargé devient la référence pour l'estimation, sans calibration automatique.
 		# --- lecture du fichier ---
@@ -444,13 +495,13 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			self._model = pd.read_csv(filename, index_col=0)
 		except Exception as e:
 			self._model = pd.DataFrame()
-			Ui.print_error(f"Unable to read the model file: {e}.")
+			self.notify_error(f"Unable to read the model file: {e}.")
 			return
 
 		# --- vérification de la forme des données ---
 		if self._model.shape != SHAPE_MODEL:
 			self._model = pd.DataFrame()
-			Ui.print_error("The model file is not in the correct format. Expected format: two lines of five values (2x5).")
+			self.notify_error("The model file is not in the correct format. Expected format: two lines of five values (2x5).")
 			return
 
 		# --- mise à jour du label de statut ---
@@ -459,7 +510,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- mise à jour de l'affichage ---
 		self._update_plot()
 
-		Ui.print_success("Model loaded successfully.")
+		self.notify_success("Model loaded successfully.")
 
 	# --------------------------------------------------
 	def _on_compute(self):
@@ -485,7 +536,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Mise à jour de Z (si sélectionné) ---
 		if self._check_z_from_plane.isChecked():
 			if "Plane" not in work.columns:
-				Ui.print_warning("No Plane Column in file. We can't use it to initialize Z.")
+				self.notify_warning("No Plane Column in file. We can't use it to initialize Z.")
 				return
 			work["Z"] = work["Plane"] * self._spin_z_interval.value()
 
@@ -509,7 +560,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			print(f"Model for bead {i + 1}:\n{models[-1]}")
 			for axis in range(2):
 				if np.allclose(models[-1].iloc[axis, 1:4], (default_w, 0, 0), atol=1e-6):
-					Ui.print_warning(f"\tModel Calibration keep initial state on axis {MODEL_ROWS[axis]}.")
+					self.notify_warning(f"\tModel Calibration keep initial state on axis {MODEL_ROWS[axis]}.")
 
 		if len(models) == 1: self._model = models[0].copy()
 		else:
@@ -534,7 +585,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)  # Création du dossier de config s'il n'existe pas
 		self._model.to_csv(FileIO.USER_ASTIGMATISM_MODEL, lineterminator="\n")
 		self._on_set_default_model()
-		Ui.print_success("Model saved successfully.")
+		self.notify_success("Model saved successfully.")
 
 		# --- Mise à jour des affichages (sanity check, plot et model dans estimate) ---
 		self._update_sanity_values(self._loc.loc[:, _DLL_REQUIRED_COLS].to_numpy(dtype=float, copy=True), self._model.to_numpy(), pixel_size)
@@ -547,7 +598,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		if not self._check_set_default_model.isChecked() or self._model.empty: return
 		FileIO.CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 		self._model.to_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL, lineterminator="\n")
-		Ui.print_success("Default model saved successfully.")
+		self.notify_success("Default model saved successfully.")
 
 	# --------------------------------------------------
 	def _on_default_model_toggled(self, active: bool):
@@ -571,7 +622,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		try:
 			model = pd.read_csv(FileIO.DEFAULT_ASTIGMATISM_MODEL, index_col=0)
 		except Exception as error:
-			Ui.print_error(f"Unable to read the model file: {error}.")
+			self.notify_error(f"Unable to read the model file: {error}.")
 			return pd.DataFrame()
 		return model if model.shape == SHAPE_MODEL else pd.DataFrame()
 
@@ -580,11 +631,11 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		"""Estime Z avec le modèle sélectionné, puis réécrit les localisations après une sauvegarde facultative du CSV d'origine."""
 		# --- Vérifications ---
 		if self._loc.empty:
-			Ui.print_warning("Can't estimate without correct localization file loaded.")
+			self.notify_warning("Can't estimate without correct localization file loaded.")
 			return
 		model = self._get_estimation_model()
 		if model.empty:
-			Ui.print_warning("Can't estimate without correct model file loaded.")
+			self.notify_warning("Can't estimate without correct model file loaded.")
 			return
 
 		# --- Enregistre un backup (si sélectionné) ---
@@ -613,7 +664,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
 		self._loc[["Z", "MSE Z"]] = estimated_z
 		self._loc.to_csv(self._loc_filename, index=False)
-		Ui.print_success("Localization file with estimation saved successfully.")
+		self.notify_success("Localization file with estimation saved successfully.")
 
 
 # --------------------------------------------------
@@ -622,13 +673,11 @@ def open_astigmatism3d():  # pragma: no cover — Aucun lancement de fenêtre sa
 	Ouvre l'outil d'astigmatisme 3D dans une fenêtre autonome.
 
 	Cette fonction est utilisée par le plugin Napari comme point d'entrée :
-	elle crée un :class:`Astigmatism3DWidget`, l'affiche et conserve une référence globale pour éviter sa destruction.
+	elle crée un :class:`Astigmatism3DWidget` et délègue l'affichage et la conservation de sa référence à la base commune.
 	Aucun widget n'est renvoyé au gestionnaire de panneaux Napari ; cette fonction retourne ``None``.
 	"""
-	widget = Astigmatism3DWidget()
-	widget.resize(1280, 720)
-	widget.show()
-	_windows.append(widget)  # Conserve une référence pour éviter sa destruction par Python
+	widget = Astigmatism3DWidget(palmtracer=get_current_palmtracer())
+	widget.show_standalone()
 
 
 # --------------------------------------------------
@@ -637,6 +686,5 @@ if __name__ == "__main__":
 
 	app = QApplication(sys.argv)
 	w = Astigmatism3DWidget()
-	w.resize(1280, 720)
-	w.show()
+	w.show_standalone()
 	sys.exit(app.exec_())

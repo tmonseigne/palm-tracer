@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import cast
 
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QApplication, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle
+from qtpy.QtWidgets import QApplication, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStyle
 
 from palm_tracer.Settings.Types.BaseSettingType import BaseSettingType
 from palm_tracer.Settings.Types.BaseUIType import BaseUIType
+from palm_tracer.Tools import FileDialog
 
 
 # --------------------------------------------------
@@ -79,10 +80,7 @@ class BrowseFile(BaseSettingType):
 	# ==================================================
 	def browse_file(self):
 		"""Ouvre un dialogue de sélection de fichiers et mets à jour la boîte avec le chemin sélectionné."""
-		current = Path(self.value)
-		# Si le chemin par défaut n'est pas valide, on utilise le chemin principal du projet
-		if not current.exists() or current == Path.cwd(): current = Path.cwd()
-		path, _ = QFileDialog.getOpenFileName(None, "Select a file", str(current))
+		path, _ = FileDialog.open_file(None, "Select a file")
 		if not path: return
 		if Path(path).is_file(): self.value = path  # Mets à jour le chemin dans la boîte de texte
 

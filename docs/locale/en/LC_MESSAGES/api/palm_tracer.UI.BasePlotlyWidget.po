@@ -3,10 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-23 12:02+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -35,6 +35,10 @@ msgstr "Parameters"
 #: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget:5
 msgid "Widget Qt parent."
 msgstr "Parent Qt widget."
+
+#: of palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget:6
+msgid "Instance partagée conservée sans copie, ou :obj:`None` pour en créer une."
+msgstr "Shared instance retained without copying, or :obj:`None` to create one."
 
 #: ../../api/palm_tracer.UI.BasePlotlyWidget.rst:9
 msgid "Attributs"

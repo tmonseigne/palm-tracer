@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-27 09:56+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.UI.BaseNapariWidget.rst:2
 msgid "BaseNapariWidget"
@@ -38,10 +43,6 @@ msgstr "Shared PALMTracer instance, or :obj:`None` to create one."
 msgid "Attributs"
 msgstr "Attributes"
 
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.UI_NAME:1
-msgid "Nom de l'interface, à redéfinir dans chaque classe fille."
-msgstr "Interface name, to be overridden in each subclass."
-
 #: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.LAYERS_NAME:1
 msgid "Noms des calques, à redéfinir dans chaque classe fille."
 msgstr "Layer names, to be overridden in each subclass."
@@ -50,63 +51,11 @@ msgstr "Layer names, to be overridden in each subclass."
 msgid "Styles communs des points et des contours de ROI ; les classes filles peuvent les redéfinir."
 msgstr "Common styles for points and ROI outlines; subclasses may override them."
 
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.DROP_MULTIPLE:1
-msgid "Autorise plusieurs URL par dépôt ; les visualiseurs d'une seule pile redéfinissent cette constante."
-msgstr "Allows multiple URLs per drop; single-stack viewers override this constant."
-
-#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:17
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:15
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:20
-msgid "Glisser-déposer"
-msgstr "Drag and drop"
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.showEvent:1
-msgid "Active l'interception après l'insertion du plugin dans sa fenêtre Qt."
-msgstr "Enables interception after the plugin is inserted into its Qt window."
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.showEvent:3
-msgid "Événement d'affichage Qt."
-msgstr "Qt show event."
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.hideEvent:1
-msgid "Retire le filtre et restaure les dépôts si la fenêtre Qt existe encore."
-msgstr "Removes the filter and restores drop acceptance if the Qt window still exists."
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.hideEvent:3
-msgid "Événement de masquage Qt."
-msgstr "Qt hide event."
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:1
-msgid "Intercepte les fichiers locaux dans la fenêtre cible et délègue leur traitement."
-msgstr "Intercepts local files in the target window and delegates their processing."
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:3
-msgid "Les autres fenêtres et les glissements sans fichier local restent inchangés. Un dépôt local invalide est consommé, mais refusé avant son traitement par Napari."
-msgstr "Other windows and drags without a local file remain unaffected. An invalid local drop is consumed but rejected before Napari processes it."
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:6
-msgid "Objet Qt destinataire de l'événement."
-msgstr "Qt object receiving the event."
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:7
-msgid "Événement à filtrer."
-msgstr "Event to filter."
-
-#: ../../api/palm_tracer.UI.BaseNapariWidget.rst
-msgid "Renvoie"
-msgstr "Returns"
-
-#: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.eventFilter:8
-msgid "``True`` si l'événement est consommé."
-msgstr "``True`` if the event is consumed."
-
-#: ../../api/palm_tracer.UI.BaseNapariWidget.rst
-msgid "Type renvoyé"
-msgstr "Return type"
-
-#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:27
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst:18
 msgid "Calques"
 msgstr "Layers"
 
@@ -133,3 +82,7 @@ msgstr "Final visibility, or :obj:`None` to preserve the initial state."
 #: of palm_tracer.UI.BaseNapariWidget.BaseNapariWidget.update_layer:10
 msgid "Propriétés supplémentaires à affecter après les données."
 msgstr "Additional properties to assign after the data."
+
+#: ../../api/palm_tracer.UI.BaseNapariWidget.rst
+msgid "Type renvoyé"
+msgstr "Return type"

@@ -1,10 +1,12 @@
 """Teste le widget de migration des anciens résultats Metamorph."""
 
+from unittest.mock import Mock
+
 from qtpy.QtCore import Qt
 
 from palm_tracer.UI.FileMigratorWidget import FileMigratorWidget  # Classe
 from tests.Utils import *
-from tests.Utils import strip_ansi
+from tests.Utils import send_file_drop, strip_ansi
 
 
 # ==================================================
@@ -22,6 +24,47 @@ def test_widget_creation(qtbot):
 
 # ==================================================
 # endregion Initialisation
+# ==================================================
+
+# ==================================================
+# region Glisser-déposer
+# ==================================================
+def test_migrator_drop_rejects_file(qtbot, tmp_path, monkeypatch):
+	"""Refuse un fichier accepté par le filtre commun lorsque l'outil attend un dossier."""
+	widget = FileMigratorWidget()
+	qtbot.addWidget(widget)
+	path = tmp_path / "results.csv"
+	path.touch()
+	notify, load_folder = Mock(), Mock()
+	monkeypatch.setattr(widget, "notify_warning", notify)
+	monkeypatch.setattr(widget, "_load_folder", load_folder)
+	widget.show()
+
+	send_file_drop(widget, [path])
+
+	notify.assert_called_once_with("Drop one Metamorph result folder (.PT).")
+	load_folder.assert_not_called()
+
+
+# --------------------------------------------------
+def test_migrator_drop_analyzes_folder_without_migrating(qtbot, tmp_path, monkeypatch):
+	"""Vérifie que le dossier déposé est analysé sans aucune migration automatique."""
+	widget = FileMigratorWidget()
+	qtbot.addWidget(widget)
+	folder = tmp_path / "results.PT"
+	folder.mkdir()
+	migrate = Mock()
+	monkeypatch.setattr(widget._fm, "migrate", migrate)
+
+	widget.show()
+	send_file_drop(widget, [folder])
+
+	assert widget._fm.input_folder == folder
+	migrate.assert_not_called()
+
+
+# ==================================================
+# endregion Glisser-déposer
 # ==================================================
 
 # ==================================================

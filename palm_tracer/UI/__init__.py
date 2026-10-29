@@ -4,12 +4,14 @@ from .AlignmentWidget import AlignmentWidget
 from .Astigmatism3DWidget import Astigmatism3DWidget
 from .BaseNapariWidget import BaseNapariWidget
 from .BasePlotlyWidget import BasePlotlyWidget
+from .BaseWidget import BaseWidget
 from .FileMigratorWidget import FileMigratorWidget
 from .GraphViewerWidget import GraphViewerWidget
+from .NotificationWidget import NotificationWidget
 from .PALMTracerWidget import PALMTracerWidget
 from .ResultsUI import ResultsUI
 from .Viewer3DWidget import Viewer3DWidget
 from .ViewerHRWidget import ViewerHRWidget
 
-__all__ = ["ResultsUI", "PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget", "BaseNapariWidget", "BasePlotlyWidget",
-		   "AlignmentWidget", "Astigmatism3DWidget", "FileMigratorWidget", "GraphViewerWidget"]
+__all__ = ["ResultsUI", "PALMTracerWidget", "Viewer3DWidget", "ViewerHRWidget", "BaseWidget", "BaseNapariWidget", "BasePlotlyWidget",
+		   "AlignmentWidget", "Astigmatism3DWidget", "FileMigratorWidget", "GraphViewerWidget", "NotificationWidget"]

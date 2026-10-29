@@ -174,7 +174,6 @@ def test_download_plotly(qtbot, monkeypatch, fake_qfiledialog):
 # endregion Affichage et téléchargements
 # ==================================================
 
-
 # ==================================================
 # endregion Widget Web Plotly
 # ==================================================

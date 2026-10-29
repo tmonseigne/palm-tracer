@@ -1,0 +1,219 @@
+# Copyright (C) 2026, Thibaut Monseigne
+# This file is distributed under the same license as the PALM Tracer package.
+msgid ""
+msgstr ""
+"Project-Id-Version: PALM Tracer \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-28 13:57+0100\n"
+"PO-Revision-Date: 2026-10-28 14:01+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst:2
+msgid "BaseWidget"
+msgstr ""
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget:1
+msgid "Centralise l'identité, les fenêtres autonomes, les dépôts de fichiers, les traitements et les notifications des widgets Qt."
+msgstr "Centralizes identity, standalone windows, file drops, processing, and notifications for Qt widgets."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget:3
+msgid "Le titre et le style Qt commun sont initialisés pour les fenêtres autonomes comme pour les panneaux intégrés. La cible comprend les widgets enfants et la fenêtre Napari éventuelle, même lorsque le dock est flottant. Les classes filles doivent définir l'action du dépôt dans :meth:`_drop_files`. La base reste instanciable ; appeler l'action sans la redéfinir lève :class:`NotImplementedError`."
+msgstr "The common Qt title and style are initialized for both standalone windows and embedded panels. The target includes child widgets and the containing Napari window, even when the dock is floating. Subclasses must define the drop action in :meth:`_drop_files`. The base class remains instantiable; calling the action without overriding it raises :class:`NotImplementedError`."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst
+msgid "Paramètres"
+msgstr "Parameters"
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget:8
+msgid "Widget Qt parent, ou :obj:`None` pour une fenêtre autonome."
+msgstr "Parent Qt widget, or :obj:`None` for a standalone window."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget:9
+msgid "Instance partagée conservée sans copie, ou :obj:`None` pour en créer une."
+msgstr "Shared instance retained without copying, or :obj:`None` to create one."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst:9
+msgid "Attributs"
+msgstr "Attributes"
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.UI_NAME:1
+msgid "Nom de l'interface, à redéfinir dans chaque classe fille."
+msgstr "Interface name, to be overridden in each subclass."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.DROP_MULTIPLE:1
+msgid "Autorise plusieurs URL par dépôt ; les outils limités à un fichier redéfinissent cette constante."
+msgstr "Allows multiple URLs per drop; tools limited to a single file override this constant."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.DROP_EXTENSIONS:1
+msgid "Extensions de fichiers autorisées en minuscules ; un tuple vide ne limite pas les extensions."
+msgstr "Allowed file extensions in lowercase; an empty tuple allows all extensions."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.DROP_DIRECTORIES:1
+msgid "Accepte les dossiers en plus des fichiers autorisés."
+msgstr "Accepts directories in addition to the allowed files."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.processing:1
+msgid "Indique si un calcul ou sa finalisation est encore en cours pour ce widget."
+msgstr "Indicates whether a computation or its finalization is still running for this widget."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst:18
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst:21
+msgid "Fenêtres autonomes"
+msgstr "Standalone windows"
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.show_standalone:1
+msgid "Dimensionne et affiche une fenêtre autonome en conservant sa référence jusqu'à sa destruction."
+msgstr "Resizes and displays a standalone window, retaining its reference until destruction."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.show_standalone:3
+msgid "La fermeture détruit la fenêtre et libère sa référence commune. Les appels répétés n'ajoutent ni référence ni connexion supplémentaire. Les panneaux intégrés restent gérés par leur conteneur."
+msgstr "Closing destroys the window and releases its shared reference. Repeated calls do not add another reference or connection. Embedded panels remain managed by their container."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.show_standalone:6
+msgid "Largeur initiale en pixels logiques."
+msgstr "Initial width in logical pixels."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.show_standalone:7
+msgid "Hauteur initiale en pixels logiques."
+msgstr "Initial height in logical pixels."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst:26
+msgid "Notifications"
+msgstr ""
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify:1
+msgid "Conserve le message dans la console et demande une notification locale sans accéder aux widgets depuis un worker."
+msgstr "Keeps the message in the console and requests a local notification without accessing widgets from a worker."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify:3
+msgid "Le message suivant remplace le précédent. L'affichage Qt est délégué au thread graphique par un signal. Les messages provenant du moteur de calcul ne sont pas interceptés globalement."
+msgstr "The next message replaces the previous one. A signal delegates Qt display to the GUI thread. Messages from the processing engine are not intercepted globally."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify:6
+#: palm_tracer.UI.BaseWidget.BaseWidget.notify_error:3
+#: palm_tracer.UI.BaseWidget.BaseWidget.notify_info:3
+#: palm_tracer.UI.BaseWidget.BaseWidget.notify_success:3
+#: palm_tracer.UI.BaseWidget.BaseWidget.notify_warning:3
+msgid "Texte brut du message."
+msgstr "Plain message text."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify:7
+msgid "Niveau d'information, de succès, d'avertissement ou d'erreur."
+msgstr "Information, success, warning, or error level."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify:8
+msgid "Délai avant fondu en millisecondes ; zéro demande une fermeture manuelle."
+msgstr "Delay before fading, in milliseconds; zero requires manual dismissal."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst
+msgid "Lève"
+msgstr "Raises"
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify:9
+msgid "Si le niveau est inconnu ou le délai négatif."
+msgstr "If the level is unknown or the delay is negative."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify_info:1
+msgid "Affiche une information locale avec disparition automatique."
+msgstr "Displays local information that disappears automatically."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify_error:4
+#: palm_tracer.UI.BaseWidget.BaseWidget.notify_info:4
+#: palm_tracer.UI.BaseWidget.BaseWidget.notify_success:4
+#: palm_tracer.UI.BaseWidget.BaseWidget.notify_warning:4
+msgid "Délai avant fondu ; zéro conserve le message jusqu'à sa fermeture manuelle."
+msgstr "Delay before fading; zero keeps the message until it is dismissed manually."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify_success:1
+msgid "Affiche la réussite d'une opération dans le panneau courant."
+msgstr "Displays the success of an operation in the current panel."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify_warning:1
+msgid "Affiche un avertissement local sans ouvrir de dialogue bloquant."
+msgstr "Displays a local warning without opening a blocking dialog."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.notify_error:1
+msgid "Affiche une erreur locale sans ouvrir de dialogue bloquant."
+msgstr "Displays a local error without opening a blocking dialog."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.resizeEvent:1
+msgid "Maintient la notification dans le coin du panneau lorsque sa taille change."
+msgstr "Keeps the notification in the panel corner when the panel is resized."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.resizeEvent:3
+msgid "Événement de redimensionnement Qt."
+msgstr "Qt resize event."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst:36
+msgid "Menu contextuel"
+msgstr "Context menu"
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.contextMenuEvent:1
+msgid "Propose une case de maintien au premier plan depuis le panneau du widget uniquement."
+msgstr "Offers an always-on-top checkbox from the widget panel only."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.contextMenuEvent:3
+msgid "Les vues exclues conservent leur menu contextuel. Un panneau docké affiche l'option désactivée, car son maintien individuel au premier plan nécessite un détachement préalable."
+msgstr "Excluded views keep their context menus. A docked panel shows the option disabled because keeping it individually on top requires detaching it first."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.contextMenuEvent:6
+msgid "Demande de menu contextuel par la souris ou le clavier."
+msgstr "Context menu request from the mouse or keyboard."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst:41
+msgid "Glisser-déposer"
+msgstr "Drag and drop"
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.showEvent:1
+msgid "Active l'interception après l'insertion du widget dans sa fenêtre Qt."
+msgstr "Enables interception after the widget is inserted into its Qt window."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.showEvent:3
+msgid "Événement d'affichage Qt."
+msgstr "Qt show event."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.hideEvent:1
+msgid "Retire le filtre et restaure les dépôts si la fenêtre Qt existe encore."
+msgstr "Removes the filter and restores drops if the Qt window still exists."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.hideEvent:3
+msgid "Événement de masquage Qt."
+msgstr "Qt hide event."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.eventFilter:1
+msgid "Intercepte les fichiers locaux dans toute la fenêtre et délègue leur traitement."
+msgstr "Intercepts local files throughout the window and delegates their processing."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.eventFilter:3
+msgid "Les autres fenêtres et les glissements sans fichier local restent inchangés. Un dépôt local invalide est consommé, mais refusé avant son traitement habituel."
+msgstr "Other windows and drags without local files are unaffected. An invalid local drop is consumed but rejected before its usual processing."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.eventFilter:6
+msgid "Objet Qt destinataire de l'événement."
+msgstr "Qt object receiving the event."
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.eventFilter:7
+msgid "Événement à filtrer."
+msgstr "Event to filter."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst
+msgid "Renvoie"
+msgstr "Returns"
+
+#: of palm_tracer.UI.BaseWidget.BaseWidget.eventFilter:8
+msgid "``True`` si l'événement est consommé."
+msgstr "``True`` if the event is consumed."
+
+#: ../../api/palm_tracer.UI.BaseWidget.rst
+msgid "Type renvoyé"
+msgstr "Return type"

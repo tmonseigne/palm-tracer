@@ -29,7 +29,8 @@ class Batch(BaseSettingGroup):
 	label: str = "Batch"
 	"""Libellé du groupe affiché dans l'interface."""
 	setting_list = {
-			"Files": [FileList, ["Files", "Acquisition files to process. Select the current file from the list."]],
+			"Files": [FileList, ["Files", "TIFF or Metamorph STK acquisitions to process. Select the current file from the list.",
+								 FileIO.STACK_EXTENSIONS, FileIO.STACK_FILE_FILTER]],
 			"Mode":  [Combo, ["Mode", "Process the selected file, each file independently, or all files as a single acquisition.",
 							  0, ["Only one", "Each File separately", "All in One"]]]
 			}

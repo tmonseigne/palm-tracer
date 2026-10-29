@@ -8,16 +8,34 @@ from typing import Any, cast
 
 from colorama import Fore, Style
 from qtpy.QtCore import QEvent, QLocale, QPointF, Qt
-from qtpy.QtGui import QFontMetrics, QPaintEvent, QPainter, QPalette, QPen, QPolygonF
+from qtpy.QtGui import QFontMetrics, QPainter, QPaintEvent, QPalette, QPen, QPolygonF
 
-from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLayout, QPushButton,  # isort: skip
-							QScrollArea, QSpinBox, QToolButton, QVBoxLayout, QWidget)
+from qtpy.QtWidgets import (QButtonGroup, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QLabel,  # isort: skip
+							QLayout, QPushButton, QScrollArea, QSpinBox, QToolButton, QVBoxLayout, QWidget)
 
 # ==================================================
 # region Constantes
 # ==================================================
-# Style pour une ligne d'information
+# Style Qt commun aux fenêtres et panneaux PALM Tracer.
+STYLESHEET_COMMON: str = """QAbstractSpinBox { padding: 1px 10px; min-width: 10px; min-height: 18px; }
+QLineEdit { min-height: 20px; padding: 2px; }
+QComboBox { padding: 3px 10px 3px 8px; }
+QTabWidget::tab-bar { alignment: left; }"""
+# Style pour les titres des groupes de paramètres.
+STYLESHEET_GROUP_TITLE: str = "font-weight: bold;"
+# Style pour les titres des grilles d'information.
+STYLESHEET_INFO_TITLE: str = "font-weight: 600;"
+# Style pour une ligne d'information.
 STYLESHEET_INFO: str = "color: #666666; font-style: italic; padding: 2px;"
+# Style de la notification locale ; la palette Qt conserve la compatibilité avec les thèmes clairs et sombres.
+STYLESHEET_NOTIFICATION: str = """QFrame#pt_notification {
+background-color: palette(window); border: 1px solid palette(mid); border-left: 4px solid #3888d0; border-radius: 5px;
+}
+QFrame#pt_notification[level="success"] { border-left-color: #399b57; }
+QFrame#pt_notification[level="warning"] { border-left-color: #d39a25; }
+QFrame#pt_notification[level="error"] { border-left-color: #cf5050; }
+QFrame#pt_notification QLabel { color: palette(window-text); background: transparent; border: none; padding: 0; }
+QFrame#pt_notification QToolButton { background: transparent; border: none; padding: 2px; }"""
 
 # Configuration par défaut de l'interface Plotly pour les différentes fenêtres autonomes.
 CONFIG_PLOTLY: dict[str, Any] = {
@@ -200,7 +218,7 @@ def make_info_grid(elements: dict[str, dict[str, QLabel | str]], title: str, siz
 	# Titre de colonne
 	title_lbl = QLabel(title)
 	title_lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-	title_lbl.setStyleSheet("font-weight: 600;")
+	title_lbl.setStyleSheet(STYLESHEET_INFO_TITLE)
 	layout.addWidget(title_lbl, 0, 0, 1, size)  # .					Titre
 	layout.addWidget(make_horizontal_separator(), 1, 0, 1, size)  # Séparateur horizontal
 
@@ -388,7 +406,14 @@ class _SpinLimitButton(QToolButton):
 	:param minimum: Place le bouton à gauche pour le minimum, à droite pour le maximum.
 	"""
 
+	# --------------------------------------------------
 	def __init__(self, spin: QSpinBox | QDoubleSpinBox, minimum: bool):
+		"""
+		Ajoute le bouton au champ numérique et suit ses changements de géométrie.
+
+		:param spin: Champ numérique contenant le bouton.
+		:param minimum: Place le bouton à gauche pour le minimum, à droite pour le maximum.
+		"""
 		super().__init__(spin)
 		self._spin = spin  # Champ dont la géométrie et les marges de texte sont suivies.
 		self._minimum = minimum  # Sens du symbole et côté du champ à occuper.

@@ -1,10 +1,11 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 11:46+0200\n"
+"POT-Creation-Date: 2026-10-27 09:56+0100\n"
 "PO-Revision-Date: 2026-10-13 09:48+0000\n"
-"Last-Translator: Codex\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -40,6 +41,10 @@ msgstr "Attributes"
 #: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.UI_NAME:1
 msgid "Nom de l'interface principale."
 msgstr "Name of the main interface."
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.DROP_EXTENSIONS:1
+msgid "Extensions des acquisitions autorisées au dépôt."
+msgstr "Acquisition extensions accepted for drops."
 
 #: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.LAYERS_NAME:1
 msgid "Noms des calques gérés par l'interface principale."

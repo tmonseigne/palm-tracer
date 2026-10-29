@@ -10,15 +10,20 @@ contributions:
       python_name: palm_tracer.UI.PALMTracerWidget:PALMTracerWidget
       title: PALM Tracer
 
+    # Commande pour ouvrir les graphiques
+    - id: palm-tracer.open_graphviewer
+      python_name: palm_tracer.UI.GraphViewerWidget:open_graphviewer
+      title: Graph Viewer
+
     # Commande pour ouvrir la fenêtre HR
     - id: palm-tracer.open_viewerhr
       python_name: palm_tracer.UI.ViewerHRWidget:open_viewerhr
-      title: Viewer 3D
+      title: HR Viewer
 
     # Commande pour ouvrir la fenêtre 3D
     - id: palm-tracer.open_viewer3d
       python_name: palm_tracer.UI.Viewer3DWidget:open_viewer3d
-      title: Viewer 3D
+      title: 3D Viewer
 
     # Commande pour ouvrir la fenêtre d'alignement
     - id: palm-tracer.open_alignment
@@ -39,13 +44,17 @@ contributions:
     - command: palm-tracer.make_qwidget
       display_name: PALM Tracer
 
+    # Fenêtre autonome de visualisation des graphiques
+    - command: palm-tracer.open_graphviewer
+      display_name: Graph Viewer
+
     # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_viewerhr
-      display_name: Viewer HR
+      display_name: HR Viewer
 
     # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_viewer3d
-      display_name: Viewer 3D
+      display_name: 3D Viewer
 
     # Widget "factice" qui sert juste de point d'entrée menu
     - command: palm-tracer.open_alignment
