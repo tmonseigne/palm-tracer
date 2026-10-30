@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckBox, Combo, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, CheckBox, Combo, SpinInt
 
 
 # --------------------------------------------------
@@ -25,14 +25,14 @@ class TrackAnalysis(BaseSettingGroup):
 
 	label: str = "Track Analysis"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"MSD":               [CheckBox, ["MSD", "Compute mean squared displacement, in square micrometers (µm²).", False]],
-			"Instant Diffusion": [CheckBox, ["Instant Diffusion", "Compute instant diffusion coefficients, in square micrometers per second (µm²/s).", False]],
-			"Fit Length":        [SpinInt, ["Fit Length", "Number of initial MSD time lags used for fitting; each lag step is one plane.", 4, [2, 1000], 1]],
-			"Fit":               [Combo, ["Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]]],
-			"3D":                [CheckBox, ["3D", "Use the Z-axis during track analysis.", False]]
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"MSD":               CheckBox("MSD", "Compute mean squared displacement, in square micrometers (µm²).", False),
+			"Instant Diffusion": CheckBox("Instant Diffusion", "Compute instant diffusion coefficients, in square micrometers per second (µm²/s).", False),
+			"Fit Length":        SpinInt("Fit Length", "Number of initial MSD time lags used for fitting; each lag step is one plane.", 4, [2, 1000], 1),
+			"Fit":               Combo("Fit", "Expected tracks movement to fit.", 0, ["None", "Linear", "Power", "Exponential"]),
+			"3D":                CheckBox("3D", "Use the Z-axis during track analysis.", False)
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 
 
 # --------------------------------------------------

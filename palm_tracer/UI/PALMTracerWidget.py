@@ -5,7 +5,7 @@ Fournit le widget principal de configuration et d'exécution de PALM Tracer.
 """
 
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 import napari
 import numpy as np
@@ -59,11 +59,11 @@ class PALMTracerWidget(BaseNapariWidget):
 		super().__init__(viewer)
 		install_plugin_menu_sections(viewer)
 		# ----- Viewers -----
-		self.viewer_hr: Optional[Viewer] = None
-		self.viewer_hr_widget: Optional[QWidget] = None
-		self.viewer_3d: Optional[Viewer] = None
-		self.viewer_3d_widget: Optional[QWidget] = None
-		self.viewer_graph: Optional[GraphViewerWidget] = None
+		self.viewer_hr: Viewer | None = None
+		self.viewer_hr_widget: QWidget | None = None
+		self.viewer_3d: Viewer | None = None
+		self.viewer_3d_widget: QWidget | None = None
+		self.viewer_graph: GraphViewerWidget | None = None
 		# ----- Objets -----
 		self.last_file = ""
 		self._preview_locs: dict[str, np.ndarray] = {"Present": self.EMPTY_PREVIEW, "Filtered": self.EMPTY_PREVIEW,
@@ -348,7 +348,7 @@ class PALMTracerWidget(BaseNapariWidget):
 							  edge_width=[args["edge"]] * n_rois, face_color=["transparent"] * n_rois)
 
 	# --------------------------------------------------
-	def _get_actual_image(self, time: int = 0) -> Optional[np.ndarray]:
+	def _get_actual_image(self, time: int = 0) -> np.ndarray | None:
 		"""
 		Récupère l'image actuelle plus ou moins un temps indiqué en paramètres.
 

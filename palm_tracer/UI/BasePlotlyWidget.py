@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import plotly.graph_objects as go
 from qtpy.QtCore import QUrl
@@ -52,7 +52,7 @@ class BasePlotlyWidget(BaseWidget):
 	"""Adresse de secours de la bibliothèque JavaScript Plotly."""
 
 	# --------------------------------------------------
-	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
+	def __init__(self, parent: QWidget | None = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 

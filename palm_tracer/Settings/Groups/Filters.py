@@ -11,7 +11,7 @@ from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.FiltersL import FiltersL
 from palm_tracer.Settings.Groups.FiltersT import FiltersT
-from palm_tracer.Settings.Types import CheckBox, CheckInt, CheckRangeInt
+from palm_tracer.Settings.Types import BaseSettingType, CheckBox, CheckInt, CheckRangeInt
 from palm_tracer.Tools import Ui
 
 
@@ -36,15 +36,15 @@ class Filters(BaseSettingGroup):
 
 	label: str = "Filters"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Save":         [CheckBox, ["Save filtered", "Save filtered datas in _filtered.csv file.", False]],
-			"Plane":        [CheckRangeInt, ["Plane", "Limits the planes to be used, by plane number (starting at 1).", [1, 100000], [1, 100000]]],
-			"ROI":          [CheckInt, ["ROI", "ROI selected for filtering. Selected ROI appear in yellow.", 1, [1, 1]]],
-			"Localization": [FiltersL, []],
-			"Tracks":       [FiltersT, []]
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
-	mode: int = 0
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Save":         CheckBox("Save filtered", "Save filtered datas in _filtered.csv file.", False),
+			"Plane":        CheckRangeInt("Plane", "Limits the planes to be used, by plane number (starting at 1).", [1, 100000], [1, 100000]),
+			"ROI":          CheckInt("ROI", "ROI selected for filtering. Selected ROI appear in yellow.", 1, [1, 1]),
+			"Localization": FiltersL(),
+			"Tracks":       FiltersT()
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
+	_mode: int = field(init=False, default=0)
 	"""Mode d'affichage du groupe dans l'interface."""
 	buttons: dict[str, dict[str, QPushButton]] = field(init=False, default_factory=lambda: dict[str, dict[str, QPushButton]]())
 	"""Dictionnaire des Boutons d'action Reset, Update, Save (:class:`dict[str, QPushButton]`) pour chaque UI."""

@@ -56,8 +56,8 @@ def sequential_timestamps(monkeypatch):
 
 
 # --------------------------------------------------
-def check_output(folder: Path, csv: Optional[list[int]] = None, log: Optional[list[int]] = None, json: Optional[list[int]] = None,
-				 tif: Optional[list[int]] = None, png: Optional[list[int]] = None, html: Optional[list[int]] = None, clean: bool = True):
+def check_output(folder: Path, csv: list[int] | None = None, log: list[int] | None = None, json: list[int] | None = None,
+				 tif: list[int] | None = None, png: list[int] | None = None, html: list[int] | None = None, clean: bool = True):
 	"""Vérifie si la sortie correspond à ce qui est attendu."""
 	if not folder.is_dir(): pytest.fail("Dossier invalide.")
 

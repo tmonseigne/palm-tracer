@@ -3,10 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-20 11:08+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"POT-Creation-Date: 2026-10-30 10:35+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -63,19 +62,11 @@ msgstr "Attributes"
 msgid "Libellé du groupe affiché dans l'interface."
 msgstr "Label of the group displayed in the interface."
 
-#: of palm_tracer.Settings.Groups.FiltersL.FiltersL.setting_list:1
-msgid "Définition des paramètres du groupe et de leur configuration."
-msgstr "Definition of the group's settings and their configuration."
-
-#: of palm_tracer.Settings.Groups.FiltersL.FiltersL.mode:1
-msgid "Mode d'affichage du groupe dans l'interface."
-msgstr "Default group display method."
-
-#: ../../api/palm_tracer.Settings.Groups.FiltersL.rst:16
+#: ../../api/palm_tracer.Settings.Groups.FiltersL.rst:14
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Settings.Groups.FiltersL.rst:19
+#: ../../api/palm_tracer.Settings.Groups.FiltersL.rst:17
 msgid "Divers"
 msgstr "Miscellaneous"
 

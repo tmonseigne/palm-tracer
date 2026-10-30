@@ -7,7 +7,6 @@ Fournit le widget de calcul et d'application des alignements géométriques.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 from qtpy.QtWidgets import QApplication, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
@@ -41,7 +40,7 @@ class AlignmentWidget(BaseWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
+	def __init__(self, parent: QWidget | None = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 
@@ -51,8 +50,8 @@ class AlignmentWidget(BaseWidget):
 		super().__init__(parent, palmtracer)
 
 		self._palm = Palm()
-		self._stack: Optional[np.ndarray] = None
-		self._coeffs: Optional[np.ndarray] = None
+		self._stack: np.ndarray | None = None
+		self._coeffs: np.ndarray | None = None
 		self._output_filename: str = ""
 
 		self._init_ui()

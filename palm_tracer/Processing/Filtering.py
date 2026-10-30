@@ -76,7 +76,7 @@ class Filtering:
 		plane_filter = cast(CheckRangeInt, self.filters["Plane"])
 		track_filter = cast(CheckIntSelection, self.filters.tracking["Track"])
 		length_filter = cast(CheckRangeInt, self.filters.tracking["Length"])
-		time_filter = cast(CheckRangeInt, self.filters.tracking["Time Inside ROI"])
+		time_filter = cast(CheckRangeInt, self.filters.tracking["ROI Time"])
 		if not any((plane_filter.active, track_filter.active, length_filter.active, time_filter.active)): return datas
 
 		res = datas

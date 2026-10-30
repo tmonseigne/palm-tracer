@@ -171,7 +171,7 @@ def test_hr_limits(manager: ROIManager, limits: list[int], expected: tuple[int, 
 	manager.set_size(100, 80)
 	manager.set_xy_roi(20, 40, 10, 30, add=False)
 	manager.roi_selection.active = True
-	time_filter = CheckRangeInt("Time Inside ROI", "", limits, [0, 100])
+	time_filter = CheckRangeInt("ROI Time", "", limits, [0, 100])
 	time_filter.active = True
 
 	assert manager.get_hr_limits(time_filter) == expected

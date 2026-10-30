@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, cast
+from typing import cast
 
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QComboBox, QHBoxLayout, QLabel
@@ -85,7 +85,7 @@ class Combo(BaseSettingType):
 
 	# --------------------------------------------------
 	@items.setter
-	def items(self, items: Optional[list[str]] = None):
+	def items(self, items: list[str] | None = None):
 		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
 		if items is not None: self._items = items
 		for ui in self._uis.values():

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
@@ -228,7 +228,7 @@ class Settings:
 		for _, setting in self._settings.items(): setting.connect(f)
 
 	# --------------------------------------------------
-	def disconnect(self, f: Optional[Callable[[Any], None]] = None):
+	def disconnect(self, f: Callable[[Any], None] | None = None):
 		"""
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 

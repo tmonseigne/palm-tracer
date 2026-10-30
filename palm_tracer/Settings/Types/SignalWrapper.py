@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from contextlib import suppress
-from typing import Any, Optional
+from typing import Any
 
 from qtpy.QtCore import QObject, Signal
 
@@ -44,7 +44,7 @@ class SignalWrapper(QObject):
 		self._slots.append(f)
 
 	# --------------------------------------------------
-	def disconnect(self, f: Optional[Callable[[Any], None]] = None) -> int:
+	def disconnect(self, f: Callable[[Any], None] | None = None) -> int:
 		"""
 		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnectés.
 

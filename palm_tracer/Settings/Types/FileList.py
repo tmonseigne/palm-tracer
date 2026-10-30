@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QComboBox, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
@@ -106,7 +106,7 @@ class FileList(BaseSettingType):
 
 	# --------------------------------------------------
 	@items.setter
-	def items(self, items: Optional[list[str]] = None):
+	def items(self, items: list[str] | None = None):
 		"""Met à jour les :class:`QComboBox` pour refléter la liste actuelle des options."""
 		previous_value = self._value
 		if items is not None: self._items = items

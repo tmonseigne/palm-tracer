@@ -8,7 +8,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 import matplotlib as mpl
 import numpy as np
@@ -148,7 +148,7 @@ def cleanup_process(path: str | Path, timestamp: str):
 
 
 # --------------------------------------------------
-def load_dll(name: str) -> Optional[ctypes.CDLL]:
+def load_dll(name: str) -> ctypes.CDLL | None:
 	"""
 	Charge une DLL, si elle existe.
 

@@ -168,8 +168,8 @@ def test_tracking_time_inside_roi(qtbot, f, roi_active, limits, expected_tracks)
 	src = pd.DataFrame({"Track": np.repeat([1, 2, 3, 4], 4), "X": [point[0] for point in coordinates], "Y": [point[1] for point in coordinates]})
 	f.rois.set_xy_roi(0, 10, 0, 10, add=False)
 	f.filters["ROI"].active = roi_active
-	f.filters.tracking["Time Inside ROI"].active = True
-	f.filters.tracking["Time Inside ROI"].value = limits
+	f.filters.tracking["ROI Time"].active = True
+	f.filters.tracking["ROI Time"].value = limits
 
 	res = f.tracking(src)
 
@@ -186,8 +186,8 @@ def test_tracking_ignores_roi_without_percentage(qtbot, f, length_active):
 	src = pd.DataFrame({"Track": [1, 1, 2, 2], "X": [5, 20, 20, 30], "Y": [5, 20, 20, 30]})
 	f.rois.set_xy_roi(0, 10, 0, 10, add=False)
 	f.filters["ROI"].active = True
-	f.filters.tracking["Time Inside ROI"].active = False
-	f.filters.tracking["Time Inside ROI"].value = [100, 100]
+	f.filters.tracking["ROI Time"].active = False
+	f.filters.tracking["ROI Time"].value = [100, 100]
 	f.filters.tracking["Length"].active = length_active
 	f.filters.tracking["Length"].value = [2, 2]
 

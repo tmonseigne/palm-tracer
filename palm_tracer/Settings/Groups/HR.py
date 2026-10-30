@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
@@ -10,7 +10,7 @@ from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.HR3D import HR3D
 from palm_tracer.Settings.Groups.HRGaussian import HRGaussian
 from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
-from palm_tracer.Settings.Types import ButtonGroup, CheckBox, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, Combo, SpinFloat, SpinInt
 
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Count", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
@@ -46,27 +46,27 @@ class HR(BaseSettingGroup):
 
 	label: str = "High Resolution"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Dimension":        [ButtonGroup, ["Dimension", "Reconstruct a 2D image, a Z stack, a 3D rotation, or a track animation.",
-											   0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]]],
-			"Type":             [ButtonGroup, ["Type", "Choose whether to reconstruct localizations or tracks.", 0, ["Localization", "Tracks"]]],
-			"Source":           [Combo, ["Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"]]],
-			"Scaling":          [SpinFloat, ["Intensity scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3]],
-			"Color mode":       [Combo, ["Intensity mode", ("When contributions overlap, select whether their pixel values are added "
-															"or only the maximum or minimum value is retained."), 0, ["Addition", "Max", "Min"]]],
-			"Background":       [SpinInt, ["Background Intensity", "Background intensity as a percentage: 0% produces black and 100% produces white.",
-										   0, [0, 100], 10]],
-			"Ratio":            [SpinInt, ["Upscaling ratio", "Image upscaling ratio.", 4, [1, 256], 2]],
-			"Crop":             [CheckBox, ["Auto Crop", ("Remove black borders around the reconstruction when processing only part of the field of view. "
-														  "Keep a 5-pixel margin."), True]],
-			"Remove Beads":     [CheckBox, ["Remove Beads", "Remove beads during reconstruction.", True]],
-			"Drift Correction": [CheckBox, ["Drift Correction", "Apply a drift correction (Note: The beads must have been extracted before.)", True]],
-			"Smooth Drift":     [CheckBox, ["Smooth Drift", "Smooth the drift correction.", True]],
-			"Gaussian":         [HRGaussian, []],
-			"3D":               [HR3D, []],
-			"T-Stack":          [HRTrackStack, []],
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Dimension":        ButtonGroup("Dimension", "Reconstruct a 2D image, a Z stack, a 3D rotation, or a track animation.",
+											0, ["2D", "Z-Stack", "3D Rotation", "Track Stack"]),
+			"Type":             ButtonGroup("Type", "Choose whether to reconstruct localizations or tracks.", 0, ["Localization", "Tracks"]),
+			"Source":           Combo("Source", "Data used for reconstruction.", 0, DATA_SRC["Localization"].copy()),
+			"Scaling":          SpinFloat("Intensity scale", "Multiplicative factor applied to the color.", 1, [0.001, 1000], 0.1, 3),
+			"Color mode":       Combo("Intensity mode", ("When contributions overlap, select whether their pixel values are added "
+														 "or only the maximum or minimum value is retained."), 0, ["Addition", "Max", "Min"]),
+			"Background":       SpinInt("Background Intensity", "Background intensity as a percentage: 0% produces black and 100% produces white.",
+										0, [0, 100], 10),
+			"Ratio":            SpinInt("Upscaling ratio", "Image upscaling ratio.", 4, [1, 256], 2),
+			"Crop":             CheckBox("Auto Crop", ("Remove black borders around the reconstruction when processing only part of the field of view. "
+													   "Keep a 5-pixel margin."), True),
+			"Remove Beads":     CheckBox("Remove Beads", "Remove beads during reconstruction.", True),
+			"Drift Correction": CheckBox("Drift Correction", "Apply a drift correction (Note: The beads must have been extracted before.)", True),
+			"Smooth Drift":     CheckBox("Smooth Drift", "Smooth the drift correction.", True),
+			"Gaussian":         HRGaussian(),
+			"3D":               HR3D(),
+			"T-Stack":          HRTrackStack(),
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 
 	# --------------------------------------------------
 	@property

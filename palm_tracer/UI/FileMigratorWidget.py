@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from qtpy.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
 
@@ -31,7 +30,7 @@ class FileMigratorWidget(BaseWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
+	def __init__(self, parent: QWidget | None = None, palmtracer: PALMTracer | None = None):
 		"""
 		Construit le widget et initialise l'interface.
 

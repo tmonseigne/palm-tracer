@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
-from palm_tracer.Settings.Types import BrowseFile, CheckBox, Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, BrowseFile, CheckBox, Combo, SpinFloat, SpinInt
 
 
 # --------------------------------------------------
@@ -32,18 +32,18 @@ class GaussianFit(BaseSettingGroup):
 
 	label: str = "Gaussian Fit"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Mode":          [Combo, ["Mode", "Selects the elements to fit.", 0,
-									  ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]]],
-			"Sigma":         [SpinFloat, ["σ", "Initial value of sigma, in acquisition pixels.", 1.0, [0.0, 10.0], 0.1]],
-			"Theta":         [SpinFloat, ["θ", "Initial value of theta in degree.", 0.0, [-90, 90], 0.01]],
-			"Z":             [CheckBox, ["3D", "Use astigmatism model to compute Z axial position.", False]],
-			"Z max":         [SpinInt, ["Z max (nm)", "Maximum absolute value of Z to initialize estimator, in nanometers (nm).", 500, [10, 2000], 10]],
-			"Model":         [BrowseFile, ["Specific Model", "Use only if your model isn't in File output folder"], ""],
-			"Default Model": [CheckBox, ["Use default model", "Use only the default astigmatism model saved in the user folder.", False]],
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
-	mode: int = 2
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Mode":          Combo("Mode", "Selects the elements to fit.", 0,
+								   ["X, Y", "X, Y, Sigma", "X, Y, SigmaX, SigmaY", "X, Y, SigmaX, SigmaY, Theta"]),
+			"Sigma":         SpinFloat("σ", "Initial value of sigma, in acquisition pixels.", 1.0, [0.0, 10.0], 0.1),
+			"Theta":         SpinFloat("θ", "Initial value of theta in degree.", 0.0, [-90, 90], 0.01),
+			"Z":             CheckBox("3D", "Use astigmatism model to compute Z axial position.", False),
+			"Z max":         SpinInt("Z max (nm)", "Maximum absolute value of Z to initialize estimator, in nanometers (nm).", 500, [10, 2000], 10),
+			"Model":         BrowseFile("Specific Model", "Use only if your model isn't in File output folder"),
+			"Default Model": CheckBox("Use default model", "Use only the default astigmatism model saved in the user folder.", False),
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
+	_mode: int = field(init=False, default=2)
 	"""Mode d'affichage du groupe dans l'interface."""
 
 	# --------------------------------------------------

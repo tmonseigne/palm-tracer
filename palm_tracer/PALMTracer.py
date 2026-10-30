@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal, Optional, cast
+from typing import Any, Literal, cast
 
 import numpy as np
 import pandas as pd
@@ -47,7 +47,7 @@ class PALMTracer:
 
 	_path: str = field(init=False, default="")
 	"""Dossier de sortie pour le fichier en cours de traitement."""
-	_stack: Optional[np.ndarray] = field(init=False, default=None)
+	_stack: np.ndarray | None = field(init=False, default=None)
 	"""Pile en cours de traitement."""
 	_timestamp: str = field(init=False, default="")
 	"""Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."""
@@ -1003,7 +1003,7 @@ class PALMTracer:
 		self.settings.rois.update_data_box(crop_data, gaussian, crop_margin)
 
 		# Mise à jour de la zone de travail avec les régions d'intérêts
-		time_filter = cast(CheckRangeInt, self.settings.filters.tracking["Time Inside ROI"]) if tracks else None
+		time_filter = cast(CheckRangeInt, self.settings.filters.tracking["ROI Time"]) if tracks else None
 		limits = self.settings.rois.get_hr_limits(time_filter)
 		x0, x1, y0, y1 = limits
 		n_w, n_h = x1 - x0, y1 - y0
@@ -1044,7 +1044,7 @@ class PALMTracer:
 
 	# --------------------------------------------------
 	def _prepare_hr_data(self, tracks: bool, dimension: int, source: str, color_scaling: float, upscale: float,
-						 limits: tuple[int, int, int, int]) -> tuple[Optional[np.ndarray], dict[str, np.ndarray], float]:
+						 limits: tuple[int, int, int, int]) -> tuple[np.ndarray | None, dict[str, np.ndarray], float]:
 		"""
 		Prépare les données du rendu et du calque Napari haute résolution.
 

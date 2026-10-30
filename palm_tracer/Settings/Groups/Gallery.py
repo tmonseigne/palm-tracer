@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, SpinInt
 
 
 # --------------------------------------------------
@@ -22,11 +22,11 @@ class Gallery(BaseSettingGroup):
 
 	label: str = "Gallery"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"ROI Size":      [SpinInt, ["ROI Size", "Size of the area around the points, in acquisition pixels.", 9, [3, 31], 2]],
-			"ROIs Per Line": [SpinInt, ["ROIs Per Line", "Number of points per line and column.", 30, [1, 500], 1]],
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"ROI Size":      SpinInt("ROI Size", "Size of the area around the points, in acquisition pixels.", 9, [3, 31], 2),
+			"ROIs Per Line": SpinInt("ROIs Per Line", "Number of points per line and column.", 30, [1, 500], 1),
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 
 
 # --------------------------------------------------

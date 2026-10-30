@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import ctypes
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -156,7 +155,7 @@ class Palm:
 	# ==================================================
 
 	def localization(self, stack: np.ndarray, threshold: float, watershed: bool, fit: int, fit_params: np.ndarray,
-					 planes: Optional[list[int]] = None) -> pd.DataFrame:
+					 planes: list[int] | None = None) -> pd.DataFrame:
 		"""
 		Exécute un traitement d'image avec une DLL PALM externe pour détecter des points dans une pile ou une image.
 

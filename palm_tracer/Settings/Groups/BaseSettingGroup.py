@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import copy
 from contextlib import AbstractContextManager, ExitStack, nullcontext
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any
 
 from qtpy.QtCore import QSignalBlocker
 
@@ -19,20 +18,18 @@ class BaseSettingGroup:
 	"""
 	Gère un ensemble cohérent de paramètres et ses représentations Qt.
 
-	Les sous-classes déclarent leurs paramètres dans :attr:`setting_list`. La classe de base construit les objets correspondants, propage leur activation,
+	Les sous-classes construisent leurs paramètres dans la fabrique de :attr:`_settings`. La classe de base initialise leurs connexions,
 	crée leurs vues et assure leur sérialisation.
 	"""
 
 	label: str = field(init=False, default="Base Setting Group")
 	"""Nom du Groupe."""
-	setting_list = dict[str, list[Union["BaseSettingGroup", BaseSettingType, Any]]]()
-	"""Liste des paramètres du groupe (:class:`dict[str, list[Union[BaseSettingGroup, BaseSettingType, Any]]]`)."""
-	mode: int = 0
+	_mode: int = field(init=False, default=0)
 	"""Méthode d'affichage du groupe par défaut."""
 	_active: bool = field(init=False, default=False)
 	"""État du groupe (activé ou non)."""
-	_settings: dict[str, Union["BaseSettingGroup", BaseSettingType]] = field(init=False)
-	"""Liste des paramètres du groupe (:class:`dict[str, Union[BaseSettingGroup, BaseSettingType]]`)."""
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=dict)
+	"""Liste des paramètres du groupe (:class:`dict[str, BaseSettingGroup | BaseSettingType]`)."""
 	_uis: dict[str, BaseUIGroup] = field(init=False, default_factory=lambda: dict[str, BaseUIGroup]())
 	"""Dictionnaire des interfaces qui ont été créées pour ce groupe de paramètres."""
 
@@ -42,15 +39,11 @@ class BaseSettingGroup:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
-		if self.mode != 0: self.active = True
+		if self._mode != 0: self.active = True
 
 	# --------------------------------------------------
 	def initialize(self):
-		"""Initialise le dictionnaire de paramètres."""
-		self._settings = dict[str, Union["BaseSettingGroup", BaseSettingType]]()
-		for key, value in self.setting_list.items():
-			args = copy.deepcopy(value[1])
-			self._settings[key] = value[0](*args)
+		"""Initialise les connexions des paramètres dans les sous-classes qui en ont besoin."""
 
 	# --------------------------------------------------
 	def reset(self):
@@ -79,7 +72,7 @@ class BaseSettingGroup:
 		:return: Interface du paramètre (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`).
 		"""
 		if name in self._uis: return self._uis[name]
-		if mode < 0: mode = self.mode
+		if mode < 0: mode = self._mode
 		ui = BaseUIGroup(name=self.label, mode=mode)
 		if ui.checkbox is not None:
 			ui.checkbox.setChecked(self.active)  # .		Active ou non la Check Box
@@ -157,7 +150,7 @@ class BaseSettingGroup:
 		return res
 
 	# --------------------------------------------------
-	def __getitem__(self, key: str) -> Union["BaseSettingGroup", BaseSettingType]:
+	def __getitem__(self, key: str) -> BaseSettingGroup | BaseSettingType:
 		"""Surcharge de l'opérateur []."""
 		return self._settings[key]
 
@@ -203,8 +196,8 @@ class BaseSettingGroup:
 		"""Met à jour la classe à partir d'un dictionnaire minimal."""
 		self.active = data.get("active", False)
 		settings = data["settings"]
-		for key in self.setting_list:  # Appelle update_from_compact_dict pour chaque élément de setting_list.
-			if key in settings: self._settings[key].update_from_compact_dict(settings[key])
+		for key, setting in self._settings.items():
+			if key in settings: setting.update_from_compact_dict(settings[key])
 
 	# --------------------------------------------------
 	def tostring(self, line_prefix: str = "") -> str:
@@ -258,7 +251,7 @@ class BaseSettingGroup:
 		for _, setting in self._settings.items(): setting.connect(f)
 
 	# --------------------------------------------------
-	def disconnect(self, f: Optional[Any] = None):
+	def disconnect(self, f: Any | None = None):
 		"""
 		Déconnecte une fonction ou un slot à tous les éléments du groupe.
 

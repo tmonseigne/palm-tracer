@@ -3,12 +3,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"POT-Creation-Date: 2026-10-30 10:17+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.Settings.Groups.Graph.rst:2
 msgid "Graph"
@@ -26,23 +30,23 @@ msgstr "Parameters"
 msgid "``Mode`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : mode de représentation, histogramme, courbes Scatter ou nuage de points utilisant deux sources."
 msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`): plot mode, histogram, Scatter curves, or a scatter plot using two sources."
 
-#: of palm_tracer.Settings.Groups.Graph.Graph:6
+#: of palm_tracer.Settings.Groups.Graph.Graph:7
 msgid "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`) : famille de données, localisations ou trajectoires."
 msgstr "``Type`` (:class:`~palm_tracer.Settings.Types.ButtonGroup.ButtonGroup`): data family, localizations or tracks."
 
-#: of palm_tracer.Settings.Groups.Graph.Graph:7
+#: of palm_tracer.Settings.Groups.Graph.Graph:8
 msgid "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : première grandeur représentée."
 msgstr "``Source`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): first quantity to display."
 
-#: of palm_tracer.Settings.Groups.Graph.Graph:8
+#: of palm_tracer.Settings.Groups.Graph.Graph:9
 msgid "``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : seconde grandeur représentée lorsque le mode ``Dual`` est actif."
 msgstr "``Source B`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): second quantity to display when ``Dual`` mode is active."
 
-#: of palm_tracer.Settings.Groups.Graph.Graph:9
+#: of palm_tracer.Settings.Groups.Graph.Graph:10
 msgid "``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : décalage temporel sélectionné pour le MSD."
 msgstr "``MSD Step`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): time lag selected for the MSD."
 
-#: of palm_tracer.Settings.Groups.Graph.Graph:10
+#: of palm_tracer.Settings.Groups.Graph.Graph:11
 msgid "``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`) : options de rendu du graphique."
 msgstr "``Display`` (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`): graph-rendering options."
 
@@ -58,19 +62,15 @@ msgstr "Attributes"
 msgid "Libellé du groupe affiché dans l'interface."
 msgstr "Label of the group displayed in the interface."
 
-#: of palm_tracer.Settings.Groups.Graph.Graph.setting_list:1
-msgid "Définition des paramètres du groupe et de leur configuration."
-msgstr "Definition of the group's settings and their configuration."
-
 #: of palm_tracer.Settings.Groups.Graph.Graph.display:1
 msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 msgstr "Group of settings related to localization filters (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 
-#: ../../api/palm_tracer.Settings.Groups.Graph.rst:16
+#: ../../api/palm_tracer.Settings.Groups.Graph.rst:15
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Settings.Groups.Graph.rst:19
+#: ../../api/palm_tracer.Settings.Groups.Graph.rst:18
 msgid "Divers"
 msgstr "Miscellaneous"
 

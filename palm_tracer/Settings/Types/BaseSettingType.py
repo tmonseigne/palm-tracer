@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from qtpy.QtWidgets import QFormLayout, QPushButton
 
@@ -165,7 +165,7 @@ class BaseSettingType:
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 
 	# --------------------------------------------------
-	def disconnect(self, f: Optional[Any] = None) -> int:
+	def disconnect(self, f: Any | None = None) -> int:
 		"""
 		Déconnecte ``f`` si fourni, sinon tous les slots. Renvoie le nombre de slots déconnectés.
 

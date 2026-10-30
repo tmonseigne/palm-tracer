@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import cast
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Groups.GraphDisplay import GraphDisplay
-from palm_tracer.Settings.Types import ButtonGroup, Combo, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, Combo, SpinInt
 
 DATA_SRC: dict[str, list] = {
 		"Localization":     ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
@@ -40,15 +40,15 @@ class Graph(BaseSettingGroup):
 
 	label: str = "Graph"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Mode":     [ButtonGroup, ["Mode", "Dual Source Allow second source for Graph in a point cloud for source A by source B.",
-									   0, ["Histogram", "Scatter", "Dual Source"]]],
-			"Type":     [ButtonGroup, ["Type", "Choose whether to plot localization data or track data.", 0, ["Localization", "Tracks"]]],
-			"Source":   [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
-			"Source B": [Combo, ["Source", "Data selected for Graph.", 0, DATA_SRC["Localization"]]],
-			"MSD Step": [SpinInt, ["MSD Step", "Time lag selected for display, in planes.", 1, [1, 10000], 1]],
-			"Display":  [GraphDisplay, []]}
-	"""Définition des paramètres du groupe et de leur configuration."""
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Mode":     ButtonGroup("Mode", "Dual Source Allow second source for Graph in a point cloud for source A by source B.",
+									0, ["Histogram", "Scatter", "Dual Source"]),
+			"Type":     ButtonGroup("Type", "Choose whether to plot localization data or track data.", 0, ["Localization", "Tracks"]),
+			"Source":   Combo("Source", "Data selected for Graph.", 0, DATA_SRC["Localization"].copy()),
+			"Source B": Combo("Source", "Data selected for Graph.", 0, DATA_SRC["Localization"].copy()),
+			"MSD Step": SpinInt("MSD Step", "Time lag selected for display, in planes.", 1, [1, 10000], 1),
+			"Display":  GraphDisplay()})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 
 	# --------------------------------------------------
 	@property

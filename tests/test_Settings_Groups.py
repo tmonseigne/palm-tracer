@@ -327,7 +327,7 @@ def test_filters_l(qtbot):
 def test_filters_t(qtbot):
 	"""Vérifie la classe FiltersT (constructeur, getter, setter)."""
 	g = sg.FiltersT()
-	group_base_test(g, ["Track", "Length", "Time Inside ROI", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], st.CheckIntSelection, "1;3-4", "")
+	group_base_test(g, ["Track", "Length", "ROI Time", "Instant D", "D Coeff", "Alpha", "Speed", "Confinement"], st.CheckIntSelection, "1;3-4", "")
 	g.deactivate_filters()
 
 

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckBox, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, CheckBox, SpinInt
 
 
 # --------------------------------------------------
@@ -29,21 +29,21 @@ class GraphDisplay(BaseSettingGroup):
 
 	label: str = "Display"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Limits":    [CheckBox, ["Apply Limits", "Limits data to ±3σ around the mean (3-sigma rule).", True]],
-			"Sigma":     [CheckBox, ["Show σ", "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean."]],
-			"Gauss":     [CheckBox, ["Show Gaussian", "Displays the Gaussian curve associated with the mean and standard deviation of the data."]],
-			"Gauss Mix": [CheckBox, ["Show Gaussian Mixture", "Displays a fitted mixture of two Gaussian distributions."]],
-			"KDE":       [CheckBox, ["Show KDE", "Displays the kernel density estimation (the curve closest to the histogram) associated with the data."]],
-			"Poiss":     [CheckBox, ["Show Poisson", "Displays the Poissonnian curve associated with the mean of the data."]],
-			"Exp":       [CheckBox, ["Show Exponential", "Displays the Exponential inverse curve associated with the mean of the data."]],
-			"Cumul":     [CheckBox, ["Cumulative Histogram", "Show cumulative histogram instead of simple histogram."]],
-			"Log Scale": [CheckBox, ["Log Scale", "Apply a logarithmic scale to the data."]],
-			"Count":     [CheckBox, ["Count", "The data on Y is expressed in terms of count (instead of density."]],
-			"Bins":      [SpinInt, ["Bins", "The number of bins along the histogram (0 for auto).", 0, [0, 1000]]]
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
-	mode: int = 1
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Limits":    CheckBox("Apply Limits", "Limits data to ±3σ around the mean (3-sigma rule).", True),
+			"Sigma":     CheckBox("Show σ", "Plots dotted lines at distances of 1, 2, and 3 sigma from the mean."),
+			"Gauss":     CheckBox("Show Gaussian", "Displays the Gaussian curve associated with the mean and standard deviation of the data."),
+			"Gauss Mix": CheckBox("Show Gaussian Mixture", "Displays a fitted mixture of two Gaussian distributions."),
+			"KDE":       CheckBox("Show KDE", "Displays the kernel density estimation (the curve closest to the histogram) associated with the data."),
+			"Poiss":     CheckBox("Show Poisson", "Displays the Poissonnian curve associated with the mean of the data."),
+			"Exp":       CheckBox("Show Exponential", "Displays the Exponential inverse curve associated with the mean of the data."),
+			"Cumul":     CheckBox("Cumulative Histogram", "Show cumulative histogram instead of simple histogram."),
+			"Log Scale": CheckBox("Log Scale", "Apply a logarithmic scale to the data."),
+			"Count":     CheckBox("Count", "The data on Y is expressed in terms of count (instead of density."),
+			"Bins":      SpinInt("Bins", "The number of bins along the histogram (0 for auto).", 0, [0, 1000])
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
+	_mode: int = field(init=False, default=1)
 	"""Mode d'affichage du groupe dans l'interface."""
 
 

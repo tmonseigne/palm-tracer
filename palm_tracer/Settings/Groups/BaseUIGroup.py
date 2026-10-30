@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QCheckBox, QFormLayout, QHBoxLayout, QLabel, QWidget
@@ -25,8 +25,8 @@ class BaseUIGroup:
 
 	name: str
 	"""Nom du groupe."""
-	mode: int
-	"""Méthode de construction de l'interface."""
+	mode: InitVar[int]
+	"""Mode utilisé uniquement pour construire l’interface."""
 	layout: QFormLayout = field(init=False)
 	"""Calque principal (:class:`QFormLayout`)."""
 	widget: QWidget = field(init=False)
@@ -39,15 +39,19 @@ class BaseUIGroup:
 	"""Calque du corps du groupe (:class:`QFormLayout`)."""
 
 	# --------------------------------------------------
-	def __post_init__(self):
-		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
+	def __post_init__(self, mode: int):
+		"""
+		Construit les widgets selon le mode fourni à l’initialisation.
+
+		:param mode: Mode de disposition des paramètres.
+		"""
 		header = None
 		self.checkbox = None
-		if self.mode == 0:  # Classique avec un titre et une checkbox pour activer/désactiver le groupe
+		if mode == 0:  # Classique avec un titre et une checkbox pour activer/désactiver le groupe
 			self.checkbox = QCheckBox()
 			self.checkbox.toggled.connect(self.active)  # Connecte le changement de valeur pour que les autres UI se mettent à jour
 
-		if self.mode <= 1:  # La check box n'est pas présente et le groupe est toujours actif avec un titre
+		if mode <= 1:  # La check box n'est pas présente et le groupe est toujours actif avec un titre
 			title = QLabel(self.name)
 			title.setStyleSheet(Ui.STYLESHEET_GROUP_TITLE)
 

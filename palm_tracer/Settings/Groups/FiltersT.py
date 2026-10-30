@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckIntSelection, CheckRangeFloat, CheckRangeInt
+from palm_tracer.Settings.Types import BaseSettingType, CheckIntSelection, CheckRangeFloat, CheckRangeInt
 
 
 # --------------------------------------------------
@@ -35,31 +35,28 @@ class FiltersT(BaseSettingGroup):
 
 	label: str = "Tracks"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Track":           [CheckIntSelection, ["Track ID", ("Selected Track IDs. Use - to specify a range and ; "
-																 "to separate multiple values or ranges. Example: 1-10;15;20-25.")]],
-			"Length":          [CheckRangeInt, ["Length", "Track length range, in number of localized points.", [1, 10000], [1, 100000]]],
-			"Time Inside ROI": [CheckRangeInt, ["Time Inside ROI (%)",
-												"Keep tracks whose percentage of points inside the selected ROI is within the inclusive range. "
-												"Keep all their points, including points outside the ROI. When unchecked, ignore the ROI for track selection. "
-												"0-100% keeps all tracks.", [0, 100], [0, 100]]],
-			"Instant D":       [CheckRangeFloat, ["Instant D", "Instant diffusion coefficient range, in square micrometers per second (µm²/s).",
-												  [-5, 5], [-10, 10]]],
-			"D Coeff":         [CheckRangeFloat, ["D Coeff (μm²/s)", "Diffusion coefficient range, in square micrometers per second (µm²/s).",
-												  [-5, 5], [-10, 10]]],
-			"Alpha":           [CheckRangeFloat, ["Alpha (Power)", "Anomalous diffusion exponent range for the power-law fit (dimensionless).",
-												  [-10, 10], [-100, 100]]],
-			"Speed":           [CheckRangeFloat, ["Speed (µm/s)", "Average speed range, in micrometers per second (µm/s).", [0, 1], [0, 100]]],
-			"Confinement":     [CheckRangeFloat, ["Confinement (µm)", "Confinement radius range, in micrometers (µm).", [-10, 10], [-100, 100]]]
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
-	mode: int = 1
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Track":       CheckIntSelection("Track ID", ("Selected Track IDs. Use - to specify a range and ; "
+														  "to separate multiple values or ranges. Example: 1-10;15;20-25.")),
+			"Length":      CheckRangeInt("Length", "Track length range, in number of localized points.", [1, 100000], [1, 100000]),
+			"ROI Time":    CheckRangeInt("Time Inside ROI (%)",
+										 "Keep tracks whose percentage of points inside the selected ROI is within the inclusive range. "
+										 "Keep all their points, including points outside the ROI. When unchecked, ignore the ROI for track selection. "
+										 "0-100% keeps all tracks.", [0, 100], [0, 100]),
+			"Instant D":   CheckRangeFloat("Instant D", "Instant diffusion coefficient range, in square micrometers per second (µm²/s).", [-5, 5], [-10, 10]),
+			"D Coeff":     CheckRangeFloat("D Coeff (μm²/s)", "Diffusion coefficient range, in square micrometers per second (µm²/s).", [-5, 5], [-10, 10]),
+			"Alpha":       CheckRangeFloat("Alpha (Power)", "Anomalous diffusion exponent range for the power-law fit.", [-10, 10], [-100, 100]),
+			"Speed":       CheckRangeFloat("Speed (µm/s)", "Average speed range, in micrometers per second (µm/s).", [0, 1], [0, 100]),
+			"Confinement": CheckRangeFloat("Confinement (µm)", "Confinement radius range, in micrometers (µm).", [-10, 10], [-100, 100])
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
+	_mode: int = field(init=False, default=1)
 	"""Mode d'affichage du groupe dans l'interface."""
 
 	# --------------------------------------------------
 	def deactivate_filters(self):
 		"""Désactive tous les filtres."""
-		for key in self.setting_list: self._settings[key].active = False
+		for setting in self._settings.values(): setting.active = False
 
 
 # --------------------------------------------------

@@ -3,12 +3,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"POT-Creation-Date: 2026-10-30 10:17+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.Settings.Groups.Localization.rst:2
 msgid "Localization"
@@ -70,20 +74,16 @@ msgstr "Attributes"
 msgid "Libellé du groupe affiché dans l'interface."
 msgstr "Label of the group displayed in the interface."
 
-#: of palm_tracer.Settings.Groups.Localization.Localization.setting_list:1
-msgid "Définition des paramètres du groupe et de leur configuration."
-msgstr "Definition of the group's settings and their configuration."
-
 #: of palm_tracer.Settings.Groups.Localization.Localization.gaussian:1
 #: palm_tracer.Settings.Groups.Localization.Localization.spline:1
 msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 msgstr "Group of settings related to localization filters (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
 
-#: ../../api/palm_tracer.Settings.Groups.Localization.rst:17
+#: ../../api/palm_tracer.Settings.Groups.Localization.rst:16
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Settings.Groups.Localization.rst:20
+#: ../../api/palm_tracer.Settings.Groups.Localization.rst:19
 msgid "Divers"
 msgstr "Miscellaneous"
 

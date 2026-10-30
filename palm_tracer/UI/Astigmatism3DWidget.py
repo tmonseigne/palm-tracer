@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -50,7 +49,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Initialisation
 	# ==================================================
-	def __init__(self, parent: Optional[QWidget] = None, palmtracer: PALMTracer | None = None):
+	def __init__(self, parent: QWidget | None = None, palmtracer: PALMTracer | None = None):
 		"""
 		Initialise les onglets de calibration et d'estimation axiale ainsi que le graphique vide.
 

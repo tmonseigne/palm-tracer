@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import Combo, SpinFloat, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, Combo, SpinFloat, SpinInt
 
 
 # --------------------------------------------------
@@ -26,12 +26,12 @@ class BlinkingReconnection(BaseSettingGroup):
 
 	label: str = "Blinking Reconnection"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Mode":         [Combo, ["Mode", "Expected type of movement of points.", 0, ["Immobile", "Diffuse", "Linear"]]],
-			"Max Duration": [SpinInt, ["Max Duration (plane)", "Maximum number of missing planes between two track segments.", 1, [1, 1000], 1]],
-			"Max Distance": [SpinFloat, ["Max Distance", "Maximum distance between two planes for a point, in pixels.", 1.0, [0.0, 20.0], 1.0, 2]]
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Mode":         Combo("Mode", "Expected type of movement of points.", 0, ["Immobile", "Diffuse", "Linear"]),
+			"Max Duration": SpinInt("Max Duration (plane)", "Maximum number of missing planes between two track segments.", 1, [1, 1000], 1),
+			"Max Distance": SpinFloat("Max Distance", "Maximum distance between two planes for a point, in pixels.", 1.0, [0.0, 20.0], 1.0, 2)
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 
 
 # --------------------------------------------------

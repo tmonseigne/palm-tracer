@@ -9,7 +9,7 @@ from typing import cast
 import numpy as np
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import Combo, FileList
+from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList
 from palm_tracer.Tools import FileIO, Ui
 
 
@@ -28,14 +28,14 @@ class Batch(BaseSettingGroup):
 
 	label: str = "Batch"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Files": [FileList, ["Files", "TIFF or Metamorph STK acquisitions to process. Select the current file from the list.",
-								 FileIO.STACK_EXTENSIONS, FileIO.STACK_FILE_FILTER]],
-			"Mode":  [Combo, ["Mode", "Process the selected file, each file independently, or all files as a single acquisition.",
-							  0, ["Only one", "Each File separately", "All in One"]]]
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
-	mode: int = 1
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Files": FileList("Files", "TIFF or Metamorph STK acquisitions to process. Select the current file from the list.",
+							  FileIO.STACK_EXTENSIONS, FileIO.STACK_FILE_FILTER),
+			"Mode":  Combo("Mode", "Process the selected file, each file independently, or all files as a single acquisition.",
+						   0, ["Only one", "Each File separately", "All in One"])
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
+	_mode: int = field(init=False, default=1)
 	"""Mode d'affichage du groupe dans l'interface."""
 	_plane_cache: dict[str, tuple[int, int, int]] = field(init=False, default_factory=dict)
 	"""Profondeur TIFF indexée par chemin, taille et date de modification du fichier."""

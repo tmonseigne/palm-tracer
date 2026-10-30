@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckRangeFloat, CheckRangeInt
+from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRangeInt
 
 
 # --------------------------------------------------
@@ -33,26 +33,26 @@ class FiltersL(BaseSettingGroup):
 
 	label: str = "Localization"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Z":           [CheckRangeInt, ["Z", "Axial position range, in nanometers (nm).", [-2000, 2000], [-2000, 2000]]],
-			"Intensity":   [CheckRangeInt, ["Intensity", "Integrated intensity range, in image intensity units (ADU).", [0, 10000000], [0, 10000000]]],
-			"Sigma X":     [CheckRangeFloat, ["Sigma X", "Standard deviation range along X, in acquisition pixels.", [0, 10], [0, 10]]],
-			"Sigma Y":     [CheckRangeFloat, ["Sigma Y", "Standard deviation range along Y, in acquisition pixels.", [0, 10], [0, 10]]],
-			"Circularity": [CheckRangeFloat, ["Circularity", "Circularity range, from 0 to 1 (dimensionless); 1 corresponds to equal X and Y sigmas.",
-											  [0, 1], [0, 1]]],
-			"Theta":       [CheckRangeFloat, ["Theta", "Orientation angle range, in degrees (°).", [-90, 90], [-90, 90]]],
-			"MSE XY":      [CheckRangeFloat, ["MSE XY", "Squared Pearson correlation range for the XY fit, from 0 to 1; higher is better.", [0, 1], [0, 1]]],
-			"MSE Z":       [CheckRangeFloat, ["MSE Z", ("Sigma compatibility score range for the astigmatism model, from 0 to 1; higher is better. "
-														"Legacy files may contain a sum of squared errors instead."), [0, 1], [0, 1]]]
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
-	mode: int = 1
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Z":           CheckRangeInt("Z", "Axial position range, in nanometers (nm).", [-2000, 2000], [-2000, 2000]),
+			"Intensity":   CheckRangeInt("Intensity", "Integrated intensity range, in image intensity units (ADU).", [0, 10000000], [0, 10000000]),
+			"Sigma X":     CheckRangeFloat("Sigma X", "Standard deviation range along X, in acquisition pixels.", [0, 10], [0, 10]),
+			"Sigma Y":     CheckRangeFloat("Sigma Y", "Standard deviation range along Y, in acquisition pixels.", [0, 10], [0, 10]),
+			"Circularity": CheckRangeFloat("Circularity", "Circularity range, from 0 to 1 (dimensionless); 1 corresponds to equal X and Y sigmas.",
+										   [0, 1], [0, 1]),
+			"Theta":       CheckRangeFloat("Theta", "Orientation angle range, in degrees (°).", [-90, 90], [-90, 90]),
+			"MSE XY":      CheckRangeFloat("MSE XY", "Squared Pearson correlation range for the XY fit, from 0 to 1; higher is better.", [0, 1], [0, 1]),
+			"MSE Z":       CheckRangeFloat("MSE Z", ("Sigma compatibility score range for the astigmatism model, from 0 to 1; higher is better. "
+													 "Legacy files may contain a sum of squared errors instead."), [0, 1], [0, 1])
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
+	_mode: int = field(init=False, default=1)
 	"""Mode d'affichage du groupe dans l'interface."""
 
 	# --------------------------------------------------
 	def deactivate_filters(self):
 		"""Désactive tous les filtres."""
-		for key in self.setting_list: self._settings[key].active = False
+		for setting in self._settings.values(): setting.active = False
 
 
 # --------------------------------------------------

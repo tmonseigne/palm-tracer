@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 import plotly.graph_objects as go
@@ -494,7 +494,7 @@ class Grapher:
 
 	# --------------------------------------------------
 	@staticmethod
-	def _axis_dict(title: str, limits: Optional[list] = None) -> dict:
+	def _axis_dict(title: str, limits: list | None = None) -> dict:
 		"""
 		Construit la configuration commune d'un axe Plotly.
 

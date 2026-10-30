@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import BrowseFile, Combo
+from palm_tracer.Settings.Types import BaseSettingType, BrowseFile, Combo
 
 
 # --------------------------------------------------
@@ -23,13 +23,13 @@ class SplineFit(BaseSettingGroup):
 
 	label: str = "Spline Fit"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {
-			"Sensor":       [Combo, ["Sensor", "Camera sensor type used for spline fitting.", 0, ["EMCCD", "sCMOS"]]],
-			"Variance Map": [BrowseFile, ["sCMOS Variance Map", "File containing the pixel variance map for the sCMOS sensor.", ""]],
-			"File":         [BrowseFile, ["Calibration File", "File containing the point spread function calibration for spline fitting.", ""]],
-			}
-	"""Définition des paramètres du groupe et de leur configuration."""
-	mode: int = 2
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Sensor":       Combo("Sensor", "Camera sensor type used for spline fitting.", 0, ["EMCCD", "sCMOS"]),
+			"Variance Map": BrowseFile("sCMOS Variance Map", "File containing the pixel variance map for the sCMOS sensor.", ""),
+			"File":         BrowseFile("Calibration File", "File containing the point spread function calibration for spline fitting.", ""),
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
+	_mode: int = field(init=False, default=2)
 	"""Mode d'affichage du groupe dans l'interface."""
 
 

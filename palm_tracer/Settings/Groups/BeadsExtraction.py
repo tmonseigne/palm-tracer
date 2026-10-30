@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
-from palm_tracer.Settings.Types import CheckBox, SpinFloat
+from palm_tracer.Settings.Types import BaseSettingType, CheckBox, SpinFloat
 
 
 # --------------------------------------------------
@@ -22,8 +22,10 @@ class BeadsExtraction(BaseSettingGroup):
 
 	label: str = "Beads Extraction"
 	"""Libellé du groupe affiché dans l'interface."""
-	setting_list = {"Max Distance": [SpinFloat, ["Max Distance", "Maximum distance between two planes for a bead, in pixels.", 1.0, [0.0, 20.0], 0.1, 2]]}
-	"""Définition des paramètres du groupe et de leur configuration."""
+	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
+			"Max Distance": SpinFloat("Max Distance", "Maximum distance between two planes for a bead, in pixels.", 1.0, [0.0, 20.0], 0.1, 2)
+			})
+	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 
 
 # --------------------------------------------------

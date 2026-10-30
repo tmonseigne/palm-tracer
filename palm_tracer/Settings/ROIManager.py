@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -45,9 +45,9 @@ class ROIManager:
 	data_box: tuple[int, int, int, int] = field(init=False, default=(-1, -1, -1, -1))
 	"""Cadre automatique des données en pixels source ; quatre valeurs négatives indiquent son absence."""
 
-	_layer_main: Optional[Shapes] = field(init=False, default=None)
+	_layer_main: Shapes | None = field(init=False, default=None)
 	"""Calque principal des zones d'intérêt."""
-	_layer_hr: Optional[Shapes] = field(init=False, default=None)
+	_layer_hr: Shapes | None = field(init=False, default=None)
 	"""Calque des zones d'intérêt dans la visionneuse haute résolution."""
 
 	_default_color: str = field(init=False, default="white")
@@ -66,7 +66,7 @@ class ROIManager:
 	# region Accesseurs
 	# ==================================================
 	@property
-	def layer_main(self) -> Optional[Shapes]:
+	def layer_main(self) -> Shapes | None:
 		"""Calque de l'interface principale."""
 		return self._layer_main
 
@@ -88,7 +88,7 @@ class ROIManager:
 
 	# --------------------------------------------------
 	@property
-	def layer_hr(self) -> Optional[Shapes]:
+	def layer_hr(self) -> Shapes | None:
 		"""Calque de l'interface haute résolution."""
 		return self._layer_hr
 

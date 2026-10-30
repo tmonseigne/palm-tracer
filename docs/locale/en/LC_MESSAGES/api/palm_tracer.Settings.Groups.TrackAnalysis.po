@@ -3,12 +3,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"POT-Creation-Date: 2026-10-30 10:17+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.Settings.Groups.TrackAnalysis.rst:2
 msgid "TrackAnalysis"
@@ -35,12 +39,12 @@ msgid "``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : l
 msgstr "``Fit Length`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): initial fitting-window length; default value: ``4``."
 
 #: of palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis:8
-msgid "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z."
-msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): includes the Z coordinate."
-
-#: of palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis:9
 msgid "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : modèle de mouvement utilisé pour l'ajustement."
 msgstr "``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): motion model used for fitting."
+
+#: of palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis:9
+msgid "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : prend en compte la coordonnée Z."
+msgstr "``3D`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): includes the Z coordinate."
 
 #: ../../api/palm_tracer.Settings.Groups.TrackAnalysis.rst
 msgid "Paramètres"
@@ -53,7 +57,3 @@ msgstr "Attributes"
 #: of palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis.label:1
 msgid "Libellé du groupe affiché dans l'interface."
 msgstr "Label of the group displayed in the interface."
-
-#: of palm_tracer.Settings.Groups.TrackAnalysis.TrackAnalysis.setting_list:1
-msgid "Définition des paramètres du groupe et de leur configuration."
-msgstr "Definition of the group's settings and their configuration."

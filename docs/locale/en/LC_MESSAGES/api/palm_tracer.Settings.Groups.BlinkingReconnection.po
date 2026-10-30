@@ -3,12 +3,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"POT-Creation-Date: 2026-10-30 10:17+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.Settings.Groups.BlinkingReconnection.rst:2
 msgid "BlinkingReconnection"
@@ -30,11 +34,11 @@ msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): expected mo
 msgid "``Max Duration`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre maximal de plans manquants entre deux segments ; valeur par défaut : ``1`` plan manquant."
 msgstr "``Max Duration`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): maximum number of missing frames between two segments; default value: ``1`` missing frame."
 
-#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:7
+#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:8
 msgid "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : distance maximale de reconnexion ; valeur par défaut : ``1.0`` pixel."
 msgstr "``Max Distance`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): maximum reconnection distance; default value: ``1.0`` pixel."
 
-#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:9
+#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection:10
 msgid "Une distance supérieure à celle du suivi initial reste autorisée afin de reconnecter des points éloignés sur deux plans consécutifs."
 msgstr "A distance greater than the initial tracking distance remains allowed so that distant points on two consecutive planes can be reconnected."
 
@@ -46,10 +50,7 @@ msgstr "Parameters"
 msgid "Attributs"
 msgstr "Attributes"
 
-#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection.label:1
+#: of
+#: palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection.label:1
 msgid "Libellé du groupe affiché dans l'interface."
 msgstr "Label of the group displayed in the interface."
-
-#: of palm_tracer.Settings.Groups.BlinkingReconnection.BlinkingReconnection.setting_list:1
-msgid "Définition des paramètres du groupe et de leur configuration."
-msgstr "Definition of the group's settings and their configuration."

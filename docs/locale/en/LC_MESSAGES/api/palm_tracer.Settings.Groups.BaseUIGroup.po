@@ -3,10 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
 "POT-Creation-Date: 2026-10-28 14:01+0100\n"
-"PO-Revision-Date: 2026-10-28 14:01+0100\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -48,8 +47,8 @@ msgid "Nom du groupe."
 msgstr "Group name."
 
 #: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup.mode:1
-msgid "Méthode de construction de l'interface."
-msgstr "Interface construction method."
+msgid "Mode utilisé uniquement pour construire l’interface."
+msgstr "Mode used only to construct the interface."
 
 #: of palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup.layout:1
 msgid "Calque principal (:class:`QFormLayout`)."

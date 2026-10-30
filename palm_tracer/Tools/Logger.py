@@ -7,7 +7,7 @@ from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, TextIO
+from typing import TextIO
 
 from palm_tracer.Tools import Ui
 
@@ -24,7 +24,7 @@ class Logger:
 
 	filename: str = field(init=False, default="")
 	"""Chemin du fichier de log ouvert (vide si aucun)."""
-	file_handle: Optional[TextIO] = field(init=False, default_factory=TextIO)
+	file_handle: TextIO | None = field(init=False, default_factory=TextIO)
 	"""Handle du fichier ouvert (``None`` si fermé)."""
 	_isopen: bool = field(init=False, default=False)
 	"""Indicateur d'ouverture du fichier."""
