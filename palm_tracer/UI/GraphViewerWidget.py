@@ -23,7 +23,6 @@ from palm_tracer.UI.Napari import get_current_palmtracer
 # region Constantes
 # ==================================================
 TIPS = {
-		"Actualize": "Updates files/data from PALMTracer status.",
 		"Export":    "Opens a dialog box and exports the figure according to the selected extension.",
 		}
 
@@ -79,7 +78,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 				- Domaine : 2 boutons exclusifs (Localization/Tracking).
 				- Source : ComboBox dépendante du domaine sélectionné.
 				- Filtres : Section réservée (non implémentée).
-				- Actions : Actualize files / Export…
+				- Actions : Export…
 			- Zone droite :
 				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
 		"""
@@ -152,12 +151,9 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		# --- Actions ---
 		actions_row = QHBoxLayout()
-		self._btn_actualize = QPushButton("Actualize files")
-		self._btn_actualize.setToolTip(TIPS["Actualize"])
 		self._btn_export = QPushButton("Export figure")
 		self._btn_export.setToolTip(TIPS["Export"])
 		actions_row.addStretch(1)
-		actions_row.addWidget(self._btn_actualize)
 		actions_row.addWidget(self._btn_export)
 
 		# --- Mise en page dans le scroll ---
@@ -186,12 +182,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 		self._graph_settings["Type"].connect(self._toggle_type)
 
 		# Settings Connexion
-		self._graph_settings.connect(self._update_plot)
-		self._filters.connect_button(self._actualize, self.UI_NAME, "reset")
-		self._filters.connect_button(self._actualize, self.UI_NAME, "update")
+		self._graph_settings.connect(self._actualize)
+		self.pt.results.connect(self._actualize)
 
-		# Action Row a supprimer
-		self._btn_actualize.clicked.connect(self._actualize)
+		# Export
 		self._btn_export.clicked.connect(self._on_export)
 
 	# --------------------------------------------------
@@ -201,6 +195,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
+		self._graph_settings.disconnect(self._actualize)
+		self.pt.results.disconnect(self._actualize)
 		try: self.pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
@@ -242,10 +238,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 		:param path: Chemin local de la pile à ajouter au Batch partagé avec le widget principal.
 		"""
-		cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
-		# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
-		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
-		self._actualize()  # Actualisation des statuts
+		with self.pt.results.signal_blocked():
+			cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
+			# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
+			self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 
 	# --------------------------------------------------
 	def _actualize(self):

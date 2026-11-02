@@ -319,7 +319,14 @@ def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypat
 	assert calls == []
 
 	loaded_folders: list[str] = []
-	monkeypatch.setattr(pt, "_load_results", loaded_folders.append)
+
+	# --------------------------------------------------
+	def load_results(path):
+		"""Simule le remplacement des résultats lors du chargement suivant l'échec."""
+		loaded_folders.append(path)
+		pt.results.reset()
+
+	monkeypatch.setattr(pt, "_load_results", load_results)
 	widget._add_stack(str(input_stack))
 	assert [Path(path) for path in loaded_folders] == [output_folder]
 	assert calls == [("actualize", input_stack)]
@@ -532,19 +539,21 @@ def test_generate(generated_widget, capsys):
 def test_generate_filtered_points(generated_widget, dimension, key, remove_beads):
 	"""Les points exclus restent rouges et utilisent le cadre XY et l'origine Z du rendu conservé."""
 	_, pt, w = generated_widget
-	pt.results.reset_filtered()
-	locations = pt.results["loc"].iloc[:4].copy()
-	locations.index = [10, 20, 30, 40]
-	locations["X"], locations["Y"], locations["Z"] = [20, 22, 21, 100], [30, 32, 31, 100], [4, 8, 6, 10]
-	pt.results[key] = locations
-	pt.results[f"f_{key}"] = locations.iloc[:2].copy()
-	pt.results["bds"] = locations.iloc[3:].copy()
-	s = pt.settings.hr
-	s["Type"].value, s["Dimension"].value = 0, dimension
-	s["Ratio"].value, s["Crop"].value = 2, True
-	s["Remove Beads"].value, s["Drift Correction"].value = remove_beads, False
-	s.gaussian.active = False
-	s.hr_3d["Z Step"].value = 2
+	# Ce scénario teste l'appel explicite à _generate(), pas le rendu d'un état de préparation incomplet.
+	with pt.results.signal_blocked(emit_last=False):
+		pt.results.reset_filtered()
+		locations = pt.results["loc"].iloc[:4].copy()
+		locations.index = [10, 20, 30, 40]
+		locations["X"], locations["Y"], locations["Z"] = [20, 22, 21, 100], [30, 32, 31, 100], [4, 8, 6, 10]
+		pt.results[key] = locations
+		pt.results[f"f_{key}"] = locations.iloc[:2].copy()
+		pt.results["bds"] = locations.iloc[3:].copy()
+		s = pt.settings.hr
+		s["Type"].value, s["Dimension"].value = 0, dimension
+		s["Ratio"].value, s["Crop"].value = 2, True
+		s["Remove Beads"].value, s["Drift Correction"].value = remove_beads, False
+		s.gaussian.active = False
+		s.hr_3d["Z Step"].value = 2
 	before = locations.copy(deep=True)
 	w._generate()
 	x0, _, y0, _ = pt.settings.rois.hr_box

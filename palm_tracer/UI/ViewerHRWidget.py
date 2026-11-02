@@ -21,7 +21,6 @@ from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
 
 TIPS = {
-		"Actualize":  "Updates files/data from PALMTracer status.",
 		"Generate":   "Generate HR Visualization.",
 		"Save":       "Save the visualization generated.",
 		"Screenshot": "Save the actual view of layers.",
@@ -92,7 +91,6 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._init_ui()
 		self._connect_signals()
 		self._actualize()
-		self._generate()
 		self.viewer.reset_view()  # .  Recentrer et ajuster la vue la première fois uniquement
 
 	# --------------------------------------------------
@@ -132,8 +130,6 @@ class ViewerHRWidget(BaseNapariWidget):
 		# --- Actions ---
 		actions_row = QHBoxLayout()
 		Ui.init_layout(actions_row)
-		self._btn_actualize = QPushButton("Actualize")
-		self._btn_actualize.setToolTip(TIPS["Actualize"])
 		self._btn_generate = QPushButton("Generate")
 		self._btn_generate.setToolTip(TIPS["Generate"])
 		self._btn_save = QPushButton("Save")
@@ -141,7 +137,6 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._btn_screenshot = QPushButton("Screenshot")
 		self._btn_screenshot.setToolTip(TIPS["Screenshot"])
 		# actions_row.addStretch(1)  # permet d'aligner à droite
-		actions_row.addWidget(self._btn_actualize)
 		actions_row.addWidget(self._btn_generate)
 		actions_row.addWidget(self._btn_save)
 		actions_row.addWidget(self._btn_screenshot)
@@ -162,14 +157,12 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		# Connexion des boutons Filters de cette UI
 		self.pt.connect_filters_button(self.UI_NAME)
-		self._filters.connect_button(self._generate, self.UI_NAME, "reset")
-		self._filters.connect_button(self._generate, self.UI_NAME, "update")
+		self.pt.results.connect(self._actualize)
 
 		self._hr_settings["Type"].connect(self._toggle_type)
 
 		# Action Row
-		self._btn_actualize.clicked.connect(self._actualize)
-		self._btn_generate.clicked.connect(self._generate)
+		self._btn_generate.clicked.connect(self._actualize)
 		self._btn_save.clicked.connect(self._save)
 		self._btn_screenshot.clicked.connect(self._screenshot)
 
@@ -180,6 +173,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
+		self.pt.results.disconnect(self._actualize)
 		try: self.pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
@@ -223,15 +217,16 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		:param path: Chemin local de la pile à ajouter au Batch partagé avec le widget principal.
 		"""
-		cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
-		# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
-		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
-		self._actualize()  # Actualisation des statuts
+		with self.pt.results.signal_blocked():
+			cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
+			# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
+			self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 
 	# --------------------------------------------------
 	def _actualize(self):
-		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer."""
+		"""Synchronise les options liées aux billes puis reconstruit une seule fois la visualisation."""
 		self._check_beads()
+		self._generate()
 
 	# --------------------------------------------------
 	def _save(self):
