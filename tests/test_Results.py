@@ -1,12 +1,13 @@
 """Teste la gestion des résultats de PALMTracer."""
 
 from pathlib import Path
+from threading import Thread
 
 import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
-from qtpy.QtCore import Qt
+from qtpy.QtCore import QThread, Qt
 from qtpy.QtGui import QDesktopServices
 
 from palm_tracer.Results import Results
@@ -75,8 +76,12 @@ def test_load(results, tmp_path, monkeypatch, capsys):
 
 	monkeypatch.setattr(pd, "read_csv", fake_read_csv)
 	results._data["Fit"] = make_dataframe(1)
+	notifications = []
+	results.connect(lambda _: notifications.append(results["loc"].copy()))
 	results.load("stack.tif", tmp_path, timestamp)
 
+	assert len(notifications) == 1
+	assert_frame_equal(notifications[0], localizations)
 	assert results.stack_name == "stack"
 	assert_frame_equal(results["loc"], localizations)
 	assert results.results_folder == tmp_path.resolve()
@@ -429,4 +434,100 @@ def test_interfaces(results, qtbot):
 
 # ==================================================
 # endregion Interface
+# ==================================================
+
+
+# ==================================================
+# region Signaux
+# ==================================================
+def test_worker_groups_view_updates_in_owner_thread(results, qtbot, monkeypatch):
+	"""Vérifie qu'un worker diffère les vues et que leur synchronisation finale reste dans le thread graphique."""
+	ui = results.get_ui()
+	qtbot.addWidget(ui.widget)
+	updates, errors = [], []
+	update_status = ui.update_status
+
+	def record_update(status):
+		"""Relève le thread et conserve la synchronisation réelle des libellés."""
+		updates.append(QThread.currentThread())
+		update_status(status)
+
+	def compute():
+		"""Produit plusieurs résultats depuis un worker et conserve ses éventuelles erreurs."""
+		try:
+			with results.signal_blocked():
+				results["loc"] = make_dataframe(1)
+				results["loc"] = make_dataframe(2)
+				results.results_folder = None
+				assert updates == []
+		except Exception as error: errors.append(error)
+
+	monkeypatch.setattr(ui, "update_status", record_update)
+	worker = Thread(target=compute)
+	worker.start()
+	worker.join(timeout=5)
+	assert not worker.is_alive()
+	assert errors == []
+	qtbot.waitUntil(lambda: len(updates) == 1)
+	assert updates == [QThread.currentThread()]
+	assert ui.labels["Localizations"].text() == "2"
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("action", ["replace", "reset", "reset-filtered", "clear"], ids=["replace", "reset", "reset-filtered", "clear-category"])
+def test_data_changes_notify_without_interface(results, action):
+	"""Vérifie que le modèle notifie ses observateurs même sans interface créée."""
+	results["loc"] = make_dataframe(2)
+	notifications = []
+	results.connect(notifications.append)
+	if action == "replace": results["loc"] = make_dataframe(1)
+	elif action == "reset": results.reset()
+	elif action == "reset-filtered": results.reset_filtered()
+	else: results._clear_result(("loc", "f_loc", "dft", "f_dft"))
+	assert notifications == [None]
+	assert results._uis == {}
+
+
+# --------------------------------------------------
+def test_disconnect_results_observer(results):
+	"""Vérifie la déconnexion ciblée puis la déconnexion de tous les observateurs."""
+	first, second = [], []
+	results.connect(first.append)
+	results.connect(second.append)
+	assert results.disconnect(first.append) == 1
+	results.reset()
+	assert first == []
+	assert second == [None]
+	assert results.disconnect() == 1
+	results.reset()
+	assert second == [None]
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("emit_last", [True, False], ids=["emit-final", "discard"])
+def test_blocked_results_notifications(results, emit_last):
+	"""Vérifie le regroupement des changements imbriqués et la suppression optionnelle des notifications."""
+	notifications = []
+	results.connect(notifications.append)
+	with results.signal_blocked(emit_last):
+		results["loc"] = make_dataframe(2)
+		with results.signal_blocked(): results.reset_filtered()
+		results["bds"] = make_dataframe(1)
+		assert notifications == []
+	assert notifications == ([None] if emit_last else [])
+
+
+# --------------------------------------------------
+def test_metadata_changes_do_not_notify_data(results, tmp_path):
+	"""Vérifie que les métadonnées et la synchronisation des vues ne demandent aucun nouveau rendu."""
+	notifications = []
+	results.connect(notifications.append)
+	results.stack_name = "stack.tif"
+	results.results_folder = tmp_path
+	results.update_uis()
+	assert notifications == []
+
+
+# ==================================================
+# endregion Signaux
 # ==================================================
